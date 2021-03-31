@@ -24,23 +24,23 @@ library('FNN')
 data<-prostate[,c('lcavol','lweight','age','lbph','lpsa','train')]
 x.train<-scale(data[data$train==T,1:4])
 y.train<-data[data$train==T,5]
-x.tst<-scale(data[data$train==F,1:4])
-y.tst<-data[data$train==F,5]
+x.test<-scale(data[data$train==F,1:4])
+y.test<-data[data$train==F,5]
 
 # https://www.cnblogs.com/listenfwind/p/10311496.html
-reg<-knn.reg(train=x.train, test = x.tst, y=y.train, k = 5)
+reg<-knn.reg(train=x.train, test = x.test, y=y.train, k = 5)
 
-mean((y.tst-reg$pred)^2)
-plot(y.tst,reg$pred,xlab='y',ylab='prediction')
+mean((y.test-reg$pred)^2)
+plot(y.test,reg$pred,xlab='y',ylab='prediction')
 abline(0,1)
 
 # Q4
 
 MSE<-rep(0,15)
 for(k in 1:15){
-  reg<-knn.reg(train=x.train, test = x.tst, 
+  reg<-knn.reg(train=x.train, test = x.test, 
                y=y.train, k = k)
-  MSE[k]<-mean((y.tst-reg$pred)^2)
+  MSE[k]<-mean((y.test-reg$pred)^2)
 }
 plot(1:15,MSE,type='b',xlab='k',ylab='MSE')       
 

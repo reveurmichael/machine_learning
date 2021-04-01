@@ -2,7 +2,7 @@
 
 # Q1
 # https://rafalab.github.io/pages/649/prostate.html
-prostate<-read.table('prostate.data',header = TRUE)  # changer le chemin d'accès aux données
+prostate<-read.table('prostate.data',header = TRUE)
 
 # Q2
 summary(prostate)
@@ -23,13 +23,24 @@ library('FNN')
 
 data<-prostate[,c('lcavol','lweight','age','lbph','lpsa','train')]
 # https://hpi.de/fileadmin/user_upload/fachgebiete/boettinger/documents/Kurse_WS_1920/Data_Management_for_Digital_Health/200116_Data_Preprocessing.pdf
-x.train<-scale(data[data$train==T,1:4])
+# slides page 27, 35
+# https://blog.csdn.net/u012768474/article/details/99871942
+# https://www.cnblogs.com/xiashiwendao/p/12130992.html
+# z score standarization
+
+x_ = data[data$train==T,1:4]
+
+x.train<-scale(x_)
 y.train<-data[data$train==T,5]
 x.test<-scale(data[data$train==F,1:4])
 y.test<-data[data$train==F,5]
 
 # https://www.cnblogs.com/listenfwind/p/10311496.html
+# slides page 44
 reg<-knn.reg(train=x.train, test = x.test, y=y.train, k = 5)
+
+# ????????????: x.train -> y.train
+#  x.test  -> reg$pred(?????????)  ????????? y.test(?????????)
 
 mean((y.test-reg$pred)^2)
 plot(y.test,reg$pred,xlab='y',ylab='prediction')
@@ -37,6 +48,7 @@ abline(0,1)
 
 # Q4
 
+# slides page 40, 55
 MSE<-rep(0,15)
 for(k in 1:15){
   reg<-knn.reg(train=x.train, test = x.test, 

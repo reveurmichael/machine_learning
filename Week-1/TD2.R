@@ -22,6 +22,7 @@ boxplot(lpsa~svi,data=prostate,xlab="svi",ylab="lpsa") # label
 library('FNN')
 
 data<-prostate[,c('lcavol','lweight','age','lbph','lpsa','train')]
+# https://hpi.de/fileadmin/user_upload/fachgebiete/boettinger/documents/Kurse_WS_1920/Data_Management_for_Digital_Health/200116_Data_Preprocessing.pdf
 x.train<-scale(data[data$train==T,1:4])
 y.train<-data[data$train==T,5]
 x.test<-scale(data[data$train==F,1:4])

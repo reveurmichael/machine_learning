@@ -46,51 +46,40 @@ class LogisticRegressionNewtonRaphson:
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
+        _X = np.vstack(np.ones(n_samples), X)
+        X = _X.T
 
         # init parameters
-        self.weights = np.zeros(n_features)
-        self.bias = 0
+        self.beta = np.zeros(n_features + 1)
 
-        # gradient descent
+        XT = X.transpose()
+
+        def gradient():
+            sig = self._sigmoid(np.dot(X, self.beta))
+            grad = np.dot(XT, (sig - y))
+            grad = grad / len(X)
+            return grad
+
+        def hessian():
+            sig = self._sigmoid(np.dot(X, self.beta))
+            result = (1.0 / len(X) * np.dot(XT, X) * np.diag(sig) * np.diag(1 - sig))
+            return result
+
+        # Newton Raphson Method
         for _ in range(self.n_iters):
-            # approximate y with linear combination of weights and x, plus bias
-            linear_model = np.dot(X, self.weights) + self.bias
-            # apply sigmoid function
-            y_predicted = self._sigmoid(linear_model)
-
-            # compute gradients
-            dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))
-            db = (1 / n_samples) * np.sum(y_predicted - y)
-            # update parameters
-            self.weights -= self.lr * dw
-            self.bias -= self.lr * db
+            hessianInv = np.linalg.inv(hessian())
+            grad = gradient()
+            self.beta = self.beta - np.dot(hessianInv, grad)
+            if(np.abs(np.dot(hessianInv, grad)) <= 0.00000001):
+                break
 
     def predict(self, X):
-        linear_model = np.dot(X, self.weights) + self.bias
+        linear_model = np.dot(X, self.beta)
         y_predicted = self._sigmoid(linear_model)
         y_predicted_cls = [1 if i > 0.5 else 0 for i in y_predicted]
         return np.array(y_predicted_cls)
 
-    def _sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
 
-    def gradient(self, x, y, th):
-        xTrans = x.transpose()
-        sig = self._sigmoid(np.dot(x, th))
-        grad = np.dot(xTrans, (sig - y))
-        grad = grad / len(x)  # len: number of feature rows
-        return grad
 
-    def hessian(self, x, y, th):
-        xTrans = x.transpose()
-        sig = self._sigmoid(np.dot(x, th))
-        result = (1.0 / len(x) * np.dot(xTrans, x) * np.diag(sig) * np.diag(1 - sig))
-        return result
-
-    def updateTh(self, x, y, th):
-        hessianInv = np.linalg.inv(self._hessian(x, y, th))
-        grad = self._gradient(x, y, th)
-        th = th - np.dot(hessianInv, grad)
-        return th
 
 

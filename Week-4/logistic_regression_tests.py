@@ -5,10 +5,6 @@ import sklearn
 
 from logistic_regression import LogisticRegressionGradientDescent
 
-def accuracy(y_true, y_pred):
-    accuracy = np.sum(y_true == y_pred) / len(y_true)
-    return accuracy
-
 heart = pd.read_csv("SAheart.data")
 heart.famhist.replace(to_replace=['Present', 'Absent'], value=[1, 0], inplace=True)
 heart.drop(['row.names'], axis=1, inplace=True)

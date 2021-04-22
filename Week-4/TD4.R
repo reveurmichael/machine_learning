@@ -38,8 +38,8 @@ err.qda <-1-sum(diag(perf))/ntest  # error rate
 
 # Naive Bayes
 fit.nb<- naive_bayes(as.factor(chd)~.,data=heart.train)
-pred.nb<-predict(fit.nb,newdata=heart.test,type="class")
-pred.nb.prob<-predict(fit.nb,newdata=heart.test,type="prob")
+pred.nb<-predict(fit.nb,newdata=heart.test[1:9],type="class")
+pred.nb.prob<-predict(fit.nb,newdata=heart.test[1:9],type="prob")
 perf <-table(heart.test$chd,pred.nb)
 print(perf)
 err.nb <-1-sum(diag(perf))/ntest  # error rate

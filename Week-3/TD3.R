@@ -94,9 +94,12 @@ plot(test$X,col=test$y,pch=".")
 
 # Test set classification using Bayes rule
 
-g<-cbind(p1*dmvnorm(test$X,mu1,Sigma),
-         p2*dmvnorm(test$X,mu2,Sigma),
-         p3*dmvnorm(test$X,mu3,Sigma))
+g1 = p1*dmvnorm(test$X,mu1,Sigma)
+g2 = p2*dmvnorm(test$X,mu2,Sigma)
+g3 = p3*dmvnorm(test$X,mu3,Sigma)
+
+g<-cbind(g1, g2, g3)
+
 ypred<-max.col(g)
 table(test$y,ypred)
 errb<-mean(test$y != ypred)

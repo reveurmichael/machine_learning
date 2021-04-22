@@ -45,8 +45,8 @@ class LogisticRegressionNewtonRaphson:
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
-        _X = np.vstack(np.ones(n_samples), X)
-        X = _X.T
+        _X = np.vstack(np.ones(n_samples), X)  # TODO
+        X = _X.T  # TODO
         # init parameters
         self.beta = np.zeros(n_features + 1)
         XT = X.transpose()

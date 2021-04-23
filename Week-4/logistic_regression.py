@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 
 class LogisticRegressionGradientDescent:
@@ -45,8 +47,7 @@ class LogisticRegressionNewtonRaphson:
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
-        _X = np.vstack(np.ones(n_samples), X)  # TODO
-        X = _X.T  # TODO
+        X = np.concatenate((np.ones((n_samples, 1)), X.to_numpy()), axis=1)
         # init parameters
         self.beta = np.zeros(n_features + 1)
         XT = X.transpose()
@@ -67,8 +68,8 @@ class LogisticRegressionNewtonRaphson:
             hessianInv = np.linalg.inv(hessian())
             grad = gradient()
             self.beta = self.beta - np.dot(hessianInv, grad)
-            if(np.abs(np.dot(hessianInv, grad)) <= 0.00000001):
-                break
+            # if(np.abs(np.dot(hessianInv, grad)) <= 0.00000001):
+            #     break
 
     def predict(self, X):
         linear_model = np.dot(X, self.beta)
@@ -76,7 +77,67 @@ class LogisticRegressionNewtonRaphson:
         y_predicted_cls = [1 if i > 0.5 else 0 for i in y_predicted]
         return np.array(y_predicted_cls)
 
+    def _sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
 
 
 
+# https://thelaziestprogrammer.com/sharrington/math-of-machine-learning/solving-logreg-newtons-method
+
+def sigmoid(x, Θ_1, Θ_2):
+    z = (Θ_1*x + Θ_2).astype("float_")
+    return 1.0 / (1.0 + np.exp(-z))
+
+def log_likelihood(x, y, Θ_1, Θ_2):
+    sigmoid_probs = sigmoid(x, Θ_1, Θ_2)
+    return np.sum(y * np.log(sigmoid_probs)
+                  + (1 - y) * np.log(1 - sigmoid_probs))
+
+def gradient(x, y, Θ_1, Θ_2):
+    sigmoid_probs = sigmoid(x, Θ_1, Θ_2)
+    return np.array([[np.sum((y - sigmoid_probs) * x),
+                     np.sum((y - sigmoid_probs) * 1)]])
+
+def hessian(x, y, Θ_1, Θ_2):
+    sigmoid_probs = sigmoid(x, Θ_1, Θ_2)
+    d1 = np.sum((sigmoid_probs * (1 - sigmoid_probs)) * x * x)
+    d2 = np.sum((sigmoid_probs * (1 - sigmoid_probs)) * x * 1)
+    d3 = np.sum((sigmoid_probs * (1 - sigmoid_probs)) * 1 * 1)
+    H = np.array([[d1, d2],[d2, d3]])
+    return H
+
+def newtons_method(x, y):
+    """
+    :param x (np.array(float)): Vector of Boston House Values in dollars
+    :param y (np.array(boolean)): Vector of Bools indicting if house has > 2 bedrooms:
+    :returns: np.array of logreg's parameters after convergence, [Θ_1, Θ_2]
+    """
+    # Initialize log_likelihood & parameters
+    Θ_1 = 15.1
+    Θ_2 = -.4  # The intercept term
+    Δl = np.Infinity
+    l = log_likelihood(x, y, Θ_1, Θ_2)
+    # Convergence Conditions
+    δ = .0000000001
+    max_iterations = 15
+    i = 0
+    while abs(Δl) > δ and i < max_iterations:
+        i += 1
+        g = gradient(x, y, Θ_1, Θ_2)
+        hess = hessian(x, y, Θ_1, Θ_2)
+        H_inv = np.linalg.inv(hess)
+        # @ is syntactic sugar for np.dot(H_inv, g.T)¹
+        Δ = H_inv @ g.T
+        ΔΘ_1 = Δ[0][0]
+        ΔΘ_2 = Δ[1][0]
+
+        # Perform our update step
+        Θ_1 += ΔΘ_1
+        Θ_2 += ΔΘ_2
+
+        # Update the log-likelihood at each iteration
+        l_new = log_likelihood(x, y, Θ_1, Θ_2)
+        Δl = l - l_new
+        l = l_new
+    return np.array([Θ_1, Θ_2])
 

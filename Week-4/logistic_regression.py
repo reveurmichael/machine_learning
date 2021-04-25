@@ -63,8 +63,7 @@ class LogisticRegressionNewtonRaphson:
             self.beta = self.beta - np.dot(np.linalg.inv(hessian), gradient)
 
     def predict(self, X):
-        n_samples, n_features = X.shape
-        X = np.concatenate((np.ones((n_samples, 1)), X.to_numpy()), axis=1)
+        X = np.concatenate((np.ones((X.shape[0], 1)), X.to_numpy()), axis=1)
 
         linear_model = np.dot(X, self.beta)
         y_predicted = self._sigmoid(linear_model)

@@ -12,9 +12,9 @@ y = heart.iloc[:, -1]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-regressor = LogisticRegressionGradientDescent(learning_rate=0.0001, n_iters=1000)
+# regressor = LogisticRegressionGradientDescent(learning_rate=0.0001, n_iters=1000)
 
-# regressor = LogisticRegressionNewtonRaphson(n_iters=1000)
+regressor = LogisticRegressionNewtonRaphson(n_iters=1000)
 
 
 regressor.fit(X_train, y_train)

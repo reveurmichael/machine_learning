@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
     prostate = pd.read_table("prostate.data")
     prostate.drop(prostate.columns[0], axis=1, inplace=True)
-    prostate.train.replace(to_replace=['F', 'T'], value=[0, 1], inplace=True)
     X = prostate.drop(["lpsa", "train"], axis=1)
     y = prostate["lpsa"]
 

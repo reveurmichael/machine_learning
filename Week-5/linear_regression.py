@@ -59,6 +59,9 @@ class LinearRegressionGradientDescent:
         return y_predicted
 
 
+
+
+
 '''
 Link:
 https://www.quora.com/Does-it-make-sense-to-use-the-Newton-method-for-linear-regression-Does-it-make-sense-to-use-the-curvature-information-in-this-context
@@ -79,6 +82,8 @@ it using the Newton method.
 Another link:
 https://stats.stackexchange.com/questions/207710/newtons-method-for-regression-analysis-without-second-derivative
 '''
+
+
 class LogisticRegressionNewtonRaphson:
     def __init__(self, n_iters=1000):
         self.n_iters = n_iters

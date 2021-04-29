@@ -1,26 +1,24 @@
 import numpy as np
-from sklearn.model_selection import train_test_split
 import pandas as pd
 import sklearn
 from linear_regression import *
+import matplotlib.pyplot as plt
 
-heart = pd.read_csv("SAheart.data")
-heart.famhist.replace(to_replace=['Present', 'Absent'], value=[1, 0], inplace=True)
-heart.drop(['row.names'], axis=1, inplace=True)
-X = heart.iloc[:, :-1]
-y = heart.iloc[:, -1]
+if __name__ == '__main__':
+    prostate = pd.read_table("prostate.data")
+    prostate.drop(prostate.columns[0], axis=1, inplace=True)
+    prostate.train.replace(to_replace=['F', 'T'], value=[0, 1], inplace=True)
+    X = prostate.drop(["lpsa", "train"], axis=1)
+    y = prostate["lpsa"]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+    regressor = LinearRegressionGradientDescent()
 
-# regressor = LogisticRegressionGradientDescent(learning_rate=0.0001, n_iters=1000)
+    regressor.fit(X, y)
+    y_pred = regressor.predict(X)
 
-regressor = LogisticRegressionNewtonRaphson(n_iters=1000)
+    print(regressor.__dict__)
+    print(y - y_pred)
 
-
-regressor.fit(X_train, y_train)
-y_pred = regressor.predict(X_test)
-perf = sklearn.metrics.confusion_matrix(y_test, y_pred)
-print("LR classification perf:\n", perf)
-
-error_rate = np.mean(y_test != y_pred)
-print("LR classification error rate:\n", error_rate)
+    plt.scatter(y, y_pred)
+    plt.plot([0, 5], [0, 5])
+    plt.show()

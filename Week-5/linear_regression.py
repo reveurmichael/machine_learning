@@ -28,9 +28,8 @@ https://towardsdatascience.com/logistic-regression-and-decision-boundary-eab6e00
 
 '''
 
-
 class LinearRegressionGradientDescent:
-    def __init__(self, learning_rate=0.001, n_iters=1000):
+    def __init__(self, learning_rate=0.0001, n_iters=30000):
         self.lr = learning_rate
         self.n_iters = n_iters
         self.weights = None
@@ -47,8 +46,6 @@ class LinearRegressionGradientDescent:
         for _ in range(self.n_iters):
             # approximate y with linear combination of weights and x, plus bias
             y_predicted = np.dot(X, self.weights) + self.bias
-            # apply sigmoid function
-            # y_predicted = self._sigmoid(linear_model)
 
             # compute gradients
             dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))
@@ -59,11 +56,7 @@ class LinearRegressionGradientDescent:
 
     def predict(self, X):
         y_predicted = np.dot(X, self.weights) + self.bias
-        # y_predicted = self._sigmoid(linear_model)
         return y_predicted
-
-    def _sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
 
 
 '''

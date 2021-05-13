@@ -39,6 +39,16 @@ err1<-1-mean(y.test==yhat1)
 print(err1)
 
 # Q4
+library(randomForest)
+fit.RF<-randomForest(as.factor(class) ~ .,data=spam[train,],mtry=3,importance=TRUE)
+pred.RF<-predict(fit.RF,newdata=spam[-train,],type="class")
+err.RF<-1-mean(y.test==pred.RF)
+print(err.RF)
+
+
+
+
+# Q5
 library(MASS)
 # LDA
 lda.spam<- lda(class~.,data=spam, subset=train)
@@ -55,6 +65,11 @@ perf <-table(y.test,pred.logreg>0.5)
 print(perf)
 err.logreg<-1-mean(y.test==(pred.logreg>0.5))
 print(err.logreg)
+
+# Q6
+summary(fit.logreg)
+# Plot of variable importance computed by random forests
+varImpPlot(fit.RF) 
 
 ####### Part II - Prostate
 
@@ -76,6 +91,15 @@ pred<-predict(pruned_tree,newdata=prostate[prostate$train==FALSE,])
 ytest<-prostate$lpsa[prostate$train==FALSE]
 mse.tree<-mean((ytest-pred)^2)
 print(mse.tree)
+
+# Random forests
+
+fit.RF<-randomForest(lpsa ~ .,data=prostate[prostate$train==TRUE,],mtry=3,
+                     importance=TRUE)
+pred.RF<-predict(fit.RF,newdata=prostate[prostate$train==FALSE,],type="response")
+mse.RF<-mean((ytest-pred.RF)^2)
+print(mse.RF)
+
 
 # Comparison
 
@@ -101,7 +125,7 @@ fit<-glmnet(xapp,yapp,lambda=cv.out$lambda.min,alpha=1,standardize=TRUE)
 lasso.pred<-predict(fit,s=cv.out$lambda.min,newx=xtst)
 mse.lasso<-mean((ytest-lasso.pred)^2)
 
-print(c(mse.tree,mse.ls, mse.ridge,mse.lasso))
+print(c(mse.tree,mse.RF,mse.ls, mse.ridge,mse.lasso))
 
 # Subset selection
 library(leaps)
@@ -127,8 +151,12 @@ best<-which.max(res$adjr2)
 ypred<-X[,res$which[best,]]%*%coef(reg.forward,best)
 mse.forward.adjr2<-mean((ypred-ytest)^2)
 
-print(c(mse.tree,mse.ls, mse.ridge,mse.lasso,mse.forward.bic,mse.forward.adjr2))
+print(c(mse.tree,mse.RF,mse.ls, mse.ridge,mse.lasso,mse.forward.bic,mse.forward.adjr2))
 
+# Analysis of variable importance
+summary(reg)
+# Plot of variable importance computed by random forests
+varImpPlot(fit.RF) 
 
 
 

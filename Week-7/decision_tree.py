@@ -1,6 +1,8 @@
 """Code to accompany Machine Learning Recipes #8.
 
 We'll write a Decision Tree Classifier, in pure Python.
+
+https://www.youtube.com/watch?v=LDRbO9a6XPU
 """
 
 # For Python 2 / 3 compatability
@@ -391,6 +393,7 @@ def print_leaf(counts):
 # print_leaf(classify(training_data[1], my_tree))
 #######
 
+# https://www.youtube.com/watch?v=LDRbO9a6XPU
 if __name__ == '__main__':
 
     my_tree = build_tree(training_data)

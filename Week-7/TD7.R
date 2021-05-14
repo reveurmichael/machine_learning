@@ -20,7 +20,7 @@ plot(tree.spam,margin = 0.05)
 text(tree.spam,pretty=0,cex=0.8)
 
 yhat=predict(tree.spam,newdata=spam[-train,],type='class')
-y.test=spam[-train,"class"]
+y.test <- spam[-train, "class"]
 table(y.test,yhat)
 err<-1-mean(y.test==yhat)
 print(err)

@@ -33,7 +33,7 @@
 
 [Plot decision tree splitting in a plane](https://stackoverflow.com/questions/60503373/plot-decision-tree-splitting-in-a-plane)
 
-### Related to our previous discussions
+### Related to our previous discussions (not necessarily helpful for your preparation)
 
 #### MSE v.s. MLE 
 

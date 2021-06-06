@@ -1,7 +1,11 @@
 
 ## Reading materials:
 
+### 周志华西瓜书
 
+- 9.2节，198页
+- 9.6节，214页-217页
+- 2.2.2节
 
 ### Rand Index (上课讲了但是发过来的 slides 上没有更新) 
 
@@ -10,6 +14,7 @@
 [The Rand index](https://davetang.org/muse/2017/09/21/the-rand-index/)
 
 [How Similar are Two Clustering Results](https://iksinc.online/tag/rand-index/)
+
 
 
 ### R function output & summary: lm() & glm()
@@ -33,7 +38,7 @@
 
 [Plot decision tree splitting in a plane](https://stackoverflow.com/questions/60503373/plot-decision-tree-splitting-in-a-plane)
 
-### Related to our previous discussions (not necessarily helpful for your preparation)
+### Related to our previous discussions (not necessarily helpful for your preparation, just have a glimpse at it)
 
 #### MSE v.s. MLE 
 

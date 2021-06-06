@@ -16,7 +16,6 @@
 [How Similar are Two Clustering Results](https://iksinc.online/tag/rand-index/)
 
 
-
 ### R function output & summary: lm() & glm()
 [Interpreting simple linear model output in R](https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R)
 
@@ -38,14 +37,13 @@
 
 [Plot decision tree splitting in a plane](https://stackoverflow.com/questions/60503373/plot-decision-tree-splitting-in-a-plane)
 
-### Related to our previous discussions (not necessarily helpful for your preparation, just have a glimpse at it)
+### Related to our previous discussions (not necessarily helpful for your preparation, you can skim through it very fast)
 
 #### MSE v.s. MLE 
 
 [The real reason you use MSE and cross-entropy loss functions](https://www.expunctis.com/2019/01/27/Loss-functions.html)
 
-[Minimizing relative error (or mean square error) and maximizing likelihood
-](https://stats.stackexchange.com/questions/79188/minimizing-relative-error-or-mean-square-error-and-maximizing-likelihood)
+[Minimizing relative error (or mean square error) and maximizing likelihood](https://stats.stackexchange.com/questions/79188/minimizing-relative-error-or-mean-square-error-and-maximizing-likelihood)
 
 [MSE as Maximum Likelihood](https://www.jessicayung.com/mse-as-maximum-likelihood/)
 
@@ -53,15 +51,9 @@
 
 [Can we use MSE for logistic regression?](https://medium.com/analytics-vidhya/understanding-the-loss-function-of-logistic-regression-ac1eec2838ce)
 
-[Why Using Mean Squared Error(MSE) Cost Function for Binary Classification is a Bad Idea?
-](https://towardsdatascience.com/why-using-mean-squared-error-mse-cost-function-for-binary-classification-is-a-bad-idea-933089e90df7)
+[Why Using Mean Squared Error(MSE) Cost Function for Binary Classification is a Bad Idea?](https://towardsdatascience.com/why-using-mean-squared-error-mse-cost-function-for-binary-classification-is-a-bad-idea-933089e90df7)
 
 #### Residuals in linear regression
 
 [Why the mean of residuals in linear regression is always zero](https://thestatsgeek.com/2020/03/23/the-mean-of-residuals-in-linear-regression-is-always-zero/)
-
-
-
-
-
 

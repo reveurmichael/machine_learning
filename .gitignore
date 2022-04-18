@@ -1,2 +1,13 @@
-*.Rhistory
-.idea/
+/.idea/
+.idea
+~$*
+*~
+*.swp
+*.swo
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.pyc
+*/__pycache__/*
+.DS_Store
+.vscode
+

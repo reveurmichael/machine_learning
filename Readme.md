@@ -72,9 +72,19 @@ TBD
 
 ## Notes
 
-Tests will take place on Wednesdays (some of them), which account for 40% of the notes,
+### If you can join Wednesday sessions:
 
-60% for project, each group 3 students.
+Tests will take place on Wednesdays (some of them), which account for 40% of the notes.
+
+The rest 60% is for project.
+
+### If you cannot join Wednesday sessions:
+
+100% for project.
+
+## Project
+
+Each group 3 students.
 
 Only ONE group team could have 2 or 4 students, provided that N_Student % 3 != 0.
 

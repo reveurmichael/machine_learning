@@ -1,6 +1,10 @@
 
 # ML01 Machine Learning
 
+## Language
+
+English. For everything.
+
 ## Where and When
 
 ### Tencent Meeting
@@ -27,7 +31,9 @@ For each session, please bring your own Laptop!
 
 - B315
 
-## Lectures (one each week)
+## Lectures (Monday)
+
+One each week.
 
 - Machine Learning overview
 - Linear Regression
@@ -40,7 +46,7 @@ For each session, please bring your own Laptop!
 - AutoEncoder
 - DQN
 
-## Exercise sessions
+## Exercise sessions (Wednesday)
 
 Content corresponds to lecture topics.
 
@@ -56,7 +62,7 @@ Please install Python, VS Code, and, ideally, you should be able to use Google C
 
 Make sure you have a seamless Internet connection to those websites.
 
-## Practice sessions
+## Practice sessions (Thursday)
 
 ### Week 1 - Week 2
 
@@ -95,6 +101,7 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Denoting your Continuous assessment score as `T`, your project score `P`,
 you final score will be 
+
 ```
 max(P, 0.4 * T + 0.6 * P)
 ```
@@ -103,7 +110,7 @@ max(P, 0.4 * T + 0.6 * P)
 
 ## Asking questions :question:
 
-#### 使用 **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** 提问
+#### Leveraging **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** for asking questions
 By default, you should ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. Here is how:
 - https://www.bilibili.com/video/BV1364y1h7sb/
 

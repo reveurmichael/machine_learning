@@ -86,7 +86,7 @@ The rest 60% is for project.
 
 Each group 3 students.
 
-Only ONE group team could have 2 or 4 students, provided that N_Student % 3 != 0.
+At most ONE group team could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
 ## Asking questions :question:
 

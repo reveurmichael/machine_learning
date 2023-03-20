@@ -85,9 +85,7 @@ Here is the principle for asking questions:
 
 >  **Google First, Peers Second, Profs Last.**
 
-You are expected to ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. However, as a **secondary**  (and hence, less desirable, less encouraged) choice, 
-you could also 
-ask questions in the WeChat group.
+You are expected to ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. However, as a **secondary**  (and hence, less desirable, less encouraged) choice, you could also ask questions in the WeChat group.
 
 > Why Gitee Issue? Because it's simply more **professional**, and better in every sense.
 
@@ -104,7 +102,7 @@ Questions won't be answered if:
 
 Learning how to use Google & Baidu & Bing to solve programming problems is an important skill you should develop during this course.
 
-Pour des questions privées, merci d'envoyer vos questions par mail à ces adresses ci-dessous :
+For private questions, please send your questions by email to:
 - lundechen@shu.edu.cn (Lunde Chen)
 
 #### Office visit

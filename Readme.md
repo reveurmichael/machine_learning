@@ -101,7 +101,6 @@ Questions won't be answered if:
 
 #### Regarding personal WeChat chats:
 - **Questions asked in personal WeChat chats will NOT be answered.**
-- **Messages sent after 21:00 in personal chats will be extremely unwelcome.**
 
 Learning how to use Google & Baidu & Bing to solve programming problems is an important skill you should develop during this course.
 

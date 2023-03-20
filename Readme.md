@@ -3,11 +3,15 @@
 
 ## Where and When
 
+### Tencent Meeting
+
 For each session, please always join Tencent Meeting (VooV Meeting):
 
 Room ID：958 9491 5777
 
-For each session, please bring your PC!
+### Laptop
+
+For each session, please bring your own Laptop!
 
 ### Monday (Lectures)
 

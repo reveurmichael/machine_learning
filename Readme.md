@@ -1,59 +1,114 @@
 
-## Reading materials:
+## ML01 Machine Learning
 
-### 周志华西瓜书
+## Where and When
 
-- 9.2节，198页
-- 9.6节，214页-217页
-- 2.2.2节
+For each session, please always join Tencent Meeting (VooV Meeting):
 
-### Rand Index (上课讲了但是发过来的 slides 上没有更新) 
+Room ID：958 9491 5777
 
-[Rand index (Wikipedia)](https://en.wikipedia.org/wiki/Rand_index)
+### Monday (Lectures)
 
-[The Rand index](https://davetang.org/muse/2017/09/21/the-rand-index/)
+- 20:00 - 21:40
+- B313
 
-[How Similar are Two Clustering Results](https://iksinc.online/tag/rand-index/)
+### Wednesday (Excercise sessions)
+- B313
 
 
-### R function output & summary: lm() & glm()
-[Interpreting simple linear model output in R](https://feliperego.github.io/blog/2015/10/23/Interpreting-Model-Output-In-R)
 
-[Explaining the lm summary in R](http://www.learnbymarketing.com/tutorials/explaining-the-lm-summary-in-r/)
+### Thursday (Practice sessions)
 
-[Interpreting Generalized Linear Models](https://www.r-bloggers.com/2018/11/interpreting-generalized-linear-models/)
+- B315
 
-[Interpreting Generalized Linear Models](https://www.datascienceblog.net/post/machine-learning/interpreting_generalized_linear_models/)
+## Lectures (one each week)
 
-[Linear Regression Summary(lm): Interpretting in R](https://boostedml.com/2019/06/linear-regression-in-r-interpreting-summarylm.html)
+- Machine Learning overview
+- Linear Regression
+- Logistic Regression (for classification)
+- Neural networks
+- Building a Machine Learning web app
+- Model selection
+- CNN
+- GAN
+- AutoEncoder
+- DQN
 
-[Understanding Linear Regression Output in R](https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3)
+## Excercise sessions
 
-### Decision tree
+Content corresponds to lecture topics.
 
-[Decision tree 1](https://towardsdatascience.com/decision-tree-overview-with-no-maths-66b256281e2b)
+Some math will be included.
 
-[Decision tree 2](https://shapeofdata.wordpress.com/2013/07/02/decision-trees/)
+Tests will take place during some Excercise sessions.
 
-[Plot decision tree splitting in a plane](https://stackoverflow.com/questions/60503373/plot-decision-tree-splitting-in-a-plane)
+## Practice sessions
 
-### Related to our previous discussions (not necessarily helpful for your preparation, you can skim through it very fast)
+### Week 1 - Week 2
 
-#### MSE v.s. MLE 
+- https://gitee.com/lundechen/static_website_with_go_hugo
 
-[The real reason you use MSE and cross-entropy loss functions](https://www.expunctis.com/2019/01/27/Loss-functions.html)
+### Week 3 
 
-[Minimizing relative error (or mean square error) and maximizing likelihood](https://stats.stackexchange.com/questions/79188/minimizing-relative-error-or-mean-square-error-and-maximizing-likelihood)
+reveal.js
 
-[MSE as Maximum Likelihood](https://www.jessicayung.com/mse-as-maximum-likelihood/)
+### Week 4 - Week 6
 
-[Three Justifications for OLS](https://web.stanford.edu/class/stats253/lectures/lect2.pdf)
+- https://gitee.com/lundechen/machine_learning_web_app
 
-[Can we use MSE for logistic regression?](https://medium.com/analytics-vidhya/understanding-the-loss-function-of-logistic-regression-ac1eec2838ce)
+### Week 7
 
-[Why Using Mean Squared Error(MSE) Cost Function for Binary Classification is a Bad Idea?](https://towardsdatascience.com/why-using-mean-squared-error-mse-cost-function-for-binary-classification-is-a-bad-idea-933089e90df7)
+AWS 
 
-#### Residuals in linear regression
+### Week 8 - 10
 
-[Why the mean of residuals in linear regression is always zero](https://thestatsgeek.com/2020/03/23/the-mean-of-residuals-in-linear-regression-is-always-zero/)
+TBD
+
+## Notes
+
+Tests will take place on Wednesdays (some of them), which account for 40% of the notes,
+
+60% for project, each group 3 students.
+
+Only ONE group team could have 2 or 4 students, provided that N_Student % 3 != 0.
+
+## Asking questions :question:
+
+#### 使用 **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** 提问
+By default, you should ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. Here is how:
+- https://www.bilibili.com/video/BV1364y1h7sb/
+
+#### Principe
+Here is the principle for asking questions:
+
+>  **Google First, Peers Second, Profs Last.**
+
+You are expected to ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. However, as a **secondary**  (and hence, less desirable, less encouraged) choice, 
+you could also 
+ask questions in the WeChat group.
+
+> Why Gitee Issue? Because it's simply more **professional**, and better in every sense.
+
+In Gitee Issue and the WeChat group, questions will be answered selectively. 
+
+Questions won't be answered if:
+- they could be solved on a simple Google search
+- they are out of the scope of the course
+- they are well in advance of the progress of the course
+- professors think that it's not interesting for discussion
+
+#### Regarding personal WeChat chats:
+- **Questions asked in personal WeChat chats will NOT be answered.**
+- **Messages sent after 21:00 in personal chats will be extremely unwelcome.**
+
+Learning how to use Google & Baidu & Bing to solve programming problems is an important skill you should develop during this course.
+
+Pour des questions privées, merci d'envoyer vos questions par mail à ces adresses ci-dessous :
+- lundechen@shu.edu.cn (Lunde Chen)
+
+#### Office visit
+
+Office visit is NOT welcome unless you make an appointment at least one day in advance.
+
+
 

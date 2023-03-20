@@ -48,6 +48,14 @@ Some math will be included.
 
 Tests will take place during some Exercise sessions.
 
+### Week 1
+
+Starting from this session, we will use Jupyter Notebook
+
+Please install Python, VS Code, and, ideally, you should be able to use Google Colab and GitHub.
+
+Make sure you have a seamless Internet connection to those websites.
+
 ## Practice sessions
 
 ### Week 1 - Week 2

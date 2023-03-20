@@ -99,7 +99,7 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 ## Final score
 
-Denoting your Continuous assessment score as `T`, your project score `P`,
+Denoting your Continuous assessment score as `T`, your project score as `P`,
 you final score will be 
 
 ```

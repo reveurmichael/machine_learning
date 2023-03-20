@@ -14,7 +14,7 @@ For each session, please bring your PC!
 - 20:00 - 21:40
 - B313
 
-### Wednesday (Excercise sessions)
+### Wednesday (Exercise sessions)
 - B313
 
 
@@ -36,13 +36,13 @@ For each session, please bring your PC!
 - AutoEncoder
 - DQN
 
-## Excercise sessions
+## Exercise sessions
 
 Content corresponds to lecture topics.
 
 Some math will be included.
 
-Tests will take place during some Excercise sessions.
+Tests will take place during some Exercise sessions.
 
 ## Practice sessions
 

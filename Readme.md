@@ -72,21 +72,26 @@ TBD
 
 ## Notes
 
-### If you can join Wednesday sessions:
 
-Tests will take place on Wednesdays (some of them), which account for 40% of the notes.
+###  Continuous assessment :
 
-The rest 60% is for project.
-
-### If you cannot join Wednesday sessions:
-
-100% for project.
+Tests will take place on Wednesdays (some of them).
 
 ## Project
 
 Each group 3 students.
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
+
+## Final score
+
+Denoting your Continuous assessment score as `T`, your project score `P`,
+you final score will be 
+```
+max(P, 0.4 * T + 0.6 * P)
+```
+
+
 
 ## Asking questions :question:
 

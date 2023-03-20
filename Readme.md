@@ -84,12 +84,6 @@ AWS
 
 TBD
 
-## Notes
-
-
-###  Continuous assessment :
-
-Tests will take place on Wednesdays (some of them).
 
 ## Project
 
@@ -97,7 +91,17 @@ Each group 3 students.
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
-## Final score
+
+
+## Notes
+
+
+###  Continuous assessment :
+
+Tests will take place on Wednesdays (some of them).
+
+
+### Final score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,
 you final score will be 
@@ -105,8 +109,6 @@ you final score will be
 ```
 max(P, 0.4 * T + 0.6 * P)
 ```
-
-
 
 ## Asking questions :question:
 

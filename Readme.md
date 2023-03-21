@@ -25,8 +25,6 @@ For each session, please bring your own Laptop!
 ### Wednesday (Exercise sessions)
 - B313
 
-
-
 ### Thursday (Practice sessions)
 
 - B315
@@ -59,6 +57,68 @@ Starting from this session, we will use Jupyter Notebook
 Please install Python, VS Code, and, ideally, you should be able to use Google Colab and GitHub.
 
 Make sure you have a seamless Internet connection to those websites.
+
+Exercise:
+- Python
+- Numpy
+
+### Week 2
+
+Material to read before test:
+-
+-
+
+Test (30 min):
+- Python List
+- Numpy slicing
+- Bivariate Gaussian Distribution
+
+
+Exercise:
+- Linear Regression
+
+### Week 3
+
+
+
+### Week 4
+
+Material to read before test:
+- 
+- 
+
+
+Test (30 min):
+- Linear Regression
+- Logistic Regression
+- Some math
+
+
+### Week 5
+
+### Week 6
+Material to read before test:
+-
+-
+
+Test:
+- Neural network implementation from scratch (1/2)
+- Some math
+
+### Week 7
+
+### Week 8
+Material to read before test:
+-
+-
+
+Test:
+- Neural network implementation from scratch (2/2)
+- Some math
+
+### Week 9
+
+### Week 10
 
 ## Practice sessions (Thursday)
 
@@ -99,6 +159,9 @@ Best projects will be hosted on `http://lunde.top`.
 Tests will take place on Wednesdays (some of them).
 
 In total, 4 tests will be conducted.
+
+Test are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking question to 
+prof.
 
 ### Final score
 

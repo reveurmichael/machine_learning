@@ -100,7 +100,6 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Tests will take place on Wednesdays (some of them).
 
-
 ### Final score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,
@@ -136,7 +135,7 @@ Questions won't be answered if:
 #### Regarding personal WeChat chats:
 - **Questions asked in personal WeChat chats will NOT be answered.**
 
-Learning how to use Google & Baidu & Bing to solve programming problems is an important skill you should develop during this course.
+Learning how to use Google & Baidu & Bing to solve computer science problems is an important skill you should develop during this course.
 
 For private questions, please send your questions by email to:
 - lundechen@shu.edu.cn (Lunde Chen)

@@ -29,7 +29,7 @@ For each session, please bring your own Laptop!
 
 - B315
 
-## Lectures and Continuous assessment (Monday)
+## Lectures (Monday)
 
 ### Week 1
 - Machine Learning overview
@@ -122,7 +122,7 @@ Test (20 min):
 
 ## Exercise sessions (Wednesday)
 
-Most exercises will correspond to lecture topics.
+Most exercises will correspond to lecture topics, with some extensions.
 
 ### Week 1
 

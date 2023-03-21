@@ -200,7 +200,7 @@ Best projects will be hosted on `http://lunde.top`.
 Denoting your Continuous assessment score as `T`, your project score as `P`,
 you final score will be 
 
-```
+```python
 max(P, 0.4 * T + 0.6 * P)
 ```
 

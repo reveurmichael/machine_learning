@@ -48,9 +48,7 @@ One each week.
 
 ## Exercise sessions (Wednesday)
 
-Content corresponds to lecture topics.
-
-Some math will be included.
+Most exercises will correspond to lecture topics, with some extensions (e.g. some more math).
 
 Tests will take place during some Exercise sessions.
 

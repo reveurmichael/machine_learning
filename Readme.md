@@ -89,7 +89,7 @@ Each group 3 students.
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
-
+Best projects will be hosted on `http://lunde.top`.
 
 ## Notes
 

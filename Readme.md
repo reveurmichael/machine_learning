@@ -100,6 +100,8 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Tests will take place on Wednesdays (some of them).
 
+In total, 4 tests will be conducted.
+
 ### Final score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,

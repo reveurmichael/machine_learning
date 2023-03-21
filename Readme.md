@@ -17,7 +17,7 @@ Room ID：958 9491 5777
 
 For each session, please bring your own Laptop!
 
-### Monday (Lectures)
+### Monday (Lectures and Continuous assessments)
 
 - 20:00 - 21:40
 - B313
@@ -29,26 +29,100 @@ For each session, please bring your own Laptop!
 
 - B315
 
-## Lectures (Monday)
+## Lectures and Continuous assessment (Monday)
 
-One each week.
-
+### Week 1
 - Machine Learning overview
+
+### Week 2
 - Linear Regression
+
+### Week 3
 - Logistic Regression (for classification)
+
+### Week 4
 - Neural networks
+
+### Week 5
 - Building a Machine Learning web app
+
+### Week 6
 - Model selection
+
+### Week 7
 - CNN
+
+### Week 8
 - GAN
+
+### Week 9
 - AutoEncoder
+
+### Week 10
 - DQN
+
+## Continuous assessment (Monday):
+
+Tests will take place on Mondays (some of them).
+
+Each test falls in the topic of its previous week, with some extensions (e.g. some more math).
+
+You are recommended to read materials provided by prof ahead of time, to maximize your chance of success.
+
+In total, 4 tests will be conducted.
+
+Test are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking question to 
+prof.
+
+### Week 2
+
+Materials to read before test:
+-
+-
+
+Test (30 min):
+- Python List
+- Numpy slicing
+- Bivariate Gaussian Distribution
+
+
+### Week 4
+
+Materials to read before test:
+- 
+- 
+
+
+Test (30 min):
+- Linear Regression
+- Logistic Regression
+- Some math
+
+
+### Week 6
+Materials to read before test:
+-
+-
+
+Test (30 min):
+- Neural network implementation from scratch (1/2)
+- Some math
+
+
+### Week 8
+
+Material to read before test:
+-
+-
+
+Test (30 min):
+- Neural network implementation from scratch (2/2)
+- Some math
+
 
 ## Exercise sessions (Wednesday)
 
-Most exercises will correspond to lecture topics, with some extensions (e.g. some more math).
-
-Tests will take place during some Exercise sessions.
+Most exercises will correspond to lecture topics.
 
 ### Week 1
 
@@ -64,14 +138,6 @@ Exercise:
 
 ### Week 2
 
-Material to read before test:
--
--
-
-Test (30 min):
-- Python List
-- Numpy slicing
-- Bivariate Gaussian Distribution
 
 
 Exercise:
@@ -83,38 +149,16 @@ Exercise:
 
 ### Week 4
 
-Material to read before test:
-- 
-- 
-
-
-Test (30 min):
-- Linear Regression
-- Logistic Regression
-- Some math
 
 
 ### Week 5
 
 ### Week 6
-Material to read before test:
--
--
 
-Test:
-- Neural network implementation from scratch (1/2)
-- Some math
 
 ### Week 7
 
 ### Week 8
-Material to read before test:
--
--
-
-Test:
-- Neural network implementation from scratch (2/2)
-- Some math
 
 ### Week 9
 
@@ -151,19 +195,7 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Best projects will be hosted on `http://lunde.top`.
 
-## Notes
-
-
-###  Continuous assessment :
-
-Tests will take place on Wednesdays (some of them).
-
-In total, 4 tests will be conducted.
-
-Test are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking question to 
-prof.
-
-### Final score
+## Score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,
 you final score will be 

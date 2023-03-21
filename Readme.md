@@ -80,7 +80,7 @@ Materials to read before test:
 -
 -
 
-Test (30 min):
+Test (20 min):
 - Python List
 - Numpy slicing
 - Bivariate Gaussian Distribution
@@ -93,7 +93,7 @@ Materials to read before test:
 - 
 
 
-Test (30 min):
+Test (20 min):
 - Linear Regression
 - Logistic Regression
 - Some math
@@ -104,7 +104,7 @@ Materials to read before test:
 -
 -
 
-Test (30 min):
+Test (20 min):
 - Neural network implementation from scratch (1/2)
 - Some math
 
@@ -115,7 +115,7 @@ Material to read before test:
 -
 -
 
-Test (30 min):
+Test (20 min):
 - Neural network implementation from scratch (2/2)
 - Some math
 

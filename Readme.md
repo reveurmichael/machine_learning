@@ -23,13 +23,15 @@ For each session, please bring your own Laptop!
 - B313
 
 ### Wednesday (Exercise sessions)
+- 10:00 - 11:40
 - B313
 
 
 
 ### Thursday (Practice sessions)
-
+- 13:00 - 16:40
 - B315
+
 
 ## Lectures (Monday)
 

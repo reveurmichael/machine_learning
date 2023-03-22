@@ -73,8 +73,7 @@ You are recommended to read materials provided by prof ahead of time, to maximiz
 
 In total, 4 tests will be conducted.
 
-Test are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking question to 
-prof.
+Test are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking prof questions.
 
 ### Week 2
 

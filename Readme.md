@@ -79,6 +79,7 @@ prof.
 ### Week 2
 
 Materials to read before test:
+- all jupyter notebooks for lecture and exercise
 - https://www.t-ott.dev/2021/11/24/animating-normal-distributions
 - https://demonstrations.wolfram.com/TheBivariateNormalDistribution/
 - https://online.stat.psu.edu/stat505/lesson/4/4.2

@@ -246,7 +246,7 @@ you final score will be
 max(P, 0.4 * T + 0.6 * P)
 ```
 
-## Gallaries
+## Gallary
 
 ### GoHugo website
 - https://alexisz12.github.io/

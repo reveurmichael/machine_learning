@@ -175,6 +175,7 @@ Exercise:
 
 Week 1:
 - Finish deploying the website on GitHub Pages.
+- Send the url of your GitHub Pages to the WeChat group when you finish.
 
 Week 2:
 - GitHub workflow.
@@ -182,6 +183,8 @@ Week 2:
 ### Week 3 
 
 reveal.js
+
+- Send the url of your reveal.js web site to the WeChat group when you finish.
 
 ### Week 4 - Week 6
 
@@ -195,6 +198,8 @@ Week 5:
 
 Week 6:
 - Docker deployment, , for the ML web app, as well as for GoHugo and reveal.js web site.
+- Send the url of your ML web app to the WeChat group when you finish.
+
 
 ### Week 7
 

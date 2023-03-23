@@ -173,6 +173,12 @@ Exercise:
 
 - https://gitee.com/lundechen/static_website_with_go_hugo
 
+Week 1:
+- Finish deploying the website on GitHub Pages.
+
+Week 2:
+- GitHub workflow.
+
 ### Week 3 
 
 reveal.js
@@ -180,6 +186,15 @@ reveal.js
 ### Week 4 - Week 6
 
 - https://gitee.com/lundechen/machine_learning_web_app
+
+Week 4:
+- Local deployment.
+
+Week 5:
+- Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js web site.
+
+Week 6:
+- Docker deployment, , for the ML web app, as well as for GoHugo and reveal.js web site.
 
 ### Week 7
 

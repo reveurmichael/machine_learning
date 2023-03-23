@@ -104,7 +104,7 @@ Test (30 min):
 ### Week 4
 
 Materials to read before test:
-- 
+- all jupyter notebooks for  lectures and exercises
 - 
 
 
@@ -119,7 +119,7 @@ Test (30 min):
 
 ### Week 6
 Materials to read before test:
--
+- all jupyter notebooks for  lectures and exercises
 -
 
 Test (30 min):
@@ -130,7 +130,7 @@ Test (30 min):
 ### Week 8
 
 Material to read before test:
--
+- all jupyter notebooks for  lectures and exercises
 -
 
 Test (30 min):
@@ -241,6 +241,22 @@ you final score will be
 ```python
 max(P, 0.4 * T + 0.6 * P)
 ```
+
+## Gallaries
+
+### GoHugo website
+- https://alexisz12.github.io/
+- https://moonoxy.github.io/
+- https://huangusr.github.io/
+- https://lifelongcoding.github.io
+- https://alexandreqiu.github.io/web/
+
+### reveal.js
+
+### ML web app
+
+### Final project
+
 
 ## Asking questions :question:
 

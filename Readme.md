@@ -186,23 +186,27 @@ Exercise:
 
 ### Week 1 - Week 2
 
+Tutorial (with videos):
 - https://gitee.com/lundechen/static_website_with_go_hugo
 
 Week 1:
-- Finish deploying the website on GitHub Pages.
+- Finish deploying the website on GitHub Pages (Video 1 - 5).
 - Send the url of your GitHub Pages to the WeChat group when you finish.
 
 Week 2:
-- GitHub workflow.
+- GitHub workflow (Video 6 - 8).
+- Each group two students.
+- Send the url of your GitHub Repositories to the WeChat group when you finish (three for each group of two).
 
 ### Week 3 
 
 reveal.js
-
+- Go to reveal.js official website, and try out different features.
 - Send the url of your reveal.js web site to the WeChat group when you finish.
 
 ### Week 4 - Week 6
 
+Tutorial (with videos):
 - https://gitee.com/lundechen/machine_learning_web_app
 
 Week 4:

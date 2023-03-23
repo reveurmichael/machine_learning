@@ -17,7 +17,7 @@ Room ID：958 9491 5777
 
 For each session, please bring your own Laptop!
 
-For Thursday, please bring your headphone as well.
+For Thursdays' practice sessions, please bring your headphone as well, because you will watch videos.
 
 ### Monday (Lectures and Continuous assessments)
 

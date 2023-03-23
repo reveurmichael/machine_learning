@@ -112,6 +112,9 @@ Test (30 min):
 - Linear Regression
 - Logistic Regression
 - Some math
+- GitHub Pull Request (GitHub workflow)
+- git conflict resolving
+- git merge v.s. git rebase
 
 
 ### Week 6

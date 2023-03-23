@@ -17,6 +17,8 @@ Room ID：958 9491 5777
 
 For each session, please bring your own Laptop!
 
+For Thursday, please bring your headphone as well.
+
 ### Monday (Lectures and Continuous assessments)
 
 - 20:00 - 21:40

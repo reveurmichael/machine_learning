@@ -95,7 +95,7 @@ Materials to read before test:
 Test (30 min):
 - Python List
 - Numpy slicing
-- Bivariate Gaussian Distribution
+- **Math**: Bivariate Gaussian Distribution
 - ssh key
 - CI/CD
 - GitHub Actions

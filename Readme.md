@@ -105,13 +105,13 @@ Test (30 min):
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
-- 
+- https://www.bilibili.com/video/BV1SY4y1G7o9/
 
 
 Test (30 min):
 - Linear Regression
 - Logistic Regression
-- Some math
+- **Math**: gradient descent for linear regression and logistic regression
 - GitHub Pull Request (GitHub workflow)
 - git conflict resolving
 - git merge v.s. git rebase
@@ -124,7 +124,7 @@ Materials to read before test:
 
 Test (30 min):
 - Neural network implementation from scratch (1/2)
-- Some math
+- **Math**: the *Chain Rule* of calculus for backpropagation algorithm
 
 
 ### Week 8

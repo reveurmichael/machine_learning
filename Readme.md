@@ -89,6 +89,8 @@ Materials to read before test:
 - https://github.blog/2022-02-02-build-ci-cd-pipeline-github-actions-four-steps/
 - https://resources.github.com/ci-cd/
 - https://github.com/readme/guides/sothebys-github-actions
+- https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+- https://www.ssh.com/academy/ssh-keys
 
 Test (30 min):
 - Python List

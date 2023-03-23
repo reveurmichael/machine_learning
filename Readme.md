@@ -254,6 +254,7 @@ max(P, 0.4 * T + 0.6 * P)
 - https://huangusr.github.io/
 - https://lifelongcoding.github.io
 - https://alexandreqiu.github.io/web/
+- https://leo-fang-qaq.github.io/
 
 ### reveal.js
 

@@ -82,11 +82,19 @@ Materials to read before test:
 - https://www.t-ott.dev/2021/11/24/animating-normal-distributions
 - https://demonstrations.wolfram.com/TheBivariateNormalDistribution/
 - https://online.stat.psu.edu/stat505/lesson/4/4.2
+- https://github.com/features/actions
+- https://docs.github.com/en/actions/quickstart
+- https://github.blog/2022-02-02-build-ci-cd-pipeline-github-actions-four-steps/
+- https://resources.github.com/ci-cd/
+- https://github.com/readme/guides/sothebys-github-actions
 
-Test (20 min):
+Test (30 min):
 - Python List
 - Numpy slicing
 - Bivariate Gaussian Distribution
+- ssh key
+- CI/CD
+- GitHub Actions
 
 
 ### Week 4
@@ -96,7 +104,7 @@ Materials to read before test:
 - 
 
 
-Test (20 min):
+Test (30 min):
 - Linear Regression
 - Logistic Regression
 - Some math
@@ -107,7 +115,7 @@ Materials to read before test:
 -
 -
 
-Test (20 min):
+Test (30 min):
 - Neural network implementation from scratch (1/2)
 - Some math
 
@@ -118,7 +126,7 @@ Material to read before test:
 -
 -
 
-Test (20 min):
+Test (30 min):
 - Neural network implementation from scratch (2/2)
 - Some math
 

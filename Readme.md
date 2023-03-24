@@ -67,7 +67,7 @@ For Thursdays' practice sessions, please bring your headphone as well, because y
 
 ## Continuous assessment (Monday):
 
-Tests will take place on Mondays (some of them).
+Tests will take place on Mondays (Week 2, Week 4, Week 6, Week 8).
 
 Each test falls in the topic of its previous week, with some extensions (e.g. some more math).
 
@@ -216,7 +216,7 @@ Week 5:
 - Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js web site.
 
 Week 6:
-- Docker deployment, , for the ML web app, as well as for GoHugo and reveal.js web site.
+- Docker deployment, for the ML web app, as well as for GoHugo and reveal.js web site.
 - Send the url of your ML web app to the WeChat group when you finish.
 
 

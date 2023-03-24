@@ -109,8 +109,8 @@ Materials to read before test:
 
 
 Test (30 min):
-- Linear Regression
-- Logistic Regression
+- Linear Regression implementation from scratch
+- Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
 - GitHub Pull Request (GitHub workflow)
 - git conflict resolving

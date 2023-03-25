@@ -226,7 +226,7 @@ AWS SageMaker
 
 ### Week 8 - 10
 
-Machine learning app react
+Machine learning app next.js/react
 
 
 

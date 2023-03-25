@@ -220,13 +220,15 @@ Week 6:
 - Send the url of your ML web app to the WeChat group when you finish.
 
 
-### Week 7
+### Week 7 - 8
 
-AWS 
+AWS SageMaker
 
-### Week 8 - 10
+### Week 9 - 10
 
-TBD
+Machine learning app react
+
+
 
 
 ## Project

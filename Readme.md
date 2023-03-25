@@ -220,11 +220,11 @@ Week 6:
 - Send the url of your ML web app to the WeChat group when you finish.
 
 
-### Week 7 - 8
+### Week 7
 
 AWS SageMaker
 
-### Week 9 - 10
+### Week 8 - 10
 
 Machine learning app react
 

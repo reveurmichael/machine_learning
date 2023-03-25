@@ -246,6 +246,8 @@ you final score will be
 max(P, 0.4 * T + 0.6 * P)
 ```
 
+Average of all `T`s of all students will be equal to the average of all `P`s.
+
 ## Gallary
 
 ### GoHugo website

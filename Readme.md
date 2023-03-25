@@ -258,6 +258,8 @@ Average of all `T`s of all students will be equal to the average of all `P`s.
 - https://alexandreqiu.github.io/web/
 - https://leo-fang-qaq.github.io/
 - https://jialing78.github.io/
+- https://hong-yue111.github.io/
+- https://morganelu.github.io/
 
 ### reveal.js
 

@@ -213,10 +213,10 @@ Week 4:
 - Local deployment.
 
 Week 5:
-- Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js web site.
+- Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 
 Week 6:
-- Docker deployment, for the ML web app, as well as for GoHugo and reveal.js web site.
+- Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 - Send the url of your ML web app to the WeChat group when you finish.
 
 

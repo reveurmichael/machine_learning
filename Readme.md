@@ -163,11 +163,7 @@ Exercise:
 
 ### Week 3
 
-
-
 ### Week 4
-
-
 
 ### Week 5
 
@@ -196,15 +192,22 @@ Week 1:
 Week 2:
 - GitHub workflow (Video 6 - 8).
 - Each group two students.
-- Send the url of your GitHub Repositories to the WeChat group when you finish (three for each group of two).
+- Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
 
 ### Week 3 
 
 reveal.js
 - Go to reveal.js official website, and try out different features.
-- Send the url of your reveal.js web site to the WeChat group when you finish.
+- Send the url of your reveal.js website to the WeChat group when you finish.
 
-### Week 4 - Week 6
+### Week 4 
+
+Test Driven Programming
+- Tutorial: https://open-academy.github.io/machine-learning/assignments/get-started.html
+- Video - Chinese version: https://www.bilibili.com/video/BV1uW4y1s7Ci
+- Video - English version: https://www.bilibili.com/video/BV1nM41167j9
+
+### Week 5 - Week 7
 
 Tutorial (with videos):
 - https://gitee.com/lundechen/machine_learning_web_app
@@ -219,25 +222,26 @@ Week 6:
 - Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 - Send the url of your ML web app to the WeChat group when you finish.
 
-
-### Week 7
+### Week 9
 
 AWS SageMaker
 
-### Week 8 - 10
+### Week 9 - 10
 
-Machine learning app next.js/react
-
-
-
+Machine learning app next.js/react, AWS Amplify
 
 ## Project
 
 Each group 3 students.
 
+Forming groups:
+- 
+
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
 Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
+
+Apply for a domain name if necessary.
 
 ## Score
 

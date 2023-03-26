@@ -222,7 +222,7 @@ Week 6:
 - Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 - Send the url of your ML web app to the WeChat group when you finish.
 
-### Week 9
+### Week 8
 
 AWS SageMaker
 

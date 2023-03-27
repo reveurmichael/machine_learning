@@ -246,6 +246,8 @@ Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire
 
 Apply for a domain name if necessary.
 
+Put the zip file containing your code and video on Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
+
 ## Score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,

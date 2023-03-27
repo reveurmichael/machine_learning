@@ -246,6 +246,8 @@ Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire
 
 Apply for a domain name if necessary.
 
+Your machine learning application can be based on streamlit, next.js or other frameworks.
+
 Put the zip file containing your code and video on Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
 
 ## Score

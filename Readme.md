@@ -124,14 +124,15 @@ Materials to read before test:
 
 Test (30 min):
 - Neural network implementation from scratch (1/2)
-- **Math**: the *Chain Rule* of calculus for backpropagation algorithm
+- **Math**: activation functions
 
 
 ### Week 8
 
 Material to read before test:
 - all jupyter notebooks for  lectures and exercises
--
+- **Math**: backpropagation algorithm
+
 
 Test (30 min):
 - Neural network implementation from scratch (2/2)

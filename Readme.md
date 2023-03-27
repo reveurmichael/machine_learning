@@ -244,7 +244,13 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 
-Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud, on a Tencent VM or on AWS/Google Cloud.
+Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud, on a Tencent VM or on AWS/Google/Microsoft Cloud.
+
+You can use chatgpt or gpt4, if you have the API key.
+
+You can use AI APIs from Baidu/Tencent/Alibaba/Amazon/Google etc., for example:
+- https://cloud.tencent.com/product/ocr-catalog
+- https://cloud.tencent.com/product/ai-class
 
 Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](http://an-interesting-ml-app.com).
 
@@ -266,6 +272,9 @@ Put the zip file containing your code and video on Google Drive, send the sharin
 #### For best projects
 - Best projects' videos will be included on Lunde Chen's bilibili channel.
 - Lunde Chen might invite you to participate in innovation competitions with your projects.
+
+#### Last but not least
+You app should be legal, ethical.
 
 
 ## Score

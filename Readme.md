@@ -215,9 +215,11 @@ Tutorial (with videos):
 
 Week 4:
 - Local deployment.
+- Data Augmentation (no tutorial from prof.) for better performance.
 
 Week 5:
 - Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js website.
+- GitHub WebHook (no tutorial from prof., things are to be done by students).
 
 Week 6:
 - Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
@@ -236,7 +238,7 @@ Machine learning app next.js/react, AWS Amplify
 Each group 3 students.
 
 Forming groups:
-- 
+- https://docs.qq.com/doc/DT2xqVHphanhGUWpR
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 

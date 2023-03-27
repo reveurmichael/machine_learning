@@ -263,6 +263,10 @@ Put the zip file containing your code and video on Google Drive, send the sharin
 - If possible, make it fun. 
 - If possible, make it fancy. 
 
+#### For best projects
+- Best projects' videos will be included on Lunde Chen's bilibili channel.
+- Lunde Chen might invite you to participate in innovation competitions with your projects.
+
 
 ## Score
 

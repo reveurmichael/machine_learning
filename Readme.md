@@ -244,11 +244,25 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 
 Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 
-Apply for a domain name if necessary.
+Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud, on a Tencent VM or on AWS/Google Cloud.
 
-Your machine learning application can be based on streamlit, next.js or other frameworks.
+Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](http://an-interesting-ml-app.com).
+
+As an alternative, a WeChat miniprogram is OK as well.
 
 Put the zip file containing your code and video on Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
+
+#### What's expected of your video
+- Length of video \>= 20 min
+- You video should include those contents:
+    - General presentation
+    - How to use your ML Web app
+    - How did you implement your app
+    - How did you deploy your app
+    - What's the task of each member. Give an estimated workload/contribution percentage (Mandatory).
+- If possible, make it fun. 
+- If possible, make it fancy. 
+
 
 ## Score
 

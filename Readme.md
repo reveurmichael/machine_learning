@@ -258,7 +258,7 @@ Machine learning app next.js/react, AWS Amplify
 
 ## Project
 
-#### Forming groups
+### Forming groups
 
 Each group 3 students.
 
@@ -268,10 +268,10 @@ Forming groups:
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
 
-#### Get inspired
+### Get inspired
 Streamlit Gallery etc.
 
-#### Implementation
+### Implementation
 
 Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
 
@@ -286,7 +286,7 @@ Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](ht
 As an alternative, a WeChat miniprogram is OK as well.
 
 
-#### What's expected of your video
+### What's expected of your video
 - Length of video \>= 20 min
 - You video should include those contents:
     - General presentation
@@ -302,16 +302,16 @@ As an alternative, a WeChat miniprogram is OK as well.
 - If applicable, include an ecology anylisis in your video.
 
 
-#### Submission of your work
+### Submission of your work
 
 Upload the zip file containing your code and video on your own Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
 
-#### For best projects
+### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 - Best projects' videos will be included on Lunde Chen's bilibili channel.
 - Lunde Chen might invite you to participate in innovation competitions with your projects.
 
-#### Last but not least
+### Last but not least
 You app should be legal, ethical.
 
 ## Score
@@ -325,7 +325,7 @@ max(P, 0.4 * T + 0.6 * P)
 
 The average of all `T`s of all students will be equal to the average of all `P`s.
 
-#### Distribution
+### Distribution
 - 10% A (90-100)
 - 10% A- (85-89)
 - 10% B (80-84)
@@ -355,11 +355,11 @@ etc.
 
 ## Asking questions :question:
 
-#### Leveraging **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** for asking questions
+### Leveraging **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** for asking questions
 By default, you should ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. Here is how:
 - https://www.bilibili.com/video/BV1364y1h7sb/
 
-#### Principe
+### Principe
 Here is the principle for asking questions:
 
 >  **Google First, Peers Second, Profs Last.**
@@ -376,7 +376,7 @@ Questions won't be answered if:
 - they are well in advance of the progress of the course
 - professors think that it's not interesting for discussion
 
-#### Regarding personal WeChat chats:
+### Regarding personal WeChat chats:
 - **Questions asked in personal WeChat chats will NOT be answered.**
 
 Learning how to use Google & Baidu & Bing to solve computer science problems is an important skill you should develop during this course.
@@ -384,6 +384,6 @@ Learning how to use Google & Baidu & Bing to solve computer science problems is 
 For private questions, please send your questions by email to:
 - lundechen@shu.edu.cn (Lunde Chen)
 
-#### Office visit
+### Office visit
 
 Office visit is NOT welcome unless you make an appointment at least one day in advance.

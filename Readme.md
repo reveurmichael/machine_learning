@@ -200,6 +200,23 @@ Week 2:
 - Each group two students.
 - Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
 
+用 Windows 的同学，可以按照这个教程，安装 posh-git
+
+https://gitee.com/lundechen/hello#9-optional-git-branchstatus-indication-on-terminal
+
+对应的视频教材：
+https://www.bilibili.com/video/BV1cq4y1S7Be/ （第六分钟开始）
+
+
+用 macos 的同学，可以安装 oh my zsh
+
+主要是为了这个：
+
+![](img/posh-git.png)
+
+
+同时 windows 建议使用 Windows Terminal
+
 ### Week 3 
 
 reveal.js

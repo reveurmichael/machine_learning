@@ -305,6 +305,7 @@ As an alternative, a WeChat miniprogram is OK as well.
 - If applicable, include an ethics anylisis in your video.
 - If applicable, include an market anylisis in your video.
 - If applicable, include an ecology anylisis in your video.
+- And yes, your video should be in English. 
 
 
 ### Submission of your work

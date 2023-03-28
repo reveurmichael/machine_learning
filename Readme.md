@@ -325,6 +325,14 @@ max(P, 0.4 * T + 0.6 * P)
 
 The average of all `T`s of all students will be equal to the average of all `P`s.
 
+#### Distribution
+- 10% A (90-100)
+- 10% A- (85-89)
+- 10% B (80-84)
+- 10% C (75-79)
+etc.
+
+
 ## Gallary
 
 ### GoHugo website

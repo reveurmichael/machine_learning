@@ -152,6 +152,7 @@ Make sure you have a seamless Internet connection to those websites.
 Exercise:
 - Python
 - Numpy
+- Pandas
 
 ### Week 2
 
@@ -161,9 +162,12 @@ Also, make sure you have access to GitHub, Google and YouTube.
 
 
 Exercise:
-- Linear Regression
+- Linear Regression from scratch
 
 ### Week 3
+
+Exercise:
+- Logistic Regression from scratch
 
 ### Week 4
 
@@ -237,6 +241,8 @@ Machine learning app next.js/react, AWS Amplify
 
 ## Project
 
+#### Forming groups
+
 Each group 3 students.
 
 Forming groups:
@@ -244,9 +250,13 @@ Forming groups:
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
-Best projects will be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 
-Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud, on a Tencent VM or on AWS/Google/Microsoft Cloud.
+#### Get inspired
+Streamlit Gallery etc.
+
+#### Implementation
+
+Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
 
 You can use chatgpt or gpt4, if you have the API key.
 
@@ -258,7 +268,6 @@ Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](ht
 
 As an alternative, a WeChat miniprogram is OK as well.
 
-Put the zip file containing your code and video on Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
 
 #### What's expected of your video
 - Length of video \>= 20 min
@@ -267,17 +276,26 @@ Put the zip file containing your code and video on Google Drive, send the sharin
     - How to use your ML Web app
     - How did you implement your app
     - How did you deploy your app
-    - What's the task of each member. Give an estimated workload/contribution percentage (Mandatory).
+    - What's the task of each team member
+    - Give an estimated workload/contribution percentage of each team member (Mandatory)
 - If possible, make it fun. 
 - If possible, make it fancy. 
+- If applicable, include an ethics anylisis in your video.
+- If applicable, include an market anylisis in your video.
+- If applicable, include an ecology anylisis in your video.
+
+
+#### Submission of your work
+
+Upload the zip file containing your code and video on your own Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
 
 #### For best projects
+- Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 - Best projects' videos will be included on Lunde Chen's bilibili channel.
 - Lunde Chen might invite you to participate in innovation competitions with your projects.
 
 #### Last but not least
 You app should be legal, ethical.
-
 
 ## Score
 

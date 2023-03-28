@@ -224,6 +224,10 @@ reveal.js
 - Go to reveal.js official website, and try out different features.
 - Send the url of your reveal.js website to the WeChat group when you finish.
 
+### Pro tips
+
+Emoji
+
 ### Week 4 
 
 - Test Driven Programming

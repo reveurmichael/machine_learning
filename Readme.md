@@ -302,9 +302,9 @@ As an alternative, a WeChat miniprogram is OK as well.
     - Give an estimated workload/contribution percentage of each team member (Mandatory)
 - If possible, make it fun. 
 - If possible, make it fancy. 
-- If applicable, include an ethics anylisis in your video.
-- If applicable, include an market anylisis in your video.
-- If applicable, include an ecology anylisis in your video.
+- If applicable, include an ethics analysis in your video.
+- If applicable, include an market analysis in your video.
+- If applicable, include an ecology analysis in your video.
 - And yes, your video should be in English. 
 
 

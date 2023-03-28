@@ -200,7 +200,7 @@ Week 2:
 - Each group two students.
 - Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
 
-### Misc
+### Pro tips
 
 用 Windows 的同学，可以按照这个教程，安装 posh-git
 - https://gitee.com/lundechen/hello#9-optional-git-branchstatus-indication-on-terminal
@@ -326,7 +326,7 @@ max(P, 0.4 * T + 0.6 * P)
 
 The average of all `T`s of all students will be equal to the average of all `P`s.
 
-### Distribution
+### Distribution of notes
 - 10% A (90-100)
 - 10% A- (85-89)
 - 10% B (80-84)

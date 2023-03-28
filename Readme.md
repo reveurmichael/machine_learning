@@ -10,8 +10,7 @@ English. For everything.
 ### Tencent Meeting
 
 For each session, please always join Tencent Meeting (VooV Meeting):
-
-Room ID：958 9491 5777
+- Room ID：958 9491 5777
 
 ### Laptop
 
@@ -93,12 +92,11 @@ Materials to read before test:
 - https://www.ssh.com/academy/ssh-keys
 
 Test (30 min):
-- Python List
-- Numpy slicing
+- Python list
+- Numpy slicing, numpy broadcast
 - **Math**: Bivariate Gaussian Distribution
 - ssh key
-- CI/CD
-- GitHub Actions
+- CI/CD, GitHub Actions
 
 
 ### Week 4
@@ -157,6 +155,9 @@ Exercise:
 
 ### Week 2
 
+Make sure that you can run our Jupyter Notebooks on VS Code.
+
+Also, make sure you have access to GitHub, Google and YouTube.
 
 
 Exercise:

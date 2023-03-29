@@ -163,6 +163,11 @@ Also, make sure you have access to GitHub, Google and YouTube.
 
 Exercise:
 - Linear Regression from scratch
+- https://www.analyticsvidhya.com/blog/2021/06/getting-started-with-machine-learning%E2%80%8A-%E2%80%8Aimplementing-linear-regression-from-scratch/
+- https://towardsdatascience.com/coding-linear-regression-from-scratch-c42ec079902
+- https://github.com/tugot17/Linear-Regression-From-Scratch
+- https://debuggercafe.com/implement-simple-linear-regression-from-scratch/
+- https://www.kaggle.com/code/kennethjohn/linear-regression-from-scratch
 
 ### Week 3
 

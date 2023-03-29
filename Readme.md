@@ -168,6 +168,7 @@ Exercise:
 - https://github.com/tugot17/Linear-Regression-From-Scratch
 - https://debuggercafe.com/implement-simple-linear-regression-from-scratch/
 - https://www.kaggle.com/code/kennethjohn/linear-regression-from-scratch
+- https://www.kaggle.com/code/fareselmenshawii/linear-regression-from-scratch
 
 ### Week 3
 

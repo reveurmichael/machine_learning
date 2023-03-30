@@ -66,7 +66,7 @@ For Thursdays' practice sessions, please bring your headphone as well, because y
 ### Week 10
 - DQN
 
-## Continuous assessment (Monday):
+## Continuous assessment (Monday)
 
 Tests will take place on Mondays (Week 2, Week 4, Week 6, Week 8).
 

@@ -407,4 +407,4 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 -  Yes. A lot. Around 10 hours of extra-course work each week is expected from you. 4 hours for course content & test preparation, 6 hours for your project.
 
 ##### What can I add as items to my CV after taking this course?
--  It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, sklearn, tensorflow, DQN, javascript, etc.
+-  It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.

@@ -353,7 +353,7 @@ As an alternative, a WeChat miniprogram is OK as well.
 1. Zip the folder
 1. Upload the zip file to Google Drive
 1. Send the sharing link to the prof, by PRIVATE WeChat or by Email
-    - Therefore, in the WeChat/Email message, there are no attached files, just an URL.
+    - Therefore, in the WeChat/Email message, there are no attached files, just an Google Drive URL.
 
 ### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.

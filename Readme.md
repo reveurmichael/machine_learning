@@ -403,8 +403,8 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ## F.A.Q
 
-Q: Do we have extra-course work?
-- A: Yes. A lot. 
+##### Do we have extra-course work?
+-  Yes. A lot. 
 
-Q: What can I add as items to my CV after taking this course?
-- A; It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, sklearn, tensorflow, DQN, javascript, etc.
+##### What can I add as items to my CV after taking this course?
+-  It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, sklearn, tensorflow, DQN, javascript, etc.

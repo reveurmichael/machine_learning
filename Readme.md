@@ -54,6 +54,8 @@ For Thursdays' practice sessions, please bring your headphone as well, because y
 
 ### Week 7
 - CNN
+    - for image classification
+    - for image segmentation
 
 ### Week 8
 - GAN

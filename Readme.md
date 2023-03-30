@@ -167,6 +167,9 @@ Also, make sure you have access to GitHub, Google and YouTube.
 
 Exercise:
 - Linear Regression from scratch
+    - Math-heavy approach
+    - Math-light approach
+
 - https://www.analyticsvidhya.com/blog/2021/06/getting-started-with-machine-learning%E2%80%8A-%E2%80%8Aimplementing-linear-regression-from-scratch/
 - https://towardsdatascience.com/coding-linear-regression-from-scratch-c42ec079902
 - https://github.com/tugot17/Linear-Regression-From-Scratch
@@ -442,7 +445,7 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 -  Yes. A lot. Around 10 hours of extra-course work each week is expected from you. 4 hours for course content & test preparation, 6 hours for your project.
 
 ##### What can I add as items to my CV after taking this course?
--  It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
+-  It's quite a lot. For example, AWS Amplify, AWS SageMaker, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
 
 ##### Why this course seems a bit different?
-- Well, the prof got inspired by courses of Standford and MIT.
+- Well, the prof got inspirations from courses of Standford and MIT.

@@ -229,11 +229,16 @@ Week 2:
 
 reveal.js
 - Go to reveal.js official website, and try out different features.
+    - code highlight
+    - image background
+    - animation
+    - transition
 - Send the url of your reveal.js website to the WeChat group when you finish.
 
 ##### Pro tips
 
-Emoji
+Emoji HTML code:
+- https://www.quackit.com/character_sets/emoji/emoji_v3.0/unicode_emoji_v3.0_characters_all.cfm
 
 ### Week 4 
 

@@ -310,7 +310,7 @@ Streamlit Gallery etc.
 
 ### Implementation
 
-Your machine learning application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
+Your machine learning web application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
 
 You can use chatgpt or gpt4, if you have the API key.
 

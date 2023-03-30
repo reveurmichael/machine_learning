@@ -315,7 +315,6 @@ Your machine learning web application can be based on streamlit, flask, next.js 
 You can use chatgpt or gpt4, if you have the API key.
 
 You can use AI APIs from Baidu/Tencent/Alibaba/Amazon/Google etc., for example:
-- https://cloud.tencent.com/product/ocr-catalog
 - https://cloud.tencent.com/product/ai-class
 
 Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](http://an-interesting-ml-app.com).

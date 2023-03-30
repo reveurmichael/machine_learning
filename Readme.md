@@ -455,3 +455,5 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ##### Why this course seems a bit different?
 - Well, the prof got inspirations from courses of Standford and MIT.
+    - http://cs231n.stanford.edu/
+    - http://introtodeeplearning.com/

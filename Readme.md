@@ -322,6 +322,7 @@ Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](ht
 
 As an alternative, a WeChat miniprogram is OK as well.
 
+You code should be open-sourced and hosted on GitHub.
 
 ### What's expected of your video
 - Length of video \>= 20 min

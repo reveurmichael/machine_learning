@@ -218,15 +218,16 @@ Week 2:
 用 Windows 的同学，可以按照这个教程，安装 posh-git
 - https://gitee.com/lundechen/hello#9-optional-git-branchstatus-indication-on-terminal
 
-对应的视频教材：
-- https://www.bilibili.com/video/BV1cq4y1S7Be/ （第六分钟开始）
+Corresponding tutorial video：
+- https://www.bilibili.com/video/BV1cq4y1S7Be/ （starting from the 6th minute of the video）
 
-
-用 macos 的同学，可以安装 oh my zsh
+同时 windows 建议使用 Windows Terminal
 
 主要是为了这个：
 
 ![](img/posh-git.png)
+
+If you are on MacOS/Linux, you can install *oh my zsh* instead.
 
 
 同时 windows 建议使用 Windows Terminal
@@ -239,7 +240,10 @@ reveal.js
     - image background
     - animation
     - transition
-- Send the url of your reveal.js website to the WeChat group when you finish.
+- For each of those different feature
+    - create a seperate GitHub repository 
+    - therefore, you end up with multiple `remote`s on your local repository
+- Send the URLs of your reveal.js websites to the WeChat group when you finish.
 
 ##### Pro tips
 
@@ -262,9 +266,13 @@ Tutorial (with videos):
 Week 4:
 - Local deployment.
 - Data Augmentation (no tutorial from prof.) for better performance.
+    - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist.html
+
 
 Week 5:
-- Cloud deployment, for the ML web app, as well as for GoHugo and reveal.js website.
+- Cloud deployment
+    - for the ML web app
+    - as well as for GoHugo and reveal.js website.
 - GitHub WebHook (no tutorial from prof., things are to be done by students).
 
 Week 6:
@@ -313,22 +321,33 @@ As an alternative, a WeChat miniprogram is OK as well.
 - Length of video \>= 20 min
 - You video should include those contents:
     - General presentation
+    - Where do you get inspirations from for coming up with the idea of your project
     - How to use your ML Web app
     - How did you implement your app
     - How did you deploy your app
-    - What's the task of each team member
-    - Give an estimated workload/contribution percentage of each team member (Mandatory)
 - If possible, make it fun. 
 - If possible, make it fancy. 
-- If applicable, include an ethics analysis in your video.
-- If applicable, include an market analysis in your video.
-- If applicable, include an ecology analysis in your video.
+- If applicable, include an ethics analysis of your project in the video.
+- If applicable, include an social impact analysis of your project  in the video.
+- If applicable, include an market analysis of your project  in the video.
+- If applicable, include an ecology analysis of your project  in the video.
 - And yes, your video should be presented in English. 
-
 
 ### Submission of your work
 
-Upload the zip file containing your code and video on your own Google Drive, send the sharing link to the prof, by PRIVATE WeChat or by Email. Therefore, no attached files, just an URL.
+1. Create a folder, in which you put:
+    - the video
+    - the source code
+    - a txt/markdown file indicating 
+        - what's the task of each team member
+        - the estimated workload/contribution percentage of each team member 
+    - a txt/markdown file indicating 
+        - the URL of your GitHub repository for hosting your code
+        - prof will check the commit history to see how each team member is contributing  
+1. Zip the folder
+1. Upload the zip file to Google Drive
+1. Send the sharing link to the prof, by PRIVATE WeChat or by Email
+    - Therefore, in the WeChat/Email message, there are no attached files, just an URL.
 
 ### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
@@ -422,3 +441,6 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ##### What can I add as items to my CV after taking this course?
 -  It's quite a lot. For example, AWS Amplify, GitHub Pull Request, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
+
+##### Why this course seems a bit different?
+- Well, the prof got inspired by courses of Standford and MIT.

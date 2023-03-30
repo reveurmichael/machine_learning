@@ -349,11 +349,13 @@ As an alternative, a WeChat miniprogram is OK as well.
         - the estimated workload/contribution percentage of each team member 
     - a txt/markdown file indicating 
         - the URL of your GitHub repository for hosting your code
-        - prof will check the commit history to see how each team member is contributing  
+        - prof will check the commit history of your GitHub repo to see how each team member is contributing  
 1. Zip the folder
 1. Upload the zip file to Google Drive
 1. Send the sharing link to the prof, by PRIVATE WeChat or by Email
     - Therefore, in the WeChat/Email message, there are no attached files, just an Google Drive URL.
+
+For each team, just one submission of the work is necessary, by one member of your team.
 
 ### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.

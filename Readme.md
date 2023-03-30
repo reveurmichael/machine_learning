@@ -204,6 +204,7 @@ Week 1:
 Week 2:
 - GitHub workflow (Video 6 - 8).
 - Each group two students.
+- Please install GitLens (VS Code extension).
 - Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
 
 ##### Pro tips

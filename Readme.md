@@ -76,6 +76,8 @@ In total, 4 tests will be conducted.
 
 Tests are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking prof questions.
 
+After each test, feel free to forget everything that you have learned for test preparation. Because your intuition has already been developped and will stay with you.
+
 ### Week 2
 
 Materials to read before test:
@@ -117,7 +119,7 @@ Test (30 min):
 
 ### Week 6
 Materials to read before test:
-- all jupyter notebooks for  lectures and exercises
+- all jupyter notebooks for lectures and exercises
 -
 
 Test (30 min):
@@ -196,6 +198,10 @@ Exercise:
 
 Tutorial (with videos):
 - https://gitee.com/lundechen/static_website_with_go_hugo
+
+The main goal of this tutorial is **NOT** to teach you Web Technology, but to walk through the main steps for building a static website, and to learn to use, in the meanwhile:
+- Git (add, commit, push, pull, checkout, rebase, merge, conflict resolving)
+- GitHub (GitHub pull request, GitHub actions)
 
 Week 1:
 - Finish deploying the website on GitHub Pages (Video 1 - 5).

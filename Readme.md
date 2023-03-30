@@ -167,10 +167,9 @@ Also, make sure you have access to GitHub, Google and YouTube.
 
 Exercise:
 - Linear Regression from scratch
-    - Math-heavy approach
-    - Math-light approach
+    - [Math-heavy approach](https://www.analyticsvidhya.com/blog/2021/06/getting-started-with-machine-learning%E2%80%8A-%E2%80%8Aimplementing-linear-regression-from-scratch/)
+    - Math-light approach (Gradient Descent)
 
-- https://www.analyticsvidhya.com/blog/2021/06/getting-started-with-machine-learning%E2%80%8A-%E2%80%8Aimplementing-linear-regression-from-scratch/
 - https://towardsdatascience.com/coding-linear-regression-from-scratch-c42ec079902
 - https://github.com/tugot17/Linear-Regression-From-Scratch
 - https://debuggercafe.com/implement-simple-linear-regression-from-scratch/
@@ -180,7 +179,9 @@ Exercise:
 ### Week 3
 
 Exercise:
-- Logistic Regression from scratch
+- Logistic Regression from scratch    
+    - Math-heavy approach
+    - Math-light approach (Gradient Descent)
 
 ### Week 4
 

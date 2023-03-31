@@ -439,6 +439,35 @@ For private questions, please send your questions by email to:
 
 Office visit is NOT welcome unless you make an appointment at least one day in advance.
 
+## Student Name List
+
+| 学号/工号    | 姓名  |
+| -------- | --- |
+| 19124641 | 陆开昕 |
+| 19124663 | 万远亮 |
+| 19124715 | 张行行 |
+| 20120127 | 李兆琪 |
+| 20124695 | 邱奕博 |
+| 20124711 | 袁嘉祾 |
+| 20124725 | 张世博 |
+| 20124727 | 翁留辰 |
+| 20124738 | 宋鹏宇 |
+| 20124757 | 王宇星 |
+| 20124767 | 黄河  |
+| 20124793 | 王雨杰 |
+| 18124686 | 赵宇豪 |
+| 18124689 | 闫炳坤 |
+| 19124519 | 冯玥瑄 |
+| 20124694 | 洪越  |
+| 20124696 | 方鑫喆 |
+| 20124726 | 马哲  |
+| 20124733 | 杜若衡 |
+| 20124769 | 李鑫宇 |
+| 20124770 | 王泓杰 |
+| 20124771 | 王楚涵 |
+| 20124772 | 娄宇鑫 |
+| 21124683 | 戴志成 |
+
 ## F.A.Q
 
 ##### What characterizes this ML01 machine learning course?

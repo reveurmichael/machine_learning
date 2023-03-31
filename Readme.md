@@ -357,6 +357,9 @@ You code should be open-sourced and hosted on GitHub.
 
 For each team, just one submission of the work is necessary, by one member of your team.
 
+Deadline for submission:
+- The midpoint of the 14 days of Exam Weeks of SHU, i.e. the first Saturday of the first Exam Week, 23:59.
+
 ### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
 - Best projects' videos will be included on Lunde Chen's bilibili channel.

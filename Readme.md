@@ -293,6 +293,8 @@ AWS SageMaker
 
 Machine learning app next.js/react, AWS Amplify
 
+Team work, IAM etc. 
+
 ## Project
 
 ### Forming groups

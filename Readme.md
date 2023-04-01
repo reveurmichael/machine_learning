@@ -246,7 +246,7 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
     - image background
     - animation
     - transition
-- For each of those different feature
+- For each of those different features
     - create a seperate GitHub repository 
     - therefore, you end up with multiple `remote`s on your local repository
 - Send the URLs of your reveal.js websites to the WeChat group when you finish.

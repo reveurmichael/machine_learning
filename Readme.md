@@ -259,6 +259,11 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 Emoji HTML code:
 - https://www.quackit.com/character_sets/emoji/emoji_v3.0/unicode_emoji_v3.0_characters_all.cfm
 
+
+Make sure you have a Tencent Cloud account, and an AWS account with a Credit Card bound to it.
+
+For a credit card, you might need help from a friend living now in foreign countries. I am not sure a Visa card in China will do or not.
+
 ### Week 4 
 
 - Test Driven Programming

@@ -264,6 +264,9 @@ Make sure you have a Tencent Cloud account, and an AWS account with a Credit Car
 
 For a credit card, you might need help from a friend living now in foreign countries. I am not sure a Visa card in China will do or not.
 
+For AWS, it will cost 1$, and then everything is basically free for one year.
+
+
 ### Week 4 
 
 - Test Driven Programming

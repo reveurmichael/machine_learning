@@ -240,7 +240,7 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 
 ### Week 3 
 
-reveal.js
+##### Task 1: reveal.js
 - Go to reveal.js official website, and try out different features.
     - code highlight
     - image background
@@ -250,6 +250,9 @@ reveal.js
     - create a seperate GitHub repository 
     - therefore, you end up with multiple `remote`s on your local repository
 - Send the URLs of your reveal.js websites to the WeChat group when you finish.
+
+##### Task 2: Deploy the Website on Tencent Static Website Host, or AWS S3
+
 
 ##### Pro tips
 

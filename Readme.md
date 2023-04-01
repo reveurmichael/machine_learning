@@ -295,6 +295,8 @@ Machine learning app next.js/react, AWS Amplify
 
 Team work, IAM etc. 
 
+Video to be made with Zhu Xinning.
+
 ## Project
 
 ### Forming groups

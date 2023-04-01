@@ -272,7 +272,7 @@ Tutorial (with videos):
 Week 4:
 - Local deployment.
 - Data Augmentation (no tutorial from prof.) for better performance.
-    - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist.html
+    - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
 
 
 Week 5:

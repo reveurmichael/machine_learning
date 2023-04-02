@@ -510,3 +510,4 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
     - http://cs231n.stanford.edu (Standford)
     - https://c.d2l.ai/berkeley-stat-157 (Berkeley)
     - http://introtodeeplearning.com (MIT)
+    - http://cs229.stanford.edu （Standford）

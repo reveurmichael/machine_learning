@@ -386,12 +386,12 @@ Deadline for submission:
 - Lunde Chen might invite you to participate in innovation competitions with your projects.
 
 ### Last but not least
-You app should be legal, ethical.
+Your app should be legal, ethical.
 
 ## Score
 
 Denoting your Continuous assessment score as `T`, your project score as `P`,
-you final score will be 
+your final score will be 
 
 ```python
 max(P, 0.4 * T + 0.6 * P)

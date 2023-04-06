@@ -241,7 +241,11 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 ### Week 3 
 
 ##### Task 1: reveal.js
+- Follow the video
+    - Create a repo named `cv`
+    - Deploy the website as `https:<YOUR-GITHUB-ACCOUNT-NAME>.github.io/cv`
 - Go to reveal.js official website, and try out different features.
+    - [demo](https://revealjs.com/demo), with its corresponding [source code](https://github.com/hakimel/reveal.js/)
     - code highlight
     - image background
     - animation
@@ -249,9 +253,10 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 - For each of those different features
     - create a seperate GitHub repository 
     - therefore, you end up with multiple `remote`s on your local repository
-- Send the URLs of your reveal.js websites to the WeChat group when you finish.
+- Send the URLs of your reveal.js websites to the WeChat group when you finish
 
 ##### Task 2: Deploy the reveal.js/GoHugo websites on Tencent Static Website Hosting Service, or AWS S3
+- Send the URLs of your Tencent/AWS S3 websites to the WeChat group when you finish
 
 
 ##### Pro tips

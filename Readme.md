@@ -244,8 +244,8 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 - Follow the video
     - Create a repo named `cv`
     - Deploy the website as `https:<YOUR-GITHUB-ACCOUNT-NAME>.github.io/cv`
-- Go to reveal.js official website, and try out different features.
-    - [demo](https://revealjs.com/demo), with its corresponding [source code](https://github.com/hakimel/reveal.js/)
+- Go to reveal.js official website, and try out different features
+    - [demo](https://revealjs.com/demo), with its corresponding [source code](https://github.com/hakimel/reveal.js/blob/master/demo.html)
     - code highlight
     - image background
     - animation

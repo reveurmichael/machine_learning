@@ -335,7 +335,7 @@ Streamlit Gallery etc.
 
 ### Implementation
 
-Your machine learning web application can be based on streamlit, flask, next.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
+Your machine learning web application can be based on streamlit, flask, next.js, tensorflow.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
 
 You can use chatgpt or gpt4, if you have the API key.
 
@@ -345,6 +345,8 @@ You can use AI APIs from Baidu/Tencent/Alibaba/Amazon/Google etc., for example:
 Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](http://an-interesting-ml-app.com).
 
 As an alternative, a WeChat miniprogram is OK as well.
+
+Use emojis or fontawesome/bootstrap icons. 
 
 You code should be open-sourced and hosted on GitHub.
 

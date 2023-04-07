@@ -219,7 +219,7 @@ Week 2:
 - Please install GitLens (VS Code extension).
 - Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
 
-##### Pro tips
+#### Pro tips
 
 用 Windows 的同学，可以按照这个教程，安装 posh-git
 - https://gitee.com/lundechen/hello#9-optional-git-branchstatus-indication-on-terminal
@@ -240,7 +240,7 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 
 ### Week 3 
 
-##### Task 1: reveal.js
+#### Task 1: reveal.js
 - Follow the video
     - Create a repo named `cv`
     - Deploy the website as `https:<YOUR-GITHUB-ACCOUNT-NAME>.github.io/cv`
@@ -255,11 +255,11 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
     - therefore, you end up with multiple `remote`s on your local repository
 - Send the URLs of your reveal.js websites to the WeChat group when you finish
 
-##### Task 2: Deploy the reveal.js/GoHugo websites on Tencent Static Website Hosting Service, or AWS S3
+#### Task 2: Deploy the reveal.js/GoHugo websites on Tencent Static Website Hosting Service, or AWS S3
 - Send the URLs of your Tencent/AWS S3 websites to the WeChat group when you finish
 
 
-##### Pro tips
+#### Pro tips
 
 Emoji HTML code:
 - https://www.quackit.com/character_sets/emoji/emoji_v3.0/unicode_emoji_v3.0_characters_all.cfm
@@ -500,19 +500,19 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ## F.A.Q
 
-##### What characterizes this ML01 machine learning course?
+#### What characterizes this ML01 machine learning course?
 - Stressful, fun and rewarding.
 
-##### Do we have extra-course work?
+#### Do we have extra-course work?
 -  Yes. A lot. 
 - At least 10 hours of extra-course work each week is expected from you. 
     - 4 hours for course content & test preparation
     - 6 hours for your project (6 is the bare minimum, you might want to shoot up to 20 towards the end of the trimester).
 
-##### What can I add as items to my CV after taking this course?
+#### What can I add as items to my CV after taking this course?
 -  It's quite a lot. For example, AWS Amplify, AWS SageMaker, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
 
-##### Why this course seems a bit different?
+#### Why this course seems a bit different?
 - Well, the prof draws inspirations from courses of Standford, Berkeley and MIT.
     - http://cs231n.stanford.edu (Standford)
     - https://c.d2l.ai/berkeley-stat-157 (Berkeley)

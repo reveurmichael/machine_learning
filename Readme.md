@@ -385,7 +385,7 @@ You code should be open-sourced and hosted on GitHub.
 For each team, just one submission of the work is necessary, by one member of your team.
 
 Deadline for submission:
-- The second Friday the 14 days of Exam Weeks of SHU, 23:59.
+- The second Friday of the 14 days of Exam Weeks of SHU, 23:59.
 
 ### For best projects
 - Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.

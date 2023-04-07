@@ -513,8 +513,8 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 -  It's quite a lot. For example, AWS Amplify, AWS SageMaker, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
 
 #### Why this course seems a bit different?
-- Well, the prof draws inspirations from courses of Standford, Berkeley and MIT.
-    - http://cs231n.stanford.edu (Standford)
+- Well, the prof draws inspirations from courses of Stanford, Berkeley and MIT.
+    - http://cs231n.stanford.edu (Stanford)
     - https://c.d2l.ai/berkeley-stat-157 (Berkeley)
     - http://introtodeeplearning.com (MIT)
-    - http://cs229.stanford.edu （Standford）
+    - http://cs229.stanford.edu （Stanford）

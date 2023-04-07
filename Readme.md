@@ -460,7 +460,7 @@ Questions won't be answered if:
 ### Regarding personal WeChat chats:
 - **Questions asked in personal WeChat chats will NOT be answered.**
 
-Learning how to use Google & Baidu & Bing to solve computer science problems is an important skill you should develop during this course.
+Learning how to use Google & Baidu & Bing & ChatGTP to solve computer science problems is an important skill you should develop during this course.
 
 For private questions, please send your questions by email to:
 - lundechen@shu.edu.cn (Lunde Chen)

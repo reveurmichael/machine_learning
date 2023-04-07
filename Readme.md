@@ -131,7 +131,7 @@ Test (30 min):
 
 ### Week 8
 
-Material to read before test:
+Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
 - **Math**: backpropagation algorithm
 

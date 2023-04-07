@@ -414,7 +414,7 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 etc.
 
 
-## Gallary
+## Gallery
 
 ### GoHugo website
 - https://alexisz12.github.io/

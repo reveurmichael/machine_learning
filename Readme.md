@@ -46,6 +46,17 @@ For Thursdays' practice sessions, please bring your headphone as well, because y
 ### Week 4
 - Neural networks
 
+During the class,
+we will play a little bit with 
+Tensorflow Playground:
+- https://playground.tensorflow.org
+
+AFTER the class, please watch those videos very carefully:
+- https://www.youtube.com/watch?v=aircAruvnKk
+- https://www.youtube.com/watch?v=IHZwWFHWa-w
+- https://www.youtube.com/watch?v=Ilg3gGewQ5U
+- https://www.youtube.com/watch?v=tIeHLnjs5U8
+
 ### Week 5
 - Building a Machine Learning web app
 
@@ -126,13 +137,14 @@ Materials to read before test:
 Test (30 min):
 - Neural network implementation from scratch (1/2)
 - **Math**: activation functions
-
+- **History/Culture**: History of Neural Network/Deep Learning
 
 ### Week 8
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
 - **Math**: backpropagation algorithm
+- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years
 
 
 Test (30 min):
@@ -168,7 +180,6 @@ Exercise:
 - Linear Regression from scratch
     - [Math-heavy approach](https://www.analyticsvidhya.com/blog/2021/06/getting-started-with-machine-learning%E2%80%8A-%E2%80%8Aimplementing-linear-regression-from-scratch/)
     - Math-light approach (Gradient Descent)
-
 - https://towardsdatascience.com/coding-linear-regression-from-scratch-c42ec079902
 - https://github.com/tugot17/Linear-Regression-From-Scratch
 - https://debuggercafe.com/implement-simple-linear-regression-from-scratch/
@@ -233,7 +244,6 @@ Corresponding tutorial video：
 ![](img/posh-git.png)
 
 If you are on MacOS/Linux, you can install *oh my zsh* instead.
-
 
 同时 windows 建议使用 Windows Terminal
 

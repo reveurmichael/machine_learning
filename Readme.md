@@ -122,7 +122,6 @@ Test (30 min):
 ### Week 6
 Materials to read before test:
 - all jupyter notebooks for lectures and exercises
--
 
 Test (30 min):
 - Neural network implementation from scratch (1/2)

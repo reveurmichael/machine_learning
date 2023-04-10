@@ -499,12 +499,10 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ## Online resources
 
-吴恩达机器学习系列：
-- https://www.bilibili.com/video/BV164411b7dx
-
-吴恩达深度学习系列：
-- https://www.bilibili.com/video/BV164411m79z
-
+1. 吴恩达机器学习系列：
+    - https://www.bilibili.com/video/BV164411b7dx
+1. 吴恩达深度学习系列：
+    - https://www.bilibili.com/video/BV164411m79z
 
 ## F.A.Q
 

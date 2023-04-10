@@ -498,6 +498,15 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 | 20124772 | 娄宇鑫 |
 | 21124683 | 戴志成 |
 
+## Online resources
+
+吴恩达机器学习系列：
+- https://www.bilibili.com/video/BV164411b7dx
+
+吴恩达深度学习系列：
+- https://www.bilibili.com/video/BV164411m79z
+
+
 ## F.A.Q
 
 #### What characterizes this ML01 machine learning course?

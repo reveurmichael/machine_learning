@@ -89,7 +89,7 @@ In total, 4 tests will be conducted.
 
 Tests are on paper, with book closed, no Internet, no electronic device, no discussion with classmates, no asking prof questions.
 
-After each test, feel free to forget everything that you have learned for test preparation. Because your intuition has already been developed and will stay with you. After you have experienced all this, you gain more confidence on youself and would be more open to new challenges. And that's the most important thing.
+After each test, feel free to forget everything that you have learned for test preparation, because your intuition has already been developed and will stay with you. After you have experienced all this, you gain more confidence on youself and would be more open to new challenges. And that's the most important thing.
 
 
 ### Week 2

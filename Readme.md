@@ -143,13 +143,13 @@ Test (30 min):
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
-- **Math**: backpropagation algorithm
-- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years
+
 
 
 Test (30 min):
 - Neural network implementation from scratch (2/2)
-- Some math
+- **Math**: backpropagation algorithm
+- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years
 
 
 ## Exercise sessions (Wednesday)

@@ -422,8 +422,8 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 ### Distribution of notes
 - 10% A (90-100)
 - 20% A- (85-89)
-- 25% B (80-84)
-- 25% C (75-79)
+- 30% B (80-84)
+- 20% C (75-79)
 - 20% D/E/F
 
 

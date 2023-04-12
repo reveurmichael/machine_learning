@@ -111,8 +111,7 @@ Test (30 min):
 - **Code**: Python list
 - **Code**: Numpy slicing, numpy broadcast
 - **Math**: Bivariate Gaussian Distribution
-- ssh key
-- CI/CD, GitHub Actions
+- **Misc**: ssh key, CI/CD, GitHub Actions
 
 
 ### Week 4
@@ -127,9 +126,7 @@ Test (30 min):
 - **Code**: Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
 - **Math**: cross-entropy loss function for logistic regression
-- GitHub Pull Request (GitHub workflow)
-- git conflict resolving
-- git merge v.s. git rebase
+- **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
 
 
 ### Week 6
@@ -164,7 +161,7 @@ Test (30 min):
 - **Code**: Neural network implementation from scratch (2/2)
 - **Math**: backpropagation algorithm
 - **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
-- [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app) related notions: Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
+- **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 
 
 ## Exercise sessions (Wednesday)

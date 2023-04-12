@@ -123,8 +123,8 @@ Materials to read before test:
 
 
 Test (30 min):
-- Linear Regression implementation from scratch
-- Logistic Regression implementation from scratch
+- **Code**: Linear Regression implementation from scratch
+- **Code**: Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
 - **Math**: cross-entropy loss function for logistic regression
 - GitHub Pull Request (GitHub workflow)
@@ -147,7 +147,7 @@ Materials to read before test:
 
 
 Test (30 min):
-- Neural network implementation from scratch (1/2)
+- **Code**: Neural network implementation from scratch (1/2)
 - **Math**: activation functions
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)

@@ -141,11 +141,15 @@ Materials to read before test:
 - https://medium.com/analytics-vidhya/brief-history-of-neural-networks-44c2bf72eec
 - https://www.dataversity.net/a-brief-history-of-neural-networks/
 - https://pub.towardsai.net/a-brief-history-of-neural-nets-472107bc2c9c
+- https://machinelearningmastery.com/the-chain-rule-of-calculus-for-univariate-and-multivariate-functions/
+- https://dougenterprises.com/the-neural-network-chain-rule/
+- https://theorydish.blog/2021/12/16/backpropagation-%E2%89%A0-chain-rule
 
 
 Test (30 min):
 - Neural network implementation from scratch (1/2)
 - **Math**: activation functions
+- **Math**: the chain rule of calculus for univariate and multivariate functions
 - **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
 
 ### Week 8

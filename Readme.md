@@ -108,8 +108,8 @@ Materials to read before test:
 - https://www.ssh.com/academy/ssh-keys
 
 Test (30 min):
-- Python list
-- Numpy slicing, numpy broadcast
+- **Code**: Python list
+- **Code**: Numpy slicing, numpy broadcast
 - **Math**: Bivariate Gaussian Distribution
 - ssh key
 - CI/CD, GitHub Actions
@@ -156,13 +156,15 @@ Test (30 min):
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
+- https://gitee.com/lundechen/machine_learning_web_app
 
 
 
 Test (30 min):
-- Neural network implementation from scratch (2/2)
+- **Code**: Neural network implementation from scratch (2/2)
 - **Math**: backpropagation algorithm
 - **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
+- [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app) related notions: Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 
 
 ## Exercise sessions (Wednesday)

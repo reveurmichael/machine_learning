@@ -126,6 +126,7 @@ Test (30 min):
 - Linear Regression implementation from scratch
 - Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
+- **Math**: cross-entropy loss function for logistic regression
 - GitHub Pull Request (GitHub workflow)
 - git conflict resolving
 - git merge v.s. git rebase
@@ -134,11 +135,18 @@ Test (30 min):
 ### Week 6
 Materials to read before test:
 - all jupyter notebooks for lectures and exercises
+- The four 3b1b videos
+- https://www.analyticsvidhya.com/blog/2021/04/activation-functions-and-their-derivatives-a-quick-complete-guide/
+- https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6
+- https://medium.com/analytics-vidhya/brief-history-of-neural-networks-44c2bf72eec
+- https://www.dataversity.net/a-brief-history-of-neural-networks/
+- https://pub.towardsai.net/a-brief-history-of-neural-nets-472107bc2c9c
+
 
 Test (30 min):
 - Neural network implementation from scratch (1/2)
 - **Math**: activation functions
-- **History/Culture**: History of Neural Network/Deep Learning
+- **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
 
 ### Week 8
 
@@ -150,7 +158,7 @@ Materials to read before test:
 Test (30 min):
 - Neural network implementation from scratch (2/2)
 - **Math**: backpropagation algorithm
-- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years
+- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
 
 
 ## Exercise sessions (Wednesday)

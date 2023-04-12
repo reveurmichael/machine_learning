@@ -134,6 +134,7 @@ Materials to read before test:
 - all jupyter notebooks for lectures and exercises
 - The four 3b1b videos
 - https://www.analyticsvidhya.com/blog/2021/04/activation-functions-and-their-derivatives-a-quick-complete-guide/
+- https://towardsdatascience.com/7-popular-activation-functions-you-should-know-in-deep-learning-and-how-to-use-them-with-keras-and-27b4d838dfe6
 - https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6
 - https://medium.com/analytics-vidhya/brief-history-of-neural-networks-44c2bf72eec
 - https://www.dataversity.net/a-brief-history-of-neural-networks/

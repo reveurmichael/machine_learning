@@ -300,19 +300,19 @@ For AWS, it will cost 1$, and then everything is basically free for one year.
 Tutorial (with videos):
 - https://gitee.com/lundechen/machine_learning_web_app
 
-Week 4:
+Week 5:
 - Local deployment.
 - Data Augmentation (no tutorial from prof.) for better performance.
     - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
 
 
-Week 5:
+Week 6:
 - Cloud deployment
     - for the ML web app
     - as well as for GoHugo and reveal.js website.
 - GitHub WebHook (no tutorial from prof., things are to be done by students).
 
-Week 6:
+Week 7:
 - Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 - Send the url of your ML web app to the WeChat group when you finish.
 

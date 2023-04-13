@@ -548,4 +548,5 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 #### Do we have a slogan?
 - Yes. See the picture below &#128071;
+
 ![](img/justdoit.png)

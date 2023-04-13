@@ -19,15 +19,20 @@ For each session, please bring your own Laptop!
 For Thursdays' practice sessions, please bring your headphone as well, because you will watch videos.
 
 ### Monday (Lectures and Continuous assessments)
+Mostly theory.
 
 - 20:00 - 21:40
 - B313
 
 ### Wednesday (Exercise sessions)
+Mostly code.
+
 - 10:00 - 11:40
 - B313
 
 ### Thursday (Practice sessions)
+Practice sessions can help you to be more instrustry-ready.
+
 - 13:00 - 16:40
 - B315
 

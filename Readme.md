@@ -545,3 +545,7 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
     - https://c.d2l.ai/berkeley-stat-157 (Berkeley)
     - http://introtodeeplearning.com (MIT)
     - http://cs229.stanford.edu （Stanford）
+
+#### Do we have a slogan?
+- Yes. See the picture below &#128071;
+![](img/justdoit.png)

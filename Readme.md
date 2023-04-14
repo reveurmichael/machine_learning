@@ -418,8 +418,7 @@ Your app should be legal, ethical.
 
 ## Score
 
-Denoting your Continuous assessment score as `T`, your project score as `P`,
-your final score will be 
+Denoting your Continuous assessment score as `T`, your project score as `P`, your final score will be 
 
 ```python
 max(P, 0.4 * T + 0.6 * P)

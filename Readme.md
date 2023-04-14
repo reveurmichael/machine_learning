@@ -378,6 +378,7 @@ You code should be open-sourced and hosted on GitHub.
     - How to use your ML Web app
     - How did you implement your app
     - How did you deploy your app
+    - How CI/CD/GitHub Actions/WebHook plays a role in your deployment
 - If possible, make it fun. 
 - If possible, make it fancy. 
 - If applicable, include an ethics analysis of your project in the video.

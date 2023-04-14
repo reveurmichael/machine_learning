@@ -51,9 +51,7 @@ Practice sessions can help you to be more instrustry-ready.
 ### Week 4
 - Neural networks
 
-During the class,
-we will play a little bit with 
-Tensorflow Playground:
+During the class, we will play a little bit with Tensorflow Playground:
 - https://playground.tensorflow.org
 
 AFTER the class, please watch those videos very carefully:

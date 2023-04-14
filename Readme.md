@@ -137,7 +137,7 @@ Test (30 min):
 ### Week 6
 Materials to read before test:
 - all jupyter notebooks for lectures and exercises
-- The four 3b1b videos
+- The four 3b1b videos [[1]](https://www.youtube.com/watch?v=aircAruvnKk) [[2]](https://www.youtube.com/watch?v=IHZwWFHWa-w) [[3]](https://www.youtube.com/watch?v=Ilg3gGewQ5U) [[4]](https://www.youtube.com/watch?v=tIeHLnjs5U8)
 - https://www.analyticsvidhya.com/blog/2021/04/activation-functions-and-their-derivatives-a-quick-complete-guide/
 - https://towardsdatascience.com/7-popular-activation-functions-you-should-know-in-deep-learning-and-how-to-use-them-with-keras-and-27b4d838dfe6
 - https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6

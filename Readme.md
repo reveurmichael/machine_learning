@@ -151,7 +151,8 @@ Materials to read before test:
 
 
 Test (30 min):
-- **Code**: Neural network implementation from scratch (1/2)
+- **Code**: Neural network implementation from scratch (1/2) 
+    - Some basic starter code will be provided
 - **Math**: activation functions
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
@@ -165,7 +166,8 @@ Materials to read before test:
 
 
 Test (30 min):
-- **Code**: Neural network implementation from scratch (2/2)
+- **Code**: Neural network implementation from scratch (2/2) 
+    - No starter code provided
 - **Math**: backpropagation algorithm
 - **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
 - **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.

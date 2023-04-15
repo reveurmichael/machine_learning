@@ -167,6 +167,7 @@ Test (30 min):
 - **Code**: Neural network implementation from scratch (2/2) 
     - No starter code provided
 - **Math**: backpropagation algorithm
+- **Math**: universal approximation theorem
 - **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
 - **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 

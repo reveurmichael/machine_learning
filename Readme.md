@@ -218,6 +218,8 @@ Exercise:
     - https://streamlit.io/gallery
     - https://shiny.rstudio.com/gallery/
 
+- Kick off your projects
+
 ### Week 6
 
 
@@ -323,7 +325,8 @@ Week 5:
 
 Week 6:
 - Cloud deployment
-    - for the ML web app
+    - for the ML web app (Digit Recgonization)
+    - for the UFO prediction web app as well
     - as well as for GoHugo and reveal.js website.
 - GitHub WebHook (no tutorial from prof., things are to be done by students).
 
@@ -356,6 +359,10 @@ Students will also learn how to manager resource access with IAM control, becaus
 
 ## Project
 
+### Kick off
+
+Projects kick off at Week 5.
+
 ### Forming groups
 
 Each group 3 students.
@@ -365,9 +372,12 @@ Forming groups:
 
 At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
 
-
 ### Get inspired
-Streamlit Gallery etc.
+
+- https://www.tensorflow.org/js/demos
+- https://streamlit.io/gallery
+- https://shiny.rstudio.com/gallery/
+
 
 ### Implementation
 

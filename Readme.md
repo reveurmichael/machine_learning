@@ -462,7 +462,7 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 
 ## Gallery
 
-### GoHugo website
+### GoHugo/reveal.js website
 - https://alexisz12.github.io/
 - https://moonoxy.github.io/
 - https://huangusr.github.io/
@@ -473,13 +473,14 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 - https://hong-yue111.github.io/
 - https://morganelu.github.io/
 
-### reveal.js
-
 ### ML web app
+
 
 ### Final project
 
+
 ## Misc
+
 
 #### Zen of Python
 

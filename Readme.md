@@ -97,7 +97,7 @@ Tests are on paper, with book closed, no Internet, no electronic device, no disc
 After each test, feel free to forget everything that you have learned for test preparation, because your intuition has already been developed and will stay with you. After you have experienced all this, you gain more confidence on youself and would be more open to new challenges. And that's the most important thing.
 
 
-### Week 2
+### Week 2 (Test 1/4)
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
@@ -119,7 +119,7 @@ Test (30 min):
 - **Misc**: ssh key, CI/CD, GitHub Actions
 
 
-### Week 4
+### Week 4 (Test 2/4)
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
@@ -134,7 +134,7 @@ Test (30 min):
 - **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
 
 
-### Week 6
+### Week 6 (Test 3/4)
 Materials to read before test:
 - all jupyter notebooks for lectures and exercises
 - The four 3b1b videos [[1]](https://www.youtube.com/watch?v=aircAruvnKk) [[2]](https://www.youtube.com/watch?v=IHZwWFHWa-w) [[3]](https://www.youtube.com/watch?v=Ilg3gGewQ5U) [[4]](https://www.youtube.com/watch?v=tIeHLnjs5U8)
@@ -157,7 +157,7 @@ Test (30 min):
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
 
-### Week 8
+### Week 8 (Test 4/4)
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises

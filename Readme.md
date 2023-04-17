@@ -62,7 +62,9 @@ AFTER the class, please watch those videos very carefully:
 
 ### Week 5
 - Building a Machine Learning web app
-
+    - https://microsoft.github.io/ML-For-Beginners/#/3-Web-App/1-Web-App/README
+    - https://github.com/microsoft/ML-For-Beginners/tree/main/3-Web-App/1-Web-App
+    
 ### Week 6
 - Model selection
 

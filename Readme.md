@@ -210,6 +210,11 @@ Exercise:
 Exercise:
 - Neural Network from scratch    
 ### Week 5
+Exercise:
+- Play with those ML apps, and get some ideas for your Project
+    - https://www.tensorflow.org/js/demos
+    - https://streamlit.io/gallery
+    - https://shiny.rstudio.com/gallery/
 
 ### Week 6
 

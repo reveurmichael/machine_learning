@@ -345,7 +345,7 @@ The Web App will be connected to a Cloud DataBase.
 
 One student has access to DB, the other one not, via IAM control.
 
-S3 should be present here as well. IAM for S3.
+S3 should be present in the project as well. IAM for S3.
 
 Videos to be made with Zhu Xinning.
 

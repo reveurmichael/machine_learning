@@ -340,6 +340,9 @@ Week 7:
 
 AWS SageMaker
 
+- [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on AWS SageMaker
+
+
 ### Week 9 - 10
 
 Machine learning app next.js/react, AWS Amplify

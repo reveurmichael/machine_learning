@@ -209,7 +209,7 @@ Exercise:
 ### Week 4
 Exercise:
 - Neural Network from scratch  
-  
+
 ### Week 5
 
 Exercise:
@@ -340,6 +340,12 @@ AWS SageMaker
 Machine learning app next.js/react, AWS Amplify
 
 Team work, IAM etc. 
+
+The Web App will be connected to a Cloud DataBase.
+
+One student has access to DB, the other one not, via IAM control.
+
+S3 should be present here as well. IAM for S3.
 
 Videos to be made with Zhu Xinning.
 

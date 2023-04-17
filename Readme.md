@@ -321,18 +321,20 @@ Week 5:
 - Local deployment.
 - Data Augmentation (no tutorial from prof.) for better performance.
     - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
-
+- [optional] Deploy a [tensorflow.js demo](https://www.tensorflow.org/js/demos) on local
 
 Week 6:
 - Cloud deployment
     - for the ML web app (Digit Recgonization)
     - for the UFO prediction web app as well
     - as well as for GoHugo and reveal.js website.
-- GitHub WebHook (no tutorial from prof., things are to be done by students).
+- [optional] GitHub WebHook (no tutorial from prof., things are to be done by students).
+- [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud VM
 
 Week 7:
 - Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
 - Send the url of your ML web app to the WeChat group when you finish.
+- [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud docker container
 
 ### Week 8
 

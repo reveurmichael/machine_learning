@@ -349,9 +349,11 @@ Machine learning app next.js/react, AWS Amplify
 
 Team work, IAM etc. 
 
-The Web App will be connected to a Cloud DataBase.
+The Web App will be connected to a Cloud DataBase (DynamoDB).
 
 One student has access to DB, the other one not, via IAM control.
+
+Lambda will be used as well.
 
 S3 should be present in the project as well. IAM for S3.
 

@@ -218,7 +218,10 @@ Exercise:
     - https://streamlit.io/gallery
     - https://shiny.rstudio.com/gallery/
 
-- Kick off your projects
+- PICTH!
+    - Present your amazing idea (even if it can be refined later, and should be)
+    - Get people to join your team
+    - Kick off your projects
 
 ### Week 6
 

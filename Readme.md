@@ -412,8 +412,8 @@ You code should be open-sourced and hosted on GitHub.
     - How did you implement your app
     - How did you deploy your app
     - How CI/CD/GitHub Actions/WebHook plays a role in your deployment
-- If possible, make it fun. 
-- If possible, make it fancy. 
+- If possible, make it fun (Because life is good). 
+- If possible, make it fancy (Because you are young). 
 - If applicable, include an ethics analysis of your project in the video.
 - If applicable, include an social impact analysis of your project  in the video.
 - If applicable, include an market analysis of your project  in the video.

@@ -322,8 +322,8 @@ Tutorial (with videos):
 
 Week 5 (Video 1 - Video 7):
 - Local deployment.
-- Data Augmentation (no tutorial from prof.) for better performance.
-    - For Data Augmentation, follow this: https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
+- Data Augmentation for better performance:
+    - https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
 - [optional] Deploy a [tensorflow.js demo](https://www.tensorflow.org/js/demos) on local
 
 Week 6 (Video 8 - Video 10):

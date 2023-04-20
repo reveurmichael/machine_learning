@@ -373,7 +373,7 @@ Students will also learn how to manage resource access with IAM control, because
 
 ### Kick off
 
-Projects kick off at Week 5, excercise session.
+Projects kick off at Week 5, exercise session.
 
 ### Forming groups
 

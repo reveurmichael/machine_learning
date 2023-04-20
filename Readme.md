@@ -331,6 +331,7 @@ If you really struggle with tensorflow etc. on your local machine, you could con
 - Google Colab
 - GitHub Codespace
 - AutoDL for renting a GPU machine
+    - https://www.autodl.com/
 
 ##### Week 6 (Video 8 - Video 10)
 - Cloud deployment

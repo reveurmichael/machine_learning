@@ -367,7 +367,7 @@ Videos to be made with Zhu Xinning and Huanglongfei.
 Basically, it will be the AWS Amplify/next.js version of:
 - https://gitee.com/lundechen/machine_learning_web_app
 
-Students will also learn how to manager resource access with IAM control, because every two/three students will pair up and work together.
+Students will also learn how to manager resource access with IAM control, because every two students will pair up and work together.
 
 ## Project
 

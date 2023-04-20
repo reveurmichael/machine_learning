@@ -327,11 +327,21 @@ Tutorial (with videos):
 - [optional] Deploy a [tensorflow.js demo](https://www.tensorflow.org/js/demos) on local
 
 **Pro tips:**
+
 If you really struggle with tensorflow etc. on your local machine, you could consider
 - Google Colab
 - GitHub Codespace
 - AutoDL for renting a GPU machine
     - https://www.autodl.com/
+
+**Pro tips:**
+
+if you encounter this issue:
+- ModuleNotFoundError: No module named 'streamlit.cli'
+
+here is the solution:
+- https://stackoverflow.com/questions/68162180/modulenotfounderror-no-module-named-streamlit-cli
+
 
 ##### Week 6 (Video 8 - Video 10)
 - Cloud deployment

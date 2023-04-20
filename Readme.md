@@ -362,7 +362,7 @@ Lambda will be used as well.
 
 S3 should be present in the project as well. IAM for S3.
 
-Videos to be made with Zhu Xinning.
+Videos to be made with Zhu Xinning and Huanglongfei.
 
 Basically, it will be the AWS Amplify/next.js version of:
 - https://gitee.com/lundechen/machine_learning_web_app

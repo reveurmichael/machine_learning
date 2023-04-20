@@ -389,7 +389,7 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 - https://www.tensorflow.org/js/demos
 - https://streamlit.io/gallery
 - https://shiny.rstudio.com/gallery/
-
+- https://github.com/MarcSkovMadsen/awesome-streamlit
 
 ### Implementation
 

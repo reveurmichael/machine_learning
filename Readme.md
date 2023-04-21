@@ -488,6 +488,8 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 - 20% C (75-79)
 - 20% D/E/F
 
+Failing rate:
+- 2021: 10%
 
 ## Gallery
 

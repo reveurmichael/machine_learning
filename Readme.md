@@ -655,4 +655,4 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 ![](img/justdoit.png)
 
 ## License
-MIT.
+This repository is licensed under [MIT](LICENSE).

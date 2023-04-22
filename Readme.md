@@ -325,6 +325,7 @@ Tutorial (with videos):
 - Data Augmentation for better performance:
     - https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
 - [optional] Deploy a [tensorflow.js demo](https://www.tensorflow.org/js/demos) on local
+- [optional] Deploy [how-old-are-you-according-to-a-cnn-app](https://www.kaggle.com/code/ubiratanfilho/how-old-are-you-according-to-a-cnn) on local
 
 #### Pro tips
 

@@ -349,7 +349,7 @@ here is the solution:
     - for the UFO prediction web app as well
     - as well as for GoHugo and reveal.js website.
 - Streamlit Cloud deployment
-    - https://docs.streamlit.io/streamlit-community-cloud/get-started/deploy-an-app
+    - https://docs.streamlit.io/streamlit-community-cloud/
 - [optional] GitHub WebHook (no tutorial from prof., things are to be done by students).
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud VM
 

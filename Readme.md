@@ -431,7 +431,7 @@ Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](ht
 
 As an alternative, a WeChat miniprogram is OK as well.
 
-Use emojis or fontawesome/bootstrap icons. 
+Use emojis or fontawesome/bootstrap icons where appropriate.
 
 You code should be open-sourced and hosted on GitHub.
 

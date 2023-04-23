@@ -361,6 +361,10 @@ here is the solution:
 - [optional] Streamlit Cookie (Video 14) 
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud docker container
 
+
+![](img/azure.png)
+
+
 ### Week 8
 
 AWS SageMaker

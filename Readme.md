@@ -349,6 +349,7 @@ here is the solution:
     - for the ML web app (Digit Recgonization)
     - for the UFO prediction web app as well
     - as well as for GoHugo and reveal.js website.
+        - https://www.bilibili.com/video/BV1PY4y1t746/
 - Streamlit Cloud deployment
     - https://docs.streamlit.io/streamlit-community-cloud/
 - [optional] GitHub WebHook (no tutorial from prof., things are to be done by students).

@@ -417,6 +417,7 @@ At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`
 - https://github.com/MarcSkovMadsen/awesome-streamlit
 - Alternatives to streamlit:
     - https://anvil.works/articles/4-alternatives-streamlit
+- https://huggingface.co/
 
 ### Implementation
 

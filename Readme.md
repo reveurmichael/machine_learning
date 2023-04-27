@@ -115,7 +115,11 @@ Materials to read before test:
 Test (30 min):
 - **Code**: Python list
 - **Code**: Numpy slicing, numpy broadcast
+- **Math**: Gaussian Distribution
+- **Math**: Poisson Distribution
 - **Math**: Bivariate Gaussian Distribution
+- **Math**: Linear Algebra: matrix multiplication
+- **Math**: Linear Algebra: eigen value, eigen vector
 - **Misc**: ssh key, CI/CD, GitHub Actions
 
 
@@ -130,6 +134,7 @@ Test (30 min):
 - **Code**: Linear Regression implementation from scratch
 - **Code**: Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
+- **Math**: MSE for linear regression
 - **Math**: cross-entropy loss function for logistic regression
 - **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
 
@@ -152,9 +157,11 @@ Materials to read before test:
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (1/2) 
-    - Some basic starter code will be provided
+    - Some basic starter code (>= 90%) will be provided
 - **Math**: activation functions
+- **Math**: universal approximation theorem
 - **Math**: the chain rule of calculus for univariate and multivariate functions
+- **Math**: backpropagation algorithm
 - **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
 
 ### Week 8 (Test 4/4)
@@ -162,14 +169,14 @@ Test (30 min):
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
 - https://gitee.com/lundechen/machine_learning_web_app
-
-
+- https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (2/2) 
-    - No starter code provided
-- **Math**: backpropagation algorithm
-- **Math**: universal approximation theorem
+    - Some basic starter code (<= 50%) will be provided
+- **Math**: L1 and L2 regularization
+- **Math**: Bias Variance Trade-off
+- **Math**: Learning Curve for determing overfitting and uderfitting
 - **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
 - **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 

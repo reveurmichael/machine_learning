@@ -325,8 +325,8 @@ For AWS, it will cost 1$, and then everything is basically free for one year.
 
 ### Week 5 - Week 7
 
-Tutorial (with videos):
-- https://gitee.com/lundechen/machine_learning_web_app
+Machine Learning web application.
+
 
 #### Week 5 (Video 1 - Video 7)
 Tutorial (with videos): 

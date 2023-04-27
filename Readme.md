@@ -329,6 +329,10 @@ Tutorial (with videos):
 - https://gitee.com/lundechen/machine_learning_web_app
 
 #### Week 5 (Video 1 - Video 7)
+Tutorial (with videos): 
+- https://gitee.com/lundechen/machine_learning_web_app
+
+Your task:
 - Local deployment.
 - Data Augmentation for better performance:
     - https://open-academy.github.io/machine-learning/assignments/ml-fundamentals/ml-overview-mnist-digits.html
@@ -353,6 +357,10 @@ here is the solution:
 
 
 #### Week 6 (Video 8 - Video 10)
+Tutorial (with videos): 
+- https://gitee.com/lundechen/machine_learning_web_app
+
+Your task:
 - Cloud VM deployment
     - for the ML web app (Digit Recgonization)
     - for the UFO prediction web app as well
@@ -365,6 +373,10 @@ here is the solution:
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud VM
 
 #### Week 7 (Video 11 - Video 12)
+Tutorial (with videos): 
+- https://gitee.com/lundechen/machine_learning_web_app
+
+Your task:
 - Docker deployment, for the ML web app
 - Docker deployment, for GoHugo and reveal.js website
     - https://www.bilibili.com/video/BV1PY4y1t746/

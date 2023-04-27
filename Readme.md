@@ -170,6 +170,7 @@ Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
 - https://gitee.com/lundechen/machine_learning_web_app
 - https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
+- https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (2/2) 

@@ -356,15 +356,16 @@ here is the solution:
 - Cloud VM deployment
     - for the ML web app (Digit Recgonization)
     - for the UFO prediction web app as well
-    - as well as for GoHugo and reveal.js website.
-        - https://www.bilibili.com/video/BV1PY4y1t746/
+    
 - Streamlit Cloud deployment
     - https://docs.streamlit.io/streamlit-community-cloud/
 - [optional] GitHub WebHook (no tutorial from prof., things are to be done by students).
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud VM
 
 #### Week 7 (Video 11 - Video 12)
-- Docker deployment, for the ML web app, as well as for GoHugo and reveal.js website.
+- Docker deployment, for the ML web app
+- Docker deployment, for GoHugo and reveal.js website
+    - https://www.bilibili.com/video/BV1PY4y1t746/
 - Send the url of your ML web app to the WeChat group when you finish.
 - [optional] Install MySQL and PhpMyAdmin with Docker (Video 13) 
 - [optional] Streamlit Cookie (Video 14) 

@@ -116,7 +116,6 @@ Test (30 min):
 - **Code**: Python list
 - **Code**: Numpy slicing, numpy broadcast
 - **Math**: Gaussian Distribution
-- **Math**: Poisson Distribution
 - **Math**: Bivariate Gaussian Distribution
 - **Math**: Linear Algebra: matrix multiplication
 - **Math**: Linear Algebra: eigen value, eigen vector

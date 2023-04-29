@@ -187,7 +187,7 @@ Most exercises will correspond to lecture topics, with some extensions.
 
 ### Week 1
 
-Starting from this session, we will use Jupyter Notebook
+Starting from this session, we will use Jupyter Notebook.
 
 Please install Python, VS Code, and, ideally, you should be able to use Google Colab and GitHub.
 

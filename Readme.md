@@ -187,7 +187,7 @@ Most exercises will correspond to lecture topics, with some extensions.
 
 ### Week 1
 
-Starting from this session, we will use Jupyter Notebook
+Starting from this session, we will use Jupyter Notebook.
 
 Please install Python, VS Code, and, ideally, you should be able to use Google Colab and GitHub.
 
@@ -454,7 +454,7 @@ Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](ht
 
 As an alternative, a WeChat miniprogram is OK as well.
 
-Use emojis or fontawesome/bootstrap icons where appropriate.
+Use emojis or fontawesome/bootstrap icons where appropriate (How can we deliver messages without emojis! Impossible mission!).
 
 You code should be open-sourced and hosted on GitHub.
 
@@ -669,7 +669,7 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 #### Do we have extra-course work?
 -  Yes. A lot. 
 - At least 10 hours of extra-course work each week is expected from you. 
-    - 4 hours for course content & test preparation
+    - 4 hours for course content revision & test preparation
     - 6 hours for your project (6 is the bare minimum, you might want to shoot up to 20 or 30 towards the end of the trimester).
 
 #### What can I add as items to my CV after taking this course?

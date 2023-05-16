@@ -10,10 +10,6 @@
 
 <https://www.kaggle.com/code/andradaolteanu/img2text-image-generator-using-diffusers>
 
-
-<https://www.kaggle.com/code/andradaolteanu/img2text-image-generator-using-diffusers>
-
-
 <https://www.kaggle.com/code/averkij/variational-autoencoder-and-faces-generation>
 
 

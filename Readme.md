@@ -238,6 +238,8 @@ Exercise:
 ### Week 8
 
 ### Week 9
+- https://poloclub.github.io/ganlab/
+- https://douglasduhaime.com/posts/visualizing-latent-spaces.html
 
 ### Week 10
 

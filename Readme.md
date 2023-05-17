@@ -237,11 +237,14 @@ Exercise:
 
 ### Week 8
 - https://poloclub.github.io/ganlab/
+- https://todayinsci.com/QuotationsCategories/I_Cat/Intuition-Quotations.htm
 
 
 ### Week 9
 - https://douglasduhaime.com/posts/visualizing-latent-spaces.html
-- https://todayinsci.com/QuotationsCategories/I_Cat/Intuition-Quotations.htm
+- https://www.youtube.com/watch?v=RGBNdD3Wn-g
+
+
 ### Week 10
 
 ## Practice sessions (Thursday)

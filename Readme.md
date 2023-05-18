@@ -400,8 +400,12 @@ AWS SageMaker
 
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on AWS SageMaker
 
+### Week 9
 
-### Week 9 - 10
+- <https://www.youtube.com/watch?v=yznvWW_L7AA>
+- <https://www.youtube.com/watch?v=s_o8dwzRlu4>
+
+### Week 10 - 11
 
 Machine learning app next.js/react, AWS Amplify
 

@@ -401,6 +401,7 @@ Docker Compose, Docker Network
 ### Week 9
 
 - <https://www.youtube.com/watch?v=yznvWW_L7AA>
+- https://www.youtube.com/watch?v=5cNrTU6o3Fw
 - <https://www.youtube.com/watch?v=s_o8dwzRlu4>
 
 

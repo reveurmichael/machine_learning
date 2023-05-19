@@ -606,6 +606,12 @@ If the implementation is easy to explain, it may be a good idea.
 Namespaces are one honking great idea -- let's do more of those!
 ```
 
+#### Abstraction
+- https://en.wikipedia.org/wiki/Abstraction_(computer_science)
+- https://www.indeed.com/career-advice/career-development/abstraction-in-computer-science
+- https://isaaccomputerscience.org/concepts/dsa_ctm_abstraction
+- [Mirolo, C., Izu, C., Lonati, V., & Scapin, E. (2022). Abstraction in Computer Science Education: An Overview. Informatics in Education, 20(4), 615-639.](https://files.eric.ed.gov/fulltext/EJ1329311.pdf)
+
 ## Asking questions :question:
 
 ### Leveraging **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** for asking questions

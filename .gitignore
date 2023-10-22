@@ -14,3 +14,5 @@ venv
 /venv/
 */.python-version
 .python-version
+*/tmp/*
+*/tmp/**

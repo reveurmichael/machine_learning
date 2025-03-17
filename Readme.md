@@ -31,7 +31,7 @@ Mostly theory.
 ### Thursday (Exercise sessions)
 Mostly code.
 
-- 13:00 - 16:40
+- 13:00 - 14:40
 - D309
 
 ### Friday (Practice sessions)

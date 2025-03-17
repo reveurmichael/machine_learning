@@ -1,6 +1,10 @@
 
 # ML01 Machine Learning, UTSEUS, Shanghai University
 
+## QR Code
+
+![](/img/qr.png)
+
 ## Language
 
 English. For everything.
@@ -18,26 +22,26 @@ For each session, please bring your own Laptop!
 
 For Thursdays' practice sessions, please bring your headphone as well, because you will watch videos.
 
-### Monday (Lectures and Continuous assessments)
+### Tuesday (Lectures and Continuous assessments)
 Mostly theory.
 
-- 20:00 - 21:40
-- B313
+- 08:00 - 09:40
+- D309
 
-### Wednesday (Exercise sessions)
+### Thursday (Exercise sessions)
 Mostly code.
 
-- 10:00 - 11:40
-- B313
+- 13:00 - 16:40
+- D309
 
-### Thursday (Practice sessions)
+### Friday (Practice sessions)
 Practice sessions can help you to be more instrustry-ready.
 
-- 13:00 - 16:40
-- B315
+- 10:00 - 11:40
+- D309
 
 
-## Lectures (Monday)
+## Lectures (Tuesday)
 
 ### Week 1
 - Machine Learning overview
@@ -82,7 +86,7 @@ AFTER the class, please watch those videos very carefully:
 ### Week 10
 - DQN
 
-## Continuous assessment (Monday)
+## Continuous assessment (Tuesday)
 
 Tests will take place on Mondays (Week 2, Week 4, Week 6, Week 8).
 
@@ -181,7 +185,7 @@ Test (30 min):
 - **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 
 
-## Exercise sessions (Wednesday)
+## Exercise sessions (Thursday)
 
 Most exercises will correspond to lecture topics, with some extensions.
 
@@ -247,7 +251,7 @@ Exercise:
 
 ### Week 10
 
-## Practice sessions (Thursday)
+## Practice sessions (Friday)
 
 ### Week 1 - Week 2
 
@@ -407,30 +411,9 @@ Docker Compose, Docker Network
 
 ### Week 10
 
-AWS SageMaker
+???? AWS SageMaker
 
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on AWS SageMaker
-
-### Week 11 - 12
-
-Machine learning app next.js/react, AWS Amplify
-
-Team work, IAM etc. 
-
-The Web App will be connected to a Cloud DataBase (DynamoDB).
-
-One student has access to DB, the other one not, via IAM control.
-
-Lambda will be used as well.
-
-S3 should be present in the project as well. IAM for S3.
-
-Videos to be made with Zhu Xinning and Huanglongfei.
-
-Basically, it will be the AWS Amplify/next.js version of:
-- https://gitee.com/lundechen/machine_learning_web_app
-
-Students will also learn how to manage resource access with IAM control, because every two students will pair up and work together.
 
 ## Project
 
@@ -510,12 +493,7 @@ You code should be open-sourced and hosted on GitHub.
 For each team, just one submission of the work is necessary, by one member of your team.
 
 Deadline for submission:
-- The second Friday of the 14 days of Exam Weeks of SHU, 23:59.
-
-### For best projects
-- Best projects might be hosted on [http://lunde.top](http://lunde.top), to inspire future projects.
-- Best projects' videos will be included on Lunde Chen's bilibili channel.
-- Lunde Chen might invite you to participate in innovation competitions with your projects.
+- The First Friday of the 14 days of Exam Weeks of SHU, 23:59.
 
 ### Last but not least
 Your app should be legal, ethical.
@@ -525,10 +503,8 @@ Your app should be legal, ethical.
 Denoting your Continuous assessment score as `T`, your project score as `P`, your final score will be 
 
 ```python
-max(P, 0.4 * T + 0.6 * P)
+0.7 * T + 0.3 * P
 ```
-
-The average of all `T`s of all students will be equal to the average of all `P`s.
 
 ### Distribution of notes
 - 10% A (90-100)
@@ -539,6 +515,7 @@ The average of all `T`s of all students will be equal to the average of all `P`s
 
 Historical failing rate:
 - 2021: 10%
+- 2023: 10%
 
 ## Gallery
 
@@ -606,12 +583,6 @@ If the implementation is easy to explain, it may be a good idea.
 Namespaces are one honking great idea -- let's do more of those!
 ```
 
-#### Abstraction
-- https://en.wikipedia.org/wiki/Abstraction_(computer_science)
-- https://www.indeed.com/career-advice/career-development/abstraction-in-computer-science
-- https://isaaccomputerscience.org/concepts/dsa_ctm_abstraction
-- [Mirolo, C., Izu, C., Lonati, V., & Scapin, E. (2022). Abstraction in Computer Science Education: An Overview. Informatics in Education, 20(4), 615-639.](https://files.eric.ed.gov/fulltext/EJ1329311.pdf)
-
 ## Asking questions :question:
 
 ### Leveraging **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)** for asking questions
@@ -651,30 +622,16 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 | 学号/工号    | 姓名  |
 | -------- | --- |
-| 19124641 | 陆开昕 |
-| 19124663 | 万远亮 |
-| 19124715 | 张行行 |
-| 20120127 | 李兆琪 |
-| 20124695 | 邱奕博 |
-| 20124711 | 袁嘉祾 |
-| 20124725 | 张世博 |
-| 20124727 | 翁留辰 |
-| 20124738 | 宋鹏宇 |
-| 20124757 | 王宇星 |
-| 20124767 | 黄河  |
-| 20124793 | 王雨杰 |
-| 18124686 | 赵宇豪 |
-| 18124689 | 闫炳坤 |
-| 19124519 | 冯玥瑄 |
-| 20124694 | 洪越  |
-| 20124696 | 方鑫喆 |
-| 20124726 | 马哲  |
-| 20124733 | 杜若衡 |
-| 20124769 | 李鑫宇 |
-| 20124770 | 王泓杰 |
-| 20124771 | 王楚涵 |
-| 20124772 | 娄宇鑫 |
-| 21124683 | 戴志成 |
+| 22124692	| 赵俊凯 | 
+| 22124694	| 	冯以凡	| 
+| 22124705	| 段轩	| 
+| 22124725	| 乔正蓬	| 
+| 22124731	| 王嘉浩	| 
+| 22124732	| 雷宇杨	| 
+| 22124747	| 陈佚	| 
+| 22124774	| 杨宇周	| 
+| 22124776	| 韦杰	| 
+| 22124780	| 刘璐	| 
 
 ## Online resources
 
@@ -690,12 +647,12 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 #### Do we have extra-course work?
 -  Yes. A lot. 
-- At least 10 hours of extra-course work each week is expected from you. 
-    - 4 hours for course content revision & test preparation
-    - 6 hours for your project (6 is the bare minimum, you might want to shoot up to 20 or 30 towards the end of the trimester).
+- At least 5 hours of extra-course work each week is expected from you. 
+    - 2 hours for course content revision & test preparation
+    - 3 hours for your project (2 is the bare minimum, you might want to shoot up to 20 or 30 towards the end of the trimester).
 
 #### What can I add as items to my CV after taking this course?
--  It's quite a lot. For example, AWS Amplify, AWS SageMaker, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, next.js, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, javascript, etc.
+-  It's quite a lot. For example, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, etc.
 
 #### Why this course seems a bit different?
 - Well, the prof draws inspirations from courses of Stanford, Berkeley and MIT.

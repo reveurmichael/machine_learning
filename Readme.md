@@ -1,4 +1,3 @@
-
 # ML01 Machine Learning, UTSEUS, Shanghai University
 
 ## QR Code
@@ -622,16 +621,40 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 | 学号/工号    | 姓名  |
 | -------- | --- |
-| 22124692	| 赵俊凯 | 
-| 22124694	| 	冯以凡	| 
-| 22124705	| 段轩	| 
-| 22124725	| 乔正蓬	| 
-| 22124731	| 王嘉浩	| 
-| 22124732	| 雷宇杨	| 
-| 22124747	| 陈佚	| 
-| 22124774	| 杨宇周	| 
-| 22124776	| 韦杰	| 
-| 22124780	| 刘璐	| 
+| 22124692 | 赵俊凯 | 
+| 22124694 | 冯以凡 | 
+| 22124705 | 段轩 | 
+| 22124725 | 乔正蓬 | 
+| 22124731 | 王嘉浩 | 
+| 22124732 | 雷宇杨 | 
+| 22124747 | 陈佚 | 
+| 22124774 | 杨宇周 | 
+| 22124776 | 韦杰 | 
+| 22124780 | 刘璐 | 
+| 25D61119 | Herbin Mathis |
+| 25D61073 | Chiem Romain |
+| 25D61022 | Mocquant Henri |
+| 25D61098 | Desmaret Mathéo |
+| 25D61093 | CORNET Nicolas |
+| 25D61118 | Boniface Pierre |
+| 25D61034 | Douik Ahmed |
+| 25D61086 | Million Corentin |
+| 25D61156 | Maxime Boschet |
+| 25D61033 | HUWER Paul |
+| 25D61069 | Ferrasse--Jamaux Tom |
+| 25D61070 | Maillard Camil |
+| 25D61089 | Edouard Marchand |
+| 25D61071 | HAUDRY COURPAT Kizzy |
+| 25D61125 | Gomes Romain |
+| 25D61017 | PEREIRA DE ARAUJO Théo |
+| 25D61016 | Morin Loic |
+| 25D61130 | Aristide BRUNAUD |
+| 25D61136 | LE Rémy |
+| 25D61123 | Julie BENED |
+| 25D61088 | Lambert Gabin |
+| 25D61013 | Fouich Noa |
+| 25D61018 | MEDANE Yani |
+| 25D61085 | Amaury DUFRENOT |
 
 ## Online resources
 

@@ -689,5 +689,9 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 
 ![](img/justdoit.png)
 
+## Related repositories
+
+https://gitee.com/lundechen/ML01-Machine-Learning-Exam (private repo, for the prof only)
+
 ## License
 This repository is licensed under [MIT](LICENSE).

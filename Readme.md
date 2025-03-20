@@ -107,6 +107,21 @@ Materials to read before test:
 - https://www.t-ott.dev/2021/11/24/animating-normal-distributions
 - https://demonstrations.wolfram.com/TheBivariateNormalDistribution/
 - https://online.stat.psu.edu/stat505/lesson/4/4.2
+
+
+Test (45 min):
+- **Code**: Python list, Python string, Python dictionary
+- **Code**: Numpy slicing, numpy broadcast
+- **Math**: Gaussian Distribution
+- **Math**: Bivariate Gaussian Distribution
+- **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
+
+
+### Week 4 (Test 2/4)
+
+Materials to read before test:
+- all jupyter notebooks for  lectures and exercises
+- https://www.bilibili.com/video/BV1SY4y1G7o9/
 - https://github.com/features/actions
 - https://docs.github.com/en/actions/quickstart
 - https://github.blog/2022-02-02-build-ci-cd-pipeline-github-actions-four-steps/
@@ -115,30 +130,15 @@ Materials to read before test:
 - https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 - https://www.ssh.com/academy/ssh-keys
 
-Test (30 min):
-- **Code**: Python list
-- **Code**: Numpy slicing, numpy broadcast
-- **Math**: Gaussian Distribution
-- **Math**: Bivariate Gaussian Distribution
-- **Math**: Linear Algebra: matrix multiplication
-- **Math**: Linear Algebra: eigen value, eigen vector
-- **Misc**: ssh key, CI/CD, GitHub Actions
 
 
-### Week 4 (Test 2/4)
-
-Materials to read before test:
-- all jupyter notebooks for  lectures and exercises
-- https://www.bilibili.com/video/BV1SY4y1G7o9/
-
-
-Test (30 min):
+Test (45 min):
 - **Code**: Linear Regression implementation from scratch
 - **Code**: Logistic Regression implementation from scratch
 - **Math**: gradient descent for linear regression and logistic regression
 - **Math**: MSE for linear regression
 - **Math**: cross-entropy loss function for logistic regression
-- **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
+- **Misc**: ssh key, CI/CD, GitHub Actions
 
 
 ### Week 6 (Test 3/4)

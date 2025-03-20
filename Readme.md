@@ -644,7 +644,7 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 | 25D61069 | Ferrasse--Jamaux Tom |
 | 25D61070 | Maillard Camil |
 | 25D61089 | Edouard Marchand |
-| 25D61071 | HAUDRY COURPAT Kizzy |
+| 25D61071 | CHAUDRY COURPAT Kizzy |
 | 25D61125 | Gomes Romain |
 | 25D61017 | PEREIRA DE ARAUJO Théo |
 | 25D61016 | Morin Loic |
@@ -655,6 +655,8 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 | 25D61013 | Fouich Noa |
 | 25D61018 | MEDANE Yani |
 | 25D61085 | Amaury DUFRENOT |
+| 25D61030 | Jean Lagorsse |
+
 
 ## Online resources
 

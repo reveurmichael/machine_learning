@@ -114,7 +114,7 @@ Test (45 min):
 - **Code**: Numpy slicing, numpy broadcast
 - **Math**: Gaussian Distribution
 - **Math**: Bivariate Gaussian Distribution
-- **Misc**: GitHub Pull Request (GitHub workflow), git conflict resolving, git merge v.s. git rebase
+- **Misc**: GitHub Pull Request (GitHub workflow)
 
 
 ### Week 4 (Test 2/4)

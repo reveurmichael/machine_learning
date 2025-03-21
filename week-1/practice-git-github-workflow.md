@@ -15,9 +15,7 @@ with corresponding text:
 
 https://gitee.com/lundechen/static_website_with_go_hugo#code-collaboration-via-github-pull-request
 
-Here are three practices that you should do with your teammate, as shown in the videos:
-
-If you don't understand Chinese, that should not be a problem. You can still follow the instructions/operations shown in the videos.
+Here are three practices that you should do with your teammate, as shown in the videos. If you don't understand Chinese, that should not be a problem. You can still follow the instructions/operations shown in the videos.
 
 
 ### Exercise 1: Within-Team Pull Request

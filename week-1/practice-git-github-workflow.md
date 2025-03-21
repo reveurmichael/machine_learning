@@ -1,12 +1,11 @@
+# Practice Git and GitHub Workflow
+
 ## Team up
 
 Please pair up with your neighbor and follow the steps as shown in the videos.
 
 
 ## Videos
-
-You can watch the videos as well. But maybe you prefer following only the texts.
-
 
 - [GitHub Pull Request (1/3) - within one team](https://www.bilibili.com/video/BV1me4y1T73D/)
 - [GitHub Pull Request (2/3) - across teams](https://www.bilibili.com/video/BV1qv4y1R7L7)
@@ -18,30 +17,33 @@ https://gitee.com/lundechen/static_website_with_go_hugo#code-collaboration-via-g
 
 Here are three practices that you should do with your teammate, as shown in the videos:
 
+If you don't understand Chinese, that should not be a problem. You can still follow the instructions/operations shown in the videos.
+
+
 ### Exercise 1: Within-Team Pull Request
 
-1. Form pairs or small groups
-2. Create a shared repository on GitHub and add all team members as collaborators
-3. Each member:
+1. Form pairs. Each pair represents a "team" of 2 students.
+2. One member (student A) create a shared repository on GitHub and add the other member (student B) as collaborators
+3. Student B:
    - Clones the repository
    - Creates a feature branch
    - Makes changes (e.g., add a file with your name)
    - Pushes the branch
    - Creates a pull request
-   - Reviews and merges another team member's PR
+4. Student A reviews and merges Student B's PR
 
 ### Exercise 2: Cross-Team Pull Request
 
-1. Form pairs, with each pair representing a "team"
-2. Each team creates a repository
-3. Members of the other team:
-   - Fork the repository
+1. Form pairs. Each pair represents a "team" of 2 students.
+2. Student A creates a repository. No need to add Student B as a collaborator.
+3. Student B:
+   - Fork the repository of Student A
    - Clone their fork
    - Create a feature branch
    - Make changes
-   - Push to their fork
-   - Create a pull request to the original repository
-   - The original team reviews and merges the PR
+   - Push to Student B's fork
+   - Create a pull request to the original repository of Student A
+4. Student A reviews and merge the PR
 
 ### Exercise 3: Resolving Conflicts
 

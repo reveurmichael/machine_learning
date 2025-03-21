@@ -19,7 +19,7 @@ For each session, please always join Tencent Meeting (VooV Meeting):
 
 For each session, please bring your own Laptop!
 
-For Thursdays' practice sessions, please bring your headphone as well, because you will watch videos.
+For Fridays' practice sessions, please bring your headphone as well, because you will watch videos.
 
 ### Tuesday (Lectures and Continuous assessments)
 Mostly theory.
@@ -87,7 +87,7 @@ AFTER the class, please watch those videos very carefully:
 
 ## Continuous assessment (Tuesday)
 
-Tests will take place on Mondays (Week 2, Week 4, Week 6, Week 8).
+Tests will take place on Tuesdays (Week 2, Week 4, Week 6, Week 8).
 
 Each test falls in the topic of its previous week, with some extensions (e.g. some more math).
 

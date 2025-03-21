@@ -417,10 +417,6 @@ git rebase main
   - To clean up your branch before submitting a pull request
   - For local branches that haven't been shared yet
 
-### The Golden Rule of Rebase
-
-Never rebase branches that others are working on or have based their work on. Only rebase your own local branches before they're pushed.
-
 ## Best Practices
 
 1. **Commit Often, Push Regularly**

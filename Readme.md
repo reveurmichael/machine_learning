@@ -17,7 +17,7 @@ For each session, please always join Tencent Meeting (VooV Meeting):
 
 ### Laptop
 
-For each session, please bring your own Laptop!
+For each session, **please bring your own Laptop!**
 
 For Fridays' practice sessions, please bring your headphone as well, because you will watch videos.
 
@@ -410,15 +410,13 @@ Docker Compose, Docker Network
 
 ### Week 10
 
-???? AWS SageMaker
-
-- [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on AWS SageMaker
+TBD
 
 ## Project
 
 ### Kick off
 
-Projects kick off at Week 5, exercise session.
+Projects kick off at Week 5, in the code session.
 
 ### Forming groups
 
@@ -457,7 +455,7 @@ Use emojis or fontawesome/bootstrap icons where appropriate (How can we deliver 
 You code should be open-sourced and hosted on GitHub.
 
 ### What's expected of your video
-- Length of video \>= 20 min
+- Length of video \>= 10 min
 - You video should include those contents:
     - General presentation
     - Where do you get inspirations from for coming up with the idea of your project
@@ -499,7 +497,7 @@ Your app should be legal, ethical.
 
 ## Score
 
-Denoting your Continuous assessment score as `T`, your project score as `P`, your final score will be 
+Denoting your Continuous Assessments score as `T`, your project score as `P`, your final score will be 
 
 ```python
 0.7 * T + 0.3 * P
@@ -622,7 +620,7 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 | 学号/工号    | 姓名  |
 | -------- | --- |
 | 22124692 | 赵俊凯 | 
-| 22124694 | 冯以凡 | 
+| 22124694 | 冯以凡 (休学)| 
 | 22124705 | 段轩 | 
 | 22124725 | 乔正蓬 | 
 | 22124731 | 王嘉浩 | 

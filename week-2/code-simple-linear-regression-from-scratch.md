@@ -1,4 +1,4 @@
-# Simple Linear Regression from Scratch: A Comprehensive Tutorial
+# Simple Linear Regression from Scratch
 
 ## Introduction
 

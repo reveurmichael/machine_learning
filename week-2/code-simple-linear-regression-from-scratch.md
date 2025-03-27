@@ -70,7 +70,7 @@ Let's implement the linear regression model from scratch using Python and NumPy.
 
 Below is the initial implementation of the `MyOwnLinearRegression` class, which includes methods for fitting the model to data and making predictions.
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
@@ -129,7 +129,7 @@ plt.show()
 
 ### Code Explanation
 
-#### Initialization (`__init__`)
+#### Initialization 
 
 The `__init__` method initializes the learning rate, number of iterations, and placeholders for weights and bias.
 
@@ -168,7 +168,7 @@ While the initial implementation works, there are several enhancements we can ma
 
 Below is the improved version of the `MyOwnLinearRegression` class, incorporating the aforementioned enhancements.
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 import numpy as np
 
 class MyOwnLinearRegression:
@@ -234,7 +234,7 @@ class MyOwnLinearRegression:
 
 Below is the complete implementation of the `MyOwnLinearRegression` class along with an example of how to use it on a synthetic dataset.
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_regression
@@ -378,7 +378,7 @@ Where \( \bar{y} \) is the mean of the actual target values.
 
 We can implement and display these metrics as follows:
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Calculate evaluation metrics
@@ -417,7 +417,7 @@ Normalizing or standardizing features is crucial, especially when dealing with m
 
 In our example, we standardized the feature using the mean and standard deviation:
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 # Feature Scaling (Standardization)
 X_mean = np.mean(X_train, axis=0)
 X_std = np.std(X_train, axis=0)
@@ -427,7 +427,7 @@ X_test = (X_test - X_mean) / X_std
 
 Alternatively, you can use `StandardScaler` from scikit-learn:
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
@@ -439,7 +439,7 @@ X_test = scaler.transform(X_test)
 
 Plotting the cost function over iterations provides a visual representation of the model's learning process.
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 # Plotting the Cost Function
 plt.figure(figsize=(10,6))
 plt.plot(regressor.cost_history, color='purple')
@@ -455,7 +455,7 @@ Add this snippet after training to visualize how the cost decreases over iterati
 
 Combining all the enhancements, below is the comprehensive implementation:
 
-```python:week-2/code-simple-linear-regression-from-scratch.md
+```python
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_regression

@@ -2,16 +2,6 @@
 
 In this session, we will guide you through setting up a Continuous Integration and Continuous Deployment (CI/CD) pipeline using GitHub Actions. Additionally, we will add release functionality to your GitHub repository. This setup ensures that every time there's a push or pull request to the `main` branch, your training data is updated, a new linear model is generated, and a release is created automatically. This hands-on approach will help you understand practical CI/CD workflows and release management.
 
-## Table of Contents
-
-1. [Creating the GitHub Actions Workflow](#1-creating-the-github-actions-workflow)
-2. [Implementing the Training Script](#2-implementing-the-training-script)
-3. [Adding Dependencies](#3-adding-dependencies)
-4. [Initializing the Release Branch](#4-initializing-the-release-branch)
-5. [Configuring GitHub Releases](#5-configuring-github-releases)
-
----
-
 ## 1. Creating the GitHub Actions Workflow
 
 We will create a GitHub Actions workflow that triggers on pushes and pull requests to the `main` branch. This workflow will check for changes in the `training_data.csv` file, train a linear model if changes are detected, push the updated model to the `release` branch, and create a new GitHub release.
@@ -81,6 +71,44 @@ jobs:
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### training_data.csv
+
+Create the file, add content:
+
+```
+YearsExperience,Salary
+1.1,39343.00
+1.3,46205.00
+1.5,37731.00
+2.0,43525.00
+2.2,39891.00
+2.9,56642.00
+3.0,60150.00
+3.2,54445.00
+3.2,64445.00
+3.7,57189.00
+3.9,63218.00
+4.0,55794.00
+4.0,56957.00
+4.1,57081.00
+4.5,61111.00
+4.9,67938.00
+5.1,66029.00
+5.3,83088.00
+5.9,81363.00
+6.0,93940.00
+6.8,91738.00
+7.1,98273.00
+7.9,101302.00
+8.2,113812.00
+8.7,109431.00
+9.0,105582.00
+9.5,116969.00
+9.6,112635.00
+10.3,122391.00
+10.5,121872.00
 ```
 
 ### Explanation:

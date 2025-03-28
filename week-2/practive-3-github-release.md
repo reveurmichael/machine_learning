@@ -209,4 +209,3 @@ By following these steps, you will have set up a robust CI/CD pipeline using Git
 
 This setup not only reinforces Git/GitHub concepts but also introduces students to essential DevOps practices like automation and continuous deployment.
 
-Feel free to customize the workflow and scripts to better fit your project's specific needs and to explore more advanced CI/CD features.

@@ -258,7 +258,7 @@ Exercise:
 
 ## Practice sessions (Friday)
 
-### Week 1 - Week 2
+### Week ?? - Week ??
 
 Tutorial (with videos):
 - https://gitee.com/lundechen/static_website_with_go_hugo
@@ -295,7 +295,7 @@ If you are on MacOS/Linux, you can install *oh my zsh* instead.
 
 同时 windows 建议使用 Windows Terminal
 
-### Week 3 
+### Week ??
 
 #### Task 1: reveal.js
 - Follow the video
@@ -329,20 +329,12 @@ For a credit card, you might need help from a friend living now in foreign count
 For AWS, it will cost 1$, and then everything is basically free for one year.
 
 
-### Week 4 
-
-- Test Driven Programming
-    - Tutorial: https://open-academy.github.io/machine-learning/assignments/get-started.html
-    - Video - Chinese version: https://www.bilibili.com/video/BV1uW4y1s7Ci
-    - Video - English version: https://www.bilibili.com/video/BV1nM41167j9
-- GitHub Classroom
-
-### Week 5 - Week 7
+### Week ?? - Week ??
 
 Machine Learning web application.
 
 
-#### Week 5 (Video 1 - Video 7)
+#### Week ?? (Video 1 - Video 7)
 Tutorial (with videos): 
 - https://gitee.com/lundechen/machine_learning_web_app
 
@@ -370,7 +362,7 @@ here is the solution:
 - [solution](https://stackoverflow.com/questions/68162180/modulenotfounderror-no-module-named-streamlit-cli)
 
 
-#### Week 6 (Video 8 - Video 10)
+#### Week ?? (Video 8 - Video 10)
 Tutorial (with videos): 
 - https://gitee.com/lundechen/machine_learning_web_app
 
@@ -386,7 +378,7 @@ Your task:
 
 - [optional] Deploy a  [tensorflow.js demo](https://www.tensorflow.org/js/demos) on a cloud VM
 
-#### Week 7 (Video 11 - Video 12)
+#### Week ?? (Video 11 - Video 12)
 Tutorial (with videos): 
 - https://gitee.com/lundechen/machine_learning_web_app
 
@@ -403,7 +395,7 @@ Your task:
 ![](img/azure.png)
 
 
-### Week 8
+### Week ??
 
 Docker Compose, Docker Network
 
@@ -414,7 +406,7 @@ Docker Compose, Docker Network
 - <https://www.youtube.com/watch?v=s_o8dwzRlu4>
 - https://www.youtube.com/watch?v=7bA0gTroJjw
 
-### Week 10
+### Week ??
 
 TBD
 

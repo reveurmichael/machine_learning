@@ -26,7 +26,7 @@ Press Enter to accept the default file location and optionally add a passphrase.
 
 Most likely, you need just to tape "Enter" key three times, so that no passphrase is needed: it will save you a lot of time.
 
-### **Step 3: Add the SSH Key to the SSH Agent**
+### **Step 3: Add the SSH Key to the SSH Agent [Optional]** 
 ```bash
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
@@ -50,9 +50,15 @@ Hi username! You've successfully authenticated.
 Now, you can use SSH for Git operations.
 
 
-## Change your remote url to use SSH
+## Test Cloning GitHub with SSH
 
-For your previous repo, you can change the remote url to use SSH by running:
+?????????
+
+
+
+## Change your remote url to use SSH [Optional]
+
+For your previous repositories, you can change the remote url to use SSH by running:
 
 ```bash
 git remote set-url origin git@github.com:yourusername/your-repo.git

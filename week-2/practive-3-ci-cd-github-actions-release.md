@@ -18,7 +18,7 @@ We will create a GitHub Actions workflow that triggers on pushes and pull reques
 
 ### .github/workflows/ci-cd.yml
 
-```yaml:.github/workflows/ci-cd.yml
+```yaml:
 name: CI/CD Pipeline
 
 on:
@@ -110,7 +110,7 @@ The `train_model.py` script trains a linear model using the updated `training_da
 
 ### train_model.py
 
-```python:train_model.py
+```python
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 import joblib
@@ -147,7 +147,7 @@ Ensure that all necessary Python packages are listed in your `requirements.txt` 
 
 ### requirements.txt
 
-```text:requirements.txt
+```text
 pandas
 scikit-learn
 joblib

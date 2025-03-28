@@ -171,8 +171,6 @@ git push origin release
 1. **Create Release Branch**: Creates a new branch named `release` based on the current `main` branch.
 2. **Push to Remote**: Pushes the `release` branch to the remote GitHub repository.
 
-**Note**: If the `release` branch already exists, you can skip this step.
-
 ---
 
 ## 5. Configuring GitHub Releases
@@ -207,5 +205,4 @@ By following these steps, you will have set up a robust CI/CD pipeline using Git
   
 - **Manages Releases**: Pushes the updated model to the `release` branch and creates a new GitHub release, ensuring that the latest model is always available.
 
-This setup not only reinforces Git/GitHub concepts but also introduces students to essential DevOps practices like automation and continuous deployment.
 

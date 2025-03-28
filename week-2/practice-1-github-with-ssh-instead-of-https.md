@@ -24,6 +24,8 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 Press Enter to accept the default file location and optionally add a passphrase.
 
+Most likely, you need just to tape "Enter" key three times, so that no passphrase is needed: it will save you a lot of time.
+
 ### **Step 3: Add the SSH Key to the SSH Agent**
 ```bash
 eval "$(ssh-agent -s)"

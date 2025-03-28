@@ -29,20 +29,14 @@ Press Enter to accept the default file location and optionally add a passphrase.
 
 Most likely, you need just to tape "Enter" key three times, so that no passphrase is needed: it will save you a lot of time.
 
-### **Step 3: Add the SSH Key to the SSH Agent [Optional]** 
-```bash
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-```
-
-### **Step 4: Add the SSH Key to Your GitHub Account**
+### **Step 3: Add the SSH Key to Your GitHub Account**
 Copy your SSH public key:
 ```bash
 cat ~/.ssh/id_ed25519.pub
 ```
 Go to GitHub -> **Settings** -> **SSH and GPG keys** -> **New SSH key**, paste your key, and save.
 
-### **Step 5: Test the Connection**
+### **Step 4: Test the Connection**
 ```bash
 ssh -T git@github.com
 ```
@@ -52,17 +46,14 @@ Hi username! You've successfully authenticated.
 ```
 Now, you can use SSH for Git operations.
 
-If you see things like `github doesn't provide shell access`, there is no problem.
+If you see things like `github doesn't provide shell access`, there is no problem, it's totally normal.
 
 
-## Test Cloning GitHub with SSH
+## Test Your Setup
 
 ```
 git clone git@github.com:evidentiallab/Lunde_Chen_NN_Belief_Reproduction.git
 ```
-
-You should be able to see the cloning goes smoothly.
-
 
 ## Change your remote url to use SSH [Optional]
 

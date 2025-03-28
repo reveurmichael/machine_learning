@@ -15,7 +15,10 @@ Open a terminal (on Windows, use Git Bash) and check if you already have an SSH 
 ```bash
 ls -al ~/.ssh
 ```
-If you see files like `id_rsa.pub` or `id_ed25519.pub`, you already have an SSH key.
+
+- If you see files like `id_rsa.pub` or `id_ed25519.pub`, you already have an SSH key. Go to Step 3.
+- If you see nothing, or if you see an error (e.e.g no .ssh folder, cannot access folder), go to Step 2.
+
 
 ### **Step 2: Generate a New SSH Key (If Needed)**
 If you don't have an SSH key, generate one using:
@@ -49,11 +52,16 @@ Hi username! You've successfully authenticated.
 ```
 Now, you can use SSH for Git operations.
 
+If you see things like "github doesn't provide shell access", there is no problem.
+
 
 ## Test Cloning GitHub with SSH
 
-?????????
+```
+git clone git@github.com:evidentiallab/Lunde_Chen_NN_Belief_Reproduction.git
+```
 
+You should be able to see the cloning goes smoothly.
 
 
 ## Change your remote url to use SSH [Optional]

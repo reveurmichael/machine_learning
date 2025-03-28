@@ -52,7 +52,7 @@ Hi username! You've successfully authenticated.
 ```
 Now, you can use SSH for Git operations.
 
-If you see things like "github doesn't provide shell access", there is no problem.
+If you see things like `github doesn't provide shell access`, there is no problem.
 
 
 ## Test Cloning GitHub with SSH

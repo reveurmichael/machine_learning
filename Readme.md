@@ -57,6 +57,11 @@ You might find those links on visualization useful:
 ### Week 3
 - Logistic Regression (for classification)
 
+You might find those links on visualization useful:
+- https://mlpocket.com/ml/supervised/logistic-regression
+- https://mlu-explain.github.io/logistic-regression/
+
+
 ### Week 4
 - Neural networks
 

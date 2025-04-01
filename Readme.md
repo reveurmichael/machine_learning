@@ -60,7 +60,7 @@ You might find those links on visualization useful:
 You might find those links on visualization useful:
 - https://mlpocket.com/ml/supervised/logistic-regression
 - https://mlu-explain.github.io/logistic-regression/
-
+- https://playground.tensorflow.org/
 
 ### Week 4
 - Neural networks

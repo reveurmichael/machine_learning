@@ -12,55 +12,55 @@ In this tutorial, we will explore the mathematical foundations of simple linear 
 
 At the core of linear regression is the linear model:
 
-\[
+$$
 y = \mathbf{w}^\top \mathbf{x} + b
-\]
+$$
 
-- \( y \): Predicted value
-- \( \mathbf{x} \): Input feature vector
-- \( \mathbf{w} \): Weight vector
-- \( b \): Bias term
+- $y$: Predicted value
+- $\mathbf{x}$: Input feature vector
+- $\mathbf{w}$: Weight vector
+- $b$: Bias term
 
-The objective is to find the optimal weights \( \mathbf{w} \) and bias \( b \) that minimize the difference between the predicted values and the actual target values.
+The objective is to find the optimal weights $\mathbf{w}$ and bias $b$ that minimize the difference between the predicted values and the actual target values.
 
 ### Cost Function
 
 To quantify the difference between predicted and actual values, we use the Mean Squared Error (MSE) as the cost function:
 
-\[
+$$
 J(\mathbf{w}, b) = \frac{1}{N} \sum_{i=1}^{N} (y^{(i)} - (\mathbf{w}^\top \mathbf{x}^{(i)} + b))^2
-\]
+$$
 
 Where:
-- \( N \): Number of samples
-- \( y^{(i)} \): Actual target value for the \( i \)-th sample
-- \( \mathbf{x}^{(i)} \): Input feature vector for the \( i \)-th sample
+- $N$: Number of samples
+- $y^{(i)}$: Actual target value for the $i$-th sample
+- $\mathbf{x}^{(i)}$: Input feature vector for the $i$-th sample
 
 ### Gradient Descent
 
-To minimize the cost function \( J(\mathbf{w}, b) \), we employ the Gradient Descent optimization algorithm. Gradient Descent iteratively updates the weights and bias in the direction that reduces the cost.
+To minimize the cost function $J(\mathbf{w}, b)$, we employ the Gradient Descent optimization algorithm. Gradient Descent iteratively updates the weights and bias in the direction that reduces the cost.
 
 The gradients of the cost function with respect to the weights and bias are:
 
-\[
+$$
 \frac{\partial J}{\partial \mathbf{w}} = -\frac{2}{N} \sum_{i=1}^{N} \mathbf{x}^{(i)} (y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b)
-\]
+$$
 
-\[
+$$
 \frac{\partial J}{\partial b} = -\frac{2}{N} \sum_{i=1}^{N} (y^{(i)} - \mathbf{w}^\top \mathbf{x}^{(i)} - b)
-\]
+$$
 
 Using these gradients, the update rules for weights and bias are:
 
-\[
+$$
 \mathbf{w} \leftarrow \mathbf{w} - \eta \times \frac{\partial J}{\partial \mathbf{w}}
-\]
+$$
 
-\[
+$$
 b \leftarrow b - \eta \times \frac{\partial J}{\partial b}
-\]
+$$
 
-Where \( \eta \) is the learning rate, a hyperparameter that controls the step size in each update.
+Where $\eta$ is the learning rate, a hyperparameter that controls the step size in each update.
 
 ## Implementing Linear Regression in Python
 
@@ -73,16 +73,6 @@ Below is the initial implementation of the `MyOwnLinearRegression` class, which 
 ```python
 %matplotlib inline
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-
-dataset = pd.read_csv('Salary_Data.csv')
-X = dataset.iloc[:, :-1].values
-y = dataset.iloc[:, -1].values
-
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1/3, random_state = 0)
-
 
 class MyOwnLinearRegression:
     def __init__(self, learning_rate=0.0001, n_iters=30000):
@@ -103,6 +93,7 @@ class MyOwnLinearRegression:
             y_predicted = np.dot(X, self.weights) + self.bias
 
             # Compute gradients
+            # Questions to students: 1 / n_samples or 2 / n_samples, does that matter? 
             dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))
             db = (1 / n_samples) * np.sum(y_predicted - y)
 
@@ -113,18 +104,30 @@ class MyOwnLinearRegression:
     def predict(self, X):
         return np.dot(X, self.weights) + self.bias
 
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Load dataset
+dataset = pd.read_csv('Salary_Data.csv')
+X = dataset.iloc[:, :-1].values
+y = dataset.iloc[:, -1].values
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1/3, random_state = 0)
+
 # Example usage
 regressor = MyOwnLinearRegression()
-a = regressor.fit(X_train, y_train)
+regressor.fit(X_train, y_train)
 y_pred = regressor.predict(X_test)
 
+# Visualize the results
 plt.scatter(X_train, y_train, color = 'red')
 plt.plot(X_train, regressor.predict(X_train), color = 'blue')
 plt.title('Salary vs Experience (Training set)')
 plt.xlabel('Years of Experience')
 plt.ylabel('Salary')
 plt.show()
-
 ```
 
 ### Code Explanation
@@ -151,9 +154,9 @@ The `fit` method trains the model using gradient descent:
 
 The `predict` method generates predictions using the trained weights and bias:
 
-\[
+$$
 \hat{y} = \mathbf{w}^\top \mathbf{x} + b
-\]
+$$
 
 ## Improving the Model
 
@@ -163,6 +166,7 @@ While the initial implementation works, there are several enhancements we can ma
 2. **Early Stopping:** Halt training when the improvement in the cost function becomes negligible.
 3. **Feature Scaling:** Normalize the features to ensure better convergence.
 4. **Verbose Mode:** Provide insights into the training process by printing periodic updates.
+5. **Better Initialization:** Use smarter weight initialization techniques.
 
 ### Enhanced Implementation
 
@@ -327,7 +331,7 @@ if __name__ == "__main__":
    - Features are standardized to have a mean of 0 and a standard deviation of 1. This step ensures that gradient descent converges more efficiently.
 
 4. **Model Initialization and Training:**
-   - An instance of `MyOwnLinearRegression` is created with a learning rate of 0.01, 1000 iterations, a tolerance of \(1 \times 10^{-8}\), and verbose mode enabled.
+   - An instance of `MyOwnLinearRegression` is created with a learning rate of 0.01, 1000 iterations, a tolerance of $1 \times 10^{-8}$, and verbose mode enabled.
    - The model is trained using the `fit` method on the training data.
 
 5. **Making Predictions:**
@@ -344,35 +348,35 @@ To run the example, ensure you have the necessary libraries installed:
 pip install numpy scikit-learn matplotlib
 ```
 
-Save the complete code above in the file `week-2/code-simple-linear-regression-from-scratch.md` and execute it using Python:
+Save the complete code above in a Python file `linear_regression_from_scratch.py` and execute it using Python:
 
 ```bash
-python week-2/code-simple-linear-regression-from-scratch.md
+python linear_regression_from_scratch.py
 ```
 
 You should see iterative cost updates in the console and a plot displaying the actual versus predicted values after training.
 
 ## Evaluation Metrics
 
-To evaluate the performance of our linear regression model, we can use metrics such as Mean Squared Error (MSE) and R-squared (\( R^2 \)).
+To evaluate the performance of our linear regression model, we can use metrics such as Mean Squared Error (MSE) and R-squared ($R^2$).
 
 ### Mean Squared Error (MSE)
 
 The MSE measures the average of the squares of the errors between predicted and actual values:
 
-\[
+$$
 \text{MSE} = \frac{1}{N} \sum_{i=1}^{N} (y_{\text{true}}^{(i)} - y_{\text{pred}}^{(i)})^2
-\]
+$$
 
-### R-squared (\( R^2 \))
+### R-squared ($R^2$)
 
-The \( R^2 \) score indicates the proportion of the variance in the dependent variable that is predictable from the independent variable(s):
+The $R^2$ score indicates the proportion of the variance in the dependent variable that is predictable from the independent variable(s):
 
-\[
+$$
 R^2 = 1 - \frac{\sum_{i=1}^{N} (y_{\text{true}}^{(i)} - y_{\text{pred}}^{(i)})^2}{\sum_{i=1}^{N} (y_{\text{true}}^{(i)} - \bar{y})^2}
-\]
+$$
 
-Where \( \bar{y} \) is the mean of the actual target values.
+Where $\bar{y}$ is the mean of the actual target values.
 
 ### Implementing Evaluation Metrics
 
@@ -391,53 +395,11 @@ print(f"R-squared (R²): {r2}")
 
 Add these lines to the example usage section to evaluate the model's performance after making predictions.
 
-### Example Output
 
-Upon running the example, you might see output similar to:
-
-```
-Iteration 0, Cost: 2871.9847290401616
-Iteration 100, Cost: 0.23298261576717458
-Iteration 200, Cost: 0.18457577119235397
-...
-Converged at iteration 432
-Mean Squared Error (MSE): 78.64326143790845
-R-squared (R²): 0.9882763313313605
-```
-
-This output indicates that the model has converged and provides the evaluation metrics showcasing its accuracy.
-
-## Additional Enhancements
-
-### Feature Normalization
-
-Normalizing or standardizing features is crucial, especially when dealing with multiple features of varying scales. It ensures that all features contribute equally to the cost function, leading to faster and more reliable convergence.
-
-#### Implementing Feature Normalization
-
-In our example, we standardized the feature using the mean and standard deviation:
-
-```python
-# Feature Scaling (Standardization)
-X_mean = np.mean(X_train, axis=0)
-X_std = np.std(X_train, axis=0)
-X_train = (X_train - X_mean) / X_std
-X_test = (X_test - X_mean) / X_std
-```
-
-Alternatively, you can use `StandardScaler` from scikit-learn:
-
-```python
-from sklearn.preprocessing import StandardScaler
-
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-```
 
 ### Visualizing Cost Function Convergence
 
-Plotting the cost function over iterations provides a visual representation of the model's learning process.
+Plotting the cost function over iterations provides a visual representation of the model's learning process, which can help diagnose potential issues:
 
 ```python
 # Plotting the Cost Function
@@ -446,114 +408,12 @@ plt.plot(regressor.cost_history, color='purple')
 plt.title('Cost Function Convergence')
 plt.xlabel('Iterations')
 plt.ylabel('Cost')
+plt.grid(True, alpha=0.3)
 plt.show()
 ```
 
 Add this snippet after training to visualize how the cost decreases over iterations.
 
-### Example of Full Enhanced Implementation
-
-Combining all the enhancements, below is the comprehensive implementation:
-
-```python
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import make_regression
-from sklearn.metrics import mean_squared_error, r2_score
-import matplotlib.pyplot as plt
-
-class MyOwnLinearRegression:
-    def __init__(self, learning_rate=0.001, n_iters=1000, tolerance=1e-7, verbose=False):
-        self.lr = learning_rate
-        self.n_iters = n_iters
-        self.tolerance = tolerance
-        self.verbose = verbose
-        self.weights = None
-        self.bias = None
-        self.cost_history = []
-
-    def fit(self, X, y):
-        n_samples, n_features = X.shape
-        # Initialize parameters
-        self.weights = np.zeros(n_features)
-        self.bias = 0
-
-        for i in range(self.n_iters):
-            # Prediction
-            y_predicted = np.dot(X, self.weights) + self.bias
-
-            # Compute cost (Mean Squared Error)
-            cost = (1 / (2 * n_samples)) * np.sum((y_predicted - y) ** 2)
-            self.cost_history.append(cost)
-
-            # Compute gradients
-            dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))
-            db = (1 / n_samples) * np.sum(y_predicted - y)
-
-            # Update parameters
-            self.weights -= self.lr * dw
-            self.bias -= self.lr * db
-
-            # Check for convergence
-            if i > 0 and abs(self.cost_history[-2] - self.cost_history[-1]) < self.tolerance:
-                if self.verbose:
-                    print(f"Converged at iteration {i}")
-                break
-
-            if self.verbose and i % 100 == 0:
-                print(f"Iteration {i}, Cost: {cost}")
-
-    def predict(self, X):
-        return np.dot(X, self.weights) + self.bias
-
-if __name__ == "__main__":
-    # Generate a synthetic dataset
-    X, y = make_regression(n_samples=1000, n_features=1, noise=3, random_state=42)
-
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Feature Scaling (Standardization)
-    from sklearn.preprocessing import StandardScaler
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-
-    # Initialize and train the model
-    regressor = MyOwnLinearRegression(learning_rate=0.01, n_iters=1000, tolerance=1e-8, verbose=True)
-    regressor.fit(X_train, y_train)
-
-    # Make predictions
-    predictions = regressor.predict(X_test)
-
-    # Evaluation Metrics
-    mse = mean_squared_error(y_test, predictions)
-    r2 = r2_score(y_test, predictions)
-
-    print(f"Mean Squared Error (MSE): {mse}")
-    print(f"R-squared (R²): {r2}")
-
-    # Plotting the Results
-    plt.figure(figsize=(10,6))
-    plt.scatter(X_test, y_test, color='blue', label='Actual')
-    plt.scatter(X_test, predictions, color='red', label='Predicted')
-    plt.xlabel('Feature')
-    plt.ylabel('Target')
-    plt.title('Simple Linear Regression: Actual vs Predicted')
-    plt.legend()
-    plt.show()
-
-    # Plotting the Cost Function Convergence
-    plt.figure(figsize=(10,6))
-    plt.plot(regressor.cost_history, color='purple')
-    plt.title('Cost Function Convergence')
-    plt.xlabel('Iterations')
-    plt.ylabel('Cost')
-    plt.show()
-```
-
 ## Conclusion
 
-In this tutorial, we delved into the fundamentals of simple linear regression, exploring both the mathematical foundations and a practical implementation using Python and NumPy. We started with a basic implementation and progressively enhanced it by adding features such as cost tracking, early stopping, feature scaling, and verbose mode for better monitoring.
-
-By implementing linear regression from scratch, you gain a deeper understanding of how machine learning models learn from data, optimize their parameters, and make predictions. This foundational knowledge is crucial as you progress to more complex models and algorithms in machine learning.
+In this tutorial, we delved into the fundamentals of simple linear regression, exploring both the mathematical foundations and a practical implementation using Python and NumPy. By implementing linear regression from scratch, you gain a deeper understanding of how machine learning models learn from data, optimize their parameters, and make predictions. This foundational knowledge is crucial as you progress to more complex models and algorithms in machine learning.

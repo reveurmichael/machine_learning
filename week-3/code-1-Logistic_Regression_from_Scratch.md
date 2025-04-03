@@ -2,9 +2,11 @@
 
 ## Introduction
 
-Logistic Regression is a fundamental classification algorithm in machine learning. Unlike Linear Regression which predicts continuous values, Logistic Regression predicts the probability of an instance belonging to a particular class. This tutorial will guide you through implementing Logistic Regression from scratch using different optimization methods.
+Logistic Regression is a fundamental classification algorithm in machine learning. Unlike Linear Regression which predicts continuous values, Logistic Regression predicts the probability of an instance belonging to a particular class. This tutorial will guide you through implementing Logistic Regression from scratch using different optimization methods, helping you understand the underlying mathematics and principles.
 
 ## References
+
+For deeper understanding, check out these excellent resources:
 
 - [Towards Data Science: Logistic Regression from Scratch in Python](https://towardsdatascience.com/logistic-regression-from-scratch-in-python-ec66603592e2)
 - [Python Engineer: ML From Scratch - Logistic Regression](https://www.python-engineer.com/courses/mlfromscratch/03_logisticregression/)
@@ -70,13 +72,15 @@ plt.ylabel('Salary')
 plt.show()
 ```
 
-The key difference between Linear Regression and Logistic Regression is that Logistic Regression applies a sigmoid function to the linear model output to transform the predictions into probabilities between 0 and 1.
+The key difference between Linear Regression and Logistic Regression is that Logistic Regression applies a sigmoid function to the linear model output to transform the predictions into probabilities between 0 and 1. This makes Logistic Regression suitable for binary classification problems where we need to predict one of two possible outcomes.
 
 ## Implementation 1: Logistic Regression with Gradient Descent
 
 Let's implement Logistic Regression using Gradient Descent:
 
 ```python
+import numpy as np
+
 class LogisticRegressionGD:
     def __init__(self, learning_rate=0.001, n_iters=1000):
         self.lr = learning_rate
@@ -135,13 +139,29 @@ The gradient of this cost function with respect to $w$ and $b$ is:
 $$\frac{\partial J}{\partial w} = \frac{1}{m} X^T \cdot (\hat{y} - y)$$
 $$\frac{\partial J}{\partial b} = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})$$
 
+
+### Why We Use Cross-Entropy Loss Instead of Mean Squared Error
+
+You'll notice that for the derivatives dw and db we have:
+
+$$dw = \frac{1}{m} X^T \cdot (\hat{y} - y)$$
+$$db = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})$$
+
+These formulas look remarkably similar to the ones used for Linear Regression, which is a beautiful result of using cross-entropy loss with the sigmoid activation function.
+
+There are several compelling reasons to use cross-entropy loss for logistic regression:
+
+- It's convex and has a single minimum, making optimization more straightforward
+- It penalizes confident incorrect predictions more heavily than less confident ones
+- The gradient of the cost function doesn't vanish for extreme probability values, avoiding the "flat region" problem that occurs with MSE
+
+
 ## Testing the Gradient Descent Implementation
 
 Let's test our implementation on a simple classification dataset:
 
 ```python
 # Import necessary libraries
-import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -197,9 +217,18 @@ def plot_decision_boundary(X, y, model):
 plot_decision_boundary(X, y, model)
 ```
 
+You should be able to see the decision boundary is a line, and has math formulation:
+
+$$w_1 x_1 + w_2 x_2 + b = 0$$
+
+which is equivalent to:
+
+$$x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2}$$
+
+
 ## Implementation 2: Newton-Raphson Method
 
-The Newton-Raphson method is an alternative optimization technique that often converges faster than gradient descent for logistic regression:
+The Newton-Raphson method is an alternative optimization technique that often converges faster than gradient descent for logistic regression because it uses second-order derivatives:
 
 ```python
 class LogisticRegressionNewtonRaphson:
@@ -259,7 +288,7 @@ For logistic regression:
 - $\nabla J = X^T (h - y) / n$
 - $H = X^T W X / n$, where $W$ is a diagonal matrix with elements $h_i(1-h_i)$
 
-The Newton-Raphson method converges much faster than gradient descent (typically in fewer iterations), but each iteration is more computationally expensive, especially for high-dimensional data.
+The Newton-Raphson method typically converges in fewer iterations than gradient descent, but each iteration is more computationally expensive, especially for high-dimensional data since it requires matrix inversion of the Hessian. This makes it practical for smaller datasets but potentially impractical for large-scale problems.
 
 ## Testing the Newton-Raphson Implementation
 
@@ -279,113 +308,9 @@ print(f"Newton-Raphson Accuracy: {accuracy_nr:.4f}")
 plot_decision_boundary(X, y, nr_model)
 ```
 
-## Implementation 3: Logistic Regression with Binary Cross-Entropy Loss
-
-This implementation explicitly calculates the loss function during training:
-
-```python
-class LogisticRegressionLoss:
-    def __init__(self, learning_rate=0.01, iterations=1000):
-        self.learning_rate = learning_rate
-        self.iterations = iterations
-        self.weights = None
-        self.bias = None
-         
-    # Sigmoid method
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
-     
-    # Method to calculate the Loss (Binary Cross Entropy)
-    def loss(self, y, y_pred):
-        # Avoid division by zero by adding a small epsilon
-        epsilon = 1e-15
-        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-        return -np.mean(y * np.log(y_pred) + (1 - y) * np.log(1 - y_pred))
-     
-    def fit(self, X, y):
-        n_samples, n_features = X.shape
-        
-        # Initialize parameters
-        self.weights = np.zeros(n_features)
-        self.bias = 0
-        
-        losses = []
-        
-        # Gradient descent
-        for i in range(self.iterations):
-            # Forward pass
-            z = np.dot(X, self.weights) + self.bias
-            y_pred = self.sigmoid(z)
-            
-            # Calculate loss
-            current_loss = self.loss(y, y_pred)
-            losses.append(current_loss)
-            
-            # Backward pass (gradient calculation)
-            dw = (1/n_samples) * np.dot(X.T, (y_pred - y))
-            db = (1/n_samples) * np.sum(y_pred - y)
-            
-            # Update parameters
-            self.weights -= self.learning_rate * dw
-            self.bias -= self.learning_rate * db
-            
-            # Print loss every 100 iterations
-            if i % 100 == 0:
-                print(f"Iteration {i}, Loss: {current_loss:.4f}")
-        
-        return losses
-     
-    # Method to predict the class label
-    def predict(self, X, threshold=0.5):
-        z = np.dot(X, self.weights) + self.bias
-        y_pred = self.sigmoid(z)
-        class_predictions = (y_pred >= threshold).astype(int)
-        return class_predictions
-```
-
-### The Math Behind Binary Cross-Entropy Loss
-
-Binary Cross-Entropy is the standard loss function for binary classification problems:
-
-$$L = -\frac{1}{N}\sum_{i=1}^{N} [y_i \log(p_i) + (1-y_i) \log(1-p_i)]$$
-
-where:
-- $y_i$ is the true label (0 or 1)
-- $p_i$ is the predicted probability of class 1
-- $N$ is the number of samples
-
-This loss function penalizes confident incorrect predictions more heavily than less confident ones.
-
-## Testing the Binary Cross-Entropy Implementation
-
-```python
-# Create and train the model with explicit loss calculation
-bce_model = LogisticRegressionLoss(learning_rate=0.1, iterations=1000)
-losses = bce_model.fit(X_train, y_train)
-
-# Make predictions
-y_pred_bce = bce_model.predict(X_test)
-
-# Calculate accuracy
-accuracy_bce = accuracy_score(y_test, y_pred_bce)
-print(f"Binary Cross-Entropy Accuracy: {accuracy_bce:.4f}")
-
-# Plot the loss over iterations
-plt.figure(figsize=(10, 6))
-plt.plot(losses)
-plt.title('Loss vs. Iterations')
-plt.xlabel('Iterations')
-plt.ylabel('Binary Cross-Entropy Loss')
-plt.grid(True)
-plt.show()
-
-# Plot the decision boundary
-plot_decision_boundary(X, y, bce_model)
-```
-
 ## Real-World Example: Social Network Ads Dataset
 
-Let's apply our implementations to a real-world dataset:
+Let's apply our implementations to a real-world dataset to see how they perform on an actual classification problem:
 
 ```python
 # Load the Social Network Ads dataset
@@ -410,13 +335,9 @@ gd_model.fit(X_train, y_train)
 nr_model = LogisticRegressionNewtonRaphson(n_iters=10)
 nr_model.fit(X_train, y_train)
 
-bce_model = LogisticRegressionLoss(learning_rate=0.1, iterations=1000)
-bce_model.fit(X_train, y_train)
-
 # Make predictions
 y_pred_gd = gd_model.predict(X_test)
 y_pred_nr = nr_model.predict(X_test)
-y_pred_bce = bce_model.predict(X_test)
 
 # Calculate accuracies
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
@@ -430,12 +351,6 @@ print("\nNewton-Raphson Model:")
 print(f"Accuracy: {accuracy_score(y_test, y_pred_nr):.4f}")
 print(f"Confusion Matrix:\n{confusion_matrix(y_test, y_pred_nr)}")
 print(f"Classification Report:\n{classification_report(y_test, y_pred_nr)}")
-
-print("\nBinary Cross-Entropy Model:")
-print(f"Accuracy: {accuracy_score(y_test, y_pred_bce):.4f}")
-print(f"Confusion Matrix:\n{confusion_matrix(y_test, y_pred_bce)}")
-print(f"Classification Report:\n{classification_report(y_test, y_pred_bce)}")
-
 # Visualize the results for the Gradient Descent model
 from matplotlib.colors import ListedColormap
 
@@ -464,32 +379,41 @@ plt.show()
 
 ## Comparison of Methods
 
-Here's a summary of the three implementations we covered:
+Here's a detailed comparison of the two implementations we covered:
 
 1. **Gradient Descent**:
-   - Pros: Simple to implement, works for large datasets
-   - Cons: Can be slow to converge, requires careful learning rate tuning
+   - **Pros**: 
+     - Simple to implement and understand
+     - Works well for large datasets
+     - Less computationally intensive per iteration
+     - No matrix inversion required
+   - **Cons**: 
+     - Can be slow to converge, requiring many iterations
+     - Requires careful tuning of the learning rate
+     - May get stuck in plateaus for poorly conditioned problems
    
 2. **Newton-Raphson Method**:
-   - Pros: Faster convergence (fewer iterations needed)
-   - Cons: Computationally expensive for large datasets, requires matrix inversion
+   - **Pros**: 
+     - Much faster convergence (typically 5-10 iterations)
+     - No learning rate to tune
+     - Better handling of ill-conditioned problems
+   - **Cons**: 
+     - Computationally expensive for large datasets (O(n³) complexity)
+     - Requires calculating and inverting the Hessian matrix
+     - More complex to implement
+     - May not converge if the Hessian is not positive definite
    
-3. **Explicit Loss Calculation**:
-   - Pros: Easy to track progress through loss values
-   - Cons: Similar to gradient descent in terms of performance
 
 ## Conclusion
 
-In this tutorial, we explored three different implementations of Logistic Regression from scratch. We learned that:
+In this tutorial, we explored two different implementations of Logistic Regression from scratch. We learned that:
 
 1. Logistic Regression is essentially Linear Regression with a sigmoid function applied to the output
-2. The optimization objective is to minimize the Binary Cross-Entropy loss
-3. There are multiple optimization methods, each with its own trade-offs
+2. The optimization objective is to minimize the Binary Cross-Entropy loss, which is better suited for classification than mean squared error
+3. Different optimization methods offer trade-offs between computational complexity and convergence speed
 
-By implementing these algorithms ourselves, we gain a deeper understanding of the mathematics and principles behind logistic regression, which forms the foundation for more complex classification algorithms.
+By implementing these algorithms ourselves, we gain a deeper understanding of the mathematics and principles behind logistic regression, which forms the foundation for many other classification algorithms in machine learning.
 
-## Exercises
-
-Compare the performance of your implementations with scikit-learn's LogisticRegression
+The concepts learned here - optimization techniques, loss functions, and sigmoid transformations - will serve as building blocks for understanding more complex models like neural networks.
 
 

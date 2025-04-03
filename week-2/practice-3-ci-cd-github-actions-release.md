@@ -105,6 +105,30 @@ jobs:
           asset_content_type: text/plain
 ```
 
+### Explanation:
+
+- **Triggers (`on`)**: The workflow is triggered on both `push` and `pull_request` events to the `main` branch.
+  
+- **Jobs**:
+  - **Checkout repository**: Uses `actions/checkout@v3` to clone your repository.
+  
+  - **Set up Python**: Sets up Python version `3.9` using `actions/setup-python@v4`.
+  
+  - **Install dependencies**: Installs Python dependencies listed in `requirements.txt`.
+  
+  - **Check for changes in `training_data.csv`**: Determines if `training_data.csv` has been modified in the latest commit.
+  
+  - **Train Linear Model**: If `training_data.csv` has changed, this step runs the `train_model.py` script to train the model.
+  
+  - **Commit and Push to Release Branch**: Commits the updated `linear_model.txt` to the `release` branch.
+  
+  - **Create GitHub Release**: Creates a new GitHub release with a version tag corresponding to the workflow run number.
+
+---
+
+
+
+
 ### training_data.csv
 
 Create the file, add content:
@@ -143,26 +167,6 @@ YearsExperience,Salary
 10.5,121872.00
 ```
 
-### Explanation:
-
-- **Triggers (`on`)**: The workflow is triggered on both `push` and `pull_request` events to the `main` branch.
-  
-- **Jobs**:
-  - **Checkout repository**: Uses `actions/checkout@v3` to clone your repository.
-  
-  - **Set up Python**: Sets up Python version `3.9` using `actions/setup-python@v4`.
-  
-  - **Install dependencies**: Installs Python dependencies listed in `requirements.txt`.
-  
-  - **Check for changes in `training_data.csv`**: Determines if `training_data.csv` has been modified in the latest commit.
-  
-  - **Train Linear Model**: If `training_data.csv` has changed, this step runs the `train_model.py` script to train the model.
-  
-  - **Commit and Push to Release Branch**: Commits the updated `linear_model.txt` to the `release` branch.
-  
-  - **Create GitHub Release**: Creates a new GitHub release with a version tag corresponding to the workflow run number.
-
----
 
 ## 2. Implementing the Training Script
 
@@ -244,6 +248,14 @@ The workflow is set to automatically create a new release each time the `linear_
 
 - **Access Token**: The `GITHUB_TOKEN` secret is used to authenticate the release creation.
 
+
+---
+
+## 6. Testing the CI/CD Pipeline
+
+Modify the `training_data.csv` file, add some new data, and push the changes to the `main` branch.
+
+See what happens in the GitHub Actions tab, as well as the `release` branch, and the release in the GitHub Releases.
 
 ---
 

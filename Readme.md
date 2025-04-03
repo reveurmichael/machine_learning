@@ -131,25 +131,18 @@ Test (45 min):
 ### Week 4 (Test 2/4)
 
 Materials to read before test:
-- all jupyter notebooks for  lectures and exercises
-- https://www.bilibili.com/video/BV1SY4y1G7o9/
-- https://github.com/features/actions
 - https://docs.github.com/en/actions/quickstart
-- https://github.blog/2022-02-02-build-ci-cd-pipeline-github-actions-four-steps/
 - https://resources.github.com/ci-cd/
-- https://github.com/readme/guides/sothebys-github-actions
-- https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
-- https://www.ssh.com/academy/ssh-keys
-
+- https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/optimizing-multivariable-functions/a/what-is-gradient-descent
 
 
 Test (45 min):
 - **Code**: Linear Regression implementation from scratch
 - **Code**: Logistic Regression implementation from scratch
-- **Math**: gradient descent for linear regression and logistic regression
+- **Math**: Gradient Descent
 - **Math**: MSE for linear regression
 - **Math**: cross-entropy loss function for logistic regression
-- **Misc**: ssh key, CI/CD, GitHub Actions
+- **Misc**: ssh key, CI/CD, GitHub Actions, Python pickle, confusion matrix
 
 
 ### Week 6 (Test 3/4)

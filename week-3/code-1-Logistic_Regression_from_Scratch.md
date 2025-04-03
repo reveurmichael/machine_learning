@@ -154,8 +154,7 @@ There are several compelling reasons to use cross-entropy loss for logistic regr
 - It's convex and has a single minimum, making optimization more straightforward
 - It penalizes confident incorrect predictions more heavily than less confident ones
 - The gradient of the cost function doesn't vanish for extreme probability values, avoiding the "flat region" problem that occurs with MSE
-- It's derived from the maximum likelihood estimation principle for Bernoulli distributions
-- It produces well-calibrated probabilities, meaning the output probabilities are more reliable
+
 
 ## Testing the Gradient Descent Implementation
 

@@ -133,8 +133,6 @@ Test (45 min):
 Materials to read before test:
 - https://docs.github.com/en/actions/quickstart
 - https://resources.github.com/ci-cd/
-- Python pickle
-- Simple Linear Regression, Multiple Linear Regression, Polynomial Regression, and Gradient Descent
 - https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/optimizing-multivariable-functions/a/what-is-gradient-descent
 
 

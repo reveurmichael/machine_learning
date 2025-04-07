@@ -163,7 +163,7 @@ Materials to read before test:
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (1/2) 
-    - Some basic starter code (>= 90%) will be provided
+    - Some basic starter code (>= 70%) will be provided
 - **Math**: activation functions
 - **Math**: universal approximation theorem
 - **Math**: the chain rule of calculus for univariate and multivariate functions
@@ -669,9 +669,6 @@ Office visit is NOT welcome unless you make an appointment at least one day in a
 - At least 5 hours of extra-course work each week is expected from you. 
     - 2 hours for course content revision & test preparation
     - 3 hours for your project (2 is the bare minimum, you might want to shoot up to 20 or 30 towards the end of the trimester).
-
-#### What can I add as items to my CV after taking this course?
--  It's quite a lot. For example, GitHub Pull Request, GitHub workflow, GoHugo, reveal.js, Cloud Computing, streamlit, fastapi, swagger, Docker, nginx, GitHub WebHook, machine learning, deep learning, MySQL, GitHub Actions, numpy, pandas, matplotlib, seaborn, plotly, sklearn, tensorflow, DQN, etc.
 
 #### Why this course seems a bit different?
 - Well, the prof draws inspirations from courses of Stanford, Berkeley and MIT.

@@ -68,6 +68,12 @@ You might find those links on visualization useful:
 During the class, we will play a little bit with Tensorflow Playground:
 - https://playground.tensorflow.org
 
+Those materials can be very interesting as well:
+- https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers
+- https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions
+- https://www.v7labs.com/blog/neural-networks-activation-functions
+
+
 AFTER the class, please watch those videos very carefully:
 - https://www.youtube.com/watch?v=aircAruvnKk
 - https://www.youtube.com/watch?v=IHZwWFHWa-w

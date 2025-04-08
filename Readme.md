@@ -75,10 +75,21 @@ Those materials can be very interesting as well:
 
 
 AFTER the class, please watch those videos very carefully:
+
+Either on YouTube:
 - https://www.youtube.com/watch?v=aircAruvnKk
 - https://www.youtube.com/watch?v=IHZwWFHWa-w
 - https://www.youtube.com/watch?v=Ilg3gGewQ5U
 - https://www.youtube.com/watch?v=tIeHLnjs5U8
+
+Or, on Bilibili:
+- https://www.bilibili.com/video/BV1bx411M7Zx/
+- https://www.bilibili.com/video/BV1Ux411j7ri/
+- https://www.bilibili.com/video/BV16x411V7Qg
+
+Or, in a playlist:
+- https://space.bilibili.com/88461692/lists/1528929
+
 
 ### Week 5
 - Building a Machine Learning web app

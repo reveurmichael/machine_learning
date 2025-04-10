@@ -29,7 +29,7 @@ The second and third sessions will introduce more advanced techniques and optimi
 
 ### Linear Regression Recap
 
-In our first week, we implemented linear regression, which models the relationship as:
+Previously, we have implemented linear regression, which models the relationship as:
 
 $$y = \mathbf{w}^\top \mathbf{x} + b$$
 

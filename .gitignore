@@ -16,3 +16,4 @@ venv
 .python-version
 */tmp/*
 */tmp/**
+prompts.txt

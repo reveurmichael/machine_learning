@@ -210,8 +210,15 @@ Optimization algorithms determine how the network's parameters are updated based
 
 #### 2.1. Stochastic Gradient Descent (SGD)
 
-SGD updates each parameter by moving it a small step in the opposite direction of its gradient:
-  
+Traditional gradient descent computes the gradient of the loss function using the entire dataset, which can be computationally expensive and slow, especially for large datasets. In contrast, **Stochastic Gradient Descent (SGD)** updates the model parameters using only a small random subset (mini-batch) of the data at each step. 
+
+**Benefits of SGD:**
+- **Faster Updates:** By using mini-batches, SGD can update the model parameters more frequently, leading to faster convergence.
+- **Noise Helps Escape Local Minima:** The inherent noise in the updates (due to using only a subset of data) can help the model escape local minima and explore the loss landscape more effectively.
+- **Better Generalization:** The variability introduced by mini-batch updates can lead to better generalization on unseen data.
+
+The update rule for SGD is:
+
 $$\theta = \theta - \alpha \frac{\partial L}{\partial \theta}$$
 
 where:  
@@ -219,15 +226,17 @@ where:
 - \(\alpha\) is the learning rate, and
 - \(\frac{\partial L}{\partial \theta}\) is the gradient for that parameter.
 
-*SGD Characteristics:*
-- Simple and intuitive.
-- Updates are computed per mini-batch, introducing noise which can help escape local minima.
-- Sensitive to the learning rate.
-
 #### 2.2. Adam Optimizer
 
-Adam combines ideas from both momentum (which builds up speed in consistent gradient directions) and RMSProp (which adjusts the learning rate for each parameter). Key update rules:
-  
+**Adam** (Adaptive Moment Estimation) combines the advantages of two other extensions of SGD: momentum and RMSProp. It maintains two moving averages for each parameter: one for the gradients (first moment) and one for the squared gradients (second moment). 
+
+**Benefits of Adam:**
+- **Adaptive Learning Rates:** Adam adjusts the learning rate for each parameter individually based on the historical gradients, allowing for more efficient training.
+- **Faster Convergence:** By using both momentum and adaptive learning rates, Adam often converges faster than SGD, especially in complex problems.
+- **Less Tuning Required:** Adam typically requires less tuning of the learning rate compared to SGD, making it easier to use in practice.
+
+The update rules for Adam are:
+
 1. **First Moment Estimate (mean):**  
    \(m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t\)
 

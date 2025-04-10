@@ -6,6 +6,8 @@ Welcome to the first of our three sessions on implementing neural networks from 
 
 While libraries like TensorFlow and PyTorch make neural networks accessible, implementing one from scratch provides deeper insights into how they actually work. This knowledge will help you better design, debug, and optimize neural networks in future projects.
 
+Note that some code is intentionally missing so that you have to work on it yourself.
+
 ## Session Overview
 
 In this first session, we will focus on:

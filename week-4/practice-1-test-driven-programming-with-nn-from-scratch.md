@@ -19,10 +19,19 @@ In this practice session, you will learn how to apply test-driven development pr
    - Click "Create repository"
 
 2. **Clone the repository to your local machine**
-   ```bash
+```bash
+   git clone git@github.com:YOUR-USERNAME/test-driven-programming-with-nn-from-scratch.git
+   cd test-driven-programming-with-nn-from-scratch
+```
+
+   Or, if you prefer HTTPS:
+
+```bash
    git clone https://github.com/YOUR-USERNAME/test-driven-programming-with-nn-from-scratch.git
    cd test-driven-programming-with-nn-from-scratch
-   ```
+```
+
+   
 
 ## Step 2: Setting Up the Project Structure
 

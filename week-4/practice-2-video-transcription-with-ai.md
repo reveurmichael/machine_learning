@@ -106,6 +106,13 @@ from pathlib import Path
 import torch
 from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 from faster_whisper import WhisperModel
+
+# Removing the offline flag to allow model download
+# os.environ["TRANSFORMERS_OFFLINE"] = "1"  # Avoid downloading models at runtime
+os.environ["TOKENIZERS_PARALLELISM"] = "false"  # Avoid warnings
+os.environ["USE_TORCH"] = "1"  # Force use of PyTorch
+os.environ["USE_TF"] = "0"  # Disable TensorFlow
+
 ```
 
 ### Step 2: Create a Function to Find Video Files

@@ -347,3 +347,8 @@ Congratulations! You've built a powerful AI tool that can transcribe videos and 
 1. Speech recognition with Whisper
 2. Machine translation with the Helsinki-NLP model
 3. Python automation to tie it all together
+
+
+## Final observation
+
+The results for translation is not so good. Check the results in the folder `practice-2-output-srt-files`.

@@ -833,5 +833,3 @@ In this first session, we've built the foundations of neural networks from scrat
 3. We built the core layer types (Dense and ReLU)
 4. We implemented forward and backward propagation
 5. We trained a simple neural network on MNIST digit classification
-
-By implementing these components from scratch, you've gained a deeper understanding of how neural networks learn from data. In our next sessions, we'll build upon this foundation to create more powerful and efficient neural networks.

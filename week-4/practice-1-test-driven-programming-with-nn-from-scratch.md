@@ -195,7 +195,7 @@ class ReLU(Layer):
         """Compute gradient of loss w.r.t. ReLU input"""
         # TODO: Implement the backward pass for ReLU activation
         # Hint: ReLU gradient is 1 where input > 0, and 0 elsewhere
-        relu_grad =  ______YOUR_CODE_HERE_________ 
+        ______YOUR_CODE_HERE_________ 
         return grad_output * relu_grad
 
 
@@ -299,7 +299,7 @@ def forward(network, X):
     input = X
 
     # Pass input through each layer
-    for layer in network:
+    for layer in ______YOUR_CODE_HERE_________:
         activations.append(layer.forward(input))
         input = ______YOUR_CODE_HERE_________  # Output of current layer becomes input to next layer
 
@@ -372,7 +372,7 @@ def train_mnist_network(
     print(f"\nTraining on {len(X_train_subset)} examples")
 
     # Training loop
-    for epoch in range(num_epochs):
+    for epoch in range(______YOUR_CODE_HERE_________):
         print(f"Epoch {epoch+1}/{num_epochs}")
 
         # Shuffle the training data
@@ -384,7 +384,7 @@ def train_mnist_network(
         num_batches = (len(X_train_subset) + batch_size - 1) // batch_size
         epoch_losses = []
 
-        for batch in range(num_batches):
+        for batch in range(______YOUR_CODE_HERE_________):
             # Extract batch
             start_idx = batch * batch_size
             end_idx = min(start_idx + batch_size, len(X_train_subset))
@@ -596,7 +596,7 @@ jobs:
 
 Now, it's time to fill in the blanks in `nn_from_scratch.py` to make the neural network work.
 
-If your answers are correct, on your PC, you run the test file by:
+If your answers are correct, on your PC, you run the tests by:
 
 ```bash
 pytest tests/test_all.py -v
@@ -622,8 +622,8 @@ pytest
    - Go to your GitHub repository page
    - Click on the "Actions" tab
    - You should see your workflow running or completed
-   - If tests pass, you'll see a green checkmark
-   - If tests fail, you'll see a red X. Click on the workflow to see error details
+   - If tests pass, you'll see a green checkmark ✅
+   - If tests fail, you'll see a red X ❌. Click on the workflow to see error details
 
 ## Conclusion
 

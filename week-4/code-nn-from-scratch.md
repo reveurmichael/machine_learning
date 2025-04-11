@@ -196,7 +196,7 @@ plot_activation_derivatives()
 
 ### Why ReLU is Popular
 
-ReLU (Rectified Linear Unit) has become the most popular activation function for hidden layers in neural networks for several reasons:
+ReLU (Rectified Linear Unit), first proposed in 2010 (so pretty young), has become the most popular activation function for hidden layers in neural networks for several reasons:
 
 1. **Computational Efficiency**: It's simple to compute: `max(0, x)`
 2. **Avoids Vanishing Gradient**: The gradient is either 0 or 1, helping with the vanishing gradient problem

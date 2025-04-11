@@ -5,9 +5,12 @@
 
 In this session, we will extend our previous work on neural networks from scratch by focusing on how a network learns. We start with an in-depth exploration of **Backpropagation (BP)**, which is the fundamental algorithm used to compute gradients through the network, and explain intuitively why and how it works.
 
-After exploring backpropagation, we will discuss **Stochastic Gradient Descent (SGD)**, an optimization method that updates the network's weights in small batches. Finally, we include an overview of the **Adam optimizer**, which is a more advanced optimization algorithm that builds on SGD but automates the learning rate adaptation for each parameter. Although we cover Adam less extensively, you will see how easy it is to swap it into our training loop.
+After exploring backpropagation, we will discuss **Stochastic Gradient Descent (SGD)**, an optimization method that updates the network's weights in small batches. Finally, we include an overview of the **Adam optimizer**, which is a more advanced optimization algorithm, first proposed in 2014, that builds on SGD but automates the learning rate adaptation for each parameter. Although we cover Adam less extensively, you will see how easy it is to swap it into our training loop.
 
 We'll work with the classic **MNIST** dataset of handwritten digits and implement a neural network from scratch to classify these digits. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
+
+
+Make sure you have watched the 3b1b videos before doing the code session!
 
 ### Session Overview
 

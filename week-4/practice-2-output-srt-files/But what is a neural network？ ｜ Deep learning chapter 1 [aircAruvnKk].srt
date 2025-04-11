@@ -1,0 +1,1505 @@
+1
+00:00:03,120 --> 00:00:06,120
+This is a 3.
+这是3分
+
+2
+00:00:06,120 --> 00:00:11,220
+It's sloppily written and rendered at an extremely low resolution of 28x28 pixels,
+以极低的分辨率 28x28 像素,
+
+3
+00:00:11,220 --> 00:00:14,359
+but your brain has no trouble recognizing it as a 3.
+但你的大脑没有问题 认清它为3
+
+4
+00:00:14,359 --> 00:00:18,199
+And I want you to take a moment to appreciate how crazy it is that brains can do this
+我希望你能花一点时间 体会到 大脑能做的多么疯狂
+
+5
+00:00:18,199 --> 00:00:19,199
+so effortlessly.
+如此不费吹灰之力
+
+6
+00:00:19,199 --> 00:00:24,600
+I mean, this, this, and this are also recognizable as 3s, even though the specific
+我的意思是,这个,这个,这个,这个,这个, 和这个也是可以识别的3,3, 尽管具体
+
+7
+00:00:24,600 --> 00:00:28,879
+values of each pixel is very different from one image to the next.
+每个像素的值从一个图像到下一个图像差别很大。
+
+8
+00:00:28,879 --> 00:00:34,159
+The particular light-sensitive cells in your eye that are firing when you see this 3
+当你看到这个3 时,你眼睛里特别的 光敏感细胞 正在燃烧
+
+9
+00:00:34,159 --> 00:00:37,640
+are very different from the ones firing when you see this 3.
+与你看到3号时的射击非常不同
+
+10
+00:00:37,640 --> 00:00:43,039
+But something in that crazy smart visual cortex of yours resolves these as representing the
+但是在你那疯狂的智能视觉皮层里的东西 解决了这些代表着
+
+11
+00:00:43,039 --> 00:00:49,340
+same idea, while at the same time recognizing other images as their own distinct ideas.
+同样的想法,同时承认其他图像是他们自己的不同想法。
+
+12
+00:00:49,340 --> 00:00:54,240
+But if I told you, hey, sit down and write for me a program that takes in a grid
+但是如果我告诉你,嘿,坐下来 帮我写一个程序,用电网
+
+13
+00:00:54,240 --> 00:01:00,759
+of 28x28 pixels like this, and outputs a single number between 0 and 10, telling you what
+28x28 像素这样的28x28, 输出一个0到10之间的数字, 告诉您
+
+14
+00:01:00,759 --> 00:01:07,239
+it thinks the digit is, well, the task goes from comically trivial to dauntingly difficult.
+它认为数字是,嗯, 任务从 漫画般的琐碎 到巨大的困难。
+
+15
+00:01:07,239 --> 00:01:10,620
+Unless you've been living under a rock, I think I hardly need to motivate the relevance
+除非你一直生活在岩石下 我想我几乎用不着激励
+
+16
+00:01:10,620 --> 00:01:14,200
+and importance of machine learning and neural networks to the present and to
+以及机器学习和神经网络对目前和
+
+17
+00:01:14,200 --> 00:01:15,200
+the future.
+未来。
+
+18
+00:01:15,200 --> 00:01:19,159
+But what I want to do here is show you what a neural network actually is, assuming
+但我想在这里做的是 向你们展示一个神经网络 实际上是什么,假设
+
+19
+00:01:19,159 --> 00:01:22,560
+no background, and to help visualize what it's doing.
+没有背景, 并且帮助想象它在做什么。
+
+20
+00:01:22,560 --> 00:01:25,040
+Not as a buzzword, but as a piece of math.
+不是一个大字,而是数学的一部份。
+
+21
+00:01:25,040 --> 00:01:29,280
+My hope is just that you come away feeling like the structure itself is motivated,
+我希望你们能离开, 觉得这个结构本身 是有动机的,
+
+22
+00:01:29,280 --> 00:01:33,079
+and to feel like you know what it means when you read or hear about a neural network
+感觉就像你知道这意味着 当你读或听到一个神经网络
+
+23
+00:01:33,079 --> 00:01:35,519
+learning.
+学习。
+
+24
+00:01:35,519 --> 00:01:38,760
+This video is just going to be devoted to the structure component of that, and
+这段录像将专门介绍其中的结构部分,
+
+25
+00:01:38,760 --> 00:01:41,040
+the following one is going to tackle learning.
+下面将讨论学习问题。
+
+26
+00:01:41,040 --> 00:01:44,799
+What we're going to do is put together a neural network that can learn to recognize
+我们要做的是建立一个神经网络 来学会识别
+
+27
+00:01:44,799 --> 00:01:49,780
+handwritten digits.
+手写数字。
+
+28
+00:01:49,780 --> 00:01:53,680
+This is a somewhat classic example for introducing the topic, and I'm happy to stick with
+这是一个介绍这个主题的典型例子, 我很高兴继续
+
+29
+00:01:53,680 --> 00:01:57,400
+the status quo here, because at the end of the two videos I want to point you to a couple
+这里的现状, 因为在这两段视频的结尾... ...我想把你们指向一对夫妇
+
+30
+00:01:57,400 --> 00:02:01,000
+good resources where you can learn more, and where you can download the code that
+良好的资源,你可以学习更多, 也可以下载代码
+
+31
+00:02:01,000 --> 00:02:05,260
+does this and play with it on your own computer.
+这样做,并玩它 用你自己的电脑。
+
+32
+00:02:05,260 --> 00:02:09,360
+There are many, many variants of neural networks, and in recent years there's
+神经网络有许多,许多变异 近些年来
+
+33
+00:02:09,360 --> 00:02:14,280
+been sort of a boom in research towards these variants, but in these two introductory
+研究这些变异物的兴起, 但在这两份导言中,
+
+34
+00:02:14,280 --> 00:02:18,240
+videos, you and I are just going to look at the simplest plain vanilla form with
+视频,你和我 只是要看看 最简单的普通香草形式
+
+35
+00:02:18,240 --> 00:02:19,240
+no added frills.
+没有附加的薯条。
+
+36
+00:02:19,240 --> 00:02:23,560
+This is kind of a necessary prerequisite for understanding any of the more powerful
+这是理解任何强者的必要先决条件
+
+37
+00:02:23,560 --> 00:02:28,199
+modern variants, and trust me, it still has plenty of complexity for us to wrap our minds
+现代的变体,相信我, 我们仍然有很多复杂的复杂 使我们头脑清醒
+
+38
+00:02:28,199 --> 00:02:29,199
+around.
+周围。
+
+39
+00:02:29,199 --> 00:02:33,439
+But even in this simplest form, it can learn to recognize handwritten digits, which is
+但即使以这种最简单的形式,它也可以学会识别手写数字,即:
+
+40
+00:02:33,439 --> 00:02:37,639
+a pretty cool thing for a computer to be able to do.
+对于电脑来说,这是一件很酷的事
+
+41
+00:02:37,639 --> 00:02:41,039
+And at the same time, you'll see how it does fall short of a couple hopes that
+同时,你会看到它是如何 达不到一对夫妇的希望
+
+42
+00:02:41,039 --> 00:02:43,680
+we might have for it.
+我们也许有它。
+
+43
+00:02:43,680 --> 00:02:47,520
+As the name suggests, neural networks are inspired by the brain.
+正如名字所暗示的那样,神经网络受大脑的启发。
+
+44
+00:02:47,520 --> 00:02:49,039
+But let's break that down.
+但是,让我们打破它。
+
+45
+00:02:49,039 --> 00:02:52,599
+What are the neurons, and in what sense are they linked together?
+神经元是什么,在什么意义上它们联系在一起?
+
+46
+00:02:52,639 --> 00:02:58,319
+Right now, when I say neuron, all I want you to think about is a thing that holds a number,
+现在,当我说神经元的时候, 我想让你想的只是一个有数字的东西,
+
+47
+00:02:58,319 --> 00:03:00,960
+specifically a number between 0 and 1.
+具体数字介于 0 和 1 之间。
+
+48
+00:03:00,960 --> 00:03:03,919
+It's really not more than that.
+它真的不 仅此而已。
+
+49
+00:03:03,919 --> 00:03:08,159
+For example, the network starts with a bunch of neurons corresponding to each of
+例如,网络从一系列神经元开始,这些神经元与每个神经元相对应。
+
+50
+00:03:08,159 --> 00:03:14,759
+the 28x28 pixels of the input image, which is 784 neurons in total.
+输入图像的28x28像素,总共是784个神经元。
+
+51
+00:03:14,759 --> 00:03:20,000
+Each one of these holds a number that represents the greyscale value of the corresponding
+其中每一个都有一个数字,代表相应数字的灰度值。
+
+52
+00:03:20,000 --> 00:03:25,439
+pixel, ranging from 0 for black pixels up to 1 for white pixels.
+像素,黑色像素为0,白像素为1。
+
+53
+00:03:25,439 --> 00:03:29,919
+This number inside the neuron is called its activation, and the image you might have
+神经元里面的这个数字叫做它的激活, 以及您可能拥有的图像
+
+54
+00:03:29,919 --> 00:03:36,780
+in mind here is that each neuron is lit up when its activation is a high number.
+记住,当每个神经元的激活数量很大时, 每一个神经元都会被点亮。
+
+55
+00:03:36,780 --> 00:03:46,490
+So all of these 784 neurons make up the first layer of our network.
+因此,所有这些784个神经元 构成了我们网络的第一层。
+
+56
+00:03:46,490 --> 00:03:50,849
+Now jumping over to the last layer, this has 10 neurons, each representing one of
+现在跳跃到最后一层, 这个有10个神经元, 每个代表一个
+
+57
+00:03:50,849 --> 00:03:52,090
+the digits.
+数字。
+
+58
+00:03:52,090 --> 00:03:58,169
+The activation in these neurons, again some number between 0 and 1, represents how much
+这些神经元的激活, 数字在0到1之间, 代表了多少
+
+59
+00:03:58,169 --> 00:04:02,569
+the system thinks that a given image corresponds with a given digit.
+系统认为给定图像与给定数字相对应 。
+
+60
+00:04:02,569 --> 00:04:07,129
+There's also a couple layers in between, called the hidden layers, which for the
+中间还有几层层 被称为隐藏层
+
+61
+00:04:07,129 --> 00:04:11,610
+time being should just be a giant question mark for how on earth this process of
+现在的时间应该仅仅是一个巨大的问题标志,说明在地球上如何开展这一进程。
+
+62
+00:04:11,610 --> 00:04:14,330
+recognizing digits is going to be handled.
+将处理识别数字的工作。
+
+63
+00:04:14,330 --> 00:04:18,930
+In this network, I chose two hidden layers, each one with 16 neurons, and admittedly
+在这个网络中,我选择了两个隐藏的层, 每个有16个神经元的层, 并且承认
+
+64
+00:04:18,930 --> 00:04:21,089
+that's kind of an arbitrary choice.
+这是一种任意的选择。
+
+65
+00:04:21,089 --> 00:04:24,449
+To be honest, I chose two layers based on how I want to motivate the structure in just
+说实话,我选择了两层,基于我想如何激励这个结构
+
+66
+00:04:24,449 --> 00:04:25,449
+a moment.
+一分钟。
+
+67
+00:04:25,449 --> 00:04:28,850
+And 16, well that was just a nice number to fit on the screen.
+16,嗯,那只是一个不错的数字 适合在屏幕上。
+
+68
+00:04:28,850 --> 00:04:33,250
+In practice, there is a lot of room for experiment with a specific structure here.
+实际上,这里有一个特定结构的试验空间很大。
+
+69
+00:04:33,250 --> 00:04:37,889
+The way the network operates, activations in one layer determine the activations of
+网络的运行方式, 在一个层的激活决定了
+
+70
+00:04:37,889 --> 00:04:38,889
+the next layer.
+下一层。
+
+71
+00:04:38,889 --> 00:04:43,529
+And of course, the heart of the network, as an information processing mechanism, comes
+当然,网络的核心,作为一个信息处理机制, 即将到来
+
+72
+00:04:43,529 --> 00:04:48,009
+down to exactly how those activations from one layer bring about activations in the
+下到精确到这些从一个层的 激活是如何在
+
+73
+00:04:48,009 --> 00:04:49,009
+next layer.
+下一层 。
+
+74
+00:04:49,410 --> 00:04:54,290
+It's meant to be loosely analogous to how in biological networks of neurons, some groups
+与神经元生物网络中 某些群体类似
+
+75
+00:04:54,290 --> 00:04:58,170
+of neurons firing cause certain others to fire.
+神经元的燃烧会引起某些其他神经元的燃烧。
+
+76
+00:04:58,170 --> 00:05:02,129
+The network I'm showing here has already been trained to recognize digits, and let
+我在这里展示的网络 已经接受过识别数字的训练
+
+77
+00:05:02,129 --> 00:05:03,689
+me show you what I mean by that.
+我让你明白我的意思
+
+78
+00:05:03,689 --> 00:05:09,689
+It means if you feed in an image, lighting up all 784 neurons of the input layer
+这意味着如果你用图像喂食, 照明所有784个输入层的神经元
+
+79
+00:05:09,689 --> 00:05:14,569
+according to the brightness of each pixel in the image, that pattern of activations
+根据图像中每个像素的亮度, 激活的模式
+
+80
+00:05:14,569 --> 00:05:18,810
+causes some very specific pattern in the next layer, which causes some pattern in the
+造成下一层中某些非常具体的图层图层中某些非常具体的图层图层图层,这在下层图层中造成某些图层图层的图层图层。
+
+81
+00:05:18,810 --> 00:05:24,129
+one after it, which finally gives some pattern in the output layer, and the brightest neuron
+一个之后,它最终给输出层 带来一些图案, 以及最明亮的神经元
+
+82
+00:05:24,129 --> 00:05:28,490
+of that output layer is the network's choice, so to speak, for what digit this
+该输出层是网络选择的, 可以说, 这个数字是多少 。
+
+83
+00:05:28,490 --> 00:05:29,730
+image represents.
+图像代表 。
+
+84
+00:05:29,730 --> 00:05:36,819
+And before jumping into the math for how one layer influences the next, or how training
+在跳进数学之前 如何影响一个层 如何影响下一个层 或如何训练
+
+85
+00:05:36,819 --> 00:05:41,339
+works, let's just talk about why it's even reasonable to expect a layered structure
+工作,我们来谈谈为什么 期望一个层层结构更合理
+
+86
+00:05:41,339 --> 00:05:44,300
+like this to behave intelligently.
+这样的行为才有智慧
+
+87
+00:05:44,300 --> 00:05:45,560
+What are we expecting here?
+我们在这里期待什么?
+
+88
+00:05:45,560 --> 00:05:49,959
+What is the best hope for what those middle layers might be doing?
+这些中层可能正在做的事情的最好希望是什么?
+
+89
+00:05:49,959 --> 00:05:54,160
+When you or I recognize digits, we piece together various components.
+当你或我认出数位数时, 我们把不同的部件拼凑在一起。
+
+90
+00:05:54,160 --> 00:05:57,439
+A 9 has a loop up top and a line on the right.
+9号机的顶部有一个圆圈,右侧有一个线。
+
+91
+00:05:57,439 --> 00:06:02,000
+An 8 also has a loop up top, but it's paired with another loop down low.
+8也有一个上层的循环, 但它与另一个低层循环相配。
+
+92
+00:06:02,000 --> 00:06:07,040
+A 4 basically breaks down into three specific lines and things like that.
+4 基本上分为三条特定的线条和诸如此类的线条。
+
+93
+00:06:07,040 --> 00:06:12,480
+In a perfect world, we might hope that each neuron in the second to last layer
+在一个完美的世界里, 我们或许希望每个神经元 在第二层到最后一层
+
+94
+00:06:12,560 --> 00:06:17,680
+corresponds with one of these subcomponents, that anytime you feed in an image with, say,
+与这些子组件之一相对应, 每当您在图像中输入时, 比如说,
+
+95
+00:06:17,680 --> 00:06:22,920
+a loop up top, like a 9 or an 8, there's some specific neuron whose activation is going
+就像9或8 有一些特定的神经元 其激活正在进行中
+
+96
+00:06:22,920 --> 00:06:24,560
+to be close to 1.
+接近1。
+
+97
+00:06:24,560 --> 00:06:28,600
+And I don't mean this specific loop of pixels, the hope would be that any generally
+我不是指这种特定的像素循环, 希望是任何一般的
+
+98
+00:06:28,600 --> 00:06:32,560
+loopy pattern towards the top sets off this neuron.
+向顶端的循环图案 关闭了这个神经元
+
+99
+00:06:32,560 --> 00:06:36,899
+That way, going from the third layer to the last one just requires learning which
+这样,从第三层到最后一层 只需要学习
+
+100
+00:06:36,899 --> 00:06:41,079
+combination of subcomponents corresponds to which digits.
+组合的子构件与哪个位数对应。
+
+101
+00:06:41,079 --> 00:06:44,639
+Of course, that just kicks the problem down the road because how would you recognize these
+当然,这只会把问题推到路上 因为你如何认识这些
+
+102
+00:06:44,639 --> 00:06:47,720
+subcomponents or even learn what the right subcomponents should be?
+次级组成部分,甚至知道正确的次级组成部分应该是什么?
+
+103
+00:06:47,720 --> 00:06:51,680
+And I still haven't even talked about how one layer influences the next, but run
+我甚至还没讨论过一个层 如何影响下一个层,但跑
+
+104
+00:06:51,680 --> 00:06:54,120
+with me on this one for a moment.
+和我在这件事情上待一阵子
+
+105
+00:06:54,120 --> 00:06:57,399
+Recognizing a loop can also break down into subproblems.
+认识循环也可以分成几个小问题。
+
+106
+00:06:57,399 --> 00:07:01,259
+One reasonable way to do this would be to first recognize the various little
+这样做的一个合理途径是首先承认各种
+
+107
+00:07:01,259 --> 00:07:03,360
+edges that make it up.
+形成它的边缘。
+
+108
+00:07:03,360 --> 00:07:09,000
+Similarly, a long line, like the kind you might see in the digits 1 or 4 or 7,
+同样,长长的一行,就像您在数字1或4或7中可能看到的那种
+
+109
+00:07:09,000 --> 00:07:13,399
+that's really just a long edge, or maybe you think of it as a certain pattern of several
+这其实只是个长边缘 或者你把它看作是 几个的某种模式
+
+110
+00:07:13,399 --> 00:07:15,199
+smaller edges.
+小边缘。
+
+111
+00:07:15,199 --> 00:07:20,759
+So maybe our hope is that each neuron in the second layer of the network corresponds
+所以也许我们希望 网络第二层的每个神经元
+
+112
+00:07:20,759 --> 00:07:23,759
+with the various relevant little edges.
+有各种相关细微的边缘。
+
+113
+00:07:23,759 --> 00:07:29,180
+Maybe when an image like this one comes in, it lights up all of the neurons associated
+也许当像这个这样的图像 进来时,它会点亮所有的神经元
+
+114
+00:07:29,180 --> 00:07:34,519
+with around 8 to 10 specific little edges, which in turn lights up the neurons associated
+大约8到10个特定的细微边缘, 反过来又点亮了相关的神经元
+
+115
+00:07:34,519 --> 00:07:40,560
+with the upper loop and a long vertical line, and those light up the neuron associated with a 9.
+与上环和长垂直线 和那些点亮神经元的 与一个9有关的神经元。
+
+116
+00:07:40,560 --> 00:07:44,600
+Whether or not this is what our final network actually does is another question,
+这是否是我们最后的网络 实际做的 是另一个问题,
+
+117
+00:07:44,600 --> 00:07:47,680
+one that I'll come back to once we see how to train the network.
+一旦我们研究如何训练这个网络,我就会回来。
+
+118
+00:07:47,680 --> 00:07:53,079
+But this is a hope that we might have, a sort of goal with the layered structure like this.
+但是,这是一个希望,我们可能有, 某种目标 与这样的多层结构。
+
+119
+00:07:53,079 --> 00:07:57,319
+Moreover, you can imagine how being able to detect edges and patterns like this
+此外,你可以想象 如何能探测到这种边缘和模式
+
+120
+00:07:57,319 --> 00:08:00,920
+would be really useful for other image recognition tasks.
+这对于其他图像识别任务将非常有用。
+
+121
+00:08:00,920 --> 00:08:04,240
+And even beyond image recognition, there are all sorts of intelligent things you
+即使除了图像识别之外 还有其他各种智能的东西
+
+122
+00:08:04,279 --> 00:08:08,160
+might want to do that break down into layers of abstraction.
+可能想把它分解成 抽象的层层
+
+123
+00:08:08,160 --> 00:08:13,160
+Parsing speech, for example, involves taking raw audio and picking out distinct sounds,
+例如,剖析演讲涉及使用原始音频并选出不同的声音,
+
+124
+00:08:13,160 --> 00:08:17,480
+which combine to make certain syllables, which combine to form words, which combine
+组合起来形成某些音节, 组合起来形成单词, 组合起来,
+
+125
+00:08:17,480 --> 00:08:21,279
+to make up phrases and more abstract thoughts, etc.
+来编造文字和抽象的想法等等。
+
+126
+00:08:21,279 --> 00:08:26,000
+But getting back to how any of this actually works, picture yourself right now designing
+但要回过头来回想一下这些实际上是如何运作的, 想象一下自己现在在设计
+
+127
+00:08:26,000 --> 00:08:31,160
+how exactly the activations in one layer might determine the activations in the next.
+如何精确地确定一个层的激活 如何决定下一个层的激活 。
+
+128
+00:08:31,160 --> 00:08:36,399
+The goal is to have some mechanism that could conceivably combine pixels into edges,
+目标是建立某种机制,将像素结合到边缘,
+
+129
+00:08:36,399 --> 00:08:39,399
+or edges into patterns, or patterns into digits.
+或进入模式的边缘,或进入数字的图案。
+
+130
+00:08:39,399 --> 00:08:44,519
+And to zoom in on one very specific example, let's say the hope is for one particular
+放大一个非常具体的例子, 让我们假设,希望 是一个特定的
+
+131
+00:08:44,519 --> 00:08:49,360
+neuron in the second layer to pick up on whether or not the image has an edge
+第二层神经元的第二层神经元 以了解图像是否具有边缘
+
+132
+00:08:49,360 --> 00:08:51,440
+in this region here.
+这里的这个区域。
+
+133
+00:08:51,440 --> 00:08:55,679
+The question at hand is, what parameters should the network have?
+眼下的问题是,网络应该具备哪些参数?
+
+134
+00:08:55,679 --> 00:09:00,360
+What dials and knobs should you be able to tweak so that it's expressive enough
+怎样的拨号、键盘,你应该 能够调整它,使它有足够的表达力
+
+135
+00:09:00,399 --> 00:09:05,320
+to potentially capture this pattern, or any other pixel pattern, or the pattern that
+可能捕捉到此模式, 或任何其他像素模式, 或
+
+136
+00:09:05,320 --> 00:09:08,799
+several edges can make a loop and other such things?
+几个边缘可以做出循环之类的事情吗?
+
+137
+00:09:08,799 --> 00:09:13,080
+Well what we'll do is assign a weight to each one of the connections between our
+我们要做的是 分分分分分分分分分
+
+138
+00:09:13,080 --> 00:09:16,399
+neuron and the neurons from the first layer.
+第一层的神经元和神经元
+
+139
+00:09:16,399 --> 00:09:18,799
+These weights are just numbers.
+这些重量只是数字而已。
+
+140
+00:09:18,799 --> 00:09:23,600
+Then take all of those activations from the first layer and compute their weighted
+然后从第一层开始 把所有的启动装置 进行加权计算
+
+141
+00:09:23,600 --> 00:09:27,600
+sum according to these weights.
+以这些重量计。
+
+142
+00:09:27,639 --> 00:09:31,519
+I find it helpful to think of these weights as being organized into a little grid of their
+我认为,把这些重量 组织成一个小网格 对它们来说是很有帮助的
+
+143
+00:09:31,519 --> 00:09:35,960
+own, and I'm going to use green pixels to indicate positive weights and red pixels
+我用绿色像素表示正重和红色像素
+
+144
+00:09:35,960 --> 00:09:40,759
+to indicate negative weights, where the brightness of that pixel is some loose depiction
+表示负重,该像素的亮度是一些松散的描述
+
+145
+00:09:40,759 --> 00:09:42,919
+of the weights value.
+以重量值为准。
+
+146
+00:09:42,919 --> 00:09:46,799
+Now if we made the weights associated with almost all of the pixels zero, except for
+现在,如果我们把重量 与几乎所有的像素零相关联, 除了:
+
+147
+00:09:46,799 --> 00:09:51,519
+some positive weights in this region we care about, then taking the weighted sum
+我们关心的这个区域的一些正加权数,然后取加权总和
+
+148
+00:09:51,519 --> 00:09:55,919
+of all the pixel values really just amounts to adding up the values of the pixel
+在所有像素值的像素值中,真正等于将像素的值相加
+
+149
+00:09:55,960 --> 00:09:59,080
+just in the region that we care about.
+就在我们关心的地区
+
+150
+00:09:59,080 --> 00:10:02,879
+And if you really wanted to pick up on whether there's an edge here, what you
+如果你真的想 了解这里是否有边缘,你是什么
+
+151
+00:10:02,879 --> 00:10:06,200
+might do is have some negative weights associated with the surrounding
+与周围环境相关联的负比值
+
+152
+00:10:06,200 --> 00:10:07,440
+pixels.
+像素一样。
+
+153
+00:10:07,440 --> 00:10:11,039
+Then the sum is largest when those middle pixels are bright, but the
+当中间像素明亮时,总和是最大的,但
+
+154
+00:10:11,039 --> 00:10:14,720
+surrounding pixels are darker.
+周围像素更暗。
+
+155
+00:10:14,720 --> 00:10:17,879
+When you compute a weighted sum like this, you might come out with any
+当你计算一个像这样的加权总和时, 你可能会发现任何
+
+156
+00:10:17,879 --> 00:10:21,759
+number, but for this network what we want is for activations to be some
+数字,但对于这个网络来说,我们想要的是 激活是某些
+
+157
+00:10:21,759 --> 00:10:24,200
+value between 0 and 1.
+值介于 0 和 1 之间。
+
+158
+00:10:24,200 --> 00:10:28,279
+So a common thing to do is to pump this weighted sum into some function that
+所以一个共同的办法是 将这个加权总和 注入到某种功能上
+
+159
+00:10:28,279 --> 00:10:32,600
+squishes the real number line into the range between 0 and 1.
+将实际数字行划入 0 和 1 之间的范围。
+
+160
+00:10:32,600 --> 00:10:36,080
+And a common function that does this is called the sigmoid function, also
+而一个共同的函数,做这个功能, 被称为 类类函数, 也叫做 类类函数,
+
+161
+00:10:36,080 --> 00:10:38,120
+known as a logistic curve.
+称为后勤曲线。
+
+162
+00:10:38,120 --> 00:10:42,679
+Basically very negative inputs end up close to 0, very positive inputs end
+基本上都是负投入 最终接近0,非常积极的投入结束
+
+163
+00:10:42,679 --> 00:10:49,539
+up close to 1, and it just steadily increases around the input 0.
+接近1,它只是稳步增加 大约输入0。
+
+164
+00:10:49,539 --> 00:10:54,659
+So the activation of the neuron here is basically a measure of how positive
+所以这里神经元的激活 基本上就是衡量
+
+165
+00:10:54,700 --> 00:10:57,980
+the relevant weighted sum is.
+相关的加权总和是。
+
+166
+00:10:57,980 --> 00:11:01,100
+But maybe it's not that you want the neuron to light up when the weighted sum is
+但也许不是你想当加权总和时 神经元发光
+
+167
+00:11:01,100 --> 00:11:02,659
+bigger than 0.
+大于 0。
+
+168
+00:11:02,659 --> 00:11:07,139
+Maybe you only want it to be active when the sum is bigger than, say, 10.
+也许你只希望当总金额比10比10大的时候 活动起来
+
+169
+00:11:07,139 --> 00:11:11,379
+That is, you want some bias for it to be inactive.
+也就是说,你希望它不活动时会有一些偏差。
+
+170
+00:11:11,379 --> 00:11:15,419
+What we'll do then is just add in some other number, like negative 10, to
+我们接下来要做的就是 加上一些其他数字 比如负10
+
+171
+00:11:15,419 --> 00:11:20,779
+this weighted sum before plugging it through the sigmoid squishification function.
+此加权总和在插入该总和之前, 插入到 sigmoid 精密化功能中 。
+
+172
+00:11:20,779 --> 00:11:23,539
+That additional number is called the bias.
+这个额外数字被称为偏差。
+
+173
+00:11:23,740 --> 00:11:27,539
+The weights tell you what pixel pattern this neuron in the second layer is
+重量说明第二层神经元的 像素模式是什么
+
+174
+00:11:27,539 --> 00:11:32,500
+picking up on, and the bias tells you how high the weighted sum needs to be
+偏差说明加权总和需要有多高
+
+175
+00:11:32,500 --> 00:11:36,220
+before the neuron starts getting meaningfully active.
+在神经元开始真正活跃之前
+
+176
+00:11:36,220 --> 00:11:38,259
+And that is just one neuron.
+这只是一个神经元。
+
+177
+00:11:38,259 --> 00:11:43,620
+Every other neuron in this layer is going to be connected to all 784 pixel
+这个层中的其他神经元 将连接到所有784个像素
+
+178
+00:11:43,620 --> 00:11:48,779
+neurons from the first layer, and each one of those 784 connections has
+从第一层开始的神经元 这些784个连接中的每一个都有
+
+179
+00:11:48,779 --> 00:11:51,620
+its own weight associated with it.
+与其相关的加权数。
+
+180
+00:11:51,620 --> 00:11:55,340
+Also, each one has some bias, some other number that you add on to the
+另外,每一个都有一些偏差, 一些其他的号码,你加到
+
+181
+00:11:55,340 --> 00:11:58,340
+weighted sum before squishing it with the sigmoid.
+将之与 sigmoid 粘结之前的加权和 。
+
+182
+00:11:58,340 --> 00:12:00,059
+And that's a lot to think about.
+这可是很值得考虑的
+
+183
+00:12:00,059 --> 00:12:06,580
+With this hidden layer of 16 neurons, that's a total of 784 times 16 weights
+以这16个神经元的隐藏层 总共是784乘以16重量
+
+184
+00:12:06,580 --> 00:12:08,860
+along with 16 biases.
+加上16种偏见。
+
+185
+00:12:08,860 --> 00:12:12,539
+And all of that is just the connections from the first layer to the second.
+所有这一切都只是从第一层到第二层的连接。
+
+186
+00:12:12,539 --> 00:12:15,820
+The connections between the other layers also have a bunch of weights and
+其它层之间的连接 也有一堆重量
+
+187
+00:12:15,820 --> 00:12:18,379
+biases associated with them.
+与之相关的偏见。
+
+188
+00:12:18,379 --> 00:12:23,340
+All said and done, this network has almost exactly 13,000 total weights and
+总之,这个网络的权重总数几乎完全达13 000个。
+
+189
+00:12:23,340 --> 00:12:28,220
+biases, 13,000 knobs and dials that can be tweaked and turned to make this
+13 000个按钮和拨号,可以调和和转换成
+
+190
+00:12:28,220 --> 00:12:30,980
+network behave in different ways.
+网络行为方式不同。
+
+191
+00:12:30,980 --> 00:12:34,899
+So when we talk about learning, what that's referring to is getting the
+所以当我们谈论学习时, 指的是获得
+
+192
+00:12:34,899 --> 00:12:39,299
+computer to find a valid setting for all of these many, many numbers so
+计算机为所有这些众多、多个数字找到一个有效的设置,所以
+
+193
+00:12:39,299 --> 00:12:42,620
+that it'll actually solve the problem at hand.
+它实际上会解决眼前的问题。
+
+194
+00:12:42,620 --> 00:12:46,539
+One thought experiment that is at once fun and kind of horrifying is to
+一个瞬间有趣和恐怖的 思想实验是
+
+195
+00:12:46,539 --> 00:12:50,340
+imagine sitting down and setting all of these weights and biases by hand,
+想象一下坐下来 亲手设定所有这些重量和偏差
+
+196
+00:12:50,340 --> 00:12:53,620
+purposefully tweaking the numbers so that the second layer picks up on
+故意调整数字,使第二层能捕捉到
+
+197
+00:12:53,620 --> 00:12:57,379
+edges, the third layer picks up on patterns, etc.
+边缘,第三层在图案上采集,等等。
+
+198
+00:12:57,379 --> 00:13:00,419
+I personally find this satisfying rather than just treating the network
+我个人认为这让我很满意 而不是只是治疗网络
+
+199
+00:13:00,419 --> 00:13:04,379
+as a total black box, because when the network doesn't perform the way
+整个黑盒,因为当网络不 运行的方式
+
+200
+00:13:04,379 --> 00:13:08,019
+you anticipate, if you've built up a little bit of a relationship with what
+如果你已经和什么建立了某种关系
+
+201
+00:13:08,019 --> 00:13:11,500
+those weights and biases actually mean, you have a starting place for
+这些重量和偏重实际上意味着, 你有一个起点
+
+202
+00:13:11,500 --> 00:13:14,940
+experimenting with how to change the structure to improve.
+试验如何改变结构来改进。
+
+203
+00:13:14,940 --> 00:13:18,539
+Or when the network does work, but not for the reasons you might expect,
+或当网络工作, 但不是因为你可能期待的原因,
+
+204
+00:13:18,539 --> 00:13:22,220
+digging into what the weights and biases are doing is a good way to challenge
+调查这些重量和偏差 是一个挑战的好方法
+
+205
+00:13:22,220 --> 00:13:26,740
+your assumptions and really expose the full space of possible solutions.
+您的假设 并真正暴露了 全部的空间 可能的解决方案。
+
+206
+00:13:26,740 --> 00:13:30,139
+By the way, the actual function here is a little cumbersome to write down,
+顺便说一句,这里的实际功能 写下来有点麻烦
+
+207
+00:13:30,139 --> 00:13:32,750
+don't you think?
+你不觉得吗?
+
+208
+00:13:32,750 --> 00:13:35,990
+So let me show you a more notationally compact way that these
+因此,让我给你们展示一种更贴近一点的方式,即:
+
+209
+00:13:35,990 --> 00:13:37,710
+connections are represented.
+表示连接。
+
+210
+00:13:37,710 --> 00:13:39,789
+This is how you'd see it if you choose to read up more about
+如果你选择读更多关于
+
+211
+00:13:39,789 --> 00:13:41,269
+neural networks.
+神经网络。
+
+212
+00:13:41,309 --> 00:13:47,870
+Organize all of the activations from one layer into a column as a vector.
+组织从一层到一列的所有激活作为矢量。
+
+213
+00:13:47,870 --> 00:13:52,950
+Then organize all of the weights as a matrix, where each row of that matrix
+然后将所有加权作为矩阵组织起来,在该矩阵的每一行中
+
+214
+00:13:52,950 --> 00:13:57,149
+corresponds to the connections between one layer and a particular neuron in
+与一层和特定神经元之间连接的对应
+
+215
+00:13:57,149 --> 00:13:58,470
+the next layer.
+下一层。
+
+216
+00:13:58,470 --> 00:14:02,029
+What that means is that taking the weighted sum of the activations in the
+这意味着,如果将启动的加权总和乘以
+
+217
+00:14:02,029 --> 00:14:05,990
+first layer according to these weights corresponds to one of the terms
+依这些加权数排列的一层, 与条件之一相对应 。
+
+218
+00:14:05,990 --> 00:14:13,960
+in the matrix vector product of everything we have on the left here.
+我们左手边所有东西的母体矢量产品。
+
+219
+00:14:13,960 --> 00:14:17,480
+By the way, so much of machine learning just comes down to having a good grasp
+顺便说一句,这么多机器的学习 归根结底就是有一个很好的把握
+
+220
+00:14:17,480 --> 00:14:21,159
+of linear algebra, so for any of you who want a nice visual understanding
+线性代数的代数,所以对于你们中任何想要一个清晰的视觉理解的人来说,
+
+221
+00:14:21,159 --> 00:14:24,480
+for matrices and what matrix vector multiplication means,
+矩阵和什么矩阵矢量乘法,
+
+222
+00:14:24,480 --> 00:14:29,200
+take a look at the series I did on linear algebra, especially chapter 3.
+看看我对线性代数,特别是第3章所做的系列。
+
+223
+00:14:29,200 --> 00:14:32,679
+Back to our expression, instead of talking about adding the bias to each
+回到我们的表达方式,而不是谈论在每一个表达方式中加上偏见
+
+224
+00:14:32,679 --> 00:14:37,039
+one of these values independently, we represent it by organizing all those
+我们独立地通过组织所有这些组织来代表它。
+
+225
+00:14:37,039 --> 00:14:41,120
+biases into a vector and adding the entire vector to the previous
+将整个矢量加到上一个矢量
+
+226
+00:14:41,120 --> 00:14:43,320
+matrix vector product.
+矩阵矢量产品。
+
+227
+00:14:43,320 --> 00:14:48,320
+Then as a final step, I'll wrap a sigmoid around the outside here, and what
+然后作为最后一步,我会把一个小类包在外边,然后什么?
+
+228
+00:14:48,320 --> 00:14:50,960
+that's supposed to represent is that you're going to apply the sigmoid
+它应该代表的是,你将应用 类固醇
+
+229
+00:14:50,960 --> 00:14:55,879
+function to each specific component of the resulting vector inside.
+函数对由此产生的矢量内部的每个具体组成部分。
+
+230
+00:14:55,879 --> 00:14:59,480
+So, once you write down this weight matrix and these vectors as their
+所以,一旦你写下这个重量矩阵 和这些矢量作为它们的矢量
+
+231
+00:14:59,480 --> 00:15:03,960
+own symbols, you can communicate the full transition of activations from one
+自动的符号,您可以将激活从一个
+
+232
+00:15:03,960 --> 00:15:08,279
+layer to the next in an extremely tight and neat little expression.
+以非常紧紧和整洁的表达式向下一层 。
+
+233
+00:15:08,279 --> 00:15:12,399
+And this makes the relevant code both a lot simpler and a lot faster,
+这使得相关的代码既简单得多,又快得多,
+
+234
+00:15:12,399 --> 00:15:17,759
+since many libraries optimize the heck out of matrix multiplication.
+因为许多图书馆都优化了矩阵乘法的精度。
+
+235
+00:15:17,759 --> 00:15:21,039
+Remember how earlier I said these neurons are simply things that hold
+记得我之前说过这些神经元 仅仅是一些坚固的东西
+
+236
+00:15:21,039 --> 00:15:22,240
+numbers?
+数字?
+
+237
+00:15:22,240 --> 00:15:25,799
+Well, of course, the specific numbers that they hold depends on the image
+当然,他们持有的具体数字 取决于图像
+
+238
+00:15:25,799 --> 00:15:28,240
+you feed in.
+你进食。
+
+239
+00:15:28,240 --> 00:15:32,080
+So it's actually more accurate to think of each neuron as a function,
+所以将每个神经元 视为一个函数 更准确
+
+240
+00:15:32,080 --> 00:15:36,360
+one that takes in the outputs of all the neurons in the previous layer
+包含前一层所有神经元输出的神经元
+
+241
+00:15:36,360 --> 00:15:39,240
+and spits out a number between 0 and 1.
+吐出一个0到1之间的数字
+
+242
+00:15:39,240 --> 00:15:41,679
+Really, the entire network is just a function,
+真的,整个网络只是个函数,
+
+243
+00:15:41,679 --> 00:15:46,679
+one that takes in 784 numbers as an input and spits out 10 numbers as an
+以784个数字作为输入 以10个数字作为输入
+
+244
+00:15:46,679 --> 00:15:47,919
+output.
+输出。
+
+245
+00:15:47,919 --> 00:15:52,200
+It's an absurdly complicated function, one that involves 13,000 parameters in
+这是一个荒谬复杂的功能 涉及13000个参数
+
+246
+00:15:52,200 --> 00:15:55,799
+the forms of these weights and biases that pick up on certain patterns and
+这些重量和偏差的形式 在某些模式和
+
+247
+00:15:55,799 --> 00:15:59,120
+which involves iterating many matrix vector products and the sigmoid
+包括迭代许多矩阵矢量产品和小类
+
+248
+00:15:59,120 --> 00:16:03,720
+squishification function, but it's just a function nonetheless.
+精密功能,但它只是一个功能,尽管如此。
+
+249
+00:16:03,720 --> 00:16:07,320
+And in a way, it's kind of reassuring that it looks complicated.
+某种程度上,这让人放心 它看起来很复杂
+
+250
+00:16:07,320 --> 00:16:10,519
+I mean, if it were any simpler, what hope would we have that it could take
+我的意思是,如果它更简单一点, 我们有什么希望,它可以采取
+
+251
+00:16:10,519 --> 00:16:13,320
+on the challenge of recognizing digits?
+承认数字的挑战?
+
+252
+00:16:13,320 --> 00:16:15,039
+And how does it take on that challenge?
+它如何应对这一挑战?
+
+253
+00:16:15,039 --> 00:16:18,559
+How does this network learn the appropriate weights and biases just by
+这个网络如何学会适当的权重和偏见?
+
+254
+00:16:18,559 --> 00:16:20,120
+looking at data?
+看数据?
+
+255
+00:16:20,120 --> 00:16:22,200
+Well, that's what I'll show in the next video.
+嗯,这就是我要在下一个视频中展示的。
+
+256
+00:16:22,200 --> 00:16:25,080
+And I'll also dig a little more into what this particular network we're
+我也会再深入了解一下 我们这个网络是什么
+
+257
+00:16:25,080 --> 00:16:27,559
+seeing is really doing.
+视觉真的在做。
+
+258
+00:16:27,559 --> 00:16:30,639
+Now is the point I suppose I should say subscribe to stay notified about
+现在,我想我应该说 同意继续通知
+
+259
+00:16:30,639 --> 00:16:34,440
+when that video or any new videos come out, but realistically, most of
+当视频或任何新的视频 出来,但现实地,大多数
+
+260
+00:16:34,440 --> 00:16:38,000
+you don't actually receive notifications from YouTube, do you?
+你实际上没有收到YouTube的通知吧?
+
+261
+00:16:38,039 --> 00:16:41,360
+Maybe more honestly, I should say subscribe so that the neural networks
+也许更诚实一些,我应该说, 订阅,这样神经网络
+
+262
+00:16:41,360 --> 00:16:45,080
+that underlie YouTube's recommendation algorithm are primed to believe that
+YouTube推荐的算法背后的
+
+263
+00:16:45,080 --> 00:16:48,519
+you want to see content from this channel get recommended to you.
+您想要从此频道看到内容会被推荐给您 。
+
+264
+00:16:48,519 --> 00:16:50,759
+Anyway, stay posted for more.
+总之 继续留岗
+
+265
+00:16:50,759 --> 00:16:54,080
+Thank you very much to everyone supporting these videos on Patreon.
+非常感谢各位支持在帕特里昂上拍摄这些视频。
+
+266
+00:16:54,080 --> 00:16:57,120
+I've been a little slow to progress in the probability series this summer,
+我今年夏天的概率序列进展得有点慢
+
+267
+00:16:57,120 --> 00:17:00,200
+but I'm jumping back into it after this project, so patrons,
+但我在这个项目之后又回到了这里 所以赞助者们
+
+268
+00:17:00,200 --> 00:17:03,750
+you can look out for updates there.
+您可在那里寻找最新消息。
+
+269
+00:17:03,750 --> 00:17:07,230
+To close things off here, I have with me Lisha Li, who did her PhD work
+关了这里,我和Lisha Li在一起 她的博士生Lisha Li
+
+270
+00:17:07,230 --> 00:17:09,910
+on the theoretical side of deep learning and who currently works
+深层学习理论方面和目前工作的人
+
+271
+00:17:09,910 --> 00:17:13,309
+at a venture capital firm called Amplify Partners, who kindly provided
+一家风险资本公司在一家名为 " 扩大伙伴 " 的的风险资本公司提供
+
+272
+00:17:13,309 --> 00:17:15,349
+some of the funding for this video.
+这段影片的部分经费。
+
+273
+00:17:15,349 --> 00:17:17,869
+So, Lisha, one thing I think we should quickly bring up
+所以,莉莎,一件事 我认为我们应该尽快提出来
+
+274
+00:17:17,869 --> 00:17:19,710
+is this sigmoid function.
+是此类类体函数。
+
+275
+00:17:19,710 --> 00:17:22,470
+As I understand it, early networks used this to squish the relevant
+据我理解,早期网络利用这个来压制相关的
+
+276
+00:17:22,470 --> 00:17:25,309
+weighted sum into that interval between zero and one,
+在零和一之间的间距内加权总和,
+
+277
+00:17:25,309 --> 00:17:28,349
+you know, kind of motivated by this biological analogy of neurons
+你知道,某种动机 由这个生物学类比 神经元
+
+278
+00:17:28,349 --> 00:17:29,910
+either being inactive or active.
+处于不活动状态或活动状态。
+
+279
+00:17:29,910 --> 00:17:30,549
+Exactly.
+没错
+
+280
+00:17:30,549 --> 00:17:34,069
+But relatively few modern networks actually use sigmoid anymore.
+但相对较少的现代网络 实际使用sigmoid了。
+
+281
+00:17:34,069 --> 00:17:34,309
+Yeah.
+对
+
+282
+00:17:34,309 --> 00:17:35,710
+It's kind of old school, right?
+这是一种老派,对不对?
+
+283
+00:17:35,710 --> 00:17:39,349
+Yeah, or rather, RELU seems to be much easier to train.
+是啊,或者说,RELU 似乎更容易训练。
+
+284
+00:17:39,349 --> 00:17:42,630
+And RELU stands for rectified linear unit?
+RELU代表纠正线性单位?
+
+285
+00:17:42,630 --> 00:17:42,990
+Yes.
+对
+
+286
+00:17:42,990 --> 00:17:46,430
+It's this kind of function where you're just taking a max of zero
+这是一种功能,你最多只能拿零
+
+287
+00:17:46,430 --> 00:17:51,190
+and a, where a is given by what you were explaining in the video.
+(a) 视频中你所解释的内容给了你一个答案。
+
+288
+00:17:51,190 --> 00:17:53,549
+And what this was sort of motivated from, I think,
+我认为,这是某种动机 从,我想,
+
+289
+00:17:53,549 --> 00:17:59,509
+was a partially biobiological analogy with how neurons would
+这是一个部分生物生物学类比 与神经元如何
+
+290
+00:17:59,509 --> 00:18:01,390
+either be activated or not.
+要么被激活,要么没有被激活。
+
+291
+00:18:01,390 --> 00:18:03,710
+And so if it passes a certain threshold,
+如果它达到一定的极限,
+
+292
+00:18:03,750 --> 00:18:05,670
+it would be the identity function.
+这将是身份功能。
+
+293
+00:18:05,670 --> 00:18:08,910
+But if it did not, then it would just not be activated.
+但如果它不这样做,那么它就不会被激活。
+
+294
+00:18:08,910 --> 00:18:09,589
+So it'd be zero.
+所以它应该是零。
+
+295
+00:18:09,589 --> 00:18:11,109
+So it's kind of a simplification.
+所以这有点简化了
+
+296
+00:18:11,109 --> 00:18:13,190
+Using sigmoids didn't help training,
+使用类固醇没有帮助训练,
+
+297
+00:18:13,190 --> 00:18:15,670
+or it was very difficult to train at some point.
+或训练非常困难 在某个时刻。
+
+298
+00:18:15,670 --> 00:18:17,950
+And people just tried RELU.
+人们刚刚尝试了RELU。
+
+299
+00:18:17,950 --> 00:18:21,190
+And it happened to work very well
+碰巧很成功
+
+300
+00:18:21,190 --> 00:18:25,029
+for these incredibly deep neural networks.
+对于这些令人难以置信的深层神经网络来说
+
+301
+00:18:25,029 --> 00:18:27,190
+All right, thank you, Lisha.
+好吧,谢谢你,莉莎。
+

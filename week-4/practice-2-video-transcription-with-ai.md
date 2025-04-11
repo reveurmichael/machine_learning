@@ -34,7 +34,7 @@ pip install ffmpeg-python
 FFmpeg is essential for audio processing. Here's how to install it:
 
 **For Windows:**
-1. Download FFmpeg from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html) (Windows builds)
+1. Download FFmpeg from [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html) (Windows builds, DON'T download the source code). It's also available here: https://github.com/btbn/ffmpeg-builds/releases
 2. Extract the files to a folder (e.g., `C:\ffmpeg`)
 3. Add the `bin` folder to your system PATH:
    - Search for "Edit environment variables" in Windows

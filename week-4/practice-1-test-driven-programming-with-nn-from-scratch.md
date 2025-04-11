@@ -35,6 +35,11 @@ In this practice session, you will learn how to apply test-driven development pr
 
 ## Step 2: Setting Up the Project Structure
 
+
+Towards the end, here is what your file structure should look like:
+
+![](img/tree.png)
+
 1. **Create the necessary directories in your repository**
    ```bash
    mkdir -p .github/workflows

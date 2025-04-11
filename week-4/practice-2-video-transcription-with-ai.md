@@ -65,6 +65,10 @@ if torch.cuda.is_available():
     print(f"Current CUDA device: {torch.cuda.current_device()}")
 ```
 
+This code is only for testing if you have the python libraries installed correctly. As long as no error is thrown, you are good to go.
+
+It's OK to not have CUDA. You will have CUDA only if you are on Windows/Linux with Nvida GPUs and with CUDA installed.
+
 ## Understanding Hugging Face
 
 Before we dive into the code, let's talk about Hugging Face - often called the "GitHub of AI."

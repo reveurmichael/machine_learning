@@ -282,33 +282,15 @@ The main goal of this tutorial is **NOT** to teach you Web Technology, but to wa
 - Git (add, commit, push, pull, checkout, rebase, merge, conflict resolving)
 - GitHub (GitHub pull request, GitHub actions)
 
-Week 1:
+Week ??:
 - Finish deploying the website on GitHub Pages (Video 1 - 5).
 - Send the url of your GitHub Pages to the WeChat group when you finish.
 
-Week 2:
+Week ??:
 - GitHub workflow (Video 6 - 8).
 - Each group two students.
 - Please install GitLens (VS Code extension).
 - Send the url of your GitHub Repositories to the WeChat group when you finish (three urls, for each group of two).
-
-#### Pro tips
-
-用 Windows 的同学，可以按照这个教程，安装 posh-git
-- https://gitee.com/lundechen/hello#9-optional-git-branchstatus-indication-on-terminal
-
-Corresponding tutorial video：
-- https://www.bilibili.com/video/BV1cq4y1S7Be/ （starting from the 6th minute of the video）
-
-同时 windows 建议使用 Windows Terminal
-
-主要是为了这个：
-
-![](img/posh-git.png)
-
-If you are on MacOS/Linux, you can install *oh my zsh* instead.
-
-同时 windows 建议使用 Windows Terminal
 
 ### Week ??
 
@@ -414,7 +396,7 @@ Your task:
 
 Docker Compose, Docker Network
 
-### Week 9
+### Week ??
 
 - <https://www.youtube.com/watch?v=yznvWW_L7AA>
 - https://www.youtube.com/watch?v=5cNrTU6o3Fw
@@ -433,55 +415,22 @@ Projects kick off at Week 5, in the code session.
 
 ### Forming groups
 
-Each group 3 students.
+Each group 4 students.
 
 Forming groups:
 - https://docs.qq.com/doc/DT2xqVHphanhGUWpR
 
-At most ONE group could have 2 or 4 students, provided that `N_Student % 3 != 0`.
-
-### Get inspired
-
-- https://www.tensorflow.org/js/demos
-- https://streamlit.io/gallery
-- https://shiny.rstudio.com/gallery/
-- https://github.com/MarcSkovMadsen/awesome-streamlit
-- Alternatives to streamlit:
-    - https://anvil.works/articles/4-alternatives-streamlit
-- https://huggingface.co/
-
-### Implementation
-
-Your machine learning web application can be based on streamlit, flask, next.js, tensorflow.js or any other framework. It should be deployed on the cloud (Tencent/Alibaba/Google/Microsoft Cloud).
-
-You can use chatgpt or gpt4, if you have the API key.
-
-You can use AI APIs from Baidu/Tencent/Alibaba/Amazon/Google etc., for example:
-- https://cloud.tencent.com/product/ai-class
-
-Apply for a domain name if necessary, e.g. [http://an-interesting-ml-app.com](http://an-interesting-ml-app.com).
-
-As an alternative, a WeChat miniprogram is OK as well.
-
-Use emojis or fontawesome/bootstrap icons where appropriate (How can we deliver messages without emojis! Impossible mission!).
-
-You code should be open-sourced and hosted on GitHub.
+At most ONE group could have 3 or 5 students, provided that `N_Student % 4 != 0`.
 
 ### What's expected of your video
 - Length of video \>= 10 min
 - You video should include those contents:
     - General presentation
-    - Where do you get inspirations from for coming up with the idea of your project
-    - How to use your ML Web app
     - How did you implement your app
     - How did you deploy your app
-    - How CI/CD/GitHub Actions/WebHook plays a role in your deployment
 - If possible, make it fun (Because life is good). 
 - If possible, make it fancy (Because you are young). 
 - If applicable, include an ethics analysis of your project in the video.
-- If applicable, include an social impact analysis of your project  in the video.
-- If applicable, include an market analysis of your project  in the video.
-- If applicable, include an ecology analysis of your project  in the video.
 - And yes, your video should be presented in English. 
 
 ### Submission of your work
@@ -504,9 +453,6 @@ For each team, just one submission of the work is necessary, by one member of yo
 
 Deadline for submission:
 - The First Friday of the 14 days of Exam Weeks of SHU, 23:59.
-
-### Last but not least
-Your app should be legal, ethical.
 
 ## Score
 
@@ -545,6 +491,10 @@ Historical failing rate:
 
 ### Final project
 
+Bilibili videos:
+- https://space.bilibili.com/472463946/lists/1487100?type=season
+
+Be default, you agree to share your videos on Bilibili by the prof as well.
 
 ## Misc
 

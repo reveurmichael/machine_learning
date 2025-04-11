@@ -41,7 +41,7 @@ FFmpeg is essential for audio processing. Here's how to install it:
    - Select "Environment Variables"
    - Edit the "Path" variable
    - Add the path to the FFmpeg bin folder (e.g., `E:\ffmpeg\bin`). In fact, if you open your FFmpeg bin folder, you will see "ffmpeg.exe" and "ffprobe.exe". That's why you should add the path to the bin folder to your PATH environment variable.
-   - Click OK and restart any open command prompts
+   - Click OK and restart any open command prompts, and you are good to go with the command `ffmpeg` in the terminal.
 
 **For macOS:**
 Using Homebrew:

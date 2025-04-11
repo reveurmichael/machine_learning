@@ -40,7 +40,7 @@ FFmpeg is essential for audio processing. Here's how to install it:
    - Search for "Edit environment variables" in Windows
    - Select "Environment Variables"
    - Edit the "Path" variable
-   - Add the path to the FFmpeg bin folder (e.g., `C:\ffmpeg\bin`)
+   - Add the path to the FFmpeg bin folder (e.g., `C:\ffmpeg\bin`). In fact, if you open your FFmpeg bin folder, you will see "ffmpeg.exe" and "ffprobe.exe". That's why you should add the path to the bin folder to your PATH environment variable.
    - Click OK and restart any open command prompts
 
 **For macOS:**

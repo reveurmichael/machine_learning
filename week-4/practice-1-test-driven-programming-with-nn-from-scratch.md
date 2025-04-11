@@ -7,6 +7,10 @@ In this practice session, you will learn how to apply test-driven development pr
 3. Written tests to verify each component of your neural network
 4. Used GitHub Actions to automatically test your code when you push changes
 
+Related videos:
+- Video - Chinese version: https://www.bilibili.com/video/BV1uW4y1s7Ci
+- Video - English version: https://www.bilibili.com/video/BV1nM41167j9
+
 
 ## Step 1: Setting Up Your GitHub Repository
 
@@ -15,7 +19,6 @@ In this practice session, you will learn how to apply test-driven development pr
    - Click the "+" icon in the top-right corner and select "New repository"
    - Name your repository: `test-driven-programming-with-nn-from-scratch`
    - Add a description: "Implementing a neural network from scratch using test-driven development"
-   - Initialize with a README file
    - Click "Create repository"
 
 2. **Clone the repository to your local machine**
@@ -30,8 +33,6 @@ In this practice session, you will learn how to apply test-driven development pr
    git clone https://github.com/YOUR-USERNAME/test-driven-programming-with-nn-from-scratch.git
    cd test-driven-programming-with-nn-from-scratch
 ```
-
-   
 
 ## Step 2: Setting Up the Project Structure
 
@@ -56,7 +57,7 @@ Towards the end, here is what your file structure should look like:
 
 ## Step 3: Copy MNIST Data
 
-Copy `mnist_train.csv` and  `mnist_test.csv`  in the repo.
+Copy `mnist_train.csv` and  `mnist_test.csv`  into the repo.
 
 
 ## Step 4: Creating the Neural Network Implementation
@@ -247,8 +248,8 @@ class Dense(Layer):
         grad_input = np.dot(grad_output, self.weights.T)
 
         # Update parameters using gradient descent
-        self.weights = self.weights - self.learning_rate * grad_weights
-        self.biases = self.biases - self.learning_rate * grad_biases
+        self.weights = self.weights -  ______YOUR_CODE_HERE_________ 
+        self.biases = self.biases -  ______YOUR_CODE_HERE_________ 
 
         return grad_input
 
@@ -310,7 +311,7 @@ def predict(network, X):
     # Get the output of the last layer
     logits = forward(network, X)[-1]
     # Return the class with highest score
-    return np.argmax(logits, axis=-1)
+    return ______YOUR_CODE_HERE_________(logits, axis=-1)
 
 
 def train(network, X, y):
@@ -325,7 +326,7 @@ def train(network, X, y):
 
     # Backward pass (backpropagation)
     grad_output = grad_logits
-    for i in range(len(network))[::-1]:  # Reversed order
+    for i in range(len(network))______YOUR_CODE_HERE_________:  # Reversed order
         layer = network[i]
         layer_input = layer_inputs[i]
         grad_output = layer.backward(layer_input, grad_output)
@@ -518,7 +519,6 @@ def test_dense_layer():
     assert not np.array_equal(original_biases, dense.biases), "Biases were not updated"
 
 
-@pytest.mark.slow
 def test_model_accuracy():
     """Test that the model achieves at least 70% validation accuracy"""
     try:
@@ -533,7 +533,7 @@ def test_model_accuracy():
         )
 
         # Assert that validation accuracy is at least 50%
-        assert val_accuracy >= 0.5, f"Model accuracy {val_accuracy:.4f} is below the required 50%"
+        assert val_accuracy >= 0.7, f"Model accuracy {val_accuracy:.4f} is below the required 70%"
     except FileNotFoundError:
         pytest.skip("MNIST dataset files not found. Skipping accuracy test.")
 
@@ -595,6 +595,18 @@ jobs:
 ## Step 7: Completing the Exercises
 
 Now, it's time to fill in the blanks in `nn_from_scratch.py` to make the neural network work.
+
+If your answers are correct, on your PC, you run the test file by:
+
+```bash
+pytest tests/test_all.py -v
+```
+
+or simply:
+
+```bash
+pytest
+```
 
 
 ## Step 8: Pushing Your Changes and Checking GitHub Actions

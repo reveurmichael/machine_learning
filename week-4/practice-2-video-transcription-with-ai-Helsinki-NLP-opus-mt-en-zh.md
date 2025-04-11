@@ -349,6 +349,11 @@ Congratulations! You've built a powerful AI tool that can transcribe videos and 
 3. Python automation to tie it all together
 
 
-## Final observation
+## Final Observation
 
-The results for translation is not so good. Check the results in the folder `practice-2-output-srt-files`.
+The translation results are not satisfactory. You can review the outputs in the folder `practice-2-output-srt-files`.
+
+Even with much larger, cutting-edge models—often referred to as state-of-the-art or "GOAT" (Greatest of All Time)—we observe minimal improvement when using non-LLM (Large Language Model) approaches.
+
+This highlights why LLMs are considered such a game changer in the field of AI!
+

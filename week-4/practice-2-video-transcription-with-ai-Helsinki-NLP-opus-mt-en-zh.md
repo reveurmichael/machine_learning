@@ -88,7 +88,7 @@ Fun fact: Hugging Face is a **French** company founded in 2016!
 
 For our tutorial, we'll use two models from Hugging Face:
 - The Whisper model (via faster-whisper, an optimized implementation)
-- Helsinki-NLP's English-to-Chinese translation model
+- Helsinki-NLP's English-to-Chinese translation model: https://huggingface.co/Helsinki-NLP/opus-mt-en-zh
 
 ## Building Our Video Transcription and Translation Script
 

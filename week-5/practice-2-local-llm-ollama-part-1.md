@@ -66,11 +66,13 @@ In this tutorial, you'll learn how to create a system that can:
   - `db/`: Directory for the vector database files
   - `outputs/`: Directory for saving results
   
-- Download sample social data for testing:
-  - We'll be using the student database profiles as our initial dataset
-  - Import the student_database.md file into your profiles directory
+- Prepare the student database for use:
+  ```bash
+  # Copy the student database file to your profiles directory
+  cp week-5/student_database.md social-network-assistant/profiles/
+  ```
   
-  > **Tip**: Save the profiles in the `profiles/` directory you created.
+  > **Important**: The student database contains detailed profiles of elite individuals who typically maintain a low profile. This makes this information especially valuable for networking purposes.
 
 ---
 
@@ -80,7 +82,7 @@ In this tutorial, you'll learn how to create a system that can:
 - **Knowledge Cutoffs**: LLMs like GPT-4 and Llama have knowledge cutoffs and cannot access the latest social information or non-public details about elite circles
 - **Hallucinations**: They can hallucinate or generate false information about influential people
 - **Lack of Specific Social Context**: They may lack knowledge about private social circles and connections
-- **Privacy Concerns**: Sending queries about high-profile individuals to commercial API services could compromise privacy or sensitive connections
+- **Privacy Concerns**: Sending queries about high-profile individuals to commercial API services could compromise privacy or sensitive networking strategies
 
 ### The RAG Solution for Social Intelligence
 - **Retrieval**: The system searches through your social data to find information relevant to a user's question
@@ -312,6 +314,8 @@ def create_qa_prompt():
     Always maintain discretion and privacy when discussing elite individuals.
     
     When suggesting networking approaches, focus on genuine common interests and values, not exploitation.
+    Provide specific, actionable insights that would help the user establish meaningful connections.
+    If appropriate, suggest potential conversation starters or shared interests.
     
     Context:
     {context}
@@ -545,15 +549,11 @@ Based on the provided profiles, there are several significant connections betwee
    - Liu's financial empire relies heavily on Liu's security protocols.
    - Their relationship is characterized by intense chess matches described as "watching two grandmasters playing a game no one else can see."
 
-3. 赵俊凯 (Zhao Junkai), a tech entrepreneur, and 段轩 (Duan Xuan), an AI expert:
-   - They share a competitive friendship with high-stakes Go games.
-   - They occasionally collaborate on bleeding-edge technology ventures, combining Junkai's quantum expertise with Duan's artificial intelligence innovations.
+3. Boniface Pierre (finance) and 赵俊凯 (Zhao Junkai, technology):
+   - Pierre's quantum computing cluster was developed in collaboration with Zhao, powering his trading operations.
 
-4. 赵俊凯 (Zhao Junkai) and 韦杰 (Wei Jie), a theoretical physicist:
-   - They have established a research partnership combining Wei's theoretical framework with Zhao's quantum computing expertise.
-
-5. 刘璐 (Liu Lu) and 陈佚 (Chen Yi), a digital infrastructure expert:
-   - Liu provides quantum protection for Chen's smart city infrastructure against cyber threats.
+4. Boniface Pierre (finance) and Douik Ahmed (quantum communications):
+   - They have a productive collaboration combining Pierre's quantum financial models with Ahmed's network technology to create trading systems with near-zero latency.
 
 These connections demonstrate how individuals in finance often collaborate with or invest in technology experts, while technology experts provide security, infrastructure, or innovative solutions that benefit financial operations. The relationships typically involve both personal interactions (games, competitions) and professional collaborations.
 ```
@@ -608,4 +608,4 @@ In Part 2 of this tutorial, we'll explore these advanced features and take your 
    Create a set of test questions with known answers from your profiles and measure the system's accuracy and relevance.
 
 5. **Is this ethical to use?**
-   This tool should be used responsibly for legitimate networking and understanding social dynamics, not for manipulation or privacy invasion.
+   This tool should be used responsibly for legitimate networking and understanding social dynamics, not for manipulation or privacy invasion. Focus on creating genuine connections based on shared interests and values.

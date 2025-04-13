@@ -1,14 +1,15 @@
 # Comprehensive Tutorial: Advanced Local LLM Research Assistant with RAG (Part 2)
 
 ## Overview
-This second 120-minute session builds on the foundation established in Part 1, taking your research assistant to the next level with advanced RAG techniques, multi-document support, evaluation metrics, and the development of an autonomous research agent. We'll explore how to make your system more robust, accurate, and useful for academic research.
+This second 120-minute session builds upon the foundation established in [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md), taking your research assistant to the next level with advanced RAG techniques, multi-document support, evaluation metrics, and the development of an autonomous research agent. We'll explore how to make your system more robust, accurate, and useful for academic research.
 
-In this part, you'll learn how to transform your basic RAG system into a powerful research tool with:
-- More sophisticated retrieval mechanisms
-- Multi-document processing capabilities
-- Conversational memory for continuous interactions
+In this session, you'll transform your basic RAG system into a powerful research tool with:
+- More sophisticated retrieval mechanisms for better results
+- Multi-document processing capabilities for comprehensive research
+- Conversational memory for continuous, natural interactions
 - Autonomous agents that can perform complex research tasks
-- Evaluation methods to assess system performance
+- Evaluation methods to assess and improve system performance
+- Advanced machine learning concepts for further optimization
 
 ## Learning Objectives
 - Implement advanced RAG techniques including hybrid search and re-ranking
@@ -19,8 +20,9 @@ In this part, you'll learn how to transform your basic RAG system into a powerfu
 - Connect RAG techniques to core machine learning concepts
 
 ## Prerequisites
-- Completed Part 1 of the tutorial
-- Functional RAG system from Part 1
+Before starting this part of the tutorial, ensure you have:
+- Completed [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of the tutorial
+- A functional basic RAG system from Part 1
 - Understanding of vector embeddings and basic RAG architecture
 - All required libraries installed:
   ```bash
@@ -31,13 +33,25 @@ In this part, you'll learn how to transform your basic RAG system into a powerfu
 
 ## Part 1: Advanced RAG Techniques (20 minutes)
 
-The basic RAG system you built in Part 1 used vector search to retrieve relevant documents. This section introduces three advanced techniques that significantly improve retrieval quality:
+The basic RAG system you built in Part 1 used vector search to retrieve relevant documents. While this approach works well for many queries, it has limitations. In this section, we'll implement three advanced techniques that significantly improve retrieval quality and accuracy.
 
-1. **Hybrid Search**: Combines semantic (vector) search with keyword (BM25) search
-2. **Re-ranking**: Uses an LLM to filter and re-order retrieved documents
-3. **Self-Query**: Lets the LLM reformulate and structure the query for better retrieval
+### Why Basic RAG Isn't Always Enough
+
+Your basic RAG system from Part 1 has several limitations:
+- Vector search sometimes misses exact keyword matches
+- All retrieved documents are treated equally, regardless of relevance
+- Complex queries with multiple parts aren't handled effectively
+
+Let's address these limitations one by one with advanced techniques.
 
 ### Hybrid Search: Combining Semantic and Keyword Search
+
+Hybrid search combines two complementary approaches:
+- **Semantic (vector) search**: Good at understanding conceptual meaning
+- **Keyword (BM25) search**: Excellent at exact term matching
+
+Here's how to implement it:
+
 ```python
 from langchain.retrievers import BM25Retriever, EnsembleRetriever
 
@@ -69,13 +83,41 @@ def create_hybrid_retriever(vectordb, documents, search_kwargs={"k": 4}):
     return ensemble_retriever
 ```
 
-**Why Hybrid Search Matters**:
-- **Vector Search Limitations**: Semantic search might miss exact term matches
-- **BM25 Limitations**: Keyword search misses semantic relationships
-- **Combined Approach**: Gets the best of both worlds
-- **Practical Example**: When searching for "transformers in NLP", vector search finds conceptually related content, while BM25 ensures documents with exact terms "transformers" and "NLP" are included
+#### How Hybrid Search Improves Results
+
+Let's take a practical example. Imagine we're searching for "transformers in NLP":
+
+**Vector Search Only**:
+- Finds documents discussing language models, attention mechanisms, and neural architectures
+- Might miss a document that specifically uses the term "transformers" but uses different terminology
+
+**BM25 (Keyword) Only**:
+- Finds documents containing the exact terms "transformers" and "NLP"
+- Might miss documents that discuss the same concepts using terms like "attention-based models"
+
+**Hybrid Search**:
+- Combines both approaches, giving you documents that are conceptually relevant AND documents with exact term matches
+- Provides more comprehensive results, especially for technical or specialized queries
+
+Let's see how you would use this in your application:
+
+```python
+# Assuming you have documents and vectordb from Part 1
+hybrid_retriever = create_hybrid_retriever(vectordb, documents)
+
+# Use hybrid retriever to get more comprehensive results
+results = hybrid_retriever.get_relevant_documents("transformers in NLP")
+```
 
 ### Re-ranking Retrieved Documents for Improved Relevance
+
+Our second advanced technique is re-ranking. This approach:
+1. Retrieves a larger set of candidate documents first
+2. Uses an LLM to filter and re-rank these documents based on relevance
+3. Returns only the most relevant documents
+
+Here's the implementation:
+
 ```python
 from langchain.retrievers.document_compressors import LLMChainExtractor
 from langchain.retrievers import ContextualCompressionRetriever
@@ -104,19 +146,43 @@ def create_reranking_retriever(llm, base_retriever):
     return compression_retriever
 ```
 
-**How Re-ranking Works**:
-1. The base retriever fetches candidate documents (usually more than needed)
-2. The LLM examines each document and extracts only the relevant parts
-3. Documents are re-ranked based on their relevance to the query
-4. The most relevant documents are returned
+#### How Re-ranking Works in Practice
 
-**Benefits of Re-ranking**:
-- Improves precision by filtering out irrelevant content
-- Reduces the amount of context sent to the final LLM
-- Can extract specific passages rather than using whole chunks
-- Handles longer documents more effectively
+When a user asks a question like "What metrics were used to evaluate the model in the transformer paper?", here's what happens:
+
+1. The base retriever (hybrid or vector) fetches maybe 8-10 candidate documents that might contain the answer
+2. The LLM examines each document and extracts ONLY the parts relevant to evaluation metrics
+3. Documents with more relevant content about metrics are ranked higher
+4. The final result might be 3-4 highly relevant document chunks specifically about evaluation metrics
+
+This process significantly improves precision by:
+- Filtering out irrelevant content
+- Reducing the amount of context sent to the final LLM
+- Extracting specific relevant passages rather than using whole chunks
+- Handling longer documents more effectively
+
+Here's how to use re-ranking in your application:
+
+```python
+# Create a re-ranking retriever on top of your hybrid retriever
+from langchain.llms import Ollama
+
+llm = Ollama(model="llama3")
+reranking_retriever = create_reranking_retriever(llm, hybrid_retriever)
+
+# Get highly relevant results
+refined_results = reranking_retriever.get_relevant_documents("What metrics were used to evaluate the model?")
+```
 
 ### Self-Query Retriever: Allowing the LLM to Structure the Query
+
+Our third advanced technique is self-query, which allows the LLM to:
+1. Analyze a natural language query
+2. Extract both search terms and metadata filters
+3. Create a structured query that combines both
+
+Here's how to implement it:
+
 ```python
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.chains.query_constructor.base import AttributeInfo
@@ -160,41 +226,108 @@ def create_self_query_retriever(llm, vectordb, embeddings):
     return retriever
 ```
 
-**What Self-Query Does**:
-1. Takes a natural language query like "Find methodology sections discussing transformer architecture"
-2. Analyzes the query to extract search terms and metadata filters
-3. Creates a structured query with both vector search terms and metadata filters
-4. Retrieves documents that match both the semantic content and metadata requirements
+#### Self-Query in Action
 
-**Examples of Self-Query in Action**:
-- Query: "What did the paper say about transformers on page 4?"
-  - Translates to: Search for "transformers" with metadata filter page=4
-- Query: "Find limitations in the conclusion section"
-  - Translates to: Search for "limitations" with metadata filter section="conclusion"
+Let's see how self-query handles complex, natural language requests:
 
-**Practical Exercise**: Compare Results from Different Retrievers
+1. **Natural Language Query**: "Find methodology sections discussing transformer architecture"
+   
+   **What Happens Behind the Scenes**:
+   - The LLM identifies "methodology sections" as a metadata filter
+   - It extracts "transformer architecture" as the search content
+   - It creates a structured query: `{content: "transformer architecture", metadata: {section: "methodology"}}`
 
-Try implementing these three retrieval methods and compare their results on these challenging queries:
-1. "What metrics were used to evaluate the model?"
-2. "How does the paper compare to related work in section 2?"
-3. "What limitations are mentioned in the conclusion?"
+2. **Natural Language Query**: "What did the paper say about transformers on page 4?"
+   
+   **What Happens Behind the Scenes**:
+   - The LLM identifies "page 4" as a metadata filter
+   - It extracts "transformers" as the search content
+   - It creates a structured query: `{content: "transformers", metadata: {page: 4}}`
 
-For each query, note:
-- Which retriever returns the most relevant documents?
-- Are there cases where one retriever performs significantly better?
-- How do the results differ for factual vs. conceptual questions?
+This is especially powerful when your documents have rich metadata like section titles, authors, publication dates, or categories.
+
+Here's how to use self-query in your application:
+
+```python
+# Create a self-query retriever
+self_query_retriever = create_self_query_retriever(llm, vectordb, embeddings)
+
+# Use it with natural language queries that include metadata references
+results = self_query_retriever.get_relevant_documents(
+    "Find limitations mentioned in the conclusion section"
+)
+```
+
+### Comparison Exercise: Which Retriever Works Best?
+
+Now that we've implemented three advanced retrieval techniques, let's compare them on some challenging queries:
+
+```python
+def compare_retrievers(query, retrievers, k=3):
+    """Compare different retrievers on the same query."""
+    print(f"Query: {query}")
+    print("-" * 50)
+    
+    for name, retriever in retrievers.items():
+        print(f"\n{name} results:")
+        docs = retriever.get_relevant_documents(query)
+        
+        for i, doc in enumerate(docs[:k]):
+            print(f"\nDocument {i+1}:")
+            print(f"Source: {doc.metadata.get('source', 'Unknown')}")
+            print(f"Page: {doc.metadata.get('page', 'Unknown')}")
+            print(f"Content: {doc.page_content[:200]}...")
+    
+    print("\n" + "=" * 50)
+
+# Set up retrievers
+retrievers = {
+    "Vector Search": vectordb.as_retriever(search_kwargs={"k": 3}),
+    "Hybrid Search": create_hybrid_retriever(vectordb, documents),
+    "Reranking": create_reranking_retriever(llm, hybrid_retriever),
+    "Self-Query": create_self_query_retriever(llm, vectordb, embeddings)
+}
+
+# Test queries
+test_queries = [
+    "What metrics were used to evaluate the model?",
+    "How does the paper compare to related work in section 2?",
+    "What limitations are mentioned in the conclusion?",
+    "Explain the transformer architecture's attention mechanism"
+]
+
+# Run comparison
+for query in test_queries:
+    compare_retrievers(query, retrievers)
+```
+
+When running this comparison, you'll notice that:
+- Hybrid search performs better for technical terms and specific concepts
+- Re-ranking excels at finding precise answers buried in longer texts
+- Self-query is best when you need to filter by specific sections or metadata
+- Different retrievers shine for different types of queries
+
+In a production system, you might:
+1. Use hybrid search as your default retriever
+2. Apply re-ranking for precision-critical queries
+3. Use self-query when metadata filtering is needed
+
+Let's move on to the next section, where we'll build a multi-document knowledge base.
 
 ---
 
 ## Part 2: Building a Multi-Document Knowledge Base (25 minutes)
 
-Real research often involves analyzing multiple papers and sources together. This section shows you how to:
-- Process multiple documents while preserving source information
-- Create a searchable index with metadata for better citations
-- Build summarization tools to quickly understand document content
+Real research rarely involves just one paper. To build a truly useful research assistant, we need to process multiple documents while preserving their source information for proper citations. This section shows you how to:
+- Process multiple documents with metadata tracking
+- Create a searchable index for better citations
+- Build summarization tools for quick document understanding
 - Develop a document browser interface for easy navigation
 
-### Handling Multiple Documents with Metadata
+### Handling Multiple Documents with Source Tracking
+
+The first step is to create a unified vector store that preserves information about which document each chunk came from:
+
 ```python
 import os
 from langchain_community.document_loaders import PyPDFLoader
@@ -249,20 +382,32 @@ def process_multiple_documents(pdf_directory, persist_dir="db"):
     return vectordb
 ```
 
-**Why Source Tracking Matters**:
-- Allows citation of the original document in responses
-- Enables filtering queries by document source
-- Preserves context about which paper contains what information
-- Allows for comparative analysis across papers
+#### Why Source Tracking is Critical for Research
 
-**Metadata Strategy**:
-Each chunk contains metadata about:
-- Source document title and filename
-- Page number within the document 
-- Position within the text (start index)
-- Any additional metadata like section title if available
+In academic research, citations matter. Source tracking allows your system to:
+1. Cite the original document in responses
+2. Enable filtering queries by document source
+3. Preserve context about which paper contains what information
+4. Support comparative analysis across papers
+
+Let's look at the metadata structure you should maintain for each chunk:
+
+```python
+chunk_metadata = {
+    "source": "Attention_Is_All_You_Need",   # Document title
+    "filename": "attention_is_all_you_need.pdf",  # Original filename
+    "page": 3,                               # Page number
+    "section": "Methodology",                # Section if available
+    "chunk_index": 12                        # Position in document
+}
+```
+
+This rich metadata ensures your system can always trace information back to its source and provide proper citations.
 
 ### Creating a Document Index with Citations
+
+To make your knowledge base more useful, create an index that provides quick access to document metadata:
+
 ```python
 def create_document_index(pdf_directory):
     """
@@ -318,13 +463,16 @@ def create_document_index(pdf_directory):
     return document_index
 ```
 
-**What the Document Index Provides**:
+This document index provides:
 - Quick access to document metadata without loading full content
 - Information for generating proper citations
 - Statistics about each document (page count, length)
 - Preview text for browsing documents
 
 ### Building a Document Summarization Tool
+
+Allow users to quickly understand papers without reading them entirely:
+
 ```python
 def summarize_document(llm, document_text, max_length=200):
     """
@@ -365,128 +513,48 @@ def summarize_document(llm, document_text, max_length=200):
     return summary
 ```
 
-**Why Document Summarization Is Valuable**:
-- Allows quick understanding of papers without reading them entirely
-- Helps users decide which papers to analyze in depth
-- Creates entry points for more detailed questions
-- Can generate abstracts for papers that don't have them
+#### Practical Implementation for Multiple Papers
 
-**Enhancing Summaries**:
-For better summaries, you could:
-- Split the document into sections and summarize each separately
-- Ensure that key statistics and findings are preserved
-- Extract the main contributions explicitly
-- Generate comparative summaries across multiple papers
+When dealing with multiple papers, you might want to:
+1. Summarize each paper individually for detailed understanding
+2. Create a comparative summary across related papers
+3. Generate targeted summaries of specific sections (methods, results, etc.)
 
-### Document Browser Interface with Streamlit
+For example, to compare methodologies across papers:
+
 ```python
-import streamlit as st
-
-def document_browser_tab():
+def compare_methodologies(llm, papers_dict):
+    """Compare methodologies across multiple papers."""
+    # Extract methodology sections from each paper
+    methodologies = {}
+    for title, info in papers_dict.items():
+        # Find methodology section (simplified)
+        content = info.get("full_text", "")
+        method_section = extract_section(content, ["methodology", "methods", "approach"])
+        if method_section:
+            methodologies[title] = method_section
+    
+    # Create comparison prompt
+    papers_list = ", ".join(methodologies.keys())
+    prompt = f"""
+    Compare the methodologies used in the following papers: {papers_list}
+    
+    For each paper, analyze:
+    1. The core techniques/algorithms used
+    2. Data collection and preprocessing approaches
+    3. Evaluation metrics employed
+    
+    Then provide a comparative analysis highlighting key similarities and differences.
+    
+    PAPER METHODOLOGIES:
     """
-    Streamlit interface for browsing documents in the knowledge base,
-    viewing metadata, and generating summaries.
-    """
-    st.header("Document Knowledge Base")
-    st.write("Browse and analyze documents in your research collection")
     
-    # Get document index
-    pdf_directory = "pdfs"
+    for title, method in methodologies.items():
+        prompt += f"\n\n{title}:\n{method[:2000]}"
     
-    if not os.path.exists(pdf_directory):
-        st.warning("No documents found. Please upload PDFs in the Document Processing tab.")
-        return
-        
-    document_index = create_document_index(pdf_directory)
-    
-    if not document_index:
-        st.warning("No PDF documents found in the pdfs directory.")
-        return
-    
-    # Display document count
-    st.info(f"📚 Your knowledge base contains {len(document_index)} documents")
-    
-    # Display documents in a organized way
-    st.subheader("Available Documents")
-    
-    # Sort documents by title
-    sorted_docs = sorted(document_index.items())
-    
-    for doc_title, metadata in sorted_docs:
-        # Create an expander for each document
-        with st.expander(f"📄 {doc_title} ({metadata['page_count']} pages)"):
-            # Document metadata section
-            st.markdown("#### Document Information")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.write(f"**Filename:** {os.path.basename(metadata['path'])}")
-                st.write(f"**Pages:** {metadata['page_count']}")
-            with col2:
-                st.write(f"**Size:** {metadata['total_chars']/1000:.1f}K characters")
-                st.write(f"**Info:** {metadata['publication_info']}")
-            
-            # Text preview section
-            st.markdown("#### Content Preview")
-            st.text(metadata['text_sample'] + "...")
-            
-            # Summary section with button to generate
-            st.markdown("#### Document Summary")
-            summary_key = f"summary_{doc_title}"
-            
-            if summary_key not in st.session_state:
-                if st.button(f"Generate Summary for {doc_title}"):
-                    with st.spinner("Analyzing document and generating summary..."):
-                        # Load document text
-                        loader = PyPDFLoader(metadata['path'])
-                        documents = loader.load()
-                        full_text = " ".join([doc.page_content for doc in documents])
-                        
-                        # Initialize LLM if not already done
-                        llm = initialize_llm()
-                        
-                        # Generate and store summary
-                        summary = summarize_document(llm, full_text)
-                        st.session_state[summary_key] = summary
-            
-            # Display summary if available
-            if summary_key in st.session_state:
-                st.markdown(st.session_state[summary_key])
-            
-            # Add citation generator
-            st.markdown("#### Citation")
-            citation_format = st.selectbox(
-                "Citation format:",
-                ["APA", "MLA", "Chicago"],
-                key=f"citation_format_{doc_title}"
-            )
-            
-            if st.button(f"Generate Citation ({citation_format})", key=f"cite_{doc_title}"):
-                with st.spinner("Generating citation..."):
-                    # This would typically use a more sophisticated citation generator
-                    # Here we'll just create a basic example
-                    if citation_format == "APA":
-                        citation = f"Author, A. ({metadata['publication_info'].replace('Published in ', '')}). {doc_title}."
-                    elif citation_format == "MLA":
-                        citation = f"Author. \"{doc_title}.\" {metadata['publication_info'].replace('Published in ', '')}."
-                    else:  # Chicago
-                        citation = f"Author. {doc_title}. {metadata['publication_info'].replace('Published in ', '')}."
-                    
-                    st.text(citation)
-                    st.button("Copy to Clipboard", key=f"copy_{doc_title}")
+    comparison = llm.invoke(prompt)
+    return comparison
 ```
-
-**Document Browser Features**:
-- Displays all available documents with metadata
-- Provides content previews for quick scanning
-- Generates on-demand summaries using the LLM
-- Creates citations in different academic formats
-- Organizes documents in a collapsible interface
-
-**Usage Tips**:
-- Use document summaries to get an overview of many papers at once
-- Compare summaries across papers to identify related work
-- Generate citations to include in your research notes or bibliography
-- Use the previews to identify which papers to analyze in depth
 
 ---
 

@@ -179,7 +179,7 @@ Let's copy the sample social network data:
 
 ```bash
 # Copy the student database file to your profiles directory
-cp week-5/student_database.md social-network-assistant/profiles/
+cp student_database.md social-network-assistant/profiles/
 ```
 
 ---
@@ -387,12 +387,23 @@ def create_vectorstore(chunks, embeddings, persist_directory):
 
 ChromaDB is an efficient vector database that allows for quick similarity searches. By persisting it to disk, we can reuse it without reprocessing the documents each time.
 
+Once you've implemented all these functions, your project directory structure should look like:
+
+```
+social-network-assistant/
+├── app.py                 # Main application file
+├── chroma_db/             # Vector database (created after running)
+├── profiles/              # Directory for social profile data
+│   └── student_database.md # Sample profile data
+└── outputs/               # Directory for any output files
+```
+
 ### 3.6 Processing Documents Pipeline
 
 Now, let's create a function that combines all these steps:
 
 ```python
-def process_documents(file_path, db_directory="db"):
+def process_documents(file_path, db_directory="./chroma_db"):
     """Process documents from loading to vector storage."""
     # 1. Load the document
     documents = load_profiles(file_path)
@@ -587,12 +598,12 @@ def build_streamlit_app():
     # Initialize or load the system
     if 'qa_chain' not in st.session_state:
         # Check if database exists
-        if os.path.exists("social-network-assistant/db"):
+        if os.path.exists("./chroma_db"):
             with st.spinner("Loading existing knowledge base..."):
                 # Load the existing vector database
                 embeddings = create_embeddings()
                 vectordb = Chroma(
-                    persist_directory="social-network-assistant/db",
+                    persist_directory="./chroma_db",
                     embedding_function=embeddings
                 )
                 
@@ -606,13 +617,13 @@ def build_streamlit_app():
         else:
             # Process documents if database doesn't exist
             with st.spinner("Processing profiles and building knowledge base..."):
-                profile_path = "social-network-assistant/profiles/student_database.md"
+                profile_path = "profiles/student_database.md"
                 
                 if os.path.exists(profile_path):
                     # Process documents
                     vectordb = process_documents(
                         profile_path,
-                        "social-network-assistant/db"
+                        "./chroma_db"
                     )
                     
                     # Create LLM and QA chain
@@ -764,10 +775,10 @@ Let's review what we've built:
 
 ### 6.3 Next Steps
 
-In Part 2 of this tutorial, we'll explore:
-1. More advanced RAG techniques
-2. Building more sophisticated Streamlit and Gradio interfaces
-3. Adding conversational capabilities to our assistant
+In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more advanced features including:
+- Building sophisticated interfaces with both Streamlit and Gradio
+- Implementing conversation memory for multi-turn interactions
+- Creating a complete application with more features and a better user experience
 
 ---
 
@@ -832,7 +843,10 @@ Congratulations! You've built a basic RAG system that can answer questions about
 3. How to implement a basic RAG system
 4. How to build a simple Streamlit interface
 
-In Part 2, we'll explore more advanced features and build more sophisticated application interfaces with Streamlit and Gradio.
+In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more advanced features including:
+- Building sophisticated interfaces with both Streamlit and Gradio
+- Implementing conversation memory for multi-turn interactions
+- Creating a complete application with more features and a better user experience
 
 ## Resources
 - [Streamlit Documentation](https://docs.streamlit.io/)
@@ -841,3 +855,4 @@ In Part 2, we'll explore more advanced features and build more sophisticated app
 - [Ollama GitHub Repository](https://github.com/ollama/ollama)
 - [Sentence Transformers Documentation](https://www.sbert.net/)
 - [ChromaDB Documentation](https://docs.trychroma.com/)
+- [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)

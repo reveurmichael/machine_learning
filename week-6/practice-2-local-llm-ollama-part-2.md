@@ -2,7 +2,7 @@
 
 ## Overview
 
-In Part 2 of our tutorial, we'll build upon the foundation established in Part 1 by creating interactive user interfaces using Streamlit and Gradio. These interfaces will make our social network assistant more accessible and user-friendly.
+In [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of this tutorial, we built a basic RAG system that can answer questions about social profiles using a local LLM. Now in Part 2, we'll build upon that foundation by creating interactive user interfaces using Streamlit and Gradio. These interfaces will make our social network assistant more accessible and user-friendly.
 
 ## Learning Objectives
 
@@ -12,9 +12,7 @@ In Part 2 of our tutorial, we'll build upon the foundation established in Part 1
 
 ## Prerequisites
 
-- Completed Part 1 of the tutorial
-- Functional RAG system for social profile querying
-- Familiarity with Python and basic web concepts
+- Completed [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of the tutorial
 
 ## Part 1: Creating an Advanced Streamlit Interface
 
@@ -457,37 +455,65 @@ with tab2:
 
 To run any of these applications:
 
-1. Make sure you have completed Part 1 of the tutorial and have a functional knowledge base
-2. Install the additional required packages:
+1. Make sure you have completed [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of the tutorial and have a functional knowledge base
+2. Save the code for your chosen interface in the `social-network-assistant` directory:
+   - For the basic interface: `app.py`
+   - For the Gradio interface: `gradio_app.py`
+   - For the memory-enabled interface: `app_with_memory.py`
+   - For the complete application: `complete_app.py`
+
+3. Install the additional required packages:
 
 ```bash
 pip install streamlit gradio
 ```
 
-3. Start the Streamlit app:
+4. Start the Streamlit app:
 
 ```bash
-streamlit run app.py
+cd social-network-assistant
+streamlit run app.py  # Or whichever file you want to run
 ```
 
 Or for the Gradio app:
 
 ```bash
+cd social-network-assistant
 python gradio_app.py
+```
+
+The application will automatically load your existing knowledge base from the `chroma_db` directory if it exists, or create a new one if needed.
+
+## Final Project Structure
+
+After completing both parts of the tutorial, your final directory structure should look like:
+
+```
+social-network-assistant/
+├── app.py                 # Basic Streamlit interface 
+├── gradio_app.py          # Gradio interface
+├── app_with_memory.py     # Streamlit interface with memory
+├── complete_app.py        # Complete application
+├── chroma_db/             # Vector database
+├── profiles/              # Directory for social profile data
+│   └── student_database.md # Sample profile data
+└── outputs/               # Directory for any output files
 ```
 
 ## Conclusion
 
-In this tutorial, we've built interactive interfaces for our social network assistant using both Streamlit and Gradio. These interfaces make it easy for users to interact with our AI assistant and get information about their social network.
+In this two-part tutorial series, we've built a comprehensive social network assistant using local LLMs:
 
-We've also implemented conversation memory to enable more natural, multi-turn interactions where the assistant can remember previous questions and answers.
+- In [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md), we set up the foundation by building a basic RAG system with Ollama, LangChain, and ChromaDB.
+- In Part 2, we enhanced the system with interactive interfaces and conversation memory.
 
-## Next Steps
+The result is a powerful, privacy-focused assistant that can:
+1. Answer questions about social profiles using local LLM inference
+2. Maintain context across conversations using memory
+3. Provide an intuitive interface for users through Streamlit and Gradio
+4. Run entirely on your local machine without sending data to external services
 
-- Experiment with different memory types like `ConversationSummaryMemory`
-- Integrate advanced RAG techniques like hybrid search or self-querying
-- Deploy your application to a local server for easier access
-- Create a mobile-friendly interface
+This project demonstrates how modern local LLMs like DeepSeek and sophisticated frameworks like LangChain can be combined to create practical AI applications that respect user privacy while delivering high-quality responses.
 
 ## Resources
 
@@ -496,3 +522,4 @@ We've also implemented conversation memory to enable more natural, multi-turn in
 - [LangChain Memory Types](https://python.langchain.com/docs/modules/memory/)
 - [Ollama Model Library](https://ollama.com/library)
 - [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)
+

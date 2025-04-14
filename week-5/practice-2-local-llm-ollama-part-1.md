@@ -67,8 +67,8 @@ source venv/bin/activate
 Now, let's install all the packages we'll need:
 
 ```bash
-pip install langchain langchain-community chromadb pypdf sentence-transformers streamlit faiss-cpu
-```
+  pip install langchain langchain-community chromadb pypdf sentence-transformers streamlit faiss-cpu
+  ```
 
 Package explanation:
 - `langchain` & `langchain-community`: Framework for creating LLM applications
@@ -149,7 +149,7 @@ You should get a coherent response from the model.
 
 Let's create the directory structure for our project:
 
-```bash
+  ```bash
 # Create project directories
 mkdir -p social-network-assistant/{profiles,db,outputs}
 ```
@@ -163,7 +163,7 @@ This creates:
 
 Let's copy the sample social network data:
 
-```bash
+  ```bash
 # Copy the student database file to your profiles directory
 cp week-5/student_database.md social-network-assistant/profiles/
 ```
@@ -613,7 +613,7 @@ def build_streamlit_app():
             answer = ask_question(st.session_state.qa_chain, question)
             
             # Display the answer in a nice box
-            st.markdown("### Answer")
+                st.markdown("### Answer")
             st.markdown(f"""
             <div style="background-color: #f0f7fb; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db;">
             {answer}

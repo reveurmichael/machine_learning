@@ -1,4 +1,4 @@
-# Building Interfaces for Your Local LLM Research Assistant
+# Building a Local LLM Social Network Assistant (Part 2)
 
 ## Overview
 In this tutorial, we'll build upon the foundation established in Part 1 by creating interactive interfaces for our local LLM research assistant using Streamlit and Gradio. These interfaces will make it easier to interact with our RAG system and provide a more user-friendly experience.

@@ -171,6 +171,8 @@
 
 ## Spotlight on Ollama
 
+Take a look at: https://ollama.com/library
+
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃                                                                         ┃

@@ -9,6 +9,22 @@ You will learn:
 
 We will use Jupyter notebooks for data cleaning and model training, then take the process further by deploying the model in a web application.
 
+## Overall Workflow
+
+```mermaid
+flowchart LR
+    A[UFO Data] --> B[Data Cleaning]
+    B --> C[Feature Engineering]
+    C --> D[Model Training]
+    D --> E[Model Serialization]
+    E --> F[Flask Web App]
+    F --> G[User Interaction]
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style D fill:#eeeeee,stroke:#333,stroke-width:2px
+    style E fill:#b5e8f7,stroke:#333,stroke-width:2px
+    style F fill:#d5f5e3,stroke:#333,stroke-width:2px
+```
+
 ## From Model to Web Application
 
 There are several approaches to integrating machine learning models into applications. The architecture you choose may influence how you train and deploy your model. Consider this scenario: you're working with a data science team that has trained a model they want you to integrate into an application.
@@ -24,6 +40,20 @@ Before implementation, consider these important questions:
     - **TensorFlow models** can be converted for web applications using [TensorFlow.js](https://www.tensorflow.org/js/)
     - **PyTorch models** can be exported to [ONNX format](https://onnx.ai/) (Open Neural Network Exchange) for use in JavaScript web apps with [Onnx Runtime](https://www.onnxruntime.ai/)
 
+```mermaid
+flowchart TD
+    A[Model Selection] --> B{Platform?}
+    B -->|Web App| C[Flask/Django or JS Framework]
+    B -->|Mobile App| D[TensorFlow Lite]
+    B -->|IoT Device| E[TFLite/Edge ML]
+    C --> F{Training Framework?}
+    F -->|TensorFlow| G[TensorFlow.js]
+    F -->|PyTorch| H[ONNX Format]
+    F -->|Scikit-learn| I[Pickle Serialization]
+    style A fill:#f5b7b1,stroke:#333,stroke-width:2px
+    style F fill:#fadbd8,stroke:#333,stroke-width:2px
+```
+
 It's also possible to build a Flask application that can train the model directly in a web browser using TensorFlow.js in a JavaScript environment.
 
 For this lesson, since we've been working with Python-based notebooks, we'll explore how to export a trained model from a notebook for integration with a Python web application.
@@ -36,6 +66,23 @@ This project requires two main Python tools:
 
 ✅ **Pickle**: A Python module that serializes and deserializes Python objects. When you "pickle" a model, you convert its structure into a format usable in web applications. Note: pickle is not inherently secure, so be cautious when unpickling files from unknown sources. Pickled files use the `.pkl` extension.
 
+```mermaid
+graph LR
+    A[Python Model] --> B[Pickle]
+    B --> C[Serialized .pkl file]
+    C --> D[Flask App]
+    D --> E[Web Interface]
+    E --> F[User]
+    F --> G[Input Data]
+    G --> D
+    D --> H[Prediction]
+    H --> F
+    style A fill:#aed6f1,stroke:#333,stroke-width:2px
+    style C fill:#f9e79f,stroke:#333,stroke-width:2px
+    style D fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style F fill:#d2b4de,stroke:#333,stroke-width:2px
+```
+
 ## Exercise 1: Data Preparation
 
 In this lesson, we'll work with data from 80,000 UFO sightings collected by [NUFORC](https://nuforc.org). This dataset contains fascinating descriptions of UFO sightings, such as:
@@ -44,6 +91,19 @@ In this lesson, we'll work with data from 80,000 UFO sightings collected by [NUF
 - **Brief example:** "the lights chased us"
 
 The [ufos.csv](./data/ufos.csv) dataset includes information about the `city`, `state`, and `country` of each sighting, the object's `shape`, and its `latitude` and `longitude` coordinates.
+
+```mermaid
+graph TD
+    A[UFO Sightings Dataset] --> B[Raw Data]
+    B --> C[Data Cleaning]
+    C --> D[Drop Null Values]
+    C --> E[Filter Duration]
+    C --> F[Convert Categorical Data]
+    D & E & F --> G[Processed Dataset]
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style C fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style G fill:#aed6f1,stroke:#333,stroke-width:2px
+```
 
 In the [notebook](notebook.ipynb) provided with this lesson:
 
@@ -107,6 +167,24 @@ In the [notebook](notebook.ipynb) provided with this lesson:
 
 Now, prepare the data for training by splitting it into training and testing sets:
 
+```mermaid
+graph LR
+    A[Processed Dataset] --> B[Feature Selection]
+    B --> C[X: Seconds, Latitude, Longitude]
+    B --> D[y: Country]
+    C & D --> E[Train/Test Split]
+    E --> F[X_train, y_train]
+    E --> G[X_test, y_test]
+    F --> H[Model Training]
+    H --> I[Trained Model]
+    G --> J[Model Evaluation]
+    I --> J
+    style A fill:#aed6f1,stroke:#333,stroke-width:2px
+    style E fill:#f9e79f,stroke:#333,stroke-width:2px
+    style H fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style I fill:#f5cba7,stroke:#333,stroke-width:2px
+```
+
 1. Define your feature set (X) and target variable (y):
 
     ```python
@@ -141,6 +219,17 @@ The model achieves approximately 95% accuracy, which isn't surprising given the 
 
 Now, serialize your model for web deployment:
 
+```mermaid
+graph TD
+    A[Trained Model] --> B[Pickle Serialization]
+    B --> C[.pkl File]
+    C --> D[Load Pickled Model]
+    D --> E[Model Inference]
+    E --> F[Prediction Result]
+    style A fill:#f5cba7,stroke:#333,stroke-width:2px
+    style C fill:#aed6f1,stroke:#333,stroke-width:2px
+```
+
 ```python
 import pickle
 
@@ -157,6 +246,20 @@ The model returns **'3'**, which corresponds to the UK in our encoded country va
 ## Exercise 4: Building a Flask Web Application
 
 Now, create a Flask application to provide a user interface for your model:
+
+```mermaid
+graph TD
+    A[Project Structure] --> B[web-app/]
+    B --> C[static/]
+    B --> D[templates/]
+    B --> E[app.py]
+    B --> F[requirements.txt]
+    C --> G[css/styles.css]
+    D --> H[index.html]
+    style B fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style E fill:#f9e79f,stroke:#333,stroke-width:2px
+    style F fill:#f9e79f,stroke:#333,stroke-width:2px
+```
 
 1. Create the following directory structure next to your notebook file:
 
@@ -301,6 +404,23 @@ Now, create a Flask application to provide a user interface for your model:
 
     > 💡 Tip: Setting `debug=True` enables Flask's development mode, which automatically refreshes the application when you make changes, without requiring a server restart. Important: Never enable debug mode in production environments!
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Flask as Flask App
+    participant Model as Pickled ML Model
+    
+    User->>Browser: Enter prediction inputs
+    Browser->>Flask: POST /predict with form data
+    Flask->>Flask: Process form data
+    Flask->>Model: Request prediction
+    Model->>Flask: Return prediction (country code)
+    Flask->>Flask: Map country code to name
+    Flask->>Browser: Return HTML with prediction
+    Browser->>User: Display prediction result
+```
+
 To run your application, execute `python app.py` or `python3 app.py`. The server will start locally, allowing you to interact with a form that predicts UFO sighting locations based on your input parameters.
 
 ### Understanding the Flask Application
@@ -326,7 +446,46 @@ In professional settings, effective communication between model developers and a
 
 Instead of training the model in a notebook and importing it into the Flask app, try implementing model training directly within the Flask application. Convert your notebook code to train the model on a new route called `/train`. Consider the advantages and disadvantages of this approach.
 
+```mermaid
+graph LR
+    A[Flask App] --> B{Design Choice}
+    B -->|Pre-trained Model| C[Import Pickled Model]
+    B -->|In-app Training| D[Implement /train Route]
+    C --> E[Simple Integration]
+    C --> F[Static Model]
+    D --> G[Dynamic Updates]
+    D --> H[Resource Intensive]
+    style B fill:#f9e79f,stroke:#333,stroke-width:2px
+    style C fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style D fill:#f5b7b1,stroke:#333,stroke-width:2px
+```
+
 ## Review & Self Study
 
 There are multiple approaches to integrating machine learning models into web applications. Create a list of different methods using JavaScript or Python. Consider architectural questions: Should the model reside in the application or in the cloud? If cloud-hosted, how would you access it? Sketch an architectural diagram for a web application with integrated machine learning.
+
+```mermaid
+graph TD
+    A[ML Model Integration Architectures] --> B[Client-side]
+    A --> C[Server-side]
+    A --> D[Hybrid]
+    
+    B --> E[TensorFlow.js]
+    B --> F[ONNX.js]
+    
+    C --> G[REST API]
+    C --> H[GraphQL API]
+    C --> I[WebSockets]
+    
+    G --> J[Flask/Django]
+    G --> K[Node.js]
+    
+    D --> L[Initial Server Prediction]
+    D --> M[Client-side Refinement]
+    
+    style A fill:#f9e79f,stroke:#333,stroke-width:2px
+    style B fill:#d5f5e3,stroke:#333,stroke-width:2px
+    style C fill:#aed6f1,stroke:#333,stroke-width:2px
+    style D fill:#f5b7b1,stroke:#333,stroke-width:2px
+```
 

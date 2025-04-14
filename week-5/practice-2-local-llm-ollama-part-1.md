@@ -55,13 +55,12 @@ cd social-network-assistant
 Now, let's install all the packages we'll need:
 
 ```bash
-  pip install langchain langchain-community chromadb pypdf sentence-transformers streamlit faiss-cpu
+  pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu
   ```
 
 Package explanation:
 - `langchain` & `langchain-community`: Framework for creating LLM applications
 - `chromadb`: Vector database for storing embeddings
-- `pypdf`: PDF parsing library
 - `sentence-transformers`: For creating text embeddings
 - `streamlit`: For building the web interface
 - `faiss-cpu`: Efficient similarity search library
@@ -724,7 +723,7 @@ In Part 2 of this tutorial, we'll explore:
 
 1. **"ModuleNotFoundError"**: Make sure you've installed all required packages:
    ```bash
-   pip install langchain langchain-community chromadb pypdf sentence-transformers streamlit faiss-cpu
+   pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu
    ```
 
 2. **Ollama connection errors**: Ensure the Ollama service is running:

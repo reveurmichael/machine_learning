@@ -211,8 +211,8 @@ Take a look at: https://ollama.com/library
 │                                                                  │
 │                        Ollama Architecture                       │
 │                                                                  │
-│   ┌──────────┐      ┌───────────┐      ┌────────────────────┐   │
-│   │          │      │           │      │                    │   │
+│   ┌──────────┐      ┌───────────┐      ┌────────────────────┐    │
+│   │          │      │           │      │                    │    │
 │   │  Ollama  │      │  Model    │      │  Inference         │   │
 │   │  CLI/API ├─────►│  Library  ├─────►│  Engine (llama.cpp)│   │
 │   │          │      │           │      │                    │   │
@@ -234,7 +234,7 @@ Take a look at: https://ollama.com/library
 
 ## Installing Ollama
 
-- **macOS**: Download from [ollama.com](https://ollama.com)
+- **macOS**: Download from [ollama.com](https://ollama.com), or simply `brew install ollama`
 - **Windows**: Download Windows installer from [ollama.com](https://ollama.com)
 - **Linux**:
   ```bash
@@ -248,7 +248,11 @@ Take a look at: https://ollama.com/library
 ```bash
 # Start the local server
 ollama serve
+```
 
+Then open another terminal and run:
+
+```bash
 # Pull (download) a model
 ollama pull qwen2.5:3b
 
@@ -256,7 +260,7 @@ ollama pull qwen2.5:3b
 ollama run qwen2.5:3b
 
 # One-shot prompt
-ollama run qwen2.5:3b "What is a large language model?"
+ollama run qwen2.5:3b "Why is Shanghai a great city?"
 
 # List available models
 ollama list
@@ -264,32 +268,18 @@ ollama list
 
 ---
 
-## Alternative: LM Studio
+## Alternatives for Ollama
 
-```
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                                                                         ┃
-┃                             LM STUDIO                                   ┃
-┃                                                                         ┃
-┃  • GUI for running LLMs locally                                         ┃
-┃  • Browse and download models                                           ┃
-┃  • Chat interface built-in                                              ┃
-┃  • Local API server                                                     ┃
-┃  • Model performance comparison                                         ┃
-┃  • Chat history and settings management                                 ┃
-┃                                                                         ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-```
-
----
-
-## Alternative: MLC LLM
-
-- AI framework by MLC (Machine Learning Compilation)
-- Deploy LLMs on mobile devices, browsers, PCs
-- Focus on efficiency and wide compatibility
-- Web-based UI option
-- Supports iOS/Android deployment
+| Tool | Description | Platforms | Open Source | Notable Features |
+|------|-------------|-----------|-------------|------------------|
+| LM Studio | Desktop GUI for running local LLMs | Windows, macOS, Linux | Yes | User-friendly interface, model library, chat UI |
+| LocalAI | API compatible with OpenAI for self-hosted models | Cross-platform | Yes | OpenAI-compatible API, supports multiple model formats |
+| llama.cpp | C/C++ library for running models in the GGUF format | Cross-platform | Yes | High-performance inference, minimum dependencies |
+| text-generation-webui | Web UI for running text generation models | Cross-platform | Yes | Advanced UI features, extensions, model management |
+| GPT4All | Desktop application for running local LLMs | Windows, macOS, Linux | Yes | Simple interface, embedded models |
+| vLLM | High-throughput inference server | Linux | Yes | Optimized for throughput, PagedAttention technology |
+| H2O LLM Studio | Framework for fine-tuning and serving LLMs | Cross-platform | Yes | Fine-tuning capabilities, enterprise features |
+| PrivateGPT | Personal AI assistant using local models | Cross-platform | Yes | Document processing, privacy-focused |
 
 ---
 

@@ -47,10 +47,10 @@ In this tutorial, you'll learn how to create a system that can:
 - Download the required models using the following commands:
   ```bash
   # Download the main model we'll use (about 4GB)
-  ollama pull llama3      # 8B parameter model, good balance of quality/speed
+  ollama pull llama3.1:8b      # 8B parameter model, good balance of quality/speed
   
-  # Optional alternative model for experimentation (about 7GB)
-  ollama pull mistral  # Alternative model with different knowledge patterns
+  # Optional alternative model for experimentation (about 4GB)
+  ollama pull deepseek-r1:7b  # Alternative model with different knowledge patterns
   ```
   
   > **Note**: The first download may take several minutes depending on your internet connection.
@@ -265,7 +265,7 @@ The vector database:
 ```python
 from langchain_community.llms import Ollama
 
-def create_llm(model_name="llama3"):
+def create_llm(model_name="llama3.1:8b"):
     """
     Create a connection to the local Ollama LLM.
     
@@ -602,7 +602,7 @@ In Part 2 of this tutorial, we'll explore these advanced features and take your 
    Create text files with profiles and place them in the profiles directory. Modify the loader to match your data format.
 
 3. **Can this system work with other languages?**
-   Yes, both the embedding model and LLama3 support multiple languages. For best results, use profile data in the same language as your queries.
+   Yes, both the embedding model and Llama 3.1 support multiple languages. For best results, use profile data in the same language as your queries.
 
 4. **How do I evaluate the quality of my social assistant?**
    Create a set of test questions with known answers from your profiles and measure the system's accuracy and relevance.

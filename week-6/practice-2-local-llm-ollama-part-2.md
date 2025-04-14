@@ -167,7 +167,7 @@ Here's how to use re-ranking in your application:
 # Create a re-ranking retriever on top of your hybrid retriever
 from langchain.llms import Ollama
 
-llm = Ollama(model="llama3")
+llm = Ollama(model="llama3.1:8b")
 reranking_retriever = create_reranking_retriever(llm, hybrid_retriever)
 
 # Get highly relevant results
@@ -1057,7 +1057,7 @@ def research_agent_tab():
                 vectordb = Chroma(persist_directory="db", embedding_function=embeddings)
                 
                 # Initialize LLM
-                llm = initialize_llm(model_name="llama3")
+                llm = initialize_llm(model_name="llama3.1:8b")
                 
                 # Create tools and agent
                 tools = create_research_tools(llm, vectordb)
@@ -1247,7 +1247,7 @@ def evaluate_retrieval(retriever, test_questions, ground_truth):
 ```python
 def evaluate_answer_correctness(qa_chain, test_questions, ground_truth_answers):
     """Evaluate the correctness of answers using LLM judge."""
-    llm_judge = initialize_llm("llama3")
+    llm_judge = initialize_llm("llama3.1:8b")
     results = {}
     
     for i, question in enumerate(test_questions):
@@ -1881,7 +1881,7 @@ def main():
     # Model selection
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3", "mistral", "deepseek-coder"]
+        ["llama3.1:8b", "deepseek-r1:7b"]
     )
     
     # Embedding model selection
@@ -2294,14 +2294,14 @@ Your research assistant can be enhanced in numerous ways:
 - **Larger Models**: Experiment with more powerful models as hardware allows
   ```bash
   # Example pulling a larger model
-  ollama pull llama3:70b
+  ollama pull llama3.1:34b
   ```
 
 - **Quantization**: Optimize models for speed and memory efficiency
   ```python
   # Example using llama.cpp quantized models
   from langchain.llms import LlamaCpp
-  llm = LlamaCpp(model_path="./models/llama-2-7b-chat.Q4_K_M.gguf")
+  llm = LlamaCpp(model_path="./models/llama-3.1-8b-chat.Q4_K_M.gguf")
   ```
 
 #### 2. **Multi-modal Capabilities**
@@ -2309,7 +2309,7 @@ Your research assistant can be enhanced in numerous ways:
   ```python
   # Example with multi-modal model
   from langchain.llms import Ollama
-  mm_model = Ollama(model="bakllava")
+  mm_model = Ollama(model="llava")
   ```
 
 - **Table Extraction**: Parse and query tables from research papers
@@ -2405,7 +2405,7 @@ research-assistant/
 
 4. Pull required models:
    ```bash
-   ollama pull llama3
+   ollama pull llama3.1:34b
    ```
 
 5. Run the application:

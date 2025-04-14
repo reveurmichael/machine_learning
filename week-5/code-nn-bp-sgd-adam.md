@@ -9,8 +9,11 @@ After exploring backpropagation, we will discuss **Stochastic Gradient Descent (
 
 We'll work with the classic **MNIST** dataset of handwritten digits and implement a neural network from scratch to classify these digits. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
-
 Make sure you have watched the 3b1b videos before doing the code session!
+
+Related videos:
+- Video - Chinese version: https://www.bilibili.com/video/BV1uW4y1s7Ci
+- Video - English version: https://www.bilibili.com/video/BV1nM41167j9
 
 ### Session Overview
 

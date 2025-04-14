@@ -1,111 +1,427 @@
-Here’s a **slide deck outline** for the tutorial: **"Build Your Own Local AI Research Assistant with Ollama + RAG"**. I’ll list each slide title and content, and can generate a Google Slides or PowerPoint version on request.
+# Building Applications with Large Language Models
 
 ---
 
-### **Slide 1: Title Slide**
-**Title:**  
-*Build Your Own Local AI Research Assistant*  
-**Subtitle:**  
-*Using Ollama + LLaMA 3.1 + DeepSeek + RAG*
+## Overview
+
+- What are LLMs and why should you care?
+- How LLMs are transforming software development
+- Types of applications you can build
+- Running LLMs: Cloud vs On-device 
+- Introduction to Ollama and alternatives
+- Practical use cases
+- Getting started
 
 ---
 
-### **Slide 2: Learning Objectives**
-- Understand Retrieval-Augmented Generation (RAG)
-- Use Ollama with local LLMs (LLaMA 3.1, DeepSeek)
-- Load and chunk academic PDFs
-- Build a local Q&A assistant
-- Evaluate model responses with real papers
+## What are LLMs?
+
+```
+┌───────────────────────────────────────────────────────┐
+│                                                       │
+│                  Large Language Models                │
+│                                                       │
+│   ┌─────────┐    ┌─────────┐    ┌─────────────────┐   │
+│   │         │    │         │    │                 │   │
+│   │ Massive │    │ Deep    │    │ Probabilistic   │   │
+│   │ Training│    │ Neural  │    │ Text            │   │
+│   │ Data    │    │ Networks│    │ Generation      │   │
+│   │         │    │         │    │                 │   │
+│   └─────────┘    └─────────┘    └─────────────────┘   │
+│                                                       │
+└───────────────────────────────────────────────────────┘
+```
+
+- Neural networks trained on vast amounts of text
+- Can understand and generate human-like text
+- Examples: GPT-4, Claude, Llama, DeepSeek, Mistral
 
 ---
 
-### **Slide 3: What is RAG?**
-- RAG = Retrieval + Generation
-- Solves hallucination by grounding answers in real documents
-- Useful for academic reading, legal texts, proprietary corpora
+## Why LLMs Matter
 
-**Diagram:**  
-[Retrieval → Context + Query → LLM → Answer]
-
----
-
-### **Slide 4: Architecture Overview**
-**Left:** PDF Loader → Text Splitter → Embeddings → Vector Store (Chroma)  
-**Right:** User Query → Retriever → Ollama (LLM) → Answer
+- **Natural language interface** to computing
+- **Accessibility**: Non-technical users can build and interact with software
+- **Automation**: Handle routine language tasks
+- **Augmentation**: Enhance human capabilities
+- **Adaptability**: One model, countless applications
 
 ---
 
-### **Slide 5: Setup Checklist**
-- Install Ollama: `ollama pull llama3`, `ollama pull deepseek-coder`
-- Install Python packages:
+## The Developer Superpower
+
+```
+             BEFORE                   |               AFTER
+                                      |
+  ┌────────────┐     ┌────────────┐   |   ┌────────────┐     ┌────────────┐
+  │            │     │            │   |   │            │     │            │
+  │  Developer ├────►│  Software  │   |   │  Developer ├────►│    LLM     │
+  │            │     │            │   |   │            │     │            │
+  └────────────┘     └────────────┘   |   └────────────┘     └───┬────────┘
+                                      |                           │
+                                      |                           ▼
+                                      |                     ┌────────────┐
+                                      |                     │            │
+                                      |                     │  Software  │
+                                      |                     │            │
+                                      |                     └────────────┘
+```
+
+- Multiplies what developers can build
+- Reduces implementation time from weeks to hours
+- Unlocks new types of applications
+
+---
+
+## Types of LLM Applications
+
+1. **Text generation**: Content creation, summaries, marketing copy
+2. **Conversational**: Chatbots, virtual assistants, customer support
+3. **Transformation**: Translation, paraphrasing, style conversion  
+4. **Analysis**: Sentiment analysis, entity extraction, classification
+5. **Creative**: Story generation, poetry, creative writing
+6. **Domain-specific**: Legal, medical, scientific, educational
+
+---
+
+## The Application Spectrum
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│               The LLM Application Spectrum                              │
+│                                                                         │
+│  Simple ◄────────────────────────────────────────────────────► Complex  │
+│                                                                         │
+│  ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   │
+│  │         │   │         │   │         │   │         │   │         │   │
+│  │  Basic  │   │ Chat    │   │ Context │   │ Tool-   │   │ Multi-  │   │
+│  │  Text   │   │ Apps    │   │ Aware   │   │ using   │   │ Agent   │   │
+│  │ Output  │   │         │   │ Apps    │   │ Apps    │   │ Systems │   │
+│  │         │   │         │   │         │   │         │   │         │   │
+│  └─────────┘   └─────────┘   └─────────┘   └─────────┘   └─────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Running LLMs: The Options
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│                         LLM Deployment Options                         │
+│                                                                        │
+│  ┌─────────────────────────────┐      ┌─────────────────────────────┐  │
+│  │                             │      │                             │  │
+│  │         Cloud-based         │      │        On-device            │  │
+│  │                             │      │                             │  │
+│  │  + High performance         │      │  + Privacy                  │  │
+│  │  + Latest models            │      │  + No API costs             │  │
+│  │  + Scalable                 │      │  + Works offline            │  │
+│  │  + No hardware requirements │      │  + Full control             │  │
+│  │                             │      │                             │  │
+│  │  - Costs per request        │      │  - Hardware requirements    │  │
+│  │  - Privacy concerns         │      │  - Limited model size       │  │
+│  │  - API limitations          │      │  - Lower performance        │  │
+│  │  - Internet required        │      │                             │  │
+│  │                             │      │                             │  │
+│  └─────────────────────────────┘      └─────────────────────────────┘  │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Cloud LLM Providers
+
+- **OpenAI**: GPT-3.5, GPT-4
+- **Anthropic**: Claude 3 (Opus, Sonnet, Haiku)
+- **Google**: Gemini
+- **Cohere**: Command
+- **Meta AI**: Llama 3
+- **Mistral AI**: Mistral, Mixtral
+
+---
+
+## On-device LLM Tools
+
+```
+┌───────────────────────────────────┐
+│                                   │
+│            LLM Tools              │
+│                                   │
+│  ┌─────────┐     ┌─────────────┐  │
+│  │         │     │             │  │
+│  │ Ollama  │     │  llama.cpp  │  │
+│  │         │     │             │  │
+│  └─────────┘     └─────────────┘  │
+│                                   │
+│  ┌─────────┐     ┌─────────────┐  │
+│  │         │     │             │  │
+│  │ LM Studio│     │ MLC AI     │  │
+│  │         │     │             │  │
+│  └─────────┘     └─────────────┘  │
+│                                   │
+└───────────────────────────────────┘
+```
+
+---
+
+## Spotlight on Ollama
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                         ┃
+┃                              🦙 OLLAMA                                  ┃
+┃                                                                         ┃
+┃  • Run large language models locally                                    ┃
+┃  • Simple CLI and API                                                   ┃
+┃  • 100+ models available                                                ┃
+┃  • Cross-platform (Mac, Windows, Linux)                                 ┃
+┃  • GPU acceleration                                                     ┃
+┃  • Customize and fine-tune models                                       ┃
+┃                                                                         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
+## Popular Ollama Models
+
+| Model | Size | Performance | Sweet Spot |
+|-------|------|------------|------------|
+| DeepSeek | 7B | Excellent | Great all-rounder |
+| Llama 3 | 8B | Very Good | Strong reasoning |
+| Phi-3 | 3.8B | Good | Small but capable |
+| Mistral | 7B | Very Good | Balanced perf/size |
+| DeepSeek-Coder | 6.7B | Excellent | Programming tasks |
+| Neural-Chat | 7B | Good | Conversational |
+| Gemma | 2B | Fair | Resource constrained |
+
+---
+
+## How Ollama Works
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│                        Ollama Architecture                       │
+│                                                                  │
+│   ┌──────────┐      ┌───────────┐      ┌────────────────────┐   │
+│   │          │      │           │      │                    │   │
+│   │  Ollama  │      │  Model    │      │  Inference         │   │
+│   │  CLI/API ├─────►│  Library  ├─────►│  Engine (llama.cpp)│   │
+│   │          │      │           │      │                    │   │
+│   └──────────┘      └───────────┘      └────────────────────┘   │
+│         │                                        │              │
+│         │                                        │              │
+│         ▼                                        ▼              │
+│   ┌──────────┐                           ┌────────────────────┐ │
+│   │          │                           │                    │ │
+│   │  Model   │                           │  CPU/GPU           │ │
+│   │  Registry│                           │  Acceleration      │ │
+│   │          │                           │                    │ │
+│   └──────────┘                           └────────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Installing Ollama
+
+- **macOS**: Download from [ollama.com](https://ollama.com)
+- **Windows**: Download Windows installer from [ollama.com](https://ollama.com)
+- **Linux**:
   ```bash
-  pip install langchain chromadb pypdf sentence-transformers
+  curl -fsSL https://ollama.com/install.sh | sh
   ```
 
 ---
 
-### **Slide 6: Step 1 – Load and Chunk PDFs**
-Code example:
-```python
-from langchain.document_loaders import PyPDFLoader
-loader = PyPDFLoader("paper.pdf")
-documents = loader.load()
+## Basic Ollama Usage
+
+```bash
+# Start the local server
+ollama serve
+
+# Pull (download) a model
+ollama pull deepseek-r1:1.5b
+
+# Run a model in chat mode
+ollama run deepseek-r1:1.5b
+
+# One-shot prompt
+ollama run deepseek-r1:1.5b "What is a large language model?"
+
+# List available models
+ollama list
 ```
 
 ---
 
-### **Slide 7: Step 2 – Vectorize with ChromaDB**
-```python
-from langchain.vectorstores import Chroma
-db = Chroma.from_documents(chunks, embedding)
+## Alternative: LM Studio
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                         ┃
+┃                             LM STUDIO                                   ┃
+┃                                                                         ┃
+┃  • GUI for running LLMs locally                                         ┃
+┃  • Browse and download models                                           ┃
+┃  • Chat interface built-in                                              ┃
+┃  • Local API server                                                     ┃
+┃  • Model performance comparison                                         ┃
+┃  • Chat history and settings management                                 ┃
+┃                                                                         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
 ---
 
-### **Slide 8: Step 3 – Connect Ollama**
-```python
-from langchain.llms import Ollama
-llm = Ollama(model="llama3")
+## Alternative: MLC LLM
+
+- AI framework by MLC (Machine Learning Compilation)
+- Deploy LLMs on mobile devices, browsers, PCs
+- Focus on efficiency and wide compatibility
+- Web-based UI option
+- Supports iOS/Android deployment
+
+---
+
+## Exciting Applications You Can Build
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│                 Creative Application Ideas                                  │
+│                                                                             │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐     │
+│  │             │   │             │   │             │   │             │     │
+│  │ Interactive │   │  Personal   │   │  Content    │   │  Knowledge  │     │
+│  │ Storytelling│   │  Learning   │   │  Creation   │   │  Assistant  │     │
+│  │             │   │  Coach      │   │  Studio     │   │             │     │
+│  └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘     │
+│                                                                             │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐     │
+│  │             │   │             │   │             │   │             │     │
+│  │  Language   │   │  Coding     │   │  Data       │   │  Simulation │     │
+│  │  Learning   │   │  Assistant  │   │  Analyzer   │   │  Generator  │     │
+│  │             │   │             │   │             │   │             │     │
+│  └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### **Slide 9: Step 4 – Run the QA Chain**
-```python
-from langchain.chains import RetrievalQA
-qa = RetrievalQA.from_chain_type(llm=llm, retriever=db.as_retriever())
-print(qa.run("What is self-attention?"))
+## Case Study: Personal Study Assistant
+
+```
+┌─────────────────────┐         ┌─────────────────┐
+│                     │         │                 │
+│     User Input      │         │    Knowledge    │
+│  (Study Question)   │         │     Store       │
+│                     │         │                 │
+└──────────┬──────────┘         └────────┬────────┘
+           │                             │
+           ▼                             │
+┌─────────────────────┐                  │
+│                     │                  │
+│       LLM           │◄─────────────────┘
+│                     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────┐
+│                                             │
+│              Response Types                 │
+│                                             │
+│  ┌────────────┐  ┌────────────┐  ┌────────┐ │
+│  │            │  │            │  │        │ │
+│  │ Explanation│  │  Practice  │  │  Quiz  │ │
+│  │            │  │  Problems  │  │        │ │
+│  └────────────┘  └────────────┘  └────────┘ │
+│                                             │
+└─────────────────────────────────────────────┘
 ```
 
 ---
 
-### **Slide 10: Live Demo / Activity**
-**Student Activity Instructions:**
-- Choose a paper (provided or your own)
-- Try at least 3 deep questions
-- Compare LLaMA 3.1 vs DeepSeek
+## Case Study: Story Generator
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│                  Interactive Story Generator                 │
+│                                                              │
+│  ┌────────────┐      ┌────────────┐      ┌────────────┐     │
+│  │            │      │            │      │            │     │
+│  │ Character  │      │  Setting   │      │   Plot     │     │
+│  │ Creator    │ ────►│  Builder   │ ────►│  Engine    │     │
+│  │            │      │            │      │            │     │
+│  └────────────┘      └────────────┘      └──────┬─────┘     │
+│                                                  │           │
+│                                                  ▼           │
+│                                          ┌────────────────┐  │
+│                      ┌──────────────────►│                │  │
+│                      │                   │  Story LLM     │  │
+│                      │                   │                │  │
+│                      │                   └────────┬───────┘  │
+│                      │                            │          │
+│  ┌────────────────┐  │                    ┌──────▼───────┐   │
+│  │                │  │                    │              │   │
+│  │  User Choices  │──┘                    │   Story      │   │
+│  │                │◄───────────────────── │   Output     │   │
+│  └────────────────┘                       │              │   │
+│                                           └──────────────┘   │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### **Slide 11: Analysis and Discussion**
-- Did the model find the right information?
-- Any hallucinations?
-- What would improve the assistant?
+## Case Study: Programming Assistant
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                                                           │
+│                 Programming Assistant                     │
+│                                                           │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
+│  │             │    │             │    │             │    │
+│  │ Code        │───►│ Code        │───►│ Unit Test   │    │
+│  │ Generation  │    │ Explanation │    │ Generation  │    │
+│  │             │    │             │    │             │    │
+│  └─────────────┘    └─────────────┘    └─────────────┘    │
+│         ▲                                     │           │
+│         │                                     │           │
+│         │                                     ▼           │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
+│  │             │    │             │    │             │    │
+│  │ User        │◄───│ Debugging   │◄───│ Testing     │    │
+│  │ Request     │    │ Help        │    │ Feedback    │    │
+│  │             │    │             │    │             │    │
+│  └─────────────┘    └─────────────┘    └─────────────┘    │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### **Slide 12: Bonus Challenges**
-- Add a UI (Streamlit)
-- Summarize full paper
-- Use multiple papers in one vector store
+## Challenges and Considerations
+
+- **Hallucinations**: LLMs can generate plausible but incorrect information
+- **Context Limits**: Models have finite context windows
+- **Performance**: Local models have performance/capability tradeoffs
+- **Bias**: LLMs can reflect biases in their training data
+- **Privacy**: Consider data sensitivity when using cloud APIs
+- **Hardware Requirements**: Local models need sufficient RAM/GPU
 
 ---
 
-### **Slide 13: Summary**
-- RAG boosts LLMs with accurate info
-- Ollama enables fast local experimentation
-- Great tool for academic Q&A, thesis reading, and paper review
+## Questions?
 
----
-
-Would you like a **PDF export**, a **Google Slides link**, or a **PowerPoint (.pptx)** file? I can generate one right away.
+Thank you for your attention!

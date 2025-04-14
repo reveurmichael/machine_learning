@@ -248,13 +248,13 @@
 ollama serve
 
 # Pull (download) a model
-ollama pull deepseek-r1:1.5b
+ollama pull qwen2.5:3b
 
 # Run a model in chat mode
-ollama run deepseek-r1:1.5b
+ollama run qwen2.5:3b
 
 # One-shot prompt
-ollama run deepseek-r1:1.5b "What is a large language model?"
+ollama run qwen2.5:3b "What is a large language model?"
 
 # List available models
 ollama list

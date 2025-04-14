@@ -13,6 +13,8 @@ In Part 2 of our tutorial, we'll build upon the foundation established in Part 1
 ## Prerequisites
 
 - Completed Part 1 of the tutorial
+- Functional RAG system for social profile querying
+- Familiarity with Python and basic web concepts
 
 ## Part 1: Creating an Advanced Streamlit Interface
 
@@ -78,8 +80,16 @@ def initialize_qa_system(model_name, temperature):
     
     # Create prompt template
     template = """
-    You are a helpful social network assistant that answers questions about user profiles.
-    Use the following context to answer the question. If you don't know the answer, just say you don't know.
+    You are an expert social network assistant that helps users connect with elite individuals.
+    Your role is to provide accurate information about high-profile people in exclusive social circles.
+    
+    Use ONLY the context below to answer the question. If the information is not in the context,
+    say you don't know - DO NOT make up facts or connections that aren't supported by the context.
+    Always maintain discretion and privacy when discussing elite individuals.
+    
+    When suggesting networking approaches, focus on genuine common interests and values, not exploitation.
+    Provide specific, actionable insights that would help the user establish meaningful connections.
+    If appropriate, suggest potential conversation starters or shared interests.
     
     Context: {context}
     
@@ -376,7 +386,7 @@ with tab1:
     # Sidebar for configuration
     with st.sidebar:
         st.header("Chat Settings")
-        model_name = st.selectbox("Model", ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", "llama3.1:8b", "mistral:7b"], index=0)
+        model_name = st.selectbox("Model", ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", "llama3.1:8b", "mistral:7b", "phi3:3.8b"], index=0)
         temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
         
         if st.button("Clear Chat History"):

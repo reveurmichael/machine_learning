@@ -115,7 +115,12 @@ Now, let's download the models we'll use. Modern models offer better performance
 # Download a primary model (3-8GB depending on choice)
 ollama pull llama3.1:8b      # Latest Llama model, good all-rounder
 
-# Alternative smaller models (if you have limited resources)
+# DeepSeek models - excellent performance across various sizes
+ollama pull deepseek:7b      # Powerful 7B model with strong reasoning
+ollama pull deepseek-coder:6.7b  # Specialized for coding tasks
+ollama pull deepseek-lite:1.3b   # Extremely efficient small model
+
+# Other recommended models
 ollama pull mistral:7b       # Powerful and efficient 7B model
 ollama pull phi3:3.8b        # Excellent smaller model (about 3GB)
 ollama pull gemma:2b         # Very efficient 2B model
@@ -132,8 +137,11 @@ This will take several minutes depending on your internet connection and which m
 | Model | Size | RAM Required | Performance | Best For |
 |-------|------|--------------|------------|----------|
 | llama3.1:8b | ~8GB | 16GB+ | Excellent | General purpose, complex reasoning |
+| deepseek:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
+| deepseek-coder:6.7b | ~7GB | 16GB | Excellent | Programming and technical content |
 | mistral:7b | ~7GB | 16GB | Very Good | Balanced performance and efficiency |
 | phi3:3.8b | ~4GB | 8GB+ | Good | Good performance on limited hardware |
+| deepseek-lite:1.3b | ~1.5GB | 4GB+ | Good | Best small model performance |
 | gemma:2b | ~2GB | 6GB+ | Fair | Basic tasks on limited hardware |
 | phi2:2.7b | ~3GB | 6GB+ | Fair | Basic tasks on limited hardware |
 | tinyllama:1.1b | ~1GB | 4GB+ | Basic | Very constrained environments |
@@ -146,10 +154,10 @@ Let's make sure our model works:
 
 ```bash
 # Test a simple query
-ollama run llama3.1:8b "Hello, who are you?"
+ollama run deepseek:7b "Hello, who are you?"
 ```
 
-You should get a coherent response from the model. If you chose a different model, replace `llama3.1:8b` with your model's name.
+You should get a coherent response from the model. If you chose a different model, replace `deepseek:7b` with your model's name.
 
 ### 1.7 Setting Up Project Structure
 
@@ -412,7 +420,7 @@ Now let's build the components needed for our RAG system:
 Add a function to connect to Ollama:
 
 ```python
-def create_llm(model_name="llama3.1:8b"):
+def create_llm(model_name="deepseek:7b"):
     """
     Create a connection to the local Ollama LLM.
     
@@ -572,7 +580,8 @@ def build_streamlit_app():
     
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3.1:8b", "mistral:7b", "phi3:3.8b", "gemma:2b", "phi2:2.7b", "tinyllama:1.1b"]
+        ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+         "llama3.1:8b", "mistral:7b", "phi3:3.8b", "gemma:2b"]
     )
     
     # Initialize or load the system
@@ -757,10 +766,8 @@ Let's review what we've built:
 
 In Part 2 of this tutorial, we'll explore:
 1. More advanced RAG techniques
-2. Building a more sophisticated Streamlit interface
-3. Creating interactive visualizations with Streamlit
-4. Adding a Gradio interface as an alternative
-5. Enhancing the system with conversational capabilities
+2. Building more sophisticated Streamlit and Gradio interfaces
+3. Adding conversational capabilities to our assistant
 
 ---
 
@@ -781,12 +788,12 @@ In Part 2 of this tutorial, we'll explore:
 
 3. **Memory issues**: If you encounter memory errors, try:
    - Reducing the chunk size (e.g., 500 instead of 1000)
-   - Using a smaller model (e.g., tinyllama:1.1b)
+   - Using a smaller model (e.g., deepseek-lite:1.3b)
    - Closing other applications to free up memory
 
 4. **Slow responses**: This is normal for local LLMs. For faster responses:
    - Use a more powerful computer if available
-   - Try a smaller model like phi3:3.8b which balances quality and speed
+   - Try a smaller model like deepseek-lite:1.3b which balances quality and speed
    - Be patient - the first response is usually slower as the model loads
 
 ### FAQs
@@ -810,9 +817,9 @@ In Part 2 of this tutorial, we'll explore:
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
 
 6. **Which model should I use for my computer?**
-   - High-end systems (16GB+ RAM): llama3.1:8b or mistral:7b
-   - Mid-range systems (8GB RAM): phi3:3.8b
-   - Low-end systems (4GB RAM): phi2:2.7b or tinyllama:1.1b
+   - High-end systems (16GB+ RAM): deepseek:7b, llama3.1:8b, or mistral:7b
+   - Mid-range systems (8GB RAM): deepseek-coder:6.7b or phi3:3.8b
+   - Low-end systems (4GB RAM): deepseek-lite:1.3b or gemma:2b
 
 ---
 
@@ -825,8 +832,7 @@ Congratulations! You've built a basic RAG system that can answer questions about
 3. How to implement a basic RAG system
 4. How to build a simple Streamlit interface
 
-In Part 2, we'll explore more advanced features and build a more sophisticated application with enhanced functionality and better user interfaces using both Streamlit and Gradio.
-
+In Part 2, we'll explore more advanced features and build more sophisticated application interfaces with Streamlit and Gradio.
 
 ## Resources
 - [Streamlit Documentation](https://docs.streamlit.io/)

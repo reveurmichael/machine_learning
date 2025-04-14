@@ -13,7 +13,6 @@ In Part 2 of our tutorial, we'll build upon the foundation established in Part 1
 ## Prerequisites
 
 - Completed Part 1 of the tutorial
-- Functional RAG system for social profile querying
 
 ## Part 1: Creating an Advanced Streamlit Interface
 
@@ -47,7 +46,10 @@ st.subheader("Ask questions about your social network profiles")
 # Sidebar for configuration
 with st.sidebar:
     st.header("Configuration")
-    model_name = st.selectbox("Select LLM Model", ["llama2", "mistral", "phi"], index=0)
+    model_name = st.selectbox("Select LLM Model", 
+                             ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+                              "llama3.1:8b", "mistral:7b", "phi3:3.8b"], 
+                             index=0)
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
     
     st.header("About")
@@ -132,7 +134,6 @@ if prompt := st.chat_input("Ask about social profiles"):
     
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": answer})
-
 ```
 
 ## Part 2: Building a Gradio Interface
@@ -160,7 +161,7 @@ vector_db = Chroma(
 )
 
 # Initialize the LLM
-llm = Ollama(model="llama2", temperature=0.7)
+llm = Ollama(model="deepseek:7b", temperature=0.7)
 
 # Initialize memory
 memory = ConversationBufferMemory(
@@ -245,7 +246,7 @@ def initialize_qa_system():
     )
     
     # Initialize the LLM
-    llm = Ollama(model="llama2", temperature=0.7)
+    llm = Ollama(model="deepseek:7b", temperature=0.7)
     
     # Create the QA chain with memory
     qa_chain = ConversationalRetrievalChain.from_llm(
@@ -307,14 +308,12 @@ This makes the assistant more natural to interact with and enhances its ability 
 
 ## Part 5: Creating a Complete Application
 
-Let's combine everything we've learned to create a complete application with Streamlit:
+Let's combine everything we've learned to create a complete application:
 
 ```python
-# complete app.py
+# complete_app.py
 import streamlit as st
 import os
-import pandas as pd
-import matplotlib.pyplot as plt
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -359,7 +358,7 @@ with tab1:
         )
         
         # Initialize the LLM
-        llm = Ollama(model="llama2", temperature=0.7)
+        llm = Ollama(model="deepseek:7b", temperature=0.7)
         
         # Create the QA chain with memory
         qa_chain = ConversationalRetrievalChain.from_llm(
@@ -377,7 +376,7 @@ with tab1:
     # Sidebar for configuration
     with st.sidebar:
         st.header("Chat Settings")
-        model_name = st.selectbox("Model", ["llama2", "mistral"], index=0)
+        model_name = st.selectbox("Model", ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", "llama3.1:8b", "mistral:7b"], index=0)
         temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
         
         if st.button("Clear Chat History"):
@@ -452,7 +451,7 @@ To run any of these applications:
 2. Install the additional required packages:
 
 ```bash
-pip install streamlit gradio matplotlib pandas
+pip install streamlit gradio
 ```
 
 3. Start the Streamlit app:
@@ -473,10 +472,17 @@ In this tutorial, we've built interactive interfaces for our social network assi
 
 We've also implemented conversation memory to enable more natural, multi-turn interactions where the assistant can remember previous questions and answers.
 
-In the complete application, we've added visualizations and additional features to enhance the user experience.
+## Next Steps
+
+- Experiment with different memory types like `ConversationSummaryMemory`
+- Integrate advanced RAG techniques like hybrid search or self-querying
+- Deploy your application to a local server for easier access
+- Create a mobile-friendly interface
 
 ## Resources
 
 - [Streamlit Documentation](https://docs.streamlit.io/)
 - [Gradio Documentation](https://www.gradio.app/docs/)
 - [LangChain Memory Types](https://python.langchain.com/docs/modules/memory/)
+- [Ollama Model Library](https://ollama.com/library)
+- [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)

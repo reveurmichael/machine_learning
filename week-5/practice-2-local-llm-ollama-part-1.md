@@ -109,17 +109,36 @@ You should see a simple page indicating Ollama is running.
 
 ### 1.5 Downloading LLM Models
 
-Now, let's download the models we'll use:
+Now, let's download the models we'll use. Modern models offer better performance and efficiency than older ones:
 
 ```bash
-# Download the main model (about 4GB)
-ollama pull llama3.1:8b
+# Download a primary model (3-8GB depending on choice)
+ollama pull llama3.1:8b      # Latest Llama model, good all-rounder
 
-# Optional: Download an alternative model (about 4GB)
-ollama pull deepseek-r1:7b
+# Alternative smaller models (if you have limited resources)
+ollama pull mistral:7b       # Powerful and efficient 7B model
+ollama pull phi3:3.8b        # Excellent smaller model (about 3GB)
+ollama pull gemma:2b         # Very efficient 2B model
+
+# For very resource-constrained systems
+ollama pull phi2:2.7b        # Smaller but capable 2.7B model
+ollama pull tinyllama:1.1b   # Extremely small 1.1B model
 ```
 
-This will take several minutes depending on your internet connection. You'll see a progress bar as the models download.
+This will take several minutes depending on your internet connection and which model you choose. You'll see a progress bar as the models download.
+
+#### Model Selection Guide
+
+| Model | Size | RAM Required | Performance | Best For |
+|-------|------|--------------|------------|----------|
+| llama3.1:8b | ~8GB | 16GB+ | Excellent | General purpose, complex reasoning |
+| mistral:7b | ~7GB | 16GB | Very Good | Balanced performance and efficiency |
+| phi3:3.8b | ~4GB | 8GB+ | Good | Good performance on limited hardware |
+| gemma:2b | ~2GB | 6GB+ | Fair | Basic tasks on limited hardware |
+| phi2:2.7b | ~3GB | 6GB+ | Fair | Basic tasks on limited hardware |
+| tinyllama:1.1b | ~1GB | 4GB+ | Basic | Very constrained environments |
+
+Choose the model that best fits your hardware capabilities. For this tutorial, any of these models will work, but larger models generally provide better responses.
 
 ### 1.6 Testing the Model
 
@@ -130,13 +149,13 @@ Let's make sure our model works:
 ollama run llama3.1:8b "Hello, who are you?"
 ```
 
-You should get a coherent response from the model.
+You should get a coherent response from the model. If you chose a different model, replace `llama3.1:8b` with your model's name.
 
 ### 1.7 Setting Up Project Structure
 
 Let's create the directory structure for our project:
 
-  ```bash
+```bash
 # Create project directories
 mkdir -p social-network-assistant/{profiles,db,outputs}
 ```
@@ -150,7 +169,7 @@ This creates:
 
 Let's copy the sample social network data:
 
-  ```bash
+```bash
 # Copy the student database file to your profiles directory
 cp week-5/student_database.md social-network-assistant/profiles/
 ```
@@ -185,21 +204,30 @@ This diagram illustrates the RAG process:
 └───────────┘     └───────────┘     └───────────┘     └───────────┘
 ```
 
+RAG overcomes two key limitations of plain LLMs:
+1. **Knowledge Cutoff**: LLMs only know information they were trained on (often outdated)
+2. **Hallucination**: LLMs sometimes generate plausible-sounding but incorrect information
+
+By retrieving real data from your profiles database, RAG ensures responses are factually accurate and up-to-date.
+
 ### 2.2 Why Use Local LLMs?
 
 Using local LLMs like those provided by Ollama has several advantages:
 
-- **Privacy**: Data never leaves your machine
+- **Privacy**: Data never leaves your machine, critical for confidential profile information
 - **No API costs**: Run as many queries as you want for free
 - **Customization**: Full control over the model and parameters
 - **No internet required**: Works offline
+- **Lower latency**: Responses are generated without network delay
+
+The main trade-off is that local models typically have lower capabilities than the largest cloud-based models, but recent advancements have significantly closed this gap.
 
 ### 2.3 RAG System Components
 
 Our RAG system will have these key components:
 
 1. **Document Processing**: Convert social profiles into chunks that fit within the context window
-2. **Embedding**: Transform text chunks into vector representations
+2. **Embedding**: Transform text chunks into vector representations (numerical encodings capturing semantic meaning)
 3. **Vector Storage**: Organize these embeddings for efficient similarity search
 4. **Retrieval**: Find chunks most similar to a query using vector similarity
 5. **Context Augmentation**: Add retrieved text to the prompt
@@ -267,7 +295,7 @@ def load_profiles(file_path):
 Add a function to split documents into smaller chunks:
 
 ```python
-def chunk_documents(documents, chunk_size=1000, chunk_overlap=100):
+def chunk_documents(documents, chunk_size=1000, chunk_overlap=200):
     """
     Split profile data into manageable chunks with overlap to maintain context.
     
@@ -292,6 +320,8 @@ def chunk_documents(documents, chunk_size=1000, chunk_overlap=100):
     return chunks
 ```
 
+The `chunk_overlap` parameter is important - it ensures that context isn't lost between chunks. By including some overlap, we maintain coherence when information spans chunk boundaries.
+
 ### 3.4 Creating Embeddings
 
 Add a function to create embeddings from text:
@@ -306,12 +336,14 @@ def create_embeddings():
     """
     # Initialize the embedding model - using a smaller model for efficient local processing
     embeddings = HuggingFaceEmbeddings(
-        model_name="all-MiniLM-L6-v2",  # A lightweight but effective embedding model
+        model_name="sentence-transformers/all-MiniLM-L6-v2",  # A lightweight but effective embedding model
         model_kwargs={"device": "cpu"}   # Use CPU for compatibility
     )
     print("Embedding model created")
     return embeddings
 ```
+
+Embeddings transform text into numerical vectors where semantically similar texts are close to each other in the vector space. This allows us to find related content through vector similarity.
 
 ### 3.5 Creating a Vector Database
 
@@ -344,6 +376,8 @@ def create_vectorstore(chunks, embeddings, persist_directory):
     print(f"Vector database created and saved to {persist_directory}")
     return vectordb
 ```
+
+ChromaDB is an efficient vector database that allows for quick similarity searches. By persisting it to disk, we can reuse it without reprocessing the documents each time.
 
 ### 3.6 Processing Documents Pipeline
 
@@ -401,6 +435,11 @@ def create_llm(model_name="llama3.1:8b"):
     return llm
 ```
 
+The parameters are important to understand:
+- `temperature`: Controls randomness (lower = more deterministic, higher = more creative)
+- `num_ctx`: Maximum context size in tokens (affects how much text can be processed)
+- `repeat_penalty`: Discourages repetitive text generation
+
 ### 4.2 Creating a Prompt Template
 
 Add a function to create a prompt template:
@@ -443,6 +482,12 @@ def create_qa_prompt():
     return prompt
 ```
 
+The prompt template is crucial - it defines how the LLM will respond and what information it will use. Our template instructs the model to:
+1. Only use information from the provided context
+2. Admit when it doesn't know something
+3. Maintain privacy and discretion
+4. Focus on genuine connections rather than exploitation
+
 ### 4.3 Building a Question-Answering Chain
 
 Add a function to create the QA chain:
@@ -475,6 +520,8 @@ def create_qa_chain(llm, vectordb, prompt):
     print("QA chain created")
     return qa_chain
 ```
+
+The `chain_type="stuff"` parameter means we'll combine all retrieved chunks into a single prompt. This works well for most cases, but for very large documents, other chain types like "map_reduce" might be more appropriate.
 
 ### 4.4 Creating a Simple Query Function
 
@@ -525,7 +572,7 @@ def build_streamlit_app():
     
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3.1:8b", "deepseek-r1:7b"]
+        ["llama3.1:8b", "mistral:7b", "phi3:3.8b", "gemma:2b", "phi2:2.7b", "tinyllama:1.1b"]
     )
     
     # Initialize or load the system
@@ -600,7 +647,7 @@ def build_streamlit_app():
             answer = ask_question(st.session_state.qa_chain, question)
             
             # Display the answer in a nice box
-                st.markdown("### Answer")
+            st.markdown("### Answer")
             st.markdown(f"""
             <div style="background-color: #f0f7fb; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db;">
             {answer}
@@ -693,7 +740,7 @@ Let's review what we've built:
 ┌───────────────────────┐     ┌───────────────────────┐
 │                       │     │                       │
 │  Response Generation  │◀────│  Local LLM            │
-│  (Final Answer)       │     │  (Ollama llama3.1:8b) │
+│  (Final Answer)       │     │  (Ollama)             │
 │                       │     │                       │
 └───────────┬───────────┘     └───────────────────────┘
             │
@@ -734,11 +781,12 @@ In Part 2 of this tutorial, we'll explore:
 
 3. **Memory issues**: If you encounter memory errors, try:
    - Reducing the chunk size (e.g., 500 instead of 1000)
-   - Using a smaller model (e.g., deepseek-r1:7b)
+   - Using a smaller model (e.g., tinyllama:1.1b)
    - Closing other applications to free up memory
 
 4. **Slow responses**: This is normal for local LLMs. For faster responses:
    - Use a more powerful computer if available
+   - Try a smaller model like phi3:3.8b which balances quality and speed
    - Be patient - the first response is usually slower as the model loads
 
 ### FAQs
@@ -750,6 +798,7 @@ In Part 2 of this tutorial, we'll explore:
    - Adjust the temperature (lower for more factual, higher for more creative)
    - Modify the prompt template to be more specific
    - Retrieve more context chunks (increase k value)
+   - Use a larger model if your hardware supports it
 
 3. **Can I deploy this online?**
    This is designed for local use due to the Ollama dependency. For deployment, you'd need to adapt it to use API-based models.
@@ -759,6 +808,11 @@ In Part 2 of this tutorial, we'll explore:
 
 5. **Is this system storing my queries?**
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
+
+6. **Which model should I use for my computer?**
+   - High-end systems (16GB+ RAM): llama3.1:8b or mistral:7b
+   - Mid-range systems (8GB RAM): phi3:3.8b
+   - Low-end systems (4GB RAM): phi2:2.7b or tinyllama:1.1b
 
 ---
 
@@ -779,3 +833,5 @@ In Part 2, we'll explore more advanced features and build a more sophisticated a
 - [Gradio Documentation](https://www.gradio.app/docs/)
 - [LangChain Documentation](https://python.langchain.com/docs/get_started/introduction)
 - [Ollama GitHub Repository](https://github.com/ollama/ollama)
+- [Sentence Transformers Documentation](https://www.sbert.net/)
+- [ChromaDB Documentation](https://docs.trychroma.com/)

@@ -57,7 +57,7 @@ with st.sidebar:
     st.header("Configuration")
     model_name = st.selectbox(
         "Select LLM Model",
-        ["llama3.1:8b", "mistral:7b", "llama2:13b"]
+        ["llama3.1:8b", "mistral:7b"]
     )
     temperature = st.slider("Temperature", 0.0, 1.0, 0.2, 0.1)
     
@@ -374,13 +374,6 @@ In this tutorial, we've built two interactive interfaces for our local LLM resea
 Both frameworks offer unique advantages, and you can choose the one that best fits your needs or implement both for different use cases.
 
 Remember that the key to a good research assistant interface is making the complex technology accessible and useful. Focus on clear presentation of information, intuitive interactions, and helpful feedback to the user.
-
-## Next Steps
-
-- Experiment with different LLMs in Ollama
-- Add more advanced RAG techniques from LangChain
-- Implement more sophisticated conversation memory
-- Deploy your interface for others to use
 
 ## Resources
 

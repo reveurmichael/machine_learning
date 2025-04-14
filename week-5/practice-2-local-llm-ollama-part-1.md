@@ -1,4 +1,4 @@
-# Step-by-Step Tutorial: Building a Local LLM Social Network Assistant (Part 1)
+# Building a Local LLM Social Network Assistant (Part 1)
 
 ## Overview
 This practical tutorial will guide you through building a social network assistant using local LLMs with Ollama, ChromaDB, and LangChain. We'll take a step-by-step approach to set up all the necessary components and build a basic RAG (Retrieval-Augmented Generation) system that can answer questions about social profiles.
@@ -32,34 +32,22 @@ Here's the overall architecture of what we'll build:
 ```
 
 ## Prerequisites
-- Basic Python programming knowledge
-- Familiarity with terminal/command prompt
 - A computer with at least 8GB RAM (16GB recommended)
-- Python 3.10+ installed
 
 Let's get started!
 
 ---
 
-## Part 1: Environment Setup (15 minutes)
+## Part 1: Environment Setup 
 
 ### 1.1 Creating a Python Environment
 
-First, let's create a dedicated environment for our project:
+First, let's create a project directory/folder:
 
 ```bash
 # Create a project directory
 mkdir -p social-network-assistant
 cd social-network-assistant
-
-# Create a Python virtual environment
-python -m venv venv
-
-# Activate the virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
 ```
 
 ### 1.2 Installing Required Packages
@@ -170,7 +158,7 @@ cp week-5/student_database.md social-network-assistant/profiles/
 
 ---
 
-## Part 2: Understanding RAG and Local LLMs (15 minutes)
+## Part 2: Understanding RAG and Local LLMs  
 
 ### 2.1 What is RAG?
 
@@ -189,11 +177,11 @@ This diagram illustrates the RAG process:
 │  Question │     │  Analysis │     │  Search   │     │  Retrieval│
 │           │     │           │     │           │     │           │
 └───────────┘     └───────────┘     └───────────┘     └─────┬─────┘
-                                                           │
+                                                            │
 ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌─────▼─────┐
 │           │     │           │     │           │     │           │
 │  Response │◀────│  LLM      │◀────│  Prompt   │◀────│  Context  │
-│  to User  │     │  Generation│     │  Creation │     │  Assembly │
+│  to User  │     │ Generation│     │  Creation │     │  Assembly │
 │           │     │           │     │           │     │           │
 └───────────┘     └───────────┘     └───────────┘     └───────────┘
 ```
@@ -220,7 +208,7 @@ Our RAG system will have these key components:
 
 ---
 
-## Part 3: Document Processing Pipeline (20 minutes)
+## Part 3: Document Processing Pipeline 
 
 Let's build the document processing pipeline step by step:
 
@@ -382,7 +370,7 @@ def process_documents(file_path, db_directory="db"):
 
 ---
 
-## Part 4: Building a Basic RAG System (25 minutes)
+## Part 4: Building a Basic RAG System 
 
 Now let's build the components needed for our RAG system:
 
@@ -513,7 +501,7 @@ def ask_question(qa_chain, question):
 
 ---
 
-## Part 5: Creating a Simple Streamlit Interface (20 minutes)
+## Part 5: Creating a Simple Streamlit Interface
 
 Let's create a simple web interface using Streamlit:
 
@@ -651,7 +639,7 @@ This will open a browser window with your Streamlit app. You should be able to a
 
 ---
 
-## Part 6: Testing and Using the System (10 minutes)
+## Part 6: Testing and Using the System
 
 ### 6.1 Example Questions to Try
 
@@ -786,4 +774,9 @@ Congratulations! You've built a basic RAG system that can answer questions about
 
 In Part 2, we'll explore more advanced features and build a more sophisticated application with enhanced functionality and better user interfaces using both Streamlit and Gradio.
 
-Stay tuned for Part 2 where we'll take this system to the next level!
+
+## Resources
+- [Streamlit Documentation](https://docs.streamlit.io/)
+- [Gradio Documentation](https://www.gradio.app/docs/)
+- [LangChain Documentation](https://python.langchain.com/docs/get_started/introduction)
+- [Ollama GitHub Repository](https://github.com/ollama/ollama)

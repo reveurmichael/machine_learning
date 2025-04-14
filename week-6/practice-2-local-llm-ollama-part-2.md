@@ -58,7 +58,6 @@ chromadb>=0.4.13
 sentence-transformers>=2.2.2
 streamlit>=1.27.0
 gradio>=3.50.2
-pypdf>=3.15.1
 ollama>=0.1.5
 pandas>=2.0.0
 matplotlib>=3.7.0
@@ -881,7 +880,7 @@ Your role is to provide accurate information about high-profile people in exclus
         if st.button("Apply System Message"):
             st.info("System message updated. This will take effect in the next conversation.")
  
-    with feature_tabs[2]:
+    with feature_tabs[1]:
         st.subheader("Chat History")
         if st.session_state.messages:
             # Display conversation count and option to download

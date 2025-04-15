@@ -57,6 +57,15 @@ A neural network stacks multiple layers of transformations, where each layer:
 
 The key insight: **a neural network with a single hidden layer is essentially multiple logistic regression units feeding into a final logistic regression output!**
 
+```mermaid
+graph LR
+    subgraph "Evolution of Models"
+        direction TB
+        A[Linear Regression] -->|Add non-linearity| B[Logistic Regression]
+        B -->|Add hidden layers| C[Neural Network]
+    end
+```
+
 ## Neural Network Architecture
 
 Neural networks consist of:
@@ -64,6 +73,43 @@ Neural networks consist of:
 1. **Input Layer**: Neurons that represent our input features
 2. **Hidden Layer(s)**: Intermediate layers that perform computations
 3. **Output Layer**: Produces the final prediction
+
+```mermaid
+graph LR
+    subgraph "Neural Network Architecture"
+        direction LR
+        
+        subgraph "Input Layer"
+            I1((I1))
+            I2((I2))
+            I3((I3))
+            I4((...))
+        end
+        
+        subgraph "Hidden Layer"
+            H1((H1))
+            H2((H2))
+            H3((H3))
+            H4((...))
+        end
+        
+        subgraph "Output Layer"
+            O1((O1))
+            O2((O2))
+            O3((O3))
+        end
+        
+        I1 --> H1 & H2 & H3 & H4
+        I2 --> H1 & H2 & H3 & H4
+        I3 --> H1 & H2 & H3 & H4
+        I4 --> H1 & H2 & H3 & H4
+        
+        H1 --> O1 & O2 & O3
+        H2 --> O1 & O2 & O3
+        H3 --> O1 & O2 & O3
+        H4 --> O1 & O2 & O3
+    end
+```
 
 For our MNIST digit classification problem:
 - Input layer: 784 neurons (28×28 pixels)
@@ -73,6 +119,36 @@ For our MNIST digit classification problem:
 ## Activation Functions: Adding Non-linearity
 
 One of the key components that make neural networks powerful is the use of non-linear activation functions. Without non-linearity, a neural network (regardless of depth) would only be capable of learning linear relationships.
+
+```mermaid
+graph LR
+    subgraph "Role of Activation Functions"
+        X["Input Signal"] -->|"Linear: Wx+b"| Z["Linear Output Z"]
+        Z -->|"Non-linear: g(Z)"| A["Activation A"]
+        A -->|"To next layer"| Next
+    end
+```
+
+```mermaid
+graph TD
+    subgraph "Activation Function Comparison"
+        direction LR
+        
+        subgraph "Functions"
+            SIG["Sigmoid: σ(x) = 1/(1+e^-x)"] 
+            RELU["ReLU: max(0,x)"]
+            TANH["Tanh: tanh(x)"]
+            LRELU["Leaky ReLU: max(0.1x,x)"]
+        end
+        
+        subgraph "Characteristics"
+            SIG -.- SIG_C["• Output range: [0,1] <br/> • Causes vanishing gradient <br/> • Good for output layer (binary)"]
+            RELU -.- RELU_C["• Output range: [0,∞) <br/> • Solves vanishing gradient <br/> • Causes dying neurons <br/> • Most popular for hidden layers"]
+            TANH -.- TANH_C["• Output range: [-1,1] <br/> • Zero-centered <br/> • Still has vanishing gradient"]
+            LRELU -.- LRELU_C["• Output range: (-∞,∞) <br/> • Prevents dying neurons <br/> • Small negative slope"]
+        end
+    end
+```
 
 ```python
 def plot_activation_functions():
@@ -209,6 +285,18 @@ The main drawback is the "dying ReLU" problem: if a neuron's activation becomes 
 
 Forward propagation is how a neural network makes predictions by passing data through its layers.
 
+```mermaid
+graph LR
+    subgraph "Forward Propagation"
+        direction LR
+        X["Input X"] -->|"W1, b1"| Z1["Z1 = W1·X + b1"]
+        Z1 -->|"ReLU"| A1["A1 = ReLU(Z1)"]
+        A1 -->|"W2, b2"| Z2["Z2 = W2·A1 + b2"]
+        Z2 -->|"Softmax"| A2["A2 = Softmax(Z2)"]
+        A2 --> Y["Output Y"]
+    end
+```
+
 ### Layer by Layer Computation
 
 1. **Linear Transformation**: 
@@ -294,6 +382,16 @@ def demonstrate_matrix_operations():
 
 Let's start by loading the MNIST dataset from the CSV files:
 
+```mermaid
+flowchart TD
+    subgraph "MNIST Data Preprocessing"
+        A[Load CSV Files] --> B[Split into Features and Labels]
+        B --> C[Normalize Pixel Values 0-255 to 0-1]
+        C --> D[Split Training into Train/Test/Validation]
+        D --> E[Ready for Training]
+    end
+```
+
 ```python
 def load_mnist_from_csv(train_csv_path, test_csv_path, val_split=0.1):
     """
@@ -374,6 +472,30 @@ Now let's implement the core building blocks of our neural network.
 ### The Base Layer Class
 
 We'll start with a base `Layer` class that defines the interface for all layer types:
+
+```mermaid
+classDiagram
+    class Layer {
+        +forward(input)
+        +backward(input, grad_output)
+    }
+    
+    class Dense {
+        +weights
+        +biases
+        +learning_rate
+        +forward(input)
+        +backward(input, grad_output)
+    }
+    
+    class ReLU {
+        +forward(input)
+        +backward(input, grad_output)
+    }
+    
+    Layer <|-- Dense
+    Layer <|-- ReLU
+```
 
 ```python
 class Layer:
@@ -632,6 +754,50 @@ def softmax_crossentropy_with_logits(logits, labels):
 
 Now let's implement functions to perform forward and backward passes through the entire network:
 
+```mermaid
+flowchart TB
+    subgraph "Backpropagation and SGD"
+        direction TB
+        A["Forward Pass"] -->|"Calculate Predictions"| B["Compute Loss"]
+        B -->|"Calculate Gradients"| C["Backpropagate Error"]
+        C -->|"Compute Weight Gradients"| D["Update Weights with SGD"]
+        D --> E["Repeat with Next Batch"]
+    end
+```
+
+```mermaid
+graph TD
+    subgraph "Detailed Backpropagation"
+        direction TB
+        
+        subgraph "Forward Pass"
+            X["Input X"] -->|"W1, b1"| Z1["Z1 = W1·X + b1"]
+            Z1 -->|"ReLU"| A1["A1 = ReLU(Z1)"]
+            A1 -->|"W2, b2"| Z2["Z2 = W2·A1 + b2"]
+            Z2 -->|"Softmax"| A2["A2 = Softmax(Z2)"]
+            A2 --> L["Loss"]
+        end
+        
+        subgraph "Backward Pass"
+            L -->|"dL/dA2"| dA2["Gradient of Loss w.r.t A2"]
+            dA2 -->|"dA2/dZ2"| dZ2["Gradient of A2 w.r.t Z2"]
+            dZ2 -->|"dZ2/dW2"| dW2["Gradient of Z2 w.r.t W2"]
+            dZ2 -->|"dZ2/db2"| db2["Gradient of Z2 w.r.t b2"]
+            dZ2 -->|"dZ2/dA1"| dA1["Gradient of Z2 w.r.t A1"]
+            dA1 -->|"dA1/dZ1"| dZ1["Gradient of A1 w.r.t Z1"]
+            dZ1 -->|"dZ1/dW1"| dW1["Gradient of Z1 w.r.t W1"]
+            dZ1 -->|"dZ1/db1"| db1["Gradient of Z1 w.r.t b1"]
+        end
+        
+        subgraph "Parameter Updates"
+            dW2 -->|"W2 = W2 - α·dW2"| W2U["Update W2"]
+            db2 -->|"b2 = b2 - α·db2"| b2U["Update b2"]
+            dW1 -->|"W1 = W1 - α·dW1"| W1U["Update W1"]
+            db1 -->|"b1 = b1 - α·db1"| b1U["Update b1"]
+        end
+    end
+```
+
 ```python
 def forward(network, X):
     """
@@ -685,11 +851,41 @@ def train(network, X, y):
 
 You may notice that our implementation uses mini-batches in the training function rather than the entire dataset at once. This approach is called **Stochastic Gradient Descent (SGD)**, specifically mini-batch SGD.
 
+```mermaid
+graph TD
+    subgraph "SGD Process"
+        direction TB
+        A[Training Data] --> B[Split into Mini-Batches]
+        B --> C[Process One Mini-Batch]
+        C --> D[Update Weights]
+        D --> E{More Batches?}
+        E -->|Yes| C
+        E -->|No| F[End of Epoch]
+        F --> G{More Epochs?}
+        G -->|Yes| H[Shuffle Data]
+        H --> B
+        G -->|No| I[Trained Model]
+    end
+```
+
 ### Why We're Using SGD
 
 SGD is not just a shortcut to make training faster - it's actually the standard approach in modern deep learning for several important reasons:
 
 1. **Better generalization**: Using small batches introduces noise in the gradient, which can help the model escape local minima and find better global solutions.
+
+```mermaid
+graph LR
+    subgraph "Full Batch Gradient Descent"
+        FBG[Process All Examples] --> FBU[Single Weight Update]
+    end
+    subgraph "Mini-Batch SGD"
+        SGD1[Process Batch 1] --> SGD1U[Update Weights]
+        SGD1U --> SGD2[Process Batch 2] 
+        SGD2 --> SGD2U[Update Weights]
+        SGD2U --> SGD3[...]
+    end
+```
 
 2. **Computational efficiency**: Training on mini-batches requires significantly less memory than using the entire dataset at once.
 
@@ -699,9 +895,40 @@ SGD is not just a shortcut to make training faster - it's actually the standard 
 
 In our implementation, students shouldn't worry too much about the details - just understand that backpropagation is a method for calculating gradients, and SGD is a way to use those gradients to iteratively update weights. The core idea is that we're using small batches of data to gradually tune our network's weights toward better performance.
 
+```mermaid
+flowchart TB
+    subgraph "Backpropagation and SGD"
+        direction TB
+        A["Forward Pass"] -->|"Calculate Predictions"| B["Compute Loss"]
+        B -->|"Calculate Gradients"| C["Backpropagate Error"]
+        C -->|"Compute Weight Gradients"| D["Update Weights with SGD"]
+        D --> E["Repeat with Next Batch"]
+    end
+```
+
 ## Training a Simple Neural Network on MNIST
 
 Now let's put everything together to train a simple neural network on MNIST:
+
+```mermaid
+graph LR
+    subgraph "Our MNIST Neural Network"
+        direction LR
+        
+        X["Input<br>784 neurons"] -->|"Dense"| H1["Hidden Layer 1<br>64 neurons"]
+        H1 -->|"ReLU"| H1A["ReLU Activation"]
+        H1A -->|"Dense"| H2["Hidden Layer 2<br>32 neurons"]
+        H2 -->|"ReLU"| H2A["ReLU Activation"]
+        H2A -->|"Dense"| O["Output Layer<br>10 neurons<br>for digits 0-9"]
+        
+        style X fill:#f9f,stroke:#333,stroke-width:2px
+        style H1 fill:#bbf,stroke:#333,stroke-width:1px
+        style H1A fill:#dfd,stroke:#333,stroke-width:1px
+        style H2 fill:#bbf,stroke:#333,stroke-width:1px
+        style H2A fill:#dfd,stroke:#333,stroke-width:1px
+        style O fill:#fdd,stroke:#333,stroke-width:2px
+    end
+```
 
 ```python
 def train_mnist_network(X_train, y_train, X_val, y_val, num_epochs=5, batch_size=32, subset_size=10000):
@@ -809,6 +1036,22 @@ def train_mnist_network(X_train, y_train, X_val, y_val, num_epochs=5, batch_size
 
 Let's visualize some predictions to better understand our model:
 
+```mermaid
+graph TD
+    subgraph "Model Evaluation Process"
+        A[Trained Network] --> B[Forward Pass on Test Data]
+        B --> C[Get Predictions]
+        C --> D[Calculate Metrics]
+        C --> E[Visualize Results]
+        
+        D --> D1[Accuracy]
+        D --> D2[Confusion Matrix]
+        
+        E --> E1[Sample Images]
+        E --> E2[Confidence Scores]
+    end
+```
+
 ```python
 def visualize_predictions(network, X, y, num_samples=10):
     """Visualize model predictions on sample images"""
@@ -852,6 +1095,24 @@ def visualize_predictions(network, X, y, num_samples=10):
 ## Conclusion
 
 In this first session, we've built the foundations of neural networks from scratch:
+
+```mermaid
+mindmap
+  root((Neural Networks from Scratch))
+    Linear & Logistic Regression Connection
+    Activation Functions
+      Sigmoid
+      ReLU
+      Tanh
+      Leaky ReLU
+    Core Components
+      Layer Class
+      Dense Layer
+      Activation Layer
+    Forward & Backward Propagation
+    SGD Training
+    MNIST Classification
+```
 
 1. We connected neural networks to our previous knowledge of linear and logistic regression
 2. We visualized and implemented activation functions

@@ -875,8 +875,8 @@ SGD is not just a shortcut to make training faster - it's actually the standard 
 1. **Better generalization**: Using small batches introduces noise in the gradient, which can help the model escape local minima and find better global solutions.
 
 ```mermaid
-graph LR
-    subgraph "Full Batch Gradient Descent"
+graph TD
+    subgraph "Full Batch GD"
         FBG[Process All Examples] --> FBU[Single Weight Update]
     end
     subgraph "Mini-Batch SGD"
@@ -895,17 +895,6 @@ graph LR
 
 In our implementation, students shouldn't worry too much about the details - just understand that backpropagation is a method for calculating gradients, and SGD is a way to use those gradients to iteratively update weights. The core idea is that we're using small batches of data to gradually tune our network's weights toward better performance.
 
-```mermaid
-flowchart TB
-    subgraph "Backpropagation and SGD"
-        direction TB
-        A["Forward Pass"] -->|"Calculate Predictions"| B["Compute Loss"]
-        B -->|"Calculate Gradients"| C["Backpropagate Error"]
-        C -->|"Compute Weight Gradients"| D["Update Weights with SGD"]
-        D --> E["Repeat with Next Batch"]
-    end
-```
-
 ## Training a Simple Neural Network on MNIST
 
 Now let's put everything together to train a simple neural network on MNIST:
@@ -913,8 +902,6 @@ Now let's put everything together to train a simple neural network on MNIST:
 ```mermaid
 graph LR
     subgraph "Our MNIST Neural Network"
-        direction LR
-        
         X["Input<br>784 neurons"] -->|"Dense"| H1["Hidden Layer 1<br>64 neurons"]
         H1 -->|"ReLU"| H1A["ReLU Activation"]
         H1A -->|"Dense"| H2["Hidden Layer 2<br>32 neurons"]

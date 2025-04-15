@@ -533,6 +533,9 @@ class Dense(Layer):
         grad_input = np.dot(grad_output, self.weights.T)
         
         # Update parameters using gradient descent
+        # This is the SGD update step: weights = weights - learning_rate * gradient
+        # In more advanced implementations, this could be replaced with momentum,
+        # RMSprop, Adam, or other optimizers, but the basic SGD is simple and effective
         self.weights = self.weights - self.learning_rate * grad_weights
         self.biases = self.biases - self.learning_rate * grad_biases
         
@@ -678,6 +681,24 @@ def train(network, X, y):
     return loss
 ```
 
+## Using Stochastic Gradient Descent (SGD)
+
+You may notice that our implementation uses mini-batches in the training function rather than the entire dataset at once. This approach is called **Stochastic Gradient Descent (SGD)**, specifically mini-batch SGD.
+
+### Why We're Using SGD
+
+SGD is not just a shortcut to make training faster - it's actually the standard approach in modern deep learning for several important reasons:
+
+1. **Better generalization**: Using small batches introduces noise in the gradient, which can help the model escape local minima and find better global solutions.
+
+2. **Computational efficiency**: Training on mini-batches requires significantly less memory than using the entire dataset at once.
+
+3. **Faster convergence**: SGD often leads to faster convergence in practice because weights are updated more frequently.
+
+4. **More stable learning**: The high variance in gradients from individual examples gets averaged out in mini-batches, leading to more stable learning.
+
+In our implementation, students shouldn't worry too much about the details - just understand that backpropagation is a method for calculating gradients, and SGD is a way to use those gradients to iteratively update weights. The core idea is that we're using small batches of data to gradually tune our network's weights toward better performance.
+
 ## Training a Simple Neural Network on MNIST
 
 Now let's put everything together to train a simple neural network on MNIST:
@@ -729,6 +750,10 @@ def train_mnist_network(X_train, y_train, X_val, y_val, num_epochs=5, batch_size
         num_batches = (len(X_train_subset) + batch_size - 1) // batch_size
         epoch_losses = []
         
+        # Note: This is where we implement mini-batch SGD
+        # Instead of using the entire dataset at once (batch gradient descent),
+        # we process the data in small batches and update weights after each batch.
+        # This is the standard approach in modern deep learning.
         for batch in range(num_batches):
             # Extract batch
             start_idx = batch * batch_size

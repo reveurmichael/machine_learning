@@ -696,7 +696,7 @@ visualize_predictions(better_network, X_test, y_test)
 
 ### 5. Conclusion
 
-In this session we have:
+In this second session we have:
 
 1. **Implemented Backpropagation:**  
    - Built on our first session's neural network foundation
@@ -718,10 +718,5 @@ In this session we have:
    - Analyzed performance differences between SGD and Adam
    - Demonstrated the power of adaptive learning rates
 
-5. **Set the Stage for Regularization:**  
-   - Our current models might overfit with enough training time
-   - In the next session, we'll explore techniques to improve generalization
-   - We'll implement dropout, early stopping, and L1/L2 regularization
-
-Through this hands-on implementation, we've gained deeper insight into how neural networks learn. In our next session, we'll address the critical issue of overfitting by implementing various regularization techniques to help our networks generalize better to unseen data.
+While our models can now learn effectively, they still face the challenge of overfitting. In Session 3, we'll complete our neural network implementation by adding regularization techniques including Dropout, Early Stopping, and L1/L2 regularization. These methods will help our networks generalize better to unseen data, addressing one of the most common issues in practical machine learning.
 

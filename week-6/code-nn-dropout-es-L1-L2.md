@@ -818,7 +818,7 @@ if __name__ == "__main__":
 
 ### Conclusion
 
-In this session, we have:
+In this third and final session, we have:
 
 1. **Implemented Four Regularization Techniques:**
    - Dropout layer for randomly deactivating neurons during training
@@ -842,3 +842,6 @@ In this session, we have:
    - Early stopping is a simple yet effective technique that requires no hyperparameters
 
 Regularization is a critical component of practical deep learning. These techniques help your models generalize better to unseen data by preventing them from memorizing the training set. The choice of regularization method depends on your specific problem, but often a combination of techniques yields the best results.
+
+Across our three-session series, we've built a complete neural network implementation from scratch. The resulting implementation not only performs well but gives you a deep understanding of how each component works. This knowledge will serve you well even when using higher-level libraries, as you'll understand what's happening "under the hood."
+

@@ -185,7 +185,7 @@ Test (30 min):
 - **Math**: universal approximation theorem
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **Math**: backpropagation algorithm
-- **History/Culture**: History of Neural Network/Deep Learning (Pre-2015)
+
 
 ### Week 8 (Test 4/4)
 
@@ -201,8 +201,6 @@ Test (30 min):
 - **Math**: L1 and L2 regularization
 - **Math**: Bias Variance Trade-off
 - **Math**: Learning Curve for determing overfitting and uderfitting
-- **History/Culture**: Major Research and Application breakthroughs of deep learning in recent years (After 2015)
-- **Misc**: [Machine Learning Web Application](https://gitee.com/lundechen/machine_learning_web_app): Docker, streamlit, fastapi, swagger, PyCharm debugging, etc.
 
 
 ## Exercise sessions (Thursday)

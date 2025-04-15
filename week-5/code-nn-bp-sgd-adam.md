@@ -3,59 +3,47 @@
 
 ### Introduction
 
-In this session, we will extend our previous work on neural networks from scratch by focusing on how a network learns. We start with an in-depth exploration of **Backpropagation (BP)**, which is the fundamental algorithm used to compute gradients through the network, and explain intuitively why and how it works.
+In this session, we'll build on your existing knowledge of **Backpropagation (BP)** and **Stochastic Gradient Descent (SGD)** to implement a complete neural network training pipeline for the MNIST dataset. Rather than starting from theoretical foundations, we'll focus on practical implementation and extend your skills with a new optimization method: the **Adam optimizer**.
 
-After exploring backpropagation, we will discuss **Stochastic Gradient Descent (SGD)**, an optimization method that updates the network's weights in small batches. Finally, we include an overview of the **Adam optimizer**, which is a more advanced optimization algorithm, first proposed in 2014, that builds on SGD but automates the learning rate adaptation for each parameter. Although we cover Adam less extensively, you will see how easy it is to swap it into our training loop.
+Adam, first proposed in 2014, builds on the core concepts of SGD but automates learning rate adaptation for each parameter. You'll see how our modular design makes it easy to swap between optimization strategies.
 
 We'll work with the classic **MNIST** dataset of handwritten digits and implement a neural network from scratch to classify these digits. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
-Make sure you have watched the 3b1b videos before doing the code session!
-
-Related videos:
-- Video - Chinese version: https://www.bilibili.com/video/BV1uW4y1s7Ci
-- Video - English version: https://www.bilibili.com/video/BV1nM41167j9
 
 ### Session Overview
 
 In this session we will cover:
-1. **Backpropagation in Detail**  
-   - Intuitive explanation of how gradients flow backward.
-   - A step-by-step breakdown of the chain rule in the context of neural networks.
-   - Code-level implementation of BP using our custom layer classes.
+1. **Practical Backpropagation Implementation**  
+   - Converting our theoretical understanding into working code
+   - Implementing gradient flow through custom layer classes
+   - Setting up both forward and backward passes in a clean, modular way
 
-2. **Optimization Techniques**  
-   - **Stochastic Gradient Descent (SGD):**  
-     How SGD works for mini-batch training and weight updates.
-   - **Adam Optimizer:**  
-     A brief explanation and implementation details that show how Adam extends SGD with adaptive learning rates.
+2. **Advanced Optimization Techniques**  
+   - **Extending SGD:** Building on the mini-batch SGD approach you already know
+   - **Adam Optimizer:** Implementing adaptive moment estimation for faster convergence
 
 3. **Dataset: MNIST**  
-   - How to load and preprocess MNIST from sklearn.
-   - Converting MNIST images into a format suitable for our neural network (flattened arrays and normalization).
+   - How to load and preprocess MNIST from sklearn
+   - Converting MNIST images into a format suitable for our neural network
 
-4. **Training a Neural Network on MNIST**  
-   - Integrating backpropagation with both SGD and Adam.
-   - Visualizing training dynamics, losses, and accuracy.
+4. **End-to-End Neural Network Training**  
+   - Creating a complete training pipeline with both SGD and Adam
+   - Comparing optimizer performance and visualizing results
 
-### 1. Backpropagation: Intuition and Implementation
+### 1. Backpropagation Implementation
 
-#### 1.1. Intuitive Overview
+#### 1.1. From Theory to Code
 
-Backpropagation is the process by which gradients of a loss function are computed with respect to each parameter in the network by applying the chain rule of calculus. The core idea behind BP is:
-- **Forward Pass:**  
-  Compute the output of the network by propagating the input forward through each layer.
-- **Loss Computation:**  
-  Calculate the difference between the prediction and the true target.
-- **Backward Pass:**  
-  Propagate the gradient of the loss back through the network (in reverse order) to compute each parameter's gradient.
-- **Parameter Update:**  
-  Use the computed gradients to adjust the network's parameters (weights and biases) in order to minimize the loss.
+Since you're already familiar with the theory of backpropagation, we'll focus on implementing it in code. Our approach uses a modular, object-oriented design where each layer knows how to:
+1. Perform a forward pass (compute outputs from inputs)
+2. Perform a backward pass (compute gradients with respect to inputs and parameters)
+3. Update its own parameters using gradients
 
-The chain rule enables us to express the derivative of the loss with respect to any parameter as the product of derivatives from subsequent layers.
+This design follows directly from the chain rule and allows us to build networks of arbitrary depth by stacking layers together.
 
 #### 1.2. Code Implementation of Backpropagation
 
-Below is our implementation of the forward and backward passes. The code builds on the modular layer classes from session one (i.e., Dense, ReLU, etc.) and extends them for optimization.
+Our code builds on the layer classes from session one, extending them with backward pass functionality:
 
 ```python
 import numpy as np
@@ -210,27 +198,67 @@ def train_batch(network, X, y):
     return loss
 ```
 
-### 2. Optimization Techniques
+Note how the `backward` method in each layer computes both the gradient with respect to inputs (to propagate backwards) and updates the layer's parameters. This encapsulates the core of backpropagation in a clean, modular design.
 
-Optimization algorithms determine how the network's parameters are updated based on the computed gradients. We describe and implement two optimizers: SGD and Adam.
+### 2. Optimization in Practice
 
-#### 2.1. Stochastic Gradient Descent (SGD)
+#### 2.1. Mini-Batch SGD: The Foundation
 
-Traditional gradient descent computes the gradient of the loss function using the entire dataset, which can be computationally expensive and slow, especially for large datasets. In contrast, **Stochastic Gradient Descent (SGD)** updates the model parameters using only a small random subset (mini-batch) of the data at each step. 
+From our previous session, you already know that Stochastic Gradient Descent (SGD) is a core optimization strategy for neural networks. The key insight of SGD is that we don't need to compute gradients over the entire dataset - we can use small random batches instead.
 
-**Benefits of SGD:**
-- **Faster Updates:** By using mini-batches, SGD can update the model parameters more frequently, leading to faster convergence.
-- **Noise Helps Escape Local Minima:** The inherent noise in the updates (due to using only a subset of data) can help the model escape local minima and explore the loss landscape more effectively.
-- **Better Generalization:** The variability introduced by mini-batch updates can lead to better generalization on unseen data.
+Our implementation is built around this mini-batch approach:
 
-The update rule for SGD is:
+```python
+for batch in tqdm(range(num_batches), desc=f"Epoch {epoch+1}/{num_epochs}"):
+    start = batch * batch_size
+    end = min(start + batch_size, num_samples)
+    X_batch = X_train_shuffled[start:end]
+    y_batch = y_train_shuffled[start:end]
+    
+    loss = train_batch(network, X_batch, y_batch)
+```
 
-$$\theta = \theta - \alpha \frac{\partial L}{\partial \theta}$$
+This mini-batch processing is what makes our approach truly SGD - we're not using the whole dataset for each update, but rather small random subsets. This approach offers critical benefits:
 
-where:  
-- \(\theta\) represents a weight or bias,
-- \(\alpha\) is the learning rate, and
-- \(\frac{\partial L}{\partial \theta}\) is the gradient for that parameter.
+- **Memory efficiency:** We only need to store a small batch in memory
+- **Computational speedup:** More frequent parameter updates lead to faster convergence
+- **Better generalization:** The noise from batch sampling helps escape local minima
+
+The basic parameter update rule in SGD is straightforward:
+
+$$\theta = \theta - \alpha \nabla_\theta L$$
+
+Where:
+- θ is a parameter (weight or bias)
+- α is the learning rate
+- ∇θL is the gradient of the loss with respect to the parameter
+
+In our code, this is implemented directly in the `Dense` layer's `backward` method:
+
+```python
+# Basic SGD update
+self.weights -= self.learning_rate * grad_weights
+self.biases -= self.learning_rate * grad_biases
+```
+
+We also implement this as a standalone optimizer class for cleaner organization:
+
+```python
+# ---------------------------
+# Optimizer: SGD and Adam Classes
+# ---------------------------
+class SGD:
+    """
+    Stochastic Gradient Descent optimizer.
+    """
+    def __init__(self, learning_rate=0.1):
+        self.learning_rate = learning_rate
+
+    def update(self, weights, biases, grad_weights, grad_biases):
+        weights_updated = weights - self.learning_rate * grad_weights
+        biases_updated = biases - self.learning_rate * grad_biases
+        return weights_updated, biases_updated
+```
 
 #### 2.2. Adam Optimizer
 
@@ -259,21 +287,6 @@ The update rules for Adam are:
 Below is an implementation of a simple Adam optimizer class that can be attached to our Dense layers.
 
 ```python
-# ---------------------------
-# Optimizer: SGD and Adam Classes
-# ---------------------------
-class SGD:
-    """
-    Stochastic Gradient Descent optimizer.
-    """
-    def __init__(self, learning_rate=0.1):
-        self.learning_rate = learning_rate
-
-    def update(self, weights, biases, grad_weights, grad_biases):
-        weights_updated = weights - self.learning_rate * grad_weights
-        biases_updated = biases - self.learning_rate * grad_biases
-        return weights_updated, biases_updated
-
 class Adam:
     """
     Adam optimizer implementation.
@@ -327,7 +340,6 @@ class Adam:
 
 > **Key Point:**  
 > Both SGD and Adam share the same interface – an `update` method that accepts current parameters and gradients, and returns updated values. This design makes it easy to swap optimizers in our training loop.
-
 
 ### 3. MNIST Dataset Preparation
 

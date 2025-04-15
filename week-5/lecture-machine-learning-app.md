@@ -40,19 +40,6 @@ Before implementation, consider these important questions:
     - **TensorFlow models** can be converted for web applications using [TensorFlow.js](https://www.tensorflow.org/js/)
     - **PyTorch models** can be exported to [ONNX format](https://onnx.ai/) (Open Neural Network Exchange) for use in JavaScript web apps with [Onnx Runtime](https://www.onnxruntime.ai/)
 
-```mermaid
-flowchart TD
-    A[Model Selection] --> B{Platform?}
-    B -->|Web App| C[Flask/Django or JS Framework]
-    B -->|Mobile App| D[TensorFlow Lite]
-    B -->|IoT Device| E[TFLite/Edge ML]
-    C --> F{Training Framework?}
-    F -->|TensorFlow| G[TensorFlow.js]
-    F -->|PyTorch| H[ONNX Format]
-    F -->|Scikit-learn| I[Pickle Serialization]
-    style A fill:#f5b7b1,stroke:#333,stroke-width:2px
-    style F fill:#fadbd8,stroke:#333,stroke-width:2px
-```
 
 It's also possible to build a Flask application that can train the model directly in a web browser using TensorFlow.js in a JavaScript environment.
 

@@ -3,12 +3,9 @@
 
 ### Introduction
 
-In this session, we'll build on your existing knowledge of **Backpropagation (BP)** and **Stochastic Gradient Descent (SGD)** to implement a complete neural network training pipeline for the MNIST dataset. Rather than starting from theoretical foundations, we'll focus on practical implementation and extend your skills with a new optimization method: the **Adam optimizer**.
+In this session, we'll build on our first session's neural network foundations and focus on the learning process. While Session 1 covered the architecture and forward propagation, now we'll implement **Backpropagation (BP)**, the fundamental algorithm for computing gradients, and explore optimization methods starting with **Stochastic Gradient Descent (SGD)** and extending to the adaptive **Adam optimizer**.
 
-Adam, first proposed in 2014, builds on the core concepts of SGD but automates learning rate adaptation for each parameter. You'll see how our modular design makes it easy to swap between optimization strategies.
-
-We'll work with the classic **MNIST** dataset of handwritten digits and implement a neural network from scratch to classify these digits. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
-
+We'll work with the classic **MNIST** dataset of handwritten digits to demonstrate these concepts in practice. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
 ### Session Overview
 
@@ -19,7 +16,7 @@ In this session we will cover:
    - Setting up both forward and backward passes in a clean, modular way
 
 2. **Advanced Optimization Techniques**  
-   - **Extending SGD:** Building on the mini-batch SGD approach you already know
+   - **Extending SGD:** Building on the mini-batch SGD approach
    - **Adam Optimizer:** Implementing adaptive moment estimation for faster convergence
 
 3. **Dataset: MNIST**  
@@ -34,7 +31,7 @@ In this session we will cover:
 
 #### 1.1. From Theory to Code
 
-Since you're already familiar with the theory of backpropagation, we'll focus on implementing it in code. Our approach uses a modular, object-oriented design where each layer knows how to:
+In our first session, we implemented forward propagation. Now we need to implement backpropagation to allow our neural network to learn. Our approach uses a modular, object-oriented design where each layer knows how to:
 1. Perform a forward pass (compute outputs from inputs)
 2. Perform a backward pass (compute gradients with respect to inputs and parameters)
 3. Update its own parameters using gradients
@@ -204,7 +201,7 @@ Note how the `backward` method in each layer computes both the gradient with res
 
 #### 2.1. Mini-Batch SGD: The Foundation
 
-From our previous session, you already know that Stochastic Gradient Descent (SGD) is a core optimization strategy for neural networks. The key insight of SGD is that we don't need to compute gradients over the entire dataset - we can use small random batches instead.
+Stochastic Gradient Descent (SGD) is a core optimization strategy for neural networks. The key insight of SGD is that we don't need to compute gradients over the entire dataset - we can use small random batches instead.
 
 Our implementation is built around this mini-batch approach:
 
@@ -218,7 +215,7 @@ for batch in tqdm(range(num_batches), desc=f"Epoch {epoch+1}/{num_epochs}"):
     loss = train_batch(network, X_batch, y_batch)
 ```
 
-This mini-batch processing is what makes our approach truly SGD - we're not using the whole dataset for each update, but rather small random subsets. This approach offers critical benefits:
+This mini-batch processing is the essence of SGD - we're not using the whole dataset for each update, but rather small random subsets. This approach offers critical benefits:
 
 - **Memory efficiency:** We only need to store a small batch in memory
 - **Computational speedup:** More frequent parameter updates lead to faster convergence
@@ -258,35 +255,7 @@ class SGD:
         weights_updated = weights - self.learning_rate * grad_weights
         biases_updated = biases - self.learning_rate * grad_biases
         return weights_updated, biases_updated
-```
 
-#### 2.2. Adam Optimizer
-
-**Adam** (Adaptive Moment Estimation) combines the advantages of two other extensions of SGD: momentum and RMSProp. It maintains two moving averages for each parameter: one for the gradients (first moment) and one for the squared gradients (second moment). 
-
-**Benefits of Adam:**
-- **Adaptive Learning Rates:** Adam adjusts the learning rate for each parameter individually based on the historical gradients, allowing for more efficient training.
-- **Faster Convergence:** By using both momentum and adaptive learning rates, Adam often converges faster than SGD, especially in complex problems.
-- **Less Tuning Required:** Adam typically requires less tuning of the learning rate compared to SGD, making it easier to use in practice.
-
-The update rules for Adam are:
-
-1. **First Moment Estimate (mean):**  
-   \(m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t\)
-
-2. **Second Moment Estimate (uncentered variance):**  
-   \(v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2\)
-
-3. **Bias-Corrected Estimates:**  
-   \(\hat{m}_t = \frac{m_t}{1 - \beta_1^t}\)  
-   \(\hat{v}_t = \frac{v_t}{1 - \beta_2^t}\)
-
-4. **Parameter Update:**  
-   \(\theta = \theta - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}\)
-
-Below is an implementation of a simple Adam optimizer class that can be attached to our Dense layers.
-
-```python
 class Adam:
     """
     Adam optimizer implementation.
@@ -338,8 +307,33 @@ class Adam:
         return weights_updated, biases_updated
 ```
 
+#### 2.2. Adam Optimizer
+
+**Adam** (Adaptive Moment Estimation) combines the advantages of two other extensions of SGD: momentum and RMSProp. It maintains two moving averages for each parameter: one for the gradients (first moment) and one for the squared gradients (second moment). 
+
+**Benefits of Adam:**
+- **Adaptive Learning Rates:** Adam adjusts the learning rate for each parameter individually based on the historical gradients, allowing for more efficient training.
+- **Faster Convergence:** By using both momentum and adaptive learning rates, Adam often converges faster than SGD, especially in complex problems.
+- **Less Tuning Required:** Adam typically requires less tuning of the learning rate compared to SGD, making it easier to use in practice.
+
+The update rules for Adam are:
+
+1. **First Moment Estimate (mean):**  
+   \(m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t\)
+
+2. **Second Moment Estimate (uncentered variance):**  
+   \(v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2\)
+
+3. **Bias-Corrected Estimates:**  
+   \(\hat{m}_t = \frac{m_t}{1 - \beta_1^t}\)  
+   \(\hat{v}_t = \frac{v_t}{1 - \beta_2^t}\)
+
+4. **Parameter Update:**  
+   \(\theta = \theta - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}\)
+
 > **Key Point:**  
 > Both SGD and Adam share the same interface – an `update` method that accepts current parameters and gradients, and returns updated values. This design makes it easy to swap optimizers in our training loop.
+
 
 ### 3. MNIST Dataset Preparation
 
@@ -704,26 +698,30 @@ visualize_predictions(better_network, X_test, y_test)
 
 In this session we have:
 
-1. **Deep Dived into Backpropagation:**  
-   - Explained the chain rule and its role in computing gradients.
-   - Illustrated how gradients are propagated from the output back through each layer using our custom forward/backward interface.
+1. **Implemented Backpropagation:**  
+   - Built on our first session's neural network foundation
+   - Created a modular design where each layer handles its own gradient computation
+   - Implemented the chain rule through our backward methods
 
 2. **Explored Optimization Methods:**  
-   - Implemented both basic SGD and a more sophisticated Adam optimizer.
-   - Demonstrated how a consistent update interface in our layer classes allows effortless switching between optimizers.
+   - Implemented basic SGD with mini-batch processing
+   - Developed the more sophisticated Adam optimizer
+   - Demonstrated how to swap optimizers in our architecture
 
-3. **Worked with the MNIST Dataset:**  
-   - Loaded MNIST from sklearn and preprocessed it for neural network training.
-   - Visualized the dataset and model predictions.
+3. **Applied Our Network to MNIST:**  
+   - Loaded and preprocessed the MNIST dataset
+   - Created a multi-layer network with ReLU activations
+   - Achieved good classification accuracy
 
-4. **Integrated it All in a Training Pipeline:**  
-   - Built a complete training loop, computed loss, updated parameters via backpropagation, and periodically evaluated accuracy.
-   - Compared the performance of SGD and Adam optimizers on the same task.
-   - Visualized training progress and model predictions.
-   
-5. **Results:**
-   - Our architecture with three hidden layers (256→128→64→10) performs well on MNIST.
-   - Adam optimizer typically achieves around 95-97% accuracy on the test set.
-   - SGD optimizer usually reaches ~90-95% accuracy but converges more slowly.
-   - With just 20 epochs of training on a subset of the data, we achieve good performance, showing the power of these optimization techniques.
+4. **Compared Optimization Approaches:**  
+   - Visualized training progress with different optimizers
+   - Analyzed performance differences between SGD and Adam
+   - Demonstrated the power of adaptive learning rates
+
+5. **Set the Stage for Regularization:**  
+   - Our current models might overfit with enough training time
+   - In the next session, we'll explore techniques to improve generalization
+   - We'll implement dropout, early stopping, and L1/L2 regularization
+
+Through this hands-on implementation, we've gained deeper insight into how neural networks learn. In our next session, we'll address the critical issue of overfitting by implementing various regularization techniques to help our networks generalize better to unseen data.
 

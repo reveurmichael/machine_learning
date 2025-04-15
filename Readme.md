@@ -92,9 +92,9 @@ Or, in a playlist:
 
 
 ### Week 5
-- Building a Machine Learning web app
-    - https://microsoft.github.io/ML-For-Beginners/#/3-Web-App/1-Web-App/README
-    - https://github.com/microsoft/ML-For-Beginners/tree/main/3-Web-App/1-Web-App
+- https://docs.streamlit.io/get-started
+- https://ollama.com/library/
+
     
 ### Week 6
 - Model selection

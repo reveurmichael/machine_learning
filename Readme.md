@@ -85,7 +85,7 @@ Either on YouTube:
 Or, on Bilibili:
 - https://www.bilibili.com/video/BV1bx411M7Zx/
 - https://www.bilibili.com/video/BV1Ux411j7ri/
-- https://www.bilibili.com/video/BV16x411V7Qg
+- https://www.bilibili.com/video/BV16x411V7Qg (Two videos on this one url)
 
 Or, in a playlist:
 - https://space.bilibili.com/88461692/lists/1528929

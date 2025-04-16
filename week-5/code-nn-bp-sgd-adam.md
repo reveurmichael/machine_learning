@@ -14,12 +14,7 @@ We'll work with the classic **MNIST** dataset of handwritten digits to demonstra
 <details>
 <summary>❓ Why is backpropagation considered fundamental to neural network training?</summary>
 
-Backpropagation is fundamental because:
-- It efficiently computes gradients of the loss function with respect to all parameters in the network
-- It enables the network to learn by understanding how each parameter affects the output error
-- It applies the chain rule of calculus to distribute error gradients through layers
-- Without backpropagation, training deep neural networks would be computationally infeasible
-- It's what allows neural networks to automatically learn hierarchical features from data
+Backpropagation efficiently calculates gradients for all parameters in a neural network by applying the chain rule backward through layers. Without it, training deep networks would be computationally infeasible, making it the key algorithm enabling neural networks to learn complex features automatically.
 </details><br>
 
 
@@ -105,23 +100,15 @@ In this session we will cover:
 <details>
 <summary>❓ Before we dive in, can you explain why we need both forward and backward passes in neural networks?</summary>
 
-We need both forward and backward passes because:
-- **Forward pass**: Computes predictions by propagating inputs through the network's layers, generating an output that can be compared to the true target
-- **Backward pass**: Computes gradients by propagating errors backward through the network, determining how each parameter should be adjusted
-- Together they form a complete cycle: the forward pass evaluates the current model's performance, while the backward pass provides information on how to improve it
-- This cycle enables the iterative optimization process that is core to neural network training
+Forward pass: Computes predictions by pushing inputs through the network.
+Backward pass: Calculates gradients to determine how to adjust parameters.
+Together, they form a cycle where the forward pass evaluates performance and the backward pass provides improvement directions.
 </details><br>
 
 <details>
 <summary>❓ What would you expect to see when comparing SGD and Adam optimizer performance?</summary>
 
-When comparing SGD and Adam optimizer performance, you might expect to see:
-- **Convergence speed**: Adam typically converges faster than SGD in early training
-- **Final performance**: SGD sometimes reaches slightly better final solutions (though this varies)
-- **Sensitivity to hyperparameters**: Adam is generally less sensitive to learning rate choice than SGD
-- **Computational cost**: Adam has slightly higher memory and computation requirements
-- **Learning stability**: Adam typically shows more stable learning curves with less fluctuation
-- **Problem-dependence**: The relative performance depends on the specific dataset and network architecture
+Adam typically converges faster initially, is less sensitive to learning rate choice, and shows more stable learning curves. SGD may reach slightly better final solutions in some cases but requires more tuning. The performance difference depends on the specific problem.
 </details><br>
 
 ### 1. Backpropagation Implementation
@@ -138,12 +125,7 @@ This design follows directly from the chain rule and allows us to build networks
 <details>
 <summary>❓ What is the chain rule and why is it essential for backpropagation?</summary>
 
-The chain rule is a fundamental concept from calculus that allows us to calculate the derivative of a composite function. In backpropagation:
-- It enables us to compute gradients through multiple layers of a neural network
-- Mathematically: if z = f(y) and y = g(x), then dz/dx = (dz/dy) × (dy/dx)
-- For neural networks with many layers, we apply this rule repeatedly to propagate gradients backward
-- This is crucial because it allows us to determine how each parameter (even in early layers) contributes to the final loss
-- Without the chain rule, we would struggle to train deep networks efficiently as we wouldn't know how to update early layer parameters
+The chain rule calculates derivatives of composite functions: if z = f(y) and y = g(x), then dz/dx = (dz/dy) × (dy/dx). In backpropagation, it allows us to compute how each parameter affects the final loss by propagating gradients backward through layers, making deep network training possible.
 </details><br>
 
 
@@ -313,44 +295,21 @@ Note how the `backward` method in each layer computes both the gradient with res
 <details>
 <summary>❓ Why do we add 1e-9 when calculating the loss with the softmax probabilities?</summary>
 
-Adding a small constant like \(1e-9\) to the softmax probabilities before taking the logarithm serves several important purposes:
-
-1. **Numerical Stability**: Logarithm functions can become undefined or return negative infinity if the input is zero. By adding a small constant, we ensure that the input to the logarithm is never zero, thus avoiding potential computational errors.
-
-2. **Preventing NaN Values**: In cases where the predicted probabilities are very close to zero, taking the logarithm can lead to NaN (Not a Number) values. The small constant helps mitigate this risk.
-
-3. **Smoothing**: This addition can also be seen as a form of smoothing, which can help in scenarios where the model is uncertain about its predictions, leading to more stable training.
-
-4. **Gradient Flow**: Ensuring that the loss function remains well-defined helps maintain proper gradient flow during backpropagation, which is crucial for effective learning.
-
-Overall, this practice is a common technique in machine learning to enhance the robustness of the training process.
+Adding 1e-9 prevents numerical instability by ensuring we never take the logarithm of zero, which would result in undefined values or negative infinity. This small constant avoids NaN errors and keeps gradient flow stable during backpropagation.
 </details><br>
 
 
 <details>
-
 <summary>❓ Why is the softmax function combined with a "stability trick" in the code?</summary>
 
-The softmax stability trick (subtracting the max value before exponentiation) is used because:
-- Direct computation of exp(x) for large values of x can cause numerical overflow
-- Softmax(x) = exp(x) / sum(exp(x)) mathematically equals exp(x-c) / sum(exp(x-c))
-- By choosing c = max(x), we ensure the largest exponent is e^0 = 1
-- This prevents potential infinity or NaN values that would break the training
-- It's a simple trick that greatly improves numerical stability with no mathematical cost
-- Without this trick, training could fail when dealing with large logit values
+The stability trick (subtracting the maximum value before exponentiation) prevents numerical overflow by ensuring the largest exponent is e^0 = 1. This mathematically equivalent transformation maintains numerical stability without changing the result, preventing potential infinity or NaN values.
 </details><br>
 
 
 <details>
 <summary>❓ Can you explain why we traverse the network in reverse order during the backward pass?</summary>
 
-We traverse the network in reverse order during the backward pass because:
-- The chain rule requires us to compute gradients from the loss backward
-- Each layer needs the gradient from its outputs to compute gradients for its inputs and parameters
-- The gradient flows backward from the output layer toward the input layer
-- This reverse order ensures each layer receives the correct gradient information from layers closer to the loss
-- It's analogous to finding the derivative of a composite function from the outside in
-- This backward flow gives backpropagation its name ("back" + "propagation" of error)
+We traverse the network in reverse order because the chain rule requires computing gradients from the loss backward. Each layer needs the gradient from its output to calculate gradients for its inputs and parameters, so information must flow backward from the output layer toward the input.
 </details><br>
 
 ### 2. Optimization in Practice
@@ -401,14 +360,7 @@ The stochastic nature of SGD helps with saddle points in two ways:
 <details>
 <summary>❓ Why do we shuffle the data before creating mini-batches?</summary>
 
-We shuffle the data before creating mini-batches because:
-- It prevents the network from learning the order of the training data
-- It reduces the risk of getting stuck in cycles or oscillations
-- It exposes the model to a wider variety of transitions between examples
-- It helps break any existing patterns in the dataset organization
-- It improves generalization by ensuring each batch has a diverse mix of examples
-- It's especially important when the dataset might have inherent ordering (e.g., sorted by class)
-- It helps prevent overfitting to specific sequences in the data
+Shuffling data prevents the network from learning the order of training examples, reduces cyclical patterns, ensures each batch contains diverse examples, and helps prevent overfitting to specific sequences or patterns in the dataset organization.
 </details><br>
 
 The basic parameter update rule in SGD is straightforward:
@@ -509,23 +461,9 @@ class Adam:
 <details>
 <summary>❓ What is the role of the beta1 and beta2 hyperparameters in Adam?</summary>
 
-The beta1 and beta2 hyperparameters in Adam control:
-
-**beta1 (typically 0.9)**:
-- Controls the exponential decay rate for the first moment estimate (momentum)
-- Determines how much to weight recent vs. historical gradients
-- Higher values (closer to 1) give more weight to past gradients, creating more momentum
-- Lower values make the optimizer respond more quickly to recent gradient changes
-- Affects how quickly the optimizer adapts to changes in the gradient direction
-
-**beta2 (typically 0.999)**:
-- Controls the exponential decay rate for the second moment estimate (squared gradients)
-- Determines how much to weight recent vs. historical squared gradients
-- Higher values create a longer-term memory of past squared gradients
-- Affects the adaptive learning rate by controlling how quickly variance estimates change
-- Influences the optimizer's sensitivity to gradient magnitudes
-
-Together, these hyperparameters balance between fast adaptation to new gradients and stability from historical information.
+Beta1 (typically 0.9) controls momentum by determining how much weight to give recent vs. historical gradients.
+Beta2 (typically 0.999) controls the adaptation rate for per-parameter learning rates by managing the decay rate of squared gradient estimates.
+Together, they balance adaptation speed and stability.
 </details><br>
 
 The update rules for Adam are:
@@ -648,14 +586,7 @@ def preprocess_mnist(X_train, y_train, X_test, y_test):
 <details>
 <summary>❓ Why do we flatten the 2D images before feeding them to our neural network?</summary>
 
-We flatten 2D images into 1D vectors because:
-- Our current Dense (fully connected) layers expect 1D input vectors
-- Each pixel becomes a separate input feature
-- This simplifies the implementation for a basic neural network
-- Spatial relationships between pixels are not explicitly preserved in this representation
-- It's a standard approach for simple feed-forward networks (though not optimal for image data)
-- More advanced architectures like CNNs would preserve the 2D structure
-- For MNIST digits, this flattening still works well because the images are small and well-centered
+We flatten 2D images to 1D vectors because dense layers expect 1D inputs. This simplifies implementation for basic feed-forward networks at the cost of losing spatial relationships. While not optimal for image data, this approach works well for small, well-centered images like MNIST digits.
 </details><br>
 
 Let's load and preprocess the data:

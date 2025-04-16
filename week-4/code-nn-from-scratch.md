@@ -163,15 +163,7 @@ One of the key components that make neural networks powerful is the use of non-l
 <details>
 <summary>❓ Why do we need non-linear activation functions in neural networks?</summary>
 
-Non-linear activation functions are essential because:
-- Without them, multiple layers would collapse mathematically into a single linear operation
-- They allow networks to learn complex, non-linear relationships in data
-- They introduce the ability to approximate any continuous function (universal approximation)
-- They enable the modeling of complex decision boundaries beyond simple hyperplanes
-- They allow the network to learn hierarchical features through composition of functions
-- Real-world problems rarely have purely linear solutions
-- They create the capacity to represent logical operations like AND, OR, XOR
-- Multiple linear transformations without non-linearities would still produce only linear functions
+Without non-linear activations, multiple layers would collapse mathematically into a single linear operation. Non-linearities enable networks to approximate any continuous function, model complex decision boundaries, and represent logical operations like XOR. They're essential for learning hierarchical features and solving real-world problems that rarely have purely linear solutions.
 </details><br>
 
 ```mermaid
@@ -327,15 +319,7 @@ plot_activation_derivatives()
 <details>
 <summary>❓ Why is the derivative of an activation function important in neural networks?</summary>
 
-The derivative of activation functions is crucial because:
-- It's used in backpropagation to calculate gradients during training
-- It determines how much a weight should be updated based on error
-- It affects the speed and stability of learning
-- A derivative that's zero in large regions (like ReLU for negative inputs) can cause "dead neurons"
-- A derivative that's consistently small (like sigmoid far from zero) causes vanishing gradients
-- It controls how error signals propagate backward through the network
-- The chain rule uses these derivatives to compute gradients through multiple layers
-- Ideal activation functions have non-zero derivatives across most of their range
+The derivative is critical for backpropagation as it determines how much weights should be updated based on errors. It affects learning speed and stability. Problematic derivatives can cause "dead neurons" (ReLU) or vanishing gradients (sigmoid). Ideal activation functions have non-zero derivatives across most of their range to maintain gradient flow.
 </details><br>
 
 ### Why ReLU is Popular
@@ -356,15 +340,7 @@ Forward propagation is how a neural network makes predictions by passing data th
 <details>
 <summary>❓ Why is matrix multiplication so fundamental to neural network computations?</summary>
 
-Matrix multiplication is fundamental because:
-- It efficiently performs multiple dot products in parallel
-- It enables batch processing of multiple examples simultaneously
-- It allows GPU acceleration for significant speed improvements
-- It represents the core linear transformation in each layer
-- It efficiently computes weighted sums for all neurons in a layer
-- It's heavily optimized in libraries like NumPy, making computations faster
-- It represents connections between all neurons in adjacent layers in one operation
-- It allows vectorized operations that avoid slow Python loops
+Matrix multiplication efficiently computes weighted sums for all neurons simultaneously, enables batch processing of multiple examples, allows GPU acceleration, and represents connections between all neurons in adjacent layers in one operation. It avoids slow Python loops through vectorized operations that are highly optimized in libraries like NumPy.
 </details><br>
 
 ```mermaid

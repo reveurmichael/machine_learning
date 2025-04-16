@@ -68,44 +68,13 @@ The model essentially "memorizes" the training data rather than learning general
 <details>
 <summary>❓ How should regularization strength be adjusted as dataset size changes?</summary>
 
-As dataset size changes, regularization strength should be adjusted according to these principles:
-
-1. **Inverse Relationship**: Generally, regularization strength should decrease as dataset size increases, and increase as dataset size decreases.
-
-2. **Small Datasets**: Smaller datasets typically require stronger regularization to prevent overfitting, as the model can more easily memorize fewer examples.
-
-3. **Large Datasets**: With very large datasets, minimal regularization may be needed as the data itself prevents overfitting, though some regularization often still helps.
-
-4. **Model Complexity Interaction**: The optimal adjustment depends on model complexity - larger models may need regularization even with large datasets.
-
-5. **Validation-Based Tuning**: Regardless of dataset size, validation performance should guide final regularization strength selection.
-
-6. **Data Quality Consideration**: High-quality, diverse data may require less regularization adjustment than would be predicted by size alone.
-
-7. **Task Difficulty Factor**: More complex learning tasks may require maintaining stronger regularization even as data size increases.
-
-8. **Transfer Learning Context**: When fine-tuning pre-trained models, regularization needs may differ from training from scratch.
-
+Regularization strength should generally decrease as dataset size increases. Small datasets need stronger regularization to prevent overfitting, while large datasets may need minimal regularization. However, model complexity, data quality, and task difficulty also influence the optimal strength. Always use validation performance to guide final regularization settings.
 </details><br>
 
 <details>
 <summary>❓ What challenges might arise when combining multiple regularization techniques together?</summary>
 
-Combining multiple regularization techniques can introduce several challenges:
-
-1. **Over-regularization**: Applying too many techniques or setting regularization strengths too high can prevent the model from learning meaningful patterns, leading to underfitting.
-
-2. **Hyperparameter Explosion**: Each technique introduces its own hyperparameters, making the combined model much harder to tune effectively.
-
-3. **Conflicting Mechanisms**: Different regularization techniques may work at cross-purposes. For example, L1 promotes sparsity while dropout randomly silences neurons, potentially counteracting each other's benefits.
-
-4. **Computational Overhead**: Multiple regularization techniques can increase computational costs and memory requirements during training.
-
-5. **Debugging Difficulty**: When performance is poor, it's harder to identify which regularization technique is causing issues.
-
-6. **Interpretation Challenges**: Combined regularization can make it harder to interpret the model's behavior and feature importance.
-
-7. **Implementation Complexity**: Correctly implementing the interaction of multiple regularization techniques requires careful software engineering and testing.
+Combining regularization techniques can lead to: over-regularization causing underfitting, explosion of hyperparameters to tune, techniques potentially counteracting each other, increased computational costs, harder debugging when performance is poor, and more complex implementation. Balance is key to avoid these issues.
 </details><br>
 
 #### 1.2. Regularization Techniques Overview
@@ -135,17 +104,7 @@ Co-adaptation of features, which dropout helps prevent, refers to:
 <details>
 <summary>❓ What makes early stopping different from other regularization techniques?</summary>
 
-Early stopping differs from other regularization techniques in several key ways:
-
-1. **Training Duration Control**: It regulates the effective capacity of the model by controlling how long training continues rather than directly constraining parameters.
-
-2. **Hyperparameter Efficiency**: Requires fewer hyperparameters to tune (typically just patience and optional threshold).
-
-3. **Computational Efficiency**: Often reduces total training time by stopping before complete convergence on training data.
-
-4. **No Explicit Mathematical Penalty**: Doesn't explicitly penalize weights in the objective function.
-
-5. **Simplicity**: Conceptually simpler to implement than some other regularization approaches.
+Early stopping differs by: controlling training duration rather than directly constraining parameters, requiring fewer hyperparameters (typically just patience), reducing total training time, not adding explicit mathematical penalties to the objective function, and being conceptually simpler to implement than many alternatives.
 </details><br>
 
 ```mermaid
@@ -167,16 +126,7 @@ sequenceDiagram
 <details>
 <summary>❓ When would L1 regularization be preferred over L2 regularization?</summary>
 
-L1 regularization would be preferred over L2 regularization in several scenarios:
-
-1. **Feature Selection**: When you want the model to automatically select the most important features and eliminate others completely.
-
-2. **Sparse Models**: When model sparsity (having many weights exactly equal to zero) is desirable for interpretability or memory efficiency.
-
-3. **High-Dimensional Data**: When working with high-dimensional data where many features are suspected to be irrelevant.
-
-4. **Highly Redundant Features**: When dealing with numerous highly redundant features where selecting a subset is beneficial.
-
+L1 regularization is preferred when: automatic feature selection is desired, model sparsity (many weights exactly zero) is important for interpretability or memory efficiency, working with high-dimensional data where many features may be irrelevant, or dealing with highly redundant features where selecting a subset is beneficial.
 </details><br>
 
 ```mermaid

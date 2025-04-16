@@ -46,6 +46,17 @@ Where:
 - $\mathbf{w}$ is the weight vector
 - $b$ is the bias term
 
+<details>
+<summary>❓ What are the limitations of linear regression for complex problems?</summary>
+
+Limitations of linear regression include:
+- **Limited expressivity**: Can only model linear relationships between inputs and outputs
+- **No boundaries**: Outputs can range from negative infinity to positive infinity
+- **Feature interaction**: Cannot capture complex interactions between features without manual engineering
+- **Decision boundaries**: Can only create linear decision boundaries
+- **Complex datasets**: Performs poorly on datasets with complex relationships
+</details>
+
 ### Logistic Regression: Adding Non-linearity
 
 In logistic regression, we introduced a non-linearity through the sigmoid function:
@@ -53,6 +64,19 @@ In logistic regression, we introduced a non-linearity through the sigmoid functi
 $$y = \sigma(\mathbf{w}^\top \mathbf{x} + b)$$
 
 Where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the sigmoid function that maps any real number to a value between 0 and 1.
+
+<details>
+<summary>❓ Why was adding the sigmoid function an important advancement over linear regression?</summary>
+
+The sigmoid function was an important advancement because:
+- It constrains outputs to the range [0,1], making them interpretable as probabilities
+- It introduces non-linearity, allowing modeling of more complex relationships
+- It enables binary classification by providing a probability estimate
+- It has a simple derivative (σ(x)*(1-σ(x))), making optimization relatively straightforward
+- It creates a smooth, differentiable transition between classes
+- It normalizes extreme values, reducing the impact of outliers
+- It provided a building block for more complex neural network architectures
+</details>
 
 ### Neural Networks: Multiple Layers of Transformations
 
@@ -78,6 +102,24 @@ Neural networks consist of:
 1. **Input Layer**: Neurons that represent our input features
 2. **Hidden Layer(s)**: Intermediate layers that perform computations
 3. **Output Layer**: Produces the final prediction
+
+<details>
+<summary>❓ What determines the number of neurons in the input and output layers?</summary>
+
+The number of neurons is determined by:
+
+**Input layer**:
+- Equal to the number of features in your data
+- For images, it's typically the number of pixels (e.g., 784 for MNIST's 28×28 images)
+- For tabular data, it's the number of input features/variables
+- One neuron per input dimension
+
+**Output layer**:
+- Determined by the prediction task
+- For binary classification: typically 1 neuron with sigmoid activation
+- For multi-class classification: one neuron per class (e.g., 10 for MNIST digits)
+- For regression problems: typically one neuron per continuous output variable
+</details>
 
 ```mermaid
 graph LR
@@ -116,14 +158,58 @@ graph LR
     end
 ```
 
+<details>
+<summary>❓ What is the significance of a "fully connected" layer in neural networks?</summary>
+
+A fully connected (dense) layer has these key characteristics:
+- Every neuron in the current layer connects to every neuron in the next layer
+- Each connection has its own weight parameter that is learned during training
+- This creates a complete bipartite graph between consecutive layers
+- It provides maximum flexibility for learning arbitrary mappings
+- The number of parameters is the product of input and output neurons (plus biases)
+- All information from one layer has the opportunity to influence all neurons in the next layer
+- These connections allow the network to learn complex patterns and interactions
+
+Fully connected layers are versatile but parameter-intensive, which is why specialized architectures like CNNs use other connection patterns for specific data types.
+</details>
+
 For our MNIST digit classification problem:
 - Input layer: 784 neurons (28×28 pixels)
 - Hidden layer(s): Customizable number of neurons
 - Output layer: 10 neurons (one for each digit 0-9)
 
+<details>
+<summary>❓ Why do neural networks have hidden layers, and what would happen without them?</summary>
+
+Hidden layers are crucial because:
+- They enable the network to learn intermediate representations of the data
+- Without hidden layers (just input→output), a neural network reduces to logistic regression
+- Hidden layers allow the network to model complex, non-linear relationships
+- Each hidden layer can transform features into more abstract representations
+- The universal approximation theorem states that a network with at least one hidden layer can approximate any continuous function
+- Multiple hidden layers allow for hierarchical feature learning (edges→shapes→objects)
+- They provide the "depth" in deep learning, allowing models to learn increasingly complex patterns
+
+Without hidden layers, neural networks would lose their representational power and be limited to linear combinations of the input features followed by a single non-linearity.
+</details>
+
 ## Activation Functions: Adding Non-linearity
 
 One of the key components that make neural networks powerful is the use of non-linear activation functions. Without non-linearity, a neural network (regardless of depth) would only be capable of learning linear relationships.
+
+<details>
+<summary>❓ Why do we need non-linear activation functions in neural networks?</summary>
+
+Non-linear activation functions are essential because:
+- Without them, multiple layers would collapse mathematically into a single linear operation
+- They allow networks to learn complex, non-linear relationships in data
+- They introduce the ability to approximate any continuous function (universal approximation)
+- They enable the modeling of complex decision boundaries beyond simple hyperplanes
+- They allow the network to learn hierarchical features through composition of functions
+- Real-world problems rarely have purely linear solutions
+- They create the capacity to represent logical operations like AND, OR, XOR
+- Multiple linear transformations without non-linearities would still produce only linear functions
+</details>
 
 ```mermaid
 graph LR
@@ -154,6 +240,26 @@ graph TD
         end
     end
 ```
+
+<details>
+<summary>❓ What is the "vanishing gradient problem" and which activation functions help address it?</summary>
+
+The vanishing gradient problem:
+- Occurs when gradients become extremely small as they propagate backward through deep networks
+- Causes early layers to learn very slowly or not at all
+- Results in long training times or failed convergence
+- Is pronounced in networks with sigmoid or tanh activations in deep networks
+- Mathematically happens because sigmoid/tanh derivatives are small for inputs far from zero
+- Compounds with each layer, as multiple small numbers multiply to create even smaller numbers
+- Makes training deep networks extremely difficult
+
+Activation functions that help address it:
+- **ReLU**: Gradient is exactly 1 for all positive inputs, preventing vanishing
+- **Leaky ReLU**: Small gradient for negative inputs prevents both vanishing and "dying ReLU" problem
+- **ELU (Exponential Linear Unit)**: Smooth negative values with non-zero gradients
+- **SELU (Scaled ELU)**: Self-normalizing properties help maintain gradient flow
+- **Swish**: Smooth version of ReLU with better performance in some cases
+</details>
 
 ```python
 def plot_activation_functions():
@@ -275,6 +381,20 @@ plot_activation_functions()
 plot_activation_derivatives()
 ```
 
+<details>
+<summary>❓ Why is the derivative of an activation function important in neural networks?</summary>
+
+The derivative of activation functions is crucial because:
+- It's used in backpropagation to calculate gradients during training
+- It determines how much a weight should be updated based on error
+- It affects the speed and stability of learning
+- A derivative that's zero in large regions (like ReLU for negative inputs) can cause "dead neurons"
+- A derivative that's consistently small (like sigmoid far from zero) causes vanishing gradients
+- It controls how error signals propagate backward through the network
+- The chain rule uses these derivatives to compute gradients through multiple layers
+- Ideal activation functions have non-zero derivatives across most of their range
+</details>
+
 ### Why ReLU is Popular
 
 ReLU (Rectified Linear Unit), first proposed in 2010 (so pretty young), has become the most popular activation function for hidden layers in neural networks for several reasons:
@@ -289,6 +409,20 @@ The main drawback is the "dying ReLU" problem: if a neuron's activation becomes 
 ## Forward Propagation: How Neural Networks Make Predictions
 
 Forward propagation is how a neural network makes predictions by passing data through its layers.
+
+<details>
+<summary>❓ Why is matrix multiplication so fundamental to neural network computations?</summary>
+
+Matrix multiplication is fundamental because:
+- It efficiently performs multiple dot products in parallel
+- It enables batch processing of multiple examples simultaneously
+- It allows GPU acceleration for significant speed improvements
+- It represents the core linear transformation in each layer
+- It efficiently computes weighted sums for all neurons in a layer
+- It's heavily optimized in libraries like NumPy, making computations faster
+- It represents connections between all neurons in adjacent layers in one operation
+- It allows vectorized operations that avoid slow Python loops
+</details>
 
 ```mermaid
 graph LR
@@ -387,6 +521,22 @@ def demonstrate_matrix_operations():
 
 Let's start by loading the MNIST dataset from the CSV files:
 
+<details>
+<summary>❓ Why do we normalize pixel values by dividing by 255.0?</summary>
+
+We normalize pixel values by dividing by 255.0 because:
+- **Scale consistency**: Brings all feature values to a similar scale (0-1)
+- **Gradient optimization**: Helps optimization algorithms converge faster
+- **Numerical stability**: Prevents numerical issues during computations
+- **Weight updates**: Makes weight updates more balanced across features
+- **Activation functions**: Many activation functions operate best with inputs in a small range
+- **Learning rates**: Allows for more consistent learning rate selection
+- **Feature importance**: Prevents features with larger numerical values from dominating
+- **Convergence speed**: Generally accelerates convergence of gradient-based methods
+
+Raw pixel values range from 0-255, which would cause the network to give disproportionate importance to pixel intensity without normalization.
+</details>
+
 ```mermaid
 flowchart TD
     subgraph "MNIST Data Preprocessing"
@@ -470,6 +620,31 @@ def visualize_mnist_samples(X, y, num_samples=5):
     plt.show()
 ```
 
+<details>
+<summary>❓ Why is it important to split data into training, validation, and test sets?</summary>
+
+Data splitting is crucial because:
+
+**Training set**:
+- Used to learn the model parameters (weights and biases)
+- The model directly sees and learns patterns from this data
+- Where backpropagation and weight updates happen
+
+**Validation set**:
+- Used to tune hyperparameters (learning rate, number of layers, etc.)
+- Helps detect overfitting during training
+- Guides model selection and early stopping decisions
+- Prevents information leakage from test set
+
+**Test set**:
+- Used only for final evaluation of model performance
+- Represents unseen data to gauge true generalization ability
+- Never used for training or hyperparameter tuning
+- Simulates real-world performance
+
+Using the same data for training and evaluation would give an overly optimistic estimate of performance, as the model could memorize the training examples rather than learning generalizable patterns.
+</details>
+
 ## Building Neural Network Components from Scratch
 
 Now let's implement the core building blocks of our neural network.
@@ -477,6 +652,24 @@ Now let's implement the core building blocks of our neural network.
 ### The Base Layer Class
 
 We'll start with a base `Layer` class that defines the interface for all layer types:
+
+<details>
+<summary>❓ Why is object-oriented programming (OOP) useful for implementing neural networks?</summary>
+
+OOP provides several advantages for neural network implementation:
+
+- **Encapsulation**: Each layer contains its own parameters and logic
+- **Abstraction**: Hides complex implementation details behind simple interfaces
+- **Polymorphism**: Different layer types can be used interchangeably in the network
+- **Inheritance**: Common functionality can be shared between layer types
+- **Modularity**: Networks can be built by stacking layer objects
+- **Code reuse**: Layer implementations can be reused across different networks
+- **Maintainability**: Changes to one layer type don't affect others
+- **Testability**: Individual layer components can be tested separately
+- **Extensibility**: New layer types can be added without changing existing code
+
+This approach mirrors how neural networks are conceptually organized, with distinct layers performing specific operations in sequence.
+</details>
 
 ```mermaid
 classDiagram
@@ -723,6 +916,22 @@ def test_dense_layer():
 ## The Loss Function
 
 For our MNIST digit classification, we'll use softmax cross-entropy loss:
+
+<details>
+<summary>❓ Why is softmax cross-entropy loss commonly used for classification tasks?</summary>
+
+Softmax cross-entropy loss is ideal for classification because:
+
+- **Probability interpretation**: Softmax converts raw scores to probabilities (values between 0-1 that sum to 1)
+- **Multi-class capability**: Naturally handles multiple classes (unlike binary cross-entropy)
+- **Maximum likelihood**: Mathematically equivalent to maximizing the likelihood of correct labels
+- **Gradient properties**: Provides clean, well-behaved gradients for optimization
+- **Numerical stability**: When implemented with the "max trick," it avoids numerical overflow/underflow
+- **Penalizes certainty**: Heavily penalizes high confidence in wrong predictions
+- **Information theory**: Minimizes the cross-entropy between predicted and true distributions
+
+These properties make it the standard loss function for classification problems in deep learning.
+</details>
 
 ```python
 def softmax_crossentropy_with_logits(logits, labels):
@@ -1027,6 +1236,31 @@ def train_mnist_network(X_train, y_train, X_val, y_val, num_epochs=5, batch_size
 ## Visualizing Model Predictions
 
 Let's visualize some predictions to better understand our model:
+
+<details>
+<summary>❓ What kinds of patterns would you expect to see in a confusion matrix for MNIST digits?</summary>
+
+In an MNIST confusion matrix, we would expect to see these patterns:
+
+1. **Strongest diagonal**: Most predictions should be correct, so the diagonal (true label = predicted label) should have the highest values
+
+2. **Common confusions**:
+   - 4 and 9: Both have similar upper structures
+   - 3 and 8: Both have similar curved segments
+   - 5 and 3: Similar shapes with curves
+   - 7 and 1: Both can be written as simple straight lines
+   - 0 and 6: Both have a large loop
+
+3. **Rare confusions**:
+   - 0 and 1: Very distinct shapes
+   - 8 and 1: Structurally very different
+   
+4. **Asymmetric mistakes**: Some digit A might be confused for digit B more often than B is confused for A
+
+5. **Consistent errors**: Some digits are inherently harder to classify than others
+
+These patterns can reveal which features the model relies on for classification and where it struggles, potentially suggesting targeted improvements to the architecture or preprocessing.
+</details>
 
 ```mermaid
 graph TD

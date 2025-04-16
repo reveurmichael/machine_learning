@@ -55,7 +55,7 @@ Limitations of linear regression include:
 - **Feature interaction**: Cannot capture complex interactions between features without manual engineering
 - **Decision boundaries**: Can only create linear decision boundaries
 - **Complex datasets**: Performs poorly on datasets with complex relationships
-</details>
+</details><br>
 
 ### Logistic Regression: Adding Non-linearity
 
@@ -76,7 +76,7 @@ The sigmoid function was an important advancement because:
 - It creates a smooth, differentiable transition between classes
 - It normalizes extreme values, reducing the impact of outliers
 - It provided a building block for more complex neural network architectures
-</details>
+</details><br>
 
 ### Neural Networks: Multiple Layers of Transformations
 
@@ -119,7 +119,7 @@ The number of neurons is determined by:
 - For binary classification: typically 1 neuron with sigmoid activation
 - For multi-class classification: one neuron per class (e.g., 10 for MNIST digits)
 - For regression problems: typically one neuron per continuous output variable
-</details>
+</details><br>
 
 ```mermaid
 graph LR
@@ -171,7 +171,7 @@ A fully connected (dense) layer has these key characteristics:
 - These connections allow the network to learn complex patterns and interactions
 
 Fully connected layers are versatile but parameter-intensive, which is why specialized architectures like CNNs use other connection patterns for specific data types.
-</details>
+</details><br>
 
 For our MNIST digit classification problem:
 - Input layer: 784 neurons (28×28 pixels)
@@ -191,7 +191,7 @@ Hidden layers are crucial because:
 - They provide the "depth" in deep learning, allowing models to learn increasingly complex patterns
 
 Without hidden layers, neural networks would lose their representational power and be limited to linear combinations of the input features followed by a single non-linearity.
-</details>
+</details><br>
 
 ## Activation Functions: Adding Non-linearity
 
@@ -209,7 +209,7 @@ Non-linear activation functions are essential because:
 - Real-world problems rarely have purely linear solutions
 - They create the capacity to represent logical operations like AND, OR, XOR
 - Multiple linear transformations without non-linearities would still produce only linear functions
-</details>
+</details><br>
 
 ```mermaid
 graph LR
@@ -259,7 +259,7 @@ Activation functions that help address it:
 - **ELU (Exponential Linear Unit)**: Smooth negative values with non-zero gradients
 - **SELU (Scaled ELU)**: Self-normalizing properties help maintain gradient flow
 - **Swish**: Smooth version of ReLU with better performance in some cases
-</details>
+</details><br>
 
 ```python
 def plot_activation_functions():
@@ -393,7 +393,7 @@ The derivative of activation functions is crucial because:
 - It controls how error signals propagate backward through the network
 - The chain rule uses these derivatives to compute gradients through multiple layers
 - Ideal activation functions have non-zero derivatives across most of their range
-</details>
+</details><br>
 
 ### Why ReLU is Popular
 
@@ -422,7 +422,7 @@ Matrix multiplication is fundamental because:
 - It's heavily optimized in libraries like NumPy, making computations faster
 - It represents connections between all neurons in adjacent layers in one operation
 - It allows vectorized operations that avoid slow Python loops
-</details>
+</details><br>
 
 ```mermaid
 graph LR
@@ -535,7 +535,7 @@ We normalize pixel values by dividing by 255.0 because:
 - **Convergence speed**: Generally accelerates convergence of gradient-based methods
 
 Raw pixel values range from 0-255, which would cause the network to give disproportionate importance to pixel intensity without normalization.
-</details>
+</details><br>
 
 ```mermaid
 flowchart TD
@@ -643,7 +643,7 @@ Data splitting is crucial because:
 - Simulates real-world performance
 
 Using the same data for training and evaluation would give an overly optimistic estimate of performance, as the model could memorize the training examples rather than learning generalizable patterns.
-</details>
+</details><br>
 
 ## Building Neural Network Components from Scratch
 
@@ -669,7 +669,7 @@ OOP provides several advantages for neural network implementation:
 - **Extensibility**: New layer types can be added without changing existing code
 
 This approach mirrors how neural networks are conceptually organized, with distinct layers performing specific operations in sequence.
-</details>
+</details><br>
 
 ```mermaid
 classDiagram
@@ -931,7 +931,7 @@ Softmax cross-entropy loss is ideal for classification because:
 - **Information theory**: Minimizes the cross-entropy between predicted and true distributions
 
 These properties make it the standard loss function for classification problems in deep learning.
-</details>
+</details><br>
 
 ```python
 def softmax_crossentropy_with_logits(logits, labels):
@@ -1260,7 +1260,7 @@ In an MNIST confusion matrix, we would expect to see these patterns:
 5. **Consistent errors**: Some digits are inherently harder to classify than others
 
 These patterns can reveal which features the model relies on for classification and where it struggles, potentially suggesting targeted improvements to the architecture or preprocessing.
-</details>
+</details><br>
 
 ```mermaid
 graph TD

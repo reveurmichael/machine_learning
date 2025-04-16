@@ -9,6 +9,8 @@ After exploring backpropagation, we will discuss **Stochastic Gradient Descent (
 
 We'll work with the classic **MNIST** dataset of handwritten digits to demonstrate these concepts in practice. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
+<br>
+
 <details>
 <summary>❓ Why is backpropagation considered fundamental to neural network training?</summary>
 
@@ -18,7 +20,7 @@ Backpropagation is fundamental because:
 - It applies the chain rule of calculus to distribute error gradients through layers
 - Without backpropagation, training deep neural networks would be computationally infeasible
 - It's what allows neural networks to automatically learn hierarchical features from data
-</details>
+</details><br>
 
 
 
@@ -108,7 +110,7 @@ We need both forward and backward passes because:
 - **Backward pass**: Computes gradients by propagating errors backward through the network, determining how each parameter should be adjusted
 - Together they form a complete cycle: the forward pass evaluates the current model's performance, while the backward pass provides information on how to improve it
 - This cycle enables the iterative optimization process that is core to neural network training
-</details>
+</details><br>
 
 <details>
 <summary>❓ What would you expect to see when comparing SGD and Adam optimizer performance?</summary>
@@ -120,7 +122,7 @@ When comparing SGD and Adam optimizer performance, you might expect to see:
 - **Computational cost**: Adam has slightly higher memory and computation requirements
 - **Learning stability**: Adam typically shows more stable learning curves with less fluctuation
 - **Problem-dependence**: The relative performance depends on the specific dataset and network architecture
-</details>
+</details><br>
 
 ### 1. Backpropagation Implementation
 
@@ -142,7 +144,7 @@ The chain rule is a fundamental concept from calculus that allows us to calculat
 - For neural networks with many layers, we apply this rule repeatedly to propagate gradients backward
 - This is crucial because it allows us to determine how each parameter (even in early layers) contributes to the final loss
 - Without the chain rule, we would struggle to train deep networks efficiently as we wouldn't know how to update early layer parameters
-</details>
+</details><br>
 
 
 
@@ -304,7 +306,29 @@ def train_batch(network, X, y):
 ```
 
 
+
+Note how the `backward` method in each layer computes both the gradient with respect to inputs (to propagate backwards) and updates the layer's parameters. This encapsulates the core of backpropagation in a clean, modular design.
+
+
 <details>
+<summary>❓ Why do we add 1e-9 when calculating the loss with the softmax probabilities?</summary>
+
+Adding a small constant like \(1e-9\) to the softmax probabilities before taking the logarithm serves several important purposes:
+
+1. **Numerical Stability**: Logarithm functions can become undefined or return negative infinity if the input is zero. By adding a small constant, we ensure that the input to the logarithm is never zero, thus avoiding potential computational errors.
+
+2. **Preventing NaN Values**: In cases where the predicted probabilities are very close to zero, taking the logarithm can lead to NaN (Not a Number) values. The small constant helps mitigate this risk.
+
+3. **Smoothing**: This addition can also be seen as a form of smoothing, which can help in scenarios where the model is uncertain about its predictions, leading to more stable training.
+
+4. **Gradient Flow**: Ensuring that the loss function remains well-defined helps maintain proper gradient flow during backpropagation, which is crucial for effective learning.
+
+Overall, this practice is a common technique in machine learning to enhance the robustness of the training process.
+</details><br>
+
+
+<details>
+
 <summary>❓ Why is the softmax function combined with a "stability trick" in the code?</summary>
 
 The softmax stability trick (subtracting the max value before exponentiation) is used because:
@@ -314,10 +338,8 @@ The softmax stability trick (subtracting the max value before exponentiation) is
 - This prevents potential infinity or NaN values that would break the training
 - It's a simple trick that greatly improves numerical stability with no mathematical cost
 - Without this trick, training could fail when dealing with large logit values
-</details>
+</details><br>
 
-
-Note how the `backward` method in each layer computes both the gradient with respect to inputs (to propagate backwards) and updates the layer's parameters. This encapsulates the core of backpropagation in a clean, modular design.
 
 <details>
 <summary>❓ Can you explain why we traverse the network in reverse order during the backward pass?</summary>
@@ -329,7 +351,7 @@ We traverse the network in reverse order during the backward pass because:
 - This reverse order ensures each layer receives the correct gradient information from layers closer to the loss
 - It's analogous to finding the derivative of a composite function from the outside in
 - This backward flow gives backpropagation its name ("back" + "propagation" of error)
-</details>
+</details><br>
 
 ### 2. Optimization in Practice
 
@@ -363,7 +385,7 @@ Key differences between gradient descent variants:
 - Provides a good compromise between the other methods
 - Allows for efficient GPU utilization
 - Makes (dataset_size / batch_size) updates per epoch
-</details>
+</details><br>
 
 Our implementation is built around this mini-batch approach:
 
@@ -415,7 +437,7 @@ We shuffle the data before creating mini-batches because:
 - It improves generalization by ensuring each batch has a diverse mix of examples
 - It's especially important when the dataset might have inherent ordering (e.g., sorted by class)
 - It helps prevent overfitting to specific sequences in the data
-</details>
+</details><br>
 
 The basic parameter update rule in SGD is straightforward:
 
@@ -532,7 +554,7 @@ The beta1 and beta2 hyperparameters in Adam control:
 - Influences the optimizer's sensitivity to gradient magnitudes
 
 Together, these hyperparameters balance between fast adaptation to new gradients and stability from historical information.
-</details>
+</details><br>
 
 The update rules for Adam are:
 
@@ -556,31 +578,6 @@ The update rules for Adam are:
 ### 3. MNIST Dataset Preparation
 
 In this session, we'll be using the MNIST dataset, a classic benchmark in machine learning. MNIST contains 70,000 grayscale images of handwritten digits (28x28 pixels), with 60,000 training examples and 10,000 test examples.
-
-<details>
-<summary>❓ Why do we typically split datasets into training, validation, and test sets?</summary>
-
-We split datasets into different sets because:
-
-**Training set**:
-- Used to update the model parameters through backpropagation
-- The model directly "sees" and learns from this data
-- Largest portion of the dataset (typically 60-80%)
-
-**Validation set**:
-- Used to tune hyperparameters (learning rate, network architecture, etc.)
-- Helps detect overfitting during training
-- Not used for parameter updates, only for evaluation
-- Medium portion of the dataset (typically 10-20%)
-
-**Test set**:
-- Used to evaluate the final model performance
-- Never used during training or hyperparameter tuning
-- Provides an unbiased estimate of model performance on unseen data
-- Smallest portion of the dataset (typically 10-20%)
-
-This separation prevents data leakage and gives us a more realistic estimate of how the model will perform on new, unseen data.
-</details>
 
 We'll load the dataset using sklearn's `fetch_openml` function and implement preprocessing steps to prepare it for our neural network:
 
@@ -637,19 +634,6 @@ def visualize_mnist_samples(X, y, num_samples=10):
     plt.show()
 ```
 
-<details>
-<summary>❓ Why do we normalize the pixel values by dividing by 255.0?</summary>
-
-We normalize pixel values by dividing by 255.0 because:
-- Raw pixel values range from 0 to 255 (8-bit grayscale)
-- Neural networks work better with input values in a smaller, standardized range
-- Normalization to [0,1] improves numerical stability during training
-- It helps the gradient descent algorithm converge faster
-- Different scales between inputs can cause some features to dominate others
-- Consistent scaling makes weights more comparable across features
-- It makes the learning rate's effect more predictable and consistent
-</details>
-
 After loading the dataset, we need to preprocess it to suit our neural network. This involves:
 - Flattening the 2D images (28×28) into 1D vectors (784)
 - Normalizing the data to have zero mean and unit variance
@@ -690,18 +674,6 @@ def preprocess_mnist(X_train, y_train, X_test, y_test):
 ```
 
 <details>
-<summary>❓ Why do we add a small constant (1e-9) when standardizing the data?</summary>
-
-We add a small constant (1e-9) to the standard deviation because:
-- It prevents division by zero when a pixel has zero standard deviation
-- Some pixels might have the same value across all training images (especially background pixels)
-- Without this constant, we could get NaN (Not a Number) values when dividing by zero
-- It's a form of numerical stability that avoids potential errors during training
-- The constant is small enough that it doesn't significantly affect properly calculated standardization
-- This is a common practice in machine learning preprocessing to avoid numerical issues
-</details>
-
-<details>
 <summary>❓ Why do we flatten the 2D images before feeding them to our neural network?</summary>
 
 We flatten 2D images into 1D vectors because:
@@ -712,7 +684,7 @@ We flatten 2D images into 1D vectors because:
 - It's a standard approach for simple feed-forward networks (though not optimal for image data)
 - More advanced architectures like CNNs would preserve the 2D structure
 - For MNIST digits, this flattening still works well because the images are small and well-centered
-</details>
+</details><br>
 
 Let's load and preprocess the data:
 

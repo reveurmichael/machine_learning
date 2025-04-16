@@ -359,34 +359,6 @@ We traverse the network in reverse order during the backward pass because:
 
 Stochastic Gradient Descent (SGD) is a core optimization strategy for neural networks. The key insight of SGD is that we don't need to compute gradients over the entire dataset - we can use small random batches instead.
 
-<details>
-<summary>❓ What are the key differences between batch gradient descent, stochastic gradient descent, and mini-batch SGD?</summary>
-
-Key differences between gradient descent variants:
-
-**Batch Gradient Descent**:
-- Uses the entire dataset for each parameter update
-- Provides the most accurate gradient estimate
-- Very slow for large datasets
-- May require more memory than available
-- Makes one update per epoch
-
-**Stochastic Gradient Descent (SGD)**:
-- Uses a single sample for each parameter update
-- Provides noisy but frequent updates
-- Much faster for large datasets
-- Can escape local minima due to noise
-- Makes as many updates as there are samples per epoch
-
-**Mini-batch SGD**:
-- Uses a small batch (e.g., 32, 64, 128 samples) for each update
-- Balances accuracy and speed
-- Enables vectorization for computational efficiency
-- Provides a good compromise between the other methods
-- Allows for efficient GPU utilization
-- Makes (dataset_size / batch_size) updates per epoch
-</details><br>
-
 Our implementation is built around this mini-batch approach:
 
 ```python

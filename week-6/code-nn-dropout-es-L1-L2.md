@@ -12,6 +12,27 @@ Today, we implement four powerful regularization techniques to combat overfittin
 3. **L1 Regularization**: Adding the sum of absolute weights to the loss function
 4. **L2 Regularization**: Adding the sum of squared weights to the loss function
 
+```mermaid
+mindmap
+    root((Regularization<br>Techniques))
+        Dropout
+            Randomly deactivate neurons
+            Prevent co-adaptation
+            Force distributed representation
+        Early Stopping
+            Monitor validation performance
+            Stop when it degrades
+            Use best weights found
+        L1 Regularization
+            Sum of absolute weights
+            Encourages sparsity
+            Feature selection
+        L2 Regularization
+            Sum of squared weights
+            Penalizes large weights
+            Weights decay to smaller values
+```
+
 We'll use synthetic datasets from scikit-learn to clearly demonstrate overfitting scenarios and how each regularization technique helps address them.
 
 ### Session Overview
@@ -50,9 +71,46 @@ The model essentially "memorizes" the training data rather than learning general
 
 **Early Stopping**: A simple but effective technique where we monitor validation performance and stop training when it starts deteriorating, even if training performance continues to improve.
 
+```mermaid
+sequenceDiagram
+    participant T as Training
+    participant M as Model
+    participant V as Validation
+    
+    loop Each Epoch
+        T->>M: Update Weights
+        M->>V: Evaluate Performance
+        V->>T: Continue or Stop?
+    end
+    Note over V,T: Stop when validation<br>performance degrades<br>for several epochs
+```
+
 **L1 Regularization**: Adds the sum of absolute values of the weights to the loss function. This encourages sparse solutions, effectively "zeroing out" less important weights, leading to feature selection.
 
+```mermaid
+graph LR
+    A[Original Loss] --> B{Combined Loss}
+    C[L1 Penalty<br>λ∑absW] --> B
+    B --> D[Optimization]
+    D --> E[Parameter Update]
+    
+    style C fill:#dae8fc,stroke:#333,stroke-width:2px
+    style E fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
+
+
 **L2 Regularization**: Adds the sum of squared weights to the loss function. This penalizes large weights, encouraging the model to distribute importance more evenly across features.
+
+```mermaid
+graph LR
+    A[Original Loss] --> B{Combined Loss}
+    C[L2 Penalty<br>λ∑w²] --> B
+    B --> D[Optimization]
+    D --> E[Parameter Update]
+    
+    style C fill:#dae8fc,stroke:#333,stroke-width:2px
+    style E fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
 
 ### 2. Implementation of Regularization Techniques
 
@@ -115,6 +173,23 @@ class ReLU(Layer):
 
 First, let's implement the Dropout layer:
 
+```mermaid
+sequenceDiagram
+    participant I as Input
+    participant D as Dropout Layer
+    participant O as Output
+    
+    Note over I,O: Forward Pass (Training)
+    I->>D: Input Activations
+    D->>D: Generate Random Mask<br>(keep_prob = 1-p)
+    D->>D: Scale Activations by 1/(1-p)
+    D->>O: Masked Output
+    
+    Note over I,O: Forward Pass (Inference)
+    I->>D: Input Activations
+    D->>O: Output = Input<br>(No Dropout)
+```
+
 ```python
 class Dropout(Layer):
     """
@@ -157,6 +232,27 @@ class Dropout(Layer):
 #### 2.2. Implementing L1 and L2 Regularization in the Dense Layer
 
 Next, we'll modify our Dense layer to support L1 and L2 regularization:
+
+```mermaid
+flowchart TB
+    subgraph "Forward Pass"
+        A[Input] --> B[Linear Transformation]
+        B --> C[Output: y = Wx + b]
+    end
+    
+    subgraph "Backward Pass with Regularization"
+        D[Gradient from Next Layer] --> E[Compute Gradients]
+        E --> F[Add Regularization Gradients]
+        F --> G[Update Parameters]
+        H1[L1 Gradient<br>λ·signW] --> F
+        H2[L2 Gradient<br>2λ·W] --> F
+    end
+    
+    style B fill:#bbdefb,stroke:#333,stroke-width:1px
+    style E fill:#f8bbd0,stroke:#333,stroke-width:1px
+    style F fill:#ffcdd2,stroke:#333,stroke-width:2px
+    style G fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
 
 ```python
 class Dense(Layer):
@@ -329,6 +425,36 @@ class Adam:
 #### 2.5. Early Stopping Implementation
 
 We'll implement early stopping as part of our training loop, but first let's create a helper class to manage it:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Monitoring
+    
+    state Monitoring {
+        [*] --> CheckLoss
+        CheckLoss --> Improved: val_loss < best_loss
+        CheckLoss --> NoImprovement: val_loss >= best_loss
+        
+        Improved --> UpdateBest: Save best weights
+        Improved --> ResetCounter: counter = 0
+        ResetCounter --> [*]
+        
+        NoImprovement --> IncrementCounter: counter += 1
+        IncrementCounter --> CheckPatience
+        
+        CheckPatience --> Continue: counter < patience
+        CheckPatience --> Stop: counter >= patience
+        
+        Continue --> [*]
+    }
+    
+    Monitoring --> ContinueTraining: Return False
+    Monitoring --> StopTraining: Return True
+    
+    UpdateBest --> ContinueTraining
+    Stop --> StopTraining
+    Continue --> ContinueTraining
+```
 
 ```python
 class EarlyStopping:
@@ -754,6 +880,23 @@ def visualize_weight_distributions(networks, labels):
 
 Let's also try with a more complex dataset to better demonstrate overfitting:
 
+```mermaid
+flowchart TB
+    A[Create High-Dimensional Dataset] --> B[100 Features]
+    B --> C[10 Informative Features]
+    B --> D[40 Redundant Features]
+    B --> E[50 Noise Features]
+    
+    F[Split & Standardize Data] --> G[Train Models]
+    G --> H[Compare Regularization<br>Effectiveness]
+    
+    style A fill:#dae8fc,stroke:#333,stroke-width:1px
+    style B fill:#ffe6cc,stroke:#333,stroke-width:2px
+    style C fill:#d5e8d4,stroke:#333,stroke-width:1px
+    style E fill:#f8cecc,stroke:#333,stroke-width:1px
+    style H fill:#e1bee7,stroke:#333,stroke-width:1px
+```
+
 ```python
 def generate_complex_dataset():
     """Generate a more complex classification dataset prone to overfitting."""
@@ -820,6 +963,34 @@ if __name__ == "__main__":
 
 In this third and final session, we have:
 
+```mermaid
+mindmap
+    root((Neural Networks<br>Regularization))
+        Techniques
+            Dropout
+                Random neuron deactivation
+                Prevents co-adaptation
+            Early Stopping
+                Monitor validation loss
+                Stop when it increases
+            L1 Regularization
+                Sparse weights
+                Feature selection
+            L2 Regularization
+                Small weights
+                Smooth decision boundaries
+        Benefits
+            Reduced Overfitting
+            Better Generalization
+            Improved Test Performance
+            Model Robustness
+        Applications
+            Image Classification
+            Text Processing
+            Time Series Prediction
+            Reinforcement Learning
+```
+
 1. **Implemented Four Regularization Techniques:**
    - Dropout layer for randomly deactivating neurons during training
    - Early stopping to halt training when validation performance degrades
@@ -829,6 +1000,7 @@ In this third and final session, we have:
 2. **Explored Synthetic Datasets:**
    - Generated classification problems using scikit-learn
    - Visualized datasets and decision boundaries
+
 
 3. **Compared Regularization Approaches:**
    - Analyzed the impact of each technique on training dynamics

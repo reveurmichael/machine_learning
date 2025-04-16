@@ -136,21 +136,6 @@ graph LR
     end
 ```
 
-<details>
-<summary>❓ What is the significance of a "fully connected" layer in neural networks?</summary>
-
-A fully connected (dense) layer has these key characteristics:
-- Every neuron in the current layer connects to every neuron in the next layer
-- Each connection has its own weight parameter that is learned during training
-- This creates a complete bipartite graph between consecutive layers
-- It provides maximum flexibility for learning arbitrary mappings
-- The number of parameters is the product of input and output neurons (plus biases)
-- All information from one layer has the opportunity to influence all neurons in the next layer
-- These connections allow the network to learn complex patterns and interactions
-
-Fully connected layers are versatile but parameter-intensive, which is why specialized architectures like CNNs use other connection patterns for specific data types.
-</details><br>
-
 For our MNIST digit classification problem:
 - Input layer: 784 neurons (28×28 pixels)
 - Hidden layer(s): Customizable number of neurons
@@ -218,26 +203,6 @@ graph TD
         end
     end
 ```
-
-<details>
-<summary>❓ What is the "vanishing gradient problem" and which activation functions help address it?</summary>
-
-The vanishing gradient problem:
-- Occurs when gradients become extremely small as they propagate backward through deep networks
-- Causes early layers to learn very slowly or not at all
-- Results in long training times or failed convergence
-- Is pronounced in networks with sigmoid or tanh activations in deep networks
-- Mathematically happens because sigmoid/tanh derivatives are small for inputs far from zero
-- Compounds with each layer, as multiple small numbers multiply to create even smaller numbers
-- Makes training deep networks extremely difficult
-
-Activation functions that help address it:
-- **ReLU**: Gradient is exactly 1 for all positive inputs, preventing vanishing
-- **Leaky ReLU**: Small gradient for negative inputs prevents both vanishing and "dying ReLU" problem
-- **ELU (Exponential Linear Unit)**: Smooth negative values with non-zero gradients
-- **SELU (Scaled ELU)**: Self-normalizing properties help maintain gradient flow
-- **Swish**: Smooth version of ReLU with better performance in some cases
-</details><br>
 
 ```python
 def plot_activation_functions():
@@ -597,31 +562,6 @@ def visualize_mnist_samples(X, y, num_samples=5):
     plt.tight_layout()
     plt.show()
 ```
-
-<details>
-<summary>❓ Why is it important to split data into training, validation, and test sets?</summary>
-
-Data splitting is crucial because:
-
-**Training set**:
-- Used to learn the model parameters (weights and biases)
-- The model directly sees and learns patterns from this data
-- Where backpropagation and weight updates happen
-
-**Validation set**:
-- Used to tune hyperparameters (learning rate, number of layers, etc.)
-- Helps detect overfitting during training
-- Guides model selection and early stopping decisions
-- Prevents information leakage from test set
-
-**Test set**:
-- Used only for final evaluation of model performance
-- Represents unseen data to gauge true generalization ability
-- Never used for training or hyperparameter tuning
-- Simulates real-world performance
-
-Using the same data for training and evaluation would give an overly optimistic estimate of performance, as the model could memorize the training examples rather than learning generalizable patterns.
-</details><br>
 
 ## Building Neural Network Components from Scratch
 
@@ -1085,7 +1025,7 @@ graph TD
 
 4. **More stable learning**: The high variance in gradients from individual examples gets averaged out in mini-batches, leading to more stable learning.
 
-In our implementation, students shouldn't worry too much about the details - just understand that backpropagation is a method for calculating gradients, and SGD is a way to use those gradients to iteratively update weights. The core idea is that we're using small batches of data to gradually tune our network's weights toward better performance.
+In our implementation, for this session, students shouldn't worry too much about the details - just understand that backpropagation is a method for calculating gradients, and SGD is a way to use those gradients to iteratively update weights. The core idea is that we're using small batches of data to gradually tune our network's weights toward better performance.
 
 ## Training a Simple Neural Network on MNIST
 

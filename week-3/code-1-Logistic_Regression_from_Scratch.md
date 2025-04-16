@@ -4,6 +4,19 @@
 
 Logistic Regression is a fundamental classification algorithm in machine learning. Unlike Linear Regression which predicts continuous values, Logistic Regression predicts the probability of an instance belonging to a particular class. This tutorial will guide you through implementing Logistic Regression from scratch using different optimization methods, helping you understand the underlying mathematics and principles.
 
+```mermaid
+flowchart LR
+    A[Input Features] --> B[Linear Function w·x + b]
+    B --> C[Sigmoid Function σ]
+    C --> D[Probability 0 to 1]
+    D --> E{Threshold > 0.5?}
+    E -->|Yes| F[Class 1]
+    E -->|No| G[Class 0]
+    style B fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style C fill:#eeac99,stroke:#333,stroke-width:2px
+    style D fill:#d0cef0,stroke:#333,stroke-width:2px
+```
+
 ## References
 
 For deeper understanding, check out these excellent resources:
@@ -74,6 +87,25 @@ plt.show()
 
 The key difference between Linear Regression and Logistic Regression is that Logistic Regression applies a sigmoid function to the linear model output to transform the predictions into probabilities between 0 and 1. This makes Logistic Regression suitable for binary classification problems where we need to predict one of two possible outcomes.
 
+```mermaid
+graph TD
+    subgraph "Linear Regression"
+    A1[Input] --> B1[Linear Function]
+    B1 --> C1[Continuous Output]
+    end
+    
+    subgraph "Logistic Regression"
+    A2[Input] --> B2[Linear Function]
+    B2 --> S[Sigmoid Function]
+    S --> C2[Probability 0-1]
+    C2 --> D2[Class Prediction]
+    end
+    
+    style B1 fill:#bbdefb,stroke:#333,stroke-width:1px
+    style B2 fill:#bbdefb,stroke:#333,stroke-width:1px
+    style S fill:#ffcdd2,stroke:#333,stroke-width:2px,color:#000
+```
+
 ## Implementation 1: Logistic Regression with Gradient Descent
 
 Let's implement Logistic Regression using Gradient Descent:
@@ -120,6 +152,22 @@ class LogisticRegressionGD:
         return 1 / (1 + np.exp(-x))
 ```
 
+```mermaid
+sequenceDiagram
+    participant Init as Initialize Parameters
+    participant Pred as Make Predictions
+    participant Grad as Compute Gradients
+    participant Upd as Update Parameters
+    
+    Init->>Pred: weights=0, bias=0
+    loop For n_iters
+        Pred->>Grad: z = X·w + b, y_pred = sigmoid(z)
+        Grad->>Upd: dw = X^T·(y_pred - y)/m, db = sum(y_pred - y)/m
+        Upd->>Pred: w = w - lr·dw, b = b - lr·db
+    end
+    Note over Init,Upd: Gradient Descent Process
+```
+
 ### The Math Behind Gradient Descent for Logistic Regression
 
 Logistic Regression uses the sigmoid function to map the linear output to a probability:
@@ -139,6 +187,17 @@ The gradient of this cost function with respect to $w$ and $b$ is:
 $$\frac{\partial J}{\partial w} = \frac{1}{m} X^T \cdot (\hat{y} - y)$$
 $$\frac{\partial J}{\partial b} = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})$$
 
+```mermaid
+flowchart TB
+    A[Cost Function J] --> B[Compute Gradient ∂J/∂w]
+    A --> C[Compute Gradient ∂J/∂b]
+    B --> D[Update Weights w = w - lr·∂J/∂w]
+    C --> E[Update Bias b = b - lr·∂J/∂b]
+    D --> F[New Model Parameters]
+    E --> F
+    style A fill:#dae8fc,stroke:#333,stroke-width:1px
+    style F fill:#d5e8d4,stroke:#333,stroke-width:1px
+```
 
 ### Why We Use Cross-Entropy Loss Instead of Mean Squared Error
 
@@ -155,6 +214,21 @@ There are several compelling reasons to use cross-entropy loss for logistic regr
 - It penalizes confident incorrect predictions more heavily than less confident ones
 - The gradient of the cost function doesn't vanish for extreme probability values, avoiding the "flat region" problem that occurs with MSE
 
+```mermaid
+graph TB
+    subgraph "Loss Functions Comparison"
+    A[Cross-Entropy Loss] -->|Benefits| B[Convex]
+    A -->|Benefits| C[Penalizes Confident Wrong Predictions]
+    A -->|Benefits| D[No Gradient Vanishing]
+    
+    E[MSE Loss] -->|Issues| F[Non-Convex for Logistic Regression]
+    E -->|Issues| G[Gradient Vanishing Problem]
+    E -->|Issues| H[Equal Penalty for All Errors]
+    end
+    
+    style A fill:#d0e0f0,stroke:#333,stroke-width:2px
+    style E fill:#f0e0d0,stroke:#333,stroke-width:2px
+```
 
 ## Testing the Gradient Descent Implementation
 
@@ -308,6 +382,20 @@ print(f"Newton-Raphson Accuracy: {accuracy_nr:.4f}")
 plot_decision_boundary(X, y, nr_model)
 ```
 
+```mermaid
+graph TB
+    subgraph "Optimization Methods Comparison"
+        GD[Gradient Descent] -->|Uses| FD[First Derivatives Only]
+        NR[Newton-Raphson] -->|Uses| SD[First & Second Derivatives]
+        
+        FD -->|Results in| SI[Slower Iterations, Lower Computation]
+        SD -->|Results in| FI[Faster Iterations, Higher Computation]
+    end
+    
+    style GD fill:#bbdefb,stroke:#333,stroke-width:1px
+    style NR fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
+
 ## Real-World Example: Social Network Ads Dataset
 
 Let's apply our implementations to a real-world dataset to see how they perform on an actual classification problem:
@@ -377,6 +465,22 @@ plt.legend()
 plt.show()
 ```
 
+```mermaid
+flowchart TB
+    A[Load Dataset] --> B[Extract Features & Target]
+    B --> C[Feature Scaling]
+    C --> D[Train-Test Split]
+    D --> E[Train Models]
+    E --> F[Make Predictions]
+    F --> G[Evaluate Performance]
+    G --> H[Visualize Results]
+    
+    style A fill:#bbdefb,stroke:#333,stroke-width:1px
+    style C fill:#f8bbd0,stroke:#333,stroke-width:1px 
+    style E fill:#d1c4e9,stroke:#333,stroke-width:1px
+    style G fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
+
 ## Comparison of Methods
 
 Here's a detailed comparison of the two implementations we covered:
@@ -407,6 +511,26 @@ Here's a detailed comparison of the two implementations we covered:
 ## Conclusion
 
 In this tutorial, we explored two different implementations of Logistic Regression from scratch. We learned that:
+
+```mermaid
+mindmap
+    root((Logistic Regression))
+        Fundamentals
+            Linear function + Sigmoid
+            Binary classification
+            Probability estimation
+        Implementation
+            Gradient Descent
+            Newton-Raphson
+        Loss Functions
+            Cross-Entropy Loss
+            Benefits over MSE
+        Applications
+            Binary Classification
+            Medical diagnosis
+            Spam detection
+            Credit scoring
+```
 
 1. Logistic Regression is essentially Linear Regression with a sigmoid function applied to the output
 2. The optimization objective is to minimize the Binary Cross-Entropy loss, which is better suited for classification than mean squared error

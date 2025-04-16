@@ -65,11 +65,120 @@ Overfitting occurs when our model learns the training data too well, capturing n
 
 The model essentially "memorizes" the training data rather than learning generalizable patterns, resulting in poor performance on new data.
 
+<details>
+<summary>❓ How should regularization strength be adjusted as dataset size changes?</summary>
+
+As dataset size changes, regularization strength should be adjusted according to these principles:
+
+1. **Inverse Relationship**: Generally, regularization strength should decrease as dataset size increases, and increase as dataset size decreases.
+
+2. **Small Datasets**: Smaller datasets typically require stronger regularization to prevent overfitting, as the model can more easily memorize fewer examples.
+
+3. **Large Datasets**: With very large datasets, minimal regularization may be needed as the data itself prevents overfitting, though some regularization often still helps.
+
+4. **Model Complexity Interaction**: The optimal adjustment depends on model complexity - larger models may need regularization even with large datasets.
+
+5. **Validation-Based Tuning**: Regardless of dataset size, validation performance should guide final regularization strength selection.
+
+6. **Data Quality Consideration**: High-quality, diverse data may require less regularization adjustment than would be predicted by size alone.
+
+7. **Task Difficulty Factor**: More complex learning tasks may require maintaining stronger regularization even as data size increases.
+
+8. **Transfer Learning Context**: When fine-tuning pre-trained models, regularization needs may differ from training from scratch.
+
+</details><br>
+
+<details>
+<summary>❓ What challenges might arise when combining multiple regularization techniques together?</summary>
+
+Combining multiple regularization techniques can introduce several challenges:
+
+1. **Over-regularization**: Applying too many techniques or setting regularization strengths too high can prevent the model from learning meaningful patterns, leading to underfitting.
+
+2. **Hyperparameter Explosion**: Each technique introduces its own hyperparameters, making the combined model much harder to tune effectively.
+
+3. **Conflicting Mechanisms**: Different regularization techniques may work at cross-purposes. For example, L1 promotes sparsity while dropout randomly silences neurons, potentially counteracting each other's benefits.
+
+4. **Computational Overhead**: Multiple regularization techniques can increase computational costs and memory requirements during training.
+
+5. **Debugging Difficulty**: When performance is poor, it's harder to identify which regularization technique is causing issues.
+
+6. **Interpretation Challenges**: Combined regularization can make it harder to interpret the model's behavior and feature importance.
+
+7. **Implementation Complexity**: Correctly implementing the interaction of multiple regularization techniques requires careful software engineering and testing.
+</details><br>
+
 #### 1.2. Regularization Techniques Overview
 
 **Dropout**: Introduced by Hinton et al. (2012), dropout randomly "turns off" neurons during training with a specified probability. This prevents neurons from co-adapting and forces the network to learn more robust features. During inference, all neurons are active but their outputs are scaled appropriately.
 
+<details>
+<summary>❓ What is the "co-adaptation of features" that dropout helps prevent?</summary>
+
+Co-adaptation of features, which dropout helps prevent, refers to:
+
+1. **Feature Dependency**: Neurons developing complex dependencies where they only work correctly in conjunction with specific other neurons.
+
+2. **Brittle Representations**: Network representations becoming overly specialized to the training data patterns, making them fragile to unseen data.
+
+3. **Correlated Behavior**: Multiple neurons learning to detect the same features, creating redundancy rather than diversity.
+
+4. **Distributed Learning Impediment**: An obstacle to truly distributed representations, where network knowledge should be spread across many neurons.
+
+5. **Ensemble Fragility**: Reduces the network's ability to function like an ensemble of models, making it less robust.
+
+6. **Memorization Facilitation**: Enables the network to effectively memorize training examples rather than learning generalizable patterns.
+</details><br>
+
 **Early Stopping**: A simple but effective technique where we monitor validation performance and stop training when it starts deteriorating, even if training performance continues to improve.
+
+<details>
+<summary>❓ What makes early stopping different from other regularization techniques?</summary>
+
+Early stopping differs from other regularization techniques in several key ways:
+
+1. **No Model Modification**: Unlike dropout or weight regularization, early stopping doesn't modify the model architecture or add terms to the loss function.
+
+2. **Training Duration Control**: It regulates the effective capacity of the model by controlling how long training continues rather than directly constraining parameters.
+
+3. **Hyperparameter Efficiency**: Requires fewer hyperparameters to tune (typically just patience and optional threshold).
+
+4. **Computational Efficiency**: Often reduces total training time by stopping before complete convergence on training data.
+
+5. **No Explicit Mathematical Penalty**: Doesn't explicitly penalize weights in the objective function.
+
+6. **Simplicity**: Conceptually simpler to implement than some other regularization approaches.
+</details><br>
+
+<details>
+<summary>❓ How does early stopping affect the loss landscape exploration?</summary>
+
+Early stopping influences loss landscape exploration in several important ways:
+
+1. **Trajectory Truncation**: Early stopping essentially truncates the optimization trajectory, preventing the model from exploring regions of the loss landscape that might lead to overfitting.
+
+2. **Local Minima Selection**: It tends to select shallower, wider minima that are reached earlier in training rather than deeper, narrower minima that require more iterations.
+
+3. **Implicit Regularization Effect**: Early stopping acts as a form of regularization by limiting how thoroughly the model can optimize for the training data, favoring solutions that generalize better.
+
+4. **Escaping Saddle Points**: If patience is too low, early stopping might halt training when the optimizer is navigating saddle points rather than allowing it to escape them.
+
+5. **Exploration vs. Exploitation Balance**: It shifts the balance from exploitation (optimizing for known patterns) toward exploration (maintaining generalization capability).
+
+6. **Plateau Handling**: With sufficient patience, early stopping allows some exploration of plateaus in the loss landscape before deciding further progress is unlikely.
+
+7. **Valley Navigation**: In narrow loss valleys, early stopping might prevent the optimizer from following the valley to its lowest point.
+
+8. **Noise Sensitivity**: Early stopping interacts with the stochasticity of mini-batch training - high noise might trigger stopping even when better solutions exist.
+
+9. **Optimization Algorithm Interaction**: Different optimizers explore the loss landscape differently, affecting when early stopping will activate.
+
+10. **Learning Rate Interaction**: With high learning rates, the optimizer might bounce around a minimum without settling, potentially triggering early stopping prematurely.
+
+11. **Generalization Focus**: Early stopping biases exploration toward regions with good validation performance rather than low training loss.
+
+12. **Sharp Minima Avoidance**: It tends to avoid sharp minima that are often associated with overfitting, preferring more robust solutions.
+</details><br>
 
 ```mermaid
 sequenceDiagram
@@ -87,6 +196,32 @@ sequenceDiagram
 
 **L1 Regularization**: Adds the sum of absolute values of the weights to the loss function. This encourages sparse solutions, effectively "zeroing out" less important weights, leading to feature selection.
 
+<details>
+<summary>❓ When would L1 regularization be preferred over L2 regularization?</summary>
+
+L1 regularization would be preferred over L2 regularization in several scenarios:
+
+1. **Feature Selection**: When you want the model to automatically select the most important features and eliminate others completely.
+
+2. **Sparse Models**: When model sparsity (having many weights exactly equal to zero) is desirable for interpretability or memory efficiency.
+
+3. **High-Dimensional Data**: When working with high-dimensional data where many features are suspected to be irrelevant.
+
+4. **Computational Efficiency**: When inference-time efficiency is important, as sparse models require fewer computations.
+
+5. **Signal Compression**: In applications like signal processing where sparse representations are preferred.
+
+6. **Noisy Features**: When the dataset contains many noisy features that should be ignored.
+
+7. **Highly Redundant Features**: When dealing with numerous highly redundant features where selecting a subset is beneficial.
+
+8. **Explainable AI Requirements**: When model explanations need to focus on a small subset of critical features.
+
+9. **Transfer Learning Fine-tuning**: When adapting pre-trained models to simpler downstream tasks where feature reduction is helpful.
+
+10. **Outlier Resistance**: L1 regularization can be more robust to outliers in some scenarios.
+</details><br>
+
 ```mermaid
 graph LR
     A[Original Loss] --> B{Combined Loss}
@@ -100,6 +235,54 @@ graph LR
 
 
 **L2 Regularization**: Adds the sum of squared weights to the loss function. This penalizes large weights, encouraging the model to distribute importance more evenly across features.
+
+<details>
+<summary>❓ Why might L2 regularization be considered a form of "weight decay"?</summary>
+
+L2 regularization is considered a form of "weight decay" for several mathematical and conceptual reasons:
+
+1. **Gradient Update Effect**: In SGD, adding L2 regularization is equivalent to multiplying weights by a factor slightly less than 1 before the normal gradient update, literally "decaying" their magnitude.
+
+2. **Mathematical Equivalence**: The weight update rule with L2 regularization (w = w - learning_rate * (gradient + lambda * w)) can be rewritten as w = w * (1 - learning_rate * lambda) - learning_rate * gradient.
+
+3. **Automatic Shrinkage**: L2 regularization automatically shrinks weights toward zero after each update, with larger weights decaying more rapidly than smaller ones.
+
+4. **Exponential Decay Properties**: Without conflicting gradients from the loss function, weights would exponentially decay toward zero over time.
+
+5. **Proportional Reduction**: The regularization penalty is proportional to the weight magnitude, creating a decay effect that's stronger for larger weights.
+
+6. **Historical Naming**: Early neural network literature referred to L2 regularization as weight decay because of this shrinking effect.
+
+7. **Implementation Perspective**: In many frameworks, L2 regularization is implemented directly as a weight decay term in optimizers.
+
+8. **Contrast with L1**: Unlike L1 regularization which can drive weights exactly to zero, L2 causes gradual decay toward zero without generally reaching it.
+
+9. **Explicit vs. Implicit Form**: While mathematically equivalent, implementing L2 as weight decay (in the parameter update) versus as a regularization term (in the loss function) can sometimes lead to slightly different behavior with adaptive optimizers.
+
+10. **Intuitive Behavior**: The term "decay" intuitively captures how L2 regularization continuously shrinks weights throughout training.
+</details><br>
+
+<details>
+<summary>❓ How do L1 and L2 regularization differ in their effect on model weights?</summary>
+
+L1 and L2 regularization differ in their effects on model weights in the following ways:
+
+- **L1 Regularization (Lasso)**:
+  - Adds the sum of absolute values of weights to the loss function
+  - Tends to produce sparse models by driving some weights exactly to zero
+  - Acts as a feature selection mechanism by eliminating less important features
+  - Creates models that are more interpretable due to fewer active features
+  - Mathematically adds λ∑|w| to the loss function
+  - Gradient is constant (sign of weight) regardless of weight magnitude
+
+- **L2 Regularization (Ridge)**:
+  - Adds the sum of squared weights to the loss function
+  - Tends to distribute weight values more evenly, making them smaller but non-zero
+  - All features typically remain in the model, just with reduced importance
+  - Better for handling correlated features than L1
+  - Mathematically adds λ∑w² to the loss function
+  - Gradient is proportional to weight value (2λw), so larger weights are penalized more
+</details><br>
 
 ```mermaid
 graph LR
@@ -1016,4 +1199,34 @@ mindmap
 Regularization is a critical component of practical deep learning. These techniques help your models generalize better to unseen data by preventing them from memorizing the training set. The choice of regularization method depends on your specific problem, but often a combination of techniques yields the best results.
 
 Across our three-session series, we've built a complete neural network implementation from scratch. The resulting implementation not only performs well but gives you a deep understanding of how each component works. This knowledge will serve you well even when using higher-level libraries, as you'll understand what's happening "under the hood."
+
+<details>
+<summary>❓ How can we determine which regularization technique is most appropriate for a specific problem?</summary>
+
+To determine the most appropriate regularization technique for a specific problem:
+
+1. **Consider Data Volume**: With smaller datasets, stronger regularization like dropout or L2 is typically needed; for very large datasets, lighter regularization may suffice.
+
+2. **Analyze Problem Complexity**: More complex models solving difficult problems often benefit from multiple regularization techniques used together.
+
+3. **Examine Model Size**: Larger models with more parameters typically need stronger regularization to prevent overfitting.
+
+4. **Model Architecture**: Different architectures respond differently to regularization - CNNs often work well with dropout, while RNNs may benefit more from gradient clipping and L2.
+
+5. **Feature Density**: For high-dimensional data with many irrelevant features, L1 regularization can help with automatic feature selection.
+
+6. **Computational Constraints**: If inference speed matters, L1 can create sparser models; if training time is limited, early stopping is efficient.
+
+7. **Interpretability Needs**: If model interpretability is important, L1 regularization creates more interpretable models by eliminating irrelevant features.
+
+8. **Cross-Validation**: The most reliable approach is to try different techniques and select based on validation performance.
+
+9. **Transfer Learning Context**: When fine-tuning pre-trained models, regularization needs differ from training from scratch - often L2 and dropout work well.
+
+10. **Domain Knowledge**: Understanding the problem domain can guide regularization choices - for instance, if you know many features should be irrelevant, L1 is appropriate.
+
+11. **Monitoring Training Curves**: The specific pattern of overfitting observed in training curves can suggest which regularization technique might be most effective.
+
+12. **Ensemble Considerations**: If the model will be part of an ensemble, techniques like dropout that implicitly create ensemble effects may be redundant.
+</details><br>
 

@@ -21,6 +21,13 @@ $$
 - $\mathbf{w}$: Weight vector
 - $b$: Bias term
 
+```mermaid
+graph LR
+    A[Input Features x] --> B[Linear Function]
+    B -- "w·x + b" --> C[Predicted Output y]
+    style B fill:#bbdefb,stroke:#333,stroke-width:2px
+```
+
 The objective is to find the optimal weights $\mathbf{w}$ and bias $b$ that minimize the difference between the predicted values and the actual target values.
 
 ### Cost Function
@@ -39,6 +46,20 @@ Where:
 ### Gradient Descent
 
 To minimize the cost function $J(\mathbf{w}, b)$, we employ the Gradient Descent optimization algorithm. Gradient Descent iteratively updates the weights and bias in the direction that reduces the cost.
+
+```mermaid
+flowchart TB
+    A[Initialize Parameters] --> B[Compute Predicted Values]
+    B --> C[Calculate Cost]
+    C --> D[Compute Gradients]
+    D --> E[Update Parameters]
+    E -->|Repeat| B
+    E -->|Converged| F[Final Model]
+    style A fill:#d1c4e9,stroke:#333,stroke-width:1px
+    style C fill:#ffccbc,stroke:#333,stroke-width:1px
+    style D fill:#c8e6c9,stroke:#333,stroke-width:1px
+    style F fill:#bbdefb,stroke:#333,stroke-width:1px
+```
 
 The gradients of the cost function with respect to the weights and bias are:
 
@@ -61,6 +82,7 @@ b \leftarrow b - \eta \times \frac{\partial J}{\partial b}
 $$
 
 Where $\eta$ is the learning rate, a hyperparameter that controls the step size in each update.
+
 
 ## Implementing Linear Regression in Python
 
@@ -130,7 +152,7 @@ plt.ylabel('Salary')
 plt.show()
 ```
 
-### Code Explanation
+### Code Explanation 
 
 #### Initialization 
 
@@ -150,6 +172,22 @@ The `fit` method trains the model using gradient descent:
      - **Gradient Calculation:** Compute the gradients of the cost function with respect to weights and bias.
      - **Parameter Update:** Update the weights and bias by moving them in the opposite direction of the gradients.
 
+```mermaid
+flowchart TB
+    A[Start Fit/Train Method] --> B[Initialize weights & bias to zero]
+    B --> C[Begin Gradient Descent Loop]
+    C --> D[Calculate predictions: y_pred = X·w + b]
+    D --> E[Compute gradients: dw, db]
+    E --> F[Update parameters: w -= lr·dw, b -= lr·db]
+    F -->|Next Iteration| C
+    F -->|Completed| G[End Training]
+    
+    style B fill:#bbdefb,stroke:#333,stroke-width:1px
+    style D fill:#ffccbc,stroke:#333,stroke-width:1px
+    style E fill:#c8e6c9,stroke:#333,stroke-width:1px
+    style F fill:#ffe0b2,stroke:#333,stroke-width:1px
+```
+
 #### Predict Method (`predict`)
 
 The `predict` method generates predictions using the trained weights and bias:
@@ -161,6 +199,26 @@ $$
 ## Improving the Model
 
 While the initial implementation works, there are several enhancements we can make to improve performance and usability:
+
+```mermaid
+mindmap
+    root((Improvements))
+      Track Cost
+        Monitor convergence
+        Debug issues
+      Early Stopping
+        Save computation
+        Prevent overfitting
+      Feature Scaling
+        Faster convergence
+        Better numerical stability
+      Verbose Mode
+        Training insights
+        Progress tracking
+      Better Initialization
+        Avoid local minima
+        Speed up convergence
+```
 
 1. **Tracking the Cost Function:** Monitor the cost function over iterations to observe convergence.
 2. **Early Stopping:** Halt training when the improvement in the cost function becomes negligible.
@@ -368,6 +426,19 @@ $$
 \text{MSE} = \frac{1}{N} \sum_{i=1}^{N} (y_{\text{true}}^{(i)} - y_{\text{pred}}^{(i)})^2
 $$
 
+```mermaid
+graph LR
+    A[Actual Values] --> C{Difference}
+    B[Predicted Values] --> C
+    C --> D[Square]
+    D --> E[Average]
+    E --> F[MSE]
+    
+    style C fill:#ffccbc,stroke:#333,stroke-width:2px
+    style E fill:#bbdefb,stroke:#333,stroke-width:1px
+    style F fill:#c8e6c9,stroke:#333,stroke-width:1px
+```
+
 ### R-squared ($R^2$)
 
 The $R^2$ score indicates the proportion of the variance in the dependent variable that is predictable from the independent variable(s):
@@ -417,3 +488,24 @@ Add this snippet after training to visualize how the cost decreases over iterati
 ## Conclusion
 
 In this tutorial, we delved into the fundamentals of simple linear regression, exploring both the mathematical foundations and a practical implementation using Python and NumPy. By implementing linear regression from scratch, you gain a deeper understanding of how machine learning models learn from data, optimize their parameters, and make predictions. This foundational knowledge is crucial as you progress to more complex models and algorithms in machine learning.
+
+```mermaid
+mindmap
+    root((Linear Regression))
+        Mathematical Foundations
+            Linear Model
+            Cost Function
+            Gradient Descent
+        Implementation
+            Basic Model
+            Enhanced Model
+            Optimization Techniques
+        Evaluation
+            MSE
+            R²
+            Visualization
+        Applications
+            Prediction
+            Forecasting
+            Data Analysis
+```

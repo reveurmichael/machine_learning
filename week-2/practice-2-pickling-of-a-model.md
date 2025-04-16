@@ -142,6 +142,15 @@ with open('ml_course_grades_updated.pkl', 'wb') as file:
 
 ## Part 3: Pickling Machine Learning Models (scikit-learn Linear Regression)
 
+```mermaid
+flowchart TD
+    A[Data] --> B[Create Linear Regression Model]
+    B --> C[Train Model]
+    C --> D[Save Model with Pickle]
+    D --> E[Load Model for Predictions]
+    E --> F[Make Predictions]
+```
+
 Now, let's use pickle to save and load a scikit-learn model. We'll train a simple linear regression model to predict student performance based on study hours.
 
 ```python

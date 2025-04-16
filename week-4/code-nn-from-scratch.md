@@ -46,16 +46,6 @@ Where:
 - $\mathbf{w}$ is the weight vector
 - $b$ is the bias term
 
-<details>
-<summary>❓ What are the limitations of linear regression for complex problems?</summary>
-
-Limitations of linear regression include:
-- **Limited expressivity**: Can only model linear relationships between inputs and outputs
-- **No boundaries**: Outputs can range from negative infinity to positive infinity
-- **Feature interaction**: Cannot capture complex interactions between features without manual engineering
-- **Decision boundaries**: Can only create linear decision boundaries
-- **Complex datasets**: Performs poorly on datasets with complex relationships
-</details><br>
 
 ### Logistic Regression: Adding Non-linearity
 
@@ -65,18 +55,6 @@ $$y = \sigma(\mathbf{w}^\top \mathbf{x} + b)$$
 
 Where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the sigmoid function that maps any real number to a value between 0 and 1.
 
-<details>
-<summary>❓ Why was adding the sigmoid function an important advancement over linear regression?</summary>
-
-The sigmoid function was an important advancement because:
-- It constrains outputs to the range [0,1], making them interpretable as probabilities
-- It introduces non-linearity, allowing modeling of more complex relationships
-- It enables binary classification by providing a probability estimate
-- It has a simple derivative (σ(x)*(1-σ(x))), making optimization relatively straightforward
-- It creates a smooth, differentiable transition between classes
-- It normalizes extreme values, reducing the impact of outliers
-- It provided a building block for more complex neural network architectures
-</details><br>
 
 ### Neural Networks: Multiple Layers of Transformations
 

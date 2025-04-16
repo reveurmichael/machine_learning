@@ -7,6 +7,18 @@ In this session, we'll build on our first session's neural network foundations a
 
 We'll work with the classic **MNIST** dataset of handwritten digits to demonstrate these concepts in practice. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
+<details>
+<summary>❓ Why is backpropagation considered fundamental to neural network training?</summary>
+
+Backpropagation is fundamental because:
+- It efficiently computes gradients of the loss function with respect to all parameters in the network
+- It enables the network to learn by understanding how each parameter affects the output error
+- It applies the chain rule of calculus to distribute error gradients through layers
+- Without backpropagation, training deep neural networks would be computationally infeasible
+- It's what allows neural networks to automatically learn hierarchical features from data
+</details>
+
+
 
 ![](img/0.gif)
 ![](img/1.gif)
@@ -52,6 +64,28 @@ In this session we will cover:
    - Creating a complete training pipeline with both SGD and Adam
    - Comparing optimizer performance and visualizing results
 
+<details>
+<summary>❓ Before we dive in, can you explain why we need both forward and backward passes in neural networks?</summary>
+
+We need both forward and backward passes because:
+- **Forward pass**: Computes predictions by propagating inputs through the network's layers, generating an output that can be compared to the true target
+- **Backward pass**: Computes gradients by propagating errors backward through the network, determining how each parameter should be adjusted
+- Together they form a complete cycle: the forward pass evaluates the current model's performance, while the backward pass provides information on how to improve it
+- This cycle enables the iterative optimization process that is core to neural network training
+</details>
+
+<details>
+<summary>❓ What would you expect to see when comparing SGD and Adam optimizer performance?</summary>
+
+When comparing SGD and Adam optimizer performance, you might expect to see:
+- **Convergence speed**: Adam typically converges faster than SGD in early training
+- **Final performance**: SGD sometimes reaches slightly better final solutions (though this varies)
+- **Sensitivity to hyperparameters**: Adam is generally less sensitive to learning rate choice than SGD
+- **Computational cost**: Adam has slightly higher memory and computation requirements
+- **Learning stability**: Adam typically shows more stable learning curves with less fluctuation
+- **Problem-dependence**: The relative performance depends on the specific dataset and network architecture
+</details>
+
 ### 1. Backpropagation Implementation
 
 #### 1.1. From Theory to Code
@@ -62,6 +96,19 @@ In our first session, we implemented forward propagation. Now we need to impleme
 3. Update its own parameters using gradients
 
 This design follows directly from the chain rule and allows us to build networks of arbitrary depth by stacking layers together.
+
+<details>
+<summary>❓ What is the chain rule and why is it essential for backpropagation?</summary>
+
+The chain rule is a fundamental concept from calculus that allows us to calculate the derivative of a composite function. In backpropagation:
+- It enables us to compute gradients through multiple layers of a neural network
+- Mathematically: if z = f(y) and y = g(x), then dz/dx = (dz/dy) × (dy/dx)
+- For neural networks with many layers, we apply this rule repeatedly to propagate gradients backward
+- This is crucial because it allows us to determine how each parameter (even in early layers) contributes to the final loss
+- Without the chain rule, we would struggle to train deep networks efficiently as we wouldn't know how to update early layer parameters
+</details>
+
+
 
 #### 1.2. Code Implementation of Backpropagation
 
@@ -220,13 +267,67 @@ def train_batch(network, X, y):
     return loss
 ```
 
+
+<details>
+<summary>❓ Why is the softmax function combined with a "stability trick" in the code?</summary>
+
+The softmax stability trick (subtracting the max value before exponentiation) is used because:
+- Direct computation of exp(x) for large values of x can cause numerical overflow
+- Softmax(x) = exp(x) / sum(exp(x)) mathematically equals exp(x-c) / sum(exp(x-c))
+- By choosing c = max(x), we ensure the largest exponent is e^0 = 1
+- This prevents potential infinity or NaN values that would break the training
+- It's a simple trick that greatly improves numerical stability with no mathematical cost
+- Without this trick, training could fail when dealing with large logit values
+</details>
+
+
 Note how the `backward` method in each layer computes both the gradient with respect to inputs (to propagate backwards) and updates the layer's parameters. This encapsulates the core of backpropagation in a clean, modular design.
+
+<details>
+<summary>❓ Can you explain why we traverse the network in reverse order during the backward pass?</summary>
+
+We traverse the network in reverse order during the backward pass because:
+- The chain rule requires us to compute gradients from the loss backward
+- Each layer needs the gradient from its outputs to compute gradients for its inputs and parameters
+- The gradient flows backward from the output layer toward the input layer
+- This reverse order ensures each layer receives the correct gradient information from layers closer to the loss
+- It's analogous to finding the derivative of a composite function from the outside in
+- This backward flow gives backpropagation its name ("back" + "propagation" of error)
+</details>
 
 ### 2. Optimization in Practice
 
 #### 2.1. Mini-Batch SGD: The Foundation
 
 Stochastic Gradient Descent (SGD) is a core optimization strategy for neural networks. The key insight of SGD is that we don't need to compute gradients over the entire dataset - we can use small random batches instead.
+
+<details>
+<summary>❓ What are the key differences between batch gradient descent, stochastic gradient descent, and mini-batch SGD?</summary>
+
+Key differences between gradient descent variants:
+
+**Batch Gradient Descent**:
+- Uses the entire dataset for each parameter update
+- Provides the most accurate gradient estimate
+- Very slow for large datasets
+- May require more memory than available
+- Makes one update per epoch
+
+**Stochastic Gradient Descent (SGD)**:
+- Uses a single sample for each parameter update
+- Provides noisy but frequent updates
+- Much faster for large datasets
+- Can escape local minima due to noise
+- Makes as many updates as there are samples per epoch
+
+**Mini-batch SGD**:
+- Uses a small batch (e.g., 32, 64, 128 samples) for each update
+- Balances accuracy and speed
+- Enables vectorization for computational efficiency
+- Provides a good compromise between the other methods
+- Allows for efficient GPU utilization
+- Makes (dataset_size / batch_size) updates per epoch
+</details>
 
 Our implementation is built around this mini-batch approach:
 
@@ -245,6 +346,19 @@ This mini-batch processing is the essence of SGD - we're not using the whole dat
 - **Memory efficiency:** We only need to store a small batch in memory
 - **Computational speedup:** More frequent parameter updates lead to faster convergence
 - **Better generalization:** The noise from batch sampling helps escape local minima
+
+<details>
+<summary>❓ Why do we shuffle the data before creating mini-batches?</summary>
+
+We shuffle the data before creating mini-batches because:
+- It prevents the network from learning the order of the training data
+- It reduces the risk of getting stuck in cycles or oscillations
+- It exposes the model to a wider variety of transitions between examples
+- It helps break any existing patterns in the dataset organization
+- It improves generalization by ensuring each batch has a diverse mix of examples
+- It's especially important when the dataset might have inherent ordering (e.g., sorted by class)
+- It helps prevent overfitting to specific sequences in the data
+</details>
 
 The basic parameter update rule in SGD is straightforward:
 
@@ -341,6 +455,28 @@ class Adam:
 - **Faster Convergence:** By using both momentum and adaptive learning rates, Adam often converges faster than SGD, especially in complex problems.
 - **Less Tuning Required:** Adam typically requires less tuning of the learning rate compared to SGD, making it easier to use in practice.
 
+<details>
+<summary>❓ What is the role of the beta1 and beta2 hyperparameters in Adam?</summary>
+
+The beta1 and beta2 hyperparameters in Adam control:
+
+**beta1 (typically 0.9)**:
+- Controls the exponential decay rate for the first moment estimate (momentum)
+- Determines how much to weight recent vs. historical gradients
+- Higher values (closer to 1) give more weight to past gradients, creating more momentum
+- Lower values make the optimizer respond more quickly to recent gradient changes
+- Affects how quickly the optimizer adapts to changes in the gradient direction
+
+**beta2 (typically 0.999)**:
+- Controls the exponential decay rate for the second moment estimate (squared gradients)
+- Determines how much to weight recent vs. historical squared gradients
+- Higher values create a longer-term memory of past squared gradients
+- Affects the adaptive learning rate by controlling how quickly variance estimates change
+- Influences the optimizer's sensitivity to gradient magnitudes
+
+Together, these hyperparameters balance between fast adaptation to new gradients and stability from historical information.
+</details>
+
 The update rules for Adam are:
 
 1. **First Moment Estimate (mean):**  
@@ -363,6 +499,31 @@ The update rules for Adam are:
 ### 3. MNIST Dataset Preparation
 
 In this session, we'll be using the MNIST dataset, a classic benchmark in machine learning. MNIST contains 70,000 grayscale images of handwritten digits (28x28 pixels), with 60,000 training examples and 10,000 test examples.
+
+<details>
+<summary>❓ Why do we typically split datasets into training, validation, and test sets?</summary>
+
+We split datasets into different sets because:
+
+**Training set**:
+- Used to update the model parameters through backpropagation
+- The model directly "sees" and learns from this data
+- Largest portion of the dataset (typically 60-80%)
+
+**Validation set**:
+- Used to tune hyperparameters (learning rate, network architecture, etc.)
+- Helps detect overfitting during training
+- Not used for parameter updates, only for evaluation
+- Medium portion of the dataset (typically 10-20%)
+
+**Test set**:
+- Used to evaluate the final model performance
+- Never used during training or hyperparameter tuning
+- Provides an unbiased estimate of model performance on unseen data
+- Smallest portion of the dataset (typically 10-20%)
+
+This separation prevents data leakage and gives us a more realistic estimate of how the model will perform on new, unseen data.
+</details>
 
 We'll load the dataset using sklearn's `fetch_openml` function and implement preprocessing steps to prepare it for our neural network:
 
@@ -419,6 +580,19 @@ def visualize_mnist_samples(X, y, num_samples=10):
     plt.show()
 ```
 
+<details>
+<summary>❓ Why do we normalize the pixel values by dividing by 255.0?</summary>
+
+We normalize pixel values by dividing by 255.0 because:
+- Raw pixel values range from 0 to 255 (8-bit grayscale)
+- Neural networks work better with input values in a smaller, standardized range
+- Normalization to [0,1] improves numerical stability during training
+- It helps the gradient descent algorithm converge faster
+- Different scales between inputs can cause some features to dominate others
+- Consistent scaling makes weights more comparable across features
+- It makes the learning rate's effect more predictable and consistent
+</details>
+
 After loading the dataset, we need to preprocess it to suit our neural network. This involves:
 - Flattening the 2D images (28×28) into 1D vectors (784)
 - Normalizing the data to have zero mean and unit variance
@@ -458,6 +632,31 @@ def preprocess_mnist(X_train, y_train, X_test, y_test):
     return X_train_final, y_train_final, X_val, y_val, X_test_normalized, y_test
 ```
 
+<details>
+<summary>❓ Why do we add a small constant (1e-9) when standardizing the data?</summary>
+
+We add a small constant (1e-9) to the standard deviation because:
+- It prevents division by zero when a pixel has zero standard deviation
+- Some pixels might have the same value across all training images (especially background pixels)
+- Without this constant, we could get NaN (Not a Number) values when dividing by zero
+- It's a form of numerical stability that avoids potential errors during training
+- The constant is small enough that it doesn't significantly affect properly calculated standardization
+- This is a common practice in machine learning preprocessing to avoid numerical issues
+</details>
+
+<details>
+<summary>❓ Why do we flatten the 2D images before feeding them to our neural network?</summary>
+
+We flatten 2D images into 1D vectors because:
+- Our current Dense (fully connected) layers expect 1D input vectors
+- Each pixel becomes a separate input feature
+- This simplifies the implementation for a basic neural network
+- Spatial relationships between pixels are not explicitly preserved in this representation
+- It's a standard approach for simple feed-forward networks (though not optimal for image data)
+- More advanced architectures like CNNs would preserve the 2D structure
+- For MNIST digits, this flattening still works well because the images are small and well-centered
+</details>
+
 Let's load and preprocess the data:
 
 ```python
@@ -470,7 +669,6 @@ visualize_mnist_samples(X_train, y_train)
 # Preprocess the data
 X_train, y_train, X_val, y_val, X_test, y_test = preprocess_mnist(X_train, y_train, X_test, y_test)
 ```
-
 
 ### 4. Building and Training the Neural Network with Backpropagation & Optimizers
 
@@ -641,6 +839,23 @@ sgd_accuracy = evaluate_network(network_sgd, X_test, y_test)
 print(f"\nAdam accuracy: {adam_accuracy*100:.2f}%")
 print(f"SGD accuracy: {sgd_accuracy*100:.2f}%")
 ```
+
+<details>
+<summary>❓ How might the results change if we trained on the full dataset instead of a subset?</summary>
+
+Using the full dataset instead of a subset would likely:
+
+- **Improve overall accuracy**: More training examples generally lead to better generalization
+- **Reduce overfitting**: Larger datasets help the model avoid memorizing specific examples
+- **Increase training time**: Training would take longer due to more batches per epoch
+- **Smooth learning curves**: Larger datasets typically produce smoother loss and accuracy curves
+- **Reduce performance gap**: The gap between optimizers might change, as some optimizers perform better with more data
+- **Better representation**: The model would see a more complete distribution of digits and writing styles
+- **Diminishing returns**: There would be a point of diminishing returns where more data adds minimal benefit
+- **Memory constraints**: Might require more memory-efficient implementation or hardware
+
+While our subset approach is good for demonstration and comparison, production models would typically use all available training data.
+</details>
 
 #### 4.4. Visualizing Training History and Comparing Optimizers
 

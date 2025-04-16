@@ -137,47 +137,15 @@ Co-adaptation of features, which dropout helps prevent, refers to:
 
 Early stopping differs from other regularization techniques in several key ways:
 
-1. **No Model Modification**: Unlike dropout or weight regularization, early stopping doesn't modify the model architecture or add terms to the loss function.
+1. **Training Duration Control**: It regulates the effective capacity of the model by controlling how long training continues rather than directly constraining parameters.
 
-2. **Training Duration Control**: It regulates the effective capacity of the model by controlling how long training continues rather than directly constraining parameters.
+2. **Hyperparameter Efficiency**: Requires fewer hyperparameters to tune (typically just patience and optional threshold).
 
-3. **Hyperparameter Efficiency**: Requires fewer hyperparameters to tune (typically just patience and optional threshold).
+3. **Computational Efficiency**: Often reduces total training time by stopping before complete convergence on training data.
 
-4. **Computational Efficiency**: Often reduces total training time by stopping before complete convergence on training data.
+4. **No Explicit Mathematical Penalty**: Doesn't explicitly penalize weights in the objective function.
 
-5. **No Explicit Mathematical Penalty**: Doesn't explicitly penalize weights in the objective function.
-
-6. **Simplicity**: Conceptually simpler to implement than some other regularization approaches.
-</details><br>
-
-<details>
-<summary>❓ How does early stopping affect the loss landscape exploration?</summary>
-
-Early stopping influences loss landscape exploration in several important ways:
-
-1. **Trajectory Truncation**: Early stopping essentially truncates the optimization trajectory, preventing the model from exploring regions of the loss landscape that might lead to overfitting.
-
-2. **Local Minima Selection**: It tends to select shallower, wider minima that are reached earlier in training rather than deeper, narrower minima that require more iterations.
-
-3. **Implicit Regularization Effect**: Early stopping acts as a form of regularization by limiting how thoroughly the model can optimize for the training data, favoring solutions that generalize better.
-
-4. **Escaping Saddle Points**: If patience is too low, early stopping might halt training when the optimizer is navigating saddle points rather than allowing it to escape them.
-
-5. **Exploration vs. Exploitation Balance**: It shifts the balance from exploitation (optimizing for known patterns) toward exploration (maintaining generalization capability).
-
-6. **Plateau Handling**: With sufficient patience, early stopping allows some exploration of plateaus in the loss landscape before deciding further progress is unlikely.
-
-7. **Valley Navigation**: In narrow loss valleys, early stopping might prevent the optimizer from following the valley to its lowest point.
-
-8. **Noise Sensitivity**: Early stopping interacts with the stochasticity of mini-batch training - high noise might trigger stopping even when better solutions exist.
-
-9. **Optimization Algorithm Interaction**: Different optimizers explore the loss landscape differently, affecting when early stopping will activate.
-
-10. **Learning Rate Interaction**: With high learning rates, the optimizer might bounce around a minimum without settling, potentially triggering early stopping prematurely.
-
-11. **Generalization Focus**: Early stopping biases exploration toward regions with good validation performance rather than low training loss.
-
-12. **Sharp Minima Avoidance**: It tends to avoid sharp minima that are often associated with overfitting, preferring more robust solutions.
+5. **Simplicity**: Conceptually simpler to implement than some other regularization approaches.
 </details><br>
 
 ```mermaid
@@ -207,19 +175,8 @@ L1 regularization would be preferred over L2 regularization in several scenarios
 
 3. **High-Dimensional Data**: When working with high-dimensional data where many features are suspected to be irrelevant.
 
-4. **Computational Efficiency**: When inference-time efficiency is important, as sparse models require fewer computations.
+4. **Highly Redundant Features**: When dealing with numerous highly redundant features where selecting a subset is beneficial.
 
-5. **Signal Compression**: In applications like signal processing where sparse representations are preferred.
-
-6. **Noisy Features**: When the dataset contains many noisy features that should be ignored.
-
-7. **Highly Redundant Features**: When dealing with numerous highly redundant features where selecting a subset is beneficial.
-
-8. **Explainable AI Requirements**: When model explanations need to focus on a small subset of critical features.
-
-9. **Transfer Learning Fine-tuning**: When adapting pre-trained models to simpler downstream tasks where feature reduction is helpful.
-
-10. **Outlier Resistance**: L1 regularization can be more robust to outliers in some scenarios.
 </details><br>
 
 ```mermaid
@@ -239,27 +196,12 @@ graph LR
 <details>
 <summary>❓ Why might L2 regularization be considered a form of "weight decay"?</summary>
 
-L2 regularization is considered a form of "weight decay" for several mathematical and conceptual reasons:
+1. **Mathematical Equivalence**: The weight update rule with L2 regularization (w = w - learning_rate * (gradient + lambda * w)) can be rewritten as w = w * (1 - learning_rate * lambda) - learning_rate * gradient.
 
-1. **Gradient Update Effect**: In SGD, adding L2 regularization is equivalent to multiplying weights by a factor slightly less than 1 before the normal gradient update, literally "decaying" their magnitude.
+2. **Automatic Shrinkage**: L2 regularization automatically shrinks weights toward zero after each update, with larger weights decaying more rapidly than smaller ones.
 
-2. **Mathematical Equivalence**: The weight update rule with L2 regularization (w = w - learning_rate * (gradient + lambda * w)) can be rewritten as w = w * (1 - learning_rate * lambda) - learning_rate * gradient.
+3. **Contrast with L1**: Unlike L1 regularization which can drive weights exactly to zero, L2 causes gradual decay toward zero without generally reaching it.
 
-3. **Automatic Shrinkage**: L2 regularization automatically shrinks weights toward zero after each update, with larger weights decaying more rapidly than smaller ones.
-
-4. **Exponential Decay Properties**: Without conflicting gradients from the loss function, weights would exponentially decay toward zero over time.
-
-5. **Proportional Reduction**: The regularization penalty is proportional to the weight magnitude, creating a decay effect that's stronger for larger weights.
-
-6. **Historical Naming**: Early neural network literature referred to L2 regularization as weight decay because of this shrinking effect.
-
-7. **Implementation Perspective**: In many frameworks, L2 regularization is implemented directly as a weight decay term in optimizers.
-
-8. **Contrast with L1**: Unlike L1 regularization which can drive weights exactly to zero, L2 causes gradual decay toward zero without generally reaching it.
-
-9. **Explicit vs. Implicit Form**: While mathematically equivalent, implementing L2 as weight decay (in the parameter update) versus as a regularization term (in the loss function) can sometimes lead to slightly different behavior with adaptive optimizers.
-
-10. **Intuitive Behavior**: The term "decay" intuitively captures how L2 regularization continuously shrinks weights throughout training.
 </details><br>
 
 <details>

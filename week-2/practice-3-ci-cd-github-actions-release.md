@@ -8,6 +8,18 @@ We will create a GitHub Actions workflow that triggers on pushes and pull reques
 
 ### .github/workflows/ci-cd.yml
 
+```mermaid
+flowchart TD
+    A[CI/CD Pipeline] --> B[Triggered on Push/Pull Request]
+    B --> C[Check for Changes]
+    C -->|Yes| D[Train Model]
+    C -->|No| E[End Workflow]
+    D --> F[Commit Model]
+    F --> G[Push to Release Branch]
+    G --> H[Create Release]
+    H --> I[Upload Release Asset]
+```
+
 ```yaml:
 name: CI/CD Pipeline
 
@@ -249,15 +261,19 @@ The workflow is set to automatically create a new release each time the `linear_
 - **Access Token**: The `GITHUB_TOKEN` secret is used to authenticate the release creation.
 
 
----
-
 ## 6. Testing the CI/CD Pipeline
+
+```mermaid
+flowchart TD
+    A[Modify training_data.csv] --> B[Push Changes to Main]
+    B --> C[Check GitHub Actions Tab]
+    C --> D[Verify Release in Release Branch]
+    D --> E[Check Release in GitHub Releases]
+```
 
 Modify the `training_data.csv` file, add some new data, and push the changes to the `main` branch.
 
 See what happens in the GitHub Actions tab, as well as the `release` branch, and the release in the GitHub Releases.
-
----
 
 ## Summary
 

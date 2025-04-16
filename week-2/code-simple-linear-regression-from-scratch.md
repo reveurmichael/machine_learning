@@ -54,43 +54,27 @@ $$
 <details>
 <summary>❓ What is the geometric interpretation of weights and bias in linear regression?</summary>
 
-The geometric interpretation of weights and bias in linear regression:
-
-1. **Weights (w)**:
-   - Represent the **slope** of the regression line
-   - Determine how much the predicted value changes when the feature value changes by one unit
-   - Higher absolute values indicate steeper slopes and stronger relationships
-   - The sign (+ or -) indicates whether the relationship is direct or inverse
-   - In multiple regression, each weight controls the slope in the direction of its corresponding feature dimension
+1. **Weights (w)**: 
+   - Represent the slope of the regression line
+   - Determine how much y changes when x increases by 1
+   - Sign indicates positive or negative relationship
 
 2. **Bias (b)**:
-   - Represents the **y-intercept** of the regression line
-   - The predicted value when all features are zero
-   - Shifts the entire line up or down without changing its slope
-   - Allows the model to fit data that doesn't necessarily pass through the origin
+   - Represents the y-intercept
+   - Value of y when x = 0
+   - Shifts the line vertically
 
-3. **Together**:
-   - They define a line (in 2D) or hyperplane (in higher dimensions) that best fits the data
-   - The line minimizes the distance between itself and the actual data points
-   - In 2D, the equation y = wx + b creates a line where:
-     - w controls how steep the line is
-     - b controls where the line crosses the y-axis
+3. **Together**: Define a line (or hyperplane) that minimizes the distance to data points.
 </details><br>
 
 <details>
 <summary>❓ Why do we represent the model as a dot product rather than writing out each feature explicitly?</summary>
 
-We represent the linear model as a dot product (y = w^T x + b) rather than writing out each feature explicitly for several important reasons:
-
-1. **Mathematical Compactness**: The dot product notation provides a concise mathematical representation, especially for models with many features.
-
-2. **Vectorization**: It allows for efficient implementation using vector operations, which are computationally optimized in libraries like NumPy.
-
-3. **Computational Efficiency**: Vector operations can be parallelized, leading to faster computation especially when working with large datasets.
-
-4. **Code Simplification**: Implementing the model as a dot product results in cleaner, more maintainable code compared to explicit loops over features.
-
-5. **Framework Compatibility**: Modern machine learning frameworks are optimized for vector operations, making this notation directly translatable to efficient code.
+1. **Compactness**: Provides concise mathematical notation
+2. **Vectorization**: Enables efficient computation with optimized libraries
+3. **Performance**: Allows parallel operations and faster computation
+4. **Code simplicity**: Eliminates loops, reducing code complexity
+5. **Framework compatibility**: Aligns with how modern ML libraries operate
 </details><br>
 
 ```mermaid
@@ -116,20 +100,7 @@ A standard linear model cannot directly capture non-linear relationships in data
    - Creating interaction terms (x₁×x₂)
    - Applying non-linear transformations (log(x), sin(x), etc.)
 
-4. **Example**: While y = wx + b can't fit a parabola, y = w₁x + w₂x² + b can.
-
-5. **Limitations of the Workaround**: 
-   - Requires domain knowledge to select appropriate transformations
-   - Can lead to overfitting with too many polynomial terms
-   - Becomes computationally expensive with high-dimensional data
-
-6. **Alternatives**: When true non-linear relationships exist, non-linear models are often more appropriate:
-   - Decision trees
-   - Neural networks
-   - Support vector machines with non-linear kernels
-   - Gaussian processes
-
-7. **Interpretability Trade-off**: While non-linear models can capture complex patterns, they often sacrifice the interpretability that makes linear regression valuable.
+For truly complex patterns, non-linear models (decision trees, neural networks) are more appropriate.
 </details><br>
 
 ### Cost Function
@@ -148,33 +119,14 @@ Where:
 <details>
 <summary>❓ Why do we use Mean Squared Error instead of Mean Absolute Error for linear regression?</summary>
 
-There are several significant reasons why Mean Squared Error (MSE) is typically preferred over Mean Absolute Error (MAE) for linear regression:
+MSE is preferred over MAE because:
 
-1. **Mathematical Properties**:
-   - MSE is differentiable everywhere, making it suitable for gradient-based optimization
-   - The squared term creates a smooth, convex function with a single global minimum
-   - Taking derivatives of squared terms is simpler mathematically
+1. **Mathematical properties**: Differentiable everywhere with smooth gradients
+2. **Statistical foundation**: Leads to maximum likelihood estimation with normally distributed errors
+3. **Optimization**: Creates a convex function with a single global minimum
+4. **Analytical solutions**: Allows closed-form solution (normal equation)
+5. **Gradient behavior**: Provides gradients proportional to error magnitude
 
-2. **Statistical Foundation**:
-   - MSE minimization leads to the same solution as Maximum Likelihood Estimation under the assumption of normally distributed errors
-   - When this assumption holds, MSE produces the Best Linear Unbiased Estimator (BLUE)
-
-3. **Outlier Sensitivity**:
-   - MSE gives more weight to larger errors due to squaring
-   - This makes the model more sensitive to outliers, which can be beneficial when outliers represent important rare cases that shouldn't be ignored
-
-4. **Analytical Solutions**:
-   - For linear regression, MSE allows for a closed-form solution (Normal Equation)
-   - This isn't possible with MAE, which requires iterative optimization
-
-5. **Gradient Behavior**:
-   - MSE's gradient is proportional to the error, creating larger updates for larger errors
-   - MAE's gradient is constant (±1), which can lead to slower convergence near the minimum
-
-However, MAE does have advantages in some situations:
-   - More robust to outliers when they represent noise rather than signal
-   - Produces median estimates rather than mean estimates
-   - Can be preferable when the error distribution is not normal (e.g., heavy-tailed)
 </details><br>
 
 
@@ -185,39 +137,13 @@ To minimize the cost function $J(\mathbf{w}, b)$, we employ the Gradient Descent
 <details>
 <summary>❓ What's the intuition behind gradient descent and why does it work?</summary>
 
-The intuition behind gradient descent and why it works:
+Gradient descent works like walking downhill to reach the valley:
 
-1. **Mountain Descent Analogy**:
-   - Imagine being on a mountain and wanting to reach the lowest point (valley)
-   - If you can only see your immediate surroundings, a good strategy is to look at which direction is steepest downhill and take a step in that direction
-   - Repeating this process eventually leads you to a valley (minimum)
+1. The gradient points in the steepest uphill direction
+2. Taking steps in the negative gradient direction moves toward lower cost
+3. Steps get smaller near the minimum as the gradient approaches zero
+4. For convex functions (like MSE), this guarantees finding the global minimum
 
-2. **Mathematical Intuition**:
-   - The gradient (vector of partial derivatives) points in the direction of steepest increase of the function
-   - The negative gradient points in the direction of steepest decrease
-   - By taking steps proportional to the negative gradient, we move toward lower function values
-
-3. **Why It Works**:
-   - For convex functions (like MSE in linear regression), there is only one minimum
-   - Each step is guaranteed to decrease the function value (if step size is appropriate)
-   - The gradient gets smaller as we approach the minimum, leading to smaller steps
-   - Eventually, we converge to a point where the gradient is (nearly) zero, indicating a minimum
-
-4. **Step Size (Learning Rate) Considerations**:
-   - Too small: Algorithm takes too long to converge
-   - Too large: May overshoot the minimum and potentially diverge
-   - Adaptive learning rates help address this challenge
-
-5. **Limitations**:
-   - For non-convex functions, may get stuck in local minima
-   - Sensitive to feature scaling (features with larger ranges dominate the gradients)
-   - Can be slow for flat regions or zigzag in narrow valleys
-
-6. **Why It's Widely Used**:
-   - Simple and intuitive
-   - Computationally efficient, especially with stochastic variants
-   - Works well for many machine learning problems
-   - Scales to very high-dimensional problems
 </details><br>
 
 ```mermaid
@@ -310,44 +236,23 @@ Where $\eta$ is the learning rate, a hyperparameter that controls the step size 
 <details>
 <summary>❓ How does the learning rate affect the convergence of gradient descent?</summary>
 
-The learning rate (η) significantly impacts the convergence behavior of gradient descent in several ways:
+Learning rate impacts convergence:
 
-1. **Too Large Learning Rate**:
-   - Can cause the algorithm to overshoot the minimum
-   - May lead to divergence (cost increases instead of decreases)
-   - Results in oscillations around the minimum without converging
-   - In extreme cases, can cause numerical overflow
+1. **Too large**: 
+   - Overshoots the minimum
+   - May diverge or oscillate
+   - Can cause numerical instability
 
-2. **Too Small Learning Rate**:
-   - Leads to very slow convergence (many iterations needed)
+2. **Too small**:
+   - Very slow convergence
    - May get stuck in high-precision computations
    - More susceptible to getting trapped in local minima (for non-convex functions)
    - Risks terminating before reaching the actual minimum if using early stopping
 
-3. **Optimal Learning Rate**:
-   - Depends on the scale of the features and the shape of the cost function
-   - Typically requires experimentation to find
-   - Often follows the "Goldilocks principle" - neither too large nor too small
-
-4. **Learning Rate Schedules**:
-   - **Decreasing**: Start with a larger learning rate and decrease it over time
-   - **Step Decay**: Reduce learning rate by a factor after a set number of iterations
-   - **Exponential Decay**: Reduce learning rate exponentially over iterations
-   
-5. **Adaptive Learning Rates**:
-   - Algorithms like AdaGrad, RMSProp, and Adam automatically adjust learning rates
-   - Different learning rates for different parameters based on their gradients
-   - Can significantly improve convergence without manual tuning
-
-6. **Visual Interpretation**:
-   - Learning rate represents the "step size" down the cost function slope
-   - Large steps: Quick progress but risk overshooting
-   - Small steps: Precise progress but very time-consuming
-
-7. **Rule of Thumb**:
-   - Start with a small learning rate (e.g., 0.01) and increase/decrease based on convergence behavior
-   - If loss explodes, decrease learning rate by a factor of 10
-   - If loss decreases very slowly, increase learning rate by a factor of 10
+3. **Optimal approach**:
+   - Use learning rate schedules (gradually decrease)
+   - Try adaptive methods (AdaGrad, RMSProp, Adam)
+   - Start with a moderate value (0.01) and adjust based on convergence behavior
 </details><br>
 
 ## Implementing Linear Regression in Python
@@ -422,23 +327,16 @@ plt.show()
 <details>
 <summary>❓ In the commented question about using 1/n_samples or 2/n_samples for gradient calculation, what is the correct approach and why?</summary>
 
-Regarding the question about using 1/n_samples or 2/n_samples for gradient calculation:
+Both approaches are valid:
 
-1. **Mathematically Correct Formula**: 
-   - The mathematically correct gradient for MSE is (2/n_samples) * X.T @ (y_predicted - y) for weights
-   - This comes directly from differentiating the MSE cost function
+1. Mathematically, the correct gradient includes 2/n_samples from differentiating the MSE cost function
 
-2. **Why Use 1/n_samples Instead**:
-   - The factor of 2 is often absorbed into the learning rate parameter
-   - Since the learning rate is a hyperparameter you tune anyway, including or excluding the 2 has no practical impact
-   - Using 1/n_samples simplifies the formula and is a common convention in many implementations
+2. In practice, using 1/n_samples is common because:
+   - The factor of 2 can be absorbed into the learning rate
+   - Since learning rate is tuned anyway, removing the 2 simplifies the equation
+   - With proper learning rate adjustment, both approaches converge identically
 
-3. **Effect on Convergence**:
-   - Using 2/n_samples would make the gradients twice as large
-   - To achieve equivalent updates, you would need to use a learning rate that's half as large
-   - The convergence path would be identical between these approaches if learning rates are adjusted accordingly
-
-In practice, the implementation shown with 1/n_samples is widely used and perfectly acceptable as long as you properly tune your learning rate.
+The implementation using 1/n_samples is perfectly acceptable as long as the learning rate is properly tuned.
 </details><br>
 
 ### Code Explanation 
@@ -481,55 +379,24 @@ flowchart TB
 <details>
 <summary>❓ Why do we use matrix/vector operations instead of explicit loops in the implementation?</summary>
 
-Using matrix/vector operations instead of explicit loops offers several critical advantages:
+Matrix operations provide:
 
-1. **Performance**:
-   - **Vectorization**: NumPy's vector operations are implemented in optimized C/Fortran code
-   - **SIMD Instructions**: Vector operations can leverage Single Instruction Multiple Data (SIMD) CPU instructions
-   - **Speed Improvement**: Often 10-100× faster than equivalent Python loops
-   - **Hardware Acceleration**: Can utilize specialized hardware like BLAS libraries
+1. **Speed**: 10-100× faster than Python loops using optimized C/Fortran code
+2. **Hardware utilization**: Leverages SIMD instructions and specialized libraries
+3. **Code clarity**: Matches mathematical notation directly
+4. **Memory efficiency**: Better cache utilization with contiguous memory
+5. **Scalability**: Automatic parallelization across cores
 
-2. **Code Clarity**:
-   - **Mathematical Alignment**: Matrix notation matches the mathematical formulation more closely
-   - **Conciseness**: Fewer lines of code, reducing potential for errors
-   - **Readability**: Clearer expression of the algorithm's intent
+Example comparison:
+```python
+# Slow: nested loops
+for i in range(n_samples):
+    for j in range(n_features):
+        # calculations
 
-3. **Memory Efficiency**:
-   - **Contiguous Memory**: Array operations work on contiguous memory blocks
-   - **Cache Utilization**: Better CPU cache utilization
-   - **Memory Management**: Reduced overhead from Python's memory management
-
-4. **Scalability**:
-   - **Parallelization**: NumPy operations can automatically parallelize across CPU cores
-   - **Resource Utilization**: Better utilization of computational resources
-   - **Large Dataset Handling**: More efficient processing of large datasets
-
-5. **Example Comparison**:
-
-   Loop Implementation:
-   ```python
-   # Slow implementation with loops
-   dw = np.zeros(n_features)
-   for i in range(n_samples):
-       error = (np.sum(X[i] * weights) + bias) - y[i]
-       for j in range(n_features):
-           dw[j] += X[i][j] * error
-   dw = dw / n_samples
-   ```
-
-   Vector Implementation:
-   ```python
-   # Fast vectorized implementation
-   y_pred = np.dot(X, weights) + bias
-   dw = (1/n_samples) * np.dot(X.T, (y_pred - y))
-   ```
-
-6. **Industry Standard**:
-   - Standard practice in data science and machine learning
-   - Prepares code for scaling to larger datasets
-   - Consistent with other libraries and frameworks
-
-The vectorized approach is not just a performance optimization—it's a fundamental best practice in numerical computing and machine learning implementation.
+# Fast: vectorized
+dw = (1/n_samples) * np.dot(X.T, (y_pred - y))
+```
 </details><br>
 
 #### Predict Method (`predict`)
@@ -567,47 +434,15 @@ mindmap
 <details>
 <summary>❓ How does feature scaling impact gradient descent convergence?</summary>
 
-Feature scaling significantly impacts gradient descent convergence in several ways:
+Feature scaling significantly improves convergence:
 
-1. **Convergence Speed**:
-   - **Without Scaling**: Features with larger magnitudes dominate the gradient, causing zig-zagging in the optimization path
-   - **With Scaling**: More balanced gradients across features, allowing for faster and more direct convergence
-   - **Quantitative Impact**: Can reduce required iterations by orders of magnitude
+1. **Balanced gradients**: Prevents features with large values from dominating updates
+2. **Learning rate effectiveness**: Same rate works well for all features
+3. **Direct path**: Transforms elliptical cost contours to more circular ones
+4. **Faster convergence**: Can reduce iterations by orders of magnitude
+5. **Numerical stability**: Prevents extremely large or small gradients
 
-2. **Learning Rate Sensitivity**:
-   - **Without Scaling**: Difficult to find an appropriate learning rate that works for all features
-   - **With Scaling**: A single learning rate becomes effective for all features
-   - **Example**: A learning rate that's too large for one feature but too small for another causes oscillations in one dimension while barely moving in another
-
-3. **Gradient Magnitudes**:
-   - **Large-Scale Features**: Create large partial derivatives, causing large parameter updates
-   - **Small-Scale Features**: Generate tiny gradients, resulting in very slow parameter updates
-   - **After Scaling**: All features contribute more equally to the gradient
-
-4. **Geometric Intuition**:
-   - **Without Scaling**: The cost function contours become highly elliptical
-   - **With Scaling**: Contours become more circular, making the gradient descent path more direct
-   - **Visual Effect**: Transforming a narrow valley into a more bowl-shaped surface
-
-5. **Common Scaling Techniques**:
-   - **Standardization**: (x - mean) / std
-   - **Min-Max Scaling**: (x - min) / (max - min)
-   - **Robust Scaling**: (x - median) / IQR
-
-6. **Mathematical Explanation**:
-   - The condition number of the Hessian matrix is improved with scaling
-   - Reduced condition number leads to faster convergence
-   - Better-conditioned optimization problem is less sensitive to numerical issues
-
-7. **Real-World Impact**:
-   - **Large Datasets**: May not converge at all without scaling
-   - **Time Savings**: Dramatically reduced training time
-   - **Model Quality**: Often better final performance due to more complete convergence
-
-8. **Example Scenario**:
-   - Feature 1: Age (20-80 years)
-   - Feature 2: Income ($20,000-$200,000)
-   - Without scaling, income will dominate the gradients by a factor of ~1000x
+Without scaling, features with large ranges (e.g., income in $) create much larger gradients than features with small ranges (e.g., age), causing inefficient zigzagging during optimization.
 </details><br>
 
 1. **Tracking the Cost Function:** Monitor the cost function over iterations to observe convergence.

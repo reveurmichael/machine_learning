@@ -185,8 +185,6 @@ Test (45 min):
 
 Materials to read before test:
 - all materials for lectures and exercises
-- https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
-- https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b
 
 Test (45 min):
 - **Code**: Neural network implementation from scratch (2/2) 

@@ -54,11 +54,14 @@ brew install ffmpeg
 Test your setup:
 
 ```python
+# This code is only for testing if you have the python libraries installed correctly. As long as no error is thrown, you are good to go.
+
 import torch
 from transformers import pipeline
 from faster_whisper import WhisperModel
 
-# Check if CUDA is available
+# Check if CUDA is available. It's OK to not have CUDA. You will have CUDA only if you are on Windows/Linux with Nvida GPUs and with CUDA installed.
+
 print(f"CUDA available: {torch.cuda.is_available()}")
 print(f"CUDA device count: {torch.cuda.device_count()}")
 if torch.cuda.is_available():

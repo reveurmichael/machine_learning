@@ -9,7 +9,10 @@ After exploring backpropagation, we will discuss **Stochastic Gradient Descent (
 
 We'll work with the classic **MNIST** dataset of handwritten digits to demonstrate these concepts in practice. To maintain our "from scratch" philosophy, we'll implement everything using only NumPy, with minimal dependencies.
 
-<br>
+
+Let's go interactive:
+- https://emiliendupont.github.io/2018/01/24/optimization-visualization/
+
 
 <details>
 <summary>❓ Why is backpropagation considered fundamental to neural network training?</summary>

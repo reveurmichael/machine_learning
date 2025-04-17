@@ -168,7 +168,7 @@ Materials to read before test:
 - The four 3b1b videos [[1]](https://www.youtube.com/watch?v=aircAruvnKk) [[2]](https://www.youtube.com/watch?v=IHZwWFHWa-w) [[3]](https://www.youtube.com/watch?v=Ilg3gGewQ5U) [[4]](https://www.youtube.com/watch?v=tIeHLnjs5U8)
 
 
-Test (30 min):
+Test (45 min):
 - **Code**: Neural network implementation from scratch (1/2) 
     - Code scope limited to [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md)
     - Some basic starter code (>= 70%) will be provided
@@ -187,7 +187,7 @@ Materials to read before test:
 - https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
 - https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b
 
-Test (30 min):
+Test (45 min):
 - **Code**: Neural network implementation from scratch (2/2) 
     - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
     - Some basic starter code (<= 50%) will be provided

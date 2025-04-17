@@ -191,6 +191,7 @@ Test (45 min):
 - **Code**: Neural network implementation from scratch (2/2) 
     - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
     - Some basic starter code (<= 50%) will be provided
+    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md), [code-nn-bp-sgd-adam.md](week-5/code-nn-bp-sgd-adam.md) and [code-nn-dropout-es-L1-L2.md](week-6/code-nn-dropout-es-L1-L2.md)
 - **Math**: L1 and L2 regularization
 - **Math**: Bias Variance Trade-off
 - **Math**: Learning Curve for determing overfitting and uderfitting

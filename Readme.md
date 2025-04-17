@@ -131,7 +131,7 @@ After each test, feel free to forget everything that you have learned for test p
 ### Week 2 (Test 1/4)
 
 Materials to read before test:
-- all jupyter notebooks for  lectures and exercises
+- all materials for lectures and exercises
 - https://www.t-ott.dev/2021/11/24/animating-normal-distributions
 - https://demonstrations.wolfram.com/TheBivariateNormalDistribution/
 - https://online.stat.psu.edu/stat505/lesson/4/4.2
@@ -148,6 +148,7 @@ Test (45 min):
 ### Week 4 (Test 2/4)
 
 Materials to read before test:
+- all materials for lectures and exercises
 - https://docs.github.com/en/actions/quickstart
 - https://resources.github.com/ci-cd/
 - https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/optimizing-multivariable-functions/a/what-is-gradient-descent
@@ -164,7 +165,7 @@ Test (45 min):
 
 ### Week 6 (Test 3/4)
 Materials to read before test:
-- all jupyter notebooks for lectures and exercises
+- all materials for lectures and exercises
 - The four 3b1b videos [[1]](https://www.youtube.com/watch?v=aircAruvnKk) [[2]](https://www.youtube.com/watch?v=IHZwWFHWa-w) [[3]](https://www.youtube.com/watch?v=Ilg3gGewQ5U) [[4]](https://www.youtube.com/watch?v=tIeHLnjs5U8)
 
 
@@ -183,7 +184,7 @@ Test (45 min):
 ### Week 8 (Test 4/4)
 
 Materials to read before test:
-- all jupyter notebooks for  lectures and exercises
+- all materials for lectures and exercises
 - https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
 - https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b
 

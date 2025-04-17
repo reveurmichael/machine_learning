@@ -10,7 +10,7 @@ You can download the srt files as well as the video files with the tool `yt-dlp`
 
 Problems that I have identified:
 - Some of the srt in English might not be good enough. Though most should be fine. One perticular keyword, for example, `foreign`, can be very misleading.
-- If we translate the srt files into Chinese with non-LLM AI tools, the result might not be good, sometimes very bad. See [practice-2-output-srt-files](../week-4/practice-2-output-srt-files/)
+- If we translate the srt files into Chinese with non-LLM AI tools, the result might not be good, sometimes very bad. See [week-4/practice-2-output-srt-files](../week-4/practice-2-output-srt-files/)
 
 ## Project Objectives
 

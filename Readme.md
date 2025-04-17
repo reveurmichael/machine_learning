@@ -166,37 +166,30 @@ Test (45 min):
 Materials to read before test:
 - all jupyter notebooks for lectures and exercises
 - The four 3b1b videos [[1]](https://www.youtube.com/watch?v=aircAruvnKk) [[2]](https://www.youtube.com/watch?v=IHZwWFHWa-w) [[3]](https://www.youtube.com/watch?v=Ilg3gGewQ5U) [[4]](https://www.youtube.com/watch?v=tIeHLnjs5U8)
-- https://www.analyticsvidhya.com/blog/2021/04/activation-functions-and-their-derivatives-a-quick-complete-guide/
-- https://towardsdatascience.com/7-popular-activation-functions-you-should-know-in-deep-learning-and-how-to-use-them-with-keras-and-27b4d838dfe6
-- https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6
-- https://www.v7labs.com/blog/neural-networks-activation-functions
-- https://medium.com/analytics-vidhya/brief-history-of-neural-networks-44c2bf72eec
-- https://www.dataversity.net/a-brief-history-of-neural-networks/
-- https://pub.towardsai.net/a-brief-history-of-neural-nets-472107bc2c9c
-- https://machinelearningmastery.com/the-chain-rule-of-calculus-for-univariate-and-multivariate-functions/
-- https://dougenterprises.com/the-neural-network-chain-rule/
-- https://theorydish.blog/2021/12/16/backpropagation-%E2%89%A0-chain-rule
 
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (1/2) 
+    - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
     - Some basic starter code (>= 70%) will be provided
-- **Math**: activation functions
-- **Math**: universal approximation theorem
+    - Explanation of the code
+- **Math**: softmax function
 - **Math**: the chain rule of calculus for univariate and multivariate functions
-- **Math**: backpropagation algorithm
+- **Conceptual Understanding**: universal approximation theorem
+- **Conceptual Understanding**: GD v.s. SGD v.s.Adam, batch size
+- **Conceptual Understanding**: Test-Driven Programming with GitHub Actions/CI/CD, Ollama, RAG
 
 
 ### Week 8 (Test 4/4)
 
 Materials to read before test:
 - all jupyter notebooks for  lectures and exercises
-- https://gitee.com/lundechen/machine_learning_web_app
 - https://zahidhasan.github.io/2020/10/13/bias-variance-trade-off-and-learning-curve.html
 - https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (2/2) 
+    - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
     - Some basic starter code (<= 50%) will be provided
 - **Math**: L1 and L2 regularization
 - **Math**: Bias Variance Trade-off

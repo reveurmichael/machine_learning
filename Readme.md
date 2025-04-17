@@ -311,6 +311,7 @@ For each team, just one submission of the work is necessary, by one member of yo
 
 Deadline for submission:
 - The First Friday of the 14 days of Exam Weeks of SHU, 23:59.
+- For 2025, it's Friday 30/05 23:59.
 
 ## Score
 
@@ -332,20 +333,6 @@ Historical failing rate:
 - 2023: 10%
 
 ## Gallery
-
-### GoHugo/reveal.js website
-- https://alexisz12.github.io/
-- https://moonoxy.github.io/
-- https://huangusr.github.io/
-- https://lifelongcoding.github.io
-- https://alexandreqiu.github.io/web/
-- https://leo-fang-qaq.github.io/
-- https://jialing78.github.io/
-- https://hong-yue111.github.io/
-- https://morganelu.github.io/
-
-### ML web app
-
 
 ### Final project
 

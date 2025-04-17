@@ -4,7 +4,7 @@ Those video srt files are downloaded from YouTube.
 
 In fact, you can see the id of those videos in their file names, e.g. for `2015 NBA Finals Mini-Movie, Games 1-6 + More [3pxKO_-Cp-o].srt`, the id is `3pxKO_-Cp-o`. Hence, its corresponding video is `https://www.youtube.com/watch?v=3pxKO_-Cp-o`.
 
-You can download the srt files as well as the video files with the tool `yt-dlp`.
+You can download the srt files as well as the video files with the tool `yt-dlp`, or `you-get`.
 
 ## Current Challenges
 

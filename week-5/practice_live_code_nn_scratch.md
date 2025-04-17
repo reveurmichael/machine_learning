@@ -1,6 +1,6 @@
 # Interactive Live Coding Session
 
-During our 90-minute session, we will collaborate using Git and GitHub, in the objective of building a neural network from scratch.
+During our 90-minute session, we will collaborate using Git and GitHub, in the objective of building a neural network from scratch, a third time.
 
 ### Workflow:
 1. I will code and then perform a `git commit` and `git push`.

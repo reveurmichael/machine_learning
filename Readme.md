@@ -283,7 +283,7 @@ Forming groups:
 
 At most ONE group could have 3 or 5 students, provided that `N_Student % 4 != 0`.
 
-As our final project will be on En-to-CN translation of srt files, Each group of 4 students is expected to include ONE Chinese students.
+As our final project will be on En-to-CN translation of srt files, Each group of 4 students is expected to include ONE Chinese students. You can do without, provided you can find people to give you feedback on your translation quality.
 
 ### What's expected of your video
 - Length of video \>= 10 min

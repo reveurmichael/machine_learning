@@ -15,12 +15,14 @@ Problems that I have identified:
 ## Project Objectives
 
 I would like you guys to:
-- identify things thing that can be pitfalls in the srt files (e.g. the keyword `foreign`).
+- identify things that can be pitfalls in the srt files (e.g. the keyword `foreign`).
 - explore different tools to improve the quality of the srt files. Maybe youtube srt files could be enhanced by Whisper, it will be like information fusion from two sources.
 - explore different LLM tools to translate the srt files into Chinese. 
 - identify the minimum viable LLM models (e.g. Qwen2.5:3B) to translate the srt files for the videos.
 - how to make the translation result better (e.g. prompt engineering, context aware, continuity checks to ensure logical sentence flow across subtitle segments).
 - how much time will it take to translate the srt files for all videos (let's say 1000 srt files).
+
+However, as long as your srt files (En plus translated Chinese) are good enough, you can skip the above objectives. 
 
 
 ## [Optional] Human-in-the-Loop Validation

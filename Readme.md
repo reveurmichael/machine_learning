@@ -417,13 +417,8 @@ As our final project will be on En-to-CN translation of srt files, Each group of
 
 ### What's expected of your video
 - Length of video \>= 10 min
-- You video should include those contents:
-    - General presentation
-    - How did you implement your app
-    - How did you deploy your app
 - If possible, make it fun (Because life is good). 
 - If possible, make it fancy (Because you are young). 
-- If applicable, include an ethics analysis of your project in the video.
 - And yes, your video should be presented in English. 
 
 ### Submission of your work

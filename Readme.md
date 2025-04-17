@@ -170,14 +170,14 @@ Materials to read before test:
 
 Test (30 min):
 - **Code**: Neural network implementation from scratch (1/2) 
-    - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
+    - Code scope limited to [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md)
     - Some basic starter code (>= 70%) will be provided
-    - Explanation of the code
+    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md) and [code-nn-bp-sgd-adam.md](week-5/code-nn-bp-sgd-adam.md) 
 - **Math**: softmax function
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **Conceptual Understanding**: universal approximation theorem
-- **Conceptual Understanding**: GD v.s. SGD v.s.Adam, batch size
-- **Conceptual Understanding**: Test-Driven Programming with GitHub Actions/CI/CD, Ollama, RAG
+- **Conceptual Understanding**: GD v.s. SGD v.s. Adam, batch size
+- **Conceptual Understanding**: Test-Driven Programming with GitHub Actions/CI/CD
 
 
 ### Week 8 (Test 4/4)

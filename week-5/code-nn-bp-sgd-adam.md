@@ -12,7 +12,8 @@ We'll work with the classic **MNIST** dataset of handwritten digits to demonstra
 
 Let's go interactive:
 - https://emiliendupont.github.io/2018/01/24/optimization-visualization/
-
+- https://observablehq.com/@emiliendupont/optimization-on-rosenbrock-function
+- https://observablehq.com/@emiliendupont/optimization-on-rastrigin-function
 
 <details>
 <summary>❓ Why is backpropagation considered fundamental to neural network training?</summary>

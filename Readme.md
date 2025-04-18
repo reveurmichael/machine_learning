@@ -173,7 +173,7 @@ Test (45 min):
 - **Code**: Neural network implementation from scratch (1/2) 
     - Code scope limited to [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md)
     - Some basic starter code (>= 70%) will be provided
-    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md) and [code-nn-bp-sgd-adam.md](week-5/code-nn-bp-sgd-adam.md) 
+    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md). 
 - **Math**: softmax function
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **Conceptual Understanding**: universal approximation theorem

@@ -3,7 +3,6 @@
 
 Let’s compare a **Neural Network**'s **Forward Pass** and **Backpropagation** to a **democratic political system** like in France — from the **Civil Ordinary People** up to the **President**, and back again.
 
----
 
 ## 🧠 Forward Pass → Information flows upward (Bottom → Top)
 
@@ -12,28 +11,24 @@ Let’s compare a **Neural Network**'s **Forward Pass** and **Backpropagation** 
 - In a neural network, this is the **output layer** making a classification or prediction.
 - Just like the President delivers the final national policy, the output layer delivers the final result.
 
----
 
 ### 🧑‍💼 **Ministers (Hidden Layer 2)**
 - **Aggregate** inputs from the lower-level administrators (e.g., Mayors).
 - They **refine**, **summarize**, and **transform** inputs (just like neurons in hidden layers apply activations and linear transformations).
 - Example: Minister of Health combines input from local hospitals (mayors) to advise policy.
 
----
 
 ### 🏛️ **Mayors (Hidden Layer 1)**
 - They gather direct info from the people (the raw input).
 - Apply some **local processing** based on their city’s context — like early layer neurons identifying basic features (e.g., edges in images).
 - Output signals up to the ministers.
 
----
 
 ### 🧍‍♂️ **Ordinary Citizens (Input Layer)**
 - Raw data — the people on the ground.
 - Each person’s input represents a **feature**, like pixels in an image or measurements in a dataset.
 - Their voices (data) go upward through layers of representation.
 
----
 
 ## 🔁 Backpropagation → Feedback flows downward (Top → Bottom)
 
@@ -41,27 +36,23 @@ Let’s compare a **Neural Network**'s **Forward Pass** and **Backpropagation** 
 - Maybe the decision wasn’t ideal (the prediction was wrong → error).
 - The **error signal** starts here. Loss function measures the difference between what the President did and what should have been done (true label).
 
----
 
 ### 🧑‍💼 Ministers Adjust:
 - Each minister gets a share of the blame (gradient).
 - They analyze **how much their advice contributed** to the poor decision.
 - Adjust their internal policies (weights) accordingly.
 
----
 
 ### 🏛️ Mayors Recalibrate:
 - The blame trickles down.
 - Mayors receive gradients, update how they interpret the citizens’ inputs.
 - “Maybe I shouldn’t have exaggerated the local situation.”
 
----
 
 ### 🧍‍♂️ Citizens (Input Layer):
 - The people don’t change (input is fixed), but the **way their input is processed** is adjusted all the way back from the top.
 - In NN terms: input doesn’t change, but weights connecting the input to hidden layers do.
 
----
 
 ## 🧠 Summary Table
 
@@ -74,7 +65,6 @@ Let’s compare a **Neural Network**'s **Forward Pass** and **Backpropagation** 
 | Forward Pass             | Citizens → Mayors → Ministers → President | Info flow upward |
 | Backpropagation          | President → Ministers → Mayors → Citizens | Error feedback downward |
 
----
 
 If you imagine training a neural network like forming a better government, it’s as if each layer **learns from feedback** to better represent the will of the people and make more accurate policies.
 
@@ -85,14 +75,12 @@ One of the most important ideas in backpropagation: **not all neurons (or politi
 
 Let’s map this to the **mathematics of backpropagation**, specifically the **chain rule**.
 
----
 
 ## 🧠 Backpropagation & Chain Rule — Political Metaphor
 
 ### 🔁 Backpropagation is like:
 > “How much did *this person* contribute to the final (possibly bad) decision, and how much should they adjust their behavior next time?”
 
----
 
 ## 🧮 The Math of Influence: Chain Rule
 
@@ -114,7 +102,6 @@ Where:
 
 So a **minister with more power or budget** (a larger influence on the President's decision) will have a **larger gradient**, and thus receive **a stronger adjustment** during backpropagation.
 
----
 
 ### 🎩 Example:
 
@@ -124,7 +111,6 @@ So a **minister with more power or budget** (a larger influence on the President
 Hence, **Minister A gets a bigger correction**, like a public policy overhaul.
 Minister B might just get a memo 😅
 
----
 
 ## 🔍 Summary: Budget / Impact in BP
 
@@ -135,7 +121,6 @@ Minister B might just get a memo 😅
 | **Different Roles** | Different Weights | Some weights are more "connected" to output, just like some people have more say |
 | **Chain Rule** | Attribution of responsibility | Breaks down total error into per-node blame |
 
----
 
 So backpropagation — via the chain rule — **naturally scales the adjustment** to each layer/person's **true influence**. Just like in government, **those with more power get more of the blame** when things go wrong.
 
@@ -145,7 +130,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 ## 🧠✨ Insights: Democracy ↔ Neural Networks
 
----
 
 ### 1. **Voting ≈ Weighted Sum**
 
@@ -158,7 +142,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “A neuron doesn’t just ask *what* you think, but *how much* it values your voice.”
 
----
 
 ### 2. **Bias Term = Lobbyist or Historical Tendencies**
 
@@ -167,7 +150,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “Even if all mayors vote for a policy, a minister might be biased and lean another way.”
 
----
 
 ### 3. **Activation Function = Political Thresholding**
 
@@ -177,7 +159,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “You can’t wake a minister with weak suggestions — ReLU means they only move on strong signals.”
 
----
 
 ### 4. **Overfitting = Populism or Pandering**
 
@@ -186,7 +167,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “Overfit politicians win one town but fail nationally — they’ve learned noise, not the real issues.”
 
----
 
 ### 5. **Dropout = Scandals or Absenteeism**
 
@@ -195,7 +175,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “If a minister is out sick, others must pick up the slack — that’s dropout forcing resilience.”
 
----
 
 ### 6. **Learning Rate = Public Responsiveness**
 
@@ -205,7 +184,6 @@ So backpropagation — via the chain rule — **naturally scales the adjustment*
 
 > **Insight**: “A reactive vs. a deliberative government — that’s your learning rate.”
 
----
 
 ### 7. **Gradient Vanishing = Lost Voice**
 

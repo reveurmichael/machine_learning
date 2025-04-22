@@ -10,19 +10,19 @@ You can download the srt files as well as the video files with the tool `yt-dlp`
 
 Problems that I have identified:
 - Some of the srt in English might not be good enough. Though most should be fine. One perticular keyword, for example, `foreign`, can be very misleading.
-- If we translate the srt files into Chinese with non-LLM AI tools (e.g. `Helsinki-NLP/opus-mt-en-zh`), the result might not be good, sometimes very bad. See [week-4/practice-2-output-srt-files](../week-4/practice-2-output-srt-files/). From my first experiences of trial and error, there is no reason to expect better results with other non-LLM tools.
+- If we translate the srt files into Chinese/French with non-LLM AI tools (e.g. `Helsinki-NLP/opus-mt-en-zh`), the result might not be good, sometimes very bad. See [week-4/practice-2-output-srt-files](../week-4/practice-2-output-srt-files/). From my first experiences of trial and error, there is no reason to expect better results with other non-LLM tools.
 
 ## Project Objectives
 
 I would like you guys to:
 - identify things that can be pitfalls in the srt files (e.g. the keyword `foreign`).
 - explore different methods to improve the quality of the srt files. For example, maybe youtube srt files could be enhanced by Whisper, it will be like information fusion from two sources. [might be too CPU-intensive and time-consuming, hence just simple exploration and you can stop]
-- explore different LLM models to translate the srt files into Chinese (maybe Local (preferred), or, if local is not enough, Cloud LLM API). 
+- explore different LLM models to translate the srt files into Chinese/French (maybe Local (preferred), or, if local is not enough, Cloud LLM API). 
 - identify the minimum viable LLM models (e.g. `Qwen2.5:3B`) to translate the srt files for the videos with acceptable quality.
 - how to make the translation result better (e.g. prompt engineering, context awareness, continuity checks to ensure logical sentence flow across subtitle segments, feed into the information of the video (video title, description, channel title, channel description, etc.), etc.).
 - how much time will it take to translate the srt files for all videos (let's say 1000 srt files). Propose an efficient processing pipeline to minimize/balance/optimize time and resource consumption.
 
-However, if your subtitle files (both in English and the translated Chinese) are of sufficient quality, you may choose to skip the above objectives.
+However, if your subtitle files (both in English and the translated Chinese/French) are of sufficient quality, you may choose to skip the above objectives.
 
 And yes, your project should be implemented in Python code.
 

@@ -26,6 +26,8 @@ However, if your subtitle files (both in English and the translated Chinese/Fren
 
 And yes, your project should be implemented in Python code.
 
+The project can be quite open, it can be research oriented, or application oriented, or a blend of both, depending on your taste and styling.
+
 ## [Optional] Human-in-the-Loop Validation with Streamlit
    - Implement targeted human review for segments flagged as potentially problematic
    - Create an efficient interface for reviewers to quickly approve or correct translations

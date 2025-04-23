@@ -65,29 +65,6 @@ Overfitting occurs when our model learns the training data too well, capturing n
 
 The model essentially "memorizes" the training data rather than learning generalizable patterns, resulting in poor performance on new data.
 
-<details>
-<summary>❓ How should regularization strength be adjusted as dataset size changes?</summary>
-
-Regularization strength should generally decrease as dataset size increases. Small datasets need stronger regularization to prevent overfitting, while large datasets may need minimal regularization. However, model complexity, data quality, and task difficulty also influence the optimal strength. Always use validation performance to guide final regularization settings.
-</details><br>
-
-<details>
-<summary>❓ What challenges might arise when combining multiple regularization techniques together?</summary>
-
-1. **Over-regularization**: Too many techniques can prevent learning, causing underfitting.
-
-2. **Hyperparameter Explosion**: More techniques mean more parameters to tune.
-
-3. **Conflicting Mechanisms**: Techniques may counteract each other (e.g., L1 sparsity vs. dropout).
-
-4. **Computational Overhead**: Multiple techniques increase training cost.
-
-5. **Debugging Difficulty**: Hard to identify which technique causes performance issues.
-
-6. **Interpretation Challenges**: Combined regularization complicates model interpretation.
-
-7. **Implementation Complexity**: Correctly implementing interactions requires careful coding.
-</details><br>
 
 #### 1.2. Regularization Techniques Overview
 
@@ -98,32 +75,11 @@ Regularization strength should generally decrease as dataset size increases. Sma
 
 1. **Feature Dependency**: Neurons becoming reliant on specific other neurons to function.
 
-2. **Brittle Representations**: Networks becoming too specialized to training patterns.
+2. **Distributed Learning Impediment**: Knowledge concentrated in specific neuron groups rather than spread throughout.
 
-3. **Correlated Behavior**: Multiple neurons learning identical features rather than diverse ones.
-
-4. **Distributed Learning Impediment**: Knowledge concentrated in specific neuron groups rather than spread throughout.
-
-5. **Ensemble Fragility**: Reduced ability to function like an ensemble of models.
-
-6. **Memorization Facilitation**: Encourages memorizing training examples rather than learning generalizable patterns.
 </details><br>
 
 **Early Stopping**: A simple but effective technique where we monitor validation performance and stop training when it starts deteriorating, even if training performance continues to improve.
-
-<details>
-<summary>❓ What makes early stopping different from other regularization techniques?</summary>
-
-1. **Training Duration Control**: Limits model capacity by controlling training time, not constraining parameters.
-
-2. **Hyperparameter Efficiency**: Requires minimal tuning (typically just patience parameter).
-
-3. **Computational Efficiency**: Reduces total training time by stopping early.
-
-4. **No Mathematical Penalty**: Doesn't modify the objective function.
-
-5. **Simplicity**: Conceptually and practically simpler to implement.
-</details><br>
 
 ```mermaid
 sequenceDiagram
@@ -141,18 +97,6 @@ sequenceDiagram
 
 **L1 Regularization**: Adds the sum of absolute values of the weights to the loss function. This encourages sparse solutions, effectively "zeroing out" less important weights, leading to feature selection.
 
-<details>
-<summary>❓ When would L1 regularization be preferred over L2 regularization?</summary>
-
-1. **Feature Selection**: When automatic feature selection is desired.
-
-2. **Sparse Models**: When you want many weights to be exactly zero for interpretability or efficiency.
-
-3. **High-Dimensional Data**: When many features may be irrelevant.
-
-4. **Redundant Features**: When selecting a subset of features is beneficial.
-</details><br>
-
 ```mermaid
 graph LR
     A[Original Loss] --> B{Combined Loss}
@@ -167,15 +111,7 @@ graph LR
 
 **L2 Regularization**: Adds the sum of squared weights to the loss function. This penalizes large weights, encouraging the model to distribute importance more evenly across features.
 
-<details>
-<summary>❓ Why might L2 regularization be considered a form of "weight decay"?</summary>
 
-1. **Mathematical Equivalence**: The weight update rule with L2 regularization can be rewritten as: w = w * (1 - learning_rate * lambda) - learning_rate * gradient.
-
-2. **Automatic Shrinkage**: Weights naturally decay toward zero after each update.
-
-3. **Contrast with L1**: Unlike L1 which can zero out weights, L2 causes gradual decay without reaching zero.
-</details><br>
 
 <details>
 <summary>❓ How do L1 and L2 regularization differ in their effect on model weights?</summary>
@@ -519,36 +455,6 @@ class Adam:
 #### 2.5. Early Stopping Implementation
 
 We'll implement early stopping as part of our training loop, but first let's create a helper class to manage it:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Monitoring
-    
-    state Monitoring {
-        [*] --> CheckLoss
-        CheckLoss --> Improved: val_loss < best_loss
-        CheckLoss --> NoImprovement: val_loss >= best_loss
-        
-        Improved --> UpdateBest: Save best weights
-        Improved --> ResetCounter: counter = 0
-        ResetCounter --> [*]
-        
-        NoImprovement --> IncrementCounter: counter += 1
-        IncrementCounter --> CheckPatience
-        
-        CheckPatience --> Continue: counter < patience
-        CheckPatience --> Stop: counter >= patience
-        
-        Continue --> [*]
-    }
-    
-    Monitoring --> ContinueTraining: Return False
-    Monitoring --> StopTraining: Return True
-    
-    UpdateBest --> ContinueTraining
-    Stop --> StopTraining
-    Continue --> ContinueTraining
-```
 
 ```python
 class EarlyStopping:
@@ -1057,33 +963,6 @@ if __name__ == "__main__":
 
 In this third and final session, we have:
 
-```mermaid
-mindmap
-    root((Neural Networks<br>Regularization))
-        Techniques
-            Dropout
-                Random neuron deactivation
-                Prevents co-adaptation
-            Early Stopping
-                Monitor validation loss
-                Stop when it increases
-            L1 Regularization
-                Sparse weights
-                Feature selection
-            L2 Regularization
-                Small weights
-                Smooth decision boundaries
-        Benefits
-            Reduced Overfitting
-            Better Generalization
-            Improved Test Performance
-            Model Robustness
-        Applications
-            Image Classification
-            Text Processing
-            Time Series Prediction
-            Reinforcement Learning
-```
 
 1. **Implemented Four Regularization Techniques:**
    - Dropout layer for randomly deactivating neurons during training

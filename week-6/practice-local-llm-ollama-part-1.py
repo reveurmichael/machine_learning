@@ -33,7 +33,7 @@ def load_profiles(file_path):
     return documents
 
 
-def chunk_documents(documents, chunk_size=1000, chunk_overlap=200):
+def chunk_documents(documents, chunk_size=1000, chunk_overlap=300):
     """
     Split profile data into manageable chunks with overlap to maintain context.
 
@@ -119,7 +119,7 @@ def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:
     return vectordb
 
 
-def create_llm(model_name="llama3.2:1b"):
+def create_llm(model_name="llama3.2:latest"):
     """
     Create a connection to the local Ollama LLM.
 
@@ -152,11 +152,18 @@ def create_qa_prompt():
     # Define the template with placeholders for context and question
     template = """
     You are an expert social network assistant that helps users connect with elite individuals.
-    Your role is to provide accurate information about high-profile people in exclusive social circles.
+    Your role is to provide accurate and detailed information about people in elite social circles
+    based EXCLUSIVELY on the profile information provided in the context below.
     
     Use ONLY the context below to answer the question. If the information is not in the context,
     say you don't know - DO NOT make up facts or connections that aren't supported by the context.
     Always maintain discretion and privacy when discussing elite individuals.
+    
+    When providing information about individuals:
+    1. Always include their full name and ID (if available in the context)
+    2. Be specific about their background, achievements, and interests
+    3. Mention any connections they have with other individuals in the network
+    4. Include quantitative details when available (wealth, age, properties, etc.)
     
     When suggesting networking approaches, focus on genuine common interests and values, not exploitation.
     Provide specific, actionable insights that would help the user establish meaningful connections.
@@ -198,7 +205,7 @@ def create_qa_chain(llm, vectordb, prompt):
         llm=llm,  # The language model
         chain_type="stuff",  # "Stuff" all context into one prompt
         retriever=vectordb.as_retriever(  # Convert vector database to retriever
-            search_kwargs={"k": 5}  # Retrieve top 5 most relevant chunks
+            search_kwargs={"k": 8}  # Retrieve top 8 most relevant chunks
         ),
         chain_type_kwargs={"prompt": prompt},  # Use our custom prompt
     )
@@ -219,9 +226,21 @@ def ask_question(qa_chain, question):
         str: The answer
     """
     print(f"Processing question: {question}")
+
+    # Get the raw retriever to access the relevant documents
+    retriever = qa_chain.retriever
+
+    # Retrieve the relevant documents
+    docs = retriever.get_relevant_documents(question)
+
+    # Log the number of documents retrieved
+    print(f"Retrieved {len(docs)} relevant document chunks")
+
+    # Now get the answer from the chain
     result = qa_chain.invoke({"query": question})
 
-    return result["result"]
+    # Return both the answer and the documents
+    return {"result": result["result"], "source_docs": docs}
 
 
 def build_streamlit_app():
@@ -238,21 +257,26 @@ def build_streamlit_app():
     # Sidebar for configuration
     st.sidebar.title("Configuration")
 
-    model_choice = st.sidebar.selectbox(
-        "Select LLM Model",
-        [
-            "llama3.2:1b",
-            "llama3.2:latest",
-            "qwen2.5:3b",
-            "deepseek:7b",
-            "deepseek-coder:6.7b",
-            "deepseek-lite:1.3b",
-            "llama3.1:8b",
-            "mistral:7b",
-            "phi3:3.8b",
-            "gemma:2b",
-        ],
-    )
+    # Get available models from Ollama
+    available_models = []
+    try:
+        import subprocess
+
+        result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
+        if result.returncode == 0:
+            lines = result.stdout.strip().split("\n")
+            if len(lines) > 1:  # Skip the header line
+                for line in lines[1:]:
+                    if line.strip():
+                        model_name = line.split()[0]
+                        available_models.append(model_name)
+        if not available_models:
+            available_models = ["llama3.2:latest"]
+    except Exception as e:
+        st.sidebar.error(f"Error getting models: {e}")
+        available_models = ["llama3.2:latest"]
+
+    model_choice = st.sidebar.selectbox("Select LLM Model", available_models)
 
     # Initialize or load the system
     if "qa_chain" not in st.session_state:
@@ -299,7 +323,7 @@ def build_streamlit_app():
     examples = [
         "Who are the tech entrepreneurs in this social group?",
         "Which individuals are interested in quantum computing?",
-        "What hobbies do the finance professionals have?",
+        "Who is passionate about LeetCode?",
         "Who would be good connections for someone interested in AI?",
         "How could I approach 赵俊凯 (Zhao Junkai) based on his interests?",
     ]
@@ -316,10 +340,35 @@ def build_streamlit_app():
         "Your question:", value=st.session_state.question, key="question_input"
     )
 
+    # Option to rebuild the database
+    if st.sidebar.button("🔄 Rebuild Knowledge Base"):
+        # Delete the existing database
+        with st.spinner("Rebuilding knowledge base..."):
+            import shutil
+
+            if os.path.exists("./chroma_db"):
+                shutil.rmtree("./chroma_db")
+
+            # Process documents
+            profile_path = "profiles/student_database.md"
+            vectordb = process_documents(
+                profile_path, "./chroma_db", model_name=model_choice
+            )
+
+            # Create LLM and QA chain
+            llm = create_llm(model_name=model_choice)
+            prompt = create_qa_prompt()
+            qa_chain = create_qa_chain(llm, vectordb, prompt)
+
+            st.session_state.qa_chain = qa_chain
+            st.sidebar.success("✅ Knowledge base rebuilt successfully")
+
     # Generate answer when question is submitted
     if question:
         with st.spinner("Finding relevant information..."):
-            answer = ask_question(st.session_state.qa_chain, question)
+            response = ask_question(st.session_state.qa_chain, question)
+            answer = response["result"]
+            docs = response["source_docs"]
 
             # Display the answer in a nice box
             st.markdown("### Answer")
@@ -331,6 +380,19 @@ def build_streamlit_app():
             """,
                 unsafe_allow_html=True,
             )
+
+            # Display the source documents if the user wants to see them
+            with st.expander("Show Source Information"):
+                st.markdown("### Retrieved Profile Chunks")
+                st.write(
+                    f"Retrieved {len(docs)} relevant chunks from the profiles database."
+                )
+
+                for i, doc in enumerate(docs):
+                    st.markdown(f"#### Chunk {i+1}")
+                    source = doc.metadata.get("source", "Unknown source")
+                    st.markdown(f"**Source**: {source}")
+                    st.text_area(f"Content {i+1}", doc.page_content, height=200)
 
 
 def main():

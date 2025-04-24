@@ -307,7 +307,7 @@ def load_profiles(file_path):
 Add a function to split documents into smaller chunks:
 
 ```python
-def chunk_documents(documents, chunk_size=1000, chunk_overlap=200):
+def chunk_documents(documents, chunk_size=1000, chunk_overlap=300):
     """
     Split profile data into manageable chunks with overlap to maintain context.
     
@@ -332,7 +332,7 @@ def chunk_documents(documents, chunk_size=1000, chunk_overlap=200):
     return chunks
 ```
 
-The `chunk_overlap` parameter is important - it ensures that context isn't lost between chunks. By including some overlap, we maintain coherence when information spans chunk boundaries.
+The `chunk_overlap` parameter is important - it ensures that context isn't lost between chunks. By including some overlap, we maintain coherence when information spans chunk boundaries. Using a larger overlap of 300 characters (instead of the standard 200) helps ensure better context preservation, especially for complex profile information.
 
 ### 3.4 Creating Embeddings
 
@@ -479,11 +479,18 @@ def create_qa_prompt():
     # Define the template with placeholders for context and question
     template = """
     You are an expert social network assistant that helps users connect with elite individuals.
-    Your role is to provide accurate information about high-profile people in exclusive social circles.
+    Your role is to provide accurate and detailed information about people in elite social circles
+    based EXCLUSIVELY on the profile information provided in the context below.
     
     Use ONLY the context below to answer the question. If the information is not in the context,
     say you don't know - DO NOT make up facts or connections that aren't supported by the context.
     Always maintain discretion and privacy when discussing elite individuals.
+    
+    When providing information about individuals:
+    1. Always include their full name and ID (if available in the context)
+    2. Be specific about their background, achievements, and interests
+    3. Mention any connections they have with other individuals in the network
+    4. Include quantitative details when available (wealth, age, properties, etc.)
     
     When suggesting networking approaches, focus on genuine common interests and values, not exploitation.
     Provide specific, actionable insights that would help the user establish meaningful connections.
@@ -511,6 +518,8 @@ The prompt template is crucial - it defines how the LLM will respond and what in
 2. Admit when it doesn't know something
 3. Maintain privacy and discretion
 4. Focus on genuine connections rather than exploitation
+5. Include specific details about individuals (names, IDs, background, connections)
+6. Provide structured and comprehensive responses about profiles
 
 ### 4.3 Building a Question-Answering Chain
 
@@ -536,7 +545,7 @@ def create_qa_chain(llm, vectordb, prompt):
         llm=llm,                                  # The language model
         chain_type="stuff",                       # "Stuff" all context into one prompt
         retriever=vectordb.as_retriever(          # Convert vector database to retriever
-            search_kwargs={"k": 5}                # Retrieve top 5 most relevant chunks
+            search_kwargs={"k": 8}                # Retrieve top 8 most relevant chunks
         ),
         chain_type_kwargs={"prompt": prompt}      # Use our custom prompt
     )
@@ -545,7 +554,7 @@ def create_qa_chain(llm, vectordb, prompt):
     return qa_chain
 ```
 
-The `chain_type="stuff"` parameter means we'll combine all retrieved chunks into a single prompt. This works well for most cases, but for very large documents, other chain types like "map_reduce" might be more appropriate.
+The `chain_type="stuff"` parameter means we'll combine all retrieved chunks into a single prompt. This works well for most cases, but for very large documents, other chain types like "map_reduce" might be more appropriate. By retrieving 8 chunks instead of fewer, we ensure more comprehensive coverage of relevant profile information.
 
 ### 4.4 Creating a Simple Query Function
 
@@ -561,15 +570,30 @@ def ask_question(qa_chain, question):
         question (str): The question to ask
         
     Returns:
-        str: The answer
+        dict: Dictionary containing the answer and source documents
     """
     print(f"Processing question: {question}")
+    
+    # Get the raw retriever to access the relevant documents
+    retriever = qa_chain.retriever
+    
+    # Retrieve the relevant documents
+    docs = retriever.get_relevant_documents(question)
+    
+    # Log the number of documents retrieved
+    print(f"Retrieved {len(docs)} relevant document chunks")
+    
+    # Now get the answer from the chain
     result = qa_chain.invoke({"query": question})
     
-    return result["result"]
+    # Return both the answer and the documents
+    return {
+        "result": result["result"],
+        "source_docs": docs
+    }
 ```
 
----
+
 
 ## Part 5: Creating a Simple Streamlit Interface
 
@@ -594,10 +618,27 @@ def build_streamlit_app():
     # Sidebar for configuration
     st.sidebar.title("Configuration")
     
+    # Get available models from Ollama
+    available_models = []
+    try:
+        import subprocess
+        result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+        if result.returncode == 0:
+            lines = result.stdout.strip().split('\n')
+            if len(lines) > 1:  # Skip the header line
+                for line in lines[1:]:
+                    if line.strip():
+                        model_name = line.split()[0]
+                        available_models.append(model_name)
+        if not available_models:
+            available_models = ["llama3.2:latest"]
+    except Exception as e:
+        st.sidebar.error(f"Error getting models: {e}")
+        available_models = ["llama3.2:latest"]
+    
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3.2:1b", "llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
-         "mistral:7b", "phi3:3.8b", "gemma:2b"]
+        available_models
     )
     
     # Initialize or load the system
@@ -648,7 +689,7 @@ def build_streamlit_app():
     examples = [
         "Who are the tech entrepreneurs in this social group?",
         "Which individuals are interested in quantum computing?",
-        "What hobbies do the finance professionals have?",
+        "Who is passionate about LeetCode?",
         "Who would be good connections for someone interested in AI?",
         "How could I approach 赵俊凯 (Zhao Junkai) based on his interests?"
     ]
@@ -667,10 +708,36 @@ def build_streamlit_app():
         key="question_input"
     )
     
+    # Option to rebuild the knowledge base
+    if st.sidebar.button("🔄 Rebuild Knowledge Base"):
+        # Delete the existing database
+        with st.spinner("Rebuilding knowledge base..."):
+            import shutil
+            if os.path.exists("./chroma_db"):
+                shutil.rmtree("./chroma_db")
+            
+            # Process documents
+            profile_path = "profiles/student_database.md"
+            vectordb = process_documents(
+                profile_path, 
+                "./chroma_db",
+                model_name=model_choice
+            )
+            
+            # Create LLM and QA chain
+            llm = create_llm(model_name=model_choice)
+            prompt = create_qa_prompt()
+            qa_chain = create_qa_chain(llm, vectordb, prompt)
+            
+            st.session_state.qa_chain = qa_chain
+            st.sidebar.success("✅ Knowledge base rebuilt successfully")
+    
     # Generate answer when question is submitted
     if question:
         with st.spinner("Finding relevant information..."):
-            answer = ask_question(st.session_state.qa_chain, question)
+            response = ask_question(st.session_state.qa_chain, question)
+            answer = response["result"]
+            docs = response["source_docs"]
             
             # Display the answer in a nice box
             st.markdown("### Answer")
@@ -679,6 +746,17 @@ def build_streamlit_app():
             {answer}
             </div>
             """, unsafe_allow_html=True)
+            
+            # Display the source documents if the user wants to see them
+            with st.expander("Show Source Information"):
+                st.markdown("### Retrieved Profile Chunks")
+                st.write(f"Retrieved {len(docs)} relevant chunks from the profiles database.")
+                
+                for i, doc in enumerate(docs):
+                    st.markdown(f"#### Chunk {i+1}")
+                    source = doc.metadata.get("source", "Unknown source")
+                    st.markdown(f"**Source**: {source}")
+                    st.text_area(f"Content {i+1}", doc.page_content, height=200)
 ```
 
 ### 5.2 Main Function
@@ -813,6 +891,14 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    - Try a smaller model like deepseek-lite:1.3b which balances quality and speed
    - Be patient - the first response is usually slower as the model loads
 
+5. **App struggling to find information about profiles**: If the system doesn't seem to find relevant information, try these solutions:
+   - Use the "Rebuild Knowledge Base" button to recreate the vector database with current settings
+   - Check the "Show Source Information" expander to see which chunks are being retrieved
+   - Make your questions more specific, including names, interests, or other specific details
+   - Try different models as some are better at information retrieval than others
+   - Adjust the prompt template to better match your specific use case
+   - Increase the number of chunks retrieved (k value) for more comprehensive context
+
 ### FAQs
 
 1. **Can I use different profile data?**
@@ -823,12 +909,13 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    - Modify the prompt template to be more specific
    - Retrieve more context chunks (increase k value)
    - Use a larger model if your hardware supports it
+   - Increase chunk overlap to preserve more context between chunks
 
 3. **Can I deploy this online?**
    This is designed for local use due to the Ollama dependency. For deployment, you'd need to adapt it to use API-based models.
 
 4. **How do I add more profiles?**
-   Add more text files to the profiles directory, then re-run the document processing steps.
+   Add more text files to the profiles directory, then re-run the document processing steps (or use the Rebuild Knowledge Base button).
 
 5. **Is this system storing my queries?**
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
@@ -840,6 +927,9 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 
 7. **I'm getting TensorFlow errors, especially on macOS**
    We've completely removed TensorFlow dependencies by using Ollama's built-in embedding capabilities. This approach is much more compatible with macOS and eliminates the need for external embedding libraries. If you're still encountering issues, make sure you have Ollama installed and running correctly.
+
+8. **How can I see which profile information was used to answer my question?**
+   Use the "Show Source Information" expander below each answer to see exactly which chunks of text were retrieved from the database. This can help you understand why certain answers were given and troubleshoot if information seems incorrect or missing.
 
 ---
 

@@ -154,26 +154,25 @@ def insert_into_bst(root, val):
 def insert_with_dummy(root, val):
     """
     Practical approach: Using a dummy node to simplify implementation
-    No special case for the root node needed
+    No special case for the root node needed - recursive version
     """
     dummy = TreeNode(float('inf'))  # Dummy node
     dummy.left = root               # Original tree as left child
     
-    # Now we can use iterative approach without special cases
-    curr = dummy
-    while curr:
-        if val < curr.val:
-            if not curr.left:
-                curr.left = TreeNode(val)
-                break
-            curr = curr.left
-        elif val > curr.val:
-            if not curr.right:
-                curr.right = TreeNode(val)
-                break
-            curr = curr.right
-        else:
-            break  # Value already exists
+    # Helper recursive function
+    def _insert_recursive(node, value):
+        if value < node.val:
+            if not node.left:
+                node.left = TreeNode(value)
+            else:
+                _insert_recursive(node.left, value)
+        elif value > node.val:
+            if not node.right:
+                node.right = TreeNode(value)
+            else:
+                _insert_recursive(node.right, value)
+    
+    _insert_recursive(dummy, val)
     
     return dummy.left  # Return the actual root
 

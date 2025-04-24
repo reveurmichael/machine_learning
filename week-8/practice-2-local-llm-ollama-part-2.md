@@ -2,7 +2,7 @@
 
 ## Overview
 
-In [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of this tutorial, we built a basic RAG system that can answer questions about social profiles using a local LLM. Now in Part 2, we'll build upon that foundation by creating interactive user interfaces using Streamlit and Gradio. These interfaces will make our social network assistant more accessible and user-friendly.
+In [Part 1](../week-6/practice-2-local-llm-ollama-part-1.md) of this tutorial, we built a basic RAG system that can answer questions about social profiles using a local LLM. Now in Part 2, we'll build upon that foundation by creating interactive user interfaces using Streamlit and Gradio. These interfaces will make our social network assistant more accessible and user-friendly.
 
 ## Learning Objectives
 
@@ -12,7 +12,7 @@ In [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of this tutorial, w
 
 ## Prerequisites
 
-- Completed [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of the tutorial
+- Completed [Part 1](../week-6/practice-2-local-llm-ollama-part-1.md) of the tutorial
 
 ## Part 1: Creating an Advanced Streamlit Interface
 
@@ -24,7 +24,7 @@ import streamlit as st
 import os
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 from langchain.prompts import PromptTemplate
 
@@ -47,8 +47,9 @@ st.subheader("Ask questions about your social network profiles")
 with st.sidebar:
     st.header("Configuration")
     model_name = st.selectbox("Select LLM Model", 
-                             ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
-                              "llama3.1:8b", "mistral:7b", "phi3:3.8b"], 
+                             ["llama3.2:1b", "llama3.2:latest", "llama3:8b", "deepseek:7b", 
+                              "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+                              "mistral:7b", "phi3:3.8b", "gemma:2b"], 
                              index=0)
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
     
@@ -63,8 +64,8 @@ with st.sidebar:
 # Initialize the QA system
 @st.cache_resource
 def initialize_qa_system(model_name, temperature):
-    # Load embeddings
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Load embeddings using the same model for consistency
+    embeddings = OllamaEmbeddings(model=model_name)
     
     # Load vector store
     vector_db = Chroma(
@@ -154,14 +155,15 @@ import gradio as gr
 import os
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 
 # Initialize embeddings and vector store
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+model_name = "llama3.2:1b"
+embeddings = OllamaEmbeddings(model=model_name)
 vector_db = Chroma(
     collection_name="social_profiles",
     embedding_function=embeddings,
@@ -169,7 +171,7 @@ vector_db = Chroma(
 )
 
 # Initialize the LLM
-llm = Ollama(model="deepseek:7b", temperature=0.7)
+llm = Ollama(model=model_name, temperature=0.7)
 
 # Initialize memory
 memory = ConversationBufferMemory(
@@ -217,7 +219,7 @@ import streamlit as st
 import os
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 from langchain.memory import ConversationBufferMemory
 
@@ -244,7 +246,8 @@ st.title("Social Network Assistant with Memory")
 @st.cache_resource
 def initialize_qa_system():
     # Load embeddings
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    model_name = "llama3.2:1b"
+    embeddings = OllamaEmbeddings(model=model_name)
     
     # Load vector store
     vector_db = Chroma(
@@ -254,7 +257,7 @@ def initialize_qa_system():
     )
     
     # Initialize the LLM
-    llm = Ollama(model="deepseek:7b", temperature=0.7)
+    llm = Ollama(model=model_name, temperature=0.7)
     
     # Create the QA chain with memory
     qa_chain = ConversationalRetrievalChain.from_llm(
@@ -324,7 +327,7 @@ import streamlit as st
 import os
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 from langchain.memory import ConversationBufferMemory
 
@@ -356,7 +359,8 @@ with tab1:
     @st.cache_resource
     def initialize_qa_system():
         # Load embeddings
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        model_name = "llama3.2:1b" 
+        embeddings = OllamaEmbeddings(model=model_name)
         
         # Load vector store
         vector_db = Chroma(
@@ -366,7 +370,7 @@ with tab1:
         )
         
         # Initialize the LLM
-        llm = Ollama(model="deepseek:7b", temperature=0.7)
+        llm = Ollama(model=model_name, temperature=0.7)
         
         # Create the QA chain with memory
         qa_chain = ConversationalRetrievalChain.from_llm(
@@ -384,7 +388,7 @@ with tab1:
     # Sidebar for configuration
     with st.sidebar:
         st.header("Chat Settings")
-        model_name = st.selectbox("Model", ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", "llama3.1:8b", "mistral:7b", "phi3:3.8b"], index=0)
+        model_name = st.selectbox("Model", ["llama3.2:1b", "llama3.2:latest", "llama3:8b", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", "mistral:7b", "phi3:3.8b", "gemma:2b"], index=0)
         temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.1)
         
         if st.button("Clear Chat History"):
@@ -450,12 +454,12 @@ with tab2:
     
     All processing happens locally on your machine. No data is sent to external servers.
     """)
-
+```
 ## Running the Application
 
 To run any of these applications:
 
-1. Make sure you have completed [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md) of the tutorial and have a functional knowledge base
+1. Make sure you have completed [Part 1](../week-6/practice-2-local-llm-ollama-part-1.md) of the tutorial and have a functional knowledge base
 2. Save the code for your chosen interface in the `social-network-assistant` directory:
    - For the basic interface: `app.py`
    - For the Gradio interface: `gradio_app.py`
@@ -504,7 +508,7 @@ social-network-assistant/
 
 In this two-part tutorial series, we've built a comprehensive social network assistant using local LLMs:
 
-- In [Part 1](../week-5/practice-2-local-llm-ollama-part-1.md), we set up the foundation by building a basic RAG system with Ollama, LangChain, and ChromaDB.
+- In [Part 1](../week-6/practice-2-local-llm-ollama-part-1.md), we set up the foundation by building a basic RAG system with Ollama, LangChain, and ChromaDB.
 - In Part 2, we enhanced the system with interactive interfaces and conversation memory.
 
 The result is a powerful, privacy-focused assistant that can:
@@ -513,7 +517,7 @@ The result is a powerful, privacy-focused assistant that can:
 3. Provide an intuitive interface for users through Streamlit and Gradio
 4. Run entirely on your local machine without sending data to external services
 
-This project demonstrates how modern local LLMs like DeepSeek and sophisticated frameworks like LangChain can be combined to create practical AI applications that respect user privacy while delivering high-quality responses.
+This project demonstrates how modern local LLMs like Llama3 and sophisticated frameworks like LangChain can be combined to create practical AI applications that respect user privacy while delivering high-quality responses.
 
 ## Resources
 
@@ -521,5 +525,4 @@ This project demonstrates how modern local LLMs like DeepSeek and sophisticated 
 - [Gradio Documentation](https://www.gradio.app/docs/)
 - [LangChain Memory Types](https://python.langchain.com/docs/modules/memory/)
 - [Ollama Model Library](https://ollama.com/library)
-- [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)
 

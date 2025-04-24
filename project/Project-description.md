@@ -16,7 +16,7 @@ Problems that I have identified:
 
 I would like you guys to:
 - identify things that can be problematic/pitfalls in the srt files (e.g. the keyword `foreign`).
-- explore different methods to improve the quality of the srt files. For example, maybe youtube srt files could be enhanced by Whisper, it will be like information fusion from two sources. [might be too CPU-intensive and time-consuming, hence just simple exploration and you can stop]
+- explore different methods to improve the quality of the srt files. For example, maybe youtube srt files could be enhanced by Whisper (local model), it will be like information fusion from two sources. [might be too CPU-intensive and time-consuming, hence just simple exploration and you can stop]
 - **it's important to emphasize that having a high quality EN srt file is 50% of the objective of the work.**
 - explore different LLM models to translate the srt files into Chinese/French (maybe Local (preferred), or, if local is not enough, Cloud LLM API). 
 - identify the minimum viable LLM models (e.g. `Qwen2.5:3B`) to translate the srt files for the videos with acceptable quality.

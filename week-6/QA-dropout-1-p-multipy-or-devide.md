@@ -90,11 +90,8 @@ See the original article proposing Dropout:
 <summary>
 Surprise!
 </summary>
-Hhhahaha, the `p` in the original article is the probability of a unit being present, while in our implementation, it is the probability of a unit being dropped. 
+Hhhahaha, the <b>p</b> in the original article is the probability of a unit being <b>present</b>, while in our implementation (and in the implementation of Tensorflow and PyTorch), it is the probability of a unit being <b>dropped</b>. 
 </details>
-
-
-
 
 
 ## From math to code
@@ -121,11 +118,11 @@ For example,
 This gap between theory and implementation highlights why examining actual code is essential for fully understanding deep learning algorithms. The dropout example demonstrates how a seemingly simple mathematical concept (randomly dropping units) requires careful implementation choices to work effectively in practice.
 
 
-## Even in Leetcode/Data Structures and Algorithms, from Math to Code might be different
+## Even in Leetcode/Data Structures and Algorithms, Math and Code might be different
 
 The gap between theory and implementation isn't unique to neural networks. Even in standard algorithms and data structures, practical implementations often diverge from their textbook descriptions for efficiency, edge case handling, and code simplicity.
 
-### Binary Trees: Using Dummy Nodes
+### Binary Trees/Linked Lists: Using Dummy Nodes
 
 In binary tree problems, a common technique is introducing a dummy node as a parent of the actual root. This approach simplifies edge cases and makes operations more uniform by eliminating special handling for the root node.
 

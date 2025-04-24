@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 # ---------------------------
-# Layer Base Class (From Previous Session)
+# Layer Base Class
 # ---------------------------
 class Layer:
     """

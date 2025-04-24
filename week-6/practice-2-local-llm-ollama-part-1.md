@@ -56,7 +56,14 @@ Now, let's install all the packages we'll need:
 
 ```bash
   pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu
-  ```
+```
+
+or, if you are in China:
+
+```bash
+  pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
 
 Package explanation:
 - `langchain` & `langchain-community`: Framework for creating LLM applications
@@ -591,7 +598,7 @@ def build_streamlit_app():
     
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+        ["llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
          "llama3.1:8b", "mistral:7b", "phi3:3.8b", "gemma:2b"]
     )
     

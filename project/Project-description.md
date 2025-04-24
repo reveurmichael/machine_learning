@@ -15,13 +15,13 @@ Problems that I have identified:
 ## Project Objectives
 
 I would like you guys to:
-- identify things that can be pitfalls in the srt files (e.g. the keyword `foreign`).
+- identify things that can be problematic/pitfalls in the srt files (e.g. the keyword `foreign`).
 - explore different methods to improve the quality of the srt files. For example, maybe youtube srt files could be enhanced by Whisper, it will be like information fusion from two sources. [might be too CPU-intensive and time-consuming, hence just simple exploration and you can stop]
-- it's important to emphasize that having a high quality EN srt file is 50% of the objective of the work.
+- **it's important to emphasize that having a high quality EN srt file is 50% of the objective of the work.**
 - explore different LLM models to translate the srt files into Chinese/French (maybe Local (preferred), or, if local is not enough, Cloud LLM API). 
 - identify the minimum viable LLM models (e.g. `Qwen2.5:3B`) to translate the srt files for the videos with acceptable quality.
 - how to make the translation result better (e.g. prompt engineering, context awareness, continuity checks to ensure logical sentence flow across subtitle segments, feed into the information of the video (video title, description, channel title, channel description, etc.), etc.).
-- how much time will it take to translate the srt files for all videos (let's say 1000 srt files). Propose an efficient processing pipeline to minimize/balance/optimize time and resource consumption.
+- how much time will it take to translate the srt files for all videos (let's say 1000 srt files). Propose an efficient processing pipeline to minimize/balance/optimize time and resource consumption. Therefore, your code need to be generalizable and scalable.
 
 However, if your subtitle files (both in English and the translated Chinese/French) are of sufficient quality, you may choose to skip the above objectives.
 

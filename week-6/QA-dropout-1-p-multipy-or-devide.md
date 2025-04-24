@@ -107,11 +107,9 @@ The journey from mathematical formulations to efficient code implementations is 
 
 3. **Vectorization and Parallelism** - Translating sequential mathematical operations into vectorized operations that leverage modern hardware acceleration
 
-4. **Memory Management** - Implementing in-place operations and managing computational graphs to reduce memory footprint during backpropagation
+4. **Framework Quirks** - Understanding the subtleties of automatic differentiation and tensor manipulation in frameworks like PyTorch or TensorFlow
 
-5. **Framework Quirks** - Understanding the subtleties of automatic differentiation and tensor manipulation in frameworks like PyTorch or TensorFlow
-
-6. **Training Optimizations** - Implementing techniques like gradient accumulation, mixed precision, and checkpointing that aren't part of the core algorithms
+5. **Training Optimizations** - Implementing techniques like gradient accumulation, mixed precision, and checkpointing that aren't part of the core algorithms
 
 For example,
 
@@ -121,3 +119,111 @@ For example,
 - **Batch Normalization** - Using running averages during training but fixed statistics during inference, a distinction rarely made explicit in papers
 
 This gap between theory and implementation highlights why examining actual code is essential for fully understanding deep learning algorithms. The dropout example demonstrates how a seemingly simple mathematical concept (randomly dropping units) requires careful implementation choices to work effectively in practice.
+
+
+## Even in Leetcode/Data Structures and Algorithms, from Math to Code might be different
+
+The gap between theory and implementation isn't unique to neural networks. Even in standard algorithms and data structures, practical implementations often diverge from their textbook descriptions for efficiency, edge case handling, and code simplicity.
+
+### Binary Trees: Using Dummy Nodes
+
+In binary tree problems, a common technique is introducing a dummy node as a parent of the actual root. This approach simplifies edge cases and makes operations more uniform by eliminating special handling for the root node.
+
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def insert_into_bst(root, val):
+    """
+    Theoretical approach: Direct insertion starting from root
+    Requires special handling for empty trees and root node
+    """
+    if not root:
+        return TreeNode(val)
+    
+    if val < root.val:
+        root.left = insert_into_bst(root.left, val)
+    elif val > root.val:
+        root.right = insert_into_bst(root.right, val)
+    
+    return root
+
+def insert_with_dummy(root, val):
+    """
+    Practical approach: Using a dummy node to simplify implementation
+    No special case for the root node needed
+    """
+    dummy = TreeNode(float('inf'))  # Dummy node
+    dummy.left = root               # Original tree as left child
+    
+    # Now we can use iterative approach without special cases
+    curr = dummy
+    while curr:
+        if val < curr.val:
+            if not curr.left:
+                curr.left = TreeNode(val)
+                break
+            curr = curr.left
+        elif val > curr.val:
+            if not curr.right:
+                curr.right = TreeNode(val)
+                break
+            curr = curr.right
+        else:
+            break  # Value already exists
+    
+    return dummy.left  # Return the actual root
+
+def main():
+    # Create a BST: [4,2,7,1,3]
+    root = None
+    
+    # Method 1: Without dummy node
+    print("Building tree without dummy node:")
+    values = [4, 2, 7, 1, 3]
+    for val in values:
+        root = insert_into_bst(root, val)
+    
+    # Print in-order traversal
+    def inorder(node):
+        result = []
+        if node:
+            result = inorder(node.left)
+            result.append(node.val)
+            result += inorder(node.right)
+        return result
+    
+    print("In-order traversal:", inorder(root))
+    
+    # Method 2: With dummy node
+    print("\nBuilding tree with dummy node:")
+    root2 = None
+    for val in values:
+        root2 = insert_with_dummy(root2, val)
+    
+    print("In-order traversal:", inorder(root2))
+    print("Both methods produce the same tree structure.")
+
+if __name__ == "__main__":
+    main()
+```
+
+
+### Other Common Implementation Tricks in DSA
+
+1. **Sentinel Values** - Using special values like -1 or MAX_INT to mark boundaries or special conditions
+   
+2. **Moving Pointers** - In linked list problems, techniques like fast/slow pointers or dummy heads simplify operations
+
+3. **Dynamic Programming** - Using tabulation instead of recursion, despite mathematical formulations often being recursive
+
+4. **Graph Algorithms** - Using adjacency lists instead of matrices for sparse graphs, despite matrices being more mathematically intuitive
+
+5. **Loop Unrolling** - Manually repeating loop body code to reduce branch prediction failures and loop overhead
+
+6. **Bit Manipulation** - Using bitwise operations for problems that are mathematically described with different operations
+
+These implementation details highlight that understanding both the mathematical foundation and practical coding techniques is crucial for efficient problem-solving in computer science.

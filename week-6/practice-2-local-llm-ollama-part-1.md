@@ -55,22 +55,19 @@ cd social-network-assistant
 Now, let's install all the packages we'll need:
 
 ```bash
-  pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu
+  pip install langchain langchain-community chromadb streamlit
 ```
 
 or, if you are in China:
 
 ```bash
-  pip install langchain langchain-community chromadb sentence-transformers streamlit faiss-cpu -i https://pypi.tuna.tsinghua.edu.cn/simple
+  pip install langchain langchain-community chromadb streamlit -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
-
 
 Package explanation:
 - `langchain` & `langchain-community`: Framework for creating LLM applications
 - `chromadb`: Vector database for storing embeddings
-- `sentence-transformers`: For creating text embeddings
 - `streamlit`: For building the web interface
-- `faiss-cpu`: Efficient similarity search library
 
 ### 1.3 Installing Ollama
 
@@ -268,7 +265,7 @@ Open this file in your favorite editor and add the following imports:
 import os
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import Ollama
 from langchain.prompts import PromptTemplate
@@ -342,23 +339,24 @@ The `chunk_overlap` parameter is important - it ensures that context isn't lost 
 Add a function to create embeddings from text:
 
 ```python
-def create_embeddings():
+def create_embeddings(model_name="llama3:8b"):
     """
     Create an embedding model to convert text into vector representations.
+    Uses Ollama's built-in embedding capability to avoid TensorFlow dependencies.
     
     Returns:
-        HuggingFaceEmbeddings: The embedding model
+        OllamaEmbeddings: The embedding model
     """
-    # Initialize the embedding model - using a smaller model for efficient local processing
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2",  # A lightweight but effective embedding model
-        model_kwargs={"device": "cpu"}   # Use CPU for compatibility
+    # Initialize the Ollama embedding model - completely avoids TensorFlow
+    embeddings = OllamaEmbeddings(
+        model=model_name,  # Using the same model for embeddings and generation
+        show_progress=True
     )
-    print("Embedding model created")
+    print(f"Ollama embedding model created using {model_name}")
     return embeddings
 ```
 
-Embeddings transform text into numerical vectors where semantically similar texts are close to each other in the vector space. This allows us to find related content through vector similarity.
+Embeddings transform text into numerical vectors where semantically similar texts are close to each other in the vector space. This allows us to find related content through vector similarity. We're using Ollama's built-in embedding capabilities which eliminates dependencies on TensorFlow or other external embedding libraries, making it much more compatible with macOS and other platforms.
 
 ### 3.5 Creating a Vector Database
 
@@ -410,7 +408,7 @@ social-network-assistant/
 Now, let's create a function that combines all these steps:
 
 ```python
-def process_documents(file_path, db_directory="./chroma_db"):
+def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:8b"):
     """Process documents from loading to vector storage."""
     # 1. Load the document
     documents = load_profiles(file_path)
@@ -419,7 +417,7 @@ def process_documents(file_path, db_directory="./chroma_db"):
     chunks = chunk_documents(documents)
     
     # 3. Create embeddings
-    embeddings = create_embeddings()
+    embeddings = create_embeddings(model_name=model_name)
     
     # 4. Create and persist vector database
     vectordb = create_vectorstore(chunks, embeddings, db_directory)
@@ -598,8 +596,8 @@ def build_streamlit_app():
     
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
-         "llama3.1:8b", "mistral:7b", "phi3:3.8b", "gemma:2b"]
+        ["llama3:8b", "llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+         "mistral:7b", "phi3:3.8b", "gemma:2b"]
     )
     
     # Initialize or load the system
@@ -608,7 +606,7 @@ def build_streamlit_app():
         if os.path.exists("./chroma_db"):
             with st.spinner("Loading existing knowledge base..."):
                 # Load the existing vector database
-                embeddings = create_embeddings()
+                embeddings = create_embeddings(model_name=model_choice)
                 vectordb = Chroma(
                     persist_directory="./chroma_db",
                     embedding_function=embeddings
@@ -630,7 +628,8 @@ def build_streamlit_app():
                     # Process documents
                     vectordb = process_documents(
                         profile_path,
-                        "./chroma_db"
+                        "./chroma_db",
+                        model_name=model_choice
                     )
                     
                     # Create LLM and QA chain
@@ -838,6 +837,9 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    - High-end systems (16GB+ RAM): deepseek:7b, llama3.1:8b, or mistral:7b
    - Mid-range systems (8GB RAM): deepseek-coder:6.7b or phi3:3.8b
    - Low-end systems (4GB RAM): deepseek-lite:1.3b or gemma:2b
+
+7. **I'm getting TensorFlow errors, especially on macOS**
+   We've completely removed TensorFlow dependencies by using Ollama's built-in embedding capabilities. This approach is much more compatible with macOS and eliminates the need for external embedding libraries. If you're still encountering issues, make sure you have Ollama installed and running correctly.
 
 ---
 

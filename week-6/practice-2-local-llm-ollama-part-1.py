@@ -119,7 +119,7 @@ def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:
     return vectordb
 
 
-def create_llm(model_name="llama3.2:latest"):
+def create_llm(model_name="llama3.2:1b"):
     """
     Create a connection to the local Ollama LLM.
 
@@ -241,6 +241,7 @@ def build_streamlit_app():
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
         [
+            "llama3.2:1b",
             "llama3.2:latest",
             "qwen2.5:3b",
             "deepseek:7b",

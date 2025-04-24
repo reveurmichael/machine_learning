@@ -436,7 +436,7 @@ Now let's build the components needed for our RAG system:
 Add a function to connect to Ollama:
 
 ```python
-def create_llm(model_name="deepseek:7b"):
+def create_llm(model_name="llama3.2:1b"):
     """
     Create a connection to the local Ollama LLM.
     
@@ -596,7 +596,7 @@ def build_streamlit_app():
     
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
-        ["llama3:8b", "llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
+        ["llama3.2:1b", "llama3.2:latest", "deepseek:7b", "deepseek-coder:6.7b", "deepseek-lite:1.3b", 
          "mistral:7b", "phi3:3.8b", "gemma:2b"]
     )
     

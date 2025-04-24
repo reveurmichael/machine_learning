@@ -9,7 +9,7 @@ You can download the srt files as well as the video files with the tool `yt-dlp`
 ## Current Challenges
 
 Problems that I have identified:
-- Some of the srt in English might not be good enough. Though most should be fine. One perticular keyword, for example, `foreign`, can be very misleading. Or, sometimes, the original srt file downloaded from YouTube might not be good enough.
+- Some of the srt in English might not be good enough. Though most should be fine. One perticular keyword, for example, `foreign`, can be very misleading. Or, sometimes (maybe very often?), the original srt file downloaded from YouTube might not be good enough.
 - If we translate the srt files into Chinese/French with non-LLM AI tools (e.g. `Helsinki-NLP/opus-mt-en-zh`), the result might not be good, sometimes very bad. See [week-4/practice-2-output-srt-files](../week-4/practice-2-output-srt-files/). From my first experiences of trial and error, there is no reason to expect better results with other non-LLM tools.
 
 ## Project Objectives

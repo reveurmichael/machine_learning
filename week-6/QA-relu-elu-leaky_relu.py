@@ -1,3 +1,7 @@
+"""
+This is very idiomatic PyTorch code, well-suited for beginners, educational demos, or baseline experiments.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

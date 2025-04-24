@@ -1,0 +1,751 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_moons, make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
+
+# ---------------------------
+# Layer Base Class (From Previous Session)
+# ---------------------------
+class Layer:
+    """
+    Base class for neural network layers.
+    Defines the interface for forward and backward propagation.
+    """
+    def __init__(self):
+        pass
+
+    def forward(self, input):
+        """Forward pass: Compute the output given the input."""
+        return input
+
+    def backward(self, input, grad_output):
+        """Backward pass: Compute gradients and propagate them backward."""
+        return grad_output
+    
+    def train(self):
+        """Set the layer to training mode."""
+        pass
+    
+    def eval(self):
+        """Set the layer to evaluation mode."""
+        pass
+
+# ---------------------------
+# ReLU Activation Layer
+# ---------------------------
+class ReLU(Layer):
+    """
+    Implements the Rectified Linear Unit (ReLU) activation function.
+    Forward: output = max(0, input)
+    Backward: gradient is 1 for input > 0, else 0.
+    """
+    def forward(self, input):
+        self.input = input  # Store for backward pass
+        return np.maximum(0, input)
+
+    def backward(self, input, grad_output):
+        relu_grad = (input > 0).astype(float)
+        return grad_output * relu_grad
+
+
+class Dropout(Layer):
+    """
+    Implements Dropout regularization.
+    During training, randomly zeros elements with probability p.
+    During inference, scales outputs by (1-p) to maintain expected sum.
+    """
+
+    def __init__(self, p=0.5):
+        self.p = p  # Probability of dropping a unit
+        self.mask = None
+        self.training = True
+
+    def forward(self, input):
+        if self.training:
+            # Generate mask of 0s and 1s with probability (1-p) for 1s
+            self.mask = np.random.binomial(1, 1 - self.p, size=input.shape) / (
+                1 - self.p
+            )
+            # Apply mask (multiply by 0 drops the unit)
+            return input * self.mask
+        else:
+            # During evaluation, no dropout but we don't need to scale
+            # since we already scaled during training
+            return input
+
+    def backward(self, input, grad_output):
+        # Apply same mask to gradients
+        if self.training:
+            return grad_output * self.mask
+        else:
+            return grad_output
+
+    def train(self):
+        """Set layer to training mode"""
+        self.training = True
+
+    def eval(self):
+        """Set layer to evaluation mode"""
+        self.training = False
+
+
+class Dense(Layer):
+    """
+    Implements a fully connected (dense) layer with optional L1/L2 regularization.
+    """
+
+    def __init__(
+        self,
+        input_units,
+        output_units,
+        learning_rate=0.1,
+        optimizer=None,
+        l1=0.0,
+        l2=0.0,
+    ):
+        self.learning_rate = learning_rate
+        # Xavier/Glorot initialization for weights
+        self.weights = np.random.randn(input_units, output_units) * np.sqrt(
+            2.0 / input_units
+        )
+        self.biases = np.zeros(output_units)
+        self.optimizer = optimizer  # We'll update parameters using the optimizer
+        self.l1 = l1  # L1 regularization strength
+        self.l2 = l2  # L2 regularization strength
+
+    def forward(self, input):
+        self.input = input  # Cache input for backpropagation
+        return np.dot(input, self.weights) + self.biases
+
+    def backward(self, input, grad_output):
+        # Compute gradients with respect to parameters
+        grad_weights = np.dot(input.T, grad_output) / input.shape[0]
+        grad_biases = np.mean(grad_output, axis=0)
+
+        # Add regularization gradients
+        if self.l1 > 0:
+            grad_weights += self.l1 * np.sign(self.weights)
+        if self.l2 > 0:
+            grad_weights += self.l2 * 2 * self.weights
+
+        # Compute gradient with respect to inputs
+        grad_input = np.dot(grad_output, self.weights.T)
+
+        # If an optimizer is provided, use it to update parameters
+        if self.optimizer is None:
+            # Basic update with regularization
+            self.weights -= self.learning_rate * grad_weights
+            self.biases -= self.learning_rate * grad_biases
+        else:
+            # Use optimizer's update method
+            self.weights, self.biases = self.optimizer.update(
+                self.weights, self.biases, grad_weights, grad_biases
+            )
+
+        return grad_input
+
+    def l1_penalty(self):
+        """Compute L1 regularization penalty"""
+        if self.l1 > 0:
+            return self.l1 * np.sum(np.abs(self.weights))
+        return 0
+
+    def l2_penalty(self):
+        """Compute L2 regularization penalty"""
+        if self.l2 > 0:
+            return self.l2 * np.sum(self.weights**2)
+        return 0
+
+
+def softmax_crossentropy_with_logits(logits, labels, network=None):
+    """
+    Computes softmax cross-entropy loss and gradient, including regularization.
+    Arguments:
+      logits -- raw predictions from the network, shape (batch_size, num_classes)
+      labels -- true labels, shape (batch_size,)
+      network -- optional network for computing regularization penalties
+    Returns:
+      loss -- scalar value for cross-entropy loss plus regularization
+      grad -- gradient of loss with respect to logits
+    """
+    batch_size = logits.shape[0]
+    # One-hot encoding for labels
+    one_hot_labels = np.zeros_like(logits)
+    one_hot_labels[np.arange(batch_size), labels] = 1
+    
+    # Softmax computation with stability trick
+    exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+    softmax_probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+    
+    # Base loss
+    base_loss = -np.sum(one_hot_labels * np.log(softmax_probs + 1e-9)) / batch_size
+    
+    # Add regularization penalties if network is provided
+    reg_loss = 0
+    if network is not None:
+        for layer in network:
+            if isinstance(layer, Dense):
+                reg_loss += layer.l1_penalty()
+                reg_loss += layer.l2_penalty()
+    
+    loss = base_loss + reg_loss
+    grad = (softmax_probs - one_hot_labels) / batch_size
+    
+    return loss, grad
+
+
+class SGD:
+    """
+    Stochastic Gradient Descent optimizer.
+    """
+    def __init__(self, learning_rate=0.1):
+        self.learning_rate = learning_rate
+
+    def update(self, weights, biases, grad_weights, grad_biases):
+        weights_updated = weights - self.learning_rate * grad_weights
+        biases_updated = biases - self.learning_rate * grad_biases
+        return weights_updated, biases_updated
+
+class Adam:
+    """
+    Adam optimizer implementation with support for L1 and L2 regularization.
+    """
+    def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
+        self.learning_rate = learning_rate
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.epsilon = epsilon
+        
+        # State dictionaries for first and second moment estimates
+        self.m_weights = {}
+        self.v_weights = {}
+        self.m_biases = {}
+        self.v_biases = {}
+        self.t = 0
+
+    def update(self, weights, biases, grad_weights, grad_biases):
+        self.t += 1
+        
+        # Identify parameters uniquely via id() (for multiple layers)
+        key_w, key_b = id(weights), id(biases)
+        
+        if key_w not in self.m_weights:
+            # Initialize moment estimates with zeros, same shape as parameters
+            self.m_weights[key_w] = np.zeros_like(grad_weights)
+            self.v_weights[key_w] = np.zeros_like(grad_weights)
+            self.m_biases[key_b] = np.zeros_like(grad_biases)
+            self.v_biases[key_b] = np.zeros_like(grad_biases)
+        
+        # Update biased first moment estimate for weights and biases
+        self.m_weights[key_w] = self.beta1 * self.m_weights[key_w] + (1 - self.beta1) * grad_weights
+        self.m_biases[key_b] = self.beta1 * self.m_biases[key_b] + (1 - self.beta1) * grad_biases
+        
+        # Update biased second moment estimate for weights and biases
+        self.v_weights[key_w] = self.beta2 * self.v_weights[key_w] + (1 - self.beta2) * (grad_weights ** 2)
+        self.v_biases[key_b] = self.beta2 * self.v_biases[key_b] + (1 - self.beta2) * (grad_biases ** 2)
+        
+        # Bias-corrected estimates
+        m_hat_weights = self.m_weights[key_w] / (1 - self.beta1 ** self.t)
+        v_hat_weights = self.v_weights[key_w] / (1 - self.beta2 ** self.t)
+        m_hat_biases = self.m_biases[key_b] / (1 - self.beta1 ** self.t)
+        v_hat_biases = self.v_biases[key_b] / (1 - self.beta2 ** self.t)
+        
+        # Update parameters
+        weights_updated = weights - self.learning_rate * m_hat_weights / (np.sqrt(v_hat_weights) + self.epsilon)
+        biases_updated = biases - self.learning_rate * m_hat_biases / (np.sqrt(v_hat_biases) + self.epsilon)
+        
+        return weights_updated, biases_updated
+
+
+class EarlyStopping:
+    """
+    Early stopping implementation to halt training when validation 
+    performance stops improving.
+    """
+    def __init__(self, patience=5, min_delta=0.0):
+        self.patience = patience  # How many epochs to wait after last improvement
+        self.min_delta = min_delta  # Minimum change to qualify as improvement
+        self.best_loss = np.inf
+        self.counter = 0
+        self.best_weights = None
+    
+    def __call__(self, val_loss, network):
+        """
+        Check if training should stop.
+        Returns True if training should stop, False otherwise.
+        """
+        if val_loss < self.best_loss - self.min_delta:
+            # Improvement found
+            self.best_loss = val_loss
+            self.counter = 0
+            # Save best weights (deep copy)
+            self.best_weights = [
+                (layer.weights.copy(), layer.biases.copy()) 
+                if isinstance(layer, Dense) else None
+                for layer in network
+            ]
+            return False
+        else:
+            # No improvement
+            self.counter += 1
+            if self.counter >= self.patience:
+                return True  # Stop training
+            return False  # Continue training
+    
+    def restore_best_weights(self, network):
+        """Restore model to the best weights."""
+        if self.best_weights is not None:
+            for i, layer in enumerate(network):
+                if isinstance(layer, Dense) and self.best_weights[i] is not None:
+                    weights, biases = self.best_weights[i]
+                    layer.weights = weights.copy()
+                    layer.biases = biases.copy()
+
+def generate_classification_dataset():
+    """Generate a synthetic classification dataset with clear decision boundaries."""
+    # Create a challenging nonlinear classification problem
+    X, y = make_moons(n_samples=2000, noise=0.3, random_state=42)
+    
+    # Make the dataset more complex by adding irrelevant features
+    n_features = 20  # Total number of features
+    n_informative = 2  # The first 2 features (from make_moons) are informative
+    
+    # Add random features
+    random_features = np.random.randn(X.shape[0], n_features - X.shape[1])
+    X = np.hstack([X, random_features])
+    
+    # Split data into train, validation, and test sets
+    X_train_val, X_test, y_train_val, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train_val, y_train_val, test_size=0.2, random_state=42)
+    
+    # Standardize features
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_val = scaler.transform(X_val)
+    X_test = scaler.transform(X_test)
+    
+    print(f"Training data shape: {X_train.shape}")
+    print(f"Validation data shape: {X_val.shape}")
+    print(f"Test data shape: {X_test.shape}")
+    
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+def visualize_dataset(X, y, title="Dataset Visualization"):
+    """Visualize the first two dimensions of the dataset."""
+    plt.figure(figsize=(10, 6))
+    plt.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', s=40, alpha=0.8)
+    plt.title(title)
+    plt.colorbar(label='Class')
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+
+def create_network(l1=0.0, l2=0.0, use_dropout=False, dropout_rate=0.5):
+    """
+    Creates a neural network with regularization options.
+    Arguments:
+        l1 -- L1 regularization strength
+        l2 -- L2 regularization strength
+        use_dropout -- whether to use dropout
+        dropout_rate -- dropout rate (1 - keep_prob)
+    Returns:
+        network -- list of layers forming the network
+    """
+    # Use Adam optimizer
+    optimizer = Adam(learning_rate=0.001, beta1=0.9, beta2=0.999)
+
+    network = [
+        # Input layer has n_features neurons based on our dataset
+        Dense(
+            input_units=20,
+            output_units=128,
+            learning_rate=0.001,
+            optimizer=optimizer,
+            l1=l1,
+            l2=l2,
+        ),
+        ReLU(),
+    ]
+
+    if use_dropout:
+        network.append(Dropout(p=dropout_rate))
+
+    network.extend(
+        [
+            Dense(
+                input_units=128,
+                output_units=64,
+                learning_rate=0.001,
+                optimizer=optimizer,
+                l1=l1,
+                l2=l2,
+            ),
+            ReLU(),
+        ]
+    )
+
+    if use_dropout:
+        network.append(Dropout(p=dropout_rate))
+
+    network.extend(
+        [
+            Dense(
+                input_units=64,
+                output_units=2,
+                learning_rate=0.001,
+                optimizer=optimizer,
+                l1=l1,
+                l2=l2,
+            )
+        ]
+    )
+
+    return network
+
+
+def set_network_mode(network, training=True):
+    """Set all layers in network to training or evaluation mode."""
+    for layer in network:
+        if hasattr(layer, "train") and hasattr(layer, "eval"):
+            if training:
+                layer.train()
+            else:
+                layer.eval()
+
+
+def forward(network, X):
+    """
+    Computes forward pass through the entire network.
+    Returns a list of activations for each layer.
+    """
+    activations = []
+    input = X
+    for layer in network:
+        output = layer.forward(input)
+        activations.append(output)
+        input = output
+    return activations
+
+
+def predict(network, X):
+    """Get class predictions for input X."""
+    set_network_mode(network, training=False)  # Set to evaluation mode
+    logits = forward(network, X)[-1]
+    return np.argmax(logits, axis=-1)
+
+
+def compute_accuracy(network, X, y):
+    """Compute accuracy of the network on given data."""
+    predictions = predict(network, X)
+    return np.mean(predictions == y)
+
+
+def train_network(
+    network,
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    num_epochs=100,
+    batch_size=64,
+    use_early_stopping=False,
+    patience=10,
+    return_best=True,
+):
+    """
+    Train the network with options for regularization and early stopping.
+    """
+    num_samples = X_train.shape[0]
+    num_batches = int(np.ceil(num_samples / batch_size))
+    history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
+
+    # Set up early stopping if enabled
+    early_stopping = EarlyStopping(patience=patience) if use_early_stopping else None
+
+    for epoch in range(num_epochs):
+        # Shuffle training data at each epoch
+        indices = np.random.permutation(num_samples)
+        X_train_shuffled = X_train[indices]
+        y_train_shuffled = y_train[indices]
+
+        epoch_losses = []
+        set_network_mode(network, training=True)  # Set to training mode
+
+        for batch in range(num_batches):
+            start = batch * batch_size
+            end = min(start + batch_size, num_samples)
+            X_batch = X_train_shuffled[start:end]
+            y_batch = y_train_shuffled[start:end]
+
+            # Forward pass
+            activations = forward(network, X_batch)
+            layer_inputs = [X_batch] + activations[:-1]
+            logits = activations[-1]
+
+            # Compute loss and initial gradient
+            loss, grad_logits = softmax_crossentropy_with_logits(
+                logits, y_batch, network
+            )
+            epoch_losses.append(loss)
+
+            # Backward pass
+            grad = grad_logits
+            for i in range(len(network) - 1, -1, -1):
+                layer = network[i]
+                grad = layer.backward(layer_inputs[i], grad)
+
+        # Compute average epoch loss and training accuracy
+        avg_train_loss = np.mean(epoch_losses)
+        train_acc = compute_accuracy(network, X_train, y_train)
+
+        # Evaluate on validation set
+        set_network_mode(network, training=False)  # Set to evaluation mode
+        val_logits = forward(network, X_val)[-1]
+        val_loss, _ = softmax_crossentropy_with_logits(val_logits, y_val, network)
+        val_acc = compute_accuracy(network, X_val, y_val)
+
+        # Save metrics
+        history["train_loss"].append(avg_train_loss)
+        history["train_acc"].append(train_acc)
+        history["val_loss"].append(val_loss)
+        history["val_acc"].append(val_acc)
+
+        # Progress report
+        print(
+            f"Epoch {epoch+1}/{num_epochs}: train_loss={avg_train_loss:.4f}, train_acc={train_acc:.4f}, "
+            f"val_loss={val_loss:.4f}, val_acc={val_acc:.4f}"
+        )
+
+        # Check early stopping
+        if use_early_stopping and early_stopping(val_loss, network):
+            print(f"Early stopping triggered after {epoch+1} epochs")
+            if return_best:
+                early_stopping.restore_best_weights(network)
+            break
+
+    return history
+
+
+def plot_training_history(histories, labels):
+    """Plot training histories for multiple models."""
+    plt.figure(figsize=(12, 10))
+    
+    plt.subplot(2, 2, 1)
+    for i, (history, label) in enumerate(zip(histories, labels)):
+        plt.plot(history['train_loss'], label=f"{label} (Train)")
+    plt.title("Training Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    
+    plt.subplot(2, 2, 2)
+    for i, (history, label) in enumerate(zip(histories, labels)):
+        plt.plot(history['val_loss'], label=f"{label} (Val)")
+    plt.title("Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    
+    plt.subplot(2, 2, 3)
+    for i, (history, label) in enumerate(zip(histories, labels)):
+        plt.plot(history['train_acc'], label=f"{label} (Train)")
+    plt.title("Training Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    
+    plt.subplot(2, 2, 4)
+    for i, (history, label) in enumerate(zip(histories, labels)):
+        plt.plot(history['val_acc'], label=f"{label} (Val)")
+    plt.title("Validation Accuracy")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
+def train_and_compare_models(X_train, y_train, X_val, y_val, X_test, y_test):
+    """Train multiple models with different regularization strategies and compare results."""
+    # Create and train 5 different models
+    # 1. Baseline model (no regularization)
+    print("Training baseline model...")
+    baseline_network = create_network(l1=0.0, l2=0.0, use_dropout=False)
+    baseline_history = train_network(baseline_network, X_train, y_train, X_val, y_val, num_epochs=100)
+    
+    # 2. L1 Regularization
+    print("\nTraining model with L1 regularization...")
+    l1_network = create_network(l1=0.001, l2=0.0, use_dropout=False)
+    l1_history = train_network(l1_network, X_train, y_train, X_val, y_val, num_epochs=100)
+    
+    # 3. L2 Regularization
+    print("\nTraining model with L2 regularization...")
+    l2_network = create_network(l1=0.0, l2=0.001, use_dropout=False)
+    l2_history = train_network(l2_network, X_train, y_train, X_val, y_val, num_epochs=100)
+    
+    # 4. Dropout
+    print("\nTraining model with Dropout...")
+    dropout_network = create_network(l1=0.0, l2=0.0, use_dropout=True, dropout_rate=0.5)
+    dropout_history = train_network(dropout_network, X_train, y_train, X_val, y_val, num_epochs=100)
+    
+    # 5. Early Stopping
+    print("\nTraining model with Early Stopping...")
+    es_network = create_network(l1=0.0, l2=0.0, use_dropout=False)
+    es_history = train_network(es_network, X_train, y_train, X_val, y_val, 
+                              num_epochs=100, use_early_stopping=True, patience=10)
+    
+    # Plot training histories
+    histories = [baseline_history, l1_history, l2_history, dropout_history, es_history]
+    labels = ["Baseline", "L1 Regularization", "L2 Regularization", "Dropout", "Early Stopping"]
+    plot_training_history(histories, labels)
+    
+    # Evaluate on test set
+    networks = [baseline_network, l1_network, l2_network, dropout_network, es_network]
+    test_accuracies = []
+    
+    print("\nTest Set Evaluation:")
+    for network, label in zip(networks, labels):
+        test_acc = compute_accuracy(network, X_test, y_test)
+        test_accuracies.append(test_acc)
+        print(f"{label}: Test Accuracy = {test_acc:.4f}")
+    
+    return networks, histories, labels, test_accuracies
+
+
+def plot_decision_boundaries(networks, labels, X, y):
+    """
+    Plot decision boundaries for multiple models.
+    Visualizes only the first two dimensions of the data.
+    """
+    plt.figure(figsize=(15, 10))
+    
+    # Define the mesh step and create a mesh grid
+    h = 0.02  # Step size
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    
+    # Loop through each model and create a subplot
+    for i, (network, label) in enumerate(zip(networks, labels)):
+        plt.subplot(2, 3, i+1)
+        
+        # Create a test grid with all other features set to their means
+        grid = np.zeros((xx.ravel().shape[0], X.shape[1]))
+        grid[:, 0] = xx.ravel()
+        grid[:, 1] = yy.ravel()
+        if X.shape[1] > 2:
+            # For remaining features, use the mean value from training data
+            feature_means = np.mean(X, axis=0)
+            grid[:, 2:] = feature_means[2:]
+        
+        # Make predictions on the grid
+        Z = predict(network, grid)
+        
+        # Plot the contour map
+        Z = Z.reshape(xx.shape)
+        plt.contourf(xx, yy, Z, alpha=0.8, cmap='viridis')
+        
+        # Plot the training samples
+        plt.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', 
+                   edgecolors='k', s=40, alpha=0.7)
+        
+        plt.title(label)
+        plt.xlabel("Feature 1")
+        plt.ylabel("Feature 2")
+        plt.axis('tight')
+    
+    plt.tight_layout()
+    plt.show()
+
+
+def visualize_weight_distributions(networks, labels):
+    """Visualize weight distributions of first layer across different models"""
+    plt.figure(figsize=(15, 10))
+
+    for i, (network, label) in enumerate(zip(networks, labels)):
+        # Get weights from the first Dense layer
+        weights = network[0].weights.flatten()
+
+        plt.subplot(2, 3, i+1)
+        plt.hist(weights, bins=50, alpha=0.7)
+        plt.title(f"{label} Weights")
+        plt.xlabel("Weight Value")
+        plt.ylabel("Count")
+        plt.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def generate_complex_dataset():
+    """Generate a more complex classification dataset prone to overfitting."""
+    # Create a dataset with many features but few relevant ones
+    X, y = make_classification(
+        n_samples=1000,
+        n_features=100,
+        n_informative=10,
+        n_redundant=40,
+        n_repeated=0,
+        n_classes=2,
+        n_clusters_per_class=2,
+        random_state=42,
+    )
+
+    # Split data
+    X_train_val, X_test, y_train_val, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train_val, y_train_val, test_size=0.2, random_state=42
+    )
+
+    # Standardize
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_val = scaler.transform(X_val)
+    X_test = scaler.transform(X_test)
+
+    print(f"High-dimensional data: {X_train.shape[1]} features")
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+
+def main():
+    # Generate synthetic dataset
+    X_train, y_train, X_val, y_val, X_test, y_test = generate_classification_dataset()
+    
+    # Visualize the dataset
+    visualize_dataset(X_train, y_train, "Training Dataset Visualization")
+    
+    # Train and compare different regularization techniques
+    networks, histories, labels, test_accuracies = train_and_compare_models(
+        X_train, y_train, X_val, y_val, X_test, y_test)
+    
+    # Plot decision boundaries
+    plot_decision_boundaries(networks, labels, X_test, y_test)
+    
+    # Print final results and conclusions
+    print("\nResults Summary:")
+    for label, acc in zip(labels, test_accuracies):
+        print(f"{label}: {acc:.4f}")
+    
+    # Find best model
+    best_idx = np.argmax(test_accuracies)
+    print(f"\nBest model: {labels[best_idx]} with test accuracy: {test_accuracies[best_idx]:.4f}")
+
+    visualize_weight_distributions(networks, labels)
+
+
+if __name__ == "__main__":
+    main()
+
+    

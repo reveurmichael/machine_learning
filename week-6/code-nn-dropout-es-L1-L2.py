@@ -346,10 +346,11 @@ def visualize_dataset(X, y, title="Dataset Visualization"):
     plt.show()
 
 
-def create_network(l1=0.0, l2=0.0, use_dropout=False, dropout_rate=0.5):
+def create_network(input_features, l1=0.0, l2=0.0, use_dropout=False, dropout_rate=0.5):
     """
     Creates a neural network with regularization options.
     Arguments:
+        input_features -- number of input features in the dataset
         l1 -- L1 regularization strength
         l2 -- L2 regularization strength
         use_dropout -- whether to use dropout
@@ -363,7 +364,7 @@ def create_network(l1=0.0, l2=0.0, use_dropout=False, dropout_rate=0.5):
     network = [
         # Input layer has n_features neurons based on our dataset
         Dense(
-            input_units=20,
+            input_units=input_features,
             output_units=128,
             learning_rate=0.001,
             optimizer=optimizer,
@@ -580,27 +581,27 @@ def train_and_compare_models(X_train, y_train, X_val, y_val, X_test, y_test):
     # Create and train 5 different models
     # 1. Baseline model (no regularization)
     print("Training baseline model...")
-    baseline_network = create_network(l1=0.0, l2=0.0, use_dropout=False)
+    baseline_network = create_network(input_features=X_train.shape[1], l1=0.0, l2=0.0, use_dropout=False)
     baseline_history = train_network(baseline_network, X_train, y_train, X_val, y_val, num_epochs=100)
     
     # 2. L1 Regularization
     print("\nTraining model with L1 regularization...")
-    l1_network = create_network(l1=0.001, l2=0.0, use_dropout=False)
+    l1_network = create_network(input_features=X_train.shape[1], l1=0.001, l2=0.0, use_dropout=False)
     l1_history = train_network(l1_network, X_train, y_train, X_val, y_val, num_epochs=100)
     
     # 3. L2 Regularization
     print("\nTraining model with L2 regularization...")
-    l2_network = create_network(l1=0.0, l2=0.001, use_dropout=False)
+    l2_network = create_network(input_features=X_train.shape[1], l1=0.0, l2=0.001, use_dropout=False)
     l2_history = train_network(l2_network, X_train, y_train, X_val, y_val, num_epochs=100)
     
     # 4. Dropout
     print("\nTraining model with Dropout...")
-    dropout_network = create_network(l1=0.0, l2=0.0, use_dropout=True, dropout_rate=0.5)
+    dropout_network = create_network(input_features=X_train.shape[1], l1=0.0, l2=0.0, use_dropout=True, dropout_rate=0.5)
     dropout_history = train_network(dropout_network, X_train, y_train, X_val, y_val, num_epochs=100)
     
     # 5. Early Stopping
     print("\nTraining model with Early Stopping...")
-    es_network = create_network(l1=0.0, l2=0.0, use_dropout=False)
+    es_network = create_network(input_features=X_train.shape[1], l1=0.0, l2=0.0, use_dropout=False)
     es_history = train_network(es_network, X_train, y_train, X_val, y_val, 
                               num_epochs=100, use_early_stopping=True, patience=10)
     
@@ -719,10 +720,12 @@ def generate_complex_dataset():
     return X_train, y_train, X_val, y_val, X_test, y_test
 
 
-def main():
+def main(use_complex_dataset=False):
     # Generate synthetic dataset
-    X_train, y_train, X_val, y_val, X_test, y_test = generate_classification_dataset()
-    
+    if not use_complex_dataset:
+        X_train, y_train, X_val, y_val, X_test, y_test = generate_classification_dataset()
+    else:
+        X_train, y_train, X_val, y_val, X_test, y_test = generate_complex_dataset()
     # Visualize the dataset
     visualize_dataset(X_train, y_train, "Training Dataset Visualization")
     
@@ -746,6 +749,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(use_complex_dataset=False)
 
     

@@ -7,6 +7,8 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 import streamlit as st
+import shutil
+import time
 
 
 def load_profiles(file_path):
@@ -105,6 +107,16 @@ def create_vectorstore(chunks, embeddings, persist_directory):
 def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:8b"):
     """Process documents from loading to vector storage."""
     # 1. Load the document
+    # Check if file exists before trying to load
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(
+            f"Profile file not found: {file_path}. Make sure the file exists at this path."
+        )
+
+    # Use normalized path with correct OS-specific separators
+    file_path = os.path.normpath(file_path)
+    print(f"Loading profiles from: {file_path}")
+
     documents = load_profiles(file_path)
 
     # 2. Chunk the document
@@ -325,9 +337,6 @@ def build_streamlit_app():
     if st.sidebar.button("🔄 Rebuild Knowledge Base"):
         # Delete the existing database
         with st.spinner(f"Rebuilding knowledge base for model {model_choice}..."):
-            import shutil
-            import time
-
             # Clear session state to release any database connections
             if "qa_chain" in st.session_state:
                 del st.session_state["qa_chain"]
@@ -349,6 +358,17 @@ def build_streamlit_app():
 
                 # Process documents
                 profile_path = "profiles/student_database.md"
+                # Use OS-specific path normalization
+                profile_path = os.path.normpath(profile_path)
+
+                # Verify the file exists
+                if not os.path.exists(profile_path):
+                    st.sidebar.error(f"Profile file not found: {profile_path}")
+                    st.sidebar.info(
+                        "Make sure the file exists in the 'profiles' directory."
+                    )
+                    return
+
                 vectordb = process_documents(
                     profile_path, db_directory, model_name=model_choice
                 )
@@ -366,7 +386,7 @@ def build_streamlit_app():
             except Exception as e:
                 st.sidebar.error(f"Error rebuilding knowledge base: {str(e)}")
                 st.sidebar.info(
-                    "Try restarting the application or check file permissions"
+                    "Try restarting the application or check if the profile file exists"
                 )
 
     # Check if we need to load a different model's database

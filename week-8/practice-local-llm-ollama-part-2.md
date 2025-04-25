@@ -60,60 +60,124 @@ with st.sidebar:
                         model_name = line.split()[0]
                         available_models.append(model_name)
         if not available_models:
-            available_models = ["llama3.2:latest"]
+            available_models = ["qwen2.5:3b"]
     except Exception as e:
         st.sidebar.error(f"Error getting models: {e}")
-        available_models = ["llama3.2:latest"]
+        available_models = ["qwen2.5:3b"]
     
     model_name = st.selectbox("Select LLM Model", available_models, index=0)
     temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
     
-    # Option to rebuild the database
+    # Get model-specific database directory
+    db_directory = f"./chroma_db_{model_name.replace(':', '_')}"
+    
+    # Option to rebuild the database with proper permission handling
     if st.button("🔄 Rebuild Knowledge Base"):
-        with st.spinner("Rebuilding knowledge base..."):
+        with st.spinner(f"Rebuilding knowledge base for model {model_name}..."):
             import shutil
-            if os.path.exists("./chroma_db"):
-                shutil.rmtree("./chroma_db")
+            import time
             
-            # Re-import necessary modules for rebuilding
-            from langchain_community.document_loaders import TextLoader
-            from langchain.text_splitter import RecursiveCharacterTextSplitter
+            # Clear session state to release any database connections
+            if "qa_chain" in st.session_state:
+                del st.session_state["qa_chain"]
+                
+            # Wait a moment for connections to fully close
+            time.sleep(1)
             
-            # Process documents function
-            def process_documents(file_path, db_directory="./chroma_db"):
-                # Load documents
-                loader = TextLoader(file_path)
-                documents = loader.load()
+            try:
+                if os.path.exists(db_directory):
+                    # Try to change permissions before deleting
+                    for root, dirs, files in os.walk(db_directory):
+                        for dir in dirs:
+                            os.chmod(os.path.join(root, dir), 0o755)  # rwx r-x r-x
+                        for file in files:
+                            os.chmod(os.path.join(root, file), 0o644)  # rw- r-- r--
+                    
+                    # Remove the directory
+                    shutil.rmtree(db_directory)
                 
-                # Chunk documents with improved overlap
-                text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=1000,
-                    chunk_overlap=300,  # Increased overlap for better context
-                    length_function=len,
-                    add_start_index=True,
-                )
-                chunks = text_splitter.split_documents(documents)
+                # Re-import necessary modules for rebuilding
+                from langchain_community.document_loaders import TextLoader
+                from langchain.text_splitter import RecursiveCharacterTextSplitter
                 
-                # Create embeddings
-                embeddings = OllamaEmbeddings(model=model_name)
+                # Process documents function
+                def process_documents(file_path, db_directory="./chroma_db"):
+                    # Load documents
+                    loader = TextLoader(file_path)
+                    documents = loader.load()
+                    
+                    # Chunk documents with improved overlap
+                    text_splitter = RecursiveCharacterTextSplitter(
+                        chunk_size=1000,
+                        chunk_overlap=300,  # Increased overlap for better context
+                        length_function=len,
+                        add_start_index=True,
+                    )
+                    chunks = text_splitter.split_documents(documents)
+                    
+                    # Create embeddings
+                    embeddings = OllamaEmbeddings(model=model_name)
+                    
+                    # Create vector store
+                    vectordb = Chroma.from_documents(
+                        documents=chunks,
+                        embedding=embeddings,
+                        persist_directory=db_directory
+                    )
+                    vectordb.persist()
+                    
+                    return vectordb
                 
-                # Create vector store
-                vectordb = Chroma.from_documents(
-                    documents=chunks,
-                    embedding=embeddings,
-                    persist_directory=db_directory
-                )
-                vectordb.persist()
-                
-                return vectordb
-            
-            # Process the documents
-            profile_path = "profiles/student_database.md"
-            if os.path.exists(profile_path):
-                process_documents(profile_path)
-                st.success("✅ Knowledge base rebuilt successfully")
-            else:
-                st.error(f"Profile file not found: {profile_path}")
+                # Process the documents
+                profile_path = "profiles/student_database.md"
+                if os.path.exists(profile_path):
+                    vectordb = process_documents(profile_path, db_directory)
+                    
+                    # Create LLM and QA chain
+                    llm = Ollama(model=model_name, temperature=temperature)
+                    prompt = PromptTemplate(
+                        template="""
+                        You are an expert social network assistant that helps users connect with elite individuals.
+                        Your role is to provide accurate and detailed information about people in elite social circles
+                        based EXCLUSIVELY on the profile information provided in the context below.
+                        
+                        Use ONLY the context below to answer the question. If the information is not in the context,
+                        say you don't know - DO NOT make up facts or connections that aren't supported by the context.
+                        Always maintain discretion and privacy when discussing elite individuals.
+                        
+                        When providing information about individuals:
+                        1. Always include their full name and ID (if available in the context)
+                        2. Be specific about their background, achievements, and interests
+                        3. Mention any connections they have with other individuals in the network
+                        4. Include quantitative details when available (wealth, age, properties, etc.)
+                        
+                        When suggesting networking approaches, focus on genuine common interests and values, not exploitation.
+                        Provide specific, actionable insights that would help the user establish meaningful connections.
+                        If appropriate, suggest potential conversation starters or shared interests.
+                        
+                        Context: {context}
+                        
+                        Question: {question}
+                        Answer:
+                        """,
+                        input_variables=["context", "question"]
+                    )
+                    qa_chain = RetrievalQA.from_chain_type(
+                        llm=llm,
+                        chain_type="stuff",
+                        retriever=vectordb.as_retriever(search_kwargs={"k": 8}),
+                        chain_type_kwargs={"prompt": prompt},
+                        return_source_documents=True
+                    )
+                    
+                    st.session_state.qa_chain = qa_chain
+                    st.session_state.current_model = model_name
+                    st.success(f"✅ Knowledge base for {model_name} rebuilt successfully")
+                else:
+                    st.error(f"Profile file not found: {profile_path}")
+            except Exception as e:
+                st.error(f"Error rebuilding knowledge base: {str(e)}")
+                st.info("Try restarting the application or check file permissions")
     
     st.header("About")
     st.markdown("""
@@ -123,17 +187,26 @@ with st.sidebar:
     - All processing happens locally
     """)
 
+# Check if we need to load a different model
+if "current_model" not in st.session_state or st.session_state.current_model != model_name:
+    if "qa_chain" in st.session_state:
+        del st.session_state["qa_chain"]
+
 # Initialize the QA system
 @st.cache_resource
-def initialize_qa_system(model_name, temperature):
+def initialize_qa_system(model_name, temperature, db_directory):
+    # Check if database exists
+    if not os.path.exists(db_directory):
+        st.sidebar.warning(f"No knowledge base found for model {model_name}. Please click 'Rebuild Knowledge Base' to create one.")
+        return None
+    
     # Load embeddings using the same model for consistency
     embeddings = OllamaEmbeddings(model=model_name)
     
     # Load vector store
     vector_db = Chroma(
-        collection_name="social_profiles",
         embedding_function=embeddings,
-        persist_directory="./chroma_db"
+        persist_directory=db_directory
     )
     
     # Initialize the LLM
@@ -178,43 +251,50 @@ def initialize_qa_system(model_name, temperature):
     return qa_chain
 
 # Main application
-qa_chain = initialize_qa_system(model_name, temperature)
+qa_chain = initialize_qa_system(model_name, temperature, db_directory)
 
-# Chat interface
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-# User input
-if prompt := st.chat_input("Ask about social profiles"):
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+if qa_chain:
+    # Store current model in session state
+    st.session_state.current_model = model_name
+    st.session_state.qa_chain = qa_chain
     
-    # Display user message in chat
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    # Chat interface
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
     
-    # Display assistant response
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = qa_chain({"query": prompt})
-            answer = response["result"]
-            st.markdown(answer)
-            
-            # Display sources if available with improved display
-            if "source_documents" in response:
-                with st.expander("Show Source Information"):
-                    st.markdown("### Retrieved Profile Chunks")
-                    st.write(f"Retrieved {len(response['source_documents'])} relevant chunks from the profiles database.")
-                    
-                    for i, doc in enumerate(response["source_documents"]):
-                        st.markdown(f"#### Chunk {i+1}")
-                        source = doc.metadata.get("source", "Unknown source")
-                        st.markdown(f"**Source**: {source}")
-                        st.text_area(f"Content {i+1}", doc.page_content, height=200)
-    
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": answer})
+    # User input
+    if prompt := st.chat_input("Ask about social profiles"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Display user message in chat
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        # Display assistant response
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = qa_chain({"query": prompt})
+                answer = response["result"]
+                st.markdown(answer)
+                
+                # Display sources if available with improved display
+                if "source_documents" in response:
+                    with st.expander("Show Source Information"):
+                        st.markdown("### Retrieved Profile Chunks")
+                        st.write(f"Retrieved {len(response['source_documents'])} relevant chunks from the profiles database.")
+                        
+                        for i, doc in enumerate(response["source_documents"]):
+                            st.markdown(f"#### Chunk {i+1}")
+                            source = doc.metadata.get("source", "Unknown source")
+                            st.markdown(f"**Source**: {source}")
+                            st.text_area(f"Content {i+1}", doc.page_content, height=200)
+        
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": answer})
+else:
+    st.info("Please select a model and build its knowledge base to get started.")
 ```
 
 ## Part 2: Building a Gradio Interface
@@ -247,10 +327,10 @@ def get_available_models():
                         model_name = line.split()[0]
                         available_models.append(model_name)
         if not available_models:
-            available_models = ["llama3.2:latest"]
+            available_models = ["qwen2.5:3b"]
         return available_models
     except Exception:
-        return ["llama3.2:latest"]
+        return ["qwen2.5:3b"]
 
 # Get the first available model
 available_models = get_available_models()
@@ -313,14 +393,34 @@ def rebuild_knowledge_base(progress=gr.Progress()):
     progress(0, desc="Starting rebuild process")
     try:
         import shutil
+        import time
         from langchain_community.document_loaders import TextLoader
         from langchain.text_splitter import RecursiveCharacterTextSplitter
         
-        # Remove existing database
+        # Release global variables to release connections
+        global vector_db, qa, memory
+        vector_db = None
+        qa = None
+        memory = None
+        
+        # Wait a moment for connections to fully close
+        time.sleep(1)
+        
+        # Remove existing database with proper permission handling
         if os.path.exists("./chroma_db"):
+            progress(0.2, desc="Setting file permissions...")
+            
+            # Change permissions before deleting
+            for root, dirs, files in os.walk("./chroma_db"):
+                for dir in dirs:
+                    os.chmod(os.path.join(root, dir), 0o755)  # rwx r-x r-x
+                for file in files:
+                    os.chmod(os.path.join(root, file), 0o644)  # rw- r-- r--
+            
+            progress(0.3, desc="Removing old database...")
             shutil.rmtree("./chroma_db")
         
-        progress(0.3, desc="Loading documents")
+        progress(0.4, desc="Loading documents")
         
         # Load documents
         profile_path = "profiles/student_database.md"
@@ -359,7 +459,6 @@ def rebuild_knowledge_base(progress=gr.Progress()):
         progress(1.0, desc="Complete")
         
         # Reset global variables to use the new database
-        global vector_db, qa, memory
         vector_db = Chroma(
             collection_name="social_profiles",
             embedding_function=embeddings,
@@ -380,7 +479,7 @@ def rebuild_knowledge_base(progress=gr.Progress()):
         
         return "Knowledge base rebuilt successfully!"
     except Exception as e:
-        return f"Error rebuilding knowledge base: {str(e)}"
+        return f"Error rebuilding knowledge base: {str(e)}\nTry restarting the application if this persists."
 
 # Function to process chat interactions
 def respond(message, chat_history):
@@ -598,10 +697,10 @@ with tab1:
                             model_name = line.split()[0]
                             available_models.append(model_name)
             if not available_models:
-                available_models = ["llama3.2:latest"]
+                available_models = ["qwen2.5:3b"]
             return available_models
         except Exception:
-            return ["llama3.2:latest"]
+            return ["qwen2.5:3b"]
     
     # Initialize the QA system with memory
     @st.cache_resource
@@ -670,11 +769,31 @@ with tab1:
         with st.status("Rebuilding knowledge base...", expanded=True) as status:
             try:
                 import shutil
+                import time
                 from langchain_community.document_loaders import TextLoader
                 from langchain.text_splitter import RecursiveCharacterTextSplitter
                 
-                status.update(label="Removing old database...")
+                # Clear session state to release database connections
+                if "qa_chain" in st.session_state:
+                    status.update(label="Releasing database connections...")
+                    del st.session_state["qa_chain"]
+                    
+                if "vector_db" in st.session_state:
+                    del st.session_state["vector_db"]
+                    
+                # Wait a moment for connections to fully close
+                time.sleep(1)
+                
+                status.update(label="Setting file permissions...")
                 if os.path.exists("./chroma_db"):
+                    # Change permissions before deleting
+                    for root, dirs, files in os.walk("./chroma_db"):
+                        for dir in dirs:
+                            os.chmod(os.path.join(root, dir), 0o755)  # rwx r-x r-x
+                        for file in files:
+                            os.chmod(os.path.join(root, file), 0o644)  # rw- r-- r--
+                    
+                    status.update(label="Removing old database...")
                     shutil.rmtree("./chroma_db")
                 
                 status.update(label="Loading documents...")
@@ -707,16 +826,13 @@ with tab1:
                 )
                 vectordb.persist()
                 
-                # Clear session state to force reinitialization of the QA system
-                if "qa_chain" in st.session_state:
-                    del st.session_state["qa_chain"]
-                    
                 # Reset memory
                 st.session_state.memory.clear()
                 
                 status.update(label="Knowledge base rebuilt successfully!", state="complete")
             except Exception as e:
                 status.update(label=f"Error rebuilding knowledge base: {str(e)}", state="error")
+                st.error("Try restarting the application if this persists.")
 
     # Sidebar for configuration
     with st.sidebar:
@@ -845,6 +961,58 @@ python gradio_app.py
 
 The application will automatically load your existing knowledge base from the `chroma_db` directory if it exists, or create a new one if needed.
 
+## Handling Database Permission Issues and Multiple Models
+
+When using the "Rebuild Knowledge Base" feature, you might occasionally encounter a database permission error such as:
+
+```
+InternalError: Query error: Database error: error returned from database: (code: 1032) attempt to write a readonly database
+```
+
+or
+
+```
+InternalError: Database error: error returned from database: (code: 14) unable to open database file
+```
+
+These issues typically happen because ChromaDB might have open connections or file locks that prevent the database from being properly removed and recreated. To address these issues, we've implemented two key improvements:
+
+### 1. Model-Specific Databases
+
+Each LLM model now gets its own dedicated database directory:
+
+```python
+# Get model-specific database directory
+db_directory = f"./chroma_db_{model_choice.replace(':', '_')}"
+```
+
+This means:
+- No permission conflicts between different models
+- Better embeddings since each model uses its own embedding method
+- Independent rebuilding of each model's database
+- No automatic database creation - you must explicitly click "Rebuild Knowledge Base"
+
+### 2. Robust Error Handling and Permission Management
+
+Additionally, we've added:
+
+1. **Release Database Connections**: We clear all references to the database from memory before attempting to delete it
+2. **Add a Short Delay**: We wait a moment to ensure all database connections are fully closed
+3. **Fix File Permissions**: We explicitly set appropriate permissions on all files and directories
+4. **Proper Error Handling**: We catch and display clear error messages if something goes wrong
+
+If you still encounter permission issues with a specific model's database:
+
+1. Stop the application completely (press Ctrl+C in the terminal where it's running)
+2. Manually delete the model-specific database directory:
+   ```bash
+   # For example, to delete qwen2.5:3b's database
+   rm -rf chroma_db_qwen2.5_3b
+   ```
+3. Restart the application and click "Rebuild Knowledge Base" for that model
+
+These strategies ensure that knowledge bases can be rebuilt reliably, which is especially important when experimenting with different models, chunking strategies, or when updating profile data.
+
 ## Final Project Structure
 
 After completing both parts of the tutorial, your final directory structure should look like:
@@ -855,7 +1023,9 @@ social-network-assistant/
 ├── gradio_app.py          # Gradio interface
 ├── app_with_memory.py     # Streamlit interface with memory
 ├── complete_app.py        # Complete application
-├── chroma_db/             # Vector database
+├── chroma_db_qwen2.5_3b/  # Vector database for qwen2.5:3b model
+├── chroma_db_llama3.2_latest/ # Vector database for llama3.2:latest model
+├── chroma_db_*            # Other model-specific databases
 ├── profiles/              # Directory for social profile data
 │   └── student_database.md # Sample profile data
 └── outputs/               # Directory for any output files

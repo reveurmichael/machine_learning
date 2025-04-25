@@ -119,7 +119,7 @@ def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:
     return vectordb
 
 
-def create_llm(model_name="llama3.2:latest"):
+def create_llm(model_name="qwen2.5:3b"):
     """
     Create a connection to the local Ollama LLM.
 
@@ -271,22 +271,46 @@ def build_streamlit_app():
                         model_name = line.split()[0]
                         available_models.append(model_name)
         if not available_models:
-            available_models = ["llama3.2:latest"]
+            available_models = ["qwen2.5:3b"]
     except Exception as e:
         st.sidebar.error(f"Error getting models: {e}")
-        available_models = ["llama3.2:latest"]
+        available_models = ["qwen2.5:3b"]
 
     model_choice = st.sidebar.selectbox("Select LLM Model", available_models)
 
-    # Initialize or load the system
-    if "qa_chain" not in st.session_state:
-        # Check if database exists
-        if os.path.exists("./chroma_db"):
-            with st.spinner("Loading existing knowledge base..."):
-                # Load the existing vector database
-                embeddings = create_embeddings(model_name=model_choice)
-                vectordb = Chroma(
-                    persist_directory="./chroma_db", embedding_function=embeddings
+    # Get model-specific database directory
+    db_directory = f"./chroma_db_{model_choice.replace(':', '_')}"
+
+    # Option to rebuild the database
+    if st.sidebar.button("🔄 Rebuild Knowledge Base"):
+        # Delete the existing database
+        with st.spinner(f"Rebuilding knowledge base for model {model_choice}..."):
+            import shutil
+            import time
+
+            # Clear session state to release any database connections
+            if "qa_chain" in st.session_state:
+                del st.session_state["qa_chain"]
+
+            # Wait a moment for connections to fully close
+            time.sleep(1)
+
+            try:
+                if os.path.exists(db_directory):
+                    # Try to change permissions before deleting
+                    for root, dirs, files in os.walk(db_directory):
+                        for dir in dirs:
+                            os.chmod(os.path.join(root, dir), 0o755)  # rwx r-x r-x
+                        for file in files:
+                            os.chmod(os.path.join(root, file), 0o644)  # rw- r-- r--
+
+                    # Remove the directory
+                    shutil.rmtree(db_directory)
+
+                # Process documents
+                profile_path = "profiles/student_database.md"
+                vectordb = process_documents(
+                    profile_path, db_directory, model_name=model_choice
                 )
 
                 # Create LLM and QA chain
@@ -295,28 +319,53 @@ def build_streamlit_app():
                 qa_chain = create_qa_chain(llm, vectordb, prompt)
 
                 st.session_state.qa_chain = qa_chain
-                st.sidebar.success("✅ Loaded existing knowledge base")
+                st.session_state.current_model = model_choice
+                st.sidebar.success(
+                    f"✅ Knowledge base for {model_choice} rebuilt successfully"
+                )
+            except Exception as e:
+                st.sidebar.error(f"Error rebuilding knowledge base: {str(e)}")
+                st.sidebar.info(
+                    "Try restarting the application or check file permissions"
+                )
+
+    # Check if we need to load a different model's database
+    load_new_model = False
+    if (
+        "current_model" not in st.session_state
+        or st.session_state.current_model != model_choice
+    ):
+        if "qa_chain" in st.session_state:
+            del st.session_state["qa_chain"]
+        load_new_model = True
+
+    # Initialize or load the system
+    if "qa_chain" not in st.session_state:
+        # Check if database exists for the current model
+        if os.path.exists(db_directory):
+            with st.spinner(f"Loading knowledge base for model {model_choice}..."):
+                # Load the existing vector database
+                embeddings = create_embeddings(model_name=model_choice)
+                vectordb = Chroma(
+                    persist_directory=db_directory, embedding_function=embeddings
+                )
+
+                # Create LLM and QA chain
+                llm = create_llm(model_name=model_choice)
+                prompt = create_qa_prompt()
+                qa_chain = create_qa_chain(llm, vectordb, prompt)
+
+                st.session_state.qa_chain = qa_chain
+                st.session_state.current_model = model_choice
+                st.sidebar.success(f"✅ Loaded knowledge base for {model_choice}")
         else:
-            # Process documents if database doesn't exist
-            with st.spinner("Processing profiles and building knowledge base..."):
-                profile_path = "profiles/student_database.md"
-
-                if os.path.exists(profile_path):
-                    # Process documents
-                    vectordb = process_documents(
-                        profile_path, "./chroma_db", model_name=model_choice
-                    )
-
-                    # Create LLM and QA chain
-                    llm = create_llm(model_name=model_choice)
-                    prompt = create_qa_prompt()
-                    qa_chain = create_qa_chain(llm, vectordb, prompt)
-
-                    st.session_state.qa_chain = qa_chain
-                    st.sidebar.success("✅ Knowledge base created successfully")
-                else:
-                    st.error(f"Profile file not found: {profile_path}")
-                    return
+            # Do not automatically create a database - inform the user
+            st.sidebar.warning(
+                f"No knowledge base found for model {model_choice}. Please click 'Rebuild Knowledge Base' to create one."
+            )
+            if "question" in st.session_state:
+                del st.session_state["question"]
+            return
 
     # Example questions in the sidebar
     st.sidebar.title("Example Questions")
@@ -340,31 +389,8 @@ def build_streamlit_app():
         "Your question:", value=st.session_state.question, key="question_input"
     )
 
-    # Option to rebuild the database
-    if st.sidebar.button("🔄 Rebuild Knowledge Base"):
-        # Delete the existing database
-        with st.spinner("Rebuilding knowledge base..."):
-            import shutil
-
-            if os.path.exists("./chroma_db"):
-                shutil.rmtree("./chroma_db")
-
-            # Process documents
-            profile_path = "profiles/student_database.md"
-            vectordb = process_documents(
-                profile_path, "./chroma_db", model_name=model_choice
-            )
-
-            # Create LLM and QA chain
-            llm = create_llm(model_name=model_choice)
-            prompt = create_qa_prompt()
-            qa_chain = create_qa_chain(llm, vectordb, prompt)
-
-            st.session_state.qa_chain = qa_chain
-            st.sidebar.success("✅ Knowledge base rebuilt successfully")
-
     # Generate answer when question is submitted
-    if question:
+    if question and "qa_chain" in st.session_state:
         with st.spinner("Finding relevant information..."):
             response = ask_question(st.session_state.qa_chain, question)
             answer = response["result"]

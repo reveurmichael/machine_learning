@@ -124,7 +124,7 @@ def chunk_documents(documents, chunk_size=1000, chunk_overlap=300):
     return chunks
 
 
-def create_embeddings(model_name="llama3:8b"):
+def create_embeddings(model_name="qwen2.5:3b"):
     """
     Create an embedding model to convert text into vector representations.
     Uses Ollama's built-in embedding capability to avoid TensorFlow dependencies.
@@ -168,7 +168,7 @@ def create_vectorstore(chunks, embeddings, persist_directory):
     return vectordb
 
 
-def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:8b"):
+def process_documents(file_path, db_directory="./chroma_db", model_name="qwen2.5:3b"):
     """Process documents from loading to vector storage."""
     try:
         # 1. Check if file exists before trying to load

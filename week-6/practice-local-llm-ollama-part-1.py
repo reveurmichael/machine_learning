@@ -9,6 +9,21 @@ from langchain.chains import RetrievalQA
 import streamlit as st
 import shutil
 import time
+import traceback
+
+# Try to import chardet, which helps with file encoding detection
+# Especially useful for Windows users facing encoding issues
+try:
+    import chardet
+except ImportError:
+    print(
+        """
+    =========================================================
+    NOTE: For better file handling on Windows, install chardet:
+          pip install chardet
+    =========================================================
+    """
+    )
 
 
 def load_profiles(file_path):
@@ -38,8 +53,13 @@ def load_profiles(file_path):
             print(detailed_error)
             raise PermissionError(detailed_error)
 
-        # TextLoader extracts text from the file
-        loader = TextLoader(file_path)
+        # Use explicit encoding and autodetect_encoding
+        # This helps with Windows/Mac line ending and encoding differences
+        loader = TextLoader(
+            file_path,
+            encoding="utf-8",  # Explicit encoding
+            autodetect_encoding=True,  # Fallback to autodetection if needed
+        )
 
         # Each document contains the text with metadata
         documents = loader.load()
@@ -52,7 +72,31 @@ def load_profiles(file_path):
         return documents
     except Exception as e:
         print(f"Error loading file {file_path}: {str(e)}")
-        raise Exception(f"Error loading {file_path}: {str(e)}")
+
+        # Try alternative approach for Windows if standard loader fails
+        try:
+            print("Attempting to load file using manual approach...")
+            # Read the file manually with explicit encoding
+            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                text = f.read()
+
+            # Create a Document manually
+            from langchain.schema import Document
+
+            documents = [
+                Document(
+                    page_content=text, metadata={"source": os.path.basename(file_path)}
+                )
+            ]
+            print(
+                f"Manually loaded {len(documents)} documents with length {len(text)} characters"
+            )
+            return documents
+        except Exception as e2:
+            print(f"Alternative loading also failed: {str(e2)}")
+            raise Exception(
+                f"Error loading {file_path}: Original error: {str(e)}; Fallback error: {str(e2)}"
+            )
 
 
 def chunk_documents(documents, chunk_size=1000, chunk_overlap=300):
@@ -126,29 +170,49 @@ def create_vectorstore(chunks, embeddings, persist_directory):
 
 def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:8b"):
     """Process documents from loading to vector storage."""
-    # 1. Load the document
-    # Check if file exists before trying to load
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(
-            f"Profile file not found: {file_path}. Make sure the file exists at this path."
-        )
+    try:
+        # 1. Check if file exists before trying to load
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(
+                f"Profile file not found: {file_path}. Make sure the file exists at this path."
+            )
 
-    # Use normalized path with correct OS-specific separators
-    file_path = os.path.normpath(file_path)
-    print(f"Loading profiles from: {file_path}")
+        # Use normalized path with correct OS-specific separators
+        file_path = os.path.normpath(file_path)
+        print(f"Loading profiles from: {file_path}")
 
-    documents = load_profiles(file_path)
+        # Check file encoding to help diagnose issues
+        try:
+            with open(file_path, "rb") as file:
+                raw_data = file.read(10000)  # Read first 10000 bytes
+                result = chardet.detect(raw_data)
+                print(
+                    f"Detected file encoding: {result['encoding']} with confidence {result['confidence']}"
+                )
+        except ImportError:
+            print("chardet not installed, skipping encoding detection")
+        except Exception as e:
+            print(f"Error checking file encoding: {e}")
 
-    # 2. Chunk the document
-    chunks = chunk_documents(documents)
+        # 2. Load the document
+        documents = load_profiles(file_path)
 
-    # 3. Create embeddings
-    embeddings = create_embeddings(model_name=model_name)
+        # 3. Chunk the document
+        chunks = chunk_documents(documents)
 
-    # 4. Create and persist vector database
-    vectordb = create_vectorstore(chunks, embeddings, db_directory)
+        # 4. Create embeddings
+        embeddings = create_embeddings(model_name=model_name)
 
-    return vectordb
+        # 5. Create and persist vector database
+        vectordb = create_vectorstore(chunks, embeddings, db_directory)
+
+        return vectordb
+    except Exception as e:
+        print(f"Error in process_documents: {str(e)}")
+        traceback.print_exc()
+
+        # Re-raise to let the caller handle it
+        raise Exception(f"Error processing documents: {str(e)}")
 
 
 def create_llm(model_name="qwen2.5:3b"):
@@ -562,8 +626,6 @@ def main():
         build_streamlit_app()
     except Exception as e:
         print(f"Error in main function: {str(e)}")
-        import traceback
-
         traceback.print_exc()
 
 

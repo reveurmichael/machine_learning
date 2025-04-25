@@ -29,6 +29,13 @@ And yes, your project should be implemented in Python code.
 
 The project can be quite open, it can be research oriented, or application oriented, or a blend of both, depending on your taste and styling. I have no idea what will come out from this project yet. Hence, just play hard, work harder, have fun and surprise me.
 
+
+It can be as simple as:
+- Python read EN srt file line by line, use LLM to improve EN content
+- Python read EN srt file line by line, use LLM to translate it into CN
+
+But there are (hidden) pitfalls everywhere. So get your hands dirty is the most important thing.
+
 ## [Optional] Human-in-the-Loop Validation with Streamlit
    - Implement targeted human review for segments flagged as potentially problematic
    - Create an efficient interface for reviewers to quickly approve or correct translations

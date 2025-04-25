@@ -21,18 +21,38 @@ def load_profiles(file_path):
     Returns:
         list: List of Document objects, each containing text with metadata
     """
-    # TextLoader extracts text from the file
-    loader = TextLoader(file_path)
+    try:
+        # Verify file exists
+        if not os.path.exists(file_path):
+            detailed_error = f"File not found: {file_path} (cwd: {os.getcwd()})"
+            print(detailed_error)
+            raise FileNotFoundError(detailed_error)
 
-    # Each document contains the text with metadata
-    documents = loader.load()
+        # Print detailed file info
+        file_size = os.path.getsize(file_path)
+        print(f"Found file: {file_path} (Size: {file_size} bytes)")
 
-    # Add source file to metadata
-    for doc in documents:
-        doc.metadata["source"] = os.path.basename(file_path)
+        # Check if file is readable
+        if not os.access(file_path, os.R_OK):
+            detailed_error = f"File is not readable: {file_path}"
+            print(detailed_error)
+            raise PermissionError(detailed_error)
 
-    print(f"Loaded {len(documents)} documents from {file_path}")
-    return documents
+        # TextLoader extracts text from the file
+        loader = TextLoader(file_path)
+
+        # Each document contains the text with metadata
+        documents = loader.load()
+
+        # Add source file to metadata
+        for doc in documents:
+            doc.metadata["source"] = os.path.basename(file_path)
+
+        print(f"Loaded {len(documents)} documents from {file_path}")
+        return documents
+    except Exception as e:
+        print(f"Error loading file {file_path}: {str(e)}")
+        raise Exception(f"Error loading {file_path}: {str(e)}")
 
 
 def chunk_documents(documents, chunk_size=1000, chunk_overlap=300):
@@ -357,17 +377,35 @@ def build_streamlit_app():
                     shutil.rmtree(db_directory)
 
                 # Process documents
-                profile_path = "profiles/student_database.md"
-                # Use OS-specific path normalization
-                profile_path = os.path.normpath(profile_path)
+                # Use os.path.join for cross-platform path handling
+                profile_dir = "profiles"
+                profile_file = "student_database.md"
+                profile_path = os.path.join(profile_dir, profile_file)
+
+                # Add more debugging info
+                st.sidebar.info(f"Current working directory: {os.getcwd()}")
+                st.sidebar.info(f"Looking for file: {profile_path}")
+                st.sidebar.info(
+                    f"Profiles directory exists: {os.path.exists(profile_dir)}"
+                )
+                st.sidebar.info(f"Profile file exists: {os.path.exists(profile_path)}")
 
                 # Verify the file exists
                 if not os.path.exists(profile_path):
-                    st.sidebar.error(f"Profile file not found: {profile_path}")
-                    st.sidebar.info(
-                        "Make sure the file exists in the 'profiles' directory."
-                    )
-                    return
+                    # Try alternative path construction approach
+                    base_dir = os.path.dirname(os.path.abspath(__file__))
+                    alt_profile_path = os.path.join(base_dir, profile_dir, profile_file)
+                    st.sidebar.info(f"Trying alternative path: {alt_profile_path}")
+
+                    if os.path.exists(alt_profile_path):
+                        st.sidebar.info(f"Found file at alternative path")
+                        profile_path = alt_profile_path
+                    else:
+                        st.sidebar.error(f"Profile file not found at either path")
+                        st.sidebar.info(
+                            "Make sure the student_database.md file exists in the 'profiles' directory."
+                        )
+                        return
 
                 vectordb = process_documents(
                     profile_path, db_directory, model_name=model_choice
@@ -483,11 +521,50 @@ def build_streamlit_app():
 
 def main():
     """Main function to run the application."""
-    # Change to the project directory if needed
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        # Change to the project directory if needed
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(script_dir)
+        print(f"Working directory set to: {os.getcwd()}")
 
-    # Run the Streamlit app
-    build_streamlit_app()
+        # Ensure profiles directory exists
+        profiles_dir = os.path.join(script_dir, "profiles")
+        if not os.path.exists(profiles_dir):
+            print(f"Creating profiles directory: {profiles_dir}")
+            os.makedirs(profiles_dir, exist_ok=True)
+
+        # Check if sample profile exists, create it if not
+        sample_profile_path = os.path.join(profiles_dir, "student_database.md")
+        if not os.path.exists(sample_profile_path):
+            print(f"Creating sample profile at: {sample_profile_path}")
+            with open(sample_profile_path, "w", encoding="utf-8") as f:
+                f.write(
+                    """# Student Database - Sample Profiles
+                
+## Student 1
+- **Name**: John Smith
+- **ID**: JS001
+- **Major**: Computer Science
+- **Interests**: Machine Learning, Web Development, Gaming
+- **Projects**: Personal website, ML classifiers
+
+## Student 2
+- **Name**: Jane Doe
+- **ID**: JD002
+- **Major**: Data Science
+- **Interests**: AI, Statistics, Basketball
+- **Projects**: Sentiment analysis, Sports analytics dashboard
+                """
+                )
+            print("Sample profile created.")
+
+        # Run the Streamlit app
+        build_streamlit_app()
+    except Exception as e:
+        print(f"Error in main function: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

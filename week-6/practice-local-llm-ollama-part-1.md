@@ -120,7 +120,7 @@ Now, let's download the models we'll use. Modern models offer better performance
 ollama pull llama3.1:8b      # Latest Llama model, good all-rounder
 
 # DeepSeek models - excellent performance across various sizes
-ollama pull deepseek:7b      # Powerful 7B model with strong reasoning
+ollama pull deepseek-r1:7b      # Powerful 7B model with strong reasoning
 ollama pull deepseek-coder:6.7b  # Specialized for coding tasks
 ollama pull deepseek-lite:1.3b   # Extremely efficient small model
 
@@ -141,7 +141,7 @@ This will take several minutes depending on your internet connection and which m
 | Model | Size | RAM Required | Performance | Best For |
 |-------|------|--------------|------------|----------|
 | llama3.1:8b | ~8GB | 16GB+ | Excellent | General purpose, complex reasoning |
-| deepseek:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
+| deepseek-r1:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
 | deepseek-coder:6.7b | ~7GB | 16GB | Excellent | Programming and technical content |
 | mistral:7b | ~7GB | 16GB | Very Good | Balanced performance and efficiency |
 | phi3:3.8b | ~4GB | 8GB+ | Good | Good performance on limited hardware |
@@ -158,10 +158,10 @@ Let's make sure our model works:
 
 ```bash
 # Test a simple query
-ollama run deepseek:7b "Hello, who are you?"
+ollama run deepseek-r1:7b "Hello, who are you?"
 ```
 
-You should get a coherent response from the model. If you chose a different model, replace `deepseek:7b` with your model's name.
+You should get a coherent response from the model. If you chose a different model, replace `deepseek-r1:7b` with your model's name.
 
 ### 1.7 Setting Up Project Structure
 
@@ -983,7 +983,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
 
 6. **Which model should I use for my computer?**
-   - High-end systems (16GB+ RAM): deepseek:7b, llama3.1:8b, or mistral:7b
+   - High-end systems (16GB+ RAM): deepseek-r1:7b, llama3.1:8b, or mistral:7b
    - Mid-range systems (8GB RAM): deepseek-coder:6.7b or phi3:3.8b
    - Low-end systems (4GB RAM): deepseek-lite:1.3b or gemma:2b
 

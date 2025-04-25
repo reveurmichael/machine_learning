@@ -436,12 +436,16 @@ Now let's build the components needed for our RAG system:
 Add a function to connect to Ollama:
 
 ```python
-def create_llm(model_name="llama3.2:1b"):
+def create_llm(model_name="qwen2.5:3b", temperature=0.5, num_ctx=4096, num_predict=1024, repeat_penalty=1.1):
     """
     Create a connection to the local Ollama LLM.
     
     Args:
         model_name (str): Name of the model to use
+        temperature (float): Controls randomness (0.0-1.0)
+        num_ctx (int): Context window size
+        num_predict (int): Maximum tokens to generate
+        repeat_penalty (float): Penalty for repetition
         
     Returns:
         Ollama: The configured LLM
@@ -450,10 +454,10 @@ def create_llm(model_name="llama3.2:1b"):
     print(f"Connecting to Ollama with model {model_name}...")
     llm = Ollama(
         model=model_name,              # Model we downloaded earlier
-        temperature=0.1,               # Low temperature for more factual responses
-        num_ctx=4096,                  # Context window size
-        num_predict=1024,              # Maximum tokens to generate
-        repeat_penalty=1.1             # Discourage repetition
+        temperature=temperature,       # Controls randomness
+        num_ctx=num_ctx,               # Context window size
+        num_predict=num_predict,       # Maximum tokens to generate
+        repeat_penalty=repeat_penalty  # Discourage repetition
     )
     print("LLM connection established")
     return llm
@@ -668,11 +672,38 @@ def build_streamlit_app():
     # Sidebar for configuration
     st.sidebar.title("Configuration")
 
-    # Get available models from Ollama
+    # Get available models from Ollama with better Windows support
     available_models = []
     try:
         import subprocess
-        result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+        import platform
+        import os
+        
+        # Check if we're on Windows and try different paths
+        if platform.system() == "Windows":
+            try:
+                # Try with executable in the PATH
+                result = subprocess.run(['ollama.exe', 'list'], capture_output=True, text=True)
+            except FileNotFoundError:
+                # Try common Windows installation paths
+                ollama_paths = [
+                    os.path.expanduser("~\\AppData\\Local\\Programs\\Ollama\\ollama.exe"),
+                    "C:\\Program Files\\Ollama\\ollama.exe",
+                    "C:\\Ollama\\ollama.exe"
+                ]
+                
+                for path in ollama_paths:
+                    if os.path.exists(path):
+                        result = subprocess.run([path, 'list'], capture_output=True, text=True)
+                        break
+                else:
+                    # If no path works, use default models
+                    available_models = ["qwen2.5:3b"]
+        else:
+            # For macOS/Linux
+            result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+        
+        # Parse the output to get model names
         if result.returncode == 0:
             lines = result.stdout.strip().split('\n')
             if len(lines) > 1:  # Skip the header line
@@ -680,16 +711,33 @@ def build_streamlit_app():
                     if line.strip():
                         model_name = line.split()[0]
                         available_models.append(model_name)
+        
         if not available_models:
             available_models = ["qwen2.5:3b"]
     except Exception as e:
-        st.sidebar.error(f"Error getting models: {e}")
+        st.sidebar.error(f"Error getting models: {str(e)}")
         available_models = ["qwen2.5:3b"]
 
+    # Model selection
+    st.sidebar.subheader("Model Selection")
     model_choice = st.sidebar.selectbox(
         "Select LLM Model",
         available_models
     )
+    
+    # LLM Parameter Configuration
+    st.sidebar.subheader("LLM Parameters")
+    temperature = st.sidebar.slider("Temperature", min_value=0.0, max_value=1.0, value=0.5, step=0.1, 
+                                   help="Controls randomness: Lower is more deterministic, higher is more creative")
+    
+    num_ctx = st.sidebar.slider("Context Size", min_value=1024, max_value=8192, value=4096, step=1024,
+                               help="Maximum context window size in tokens")
+    
+    num_predict = st.sidebar.slider("Max Generation Length", min_value=256, max_value=2048, value=1024, step=256,
+                                  help="Maximum number of tokens to generate")
+    
+    repeat_penalty = st.sidebar.slider("Repetition Penalty", min_value=1.0, max_value=1.5, value=1.1, step=0.1,
+                                     help="Penalty for repeating tokens: Higher values discourage repetition")
     
     # Get model-specific database directory
     db_directory = f"./chroma_db_{model_choice.replace(':', '_')}"
@@ -697,72 +745,85 @@ def build_streamlit_app():
     # Option to rebuild the database
     if st.sidebar.button("🔄 Rebuild Knowledge Base"):
         with st.spinner(f"Rebuilding knowledge base for model {model_choice}..."):
-            import shutil
-            import time
+            # Process documents and create the database
+            # ... (previous code for rebuilding database)
             
-            # Clear session state to release any database connections
-            if "qa_chain" in st.session_state:
-                del st.session_state["qa_chain"]
-                
-            # Wait a moment for connections to fully close
-            time.sleep(1)
-            
-            try:
-                if os.path.exists(db_directory):
-                    # Try to change permissions before deleting
-                    for root, dirs, files in os.walk(db_directory):
-                        for dir in dirs:
-                            os.chmod(os.path.join(root, dir), 0o755)
-                        for file in files:
-                            os.chmod(os.path.join(root, file), 0o644)
-                    
-                    # Remove the directory
-                    shutil.rmtree(db_directory)
-                
-                # Process documents
-                profile_path = "profiles/student_database.md"
-                vectordb = process_documents(profile_path, db_directory)
-                
-                # Create new QA chain
-                llm = create_llm(model_name=model_choice)
-                prompt = create_qa_prompt()
-                qa_chain = create_qa_chain(llm, vectordb, prompt)
-                
-                st.session_state.qa_chain = qa_chain
-                st.session_state.current_model = model_choice
-                st.sidebar.success(f"✅ Knowledge base for {model_choice} rebuilt successfully")
-            except Exception as e:
-                st.sidebar.error(f"Error rebuilding knowledge base: {str(e)}")
-                st.sidebar.info("Try restarting the application or check file permissions")
+            # Create LLM and QA chain with the configurable parameters
+            llm = create_llm(
+                model_name=model_choice,
+                temperature=temperature,
+                num_ctx=num_ctx,
+                num_predict=num_predict,
+                repeat_penalty=repeat_penalty
+            )
+            # ... (rest of rebuilding code)
     
-    # Check if we need to load a different model's database
-    if "current_model" not in st.session_state or st.session_state.current_model != model_choice:
-        if "qa_chain" in st.session_state:
-            del st.session_state["qa_chain"]
+    # Example questions in the sidebar
+    st.sidebar.title("Example Questions")
+    examples = [
+        "Who are the tech entrepreneurs in this social group?",
+        "Which individuals are interested in quantum computing?",
+        "Who is passionate about LeetCode?",
+        "Who would be good connections for someone interested in AI?",
+        "How could I approach 赵俊凯 (Zhao Junkai) based on his interests?",
+    ]
+
+    # Create containers for better UX
+    input_container = st.container()
+    answer_container = st.container()
     
-    # Initialize or load the system if needed
-    if "qa_chain" not in st.session_state:
-        # Check if database exists for this model
-        if os.path.exists(db_directory):
-            with st.spinner(f"Loading knowledge base for model {model_choice}..."):
-                # Load the existing vector database
-                embeddings = create_embeddings(model_name=model_choice)
-                vectordb = Chroma(
-                    persist_directory=db_directory, embedding_function=embeddings
+    # Use the sidebar for example questions
+    for example in examples:
+        if st.sidebar.button(example):
+            # Only populate the question field without auto-submitting
+            st.session_state.question_text = example
+    
+    # Initialize session state for question text if it doesn't exist
+    if "question_text" not in st.session_state:
+        st.session_state.question_text = ""
+
+    # Display the input field in a form for explicit submission
+    with input_container:
+        with st.form(key="question_form"):
+            question = st.text_input(
+                "Your question:", 
+                value=st.session_state.question_text,
+                key="question_input"
+            )
+            submit_button = st.form_submit_button("Send")
+    
+    # Process the question only when the form is submitted
+    if submit_button and question and "qa_chain" in st.session_state:
+        # Store the current question for reference
+        st.session_state.question_text = question
+        
+        with answer_container:
+            with st.spinner("Finding relevant information..."):
+                response = ask_question(st.session_state.qa_chain, question)
+                answer = response["result"]
+                docs = response["source_docs"]
+
+                # Display the answer in a nice box
+                st.markdown("### Answer")
+                st.markdown(
+                    f"""
+                <div style="background-color: #f0f7fb; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db;">
+                {answer}
+                </div>
+                """,
+                    unsafe_allow_html=True,
                 )
-
-                # Create LLM and QA chain
-                llm = create_llm(model_name=model_choice)
-                prompt = create_qa_prompt()
-                qa_chain = create_qa_chain(llm, vectordb, prompt)
-
-                st.session_state.qa_chain = qa_chain
-                st.session_state.current_model = model_choice
-                st.sidebar.success(f"✅ Loaded knowledge base for {model_choice}")
-        else:
-            # Do not automatically create a database - inform the user
-            st.sidebar.warning(f"No knowledge base found for model {model_choice}. Please click 'Rebuild Knowledge Base' to create one.")
-            return
+                
+                # Display the source documents
+                with st.expander("Show Source Information"):
+                    st.markdown("### Retrieved Profile Chunks")
+                    st.write(f"Retrieved {len(docs)} relevant chunks from the profiles database.")
+                    
+                    for i, doc in enumerate(docs):
+                        st.markdown(f"#### Chunk {i+1}")
+                        source = doc.metadata.get("source", "Unknown source")
+                        st.markdown(f"**Source**: {source}")
+                        st.text_area(f"Content {i+1}", doc.page_content, height=200)
 ```
 
 ### 5.2 Main Function
@@ -1030,7 +1091,11 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    Yes! Just place your text files in the profiles directory and update the profile_path in the code.
 
 2. **How can I improve answer quality?**
-   - Adjust the temperature (lower for more factual, higher for more creative)
+   - Use the sidebar sliders to adjust LLM parameters:
+     - Lower temperature (0.1-0.3) for more factual responses
+     - Higher temperature (0.6-0.9) for more creative answers
+     - Increase context size for more comprehensive information processing
+     - Adjust repetition penalty if responses seem too repetitive
    - Modify the prompt template to be more specific
    - Retrieve more context chunks (increase k value)
    - Use a larger model if your hardware supports it
@@ -1080,3 +1145,40 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 - [Sentence Transformers Documentation](https://www.sbert.net/)
 - [ChromaDB Documentation](https://docs.trychroma.com/)
 - [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)
+
+## Advanced UI Features
+
+### Configurable LLM Parameters
+
+The enhanced version of our social network assistant includes user-configurable LLM parameters in the sidebar, allowing you to fine-tune the model's behavior without changing code:
+
+1. **Temperature** (0.0-1.0): Controls the randomness of the model's output
+   - Lower values (0.1-0.3): More deterministic, factual responses
+   - Medium values (0.4-0.6): Balanced between creativity and consistency
+   - Higher values (0.7-1.0): More creative, diverse, and sometimes surprising outputs
+
+2. **Context Size** (1024-8192): Sets the maximum number of tokens the model can process
+   - Larger values allow more profile information to be processed at once
+   - Adjust based on your computer's RAM capabilities
+
+3. **Max Generation Length** (256-2048): Controls how many tokens the model can generate
+   - Shorter values provide quicker, more concise answers
+   - Longer values allow for more detailed explanations
+
+4. **Repetition Penalty** (1.0-1.5): Prevents the model from repeating the same phrases
+   - Higher values strongly discourage repetition
+   - Use higher values if you notice the model getting stuck in loops
+
+### Improved User Experience
+
+The interface has been enhanced with several UX improvements:
+
+1. **Example Questions**: Clicking an example question now populates the input field without automatically sending it, giving you a chance to modify it before submission
+
+2. **Form-Based Submission**: Questions are only processed when you click the "Send" button, giving you more control over when to interact with the model
+
+3. **Container Layout**: The interface uses separate containers for input and answers, making the interaction more intuitive
+
+4. **Model-Specific Databases**: Each model has its own vector database, ensuring optimal embeddings and preventing conflicts
+
+These enhancements make the social network assistant more flexible, customizable, and user-friendly while maintaining all the RAG capabilities of the original design.

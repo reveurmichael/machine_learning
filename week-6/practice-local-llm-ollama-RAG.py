@@ -215,12 +215,22 @@ def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:
         raise Exception(f"Error processing documents: {str(e)}")
 
 
-def create_llm(model_name="qwen2.5:3b"):
+def create_llm(
+    model_name="qwen2.5:3b",
+    temperature=0.5,
+    num_ctx=4096,
+    num_predict=1024,
+    repeat_penalty=1.1,
+):
     """
     Create a connection to the local Ollama LLM.
 
     Args:
         model_name (str): Name of the model to use
+        temperature (float): Controls randomness (0.0-1.0)
+        num_ctx (int): Context window size
+        num_predict (int): Maximum tokens to generate
+        repeat_penalty (float): Penalty for repetition
 
     Returns:
         Ollama: The configured LLM
@@ -229,10 +239,10 @@ def create_llm(model_name="qwen2.5:3b"):
     print(f"Connecting to Ollama with model {model_name}...")
     llm = Ollama(
         model=model_name,  # Model we downloaded earlier
-        temperature=0.5,  # Low temperature for more factual responses
-        num_ctx=4096,  # Context window size
-        num_predict=1024,  # Maximum tokens to generate
-        repeat_penalty=1.1,  # Discourage repetition
+        temperature=temperature,  # Controls randomness
+        num_ctx=num_ctx,  # Context window size
+        num_predict=num_predict,  # Maximum tokens to generate
+        repeat_penalty=repeat_penalty,  # Discourage repetition
     )
     print("LLM connection established")
     return llm
@@ -412,7 +422,46 @@ def build_streamlit_app():
         )
         available_models = ["qwen2.5:3b"]  # Default as fallback
 
+    st.sidebar.subheader("Model Selection")
     model_choice = st.sidebar.selectbox("Select LLM Model", available_models)
+
+    # LLM Parameter Configuration
+    st.sidebar.subheader("LLM Parameters")
+    temperature = st.sidebar.slider(
+        "Temperature",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.5,
+        step=0.1,
+        help="Controls randomness: Lower is more deterministic, higher is more creative",
+    )
+
+    num_ctx = st.sidebar.slider(
+        "Context Size",
+        min_value=1024,
+        max_value=8192,
+        value=4096,
+        step=1024,
+        help="Maximum context window size in tokens",
+    )
+
+    num_predict = st.sidebar.slider(
+        "Max Generation Length",
+        min_value=256,
+        max_value=2048,
+        value=1024,
+        step=256,
+        help="Maximum number of tokens to generate",
+    )
+
+    repeat_penalty = st.sidebar.slider(
+        "Repetition Penalty",
+        min_value=1.0,
+        max_value=1.5,
+        value=1.1,
+        step=0.1,
+        help="Penalty for repeating tokens: Higher values discourage repetition",
+    )
 
     # Get model-specific database directory
     db_directory = f"./chroma_db_{model_choice.replace(':', '_')}"
@@ -476,7 +525,13 @@ def build_streamlit_app():
                 )
 
                 # Create LLM and QA chain
-                llm = create_llm(model_name=model_choice)
+                llm = create_llm(
+                    model_name=model_choice,
+                    temperature=temperature,
+                    num_ctx=num_ctx,
+                    num_predict=num_predict,
+                    repeat_penalty=repeat_penalty,
+                )
                 prompt = create_qa_prompt()
                 qa_chain = create_qa_chain(llm, vectordb, prompt)
 
@@ -513,7 +568,13 @@ def build_streamlit_app():
                 )
 
                 # Create LLM and QA chain
-                llm = create_llm(model_name=model_choice)
+                llm = create_llm(
+                    model_name=model_choice,
+                    temperature=temperature,
+                    num_ctx=num_ctx,
+                    num_predict=num_predict,
+                    repeat_penalty=repeat_penalty,
+                )
                 prompt = create_qa_prompt()
                 qa_chain = create_qa_chain(llm, vectordb, prompt)
 
@@ -539,48 +600,67 @@ def build_streamlit_app():
         "How could I approach 赵俊凯 (Zhao Junkai) based on his interests?",
     ]
 
+    # Create a container for the question input at the top so it stays in view
+    input_container = st.container()
+
+    # Create a container for displaying the answer below
+    answer_container = st.container()
+
+    # Use the sidebar for example questions
     for example in examples:
         if st.sidebar.button(example):
-            st.session_state.question = example
+            # Just set the value to be used in the input field
+            st.session_state.question_text = example
 
-    # Input area for questions
-    if "question" not in st.session_state:
-        st.session_state.question = ""
+    # Initialize session state for question text if it doesn't exist
+    if "question_text" not in st.session_state:
+        st.session_state.question_text = ""
 
-    question = st.text_input(
-        "Your question:", value=st.session_state.question, key="question_input"
-    )
-
-    # Generate answer when question is submitted
-    if question and "qa_chain" in st.session_state:
-        with st.spinner("Finding relevant information..."):
-            response = ask_question(st.session_state.qa_chain, question)
-            answer = response["result"]
-            docs = response["source_docs"]
-
-            # Display the answer in a nice box
-            st.markdown("### Answer")
-            st.markdown(
-                f"""
-            <div style="background-color: #f0f7fb; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db;">
-            {answer}
-            </div>
-            """,
-                unsafe_allow_html=True,
+    # Display the input field in the input container at the top
+    with input_container:
+        # Use a form to require explicit submission
+        with st.form(key="question_form"):
+            question = st.text_input(
+                "Your question:",
+                value=st.session_state.question_text,
+                key="question_input",
             )
+            submit_button = st.form_submit_button("Send")
 
-            # Display the source documents if the user wants to see them
-            with st.expander("Show Source Information"):
-                st.markdown("### Retrieved Profile Chunks")
-                st.write(
-                    f"Retrieved {len(docs)} relevant chunks from the profiles database."
+    # Process the question when the form is submitted
+    if submit_button and question and "qa_chain" in st.session_state:
+        # Store the current question for reference
+        st.session_state.question_text = question
+
+        with answer_container:
+            with st.spinner("Finding relevant information..."):
+                response = ask_question(st.session_state.qa_chain, question)
+                answer = response["result"]
+                docs = response["source_docs"]
+
+                # Display the answer in a nice box
+                st.markdown("### Answer")
+                st.markdown(
+                    f"""
+                <div style="background-color: #f0f7fb; padding: 20px; border-radius: 10px; border-left: 5px solid #3498db;">
+                {answer}
+                </div>
+                """,
+                    unsafe_allow_html=True,
                 )
 
-                for i, doc in enumerate(docs):
-                    st.markdown(f"#### Chunk {i+1}")
-                    source = doc.metadata.get("source", "Unknown source")
-                    st.markdown(f"**Source**: {source}")
-                    st.text_area(f"Content {i+1}", doc.page_content, height=200)
+                # Display the source documents if the user wants to see them
+                with st.expander("Show Source Information"):
+                    st.markdown("### Retrieved Profile Chunks")
+                    st.write(
+                        f"Retrieved {len(docs)} relevant chunks from the profiles database."
+                    )
+
+                    for i, doc in enumerate(docs):
+                        st.markdown(f"#### Chunk {i+1}")
+                        source = doc.metadata.get("source", "Unknown source")
+                        st.markdown(f"**Source**: {source}")
+                        st.text_area(f"Content {i+1}", doc.page_content, height=200)
 
 
 def main():

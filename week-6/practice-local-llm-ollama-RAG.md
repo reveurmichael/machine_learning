@@ -10,6 +10,50 @@ In this session, you'll learn how to:
 4. Build a basic RAG system for answering questions
 5. Create a simple interface with Streamlit
 
+## What is RAG?
+
+Retrieval-Augmented Generation (RAG) enhances large language models (LLMs) by dynamically fetching relevant information from external knowledge sources and injecting it into the prompt, rather than relying solely on the model’s static training data. This approach overcomes strict context window limits, reduces computational cost, ensures up-to-date and accurate responses, mitigates hallucinations, and allows secure, domain-specific customization without fine-tuning the base model. By combining retrieval and generation, RAG delivers more efficient, reliable, and scalable LLM applications across diverse use cases.
+
+## Limitations of Feeding All Text Directly
+
+Directly supplying every piece of text information to an LLM leads to several challenges:
+
+- **Context Window Constraints**  
+  Modern LLMs have finite context windows (e.g., 4K–32K tokens). Attempting to “pump in” all documents often exceeds these limits, forcing truncation or summarization that may omit critical details  ([RAG vs Large Context Window LLMs: When to use which one?](https://www.thecloudgirl.dev/blog/rag-vs-large-context-window)).
+
+- **Increased Latency and Cost**  
+  Passing excessively long inputs to an API increases both network latency and compute usage. This drives up per-inference costs and degrades user experience, especially when only a small fraction of the text is relevant  ([Long Context Models Explained: Do We Still Need RAG?](https://www.louisbouchard.ai/long-context-vs-rag/)).
+
+- **Stale or Incomplete Knowledge**  
+  An LLM’s training cutoff means it lacks knowledge of events or documents added afterward. Without retrieval, the model cannot access evolving or private data, leading to outdated or incorrect outputs  ([Retrieval augmented generation: Keeping LLMs relevant and current](https://stackoverflow.blog/2023/10/18/retrieval-augmented-generation-keeping-llms-relevant-and-current/)).
+
+- **Higher Hallucination Risk**  
+  When an LLM must infer details from its internal parameters alone, it may fabricate plausible-sounding but false information. Feeding more text directly does not eliminate this tendency unless the entire relevant corpus fits within the context window  ([Reduce AI Hallucinations With This Neat Software Trick](https://www.wired.com/story/reduce-ai-hallucinations-with-rag)).
+
+
+## Benefits of RAG
+
+### Efficient Context Handling
+
+By narrowing the input to only the most relevant snippets, RAG avoids overwhelming the LLM with unnecessary data, making it more efficient than both naïvely extending context windows and brute-forcing full document ingestion  ([RAG vs Large Context Window LLMs: When to use which one?](https://www.thecloudgirl.dev/blog/rag-vs-large-context-window))  ([Long Context Models Explained: Do We Still Need RAG?](https://www.louisbouchard.ai/long-context-vs-rag/)).
+
+### Freshness and Accuracy
+
+Because RAG pulls directly from an external knowledge base, it can incorporate newly published or dynamically changing content, ensuring that the responses reflect the latest information rather than static training snapshots  ([Retrieval augmented generation: Keeping LLMs relevant and current](https://stackoverflow.blog/2023/10/18/retrieval-augmented-generation-keeping-llms-relevant-and-current/)).
+
+### Reduced Hallucinations
+
+Grounding generation on actual retrieved passages constrains the model’s creativity to documented facts, significantly lowering the rate of fabricated statements and improving trustworthiness  ([Reduce AI Hallucinations With This Neat Software Trick](https://www.wired.com/story/reduce-ai-hallucinations-with-rag)).
+
+### Privacy and Security
+
+Sensitive or proprietary data remains in the organization’s secured storage and is only accessed at query time. Unlike fine-tuning, which embeds data permanently into model weights, RAG keeps private information under strict access control  ([RAG Vs Fine Tuning: How To Choose The Right Method](https://www.montecarlodata.com/blog-rag-vs-fine-tuning/))  ([Augment LLMs with RAGs or Fine-Tuning - Learn Microsoft](https://learn.microsoft.com/en-us/azure/developer/ai/augment-llm-rag-fine-tuning)).
+
+### Domain-Specific Customization
+
+RAG allows instant adaptation to new domains by indexing specialized corpora, without the need to retrain or fine-tune the LLM. This “chat over my data” paradigm offers highly tailored performance for specific tasks or industries  ([Retrieval Augmented Generation (RAG) for LLMs](https://www.promptingguide.ai/research/rag))  ([Ask HN: Is RAG the Future of LLMs? - Hacker News](https://news.ycombinator.com/item?id=40034972)).
+
+
 ## System Architecture
 
 Here's the overall architecture of what we'll build:

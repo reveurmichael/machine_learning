@@ -120,7 +120,7 @@ Now, let's download the models we'll use. Modern models offer better performance
 ollama pull llama3.1:8b      # Latest Llama model, good all-rounder
 
 # DeepSeek models - excellent performance across various sizes
-ollama pull deepseek-r1:7b      # Powerful 7B model with strong reasoning
+ollama pull deepseek:7b      # Powerful 7B model with strong reasoning
 ollama pull deepseek-coder:6.7b  # Specialized for coding tasks
 ollama pull deepseek-lite:1.3b   # Extremely efficient small model
 
@@ -141,7 +141,7 @@ This will take several minutes depending on your internet connection and which m
 | Model | Size | RAM Required | Performance | Best For |
 |-------|------|--------------|------------|----------|
 | llama3.1:8b | ~8GB | 16GB+ | Excellent | General purpose, complex reasoning |
-| deepseek-r1:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
+| deepseek:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
 | deepseek-coder:6.7b | ~7GB | 16GB | Excellent | Programming and technical content |
 | mistral:7b | ~7GB | 16GB | Very Good | Balanced performance and efficiency |
 | phi3:3.8b | ~4GB | 8GB+ | Good | Good performance on limited hardware |
@@ -158,10 +158,10 @@ Let's make sure our model works:
 
 ```bash
 # Test a simple query
-ollama run deepseek-r1:7b "Hello, who are you?"
+ollama run deepseek:7b "Hello, who are you?"
 ```
 
-You should get a coherent response from the model. If you chose a different model, replace `deepseek-r1:7b` with your model's name.
+You should get a coherent response from the model. If you chose a different model, replace `deepseek:7b` with your model's name.
 
 ### 1.7 Setting Up Project Structure
 
@@ -887,17 +887,80 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    ollama serve
    ```
 
-3. **Memory issues**: If you encounter memory errors, try:
+3. **Windows-specific Ollama issues**: If you see `Error getting models: [WinError 2] The system cannot find the file specified` or `Error loading profiles/student_database.md` on Windows:
+   - Make sure Ollama is installed correctly on Windows
+   - Add the Ollama installation directory to your system PATH
+   - Install additional dependencies: `pip install chardet`
+   - Try the enhanced code below for better Windows compatibility:
+   
+   ```python
+   # Better Windows support for finding Ollama
+   import platform
+   import os
+   import subprocess
+   
+   if platform.system() == "Windows":
+       try:
+           # Try with executable in the PATH
+           result = subprocess.run(['ollama.exe', 'list'], capture_output=True, text=True)
+       except FileNotFoundError:
+           # Try common Windows installation paths
+           ollama_paths = [
+               os.path.expanduser("~\\AppData\\Local\\Programs\\Ollama\\ollama.exe"),
+               "C:\\Program Files\\Ollama\\ollama.exe",
+               "C:\\Ollama\\ollama.exe"
+           ]
+           
+           for path in ollama_paths:
+               if os.path.exists(path):
+                   result = subprocess.run([path, 'list'], capture_output=True, text=True)
+                   break
+           else:
+               # If no path works, use default models
+               available_models = ["qwen2.5:3b"]
+   
+   # Enhanced TextLoader for Windows compatibility
+   def load_profiles(file_path):
+       """Load social profiles with enhanced Windows compatibility."""
+       try:
+           # Use normalized path with OS-specific separators
+           file_path = os.path.normpath(file_path)
+           
+           # TextLoader with explicit encoding settings
+           loader = TextLoader(
+               file_path,
+               encoding="utf-8",  # Explicit encoding
+               autodetect_encoding=True  # Fallback to autodetection
+           )
+           
+           documents = loader.load()
+           return documents
+       except Exception as e:
+           print(f"Error loading file: {str(e)}")
+           # Fallback to manual reading (Windows compatibility)
+           try:
+               with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                   text = f.read()
+               from langchain.schema import Document
+               return [Document(page_content=text, metadata={"source": os.path.basename(file_path)})]
+           except Exception as e2:
+               raise Exception(f"Failed to load file: {str(e)} / {str(e2)}")
+   
+   # Always use os.path.join for paths
+   profile_path = os.path.join("profiles", "student_database.md")
+   ```
+
+4. **Memory issues**: If you encounter memory errors, try:
    - Reducing the chunk size (e.g., 500 instead of 1000)
    - Using a smaller model (e.g., deepseek-lite:1.3b)
    - Closing other applications to free up memory
 
-4. **Slow responses**: This is normal for local LLMs. For faster responses:
+5. **Slow responses**: This is normal for local LLMs. For faster responses:
    - Use a more powerful computer if available
    - Try a smaller model like deepseek-lite:1.3b which balances quality and speed
    - Be patient - the first response is usually slower as the model loads
 
-5. **App struggling to find information about profiles**: If the system doesn't seem to find relevant information, try these solutions:
+6. **App struggling to find information about profiles**: If the system doesn't seem to find relevant information, try these solutions:
    - Use the "Rebuild Knowledge Base" button to recreate the vector database with current settings
    - Check the "Show Source Information" expander to see which chunks are being retrieved
    - Make your questions more specific, including names, interests, or other specific details
@@ -905,7 +968,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    - Adjust the prompt template to better match your specific use case
    - Increase the number of chunks retrieved (k value) for more comprehensive context
 
-6. **Database permissions error when rebuilding knowledge base**: If you see an error like "InternalError: Query error: Database error: error returned from database: (code: 1032) attempt to write a readonly database", try these solutions:
+7. **Database permissions error when rebuilding knowledge base**: If you see an error like "InternalError: Query error: Database error: error returned from database: (code: 1032) attempt to write a readonly database", try these solutions:
    - Make sure no other processes are accessing the database
    - Restart the Streamlit application
    - Use the model-specific database approach to avoid conflicts between different models
@@ -983,7 +1046,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
 
 6. **Which model should I use for my computer?**
-   - High-end systems (16GB+ RAM): deepseek-r1:7b, llama3.1:8b, or mistral:7b
+   - High-end systems (16GB+ RAM): deepseek:7b, llama3.1:8b, or mistral:7b
    - Mid-range systems (8GB RAM): deepseek-coder:6.7b or phi3:3.8b
    - Low-end systems (4GB RAM): deepseek-lite:1.3b or gemma:2b
 

@@ -928,6 +928,114 @@ with tab2:
     All processing happens locally on your machine. No data is sent to external servers.
     """)
 ```
+
+## Handling Operating System Differences
+
+### Windows-Specific Ollama Integration
+
+When running your application on Windows, Ollama integration requires special handling. Windows systems may not be able to find the Ollama executable through the regular `subprocess` call, and file handling may also require special attention. Here's how to modify your code to ensure Windows compatibility:
+
+```python
+import platform
+import os
+import subprocess
+import traceback
+
+# Try to import chardet for better file encoding detection
+try:
+    import chardet
+except ImportError:
+    print("For better Windows compatibility, install: pip install chardet")
+
+# Get available Ollama models with enhanced Windows compatibility
+def get_ollama_models():
+    try:
+        if platform.system() == "Windows":
+            try:
+                # Try with executable in PATH
+                result = subprocess.run(['ollama.exe', 'list'], capture_output=True, text=True)
+            except FileNotFoundError:
+                # Try common Windows installation paths
+                ollama_paths = [
+                    os.path.expanduser("~\\AppData\\Local\\Programs\\Ollama\\ollama.exe"),
+                    "C:\\Program Files\\Ollama\\ollama.exe",
+                    "C:\\Ollama\\ollama.exe"
+                ]
+                
+                for path in ollama_paths:
+                    if os.path.exists(path):
+                        result = subprocess.run([path, 'list'], capture_output=True, text=True)
+                        break
+                else:
+                    st.sidebar.warning("⚠️ Ollama executable not found. Using default models.")
+                    return ["qwen2.5:3b"]  # Default fallback
+        else:
+            # For macOS/Linux
+            result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+        
+        # Parse the output to get model names
+        models = []
+        for line in result.stdout.strip().split('\n'):
+            if line and not line.startswith('NAME'):
+                model_name = line.split()[0]
+                models.append(model_name)
+        
+        return models if models else ["qwen2.5:3b"]  # Fallback if no models found
+    
+    except Exception as e:
+        st.sidebar.warning(f"⚠️ Error getting models: {str(e)}")
+        return ["qwen2.5:3b"]  # Default fallback
+
+# Enhanced file loading with Windows compatibility
+def load_document(file_path):
+    """Load document with robust cross-platform compatibility."""
+    try:
+        # Normalize path for OS-specific separators
+        file_path = os.path.normpath(file_path)
+        
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+            
+        # Use TextLoader with explicit encoding settings
+        from langchain_community.document_loaders import TextLoader
+        loader = TextLoader(
+            file_path, 
+            encoding="utf-8",
+            autodetect_encoding=True
+        )
+        
+        return loader.load()
+    except Exception as e:
+        print(f"Standard loading failed: {str(e)}")
+        
+        # Fallback method for problematic files
+        try:
+            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                text = f.read()
+            from langchain.schema import Document
+            return [Document(page_content=text, metadata={"source": os.path.basename(file_path)})]
+        except Exception as e2:
+            raise Exception(f"Failed to load file: {str(e)} / {str(e2)}")
+
+# Always use path joining for cross-platform compatibility
+def get_profile_path():
+    """Get profile path with cross-platform compatibility."""
+    return os.path.join("profiles", "student_database.md")
+```
+
+Key enhancements for Windows support:
+- Use `ollama.exe` instead of `ollama` on Windows
+- Include multiple common installation paths
+- Provide fallback models when Ollama cannot be found
+- Use `os.path.normpath()` to handle path separators
+- Use `os.path.join()` for constructing file paths
+- Add robust file loading with encoding detection
+- Include fallback methods for loading problematic files
+- Handle errors gracefully with informative messages
+- Add chardet for better encoding detection
+
+These modifications ensure your application runs smoothly across different operating systems, especially addressing Windows-specific issues with file paths, encodings, and executable locations.
+
 ## Running the Application
 
 To run any of these applications:

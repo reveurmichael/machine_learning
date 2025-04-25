@@ -229,7 +229,7 @@ def create_llm(model_name="qwen2.5:3b"):
     print(f"Connecting to Ollama with model {model_name}...")
     llm = Ollama(
         model=model_name,  # Model we downloaded earlier
-        temperature=0.1,  # Low temperature for more factual responses
+        temperature=0.5,  # Low temperature for more factual responses
         num_ctx=4096,  # Context window size
         num_predict=1024,  # Maximum tokens to generate
         repeat_penalty=1.1,  # Discourage repetition

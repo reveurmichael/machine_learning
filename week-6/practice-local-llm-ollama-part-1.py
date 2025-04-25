@@ -257,12 +257,43 @@ def build_streamlit_app():
     # Sidebar for configuration
     st.sidebar.title("Configuration")
 
-    # Get available models from Ollama
+    # Get available models from Ollama with better Windows support
     available_models = []
     try:
         import subprocess
+        import platform
+        import os
 
-        result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
+        # Check if we're on Windows and try different paths
+        if platform.system() == "Windows":
+            try:
+                # Try with executable in the PATH
+                result = subprocess.run(
+                    ["ollama.exe", "list"], capture_output=True, text=True
+                )
+            except FileNotFoundError:
+                # Try common Windows installation paths
+                ollama_paths = [
+                    os.path.expanduser(
+                        "~\\AppData\\Local\\Programs\\Ollama\\ollama.exe"
+                    ),
+                    "C:\\Program Files\\Ollama\\ollama.exe",
+                    "C:\\Ollama\\ollama.exe",
+                ]
+
+                for path in ollama_paths:
+                    if os.path.exists(path):
+                        result = subprocess.run(
+                            [path, "list"], capture_output=True, text=True
+                        )
+                        break
+                else:
+                    # If no path works, raise error
+                    raise FileNotFoundError("Ollama executable not found on Windows")
+        else:
+            # For Linux/Mac
+            result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
+
         if result.returncode == 0:
             lines = result.stdout.strip().split("\n")
             if len(lines) > 1:  # Skip the header line
@@ -270,11 +301,20 @@ def build_streamlit_app():
                     if line.strip():
                         model_name = line.split()[0]
                         available_models.append(model_name)
-        if not available_models:
-            available_models = ["qwen2.5:3b"]
+
+        # If no models found but command succeeded, show a message
+        if not available_models and result.returncode == 0:
+            st.sidebar.warning(
+                "No models found in Ollama. Please run 'ollama pull qwen2.5:3b' or another model."
+            )
+            available_models = ["qwen2.5:3b"]  # Default as fallback
+
     except Exception as e:
-        st.sidebar.error(f"Error getting models: {e}")
-        available_models = ["qwen2.5:3b"]
+        st.sidebar.error(f"Error getting models: {str(e)}")
+        st.sidebar.info(
+            "Make sure Ollama is installed and running. Try running 'ollama pull qwen2.5:3b' from the command line."
+        )
+        available_models = ["qwen2.5:3b"]  # Default as fallback
 
     model_choice = st.sidebar.selectbox("Select LLM Model", available_models)
 

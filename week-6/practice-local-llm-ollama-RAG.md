@@ -1,4 +1,4 @@
-# Building a Local LLM Social Network Assistant (Part 1)
+# Building a Local LLM Social Network Assistant with RAG
 
 ## Overview
 This practical tutorial will guide you through building a social network assistant using local LLMs with Ollama, ChromaDB, and LangChain. We'll take a step-by-step approach to set up all the necessary components and build a basic RAG (Retrieval-Augmented Generation) system that can answer questions about social profiles.
@@ -35,8 +35,6 @@ Here's the overall architecture of what we'll build:
 - A computer with at least 8GB RAM (16GB recommended)
 
 Let's get started!
-
----
 
 ## Part 1: Environment Setup 
 
@@ -120,7 +118,7 @@ Now, let's download the models we'll use. Modern models offer better performance
 ollama pull llama3.1:8b      # Latest Llama model, good all-rounder
 
 # DeepSeek models - excellent performance across various sizes
-ollama pull deepseek:7b      # Powerful 7B model with strong reasoning
+ollama pull deepseek-r1:7b      # Powerful 7B model with strong reasoning
 ollama pull deepseek-coder:6.7b  # Specialized for coding tasks
 ollama pull deepseek-lite:1.3b   # Extremely efficient small model
 
@@ -136,21 +134,6 @@ ollama pull tinyllama:1.1b   # Extremely small 1.1B model
 
 This will take several minutes depending on your internet connection and which model you choose. You'll see a progress bar as the models download.
 
-#### Model Selection Guide
-
-| Model | Size | RAM Required | Performance | Best For |
-|-------|------|--------------|------------|----------|
-| llama3.1:8b | ~8GB | 16GB+ | Excellent | General purpose, complex reasoning |
-| deepseek:7b | ~7GB | 16GB | Excellent | Strong reasoning, detailed responses |
-| deepseek-coder:6.7b | ~7GB | 16GB | Excellent | Programming and technical content |
-| mistral:7b | ~7GB | 16GB | Very Good | Balanced performance and efficiency |
-| phi3:3.8b | ~4GB | 8GB+ | Good | Good performance on limited hardware |
-| deepseek-lite:1.3b | ~1.5GB | 4GB+ | Good | Best small model performance |
-| gemma:2b | ~2GB | 6GB+ | Fair | Basic tasks on limited hardware |
-| phi2:2.7b | ~3GB | 6GB+ | Fair | Basic tasks on limited hardware |
-| tinyllama:1.1b | ~1GB | 4GB+ | Basic | Very constrained environments |
-
-Choose the model that best fits your hardware capabilities. For this tutorial, any of these models will work, but larger models generally provide better responses.
 
 ### 1.6 Testing the Model
 
@@ -158,10 +141,10 @@ Let's make sure our model works:
 
 ```bash
 # Test a simple query
-ollama run deepseek:7b "Hello, who are you?"
+ollama run deepseek-r1:7b "Hello, who are you?"
 ```
 
-You should get a coherent response from the model. If you chose a different model, replace `deepseek:7b` with your model's name.
+You should get a coherent response from the model. If you chose a different model, replace `deepseek-r1:7b` with your model's name.
 
 ### 1.7 Setting Up Project Structure
 
@@ -169,13 +152,11 @@ Let's create the directory structure for our project:
 
 ```bash
 # Create project directories
-mkdir -p social-network-assistant/{profiles,db,outputs}
+mkdir -p social-network-assistant/profiles
 ```
 
 This creates:
 - `profiles/`: Directory to store social profiles
-- `db/`: Directory for the vector database files
-- `outputs/`: Directory for saving results
 
 ### 1.8 Preparing Sample Data
 
@@ -392,23 +373,12 @@ def create_vectorstore(chunks, embeddings, persist_directory):
 
 ChromaDB is an efficient vector database that allows for quick similarity searches. By persisting it to disk, we can reuse it without reprocessing the documents each time.
 
-Once you've implemented all these functions, your project directory structure should look like:
-
-```
-social-network-assistant/
-├── app.py                 # Main application file
-├── chroma_db/             # Vector database (created after running)
-├── profiles/              # Directory for social profile data
-│   └── student_database.md # Sample profile data
-└── outputs/               # Directory for any output files
-```
-
 ### 3.6 Processing Documents Pipeline
 
 Now, let's create a function that combines all these steps:
 
 ```python
-def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:8b"):
+def process_documents(file_path, db_directory, model_name="llama3:8b"):
     """Process documents from loading to vector storage."""
     # 1. Load the document
     documents = load_profiles(file_path)
@@ -424,6 +394,8 @@ def process_documents(file_path, db_directory="./chroma_db", model_name="llama3:
     
     return vectordb
 ```
+
+This function sets up a database specific to the model being used, ensuring that embeddings are optimized for each model.
 
 ---
 
@@ -895,7 +867,8 @@ Let's review what we've built:
 ┌───────────────────────┐     ┌───────────────────────┐
 │                       │     │                       │
 │  Vector Database      │◀────│  Embedding Creation   │
-│  (ChromaDB)           │     │  (HuggingFace)        │
+│  (Model-Specific      │     │  (Ollama Embeddings)  │
+│   ChromaDB)           │     │                       │
 │                       │     │                       │
 └───────────┬───────────┘     └───────────────────────┘
             │
@@ -930,8 +903,6 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 - Building sophisticated interfaces with both Streamlit and Gradio
 - Implementing conversation memory for multi-turn interactions
 - Creating a complete application with more features and a better user experience
-
----
 
 ## Troubleshooting and FAQs
 
@@ -1032,8 +1003,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 7. **Database permissions error when rebuilding knowledge base**: If you see an error like "InternalError: Query error: Database error: error returned from database: (code: 1032) attempt to write a readonly database", try these solutions:
    - Make sure no other processes are accessing the database
    - Restart the Streamlit application
-   - Use the model-specific database approach to avoid conflicts between different models
-   - If the error persists, manually delete the appropriate model's chroma_db directory when the app is not running:
+   - If the error persists, manually delete the appropriate model's database directory when the app is not running:
      ```bash
      # For example, to delete qwen2.5:3b's database
      rm -rf ./chroma_db_qwen2.5_3b
@@ -1101,9 +1071,6 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    - Use a larger model if your hardware supports it
    - Increase chunk overlap to preserve more context between chunks
 
-3. **Can I deploy this online?**
-   This is designed for local use due to the Ollama dependency. For deployment, you'd need to adapt it to use API-based models.
-
 4. **How do I add more profiles?**
    Add more text files to the profiles directory, then re-run the document processing steps (or use the Rebuild Knowledge Base button).
 
@@ -1111,7 +1078,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
    No, all processing happens locally, and queries are not stored unless you explicitly add code to do so.
 
 6. **Which model should I use for my computer?**
-   - High-end systems (16GB+ RAM): deepseek:7b, llama3.1:8b, or mistral:7b
+   - High-end systems (16GB+ RAM): deepseek-r1:7b, llama3.1:8b, or mistral:7b
    - Mid-range systems (8GB RAM): deepseek-coder:6.7b or phi3:3.8b
    - Low-end systems (4GB RAM): deepseek-lite:1.3b or gemma:2b
 
@@ -1120,22 +1087,6 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 
 8. **How can I see which profile information was used to answer my question?**
    Use the "Show Source Information" expander below each answer to see exactly which chunks of text were retrieved from the database. This can help you understand why certain answers were given and troubleshoot if information seems incorrect or missing.
-
----
-
-## Conclusion
-
-Congratulations! You've built a basic RAG system that can answer questions about social profiles using a local LLM. You've learned:
-
-1. How to set up Ollama for local LLM inference
-2. How to process documents and create vector embeddings
-3. How to implement a basic RAG system
-4. How to build a simple Streamlit interface
-
-In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more advanced features including:
-- Building sophisticated interfaces with both Streamlit and Gradio
-- Implementing conversation memory for multi-turn interactions
-- Creating a complete application with more features and a better user experience
 
 ## Resources
 - [Streamlit Documentation](https://docs.streamlit.io/)
@@ -1146,9 +1097,7 @@ In [Part 2](../week-6/practice-2-local-llm-ollama-part-2.md), we'll explore more
 - [ChromaDB Documentation](https://docs.trychroma.com/)
 - [DeepSeek Models Documentation](https://github.com/deepseek-ai/deepseek-LLM)
 
-## Advanced UI Features
-
-### Configurable LLM Parameters
+## Configurable LLM Parameters
 
 The enhanced version of our social network assistant includes user-configurable LLM parameters in the sidebar, allowing you to fine-tune the model's behavior without changing code:
 
@@ -1168,17 +1117,3 @@ The enhanced version of our social network assistant includes user-configurable 
 4. **Repetition Penalty** (1.0-1.5): Prevents the model from repeating the same phrases
    - Higher values strongly discourage repetition
    - Use higher values if you notice the model getting stuck in loops
-
-### Improved User Experience
-
-The interface has been enhanced with several UX improvements:
-
-1. **Example Questions**: Clicking an example question now populates the input field without automatically sending it, giving you a chance to modify it before submission
-
-2. **Form-Based Submission**: Questions are only processed when you click the "Send" button, giving you more control over when to interact with the model
-
-3. **Container Layout**: The interface uses separate containers for input and answers, making the interaction more intuitive
-
-4. **Model-Specific Databases**: Each model has its own vector database, ensuring optimal embeddings and preventing conflicts
-
-These enhancements make the social network assistant more flexible, customizable, and user-friendly while maintaining all the RAG capabilities of the original design.

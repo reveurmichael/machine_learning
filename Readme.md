@@ -249,6 +249,8 @@ Exercise:
 
 
 ### Week 7
+- https://poloclub.github.io/cnn-explainer/
+- https://github.com/helblazer811/ManimML
 
 ### Week 8
 - https://poloclub.github.io/ganlab/
@@ -258,9 +260,13 @@ Exercise:
 ### Week 9
 - https://douglasduhaime.com/posts/visualizing-latent-spaces.html
 - https://www.youtube.com/watch?v=RGBNdD3Wn-g
+- https://dimensionality-reduction-293e465c2a3443e8941b016d.vercel.app/
 
 
 ### Week 10
+- https://poloclub.github.io/transformer-explainer/
+- https://poloclub.github.io/diffusion-explainer/
+
 
 ## Practice sessions (Friday)
 

@@ -233,7 +233,6 @@ Make sure that you can run our Jupyter Notebooks on VS Code.
 
 Also, make sure you have access to GitHub, Google and YouTube.
 
-
 Exercise:
 - Linear Regression from scratch
 
@@ -258,25 +257,6 @@ Exercise:
     - Present your amazing idea (even if it can be refined later, and should be)
     - Get people to join your team
     - Kick off your projects
-
-### Week 6
-
-
-### Week 7
-
-### Week 8
-
-
-### Week 9
-
-### Week 10
-
-
-## Practice sessions (Friday)
-
-### Week ??
-
-TBD
 
 ## Project
 

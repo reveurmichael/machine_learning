@@ -183,17 +183,13 @@ Test (45 min):
 
 ### Week 8 (Test 4/4)
 
-Materials to read before test:
-- all materials for lectures and exercises
-
 Test (45 min):
 - **Code**: Neural network implementation from scratch (2/2) 
     - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
     - Some basic starter code (<= 50%) will be provided
-    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md), [code-nn-bp-sgd-adam.md](week-5/code-nn-bp-sgd-adam.md) and [code-nn-dropout-es-L1-L2.md](week-6/code-nn-dropout-es-L1-L2.md)
-- **Math**: L1 and L2 regularization
-- **Math**: Bias Variance Trade-off
-- **Math**: Learning Curve for determing overfitting and uderfitting
+    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md).
+- **Math**: [Dropout, inverted v.s. original implementation](week-6/QA-dropout-1-p-multipy-or-devide.md).
+- **Conceptual Understanding**: overfitting, underfitting, bias, variance, bias-variance trade-off, L1/L2 regularization, early stopping, etc., basically [all images in the slides of week-6/lecture-model-selection.ipynb](week-6/lecture-model-selection.ipynb).
 
 
 ## Exercise sessions (Thursday)

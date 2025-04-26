@@ -387,7 +387,7 @@ By default, you should ask questions via **[Gitee Issue](https://gitee.com/lunde
 ### Principe
 Here is the principle for asking questions:
 
->  **Google First, Peers Second, Profs Last.**
+>  **Google/ChatGPT First, Peers Second, Profs Last.**
 
 You are expected to ask questions via **[Gitee Issue](https://gitee.com/lundechen/cpp/issues)**. However, as a **secondary**  (and hence, less desirable, less encouraged) choice, you could also ask questions in the WeChat group.
 

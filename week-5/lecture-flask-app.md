@@ -11,19 +11,6 @@ We will use Jupyter notebooks for data cleaning and model training, then take th
 
 ## Overall Workflow
 
-```mermaid
-flowchart LR
-    A[UFO Data] --> B[Data Cleaning]
-    B --> C[Feature Engineering]
-    C --> D[Model Training]
-    D --> E[Model Serialization]
-    E --> F[Flask Web App]
-    F --> G[User Interaction]
-    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
-    style D fill:#eeeeee,stroke:#333,stroke-width:2px
-    style E fill:#b5e8f7,stroke:#333,stroke-width:2px
-    style F fill:#d5f5e3,stroke:#333,stroke-width:2px
-```
 
 ## From Model to Web Application
 
@@ -154,24 +141,6 @@ In the [notebook](notebook.ipynb) provided with this lesson:
 
 Now, prepare the data for training by splitting it into training and testing sets:
 
-```mermaid
-graph LR
-    A[Processed Dataset] --> B[Feature Selection]
-    B --> C[X: Seconds, Latitude, Longitude]
-    B --> D[y: Country]
-    C & D --> E[Train/Test Split]
-    E --> F[X_train, y_train]
-    E --> G[X_test, y_test]
-    F --> H[Model Training]
-    H --> I[Trained Model]
-    G --> J[Model Evaluation]
-    I --> J
-    style A fill:#aed6f1,stroke:#333,stroke-width:2px
-    style E fill:#f9e79f,stroke:#333,stroke-width:2px
-    style H fill:#d5f5e3,stroke:#333,stroke-width:2px
-    style I fill:#f5cba7,stroke:#333,stroke-width:2px
-```
-
 1. Define your feature set (X) and target variable (y):
 
     ```python
@@ -205,17 +174,6 @@ The model achieves approximately 95% accuracy, which isn't surprising given the 
 ## Exercise 3: Model Serialization with Pickle
 
 Now, serialize your model for web deployment:
-
-```mermaid
-graph TD
-    A[Trained Model] --> B[Pickle Serialization]
-    B --> C[.pkl File]
-    C --> D[Load Pickled Model]
-    D --> E[Model Inference]
-    E --> F[Prediction Result]
-    style A fill:#f5cba7,stroke:#333,stroke-width:2px
-    style C fill:#aed6f1,stroke:#333,stroke-width:2px
-```
 
 ```python
 import pickle
@@ -252,9 +210,9 @@ graph TD
 
     ```
     web-app/
-      static/
+    static/
         css/
-      templates/
+    templates/
     notebook.ipynb
     ufo-model.pkl
     ```
@@ -433,46 +391,6 @@ In professional settings, effective communication between model developers and a
 
 Instead of training the model in a notebook and importing it into the Flask app, try implementing model training directly within the Flask application. Convert your notebook code to train the model on a new route called `/train`. Consider the advantages and disadvantages of this approach.
 
-```mermaid
-graph LR
-    A[Flask App] --> B{Design Choice}
-    B -->|Pre-trained Model| C[Import Pickled Model]
-    B -->|In-app Training| D[Implement /train Route]
-    C --> E[Simple Integration]
-    C --> F[Static Model]
-    D --> G[Dynamic Updates]
-    D --> H[Resource Intensive]
-    style B fill:#f9e79f,stroke:#333,stroke-width:2px
-    style C fill:#d5f5e3,stroke:#333,stroke-width:2px
-    style D fill:#f5b7b1,stroke:#333,stroke-width:2px
-```
-
 ## Review & Self Study
 
 There are multiple approaches to integrating machine learning models into web applications. Create a list of different methods using JavaScript or Python. Consider architectural questions: Should the model reside in the application or in the cloud? If cloud-hosted, how would you access it? Sketch an architectural diagram for a web application with integrated machine learning.
-
-```mermaid
-graph TD
-    A[ML Model Integration Architectures] --> B[Client-side]
-    A --> C[Server-side]
-    A --> D[Hybrid]
-    
-    B --> E[TensorFlow.js]
-    B --> F[ONNX.js]
-    
-    C --> G[REST API]
-    C --> H[GraphQL API]
-    C --> I[WebSockets]
-    
-    G --> J[Flask/Django]
-    G --> K[Node.js]
-    
-    D --> L[Initial Server Prediction]
-    D --> M[Client-side Refinement]
-    
-    style A fill:#f9e79f,stroke:#333,stroke-width:2px
-    style B fill:#d5f5e3,stroke:#333,stroke-width:2px
-    style C fill:#aed6f1,stroke:#333,stroke-width:2px
-    style D fill:#f5b7b1,stroke:#333,stroke-width:2px
-```
-

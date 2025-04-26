@@ -269,7 +269,7 @@ Projects kick off at Week 5, in the code session.
 Each group 4 students.
 
 Forming groups:
-- https://docs.qq.com/doc/DT2xqVHphanhGUWpR
+- https://docs.qq.com/doc/DT2xqVHphanhGUWpR (Login with WeChat by scanning the QR code)
 
 At most ONE group could have 3 or 5 students, provided that `N_Student % 4 != 0`.
 
@@ -303,6 +303,13 @@ Deadline for submission:
 - The First Friday of the 14 days of Exam Weeks of SHU, 23:59.
 - For 2025, it's Friday 30/05 23:59.
 
+### Gallery of Final project videos
+
+Bilibili videos:
+- https://space.bilibili.com/472463946/lists/1487100?type=season
+
+Be default, you agree to share your videos on Bilibili by the prof as well.
+
 ## Score
 
 Denoting your Continuous Assessments score as `T`, your project score as `P`, your final score will be 
@@ -322,16 +329,6 @@ Historical failing rate:
 - 2021: 10%
 - 2023: 10%
 
-## Gallery
-
-### Final project
-
-Bilibili videos:
-- https://space.bilibili.com/472463946/lists/1487100?type=season
-
-Be default, you agree to share your videos on Bilibili by the prof as well.
-
-## Misc
 
 
 #### Zen of Python

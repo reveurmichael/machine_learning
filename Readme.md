@@ -102,8 +102,6 @@ Or, in a playlist:
 
 ### Week 7
 - CNN
-    - for image classification
-    - for image segmentation
 - https://poloclub.github.io/cnn-explainer/
 - https://github.com/helblazer811/ManimML
 

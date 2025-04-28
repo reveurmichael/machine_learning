@@ -60,7 +60,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Training
-EPOCHS = 50
+EPOCHS = 30
 
 if __name__ == "__main__":
     torch.multiprocessing.freeze_support()

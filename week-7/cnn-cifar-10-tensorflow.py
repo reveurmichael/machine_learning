@@ -59,7 +59,7 @@ model.summary()
 
 # Training parameters
 BATCH_SIZE = 64
-EPOCHS = 30
+EPOCHS = 80
 
 # Training
 history = model.fit(

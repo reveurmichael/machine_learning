@@ -4,6 +4,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 import torch.multiprocessing
+import os
 
 # Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,3 +94,9 @@ if __name__ == '__main__':
             correct += (predicted == labels).sum().item()
 
     print(f"Accuracy on the 10000 test images: {100 * correct / total:.2f}%")
+
+    # Save model
+    model_path = "model/pytorch_cifar10.pth"
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")

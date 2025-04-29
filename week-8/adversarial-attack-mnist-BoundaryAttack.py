@@ -111,7 +111,7 @@ for idx, (x, y) in enumerate(testloader):
     if success_count >= 5 or idx >= max_samples:
         break
 
-    x_np = x.numpy()
+    x_np = x.numpy().astype(np.float32)  # Explicitly convert to float32
     y_true = y.item()
 
     # Skip misclassified samples

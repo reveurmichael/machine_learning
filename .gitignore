@@ -21,3 +21,4 @@ prompts.txt
 */data_gitignore/*
 **/social-network-assistant/**
 */social-network-assistant/*
+**/*.pth

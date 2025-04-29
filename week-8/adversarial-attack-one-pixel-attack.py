@@ -94,6 +94,7 @@ classifier = PyTorchClassifier(
 # Configure BoundaryAttack
 attack = BoundaryAttack(
     estimator=classifier,
+    targeted=False,  # Make this an untargeted attack
     batch_size=1,
     max_iter=1000,  # Increased iterations for better results
     num_trial=20,  # Number of trial steps per iteration

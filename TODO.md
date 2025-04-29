@@ -1,3 +1,0 @@
-In week-6/code-nn-dropout-es-L1-L2.py, the plotting results ... it works in a lot of sense, but the dataset is not so good. I should change the dataset so that the plotting becomes more telling.
-
-

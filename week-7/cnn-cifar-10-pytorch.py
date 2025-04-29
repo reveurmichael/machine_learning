@@ -1,3 +1,7 @@
+"""
+Cifar-10: https://www.cs.toronto.edu/~kriz/cifar.html
+"""
+
 import torch
 import torch.nn as nn
 import torch.optim as optim

@@ -1,5 +1,9 @@
+"""
+Cifar-10: https://www.cs.toronto.edu/~kriz/cifar.html
+"""
+
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models, optimizers
+from keras import datasets, layers, models, optimizers
 import numpy as np
 import os
 

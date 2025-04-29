@@ -87,7 +87,8 @@ def decode_segmentation_masks(mask, colormap, n_classes):
 # Function to load pre-trained model
 @st.cache_resource
 def load_model():
-    model = fcn_resnet50(pretrained=True)
+    # Fix deprecated 'pretrained' parameter by using weights instead
+    model = fcn_resnet50(weights="COCO_WITH_VOC_LABELS_V1")
     model.eval()
     return model
 
@@ -141,8 +142,8 @@ def train_model(data_dir, num_epochs=5):
         train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False)
         
-        # Load model with pretrained weights
-        model = fcn_resnet50(pretrained=True)
+        # Load model with pretrained weights - fix deprecated parameter
+        model = fcn_resnet50(weights="COCO_WITH_VOC_LABELS_V1")
         
         # Define loss function and optimizer
         criterion = nn.CrossEntropyLoss()
@@ -240,6 +241,10 @@ if option == "Step 1: Explain Semantic Segmentation":
     - Replaces fully connected layers with convolutional layers to maintain spatial information
     - Uses upsampling to restore the original image resolution
     """)
+    
+    # Add example segmentation image
+    st.image("https://miro.medium.com/max/1400/1*O9xpFVhK-SmGEP3W0p-nPg.png", 
+             caption="Semantic Segmentation Example", use_container_width=True)
 
 elif option == "Step 2: Train Model":
     st.write("""
@@ -293,7 +298,7 @@ elif option == "Step 3: Test on Sample Images":
     # Load image and display
     try:
         image = Image.open(requests.get(image_url, stream=True).raw)
-        st.image(image, caption="Original Image", use_column_width=True)
+        st.image(image, caption="Original Image", use_container_width=True)
         
         model = load_model()
         
@@ -314,7 +319,7 @@ elif option == "Step 3: Test on Sample Images":
                 segmentation_image = segmentation_image.resize(original_size)
                 
                 # Display result
-                st.image(segmentation_image, caption="Segmentation Result", use_column_width=True)
+                st.image(segmentation_image, caption="Segmentation Result", use_container_width=True)
                 
                 # Show class color legend
                 st.write("### Color Legend")
@@ -340,7 +345,7 @@ elif option == "Step 4: Upload Your Image":
     
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.image(image, caption="Uploaded Image", use_container_width=True)
         
         model = load_model()
         
@@ -361,7 +366,7 @@ elif option == "Step 4: Upload Your Image":
                 segmentation_image = segmentation_image.resize(original_size)
                 
                 # Display result
-                st.image(segmentation_image, caption="Segmentation Result", use_column_width=True)
+                st.image(segmentation_image, caption="Segmentation Result", use_container_width=True)
                 
                 # Show class color legend
                 st.write("### Color Legend")
@@ -370,4 +375,5 @@ elif option == "Step 4: Upload Your Image":
                     col_idx = i % 7
                     color_patch = np.ones((30, 30, 3), dtype=np.uint8) * colormap[i]
                     cols[col_idx].image(color_patch, caption=class_name, width=30)
+
 

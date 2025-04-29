@@ -1,3 +1,7 @@
+# requirements:
+#  pip install torch==2.7.0 adversarial-robustness-toolbox==1.19.1 torchvision==0.22.0
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

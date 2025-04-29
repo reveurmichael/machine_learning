@@ -17,3 +17,9 @@
 
 
 <https://www.kaggle.com/code/cdeotte/dog-autoencoder>
+
+
+
+Anomaly Detection with Autoencoders​​
+Idea: Identify outliers via reconstruction error.
+Code: Detect credit card fraud.

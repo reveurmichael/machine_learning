@@ -36,10 +36,34 @@ It can be as simple as:
 
 But there are (hidden) pitfalls everywhere. So get your hands dirty is the most important thing.
 
+
+## what information can be get from yt-dlp --dump-json ?
+
+| Field                | Description                                                              |
+| -------------------- | ------------------------------------------------------------------------ |
+| `id`                 | Video ID                                                                 |
+| `title`              | Video title                                                              |
+| `description`        | Full video description                                                   |
+| `uploader`           | Channel name                                                             |
+| `uploader_id`        | Channel ID                                                               |
+| `upload_date`        | Date in `YYYYMMDD` format                                                |
+| `duration`           | Length in seconds                                                        |
+| `view_count`         | Total views                                                              |
+| `like_count`         | Likes (if available)                                                     |
+| `formats`            | List of available video/audio formats (codec, resolution, bitrate, etc.) |
+| `thumbnails`         | List of thumbnail URLs and resolutions                                   |
+| `webpage_url`        | The original video URL                                                   |
+| `categories`         | List of video categories                                                 |
+| `tags`               | List of tags assigned to the video                                       |
+| `channel_url`        | Channel homepage URL                                                     |
+| `subtitles`          | Dictionary of available subtitles (if any)                               |
+| `automatic_captions` | Auto-generated captions info (if any)                                    |
+| `is_live`            | Whether it’s/was a livestream                                            |
+| `chapters`           | List of chapter start/end times (if defined)                             |
+
+
 ## [Optional] Human-in-the-Loop Validation with Streamlit
    - Implement targeted human review for segments flagged as potentially problematic
    - Create an efficient interface for reviewers to quickly approve or correct translations
    - Develop a feedback mechanism to improve system performance based on corrections
-
-
 

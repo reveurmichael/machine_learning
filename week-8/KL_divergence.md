@@ -842,3 +842,378 @@ def plot_kl_2d():
     plt.show()
 
 plot_kl_2d()
+```
+
+## Advanced Topics and Applications
+
+### Forward vs. Reverse KL Divergence
+
+Due to the asymmetric nature of KL divergence, KL(P||Q) and KL(Q||P) behave differently:
+
+1. **Forward KL (KL(P||Q))**: This is also known as the M-projection. It penalizes Q for placing low probability where P has high probability. This leads to Q covering all modes of P, potentially placing mass where P has little mass.
+
+2. **Reverse KL (KL(Q||P))**: This is also known as the I-projection. It penalizes Q for placing high probability where P has low probability. This leads to Q seeking a single mode of P.
+
+This is particularly important in variational inference:
+
+```python
+def visualize_kl_behaviors():
+    """
+    Visualize the behaviors of forward and reverse KL divergence
+    """
+    # Create a bimodal target distribution P
+    x = np.linspace(-10, 10, 1000)
+    p = 0.6 * norm(-2, 1).pdf(x) + 0.4 * norm(3, 0.5).pdf(x)
+    
+    # Fit a single Gaussian Q to minimize KL(P||Q) - Forward KL
+    # For a single Gaussian, this means matching the mean and variance
+    p_mean = np.sum(x * p) / np.sum(p)
+    p_var = np.sum((x - p_mean)**2 * p) / np.sum(p)
+    q_forward = norm(p_mean, np.sqrt(p_var)).pdf(x)
+    
+    # For reverse KL: We would need to use optimization
+    # For illustration, we'll show a Gaussian that focuses on one mode
+    q_reverse = norm(-2, 1).pdf(x)
+    
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, p, 'k', label='Target P (bimodal)')
+    plt.plot(x, q_forward, 'r--', label='Q minimizing KL(P||Q)')
+    plt.plot(x, q_reverse, 'b--', label='Q minimizing KL(Q||P) (approx.)')
+    plt.legend()
+    plt.title('Forward vs. Reverse KL Divergence Behavior')
+    plt.grid(True)
+    plt.show()
+
+visualize_kl_behaviors()
+```
+
+### Connections to Other Divergences
+
+KL divergence is related to other statistical distances and divergences:
+
+1. **Jensen-Shannon (JS) divergence**: A symmetrized version of KL divergence:
+   JS(P,Q) = 0.5 * KL(P||M) + 0.5 * KL(Q||M), where M = 0.5 * (P + Q)
+
+2. **f-divergences**: KL divergence is a special case of the broader family of f-divergences.
+
+3. **Wasserstein distance**: In contrast to KL divergence, Wasserstein distance takes into account the "distance" between points in the distribution space, making it useful when distributions have non-overlapping supports.
+
+### KL Divergence in Mutual Information Estimation
+
+KL divergence is fundamentally connected to mutual information:
+
+I(X;Y) = KL(P(X,Y) || P(X)P(Y))
+
+This connection is exploited in information bottleneck methods and mutual information neural estimation:
+
+```python
+def mutual_information_estimate(joint_samples, marginal_samples, feature_network):
+    """
+    Estimate mutual information using neural networks
+    
+    Args:
+        joint_samples: Samples from joint distribution P(X,Y)
+        marginal_samples: Samples from product of marginals P(X)P(Y)
+        feature_network: Neural network to extract features
+    """
+    # Extract features
+    joint_features = feature_network(joint_samples)
+    marginal_features = feature_network(marginal_samples)
+    
+    # Compute logits
+    joint_logits = joint_features.mean(dim=0)
+    marginal_logits = marginal_features.mean(dim=0)
+    
+    # Estimate KL divergence (and thus mutual information)
+    mi_estimate = torch.mean(joint_logits) - torch.log(torch.mean(torch.exp(marginal_logits)))
+    
+    return mi_estimate
+```
+
+## Practical Applications
+
+### Image Classification with KL-regularized Networks
+
+Let's implement a simple convolutional network for image classification with KL regularization:
+
+```python
+class KLRegularizedCNN(nn.Module):
+    def __init__(self, num_classes=10):
+        super(KLRegularizedCNN, self).__init__()
+        
+        self.features = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        
+        self.classifier = nn.Sequential(
+            nn.Linear(7*7*64, 256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes)
+        )
+        
+        # Target distribution for regularization (uniform)
+        self.target_dist = torch.ones(num_classes) / num_classes
+    
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        logits = self.classifier(x)
+        return logits
+    
+    def kl_regularization_loss(self, logits, beta=0.1):
+        """
+        KL regularization loss to encourage uniform predictions
+        """
+        probs = F.softmax(logits, dim=1)
+        avg_probs = probs.mean(dim=0)
+        
+        # KL divergence to uniform distribution
+        kl = torch.sum(avg_probs * torch.log(avg_probs * self.target_dist.size(0) + 1e-10))
+        return beta * kl
+
+# Training loop
+def train_kl_regularized(model, train_loader, optimizer, num_epochs=5, beta=0.1):
+    """
+    Train a model with KL regularization
+    """
+    device = next(model.parameters()).device
+    model.train()
+    
+    for epoch in range(num_epochs):
+        total_loss = 0
+        total_ce_loss = 0
+        total_kl_loss = 0
+        correct = 0
+        total = 0
+        
+        for i, (images, labels) in enumerate(train_loader):
+            images, labels = images.to(device), labels.to(device)
+            
+            # Forward pass
+            logits = model(images)
+            
+            # Compute losses
+            ce_loss = F.cross_entropy(logits, labels)
+            kl_loss = model.kl_regularization_loss(logits, beta)
+            loss = ce_loss + kl_loss
+            
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            # Track metrics
+            total_loss += loss.item()
+            total_ce_loss += ce_loss.item()
+            total_kl_loss += kl_loss.item()
+            
+            _, predicted = torch.max(logits.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            
+            if (i+1) % 100 == 0:
+                print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], '
+                      f'Loss: {loss.item():.4f}, Acc: {100*correct/total:.2f}%')
+        
+        print(f'Epoch [{epoch+1}/{num_epochs}], '
+              f'Average Loss: {total_loss/len(train_loader):.4f}, '
+              f'CE Loss: {total_ce_loss/len(train_loader):.4f}, '
+              f'KL Loss: {total_kl_loss/len(train_loader):.4f}, '
+              f'Accuracy: {100*correct/total:.2f}%')
+```
+
+### Knowledge Distillation with KL Divergence
+
+Knowledge distillation uses KL divergence to transfer knowledge from a larger teacher model to a smaller student model:
+
+```python
+def knowledge_distillation_loss(student_logits, teacher_logits, labels, temperature=2.0, alpha=0.5):
+    """
+    Knowledge distillation loss using KL divergence
+    
+    Args:
+        student_logits: Logits from the student model
+        teacher_logits: Logits from the teacher model
+        labels: True labels
+        temperature: Temperature for softening the distributions
+        alpha: Weight for distillation loss vs. standard cross-entropy
+    """
+    # Standard cross-entropy loss
+    ce_loss = F.cross_entropy(student_logits, labels)
+    
+    # Soften the distributions
+    soft_student = F.log_softmax(student_logits / temperature, dim=1)
+    soft_teacher = F.softmax(teacher_logits / temperature, dim=1)
+    
+    # KL divergence loss (scaled by temperature^2)
+    kl_loss = F.kl_div(soft_student, soft_teacher, reduction='batchmean') * (temperature**2)
+    
+    # Combined loss
+    return alpha * kl_loss + (1 - alpha) * ce_loss
+```
+
+### Text Generation with KL-Controlled Language Models
+
+In text generation, KL divergence can be used to control the diversity and coherence of generated text:
+
+```python
+def controlled_text_generation(model, prompt, max_length=100, temperature=1.0, top_k=50, top_p=0.95, kl_threshold=0.5):
+    """
+    Text generation with KL divergence control
+    
+    Args:
+        model: Language model
+        prompt: Input prompt
+        max_length: Maximum sequence length to generate
+        temperature: Temperature for sampling
+        top_k: Keep only the top k tokens for sampling
+        top_p: Nucleus sampling parameter
+        kl_threshold: KL divergence threshold for maintaining coherence
+    """
+    input_ids = tokenizer.encode(prompt, return_tensors="pt").to(device)
+    output = input_ids
+    past = None
+    
+    # Reference distribution (e.g., from prompt)
+    with torch.no_grad():
+        ref_logits = model(input_ids).logits[:, -1, :]
+        ref_probs = F.softmax(ref_logits / temperature, dim=-1)
+    
+    for _ in range(max_length):
+        with torch.no_grad():
+            if past is not None:
+                # Use past key values for efficiency
+                outputs = model(output[:, -1:], past_key_values=past)
+                logits = outputs.logits[:, -1, :]
+                past = outputs.past_key_values
+            else:
+                outputs = model(output)
+                logits = outputs.logits[:, -1, :]
+                past = outputs.past_key_values
+            
+            # Apply temperature
+            logits = logits / temperature
+            
+            # Current token distribution
+            probs = F.softmax(logits, dim=-1)
+            
+            # Check KL divergence from reference distribution
+            kl = torch.sum(probs * torch.log(probs / (ref_probs + 1e-10) + 1e-10), dim=-1)
+            
+            if kl > kl_threshold:
+                # If diverging too much, interpolate with reference
+                alpha = kl_threshold / kl
+                probs = alpha * probs + (1 - alpha) * ref_probs
+            
+            # Apply top-k and top-p filtering
+            top_k_probs, top_k_indices = torch.topk(probs, min(top_k, probs.size(-1)))
+            cumulative_probs = torch.cumsum(top_k_probs, dim=-1)
+            
+            # Remove tokens with cumulative probability above top_p
+            sorted_indices_to_remove = cumulative_probs > top_p
+            sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
+            sorted_indices_to_remove[:, 0] = False
+            
+            # Set probabilities of filtered tokens to 0
+            top_k_probs[sorted_indices_to_remove] = 0.0
+            
+            # Renormalize
+            top_k_probs = top_k_probs / top_k_probs.sum(dim=-1, keepdim=True)
+            
+            # Sample from filtered distribution
+            next_token_idx = torch.multinomial(top_k_probs, num_samples=1)
+            next_token = top_k_indices.gather(-1, next_token_idx)
+            
+            # Append to output
+            output = torch.cat((output, next_token), dim=-1)
+            
+            # Update reference distribution (slowly)
+            ref_probs = 0.9 * ref_probs + 0.1 * probs
+            
+            # Stop if EOS token is generated
+            if next_token.item() == tokenizer.eos_token_id:
+                break
+    
+    return tokenizer.decode(output[0], skip_special_tokens=True)
+```
+
+## Advanced Theoretical Considerations
+
+### KL Divergence and Maximum Likelihood Estimation
+
+There's a deep connection between KL divergence and maximum likelihood estimation (MLE). When we perform MLE, we're essentially minimizing the KL divergence between the empirical data distribution and our model:
+
+KL(P_data || P_model) = -E[log P_model] + constant
+
+Since we can't change the data distribution P_data, minimizing this KL divergence is equivalent to maximizing the expected log-likelihood E[log P_model].
+
+### KL Divergence in Information Theory
+
+From an information theory perspective, KL divergence represents the expected number of extra bits needed to encode samples from P using an optimal code for Q instead of an optimal code for P:
+
+KL(P||Q) = H(P,Q) - H(P)
+
+Where H(P) is the entropy of P and H(P,Q) is the cross-entropy between P and Q.
+
+### Relationship with Fisher Information
+
+KL divergence is related to Fisher information through a Taylor expansion:
+
+For distributions P(x|θ) and P(x|θ+dθ):
+
+KL(P(x|θ) || P(x|θ+dθ)) ≈ (1/2) * dθᵀ * I(θ) * dθ
+
+Where I(θ) is the Fisher information matrix.
+
+## Conclusion
+
+Kullback-Leibler divergence is a fundamental concept in information theory with far-reaching applications in deep learning. Its ability to measure the difference between probability distributions makes it an essential tool for:
+
+1. **Training generative models** like VAEs
+2. **Regularizing neural networks**
+3. **Transferring knowledge** through distillation
+4. **Optimizing policies** in reinforcement learning
+5. **Controlling text generation** in language models
+
+Understanding KL divergence and its properties allows you to:
+- Design better loss functions for specific tasks
+- Analyze the behavior of deep learning systems
+- Implement advanced techniques for generative modeling
+- Balance different objectives in complex learning tasks
+
+While KL divergence has limitations, such as asymmetry and sensitivity to non-overlapping supports, it continues to be one of the most valuable tools in a machine learning practitioner's toolkit.
+
+## Further Reading and Resources
+
+1. "Information Theory, Inference, and Learning Algorithms" by David MacKay
+2. "Pattern Recognition and Machine Learning" by Christopher Bishop
+3. "Deep Learning" by Ian Goodfellow, Yoshua Bengio, and Aaron Courville
+4. "Auto-Encoding Variational Bayes" by Kingma and Welling
+5. "Variational Inference: A Review for Statisticians" by Blei, Kucukelbir, and McAuliffe
+6. PyTorch documentation: [https://pytorch.org/docs/stable/index.html](https://pytorch.org/docs/stable/index.html)
+7. TensorFlow probability library: [https://www.tensorflow.org/probability](https://www.tensorflow.org/probability)
+
+## Appendix: Mathematical Derivations
+
+### Proof of Non-Negativity of KL Divergence
+
+KL(P||Q) ≥ 0 follows from Jensen's inequality, since -log is a convex function:
+
+KL(P||Q) = Σ pᵢ * log(pᵢ/qᵢ) = -Σ pᵢ * log(qᵢ/pᵢ) ≥ -log(Σ pᵢ * qᵢ/pᵢ) = -log(Σ qᵢ) = -log(1) = 0
+
+### Deriving the KL Divergence Between Normal Distributions
+
+For P ~ N(μ₁, σ₁²) and Q ~ N(μ₂, σ₂²), we can derive the KL divergence as follows:
+
+KL(P||Q) = ∫ p(x) * log(p(x)/q(x)) dx
+
+After substituting the PDF formulas and simplifying, we get:
+
+KL(P||Q) = log(σ₂/σ₁) + (σ₁² + (μ₁ - μ₂)²)/(2σ₂²) - 1/2
+
+This closed-form solution makes KL divergence particularly convenient for working with Gaussian distributions.

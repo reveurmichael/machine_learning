@@ -187,9 +187,9 @@ Materials to read before test:
 
 Test (45 min):
 - **Code**: Neural network implementation from scratch (1/2) 
-    - Code scope limited to [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md)
+    - Code scope limited to [code-nn-fram-scratch-test.md](week-6/code-nn-fram-scratch-test.md)
     - Some basic starter code (>= 70%) will be provided
-    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md). 
+    - Explanation of some of the important code, from [code-nn-fram-scratch-test.md](week-6/code-nn-fram-scratch-test.md). 
 - **Math**: softmax function
 - **Math**: the chain rule of calculus for univariate and multivariate functions
 - **Conceptual Understanding**: universal approximation theorem
@@ -201,9 +201,9 @@ Test (45 min):
 
 Test (45 min):
 - **Code**: Neural network implementation from scratch (2/2) 
-    - Code scope limited to [neural_network_from_scratch.md](../week-4/neural_network_from_scratch.md)
+    - Code scope limited to [code-nn-fram-scratch-test.md](week-6/code-nn-fram-scratch-test.md)
     - Some basic starter code (<= 50%) will be provided
-    - Explanation of some of the important code, from [neural_network_from_scratch.md](week-4/neural_network_from_scratch.md).
+    - Explanation of some of the important code, from [code-nn-fram-scratch-test.md](week-6/code-nn-fram-scratch-test.md).
 - **Math**: [Dropout, inverted v.s. original implementation](week-6/QA-dropout-1-p-multipy-or-devide.md).
 - **Conceptual Understanding**: overfitting, underfitting, bias, variance, bias-variance trade-off, L1/L2 regularization, early stopping, etc., basically [all images in the slides of week-6/lecture-model-selection.ipynb](week-6/lecture-model-selection.ipynb).
 

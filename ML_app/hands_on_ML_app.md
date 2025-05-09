@@ -413,7 +413,7 @@ Once the backend is running, you can access the API documentation at http://loca
 **Try uploading a MNIST image (such as the "8.png" file) to the Swagger UI and checking the prediction result.**
 
 
-![](Readme_img/docs.png)
+![](Readme_img/docs.jpg)
 
 ### Frontend with Streamlit
 
@@ -969,7 +969,7 @@ To deploy our application to the cloud, we'll need a virtual machine from a clou
 
 ## Section 8: Docker Deployment for Backend
 
-![](Readme_img/docker.jpg)
+![](Readme_img/docker.png)
 
 Docker allows you to package your application and all its dependencies into a single container.
 

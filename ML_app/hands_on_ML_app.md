@@ -1001,7 +1001,7 @@ AWS offers a generous free tier that allows you to run a t2.micro EC2 instance f
 6. **Deploy Your Application**:
    ```bash
    # Clone your repository if it's on GitHub
-   git clone https://github.com/yourusername/your-repo.git
+   git clone https://github.com/yourusername/your-repo.git (or, gitee.com repository)
    
    # Or upload files with SCP
    exit # Exit from SSH first
@@ -1012,8 +1012,9 @@ AWS offers a generous free tier that allows you to run a t2.micro EC2 instance f
 7. **Configure Environment and Service**:
    ```bash
    cd ~/app
-   sudo pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
+   sudo pip3 install torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
    ```
+   No need for `-i https://pypi.tuna.tsinghua.edu.cn/simple` since your AWS should be outside of China.
 
 ### Tencent Lighthouse VM
 

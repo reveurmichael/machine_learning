@@ -957,46 +957,233 @@ model.eval()
 
 To deploy our application to the cloud, we'll need a virtual machine from a cloud provider. Here are the steps:
 
-1. **Choose a Cloud Provider**:
-   - Tencent Cloud, Alibaba Cloud, AWS, Huawei Cloud, or Microsoft Azure
-   - Choose an Ubuntu-based image for compatibility
+### AWS Free Tier VM
 
-2. **Set Up SSH Access**:
-   - Generate SSH keys: `ssh-keygen`
-   - Add your public key to the cloud instance during setup
+AWS offers a generous free tier that allows you to run a t2.micro EC2 instance for 12 months at no cost. Here's how to set up your application on AWS:
 
-3. **Connect to Your VM**:
+1. **Sign up for AWS Free Tier**:
+   - Navigate to [AWS Free Tier](https://aws.amazon.com/free/)
+   - Create an account with your email and payment information (credit card required, but won't be charged for free tier eligible services)
+
+2. **Launch an EC2 Instance**:
+   - Go to the EC2 Dashboard and click "Launch Instance"
+   - Choose an Ubuntu Server 20.04 LTS AMI (eligible for free tier)
+   - Select the t2.micro instance type (eligible for free tier)
+   - Configure instance details as needed
+   - Add storage (up to 30GB for free tier)
+   - Add tags if desired
+   - Configure security group:
+     - Allow SSH (port 22) from your IP
+     - Allow HTTP (port 80) from anywhere
+     - Add custom TCP rules for ports 8000 and 8501
+
+3. **Set Up SSH Access**:
+   - During instance creation, create a new key pair or use an existing one
+   - Download the .pem file and set appropriate permissions:
+     ```bash
+     chmod 400 your-key.pem
+     ```
+
+4. **Connect to Your AWS Instance**:
    ```bash
-   ssh username@your-vm-ip
+   ssh -i your-key.pem ubuntu@your-ec2-public-dns
    ```
 
-4. **Install Required Software**:
+5. **Install Required Software**:
    ```bash
    sudo apt update
-   sudo apt install -y python3-pip python3-dev
+   sudo apt install -y python3-pip python3-dev git
    ```
 
-5. **Copy Your Application Files**:
+6. **Deploy Your Application**:
    ```bash
-   scp -r your_app_directory/* username@your-vm-ip:~/app
+   # Clone your repository if it's on GitHub
+   git clone https://github.com/yourusername/your-repo.git
+   
+   # Or upload files with SCP
+   exit # Exit from SSH first
+   scp -i your-key.pem -r your_app_directory/* ubuntu@your-ec2-public-dns:~/app
+   ssh -i your-key.pem ubuntu@your-ec2-public-dns # Connect again
    ```
 
-6. **Install Python Dependencies**:
-   ```bash
-   pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch torchvision fastapi uvicorn python-multipart
-   ```
-
-7. **Run Your Backend**:
+7. **Configure Environment and Service**:
    ```bash
    cd ~/app
-   nohup python3 backend.py &
+   sudo pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
    ```
 
-8. **Configure Security Groups/Firewall**:
-   - Open port 8000 for the FastAPI backend
+### Tencent Lighthouse VM
 
-9. **Test Your Deployment**:
-   - Access your API at `http://your-vm-ip:8000/docs`
+Tencent Cloud Lighthouse offers an affordable and easy-to-use virtual machine suitable for lightweight applications:
+
+1. **Sign up for Tencent Cloud**:
+   - Create an account at [Tencent Cloud](https://cloud.tencent.com/)
+   - Verify your identity to access the services
+
+2. **Purchase a Lighthouse Instance**:
+   - Navigate to Lighthouse in the console
+   - Choose a region close to your target users
+   - Select Ubuntu 20.04 as the image
+   - Choose an appropriate configuration (1 core, 2GB RAM is sufficient for our app)
+   - Set a login password or use SSH key authentication
+
+3. **Set Up SSH Access**:
+   - Generate SSH keys if you don't have them: `ssh-keygen`
+   - Add your public key to the cloud instance during setup:
+     ```bash
+     # On your local machine
+     cat ~/.ssh/id_rsa.pub
+     
+     # Copy the output and add it to the Lighthouse instance using the web console
+     # Or on the server
+     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1234567890..." >> ~/.ssh/authorized_keys
+     ```
+
+4. **Connect to Your Lighthouse Instance**:
+   ```bash
+   ssh lighthouse@your-instance-ip
+   # Or if using a custom username
+   ssh username@your-instance-ip
+   ```
+
+5. **Install Required Software**:
+   ```bash
+   sudo apt update
+   sudo apt install -y python3-pip python3-dev git
+   ```
+
+6. **Configure Firewall**:
+   - In the Tencent Cloud Console, modify the firewall rules to allow:
+     - TCP port 22 (SSH)
+     - TCP port 8000 (FastAPI backend)
+     - TCP port 8501 (Streamlit frontend)
+
+7. **Deploy Your Application**:
+   ```bash
+   mkdir -p ~/app/models
+   ```
+
+### Deploying Both Backend and Frontend on the Same VM
+
+Once you have access to either an AWS or Tencent Cloud VM, follow these steps to deploy both components:
+
+1. **Upload your files to the server**:
+   ```bash
+   # From your local machine
+   scp -r backend.py frontend.py requirements.txt mnist_augmented_model.pth username@your-vm-ip:~/app/
+   ```
+
+2. **Install Python Dependencies**:
+   ```bash
+   # On the server
+   cd ~/app
+   pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
+   ```
+
+3. **Run the Backend as a Background Service**:
+   ```bash
+   # Create a systemd service file for the backend
+   sudo nano /etc/systemd/system/mnist-backend.service
+   ```
+   
+   Add the following content:
+   ```
+   [Unit]
+   Description=MNIST Classifier Backend
+   After=network.target
+   
+   [Service]
+   User=ubuntu  # Change to your username
+   WorkingDirectory=/home/ubuntu/app  # Change to your directory
+   ExecStart=/usr/bin/python3 /home/ubuntu/app/backend.py
+   Restart=always
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   
+   Start the service:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable mnist-backend
+   sudo systemctl start mnist-backend
+   ```
+
+4. **Modify the Frontend to Use the Correct Backend URL**:
+   ```bash
+   # Edit the frontend.py file
+   nano ~/app/frontend.py
+   ```
+   
+   Update the backend URL to point to localhost:
+   ```python
+   # Set up backend URL
+   backend_url = "http://localhost:8000"
+   ```
+
+5. **Run the Frontend as a Background Service**:
+   ```bash
+   # Create a systemd service file for the frontend
+   sudo nano /etc/systemd/system/mnist-frontend.service
+   ```
+   
+   Add the following content:
+   ```
+   [Unit]
+   Description=MNIST Classifier Frontend
+   After=mnist-backend.service
+   
+   [Service]
+   User=ubuntu  # Change to your username
+   WorkingDirectory=/home/ubuntu/app  # Change to your directory
+   ExecStart=/usr/local/bin/streamlit run /home/ubuntu/app/frontend.py --server.port=8501 --server.address=0.0.0.0
+   Restart=always
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   
+   Start the service:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable mnist-frontend
+   sudo systemctl start mnist-frontend
+   ```
+
+6. **Access Your Application**:
+   - Backend API documentation: `http://your-vm-ip:8000/docs`
+   - Streamlit frontend: `http://your-vm-ip:8501`
+
+7. **Set Up Monitoring and Logs**:
+   ```bash
+   # View backend logs
+   sudo journalctl -u mnist-backend -f
+   
+   # View frontend logs
+   sudo journalctl -u mnist-frontend -f
+   ```
+
+8. **Security Best Practices**:
+   - Set up a firewall with `ufw`:
+     ```bash
+     sudo apt install ufw
+     sudo ufw allow ssh
+     sudo ufw allow 8000
+     sudo ufw allow 8501
+     sudo ufw enable
+     ```
+   - Keep your system updated:
+     ```bash
+     sudo apt update && sudo apt upgrade -y
+     ```
+   - Consider setting up HTTPS with a free SSL certificate from Let's Encrypt
+
+9. **Optional: Set Up a Domain Name**:
+   - Register a domain through AWS Route 53, Tencent Cloud Domain, or any domain registrar
+   - Point your domain to your VM's IP address using an A record
+   - Consider setting up a reverse proxy with Nginx to serve your application on standard web ports (80/443)
+
+By following these steps, you'll have a fully functional machine learning web application running in the cloud, with both the backend and frontend on the same VM.
 
 ## Section 8: Docker Deployment for Backend
 
@@ -1068,12 +1255,12 @@ CMD uvicorn backend:app --host 0.0.0.0 --port 8000
 
 Create a `requirements.txt` file:
 ```
-torch==2.0.1
-torchvision==0.15.2
-fastapi==0.103.1
-uvicorn==0.23.2
-python-multipart==0.0.6
-opencv-python==4.8.0.76
+torch
+torchvision
+fastapi
+uvicorn
+python-multipart
+opencv-python
 ```
 
 ### Build and Run the Docker Container
@@ -1119,11 +1306,11 @@ CMD streamlit run frontend.py --server.port=8501 --server.address=0.0.0.0
 
 Create a `frontend_requirements.txt` file:
 ```
-streamlit==1.26.0
-streamlit-drawable-canvas==0.9.3
-requests==2.31.0
-opencv-python==4.8.0.76
-numpy==1.25.2
+streamlit
+streamlit-drawable-canvas
+requests
+opencv-python
+numpy
 ```
 
 ### Build and Run the Frontend Container

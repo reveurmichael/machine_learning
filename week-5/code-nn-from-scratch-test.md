@@ -285,7 +285,7 @@ Since `argmax` selects the index of the maximum value, and softmax preserves the
 
 ## Softmax and Cross-entropy
 
-For this first test, we won't test on the softmax transformation and the cross-entropy loss details/code. But we should know the most important concepts and the general idea of the code.
+For the exam, we won't test on the softmax transformation and the cross-entropy loss details/code. But we should know the most important concepts and the general idea of the code.
 
 The softmax function converts raw logits into probability distributions, ensuring outputs sum to 1:
 

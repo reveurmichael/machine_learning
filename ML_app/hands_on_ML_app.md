@@ -424,6 +424,11 @@ from streamlit_drawable_canvas import st_canvas
 import cv2
 import numpy as np
 
+import os
+# Set environment variable to disable Streamlit's file watcher for problematic modules
+os.environ["STREAMLIT_WATCHDOG_WARNING_DISABLED"] = "True"
+
+
 st.title("MNIST Digit Recognizer with PyTorch")
 
 # Set up backend URL
@@ -501,7 +506,7 @@ Now, you have a separated frontend and backend. The frontend communicates with t
 ## Section 5: Improving the Model with CNN
 
 
-Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `LocalTrain_CNN.ipynb`:
+Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `LocalTrain.ipynb`:
 
 ```python
 import torch
@@ -659,7 +664,7 @@ model.eval()
 
 Data augmentation is a technique to increase the diversity of your training data by applying random transformations. This helps improve the model's ability to generalize to new data.
 
-Let's implement data augmentation techniques in PyTorch, in `LocalTrain_DataAugmentation.ipynb`:
+Let's implement data augmentation techniques in PyTorch, in `LocalTrain.ipynb`:
 
 ```python
 import torch

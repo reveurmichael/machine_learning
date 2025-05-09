@@ -424,6 +424,11 @@ from streamlit_drawable_canvas import st_canvas
 import cv2
 import numpy as np
 
+import os
+# Set environment variable to disable Streamlit's file watcher for problematic modules
+os.environ["STREAMLIT_WATCHDOG_WARNING_DISABLED"] = "True"
+
+
 st.title("MNIST Digit Recognizer with PyTorch")
 
 # Set up backend URL
@@ -501,7 +506,7 @@ Now, you have a separated frontend and backend. The frontend communicates with t
 ## Section 5: Improving the Model with CNN
 
 
-Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `LocalTrain_CNN.ipynb`:
+Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `LocalTrain.ipynb`:
 
 ```python
 import torch
@@ -659,7 +664,7 @@ model.eval()
 
 Data augmentation is a technique to increase the diversity of your training data by applying random transformations. This helps improve the model's ability to generalize to new data.
 
-Let's implement data augmentation techniques in PyTorch, in `LocalTrain_DataAugmentation.ipynb`:
+Let's implement data augmentation techniques in PyTorch, in `LocalTrain.ipynb`:
 
 ```python
 import torch
@@ -1064,7 +1069,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 1. **Upload your files to the server**:
    ```bash
    # From your local machine
-   scp -r backend.py frontend.py requirements.txt mnist_augmented_model.pth username@your-vm-ip:~/app/
+   scp -r backend.py frontend.py requirements_backend.txt mnist_augmented_model.pth username@your-vm-ip:~/app/
    ```
 
 2. **Install Python Dependencies**:
@@ -1079,7 +1084,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 3. **Run the Backend as a Background Service**:
    ```bash
    # Create a systemd service file for the backend
-   sudo nano /etc/systemd/system/mnist-backend.service
+   sudo touch /etc/systemd/system/mnist-backend.service
    ```
    
    Add the following content:
@@ -1120,7 +1125,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 5. **Run the Frontend as a Background Service**:
    ```bash
    # Create a systemd service file for the frontend
-   sudo nano /etc/systemd/system/mnist-frontend.service
+   sudo touch /etc/systemd/system/mnist-frontend.service
    ```
    
    Add the following content:
@@ -1179,7 +1184,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
    - Point your domain to your VM's IP address using an A record
    - Consider setting up a reverse proxy with Nginx to serve your application on standard web ports (80/443)
 
-By following these steps, you'll have a fully functional machine learning web application running in the cloud, with both the backend and frontend on the same VM.
+By following these steps, you'll have a fully functional machine learning web application running in the cloud, with both the backend and frontend on the same VM, although, **ideally, the backend and frontend should be on different VMs**.
 
 ## Section 8: Docker Deployment for Backend
 
@@ -1235,12 +1240,12 @@ WORKDIR /app
 
 # Copy application files
 COPY backend.py .
-COPY requirements.txt .
+COPY requirements_backend.txt .
 COPY mnist_augmented_model.pth .
 
 # Install Python dependencies with Tsinghua mirror
 RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -U pip
-RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements_backend.txt
 
 # Expose the API port
 EXPOSE 8000
@@ -1249,7 +1254,7 @@ EXPOSE 8000
 CMD uvicorn backend:app --host 0.0.0.0 --port 8000
 ```
 
-Create a `requirements.txt` file:
+Create a `requirements_backend.txt` file:
 ```
 torch
 torchvision
@@ -1287,8 +1292,8 @@ RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 WORKDIR /app
 
 # Install dependencies
-COPY frontend_requirements.txt .
-RUN --mount=type=cache,target=/root/.cache pip install -r frontend_requirements.txt
+COPY requirements_frontend.txt .
+RUN --mount=type=cache,target=/root/.cache pip install -r requirements_frontend.txt
 
 # Copy application files
 COPY frontend.py .
@@ -1300,7 +1305,7 @@ EXPOSE 8501
 CMD streamlit run frontend.py --server.port=8501 --server.address=0.0.0.0
 ```
 
-Create a `frontend_requirements.txt` file:
+Create a `requirements_frontend.txt` file:
 ```
 streamlit
 streamlit-drawable-canvas

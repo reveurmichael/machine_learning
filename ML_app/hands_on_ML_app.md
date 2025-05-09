@@ -315,8 +315,6 @@ Now let's split our application into backend and frontend components.
 
 ### Backend with FastAPI
 
-
-
 Create a file called `backend.py`:
 
 ```python

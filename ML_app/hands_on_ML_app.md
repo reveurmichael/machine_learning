@@ -969,7 +969,7 @@ To deploy our application to the cloud, we'll need a virtual machine from a clou
 
 ## Section 8: Docker Deployment for Backend
 
-![](Readme_img/docker.png)
+![](Readme_img/docker.jpg)
 
 Docker allows you to package your application and all its dependencies into a single container.
 

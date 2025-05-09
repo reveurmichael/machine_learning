@@ -1073,7 +1073,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 1. **Upload your files to the server**:
    ```bash
    # From your local machine
-   scp -r backend.py frontend.py requirements.txt mnist_augmented_model.pth username@your-vm-ip:~/app/
+   scp -r backend.py frontend.py requirements_backend.txt mnist_augmented_model.pth username@your-vm-ip:~/app/
    ```
 
 2. **Install Python Dependencies**:
@@ -1242,12 +1242,12 @@ WORKDIR /app
 
 # Copy application files
 COPY backend.py .
-COPY requirements.txt .
+COPY requirements_backend.txt .
 COPY mnist_augmented_model.pth .
 
 # Install Python dependencies with Tsinghua mirror
 RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -U pip
-RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements_backend.txt
 
 # Expose the API port
 EXPOSE 8000
@@ -1256,7 +1256,7 @@ EXPOSE 8000
 CMD uvicorn backend:app --host 0.0.0.0 --port 8000
 ```
 
-Create a `requirements.txt` file:
+Create a `requirements_backend.txt` file:
 ```
 torch
 torchvision
@@ -1294,8 +1294,8 @@ RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 WORKDIR /app
 
 # Install dependencies
-COPY frontend_requirements.txt .
-RUN --mount=type=cache,target=/root/.cache pip install -r frontend_requirements.txt
+COPY requirements_frontend.txt .
+RUN --mount=type=cache,target=/root/.cache pip install -r requirements_frontend.txt
 
 # Copy application files
 COPY frontend.py .
@@ -1307,7 +1307,7 @@ EXPOSE 8501
 CMD streamlit run frontend.py --server.port=8501 --server.address=0.0.0.0
 ```
 
-Create a `frontend_requirements.txt` file:
+Create a `requirements_frontend.txt` file:
 ```
 streamlit
 streamlit-drawable-canvas

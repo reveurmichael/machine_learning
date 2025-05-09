@@ -678,120 +678,150 @@ from torchvision.transforms import functional as F
 from PIL import Image
 
 # Create a directory to save augmented samples
-os.makedirs('tmp', exist_ok=True)
+os.makedirs("tmp", exist_ok=True)
 
 # Check if GPU is available
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
+
 
 # Custom PyTorch transform for elastic deformation
 class ElasticTransform:
     def __init__(self, alpha=1.0, sigma=0.1):
         self.alpha = alpha
         self.sigma = sigma
-    
+
     def __call__(self, img):
         img_np = np.array(img)
-        
+
         # Generate displacement fields
         shape = img_np.shape
         dx = np.random.rand(*shape) * 2 - 1
         dy = np.random.rand(*shape) * 2 - 1
-        
+
         # Gaussian filter the displacement fields
         dx = cv2.GaussianBlur(dx, (0, 0), self.sigma) * self.alpha
         dy = cv2.GaussianBlur(dy, (0, 0), self.sigma) * self.alpha
-        
+
         # Create meshgrid for mapping coordinates
         x, y = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]))
-        
+
         # Map coordinates
         map_x = np.float32(x + dx)
         map_y = np.float32(y + dy)
-        
+
         # Apply elastic transform
-        distorted = cv2.remap(img_np, map_x, map_y, 
-                            interpolation=cv2.INTER_LINEAR, 
-                            borderMode=cv2.BORDER_REFLECT_101)
-        
+        distorted = cv2.remap(
+            img_np,
+            map_x,
+            map_y,
+            interpolation=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_REFLECT_101,
+        )
+
         return Image.fromarray(distorted)
+
 
 # Custom PyTorch transform for salt and pepper noise
 class SaltPepperNoise:
     def __init__(self, prob=0.05):
         self.prob = prob
-    
+
     def __call__(self, img):
         img_np = np.array(img)
-        
+
         # Add salt noise
         salt = np.random.random(img_np.shape) < self.prob
         img_np[salt] = 255
-        
+
         # Add pepper noise
         pepper = np.random.random(img_np.shape) < self.prob
         img_np[pepper] = 0
-        
+
         return Image.fromarray(img_np)
 
+
 # Define advanced transformations for training
-transform_train = transforms.Compose([
-    transforms.RandomRotation(15),  # Randomly rotate by up to 15 degrees
-    transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),  # Random shifts
-    ElasticTransform(alpha=15.0, sigma=3.0),  # Elastic deformation
-    SaltPepperNoise(prob=0.01),  # Add salt and pepper noise
-    transforms.ColorJitter(brightness=0.2, contrast=0.2),  # Adjust brightness and contrast
-    transforms.RandomErasing(p=0.2, scale=(0.02, 0.1), ratio=(0.3, 3.3), value=0),  # Random erasing
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-])
+transform_train = transforms.Compose(
+    [
+        transforms.RandomRotation(15),  # Randomly rotate by up to 15 degrees
+        transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),  # Random shifts
+        ElasticTransform(alpha=15.0, sigma=3.0),  # Elastic deformation
+        SaltPepperNoise(prob=0.01),  # Add salt and pepper noise
+        transforms.ColorJitter(
+            brightness=0.2, contrast=0.2
+        ),  # Adjust brightness and contrast
+        transforms.ToTensor(),  # Convert to tensor first
+        transforms.Normalize((0.1307,), (0.3081,)),
+        transforms.RandomErasing(
+            p=0.2, scale=(0.02, 0.1), ratio=(0.3, 3.3), value=0
+        ),  # Random erasing (must be after ToTensor)
+    ]
+)
 
 # For test data, we only normalize (no augmentation needed)
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-])
+transform_test = transforms.Compose(
+    [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+)
 
 # Load the MNIST dataset with augmented transforms
-train_dataset = torchvision.datasets.MNIST(root='./data_gitignore', 
-                                          train=True, 
-                                          transform=transform_train, 
-                                          download=True)
+train_dataset = torchvision.datasets.MNIST(
+    root="./data_gitignore", train=True, transform=transform_train, download=True
+)
 
-test_dataset = torchvision.datasets.MNIST(root='./data_gitignore', 
-                                         train=False, 
-                                         transform=transform_test)
+test_dataset = torchvision.datasets.MNIST(
+    root="./data_gitignore", train=False, transform=transform_test
+)
+
 
 # Function to save sample augmented images
 def save_augmented_samples(num_samples=5):
     """Save augmented versions of sample images"""
-    # Get some samples
-    samples, _ = next(iter([[train_dataset[i][0], train_dataset[i][1]] for i in range(num_samples)]))
+    # Use a separate transform for visualization
+    vis_transform = transforms.Compose(
+        [
+            transforms.RandomRotation(15),
+            transforms.RandomAffine(degrees=0, translate=(0.1, 0.1)),
+            ElasticTransform(alpha=15.0, sigma=3.0),
+            SaltPepperNoise(prob=0.01),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2),
+            transforms.ToTensor(),
+        ]
+    )
     
+    # Create a temporary dataset with visualization transform
+    vis_dataset = torchvision.datasets.MNIST(
+        root="./data_gitignore", train=True, transform=vis_transform, download=False
+    )
+    
+    # Get some samples
+    samples = []
+    for i in range(num_samples):
+        img, _ = vis_dataset[i]
+        samples.append(img)
+
     plt.figure(figsize=(10, 8))
     for i, img in enumerate(samples):
-        plt.subplot(1, num_samples, i+1)
-        plt.imshow(img.squeeze().numpy(), cmap='gray')
+        plt.subplot(1, num_samples, i + 1)
+        plt.imshow(img.squeeze().numpy(), cmap="gray")
         plt.title(f"Sample {i+1}")
-        plt.axis('off')
-    
+        plt.axis("off")
+
     plt.tight_layout()
-    plt.savefig('tmp/augmented_samples.png')
+    plt.savefig("tmp/augmented_samples.png")
     plt.close()
-    
+
     print("Saved augmented samples to tmp/augmented_samples.png")
 
-# Create data loaders
-train_loader = DataLoader(dataset=train_dataset, 
-                          batch_size=64, 
-                          shuffle=True)
 
-test_loader = DataLoader(dataset=test_dataset, 
-                         batch_size=1000, 
-                         shuffle=False)
+# Create data loaders
+train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+
+test_loader = DataLoader(dataset=test_dataset, batch_size=1000, shuffle=False)
 
 # Save sample augmented images
 save_augmented_samples()
+
 
 # Use the same CNN model as before
 class CNN(nn.Module):
@@ -802,43 +832,43 @@ class CNN(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2)
-        
+
         # Second convolutional block
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm2d(64)
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2)
-        
+
         # Third convolutional block
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm2d(64)
         self.relu3 = nn.ReLU()
-        
+
         # Fully connected layers
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(64 * 7 * 7, 128)
         self.drop = nn.Dropout(0.5)
         self.relu4 = nn.ReLU()
         self.fc2 = nn.Linear(128, 10)
-        
+
     def forward(self, x):
         # First block
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu1(x)
         x = self.pool1(x)
-        
+
         # Second block
         x = self.conv2(x)
         x = self.bn2(x)
         x = self.relu2(x)
         x = self.pool2(x)
-        
+
         # Third block
         x = self.conv3(x)
         x = self.bn3(x)
         x = self.relu3(x)
-        
+
         # Fully connected
         x = self.flatten(x)
         x = self.fc1(x)
@@ -846,6 +876,7 @@ class CNN(nn.Module):
         x = self.relu4(x)
         x = self.fc2(x)
         return x
+
 
 # Create the model and move it to the device
 model = CNN().to(device)
@@ -863,21 +894,21 @@ for epoch in range(num_epochs):
         # Move tensors to the configured device
         images = images.to(device)
         labels = labels.to(device)
-        
+
         # Forward pass
         outputs = model(images)
         loss = criterion(outputs, labels)
-        
+
         # Backward and optimize
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
         running_loss += loss.item()
-        
+
     # Print statistics
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}')
-    
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}")
+
     # Validate the model
     model.eval()
     with torch.no_grad():
@@ -890,10 +921,10 @@ for epoch in range(num_epochs):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-        print(f'Accuracy on test set: {100 * correct / total:.2f}%')
+        print(f"Accuracy on test set: {100 * correct / total:.2f}%")
 
 # Save the trained model
-torch.save(model.state_dict(), 'mnist_augmented_model.pth')
+torch.save(model.state_dict(), "mnist_augmented_model.pth")
 print("Model saved to mnist_augmented_model.pth")
 ```
 

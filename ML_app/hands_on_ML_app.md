@@ -1086,7 +1086,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 3. **Run the Backend as a Background Service**:
    ```bash
    # Create a systemd service file for the backend
-   sudo nano /etc/systemd/system/mnist-backend.service
+   sudo touch /etc/systemd/system/mnist-backend.service
    ```
    
    Add the following content:
@@ -1127,7 +1127,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
 5. **Run the Frontend as a Background Service**:
    ```bash
    # Create a systemd service file for the frontend
-   sudo nano /etc/systemd/system/mnist-frontend.service
+   sudo touch /etc/systemd/system/mnist-frontend.service
    ```
    
    Add the following content:
@@ -1186,7 +1186,7 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
    - Point your domain to your VM's IP address using an A record
    - Consider setting up a reverse proxy with Nginx to serve your application on standard web ports (80/443)
 
-By following these steps, you'll have a fully functional machine learning web application running in the cloud, with both the backend and frontend on the same VM.
+By following these steps, you'll have a fully functional machine learning web application running in the cloud, with both the backend and frontend on the same VM, although, **ideally, the backend and frontend should be on different VMs**.
 
 ## Section 8: Docker Deployment for Backend
 

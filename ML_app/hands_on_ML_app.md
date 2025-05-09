@@ -1021,15 +1021,11 @@ AWS offers a generous free tier that allows you to run a t2.micro EC2 instance f
 Tencent Cloud Lighthouse offers an affordable and easy-to-use virtual machine suitable for lightweight applications:
 
 1. **Sign up for Tencent Cloud**:
-   - Create an account at [Tencent Cloud](https://cloud.tencent.com/)
-   - Verify your identity to access the services
+   - Login with WeChat scan code at [Tencent Cloud (https://cloud.tencent.com/)](https://cloud.tencent.com/)
 
 2. **Purchase a Lighthouse Instance**:
-   - Navigate to Lighthouse in the console
-   - Choose a region close to your target users
-   - Select Ubuntu 20.04 as the image
-   - Choose an appropriate configuration (1 core, 2GB RAM is sufficient for our app)
-   - Set a login password or use SSH key authentication
+   - Choose a region outside of China (e.g. Singapore)
+   - Select **Docker-based** Ubuntu 20.04 as the image
 
 3. **Set Up SSH Access**:
    - Generate SSH keys if you don't have them: `ssh-keygen`
@@ -1081,8 +1077,10 @@ Once you have access to either an AWS or Tencent Cloud VM, follow these steps to
    ```bash
    # On the server
    cd ~/app
-   pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
+   pip3 install torch torchvision fastapi uvicorn python-multipart streamlit streamlit-drawable-canvas opencv-python requests
    ```
+
+   No need for `pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple` since your VM is outside of China.
 
 3. **Run the Backend as a Background Service**:
    ```bash

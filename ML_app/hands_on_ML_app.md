@@ -503,7 +503,7 @@ Now, you have a separated frontend and backend. The frontend communicates with t
 ## Section 5: Improving the Model with CNN
 
 
-Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `cnn_train.ipynb`:
+Let's improve our model by using a Convolutional Neural Network (CNN). Create a new file called `LocalTrain_CNN.ipynb`:
 
 ```python
 import torch
@@ -661,7 +661,7 @@ model.eval()
 
 Data augmentation is a technique to increase the diversity of your training data by applying random transformations. This helps improve the model's ability to generalize to new data.
 
-Taking inspiration from `Data_Augmentation_LocalTrain.py`, let's implement more advanced augmentation techniques in PyTorch:
+Let's implement data augmentation techniques in PyTorch, in `LocalTrain_DataAugmentation.ipynb`:
 
 ```python
 import torch

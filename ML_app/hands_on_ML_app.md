@@ -410,7 +410,10 @@ python backend.py
 
 Once the backend is running, you can access the API documentation at http://localhost:8000/docs
 
-Try uploading a MNIST image (such as the "8.png" file) to the Swagger UI and checking the prediction result.
+**Try uploading a MNIST image (such as the "8.png" file) to the Swagger UI and checking the prediction result.**
+
+
+![](Readme_img/docs.png)
 
 ### Frontend with Streamlit
 

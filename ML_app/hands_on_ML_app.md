@@ -10,7 +10,7 @@ In this tutorial, we'll build a machine learning web application for digit recog
 - Use Docker for containerization
 
 
-## Section 0: Videos 
+## Section 0: Videos [Optional]
 
 ![](Readme_img/bilibili.PNG)
 

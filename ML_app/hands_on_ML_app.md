@@ -46,17 +46,6 @@ If you understand Chinese, or if you want to improve your Chinese while also imp
   - Video 14: https://www.bilibili.com/video/BV1pr4y177rK
 
 
-## Section 1: Get Inspired!
-
-
-
-Before diving into code, let's look at some inspiring machine learning applications:
-
-- [TensorFlow.js Demos](https://www.tensorflow.org/js) - Interactive ML in the browser
-- [Streamlit Gallery](https://streamlit.io/gallery) - Examples of what's possible with Streamlit
-- [TensorFlow Playground](https://playground.tensorflow.org) - Interactive visualization of neural networks
-- [Digit Recognition Web App](https://maneprajakta.github.io/Digit_Recognition_Web_App/) - Similar to what we'll build
-- [Neural Network Visualization](https://www.cs.ryerson.ca/~aharley/vis/fc/) - Beautiful visualization of neural networks
 
 ![](Readme_img/youtube.PNG)
 
@@ -77,6 +66,19 @@ Or, YouTube videos can be helpful as well:
 - Python ```requests``` package
   - https://www.youtube.com/watch?v=qriL9Qe8pJc
   
+
+
+## Section 1: Get Inspired!
+
+
+
+Before diving into code, let's look at some inspiring machine learning applications:
+
+- [TensorFlow.js Demos](https://www.tensorflow.org/js) - Interactive ML in the browser
+- [Streamlit Gallery](https://streamlit.io/gallery) - Examples of what's possible with Streamlit
+- [TensorFlow Playground](https://playground.tensorflow.org) - Interactive visualization of neural networks
+- [Digit Recognition Web App](https://maneprajakta.github.io/Digit_Recognition_Web_App/) - Similar to what we'll build
+- [Neural Network Visualization](https://www.cs.ryerson.ca/~aharley/vis/fc/) - Beautiful visualization of neural networks
 
 ## Section 2: Train a Model with PyTorch
 

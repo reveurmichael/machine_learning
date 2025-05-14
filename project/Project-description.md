@@ -37,7 +37,7 @@ It can be as simple as:
 But there are (hidden) pitfalls everywhere. So get your hands dirty is the most important thing.
 
 
-## what information can be get from yt-dlp --dump-json ?
+## [Optional] what information can be get from yt-dlp --dump-json ?
 
 | Field                | Description                                                              |
 | -------------------- | ------------------------------------------------------------------------ |

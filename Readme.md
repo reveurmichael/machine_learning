@@ -324,7 +324,7 @@ According to SHU rules, the distribution of notes is as follows:
 - 20% C (75-79)
 - 20% D/E/F
 
-Historical failure  rate:
+Historical failure rates:
 - 2021: 10%
 - 2023: 10%
 

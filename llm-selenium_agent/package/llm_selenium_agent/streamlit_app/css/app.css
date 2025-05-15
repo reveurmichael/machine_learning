@@ -1,0 +1,273 @@
+/* Sidebar title styling */
+.css-1d391kg {
+    font-size: 1.2rem !important;
+    padding: 1rem 0 !important;
+}
+
+.css-1oe5cao {  
+    padding: 0.5rem 0 !important;
+}
+
+[data-testid="stSidebarNav"] li {
+    padding: 0.4rem 0 !important;
+}
+
+/* Main header styling moved to common.css */
+
+/* Section header styling */
+.section-header {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Table styling */
+.table-content {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background-color: #FFFFFF;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #424242;
+}
+
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    color: #666666;
+    vertical-align: middle; 
+    text-align: center;
+}
+
+.table a {
+    color: #1E88E5;
+    text-decoration: none;
+    vertical-align: middle; 
+}
+
+.table a:hover {
+    text-decoration: underline;
+}
+
+/* Striped rows */
+.table-striped tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* Hover effect for table rows */
+.table tbody tr {
+    position: relative;
+    text-align: center; /* Moved from inline style */
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.table tbody tr:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.table td a {
+    color: #1E88E5;
+    text-decoration: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.table td a:hover {
+    background-color: #a3d2dd;
+}
+
+/* Number links styling */
+.table td a[href*="viewer"] {
+    font-weight: 500;
+    min-width: 2rem;
+    display: inline-block;
+}
+
+/* Rerun button styling */
+.table td a[href*="run_one_website"] {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.9rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    min-width: auto;
+    font-size: 0.9rem;
+}
+
+.table td a[href*="run_one_website"]:hover {
+    background-color: #8dcab7;
+    text-decoration: none;
+}
+
+/* Metrics styling */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.metric-container {
+    background: white;
+    padding: 20px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.metric-container:hover {
+    transform: translateY(-5px);
+}
+
+.metric-label {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0066cc;
+    margin-bottom: 8px;
+}
+
+
+.metric-value-remaining {
+    color: #ff9800;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.metric-value-error {
+    color: #ff4b4b;
+}
+
+.metric-value-success {
+    color: #4caf50;
+}
+
+.metric-total {
+    color: #888;
+    font-size: 16px;
+    margin-left: 5px;
+}
+
+.metric-download {
+    color: #9c27b0;
+}
+
+/* Run button styling */
+.run-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    margin-top: 10px; /* Added margin for spacing */
+}
+
+.run-button:hover {
+    background-color: #45a049;
+}
+
+/* Attention Required Message Styling */
+.attention-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.attention-message h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.attention-message p {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Metric link styling */
+.metric-container .metric-value-remaining a.metric-link-remaining {
+    color: #ff9800;
+    text-decoration: none;
+}
+
+.metric-container .metric-value-remaining a.metric-link-remaining:hover {
+    color: #ff9800;
+    text-decoration: none;
+}
+
+/* Red Run Button Styling */
+.run-button-red {
+    background-color: #ff4b4b;
+    color: rgb(255, 255, 255) !important;
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.run-button-red:hover {
+    background-color: #ff3333;
+    color: white !important;
+    text-decoration: none;
+}
+
+.button-icon {
+    margin-right: 10px;
+}
+

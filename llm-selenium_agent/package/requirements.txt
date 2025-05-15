@@ -1,0 +1,12 @@
+streamlit
+tqdm
+selenium
+pandas
+numpy
+webdriver_manager
+twocaptcha
+python-dotenv
+pillow
+beautifulsoup4
+pyyaml
+

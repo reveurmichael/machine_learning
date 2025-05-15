@@ -1,0 +1,29 @@
+[data-testid="stSidebarNav"]>ul {
+    display: none;
+}
+
+.sidebar-nav {
+    padding: 1rem 0;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    color: #666760;
+    text-decoration: none !important;
+    /* Prevent underline, even on hover */
+    display: block;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    margin: 0.2rem 0;
+}
+
+.nav-link:hover {
+    background-color: #f0f2f6;
+    color: #88555b;
+    text-decoration: none !important;
+}
+
+.nav-link.active {
+    background-color: #e6e9ef;
+    font-weight: 500;
+}

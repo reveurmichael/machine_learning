@@ -1,0 +1,9 @@
+/* Common header styling */
+.common-title {
+    text-align: center;
+    font-size: 2.5rem;
+    /* Same font size as in xlsx_viewer */
+    margin-bottom: 20px;
+    color: #4B8BF4;
+    /* Same color as in xlsx_viewer */
+}

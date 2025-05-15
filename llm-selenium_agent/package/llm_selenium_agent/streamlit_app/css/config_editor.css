@@ -1,0 +1,29 @@
+/* Section Header Styling */
+.section-header {
+    font-size: 1.5rem;
+    color: #1E88E5;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #1E88E5;
+    padding-bottom: 5px;
+}
+
+/* Subsection Header Styling */
+.subsection-header {
+    font-size: 1.2rem;
+    color: #333333;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 3px;
+}
+
+/* Config Viewer Styling */
+.config-viewer {
+    background-color: #eef2f3;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+}

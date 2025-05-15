@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+from llm_selenium_agent.scripts import *
+
+
+if __name__ == "__main__":
+    perform_initial_setup()

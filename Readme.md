@@ -317,13 +317,14 @@ Denoting your Continuous Assessments score as `T`, your project score as `P`, yo
 ```
 
 ### Distribution of notes
+According to SHU rules, the distribution of notes is as follows:
 - 10% A (90-100)
 - 20% A- (85-89)
 - 30% B (80-84)
 - 20% C (75-79)
 - 20% D/E/F
 
-Historical failing rate:
+Historical failure  rate:
 - 2021: 10%
 - 2023: 10%
 

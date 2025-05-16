@@ -1,6 +1,7 @@
-#!/usr/bin/env python
 """
 LLM-Guided YouTube Zero Views Finder
+
+https://www.youtube.com/shorts/vkwqgcm82WI
 
 This script demonstrates how to use a local LLM (via Ollama) to guide
 Selenium in searching for YouTube videos with zero views. The LLM analyzes
@@ -230,7 +231,7 @@ class LLMGuidedYouTubeScraper:
         self.driver = webdriver.Chrome(options=options)
         self.driver.implicitly_wait(10)
     
-    def get_page_html_snippet(self, max_length: int = 5000) -> str:
+    def get_page_html_snippet(self, max_length: int = 50000) -> str:
         """Get a snippet of the current page's HTML.
         
         Args:

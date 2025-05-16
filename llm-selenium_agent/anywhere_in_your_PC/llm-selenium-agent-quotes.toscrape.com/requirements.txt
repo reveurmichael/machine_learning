@@ -1,6 +1,0 @@
-openai
-requests
-llm-selenium-agent
-python-dotenv
-colorama
-pyfiglet

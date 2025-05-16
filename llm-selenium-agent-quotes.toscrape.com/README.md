@@ -23,13 +23,7 @@ This project demonstrates how to use a local or cloud LLM to guide web navigatio
 
 1. Clone the repository and navigate to the project directory
 
-2. Install the required dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Edit the `.env` file with your API credentials:
+2. Edit the `.env` file with your API credentials:
 
    ```
    # For Hunyuan

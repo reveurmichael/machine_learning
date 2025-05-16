@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Quotes.toscrape.com Scraper
 

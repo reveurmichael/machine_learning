@@ -1,0 +1,132 @@
+2025-05-16 14:09:10,485 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,485 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,486 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,486 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:09:10,487 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:09:10,487 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,487 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,487 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,487 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:09:10,487 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,488 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,488 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:09:10,489 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:09:10,489 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,489 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:10,489 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:09:10,489 - INFO - Local ChromeDriver found.
+2025-05-16 14:09:12,578 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:12,581 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:12,583 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:09:12,583 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:09:54,287 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1569e2cb0>,) and kwargs: {}
+2025-05-16 14:20:48,624 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,624 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,625 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,625 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:20:48,626 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:20:48,626 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,626 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,626 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,626 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:20:48,626 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,626 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,627 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:20:48,628 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:20:48,628 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,628 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:48,628 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:20:48,628 - INFO - Local ChromeDriver found.
+2025-05-16 14:20:50,960 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:50,962 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:20:50,963 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:20:50,964 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:25:02,066 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x13f1e3760>,) and kwargs: {}
+2025-05-16 14:25:23,699 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,700 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,700 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,701 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:25:23,701 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:25:23,701 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,701 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,701 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,701 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:25:23,701 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,702 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,702 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:25:23,703 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:25:23,703 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,703 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:23,703 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:25:23,703 - INFO - Local ChromeDriver found.
+2025-05-16 14:25:25,990 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:25,990 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:25,991 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:25:25,991 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:25:53,111 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x151de38b0>,) and kwargs: {}
+2025-05-16 14:37:00,624 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,624 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,625 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,625 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:37:00,625 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:37:00,626 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,626 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,626 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,626 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:37:00,626 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,626 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,626 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:37:00,627 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:37:00,627 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,627 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:00,628 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:37:00,628 - INFO - Local ChromeDriver found.
+2025-05-16 14:37:02,702 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:02,703 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:02,705 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:37:02,705 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:37:21,817 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1333e3880>,) and kwargs: {}
+2025-05-16 14:38:22,571 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,571 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,572 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,572 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:38:22,572 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:38:22,572 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,572 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,573 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,573 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:38:22,573 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,573 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,573 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:38:22,574 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:38:22,574 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,574 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:22,574 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:38:22,575 - INFO - Local ChromeDriver found.
+2025-05-16 14:38:24,610 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:24,612 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:38:24,613 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:38:24,613 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:40:27,142 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1210fb8e0>,) and kwargs: {}
+2025-05-16 14:59:55,581 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,581 - DEBUG - Called function: __init__ with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,582 - DEBUG - Called function: initialize_tmp_downloads_directory with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,582 - INFO - Temporary downloads directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/tmp_downloads
+2025-05-16 14:59:55,583 - DEBUG - Called function: get_twocaptcha_api_key with args: () and kwargs: {}
+2025-05-16 14:59:55,583 - DEBUG - Called function: get_site_name with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,583 - DEBUG - Called function: prepare_environment with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,583 - DEBUG - Called function: initialize_task_download_directory with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,583 - INFO - Task download directory: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver
+2025-05-16 14:59:55,583 - DEBUG - Called function: setup_logging with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,583 - DEBUG - Called function: load_secret_credentials with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,584 - INFO - Secret credentials loaded successfully.
+2025-05-16 14:59:55,584 - INFO - Copied config.yml to /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/2025-05-16_SeleniumDriver/config.yml
+2025-05-16 14:59:55,584 - DEBUG - Called function: initialize_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,584 - DEBUG - Called function: setup_options with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:55,584 - DEBUG - Called function: get_chrome_service_instance with args: () and kwargs: {}
+2025-05-16 14:59:55,585 - INFO - Local ChromeDriver found.
+2025-05-16 14:59:57,769 - DEBUG - Called function: setup_screenshot_service with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:57,771 - DEBUG - Called function: remove_existing_log_file with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 14:59:57,772 - INFO - Emptied existing log file: /Users/lunde/Documents/GitHub/llm-agent-tutorial/llm-selenium-agent-quotes.toscrape.com/2025-05-16/SeleniumDriver.log
+2025-05-16 14:59:57,772 - DEBUG - Called function: navigate_to_url with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}
+2025-05-16 15:02:27,404 - DEBUG - Called function: terminate_webdriver with args: (<selenium_driver.SeleniumDriver object at 0x1495e3970>,) and kwargs: {}

@@ -113,118 +113,167 @@ class SeleniumDriver(BaseSeleniumChrome):
             print(f"Error preparing environment: {e}")
             return False
     
-    def get_page_html_snippet(self, max_length: int = 50000) -> str:
-        """Get a snippet of the current page's HTML.
+    def get_page_html_snippet(self, max_length: int = 30000) -> str:
+        """Get a simplified HTML snippet of the current page.
         
         Args:
             max_length: Maximum length of the HTML snippet to return
-        
-        Returns:
-            A string containing a portion of the page's HTML
-        """
-        html = self.driver.page_source
-        
-        # Get a reasonable snippet that's not too large
-        if len(html) > max_length:
-            # Try to find main content area based on YouTube's layout
-            try:
-                if "youtube.com/results" in self.driver.current_url:
-                    # For search results page
-                    main_content = self.driver.find_element(By.ID, "contents").get_attribute("outerHTML")
-                elif "youtube.com/watch" in self.driver.current_url:
-                    # For video page
-                    main_content = self.driver.find_element(By.ID, "primary").get_attribute("outerHTML")
-                else:
-                    # Default to body content
-                    main_content = self.driver.find_element(By.TAG_NAME, "body").get_attribute("outerHTML")
-                
-                # Enhance the snippet with view count information
-                if "youtube.com/results" in self.driver.current_url:
-                    try:
-                        main_content = self.enhance_html_with_view_counts(main_content)
-                    except Exception as e:
-                        print(f"Error enhancing HTML with view counts: {e}")
-                
-                return main_content[:max_length]
-            except:
-                # Fall back to truncating the whole HTML
-                return html[:max_length] + "..."
-        
-        return html
-    
-    def enhance_html_with_view_counts(self, html_content: str) -> str:
-        """Parse the HTML to extract and highlight videos with specific view counts.
-        
-        Args:
-            html_content: HTML content to parse
             
         Returns:
-            Enhanced HTML content with view count information
+            A simplified HTML string with only relevant video information
         """
-        soup = BeautifulSoup(html_content, 'html.parser')
+        # Get the page source
+        html = self.driver.page_source
         
-        # Find all video renderer elements
-        video_renderers = soup.find_all('div', id=lambda x: x and 'video-renderer' in x)
+        # Parse with BeautifulSoup to extract only relevant information
+        soup = BeautifulSoup(html, 'html.parser')
         
-        for renderer in video_renderers:
+        # Check if we're on a search results page or video page
+        if "/watch" in self.driver.current_url:
+            # We're on a video page - extract only relevant information about the current video
+            # and video recommendations
+            
+            # Current video information
+            current_video_info = {}
             try:
-                # Try to find the view count
-                view_count_element = renderer.select_one('span.style-scope.ytd-video-meta-block:not(#metadata-line)')
+                # Get video title
+                title_element = soup.select_one('h1.ytd-watch-metadata yt-formatted-string')
+                current_video_info['title'] = title_element.text.strip() if title_element else "Unknown title"
                 
-                if view_count_element:
-                    view_count_text = view_count_element.text.strip()
-                    
-                    # Extract the numeric view count
-                    view_count = 0
-                    if 'No views' in view_count_text or '0 views' in view_count_text:
-                        view_count = 0
-                    else:
-                        # Parse the number from strings like "123 views" or "1.2K views"
-                        numeric_part = re.search(r'([\d,\.]+)', view_count_text)
-                        if numeric_part:
-                            number_str = numeric_part.group(1).replace(',', '')
-                            if 'K' in view_count_text:
-                                # Handle cases like 1.2K = 1,200 or 22K = 22,000
-                                view_count = int(float(number_str) * 1000)
-                            elif 'M' in view_count_text:
-                                # Handle cases like 1.2M = 1,200,000 or 22M = 22,000,000
-                                view_count = int(float(number_str) * 1000000)
-                            elif 'B' in view_count_text:
-                                # Handle billion view counts
-                                view_count = int(float(number_str) * 1000000000)
-                            else:
-                                view_count = int(float(number_str))
-                    
-                    # Get video title and add view count as a comment
-                    title_element = renderer.select_one('a#video-title')
-                    if title_element and view_count is not None:
-                        title_element.string = f"{title_element.text.strip()} <!-- VIEW_COUNT: {view_count} -->"
-                        
-                        # Add visual indicator for videos with view count close to target
-                        # Use adaptive range based on target view count
-                        if self.target_views < 100:
-                            # For very low view counts, use a smaller absolute range
-                            close_range = 5
-                        elif self.target_views < 1000:
-                            # For double-digit counts, use 10% range
-                            close_range = max(5, int(self.target_views * 0.1))
-                        elif self.target_views < 10000:
-                            # For triple-digit counts, use 5% range
-                            close_range = max(10, int(self.target_views * 0.05))
-                        else:
-                            # For larger counts, use 2% range
-                            close_range = max(20, int(self.target_views * 0.02))
-                            
-                        if abs(view_count - self.target_views) <= close_range:
-                            # Add a special marker for view counts close to target
-                            title_element['style'] = "border: 2px solid red; background-color: yellow;"
-                            # Add a comment to highlight to the LLM
-                            comment = soup.new_string(f" (POTENTIAL MATCH: {view_count} views, target: {self.target_views}) ")
-                            title_element.append(comment)
+                # Get view count
+                view_count_element = soup.select_one('span.view-count')
+                current_video_info['views'] = view_count_element.text.strip() if view_count_element else "Unknown views"
+                
+                # Get channel name
+                channel_element = soup.select_one('ytd-channel-name yt-formatted-string a')
+                current_video_info['channel'] = channel_element.text.strip() if channel_element else "Unknown channel"
             except Exception as e:
-                print(f"Error processing video renderer: {e}")
+                print(f"Error extracting current video info: {e}")
+            
+            # Get recommended videos
+            recommended_videos = []
+            try:
+                # Find recommendation sections
+                recommendations = soup.select('ytd-compact-video-renderer')
+                
+                # Process up to 10 recommendations to keep the size reasonable
+                for i, video in enumerate(recommendations[:10]):
+                    video_data = {}
+                    
+                    # Title
+                    title_element = video.select_one('span#video-title')
+                    video_data['title'] = title_element.text.strip() if title_element else f"Video {i+1}"
+                    
+                    # View count - various ways YouTube might display this
+                    view_element = video.select_one('span.ytd-video-meta-block')
+                    if view_element:
+                        video_data['views'] = view_element.text.strip()
+                    else:
+                        # Try alternative selector
+                        view_element = video.select_one('.metadata-snippet-container span')
+                        video_data['views'] = view_element.text.strip() if view_element else "Unknown views"
+                    
+                    recommended_videos.append(video_data)
+            except Exception as e:
+                print(f"Error extracting recommendations: {e}")
+            
+            # Create a simplified HTML structure with the extracted information
+            simplified_html = f"""
+            <div class="current-video">
+                <h1>{current_video_info.get('title', 'Unknown title')}</h1>
+                <div class="video-info">
+                    <span class="view-count">{current_video_info.get('views', 'Unknown views')}</span>
+                    <span class="channel">{current_video_info.get('channel', 'Unknown channel')}</span>
+                </div>
+            </div>
+            <div class="recommended-videos">
+                <h2>Recommended Videos</h2>
+                <ul>
+            """
+            
+            # Add recommended videos
+            for i, video in enumerate(recommended_videos):
+                simplified_html += f"""
+                    <li class="recommendation" id="recommendation-{i+1}">
+                        <div class="video-title">{video.get('title', f'Video {i+1}')}</div>
+                        <div class="video-views">{video.get('views', 'Unknown views')}</div>
+                    </li>
+                """
+            
+            simplified_html += """
+                </ul>
+            </div>
+            """
+            
+        else:
+            # We're on a search results or home page - extract video results
+            videos = []
+            try:
+                # Find video elements - this selector may need adjustment based on YouTube's structure
+                video_elements = soup.select('ytd-video-renderer')
+                
+                # Process up to 20 videos to keep the response size reasonable
+                for i, video in enumerate(video_elements[:20]):
+                    video_data = {}
+                    
+                    # Title
+                    title_element = video.select_one('a#video-title')
+                    video_data['title'] = title_element.text.strip() if title_element else f"Video {i+1}"
+                    
+                    # URL
+                    if title_element and title_element.has_attr('href'):
+                        video_data['url'] = title_element['href']
+                    
+                    # View count - try different possible selectors
+                    view_element = video.select_one('span.style-scope.ytd-video-meta-block')
+                    if view_element:
+                        video_data['views'] = view_element.text.strip()
+                    else:
+                        meta_block = video.select_one('#metadata-line')
+                        if meta_block:
+                            spans = meta_block.select('span')
+                            if len(spans) >= 1:
+                                video_data['views'] = spans[0].text.strip()
+                    
+                    # Channel name
+                    channel_element = video.select_one('#channel-name yt-formatted-string')
+                    video_data['channel'] = channel_element.text.strip() if channel_element else "Unknown channel"
+                    
+                    # Upload time
+                    upload_element = video.select_one('#metadata-line span:nth-child(2)')
+                    video_data['uploaded'] = upload_element.text.strip() if upload_element else "Unknown upload time"
+                    
+                    videos.append(video_data)
+            except Exception as e:
+                print(f"Error extracting search results: {e}")
+            
+            # Create a simplified HTML structure with the extracted information
+            simplified_html = f"""
+            <div class="search-results">
+                <h2>Search Results</h2>
+                <ul>
+            """
+            
+            # Add videos
+            for i, video in enumerate(videos):
+                simplified_html += f"""
+                    <li class="video-result" id="video-{i+1}">
+                        <a href="{video.get('url', '#')}" class="video-title">{video.get('title', f'Video {i+1}')}</a>
+                        <div class="video-info">
+                            <span class="video-views">{video.get('views', 'Unknown views')}</span>
+                            <span class="video-channel">{video.get('channel', 'Unknown channel')}</span>
+                            <span class="video-uploaded">{video.get('uploaded', 'Unknown upload time')}</span>
+                        </div>
+                    </li>
+                """
+            
+            simplified_html += """
+                </ul>
+            </div>
+            """
         
-        return str(soup)
+        # Return the simplified HTML, constrained by max_length
+        return simplified_html[:max_length]
     
     def are_videos_present(self) -> bool:
         """Check if there are any videos present on the current page.
@@ -262,8 +311,10 @@ class SeleniumDriver(BaseSeleniumChrome):
         try:
             # Try to use the screenshot service if it exists
             if hasattr(self, 'screenshot_service') and self.screenshot_service:
-                self.screenshot_service.capture_screenshot(self.screenshots_dir, filename)
-                print(f"Saved screenshot using service to {os.path.join(self.screenshots_dir, filename)}")
+                # Fix: Create full path and save directly instead of using service
+                screenshot_path = os.path.join(self.screenshots_dir, filename)
+                self.driver.save_screenshot(screenshot_path)
+                print(f"Saved screenshot to {screenshot_path}")
             else:
                 # Fall back to direct screenshot
                 screenshot_path = os.path.join(self.screenshots_dir, filename)
@@ -384,30 +435,64 @@ class SeleniumDriver(BaseSeleniumChrome):
             Tuple of (video_position_or_title, view_count) or None if no videos found
         """
         try:
-            # Get the page source
+            # Get the page source directly instead of parsing it again
             html = self.driver.page_source
             soup = BeautifulSoup(html, 'html.parser')
             
             # Find all video renderer elements
             videos = []
+            video_renderers = []
             
-            # First try to get all video renderers
-            video_renderers = soup.find_all('div', id=lambda x: x and 'video-renderer' in x)
+            # First try to find the main video elements
+            video_elements = soup.select('ytd-video-renderer')
             
-            for i, renderer in enumerate(video_renderers):
+            # If we don't find any with that selector, try other common selectors
+            if not video_elements:
+                # Try for grid-style videos
+                video_elements = soup.select('ytd-rich-grid-media')
+                
+                # If still no results, try another pattern for video elements
+                if not video_elements:
+                    video_elements = soup.select('ytd-compact-video-renderer')
+            
+            # Now process all the video elements we found
+            for i, video in enumerate(video_elements):
                 try:
                     # Get title
-                    title_element = renderer.select_one('a#video-title')
+                    title_element = video.select_one('a#video-title')
+                    if not title_element:
+                        title_element = video.select_one('#video-title')
+                    
                     title = title_element.text.strip() if title_element else f"Video {i+1}"
                     
-                    # Try to find the view count
-                    view_count_element = renderer.select_one('span.style-scope.ytd-video-meta-block:not(#metadata-line)')
+                    # Get the view count - try multiple possible selectors since YouTube has many formats
+                    view_count_text = None
                     
-                    view_count = None  # Default to None to identify unprocessed videos
-                    if view_count_element:
-                        view_count_text = view_count_element.text.strip()
-                        
-                        # Parse the view count
+                    # First try the metadata line
+                    meta_block = video.select_one('#metadata-line')
+                    if meta_block:
+                        spans = meta_block.select('span')
+                        if spans:
+                            for span in spans:
+                                if 'view' in span.text.lower():
+                                    view_count_text = span.text.strip()
+                                    break
+                    
+                    # If that didn't work, try other common selectors
+                    if not view_count_text:
+                        view_element = video.select_one('.ytd-video-meta-block')
+                        if view_element:
+                            view_count_text = view_element.text.strip()
+                    
+                    # If still no view count, try one more selector
+                    if not view_count_text:
+                        view_element = video.select_one('span:contains("views")')
+                        if view_element:
+                            view_count_text = view_element.text.strip()
+                    
+                    # Parse the view count
+                    view_count = None
+                    if view_count_text:
                         if 'No views' in view_count_text or '0 views' in view_count_text:
                             view_count = 0
                         else:
@@ -424,114 +509,106 @@ class SeleniumDriver(BaseSeleniumChrome):
                                 else:
                                     view_count = int(float(number_str))
                     
-                    # Calculate upload recency score (0-10) based on upload time text if available
-                    recency_score = 0
-                    upload_time_element = renderer.select_one('span.style-scope.ytd-video-meta-block')
-                    if upload_time_element:
-                        upload_text = upload_time_element.text.lower()
-                        if 'minute' in upload_text or 'second' in upload_text:
-                            recency_score = 10
-                        elif 'hour' in upload_text and 'ago' in upload_text:
-                            # Extract the number of hours
-                            hours_match = re.search(r'(\d+)\s+hour', upload_text)
-                            if hours_match and int(hours_match.group(1)) <= 3:
-                                recency_score = 8
-                            else:
-                                recency_score = 6
-                        elif 'day' in upload_text and 'ago' in upload_text:
-                            days_match = re.search(r'(\d+)\s+day', upload_text)
-                            if days_match and int(days_match.group(1)) <= 1:
-                                recency_score = 5
-                            else:
-                                recency_score = 3
-                        elif 'today' in upload_text:
-                            recency_score = 7
-                        elif 'yesterday' in upload_text:
-                            recency_score = 4
-                    
-                    # Only include videos where we could parse a view count
+                    # Skip if we couldn't determine the view count
                     if view_count is not None:
-                        # Calculate a combined score based on closeness to target views and recency
-                        if self.target_views == 0:
-                            # For 0 target views, prioritize absolute lowest view counts
-                            closeness_score = 10 if view_count == 0 else (10 / (view_count + 1))
-                        else:
-                            # For non-zero targets, calculate relative closeness
-                            # Lower difference = higher score (max 10)
-                            view_difference = abs(view_count - self.target_views)
-                            # Scale the difference relative to the target
-                            relative_difference = view_difference / max(1, self.target_views)
-                            closeness_score = 10 * (1 / (1 + relative_difference))
-                        
-                        # Combined score: 70% closeness to target, 30% recency
-                        combined_score = (closeness_score * 0.7) + (recency_score * 0.3)
-                        
                         videos.append({
-                            "position": i+1,
-                            "title": title,
-                            "view_count": view_count,
-                            "view_difference": abs(view_count - self.target_views),
-                            "recency_score": recency_score,
-                            "closeness_score": closeness_score,
-                            "combined_score": combined_score
+                            'position': i + 1,
+                            'title': title,
+                            'view_count': view_count
                         })
-                    
+                        
                 except Exception as e:
-                    print(f"Error parsing video {i}: {e}")
+                    print(f"Error processing video {i+1}: {e}")
+                    continue
             
-            # Log the video data for debugging
+            # If no videos were found or processed successfully, fallback to direct DOM access
+            if not videos:
+                print("No videos found using BeautifulSoup parsing, falling back to direct DOM access")
+                
+                # Try to get video elements directly from DOM
+                video_elements = self.driver.find_elements(By.CSS_SELECTOR, 'ytd-video-renderer, ytd-rich-grid-media, ytd-compact-video-renderer')
+                
+                for i, video_element in enumerate(video_elements):
+                    try:
+                        # Get title
+                        title_element = video_element.find_element(By.ID, "video-title")
+                        title = title_element.text.strip() if title_element else f"Video {i+1}"
+                        
+                        # Try to find view count
+                        try:
+                            metadata = video_element.find_element(By.ID, "metadata-line")
+                            spans = metadata.find_elements(By.TAG_NAME, "span")
+                            if spans and len(spans) > 0:
+                                view_count_text = spans[0].text
+                            else:
+                                view_count_text = None
+                        except:
+                            view_count_text = None
+                        
+                        # Parse the view count
+                        view_count = None
+                        if view_count_text:
+                            if 'No views' in view_count_text or '0 views' in view_count_text:
+                                view_count = 0
+                            else:
+                                # Parse the number from strings like "123 views" or "1.2K views"
+                                numeric_part = re.search(r'([\d,\.]+)', view_count_text)
+                                if numeric_part:
+                                    number_str = numeric_part.group(1).replace(',', '')
+                                    if 'K' in view_count_text:
+                                        view_count = int(float(number_str) * 1000)
+                                    elif 'M' in view_count_text:
+                                        view_count = int(float(number_str) * 1000000)
+                                    elif 'B' in view_count_text:
+                                        view_count = int(float(number_str) * 1000000000)
+                                    else:
+                                        view_count = int(float(number_str))
+                        
+                        # Skip if we couldn't determine the view count
+                        if view_count is not None:
+                            videos.append({
+                                'position': i + 1,
+                                'title': title,
+                                'view_count': view_count
+                            })
+                            
+                    except Exception as e:
+                        print(f"Error processing DOM video {i+1}: {e}")
+                        continue
+            
+            # If we have videos with view counts, find the one closest to our target
             if videos:
-                print(f"Found {len(videos)} videos with parseable view counts")
-                for video in sorted(videos, key=lambda x: x["combined_score"], reverse=True)[:3]:
-                    print(f"Title: {video['title'][:30]}... | Views: {video['view_count']} | " 
-                          f"Diff: {video['view_difference']} | Score: {video['combined_score']:.2f}")
+                # Sort videos by how close they are to the target view count
+                videos.sort(key=lambda x: abs(x['view_count'] - self.target_views))
+                
+                # Get the closest match
+                closest_video = videos[0]
+                
+                # Log the closest video
+                print(f"Found video closest to {self.target_views} views: '{closest_video['title']}' with {closest_video['view_count']} views")
+                
+                # Return the position and view count
+                return (f"Video {closest_video['position']}", closest_video['view_count'])
             else:
-                print("No videos with parseable view counts found on this page")
-            
-            # Sort by combined score (descending)
-            videos.sort(key=lambda x: x["combined_score"], reverse=True)
-            
-            # Return the best match
-            if videos:
-                best_match = videos[0]
-                position = best_match["position"]
-                title = best_match["title"]
-                view_count = best_match["view_count"]
+                print("No videos with view counts found on this page")
+                return None
                 
-                print(f"Best match: '{title}' with {view_count} views (target: {self.target_views})")
-                
-                # If title is unique enough, use it; otherwise use position
-                title_counts = {}
-                for v in videos:
-                    if v["title"] in title_counts:
-                        title_counts[v["title"]] += 1
-                    else:
-                        title_counts[v["title"]] = 1
-                
-                if title_counts.get(title, 0) > 1:
-                    # Title isn't unique, use position
-                    return (str(position), view_count)
-                else:
-                    # Title is unique, use it
-                    return (title, view_count)
-            
-            return None
-            
         except Exception as e:
-            print(f"Error finding video with target views: {e}")
+            print(f"Error finding video with closest views: {e}")
             return None
     
     def open_video(self, video_identifier: str) -> bool:
         """Open a specific video from the current page.
         
         Args:
-            video_identifier: Description of which video to open (position or title keywords)
+            video_identifier: Description of which video to open (position, title keywords, or "closest views")
             
         Returns:
             Boolean indicating success
         """
         try:
             video_index = None
+            video_elements = []
             
             # Check if this is a request for the video with view count closest to target
             if video_identifier.lower() in ["lowest views", "lowest view count", "least views", "fewest views", 
@@ -542,8 +619,47 @@ class SeleniumDriver(BaseSeleniumChrome):
                     video_identifier, view_count = best_match_info
                     print(f"Found video with view count closest to target: {video_identifier} ({view_count} views)")
             
+            # Try multiple selectors to find video elements
+            selectors = [
+                "a#video-title",  # Standard search results
+                "#video-title",    # Alternative format
+                "ytd-compact-video-renderer a",  # Recommended videos
+                "ytd-grid-video-renderer a"      # Grid layout videos
+            ]
+            
+            # Try each selector until we find elements
+            for selector in selectors:
+                try:
+                    video_elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
+                    if video_elements and len(video_elements) > 0:
+                        print(f"Found {len(video_elements)} videos using selector: {selector}")
+                        break
+                except Exception as e:
+                    print(f"Error with selector {selector}: {e}")
+            
+            if not video_elements:
+                print("Could not find any video elements using standard selectors")
+                # Last resort - try any clickable link
+                try:
+                    video_elements = self.driver.find_elements(By.CSS_SELECTOR, "a.yt-simple-endpoint")
+                    print(f"Found {len(video_elements)} generic video links")
+                except:
+                    pass
+            
+            if not video_elements:
+                print("Failed to find any videos to click")
+                return False
+            
             # Different strategies for identifying the video
-            if video_identifier.lower().startswith(("first", "1st")):
+            if video_identifier.lower().startswith("video "):
+                # Handle "Video N" format from our find_video_with_closest_views function
+                try:
+                    num_part = video_identifier.lower().replace("video ", "").strip()
+                    if num_part.isdigit():
+                        video_index = int(num_part) - 1
+                except:
+                    pass
+            elif video_identifier.lower().startswith(("first", "1st")):
                 video_index = 0
             elif video_identifier.lower().startswith(("second", "2nd")):
                 video_index = 1
@@ -557,46 +673,91 @@ class SeleniumDriver(BaseSeleniumChrome):
                 video_index = int(video_identifier) - 1
             else:
                 # Try to find by title keywords
-                video_elements = WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
-                    EC.presence_of_all_elements_located((By.ID, "video-title"))
-                )
-                
                 for i, video in enumerate(video_elements):
-                    title = video.get_attribute("title")
-                    if title and all(keyword.lower() in title.lower() for keyword in video_identifier.split()):
-                        video_index = i
-                        break
-                
-                if video_index is None:
-                    print(f"Could not find video matching: {video_identifier}")
-                    # Default to the first video if none found matching the description
-                    video_index = 0
+                    try:
+                        title = video.get_attribute("title") or video.get_attribute("aria-label") or video.text
+                        if title and all(keyword.lower() in title.lower() for keyword in video_identifier.split()):
+                            video_index = i
+                            break
+                    except:
+                        continue
             
-            # Get video elements and click on the selected one
-            video_elements = WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
-                EC.presence_of_all_elements_located((By.ID, "video-title"))
-            )
+            # If we still haven't found a specific video, default to the first one
+            if video_index is None or video_index < 0:
+                print(f"Could not identify specific video for: {video_identifier}, defaulting to first video")
+                video_index = 0
             
+            # Make sure we don't exceed the number of available videos
             if video_index >= len(video_elements):
-                video_index = 0  # Default to first if index is out of range
+                video_index = len(video_elements) - 1
             
-            # Get the title before clicking
-            video_title = video_elements[video_index].get_attribute("title")
-            
-            # Try to click the video
+            # Get the title before clicking (try multiple approaches)
+            video_title = "Unknown Title"
             try:
-                video_elements[video_index].click()
-            except ElementClickInterceptedException:
-                # If direct click fails, try with JavaScript
-                self.driver.execute_script("arguments[0].click();", video_elements[video_index])
+                title_attrs = ["title", "aria-label", "text", "textContent", "innerHTML"]
+                for attr in title_attrs:
+                    try:
+                        if attr in ["text", "textContent", "innerHTML"]:
+                            video_title = getattr(video_elements[video_index], attr, "")
+                        else:
+                            video_title = video_elements[video_index].get_attribute(attr)
+                        
+                        if video_title and len(video_title) > 0:
+                            # Clean up common patterns in aria-label that include duration
+                            if " by " in video_title:
+                                video_title = video_title.split(" by ")[0]
+                            if " - Duration: " in video_title:
+                                video_title = video_title.split(" - Duration: ")[0]
+                            break
+                    except:
+                        continue
+            except:
+                video_title = f"Video {video_index + 1}"
+            
+            print(f"Attempting to click video: {video_title}")
+            
+            # Try to click the video with multiple strategies
+            click_success = False
+            click_strategies = [
+                # Strategy 1: Regular click
+                lambda elem: elem.click(),
+                # Strategy 2: JavaScript click
+                lambda elem: self.driver.execute_script("arguments[0].click();", elem),
+                # Strategy 3: Navigate to href
+                lambda elem: self.driver.get(elem.get_attribute("href")),
+                # Strategy 4: Send enter key
+                lambda elem: elem.send_keys(Keys.ENTER)
+            ]
+            
+            for strategy_index, click_strategy in enumerate(click_strategies):
+                try:
+                    print(f"Trying click strategy {strategy_index + 1}...")
+                    click_strategy(video_elements[video_index])
+                    # Wait a moment to see if navigation happens
+                    time.sleep(2)
+                    # Check if we've navigated to a video page
+                    if "/watch" in self.driver.current_url:
+                        click_success = True
+                        break
+                except Exception as e:
+                    print(f"Click strategy {strategy_index + 1} failed: {e}")
+                    continue
+            
+            if not click_success:
+                print("All click strategies failed to open video")
+                return False
             
             # Wait for video page to load
-            WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
-                EC.presence_of_element_located((By.ID, "movie_player"))
-            )
+            try:
+                WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
+                    EC.presence_of_element_located((By.ID, "movie_player"))
+                )
+            except:
+                print("Warning: Could not detect movie player, but URL suggests we're on a video page")
             
             # Take a screenshot of the video page
-            self.take_screenshot(f"video_{video_title[:30].replace(' ', '_')}.png")
+            safe_title = ''.join(c if c.isalnum() or c == ' ' else '_' for c in video_title[:30]).strip()
+            self.take_screenshot(f"video_{safe_title}.png")
             
             # Check the view count
             views = self.get_view_count()
@@ -631,16 +792,101 @@ class SeleniumDriver(BaseSeleniumChrome):
             Number of views, or 0 if unable to determine
         """
         try:
-            # Wait for view count to be available
-            WebDriverWait(self.driver, 5).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "span.view-count"))
-            )
+            # Multiple attempts to find view count with different selectors
+            view_count_text = None
             
-            # Get the view count text
-            view_count_element = self.driver.find_element(By.CSS_SELECTOR, "span.view-count")
-            view_count_text = view_count_element.text
+            # Try approach 1: Standard view-count span
+            try:
+                # Wait for view count to be available
+                view_count_element = WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "span.view-count"))
+                )
+                view_count_text = view_count_element.text
+                print(f"Found view count using standard selector: {view_count_text}")
+            except:
+                pass
+                
+            # Try approach 2: Info text for new videos
+            if not view_count_text:
+                try:
+                    info_element = self.driver.find_element(By.ID, "info-text")
+                    info_text = info_element.text
+                    if "views" in info_text.lower():
+                        view_parts = info_text.split("\n")
+                        for part in view_parts:
+                            if "views" in part.lower():
+                                view_count_text = part.strip()
+                                print(f"Found view count in info text: {view_count_text}")
+                                break
+                except:
+                    pass
             
-            # Extract the number from text like "123,456 views"
+            # Try approach 3: Count info in metadata
+            if not view_count_text:
+                try:
+                    meta_elements = self.driver.find_elements(By.CSS_SELECTOR, "#metadata-line span")
+                    for elem in meta_elements:
+                        if "view" in elem.text.lower():
+                            view_count_text = elem.text
+                            print(f"Found view count in metadata: {view_count_text}")
+                            break
+                except:
+                    pass
+            
+            # Try approach 4: View count in video description
+            if not view_count_text:
+                try:
+                    # Parse with BeautifulSoup for more flexibility
+                    html = self.driver.page_source
+                    soup = BeautifulSoup(html, 'html.parser')
+                    
+                    # Look for elements containing view count text
+                    view_elements = soup.find_all(string=lambda text: isinstance(text, str) and 'views' in text.lower())
+                    
+                    if view_elements:
+                        # Get the first element that looks like a view count
+                        for elem in view_elements:
+                            elem_text = elem.strip()
+                            if re.search(r'\d+\s+views', elem_text):
+                                view_count_text = elem_text
+                                print(f"Found view count with BeautifulSoup: {view_count_text}")
+                                break
+                except Exception as e:
+                    print(f"BeautifulSoup view count extraction failed: {e}")
+            
+            # If we still don't have a view count, check the title attribute
+            if not view_count_text:
+                try:
+                    title_element = self.driver.find_element(By.CSS_SELECTOR, ".title.ytd-video-primary-info-renderer")
+                    title_attrs = [title_element.get_attribute("title"), title_element.get_attribute("aria-label")]
+                    
+                    for attr in title_attrs:
+                        if attr and "views" in attr.lower():
+                            # Extract the part with views
+                            view_pattern = re.search(r'(\d[\d,\.]*\s+views)', attr)
+                            if view_pattern:
+                                view_count_text = view_pattern.group(1)
+                                print(f"Found view count in title attributes: {view_count_text}")
+                                break
+                except:
+                    pass
+            
+            # If we still don't have a view count, but it's a new video, it might have 0 views
+            if not view_count_text:
+                try:
+                    # Check for "new" badge or recent upload indicators
+                    new_indicators = ["seconds ago", "minutes ago", "minute ago", "hour ago", "hours ago", "today"]
+                    page_text = self.driver.find_element(By.TAG_NAME, "body").text.lower()
+                    
+                    for indicator in new_indicators:
+                        if indicator in page_text:
+                            print(f"Found '{indicator}' in page, assuming this could be a new video with 0 views")
+                            view_count_text = "0 views"
+                            break
+                except:
+                    pass
+            
+            # Parse the view count from text
             view_count = 0
             if view_count_text:
                 if 'No views' in view_count_text or '0 views' in view_count_text:
@@ -665,19 +911,6 @@ class SeleniumDriver(BaseSeleniumChrome):
             print(f"Extracted view count: {view_count} from text: '{view_count_text}'")
             return view_count
             
-        except TimeoutException:
-            # If view count element doesn't appear, might be a brand new video with no views
-            try:
-                # Look for alternative view count displays
-                info_text = self.driver.find_element(By.ID, "info-text").text
-                if "No views" in info_text or "0 views" in info_text:
-                    return 0
-            except:
-                pass
-            
-            print("Could not determine view count, assuming it's new with 0 views")
-            return 0
-            
         except Exception as e:
             print(f"Error getting view count: {e}")
             return 999  # Default to non-zero to avoid false positives
@@ -694,174 +927,281 @@ class SeleniumDriver(BaseSeleniumChrome):
                 print("Not on a video page, cannot check recommendations")
                 return False
             
-            # Scroll down to make sure recommendations are loaded
-            self.driver.execute_script("window.scrollBy(0, 500);")
-            time.sleep(2)
+            # Scroll down 1-3 times to ensure more recommendations load
+            scroll_count = random.randint(1, 3)
+            print(f"Scrolling down {scroll_count} times to load more recommendations...")
+            for i in range(scroll_count):
+                self.driver.execute_script("window.scrollBy(0, 800);")
+                time.sleep(1)  # Give time for recommendations to load
+                print(f"Scroll {i+1}/{scroll_count} completed")
             
-            # Look for recommendation elements
-            try:
-                recommendations = WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
-                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#related #dismissible"))
-                )
-                
-                print(f"Found {len(recommendations)} recommended videos")
-                
-                # Analyze recommendations for view counts
-                recommendation_data = []
-                
-                for i, rec in enumerate(recommendations[:20]):  # Limit to first 20 recommendations
-                    try:
-                        # Extract title
-                        title_elem = rec.find_element(By.ID, "video-title")
-                        title = title_elem.get_attribute("title") or title_elem.text
+            # Take a screenshot
+            self.take_screenshot("recommendations.png")
+            
+            # Use BeautifulSoup to extract recommendation info more reliably
+            html = self.driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            # Look for recommended videos using multiple possible selectors
+            recommended_videos = []
+            
+            # Try different selectors for recommendation areas
+            selectors = [
+                'ytd-compact-video-renderer',  # Standard recommendation format
+                'ytd-watch-next-secondary-results-renderer ytd-compact-video-renderer',  # Specific location
+                'ytd-shelf-renderer ytd-compact-video-renderer',  # Another possible location
+                '.ytd-watch-next-secondary-results-renderer a#thumbnail'  # Thumbnail links
+            ]
+            
+            for selector in selectors:
+                try:
+                    elements = soup.select(selector)
+                    if elements:
+                        print(f"Found {len(elements)} recommended videos using selector: {selector}")
                         
-                        # Extract view count
-                        metadata_elements = rec.find_elements(By.CSS_SELECTOR, "#metadata-line span")
-                        view_count = None
+                        # Process up to 10 recommendations
+                        for i, video in enumerate(elements[:10]):
+                            video_data = {}
+                            
+                            # Extract title
+                            title_elem = video.select_one('#video-title') or video.select_one('span.title')
+                            if title_elem:
+                                video_data['title'] = title_elem.text.strip()
+                            else:
+                                video_data['title'] = f"Recommended Video {i+1}"
+                            
+                            # Extract view count if available
+                            view_elem = None
+                            for span in video.select('span'):
+                                if span.text and 'views' in span.text.lower():
+                                    view_elem = span
+                                    break
+                                    
+                            if view_elem:
+                                video_data['views'] = view_elem.text.strip()
+                            else:
+                                video_data['views'] = "Unknown views"
+                            
+                            # Add to our list
+                            recommended_videos.append(video_data)
                         
-                        for elem in metadata_elements:
-                            text = elem.text
-                            if "view" in text.lower():
-                                # Parse the view count
-                                if 'No views' in text or '0 views' in text:
+                        # Don't try more selectors if we found videos
+                        break
+                except Exception as e:
+                    print(f"Error finding recommendations with selector {selector}: {e}")
+            
+            # If we couldn't extract recommendations with BeautifulSoup, fall back to direct Selenium
+            if not recommended_videos:
+                print("Falling back to direct Selenium extraction for recommendations")
+                
+                # Try direct Selenium extraction
+                try:
+                    # Look for recommended video elements
+                    video_elements = self.driver.find_elements(By.CSS_SELECTOR, "ytd-compact-video-renderer")
+                    
+                    for i, video in enumerate(video_elements[:10]):
+                        video_data = {}
+                        
+                        try:
+                            # Extract title
+                            title_elem = video.find_element(By.ID, "video-title")
+                            video_data['title'] = title_elem.text.strip()
+                        except:
+                            video_data['title'] = f"Recommended Video {i+1}"
+                        
+                        try:
+                            # Extract view count
+                            meta_line = video.find_element(By.ID, "metadata-line")
+                            spans = meta_line.find_elements(By.TAG_NAME, "span")
+                            for span in spans:
+                                if 'views' in span.text.lower():
+                                    video_data['views'] = span.text.strip()
+                                    break
+                        except:
+                            video_data['views'] = "Unknown views"
+                        
+                        # Add to our list
+                        recommended_videos.append(video_data)
+                        
+                except Exception as e:
+                    print(f"Error with direct Selenium extraction: {e}")
+            
+            if recommended_videos:
+                print(f"Found {len(recommended_videos)} recommended videos")
+                
+                # Look for potentially zero-view videos
+                potential_zero_videos = []
+                for video in recommended_videos:
+                    views_text = video.get('views', '').lower()
+                    title = video.get('title', '')
+                    
+                    # Check for likely low view count videos
+                    if (
+                        "no views" in views_text or 
+                        "0 views" in views_text or 
+                        "1 view" in views_text or 
+                        "2 views" in views_text or
+                        "few views" in views_text
+                    ):
+                        potential_zero_videos.append(video)
+                        print(f"Potential zero-view video: {title} - {views_text}")
+                
+                # Log all recommendations
+                print("\nAll recommendations:")
+                for i, video in enumerate(recommended_videos):
+                    print(f"{i+1}. {video.get('title', 'Untitled')} - {video.get('views', 'Unknown views')}")
+                    
+                # First try to click on a video with view count close to our target
+                video_to_click = None
+                
+                # If we're looking for zero-view videos, prioritize those
+                if self.target_views == 0 and potential_zero_videos:
+                    print("\nAttempting to click on a potential zero-view video...")
+                    video_to_click = potential_zero_videos[0]
+                else:
+                    # For non-zero targets, or if no potential zero-view videos, find the closest match
+                    # or just pick a random recommendation
+                    videos_with_counts = []
+                    for video in recommended_videos:
+                        views_text = video.get('views', '').lower()
+                        if views_text != "unknown views":
+                            # Try to parse the view count
+                            try:
+                                if 'no views' in views_text or '0 views' in views_text:
                                     view_count = 0
                                 else:
                                     # Parse the number from strings like "123 views" or "1.2K views"
-                                    numeric_part = re.search(r'([\d,\.]+)', text)
+                                    numeric_part = re.search(r'([\d,\.]+)', views_text)
                                     if numeric_part:
                                         number_str = numeric_part.group(1).replace(',', '')
-                                        if 'K' in text:
+                                        if 'K' in views_text:
                                             view_count = int(float(number_str) * 1000)
-                                        elif 'M' in text:
+                                        elif 'M' in views_text:
                                             view_count = int(float(number_str) * 1000000)
-                                        elif 'B' in text:
+                                        elif 'B' in views_text:
                                             view_count = int(float(number_str) * 1000000000)
                                         else:
                                             view_count = int(float(number_str))
-                        
-                        # Calculate age/recency score if available
-                        recency_score = 0
-                        for elem in metadata_elements:
-                            text = elem.text.lower()
-                            if any(time_unit in text for time_unit in ["second", "minute", "hour", "day", "week", "month", "year"]):
-                                if 'minute' in text or 'second' in text:
-                                    recency_score = 10
-                                elif 'hour' in text:
-                                    hours_match = re.search(r'(\d+)\s+hour', text)
-                                    if hours_match and int(hours_match.group(1)) <= 3:
-                                        recency_score = 8
-                                    else:
-                                        recency_score = 6
-                                elif 'day' in text:
-                                    days_match = re.search(r'(\d+)\s+day', text)
-                                    if days_match and int(days_match.group(1)) <= 1:
-                                        recency_score = 5
-                                    else:
-                                        recency_score = 3
-                                elif 'week' in text:
-                                    recency_score = 2
-                                else:
-                                    recency_score = 1
-                        
-                        # Include if we could parse a view count
-                        if view_count is not None:
-                            # Calculate a score based on closeness to target views and recency
-                            if self.target_views == 0:
-                                # For 0 target views, prioritize absolute lowest view counts
-                                closeness_score = 10 if view_count == 0 else (10 / (view_count + 1))
-                            else:
-                                # For non-zero targets, calculate relative closeness
-                                view_difference = abs(view_count - self.target_views)
-                                relative_difference = view_difference / max(1, self.target_views)
-                                closeness_score = 10 * (1 / (1 + relative_difference))
-                            
-                            # Combined score: 80% closeness to target, 20% recency
-                            combined_score = (closeness_score * 0.8) + (recency_score * 0.2)
-                            
-                            href = title_elem.get_attribute("href")
-                            
-                            recommendation_data.append({
-                                "position": i+1,
-                                "title": title,
-                                "view_count": view_count,
-                                "view_difference": abs(view_count - self.target_views),
-                                "recency_score": recency_score,
-                                "closeness_score": closeness_score,
-                                "combined_score": combined_score,
-                                "url": href
-                            })
-                    except Exception as e:
-                        print(f"Error parsing recommendation {i}: {e}")
-                
-                # Sort recommendations by combined score
-                recommendation_data.sort(key=lambda x: x["combined_score"], reverse=True)
-                
-                # Log the top recommendations
-                if recommendation_data:
-                    print(f"\n=== Top Recommended Videos (Target Views: {self.target_views}) ===")
-                    for i, rec in enumerate(recommendation_data[:5]):
-                        print(f"{i+1}. '{rec['title'][:40]}...' | Views: {rec['view_count']} | "
-                              f"Diff: {rec['view_difference']} | Score: {rec['combined_score']:.2f}")
+                                
+                                videos_with_counts.append((video, view_count))
+                            except:
+                                pass
                     
-                    # If we found one very close to our target, click it
-                    best_rec = recommendation_data[0]
-                    
-                    # Set threshold based on target views
-                    if self.target_views < 100:
-                        threshold = 10  # Within 10 views for very low targets
-                    elif self.target_views < 1000:
-                        threshold = 50  # Within 50 views for 3-digit targets
+                    if videos_with_counts:
+                        # Sort by how close they are to our target and pick the best match
+                        videos_with_counts.sort(key=lambda x: abs(x[1] - self.target_views))
+                        video_to_click = videos_with_counts[0][0]
+                        print(f"\nSelected recommendation with views closest to target: {video_to_click.get('title')} - {videos_with_counts[0][1]} views")
                     else:
-                        threshold = int(self.target_views * 0.05)  # Within 5% for larger targets
-                    
-                    if best_rec["view_difference"] <= threshold:
-                        print(f"Found a recommended video very close to target views: {best_rec['view_count']} (target: {self.target_views})")
-                        print(f"Auto-clicking: {best_rec['title']}")
-                        
-                        try:
-                            # Find the element again and click it
-                            i = best_rec["position"] - 1
-                            rec_elem = recommendations[i].find_element(By.ID, "video-title")
-                            rec_elem.click()
-                            
-                            # Wait for video to load
-                            WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
-                                EC.presence_of_element_located((By.ID, "movie_player"))
-                            )
-                            
-                            # Check the view count of the opened video
-                            views = self.get_view_count()
-                            
-                            # Record this video in our checked list
-                            video_data = {
-                                "title": best_rec['title'],
-                                "url": self.driver.current_url,
-                                "views": views,
-                                "timestamp": datetime.now().isoformat(),
-                                "found_via": "recommendations"
-                            }
-                            
-                            self.videos_checked.append(video_data)
-                            
-                            # If it matches our target exactly, add to target videos list
-                            if views == self.target_views:
-                                self.target_view_videos.append(video_data)
-                                print(f"SUCCESS! Found a recommended video with exactly {self.target_views} views!")
-                            
-                            return True
-                        except Exception as e:
-                            print(f"Error auto-clicking recommendation: {e}")
-                else:
-                    print("No recommendations with parseable view counts")
+                        # If we couldn't parse any view counts, just pick a random recommendation
+                        video_to_click = random.choice(recommended_videos)
+                        print(f"\nSelected random recommendation: {video_to_click.get('title')}")
                 
-            except Exception as e:
-                print(f"Error analyzing recommendations: {e}")
-            
-            # Take a screenshot of recommendations
-            self.take_screenshot("recommendations.png")
-            
-            return True
-            
+                # Now try to click the selected video
+                if video_to_click:
+                    title = video_to_click.get('title', '')
+                    print(f"Attempting to click recommended video: {title}")
+                    
+                    # Multiple approaches to find and click the video
+                    click_success = False
+                    
+                    # Approach 1: Try to find by exact title match
+                    try:
+                        title_elements = self.driver.find_elements(By.XPATH, 
+                            f"//a[@id='video-title' and contains(text(), '{title}')]")
+                        
+                        if title_elements and len(title_elements) > 0:
+                            print(f"Found video by title: {title}")
+                            
+                            # Try multiple click strategies
+                            for click_strategy in [
+                                lambda e: e.click(),
+                                lambda e: self.driver.execute_script("arguments[0].click();", e),
+                                lambda e: e.send_keys(Keys.ENTER),
+                                lambda e: self.driver.get(e.get_attribute("href"))
+                            ]:
+                                try:
+                                    click_strategy(title_elements[0])
+                                    # Wait for video to load
+                                    time.sleep(2)
+                                    if "/watch" in self.driver.current_url:
+                                        click_success = True
+                                        break
+                                except Exception as e:
+                                    print(f"Click strategy failed: {e}")
+                                    continue
+                    except Exception as e:
+                        print(f"Error finding video by title: {e}")
+                    
+                    # Approach 2: If title match failed, try finding any video title
+                    if not click_success:
+                        try:
+                            print("Trying to click any recommended video...")
+                            video_elements = self.driver.find_elements(By.CSS_SELECTOR, 
+                                "ytd-compact-video-renderer a#video-title, ytd-compact-video-renderer a.yt-simple-endpoint")
+                            
+                            if video_elements and len(video_elements) > 0:
+                                # Pick a random video (variety is good for discovery)
+                                random_index = random.randint(0, min(5, len(video_elements)-1))
+                                video_elem = video_elements[random_index]
+                                random_title = video_elem.text or video_elem.get_attribute("title") or f"Video {random_index+1}"
+                                print(f"Clicking random recommended video: {random_title}")
+                                
+                                # Try click strategies
+                                for click_strategy in [
+                                    lambda e: e.click(),
+                                    lambda e: self.driver.execute_script("arguments[0].click();", e),
+                                    lambda e: self.driver.get(e.get_attribute("href"))
+                                ]:
+                                    try:
+                                        click_strategy(video_elem)
+                                        # Wait for video to load
+                                        time.sleep(2)
+                                        if "/watch" in self.driver.current_url:
+                                            click_success = True
+                                            title = random_title  # Update title for record-keeping
+                                            break
+                                    except Exception as e:
+                                        print(f"Click strategy failed: {e}")
+                                        continue
+                        except Exception as e:
+                            print(f"Error with backup click approach: {e}")
+                    
+                    # If we successfully clicked a video, process it
+                    if click_success:
+                        print(f"Successfully clicked on recommended video: {title}")
+                        
+                        # Check the view count
+                        views = self.get_view_count()
+                        
+                        # Record this video in our checked list
+                        video_data = {
+                            "title": title,
+                            "url": self.driver.current_url,
+                            "views": views,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                        
+                        self.videos_checked.append(video_data)
+                        
+                        # If view count matches our target, add to our target videos list
+                        if views == self.target_views:
+                            self.target_view_videos.append(video_data)
+                            print(f"SUCCESS! Found a recommendation with exactly {self.target_views} views: {title}")
+                        else:
+                            print(f"Opened recommendation: {title} (Views: {views}, Target: {self.target_views})")
+                        
+                        return True
+                    else:
+                        print("Failed to click any recommended videos after multiple attempts")
+                        return False
+                else:
+                    print("No suitable recommendations to click")
+                    return False
+            else:
+                print("No recommended videos found")
+                return False
+                
         except Exception as e:
             print(f"Error checking recommendations: {e}")
             return False

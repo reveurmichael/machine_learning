@@ -22,9 +22,6 @@ from config import (
     DEFAULT_LLM_PROVIDER,
     DEFAULT_TARGET_VIEWS,
     LLM_CONFIG,
-    INITIAL_SEARCH_QUERIES,
-    RECOVERY_SEARCH_QUERIES,
-    ALTERNATIVE_SEARCH_QUERIES
 )
 
 # Initialize colorama
@@ -47,7 +44,7 @@ class YouTubeNavigator:
         """Initialize the navigator.
         
         Args:
-            provider: The LLM provider to use ("yuanbao" or "ollama")
+            provider: The LLM provider to use ("hunyuan" or "ollama")
             target_views: Target number of views to find
             headless: Whether to run the browser in headless mode
             ollama_server: Hostname or IP of Ollama server if using Ollama
@@ -172,7 +169,7 @@ class YouTubeNavigator:
         if self.provider == "ollama":
             llm_kwargs["server"] = self.ollama_server
         
-        # Get response from LLM
+        # Get response from LLM - simple single-turn request
         print(Fore.YELLOW + "Consulting LLM for next action...")
         response = self.llm_client.generate_response(prompt, **llm_kwargs)
         
@@ -183,7 +180,8 @@ class YouTubeNavigator:
         self.conversation_history.append({
             "round": current_round,
             "prompt": prompt,
-            "response": response
+            "response": response,
+            "parsed_response": self.parse_llm_response(response)
         })
         
         # Parse the response
@@ -202,7 +200,7 @@ class YouTubeNavigator:
         parsed = {
             "action": "SEARCH_VIDEOS",  # Safe default
             "reason": "Default action",
-            "details": INITIAL_SEARCH_QUERIES[0]  # Default search query
+            "details": "No search query provided"  # Default search query
         }
         
         # Extract sections from the response
@@ -226,13 +224,104 @@ class YouTubeNavigator:
                     # Clean up the query
                     details = details.strip('"\'')
                     
+                    # Remove any instances of action formatting that might have leaked through
+                    details = re.sub(r'ACTION:\s*\w+', '', details)
+                    details = re.sub(r'REASON:\s*.*', '', details)
+                    details = re.sub(r'DETAILS:\s*', '', details)
+                    
+                    # Make sure it's just the search query
+                    if "search" in details.lower() and len(details.split()) > 4:
+                        # Likely contains instructions rather than a query
+                        # Extract just a potential search term
+                        search_terms = re.findall(r'"([^"]*)"', details)
+                        if search_terms:
+                            details = search_terms[0]
+                        else:
+                            # Just get the last part which might be the actual query
+                            parts = details.split()
+                            details = " ".join(parts[-3:])
+                    
                     # Limit search query to a reasonable length (50 chars max)
                     if len(details) > 50:
                         details = details[:50]
                 
-                parsed["details"] = details
+                parsed["details"] = details.strip()
+        
+        # Final check to ensure we don't pass LLM formatting directly to YouTube
+        if parsed["action"] == "SEARCH_VIDEOS":
+            if "ACTION:" in parsed["details"] or "REASON:" in parsed["details"]:
+                # Still has LLM formatting, use a generic search
+                parsed["details"] = "recently uploaded videos with few views"
         
         return parsed
+    
+    def get_initial_search_query(self) -> str:
+        """Generate an initial search query by consulting the LLM.
+        
+        Returns:
+            A search query string
+        """
+        # Create a simple prompt for the initial search
+        prompt = f"""
+You are helping with a YouTube search task to find videos with exactly {self.target_views} views.
+
+Please suggest ONE specific search query to find videos that are likely to have {self.target_views} views.
+- Newly uploaded videos or obscure content for low view counts
+- Niche tutorials or hobbyist content for moderate view counts
+- Specific search operators (like "sort by upload date" or similar)
+
+Respond with ONLY the suggested search query as a single line of text, nothing else. 
+Do not include labels, formatting, or explanations.
+"""
+        print(Fore.YELLOW + "Generating initial search query...")
+        
+        # Get LLM config based on provider
+        llm_kwargs = LLM_CONFIG.get(self.provider, {}).copy()
+        
+        # If using Ollama, add the server parameter
+        if self.provider == "ollama":
+            llm_kwargs["server"] = self.ollama_server
+        
+        # Get search query from LLM - simple single-turn request
+        response = self.llm_client.generate_response(prompt, **llm_kwargs)
+        
+        # Clean the response - remove any formatting or instructions
+        search_query = response.strip().strip('"\'')
+        
+        # Remove any instances of LLM formatting that might have leaked through
+        import re
+        search_query = re.sub(r'ACTION:\s*\w+', '', search_query)
+        search_query = re.sub(r'REASON:\s*.*', '', search_query)
+        search_query = re.sub(r'DETAILS:\s*', '', search_query)
+        
+        # If response is too structured/long, extract just the query part
+        if len(search_query.split('\n')) > 1 or len(search_query.split()) > 15:
+            # Try to extract quoted content first
+            quoted = re.findall(r'"([^"]*)"', search_query)
+            if quoted:
+                search_query = quoted[0]
+            else:
+                # Just use the first line
+                search_query = search_query.split('\n')[0]
+        
+        # Remove search-related instructions that might have been included
+        search_query = re.sub(r'search(\s+for)?:', '', search_query, flags=re.IGNORECASE)
+        search_query = re.sub(r'query:', '', search_query, flags=re.IGNORECASE)
+        
+        # Limit length
+        if len(search_query) > 100:
+            search_query = search_query[:100]
+        
+        # Make sure we have a reasonable query
+        if len(search_query.strip()) < 3:
+            # Fallback if we got something unusable
+            if self.target_views == 0:
+                search_query = "first upload recently uploaded"
+            else:
+                search_query = f"niche videos uploaded recently"
+        
+        print(Fore.GREEN + f"Generated search query: {search_query}")
+        return search_query.strip()
     
     def execute_action(self, action_data: Dict[str, str]) -> bool:
         """Execute the action suggested by the LLM.
@@ -261,10 +350,10 @@ class YouTubeNavigator:
         
         elif action == "SCROLL_DOWN":
             success = self.selenium_driver.scroll_down()
-            # If scrolling failed, attempt a new search
+            # If scrolling failed, attempt a new search with LLM-generated query
             if not success:
-                print(Fore.YELLOW + "No results found. Attempting a new search...")
-                new_search = random.choice(ALTERNATIVE_SEARCH_QUERIES)
+                print(Fore.YELLOW + "No results found. Generating new search query...")
+                new_search = self.get_initial_search_query()
                 print(Fore.YELLOW + f"Trying alternative search: {new_search}")
                 return self.selenium_driver.search_videos(new_search)
             return success
@@ -361,12 +450,6 @@ class YouTubeNavigator:
         print(Fore.YELLOW + f"Target view count: {self.target_views}")
         print(Fore.CYAN + "=" * 60 + "\n")
         
-        # Add special rules
-        self.extra_rules.append("IMPORTANT: Only use SEARCH_VIDEOS when there are no videos visible on the page to interact with")
-        self.extra_rules.append("When you see <!-- VIEW_COUNT: X --> or (POTENTIAL MATCH) in the HTML, prioritize opening those videos immediately")
-        self.extra_rules.append("Always use 'closest views' as the DETAILS when suggesting OPEN_VIDEO to target videos with view counts nearest to our target")
-        self.extra_rules.append("If you need to find new videos, suggest SEARCH_VIDEOS with a new search query")
-        
         try:
             # Start the navigation session
             self.start()
@@ -376,8 +459,8 @@ class YouTubeNavigator:
                 print(Fore.RED + "Failed to initialize Selenium driver. Exiting.")
                 return
             
-            # Start with initial search
-            initial_search = random.choice(INITIAL_SEARCH_QUERIES)
+            # Generate initial search query using the LLM
+            initial_search = self.get_initial_search_query()
             search_successful = False
             try:
                 search_successful = self.selenium_driver.search_videos(initial_search)
@@ -385,8 +468,8 @@ class YouTubeNavigator:
                 print(Fore.RED + f"Error during initial search: {e}")
                 
             if not search_successful:
-                print(Fore.RED + "Failed to perform initial search. Trying recovery search...")
-                recovery_search = random.choice(RECOVERY_SEARCH_QUERIES)
+                print(Fore.RED + "Failed to perform initial search. Generating recovery search query...")
+                recovery_search = self.get_initial_search_query()
                 try:
                     search_successful = self.selenium_driver.search_videos(recovery_search)
                 except Exception as e:
@@ -433,8 +516,8 @@ class YouTubeNavigator:
                             self.selenium_driver.driver.refresh()
                             time.sleep(3)
                             
-                            # Try a recovery search query
-                            recovery_search = random.choice(RECOVERY_SEARCH_QUERIES)
+                            # Generate a new recovery search query
+                            recovery_search = self.get_initial_search_query()
                             if self.selenium_driver.search_videos(recovery_search):
                                 print(Fore.GREEN + "Recovery successful!")
                                 consecutive_failures = 0
@@ -507,7 +590,7 @@ def main():
         "--provider",
         type=str,
         default=DEFAULT_LLM_PROVIDER,
-        choices=["yuanbao", "ollama"],
+        choices=["hunyuan", "ollama"],
         help=f"LLM provider to use (default: {DEFAULT_LLM_PROVIDER})",
     )
     parser.add_argument(

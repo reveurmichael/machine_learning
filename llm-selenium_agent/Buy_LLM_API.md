@@ -1,6 +1,6 @@
 ## Q
 
-https://cloud.tencent.com/document/product/1729/111007
+In China, students can use Cloud LLM API from Tencent Cloud: https://cloud.tencent.com/document/product/1729/111007
 
 List OpenAI like LLM (language) with API access from major players (OpenAI, Azure, AWS, Tencent Huanyuan, Alibaba, Doubao, Google, Mistral, Claude, DeepSeek, etc.) with which we can have such code: import os
 from openai import OpenAI

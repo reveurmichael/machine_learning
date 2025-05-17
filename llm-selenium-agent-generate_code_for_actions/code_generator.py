@@ -1,0 +1,488 @@
+"""
+LLM-guided code generator for Selenium automation.
+This script uses LLMs to generate and execute Selenium code for web automation.
+"""
+
+import os
+import re
+import time
+import yaml
+import argparse
+import shutil
+from datetime import datetime
+from typing import Dict, Any, List, Optional
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from colorama import Fore, Style, init as init_colorama
+
+# Import the LLM client and SeleniumDriver
+from llm_client import LLMClient
+from selenium_driver import SeleniumDriver
+
+# Initialize colorama for colored terminal output
+init_colorama(autoreset=True)
+
+# Load environment variables
+load_dotenv()
+
+# Prompt templates
+CODE_GENERATION_PROMPT = """
+You are an expert Python programmer specialized in web automation with Selenium and the llm_selenium_agent package.
+I need you to generate executable Python code for the following task:
+
+Task: {task}
+
+The code should interact with the website: {website}
+
+Requirements:
+- You MUST use the existing driver instance provided as variable 'driver' - this is an instance of llm_selenium_agent.SeleniumDriver
+- When taking screenshots, use driver.take_screenshot("filename") rather than direct Selenium methods
+- You should leverage the llm_selenium_agent package for common operations (navigation, screenshots, etc.)
+- Don't include imports for selenium modules as they're already imported
+- Use explicit waits for reliability
+- Include proper exception handling
+- Add comments to explain key sections
+- Structure the code using functions
+
+Important: The driver is ALREADY INITIALIZED. Do not initialize a new driver, just use the existing 'driver' variable.
+
+Please provide ONLY the Python code, no explanations before or after.
+"""
+
+ACTION_SUGGESTION_PROMPT = """
+You are an AI assistant tasked with guiding web scraping on quotes.toscrape.com.
+
+Current page HTML snippet:
+```html
+{html_snippet}
+```
+
+Current URL: {current_url}
+
+Based on the HTML snippet and current state, suggest the next action to take.
+Choose from these possible actions:
+1. NAVIGATE_NEXT_PAGE - Go to the next page of quotes
+2. NAVIGATE_PREVIOUS_PAGE - Go back to the previous page
+3. FILTER_BY_TAG - Filter quotes by a specific tag
+4. VISIT_AUTHOR_PAGE - Visit an author's page to see their details
+5. LOGIN - Log in to the website (username: user, password: pass)
+6. LOGOUT - Log out from the website
+7. SCROLL - Scroll down the page
+8. EXTRACT_DATA - Extract and print data from the current page
+
+Your response should be structured like this:
+ACTION: [chosen action]
+REASON: [brief explanation of why this action is appropriate]
+DETAILS: [any specific details needed for the action, like which tag to filter or which author to visit]
+CODE: [the specific Python code using Selenium to implement this action]
+
+IMPORTANT: 
+- You MUST use the existing driver instance - this is an instance of llm_selenium_agent.SeleniumDriver
+- When taking screenshots, use driver.take_screenshot("filename") rather than direct Selenium methods
+- You should leverage the llm_selenium_agent package for common operations (navigation, screenshots, etc.)
+- Don't include imports for selenium modules as they're already imported
+
+Example response:
+ACTION: FILTER_BY_TAG
+REASON: I can see several interesting tags on the page, and filtering by 'love' would show us quotes related to this theme.
+DETAILS: love
+CODE:
+```python
+def filter_by_tag(tag_name):
+    # Use the llm_selenium_agent driver to find and click the tag link
+    tag_link = driver.driver.find_element(By.XPATH, f"//a[@class='tag' and text()='{tag_name}']")
+    tag_link.click()
+
+    # Wait for the page to load with filtered results
+    WebDriverWait(driver.driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "quote"))
+    )
+    
+    # Take a screenshot using the driver's built-in method
+    driver.take_screenshot(f"filter_by_tag_{tag_name}")
+    
+    print(f"Filtered quotes by tag: {tag_name}")
+
+# Execute the function with the desired tag
+filter_by_tag('love')
+```
+"""
+
+class SeleniumCodeGenerator:
+    """Generates and executes Selenium code using LLMs."""
+    
+    def __init__(self, llm_provider="hunyuan", website="https://quotes.toscrape.com", headless=False):
+        """Initialize the code generator.
+        
+        Args:
+            llm_provider: The LLM provider to use ("hunyuan" or "ollama")
+            website: The website to interact with
+            headless: Whether to run the browser in headless mode
+        """
+        self.llm_client = LLMClient(provider=llm_provider)
+        self.website = website
+        self.headless = headless
+        self.driver = None
+        
+        # Create debug directory with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.debug_dir = f"code_generation_{timestamp}"
+        os.makedirs(self.debug_dir, exist_ok=True)
+        
+        # Create directories for saving prompts, responses, code
+        self.prompts_dir = os.path.join(self.debug_dir, "prompts")
+        self.responses_dir = os.path.join(self.debug_dir, "responses")
+        self.code_dir = os.path.join(self.debug_dir, "code")
+        
+        for directory in [self.prompts_dir, self.responses_dir, self.code_dir]:
+            os.makedirs(directory, exist_ok=True)
+        
+        # Copy config.yml to the debug directory for llm_selenium_agent to use
+        self._copy_config_file()
+        
+        # Initialize the webdriver using our SeleniumDriver
+        self._setup_webdriver()
+    
+    def _copy_config_file(self):
+        """Copy the config.yml file to the generated code directory."""
+        try:
+            # Source config file (from current directory or parent directories)
+            source_config = "config.yml"
+            if not os.path.exists(source_config):
+                # Try looking in parent directory
+                source_config = os.path.join("..", "config.yml")
+            
+            if os.path.exists(source_config):
+                # Copy to the generated code directory
+                dest_config = os.path.join(self.debug_dir + "/code", "config.yml")
+                shutil.copy2(source_config, dest_config)
+                print(Fore.GREEN + f"✅ Copied config.yml to {self.debug_dir}")
+            else:
+                print(Fore.YELLOW + f"⚠️ Could not find config.yml to copy")
+        except Exception as e:
+            print(Fore.YELLOW + f"⚠️ Error copying config.yml: {e}")
+    
+    def _setup_webdriver(self):
+        """Set up the Selenium WebDriver using our custom driver."""
+        try:
+            # Create SeleniumDriver instance
+            self.driver = SeleniumDriver(headless=self.headless, website=self.website)
+            
+            # Prepare environment (required by BaseSeleniumChrome)
+            self.driver.prepare_environment()
+            
+            # Also use the driver's screenshot directory
+            self.screenshots_dir = self.driver.screenshots_dir
+            
+            print(Fore.GREEN + "✅ WebDriver initialized successfully")
+            
+        except Exception as e:
+            print(Fore.RED + f"❌ Error initializing WebDriver: {e}")
+            raise
+    
+    def _save_to_file(self, content, directory, filename):
+        """Save content to a file in the specified directory.
+        
+        Args:
+            content: Content to save
+            directory: Directory to save to
+            filename: Name of the file
+        """
+        file_path = os.path.join(directory, filename)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return file_path
+    
+    def get_page_html(self, max_length=30000):
+        """Get the HTML of the current page.
+        
+        Args:
+            max_length: Maximum length of the HTML to return
+            
+        Returns:
+            A string containing the HTML
+        """
+        return self.driver.get_page_html(max_length)
+    
+    def execute_code(self, code, description="Generated code"):
+        """Execute the generated code.
+        
+        Args:
+            code: The Python code to execute
+            description: Description of what the code does
+            
+        Returns:
+            Boolean indicating success
+        """
+        try:
+            # Clean the code (remove markdown formatting if present)
+            if code.startswith("```python"):
+                code = code.split("```python", 1)[1]
+            if code.endswith("```"):
+                code = code.rsplit("```", 1)[0]
+            
+            code = code.strip()
+            
+            # Save the code to a file
+            timestamp = datetime.now().strftime('%H%M%S')
+            code_filename = f"code_{timestamp}.py"
+            code_path = self._save_to_file(code, self.code_dir, code_filename)
+            print(Fore.BLUE + f"💾 Code saved to {code_path}")
+            
+            # Take a screenshot before executing the code
+            self.driver.take_screenshot(f"before_{timestamp}")
+            
+            # Add necessary imports and driver variable
+            setup_code = """
+# Imports already set up by the code generator
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+import time
+
+# Use the existing driver instance - DO NOT create a new driver
+# This is an instance of llm_selenium_agent.SeleniumDriver
+driver = self.driver
+
+# Access the underlying Selenium WebDriver with driver.driver
+# Example: driver.driver.find_element(By.ID, 'some-id')
+"""
+            
+            # Prepare the full code
+            full_code = setup_code + "\n" + code
+            
+            # Execute the code
+            print(Fore.CYAN + f"🚀 Executing code for: {description}")
+            
+            # Create a local namespace for execution
+            local_vars = {"self": self}
+            
+            # Execute the code
+            exec(full_code, globals(), local_vars)
+            
+            # Allow some time for the page to update
+            time.sleep(2)
+            
+            # Take a screenshot after executing the code
+            self.driver.take_screenshot(f"after_{timestamp}")
+            
+            print(Fore.GREEN + "✅ Code executed successfully")
+            return True
+            
+        except Exception as e:
+            print(Fore.RED + f"❌ Error executing code: {e}")
+            # Take a screenshot of the error state
+            self.driver.take_screenshot(f"error_{datetime.now().strftime('%H%M%S')}")
+            return False
+    
+    def generate_initial_code(self, task):
+        """Generate initial code to navigate to the website and start the task.
+        
+        Args:
+            task: The automation task description
+            
+        Returns:
+            The generated code as a string
+        """
+        prompt = CODE_GENERATION_PROMPT.format(
+            task=task,
+            website=self.website
+        )
+        
+        # Save the prompt
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self._save_to_file(prompt, self.prompts_dir, f"initial_prompt_{timestamp}.txt")
+        
+        # Generate the response
+        print(Fore.CYAN + "🤖 Generating initial code...")
+        response = self.llm_client.generate_response(prompt, temperature=0.3)
+        
+        # Save the response
+        self._save_to_file(response, self.responses_dir, f"initial_response_{timestamp}.txt")
+        
+        return response
+    
+    def get_next_action(self):
+        """Get the next action to take based on the current page.
+        
+        Returns:
+            The action response from the LLM
+        """
+        # Get the current page info
+        html_snippet = self.get_page_html()
+        current_url = self.driver.driver.current_url
+        
+        # Create the prompt
+        prompt = ACTION_SUGGESTION_PROMPT.format(
+            html_snippet=html_snippet,
+            current_url=current_url
+        )
+        
+        # Save the prompt
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self._save_to_file(prompt, self.prompts_dir, f"action_prompt_{timestamp}.txt")
+        
+        # Generate the response
+        print(Fore.CYAN + "🤖 Suggesting next action...")
+        response = self.llm_client.generate_response(prompt)
+        
+        # Save the response
+        self._save_to_file(response, self.responses_dir, f"action_response_{timestamp}.txt")
+        
+        return response
+    
+    def _parse_action_response(self, response):
+        """Parse the action response from the LLM.
+        
+        Args:
+            response: The LLM's response string
+            
+        Returns:
+            A dictionary with action, reason, details, and code
+        """
+        result = {
+            "action": None,
+            "reason": None,
+            "details": None,
+            "code": None
+        }
+        
+        # Extract action
+        action_match = re.search(r"ACTION:\s*(.*?)(?:\n|$)", response)
+        if action_match:
+            result["action"] = action_match.group(1).strip()
+        
+        # Extract reason
+        reason_match = re.search(r"REASON:\s*(.*?)(?:\n|$)", response)
+        if reason_match:
+            result["reason"] = reason_match.group(1).strip()
+        
+        # Extract details
+        details_match = re.search(r"DETAILS:\s*(.*?)(?:\n|$)", response)
+        if details_match:
+            result["details"] = details_match.group(1).strip()
+        
+        # Extract code
+        code_match = re.search(r"CODE:\s*(?:```python)?(.*?)(?:```)?$", response, re.DOTALL)
+        if code_match:
+            result["code"] = code_match.group(1).strip()
+        
+        return result
+    
+    def run_interactive_session(self, initial_task=None, max_actions=10):
+        """Run an interactive session with the user.
+        
+        Args:
+            initial_task: An optional initial task to start with
+            max_actions: Maximum number of actions to take before stopping
+        """
+        try:
+            # Navigate to the website using the driver's method
+            print(Fore.CYAN + f"🌐 Navigating to {self.website}")
+            self.driver.navigate_to_url()
+            time.sleep(2)
+            self.driver.take_screenshot("initial_page")
+            
+            # If there's an initial task, generate and execute the code
+            if initial_task:
+                initial_code = self.generate_initial_code(initial_task)
+                self.execute_code(initial_code, description=initial_task)
+            
+            # Interactive session loop
+            action_count = 0
+            while action_count < max_actions:
+                # Take a screenshot of the current state
+                self.driver.take_screenshot(f"state_{action_count}")
+                
+                # Get user input for the next action
+                print(Fore.MAGENTA + "\n" + "="*80)
+                print(Fore.MAGENTA + "Current URL: " + self.driver.driver.current_url)
+                print(Fore.MAGENTA + "="*80)
+                print(Fore.GREEN + "What would you like to do next? (Type 'exit' to quit)")
+                user_input = input(Fore.GREEN + "> ")
+                
+                # Check if the user wants to exit
+                if user_input.lower() in ['exit', 'quit', 'q']:
+                    print(Fore.CYAN + "👋 Exiting interactive session")
+                    break
+                
+                # Generate a suggestion based on the current page or use user input
+                if user_input.strip():
+                    # If the user provided input, use it to guide the LLM
+                    action_code = self.generate_initial_code(user_input)
+                    self.execute_code(action_code, description=user_input)
+                else:
+                    # Get a suggestion from the LLM
+                    response = self.get_next_action()
+                    parsed = self._parse_action_response(response)
+                    
+                    # Print the suggestion
+                    print(Fore.CYAN + f"Suggested action: {parsed['action']}")
+                    print(Fore.CYAN + f"Reason: {parsed['reason']}")
+                    if parsed['details'] and parsed['details'].lower() != 'none':
+                        print(Fore.CYAN + f"Details: {parsed['details']}")
+                    
+                    # Ask if the user wants to execute the suggestion
+                    print(Fore.GREEN + "Execute this suggestion? (y/n)")
+                    execute = input(Fore.GREEN + "> ").lower()
+                    
+                    if execute in ['y', 'yes']:
+                        # Use the code generated by the LLM
+                        self.execute_code(parsed['code'], description=parsed['action'])
+                
+                action_count += 1
+                
+        except Exception as e:
+            print(Fore.RED + f"❌ Error in interactive session: {e}")
+        finally:
+            # Always take a final screenshot
+            self.driver.take_screenshot("final_state")
+    
+    def cleanup(self):
+        """Clean up resources."""
+        if self.driver:
+            self.driver.cleanup()
+
+def main():
+    """Main function to run the Selenium code generator."""
+    parser = argparse.ArgumentParser(description='LLM-guided Selenium code generator')
+    parser.add_argument('--provider', type=str, default='hunyuan',
+                      help='LLM provider to use (hunyuan or ollama)')
+    parser.add_argument('--website', type=str, default='https://quotes.toscrape.com',
+                      help='Website to interact with')
+    parser.add_argument('--task', type=str,
+                      help='Initial task to perform')
+    parser.add_argument('--max-actions', type=int, default=10,
+                      help='Maximum number of actions to take')
+    parser.add_argument('--headless', action='store_true',
+                      help='Run the browser in headless mode')
+    
+    args = parser.parse_args()
+    
+    try:
+        # Create the code generator
+        generator = SeleniumCodeGenerator(
+            llm_provider=args.provider,
+            website=args.website,
+            headless=args.headless
+        )
+        
+        # Run the interactive session
+        generator.run_interactive_session(
+            initial_task=args.task,
+            max_actions=args.max_actions
+        )
+        
+    except KeyboardInterrupt:
+        print(Fore.YELLOW + "\n⚠️ Session interrupted by user")
+    except Exception as e:
+        print(Fore.RED + f"\n❌ Error: {e}")
+    finally:
+        # Clean up
+        if 'generator' in locals():
+            generator.cleanup()
+
+if __name__ == "__main__":
+    main() 

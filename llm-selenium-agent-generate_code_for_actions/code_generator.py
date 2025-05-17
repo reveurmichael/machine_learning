@@ -47,6 +47,8 @@ Requirements:
 Important: The driver is ALREADY INITIALIZED. Do not initialize a new driver, just use the existing 'driver' variable.
 
 Please provide ONLY the Python code, no explanations before or after.
+
+Please write a lot of print statements after some key code lines to help me debug the code.
 """
 
 ACTION_SUGGESTION_PROMPT = """
@@ -67,20 +69,12 @@ Choose from these possible actions:
 4. VISIT_AUTHOR_PAGE - Visit an author's page to see their details
 5. LOGIN - Log in to the website (username: user, password: pass)
 6. LOGOUT - Log out from the website
-7. SCROLL - Scroll down the page
-8. EXTRACT_DATA - Extract and print data from the current page
 
 Your response should be structured like this:
 ACTION: [chosen action]
 REASON: [brief explanation of why this action is appropriate]
 DETAILS: [any specific details needed for the action, like which tag to filter or which author to visit]
 CODE: [the specific Python code using Selenium to implement this action]
-
-IMPORTANT: 
-- You MUST use the existing driver instance - this is an instance of llm_selenium_agent.SeleniumDriver
-- When taking screenshots, use driver.take_screenshot("filename") rather than direct Selenium methods
-- You should leverage the llm_selenium_agent package for common operations (navigation, screenshots, etc.)
-- Don't include imports for selenium modules as they're already imported
 
 Example response:
 ACTION: FILTER_BY_TAG
@@ -181,39 +175,15 @@ class SeleniumCodeGenerator:
             raise
     
     def _save_to_file(self, content, directory, filename):
-        """Save content to a file in the specified directory.
-        
-        Args:
-            content: Content to save
-            directory: Directory to save to
-            filename: Name of the file
-        """
         file_path = os.path.join(directory, filename)
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
         return file_path
     
     def get_page_html(self, max_length=30000):
-        """Get the HTML of the current page.
-        
-        Args:
-            max_length: Maximum length of the HTML to return
-            
-        Returns:
-            A string containing the HTML
-        """
         return self.driver.get_page_html(max_length)
     
     def execute_code(self, code, description="Generated code"):
-        """Execute the generated code.
-        
-        Args:
-            code: The Python code to execute
-            description: Description of what the code does
-            
-        Returns:
-            Boolean indicating success
-        """
         try:
             # Clean the code (remove markdown formatting if present)
             if code.startswith("```python"):

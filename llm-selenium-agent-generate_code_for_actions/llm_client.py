@@ -91,36 +91,8 @@ class LLMClient:
             
         except Exception as e:
             print(f"Error generating response from Hunyuan: {e}")
-            return self._get_fallback_response()
+            return "No response from Hunyuan"
     
-    def _get_fallback_response(self) -> str:
-        """Get a fallback response when the LLM API fails.
-        
-        Returns:
-            A basic action suggestion
-        """
-        print("Using fallback response due to API issues")
-        actions = [
-            "NAVIGATE_NEXT_PAGE",
-            "NAVIGATE_PREVIOUS_PAGE",
-            "FILTER_BY_TAG",
-            "VISIT_AUTHOR_PAGE"
-        ]
-        # Select a random action
-        import random
-        action = random.choice(actions)
-        
-        # Provide reasonable details based on the action
-        if action == "FILTER_BY_TAG":
-            details = "love"  # Common tag
-        elif action == "VISIT_AUTHOR_PAGE":
-            details = "Albert Einstein"  # Common author
-        else:
-            details = "None"
-            
-        return f"""ACTION: {action}
-REASON: Fallback action due to LLM API unavailability.
-DETAILS: {details}"""
     
     def _generate_ollama_response(self, prompt: str, **kwargs) -> str:
         """Generate a response from Ollama LLM.

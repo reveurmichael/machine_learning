@@ -52,9 +52,50 @@ GAME MECHANICS:
 3. When you eat an apple, the snake grows longer, making it harder to avoid collisions
 4. The game board is enclosed by walls - you cannot move past the edges
 
+UNDERSTANDING THE 2D GRID:
+Here is a small 4x4 example to help you understand how movement works:
+
+Initial state (head facing right):
+  -+-+-+-+-
+  0 1 2 3
+0|. . A .|
+1|. . . .|
+2|. H←S .|
+3|. . . .|
+  -+-+-+-+-
+
+After moving UP from initial state:
+  -+-+-+-+-
+  0 1 2 3
+0|. . A .|
+1|. H↑. .|
+2|. S . .|
+3|. . . .|
+  -+-+-+-+-
+
+It cannot move RIGHT from initial state because the snake's head's right side is a cell of his body S. Also, because we cannot go against the direction of the snake's head.
+
+After moving DOWN from initial state:
+  -+-+-+-+-
+  0 1 2 3
+0|. . A .|
+1|. . . .|
+2|. S . .|
+3|. H↓. .|
+  -+-+-+-+-
+
+After moving LEFT from initial state:
+  -+-+-+-+-
+  0 1 2 3
+0|. . A .|
+1|. . . .|
+2|H←S . .|
+3|. . . .|
+  -+-+-+-+-
+
 HOW TO PROVIDE MULTIPLE STEPS:
 1. Analyze the current state and plan a safe path toward the apple
-2. Provide a SEQUENCE of 5-10 moves that will help the snake reach the apple
+2. Provide a SEQUENCE of 5-30 moves that will help the snake reach the apple
 3. Format your response as a numbered list of directions, for example:
    1. UP
    2. RIGHT
@@ -66,7 +107,6 @@ RULES FOR YOUR RESPONSE:
 - You MUST provide at least 5 sequential moves (unless you expect to reach the apple sooner)
 - Valid directions are: UP, DOWN, LEFT, RIGHT
 - You cannot move in the opposite direction of your current movement
-- If you expect to reach the apple within your sequence, continue planning moves after eating it
 
 THINK STEP BY STEP about the best sequence of moves, then output your final decision.
-""" 
+"""

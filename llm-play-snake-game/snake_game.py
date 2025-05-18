@@ -190,6 +190,7 @@ class SnakeGame:
         board_str += ". = Empty space\n"
         board_str += "S = Snake body\n"
         board_str += "A = Apple\n"
+        board_str += "H = Snake head (no direction, hence can go any direction)\n"
         board_str += "H↑ = Snake head (facing UP)\n"
         board_str += "H→ = Snake head (facing RIGHT)\n"
         board_str += "H↓ = Snake head (facing DOWN)\n"

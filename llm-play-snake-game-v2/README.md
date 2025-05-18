@@ -50,19 +50,6 @@ Options:
 - `SPACE` - Toggle game speed
 - `ESC` - Quit game
 
-## How Multi-Step Planning Works
-
-The game reduces API costs by:
-
-1. Requesting a sequence of 5-10 moves from the LLM at once
-2. Executing these moves sequentially with a configurable pause between each move
-3. Requesting a new plan when:
-   - All planned moves have been executed
-   - The snake eats an apple (requiring a new strategy)
-   - The game is reset
-
-This approach significantly reduces API calls while maintaining gameplay quality.
-
 ## Project Structure
 
 - `main.py` - Main entry point and game loop
@@ -70,14 +57,6 @@ This approach significantly reduces API calls while maintaining gameplay quality
 - `llm_client.py` - LLM API communication
 - `gui.py` - Visual display interface
 - `config.py` - Game settings and prompt templates
-
-## Game Logs
-
-The game saves logs for analysis in the `game_logs_[timestamp]` directory:
-
-- Prompts sent to the LLM
-- Responses received from the LLM
-- Game summaries with scores and steps
 
 ## License
 

@@ -39,6 +39,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
     parser.add_argument('--provider', type=str, default='hunyuan',
                       help='LLM provider to use (hunyuan or ollama)')
+    parser.add_argument('--model', type=str, default=None,
+                      help='Specific model to use with the provider (e.g., llama3.2:latest for Ollama)')
     parser.add_argument('--max-games', type=int, default=100,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
@@ -62,6 +64,8 @@ def main():
         # Set up the LLM client
         llm_client = LLMClient(provider=args.provider)
         print(Fore.GREEN + f"✅ Using LLM provider: {args.provider}")
+        if args.model:
+            print(Fore.GREEN + f"🤖 Using model: {args.model}")
         print(Fore.GREEN + f"⏱️ Pause between moves: {args.move_pause} seconds")
         
         # Set up logging directories
@@ -124,8 +128,11 @@ def main():
                         prompt_filename = f"game{game_count+1}_round{round_count+1}_prompt.txt"
                         save_to_file(prompt, prompts_dir, prompt_filename)
                         
-                        # Get next move from LLM
-                        llm_response = llm_client.generate_response(prompt)
+                        # Get next move from LLM, passing the specified model if provided
+                        llm_kwargs = {}
+                        if args.model:
+                            llm_kwargs['model'] = args.model
+                        llm_response = llm_client.generate_response(prompt, **llm_kwargs)
                         
                         # Log the response
                         response_filename = f"game{game_count+1}_round{round_count+1}_response.txt"

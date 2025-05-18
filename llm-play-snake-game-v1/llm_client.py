@@ -17,13 +17,15 @@ load_dotenv()
 class LLMClient:
     """Base class for LLM clients."""
     
-    def __init__(self, provider: str = "hunyuan"):
+    def __init__(self, provider: str = "hunyuan", model: str = None):
         """Initialize the LLM client.
         
         Args:
             provider: The LLM provider to use ("hunyuan" or "ollama")
+            model: The specific model to use with the provider
         """
         self.provider = provider
+        self.model = model
         
     def generate_response(self, prompt: str, **kwargs) -> str:
         """Generate a response from the LLM.
@@ -78,8 +80,8 @@ class LLMClient:
                 {"role": "user", "content": prompt}
             ]
             
-            # Extract parameters
-            model = kwargs.get("model", "hunyuan-turbos-latest")
+            # Extract parameters, preferring provided keyword args over instance variables
+            model = kwargs.get("model", self.model) or "hunyuan-turbos-latest"
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
             max_tokens = kwargs.get("max_tokens", 1024)
             enable_enhancement = kwargs.get("enable_enhancement", True)
@@ -134,10 +136,15 @@ class LLMClient:
             The LLM's response as a string
         """
         try:
-            # Extract parameters
-            model = kwargs.get("model", self._get_best_ollama_model())
+            # Extract parameters, preferring provided keyword args over instance variables
+            model = kwargs.get("model", self.model)
+            if not model:
+                model = self._get_best_ollama_model()
+                
             server = kwargs.get("server", os.environ.get("OLLAMA_HOST", "localhost"))
             temperature = kwargs.get("temperature", 0.7)
+            
+            print(f"Making API call to Ollama with model: {model}, temperature: {temperature}")
             
             # Make the API call
             response = requests.post(

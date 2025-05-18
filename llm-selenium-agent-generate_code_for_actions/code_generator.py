@@ -6,20 +6,21 @@ This script uses LLMs to generate and execute Selenium code for web automation.
 import os
 import re
 import time
-import yaml
 import argparse
 import shutil
-import sys
-from io import StringIO
 from datetime import datetime
-from typing import Dict, Any, List, Optional
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from colorama import Fore, Style, init as init_colorama
+import sys
+from io import StringIO
 
 # Import the LLM client and SeleniumDriver
 from llm_client import LLMClient
 from selenium_driver import SeleniumDriver
+
+# Import configuration
+from config import ACTION_SUGGESTION_PROMPT, DEFAULT_TEMPERATURE, SELENIUM_TIMEOUT
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
@@ -27,125 +28,14 @@ init_colorama(autoreset=True)
 # Load environment variables
 load_dotenv()
 
-# Prompt templates
-CODE_GENERATION_PROMPT = """
-You are an expert Python programmer specialized in web automation with Selenium and the llm_selenium_agent package.
-I need you to generate executable Python code for the following task:
-
-Task: {task}
-
-The code should interact with the website: {website}
-
-Requirements:
-- You MUST use the existing driver instance provided as variable 'driver' - this is an instance of llm_selenium_agent.SeleniumDriver
-- When taking screenshots, use driver.take_screenshot("filename") rather than direct Selenium methods
-- You should leverage the llm_selenium_agent package for common operations (navigation, screenshots, etc.)
-- Don't include imports for selenium modules as they're already imported
-- Use explicit waits for reliability
-- Include proper exception handling
-- Add comments to explain key sections
-- Structure the code using functions
-
-Important: The driver is ALREADY INITIALIZED. Do not initialize a new driver, just use the existing 'driver' variable.
-
-Please provide ONLY the Python code, no explanations before or after.
-
-Please write a lot of print statements after some key code lines to help me debug the code.
-"""
-
-ACTION_SUGGESTION_PROMPT = """
-You are an AI assistant tasked with guiding web scraping on quotes.toscrape.com.
-
-Current page HTML snippet:
-```html
-{html_snippet}
-```
-
-Current URL: {current_url}
-
-Based on the HTML snippet and current state, suggest the next action to take.
-Choose from these possible actions:
-1. NAVIGATE_NEXT_PAGE - Go to the next page of quotes
-2. NAVIGATE_PREVIOUS_PAGE - Go back to the previous page
-3. FILTER_BY_TAG - Filter quotes by a specific tag
-4. VISIT_AUTHOR_PAGE - Visit an author's page to see their details
-5. LOGIN - Log in to the website (username: user, password: pass)
-6. LOGOUT - Log out from the website
-7. SCROLL - Scroll down the page
-8. EXTRACT_DATA - Extract and print data from the current page
-
-Your response should be structured like this:
-ACTION: [chosen action]
-REASON: [brief explanation of why this action is appropriate]
-DETAILS: [any specific details needed for the action, like which tag to filter or which author to visit]
-CODE: [the specific Python code using Selenium to implement this action]
-
-IMPORTANT: 
-- You MUST use the existing driver instance
-- When handling elements, make sure they are visible and clickable before interacting
-- Use explicit waits for reliability
-- Add proper error handling with try/except blocks
-- Include scrolling if elements might be outside the viewport
-- For clicking elements, use JavaScript execution as backup if direct clicking fails
-- For the "next page" button, use a robust selector like "//a[contains(text(), 'Next')]" or "//li[@class='next']/a"
-
-Example response:
-ACTION: FILTER_BY_TAG
-REASON: I can see several interesting tags on the page, and filtering by 'love' would show us quotes related to this theme.
-DETAILS: love
-CODE:
-```python
-def filter_by_tag(driver, tag_name="love"):
-    try:
-        # Wait for tags to be visible
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "tag"))
-        )
-        
-        # Find all tags
-        tag_links = driver.find_elements(By.CLASS_NAME, "tag")
-        target_link = None
-        
-        # Look for our specific tag
-        for link in tag_links:
-            if link.text.strip().lower() == tag_name.lower():
-                target_link = link
-                break
-        
-        if not target_link:
-            print(f"Tag '{tag_name}' not found on the page.")
-            return False
-        
-        # Scroll the tag into view
-        driver.execute_script("arguments[0].scrollIntoView(true);", target_link)
-        time.sleep(0.5)  # Small pause after scrolling
-        
-        # Click the tag, using JavaScript as a fallback
-        try:
-            target_link.click()
-        except Exception as e:
-            print(f"Direct click failed, trying JavaScript click: {e}")
-            driver.execute_script("arguments[0].click();", target_link)
-        
-        # Wait for the page to load with filtered results
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "quote"))
-        )
-        
-        print(f"Successfully filtered quotes by tag: {tag_name}")
-        return True
-        
-    except Exception as e:
-        print(f"Error filtering by tag: {e}")
-        return False
-
-# Execute the function with the desired tag
-filter_by_tag(driver)
-```
-"""
-
 class SeleniumCodeGenerator:
-    """Generates and executes Selenium code using LLMs."""
+    """Generates and executes Selenium code using LLMs.
+    
+    This class provides the core functionality for:
+    1. Generating Selenium code using LLMs based on the current page
+    2. Executing the generated code in a real browser
+    3. Providing visual feedback during execution
+    """
     
     def __init__(self, llm_provider="hunyuan", website="https://quotes.toscrape.com", headless=False):
         """Initialize the code generator.
@@ -155,6 +45,7 @@ class SeleniumCodeGenerator:
             website: The website to interact with
             headless: Whether to run the browser in headless mode
         """
+        # Initialize the LLM client with the specified provider
         self.llm_client = LLMClient(provider=llm_provider)
         self.website = website
         self.headless = headless
@@ -173,30 +64,11 @@ class SeleniumCodeGenerator:
         for directory in [self.prompts_dir, self.responses_dir, self.code_dir]:
             os.makedirs(directory, exist_ok=True)
         
-        # Copy config.yml to the debug directory for llm_selenium_agent to use
-        self._copy_config_file()
         
         # Initialize the webdriver using our SeleniumDriver
         self._setup_webdriver()
     
-    def _copy_config_file(self):
-        """Copy the config.yml file to the generated code directory."""
-        try:
-            # Source config file (from current directory or parent directories)
-            source_config = "config.yml"
-            if not os.path.exists(source_config):
-                # Try looking in parent directory
-                source_config = os.path.join("..", "config.yml")
-            
-            if os.path.exists(source_config):
-                # Copy to the generated code directory
-                dest_config = os.path.join(self.debug_dir + "/code", "config.yml")
-                shutil.copy2(source_config, dest_config)
-                print(Fore.GREEN + f"✅ Copied config.yml to {self.debug_dir}")
-            else:
-                print(Fore.YELLOW + f"⚠️ Could not find config.yml to copy")
-        except Exception as e:
-            print(Fore.YELLOW + f"⚠️ Error copying config.yml: {e}")
+    
     
     def _setup_webdriver(self):
         """Set up the Selenium WebDriver using our custom driver."""
@@ -217,23 +89,63 @@ class SeleniumCodeGenerator:
             raise
     
     def _save_to_file(self, content, directory, filename):
+        """Save content to a file in the specified directory.
+        
+        Args:
+            content: Content to save
+            directory: Directory to save to
+            filename: Name of the file
+        """
         file_path = os.path.join(directory, filename)
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(content)
         return file_path
     
     def get_page_html(self, max_length=30000):
+        """Get the HTML of the current page.
+        
+        Args:
+            max_length: Maximum length of the HTML to return
+            
+        Returns:
+            A string containing the HTML
+        """
         return self.driver.get_page_html(max_length)
     
-    def execute_code(self, code, description="Generated code"):
-        """Execute the generated code."""
-        try:
-            # Clean the code (remove markdown formatting if present)
-            if code.startswith("```python"):
-                code = code.split("```python", 1)[1]
-            if code.endswith("```"):
-                code = code.rsplit("```", 1)[0]
+    def _extract_code_from_response(self, response):
+        """Extract code from an LLM response.
+        
+        Args:
+            response: The LLM response text
             
+        Returns:
+            The extracted code or the original response if no code section found
+        """
+        if "GENERATED_CODE:" in response:
+            # Extract everything after the GENERATED_CODE: marker
+            code_match = re.search(r"GENERATED_CODE:\s*(.*?)(?:\n\s*(?:###|Note|Notes)\s*:.*)?$", response, re.DOTALL | re.IGNORECASE)
+            if code_match:
+                code = code_match.group(1).strip()
+                
+                # Remove any trailing explanatory notes sections
+                code = re.sub(r'\n\s*(?:###|Note|Notes)\s*:.*$', '', code, flags=re.DOTALL | re.IGNORECASE)
+                
+                return code
+        return response
+    
+    def execute_code(self, code, description="Generated code"):
+        """Execute the generated code in the browser.
+        
+        Args:
+            code: The Python code to execute
+            description: Description of what the code does
+            
+        Returns:
+            Boolean indicating success
+        """
+        try:
+            # Remove any explanatory notes sections
+            code = re.sub(r'\n\s*(?:###|Note|Notes)\s*:.*$', '', code, flags=re.DOTALL | re.IGNORECASE)
             code = code.strip()
             
             # Save the code to a file
@@ -254,72 +166,135 @@ class SeleniumCodeGenerator:
             
             # Define the driver wrapper class directly in this scope
             class DriverWrapper:
+                """Wrapper around the SeleniumDriver to provide enhanced functionality.
+                
+                This wrapper:
+                1. Makes common Selenium operations more visible
+                2. Adds visual highlighting when elements are interacted with
+                3. Provides robust click operations with fallbacks
+                """
                 def __init__(self, selenium_driver):
                     self.selenium_driver = selenium_driver
                     # Access the underlying WebDriver directly for properties
                     self.driver = selenium_driver.driver
                     # Add wait property that many scripts use
-                    self.wait = WebDriverWait(self.driver, 10)
+                    self.wait = WebDriverWait(self.driver, SELENIUM_TIMEOUT)
                 
                 @property
                 def current_url(self):
+                    """Get the current URL of the page."""
                     return self.driver.current_url
                 
                 def take_screenshot(self, filename):
+                    """Take a screenshot with a descriptive filename."""
+                    print(f"📸 Taking screenshot: {filename}")
                     return self.selenium_driver.take_screenshot(filename)
                 
                 def find_element(self, by, value):
-                    print(f"Finding element: {by}={value}")
-                    elem = self.driver.find_element(by, value)
-                    # Highlight the element briefly
-                    self.highlight_element(elem)
-                    return elem
+                    """Find an element and highlight it for visibility."""
+                    print(f"🔍 Finding element: {by}={value}")
+                    try:
+                        # Use explicit wait to find the element
+                        element = WebDriverWait(self.driver, SELENIUM_TIMEOUT).until(
+                            EC.presence_of_element_located((by, value))
+                        )
+                        print(f"✅ Element found")
+                        
+                        # Highlight the element briefly
+                        self.highlight_element(element)
+                        return element
+                    except Exception as e:
+                        print(f"❌ Error finding element: {e}")
+                        # Re-raise the exception
+                        raise
                 
                 def find_elements(self, by, value):
-                    print(f"Finding elements: {by}={value}")
-                    return self.driver.find_elements(by, value)
+                    """Find multiple elements matching the selector."""
+                    print(f"🔍 Finding elements: {by}={value}")
+                    elements = self.driver.find_elements(by, value)
+                    print(f"Found {len(elements)} elements")
+                    return elements
                 
                 def get(self, url):
-                    print(f"Navigating to URL: {url}")
+                    """Navigate to a URL."""
+                    print(f"🌐 Navigating to URL: {url}")
                     return self.driver.get(url)
                 
                 def execute_script(self, script, *args):
+                    """Execute JavaScript in the browser."""
                     return self.driver.execute_script(script, *args)
                 
                 def highlight_element(self, element, duration=0.5):
                     """Highlight an element by changing its border and background color briefly."""
                     try:
-                        original_style = element.get_attribute("style")
-                        self.driver.execute_script(
-                            "arguments[0].setAttribute('style', arguments[1]);", 
-                            element, 
-                            "border: 2px solid red; background-color: yellow;"
-                        )
-                        time.sleep(duration)
-                        self.driver.execute_script(
-                            "arguments[0].setAttribute('style', arguments[1]);", 
-                            element, 
-                            original_style
-                        )
-                    except:
-                        pass  # Ignore any errors during highlighting
+                        # Check if the element is displayed before highlighting
+                        try:
+                            if not element.is_displayed():
+                                print("⚠️ Element is not displayed, skipping highlight")
+                                return
+                        except:
+                            # If we can't check is_displayed, continue anyway
+                            pass
+                            
+                        # Get original style
+                        try:
+                            original_style = element.get_attribute("style")
+                        except:
+                            original_style = ""
+                            
+                        # Apply highlight style
+                        try:
+                            self.driver.execute_script(
+                                "arguments[0].setAttribute('style', arguments[1]);", 
+                                element, 
+                                "border: 2px solid red; background-color: yellow;"
+                            )
+                            time.sleep(duration)
+                        except Exception as e:
+                            print(f"⚠️ Could not highlight element: {e}")
+                            return
+                            
+                        # Restore original style
+                        try:
+                            self.driver.execute_script(
+                                "arguments[0].setAttribute('style', arguments[1]);", 
+                                element, 
+                                original_style
+                            )
+                        except:
+                            pass  # Ignore errors when restoring style
+                            
+                    except Exception as e:
+                        print(f"⚠️ Error highlighting element: {e}")
+                        # Don't re-raise the exception - highlighting is optional
                 
                 def click(self, element):
                     """Click an element with visual feedback and error handling."""
                     try:
-                        print(f"Clicking element: {element.tag_name}")
+                        # Get element tag name safely
+                        try:
+                            tag_name = element.tag_name
+                            print(f"👆 Clicking element: {tag_name}")
+                        except Exception:
+                            # If we can't get the tag name, just use a generic message
+                            print(f"👆 Clicking element (unknown tag)")
+                        
                         self.highlight_element(element)
                         # Scroll into view first
                         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
                         time.sleep(0.3)  # Brief pause after scrolling
                         # Try direct click
                         element.click()
-                        print("Element clicked successfully")
+                        print("✅ Element clicked successfully")
                     except Exception as e:
-                        print(f"Direct click failed, trying JavaScript click: {e}")
+                        print(f"⚠️ Direct click failed, trying JavaScript click: {e}")
                         # Fall back to JavaScript click
-                        self.driver.execute_script("arguments[0].click();", element)
-                        print("Element clicked with JavaScript")
+                        try:
+                            self.driver.execute_script("arguments[0].click();", element)
+                            print("✅ Element clicked with JavaScript")
+                        except Exception as e:
+                            print(f"❌ JavaScript click also failed: {e}")
+                            raise
                     time.sleep(0.5)  # Small pause after clicking
             
             # Create a wrapper instance
@@ -367,29 +342,6 @@ class SeleniumCodeGenerator:
                 # Execute the code
                 exec(code, exec_globals)
                 
-                # Look for defined functions that we can call if they weren't called already
-                known_functions = [
-                    'go_to_next_page', 'navigate_to_next_page', 'click_next_page',
-                    'go_to_previous_page', 'navigate_previous_page', 
-                    'login', 'logout', 'filter_by_tag', 'visit_author', 'main'
-                ]
-                
-                function_called = False
-                
-                # Try to call each known function
-                for func_name in known_functions:
-                    if func_name in exec_globals and callable(exec_globals[func_name]):
-                        try:
-                            print(f"Calling {func_name}(driver)...")
-                            exec_globals[func_name](driver_wrapper)
-                            function_called = True
-                            break  # Stop after successfully calling one function
-                        except Exception as e:
-                            print(f"Error calling {func_name}: {e}")
-                
-                if not function_called:
-                    print("No functions were called - code may have executed directly")
-                
                 # Get the captured output
                 output = captured_output.getvalue()
                 
@@ -422,11 +374,11 @@ class SeleniumCodeGenerator:
             self.driver.take_screenshot(f"error_{datetime.now().strftime('%H%M%S')}")
             return False
     
-    def generate_initial_code(self, task):
-        """Generate initial code to navigate to the website and start the task.
+    def generate_code(self, user_request=None):
+        """Generate code based on the current page state and optional user request.
         
         Args:
-            task: The automation task description
+            user_request: Optional user request to guide the code generation
             
         Returns:
             The generated code as a string
@@ -435,128 +387,40 @@ class SeleniumCodeGenerator:
         html_snippet = self.get_page_html(max_length=10000)
         current_url = self.driver.driver.current_url
         
-        # Create a more informative prompt with HTML context
-        prompt = f"""
-You are an expert Python programmer specialized in web automation with Selenium and the llm_selenium_agent package.
-I need you to generate executable Python code for the following task:
-
-Task: {task}
-
-Current URL: {current_url}
-
-Current page HTML snippet:
-```html
-{html_snippet}
-```
-
-The code should interact with the website: {self.website}
-
-Requirements:
-- You MUST use the existing driver instance provided as variable 'driver'
-- When taking screenshots, use driver.take_screenshot("filename") rather than direct Selenium methods
-- Use explicit waits for reliability
-- Include proper exception handling
-- Add comments to explain key sections
-- Structure the code using functions
-- IMPORTANT: Make sure to actually call your functions! Don't just define them.
-
-IMPORTANT NOTES FOR ROBUST SELENIUM INTERACTIONS:
-- When handling elements, make sure they are visible and clickable before interacting
-- Always scroll elements into view before clicking
-- For problematic clicks, use JavaScript execution as a backup
-- For the "next page" button, use a robust selector like "//li[@class='next']/a"
-- Add print statements to show progress for debugging
-- Add explicit pauses after major actions (time.sleep(1)) for visibility
-- Screenshots should be taken after each significant action
-
-Please provide ONLY the Python code, no explanations before or after.
-"""
+        # Format the user request if provided
+        user_request_text = ""
+        if user_request:
+            user_request_text = f"User request: {user_request}\n\n"
         
-        # Save the prompt
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        self._save_to_file(prompt, self.prompts_dir, f"initial_prompt_{timestamp}.txt")
-        
-        # Generate the response
-        print(Fore.CYAN + "🤖 Generating initial code...")
-        response = self.llm_client.generate_response(prompt, temperature=0.3)
-        
-        # Save the response
-        self._save_to_file(response, self.responses_dir, f"initial_response_{timestamp}.txt")
-        
-        return response
-    
-    def get_next_action(self):
-        """Get the next action to take based on the current page.
-        
-        Returns:
-            The action response from the LLM
-        """
-        # Get the current page info
-        html_snippet = self.get_page_html()
-        current_url = self.driver.driver.current_url
-        
-        # Create the prompt
+        # Format the prompt with current page information
         prompt = ACTION_SUGGESTION_PROMPT.format(
+            current_url=current_url,
             html_snippet=html_snippet,
-            current_url=current_url
+            user_request=user_request_text
         )
         
-        # Save the prompt
+        # Save the prompt for debugging
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        self._save_to_file(prompt, self.prompts_dir, f"action_prompt_{timestamp}.txt")
+        self._save_to_file(prompt, self.prompts_dir, f"prompt_{timestamp}.txt")
         
-        # Generate the response
-        print(Fore.CYAN + "🤖 Suggesting next action...")
-        response = self.llm_client.generate_response(prompt)
+        # Generate the response from the LLM
+        action_description = "Generating code"
+        if user_request:
+            action_description = f"Generating code for: {user_request}"
+        print(Fore.CYAN + f"🤖 {action_description}...")
         
-        # Save the response
-        self._save_to_file(response, self.responses_dir, f"action_response_{timestamp}.txt")
+        response = self.llm_client.generate_response(prompt, temperature=DEFAULT_TEMPERATURE)
         
-        return response
+        # Save the response for debugging
+        self._save_to_file(response, self.responses_dir, f"response_{timestamp}.txt")
+        
+        # Extract code from the response
+        return self._extract_code_from_response(response)
     
-    def _parse_action_response(self, response):
-        """Parse the action response from the LLM.
-        
-        Args:
-            response: The LLM's response string
-            
-        Returns:
-            A dictionary with action, reason, details, and code
-        """
-        result = {
-            "action": None,
-            "reason": None,
-            "details": None,
-            "code": None
-        }
-        
-        # Extract action
-        action_match = re.search(r"ACTION:\s*(.*?)(?:\n|$)", response)
-        if action_match:
-            result["action"] = action_match.group(1).strip()
-        
-        # Extract reason
-        reason_match = re.search(r"REASON:\s*(.*?)(?:\n|$)", response)
-        if reason_match:
-            result["reason"] = reason_match.group(1).strip()
-        
-        # Extract details
-        details_match = re.search(r"DETAILS:\s*(.*?)(?:\n|$)", response)
-        if details_match:
-            result["details"] = details_match.group(1).strip()
-        
-        # Extract code
-        code_match = re.search(r"CODE:\s*(?:```python)?(.*?)(?:```)?$", response, re.DOTALL)
-        if code_match:
-            result["code"] = code_match.group(1).strip()
-        
-        return result
-    
-    def run_interactive_session(self, initial_task=None, max_actions=100):
+    def run_interactive_session(self, max_actions=100):
         """Run an interactive session with the user.
         
         Args:
-            initial_task: An optional initial task to start with
             max_actions: Maximum number of actions to take before stopping
         """
         try:
@@ -566,60 +430,59 @@ Please provide ONLY the Python code, no explanations before or after.
             time.sleep(2)
             self.driver.take_screenshot("initial_page")
             
-            # If there's an initial task, generate and execute the code
-            if initial_task:
-                initial_code = self.generate_initial_code(initial_task)
-                self.execute_code(initial_code, description=initial_task)
-            
             # Interactive session loop
             action_count = 0
             while action_count < max_actions:
-                # Take a screenshot of the current state
-                self.driver.take_screenshot(f"state_{action_count}")
-                
-                # Get user input for the next action
-                print(Fore.MAGENTA + "\n" + "="*80)
-                print(Fore.MAGENTA + "Current URL: " + self.driver.driver.current_url)
-                print(Fore.MAGENTA + "="*80)
-                print(Fore.GREEN + "What would you like to do next? (Type 'exit' to quit)")
-                user_input = input(Fore.GREEN + "> ")
-                
-                # Check if the user wants to exit
-                if user_input.lower() in ['exit', 'quit', 'q']:
-                    print(Fore.CYAN + "👋 Exiting interactive session")
-                    break
-                
-                # Generate a suggestion based on the current page or use user input
-                if user_input.strip():
-                    # If the user provided input, use it to guide the LLM
-                    action_code = self.generate_initial_code(user_input)
-                    self.execute_code(action_code, description=user_input)
-                else:
-                    # Get a suggestion from the LLM
-                    response = self.get_next_action()
-                    parsed = self._parse_action_response(response)
+                try:
+                    # Take a screenshot of the current state
+                    self.driver.take_screenshot(f"state_{action_count}")
                     
-                    # Print the suggestion
-                    print(Fore.CYAN + f"Suggested action: {parsed['action']}")
-                    print(Fore.CYAN + f"Reason: {parsed['reason']}")
-                    if parsed['details'] and parsed['details'].lower() != 'none':
-                        print(Fore.CYAN + f"Details: {parsed['details']}")
+                    # Get user input for the next action
+                    print(Fore.MAGENTA + "\n" + "="*80)
+                    print(Fore.MAGENTA + "Current URL: " + self.driver.driver.current_url)
+                    print(Fore.MAGENTA + "="*80)
+                    print(Fore.GREEN + "What would you like to do next? (Type 'exit' to quit)")
+                    user_input = input(Fore.GREEN + "> ")
                     
-                    # Ask if the user wants to execute the suggestion
-                    print(Fore.GREEN + "Execute this suggestion? (y/n)")
-                    execute = input(Fore.GREEN + "> ").lower()
+                    # Check if the user wants to exit
+                    if user_input.lower() in ['exit', 'quit', 'q']:
+                        print(Fore.CYAN + "👋 Exiting interactive session")
+                        break
                     
-                    if execute in ['y', 'yes']:
-                        # Use the code generated by the LLM
-                        self.execute_code(parsed['code'], description=parsed['action'])
-                
-                action_count += 1
+                    # Generate code based on the user's request or get a suggestion
+                    code = self.generate_code(user_request=user_input if user_input.strip() else None)
+                    
+                    # Execute the generated code
+                    description = user_input if user_input.strip() else "Suggested action"
+                    self.execute_code(code, description=description)
+                    
+                    action_count += 1
+                    
+                except Exception as e:
+                    # Catch exceptions within the loop to prevent the entire session from crashing
+                    print(Fore.RED + f"❌ Error in action: {e}")
+                    import traceback
+                    print(Fore.RED + traceback.format_exc())
+                    # Take a screenshot of the error state
+                    self.driver.take_screenshot(f"error_{datetime.now().strftime('%H%M%S')}")
+                    
+                    # Ask if the user wants to continue
+                    print(Fore.YELLOW + "Do you want to continue? (y/n)")
+                    continue_input = input(Fore.YELLOW + "> ")
+                    if continue_input.lower() not in ['y', 'yes']:
+                        print(Fore.CYAN + "👋 Exiting interactive session")
+                        break
                 
         except Exception as e:
             print(Fore.RED + f"❌ Error in interactive session: {e}")
+            import traceback
+            print(Fore.RED + traceback.format_exc())
         finally:
             # Always take a final screenshot
-            self.driver.take_screenshot("final_state")
+            try:
+                self.driver.take_screenshot("final_state")
+            except:
+                pass  # Ignore errors in taking the final screenshot
     
     def cleanup(self):
         """Clean up resources."""
@@ -633,8 +496,6 @@ def main():
                       help='LLM provider to use (hunyuan or ollama)')
     parser.add_argument('--website', type=str, default='https://quotes.toscrape.com',
                       help='Website to interact with')
-    parser.add_argument('--task', type=str,
-                      help='Initial task to perform')
     parser.add_argument('--max-actions', type=int, default=100,
                       help='Maximum number of actions to take')
     parser.add_argument('--headless', action='store_true',
@@ -652,7 +513,6 @@ def main():
         
         # Run the interactive session
         generator.run_interactive_session(
-            initial_task=args.task,
             max_actions=args.max_actions
         )
         

@@ -92,7 +92,7 @@ def main():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    elif event.key == pygame.K_SPACE:
+                    elif event.key == pygame.K_s:
                         # Toggle speed
                         speed_up = not speed_up
                         if speed_up:

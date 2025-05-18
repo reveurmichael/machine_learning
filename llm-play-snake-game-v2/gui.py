@@ -28,8 +28,8 @@ class SetUp:
         self.width_plus = 200
         self.height = APP_HEIGHT
         self.info_panel = self.width - self.height
-        self.n_row = SNAKE_SIZE
-        self.pixel = self.height // self.n_row
+        self.grid_size = SNAKE_SIZE
+        self.pixel = self.height // self.grid_size
 
 class DrawWindow(SetUp):
     """Main UI class for drawing the game window."""
@@ -49,7 +49,7 @@ class DrawWindow(SetUp):
         Args:
             board: 2D array representing the game board
             board_info: Dictionary with board entity information
-            head_position: Position of the snake's head
+            head_position: Position of the snake's head as [x, y]
         """
         rects = []
         # Draw background for game section
@@ -60,15 +60,15 @@ class DrawWindow(SetUp):
         ))
 
         # Draw board entities
-        for y, row in enumerate(board):
-            for x, value in enumerate(row):
+        for y, grid_line in enumerate(board):
+            for x, value in enumerate(grid_line):
                 # Calculate the actual display position with flipped y-coordinate
                 # Flip y-coordinate since (0,0) is now bottom-left but pygame draws from top-left
-                display_y = self.n_row - 1 - y
+                display_y = self.grid_size - 1 - y
                 
                 if value == board_info["snake"]:  # snake
                     # Use a different color for the head
-                    if head_position is not None and y == head_position[0] and x == head_position[1]:
+                    if head_position is not None and head_position[0] == x and head_position[1] == y:
                         rects.append(pygame.draw.rect(
                             self.screen, 
                             SNAKE_HEAD_C,  # Head color

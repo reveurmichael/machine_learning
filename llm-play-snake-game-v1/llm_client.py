@@ -98,7 +98,6 @@ class LLMClient:
                     extra_body={
                         "enable_enhancement": enable_enhancement,
                     },
-                    timeout=300
                 )
                 
                 # Return the response
@@ -155,7 +154,6 @@ class LLMClient:
                     "stream": False,
                     "temperature": temperature
                 },
-                timeout=300 
             )
             
             # Check if response is valid JSON

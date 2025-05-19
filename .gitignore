@@ -26,5 +26,5 @@ prompts.txt
 **/.env
 config.yml
 **/config.yml
-**/tmp-download/** */
-**/tmp-downloads/** */
+**/tmp-download/** 
+**/tmp-downloads/** 

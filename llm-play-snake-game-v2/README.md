@@ -17,18 +17,21 @@ A classic Snake game controlled by an LLM (Language Model).
 - PyGame
 - NumPy
 - OpenAI Python SDK (for Hunyuan API and DeepSeek API access)
+- Mistral AI SDK (for Mistral API access)
 - Colorama (for colored terminal output)
 - Python-dotenv (for environment variable handling)
 
 ## Installation
 
 1. Clone the repository
+
 2. Set up API keys in a `.env` file:
 
 ```
 HUNYUAN_API_KEY=<your_hunyuan_api_key_here>
 OLLAMA_HOST=<your_ollama_host_ip_address>
 DEEPSEEK_API_KEY=<your_deepseek_api_key_here>
+MISTRAL_API_KEY=<your_mistral_api_key_here>
 ```
 
 ## Running the Game
@@ -40,10 +43,11 @@ python main.py
 ```
 
 Options:
-- `--provider hunyuan`, `--provider ollama`, or `--provider deepseek` - Choose the LLM provider
+- `--provider hunyuan`, `--provider ollama`, `--provider deepseek`, or `--provider mistral` - Choose the LLM provider
 - `--model <model_name>` - Specify which model to use:
   - For Ollama: any available model 
   - For DeepSeek: `deepseek-chat` (default) or `deepseek-reasoner`
+  - For Mistral: `mistral-medium-latest` (default) or `mistral-large-latest`
 - `--max-games 10` - Set maximum number of games to play
 - `--move-pause 0.5` - Set pause time between moves in seconds (default: 1.0)
 
@@ -59,35 +63,23 @@ python main.py --provider deepseek --model deepseek-chat
 python main.py --provider deepseek --model deepseek-reasoner
 ```
 
-You can also use the provided helper script for a simpler interface:
+### Using Mistral Models
+
+Mistral offers several models, with the primary ones being:
+- `mistral-medium-latest` - The default medium-sized model
+- `mistral-large-latest` - The more powerful large model
+
+Example commands:
 ```bash
-# Run with default deepseek-chat model
-python run_deepseek.py
+# Using medium model (default for mistral provider)
+python main.py --provider mistral
 
-# Run with the reasoning model
-python run_deepseek.py reasoner
+# Explicitly using medium model
+python main.py --provider mistral --model mistral-medium-latest
 
-# Add additional arguments
-python run_deepseek.py chat --move-pause 0.5
+# Using large model 
+python main.py --provider mistral --model mistral-large-latest
 ```
-
-### Controls During Game
-
-- `R` - Reset game
-- `ESC` - Quit game
-
-## How Multi-Step Planning Works
-
-The game reduces API costs by:
-
-1. Requesting a sequence of 5-10 moves from the LLM at once
-2. Executing these moves sequentially with a configurable pause between each move
-3. Requesting a new plan when:
-   - All planned moves have been executed
-   - The snake eats an apple (requiring a new strategy)
-   - The game is reset
-
-This approach significantly reduces API calls while maintaining gameplay quality.
 
 ## Project Structure
 

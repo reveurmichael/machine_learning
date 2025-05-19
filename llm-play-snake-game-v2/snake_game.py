@@ -339,6 +339,39 @@ class SnakeGame:
     # LLM Interaction
     #-----------------------
     
+    def _calculate_move_differences(self, head_pos, apple_pos):
+        """Calculate the expected move differences based on head and apple positions.
+        
+        Args:
+            head_pos: Position of the snake's head as [x, y]
+            apple_pos: Position of the apple as [x, y]
+            
+        Returns:
+            String describing the expected move differences with actual numbers
+        """
+        head_x, head_y = head_pos
+        apple_x, apple_y = apple_pos
+        
+        # Calculate horizontal differences
+        x_diff_text = ""
+        if head_x <= apple_x:
+            x_diff = apple_x - head_x
+            x_diff_text = f"the number of RIGHT moves, minus, the number of LEFT moves, should be equal to {x_diff} (= {apple_x} - {head_x})"
+        else:
+            x_diff = head_x - apple_x
+            x_diff_text = f"the number of LEFT moves, minus, the number of RIGHT moves, should be equal to {x_diff} (= {head_x} - {apple_x})"
+        
+        # Calculate vertical differences
+        y_diff_text = ""
+        if head_y <= apple_y:
+            y_diff = apple_y - head_y
+            y_diff_text = f"the number of UP moves, minus, the number of DOWN moves, should be equal to {y_diff} (= {apple_y} - {head_y})"
+        else:
+            y_diff = head_y - apple_y
+            y_diff_text = f"the number of DOWN moves, minus, the number of UP moves, should be equal to {y_diff} (= {head_y} - {apple_y})"
+        
+        return f"{x_diff_text}, and {y_diff_text}"
+
     def get_state_representation(self):
         """Generate a variable-based representation of the game state.
         
@@ -366,12 +399,16 @@ class SnakeGame:
         apple_x, apple_y = self.apple_position
         apple_pos = f"({apple_x}, {apple_y})"
         
+        # Calculate the expected move differences
+        move_differences = self._calculate_move_differences(self.head_position, self.apple_position)
+        
         # Create a prompt from the template text using string replacements
         prompt = PROMPT_TEMPLATE_TEXT
-        prompt = prompt.replace("HEAD_POS", head_pos)
-        prompt = prompt.replace("CURRENT_DIRECTION", current_direction)
-        prompt = prompt.replace("BODY_CELLS", body_cells_str)
-        prompt = prompt.replace("APPLE_POS", apple_pos)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_CURRENT_DIRECTION", current_direction)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_BODY_CELLS", body_cells_str)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE", move_differences)
         
         # Add current score and steps
         prompt += f"\nCurrent Score: {self.score}\nSteps Taken: {self.steps}\n"

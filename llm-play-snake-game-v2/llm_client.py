@@ -10,6 +10,8 @@ from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
 import subprocess
+from mistralai import Mistral
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,7 +23,7 @@ class LLMClient:
         """Initialize the LLM client.
         
         Args:
-            provider: The LLM provider to use ("hunyuan", "ollama", or "deepseek")
+            provider: The LLM provider to use ("hunyuan", "ollama", "deepseek", or "mistral")
         """
         self.provider = provider
         
@@ -42,6 +44,8 @@ class LLMClient:
             response = self._generate_ollama_response(prompt, **kwargs)
         elif self.provider == "deepseek":
             response = self._generate_deepseek_response(prompt, **kwargs)
+        elif self.provider == "mistral":
+            response = self._generate_mistral_response(prompt, **kwargs)
         else:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
             
@@ -337,6 +341,74 @@ Never return math notation or explanations outside of JSON. Only return valid JS
             
         except Exception as e:
             print(f"Error generating response from DeepSeek: {e}")
+            import traceback
+            traceback.print_exc()
+            return self._get_fallback_response()
+    
+    def _generate_mistral_response(self, prompt: str, **kwargs) -> str:
+        """Generate a response from Mistral LLM.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            **kwargs: Additional arguments to pass to the LLM
+            
+        Returns:
+            The LLM's response as a string
+        """
+        try:
+            # Check if the Mistral SDK is available
+            if not MISTRAL_SDK_AVAILABLE:
+                print("Error: mistralai package not installed. Install with 'pip install mistralai'")
+                return self._get_fallback_response()
+            
+            # Check if API key is properly set
+            api_key = os.environ.get("MISTRAL_API_KEY")
+            if not api_key or api_key == "your_mistral_api_key_here":
+                print("Warning: Mistral API key not properly configured in .env file")
+                print(f"MISTRAL_API_KEY environment variable: {api_key[:5]}..." if api_key and len(api_key) > 5 else "Not set")
+                return self._get_fallback_response()
+                
+            # Extract parameters
+            model = kwargs.get("model", "mistral-medium-latest")  # Default to medium model
+            # Validate model selection
+            valid_models = ["mistral-tiny", "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"]
+            if model not in valid_models:
+                print(f"Warning: Unknown Mistral model '{model}', using mistral-medium-latest instead")
+                model = "mistral-medium-latest"
+                
+            temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
+            max_tokens = kwargs.get("max_tokens", 1024)
+            
+            print(f"Using Mistral model: {model}")
+            
+            # Create Mistral client
+            client = Mistral(api_key=api_key)
+            
+            
+            # Create message structure
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
+            
+            print(f"Making API call to Mistral with model: {model}, temperature: {temperature}")
+            
+            # Make the API call
+            try:
+                chat_response = client.chat.complete(
+                    model=model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                
+                # Return the response
+                return chat_response.choices[0].message.content
+            except Exception as api_error:
+                print(f"Error during Mistral API call: {api_error}")
+                return self._get_fallback_response()
+            
+        except Exception as e:
+            print(f"Error generating response from Mistral: {e}")
             import traceback
             traceback.print_exc()
             return self._get_fallback_response() 

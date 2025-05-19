@@ -34,13 +34,75 @@ def save_to_file(content, directory, filename):
         f.write(content)
     return file_path
 
+def save_experiment_info(args, directory):
+    """Save experiment information to a file.
+    
+    Args:
+        args: Command line arguments
+        directory: Directory to save to
+        
+    Returns:
+        Path to the saved file
+    """
+    # Create content with experiment information
+    content = f"""Experiment Information
+====================
+Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+LLM Provider: {args.provider}
+Model: {args.model if args.model else 'Default model for provider'}
+Max Games: {args.max_games}
+Move Pause: {args.move_pause} seconds
+
+Other Information:
+- Time Delay: {TIME_DELAY}
+- Time Tick: {TIME_TICK}
+"""
+    
+    # Save to file
+    return save_to_file(content, directory, "info.txt")
+
+def update_experiment_info(directory, game_count, total_score, total_steps):
+    """Update the experiment information file with game statistics.
+    
+    Args:
+        directory: Directory containing the info.txt file
+        game_count: Total number of games played
+        total_score: Total score across all games
+        total_steps: Total steps taken across all games
+    """
+    file_path = os.path.join(directory, "info.txt")
+    
+    # Read existing content
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Add statistics section
+    stats = f"""
+
+Game Statistics
+==============
+Total Games Played: {game_count}
+Total Score: {total_score}
+Total Steps: {total_steps}
+Average Score per Game: {total_score/game_count:.2f}
+Average Steps per Game: {total_steps/game_count:.2f}
+"""
+    
+    # Append statistics to content
+    content += stats
+    
+    # Write updated content back to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
     parser.add_argument('--provider', type=str, default='hunyuan',
-                      help='LLM provider to use (hunyuan, ollama, or deepseek)')
+                      help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Model name to use. For DeepSeek: "deepseek-chat" (default) or "deepseek-reasoner"')
+                      help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
     parser.add_argument('--max-games', type=int, default=100,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
@@ -72,6 +134,10 @@ def main():
         prompts_dir = os.path.join(log_dir, "prompts")
         responses_dir = os.path.join(log_dir, "responses")
         
+        # Save experiment information
+        model_info_path = save_experiment_info(args, log_dir)
+        print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
+        
         # Game variables
         time_delay = TIME_DELAY
         time_tick = TIME_TICK
@@ -80,6 +146,8 @@ def main():
         game_active = True
         round_count = 0
         need_new_plan = True
+        total_score = 0
+        total_steps = 0
         
         # Main game loop
         running = True
@@ -169,6 +237,10 @@ def main():
                         game_count += 1
                         print(Fore.RED + f"❌ Game over! Score: {game.score}, Steps: {game.steps}")
                         
+                        # Update totals
+                        total_score += game.score
+                        total_steps += game.steps
+                        
                         # Save game summary
                         summary = f"""Game {game_count} Summary:
 Score: {game.score}
@@ -201,6 +273,9 @@ Last direction: {next_move}
             # Control game speed
             pygame.time.delay(time_delay)
             clock.tick(time_tick)
+        
+        # Update experiment info with final statistics
+        update_experiment_info(log_dir, game_count, total_score, total_steps)
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")

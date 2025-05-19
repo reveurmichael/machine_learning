@@ -37,16 +37,17 @@ class SeleniumCodeGenerator:
     3. Providing visual feedback during execution
     """
     
-    def __init__(self, llm_provider="hunyuan", website="https://quotes.toscrape.com", headless=False):
+    def __init__(self, llm_provider="hunyuan", website="https://quotes.toscrape.com", headless=False, model=None):
         """Initialize the code generator.
         
         Args:
             llm_provider: The LLM provider to use ("hunyuan" or "ollama")
             website: The website to interact with
             headless: Whether to run the browser in headless mode
+            model: Specific model to use with the provider
         """
-        # Initialize the LLM client with the specified provider
-        self.llm_client = LLMClient(provider=llm_provider)
+        # Initialize the LLM client with the specified provider and model
+        self.llm_client = LLMClient(provider=llm_provider, model=model)
         self.website = website
         self.headless = headless
         self.driver = None
@@ -514,7 +515,8 @@ def main():
         generator = SeleniumCodeGenerator(
             llm_provider=args.provider,
             website=args.website,
-            headless=args.headless
+            headless=args.headless,
+            model=args.model
         )
 
         # Run the interactive session

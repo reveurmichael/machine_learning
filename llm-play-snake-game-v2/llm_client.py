@@ -87,7 +87,7 @@ class LLMClient:
             # Extract parameters
             model = kwargs.get("model", "hunyuan-turbos-latest")
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
-            max_tokens = kwargs.get("max_tokens", 10240)
+            max_tokens = kwargs.get("max_tokens", 8192)
             enable_enhancement = kwargs.get("enable_enhancement", True)
             
             print(f"Making API call to Hunyuan with model: {model}, temperature: {temperature}")
@@ -307,7 +307,7 @@ class LLMClient:
                 model = "deepseek-chat"
                 
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
-            max_tokens = kwargs.get("max_tokens", 10240)
+            max_tokens = kwargs.get("max_tokens", 8192)
             
             print(f"Using DeepSeek model: {model}")
             
@@ -365,7 +365,7 @@ class LLMClient:
                 model = "mistral-medium-latest"
                 
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
-            max_tokens = kwargs.get("max_tokens", 10240)
+            max_tokens = kwargs.get("max_tokens", 8192)
             
             print(f"Using Mistral model: {model}")
             

@@ -410,9 +410,6 @@ class SnakeGame:
         prompt = prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
         prompt = prompt.replace("TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE", move_differences)
         
-        # Add current score and steps
-        prompt += f"\nCurrent Score: {self.score}\nSteps Taken: {self.steps}\n"
-        
         return prompt
     
     def parse_llm_response(self, response):

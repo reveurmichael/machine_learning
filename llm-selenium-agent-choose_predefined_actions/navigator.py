@@ -34,7 +34,8 @@ class QuotesNavigator:
         self, 
         provider: str = DEFAULT_LLM_PROVIDER,
         headless: bool = False,
-        extra_rules: List[str] = None
+        extra_rules: List[str] = None,
+        model: str = None
     ):
         """Initialize the navigator.
         
@@ -42,12 +43,13 @@ class QuotesNavigator:
             provider: The LLM provider to use
             headless: Whether to run the browser in headless mode
             extra_rules: Additional rules to guide the LLM
+            model: Specific model to use with the provider
         """
         self.provider = provider
         self.headless = headless
         self.extra_rules = extra_rules or []
         self.user_rule = ""  # Initialize user rule as empty
-        self.llm_client = LLMClient(provider=provider)
+        self.llm_client = LLMClient(provider=provider, model=model)
         self.selenium_driver = None
         self.last_action = "INITIALIZE"
         
@@ -393,6 +395,7 @@ def main():
         provider=args.provider,
         headless=args.headless,
         extra_rules=args.rules,
+        model=args.model
     )
 
     navigator.run(max_actions=args.max_actions)

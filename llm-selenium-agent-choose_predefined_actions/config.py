@@ -92,7 +92,6 @@ LLM_CONFIG = {
         "enable_enhancement": True,
     },
     "ollama": {
-        "model": "llama3.2",  # Will be overridden by available model selection
         "temperature": 0.7
     }
 } 

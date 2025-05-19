@@ -4,7 +4,7 @@ Contains game parameters and colors without problematic f-strings.
 """
 
 # COLORS
-SNAKE_C = (309, 304, 192)
+SNAKE_C = (209, 204, 192)
 APPLE_C = (192, 57, 43)
 BG = (44, 44, 84)  # background
 APP_BG = (240, 240, 240)
@@ -123,5 +123,5 @@ AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT F
      – If no safe path of ≤30 moves exists, respond exactly with:
        { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
-Now, analyze the provided state and output your final answer.
+Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON.
 """

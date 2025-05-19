@@ -255,7 +255,6 @@ if __name__ == "__main__":
     print("  D or Right Arrow = RIGHT")
     print("  R = Reset Game")
     print("  ESC = Quit Game")
-    print("  SPACE = Toggle Speed\n")
     print("Game started! Use WASD keys to control the snake.")
     
     # Main game loop
@@ -270,14 +269,6 @@ if __name__ == "__main__":
                     running = False
                 elif event.key in key_direction_map and game_active:
                     next_direction = key_direction_map[event.key]
-                elif event.key == pygame.K_SPACE:
-                    # Toggle speed
-                    if time_delay == TIME_DELAY:
-                        print("⚡ Speed mode enabled")
-                        time_delay, time_tick = 0, 0
-                    else:
-                        print("🐢 Normal speed mode")
-                        time_delay, time_tick = TIME_DELAY, TIME_TICK
                 elif event.key == pygame.K_r:
                     # Reset game
                     game.reset()

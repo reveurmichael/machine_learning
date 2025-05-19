@@ -38,9 +38,9 @@ def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
     parser.add_argument('--provider', type=str, default='hunyuan',
-                      help='LLM provider to use (hunyuan or ollama)')
+                      help='LLM provider to use (hunyuan, ollama, or deepseek)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Model name to use when provider is ollama (default: auto-select largest model)')
+                      help='Model name to use. For DeepSeek: "deepseek-chat" (default) or "deepseek-reasoner"')
     parser.add_argument('--max-games', type=int, default=100,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
@@ -73,7 +73,6 @@ def main():
         responses_dir = os.path.join(log_dir, "responses")
         
         # Game variables
-        speed_up = False
         time_delay = TIME_DELAY
         time_tick = TIME_TICK
         clock = pygame.time.Clock()
@@ -92,15 +91,6 @@ def main():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    elif event.key == pygame.K_s:
-                        # Toggle speed
-                        speed_up = not speed_up
-                        if speed_up:
-                            print(Fore.YELLOW + "⚡ Speed mode enabled")
-                            time_delay, time_tick = 0, 0
-                        else:
-                            print(Fore.BLUE + "🐢 Normal speed mode")
-                            time_delay, time_tick = TIME_DELAY, TIME_TICK
                     elif event.key == pygame.K_r:
                         # Reset game
                         game.reset()
@@ -125,9 +115,9 @@ def main():
                         
                         # Get next move from LLM, passing model name if specified and provider is ollama
                         kwargs = {}
-                        if args.provider == 'ollama' and args.model:
+                        if args.model:
                             kwargs['model'] = args.model
-                            print(Fore.CYAN + f"Using Ollama model: {args.model}")
+                            print(Fore.CYAN + f"Using {args.provider} model: {args.model}")
                         else:
                             print(Fore.CYAN + f"Using default model for provider: {args.provider}")
                             
@@ -169,8 +159,7 @@ def main():
                             round_count += 1
                             
                             # Pause between moves for visualization
-                            if not speed_up:
-                                time.sleep(args.move_pause)
+                            time.sleep(args.move_pause)
                         else:
                             # No more planned moves, request a new plan
                             need_new_plan = True

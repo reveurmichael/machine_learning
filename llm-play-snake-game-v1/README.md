@@ -90,6 +90,13 @@ python main.py --provider mistral --model mistral-large-latest
 - `config.py` - Game settings and prompt templates
 
 
+## How to improve the game performance
+
+- Maybe, instead of giving multiple moves, give only one move for each time the LLM is called. But this will drastically increase the time it takes for the LLM to plan a move, as well as the cost of the API calls.
+- Or, there are many other details to specify about the game. Those additional details might help LLM give better moves.
+- Other ideas? Be innovative!
+
+
 ## License
 
 MIT 

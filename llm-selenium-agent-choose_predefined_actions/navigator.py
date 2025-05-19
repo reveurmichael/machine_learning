@@ -167,7 +167,11 @@ class QuotesNavigator:
         self.save_to_file(prompt, current_round, "prompt.txt")
         
         # Get LLM config based on provider
-        llm_kwargs = LLM_CONFIG.get(self.provider, {})
+        llm_kwargs = LLM_CONFIG.get(self.provider, {}).copy()
+        
+        # For Ollama, let the client select the best model
+        if self.provider == "ollama":
+            llm_kwargs.pop("model", None)
         
         # Get response from LLM
         print(Fore.YELLOW + "Consulting LLM for next action...")

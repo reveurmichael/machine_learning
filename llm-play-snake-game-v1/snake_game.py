@@ -223,15 +223,13 @@ class SnakeGame:
             
         Returns:
             The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
+            or None if no valid moves were found
         """
         # Store the raw response for display
         self.last_llm_response = response
         
         # Process the response for display
         self._process_response_for_display(response)
-        
-        # Default direction if parsing fails
-        default_direction = "RIGHT" if self.current_direction is None else self._get_current_direction_key()
         
         # Clear previous planned moves
         self.planned_moves = []
@@ -280,16 +278,15 @@ class SnakeGame:
             self.planned_moves = [direction.upper() for direction in simple_list]
             print(f"Found {len(self.planned_moves)} moves in simple list: {self.planned_moves}")
         else:
-            # Fallback to default
-            self.planned_moves = [default_direction]
-            print(f"No valid directions found, using default: {default_direction}")
+            # No valid moves found
+            print("No valid directions found. Not moving.")
         
-        # Get the next move from the sequence (or default if empty)
+        # Get the next move from the sequence (or None if empty)
         if self.planned_moves:
             next_move = self.planned_moves.pop(0)
             return next_move
         else:
-            return default_direction
+            return None
             
     def _process_response_for_display(self, response):
         """Process the LLM response for display purposes.
@@ -300,11 +297,7 @@ class SnakeGame:
         Returns:
             Processed response text ready for display
         """
-        # Extract just the generated code part if possible
-        if "GENERATED_CODE:" in response:
-            processed = response.split("GENERATED_CODE:", 1)[1].strip()
-        else:
-            processed = response
+        processed = response
             
         # Limit to a reasonable length for display
         self.processed_response = processed[:1000]

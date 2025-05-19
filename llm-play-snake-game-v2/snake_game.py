@@ -420,15 +420,13 @@ class SnakeGame:
             
         Returns:
             The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
+            or None if no valid moves were found
         """
         # Store the raw response for display
         self.last_llm_response = response
         
         # Process the response for display
         self._process_response_for_display(response)
-        
-        # Default direction if parsing fails
-        default_direction = "RIGHT" if self.current_direction is None else self._get_current_direction_key()
         
         # Clear previous planned moves
         self.planned_moves = []
@@ -451,34 +449,27 @@ class SnakeGame:
                 self.planned_moves = valid_moves
                 print(f"Found {len(self.planned_moves)} moves in JSON: {self.planned_moves}")
         
-        # Method 3: Try regex patterns if JSON parsing failed
-        if not self.planned_moves:
-            text_moves = self._extract_moves_from_text(response)
-            if text_moves:
-                self.planned_moves = text_moves
-        
-        # Method 4: Try finding arrays if other methods failed
+
+        # Method 3: Try finding arrays if other methods failed
         if not self.planned_moves:
             array_moves = self._extract_moves_from_arrays(response)
             if array_moves:
                 self.planned_moves = array_moves
                 print(f"Found {len(self.planned_moves)} moves in array format: {self.planned_moves}")
         
-        # If we still have no moves, use default
+        # If we still have no moves, leave planned_moves empty
         if not self.planned_moves:
-            # Fallback to default
-            self.planned_moves = [default_direction]
-            print(f"No valid directions found, using default: {default_direction}")
+            print("No valid directions found. Not moving.")
+        else:
+            # Filter out invalid reversal moves if we have moves
+            self.planned_moves = self._filter_invalid_reversals(self.planned_moves)
         
-        # Filter out invalid reversal moves
-        self.planned_moves = self._filter_invalid_reversals(self.planned_moves)
-        
-        # Get the next move from the sequence (or default if empty)
+        # Get the next move from the sequence (or None if empty)
         if self.planned_moves:
             next_move = self.planned_moves.pop(0)
             return next_move
         else:
-            return default_direction
+            return None
     
     def get_next_planned_move(self):
         """Get the next move from the planned sequence.
@@ -586,58 +577,6 @@ class SnakeGame:
             print(f"Error in JSON parsing: {e}")
             return None
     
-    def _extract_moves_from_text(self, response):
-        """Extract moves from plain text using regex patterns.
-        
-        Args:
-            response: LLM response text
-            
-        Returns:
-            List of extracted moves, or empty list if none found
-        """
-        moves = []
-        
-        # Pattern 1: numbered list (1. UP\n2. RIGHT)
-        numbered_list = re.findall(r'(\d+)\.?\s+(UP|DOWN|LEFT|RIGHT)', response, re.IGNORECASE)
-        
-        # Pattern 2: steps labeled with "Step X: DIRECTION"
-        step_pattern = re.findall(r'Step\s+(\d+):\s+(UP|DOWN|LEFT|RIGHT)', response, re.IGNORECASE)
-        
-        # Pattern 3: simple directions separated by commas or newlines
-        simple_list = re.findall(r'\b(UP|DOWN|LEFT|RIGHT)\b', response, re.IGNORECASE)
-        
-        # Combine and sort the numbered lists
-        combined_list = []
-        
-        # Add numbered list entries
-        for num_str, direction in numbered_list:
-            try:
-                num = int(num_str)
-                combined_list.append((num, direction.upper()))
-            except ValueError:
-                pass
-                
-        # Add step pattern entries
-        for num_str, direction in step_pattern:
-            try:
-                num = int(num_str)
-                combined_list.append((num, direction.upper()))
-            except ValueError:
-                pass
-        
-        # Sort by number
-        combined_list.sort(key=lambda x: x[0])
-        
-        # Extract directions from sorted list
-        if combined_list:
-            moves = [direction for _, direction in combined_list]
-            print(f"Found {len(moves)} moves in the numbered list: {moves}")
-        # If no numbered list, use the simple list
-        elif simple_list:
-            moves = [direction.upper() for direction in simple_list]
-            print(f"Found {len(moves)} moves in simple list: {moves}")
-            
-        return moves
     
     def _extract_moves_from_arrays(self, response):
         """Extract moves from array notation in text.
@@ -686,10 +625,9 @@ class SnakeGame:
                 filtered_moves.append(move)
                 last_direction = move
         
-        # If all moves were filtered out, use default
-        if not filtered_moves and self.current_direction is not None:
-            filtered_moves = [self._get_current_direction_key()]
-            print(f"All moves were invalid reversals, using default: {filtered_moves[0]}")
+        # If all moves were filtered out, return empty list
+        if not filtered_moves:
+            print("All moves were invalid reversals. Not moving.")
             
         return filtered_moves
     
@@ -703,11 +641,7 @@ class SnakeGame:
             Processed response text ready for display
         """
         try:
-            # Extract just the generated code part if possible
-            if "GENERATED_CODE:" in response:
-                processed = response.split("GENERATED_CODE:", 1)[1].strip()
-            else:
-                processed = response
+            processed = response
                 
             # Limit to a reasonable length for display
             if len(processed) > 1500:

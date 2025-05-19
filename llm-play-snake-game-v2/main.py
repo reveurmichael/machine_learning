@@ -197,13 +197,20 @@ def main():
                         
                         # Parse and get the first move from the sequence
                         next_move = game.parse_llm_response(llm_response)
-                        print(Fore.CYAN + f"🐍 Move: {next_move} (Game {game_count+1}, Round {round_count+1})")
+                        print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {game_count+1}, Round {round_count+1})")
                         
                         # We now have a new plan, so don't request another one until we need it
                         need_new_plan = False
                         
-                        # Execute the move and check if game continues
-                        game_active, apple_eaten = game.make_move(next_move)
+                        # Only execute the move if we got a valid direction
+                        if next_move:
+                            # Execute the move and check if game continues
+                            game_active, apple_eaten = game.make_move(next_move)
+                        else:
+                            # No valid move found, but we still count this as a round
+                            print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
+                            # No movement, so the game remains active and no apple is eaten
+                            game_active, apple_eaten = True, False
                         
                         # Increment round count
                         round_count += 1

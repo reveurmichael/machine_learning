@@ -369,7 +369,6 @@ def main():
         "--provider",
         type=str,
         default=DEFAULT_LLM_PROVIDER,
-        choices=["hunyuan", "ollama"],
         help=f"LLM provider to use (default: {DEFAULT_LLM_PROVIDER})",
     )
     parser.add_argument(

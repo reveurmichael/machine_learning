@@ -17,8 +17,7 @@ from llm_client import LLMClient
 from config import (
     PROMPT_TEMPLATE, 
     DEFAULT_MAX_ACTIONS, 
-    DEFAULT_LLM_PROVIDER,
-    LLM_CONFIG
+    DEFAULT_LLM_PROVIDER
 )
 
 # Initialize colorama
@@ -168,16 +167,9 @@ class QuotesNavigator:
         # Save prompt to file
         self.save_to_file(prompt, current_round, "prompt.txt")
         
-        # Get LLM config based on provider
-        llm_kwargs = LLM_CONFIG.get(self.provider, {}).copy()
-        
-        # For Ollama, let the client select the best model
-        if self.provider == "ollama":
-            llm_kwargs.pop("model", None)
-        
         # Get response from LLM
         print(Fore.YELLOW + "Consulting LLM for next action...")
-        response = self.llm_client.generate_response(prompt, **llm_kwargs)
+        response = self.llm_client.generate_response(prompt)
         
         # Save response to file
         self.save_to_file(response, current_round, "response.txt")

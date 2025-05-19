@@ -7,7 +7,16 @@ from typing import Dict, Any, List
 
 # Navigator settings
 DEFAULT_MAX_ACTIONS = 50
-DEFAULT_LLM_PROVIDER = "hunyuan"  # "hunyuan" or "ollama"
+DEFAULT_LLM_PROVIDER = "hunyuan" 
+
+
+# Login credentials
+LOGIN_CREDENTIALS = {"username": "123456", "password": "12345678"}
+
+# Selenium settings
+SELENIUM_TIMEOUT = 10
+SCREENSHOTS_ENABLED = True
+
 
 # Prompt template
 PROMPT_TEMPLATE = """
@@ -72,26 +81,3 @@ ACTION: LOGIN
 REASON: The user has requested that I log in to the website.
 DETAILS: None
 """
-
-# Login credentials
-LOGIN_CREDENTIALS = {
-    "username": "123456",
-    "password": "12345678"
-}
-
-# Selenium settings
-SELENIUM_TIMEOUT = 10
-SCREENSHOTS_ENABLED = True
-
-# LLM settings for different providers
-LLM_CONFIG = {
-    "hunyuan": {
-        "model": "hunyuan-turbos-latest",
-        "temperature": 0.7,
-        "max_tokens": 1024,
-        "enable_enhancement": True,
-    },
-    "ollama": {
-        "temperature": 0.7
-    }
-} 

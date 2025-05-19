@@ -133,12 +133,15 @@ class LLMClient:
             The LLM's response as a string
         """
         try:
-            # Extract parameters
-            model = kwargs.get("model", self._get_best_ollama_model())
+            # Extract parameters - use the specified model if provided, otherwise find the best one
+            model = kwargs.get("model")
+            if model is None:
+                model = self._get_best_ollama_model()
+                
             server = kwargs.get("server", os.environ.get("OLLAMA_HOST", "localhost"))
             temperature = kwargs.get("temperature", 0.7)
             
-            # Make the API call
+            # Make the API call without timeout
             response = requests.post(
                 f"http://{server}:11434/api/generate",
                 json={
@@ -146,7 +149,7 @@ class LLMClient:
                     "prompt": prompt,
                     "stream": False,
                     "temperature": temperature
-                },
+                }
             )
             
             # Check if response is valid JSON

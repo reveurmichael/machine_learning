@@ -4,7 +4,7 @@ Contains game parameters and colors without problematic f-strings.
 """
 
 # COLORS
-SNAKE_C = (209, 204, 192)
+SNAKE_C = (309, 304, 192)
 APPLE_C = (192, 57, 43)
 BG = (44, 44, 84)  # background
 APP_BG = (240, 240, 240)
@@ -38,28 +38,28 @@ DIRECTIONS = {
 
 # The PROMPT_TEMPLATE text without f-string evaluation
 PROMPT_TEMPLATE_TEXT = """
-You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You will be given:
+You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You are given:
 
 INPUT VARIABLES:
-  • HEAD_POS (x,y)       – Snake-head coordinates.
-  • DIRECTION    – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
-  • BODY_CELLS           – List of (x,y) positions occupied by the snake body (excluding the head).
-  • APPLE_POS (x,y)      – Apple coordinates.
+  • head position: HEAD_POS              – Snake-head coordinate in (x,y).
+  • current direction: CURRENT_DIRECTION – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
+  • body cells: BODY_CELLS               – List of (x,y) positions occupied by the snake body (excluding the head).
+  • apple position: APPLE_POS            – Apple coordinate in (x,y).
 
 MOVEMENT RULES:
   1. Valid moves are "UP", "DOWN", "LEFT", "RIGHT". 
   2. DIRECTIONS = { "UP": (0, 1), "RIGHT": (1, 0), "DOWN": (0, -1), "LEFT": (-1, 0) }
-  3. You cannot move in the exact opposite of DIRECTION on your first move.  
+  3. For each of your moves, you cannot move in the exact opposite of current direction. If current direction is NONE, then you can move in any direction.
   4. The snake dies if head moves into any BODY_CELLS or outside 0 ≤ x < 10, 0 ≤ y < 10.  
   5. Eating the apple at APPLE_POS increments score by 1 and grows the body by 1 segment.
 
 COORDINATE SYSTEM (IMPORTANT):
   The origin (0,0) is at the BOTTOM-LEFT of the grid.
-  • UP: Increases y coordinate (moves toward y 9)
-  • DOWN: Decreases y coordinate (moves toward y 0)
-  • RIGHT: Increases x coordinate (moves toward x 9)
-  • LEFT: Decreases x coordinate (moves toward x 0)
-  • The first element of the tuple is the LEFT and RIGHT direction (x axis), the second element is the UP and DOWN direction (y axis).
+  • UP: Increases y coordinate by 1 (moves toward y 9)
+  • DOWN: Decreases y coordinate by 1 (moves toward y 0)
+  • RIGHT: Increases x coordinate by 1 (moves toward x 9)
+  • LEFT: Decreases x coordinate by 1 (moves toward x 0)
+  • The first element of the tuple is the LEFT and RIGHT direction (x axis), the second element is the UP and DOWN direction (y axis), just like in middle school and high school math.
 
 EXAMPLE GRID (4×4) WITH COORDINATES:
   (0,3)  (1,3)  (2,3)  (3,3)
@@ -80,17 +80,16 @@ EXAMPLE MOVES FROM POSITION (1,1):
   • LEFT → (0,1)
 
 OBJECTIVE:
-  Plan a safe path to reach the apple without colliding. Output a sequence of moves (length 5–20) that leads the head to APPLE_POS if possible.
+  Plan a safe path to reach the apple without colliding. Output a sequence of moves (length 5–30) that leads the head to APPLE_POS if possible, unless you will reach the apple in fewer.  
 
-OUTPUT FORMAT:
-  1. (Optional) Briefly (1–2 sentences) explain your path-planning rationale.  
-  2. Then provide a JSON object exactly in this form:
+VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
+  A JSON object exactly in this form:
      {
        "moves": [ "MOVE1", "MOVE2", … ],
-       "reasoning": "…"
+       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
      }
-     – "moves" must be a list of 5 to 20 directions (each one of "UP," "DOWN," "LEFT," "RIGHT").  
-     – If no safe path of ≤20 moves exists, respond exactly with:
+     – "moves" must be a list of 5 to 30 directions (each one of "UP," "DOWN," "LEFT," "RIGHT"), unless you will reach the apple in fewer.   
+     – If no safe path of ≤30 moves exists, respond exactly with:
        { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
 CONSTRAINTS:
@@ -99,6 +98,11 @@ CONSTRAINTS:
   - Avoid collisions with walls or the body.  
   - When planning, assume your body will grow by 1 after eating the apple. Do not plan a move sequence that, after apple consumption, leaves you with no legal exit on the next turn if avoidable.
   - Use Manhattan distance to guide you toward the apple, but ALWAYS avoid any move that would collide with a wall or your own body. If you must detour around your own tail, do so.
+  - Importantly, you should carefully check, before giving the final answer, that if the head is at (x1, y1) and the apple is at (x2, y2), in your answer's moves:
+    - if x1 <= x2, then the number of RIGHT moves, minus, the number of LEFT moves, should be equal to x2 - x1
+    - if x1 > x2, then the number of LEFT moves, minus, the number of RIGHT moves, should be equal to x1 - x2
+    - if y1 <= y2, then the number of UP moves, minus, the number of DOWN moves, should be equal to y2 - y1
+    - if y1 > y2, then the number of DOWN moves, minus, the number of UP moves, should be equal to y1 - y2
 
 EDGE CASES:
   - If apple is behind you but the only path is to circle around, you must output that circle.  
@@ -107,6 +111,17 @@ EDGE CASES:
 
 IMPORTANT:
   - Keep in mind that the coordinate system is (x,y) where x is the horizontal axis (left to right) and y is the vertical axis (bottom to top). Just like in middle school and high school math.
+
+
+AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
+  A JSON object exactly in this form:
+     {
+       "moves": [ "MOVE1", "MOVE2", … ],
+       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
+     }
+     – "moves" must be a list of 5 to 30 directions (each one of "UP," "DOWN," "LEFT," "RIGHT"), unless you will reach the apple in fewer.  
+     – If no safe path of ≤30 moves exists, respond exactly with:
+       { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
 Now, analyze the provided state and output your final answer.
 """

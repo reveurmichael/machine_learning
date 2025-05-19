@@ -369,7 +369,7 @@ class SnakeGame:
         # Create a prompt from the template text using string replacements
         prompt = PROMPT_TEMPLATE_TEXT
         prompt = prompt.replace("HEAD_POS", head_pos)
-        prompt = prompt.replace("DIRECTION", current_direction)
+        prompt = prompt.replace("CURRENT_DIRECTION", current_direction)
         prompt = prompt.replace("BODY_CELLS", body_cells_str)
         prompt = prompt.replace("APPLE_POS", apple_pos)
         

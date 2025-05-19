@@ -39,7 +39,8 @@ class YouTubeNavigator:
         target_views: int = DEFAULT_TARGET_VIEWS,
         headless: bool = False,
         ollama_server: str = "localhost",
-        extra_rules: List[str] = None
+        extra_rules: List[str] = None,
+        model: str = None
     ):
         """Initialize the navigator.
         
@@ -49,6 +50,7 @@ class YouTubeNavigator:
             headless: Whether to run the browser in headless mode
             ollama_server: Hostname or IP of Ollama server if using Ollama
             extra_rules: Additional rules to guide the LLM
+            model: Specific model to use with the provider
         """
         self.provider = provider
         self.target_views = target_views
@@ -56,7 +58,7 @@ class YouTubeNavigator:
         self.ollama_server = ollama_server
         self.extra_rules = extra_rules or []
         self.last_action = "INITIALIZE"
-        self.llm_client = LLMClient(provider=provider)
+        self.llm_client = LLMClient(provider=provider, model=model)
         self.selenium_driver = None
         self.conversation_history = []
         
@@ -636,6 +638,7 @@ def main():
         headless=args.headless,
         ollama_server=args.ollama_server,
         extra_rules=args.rules,
+        model=args.model
     )
 
     navigator.run(max_actions=args.max_actions, max_target_videos=args.max_videos)

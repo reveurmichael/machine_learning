@@ -371,6 +371,12 @@ def main():
         help=f"LLM provider to use (default: {DEFAULT_LLM_PROVIDER})",
     )
     parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"',
+    )
+    parser.add_argument(
         "--max-actions",
         type=int,
         default=DEFAULT_MAX_ACTIONS,
@@ -382,13 +388,13 @@ def main():
         help="Run the browser in headless mode",
     )
     args = parser.parse_args()
-    
+
     navigator = QuotesNavigator(
         provider=args.provider,
         headless=args.headless,
         extra_rules=args.rules,
     )
-    
+
     navigator.run(max_actions=args.max_actions)
 
 if __name__ == "__main__":

@@ -494,15 +494,21 @@ def main():
     parser = argparse.ArgumentParser(description='LLM-guided Selenium code generator')
     parser.add_argument('--provider', type=str, default='hunyuan',
                       help='LLM provider to use (hunyuan or ollama)')
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"',
+    )
     parser.add_argument('--website', type=str, default='https://quotes.toscrape.com',
                       help='Website to interact with')
     parser.add_argument('--max-actions', type=int, default=100,
                       help='Maximum number of actions to take')
     parser.add_argument('--headless', action='store_true',
                       help='Run the browser in headless mode')
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Create the code generator
         generator = SeleniumCodeGenerator(
@@ -510,12 +516,12 @@ def main():
             website=args.website,
             headless=args.headless
         )
-        
+
         # Run the interactive session
         generator.run_interactive_session(
             max_actions=args.max_actions
         )
-        
+
     except KeyboardInterrupt:
         print(Fore.YELLOW + "\n⚠️ Session interrupted by user")
     except Exception as e:

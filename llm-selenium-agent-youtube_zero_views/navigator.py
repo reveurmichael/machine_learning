@@ -594,6 +594,12 @@ def main():
         help=f"LLM provider to use (default: {DEFAULT_LLM_PROVIDER})",
     )
     parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"',
+    )
+    parser.add_argument(
         "--target-views",
         type=int,
         default=DEFAULT_TARGET_VIEWS,
@@ -623,7 +629,7 @@ def main():
         help="IP address or hostname of the Ollama server (default: localhost)",
     )
     args = parser.parse_args()
-    
+
     navigator = YouTubeNavigator(
         provider=args.provider,
         target_views=args.target_views,
@@ -631,7 +637,7 @@ def main():
         ollama_server=args.ollama_server,
         extra_rules=args.rules,
     )
-    
+
     navigator.run(max_actions=args.max_actions, max_target_videos=args.max_videos)
 
 if __name__ == "__main__":

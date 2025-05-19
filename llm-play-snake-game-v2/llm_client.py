@@ -311,14 +311,7 @@ class LLMClient:
             
             print(f"Using DeepSeek model: {model}")
             
-            # Set up system message content to enforce proper response format
-            system_content = """You are an AI controlling a snake game.
-You must return valid JSON only in the format: {"moves": ["UP", "DOWN", "LEFT", "RIGHT", ...], "reasoning": "brief explanation"}
-Never return math notation or explanations outside of JSON. Only return valid JSON."""
-            
-            # Create the messages with system prompt to ensure proper response format
             messages = [
-                {"role": "system", "content": system_content},
                 {"role": "user", "content": prompt}
             ]
             

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (6,6) from (8,9) requires moving left twice and down three times. The initial direction is UP, so the first move cannot be DOWN. The sequence LEFT, LEFT, DOWN, DOWN, DOWN avoids collisions with the body and walls. Each move reduces the Manhattan distance appropriately, ensuring the snake reaches the apple safely in 5 moves."
+}

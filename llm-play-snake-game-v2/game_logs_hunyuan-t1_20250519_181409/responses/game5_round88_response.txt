@@ -1,0 +1,1 @@
+{"moves": ["UP", "UP"], "reasoning": "The apple is directly north of the head. Moving UP twice reaches the apple without colliding with the body or walls. Initial direction is RIGHT, so first move UP is allowed. After moving UP, the path is clear for the second UP to reach the apple."}

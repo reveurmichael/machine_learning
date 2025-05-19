@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "LEFT"], "reasoning": "The snake can move left twice to reach the apple directly without colliding with walls or its body. The initial direction is LEFT, and moving left again is allowed as it's not the opposite direction."}

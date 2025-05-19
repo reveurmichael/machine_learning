@@ -1,0 +1,4 @@
+Game 5 Summary:
+Score: 19
+Steps: 121
+Last direction: DOWN

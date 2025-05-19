@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "UP", "LEFT", "UP", "LEFT", "UP", "LEFT"],
+  "reasoning": "The path moves upward first to avoid collision with the body, then alternates left and up to navigate around the body while maintaining the required net movement toward the apple (4 LEFT, 4 UP). Each step avoids walls and body collisions."
+}

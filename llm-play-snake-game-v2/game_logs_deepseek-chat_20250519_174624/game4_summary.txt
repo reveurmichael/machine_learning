@@ -1,0 +1,4 @@
+Game 4 Summary:
+Score: 6
+Steps: 48
+Last direction: UP

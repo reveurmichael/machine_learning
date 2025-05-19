@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move left once to align x-coordinate with apple, then descend directly down while avoiding body cells. This path satisfies Manhattan requirements (LEFT:1, DOWN:5) and avoids collisions."
+}

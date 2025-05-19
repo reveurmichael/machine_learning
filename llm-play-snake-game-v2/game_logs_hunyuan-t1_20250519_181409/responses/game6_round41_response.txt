@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left 8 times to reach x=0 and down 3 times to reach y=3. Starting with UP direction, first move LEFT to avoid body collision. Continue LEFT until x=0, then move DOWN to reach the apple. Path avoids walls and body collisions."
+}

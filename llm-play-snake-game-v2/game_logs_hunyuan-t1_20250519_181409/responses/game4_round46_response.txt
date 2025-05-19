@@ -1,0 +1,1 @@
+{"moves": ["LEFT"], "reasoning": "The apple is directly left of the head. Moving LEFT reaches the apple in one step without collision, adhering to direction rules and avoiding walls/body."}

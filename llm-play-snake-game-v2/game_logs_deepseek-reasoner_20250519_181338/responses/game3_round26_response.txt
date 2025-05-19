@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Three LEFT moves to align x with apple, then DOWN to reach it. Path avoids body collisions and satisfies direction constraints."
+}

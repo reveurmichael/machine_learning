@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "LEFT", "UP", "LEFT", "UP", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake must move left 7 times and up 3 times to reach the apple at (0,9) from (7,6). Starting with UP direction, the path alternates LEFT and UP to navigate around the body, then continues leftward once aligned vertically. This avoids collisions with the body and walls while fulfilling the Manhattan distance requirements."
+}

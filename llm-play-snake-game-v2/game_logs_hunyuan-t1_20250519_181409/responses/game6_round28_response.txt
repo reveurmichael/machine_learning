@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left and down to reach the apple. Starting with DOWN avoids immediate collision and aligns with the required vertical movement. Subsequent LEFT moves navigate toward the apple while avoiding the body. The path ensures no collisions with walls or the snake's body, adhering to direction constraints and Manhattan distance requirements."
+}

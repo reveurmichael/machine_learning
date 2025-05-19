@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "UP", "RIGHT", "RIGHT", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT"],
+  "reasoning": "Path moves up and left around the body's lower section, then ascends and moves left to reach the apple safely, ensuring required direction deltas (5 left, 5 up)."
+}

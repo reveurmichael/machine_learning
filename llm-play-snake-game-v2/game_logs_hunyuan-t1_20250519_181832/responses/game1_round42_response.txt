@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The shortest path to the apple (8,6) requires moving up twice and right seven times, totaling 9 moves. Starting with UP avoids reversing the initial LEFT direction and aligns with the necessary Manhattan distance. The path ensures no collisions with the body or walls."
+}

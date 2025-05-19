@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "Path safely navigates around the body by moving right and up along the right edge, then left to the apple."
+}

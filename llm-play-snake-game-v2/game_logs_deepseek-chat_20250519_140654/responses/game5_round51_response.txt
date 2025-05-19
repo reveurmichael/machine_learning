@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The apple is at (0, 7), and the head is at (7, 9). To reach the apple, we need to move left 7 times and down 2 times. The path avoids the body and walls."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct Manhattan path (4 left, 3 down) avoids body and walls, ensuring safe arrival at apple."
+}

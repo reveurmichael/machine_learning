@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "The snake must move from (2,9) to (2,2) while avoiding its body. The straight path down is blocked by its body, so it first moves left to (1,9). From there, it moves down 7 times to reach (1,2), then right to (2,2). This avoids collisions and satisfies the Manhattan distance requirements."
+}

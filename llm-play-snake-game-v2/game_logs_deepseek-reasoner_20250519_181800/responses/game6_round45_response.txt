@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move left along the top edge to x=0, then descend vertically to the apple at (0,5), avoiding body collisions."
+}

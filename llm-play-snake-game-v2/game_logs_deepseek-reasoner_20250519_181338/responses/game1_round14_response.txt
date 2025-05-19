@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Path moves up to avoid body, then left along the top edge, then down to the apple without colliding with body or walls."
+}

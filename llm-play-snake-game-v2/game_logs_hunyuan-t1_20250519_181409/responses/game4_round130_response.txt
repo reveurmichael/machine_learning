@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "DOWN", "DOWN"], "reasoning": "The snake moves left from (4,9) to (3,9), then down twice to (3,7), reaching the apple in three moves without colliding with walls or body."}

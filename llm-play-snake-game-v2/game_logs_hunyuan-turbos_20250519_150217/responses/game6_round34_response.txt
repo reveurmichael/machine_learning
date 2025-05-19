@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT"],
+  "reasoning": "The apple is directly to the right of the snake's head at (6, 1). Moving RIGHT will bring the head to (7, 1), where the apple is located. This is the safest and most direct move, avoiding any collisions with the body or walls."
+}
+```

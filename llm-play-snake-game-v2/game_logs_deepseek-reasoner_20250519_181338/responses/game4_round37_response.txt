@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "Direct path: move left twice to reach x=3, then up twice to the apple, avoiding body collision."
+}

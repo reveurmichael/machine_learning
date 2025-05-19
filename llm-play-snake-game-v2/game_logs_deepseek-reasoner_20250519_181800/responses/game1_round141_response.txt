@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "Move up four times to (8,4), then left to reach the apple at (7,4) efficiently without collisions."
+}

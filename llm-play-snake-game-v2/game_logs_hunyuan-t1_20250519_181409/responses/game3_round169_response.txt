@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves RIGHT twice to reach x=8, then DOWN five times to reach y=3. This avoids collisions with the body and walls, aligning with Manhattan distance requirements."
+}

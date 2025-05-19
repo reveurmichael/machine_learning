@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is at (6, 1), and the head is at (1, 6). Moving right 5 times and down 5 times ensures the snake reaches the apple without colliding with its body or walls."
+}
+```

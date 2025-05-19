@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Optimal path: Move right 9 steps to x=9, then down 3 steps to y=5, avoiding body and walls safely."
+}

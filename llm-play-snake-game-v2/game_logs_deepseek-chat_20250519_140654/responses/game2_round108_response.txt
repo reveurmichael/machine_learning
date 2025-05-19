@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The path is planned to first move left to reach the x-coordinate of the apple, then move down to reach the y-coordinate, avoiding collisions with the body and walls."
+}
+```

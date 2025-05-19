@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "Direct path left twice to x=3, then up thrice to y=5. Avoids body and meets Manhattan requirements."
+}

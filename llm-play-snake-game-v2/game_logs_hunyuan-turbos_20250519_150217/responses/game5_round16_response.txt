@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP"],
+  "reasoning": "The apple is directly above the snake's head at (9, 3), so moving UP is the safest and most direct path to reach the apple without colliding with the body or walls."
+}
+```

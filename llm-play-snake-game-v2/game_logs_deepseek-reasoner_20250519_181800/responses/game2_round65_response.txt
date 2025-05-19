@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Shortest path: move right 5 steps to x=8, then down 1 to reach apple. Avoids body cells and walls."
+}

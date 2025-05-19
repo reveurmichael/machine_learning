@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT"],
+  "reasoning": "Shortest path: move UP to (1,2), then LEFT to (0,2) to reach the apple efficiently without collisions."
+}

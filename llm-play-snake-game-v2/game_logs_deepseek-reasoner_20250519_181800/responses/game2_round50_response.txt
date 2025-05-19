@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Direct path left along y=4 avoids body and walls, ensuring 9 LEFT moves reach the apple safely with valid exit after growth."
+}

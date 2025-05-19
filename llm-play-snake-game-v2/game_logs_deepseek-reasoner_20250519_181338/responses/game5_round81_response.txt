@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
+  "reasoning": "Direct left path along y=4 avoids body obstructions, then ascends safely to the apple."
+}

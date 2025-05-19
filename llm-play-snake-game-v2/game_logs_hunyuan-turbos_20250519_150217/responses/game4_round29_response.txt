@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "UP", "RIGHT", "UP", "LEFT"],
+  "reasoning": "The snake needs to move toward the apple at (8, 8) from (7, 7). The Manhattan distance requires 1 RIGHT and 1 UP move. However, to avoid the body and plan a safe path, the sequence includes detours to ensure no collisions occur. The provided moves avoid the body and walls while progressing toward the apple."
+}
+```

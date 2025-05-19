@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left twice to align x with the apple, then ascend directly upwards, avoiding body cells and walls. The path ensures the required net movements (LEFT 2, UP 4) and maintains safe distance from the snake's body."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move up to align y with the apple, then right along the top edge avoiding body segments."
+}

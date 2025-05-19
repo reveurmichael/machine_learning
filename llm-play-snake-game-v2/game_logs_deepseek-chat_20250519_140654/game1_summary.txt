@@ -1,0 +1,4 @@
+Game 1 Summary:
+Score: 4
+Steps: 15
+Last direction: RIGHT

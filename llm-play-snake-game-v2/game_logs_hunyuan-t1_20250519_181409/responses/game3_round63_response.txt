@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "UP", "UP"], "reasoning": "Move RIGHT to (5,2) to align horizontally with the apple. Then move UP twice from (5,2) to (5,4), avoiding collisions with the body and walls."}

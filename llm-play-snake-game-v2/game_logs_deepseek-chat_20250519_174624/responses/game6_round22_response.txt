@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
+  "reasoning": "The apple is at (1, 6), and the head is at (8, 5). Moving left 7 times and up once will reach the apple without colliding with the body or walls."
+}
+```

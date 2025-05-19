@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move UP to y=9, then 6 LEFTs along top row to reach apple efficiently without colliding with body or walls."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "RIGHT", "UP", "RIGHT", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake must move right 7 times and up 3 times to reach the apple. Starting with RIGHT avoids reversing direction. Alternating RIGHT and UP moves navigates toward the apple while avoiding body collisions. Subsequent RIGHT moves complete the horizontal path after vertical adjustments."
+}

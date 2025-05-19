@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "RIGHT", "UP"],
+  "reasoning": "The snake needs to move toward the apple at (8, 8) from (4, 5). The Manhattan distance requires 4 RIGHT and 3 UP moves. The initial moves prioritize moving RIGHT to align horizontally first, then UP to approach the apple while avoiding collisions with the body."
+}
+```

@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT", "UP", "UP"], "reasoning": "The shortest path to the apple (7,8) from (5,6) requires moving right twice and up twice. The initial direction is UP, so moving RIGHT is allowed. Each move avoids collisions with the body and walls. The sequence reaches the apple in 4 moves, which is within the safety constraints."}

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN"],
+  "reasoning": "Move left to avoid body, then down to reach apple directly."
+}

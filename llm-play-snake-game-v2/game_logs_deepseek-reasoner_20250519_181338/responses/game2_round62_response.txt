@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP"],
+  "reasoning": "Directly move up twice to reach the apple at (5,4) without colliding with body cells or walls."
+}

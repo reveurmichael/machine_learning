@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "RIGHT", "RIGHT", "DOWN", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "DOWN", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "DOWN", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "DOWN", "LEFT", "LEFT", "DOWN", "RIGHT"],
+  "reasoning": "The path is planned to move left and down to reach the apple at (6, 1), avoiding collisions with the body and walls. The sequence ensures the snake moves left once and down three times as required, with detours to avoid body segments."
+}
+```

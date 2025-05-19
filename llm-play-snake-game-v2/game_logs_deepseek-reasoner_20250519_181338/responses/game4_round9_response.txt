@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN"],
+  "reasoning": "Apple is directly below the snake's current position. Moving straight down avoids body collisions and reaches the apple in minimal moves."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake must move LEFT twice (from x=5 to x=3) and UP four times (from y=5 to y=9). Starting with LEFT avoids the initial DOWN direction and body collisions. Subsequent UP moves navigate upward safely as the body shifts, avoiding wall and self-collisions."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake must move left 3 times and down 5 times to reach the apple at (5,4) from (8,9). Starting with UP direction, first move left to (7,9). Subsequent left moves avoid body collision. Downward moves after reaching x=5 are safe as path is clear. Total 8 moves satisfy Manhattan distance requirements and avoid collisions."
+}

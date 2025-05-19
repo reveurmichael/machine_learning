@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The apple is to the left (x=3) and at the same y-level (y=8). To avoid the body, the snake must move down and then left, then up to the apple."
+}
+```

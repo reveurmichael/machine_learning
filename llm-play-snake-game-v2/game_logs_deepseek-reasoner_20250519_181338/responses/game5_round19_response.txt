@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "Move down initially to avoid body, then left 5 steps to reach x=4, then down 3 steps to the apple, ensuring no collisions with body or walls."
+}

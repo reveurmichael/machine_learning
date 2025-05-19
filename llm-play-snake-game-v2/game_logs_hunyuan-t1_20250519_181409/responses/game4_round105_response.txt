@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "LEFT"], "reasoning": "The apple is directly to the left of the head. Moving LEFT twice avoids all body collisions and reaches the apple in two moves, which is within the minimum required steps."}

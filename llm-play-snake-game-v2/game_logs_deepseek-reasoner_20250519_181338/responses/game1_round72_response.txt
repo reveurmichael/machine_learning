@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "LEFT", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Path detours around the body to reach the apple safely, ensuring required right and down moves align with Manhattan distance constraints."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP"],
+  "reasoning": "Move right to x=7, then up to the apple. Path avoids body segments and walls efficiently."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move up to y=9, then right to the apple at (4,9). Path avoids body and walls, meeting Manhattan requirements."
+}

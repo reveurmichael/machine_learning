@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake can move left five times directly to the apple at (0,4) without colliding with its body or walls. The path is straightforward since the apple is aligned horizontally with the head, and the body does not obstruct the leftward movement."
+}

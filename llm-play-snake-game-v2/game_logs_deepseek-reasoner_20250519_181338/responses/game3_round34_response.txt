@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Path navigates left around the body to reach the apple vertically, ensuring net 2 lefts and 7 ups as required."
+}

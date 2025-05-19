@@ -1,0 +1,4 @@
+Game 6 Summary:
+Score: 10
+Steps: 68
+Last direction: LEFT

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP"],
+  "reasoning": "Shortest path with +2 RIGHT and +3 UP net moves, avoiding collisions as body is empty."
+}

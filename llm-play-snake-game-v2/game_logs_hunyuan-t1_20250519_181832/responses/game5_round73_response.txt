@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves RIGHT to approach the apple's x-coordinate while avoiding body collisions. It then moves DOWN to descend toward the apple's y-coordinate, navigating around the body by shifting direction when necessary. Each move adheres to direction constraints and avoids wall/body collisions."
+}

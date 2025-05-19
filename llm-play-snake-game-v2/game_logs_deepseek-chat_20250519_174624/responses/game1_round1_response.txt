@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT"],
+  "reasoning": "The apple is directly to the left of the snake's head, so moving LEFT will reach it in one move."
+}
+```

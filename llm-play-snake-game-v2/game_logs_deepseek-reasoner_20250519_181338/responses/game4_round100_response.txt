@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN"],
+  "reasoning": "Shortest path: RIGHT to align x-coordinate, then DOWN to apple safely."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "Direct path to apple: move left twice to x=3, then up thrice to y=8. No body segments present, so shortest path is safe."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Direct path to apple: move right twice then down. Valid as each move avoids body and walls, meeting direction constraints."
+}

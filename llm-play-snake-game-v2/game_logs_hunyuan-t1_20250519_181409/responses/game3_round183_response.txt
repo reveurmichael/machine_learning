@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake starts at (9,9) and needs to reach (0,3), requiring 9 lefts and 6 downs. The initial direction is UP, so the first move must not be DOWN. Moving left five times avoids body collisions and aligns with the x-coordinate goal. Subsequent downs and lefts navigate toward the apple while avoiding the body and walls."
+}

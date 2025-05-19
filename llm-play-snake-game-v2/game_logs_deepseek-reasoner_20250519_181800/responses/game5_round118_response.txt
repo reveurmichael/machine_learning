@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move left three steps to align x-coordinate with apple, then down five steps to reach it, avoiding body cells."
+}

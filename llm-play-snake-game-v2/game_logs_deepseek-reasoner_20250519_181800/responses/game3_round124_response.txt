@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move down to avoid body, then right along y=8 to x=6, then down to apple. Path avoids collision with body segments and walls."
+}

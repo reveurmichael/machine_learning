@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "UP", "UP", "UP"], "reasoning": "The shortest path to the apple (6,8) from (5,5) requires moving RIGHT once and UP three times. This sequence avoids walls and the empty body, reaching the apple in 4 moves."}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "Move down 5 times to reach y=0, then right once to reach the apple at (6, 0)."
+}
+```

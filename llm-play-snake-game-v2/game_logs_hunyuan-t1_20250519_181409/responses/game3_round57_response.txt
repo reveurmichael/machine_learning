@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "RIGHT", "DOWN"],
+  "reasoning": "The path moves right three times and down three times to reach the apple while avoiding collisions. The sequence ensures the net movement matches the required Manhattan distance (3 right, 3 down) and avoids reversing direction initially."
+}

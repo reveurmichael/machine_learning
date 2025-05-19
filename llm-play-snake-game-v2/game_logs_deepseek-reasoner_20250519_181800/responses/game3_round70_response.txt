@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right three steps to x=3, then down three steps to apple at (3,4), avoiding body and walls safely."
+}

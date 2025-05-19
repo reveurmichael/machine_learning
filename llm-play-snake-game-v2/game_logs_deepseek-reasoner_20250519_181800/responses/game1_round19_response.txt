@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP"],
+  "reasoning": "Move right four times to reach x=9, then up twice to the apple. Path avoids body segments and walls while maintaining required direction constraints."
+}

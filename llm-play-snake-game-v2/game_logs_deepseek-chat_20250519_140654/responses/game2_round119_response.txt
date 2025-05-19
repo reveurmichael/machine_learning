@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The apple is directly below the head, but the body blocks a direct path. The snake must circle around the body to reach the apple safely."
+}
+```

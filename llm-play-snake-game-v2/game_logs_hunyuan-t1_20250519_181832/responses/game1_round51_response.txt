@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "The snake starts at (8,6) facing RIGHT. To reach the apple at (5,4), it needs to move 3 lefts and 2 downs. The first move can't be LEFT (reverse direction), so DOWN is chosen. Subsequent moves navigate left while avoiding body collisions. The path efficiently uses Manhattan distance and avoids obstacles."
+}

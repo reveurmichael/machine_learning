@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Move left 5 times to align x=1, then down to apple, avoiding body collision and ensuring required direction changes."
+}

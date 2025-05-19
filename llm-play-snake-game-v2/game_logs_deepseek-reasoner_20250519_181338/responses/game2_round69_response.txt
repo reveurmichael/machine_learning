@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT"],
+  "reasoning": "Direct path to apple via UP then two RIGHTs, avoiding body collisions."
+}

@@ -1,0 +1,5 @@
+{
+  "moves": ["LEFT", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake must move left 5 times and up 3 times to reach the apple. Starting with LEFT avoids reversing direction. Sequential UP moves gain altitude, followed by LEFT moves to align horizontally. Path avoids body collisions and walls.",
+  "moves_count": 8
+}

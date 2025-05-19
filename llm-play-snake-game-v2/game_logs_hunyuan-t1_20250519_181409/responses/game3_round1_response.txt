@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (7,1) from (5,5) requires moving RIGHT twice (net +2 x) and DOWN four times (net -4 y). This path avoids walls and the empty body. The sequence ensures the required Manhattan distance constraints are met."
+}

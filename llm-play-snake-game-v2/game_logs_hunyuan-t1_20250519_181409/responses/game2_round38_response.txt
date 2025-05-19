@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP"],
+  "reasoning": "The Manhattan distance requires 2 RIGHT and 3 UP moves. Starting with RIGHT avoids reversing direction. The path navigates around the body by moving right first, then up, ensuring no collision with the snake's own segments or walls."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left 6 steps to x=0, then up 5 steps to the apple. This path avoids body cells and walls, satisfying Manhattan requirements."
+}

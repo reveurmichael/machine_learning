@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The apple is at (8, 9), so we need to move right 8 times and up 9 times. The initial path is clear of obstacles, so we can move directly towards the apple."
+}
+```

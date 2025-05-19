@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "Move left to bypass body, descend safely to the apple's row, then align and reach it without collisions."
+}

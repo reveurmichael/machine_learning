@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right twice to x=9, then down eight steps to y=0. This path avoids body collisions and walls, satisfying Manhattan requirements (2 right, 8 down)."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP", "RIGHT", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "Moved left to x=5, then detoured right to avoid body before ascending to the apple."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "Move DOWN to avoid body, then LEFT and UP to navigate safely toward the apple. Ensures correct LEFT (1) and UP (2) net moves."
+}

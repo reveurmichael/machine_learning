@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "The path moves upward to avoid the body and then circles around the right side to reach the apple. This avoids collisions and satisfies the Manhattan distance requirements."
+}

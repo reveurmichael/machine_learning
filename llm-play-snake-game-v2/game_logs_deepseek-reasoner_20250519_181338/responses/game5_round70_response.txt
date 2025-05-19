@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right along the top edge to x=8, then straight down to the apple at (8,4), avoiding body cells."
+}

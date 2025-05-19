@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "RIGHT"],
+  "reasoning": "The snake needs to reach (8,2) from (3,6) while avoiding collisions. Moving down three times avoids the body and creates space. Moving right four times and down once navigates around the body's lower barrier, then right to the apple. This satisfies Manhattan distance requirements and ensures no self-collisions."
+}

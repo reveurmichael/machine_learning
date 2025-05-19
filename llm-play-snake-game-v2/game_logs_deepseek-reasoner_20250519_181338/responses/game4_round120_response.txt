@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Path avoids body by moving down and left, then ascends safely to the apple. Net moves: LEFT 2, UP 4 (adjusted for initial direction constraints)."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right to x=6 avoiding body, then descend directly to apple. Ensures correct Manhattan delta (6R-0L=6, 7D-0U=7) and safe post-apple exit options."
+}

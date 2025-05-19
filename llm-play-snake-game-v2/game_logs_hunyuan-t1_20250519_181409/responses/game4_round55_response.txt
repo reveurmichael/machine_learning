@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves right six times to align with the apple's x-coordinate (7), then moves down five times to reach the apple at (7,0). This path avoids collisions with the body and walls."
+}

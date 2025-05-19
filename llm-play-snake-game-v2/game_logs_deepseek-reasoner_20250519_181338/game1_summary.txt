@@ -1,0 +1,4 @@
+Game 1 Summary:
+Score: 11
+Steps: 76
+Last direction: DOWN

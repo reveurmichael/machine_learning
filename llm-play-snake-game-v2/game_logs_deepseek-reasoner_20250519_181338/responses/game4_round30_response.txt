@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right to align x with the apple, then proceed directly down to (5,3) avoiding body segments."
+}

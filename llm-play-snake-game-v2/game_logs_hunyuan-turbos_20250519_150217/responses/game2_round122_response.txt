@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT"],
+  "reasoning": "The snake's head is at (5, 8) and the apple is at (6, 8). Moving RIGHT will bring the head directly to the apple in one move, which is the shortest and safest path."
+}
+```

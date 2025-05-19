@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT", "UP", "UP"], "reasoning": "The shortest path to the apple (9,3) from (7,1) is two RIGHT and two UP moves. This avoids collisions with walls and the body. Starting with RIGHT (not reversing current DOWN direction), then continuing RIGHT, followed by UP moves aligns with Manhattan distance requirements and ensures safe navigation."}

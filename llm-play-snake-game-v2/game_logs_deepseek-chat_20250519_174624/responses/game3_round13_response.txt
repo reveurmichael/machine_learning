@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP"],
+  "reasoning": "The apple is directly above the snake's head at (0, 8), and the current direction is DOWN. Since moving UP is not the opposite of DOWN, it's a valid move. Two UP moves will take the head to the apple without colliding with the body or walls."
+}
+```

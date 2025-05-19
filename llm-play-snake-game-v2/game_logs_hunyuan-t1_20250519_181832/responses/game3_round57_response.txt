@@ -1,0 +1,6 @@
+
+
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake must move left 9 times and up 7 times to reach the apple at (0,8) from (9,1). Starting with LEFT avoids the initial downward direction and body collision. Sequential left moves shift the body left, clearing the path. After reaching x=0, moving up safely navigates to y=8, avoiding wall and body collisions."
+}

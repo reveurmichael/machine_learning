@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "UP"],
+  "reasoning": "Direct path to apple via UP and LEFT without colliding. Moves satisfy Manhattan distance requirements."
+}

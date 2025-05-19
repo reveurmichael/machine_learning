@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move left thrice to x=1, then down five times to y=4, avoiding body collisions. Path is clear and meets required direction counts."
+}

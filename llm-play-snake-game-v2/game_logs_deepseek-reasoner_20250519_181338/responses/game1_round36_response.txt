@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Shortest path: move right once to x=8 then up four times to y=4, avoiding body collisions and adhering to direction constraints."
+}

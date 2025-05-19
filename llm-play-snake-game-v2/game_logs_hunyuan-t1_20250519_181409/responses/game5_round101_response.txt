@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake must move LEFT 4 times and DOWN 2 times to reach the apple (2,4) from (6,6), aligning with Manhattan distance requirements. Starting with LEFT avoids immediate collisions and follows the rules. Subsequent LEFT moves and DOWN moves navigate safely around the body."
+}

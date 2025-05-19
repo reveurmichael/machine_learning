@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP"],
+  "reasoning": "The apple is directly above the snake's head at (0, 7), and the path is clear with no obstacles. Moving UP twice will reach the apple safely."
+}
+```

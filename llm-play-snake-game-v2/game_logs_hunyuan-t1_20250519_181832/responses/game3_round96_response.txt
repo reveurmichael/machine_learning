@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake needs to move from (1,6) to (8,0) with minimal collisions. Starting with DOWN moves to avoid body segments and reach lower y-coordinates safely. Once aligned vertically at y=0, consecutive RIGHT moves navigate horizontally to the apple, adhering to direction constraints and avoiding body collisions."
+}

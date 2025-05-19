@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Ascend vertically to avoid body obstruction, then move left along y=5 to reach the apple efficiently while adhering to Manhattan constraints."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The snake must move left 5 times to align horizontally with the apple (0,5) and then up 3 times to reach it. The initial LEFT moves avoid collision with the body and use the allowed directions (not reversing from DOWN). The subsequent UP moves navigate toward the apple while maintaining safe spacing from the shifting body."
+}

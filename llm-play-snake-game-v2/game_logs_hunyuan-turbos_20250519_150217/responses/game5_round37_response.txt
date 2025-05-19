@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "The snake starts at (1, 1) and needs to reach (3, 3). The Manhattan distance requires 2 RIGHT and 2 UP moves. However, moving directly UP is blocked by the body. Instead, the snake moves RIGHT twice to (3, 1), then DOWN twice to (3, 3), but this path collides with the body. Adjusting the path, the snake moves RIGHT twice to (3, 1), then DOWN to (3, 2), and RIGHT to (4, 2) is invalid. Correcting again, the snake moves RIGHT twice to (3, 1), then DOWN to (3, 2), and RIGHT is invalid. Replanning, the snake moves RIGHT twice to (3, 1), then DOWN to (3, 2), and UP to (3, 3) is blocked. Final path: RIGHT twice to (3, 1), DOWN to (3, 2), RIGHT to (4, 2) is invalid. Correct path: RIGHT twice to (3, 1), DOWN to (3, 2), UP to (3, 3) is blocked. Re-evaluating, the correct path is RIGHT, RIGHT, DOWN, DOWN, RIGHT, but this also collides. No safe path found."
+}
+```

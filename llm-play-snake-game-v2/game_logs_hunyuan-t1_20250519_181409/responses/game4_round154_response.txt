@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "No safe path exists. The snake's initial position (5,2) and the apple at (6,5) require moving right once and up three times. However, the direct path is blocked by the snake's body. After moving right to (6,2), all subsequent moves (up, down, left, right) lead to collisions with body cells or walls. No valid sequence of moves can reach the apple without violating collision rules."
+}
+```

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "The snake starts at (5, 5) and needs to reach (9, 4). Moving RIGHT four times will align the x-coordinate with the apple, and moving DOWN once will align the y-coordinate. This path avoids collisions with walls and the body, which is currently empty."
+}
+```

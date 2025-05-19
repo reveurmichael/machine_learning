@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "UP"],
+  "reasoning": "Shortest path with 3 lefts and 1 up, avoiding body cells."
+}

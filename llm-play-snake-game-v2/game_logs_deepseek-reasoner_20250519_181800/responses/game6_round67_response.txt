@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "LEFT", "DOWN", "RIGHT", "RIGHT", "UP", "UP", "RIGHT"],
+  "reasoning": "Detour around body by moving down and left, then navigate right and up to reach the apple safely, ensuring required RIGHT moves (3) and no vertical change."
+}

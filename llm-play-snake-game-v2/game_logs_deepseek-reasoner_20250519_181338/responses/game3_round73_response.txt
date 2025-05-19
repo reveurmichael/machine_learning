@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Path moves right to align x-coordinate with apple, then descends vertically while avoiding body segments. Ensures required net RIGHT (3) and DOWN (5) moves."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Ascend to clear body, traverse right along y=3 to x=8, then descend to apple avoiding collision."
+}

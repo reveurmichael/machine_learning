@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT", "UP", "UP"], "reasoning": "The shortest path to the apple (7,7) from (5,5) requires moving RIGHT twice and UP twice, totaling 4 moves. This path avoids walls and the empty body, aligning with Manhattan distance requirements."}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "RIGHT", "DOWN"],
+  "reasoning": "Move left twice to reach the apple's x-coordinate, then adjust y-coordinate if needed. The path avoids collisions with the body and walls."
+}
+```

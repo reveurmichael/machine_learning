@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left once to align x-coordinate with the apple, then ascend vertically avoiding body segments. Path ensures minimal moves and collision avoidance."
+}

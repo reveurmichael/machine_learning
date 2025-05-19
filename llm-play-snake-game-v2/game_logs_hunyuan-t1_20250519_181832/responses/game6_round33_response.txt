@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake needs to move left 8 units and up 5 units to reach the apple. Starting with LEFT moves avoids immediate collisions and aligns with the required Manhattan distance. After shifting left, moving UP safely navigates toward the apple while the body trails behind without obstruction."
+}

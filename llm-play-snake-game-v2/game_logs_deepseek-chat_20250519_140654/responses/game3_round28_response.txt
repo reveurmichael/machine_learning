@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is directly below the snake's head at (0,5), and the current direction is DOWN, which is safe. Moving DOWN repeatedly will reach the apple without colliding with the body or walls."
+}
+```

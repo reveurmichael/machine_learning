@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The path moves RIGHT four times to align with the apple's x-coordinate (9), then UP five times to reach the apple's y-coordinate (9). This avoids collisions with the body and stays within grid bounds. Each move is valid under directional constraints and Manhattan distance requirements."
+}

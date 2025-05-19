@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "No safe path exists due to the snake's body blocking all possible routes to the apple (4,9) while adhering to movement constraints and collision avoidance."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move down to align y-coordinate, then four rights to reach apple. Path avoids body and walls while meeting Manhattan constraints."
+}

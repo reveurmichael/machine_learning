@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (5, 5) and needs to reach the apple at (3, 8). The Manhattan distance requires 2 LEFT moves and 3 UP moves. The sequence starts with LEFT to align horizontally, then UP to move toward the apple."
+}
+```

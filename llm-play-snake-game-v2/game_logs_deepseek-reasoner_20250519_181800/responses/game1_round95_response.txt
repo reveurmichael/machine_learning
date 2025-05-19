@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "Move left along y=5 to x=1, avoiding the body, then down to the apple. Path ensures required net left (8) and down (2) moves."
+}
+```

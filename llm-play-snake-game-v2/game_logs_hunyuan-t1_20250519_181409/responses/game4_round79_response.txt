@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (4,6) facing LEFT. To reach the apple at (6,2), it needs to move right and down. The first move DOWN avoids collision and starts aligning towards the apple. Subsequent RIGHT moves navigate around the body, followed by DOWN moves to descend toward the apple. This path ensures no collisions with walls or body cells and satisfies the Manhattan distance requirements."
+}

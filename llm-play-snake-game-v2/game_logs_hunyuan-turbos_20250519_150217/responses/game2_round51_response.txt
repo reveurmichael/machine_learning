@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake's head is at (8, 4) and the apple is at (8, 0). The shortest path is to move directly downward in 4 moves. Since the current direction is RIGHT, the first move cannot be LEFT, but DOWN is valid. The path avoids collisions with the body and walls."
+}
+```

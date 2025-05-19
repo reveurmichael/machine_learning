@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move right 8 units and down 4 units to reach the apple. Starting with the initial direction UP, the first move must not be DOWN. Moving RIGHT 8 times aligns the x-coordinate with the apple. Subsequent DOWN moves safely approach the apple's y-coordinate without colliding with the body, which shifts leftward as the snake moves right."
+}

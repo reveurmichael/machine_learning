@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Path moves leftward to x=2, then down to the apple, avoiding body segments."
+}

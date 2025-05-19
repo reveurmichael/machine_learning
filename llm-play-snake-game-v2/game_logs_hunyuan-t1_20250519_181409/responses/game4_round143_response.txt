@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "DOWN"], "reasoning": "The apple is directly to the right and down from the head. Moving RIGHT then DOWN reaches the apple in two moves without collision. The first move is allowed as it's not reversing the current direction (RIGHT). The second move (DOWN) is valid and avoids body collisions."}

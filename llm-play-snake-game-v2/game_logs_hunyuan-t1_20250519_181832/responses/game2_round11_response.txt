@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The apple is directly to the right of the head along the same y-coordinate. Moving RIGHT repeatedly avoids collisions with the body (which shifts leftward safely) and reaches the apple in 8 moves. Direction changes are allowed as none reverse the current direction."
+}

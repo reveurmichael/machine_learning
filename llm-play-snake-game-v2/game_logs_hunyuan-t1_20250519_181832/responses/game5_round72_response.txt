@@ -1,0 +1,1 @@
+{"moves": ["UP"], "reasoning": "The apple is directly above the head at (2,6). Moving UP from (2,5) reaches the apple in one move without colliding with the body or walls. The current direction is LEFT, so UP is allowed as it's not the opposite direction."}

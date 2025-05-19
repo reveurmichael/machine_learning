@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "LEFT"],
+  "reasoning": "The snake needs to move right twice to align with the apple's x-coordinate, then up twice to align with the apple's y-coordinate. The final left move adjusts for the initial overextension and ensures the snake does not collide with its body or the wall."
+}
+```

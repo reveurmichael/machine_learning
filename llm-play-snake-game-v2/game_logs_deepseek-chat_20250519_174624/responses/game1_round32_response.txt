@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT"],
+  "reasoning": "Move DOWN twice to align with the apple's y-coordinate, then LEFT twice to avoid body, then DOWN to reach the apple."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Shortest path via moving right 4 times to x=9, then down once to the apple. No body segments present, ensuring safe movement."
+}

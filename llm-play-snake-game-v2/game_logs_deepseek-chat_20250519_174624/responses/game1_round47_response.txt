@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "DOWN"],
+  "reasoning": "The apple is at (0, 1), which is two steps left and one step down from the current head position (2, 2). The path avoids the body cells and walls."
+}
+```

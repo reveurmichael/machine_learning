@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (6,0) facing LEFT. To reach the apple at (7,6), the shortest path requires 7 moves (1 RIGHT, 6 UP). The first move cannot be RIGHT due to direction constraints, so we first move UP to (6,1). Subsequent moves are RIGHT followed by consecutive UP moves to navigate around the body and reach the apple safely without collisions."
+}

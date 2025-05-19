@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT"],
+  "reasoning": "Apple is directly left; two LEFT moves reach it without collisions."
+}

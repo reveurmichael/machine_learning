@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake starts at (6,5) with the body blocking leftward movement. To reach (1,4), the snake must first move down to create space, then proceed left five times while avoiding collisions. This path satisfies Manhattan distance requirements and avoids wall/body contact."
+}

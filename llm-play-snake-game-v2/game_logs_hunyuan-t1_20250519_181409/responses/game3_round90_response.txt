@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake moves right twice to align towards the apple's x-coordinate, then moves up four times to close the vertical gap. Finally, it moves right five more times to reach the apple at (8,8), ensuring no collisions with its body or walls. This path satisfies the Manhattan distance requirements and avoids obstacles."
+}

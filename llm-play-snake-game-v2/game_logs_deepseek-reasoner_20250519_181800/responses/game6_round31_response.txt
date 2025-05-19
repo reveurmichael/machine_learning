@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move UP 5 steps to align y-coordinate, then RIGHT 6 steps to reach the apple, avoiding body collisions."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "Moving left twice and down twice to reach the apple at (3, 3) from (5, 5) without any obstacles."
+}
+```

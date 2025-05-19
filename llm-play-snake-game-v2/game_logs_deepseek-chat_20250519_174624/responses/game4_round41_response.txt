@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The apple is to the left of the snake's head, so the initial moves are LEFT to approach it. However, the body blocks a direct path, so the snake must circle around its own body to reach the apple safely."
+}
+```

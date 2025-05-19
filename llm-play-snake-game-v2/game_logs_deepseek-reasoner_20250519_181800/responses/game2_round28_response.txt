@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT"],
+  "reasoning": "Direct path: move DOWN to (4,2) avoiding body, then LEFT to apple (3,2). Moves meet Manhattan constraints (L-R=1, D-U=1) and avoid collisions."
+}

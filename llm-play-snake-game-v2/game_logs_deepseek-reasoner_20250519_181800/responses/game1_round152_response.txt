@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT"],
+  "reasoning": "Direct path to the apple via two RIGHT moves, avoiding body collisions. The x-coordinate difference is 2, requiring two RIGHT moves without vertical adjustment."
+}

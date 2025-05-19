@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake moves up 6 times to position (3,6), then right 6 times to (9,6). This avoids collisions with the body and stays within the grid. The path satisfies the required Manhattan distance and direction constraints."
+}

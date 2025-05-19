@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "Navigate up to avoid body barrier, then move right along the top wall, then descend to the apple safely."
+}

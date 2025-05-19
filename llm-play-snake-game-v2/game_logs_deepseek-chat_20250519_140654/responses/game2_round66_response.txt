@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "The apple is at (9, 8) and the head is at (0, 9). To reach the apple, the snake needs to move right 9 times and down once. The path avoids the body and walls."
+}
+```

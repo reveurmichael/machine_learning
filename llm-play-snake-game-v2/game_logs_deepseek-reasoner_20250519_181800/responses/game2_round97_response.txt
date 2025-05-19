@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "DOWN", "DOWN", "LEFT", "LEFT"],
+  "reasoning": "Path avoids body by moving down and left around the snake's body segments, ensuring minimal steps and collision avoidance while meeting Manhattan distance requirements."
+}

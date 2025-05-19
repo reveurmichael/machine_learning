@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "The snake's head is at (8,8) with the apple at (1,6), requiring left and down movements. However, the body blocks the direct path left from (8,8) at (7,8). Moving down first leads to (8,7), but subsequent left moves are blocked by the body at (3,6) and other positions. All attempted paths collide with the body or walls, making a safe path impossible."
+}
+```

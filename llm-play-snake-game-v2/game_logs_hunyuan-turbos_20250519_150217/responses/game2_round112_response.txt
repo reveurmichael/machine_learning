@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "LEFT"],
+  "reasoning": "The snake needs to move right to align with the apple's x-coordinate (7) and then adjust its y-coordinate if necessary. However, since the apple is at the same y-level (y=2), the snake can move directly right. The initial moves ensure the snake avoids its body and moves toward the apple. The sequence includes a detour to avoid potential future collisions."
+}
+```

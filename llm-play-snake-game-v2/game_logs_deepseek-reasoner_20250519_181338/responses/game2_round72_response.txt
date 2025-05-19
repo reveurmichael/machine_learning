@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Path moves left along y=6 then directly down to apple, avoiding body collisions and fulfilling required direction counts."
+}

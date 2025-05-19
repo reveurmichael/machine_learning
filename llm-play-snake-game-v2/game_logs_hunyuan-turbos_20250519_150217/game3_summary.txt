@@ -1,0 +1,4 @@
+Game 3 Summary:
+Score: 5
+Steps: 33
+Last direction: UP

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake needs to move left 6 times to reach the apple at (3,1) from (9,1). The current direction is DOWN, so the first move can't be UP. Moving LEFT is safe as the body segments along y=1 are not occupied, and each move shifts the body leftward without collision."
+}

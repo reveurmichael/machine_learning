@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left to (0,1), then ascend vertically to (0,8) without intersecting the body or walls. The path satisfies Manhattan distance constraints and avoids collisions."
+}

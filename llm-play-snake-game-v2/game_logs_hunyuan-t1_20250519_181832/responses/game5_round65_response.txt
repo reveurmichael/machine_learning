@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "UP", "UP"], "reasoning": "The shortest path to the apple (6,5) from (7,3) is LEFT to (6,3), then UP twice to (6,5). This avoids collisions with the body and walls. The net movement satisfies the required LEFT 1 and UP 2 to reach the apple."}

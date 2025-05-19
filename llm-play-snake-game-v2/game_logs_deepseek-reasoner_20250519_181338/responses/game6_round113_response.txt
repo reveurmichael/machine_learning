@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "Moved down initially to avoid body, then right across to x=6, then down to apple. Path avoids collisions and meets required direction deltas."
+}

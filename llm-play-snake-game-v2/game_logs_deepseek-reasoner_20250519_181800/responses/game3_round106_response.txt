@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move up along the right edge to avoid body, then left across the top to reach the apple."
+}

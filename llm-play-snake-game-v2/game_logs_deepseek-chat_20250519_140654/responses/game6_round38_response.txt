@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT"],
+  "reasoning": "The snake needs to move left to reach the apple's x-coordinate and down to reach its y-coordinate. The path avoids collisions with the body by moving left first, then down, ensuring the body segments are not in the way."
+}
+```

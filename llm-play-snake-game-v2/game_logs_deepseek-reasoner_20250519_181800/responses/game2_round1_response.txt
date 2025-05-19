@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Shortest path: move right once and down three times. Net moves satisfy required RIGHT-LEFT=1 and DOWN-UP=3. No collisions as body is empty."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "Move UP to avoid body, then LEFT to x=0, then UP to reach apple. Ensures required LEFT and UP move counts without collisions."
+}

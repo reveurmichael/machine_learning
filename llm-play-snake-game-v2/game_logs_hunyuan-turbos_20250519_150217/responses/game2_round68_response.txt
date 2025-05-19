@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT"],
+  "reasoning": "The snake needs to move down to reduce the y-coordinate gap and then right to align with the apple's x-coordinate. Starting with 'DOWN' avoids reversing the initial 'UP' direction and ensures safe movement toward the apple."
+}
+```

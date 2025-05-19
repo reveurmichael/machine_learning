@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake must navigate around its body by moving right to avoid obstacles, then up to align with the apple's y-coordinate, and finally left to reach the apple's x-coordinate. This path ensures no collisions with walls or body cells while satisfying the required net movement."
+}

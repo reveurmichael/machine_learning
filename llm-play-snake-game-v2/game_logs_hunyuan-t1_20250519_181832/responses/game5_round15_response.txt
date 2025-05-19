@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (6,4) from (4,8) requires 2 right and 4 down moves. Starting with RIGHT avoids the initial body and direction constraints. Subsequent downs navigate toward the apple while avoiding collisions with the shifting body."
+}

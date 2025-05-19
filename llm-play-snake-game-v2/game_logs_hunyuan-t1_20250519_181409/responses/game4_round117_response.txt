@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake starts at (8,4) facing DOWN. To reach (4,9), it needs to move left 4 and up 5. The first move can't be UP. Moving DOWN to (8,3) avoids body collision. Then RIGHT to (9,3) starts navigating around the body. Six UP moves follow, reaching (9,9). Finally, five LEFT moves navigate to (4,9) without hitting the body or walls, satisfying Manhattan distance constraints."
+}

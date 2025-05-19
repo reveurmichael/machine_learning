@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move right twice (from x=3 to x=5) and up four times (from y=2 to y=6). Starting with RIGHT avoids reversing direction and aligns with the apple's x-coordinate. Subsequent UP moves navigate toward the apple's y-coordinate while avoiding body collisions. The path ensures no wall or body contact at any step."
+}

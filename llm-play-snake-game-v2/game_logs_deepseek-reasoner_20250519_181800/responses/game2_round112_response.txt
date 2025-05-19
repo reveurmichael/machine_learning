@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Path calculated to move right to x=3, then down to apple, avoiding body cells by staying clear of the tail's path."
+}

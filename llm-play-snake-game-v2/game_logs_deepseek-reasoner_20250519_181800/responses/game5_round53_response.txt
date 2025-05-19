@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move UP to align vertically, then right 5 steps to reach the apple directly. Path avoids body and walls, ensuring safe progression."
+}

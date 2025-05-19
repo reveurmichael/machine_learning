@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "RIGHT", "DOWN"],
+  "reasoning": "The snake starts at (2, 6) and needs to reach (6, 5). The Manhattan distance requires 4 RIGHT moves and 1 DOWN move. The initial direction is RIGHT, so the first move is RIGHT. Subsequent moves continue toward the apple while avoiding collisions with the body or walls. The sequence ensures safe progression toward the apple."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["UP"],
+  "reasoning": "Apple is directly above; moving UP immediately reaches it safely without collision."
+}

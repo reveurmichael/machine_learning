@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (6,9) facing LEFT. To reach the apple at (9,2), it needs to move right 3 times and down 7 times. The first move can't be RIGHT (opposite of LEFT), so it moves DOWN to (6,8). Then, it moves RIGHT three times to (9,8), avoiding collisions. Finally, it moves DOWN six times to reach (9,2), ensuring no body contact. This path meets the Manhattan distance requirements and avoids walls and self-collision."
+}

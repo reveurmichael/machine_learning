@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT", "UP", "UP"], "reasoning": "The snake needs to move right twice and up twice to reach the apple. Starting with RIGHT avoids immediate collision and follows the direction constraints. Each move is checked for body and wall collisions, ensuring a safe path."}

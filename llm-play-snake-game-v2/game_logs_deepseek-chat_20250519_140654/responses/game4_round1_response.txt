@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "Move up four times to reach y=9, then left once to reach x=4, aligning with the apple's position at (4, 9)."
+}
+```

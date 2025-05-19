@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "The snake's head is at (9,6) with a body blocking the path left past x=6 and up through y=9. The required path to the apple (0,9) would require moving left and up, but the body forms an impenetrable barrier at x=6 (from y=4 to y=9) and along y=9 (x=6 to x=9). No safe sequence of moves can navigate around these obstacles within 30 steps without colliding with the body or walls."
+}
+```

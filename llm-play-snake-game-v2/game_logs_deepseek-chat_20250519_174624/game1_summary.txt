@@ -1,0 +1,4 @@
+Game 1 Summary:
+Score: 7
+Steps: 46
+Last direction: LEFT

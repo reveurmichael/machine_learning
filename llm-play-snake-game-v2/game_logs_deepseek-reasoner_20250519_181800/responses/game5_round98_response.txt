@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Direct left path to x=0 then vertical ascent to apple, avoiding body collisions by detouring around tail."
+}

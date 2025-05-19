@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "UP"], "reasoning": "The apple is one step right and up from the head. Moving RIGHT then UP reaches the apple in two moves, avoiding walls and the empty body."}

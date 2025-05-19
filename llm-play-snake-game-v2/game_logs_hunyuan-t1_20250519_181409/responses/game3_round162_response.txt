@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move left once and up five times to reach the apple. Starting with the current direction RIGHT, the first move can't be LEFT. Moving UP first avoids immediate collision and aligns with the net required movement. Subsequent moves left and up navigate around the body, ensuring each new position is safe and within bounds."
+}

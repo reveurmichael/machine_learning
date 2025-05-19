@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move down to y=2 then left to x=1, ensuring minimal steps and avoiding body collisions by trailing safely."
+}

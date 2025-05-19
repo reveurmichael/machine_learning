@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (9,0) with body segments blocking upward movement. To avoid collision, move LEFT six times to align horizontally with the apple (3,5). Then move UP five times to reach the apple, ensuring each step avoids body collisions and stays within bounds."
+}

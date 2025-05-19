@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake must move from (7,0) to (4,6) while avoiding collisions. The optimal path involves moving right to bypass the body, then ascending vertically, and finally moving left to reach the apple. This route ensures no collision with the body and satisfies the Manhattan distance requirements."
+}

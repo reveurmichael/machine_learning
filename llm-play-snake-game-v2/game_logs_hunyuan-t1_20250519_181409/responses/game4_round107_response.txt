@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (2,6) with current direction LEFT. To avoid immediate collision and follow the Manhattan path, moving UP first allows safe navigation around the body. Proceeding RIGHT seven times and then DOWN twice reaches the apple while avoiding all obstacles and adhering to movement constraints."
+}

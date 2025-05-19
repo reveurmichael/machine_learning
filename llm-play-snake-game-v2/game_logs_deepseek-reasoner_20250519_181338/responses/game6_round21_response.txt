@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
+  "reasoning": "Move left 5 times to reach x=2, then up to apple. Path avoids body and walls."
+}

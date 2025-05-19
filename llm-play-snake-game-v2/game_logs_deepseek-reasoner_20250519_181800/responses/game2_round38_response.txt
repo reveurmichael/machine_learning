@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right along the top edge to x=9, then down to the apple at (9,4). Path avoids body segments which are located lower on the y-axis."
+}

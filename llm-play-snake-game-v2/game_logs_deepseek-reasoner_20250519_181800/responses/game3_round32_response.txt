@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move left to align x with apple, then descend safely avoiding body. Path ensures minimal Manhattan steps and no collisions."
+}

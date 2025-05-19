@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "To reach the apple at (7, 5) from (9, 8), we need to move LEFT twice and DOWN three times. However, moving DOWN immediately would collide with the body at (9, 9). Thus, we first move LEFT twice to avoid the body, then move DOWN three times, and finally adjust the path to reach the apple safely."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "RIGHT", "UP", "UP"],
+  "reasoning": "Detour left to avoid body collision, then ascend vertically to reach the apple."
+}

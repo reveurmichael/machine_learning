@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move right twice to align x=5, then ascend directly upwards to reach the apple at (5,9) without colliding with body segments or walls."
+}

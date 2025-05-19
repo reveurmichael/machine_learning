@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (5,9) with its body occupying (5,4)-(5,8). Moving RIGHT first avoids collision and positions the head at (6,9). Subsequent DOWN moves navigate around the body, which shifts upward each time, allowing safe passage to the apple at (6,3) in 7 moves without wall or self-collision."
+}

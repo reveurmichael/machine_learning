@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake must move left 3 times to align horizontally with the apple (3,1) and then down 6 times to reach the apple's y-coordinate. Starting with LEFT avoids reversing direction and ensures safe progress toward the apple without hitting walls or the body."
+}
+```

@@ -1,0 +1,21 @@
+Experiment Information
+====================
+Date: 2025-05-19 18:14:09
+
+LLM Provider: hunyuan
+Model: hunyuan-t1-latest
+Max Games: 6
+Move Pause: 1.0 seconds
+
+Other Information:
+- Time Delay: 40
+- Time Tick: 280
+
+
+Game Statistics
+==============
+Total Games Played: 6
+Total Score: 100
+Total Steps: 712
+Average Score per Game: 16.67
+Average Steps per Game: 118.67

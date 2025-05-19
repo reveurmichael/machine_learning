@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Ascend to clear body obstruction, then navigate left directly to the apple without colliding with the snake's elongated body segments."
+}

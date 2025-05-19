@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path right to x=7, then down to y=1, avoiding body segments positioned above and left. Ensures required net moves (3R, 3D) without collisions."
+}

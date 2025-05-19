@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move up to align y-coordinate with the apple, then left four times along the top edge to reach (5,9) without body/wall collisions."
+}

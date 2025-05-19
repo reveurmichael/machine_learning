@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "LEFT", "LEFT", "LEFT"], "reasoning": "The apple is four units left of the head. Moving left four times avoids all body collisions and reaches the apple directly. Initial direction DOWN allows first LEFT move without reversing."}

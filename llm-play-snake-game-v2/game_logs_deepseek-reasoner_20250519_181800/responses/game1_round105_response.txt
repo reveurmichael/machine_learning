@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT"],
+  "reasoning": "Shortest path to apple: move down then right, avoiding body cells and ensuring legal exit after growth."
+}

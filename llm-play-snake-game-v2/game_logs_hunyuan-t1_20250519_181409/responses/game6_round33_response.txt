@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT"], "reasoning": "The apple is two units to the right of the head. Moving RIGHT twice directly reaches the apple without collisions, adhering to direction constraints and avoiding all body segments."}

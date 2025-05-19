@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move left to reduce x towards 3, then up to align y with the apple. Continue left to reach (3,6) without colliding with body segments."
+}

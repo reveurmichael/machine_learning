@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The snake must move 5 LEFT and 3 UP to reach the apple (3,9) from (8,6). Moving LEFT first avoids immediate collisions with the body and wall. Sequential LEFT moves followed by UP moves ensure the path avoids the body and stays within bounds. Each step maintains safe distances from the body and direction constraints."
+}

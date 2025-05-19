@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left to decrease the x-coordinate from 5 to 3 and down to decrease the y-coordinate from 5 to 1. The planned moves ensure a safe path to the apple without colliding with walls or the body."
+}
+```

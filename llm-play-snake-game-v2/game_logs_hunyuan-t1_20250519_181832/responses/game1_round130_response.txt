@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move 6 steps LEFT and 6 steps DOWN to reach the apple. Starting with LEFT moves avoids immediate collisions. Interleaving DOWN moves later prevents the body from blocking the path. Each step ensures the new head position is within bounds and not colliding with the dynamically shifting body."
+}

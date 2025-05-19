@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The apple is directly to the left of the snake's head with no obstacles in between. Moving left 5 times will reach the apple safely without any collisions."
+}
+```

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path aligning x-coordinate first, then descending safely to apple."
+}
+```

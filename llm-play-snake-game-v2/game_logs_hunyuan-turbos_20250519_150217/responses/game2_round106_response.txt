@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "UP"],
+  "reasoning": "The snake needs to move two steps RIGHT to align with the apple's x-coordinate. However, moving directly RIGHT twice would cause a collision with the body at (4, 2). Therefore, the snake moves RIGHT, then adjusts its path by moving DOWN to avoid the body, then RIGHT again to reach the apple's x-coordinate, and finally adjusts vertically if necessary. The provided sequence ensures no collision and moves toward the apple."
+}
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (8,5) facing RIGHT. To reach the apple at (1,1), it needs to move left 7 times and down 4 times. The first move cannot be LEFT, so we start with DOWN to (8,4). Then, we move LEFT seven times to reach x=1, followed by three DOWN moves to reach y=1. Each move avoids collisions with the body and walls."
+}

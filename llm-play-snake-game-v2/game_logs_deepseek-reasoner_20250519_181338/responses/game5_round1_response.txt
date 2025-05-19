@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path with minimal moves: two RIGHTs to reach x=7, then four DOWNS to reach y=1. No collisions as body is empty."
+}

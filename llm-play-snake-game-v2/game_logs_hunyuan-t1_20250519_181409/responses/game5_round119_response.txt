@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "No safe path exists. The snake's body blocks all possible routes to the apple at (3,2). Attempts to navigate left or down are obstructed by body cells, and alternative paths either collide with walls or the body. The required Manhattan distance cannot be achieved without causing a collision."
+}
+```

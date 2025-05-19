@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (0,2) with the body blocking upward movement. Moving RIGHT six times avoids collisions and positions the head at (6,2). From there, moving UP seven times directly reaches the apple at (6,9) while maintaining safe clearance from the shifting body. This satisfies the Manhattan distance requirements and avoids wall/body collisions."
+}

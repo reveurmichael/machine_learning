@@ -1,0 +1,66 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left to decrease the x-coordinate from 6 to 2 and down to decrease the y-coordinate from 4 to 2. The first move cannot reverse the current direction (DOWN), so the snake moves LEFT first. After moving LEFT three times, the snake is at (3, 4), then moves DOWN twice to reach (3, 2). However, this path does not directly lead to the apple, so further adjustments are needed. The correct path should be LEFT, LEFT, LEFT, DOWN, DOWN to reach (2, 2) safely."
+}
+``` 
+
+Wait, let me recheck the reasoning and ensure the path is correct. The snake starts at (6, 4), and the apple is at (2, 2). The Manhattan distance requires 4 LEFT moves and 2 DOWN moves. The first move cannot be UP (opposite of DOWN). Moving LEFT first is valid. After moving LEFT three times, the snake is at (3, 4). Then, moving DOWN twice would place the snake at (3, 2), which is not the apple. This suggests an error in the initial reasoning. Let me correct this.
+
+Corrected path:
+1. LEFT to (5, 4)
+2. LEFT to (4, 4)
+3. LEFT to (3, 4)
+4. LEFT to (2, 4)
+5. DOWN to (2, 3)
+6. DOWN to (2, 2)
+
+However, the output must be a sequence of 5 to 30 moves. The correct sequence should be:
+["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"]
+
+But the output must be ≤30 moves and reach the apple in the shortest possible way. The minimal path is 6 moves, but the output requires at least 5 moves. The correct minimal path is 6 moves, but the output must be adjusted to fit the constraints.
+
+Final corrected JSON:
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "The snake moves LEFT four times to reach x=2, then DOWN once to reach y=2. This path avoids collisions and reaches the apple in 5 moves."
+}
+```
+
+Wait, but this path does not reach the apple at (2, 2) because after moving LEFT four times and DOWN once, the snake is at (2, 3), not (2, 2). This indicates another error. Let me re-examine.
+
+Correct minimal path:
+1. LEFT to (5, 4)
+2. LEFT to (4, 4)
+3. LEFT to (3, 4)
+4. LEFT to (2, 4)
+5. DOWN to (2, 3)
+6. DOWN to (2, 2)
+
+This requires 6 moves. Since the output must be at least 5 moves, but the minimal path is 6 moves, the output should be the first 5 moves of this path, but this would not reach the apple. Therefore, the correct output should be the full 6 moves, but the output format requires at least 5 moves. This suggests that the output should include all 6 moves, but the problem constraints specify a maximum of 30 moves. Therefore, the correct output is:
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake moves LEFT four times to reach x=2, then DOWN twice to reach y=2, safely avoiding collisions with the body and walls."
+}
+```
+
+However, the output must be ≤30 moves, and this sequence is valid. Therefore, the final JSON is:
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake moves LEFT four times to reach x=2, then DOWN twice to reach y=2, safely avoiding collisions with the body and walls."
+}
+```
+
+But the problem specifies that if no safe path of ≤30 moves exists, return NO_PATH_FOUND. Since a safe path exists, the output is as above. However, the initial reasoning was incorrect, and the correct path requires 6 moves. The output must include all 6 moves to reach the apple. Therefore, the final JSON is:
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake moves LEFT four times to reach x=2, then DOWN twice to reach y=2, safely avoiding collisions with the body and walls."
+}
+```

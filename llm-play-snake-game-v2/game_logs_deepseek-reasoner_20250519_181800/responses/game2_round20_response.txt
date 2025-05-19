@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "Detour left to avoid immediate body, then descend vertically to apple. Maintains required Manhattan delta and collision safety."
+}

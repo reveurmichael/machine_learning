@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP"],
+  "reasoning": "Shortest path to apple requires 1 right and 2 up moves. No body present, so direct path is safe."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The apple is directly above the head at (1,6). To avoid the body, the snake will move up three times, then right three times to avoid the body, then down three times to align with the apple, then left three times to position itself below the apple, and finally up three times to reach the apple."
+}
+```

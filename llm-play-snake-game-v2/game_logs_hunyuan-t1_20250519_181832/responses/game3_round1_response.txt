@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "The shortest path to the apple (1,7) from (5,5) requires 4 LEFT moves and 2 UP moves. Moving left first avoids potential wall collisions and ensures the snake's body (which trails the head) does not obstruct the path. This sequence satisfies all movement constraints and Manhattan distance requirements."
+}

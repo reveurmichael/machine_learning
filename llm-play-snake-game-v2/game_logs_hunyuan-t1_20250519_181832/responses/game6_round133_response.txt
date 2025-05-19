@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake must move RIGHT 6 times to reach x=9 and DOWN 2 times to reach y=7, aligning with Manhattan distance requirements. Starting with RIGHT avoids reversing direction and navigates safely around the body, reaching the apple in 8 moves without collisions."
+}

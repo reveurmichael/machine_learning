@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT"],
+  "reasoning": "Direct path to apple via DOWN then RIGHT, avoiding body cells and walls safely."
+}

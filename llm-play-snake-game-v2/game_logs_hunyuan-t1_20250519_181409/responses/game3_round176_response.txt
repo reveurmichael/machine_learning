@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (8,3) facing DOWN. To reach the apple at (9,9), it needs to move RIGHT once and UP six times. The first move RIGHT is valid (not reversing direction). Subsequent UP moves are safe as the path (9,3) to (9,9) does not collide with the body or walls. Each move incrementally advances toward the apple while avoiding self-collision."
+}

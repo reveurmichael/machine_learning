@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP"],
+  "reasoning": "The snake needs to move 6 steps RIGHT and 2 steps UP to reach the apple. Starting with the first move RIGHT (cannot reverse direction), the body shifts safely. Continuing RIGHT six times brings the head to (9,1). Two UP moves then reach (9,3) without colliding with the body or walls."
+}

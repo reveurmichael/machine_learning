@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT"],
+  "reasoning": "Apple is directly left; moving LEFT is safe and shortest path."
+}

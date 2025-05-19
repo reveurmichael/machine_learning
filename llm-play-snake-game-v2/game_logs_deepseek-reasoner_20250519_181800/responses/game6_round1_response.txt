@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Shortest path (2 right, 4 up) with no body to avoid. Safe exit possible after eating by moving left or right."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "DOWN", "LEFT", "DOWN", "RIGHT", "DOWN"],
+  "reasoning": "Moving left and down to avoid the body and reach the apple at (4, 1). The sequence ensures the snake moves towards the apple while avoiding collisions with its own body."
+}
+```

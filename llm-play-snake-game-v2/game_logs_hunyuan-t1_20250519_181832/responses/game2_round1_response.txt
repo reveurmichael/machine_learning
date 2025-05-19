@@ -1,0 +1,3 @@
+
+
+{"moves": ["LEFT", "LEFT", "UP"], "reasoning": "The shortest path to the apple (3,6) from (5,5) requires moving LEFT twice (reducing x from 5 to 3) and UP once (increasing y from 5 to 6). This path avoids walls and body collisions, and the snake's body remains safely behind without causing immediate collisions after eating the apple."}

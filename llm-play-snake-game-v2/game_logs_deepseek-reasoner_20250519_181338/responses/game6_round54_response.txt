@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Direct path left along y=1 is safe, avoiding body segments and walls. Five LEFT moves reach the apple with correct Manhattan adjustments."
+}

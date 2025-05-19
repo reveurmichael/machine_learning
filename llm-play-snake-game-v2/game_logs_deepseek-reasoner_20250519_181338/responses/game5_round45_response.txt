@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right three times to align x with the apple, then down eight times to reach (8,1) without colliding with body or walls. Path ensures required direction changes and avoids collisions."
+}

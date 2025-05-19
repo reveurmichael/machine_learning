@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP"],
+  "reasoning": "The shortest path from (2,0) to (7,3) requires moving right 5 times and up 3 times. Starting with RIGHT avoids reversing the initial DOWN direction. Each move is checked to ensure it doesn't collide with the body or walls. The path safely navigates around the body and reaches the apple in 8 moves."
+}

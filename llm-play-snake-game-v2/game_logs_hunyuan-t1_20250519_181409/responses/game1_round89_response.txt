@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move left once (from x=2 to x=1) and up five times (from y=0 to y=5). Starting with the current direction LEFT, moving left first avoids collision and aligns with the required x-direction. Subsequent UP moves increment y safely, avoiding the body and walls. The path satisfies all collision checks and direction constraints."
+}

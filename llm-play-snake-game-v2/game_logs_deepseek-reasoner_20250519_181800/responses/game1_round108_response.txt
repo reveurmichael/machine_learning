@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT"],
+  "reasoning": "Path moves right to x=9, then up along the right edge to y=9, then left to the apple, avoiding body collisions."
+}

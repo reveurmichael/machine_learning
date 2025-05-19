@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left to align x with the apple, then ascend directly upwards. Path avoids body and walls while meeting direction constraints."
+}

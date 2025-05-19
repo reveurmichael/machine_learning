@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "The snake must move left (from x=8 to 7) and up (from y=0 to 9). Starting with UP avoids reversing direction. Moving up 9 times aligns the head vertically with the apple, then a single LEFT move reaches the apple. This path avoids collisions with the body and walls."
+}

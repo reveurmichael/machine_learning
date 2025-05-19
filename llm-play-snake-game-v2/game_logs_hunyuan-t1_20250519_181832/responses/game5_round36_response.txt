@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (7,1) from (6,7) requires moving RIGHT once and DOWN six times. The initial RIGHT move avoids collision with the body and aligns with the required x-direction. Subsequent DOWN moves navigate toward the apple while avoiding self-collision, as the body shifts forward safely."
+}

@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "The snake needs to move down 4 times to align vertically with the apple and then right once. Each move avoids collisions with walls and body segments. The path follows the required Manhattan distance constraints and maintains valid directional changes."
+}

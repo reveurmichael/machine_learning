@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT"],
+  "reasoning": "Moved down to avoid body, then left and down to navigate safely toward the apple while satisfying required net direction counts."
+}

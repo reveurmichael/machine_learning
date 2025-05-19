@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right along the top edge to x=5, then descend directly to the apple at (5,6), avoiding body collisions."
+}

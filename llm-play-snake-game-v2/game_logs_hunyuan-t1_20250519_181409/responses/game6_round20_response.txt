@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake starts at (0,3) with the body extending upward to (0,5) and right to (2,5). To reach the apple at (7,4), the snake must move right 7 times and up once. The first move RIGHT avoids collision and starts aligning horizontally. Moving UP next avoids the body and begins vertical progress. Subsequent RIGHT moves navigate around the body and toward the apple, ensuring no collisions."
+}

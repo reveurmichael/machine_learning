@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move DOWN to align y=0, then RIGHT along the safe bottom edge to reach (9,0) without body collisions."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "The snake's head is at (9, 2) and the apple is at (5, 2). The Manhattan distance requires 4 LEFT moves to align horizontally. However, moving directly LEFT from (9, 2) to (5, 2) would collide with the body at (8, 2), (7, 2), and (7, 1). To avoid collision, the snake first moves LEFT four times to (5, 2), but since this would cause an immediate collision, it must detour. The safe path involves moving LEFT to (8, 2), then DOWN to (8, 1), LEFT to (7, 1) (but (7, 1) is occupied), so instead, move LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid. Correcting the path: LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid, so instead, after LEFT to (8, 2), move DOWN to (8, 1), then LEFT to (7, 1) is invalid, so instead, move LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid. Re-evaluating, the correct path is LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid, so instead, move LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid. Final path: LEFT to (8, 2), DOWN to (8, 1), LEFT to (7, 1) is invalid, so instead, move LEFT four times to (5, 2) is invalid due to body collision. Correct path: LEFT, LEFT, LEFT, LEFT, then DOWN to avoid collision."
+}
+```

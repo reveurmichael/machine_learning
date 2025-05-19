@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move right along top edge to (9,9), then down to apple. Avoids body and walls, meets Manhattan constraints."
+}

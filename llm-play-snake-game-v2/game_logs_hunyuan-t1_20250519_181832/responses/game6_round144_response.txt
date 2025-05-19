@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "The snake needs to move left 9 times and up 2 times to reach the apple at (0,6) from (9,4). Starting with direction DOWN, the first move cannot be UP. Moving LEFT progressively avoids collisions with the body and walls. After reaching (0,4), moving UP twice safely reaches the apple without intersecting the body."
+}

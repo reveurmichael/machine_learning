@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "LEFT", "LEFT", "UP"], "reasoning": "Move left three times to reduce the x-coordinate from 4 to 1, then move up once to reach the apple's y-coordinate of 4, avoiding collisions with the body."}

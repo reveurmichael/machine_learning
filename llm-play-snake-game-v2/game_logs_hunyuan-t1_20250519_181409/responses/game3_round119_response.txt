@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT"], "reasoning": "The shortest path is two RIGHT moves. The head moves from (0,2) to (1,2), then to (2,2) (apple), avoiding all body collisions."}

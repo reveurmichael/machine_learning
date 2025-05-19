@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "DOWN", "RIGHT", "RIGHT"],
+  "reasoning": "The snake must navigate around its own body to reach the apple. Moving up first allows the snake to bypass the blocking body segments. After ascending, moving right multiple times positions the head to descend back into the target row and safely reach the apple without collisions."
+}

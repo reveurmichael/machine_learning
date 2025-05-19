@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP"],
+  "reasoning": "The snake needs to move 4 units right (from x=4 to x=8) and 1 unit up (from y=1 to y=2). Starting with direction DOWN, the first move cannot be UP. Moving RIGHT four times avoids collisions with the body and walls, then UP reaches the apple safely. Each step ensures the new head position does not intersect the updated body."
+}

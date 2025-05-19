@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "RIGHT", "UP"],
+  "reasoning": "The snake moves RIGHT to align with the apple's x-coordinate while ascending upward. It continues moving UP to close the vertical gap, then shifts RIGHT once more to reach the apple's column and finally ascends to the apple. This path avoids body collisions and adheres to movement constraints."
+}

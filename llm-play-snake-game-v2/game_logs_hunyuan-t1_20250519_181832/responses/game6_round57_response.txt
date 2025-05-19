@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake moves left four times to align horizontally with the apple (x=2), then moves up five times to reach the apple's y=7. This avoids collisions with the body and walls while satisfying Manhattan distance requirements."
+}

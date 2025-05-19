@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The apple is at (0, 3), and the head is at (9, 5). To reach the apple, we need to move LEFT 9 times and DOWN 2 times. However, moving LEFT immediately would collide with the body at (9, 4). Therefore, we first move LEFT 9 times to reach (0, 5), then DOWN twice to reach (0, 3), avoiding collisions with the body."
+}
+```

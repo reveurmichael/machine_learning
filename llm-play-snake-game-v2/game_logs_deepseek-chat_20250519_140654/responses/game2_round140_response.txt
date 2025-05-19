@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is at (0, 0), so we need to move left 9 times and down 6 times. The initial moves left avoid the body segments, and the subsequent moves down reach the apple safely."
+}
+```

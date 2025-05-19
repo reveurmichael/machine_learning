@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "The snake needs to move from (0,6) to (1,1). To avoid body collisions and walls, the safest path is to move DOWN five times to reach (0,1), then RIGHT to (1,1). This avoids the body and stays within bounds, achieving the required Manhattan distance."
+}

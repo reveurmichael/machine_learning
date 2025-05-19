@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "The apple is directly below the head, but moving DOWN immediately would collide with the body. Instead, I detour left and then down to avoid the body, then circle around to approach the apple safely from below."
+}
+```

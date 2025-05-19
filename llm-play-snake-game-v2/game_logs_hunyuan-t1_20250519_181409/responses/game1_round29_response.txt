@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move 4 units left (from x=5 to x=1) and 6 units down (from y=9 to y=3). Starting with LEFT moves avoids immediate collisions and aligns with the required horizontal path. Subsequent DOWN moves navigate toward the apple while avoiding body collisions. The sequence ensures no reversal of direction and maintains safe spacing from the growing body."
+}

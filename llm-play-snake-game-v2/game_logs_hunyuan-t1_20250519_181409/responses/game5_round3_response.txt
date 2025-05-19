@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "UP", "LEFT", "UP", "LEFT", "LEFT"],
+  "reasoning": "The path moves left and up towards the apple while avoiding collisions. Starting with UP maintains the initial direction, then alternates LEFT and UP to navigate toward (2,9). Each move ensures the head doesn’t collide with the body or walls, and the net movement satisfies the required LEFT and UP counts."
+}

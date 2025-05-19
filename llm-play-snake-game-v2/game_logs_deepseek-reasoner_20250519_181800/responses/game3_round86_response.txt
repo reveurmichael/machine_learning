@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "LEFT", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "Path safely navigates around body segments, moving down to avoid collision and left to reach the apple."
+}
+```

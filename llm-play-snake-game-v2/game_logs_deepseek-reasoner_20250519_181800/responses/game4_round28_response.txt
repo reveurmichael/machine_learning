@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move UP to avoid body, LEFT to align x with apple, then DOWN thrice to reach apple safely."
+}

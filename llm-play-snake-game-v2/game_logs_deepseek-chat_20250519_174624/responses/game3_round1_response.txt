@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP"],
+  "reasoning": "The apple is at (7, 7), and the snake is at (5, 5). Moving RIGHT twice and UP twice will reach the apple directly without any collisions."
+}
+```

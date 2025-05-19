@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "RIGHT"],
+  "reasoning": "The snake needs to move left to reduce the x-coordinate from 6 to 4 and up to increase the y-coordinate from 3 to 5. The first move is LEFT to avoid reversing direction and to start aligning with the apple's x-coordinate. Subsequent moves prioritize reaching the apple while avoiding collisions with the body."
+}
+```

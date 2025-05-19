@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake must move RIGHT three times to align horizontally with the apple (5,1) and then DOWN eight times to reach the apple's y-coordinate. The initial RIGHT moves avoid collision with the body and walls. Subsequent DOWN moves navigate toward the apple while avoiding self-collision, as the body trails behind the descending head."
+}

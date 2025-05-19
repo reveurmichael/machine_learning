@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "The snake moves down twice to avoid the leftward body blockage, then shifts left three times to align vertically with the apple. Finally, two upward moves reach the apple while avoiding collisions."
+}

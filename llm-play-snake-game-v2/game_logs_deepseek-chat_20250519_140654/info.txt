@@ -1,0 +1,21 @@
+Experiment Information
+====================
+Date: 2025-05-19 14:06:54
+
+LLM Provider: deepseek
+Model: Default model for provider
+Max Games: 6
+Move Pause: 1.0 seconds
+
+Other Information:
+- Time Delay: 40
+- Time Tick: 280
+
+
+Game Statistics
+==============
+Total Games Played: 6
+Total Score: 54
+Total Steps: 374
+Average Score per Game: 9.00
+Average Steps per Game: 62.33

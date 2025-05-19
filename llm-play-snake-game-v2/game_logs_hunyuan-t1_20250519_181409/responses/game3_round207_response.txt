@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [],
+  "reasoning": "No safe path exists. The snake cannot navigate around the body blocking the direct route to the apple at (0,1) due to the extensive body segments occupying the critical y=3 row, preventing passage below or around without collision."
+}
+```

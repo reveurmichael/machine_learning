@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP"],
+  "reasoning": "The shortest path to the apple (0,9) requires 5 LEFT moves (x from 5→0) and 4 UP moves (y from 5→9). Moving left first avoids walls and ensures the snake reaches the apple in 9 moves without collisions, as the body is initially empty and grows after eating the apple."
+}

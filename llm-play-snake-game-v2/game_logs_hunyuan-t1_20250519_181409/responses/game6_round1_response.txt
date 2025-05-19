@@ -1,0 +1,1 @@
+{"moves": ["UP", "UP"], "reasoning": "The apple is directly north of the head by two units. Moving UP twice allows the snake to reach the apple safely without colliding with walls or its body (which is currently empty)."}

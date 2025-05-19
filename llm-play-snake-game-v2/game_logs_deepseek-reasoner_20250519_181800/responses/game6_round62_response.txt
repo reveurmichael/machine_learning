@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "UP"],
+  "reasoning": "Shortest path: move left twice to x=0, then up to the apple at (0,2). Path avoids body and walls."
+}

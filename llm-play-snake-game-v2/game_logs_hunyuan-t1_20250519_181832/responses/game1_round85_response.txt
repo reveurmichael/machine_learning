@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake moves down to (4,3) to avoid immediate collision, then shifts right four times to navigate around the body blocking the horizontal path. Finally, two downward moves reach the apple at (8,1) while maintaining safe spacing from the shifting body."
+}

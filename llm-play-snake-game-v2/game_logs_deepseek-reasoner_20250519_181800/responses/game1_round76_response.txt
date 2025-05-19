@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Direct path right to x=5 then up to y=9, avoiding body and walls. Net moves satisfy required Manhattan distances."
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP", "UP", "RIGHT", "UP"],
+  "reasoning": "The snake needs to move UP three times to reach y=8, then adjust horizontally if necessary. Since the apple is directly above at x=3, no horizontal movement is initially required. The path avoids collisions with the body and walls."
+}
+```

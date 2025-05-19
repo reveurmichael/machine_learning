@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "UP", "UP", "UP"], "reasoning": "The shortest path is to move left once (from x=3 to x=2) and then up three times (from y=5 to y=8). The first move left is safe as it avoids the body and doesn't reverse direction. Subsequent up moves navigate toward the apple while the body shifts safely behind."}

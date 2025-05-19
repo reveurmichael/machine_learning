@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left along x=9 to x=3 avoiding body, then ascend directly to apple at (3,6) without collisions."
+}

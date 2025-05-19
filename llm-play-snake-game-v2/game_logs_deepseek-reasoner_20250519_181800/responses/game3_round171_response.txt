@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Move right four times to align x=6, then down to reach the apple directly, avoiding body cells."
+}

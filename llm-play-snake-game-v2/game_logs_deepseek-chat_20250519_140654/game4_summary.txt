@@ -1,0 +1,4 @@
+Game 4 Summary:
+Score: 2
+Steps: 9
+Last direction: LEFT

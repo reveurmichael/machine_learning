@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT"],
+  "reasoning": "The apple is at (8, 7), which requires moving right twice and up six times from the current head position (6, 1). The path avoids the body and walls, moving up first to clear the body segments before turning right towards the apple."
+}
+```

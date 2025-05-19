@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move UP to avoid body, then left directly to the apple. Ensures Manhattan steps (4 left, 1 up) without collisions."
+}

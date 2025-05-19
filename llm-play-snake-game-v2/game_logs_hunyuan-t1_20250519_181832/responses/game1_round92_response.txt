@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "UP", "UP"], "reasoning": "The snake moves RIGHT to avoid its body, then UP twice to reach the apple. This path avoids collisions and adheres to movement constraints."}

@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake moves down from (9,6) to (9,0) to avoid the body, then left to (3,0). This path ensures no collisions with walls or the body, and satisfies the required Manhattan distance constraints."
+}

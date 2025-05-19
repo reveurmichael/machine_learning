@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "Move left to reduce x-coordinate to 3, then move up to reach y-coordinate 6, avoiding body cells and walls."
+}
+```

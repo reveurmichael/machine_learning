@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is directly below the head. Moving DOWN five times avoids all body collisions and stays within walls. The path is straight and requires minimal moves without any detours needed."
+}

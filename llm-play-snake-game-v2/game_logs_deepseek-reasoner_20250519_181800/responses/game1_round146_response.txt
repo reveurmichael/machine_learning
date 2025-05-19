@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path: 3 LEFT moves to x=4, then 3 DOWN to apple. Avoids body by moving around the tail safely."
+}

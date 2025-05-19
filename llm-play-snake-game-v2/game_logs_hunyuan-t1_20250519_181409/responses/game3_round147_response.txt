@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake starts at (1,5) facing UP. To reach (4,0), it needs to move 3 right and 5 down. The first move can't be DOWN. Moving LEFT to (0,5) avoids the body. Then, moving DOWN six times to (0,0) is safe as the body shifts upward. Finally, moving RIGHT four times reaches the apple at (4,0) without collisions."
+}

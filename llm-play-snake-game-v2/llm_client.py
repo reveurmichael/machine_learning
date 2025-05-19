@@ -356,11 +356,6 @@ Never return math notation or explanations outside of JSON. Only return valid JS
             The LLM's response as a string
         """
         try:
-            # Check if the Mistral SDK is available
-            if not MISTRAL_SDK_AVAILABLE:
-                print("Error: mistralai package not installed. Install with 'pip install mistralai'")
-                return self._get_fallback_response()
-            
             # Check if API key is properly set
             api_key = os.environ.get("MISTRAL_API_KEY")
             if not api_key or api_key == "your_mistral_api_key_here":

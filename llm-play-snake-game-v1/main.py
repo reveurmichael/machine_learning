@@ -38,9 +38,9 @@ def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
     parser.add_argument('--provider', type=str, default='hunyuan',
-                      help='LLM provider to use (hunyuan or ollama)')
+                      help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Specific model to use with the provider (e.g., llama3.2:latest for Ollama)')
+                      help='Specific model to use with the provider (e.g., llama3.2:latest for Ollama, deepseek-chat for Deepseek, mistral-medium-latest for Mistral)')
     parser.add_argument('--max-games', type=int, default=100,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,

@@ -103,7 +103,7 @@ def parse_arguments():
                       help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
                       help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
-    parser.add_argument('--max-games', type=int, default=100,
+    parser.add_argument('--max-games', type=int, default=6,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
                       help='Pause between sequential moves in seconds (default: 1.0)')

@@ -42,16 +42,6 @@ class YouTubeNavigator:
         extra_rules: List[str] = None,
         model: str = None
     ):
-        """Initialize the navigator.
-        
-        Args:
-            provider: The LLM provider to use ("hunyuan" or "ollama")
-            target_views: Target number of views to find
-            headless: Whether to run the browser in headless mode
-            ollama_server: Hostname or IP of Ollama server if using Ollama
-            extra_rules: Additional rules to guide the LLM
-            model: Specific model to use with the provider
-        """
         self.provider = provider
         self.target_views = target_views
         self.headless = headless

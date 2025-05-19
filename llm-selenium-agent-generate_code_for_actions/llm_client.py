@@ -107,8 +107,10 @@ class LLMClient:
         try:
             # Extract parameters
             model = kwargs.get("model", self._get_best_ollama_model())
-            server = kwargs.get("server", "localhost")
+            server = kwargs.get("server", os.environ.get("OLLAMA_HOST", "localhost"))
             temperature = kwargs.get("temperature", 0.7)
+            
+            print(f"Making API call to Ollama server at {server} with model: {model}")
             
             # Make the API call
             response = requests.post(
@@ -121,14 +123,24 @@ class LLMClient:
                 }
             )
             
-            # Return the response
-            return response.json()["response"]
+            # Check if response is valid JSON
+            try:
+                response_json = response.json()
+                return response_json.get("response", "ERROR: No response field in JSON")
+            except json.JSONDecodeError:
+                return f"ERROR: Invalid JSON response - {response.text[:100]}"
             
+        except requests.exceptions.Timeout:
+            print(f"Timeout error connecting to Ollama server at {server}")
+            return f"ERROR: Timeout connecting to Ollama server at {server}"
+        except requests.exceptions.ConnectionError:
+            print(f"Connection error to Ollama server at {server}")
+            return f"ERROR: Could not connect to Ollama server at {server}"
         except Exception as e:
             print(f"Error generating response from Ollama: {e}")
             return f"ERROR: {str(e)}"
     
-    def _get_best_ollama_model(self, server: str = "localhost") -> str:
+    def _get_best_ollama_model(self, server: str = None) -> str:
         """Get the 'best' (largest) Ollama model available locally.
         
         Args:
@@ -139,6 +151,10 @@ class LLMClient:
         """
         fallback_model = "llama3.2:1b"  # Fallback default
         
+        # Use the provided server or get from environment variable or default to localhost
+        if server is None:
+            server = os.environ.get("OLLAMA_HOST", "localhost")
+        
         try:
             # Try to get list of models from Ollama API
             response = requests.get(f"http://{server}:11434/api/tags")
@@ -148,7 +164,7 @@ class LLMClient:
                 
                 # No models available
                 if not models:
-                    print(f"No Ollama models found. Using fallback model: {fallback_model}")
+                    print(f"No Ollama models found on server {server}. Using fallback model: {fallback_model}")
                     return fallback_model
                 
                 # Try to find models with parameter information
@@ -178,17 +194,17 @@ class LLMClient:
                 # Return the largest model
                 if models_with_size:
                     best_model = models_with_size[0][0]
-                    print(f"Selected largest available model: {best_model}")
+                    print(f"Selected largest available model on server {server}: {best_model}")
                     return best_model
                 
                 # If we couldn't determine sizes, just return the first model
                 print(
-                    f"Couldn't determine model sizes. Using first available model: {models[0]['name']}"
+                    f"Couldn't determine model sizes. Using first available model on server {server}: {models[0]['name']}"
                 )
                 return models[0]["name"]
                 
         except Exception as e:
-            print(f"Error getting Ollama models: {e}")
+            print(f"Error getting Ollama models from server {server}: {e}")
             print(f"Using fallback model: {fallback_model}")
         
         # Only try command line if server is localhost

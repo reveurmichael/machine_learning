@@ -26,11 +26,10 @@ This project demonstrates how to use a local or cloud LLM to guide web navigatio
 2. Edit the `.env` file with your API credentials:
 
    ```
-   # For Hunyuan
-   HUNYUAN_API_KEY=your_hunyuan_api_key_here
-   
-   # For Ollama
-   OLLAMA_HOST=localhost
+   HUNYUAN_API_KEY=<your_hunyuan_api_key_here>
+   OLLAMA_HOST=<your_ollama_host_ip_address>
+   DEEPSEEK_API_KEY=<your_deepseek_api_key_here>
+   MISTRAL_API_KEY=<your_mistral_api_key_here>
    ```
 
 ## Usage
@@ -46,12 +45,13 @@ python navigator.py
 Run with Ollama instead:
 
 ```bash
-python navigator.py --provider ollama
+python navigator.py --provider ollama --model <your_ollama_model_name>
 ```
 
 ### Command-line Options
 
-- `--provider`: LLM provider to use (`hunyuan` or `ollama`, default is `hunyuan`)
+- `--provider`: LLM provider to use (`hunyuan`, `ollama`, `deepseek`, `mistral`, default is `hunyuan`)
+- `--model`: LLM model to use
 - `--max-actions`: Maximum number of actions to take (default: 50)
 - `--headless`: Run the browser in headless mode
 - You can also add any number of additional rules as positional arguments
@@ -59,7 +59,7 @@ python navigator.py --provider ollama
 Example:
 
 ```bash
-python navigator.py --provider ollama --max-actions 20 "Prefer visiting author pages" "Look for tags related to love or happiness"
+python navigator.py --provider ollama --model deepseek-r1:7b  --max-actions 20 "Prefer visiting author pages" "Look for tags related to love or happiness"
 ```
 
 ### Interactive Rules

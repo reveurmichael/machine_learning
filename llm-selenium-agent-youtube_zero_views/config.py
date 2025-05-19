@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 # Navigator settings
 DEFAULT_MAX_ACTIONS = 500
 DEFAULT_MAX_VIDEOS = 300
-DEFAULT_LLM_PROVIDER = "hunyuan"  # "hunyuan" or "ollama"
+DEFAULT_LLM_PROVIDER = "hunyuan"
 DEFAULT_TARGET_VIEWS = 0
 
 # Selenium settings
@@ -63,18 +63,3 @@ ACTION: OPEN_VIDEO
 REASON: I see a video with a view count that could potentially have {target_views} views.
 DETAILS: closest views
 """
-
-
-# LLM settings for different providers
-LLM_CONFIG = {
-    "hunyuan": {
-        "model": "hunyuan-turbos-latest",
-        "temperature": 0.7,
-        "max_tokens": 1024,
-        "enable_enhancement": True,
-    },
-    "ollama": {
-        "model": "llama3.2",  # Will be overridden by available model selection
-        "temperature": 0.7
-    }
-} 

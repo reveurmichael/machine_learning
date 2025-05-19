@@ -21,7 +21,6 @@ from config import (
     DEFAULT_MAX_VIDEOS,
     DEFAULT_LLM_PROVIDER,
     DEFAULT_TARGET_VIEWS,
-    LLM_CONFIG,
 )
 
 # Initialize colorama
@@ -154,16 +153,9 @@ class YouTubeNavigator:
         # Save prompt to file
         self.save_to_file(prompt, current_round, "prompt.txt")
         
-        # Get LLM config based on provider
-        llm_kwargs = LLM_CONFIG.get(self.provider, {}).copy()
-        
-        # If using Ollama, add the server parameter
-        if self.provider == "ollama":
-            llm_kwargs["server"] = self.ollama_server
-        
         # Get response from LLM - simple single-turn request
         print(Fore.YELLOW + "Consulting LLM for next action...")
-        response = self.llm_client.generate_response(prompt, **llm_kwargs)
+        response = self.llm_client.generate_response(prompt)
         
         # Save response to file
         self.save_to_file(response, current_round, "response.txt")
@@ -267,15 +259,8 @@ Do not include labels, formatting, or explanations.
 """
         print(Fore.YELLOW + "Generating initial search query...")
         
-        # Get LLM config based on provider
-        llm_kwargs = LLM_CONFIG.get(self.provider, {}).copy()
-        
-        # If using Ollama, add the server parameter
-        if self.provider == "ollama":
-            llm_kwargs["server"] = self.ollama_server
-        
         # Get search query from LLM - simple single-turn request
-        response = self.llm_client.generate_response(prompt, **llm_kwargs)
+        response = self.llm_client.generate_response(prompt)
         
         # Clean the response - remove any formatting or instructions
         search_query = response.strip().strip('"\'')

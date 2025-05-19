@@ -92,10 +92,8 @@ python main.py --provider mistral --model mistral-large-latest
 
 ## How to improve the game performance
 
-- Maybe, instead of giving multiple moves, give only one move for each time the LLM is called. But this will drastically increase the time it takes for the LLM to plan a move, as well as the cost of the API calls.
-- Or, there are many other details to specify about the game. Those additional details might help LLM give better moves.
-- Other ideas? Be innovative!
-
+- Maybe, instead of giving multiple moves, LLM only gives one move. But this will drastically increase the time for the whole game playing, as well as the cost of the API calls.
+- Or, there are many other insights/details to specify about snake game in the prompt. Those additional insights/details might help LLM figure out better moves.
 
 ## License
 

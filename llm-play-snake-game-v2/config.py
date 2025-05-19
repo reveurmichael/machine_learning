@@ -1,8 +1,3 @@
-"""
-Minimal configuration settings for the Snake game.
-Contains game parameters and colors without problematic f-strings.
-"""
-
 # COLORS
 SNAKE_C = (209, 204, 192)
 APPLE_C = (192, 57, 43)
@@ -28,12 +23,11 @@ SNAKE_SIZE = 10
 
 # Direction vectors as (dx, dy) where:
 # x increases to the right, y increases upward
-# This matches (0,0) at bottom-left as in the prompt
 DIRECTIONS = {
-    "UP": (0, 1),      # No change in x, increase y (move up)
-    "RIGHT": (1, 0),   # Increase x, no change in y (move right)
-    "DOWN": (0, -1),   # No change in x, decrease y (move down)
-    "LEFT": (-1, 0)    # Decrease x, no change in y (move left)
+    "UP": (0, 1),  # No change in x, increase y (move up)
+    "RIGHT": (1, 0),  # Increase x, no change in y (move right)
+    "DOWN": (0, -1),  # No change in x, decrease y (move down)
+    "LEFT": (-1, 0),  # Decrease x, no change in y (move left)
 }
 
 # The PROMPT_TEMPLATE text without f-string evaluation
@@ -50,7 +44,7 @@ MOVEMENT RULES:
   1. Valid moves are "UP", "DOWN", "LEFT", "RIGHT". 
   2. DIRECTIONS = { "UP": (0, 1), "RIGHT": (1, 0), "DOWN": (0, -1), "LEFT": (-1, 0) }
   3. For each of your moves, you cannot move in the exact opposite of current direction. If current direction is NONE, then you can move in any direction.
-  4. The snake dies if head moves into any TEXT_TO_BE_REPLACED_BODY_CELLS or outside 0 ≤ x < 10, 0 ≤ y < 10.  
+  4. The snake dies if head moves into any body cells (for this moment, the body is TEXT_TO_BE_REPLACED_BODY_CELLS . However, the body will move along with the head, so this list of body cells is not fixed, and you have to think about it each time you plan a move) or outside 0 ≤ x < 10, 0 ≤ y < 10.  
   5. Eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS increments score by 1 and grows the body by 1 segment.
 
 COORDINATE SYSTEM (IMPORTANT):

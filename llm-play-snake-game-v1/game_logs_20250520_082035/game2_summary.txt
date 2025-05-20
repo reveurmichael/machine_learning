@@ -1,0 +1,4 @@
+Game 2 Summary:
+Score: 0
+Steps: 5
+Last direction: UP

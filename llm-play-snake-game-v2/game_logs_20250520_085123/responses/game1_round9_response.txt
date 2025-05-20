@@ -1,0 +1,6 @@
+```json
+{
+  "moves": [ "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT" ],
+  "reasoning": "The snake needs to move up to reach the y-coordinate of the apple and then move left to reach the x-coordinate of the apple."
+}
+```

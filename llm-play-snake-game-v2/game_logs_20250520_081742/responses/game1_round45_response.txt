@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left twice to reduce the x-coordinate from 8 to 6, and then down three times to reduce the y-coordinate from 2 to 0. This path avoids the body and stays within bounds."
+}
+```

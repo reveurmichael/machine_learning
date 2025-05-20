@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "First, move left to avoid immediate collision with the body, then move down to align vertically with the apple, and finally move right to reach the apple while avoiding the body and walls."
+}
+```

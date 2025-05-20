@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake is currently moving RIGHT, so it continues RIGHT to avoid reversing direction. It then moves UP to reach the apple at (9, 6) while avoiding collisions with the body or walls."
+}
+```

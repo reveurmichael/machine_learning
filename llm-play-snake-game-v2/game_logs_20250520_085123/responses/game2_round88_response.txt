@@ -1,0 +1,9 @@
+```json
+{
+  "moves": [
+    "UP", "UP", "UP", "UP", "UP", "UP",
+    "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"
+  ],
+  "reasoning": "The snake will move straight up to reach the same y-coordinate as the apple, then move left to reach the apple."
+}
+```

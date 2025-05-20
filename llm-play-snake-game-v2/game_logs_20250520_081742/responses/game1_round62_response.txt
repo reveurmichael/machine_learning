@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left to reduce its x-coordinate from 9 to 8 and down to reduce its y-coordinate from 8 to 0. The initial direction is RIGHT, so the first move must be LEFT (not reversing direction). The path avoids the body by moving left first, then down, ensuring no collisions with the body or walls."
+}
+```

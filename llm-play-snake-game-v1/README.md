@@ -6,20 +6,6 @@ A classic Snake game controlled by an LLM (Language Model).
 
 - LLM-controlled snake that learns to play the game through text representation
 - Multi-step planning: LLM provides a sequence of moves to reduce API calls
-- Visual display of game state and LLM response information
-- Improved text display area for better readability of LLM responses
-- Configurable game parameters
-- Log saving for analysis of LLM decisions
-
-## Requirements
-
-- Python 3.7+
-- PyGame
-- NumPy
-- OpenAI Python SDK (for Hunyuan API and DeepSeek API access)
-- Mistral AI SDK (for Mistral API access)
-- Colorama (for colored terminal output)
-- Python-dotenv (for environment variable handling)
 
 ## Installation
 

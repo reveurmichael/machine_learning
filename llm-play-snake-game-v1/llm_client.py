@@ -251,7 +251,7 @@ class LLMClient:
         """
         try:
             server = kwargs.get("server", os.environ.get("OLLAMA_HOST", "localhost"))
-            temperature = kwargs.get("temperature", 0.7)
+            temperature = kwargs.get("temperature", 0.2)
 
             model = kwargs.get("model", self.model)
             if not model:

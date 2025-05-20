@@ -1,4 +1,0 @@
-Game 1 Summary:
-Score: 0
-Steps: 8
-Last direction: UP

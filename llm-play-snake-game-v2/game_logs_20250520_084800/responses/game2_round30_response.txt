@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "The snake needs to move left 3 times to align with the apple's x-coordinate, then down 7 times to reach the apple's y-coordinate, avoiding collisions with walls or its own body."
-}
-```

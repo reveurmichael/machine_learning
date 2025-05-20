@@ -1,4 +1,0 @@
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
-  "reasoning": "The shortest path to the apple (0,3) from (5,5) requires 5 LEFT moves (to reduce x from 5 to 0) and 2 DOWN moves (to reduce y from 5 to 3). This path avoids walls and the empty body. The sequence ensures the required Manhattan distance constraints are met."
-}

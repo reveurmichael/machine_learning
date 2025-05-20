@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "UP", "UP", "RIGHT", "RIGHT", "DOWN", "DOWN", "RIGHT"],
-  "reasoning": "The snake is currently moving RIGHT, and the apple is directly to the right. The path involves moving RIGHT to reach the apple, then maneuvering to avoid the body and walls while ensuring the snake can safely consume the apple and continue moving."
-}
-```

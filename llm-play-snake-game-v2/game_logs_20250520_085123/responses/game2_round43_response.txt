@@ -1,6 +1,0 @@
-```json
-{
-  "moves": [ "LEFT", "DOWN", "DOWN", "DOWN" ],
-  "reasoning": "The snake needs to move left to align with the apple's x-coordinate and then move down to reach the apple's y-coordinate."
-}
-```

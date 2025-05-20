@@ -1,3 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP

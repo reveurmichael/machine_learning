@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "The snake starts at (1, 5) and needs to reach (9, 0). The Manhattan distance requires 8 RIGHT moves and 5 DOWN moves. The initial direction is LEFT, so the first move cannot be RIGHT (opposite direction). However, since the current direction is LEFT, the first move can be RIGHT (as the rule only prohibits reversing the current direction when it is not NONE). The path proceeds RIGHT to align horizontally with the apple, then DOWN to reach the apple's y-coordinate. The body grows after eating the apple, but the path ensures no collisions occur during the movement."
-}
-```

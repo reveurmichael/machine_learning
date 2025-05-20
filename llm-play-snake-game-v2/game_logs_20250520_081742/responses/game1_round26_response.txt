@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
-  "reasoning": "The snake needs to move left to reduce its x-coordinate from 9 to 1 while keeping the y-coordinate constant at 6. The current direction is UP, so moving LEFT is allowed (not reversing direction). The path avoids the body and stays within bounds."
-}
-```

@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "UP", "LEFT", "LEFT", "DOWN"],
-  "reasoning": "Move right twice to reach the apple at (9, 3), then adjust position to avoid collision with the body after eating the apple."
-}
-```

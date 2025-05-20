@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "RIGHT"],
-  "reasoning": "The snake needs to move right twice to reach the same x-coordinate as the apple (5), then down twice to align the y-coordinate (3), and finally right once to reach the apple at (5, 3). This path avoids the body and stays within bounds."
-}
-```

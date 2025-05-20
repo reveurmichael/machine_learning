@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["DOWN"],
-  "reasoning": "The apple is directly below the snake's head, so the simplest and safest path is to move DOWN."
-}
-```

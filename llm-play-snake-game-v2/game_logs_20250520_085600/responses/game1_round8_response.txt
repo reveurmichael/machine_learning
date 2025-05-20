@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
-  "reasoning": "The shortest path from (0,3) to (8,7) requires 8 RIGHT moves and 4 UP moves. Starting with RIGHT avoids reversing the initial DOWN direction. The body trails behind, so moving up after reaching x=8 is safe without collisions."
-}

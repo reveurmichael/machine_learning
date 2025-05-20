@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
-  "reasoning": "The snake needs to move right to increase its x-coordinate and up to increase its y-coordinate to reach the apple at (9, 8). The initial direction is DOWN, so the first move cannot be UP. The path avoids the body and stays within the grid boundaries while moving toward the apple."
-}
-```

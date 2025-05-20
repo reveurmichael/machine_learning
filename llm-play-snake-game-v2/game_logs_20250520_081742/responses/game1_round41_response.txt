@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
-  "reasoning": "The snake needs to move right to increase its x-coordinate and down to decrease its y-coordinate to reach the apple at (8, 2). The initial direction is RIGHT, so the first move is RIGHT. The snake avoids moving left or up, which would be counterproductive or unsafe. The path is straightforward since there are no immediate obstacles."
-}
-```

@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
-  "reasoning": "The apple is at (1, 5) and the head is at (5, 5). The shortest path is to move left 4 times to reach (1, 5). Since the current direction is NONE, moving LEFT is allowed and safe."
-}
-```

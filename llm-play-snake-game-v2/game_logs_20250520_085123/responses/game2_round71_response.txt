@@ -1,8 +1,0 @@
-```json
-{
-  "moves": [
-    "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP"
-  ],
-  "reasoning": "The snake needs to move down to avoid its body, then move right to reach the apple's x-coordinate, and finally move up to reach the apple's y-coordinate."
-}
-```

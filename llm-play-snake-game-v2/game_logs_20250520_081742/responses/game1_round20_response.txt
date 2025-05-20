@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP"],
-  "reasoning": "The snake starts at (9, 0) and needs to reach (1, 6). The Manhattan distance requires 8 LEFT moves and 6 UP moves. The initial direction is RIGHT, so the first move must be LEFT (not reversing direction). The path avoids the body and walls, moving left to reduce the x-coordinate and then up to increase the y-coordinate."
-}
-```

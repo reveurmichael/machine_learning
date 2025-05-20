@@ -1,4 +1,0 @@
-Game 3 Summary:
-Score: 1
-Steps: 21
-Last direction: RIGHT

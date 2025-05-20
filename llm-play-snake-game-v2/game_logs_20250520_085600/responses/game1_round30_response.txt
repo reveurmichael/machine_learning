@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
-  "reasoning": "The snake must move right six times to reach the apple at (9,4) from (3,4). The initial direction is DOWN, so the first move RIGHT is allowed. Each subsequent RIGHT move keeps the head aligned with the apple's x-coordinate while avoiding body collisions. The body shifts rightward safely without overlapping the head's path."
-}

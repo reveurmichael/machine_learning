@@ -9,6 +9,8 @@ WHITE = (255, 255, 255)
 GREY = (113, 128, 147)
 GREY2 = (189, 195, 199)
 GREY3 = (87, 96, 111)
+SNAKE_HEAD_C = (255, 140, 0)  # Bright orange for the head
+
 
 # GUI
 PIXEL = 100

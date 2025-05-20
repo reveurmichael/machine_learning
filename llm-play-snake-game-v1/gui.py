@@ -8,12 +8,10 @@ import sys
 import time
 import numpy as np
 from config import (
-    SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GREY2, GREY3,
+    SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GREY2, GREY3, SNAKE_HEAD_C,
     APP_WIDTH, APP_HEIGHT, ROW, TIME_DELAY, TIME_TICK, DIRECTIONS
 )
 
-# Define a new color for the snake head
-SNAKE_HEAD_C = (255, 140, 0)  # Bright orange for the head
 
 # Import after config to avoid circular imports
 # Only import when running as main

@@ -1,0 +1,618 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, I'm trying to figure out how to help the snake reach the apple without dying. Let's start by understanding the current situation.
+
+The snake's head is at (7, 1), which is in the bottom-right area of the grid. The body cells are [(5, 1), (6, 1)], so the snake is currently a straight line from (5,1) to (7,1). The apple is at (3,8), which is towards the top-left.
+
+First, I need to determine the direction of movement. The current direction is RIGHT, but since it's the first move after being given this state, the snake can't reverse direction immediately. So from RIGHT, it can't go LEFT on the next move because that would be reversing.
+
+The Manhattan distance between (7,1) and (3,8) is |7-3| + |1-8| = 4 + 7 = 11 steps. But I need to find a path that's safe.
+
+Let me sketch out the grid in my mind. The snake is at (7,1), moving RIGHT so far. The body is two cells behind it. The apple is up and to the left.
+
+So from (7,1), if I go UP first, that might be dangerous because the next cell would be (7,2). But wait, the current direction is RIGHT, so moving UP is allowed as long as it doesn't reverse. Wait, no: the movement can't reverse, but the first move can't be the opposite of current direction. Since current direction is RIGHT, the first move can't be LEFT.
+
+Wait, no—the movement rules say that the snake cannot reverse direction if the previous direction was something else. So from RIGHT, you can't go DOWN (since that's the opposite). But UP and LEFT are allowed? Or wait, let me check rule 3: The snake cannot reverse direction. If it was moving RIGHT, the next move can't be LEFT because that would be reversing. Wait no, LEFT is the opposite of RIGHT in terms of movement vectors—right is +x, left is -x. So from right, you can't go left. But up and down are perpendicular.
+
+Wait, actually, the current direction is RIGHT. The next move can't be LEFT because that would reverse the direction? Or does reversing mean going back along the same line? For example, if moving right, you can turn up or down, but not immediately left.
+
+Yes, I think rule 3 says that you can't change direction to the exact opposite. So from RIGHT, next move can be UP, DOWN, or RIGHT again, but not LEFT because that's reversing.
+
+Wait no, "reverse" in this context might mean moving back along the same path, so from RIGHT, turning LEFT is considered a reverse. Or maybe it means you can't change direction by 180 degrees, which would be going to the opposite direction immediately. So for example, if current direction is UP, next move can't be DOWN.
+
+In this case, current direction is RIGHT. So the first move cannot be LEFT. So from (7,1), the possible moves are UP, DOWN, or RIGHT again.
+
+But moving RIGHT would take the head to (8,1). Then, the body would shift: the previous cells become part of the body, but since we're not eating an apple yet, the tail would shrink unless we eat the apple. Wait, but in this case, after each move, except when eating the apple, the tail is removed.
+
+Wait, no: rule 5 says that when you eat the apple, the tail doesn't shrink on the next move. So for each normal move (without eating), the snake's body shifts forward by adding the new head and removing the last cell of the body.
+
+So let me think about possible paths.
+
+First, I need to get from (7,1) to (3,8). The Manhattan distance is 4 in x-direction (from 7 to 3, so left 4 steps) and 7 in y-direction (up 7 steps).
+
+The snake must make a total of 4 more LEFT moves than RIGHTs, and 7 more UP moves than DOWNs.
+
+So the path needs to have net movement: LEFT 4 times or equivalent, and UP 7 times or equivalent.
+
+But let's think about possible routes. Since the apple is at (3,8), which is up and left from the current position, perhaps moving up first is better, but considering the body cells.
+
+Current head is at (7,1). Body cells are (5,1) and (6,1). So the snake's body extends to the left from (5,1) to (7,1).
+
+So if I try to move UP immediately, the new head would be (7,2). Is this safe?
+
+Let me check: After moving UP, the new head is at (7,2), and the body cells become [(5,1), (6,1), (7,1)]. The tail would have been removed because we didn't eat an apple yet. So yes, the new position doesn't collide with the body.
+
+But then from there, I can start moving left towards 3,8. Wait, but maybe it's better to move up as much as possible first, then left.
+
+Alternatively, perhaps a better path is to move up until y=8, then move left to x=3.
+
+Wait, let me see: current position (7,1). If I move UP, then next steps can be moving up more and then left. But the body cells are behind, so need to ensure that when moving up or left, we don't hit our own body.
+
+Let's outline possible moves:
+
+Option 1: Move UP first.
+
+Move 1: UP → (7,2). Check collision? The new position is safe because body is at (5,1), (6,1), (7,1) after the move. So no collision.
+
+Then, from (7,2), next moves can be up again or left.
+
+But moving up further:
+
+Move 2: UP → (7,3). Body becomes [(5,1), (6,1), (7,1), (7,2)].
+
+Wait, no—each move adds the new head and shifts the body. So after each move, the previous head becomes part of the body except when eating apple.
+
+So let's track:
+
+Initial state: head at (7,1), body [(5,1), (6,1)].
+
+Move 1: UP → new head (7,2). Body becomes [ (5,1), (6,1), (7,1) ]. Tail is removed, so no growth yet. So the snake's body is now [ (6,1), (7,1) ]? Wait, wait—no.
+
+Wait, when you move, the head moves, and each segment follows. The tail is removed unless an apple is eaten.
+
+So in this case, since we're not eating apple yet, after moving UP to (7,2), the body becomes [(5,1), (6,1), (7,1)] because each step adds a new head and removes the last cell of the body. So the tail was at 5,1; then when you move to 7,2, the body is [6,1, 7,1], but wait no.
+
+Wait, the body cells are given as [(5,1), (6,1)], which are behind the head (7,1). So after moving up to (7,2), the new body would be [(6,1), (7,1)] plus the new position? Wait, I'm a bit confused.
+
+Wait, no. The body is all the segments except the head. When you move, the head becomes the new position, and each segment follows. So the old head (7,1) becomes part of the body, but only if not eating an apple.
+
+So initial state:
+
+Head: (7,1)
+
+Body: [(5,1), (6,1)]
+
+After moving UP to (7,2):
+
+New head: (7,2)
+
+Body: [ (6,1), (7,1) ] → because the old body segments shift forward. The tail (5,1) is removed.
+
+So the new snake's body is [(6,1), (7,1)] and head at (7,2).
+
+Now, moving UP again:
+
+Move 2: UP → (7,3). Body becomes [ (7,1), (7,2) ] → because the previous body was (6,1), (7,1). So after moving to (7,3), the new body is [(7,1), (7,2)].
+
+Wait no—each move adds the new head and removes the last cell. So:
+
+After first move UP: body becomes [ (5,1) is removed? Wait, initial body is [ (5,1), (6,1) ]. When moving to (7,2), the new body is the previous body starting from the second element plus the old head. So body after move 1 would be [(6,1), (7,1)].
+
+Then, move UP again: new head at (7,3). Body becomes [ (7,1), (7,2) ].
+
+So yes, each time you move, the body shifts forward by one cell, dropping the tail unless you eat an apple.
+
+Okay, so let's proceed step by step.
+
+Option 1:
+
+Move 1: UP → (7,2). Body now [6,1; 7,1].
+
+Move 2: UP → (7,3). Body now [7,1; 7,2].
+
+Move 3: UP → (7,4). Body [7,2; 7,3].
+
+Continue moving up until y=8.
+
+But wait, from y=1 to y=8 is 7 steps. So:
+
+Moves 1-7: all UP moves. But wait, can we do that? Because after each move, the body is shifting, so we need to ensure that when moving up, the new head doesn't collide with any part of the body.
+
+Let me check for each step:
+
+After Move 1: (7,2). Body is [6,1; 7,1]. Safe.
+
+Move 2: (7,3). Body [7,1; 7,2]. Safe.
+
+Move 3: (7,4). Body [7,2; 7,3].
+
+And so on until Move 7: head at (7,8).
+
+Wait, no. The apple is at (3,8), which is to the left of (7,8). So after reaching y=8, we need to move left.
+
+But when at (7,8), moving left would take us to (6,8). But let's see:
+
+At this point, body cells are [(7,4), (7,5), (7,6), (7,7)], etc., depending on how many steps. Wait no—each move adds a new head and the body follows.
+
+Wait, perhaps it's better to make a table of positions after each step.
+
+But this might take too long. Alternatively, I can plan a path that moves up as much as possible then left.
+
+Another option: first move UP, then alternate directions to avoid collision.
+
+Alternatively, maybe moving left is not allowed initially because current direction is RIGHT and the next move cannot be LEFT (since it's reversing). Wait, no—rule 3 says you can't reverse. From RIGHT, you can't go LEFT immediately. So after being in direction RIGHT, the first move can be UP or DOWN but not LEFT.
+
+Wait, wait: "If the direction is 'NONE', any move is allowed." But current direction is RIGHT, so the next move cannot be LEFT (reversing). So from RIGHT, you can go UP, DOWN, or RIGHT again. But moving RIGHT would take the head to (8,1), which might not be necessary.
+
+So perhaps the first move should be UP.
+
+But after that, we need to find a way to reach (3,8) without hitting the body.
+
+Alternatively, maybe it's better to make a U-turn and go LEFT, but that's impossible because from RIGHT direction, you can't immediately turn LEFT. So the first move must be UP or DOWN.
+
+Let me try to plan a path:
+
+Move 1: UP → (7,2). Body becomes [6,1; 7,1].
+
+Move 2: UP → (7,3). Body becomes [7,1; 7,2].
+
+Move 3: LEFT → (6,3). Now, direction is LEFT. Is this allowed? Because previous direction was UP, so it's not a reverse.
+
+Wait, initial current direction is RIGHT, but after the first move, which was UP, the new direction becomes UP. So from there, next moves can't be DOWN because that would be reversing.
+
+But in any case, let me see:
+
+After Move 2: (7,3), body [7,1;7,2].
+
+Move 3: LEFT → (6,3). Body becomes [7,2;7,3].
+
+Is this position safe? Yes, because the new head is at (6,3) and the body cells are [7,2], which is not overlapping.
+
+Now, from (6,3), I can continue moving UP or LEFT.
+
+But let's think about how to reach (3,8). We need to move left 4 times (from x=7 to x=3) and up 7 times (from y=1 to y=8).
+
+So far, we've moved up twice and once left. So remaining: up 5 more, left 3 more.
+
+Wait no—after three moves:
+
+x has decreased by 1 (from 7 to 6), so need to move left another 2 steps to reach x=4, then wait—no, from 7 to 3 is a decrease of 4. So far, we have moved left once; remaining left 3 times.
+
+But perhaps moving up more would help.
+
+Alternatively, maybe it's better to go all the way up first, then left.
+
+Let me try that:
+
+Move 1: UP → (7,2).
+
+Move 2: UP → (7,3).
+
+Move 3: UP → (7,4).
+
+Move 4: UP → (7,5).
+
+Move 5: UP → (7,6).
+
+Move 6: UP → (7,7).
+
+Move 7: UP → (7,8). Now head is at (7,8), and body cells are [7,2;7,3;... etc.].
+
+But wait, each move adds a new cell to the body unless eating apple. So after moving up 7 times from (7,1) to (7,8):
+
+Move 1: (7,2). Body [6,1;7,1].
+
+Move 2: (7,3). Body [7,1;7,2].
+
+Wait, no—each move shifts the body. So after each UP move, the body is previous segments plus old head.
+
+This might get complicated. Alternatively, perhaps it's better to plan a path that moves up and left without getting into a loop.
+
+Another approach: move right first? But current direction is RIGHT, so moving right would be allowed but x=8 is further away from target.
+
+Wait, the target is at (3,8), which is to the left and up. So perhaps it's better to go up as much as possible then left.
+
+But let me see:
+
+Move 1: UP → (7,2). Body [6,1;7,1].
+
+Move 2: UP → (7,3). Body [7,1;7,2].
+
+Move 3: UP → (7,4). Body [7,2;7,3].
+
+Move 4: UP → (7,5).
+
+Move 5: UP → (7,6).
+
+Move 6: UP → (7,7).
+
+Move 7: UP → (7,8). Now head at (7,8), body cells are [7,1;7,2;... ;7,7].
+
+Then from here, need to move left 4 times.
+
+But wait, moving left from (7,8) would take us through x=6,5,4,3.
+
+But we have to ensure that the path doesn't intersect with the body.
+
+When at (7,8), the body is [7,2;7,3;... ;7,7].
+
+So when moving left from (7,8) to (6,8):
+
+Move 8: LEFT → (6,8). Body becomes [7,3;7,4; ... ;7,8]. Wait no—each move adds the new head and removes the tail.
+
+Wait, after Move 7:
+
+Head at (7,8), body cells are [7,2], because each move drops the old tail. Wait no—let me clarify.
+
+Each time you make a move, the body is updated by adding the previous head to the body and removing the last segment unless you eat an apple.
+
+So initial state after Move 1:
+
+Head (7,2), body [6,1;7,1].
+
+Move 2: Head (7,3). Body becomes [7,1;7,2]. Because we remove the tail (6,1) and add old head (7,2).
+
+Wait no—wait, each move shifts all segments forward. So:
+
+After Move 1: body is [5,1] removed? Or does it shift as a queue.
+
+Actually, in snake movement, when you move, each segment follows the one in front of it. So the tail remains unless you grow.
+
+In this case, since we're not growing (no apple eaten), each move shifts the entire body forward by one cell, losing the last cell (tail).
+
+So after Move 1:
+
+Head: (7,2)
+
+Body: [6,1] → because previous head was at (7,1). Wait no—the body was [(5,1), (6,1)]. After moving to (7,2), the new body is [(6,1), (7,1)].
+
+Wait, I'm getting confused. Let me think of it as a list.
+
+The body is a queue of positions. When you move, you add the new head and remove the last element unless you eat an apple.
+
+So initial state:
+
+Head: (7,1)
+
+Body: [ (5,1), (6,1) ]
+
+After Move 1 (UP):
+
+New head: (7,2)
+
+Body becomes [ (6,1), (7,1) ] → because we remove the last element (5,1), and add old head (7,1).
+
+Wait no—no, when you move, each segment moves to where the previous one was. So:
+
+After moving UP, the body segments follow.
+
+So initial body: [5,1], [6,1].
+
+When head moves from 7,1 to 7,2, the first segment (5,1) can't reach because it's too far. Wait no—the body is a line of segments following each other.
+
+Wait, perhaps I'm overcomplicating this. Let me think differently.
+
+Each move:
+
+- The head moves in the direction chosen.
+- Each segment in the body moves to the position of the previous segment.
+- If an apple is eaten, the tail isn't removed; otherwise, it is.
+
+So without eating apples, each move shifts all segments forward by one, losing the last cell.
+
+Thus:
+
+Initial state after Move 0 (no move):
+
+Head: (7,1)
+
+Body: [ (5,1), (6,1) ]
+
+After Move 1 (UP to 7,2):
+
+Head: (7,2)
+
+Body: [ (6,1), (7,1) ] → because the previous head was at (7,1), which is now part of the body, and (5,1) is removed.
+
+After Move 2 (UP to 7,3):
+
+Head: (7,3)
+
+Body: [ (7,1), (7,2) ]
+
+Because from previous body [6,1;7,1], moving up again shifts each segment:
+
+- The first segment (6,1) moves to where the old head was (7,1).
+- The new head is at (7,3).
+
+So body becomes [ (7,1), (7,2) ].
+
+Similarly, after Move 3 (UP):
+
+Head: (7,4)
+
+Body: [ (7,2), (7,3) ]
+
+And so on.
+
+Thus, after moving up multiple times:
+
+Each move adds the new head and shifts the body forward, dropping the last segment each time unless eating apple.
+
+So if we make 7 UP moves from (7,1) to (7,8):
+
+Move 1: (7,2), body [6,1;7,1] → becomes [7,1]
+
+Wait no—each move removes one tail. So:
+
+After Move 1: body is [6,1;7,1] → but when moving up, the new head is at (7,2). The old head (7,1) becomes part of the body, and the tail (5,1) is removed.
+
+Wait no—I think I'm mixing two things. Let me try again.
+
+Let's model each move step by step:
+
+Move 0: Head at (7,1), body [(5,1), (6,1)].
+
+Move 1: UP to (7,2). Now, the body is [(6,1), (7,1)], because we remove the tail (5,1) and add old head (7,1).
+
+Move 2: UP to (7,3). Body becomes [(7,1), (7,2)].
+
+Move 3: UP to (7,4). Body becomes [(7,2), (7,3)].
+
+Move 4: UP to (7,5). Body becomes [(7,3), (7,4)].
+
+Move 5: UP to (7,6). Body becomes [(7,4), (7,5)].
+
+Move 6: UP to (7,7). Body becomes [(7,5), (7,6)].
+
+Move 7: UP to (7,8). Body becomes [(7,6), (7,7)].
+
+So now, head is at (7,8), body is [ (7,6), (7,7) ].
+
+Now, from here, we need to move left towards x=3. So let's make moves:
+
+Move 8: LEFT to (6,8). Body becomes [(7,7), (7,8)] → but wait, the previous body was [7,6;7,7], moving left would shift each segment.
+
+Wait no—when moving left from (7,8) to (6,8):
+
+The new head is at (6,8).
+
+The old head (7,8) becomes part of the body.
+
+The tail (7,6) is removed.
+
+So new body: [(7,7), (7,8)] → but we're not growing, so only [7,7].
+
+Wait no—each move adds one segment and removes one. So after moving left:
+
+Body is [7,7; 7,8] ?
+
+No, wait. When you move from (7,8) to (6,8):
+
+The new head is (6,8).
+
+The old body was [(7,6), (7,7)]. But when you move left, the segments follow:
+
+- The first segment (7,6) can't reach (6,8) directly because it's moving in a different direction.
+
+Wait no—no, each segment moves to where the previous one was. So after moving left:
+
+The old head at (7,8) becomes part of the body as the new tail?
+
+No—I think I'm making this too complicated.
+
+Perhaps it's better to note that when you move, all segments shift forward in the direction they are facing. Wait no—each segment follows the path of the previous one, regardless of direction.
+
+Wait, perhaps a better way is to realize that after moving up to (7,8), the body is [ (7,6), (7,7) ].
+
+When we move left from (7,8) to (6,8):
+
+The new head is at (6,8).
+
+Each segment in the body moves to where the previous one was:
+
+- The first body segment (7,6) can't reach (6,8) directly because it's moving left. So perhaps the body segments collapse or something?
+
+No, that doesn't make sense.
+
+Wait, maybe I'm overcomplicating this. Let me think about how a snake moves:
+
+When the head moves in a direction, each segment follows the path of the previous segment.
+
+So if you're at (7,8) and move left to (6,8), then the next segments would be where they were before plus the new head.
+
+But since we're not growing, the tail is removed each time.
+
+Thus, after moving left once from (7,8):
+
+Head: (6,8)
+
+Body: [ (7,8) ] → because we remove the old tail (7,6), and add (7,8).
+
+Wait no—this doesn't seem right.
+
+Alternatively, perhaps when you move left, each segment moves in the direction of the head's movement, but that would make the body segments move differently based on direction, which complicates things.
+
+This is getting too complicated. Let me try a different approach.
+
+Assume that after moving up 7 times to (7,8), the body is [ (7,6), (7,7) ].
+
+Then, when moving left once:
+
+- New head: (6,8)
+- The old body segments move forward:
+  - The first segment (7,6) would need to move towards where the head was before moving, which is (7,8). But moving left from (7,8), the first segment can't reach that in one move.
+
+This suggests that the segments behind can't keep up if you make a sharp turn. Therefore, the snake's body might intersect itself, causing game over. But since we're just simulating movement, not worrying about collision for this problem, perhaps it's okay.
+
+But in reality, moving left after being all aligned vertically would cause the first segment to move left as well, but in this case, from (7,6), moving left would be impossible because the previous direction was up. So maybe the segments can't turn and will collide.
+
+Wait, no—the snake can change direction; each segment follows the path of the one in front. So when you make a left turn at the head, the next segment follows where the head was, then the next follows that, etc., causing a smooth turn.
+
+But since we're dealing with discrete steps, it's possible to model this as a queue where each new position is added to the front and the last element is removed if not growing.
+
+Given that, perhaps after moving up 7 times to (7,8), the body is [(7,6), (7,7)].
+
+Then, when moving left:
+
+- New head: (6,8)
+- Body becomes [ (7,7), (7,8) ] → but since we're not growing, the tail is removed, so only [ (7,7) ] remains?
+
+Wait no—each move adds one new position at the front and removes one from the end.
+
+So:
+
+After Move 7: head (7,8), body [(7,6), (7,7)].
+
+Move 8: LEFT to (6,8). So:
+
+- New head: (6,8)
+- Add old head (7,8) to body → new body is [ (7,8), (7,6), (7,7) ].
+- Then remove the tail? Or not?
+
+Wait, no—if you don't eat an apple, you just add the new head and remove the last segment.
+
+So:
+
+Move 8: LEFT
+
+New head: (6,8)
+
+Body becomes [ (7,8), (7,7) ]
+
+Because we removed the old tail (7,6).
+
+Similarly, Move 9: LEFT to (5,8). Body becomes [ (7,7), (6,8) ].
+
+Move 10: LEFT to (4,8). Body becomes [ (6,8), (5,8) ].
+
+Move 11: LEFT to (3,8). Body becomes [ (5,8), (4,8) ].
+
+So after 11 moves from the start (7 UP and 4 LEFT), head is at (3,8), which is our target. The body is [(5,8), (4,8)].
+
+Thus, total moves needed: 7 (UP) + 4 (LEFT) = 11 moves.
+
+But wait, we need to ensure that none of these positions cause the snake to collide with itself before reaching the target.
+
+Looking at the path:
+
+- Moves 1-7: moving up along x=7 from y=1 to y=8. No collision since body segments are directly below.
+
+- Then, moves 8-11: moving left from (7,8) to (3,8). The body during these moves is shifting:
+
+Move 8: head at (6,8), body [(7,8), (7,7)] → but wait, after Move 8:
+
+Head: (6,8)
+
+Body: [ (7,8), (7,7) ] ?
+
+Wait no—the body after Move 7 was [(7,6), (7,7)]. After moving left, the new head is (6,8). The old body segments move forward:
+
+- The first segment (7,6) would need to move where? If direction changed from UP to LEFT, it's a bit unclear.
+
+This suggests that when changing direction abruptly, the snake's body might intersect itself. However, in this case, since we're moving left after being aligned vertically, the segments behind are still in line, but their positions might not interfere as they follow the path of the head.
+
+But regardless of self-collision (which is game over), for the purpose of finding the minimal moves to reach (3,8) without worrying about collision, it's 11 moves.
+
+Alternatively, perhaps there's a more efficient path. For example, moving right first might not help as target is left. Alternatively, moving diagonally isn't allowed since movement is in four directions only.
+
+Another approach: use BFS to find the shortest path from (7,1) to (3,8), with possible moves UP, DOWN, LEFT, RIGHT, but ensuring that you don't revisit positions to avoid cycles.
+
+But given the time, perhaps 11 moves is acceptable.
+</think>
+
+To solve this problem, we need to determine the minimal number of moves required for a snake starting at position (7,1) on a grid to reach the target position (3,8). The snake can move in four directions: up, down, left, and right. Each move shifts the head of the snake one cell in the chosen direction, while the body segments follow in sequence, with the tail being removed unless an apple is eaten (which isn't the case here).
+
+### Approach
+1. **Problem Analysis**: The snake starts at (7,1) and needs to reach (3,8). Each move changes the head's position, and the body follows by shifting each segment to where the previous one was. Without eating any apples, the tail is removed after each move, keeping the length of the snake constant.
+
+2. **Intuition**: The shortest path can be found using Breadth-First Search (BFS), which explores all possible moves level by level, ensuring the first time we reach the target position is via the shortest path.
+
+3. **Algorithm Selection**: BFS is suitable for this problem because it systematically explores all nodes at the present depth before moving on to nodes at the next depth level, guaranteeing the shortest path in an unweighted grid.
+
+4. **Complexity Analysis**: The grid can be considered as a graph where each cell is a node connected to its neighbors. BFS has a time complexity of O(N) where N is the number of cells visited, which in this case is manageable given the grid size.
+
+### Solution Code
+```python
+from collections import deque
+
+def minimal_moves(start, target):
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
+    visited = set()
+    queue = deque()
+
+    initial_head = start[0], start[1]
+    initial_body = [(start[0] - i * 1, start[1]) for i in range(2)]
+    queue.append((initial_head, tuple(initial_body)))
+    visited.add((initial_head, tuple(initial_body)))
+
+    while queue:
+        current_head, body = queue.popleft()
+        if current_head == target:
+            return sum(1 for _ in range(len(body) + 1))  # Total moves is steps taken
+
+        for dx, dy in directions:
+            new_head = (current_head[0] + dx, current_head[1] + dy)
+            new_body = [(current_head[0] + i * (-dy if dx else -dx), current_head[1] + i * (-dx if dy else -dy)) 
+                        for i in range(len(body))]
+            
+            state = (new_head, tuple(new_body))
+            if state not in visited:
+                visited.add(state)
+                queue.append(state)
+
+    return -1  # In case target is unreachable
+
+# Example usage
+start = (7, 1)
+target = (3, 8)
+print(minimal_moves(start, target))  # Output: 11
+```
+
+### Explanation
+- **BFS Initialization**: The BFS starts from the initial position of the snake's head and body segments. Each state in the queue consists of the current head position and the positions of the body segments.
+- **Direction Handling**: For each move, we check all four possible directions (up, down, left, right). The new head position is calculated, and the body segments are updated accordingly.
+- **State Tracking**: Each unique state (head position and body segments) is tracked to avoid revisiting the same configuration, which could lead to infinite loops.
+- **Termination Condition**: When the target position is reached, the number of moves taken is returned. If the queue is exhausted without reaching the target, it returns -1 (though in this problem, a path exists).
+
+This approach efficiently finds the minimal number of moves required for the snake to reach its target by exploring all possible paths level by level using BFS.
+```
+
+END OF RESPONSE_1.
+
+OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the head now at (7, 1) to eat the apple at (3, 8).
+
+RULES:
+- Text at the beginning of RESPONSE_1 is less important than the text at the end.
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+Return ONLY the JSON object without any additional text.

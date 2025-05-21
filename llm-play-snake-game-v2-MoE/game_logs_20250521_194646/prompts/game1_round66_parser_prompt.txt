@@ -1,0 +1,90 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I'm trying to figure out how to get the snake from (8,6) to eat the apple at (8,8). Let me start by understanding the current situation.
+
+First, the head is at (8,6), and it's moving RIGHT. The body cells are [(1,3), (1,4), (2,4), ..., (7,5), (7,6)]. So the snake is quite long, which means I need to be careful not to collide with its own body.
+
+The apple is at (8,8). Since the head is already in the same x-coordinate as the apple, maybe moving UP twice would do it. But wait, the current direction is RIGHT, so I can't reverse to DOWN. Also, if I move up, I have to make sure that the new position isn't occupied by any body part.
+
+Looking at the body cells: The snake's tail seems to be near (1,3), but the head is at (8,6) and the next parts are moving towards higher x-values. So from (8,6), moving up would take me to (8,7). Then another move up to (8,8), which is where the apple is.
+
+But I need to check if these positions are safe. Let's see:
+
+1. Move 1: From (8,6) moving UP to (8,7). Is (8,7) in the body? Looking at the body cells, the closest is (7,5), (7,6), and so on. So no, (8,7) isn't part of the body yet because it's only up from 6 to 7.
+
+2. Move 2: From (8,7) moving UP again to (8,8). Now, after eating the apple, the snake grows by one segment. So I need to ensure that after eating, there's still a way out. Wait, but since it's at the apple position, maybe the next move would be safe because the tail won't shrink.
+
+Wait, actually, when the snake eats the apple, it doesn't remove the tail, so moving UP twice should work.
+
+But wait, another thought: The current direction is RIGHT. If I'm moving UP first, that's a change in direction from RIGHT to UP. Since the previous move was RIGHT, and UP isn't the opposite, it's allowed. So that's fine.
+
+So the moves would be ["UP", "UP"]. Let me see if that works.
+
+After the first UP, the head is at (8,7). The body will shift: all segments move forward, so the previous head (8,6) becomes part of the body, and the tail stays because we ate an apple. So now, the new body includes (8,6), and the rest.
+
+Then moving UP again to (8,8). After that, the snake's body will include all segments including the old head at (8,7). So the position (8,8) is now part of the body? Wait no, because when you eat the apple, the tail doesn't shrink. So after two moves, the new positions would be:
+
+- Move 1: Head goes to (8,7), body becomes [(1,3), ..., (8,6)].
+- Move 2: Head goes to (8,8), body becomes [(1,4), ..., (8,7)].
+
+So at that point, the apple is eaten, and the tail remains. So no collision occurs because (8,8) was empty before moving there.
+
+Wait, but after eating the apple, the next move's safety? The problem says to ensure that after eating the apple, there's at least one legal move. But in this case, since we've already eaten it, maybe that's not necessary because the moves are only up to eating it.
+
+Hmm, perhaps I'm overcomplicating. Let me double-check:
+
+From (8,6), moving UP once takes us to (8,7). Is that position safe? The body cells don't include (8,7) before the move. So yes.
+
+Then from (8,7), moving UP again to (8,8), which is the apple's location. After eating, the snake grows, so the next move would have a longer body, but since we've already reached the apple in two moves, that's acceptable.
+
+So the moves should be ["UP", "UP"].
+</think>
+
+The snake needs to move UP twice from (8,6) to reach the apple at (8,8). Each move is safe as they don't collide with the body or go out of bounds. The Manhattan distance requires 2 UP moves, and no direction reversal occurs.
+
+```json
+{
+  "moves": ["UP", "UP"],
+  "reasoning": "The snake can safely move UP twice from (8,6) to reach the apple at (8,8), avoiding body collisions and staying within grid bounds."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the head now at (8, 6) to eat the apple at (8, 8).
+
+RULES:
+- Text at the beginning of RESPONSE_1 is less important than the text at the end.
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+Return ONLY the JSON object without any additional text.

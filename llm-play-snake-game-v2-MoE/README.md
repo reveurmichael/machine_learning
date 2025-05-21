@@ -9,6 +9,11 @@ A classic Snake game controlled by an LLM (Language Model).
 - Two-LLM approach:
   - First LLM generates moves based on game state
   - Second LLM ensures responses are properly formatted as JSON
+- Comprehensive logging system:
+  - Timestamps for all prompts and responses
+  - Detailed game summaries with performance metrics
+  - Complete tracking of both LLMs' interactions
+  - Parser usage statistics
 
 ## How the Two-LLM System Works
 
@@ -99,6 +104,22 @@ python main.py --provider deepseek --model deepseek-reasoner --parser-provider m
 - `llm_parser.py` - Secondary LLM for parsing and formatting responses
 - `gui.py` - Visual display interface
 - `config.py` - Game settings and prompt templates
+
+## Logging System
+
+When you run the game, a timestamped log directory will be created with:
+
+- `game_logs_YYYYMMDD_HHMMSS/` - Root log directory
+  - `info.txt` - Experiment configuration and final statistics
+  - `gameN_summary.txt` - Detailed summary for each game
+  - `prompts/` - All prompts sent to both LLMs
+    - Original game state prompts
+    - Parser prompts when needed
+  - `responses/` - All responses from both LLMs
+    - Raw responses from the first LLM
+    - Parsed responses from the second LLM (when needed)
+
+Each log file contains timestamps, model information, and detailed metrics to help analyze the system's performance.
 
 ## How to improve the game performance
 

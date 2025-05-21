@@ -27,13 +27,16 @@ class LLMOutputParser:
             original_prompt: Optional, the original prompt for context
             
         Returns:
-            A properly formatted JSON response
+            A tuple containing (formatted_response, parser_prompt) where:
+              - formatted_response: The properly formatted JSON response
+              - parser_prompt: The prompt that was sent to the parser LLM
         """
         # First check if the response already contains valid JSON
         json_data = self._extract_valid_json(llm_response)
         if json_data and self._validate_json_format(json_data):
             print("First LLM response already contains valid JSON, no need for second LLM")
-            return json.dumps(json_data)
+            # We didn't use a parser prompt, so return None for that
+            return json.dumps(json_data), None
             
         # If we can't extract valid JSON, use the second LLM to fix it
         parser_prompt = self._create_parser_prompt(llm_response, original_prompt)
@@ -51,9 +54,9 @@ class LLMOutputParser:
             return json.dumps({
                 "moves": [],
                 "reasoning": "ERROR: Could not generate valid moves from LLM response"
-            })
+            }), parser_prompt
             
-        return json.dumps(json_data)
+        return json.dumps(json_data), parser_prompt
     
     def _extract_valid_json(self, text):
         """Extract valid JSON data from text.

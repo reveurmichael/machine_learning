@@ -29,6 +29,7 @@ class SnakeGame:
         self.steps = 0
         self.score = 0
         self.generation = 1
+        self.last_collision_type = None  # Will be 'wall' or 'self' or None
         
         # Board entity codes
         self.board_info = {
@@ -73,6 +74,7 @@ class SnakeGame:
         self.generation += 1
         self.planned_moves = []
         self.processed_response = ""
+        self.last_collision_type = None  # Reset collision type
         
         # Clear any key states that might be stuck
         pygame.event.clear()
@@ -191,10 +193,12 @@ class SnakeGame:
         
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
+            self.last_collision_type = 'wall'
             return False, False  # Game over, no apple eaten
             
         if body_collision:
             print(f"Game over! Snake hit itself moving {direction_key}")
+            self.last_collision_type = 'self'
             return False, False  # Game over, no apple eaten
         
         # Move the snake: add new head

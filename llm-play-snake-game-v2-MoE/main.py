@@ -28,12 +28,15 @@ def save_to_file(content, directory, filename):
         content: Content to save
         directory: Directory to save to
         filename: Name of the file
+        
+    Returns:
+        The full path to the saved file
     """
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, filename)
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
-    return file_path
+    return os.path.abspath(file_path)
 
 def save_experiment_info(args, directory):
     """Save experiment information to a file.
@@ -69,7 +72,7 @@ Other Information:
     # Save to file
     return save_to_file(content, directory, "info.txt")
 
-def update_experiment_info(directory, game_count, total_score, total_steps):
+def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0):
     """Update the experiment information file with game statistics.
     
     Args:
@@ -77,6 +80,7 @@ def update_experiment_info(directory, game_count, total_score, total_steps):
         game_count: Total number of games played
         total_score: Total score across all games
         total_steps: Total steps taken across all games
+        parser_usage_count: Number of times the parser LLM was used
     """
     file_path = os.path.join(directory, "info.txt")
     
@@ -94,6 +98,13 @@ Total Score: {total_score}
 Total Steps: {total_steps}
 Average Score per Game: {total_score/game_count:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
+Parser LLM Usage: {parser_usage_count} times
+Parser Usage Rate: {(parser_usage_count/(total_steps if total_steps > 0 else 1))*100:.2f}%
+
+Efficiency Metrics
+=================
+Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}
+Steps per Game: {total_steps/game_count:.2f}
 """
     
     # Append statistics to content
@@ -170,6 +181,8 @@ def main():
         need_new_plan = True
         total_score = 0
         total_steps = 0
+        parser_usage_count = 0  # Track how many times the parser LLM is used
+        previous_parser_usage = 0  # Track previous parser usage
         
         # Main game loop
         running = True
@@ -201,7 +214,8 @@ def main():
                         
                         # Log the prompt
                         prompt_filename = f"game{game_count+1}_round{round_count+1}_prompt.txt"
-                        save_to_file(prompt, prompts_dir, prompt_filename)
+                        prompt_path = save_to_file(prompt, prompts_dir, prompt_filename)
+                        print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
                         
                         # Get next move from first LLM
                         kwargs = {}
@@ -212,19 +226,57 @@ def main():
                             print(Fore.CYAN + f"Using default model for provider: {args.provider}")
                             
                         # Get raw response from first LLM
+                        request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         raw_llm_response = llm_client.generate_response(prompt, **kwargs)
+                        response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        
+                        # Add timestamp metadata to response
+                        timestamped_response = f"""Timestamp: {response_time}
+Request Time: {request_time}
+Response Time: {response_time}
+Model: {args.model if args.model else 'Default model for ' + args.provider}
+Provider: {args.provider}
+
+========== RAW RESPONSE ==========
+
+{raw_llm_response}
+"""
                         
                         # Log the raw response
                         raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
-                        save_to_file(raw_llm_response, responses_dir, raw_response_filename)
+                        save_to_file(timestamped_response, responses_dir, raw_response_filename)
                         
                         # Use second LLM to parse and format the response
                         print(Fore.CYAN + f"Parsing response with second LLM")
-                        parsed_response = parser_client.parse_and_format(raw_llm_response, prompt)
+                        parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        parsed_response, parser_prompt = parser_client.parse_and_format(raw_llm_response, prompt)
+                        parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
-                        # Log the parsed response
-                        response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
-                        save_to_file(parsed_response, responses_dir, response_filename)
+                        # Log the parser prompt if it was used
+                        if parser_prompt:
+                            parser_usage_count += 1
+                            parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
+                            save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
+                            print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
+                            
+                            # Add timestamp to parsed response
+                            timestamped_parsed_response = f"""Timestamp: {parser_response_time}
+Parser Request Time: {parser_request_time}
+Parser Response Time: {parser_response_time}
+Parser Model: {args.parser_model if args.parser_model else 'Default model for ' + parser_provider}
+Parser Provider: {parser_provider}
+
+========== PARSED RESPONSE ==========
+
+{parsed_response}
+"""
+                            # Log the parsed response
+                            response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
+                            save_to_file(timestamped_parsed_response, responses_dir, response_filename)
+                        else:
+                            # Log the parsed response (which was just the properly formatted original)
+                            response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
+                            save_to_file(parsed_response, responses_dir, response_filename)
                         
                         # Parse and get the first move from the sequence
                         next_move = game.parse_llm_response(parsed_response)
@@ -279,11 +331,31 @@ def main():
                         total_score += game.score
                         total_steps += game.steps
                         
-                        # Save game summary
+                        # Calculate game-specific statistics
+                        game_parser_usage = parser_usage_count if game_count == 1 else parser_usage_count - previous_parser_usage
+                        previous_parser_usage = parser_usage_count
+                        
+                        # Save detailed game summary
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         summary = f"""Game {game_count} Summary:
+=========================================
+Timestamp: {now}
 Score: {game.score}
 Steps: {game.steps}
 Last direction: {next_move}
+
+Performance Metrics:
+- Apples/Step: {game.score/(game.steps if game.steps > 0 else 1):.4f}
+- Parser LLM usage: {game_parser_usage} times
+- Parser usage rate: {(game_parser_usage/(game.steps if game.steps > 0 else 1))*100:.2f}%
+- Final board size: {len(game.snake_positions)} segments
+
+Game End Reason: {'Wall collision' if game.last_collision_type == 'wall' else 'Self collision' if game.last_collision_type == 'self' else 'Unknown'}
+
+Prompt/Response Stats:
+- Total prompts sent: {round_count}
+- Total LLM2 parser invocations: {game_parser_usage}
+=========================================
 """
                         save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
                         
@@ -313,10 +385,11 @@ Last direction: {next_move}
             clock.tick(time_tick)
         
         # Update experiment info with final statistics
-        update_experiment_info(log_dir, game_count, total_score, total_steps)
+        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count)
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
+        print(Fore.GREEN + f"🔄 Parser LLM was used {parser_usage_count} times")
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

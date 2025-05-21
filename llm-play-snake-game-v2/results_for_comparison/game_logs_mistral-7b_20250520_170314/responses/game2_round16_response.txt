@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP"],
+     "reasoning": "The Manhattan distance from (4, 1) to (3, 2) is 1 + 1 = 2. To move in this direction, we first move right once since the apple coordinate (x2) is less than our current position (x1). After that, we move up twice since the new y coordinate (y2) is greater than our current position (y1). This path avoids any collision with walls or the body and follows the Manhattan distance rule."
+   }

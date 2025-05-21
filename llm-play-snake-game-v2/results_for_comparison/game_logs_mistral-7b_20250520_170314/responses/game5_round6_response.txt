@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "DOWN", "LEFT", "DOWN", "LEFT"],
+     "reasoning": "The snake starts at (5, 8) and the apple is at (3, 3). To reach the apple, we first move left to match its x-coordinate (since 5 > 3), then move down to meet its y-coordinate. We avoid moving right initially since doing so would take us away from the apple."
+   }

@@ -104,3 +104,12 @@ It's AI era. Having fun is the most important thing.
 
 A bit of fuzziness/guaussian noise is very welcome, just as in SGD, AutoEncoder, Diffusion Model, etc.
 
+## QA 2
+
+Some students might find connection to Google Drive slow,
+
+you can try:
+
+- https://1fichier.com/
+- Dropbox
+- If Baidu Netdist, then the zip file size should be <= 500Mb , or else it will take me too long to download

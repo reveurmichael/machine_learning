@@ -1,0 +1,4 @@
+ {
+     "moves": ["DOWN", "DOWN", "LEFT", "RIGHT", "UP"],
+     "reasoning": "The snake starts at (9, 5) and the apple is at (7, 4). To move towards the apple while avoiding collision with walls or body cells, we first need to move downwards since there are no obstacles in that direction. After reaching the bottom row, we take a left turn to get closer to the apple's x-coordinate. Then, we move right to align our x-coordinates with the apple. Lastly, we move upwards to reach the apple."
+   }

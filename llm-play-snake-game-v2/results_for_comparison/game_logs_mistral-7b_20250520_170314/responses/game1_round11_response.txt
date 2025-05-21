@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "DOWN", "LEFT", "DOWN", "DOWN"],
+     "reasoning": "The snake will move left to reach the apple's x-coordinate, then move down to reach its y-coordinate. Since the apple is below the current position, we move down three times."
+   }

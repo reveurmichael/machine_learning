@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "RIGHT"],
+     "reasoning": "We move right to reach the apple's x-coordinate (3), then move downwards to decrease the y-coordinate until we reach the apple's y-coordinate (3)."
+   }

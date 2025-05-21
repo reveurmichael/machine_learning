@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "RIGHT", "UP", "RIGHT"],
+     "reasoning": "To move towards the apple at (3, 2) from our current position at (5, 1), we should first move one step to the right (to reach (6, 1)) and then move down (to reach (6, 2)). Since (6, 2) is not the target location, we then move one step to the right again (to reach (7, 2)). At this point, we are directly above the apple, so we move up once to reach the apple."
+   }

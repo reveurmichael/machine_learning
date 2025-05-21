@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "DOWN", "LEFT", "DOWN"],
+     "reasoning": "The snake starts at (5, 4) and the apple is at (3, 2). To reach the apple in as few moves as possible while avoiding collisions with the walls or the body, we first move right to approach the apple horizontally. Then, since y4 > y2, we move down to decrease the vertical distance between our position and the apple's position. Since the snake cannot reverse direction on its first move, we do not immediately move down from (5, 4). Instead, we move twice down at (6, 4) and (7, 4), and finally reach the apple at (3, 2) by moving left."
+   }

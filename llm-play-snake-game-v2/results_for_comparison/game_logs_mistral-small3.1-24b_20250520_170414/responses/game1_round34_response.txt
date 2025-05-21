@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake must first move down to avoid immediate collision with its body, then navigate left and up to reach the apple while avoiding walls and the body."
+}
+```

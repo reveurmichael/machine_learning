@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "UP"],
+     "reasoning": "We move right to approach the apple horizontally and then move upwards since the apple is above our current position. We cannot move down as it would collide with the wall."
+   }

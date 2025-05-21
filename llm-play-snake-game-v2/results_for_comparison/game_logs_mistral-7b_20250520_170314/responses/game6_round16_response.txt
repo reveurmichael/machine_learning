@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "RIGHT", "RIGHT", "DOWN"],
+     "reasoning": "To reach the apple at (7, 4), we move right to get closer horizontally as the horizontal difference is positive (9 - 7 = 2). Then, we move down twice because there are no obstacles in that direction. After that, we continue moving right until reaching the apple."
+   }

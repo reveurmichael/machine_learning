@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "RIGHT", "DOWN", "DOWN"],
+     "reasoning": "We want to move towards the apple (7,4) while minimizing the Manhattan distance. Since we are currently at (7,8), and our target is below us, we will take the shortest path by moving 'DOWN'. This will bring us closer to the horizontal difference between our current position and the target, which is 0 in this case. After that, we will move 'RIGHT' twice as there is no horizontal difference between (7,5) and (7,4), but our goal is (7,4). Finally, we will take one more 'DOWN' move to reach the apple."
+   }

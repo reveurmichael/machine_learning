@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "DOWN", "DOWN", "LEFT", "LEFT", "UP", "UP", "DOWN", "DOWN"],
+  "reasoning": "Move left to get closer to the apple horizontally and avoid hitting the walls. Then, perform a zigzag pattern to reach the apple without colliding with the boundaries."
+}
+```

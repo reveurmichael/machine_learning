@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "LEFT", "UP", "UP"],
+     "reasoning": "We move right to get closer to the apple, then go up twice to reach its row (y-coordinate). Since our current y is higher than the apple's y, we need to subtract from the number of UP moves, which aligns with our reasoning. The last UP move brings us to the same y-coordinate as the apple, and moving left once brings us directly to the apple's x-coordinate."
+   }

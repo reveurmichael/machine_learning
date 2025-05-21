@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "RIGHT", "DOWN", "DOWN"],
+     "reasoning": "To reach the apple efficiently, we move towards it along the x-axis (RIGHT) until we are on the same horizontal line as the apple (5 → 6). Then, to minimize vertical movement and avoid walls or our own body, we move downwards (DOWN twice) until we reach the same vertical position as the apple (7 → 5), then continue moving downward until we reach the apple."
+   }

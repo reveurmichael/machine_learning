@@ -18,6 +18,8 @@ venv
 */tmp/**
 prompts.txt
 **/prompts.txt
+prompt.txt
+**/prompt.txt
 **/data_gitignore/**
 */data_gitignore/*
 **/social-network-assistant/**

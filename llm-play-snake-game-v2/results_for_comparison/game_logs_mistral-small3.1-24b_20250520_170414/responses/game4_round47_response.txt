@@ -1,0 +1,13 @@
+```json
+{
+  "moves": [
+    "UP", "UP", "UP", "UP", "UP",
+    "UP", "UP", "UP", "LEFT", "LEFT",
+    "LEFT", "LEFT", "LEFT", "LEFT",
+    "LEFT", "LEFT", "LEFT", "LEFT",
+    "LEFT", "LEFT", "LEFT", "LEFT",
+    "LEFT", "LEFT", "LEFT", "LEFT"
+  ],
+  "reasoning": "The path involves moving upwards first to create space and avoid collision with the body, then moving leftward to reach the apple at (0, 3)."
+}
+```

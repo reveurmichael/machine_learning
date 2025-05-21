@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "LEFT"],
+     "reasoning": "The shortest safe path to the apple is 4 moves. Since we are initially at (2,6) and the apple is at (3,3), we move RIGHT once to reach (3,6). Then we move UP three times to reach the apple, as y1 > y2. To avoid colliding with our own body or the wall, we detour around ourselves by moving LEFT after reaching the apple."
+   }

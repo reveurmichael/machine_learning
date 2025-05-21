@@ -1,0 +1,4 @@
+ {
+     "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+     "reasoning": "Since the head is at (9,3) and the apple is at (0,8), we want to minimize the number of moves in the x direction. First, we move down to reach the next row, then we move right for 4 steps to get closer to the apple. After that, we move up 5 times to reach the apple."
+   }

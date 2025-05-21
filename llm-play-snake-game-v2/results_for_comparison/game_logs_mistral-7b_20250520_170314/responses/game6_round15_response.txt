@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT"],
+     "reasoning": "To move towards the apple, we should go right since our current position is closer to it on the x-axis compared to the y-axis. This way, we minimize the number of moves needed and avoid collisions."
+   }

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "DOWN", "DOWN", "LEFT", "UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "The path starts by moving down to align vertically with the apple, then moves left to approach the apple, with careful detours to avoid walls and potential future collisions with the growing body after consuming the apple."
+}
+```

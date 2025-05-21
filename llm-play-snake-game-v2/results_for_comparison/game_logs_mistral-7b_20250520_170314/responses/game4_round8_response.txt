@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "RIGHT"],
+     "reasoning": "We move LEFT to approach the apple horizontally. Then we move DOWN 3 times since we are currently at (8,9) and the apple is at (0,8), which corresponds to moving down by 1 unit. Finally, we move RIGHT to reach the apple."
+   }

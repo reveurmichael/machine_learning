@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT"],
+  "reasoning": "Move down to avoid the body cell at (5, 7) and then move left to reach the apple at (2, 7). This path ensures no collisions with walls or the body."
+}
+```

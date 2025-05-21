@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["UP", "UP", "RIGHT", "RIGHT", "DOWN", "DOWN", "LEFT", "LEFT", "UP", "UP", "LEFT", "LEFT", "DOWN", "DOWN", "RIGHT", "RIGHT", "UP", "UP", "LEFT", "LEFT"],
+  "reasoning": "The path involves moving up to avoid the body cell at (1, 5), then detouring around to reach the apple at (1, 3) while ensuring no collisions with the walls or the body."
+}
+```

@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "RIGHT"],
+     "reasoning": "The shortest path from (8, 6) to (0, 8) involves moving left to avoid the body cell at (7, 6), then down three times until we reach the apple. Moving right at the end ensures we align with the x-coordinate of our destination."
+   }

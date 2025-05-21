@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP"],
+  "reasoning": "The path avoids collisions with the walls and the body while moving towards the apple. It ensures that the snake reaches the apple at (6, 6) efficiently while adhering to the movement constraints."
+}
+```

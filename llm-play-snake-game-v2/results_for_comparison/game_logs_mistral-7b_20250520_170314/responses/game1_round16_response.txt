@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP"],
+     "reasoning": "Since the head is currently at (1, 2) and the apple is at (2, 3), we aim to move right first (to get closer to the apple). After that, moving up three times will take us directly to the apple. This path ensures we don't collide with walls or our own body while minimizing the number of moves."
+   }

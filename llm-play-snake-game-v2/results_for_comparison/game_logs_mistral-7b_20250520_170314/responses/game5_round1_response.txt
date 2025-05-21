@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "UP", "UP", "RIGHT", "UP"],
+     "reasoning": "To reach the apple at (3, 3) from the current position (5, 5), we need to move left twice to get closer to the apple and then up three times to reach it. We are avoiding moving in the opposite direction of the current one because the direction is not specified."
+   }

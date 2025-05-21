@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "LEFT"],
+     "reasoning": "The snake will move to the right to reach the apple's x-coordinate (3). After that, it will move up since y-coordinate of the apple is less than its current position on the y-axis. The final move is a left turn to align with the x-coordinate of the apple."
+   }

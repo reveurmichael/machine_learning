@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "LEFT"],
+     "reasoning": "The shortest path to reach the apple at (3, 3) from our current position (2, 6) involves moving RIGHT once to reach (3, 6). Then we move DOWN four times to move downwards, as y6 - y3 = 6 - 3 = 3. Finally, we move LEFT to get to the apple."
+   }

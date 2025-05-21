@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "LEFT", "DOWN"],
+     "reasoning": "The snake starts at (5, 3) and the apple is at (3, 2). To minimize the Manhattan distance, we move right to get closer to the apple. Then we move up twice as y2 - y1 = 2 - 3 = -1, so we should reduce the number of UP moves by 2. Next, we move left to reach the apple's x coordinate (as x2 - x1 = 3 - 5 = -2, so we should increase the number of LEFT moves). Finally, since y2 is less than y1, we move down to reach the apple."
+   }

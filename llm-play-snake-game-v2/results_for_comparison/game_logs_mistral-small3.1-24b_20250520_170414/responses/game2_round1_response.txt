@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT"],
+  "reasoning": "This path moves the snake head directly towards the apple while avoiding walls and ensuring the snake does not collide with itself. It prioritizes moving left and down to reach the apple at (2, 0) from the current position (5, 5)."
+}
+```

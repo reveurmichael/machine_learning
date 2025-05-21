@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The path is planned to avoid collisions with walls and body cells while moving towards the apple at (9, 0). It ensures the snake moves right 4 times more than left and down 5 times more than up to reach the apple."
+}
+```

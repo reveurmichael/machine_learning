@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "UP"],
+     "reasoning": "We move right to approach the apple from the left side as there is space on the right side of the grid. Then, we move up to reach the apple."
+   }

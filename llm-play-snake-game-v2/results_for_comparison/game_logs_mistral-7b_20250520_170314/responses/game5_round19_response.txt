@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "LEFT", "UP"],
+     "reasoning": "The shortest path to the apple at (3, 3) from the head at (0, 6) is by moving right once and then up four times. The reasoning follows the Manhattan distance rule while avoiding collisions with walls or the body."
+   }

@@ -1,0 +1,4 @@
+Game 2 Summary:
+Score: 2
+Steps: 33
+Last direction: UP

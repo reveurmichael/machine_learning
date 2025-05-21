@@ -1,0 +1,4 @@
+ {
+     "moves": ["DOWN", "LEFT", "DOWN", "LEFT", "LEFT"],
+     "reasoning": "The snake should move DOWN to reduce the Manhattan distance between itself and the apple. Then, it moves LEFT three times to reach the apple."
+   }

@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "RIGHT", "UP", "UP"],
+     "reasoning": "The snake starts at (2, 8) and the apple is at (3, 3). To minimize moves, we first move right to reach the apple's x-coordinate. Then, we move down to reach the apple's y-coordinate, but since there is a wall below, we move up instead to continue moving towards the apple. Finally, we move two more times up to reach the apple."
+   }

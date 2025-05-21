@@ -1,0 +1,8 @@
+```json
+{
+  "moves": [
+    "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"
+  ],
+  "reasoning": "The path is designed to move right first to avoid immediate collision with the body and then up to reach the apple. The sequence ensures that the snake avoids its own body and the walls while heading towards the apple."
+}
+```

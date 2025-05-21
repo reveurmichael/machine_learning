@@ -1,0 +1,4 @@
+ {
+     "moves": ["UP", "UP", "LEFT", "LEFT", "DOWN"],
+     "reasoning": "To reach the apple located at (2, 3) from the current position (5, 5), we move UP twice to reduce the Manhattan distance between our head and the apple. Then, we move LEFT twice to get closer to the apple's x-coordinate. Finally, since y-coordinate of the apple is less than ours, we move DOWN."
+   }

@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "RIGHT"],
+     "reasoning": "Moving right (2 steps) will bring the snake closer to the apple, and then moving up will take us directly to the apple."
+   }

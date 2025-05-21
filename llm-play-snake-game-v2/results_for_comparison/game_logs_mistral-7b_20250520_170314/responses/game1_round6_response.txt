@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "DOWN", "DOWN", "LEFT", "UP"],
+     "reasoning": "We are currently at (3, 6) and the apple is at (2, 3). To reach the apple with a minimum of 5 moves while avoiding collisions, we move RIGHT once to reach the apple's x-coordinate, then DOWN thrice to adjust for the difference in y-coordinates, then LEFT once to move towards the apple's x-coordinate and UP once to finally reach the apple."
+   }

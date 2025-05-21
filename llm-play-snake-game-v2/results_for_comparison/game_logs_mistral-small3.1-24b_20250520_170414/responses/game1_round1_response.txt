@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "LEFT"],
+  "reasoning": "Move towards the apple by first going LEFT to avoid immediate collision with the wall and then moving DOWN three times to reach the apple's y-coordinate. The final LEFT move aligns the snake's head with the apple's x-coordinate."
+}
+```

@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "RIGHT", "DOWN", "LEFT", "LEFT"],
+     "reasoning": "To reach the apple at (3, 2) from the current position (8, 1), we need to move 5 steps horizontally left and 1 step vertically down. However, since we cannot make a U-turn in our first move and we must avoid colliding with walls or the body, we first move one step right to create an opportunity for safe movement."
+   }

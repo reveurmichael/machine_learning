@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "UP"],
+     "reasoning": "To reach the apple at (8, 9) from (5, 5), we want to minimize Manhattan distance, which is achieved by moving right followed by up. We avoid moving left because it would take us away from the apple. The number of RIGHT moves (1) minus LEFT moves (0) equals the x-coordinate difference between the head and the apple (3). Similarly, the number of UP moves (4) minus DOWN moves (0) equals the y-coordinate difference."
+   }

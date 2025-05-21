@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP"],
+     "reasoning": "To reach the apple at (8, 9) from the head's current position at (7, 8), we can move one step to the right (toward the apple) and then move up. This follows the Manhattan distance principle, moving directly toward the apple while avoiding collision."
+   }

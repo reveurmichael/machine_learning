@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "RIGHT", "RIGHT", "UP", "UP"],
+  "reasoning": "The path moves the snake downward to avoid the body cell at (2,9) and then navigates around to reach the apple at (1,3) while ensuring no collisions with walls or the body."
+}
+```

@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "UP", "RIGHT"],
+     "reasoning": "The snake is currently at (5, 5). To reach the apple at (8, 9), it needs to move right to get closer to the apple, and then move up until it reaches the apple. Since the Manhattan distance between the snake's position and the apple is 3 in x direction and 4 in y direction, we can move 3 times right and 4 times up."
+   }

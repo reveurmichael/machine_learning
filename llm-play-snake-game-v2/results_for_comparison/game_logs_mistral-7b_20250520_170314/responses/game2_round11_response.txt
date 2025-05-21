@@ -1,0 +1,4 @@
+ {
+     "moves": ["RIGHT", "UP", "UP", "LEFT", "DOWN"],
+     "reasoning": "The snake starts at (4, 0) and the apple is at (3, 2). The shortest path to reach the apple requires moving one unit right, then two units up since y2 - y1 = 2. Next, move one unit left because x1 > x2, so the number of LEFT moves should be greater than RIGHT moves by |x1-x2| = 1. Lastly, move one unit down to reach the apple."
+   }

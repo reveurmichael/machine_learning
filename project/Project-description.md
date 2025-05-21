@@ -90,7 +90,7 @@ I am a research guy so those ideas are quite research-oriented.
 
 You can stick with your styling of going for good product, or good enginnering,  or being visually convincing, or other stuffs.
 
-Also, a well balanced workload can help everyone, just like in a company and in a research team.
+Also, a well balanced workload can help everyone, just like in a company or in a research team.
 
 ## QA 1
 

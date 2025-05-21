@@ -7,13 +7,19 @@ This project implements a classic Snake game controlled by two Large Language Mo
 Run the game with different LLM providers and models:
 
 ```
+python main.py --provider ollama --model deepseek-r1:7b --parser-provider ollama --parser-model mistral:7b
+
 python main.py --provider ollama --model deepseek-r1:7b --parser-provider ollama --parser-model llama3.1:8b
 
 python main.py --provider ollama --model deepseek-r1:7b --parser-provider ollama --parser-model gemma2:9b
 
+python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model mistral:7b
+
 python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model llama3.1:8b
 
 python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model gemma2:9b
+
+python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model mistral:7b
 
 python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model llama3.1:8b
 

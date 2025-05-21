@@ -102,5 +102,5 @@ As always, take it easy, have fun, work a lot in an enjoyable way, don't try to 
 
 It's AI era. Having fun is the most important thing.
 
-A bit of fuzziness/guaussian noise is very welcome, just as in AutoEncoder and Diffusion Model :-)
+A bit of fuzziness/guaussian noise is very welcome, just as in SGD, AutoEncoder, Diffusion Model, etc.
 

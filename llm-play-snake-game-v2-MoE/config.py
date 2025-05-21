@@ -120,8 +120,10 @@ Now, analyze the game state and return the JSON output. Return only a valid JSON
 
 """
 
-# Parser prompt for the second LLM
-PARSER_PROMPT_TEMPLATE = """Generate a valid JSON object from this Snake game LLM response (let's call it RESPONSE_1):
+# Parser prompt for the secondary LLM (formatting expert)
+PARSER_PROMPT_TEMPLATE = """You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
 
 BEGINNING OF RESPONSE_1:
 

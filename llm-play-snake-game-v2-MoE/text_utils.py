@@ -59,11 +59,11 @@ def save_experiment_info(args, directory):
 ====================
 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-First LLM (Move Generation):
+Primary LLM (Game Strategy Expert):
 - Provider: {args.provider}
 - Model: {args.model if args.model else 'Default model for provider'}
 
-Second LLM (Response Parsing):
+Secondary LLM (Formatting Expert):
 - Provider: {args.parser_provider if args.parser_provider else args.provider}
 - Model: {args.parser_model if args.parser_model else 'Default model for parser provider'}
 
@@ -86,7 +86,7 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
         game_count: Total number of games played
         total_score: Total score across all games
         total_steps: Total steps taken across all games
-        parser_usage_count: Number of times the parser LLM was used
+        parser_usage_count: Number of times the secondary LLM was used
     """
     file_path = os.path.join(directory, "info.txt")
     
@@ -104,8 +104,8 @@ Total Score: {total_score}
 Total Steps: {total_steps}
 Average Score per Game: {total_score/game_count:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
-Parser LLM Usage: {parser_usage_count} times
-Parser Usage Rate: 100% (Always used for consistency)
+Secondary LLM Usage: {parser_usage_count} times
+Secondary LLM Usage Rate: 100% (Always used for consistency)
 
 Efficiency Metrics
 =================
@@ -124,7 +124,7 @@ def format_raw_llm_response(raw_response, request_time, response_time, model, pr
     """Format a raw LLM response with metadata.
     
     Args:
-        raw_response: The raw response from the LLM
+        raw_response: The raw response from the primary LLM
         request_time: Time when the request was sent
         response_time: Time when the response was received
         model: The model used
@@ -139,7 +139,7 @@ Response Time: {response_time}
 Model: {model}
 Provider: {provider}
 
-========== RAW RESPONSE ==========
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
 
 {raw_response}
 """
@@ -148,22 +148,22 @@ def format_parsed_llm_response(parsed_response, parser_request_time, parser_resp
     """Format a parsed LLM response with metadata.
     
     Args:
-        parsed_response: The parsed response from the second LLM
-        parser_request_time: Time when the parser request was sent
-        parser_response_time: Time when the parser response was received
-        parser_model: The parser model used
-        parser_provider: The parser provider used
+        parsed_response: The parsed response from the secondary LLM
+        parser_request_time: Time when the secondary LLM request was sent
+        parser_response_time: Time when the secondary LLM response was received
+        parser_model: The secondary LLM model used
+        parser_provider: The secondary LLM provider used
         
     Returns:
         Formatted response with metadata
     """
     return f"""Timestamp: {parser_response_time}
-Parser Request Time: {parser_request_time}
-Parser Response Time: {parser_response_time}
-Parser Model: {parser_model}
-Parser Provider: {parser_provider}
+Secondary LLM Request Time: {parser_request_time}
+Secondary LLM Response Time: {parser_response_time}
+Secondary LLM Model: {parser_model}
+Secondary LLM Provider: {parser_provider}
 
-========== PARSED RESPONSE ==========
+========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
 
 {parsed_response}
 """
@@ -178,7 +178,7 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         score: Game score
         steps: Number of steps taken
         next_move: Last direction moved
-        game_parser_usage: Number of times the parser was used in this game
+        game_parser_usage: Number of times the secondary LLM was used in this game
         snake_positions_length: Length of the snake
         last_collision_type: Type of collision that ended the game
         round_count: Number of rounds played
@@ -195,13 +195,13 @@ Last direction: {next_move}
 
 Performance Metrics:
 - Apples/Step: {score/(steps if steps > 0 else 1):.4f}
-- Parser LLM usage: {game_parser_usage} times (100% of rounds)
+- Secondary LLM usage: {game_parser_usage} times (100% of rounds)
 - Final board size: {snake_positions_length} segments
 
 Game End Reason: {'Wall collision' if last_collision_type == 'wall' else 'Self collision' if last_collision_type == 'self' else 'Unknown'}
 
 Prompt/Response Stats:
-- Total prompts sent: {round_count}
-- Total LLM2 parser invocations: {game_parser_usage}
+- Total prompts sent to Primary LLM: {round_count}
+- Total Secondary LLM invocations: {game_parser_usage}
 =========================================
 """ 

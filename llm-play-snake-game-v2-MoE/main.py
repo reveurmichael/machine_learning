@@ -30,13 +30,13 @@ def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
     parser.add_argument('--provider', type=str, default='hunyuan',
-                      help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
+                      help='LLM provider to use for primary LLM (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Model name to use for first LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
+                      help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
     parser.add_argument('--parser-provider', type=str, default=None,
-                      help='LLM provider to use for parsing (if not specified, uses the same as --provider)')
+                      help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider)')
     parser.add_argument('--parser-model', type=str, default=None,
-                      help='Model name to use for parsing (if not specified, uses the default for the parser provider)')
+                      help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
     parser.add_argument('--max-games', type=int, default=6,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
@@ -51,12 +51,12 @@ def parse_arguments():
     # Check for duplicate --model arguments (which would silently overwrite each other)
     model_count = raw_args.count('--model')
     if model_count > 1:
-        raise ValueError(f"Error: '--model' argument appears {model_count} times. Use '--model' for the first LLM and '--parser-model' for the parser LLM.")
+        raise ValueError(f"Error: '--model' argument appears {model_count} times. Use '--model' for the primary LLM and '--parser-model' for the secondary LLM.")
     
     # Check for duplicate --provider arguments
     provider_count = raw_args.count('--provider')
     if provider_count > 1:
-        raise ValueError(f"Error: '--provider' argument appears {provider_count} times. Use '--provider' for the first LLM and '--parser-provider' for the parser LLM.")
+        raise ValueError(f"Error: '--provider' argument appears {provider_count} times. Use '--provider' for the primary LLM and '--parser-provider' for the secondary LLM.")
     
     return args
 
@@ -79,19 +79,19 @@ def main():
         # Set up the game
         game = SnakeGame()
         
-        # Set up the main LLM client for generating moves
+        # Set up the primary LLM client for generating initial game moves
         llm_client = LLMClient(provider=args.provider, model=args.model)
-        print(Fore.GREEN + f"✅ Using LLM provider for moves: {args.provider}")
+        print(Fore.GREEN + f"✅ Using primary LLM provider: {args.provider}")
         if args.model:
-            print(Fore.GREEN + f"✅ Using model for moves: {args.model}")
+            print(Fore.GREEN + f"✅ Using primary LLM model: {args.model}")
         
-        # Set up the parser LLM client for formatting the response
+        # Set up the secondary LLM client for parsing and formatting the response
         parser_provider = args.parser_provider if args.parser_provider else args.provider
         parser_model = args.parser_model
         parser_client = LLMOutputParser(provider=parser_provider, model=parser_model)
-        print(Fore.GREEN + f"✅ Using LLM provider for parsing: {parser_provider}")
+        print(Fore.GREEN + f"✅ Using parser LLM provider: {parser_provider}")
         if parser_model:
-            print(Fore.GREEN + f"✅ Using model for parsing: {parser_model}")
+            print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
         
         print(Fore.GREEN + f"⏱️ Pause between moves: {args.move_pause} seconds")
         
@@ -115,8 +115,8 @@ def main():
         need_new_plan = True
         total_score = 0
         total_steps = 0
-        parser_usage_count = 0  # Track how many times the parser LLM is used
-        previous_parser_usage = 0  # Track previous parser usage
+        parser_usage_count = 0  # Track how many times the secondary LLM is used
+        previous_parser_usage = 0  # Track previous secondary LLM usage
         
         # Main game loop
         running = True
@@ -174,7 +174,7 @@ def main():
                             args.provider
                         )
                         
-                        # Log the raw response
+                        # Log the raw response from primary LLM
                         raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
                         save_to_file(timestamped_response, responses_dir, raw_response_filename)
                         
@@ -184,8 +184,8 @@ def main():
                         apple_x, apple_y = game.apple_position
                         apple_pos = f"({apple_x}, {apple_y})"
                         
-                        # Use second LLM to parse and format the response
-                        print(Fore.CYAN + f"Parsing response with second LLM")
+                        # Use secondary LLM to parse and format the response
+                        print(Fore.CYAN + f"Using secondary LLM to parse primary LLM's response")
                         parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         parsed_response, parser_prompt = parser_client.parse_and_format(
                             raw_llm_response, 
@@ -194,7 +194,7 @@ def main():
                         )
                         parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
-                        # Always log the parser prompt and increment usage count
+                        # Log the parser prompt and increment usage count
                         parser_usage_count += 1
                         parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
                         save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
@@ -210,7 +210,7 @@ def main():
                             parser_provider
                         )
                         
-                        # Log the parsed response
+                        # Log the parsed response from secondary LLM
                         response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
                         save_to_file(timestamped_parsed_response, responses_dir, response_filename)
                         
@@ -316,7 +316,11 @@ def main():
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
-        print(Fore.GREEN + f"🔄 Parser LLM was used {parser_usage_count} times")
+        print(Fore.GREEN + f"🏁 Final Score: {total_score}")
+        print(Fore.GREEN + f"👣 Total Steps: {total_steps}")
+        print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
+        print(Fore.GREEN + f"📊 Average Score: {total_score/game_count:.2f}")
+        print(Fore.GREEN + f"📈 Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}")
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

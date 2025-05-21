@@ -47,12 +47,6 @@ This project implements a Mixture-of-Experts inspired approach where two special
    - Ensures the final output follows the required JSON format
    - Acts as a guarantor of response quality
 
-This approach offers several advantages:
-- Leverages different models' strengths (one can focus on strategy, one on format)
-- Improves reliability through redundancy and specialization
-- Always produces well-structured output regardless of primary LLM's output format
-- Facilitates logging and debugging of each step in the process
-
 ## Command Line Arguments
 
 - `--provider`: LLM provider for the primary LLM (hunyuan, ollama, deepseek, or mistral)

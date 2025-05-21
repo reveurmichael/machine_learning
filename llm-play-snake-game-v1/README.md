@@ -2,11 +2,6 @@
 
 A classic Snake game controlled by an LLM (Language Model).
 
-## Features
-
-- LLM-controlled snake that learns to play the game through text representation
-- Multi-step planning: LLM provides a sequence of moves to reduce API calls
-
 ## Installation
 
 Set up API keys in a `.env` file:
@@ -64,15 +59,6 @@ python main.py --provider mistral --model mistral-medium-latest
 # Using large model 
 python main.py --provider mistral --model mistral-large-latest
 ```
-
-## Project Structure
-
-- `main.py` - Main entry point and game loop
-- `snake_game.py` - Core game logic
-- `llm_client.py` - LLM API communication
-- `gui.py` - Visual display interface
-- `config.py` - Game settings and prompt templates
-
 
 ## How to improve the game performance
 

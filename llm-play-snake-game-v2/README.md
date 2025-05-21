@@ -2,11 +2,6 @@
 
 A classic Snake game controlled by an LLM (Language Model).
 
-## Features
-
-- LLM-controlled snake that learns to play the game through text representation
-- Multi-step planning: LLM provides a sequence of moves to reduce API calls
-
 ## Installation
 
 Set up API keys in a `.env` file:

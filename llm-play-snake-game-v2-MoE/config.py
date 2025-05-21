@@ -162,7 +162,6 @@ Example Moves from (1,1):
 The main objective of RESPONSE_1 is to generate a list of moves that leads the head now at TEXT_TO_BE_REPLACED_HEAD_POS to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
 
 RULES:
-- Text at the beginning of RESPONSE_1 is less important than the text at the end.
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
 - "reasoning" must be a brief explanation for the chosen path
 - If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }

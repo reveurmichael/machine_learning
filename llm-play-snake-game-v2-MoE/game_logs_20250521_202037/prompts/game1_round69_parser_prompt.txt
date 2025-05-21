@@ -1,0 +1,583 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I'm trying to figure out how to get the snake from its current position (8,3) to the apple at (8,9). The snake's head is moving in the right direction. Let me break this down step by step.
+
+First, the snake's body blocks part of its path because it has a body that includes cells like (8,0), (7,0), etc., which are obstacles. Also, when the snake moves, the entire body shifts, so I have to make sure each new position doesn't hit any part of the body.
+
+The head is currently at (8,3). The apple is directly in front if it keeps moving right because (8,4) would be next step, then up... but wait, no, actually, from 3 to 9 requires moving up more steps. Wait, let's clarify:
+
+From (8,3), the snake needs to move towards (8,9). So that means moving in the UP direction because y increases as you go up. But it's currently heading right. Hmm.
+
+Wait no, according to movement rules: the initial direction is RIGHT. The apple is at (8,9), which is 6 units up from (8,3) since y goes from 3 to 9. So actually, we need to move UP six times and maybe some rights if the path is blocked.
+
+Wait no, let me clarify:
+
+The snake's direction is RIGHT now because that's given. But moving right would take it towards x=9, but in this case, the apple is at x=8, so moving right isn't helpful for reaching the apple directly above. So perhaps we need to change directions once or twice.
+
+But since the initial direction can't be reversed unless allowed later, maybe changing direction after a few steps would help navigate around any obstacles.
+
+Looking at the body cells: [(8,0), (7,0), (7,1), (7,2), (7,3)]. So those are in column 7 and 8. The head is at (8,3). So when moving right, it's going into x=9. But there might not be a problem as the body isn't blocking that yet.
+
+Wait, maybe first I should move up to get closer to the apple.
+
+But since the snake can only change direction after one step if needed? Or is reversing allowed?
+
+No, rule says you cannot reverse direction on the first move, but after that, perhaps it's possible. So from RIGHT, next moves could be UP or LEFT as long as not DOWN.
+
+So maybe plan to turn up after a few steps. Alternatively, see what each move does.
+
+But I need to track where each part of the snake goes.
+
+The head is at (8,3). Next step: if direction stays right, it would go to (9,3), but then the body cells are in 7 and 8 x-coordinate areas, so maybe moving right isn't blocked yet. But after a few steps, the body would be shifted into position.
+
+But let's think about the path:
+
+Starting at (8,3). We need to move towards y=9, which is up direction since higher y is upwards.
+
+So first thought: from (8,3), moving UP six times should get us to (8,9).
+
+Each time we move UP, the head goes up by 1. Let's see:
+
+Move 1: UP → (8,4). Then the body shifts right? Wait no, when moving in a direction, all parts of the snake shift that way.
+
+Wait, movement is such that the new head position becomes the previous body, and the tail either stays or moves based on whether it ate apple.
+
+So with each move:
+
+- New head = current head + direction vector.
+- Then, body shifts: each segment becomes the one in front, except for the last segment which remains unless the apple is eaten.
+
+In this case, since we're moving towards the apple without eating it yet (except at destination), the tail will drop off when it moves beyond that step.
+
+Wait no. The head moves into the next cell, and each body part follows: so from [(8,3)] as head, then body cells are [(7,0)], etc. Wait, actually in this problem, the body is given as a list of segments excluding the head. So when moving right, for example:
+
+Head was at (8,3). Moving RIGHT would make it (9,3), and each segment shifts accordingly.
+
+But let's track movement step by step, considering the current body configuration.
+
+Current snake: head at (8,3), followed by [(7,0), (7,1), (7,2), (7,3)] which are part of its body. So when moving RIGHT:
+
+New head is (9,3). Then, each segment moves to where the previous one was. So the tail would be removed unless it eats apple.
+
+But in this case, we haven't eaten apple yet, so the snake's length remains same as before: 6 segments (head + 5 body cells).
+
+Wait, no:
+
+Actually, from initial data, head is (8,3), body cells are [(8,0),(7,0),(7,1),(7,2),(7,3)]. So that's five body cells. So total snake length is six: head plus five.
+
+When moving without eating apple, the tail remains unless it eats. So each move adds one segment to the head and removes the last in the body list.
+
+Wait no:
+
+The movement process is:
+
+- New head = current head + direction vector.
+- Then, the new body becomes [new_head] followed by all previous head positions except the first (i.e., the rest of the snake).
+
+But when writing it as a list, it's like each segment follows its predecessor.
+
+So in code terms, if I have the current snake as [(x0,y0), (x1,y1), ..., (xn-1, yn-1)], moving direction D:
+
+new_head = (x0 + dx, y0 + dy)
+new_body = [new_head] followed by each previous segment except last.
+
+Wait no. Actually, it's more like the tail is removed unless apple is eaten.
+
+So when not eating, the new snake body is all segments shifted forward, with the head added at front and the tail (last in current body) being removed.
+
+But according to problem statement: "The snake movement update per move:
+
+New head = head + direction
+
+Head becomes body segment
+
+Tail is removed **unless** apple is eaten."
+
+So more precisely, when moving:
+
+- New head position is current head plus direction vector.
+- The new body starts with this new head and includes all previous segments except the last one (the tail).
+- If apple is eaten in this move, then the tail remains.
+
+In our case, since we're not eating yet, the snake length reduces by 1 each step? Or no: current body has five cells, so moving to six. Wait:
+
+No. Initial head position is at a certain point, with body segments behind it. So when you move forward without eating apple, only the tail is removed; all other parts follow.
+
+Wait perhaps for clarity: The snake's movement is such that each time it moves in a direction, the entire body shifts to accommodate. Therefore, if moving right from (8,3) as head and body cells at 7,0 etc., then after one move:
+
+- Head becomes (9,3)
+- Body now includes (previous positions except last): so [(8,0), (7,0), ..., wait, no.
+
+Wait I'm getting confused. Let me think again: the snake's current position is head at (8,3) and body at (8,0), then moving up would be towards (8,1). Wait no:
+
+The movement rules say that each move shifts all segments forward except the tail which may drop if not eaten.
+
+Wait perhaps it's easier to model this as a list where each segment follows directly behind. So when you move in a direction D, new head is current head + D vector, and then the body is formed by taking previous body positions shifted along with that movement.
+
+Alternatively, maybe I can represent snake as a list of coordinates from head to tail:
+
+Current snake: [(8,3), (7,0), (7,1), (7,2), (7,3)]
+
+Wait no. Wait wait, in the problem statement, it says "Body cells are [...] excluding the head." So that means the first element is not part of the body.
+
+So the initial snake has 5 body cells: [(8,0),(7,0),(7,1),(7,2),(7,3)] which would mean:
+
+head at (8,3), then next in line is (8,0)? Wait that can't be right because moving from head to tail direction.
+
+Wait maybe the snake's position is represented as a list where [head] + body cells. So perhaps it's [(8,3), (7,0), (7,1), (7,2), (7,3)]. That would make sense if the next segments are behind in terms of x and y.
+
+Wait this could be confusing because from head at (8,3) to body cell at (7,0). So that's going left and down? Hmm.
+
+Perhaps it's easier to represent snake as a list where each subsequent element is in front. So moving right would add new segments to the end with higher x coordinates.
+
+Wait maybe not. Let me think of an example: from head at (1,1), moving UP → (1,2). Then body cells are [(0,1)], etc.
+
+In any case, perhaps I can track each move step by step:
+
+Current snake:
+head = (8,3)
+body = [ (8,0), (7,0), (7,1), (7,2), (7,3) ]
+
+Wait that seems odd because moving from (8,3) to body at (7,0) would require the snake to have a length of 6? Because head plus five body cells.
+
+But perhaps I should represent it as:
+
+snake = [head] + body_cells → [(8,3), (8,0), (7,0), (7,1), (7,2), (7,3)]
+
+Then moving in some direction D would result in new_head = head + D vector. Then the snake becomes:
+
+new_snake = [new_head] + previous snake[0:-1]
+
+So if I move RIGHT from current head at (8,3):
+
+new_head is (9,3)
+
+new_snake = [(9,3), (8,3)] + rest body.
+
+Wait no: new_snake would be [new_head] followed by the first five elements of previous snake except last. Because when not eating apple, tail is removed.
+
+So in this case:
+
+previous snake was length 6: [(8,3), (8,0), (7,0), (7,1), (7,2), (7,3)]
+
+After moving RIGHT, new head is (9,3). Then the body becomes all previous except last element. So new_snake = [(9,3)] + [first five elements] → [(9,3), (8,3), (8,0), (7,0), (7,1), (7,2)]
+
+But that's now 6 segments.
+
+Wait but perhaps the initial snake is represented with head first and then body in order. So moving right adds to the end, each step follows the previous direction.
+
+This makes sense because when you move, your next segment goes where you came from. So if you're moving right, your new body parts go back along your path.
+
+But perhaps it's better to model this as a linked list where each movement shifts all segments forward except for the tail.
+
+Alternatively, since I'm struggling with tracking the exact snake configuration after each move, maybe focusing on just the head position is enough because if we can plan a path such that moving towards the apple doesn't collide with itself or walls and then adjust direction as needed to avoid blocking areas.
+
+Given that, perhaps I should first see how many steps are needed in the UP direction:
+
+From (8,3), up 6 times reaches y=9: from 3 →4→5→6→7→8→9. So six moves of UP would get us directly to apple at (8,9). But wait, we have to check if any of those steps hit the body or walls.
+
+But moving UP each step:
+
+Move 1: Up →(8,4)
+
+Is this position in current snake's body? Current snake after move is [(9,3), (8,3)] + previous body except last. But wait, original snake was head at (8,3) and body cells from y=0 downwards.
+
+But moving up would take the head to (8,4). Now, check if any part of the new snake's body includes this cell.
+
+Current snake after move is [(9,3), (8,3)] + rest? Wait no: initial snake was [(8,3), (8,0), ...]. Moving right first step would have been to head at (9,3) and then the rest shifted.
+
+Wait maybe it's better to see if moving UP from current position is blocked by body or walls.
+
+But in any case, perhaps I should think about possible moves:
+
+Current direction is RIGHT. So after a few steps, we can turn UP if necessary.
+
+Let me try planning step by step:
+
+1. Current head: (8,3), direction RIGHT.
+   - Moving right would take it to (9,3). Is this cell free? It's not in the body which currently has cells at lower y values like 0 and up. So moving right is possible.
+
+But perhaps moving right isn't optimal because we need to get closer to the apple by going UP six times.
+
+Alternatively:
+
+Maybe first move UP once: (8,4), then from there try to change direction towards RIGHT or LEFT as needed.
+
+Wait, let's see how many moves are required in each direction. The snake needs to cover 6 steps in y-direction and 0 steps in x-direction because it's already at x=8. So the number of UP moves minus DOWNs should be 6.
+
+Given that initial direction is RIGHT, moving UP first would help reach the apple faster.
+
+But perhaps when trying to move right initially, the body may collide.
+
+Wait let me think about what happens if we try to make a U-turn or adjust directions after each step.
+
+Alternatively, maybe it's possible to just keep moving up until reaching the apple.
+
+Let me see:
+
+Starting at (8,3), need to reach (8,9): six steps of UP. So perhaps plan:
+
+1. UP
+2. UP
+3. UP
+4. UP
+5. UP
+6. UP
+
+But check if each step is collision-free.
+
+After first move: head →(8,4). Are any body cells at (8,4)? No because the body is at (8,0), etc.
+
+Wait no:
+
+Original snake's body is [(8,0),(7,0),(7,1),(7,2),(7,3)]. So after moving RIGHT once:
+
+new_head = (9,3)
+snake becomes: [ (9,3), (8,3) ] + previous body except last → [ (9,3), (8,3), (8,0), (7,0), (7,1), (7,2) ]
+
+So after moving RIGHT once:
+
+Head is at (9,3)
+Body cells are: [(8,3), (8,0), (7,0), (7,1), (7,2)]
+
+Wait now if we try to move UP from head position (9,3):
+
+new_head = (9,4)
+
+Check if this cell is in the body. The body includes (8,3) which is a different row.
+
+So moving Up here is fine.
+
+But then next steps would involve moving up:
+
+2nd move: current direction after first step?
+
+Wait no, because initial direction was RIGHT. After that first RIGHT move, we might change directions to UP.
+
+Wait but the problem says "direction changes" can be done only when necessary, but perhaps it's optimal to plan a path without unnecessary turns if possible.
+
+Alternatively, maybe moving right once isn't helpful and instead trying to keep moving up is better.
+
+But wait after moving RIGHT first step:
+
+Current head is at (9,3). If we try to move UP from there, that takes us towards the apple but perhaps closer to walls.
+
+From x=9, y=4: since grid size must be considered. Wait what's the grid limits? Since the body includes cells down to y=0 and as per initial data, so possibly walls are at certain boundaries, like y cannot go below 0 or beyond some max value.
+
+Wait in this problem, I think all coordinates are within 0-9 because that's a standard size for such problems. So moving up from (8,3) to (8,4), and then again until reaching (8,9).
+
+But if the initial direction is RIGHT, but we need to move UP six times.
+
+Wait perhaps it's better to think of this as a grid where you can only move in four directions without crossing walls or self.
+
+So step 1: Move RIGHT → new head at (9,3). Then body adjusts accordingly.
+
+Step 2: From there, if I want to go towards the apple, which is at x=8, y=9. So from (9,3), moving UP would take me closer but perhaps it's better to first turn LEFT or something else.
+
+Wait this is getting complicated. Maybe it's best to consider that since we need to get back left to x=8 after potentially being at x=9, and then move up in y-direction until reach (8,9).
+
+But each step must be checked for collisions with body or walls.
+
+Alternatively, perhaps the optimal path is:
+
+Move RIGHT once → (9,3)
+Then turn LEFT six times → from 9 to 8
+Then turn UP six times → from 3 to 9
+
+Wait but turning LEFT six times and then UP six times would require checking each step for collision with body or walls.
+
+But after moving RIGHT once, the snake's head is at (9,3), body cells are [(8,3), (8,0), ...]
+
+So when trying to turn LEFT:
+
+Move from (9,3) → (8,3). Is this in the current snake's body?
+
+Current snake's body includes position (8,3)? Yes! Because after first move, the second segment is at (8,3).
+
+So moving left would cause collision with the tail.
+
+Therefore, cannot turn LEFT now.
+
+Thus, alternative plan:
+
+Perhaps change direction to UP instead of LEFT from head at (9,3):
+
+Move Up: (9,4). Check if this position is in snake's body. The current snake after first move has segments [(9,3), (8,3)] followed by the initial body cells except last.
+
+So (9,4) isn't in the snake's body. So moving UP is possible.
+
+Then next step:
+
+Move Up again to (9,5). Check if this cell is part of the new snake: which now has head at (9,4), and body segments [(8,3), (8,0), ...]. Not present.
+
+But when moving UP from (9,5) would take us towards apple. But we need to make sure that during these moves, no collision occurs with the body or walls.
+
+Alternatively, perhaps it's better not to move right first and instead think of a different path.
+
+Wait maybe initial direction can be adjusted by making turns before moving up.
+
+But since current direction is RIGHT, according to problem statement: "the direction changes are allowed but you have to choose when necessary."
+
+So I need to plan the moves step by step:
+
+Current head position: (8,3), direction: RIGHT
+
+Step 1: Move RIGHT → new head at (9,3). Check for collision with body or walls.
+
+Body after this move includes (8,3) as next segment. So moving into it would collide with own tail? Yes. Because when you move right from current position:
+
+new_head is (9,3)
+body becomes [head moved to 9,3] followed by the rest except last → body was [(8,0), (7,0), ...], so new snake's body after first step includes (8,3) as second segment.
+
+So moving into (9,3) would not collide with itself because that position is free. Wait no: in this case, the new snake's head is at (9,3), and its next segment is at (8,3). So if you move to (9,4) after first step? Or perhaps I'm getting confused.
+
+Wait initial body was [(8,0), (7,0), (7,1), (7,2), (7,3)]
+
+After moving RIGHT once:
+
+new_head = (9,3)
+new_body is all previous except last → so [ (8,3) ] ?
+
+No: new snake is [new_head] + old_snake[ : -1 ]
+
+So original snake was [(8,3), (8,0), (7,0), (7,1), (7,2), (7,3)]
+
+Moving RIGHT once:
+
+new_head = (9,3)
+
+new_body = all except last element of the original body → [ (8,3), (8,0), (7,0), (7,1), (7,2) ]
+
+So now snake is [(9,3), (8,3), (8,0), (7,0), (7,1), (7,2)]
+
+Thus, when moving from here, the head can move into positions not occupied by body.
+
+Now if we try to turn UP:
+
+Moving Up: new_head →(9,4)
+
+Check if this is in snake's body. Current snake after first step has segments at x=9 and 8, but y varies.
+
+At current position (9,3), moving up would be (9,4). The snake's body includes (8,3) as the second segment? No: head is at (9,3), next is (8,3).
+
+So no collision with body; it should be safe to move Up now.
+
+Move 2: Up → new head at (9,4)
+
+Now check:
+
+Is (9,4) in snake's body?
+
+The current snake is [(9,3), (8,3), (8,0), ...]. So no.
+
+Proceeding similarly:
+
+Move 3: Up →(9,5)
+Check if it's occupied. Still free.
+
+Move 4: Up →(9,6)
+
+Move 5: Up →(9,7)
+
+Move 6: Up →(9,8)
+
+Now we're at (9,8). But our target is (8,9), so now:
+
+Current position: (9,8)
+Direction after these moves was RIGHT and then several UPs. So direction changed from RIGHT to UP.
+
+But perhaps it's better to turn LEFT once before moving UP further?
+
+Alternatively, if we can move left towards x=8 while still heading up.
+
+So step 7: Turn LEFT → new head at (8,8)
+
+Check if this position is safe:
+
+Current snake after six moves Up would have body as [(9,3), (8,3), ...]. Wait let's track it more carefully.
+
+After each move:
+
+Move1: Right →(9,3). Body becomes [ (8,3) ]
+
+Wait no. After first step, the new snake is [ (9,3), (8,3), (8,0), (7,0), (7,1), (7,2) ]
+
+So when moving UP six times:
+
+Move 2: Up →(9,4). Body becomes [(8,3), (8,0), ...]. So head at (9,4).
+
+Move 3: Up →(9,5); body now is [ (8,3), (8,0), ... ]
+
+Continue until Move6:
+
+At step 6, position would be (9,8). Body after this move includes all segments except last.
+
+Now to get towards x=8 from here:
+
+Turn LEFT once: new head at (8,8)
+
+Check if (8,8) is in the current snake's body. Current snake's body after moving UP six times consists of [(9,3), (8,3), (8,0), ...]. So no, (8,8) isn't part of it.
+
+So step7: Left →(8,8)
+
+Now, from here, how to reach target (8,9).
+
+Move Up again:
+
+New head at (8,9). Check if this is safe. Current snake's body includes [(8,3), ...], but does it include (8,8)? Wait after moving left once, the new snake's segments are [ (8,8), followed by previous body except last?]
+
+Wait let me recount:
+
+After step 6: head at (9,8). Body is [ (8,3), (8,0), ... ]
+
+Step7: Left →(8,8). New body becomes [(8,0), ..., ] plus new_head.
+
+So snake now has segments: [ (8,8), (8,3), (8,0), (7,0), (7,1), (7,2) ]
+
+Wait no:
+
+After moving LEFT from head at (9,8):
+
+new_head is (8,8)
+
+body becomes previous body except last. So the original body was [ (8,3), (8,0), ... ].
+
+So new body after this step would be [(8,0)]?
+
+No: Wait initial body after 6 moves:
+
+After first move (Right): new snake's body is [ (8,3) ]
+
+Then moving Up six times changes the head but also modifies the body accordingly. Hmm, perhaps it's better to model each step.
+
+But this could take a while. Alternatively, maybe the path can be determined as:
+
+1. Move RIGHT once →(9,3)
+2. Turn LEFT and move Up multiple times?
+
+Wait getting stuck in details here. Maybe think of an alternative approach.
+
+Alternatively, since we need to reach (8,9), which is directly north-east from current position (8,3). So perhaps moving UP while adjusting direction as needed without colliding with the body or walls.
+
+But considering that after first move RIGHT once and then several Up steps, maybe there's a way around.
+
+Wait perhaps I'm overcomplicating this. The minimal number of moves would involve moving right to x=9, then up six times (to y=9), then left back to x=8. But each step needs to check for collision with body or walls.
+
+Alternatively, given the initial head position is at (8,3):
+
+- Move RIGHT once: new_head=(9,3). No collision because body's first segment after this move is (8,3) which is fine.
+- Then from (9,3), we can try to turn UP six times:
+   - Each Up moves towards the target. So head becomes (9,4), then (9,5), ..., up until y=9.
+
+Wait but when moving beyond certain points, perhaps walls are at 9 or something else? Let's assume that all coordinates from 0-9 are allowed.
+
+So step1: move RIGHT →(9,3)
+step2: UP→(9,4)
+step3: UP→(9,5)
+step4:UP→(9,6)
+step5:UP→(9,7)
+step6:UP→(9,8)
+step7: Left→(8,8)
+step8: UP→(8,9) → which is target.
+
+But in step1, moving RIGHT from (8,3), the body's next segment was at (8,0). So moving into that? No:
+
+After first move:
+
+snake's head is at (9,3)
+
+body segments are [ (8,3), (8,0), ... ] 
+
+So when moving Up to (9,4) in step2: no collision.
+
+Similarly, each subsequent UP step wouldn't cause collision with the body or walls until finally reaching (8,9).
+
+Thus total steps:
+
+1. Move RIGHT
+2. Move Up six times
+3. Move LEFT once
+4. Move Up once
+
+So number of moves: 1 +6+1+1=9.
+
+But is this a valid path? Let's check for collision at each step.
+
+At step1 (after moving Right): head at (9,3), body segments are [(8,3), (8,0), ...] → no collision.
+
+Step2: move Up to (9,4) – okay
+
+Similarly steps 3-7: moves up to y=8. All these positions are new and not in the current snake's body.
+
+At step7, head is at (9,8). Moving Left to (8,8):
+
+Check if this position is part of the current body.
+
+Current body after six Up moves includes segments [(8,3), (8,0), ...]. So no collision. Thus allowed.
+
+Step8: move Up from (8,8) →(8,9): target reached without collision because the new head isn't in the snake's body (current body is [ (8,0), etc.]).
+
+Thus this path seems valid with 9 moves.
+
+But wait after step7:
+
+After moving Left to (8,8), the body segments are [(8,0), ...], so no collision.
+
+And for each Up move from y=3 to y=8: all new positions. Thus it's safe.
+</think>
+
+The solution involves moving right once, then up six times, left once, and up again. This totals 9 moves without any collisions.
+
+Step-by-step explanation:
+
+1. **Move Right**: From (8,3) → (9,3). Body now includes [(8,3), ...].
+
+2. **Move Up** x6: From (9,3) to (9,4); then to (9,5), ..., up to (9,8).
+
+3. **Move Left**: From (9,8) → (8,8). 
+
+4. **Move Up**: From (8,8) → (8,9). Target reached.
+
+Total moves: 1 (Right) + 6 (Up) + 1 (Left) + 1 (Up) = 9 moves.
+
+Answer: \boxed{9}
+```
+
+END OF RESPONSE_1.
+
+OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the head now at (8, 3) to eat the apple at (8, 9).
+
+RULES:
+- Text at the beginning of RESPONSE_1 is less important than the text at the end.
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+Return ONLY the JSON object without any additional text.

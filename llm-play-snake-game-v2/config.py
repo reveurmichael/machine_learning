@@ -32,7 +32,6 @@ DIRECTIONS = {
     "LEFT": (-1, 0),  # Decrease x, no change in y (move left)
 }
 
-# The PROMPT_TEMPLATE text without f-string evaluation
 PROMPT_TEMPLATE_TEXT = """
 You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You are given:
 
@@ -76,7 +75,7 @@ EXAMPLE MOVES FROM POSITION (1,1):
   • LEFT → (0,1)
 
 OBJECTIVE:
-  Plan a safe path to reach the apple without colliding. Output a sequence of moves (length 5–30) that leads the head to TEXT_TO_BE_REPLACED_APPLE_POS if possible, unless you will reach the apple in fewer.  
+  Plan a safe path to reach the apple without colliding. Output a JSON object whose "moves" field is a sequence of moves that leads the head to eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS.  
 
 VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
   A JSON object exactly in this form:
@@ -92,8 +91,14 @@ CONSTRAINTS:
   - Must output at least 5 moves unless you will reach the apple in fewer.  
   - Do not reverse direction on your first move.  
   - Avoid collisions with walls or the body.  
-  - When planning, assume your body will grow by 1 after eating the apple. Do not plan a move sequence that, after apple consumption, leaves you with no legal exit on the next turn if avoidable.
-  - Use Manhattan distance to guide you toward the apple, but ALWAYS avoid any move that would collide with a wall or your own body. If you must detour around your own tail, do so.
+  - Post-Apple Planning: When planning your moves:
+    - Assume the snake will grow by 1 segment immediately after eating the apple.
+    - Avoid any sequence that, after consuming the apple, leaves the snake with no legal exit on the following move—unless absolutely unavoidable.
+  - Use Manhattan distance as a heuristic to guide you toward the apple, but ALWAYS avoid any move that would collide with a wall or your own body. If you must detour around your own tail, do so.
+  - Snake Body Update Rule (Per Move):
+    - Add a new head segment in the movement direction.
+    - The previous head becomes a body segment.
+    - The tail segment is removed (unless the snake just ate an apple, in which case it grows by one and the tail remains).
   - Importantly, you should carefully check, before giving the final answer, that if the head position is at (x1, y1) and the apple is at (x2, y2), in your answer's moves:
     - if x1 <= x2, then the number of RIGHT moves, minus, the number of LEFT moves, should be equal to x2 - x1
     - if x1 > x2, then the number of LEFT moves, minus, the number of RIGHT moves, should be equal to x1 - x2
@@ -112,7 +117,7 @@ IMPORTANT:
 
 
 AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
-  A JSON object exactly exactly exactly exactlyin this form:
+  A JSON object exactly in this form:
      {
        "moves": [ "MOVE1", "MOVE2", … ],
        "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
@@ -121,7 +126,7 @@ AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT F
      – If no safe path of ≤30 moves exists, respond exactly with:
        { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
-Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON, exactly exactly exactly exactly in the form of the JSON object:
+Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON, exactly in the form of the JSON object:
      {
        "moves": [ "MOVE1", "MOVE2", … ],
        "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)

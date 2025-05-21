@@ -511,8 +511,8 @@ class SnakeGame:
             Extracted JSON data as a dictionary, or None if not found/invalid
         """
         try:
-            # Look for JSON code block which is common in LLM responses
-            json_block_match = re.search(r'```(?:json)?\s*({.*?})\s*```', response, re.DOTALL)
+            # Look for JSON code block which is common in LLM responses - Use a more robust pattern
+            json_block_match = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', response, re.DOTALL)
             if not json_block_match:
                 return None
                 
@@ -527,6 +527,14 @@ class SnakeGame:
             return data
         except Exception as e:
             print(f"Failed to parse JSON code block: {e}")
+            # Try direct JSON parsing as a fallback
+            try:
+                # Try to parse the entire response as JSON directly
+                data = json.loads(response)
+                if isinstance(data, dict) and "moves" in data:
+                    return data
+            except:
+                pass
             return None
     
     def _extract_json_from_text(self, response):
@@ -539,8 +547,16 @@ class SnakeGame:
             Extracted JSON data as a dictionary, or None if not found/invalid
         """
         try:
-            # Try extracting JSON object outside of code blocks
-            json_match = re.search(r'\{.*?"moves"\s*:\s*\[.*?\].*?\}', response, re.DOTALL)
+            # First try direct JSON parsing (for clean JSON responses)
+            try:
+                data = json.loads(response)
+                if isinstance(data, dict) and "moves" in data:
+                    return data
+            except:
+                pass
+                
+            # Try extracting JSON object outside of code blocks with a more robust pattern
+            json_match = re.search(r'\{[\s\S]*?"moves"\s*:\s*\[[\s\S]*?\][\s\S]*?\}', response, re.DOTALL)
             if not json_match:
                 return None
                 
@@ -558,7 +574,7 @@ class SnakeGame:
             
             # Try to extract just the moves array
             try:
-                moves_array_match = re.search(r'"moves"\s*:\s*\[(.*?)\]', json_str, re.DOTALL)
+                moves_array_match = re.search(r'"moves"\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
                 if not moves_array_match:
                     return None
                     
@@ -589,7 +605,19 @@ class SnakeGame:
         """
         moves = []
         
-        # Look for arrays of directions in quotes
+        # First try a more comprehensive approach to find arrays of direction strings
+        array_match = re.search(r'\[\s*("(?:UP|DOWN|LEFT|RIGHT)"(?:\s*,\s*"(?:UP|DOWN|LEFT|RIGHT)")*)\s*\]', 
+                              response, re.IGNORECASE | re.DOTALL)
+        
+        if array_match:
+            # Extract all quoted direction strings from the found array
+            directions = re.findall(r'"([^"]+)"', array_match.group(1))
+            if directions:
+                moves = [move.upper() for move in directions 
+                       if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+                return moves
+        
+        # Fallback: Look for arrays of directions in quotes (original method)
         move_arrays = re.findall(r'\[\s*"([^"]+)"\s*(?:,\s*"([^"]+)"\s*)*\]', response)
         if move_arrays:
             for move_group in move_arrays:

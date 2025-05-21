@@ -68,6 +68,21 @@ But there are (hidden) pitfalls everywhere. So get your hands dirty is the most 
    - Develop a feedback mechanism to improve system performance based on corrections
 
 
+## Some random thoughts
+
+- LLM can be involved in multiple ways, multiple stages, multiple parts of the process.
+- LLM A might be good at fixing the timestamps/overlapping issue (with reasoning capabilities?)
+- LLM B might be good at improve the EN srt
+- LLM C might be good at translating EN to CN/FR
+- LLM D might be good at summarizing the text. This summary might be feeded into LLM B for the latter's task.
+
+You could check out the concept of MoE (mixture of experts) which is very a la mode.
+
+Also, it's always good to double check your final results with
+
+- video downloaded by yt-dlp
+- VLC playing the video with srt file loaded
+
 ## QA 1
 
 Q: Hello sir, i wanted to know with my group, how many translated srt do you need and how ? Do you need the translated ones in a doc or not, like just examples in the video and let you try with the initial srt and our code solution 

@@ -121,22 +121,27 @@ Now, analyze the game state and return the JSON output. Return only a valid JSON
 """
 
 # Parser prompt for the second LLM
-PARSER_PROMPT_TEMPLATE = """Generate a valid JSON object from this Snake game LLM response:
+PARSER_PROMPT_TEMPLATE = """Generate a valid JSON object from this Snake game LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
 
 ```
 TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE
 ```
 
-FORMAT REQUIREMENTS:
+END OF RESPONSE_1.
+
+OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
 {
   "moves": ["MOVE1", "MOVE2", ...],
   "reasoning": "brief explanation"
 }
 
 RULES:
+- Text at the beginning of RESPONSE_1 is less important than the text at the end.
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
 - "reasoning" must be a brief explanation for the chosen path
-- If no valid path exists or can't be determined, use: { "moves": [], "reasoning": "NO_PATH_FOUND" }
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
 
 Return ONLY the JSON object without any additional text.
 """

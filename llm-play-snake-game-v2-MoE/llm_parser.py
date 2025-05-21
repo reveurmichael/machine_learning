@@ -20,13 +20,14 @@ class LLMOutputParser:
         """
         self.llm_client = LLMClient(provider=provider, model=model)
         
-    def parse_and_format(self, llm_response, head_pos=None, apple_pos=None):
+    def parse_and_format(self, llm_response, head_pos=None, apple_pos=None, body_cells=None):
         """Parse the output from the primary LLM and convert it to the required JSON format.
         
         Args:
             llm_response: The raw response from the primary LLM
             head_pos: Optional head position string in format "(x, y)"
             apple_pos: Optional apple position string in format "(x, y)"
+            body_cells: Optional body cells string in format "[(x1, y1), (x2, y2), ...]"
             
         Returns:
             A tuple containing (formatted_response, parser_prompt) where:
@@ -41,7 +42,7 @@ class LLMOutputParser:
             print("Primary LLM response contains valid JSON, but will still use secondary LLM for consistency")
         
         # Create the prompt for the secondary LLM
-        parser_prompt = self._create_parser_prompt(llm_response, head_pos, apple_pos)
+        parser_prompt = self._create_parser_prompt(llm_response, head_pos, apple_pos, body_cells)
         
         # Get response from the secondary LLM
         print("Using secondary LLM to parse and format response")
@@ -61,13 +62,14 @@ class LLMOutputParser:
             
         return json.dumps(json_data), parser_prompt
 
-    def _create_parser_prompt(self, llm_response, head_pos=None, apple_pos=None):
+    def _create_parser_prompt(self, llm_response, head_pos=None, apple_pos=None, body_cells=None):
         """Create a prompt for the secondary LLM to parse the output of the primary LLM.
         
         Args:
             llm_response: The raw response from the primary LLM
             head_pos: Optional head position string in format "(x, y)"
             apple_pos: Optional apple position string in format "(x, y)"
+            body_cells: Optional body cells string in format "[(x1, y1), (x2, y2), ...]"
             
         Returns:
             Prompt for the secondary LLM
@@ -80,5 +82,7 @@ class LLMOutputParser:
             parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
         if apple_pos:
             parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
+        if body_cells:
+            parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_BODY_CELLS", body_cells)
             
         return parser_prompt 

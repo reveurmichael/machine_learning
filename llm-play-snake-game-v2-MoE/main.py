@@ -184,13 +184,20 @@ def main():
                         apple_x, apple_y = game.apple_position
                         apple_pos = f"({apple_x}, {apple_y})"
                         
+                        # Get body cells for the parser
+                        body_cells = []
+                        for x, y in game.snake_positions[:-1]:  # Exclude the head
+                            body_cells.append(f"({x}, {y})")
+                        body_cells_str = "[" + ", ".join(body_cells) + "]"
+                        
                         # Use secondary LLM to parse and format the response
                         print(Fore.CYAN + f"Using secondary LLM to parse primary LLM's response")
                         parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         parsed_response, parser_prompt = parser_client.parse_and_format(
                             raw_llm_response, 
                             head_pos=head_pos, 
-                            apple_pos=apple_pos
+                            apple_pos=apple_pos,
+                            body_cells=body_cells_str
                         )
                         parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         

@@ -1,7 +1,7 @@
 # How to play the game
 
 ```
-python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model mistral:7b
+python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model llama3.1:8b
 ```
 
 ## Installation

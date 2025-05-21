@@ -83,6 +83,15 @@ Also, it's always good to double check your final results with
 - video downloaded by yt-dlp
 - VLC playing the video with srt file loaded
 
+It's a very good idea to get mistralai/deepseek/huanyuan involved, at some point of the task, provided that you don't go bankrupt with the cost.
+
+
+I am a research guy so those ideas are quite research-oriented.
+
+You can stick with your styling of going for good product, or good enginnering,  or being visually convincing, or other stuffs.
+
+Also, a well balanced workload can help everyone, just like in a company and in a research team.
+
 ## QA 1
 
 Q: Hello sir, i wanted to know with my group, how many translated srt do you need and how ? Do you need the translated ones in a doc or not, like just examples in the video and let you try with the initial srt and our code solution 

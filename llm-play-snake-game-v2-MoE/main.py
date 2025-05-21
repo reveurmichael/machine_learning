@@ -271,7 +271,7 @@ Provider: {args.provider}
                         # Use second LLM to parse and format the response
                         print(Fore.CYAN + f"Parsing response with second LLM")
                         parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        parsed_response, parser_prompt = parser_client.parse_and_format(raw_llm_response, prompt)
+                        parsed_response, parser_prompt = parser_client.parse_and_format(raw_llm_response)
                         parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
                         # Log the parser prompt if it was used

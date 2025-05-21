@@ -84,7 +84,7 @@ Return a **JSON object** in this **exact format**:
 
 * Must not reverse direction on the first move.
 * Avoid collisions with walls and body.
-* After eating the apple, avoid traps—ensure there’s at least one legal move afterward.
+* After eating the apple, avoid traps—ensure there's at least one legal move afterward.
 * Use Manhattan distance as a heuristic, but prioritize safety.
 * Snake movement update (per move):
 
@@ -116,4 +116,26 @@ Now, analyze the game state and return the JSON output. Return only a valid JSON
   "reasoning": "..." 
 }
 
+"""
+
+# Parser prompt for the second LLM
+PARSER_PROMPT_TEMPLATE = """Extract a valid JSON object from this Snake game LLM response:
+
+```
+{response}
+```
+
+FORMAT REQUIREMENTS:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- Only include valid moves to reach the apple
+- "reasoning" must be a brief explanation for the chosen path
+- If no valid path exists or can't be determined, use: { "moves": [], "reasoning": "NO_PATH_FOUND" }
+
+Return ONLY the JSON object without any additional text.
 """

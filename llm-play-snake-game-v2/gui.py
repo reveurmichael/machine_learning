@@ -9,7 +9,7 @@ import time
 import numpy as np
 from config import (
     SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GREY2, GREY3, SNAKE_HEAD_C,
-    APP_WIDTH, APP_HEIGHT, SNAKE_SIZE, TIME_DELAY, TIME_TICK, DIRECTIONS
+    APP_WIDTH, APP_HEIGHT, GRID_SIZE, TIME_DELAY, TIME_TICK, DIRECTIONS
 )
 
 # Import after config to avoid circular imports
@@ -25,7 +25,7 @@ class SetUp:
         self.width_plus = 200
         self.height = APP_HEIGHT
         self.info_panel = self.width - self.height
-        self.grid_size = SNAKE_SIZE
+        self.grid_size = GRID_SIZE
         self.pixel = self.height // self.grid_size
 
 class DrawWindow(SetUp):

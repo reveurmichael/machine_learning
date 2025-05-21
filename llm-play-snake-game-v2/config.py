@@ -20,11 +20,8 @@ APP_HEIGHT = 600
 TIME_DELAY = 40
 TIME_TICK = 280
 
-# Game
-SNAKE_SIZE = 10
+GRID_SIZE = 10
 
-# Direction vectors as (dx, dy) where:
-# x increases to the right, y increases upward
 DIRECTIONS = {
     "UP": (0, 1),  # No change in x, increase y (move up)
     "RIGHT": (1, 0),  # Increase x, no change in y (move right)
@@ -33,102 +30,90 @@ DIRECTIONS = {
 }
 
 PROMPT_TEMPLATE_TEXT = """
-You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You are given:
+You are an AI agent controlling a snake in the classic Snake game on a 10×10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
 
-INPUT VARIABLES:
-  • head position: TEXT_TO_BE_REPLACED_HEAD_POS              – Snake-head coordinate in (x,y).
-  • current direction: TEXT_TO_BE_REPLACED_CURRENT_DIRECTION – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
-  • body cells: TEXT_TO_BE_REPLACED_BODY_CELLS               – List of (x,y) positions occupied by the snake body (excluding the head).
-  • apple position: TEXT_TO_BE_REPLACED_APPLE_POS            – Apple coordinate in (x,y).
+You are given the following inputs:
+  • Head position: TEXT_TO_BE_REPLACED_HEAD_POS — (x, y) of the snake's head.
+  • Current direction: TEXT_TO_BE_REPLACED_CURRENT_DIRECTION — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".
+  • Body cells: TEXT_TO_BE_REPLACED_BODY_CELLS — List of (x, y) positions occupied by the snake's body (excluding the head).
+  • Apple position: TEXT_TO_BE_REPLACED_APPLE_POS — (x, y) coordinate of the apple.
 
-MOVEMENT RULES:
-  1. Valid moves are "UP", "DOWN", "LEFT", "RIGHT". 
-  2. DIRECTIONS = { "UP": (0, 1), "RIGHT": (1, 0), "DOWN": (0, -1), "LEFT": (-1, 0) }
-  3. For each of your moves, you cannot move in the exact opposite of current direction. If current direction is NONE, then you can move in any direction.
-  4. The snake dies if head moves into any body cells (for this moment, the body is TEXT_TO_BE_REPLACED_BODY_CELLS . However, the body will move along with the head, so this list of body cells is not fixed, and you have to think about it each time you plan a move) or outside 0 ≤ x < 10, 0 ≤ y < 10.  
-  5. Eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS increments score by 1 and grows the body by 1 segment.
+## MOVEMENT RULES:
+1. Valid directions: "UP", "DOWN", "LEFT", "RIGHT".
+2. Direction vectors: 
+   { "UP": (0, 1), "DOWN": (0, -1), "LEFT": (-1, 0), "RIGHT": (1, 0) }
+3. The snake **cannot** reverse direction (e.g., if going UP, cannot move DOWN next). If the direction is "NONE", any move is allowed.
+4. The snake **dies** if it:
+   - Collides with its body (which shifts every step),
+   - Moves outside the grid bounds (0 ≤ x < 10, 0 ≤ y < 10).
+5. Eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS:
+   - Increases score by 1.
+   - Grows the body by 1 segment (tail doesn't shrink on next move).
 
-COORDINATE SYSTEM (IMPORTANT):
-  The origin (0,0) is at the BOTTOM-LEFT of the grid.
-  • UP: Increases y coordinate by 1 (moves toward y 9)
-  • DOWN: Decreases y coordinate by 1 (moves toward y 0)
-  • RIGHT: Increases x coordinate by 1 (moves toward x 9)
-  • LEFT: Decreases x coordinate by 1 (moves toward x 0)
-  • The first element of the tuple is the LEFT and RIGHT direction (x axis), the second element is the UP and DOWN direction (y axis), just like in middle school and high school math.
+## COORDINATE SYSTEM:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
 
-EXAMPLE GRID (4×4) WITH COORDINATES:
-  (0,3)  (1,3)  (2,3)  (3,3)
-  (0,2)  (1,2)  (2,2)  (3,2)
-  (0,1)  (1,1)  (2,1)  (3,1)
-  (0,0)  (1,0)  (2,0)  (3,0)
-
-EXAMPLE MOVES FROM POSITION (1,1):
+Example Moves from (1,1):
   • UP → (1,2)
-
-EXAMPLE MOVES FROM POSITION (1,1):
   • DOWN → (1,0)
-
-EXAMPLE MOVES FROM POSITION (1,1):
   • RIGHT → (2,1)
-
-EXAMPLE MOVES FROM POSITION (1,1):
   • LEFT → (0,1)
 
-OBJECTIVE:
-  Plan a safe path to reach the apple without colliding. Output a JSON object whose "moves" field is a sequence of moves that leads the head to eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS.  
+## OBJECTIVE:
+Plan a safe path for the head to reach the apple, avoiding collisions. Output a JSON object whose "moves" field is a sequence of moves that leads the head now at TEXT_TO_BE_REPLACED_HEAD_POS to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.  
 
-VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
-  A JSON object exactly in this form:
-     {
-       "moves": [ "MOVE1", "MOVE2", … ],
-       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
-     }
-     – "moves" must be a list of 5 to 30 directions (each one of "UP," "DOWN," "LEFT," "RIGHT"), unless you will reach the apple in fewer.   
-     – If no safe path of ≤30 moves exists, respond exactly with:
-       { "moves": [], "reasoning": "NO_PATH_FOUND" }
+## REQUIRED OUTPUT FORMAT:
+Return a **JSON object** in this **exact format**:
 
-CONSTRAINTS:
-  - Must output at least 5 moves unless you will reach the apple in fewer.  
-  - Do not reverse direction on your first move.  
-  - Avoid collisions with walls or the body.  
-  - Post-Apple Planning: When planning your moves:
-    - Assume the snake will grow by 1 segment immediately after eating the apple.
-    - Avoid any sequence that, after consuming the apple, leaves the snake with no legal exit on the following move—unless absolutely unavoidable.
-  - Use Manhattan distance as a heuristic to guide you toward the apple, but ALWAYS avoid any move that would collide with a wall or your own body. If you must detour around your own tail, do so.
-  - Snake Body Update Rule (Per Move):
-    - Add a new head segment in the movement direction.
-    - The previous head becomes a body segment.
-    - The tail segment is removed (unless the snake just ate an apple, in which case it grows by one and the tail remains).
-  - Importantly, you should carefully check, before giving the final answer, that if the head position is at (x1, y1) and the apple is at (x2, y2), in your answer's moves:
-    - if x1 <= x2, then the number of RIGHT moves, minus, the number of LEFT moves, should be equal to x2 - x1
-    - if x1 > x2, then the number of LEFT moves, minus, the number of RIGHT moves, should be equal to x1 - x2
-    - if y1 <= y2, then the number of UP moves, minus, the number of DOWN moves, should be equal to y2 - y1
-    - if y1 > y2, then the number of DOWN moves, minus, the number of UP moves, should be equal to y1 - y2
-    - In your case, as your head position is at TEXT_TO_BE_REPLACED_HEAD_POS and the apple is at TEXT_TO_BE_REPLACED_APPLE_POS, in your answer's moves, TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE.
-      
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "..." 
+}
 
-EDGE CASES:
-  - If apple is behind you but the only path is to circle around, you must output that circle.  
-  - If the snake currently has no body (just head), any move is fine as long as it's toward the apple.  
-  - If the apple is adjacent to the wall, be extra careful not to hug the wall.
+* "moves" must be a list of valid directions unless the apple is reachable in fewer.
+* "reasoning" must be a brief explanation (1–2 sentences) of the path-planning rationale.
+* If **no safe path** moves exists, return:
 
-IMPORTANT:
-  - Keep in mind that the coordinate system is (x,y) where x is the horizontal axis (left to right) and y is the vertical axis (bottom to top). Just like in middle school and high school math.
+{ "moves": [], "reasoning": "NO_PATH_FOUND" }
 
 
-AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
-  A JSON object exactly in this form:
-     {
-       "moves": [ "MOVE1", "MOVE2", … ],
-       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
-     }
-     – "moves" must be a list of 5 to 30 directions (each one of "UP," "DOWN," "LEFT," "RIGHT"), unless you will reach the apple in fewer.  
-     – If no safe path of ≤30 moves exists, respond exactly with:
-       { "moves": [], "reasoning": "NO_PATH_FOUND" }
+## CONSTRAINTS:
 
-Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON, exactly in the form of the JSON object:
-     {
-       "moves": [ "MOVE1", "MOVE2", … ],
-       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
-     }
+* Must not reverse direction on the first move.
+* Avoid collisions with walls and body.
+* After eating the apple, avoid traps—ensure there’s at least one legal move afterward.
+* Use Manhattan distance as a heuristic, but prioritize safety.
+* Snake movement update (per move):
+
+  * New head = head + direction
+  * Head becomes body segment
+  * Tail is removed **unless** apple is eaten (in that case, tail remains)
+
+## FINAL POSITION CHECK:
+
+Make sure the total number of LEFT/RIGHT and UP/DOWN moves matches the apple's offset:
+
+* From TEXT_TO_BE_REPLACED_HEAD_POS to TEXT_TO_BE_REPLACED_APPLE_POS:
+
+  * x1 ≤ x2 → RIGHTs - LEFTs = x2 - x1
+  * x1 > x2 → LEFTs - RIGHTs = x1 - x2
+  * y1 ≤ y2 → UPs - DOWNs = y2 - y1
+  * y1 > y2 → DOWNs - UPs = y1 - y2
+    → In your case: TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE
+
+## EDGE CASES TO CONSIDER:
+
+* If apple is behind current direction, detour safely.
+* If snake has no body, go directly toward apple.
+* Avoid hugging walls unnecessarily, especially near apple.
+
+Now, analyze the game state and return the JSON output. Return only a valid JSON object in the exact format:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "..." 
+}
+
 """

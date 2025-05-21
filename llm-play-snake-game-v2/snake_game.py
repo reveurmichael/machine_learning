@@ -8,16 +8,16 @@ import re
 import json
 import pygame
 from gui import DrawWindow
-from config import SNAKE_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
+from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
 
 class SnakeGame:
     """Main class for the Snake game logic and rendering."""
     
-    def __init__(self, grid_size=SNAKE_SIZE):
+    def __init__(self, grid_size=GRID_SIZE):
         """Initialize the Snake game.
         
         Args:
-            grid_size: Number of cells in each dimension of the game grid (default is SNAKE_SIZE from config)
+            grid_size: Number of cells in each dimension of the game grid (default is GRID_SIZE from config)
         """
         # Game state variables
         self.grid_size = grid_size

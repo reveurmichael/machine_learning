@@ -67,15 +67,6 @@ python main.py --provider mistral --model mistral-medium-latest
 python main.py --provider mistral --model mistral-large-latest
 ```
 
-## Project Structure
-
-- `main.py` - Main entry point and game loop
-- `snake_game.py` - Core game logic
-- `llm_client.py` - LLM API communication
-- `gui.py` - Visual display interface
-- `config.py` - Game settings and prompt templates
-
-
 ## How to improve the game performance
 
 - Maybe, instead of giving multiple moves, LLM only gives one move. But this will drastically increase the time for the whole game playing, as well as the cost of the API calls.

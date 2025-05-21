@@ -67,5 +67,6 @@ class LLMOutputParser:
         Returns:
             Prompt for the second LLM
         """
-        # Use the template from config.py with the llm_response
-        return PARSER_PROMPT_TEMPLATE.format(response=llm_response) 
+        # Use string replacement like in snake_game.py instead of string formatting
+        parser_prompt = PARSER_PROMPT_TEMPLATE.replace("TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE", llm_response)
+        return parser_prompt 

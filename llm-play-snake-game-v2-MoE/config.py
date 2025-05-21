@@ -119,10 +119,10 @@ Now, analyze the game state and return the JSON output. Return only a valid JSON
 """
 
 # Parser prompt for the second LLM
-PARSER_PROMPT_TEMPLATE = """Extract a valid JSON object from this Snake game LLM response:
+PARSER_PROMPT_TEMPLATE = """Generate a valid JSON object from this Snake game LLM response:
 
 ```
-{response}
+TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE
 ```
 
 FORMAT REQUIREMENTS:
@@ -133,7 +133,6 @@ FORMAT REQUIREMENTS:
 
 RULES:
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
-- Only include valid moves to reach the apple
 - "reasoning" must be a brief explanation for the chosen path
 - If no valid path exists or can't be determined, use: { "moves": [], "reasoning": "NO_PATH_FOUND" }
 

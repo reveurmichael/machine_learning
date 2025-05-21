@@ -72,7 +72,7 @@ But there are (hidden) pitfalls everywhere. So get your hands dirty is the most 
 
 - LLM can be involved in multiple ways, multiple stages, multiple parts of the process.
 - LLM A might be good at fixing the timestamps/text overlapping issue (with reasoning capabilities?)
-- LLM B might be good at improve the EN srt
+- LLM B might be good at improving the EN srt
 - LLM C might be good at translating EN to CN/FR
 - LLM D might be good at summarizing the text. This summary might be feeded into LLM B for the latter's task.
 

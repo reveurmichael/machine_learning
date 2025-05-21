@@ -1,7 +1,10 @@
 """
 Utility module for text processing in the Snake game.
-Handles processing and formatting of text responses.
+Handles processing and formatting of text responses, logging, and file operations.
 """
+
+import os
+from datetime import datetime
 
 def process_response_for_display(response):
     """Process the LLM response for display purposes.
@@ -22,4 +25,183 @@ def process_response_for_display(response):
         return processed
     except Exception as e:
         print(f"Error processing response for display: {e}")
-        return "Error processing response" 
+        return "Error processing response"
+
+def save_to_file(content, directory, filename):
+    """Save content to a file.
+    
+    Args:
+        content: Content to save
+        directory: Directory to save to
+        filename: Name of the file
+        
+    Returns:
+        The full path to the saved file
+    """
+    os.makedirs(directory, exist_ok=True)
+    file_path = os.path.join(directory, filename)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    return os.path.abspath(file_path)
+
+def save_experiment_info(args, directory):
+    """Save experiment information to a file.
+    
+    Args:
+        args: Command line arguments
+        directory: Directory to save to
+        
+    Returns:
+        Path to the saved file
+    """
+    # Create content with experiment information
+    content = f"""Experiment Information
+====================
+Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+First LLM (Move Generation):
+- Provider: {args.provider}
+- Model: {args.model if args.model else 'Default model for provider'}
+
+Second LLM (Response Parsing):
+- Provider: {args.parser_provider if args.parser_provider else args.provider}
+- Model: {args.parser_model if args.parser_model else 'Default model for parser provider'}
+
+Max Games: {args.max_games}
+Move Pause: {args.move_pause} seconds
+
+Other Information:
+- Time Delay: {args.time_delay if hasattr(args, 'time_delay') else 'Default'}
+- Time Tick: {args.time_tick if hasattr(args, 'time_tick') else 'Default'}
+"""
+    
+    # Save to file
+    return save_to_file(content, directory, "info.txt")
+
+def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0):
+    """Update the experiment information file with game statistics.
+    
+    Args:
+        directory: Directory containing the info.txt file
+        game_count: Total number of games played
+        total_score: Total score across all games
+        total_steps: Total steps taken across all games
+        parser_usage_count: Number of times the parser LLM was used
+    """
+    file_path = os.path.join(directory, "info.txt")
+    
+    # Read existing content
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Add statistics section
+    stats = f"""
+
+Game Statistics
+==============
+Total Games Played: {game_count}
+Total Score: {total_score}
+Total Steps: {total_steps}
+Average Score per Game: {total_score/game_count:.2f}
+Average Steps per Game: {total_steps/game_count:.2f}
+Parser LLM Usage: {parser_usage_count} times
+Parser Usage Rate: 100% (Always used for consistency)
+
+Efficiency Metrics
+=================
+Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}
+Steps per Game: {total_steps/game_count:.2f}
+"""
+    
+    # Append statistics to content
+    content += stats
+    
+    # Write updated content back to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+def format_raw_llm_response(raw_response, request_time, response_time, model, provider):
+    """Format a raw LLM response with metadata.
+    
+    Args:
+        raw_response: The raw response from the LLM
+        request_time: Time when the request was sent
+        response_time: Time when the response was received
+        model: The model used
+        provider: The provider used
+        
+    Returns:
+        Formatted response with metadata
+    """
+    return f"""Timestamp: {response_time}
+Request Time: {request_time}
+Response Time: {response_time}
+Model: {model}
+Provider: {provider}
+
+========== RAW RESPONSE ==========
+
+{raw_response}
+"""
+
+def format_parsed_llm_response(parsed_response, parser_request_time, parser_response_time, parser_model, parser_provider):
+    """Format a parsed LLM response with metadata.
+    
+    Args:
+        parsed_response: The parsed response from the second LLM
+        parser_request_time: Time when the parser request was sent
+        parser_response_time: Time when the parser response was received
+        parser_model: The parser model used
+        parser_provider: The parser provider used
+        
+    Returns:
+        Formatted response with metadata
+    """
+    return f"""Timestamp: {parser_response_time}
+Parser Request Time: {parser_request_time}
+Parser Response Time: {parser_response_time}
+Parser Model: {parser_model}
+Parser Provider: {parser_provider}
+
+========== PARSED RESPONSE ==========
+
+{parsed_response}
+"""
+
+def generate_game_summary(game_count, timestamp, score, steps, next_move, game_parser_usage, 
+                         snake_positions_length, last_collision_type, round_count):
+    """Generate a game summary text.
+    
+    Args:
+        game_count: Number of the current game
+        timestamp: Current timestamp
+        score: Game score
+        steps: Number of steps taken
+        next_move: Last direction moved
+        game_parser_usage: Number of times the parser was used in this game
+        snake_positions_length: Length of the snake
+        last_collision_type: Type of collision that ended the game
+        round_count: Number of rounds played
+        
+    Returns:
+        Formatted game summary text
+    """
+    return f"""Game {game_count} Summary:
+=========================================
+Timestamp: {timestamp}
+Score: {score}
+Steps: {steps}
+Last direction: {next_move}
+
+Performance Metrics:
+- Apples/Step: {score/(steps if steps > 0 else 1):.4f}
+- Parser LLM usage: {game_parser_usage} times (100% of rounds)
+- Final board size: {snake_positions_length} segments
+
+Game End Reason: {'Wall collision' if last_collision_type == 'wall' else 'Self collision' if last_collision_type == 'self' else 'Unknown'}
+
+Prompt/Response Stats:
+- Total prompts sent: {round_count}
+- Total LLM2 parser invocations: {game_parser_usage}
+=========================================
+""" 

@@ -9,9 +9,7 @@ A classic Snake game controlled by an LLM (Language Model).
 
 ## Installation
 
-1. Clone the repository
-
-2. Set up API keys in a `.env` file:
+Set up API keys in a `.env` file:
 
 ```
 HUNYUAN_API_KEY=<your_hunyuan_api_key_here>

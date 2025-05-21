@@ -12,107 +12,19 @@ from datetime import datetime
 from snake_game import SnakeGame
 from llm_client import LLMClient
 from llm_parser import LLMOutputParser
-from config import TIME_DELAY, TIME_TICK
+from config import TIME_DELAY, TIME_TICK, MOVE_PAUSE
 from colorama import Fore, init as init_colorama
+from text_utils import (
+    save_to_file, 
+    save_experiment_info, 
+    update_experiment_info, 
+    format_raw_llm_response, 
+    format_parsed_llm_response,
+    generate_game_summary
+)
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
-
-# Pause time between sequential moves (in seconds)
-MOVE_PAUSE = 1.0
-
-def save_to_file(content, directory, filename):
-    """Save content to a file.
-    
-    Args:
-        content: Content to save
-        directory: Directory to save to
-        filename: Name of the file
-        
-    Returns:
-        The full path to the saved file
-    """
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, filename)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    return os.path.abspath(file_path)
-
-def save_experiment_info(args, directory):
-    """Save experiment information to a file.
-    
-    Args:
-        args: Command line arguments
-        directory: Directory to save to
-        
-    Returns:
-        Path to the saved file
-    """
-    # Create content with experiment information
-    content = f"""Experiment Information
-====================
-Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-First LLM (Move Generation):
-- Provider: {args.provider}
-- Model: {args.model if args.model else 'Default model for provider'}
-
-Second LLM (Response Parsing):
-- Provider: {args.parser_provider if args.parser_provider else args.provider}
-- Model: {args.parser_model if args.parser_model else 'Default model for parser provider'}
-
-Max Games: {args.max_games}
-Move Pause: {args.move_pause} seconds
-
-Other Information:
-- Time Delay: {TIME_DELAY}
-- Time Tick: {TIME_TICK}
-"""
-    
-    # Save to file
-    return save_to_file(content, directory, "info.txt")
-
-def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0):
-    """Update the experiment information file with game statistics.
-    
-    Args:
-        directory: Directory containing the info.txt file
-        game_count: Total number of games played
-        total_score: Total score across all games
-        total_steps: Total steps taken across all games
-        parser_usage_count: Number of times the parser LLM was used
-    """
-    file_path = os.path.join(directory, "info.txt")
-    
-    # Read existing content
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Add statistics section
-    stats = f"""
-
-Game Statistics
-==============
-Total Games Played: {game_count}
-Total Score: {total_score}
-Total Steps: {total_steps}
-Average Score per Game: {total_score/game_count:.2f}
-Average Steps per Game: {total_steps/game_count:.2f}
-Parser LLM Usage: {parser_usage_count} times
-Parser Usage Rate: 100% (Always used for consistency)
-
-Efficiency Metrics
-=================
-Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}
-Steps per Game: {total_steps/game_count:.2f}
-"""
-    
-    # Append statistics to content
-    content += stats
-    
-    # Write updated content back to file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -252,17 +164,15 @@ def main():
                         raw_llm_response = llm_client.generate_response(prompt, **kwargs)
                         response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
-                        # Add timestamp metadata to response
-                        timestamped_response = f"""Timestamp: {response_time}
-Request Time: {request_time}
-Response Time: {response_time}
-Model: {args.model if args.model else 'Default model for ' + args.provider}
-Provider: {args.provider}
-
-========== RAW RESPONSE ==========
-
-{raw_llm_response}
-"""
+                        # Format the raw response with timestamp metadata
+                        model_name = args.model if args.model else f'Default model for {args.provider}'
+                        timestamped_response = format_raw_llm_response(
+                            raw_llm_response, 
+                            request_time, 
+                            response_time, 
+                            model_name, 
+                            args.provider
+                        )
                         
                         # Log the raw response
                         raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
@@ -280,17 +190,16 @@ Provider: {args.provider}
                         save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
                         print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
                         
-                        # Add timestamp to parsed response
-                        timestamped_parsed_response = f"""Timestamp: {parser_response_time}
-Parser Request Time: {parser_request_time}
-Parser Response Time: {parser_response_time}
-Parser Model: {args.parser_model if args.parser_model else 'Default model for ' + parser_provider}
-Parser Provider: {parser_provider}
-
-========== PARSED RESPONSE ==========
-
-{parsed_response}
-"""
+                        # Format the parsed response with timestamp metadata
+                        parser_model_name = args.parser_model if args.parser_model else f'Default model for {parser_provider}'
+                        timestamped_parsed_response = format_parsed_llm_response(
+                            parsed_response, 
+                            parser_request_time, 
+                            parser_response_time, 
+                            parser_model_name, 
+                            parser_provider
+                        )
+                        
                         # Log the parsed response
                         response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
                         save_to_file(timestamped_parsed_response, responses_dir, response_filename)
@@ -354,25 +263,17 @@ Parser Provider: {parser_provider}
                         
                         # Save detailed game summary
                         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        summary = f"""Game {game_count} Summary:
-=========================================
-Timestamp: {now}
-Score: {game.score}
-Steps: {game.steps}
-Last direction: {next_move}
-
-Performance Metrics:
-- Apples/Step: {game.score/(game.steps if game.steps > 0 else 1):.4f}
-- Parser LLM usage: {game_parser_usage} times (100% of rounds)
-- Final board size: {len(game.snake_positions)} segments
-
-Game End Reason: {'Wall collision' if game.last_collision_type == 'wall' else 'Self collision' if game.last_collision_type == 'self' else 'Unknown'}
-
-Prompt/Response Stats:
-- Total prompts sent: {round_count}
-- Total LLM2 parser invocations: {game_parser_usage}
-=========================================
-"""
+                        summary = generate_game_summary(
+                            game_count,
+                            now,
+                            game.score,
+                            game.steps,
+                            next_move,
+                            game_parser_usage,
+                            len(game.snake_positions),
+                            game.last_collision_type,
+                            round_count
+                        )
                         save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
                         
                         # Reset round count for next game

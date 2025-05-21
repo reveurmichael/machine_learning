@@ -19,6 +19,8 @@ APP_WIDTH = 800
 APP_HEIGHT = 600
 TIME_DELAY = 40
 TIME_TICK = 280
+# Pause time between sequential moves (in seconds)
+MOVE_PAUSE = 1.0
 
 GRID_SIZE = 10
 

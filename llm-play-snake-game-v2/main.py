@@ -11,14 +11,11 @@ import os
 from datetime import datetime
 from snake_game import SnakeGame
 from llm_client import LLMClient
-from config import TIME_DELAY, TIME_TICK
+from config import TIME_DELAY, TIME_TICK, MOVE_PAUSE
 from colorama import Fore, init as init_colorama
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
-
-# Pause time between sequential moves (in seconds)
-MOVE_PAUSE = 1.0
 
 def save_to_file(content, directory, filename):
     """Save content to a file.

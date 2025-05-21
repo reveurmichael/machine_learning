@@ -9,6 +9,8 @@ import json
 import pygame
 from gui import DrawWindow
 from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
+# Import JSON utility functions
+from json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
 
 class SnakeGame:
     """Main class for the Snake game logic and rendering."""
@@ -434,25 +436,19 @@ class SnakeGame:
         # Print raw response snippet for debugging
         print(f"Parsing LLM response: '{response[:50]}...'")
         
-        # Method 1: Try to extract from JSON code block
-        json_data = self._extract_json_from_code_block(response)
+        # Try to extract the JSON from the response using json_utils functions
+        json_data = extract_valid_json(response)
         
-        # Method 2: Try to extract JSON from regular text if code block fails
-        if not json_data or "moves" not in json_data or not json_data["moves"]:
-            json_data = self._extract_json_from_text(response)
-            
-        # Extract moves from JSON if found
-        if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
+        # Validate JSON format and extract moves
+        if json_data and validate_json_format(json_data):
             valid_moves = [move.upper() for move in json_data["moves"] 
                          if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
             if valid_moves:
                 self.planned_moves = valid_moves
-                print(f"Found {len(self.planned_moves)} moves in JSON: {self.planned_moves}")
-        
-
-        # Method 3: Try finding arrays if other methods failed
+                print(f"Found {len(self.planned_moves)} valid moves in JSON: {self.planned_moves}")
+        # Try finding arrays if JSON parsing failed or validation failed
         if not self.planned_moves:
-            array_moves = self._extract_moves_from_arrays(response)
+            array_moves = extract_moves_from_arrays(response)
             if array_moves:
                 self.planned_moves = array_moves
                 print(f"Found {len(self.planned_moves)} moves in array format: {self.planned_moves}")
@@ -500,132 +496,6 @@ class SnakeGame:
     #-----------------------
     # LLM Response Parsing Utilities
     #-----------------------
-    
-    def _extract_json_from_code_block(self, response):
-        """Extract JSON data from a code block in the response.
-        
-        Args:
-            response: LLM response text
-            
-        Returns:
-            Extracted JSON data as a dictionary, or None if not found/invalid
-        """
-        try:
-            # Look for JSON code block which is common in LLM responses - Use a more robust pattern
-            json_block_match = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', response, re.DOTALL)
-            if not json_block_match:
-                return None
-                
-            json_str = json_block_match.group(1)
-            # Clean the JSON string
-            json_str = json_str.replace("'", '"')
-            json_str = re.sub(r'(\{|\,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', json_str)
-            # Remove any trailing commas before closing brackets or braces
-            json_str = re.sub(r',\s*(\]|\})', r'\1', json_str)
-            
-            data = json.loads(json_str)
-            return data
-        except Exception as e:
-            print(f"Failed to parse JSON code block: {e}")
-            # Try direct JSON parsing as a fallback
-            try:
-                # Try to parse the entire response as JSON directly
-                data = json.loads(response)
-                if isinstance(data, dict) and "moves" in data:
-                    return data
-            except:
-                pass
-            return None
-    
-    def _extract_json_from_text(self, response):
-        """Extract JSON data directly from text without code block.
-        
-        Args:
-            response: LLM response text
-            
-        Returns:
-            Extracted JSON data as a dictionary, or None if not found/invalid
-        """
-        try:
-            # First try direct JSON parsing (for clean JSON responses)
-            try:
-                data = json.loads(response)
-                if isinstance(data, dict) and "moves" in data:
-                    return data
-            except:
-                pass
-                
-            # Try extracting JSON object outside of code blocks with a more robust pattern
-            json_match = re.search(r'\{[\s\S]*?"moves"\s*:\s*\[[\s\S]*?\][\s\S]*?\}', response, re.DOTALL)
-            if not json_match:
-                return None
-                
-            json_str = json_match.group(0)
-            # Clean the JSON string
-            json_str = json_str.replace("'", '"')
-            json_str = re.sub(r'(\{|\,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'\1"\2":', json_str)
-            # Remove any trailing commas before closing brackets or braces
-            json_str = re.sub(r',\s*(\]|\})', r'\1', json_str)
-            
-            # Now try to parse the cleaned JSON
-            return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            print(f"Failed to parse JSON: {e}, trying simplified parsing")
-            
-            # Try to extract just the moves array
-            try:
-                moves_array_match = re.search(r'"moves"\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
-                if not moves_array_match:
-                    return None
-                    
-                moves_array = moves_array_match.group(1)
-                # Extract quoted strings
-                move_matches = re.findall(r'"([^"]+)"', moves_array)
-                valid_moves = [move.upper() for move in move_matches 
-                              if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-                if valid_moves:
-                    return {"moves": valid_moves}
-            except Exception:
-                pass
-                
-            return None
-        except Exception as e:
-            print(f"Error in JSON parsing: {e}")
-            return None
-    
-    
-    def _extract_moves_from_arrays(self, response):
-        """Extract moves from array notation in text.
-        
-        Args:
-            response: LLM response text
-            
-        Returns:
-            List of extracted moves, or empty list if none found
-        """
-        moves = []
-        
-        # First try a more comprehensive approach to find arrays of direction strings
-        array_match = re.search(r'\[\s*("(?:UP|DOWN|LEFT|RIGHT)"(?:\s*,\s*"(?:UP|DOWN|LEFT|RIGHT)")*)\s*\]', 
-                              response, re.IGNORECASE | re.DOTALL)
-        
-        if array_match:
-            # Extract all quoted direction strings from the found array
-            directions = re.findall(r'"([^"]+)"', array_match.group(1))
-            if directions:
-                moves = [move.upper() for move in directions 
-                       if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-                return moves
-        
-        # Fallback: Look for arrays of directions in quotes (original method)
-        move_arrays = re.findall(r'\[\s*"([^"]+)"\s*(?:,\s*"([^"]+)"\s*)*\]', response)
-        if move_arrays:
-            for move_group in move_arrays:
-                for move in move_group:
-                    if move and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                        moves.append(move.upper())
-                        
-        return moves
     
     def _filter_invalid_reversals(self, moves):
         """Filter out invalid reversal moves from a sequence.

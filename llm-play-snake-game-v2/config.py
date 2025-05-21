@@ -112,7 +112,7 @@ IMPORTANT:
 
 
 AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
-  A JSON object exactly in this form:
+  A JSON object exactly exactly exactly exactlyin this form:
      {
        "moves": [ "MOVE1", "MOVE2", … ],
        "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
@@ -121,5 +121,9 @@ AGAIN, VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT F
      – If no safe path of ≤30 moves exists, respond exactly with:
        { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
-Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON.
+Now, analyze the provided state and output your final answer in JSON format. Never return math notation, LaTeX, or boxed formulas. Only return valid JSON, exactly exactly exactly exactly in the form of the JSON object:
+     {
+       "moves": [ "MOVE1", "MOVE2", … ],
+       "reasoning": "…" (Briefly (1–2 sentences) explain your path-planning rationale.)
+     }
 """

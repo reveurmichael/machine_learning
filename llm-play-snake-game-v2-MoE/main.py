@@ -99,7 +99,7 @@ Total Steps: {total_steps}
 Average Score per Game: {total_score/game_count:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
 Parser LLM Usage: {parser_usage_count} times
-Parser Usage Rate: {(parser_usage_count/(total_steps if total_steps > 0 else 1))*100:.2f}%
+Parser Usage Rate: 100% (Always used for consistency)
 
 Efficiency Metrics
 =================
@@ -274,15 +274,14 @@ Provider: {args.provider}
                         parsed_response, parser_prompt = parser_client.parse_and_format(raw_llm_response)
                         parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
-                        # Log the parser prompt if it was used
-                        if parser_prompt:
-                            parser_usage_count += 1
-                            parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
-                            save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
-                            print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
-                            
-                            # Add timestamp to parsed response
-                            timestamped_parsed_response = f"""Timestamp: {parser_response_time}
+                        # Always log the parser prompt and increment usage count
+                        parser_usage_count += 1
+                        parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
+                        save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
+                        print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
+                        
+                        # Add timestamp to parsed response
+                        timestamped_parsed_response = f"""Timestamp: {parser_response_time}
 Parser Request Time: {parser_request_time}
 Parser Response Time: {parser_response_time}
 Parser Model: {args.parser_model if args.parser_model else 'Default model for ' + parser_provider}
@@ -292,13 +291,9 @@ Parser Provider: {parser_provider}
 
 {parsed_response}
 """
-                            # Log the parsed response
-                            response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
-                            save_to_file(timestamped_parsed_response, responses_dir, response_filename)
-                        else:
-                            # Log the parsed response (which was just the properly formatted original)
-                            response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
-                            save_to_file(parsed_response, responses_dir, response_filename)
+                        # Log the parsed response
+                        response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
+                        save_to_file(timestamped_parsed_response, responses_dir, response_filename)
                         
                         # Parse and get the first move from the sequence
                         next_move = game.parse_llm_response(parsed_response)
@@ -368,8 +363,7 @@ Last direction: {next_move}
 
 Performance Metrics:
 - Apples/Step: {game.score/(game.steps if game.steps > 0 else 1):.4f}
-- Parser LLM usage: {game_parser_usage} times
-- Parser usage rate: {(game_parser_usage/(game.steps if game.steps > 0 else 1))*100:.2f}%
+- Parser LLM usage: {game_parser_usage} times (100% of rounds)
 - Final board size: {len(game.snake_positions)} segments
 
 Game End Reason: {'Wall collision' if game.last_collision_type == 'wall' else 'Self collision' if game.last_collision_type == 'self' else 'Unknown'}

@@ -10,6 +10,8 @@ import pygame
 from gui import DrawWindow
 from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
 from json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
+from text_utils import process_response_for_display
+from snake_utils import filter_invalid_reversals
 
 class SnakeGame:
     """Main class for the Snake game logic and rendering."""
@@ -431,7 +433,7 @@ class SnakeGame:
         self.last_llm_response = response
         
         # Process the response for display
-        self._process_response_for_display(response)
+        self.processed_response = process_response_for_display(response)
         
         # Clear previous planned moves
         self.planned_moves = []
@@ -467,7 +469,8 @@ class SnakeGame:
             print("No valid directions found. Not moving.")
         else:
             # Filter out invalid reversal moves if we have moves
-            self.planned_moves = self._filter_invalid_reversals(self.planned_moves)
+            current_direction = self._get_current_direction_key()
+            self.planned_moves = filter_invalid_reversals(self.planned_moves, current_direction)
         
         # Get the next move from the sequence (or None if empty)
         if self.planned_moves:
@@ -500,63 +503,4 @@ class SnakeGame:
         Returns:
             Processed LLM response text
         """
-        return self.processed_response
-    
-    #-----------------------
-    # LLM Response Parsing Utilities
-    #-----------------------
-    
-    def _filter_invalid_reversals(self, moves):
-        """Filter out invalid reversal moves from a sequence.
-        
-        Args:
-            moves: List of move directions
-            
-        Returns:
-            Filtered list of moves with invalid reversals removed
-        """
-        if not moves or len(moves) <= 1:
-            return moves
-            
-        filtered_moves = []
-        last_direction = self._get_current_direction_key()
-        
-        for move in moves:
-            # Skip if this move would be a reversal of the last direction
-            if (last_direction == "UP" and move == "DOWN") or \
-               (last_direction == "DOWN" and move == "UP") or \
-               (last_direction == "LEFT" and move == "RIGHT") or \
-               (last_direction == "RIGHT" and move == "LEFT"):
-                print(f"Filtering out invalid reversal move: {move} after {last_direction}")
-            else:
-                filtered_moves.append(move)
-                last_direction = move
-        
-        # If all moves were filtered out, return empty list
-        if not filtered_moves:
-            print("All moves were invalid reversals. Not moving.")
-            
-        return filtered_moves
-    
-    def _process_response_for_display(self, response):
-        """Process the LLM response for display purposes.
-        
-        Args:
-            response: Raw LLM response text
-            
-        Returns:
-            Processed response text ready for display
-        """
-        try:
-            processed = response
-                
-            # Limit to a reasonable length for display
-            if len(processed) > 1500:
-                processed = processed[:1500] + "...\n(response truncated)"
-                
-            self.processed_response = processed
-            return self.processed_response
-        except Exception as e:
-            print(f"Error processing response for display: {e}")
-            self.processed_response = "Error processing response"
-            return self.processed_response 
+        return self.processed_response 

@@ -31,14 +31,12 @@ class LLMOutputParser:
               - formatted_response: The properly formatted JSON response
               - parser_prompt: The prompt that was sent to the parser LLM
         """
-        # First check if the response already contains valid JSON
+        # Check if the response already contains valid JSON (for logging purposes only)
         json_data = extract_valid_json(llm_response)
         if json_data and validate_json_format(json_data):
-            print("First LLM response already contains valid JSON, no need for second LLM")
-            # We didn't use a parser prompt, so return None for that
-            return json.dumps(json_data), None
-            
-        # If we can't extract valid JSON, use the second LLM to fix it
+            print("First LLM response already contains valid JSON, but will still use second LLM for consistency")
+        
+        # Always use the second LLM to ensure consistent formatting
         parser_prompt = self._create_parser_prompt(llm_response)
         
         # Get response from the second LLM
@@ -48,7 +46,7 @@ class LLMOutputParser:
         # Extract JSON from the second LLM's response
         json_data = extract_valid_json(formatted_response)
         
-        # If we still don't have valid JSON, create a fallback response
+        # If we don't have valid JSON, create a fallback response
         if not json_data or not validate_json_format(json_data):
             print("Warning: Second LLM failed to generate valid JSON, using fallback")
             return json.dumps({

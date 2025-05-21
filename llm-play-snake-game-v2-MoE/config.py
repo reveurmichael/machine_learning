@@ -133,6 +133,11 @@ TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE
 
 END OF RESPONSE_1.
 
+WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
 OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
 {
   "moves": ["MOVE1", "MOVE2", ...],
@@ -161,6 +166,10 @@ RULES:
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
 - "reasoning" must be a brief explanation for the chosen path
 - If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Second, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are less important than the texts torwards the end.
 
 Return ONLY the JSON object without any additional text.
 """

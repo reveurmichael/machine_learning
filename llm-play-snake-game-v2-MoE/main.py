@@ -11,6 +11,7 @@ import os
 from datetime import datetime
 from snake_game import SnakeGame
 from llm_client import LLMClient
+from llm_parser import LLMOutputParser
 from config import TIME_DELAY, TIME_TICK
 from colorama import Fore, init as init_colorama
 
@@ -49,8 +50,14 @@ def save_experiment_info(args, directory):
 ====================
 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-LLM Provider: {args.provider}
-Model: {args.model if args.model else 'Default model for provider'}
+First LLM (Move Generation):
+- Provider: {args.provider}
+- Model: {args.model if args.model else 'Default model for provider'}
+
+Second LLM (Response Parsing):
+- Provider: {args.parser_provider if args.parser_provider else args.provider}
+- Model: {args.parser_model if args.parser_model else 'Default model for parser provider'}
+
 Max Games: {args.max_games}
 Move Pause: {args.move_pause} seconds
 
@@ -103,6 +110,10 @@ def parse_arguments():
                       help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
                       help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
+    parser.add_argument('--parser-provider', type=str, default=None,
+                      help='LLM provider to use for parsing (if not specified, uses the same as --provider)')
+    parser.add_argument('--parser-model', type=str, default=None,
+                      help='Model name to use for parsing (if not specified, uses the default for the parser provider)')
     parser.add_argument('--max-games', type=int, default=6,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
@@ -123,9 +134,20 @@ def main():
         # Set up the game
         game = SnakeGame()
         
-        # Set up the LLM client
-        llm_client = LLMClient(provider=args.provider)
-        print(Fore.GREEN + f"✅ Using LLM provider: {args.provider}")
+        # Set up the main LLM client for generating moves
+        llm_client = LLMClient(provider=args.provider, model=args.model)
+        print(Fore.GREEN + f"✅ Using LLM provider for moves: {args.provider}")
+        if args.model:
+            print(Fore.GREEN + f"✅ Using model for moves: {args.model}")
+        
+        # Set up the parser LLM client for formatting the response
+        parser_provider = args.parser_provider if args.parser_provider else args.provider
+        parser_model = args.parser_model
+        parser_client = LLMOutputParser(provider=parser_provider, model=parser_model)
+        print(Fore.GREEN + f"✅ Using LLM provider for parsing: {parser_provider}")
+        if parser_model:
+            print(Fore.GREEN + f"✅ Using model for parsing: {parser_model}")
+        
         print(Fore.GREEN + f"⏱️ Pause between moves: {args.move_pause} seconds")
         
         # Set up logging directories
@@ -181,7 +203,7 @@ def main():
                         prompt_filename = f"game{game_count+1}_round{round_count+1}_prompt.txt"
                         save_to_file(prompt, prompts_dir, prompt_filename)
                         
-                        # Get next move from LLM, passing model name if specified and provider is ollama
+                        # Get next move from first LLM
                         kwargs = {}
                         if args.model:
                             kwargs['model'] = args.model
@@ -189,14 +211,23 @@ def main():
                         else:
                             print(Fore.CYAN + f"Using default model for provider: {args.provider}")
                             
-                        llm_response = llm_client.generate_response(prompt, **kwargs)
+                        # Get raw response from first LLM
+                        raw_llm_response = llm_client.generate_response(prompt, **kwargs)
                         
-                        # Log the response
-                        response_filename = f"game{game_count+1}_round{round_count+1}_response.txt"
-                        save_to_file(llm_response, responses_dir, response_filename)
+                        # Log the raw response
+                        raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
+                        save_to_file(raw_llm_response, responses_dir, raw_response_filename)
+                        
+                        # Use second LLM to parse and format the response
+                        print(Fore.CYAN + f"Parsing response with second LLM")
+                        parsed_response = parser_client.parse_and_format(raw_llm_response, prompt)
+                        
+                        # Log the parsed response
+                        response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
+                        save_to_file(parsed_response, responses_dir, response_filename)
                         
                         # Parse and get the first move from the sequence
-                        next_move = game.parse_llm_response(llm_response)
+                        next_move = game.parse_llm_response(parsed_response)
                         print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {game_count+1}, Round {round_count+1})")
                         
                         # We now have a new plan, so don't request another one until we need it

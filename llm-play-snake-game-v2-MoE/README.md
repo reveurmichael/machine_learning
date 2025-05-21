@@ -6,6 +6,25 @@ A classic Snake game controlled by an LLM (Language Model).
 
 - LLM-controlled snake that learns to play the game through text representation
 - Multi-step planning: LLM provides a sequence of moves to reduce API calls
+- Two-LLM approach:
+  - First LLM generates moves based on game state
+  - Second LLM ensures responses are properly formatted as JSON
+
+## How the Two-LLM System Works
+
+This project implements a Mixture-of-Experts (MoE) approach using two different LLMs:
+
+1. **Primary LLM (Move Generation)**: Receives the game state and generates a strategic plan for the snake to reach the apple. This LLM focuses on the game logic and strategy.
+
+2. **Secondary LLM (Response Parsing)**: Takes the output from the primary LLM and ensures it conforms to the required JSON format. This improves reliability by handling cases where the primary LLM's output is correct logically but doesn't follow the exact format requirements.
+
+**Advantages of this approach:**
+- Improved reliability: Even if the primary LLM doesn't follow the exact JSON format, the game can still use its strategic insights
+- Separation of concerns: Each LLM can focus on a specific task (strategy vs. formatting)
+- Better error handling: The system can recover from most formatting errors
+- Flexibility: You can use different models for each task (e.g., a more powerful model for strategy and a smaller, faster model for parsing)
+
+The system first tries to directly extract valid JSON from the primary LLM's response, only using the secondary LLM when needed, optimizing for both performance and API costs.
 
 ## Installation
 
@@ -29,11 +48,13 @@ python main.py
 ```
 
 Options:
-- `--provider hunyuan`, `--provider ollama`, `--provider deepseek`, or `--provider mistral` - Choose the LLM provider
-- `--model <model_name>` - Specify which model to use:
+- `--provider hunyuan`, `--provider ollama`, `--provider deepseek`, or `--provider mistral` - Choose the main LLM provider for generating moves
+- `--model <model_name>` - Specify which model to use for the main LLM:
   - For Ollama: any available model 
   - For DeepSeek: `deepseek-chat` (default) or `deepseek-reasoner`
   - For Mistral: `mistral-medium-latest` (default) or `mistral-large-latest`
+- `--parser-provider <provider>` - Choose the LLM provider for the parser (defaults to same as main provider)
+- `--parser-model <model_name>` - Specify which model to use for the parser
 - `--max-games 10` - Set maximum number of games to play
 - `--move-pause 0.5` - Set pause time between moves in seconds (default: 1.0)
 
@@ -65,16 +86,19 @@ python main.py --provider mistral --model mistral-medium-latest
 
 # Using large model 
 python main.py --provider mistral --model mistral-large-latest
+
+# Using different providers for main LLM and parser
+python main.py --provider deepseek --model deepseek-reasoner --parser-provider mistral --parser-model mistral-medium-latest
 ```
 
 ## Project Structure
 
 - `main.py` - Main entry point and game loop
 - `snake_game.py` - Core game logic
-- `llm_client.py` - LLM API communication
+- `llm_client.py` - LLM API communication for interacting with different providers
+- `llm_parser.py` - Secondary LLM for parsing and formatting responses
 - `gui.py` - Visual display interface
 - `config.py` - Game settings and prompt templates
-
 
 ## How to improve the game performance
 

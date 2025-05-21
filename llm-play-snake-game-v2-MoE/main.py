@@ -120,7 +120,7 @@ def parse_arguments():
     parser.add_argument('--provider', type=str, default='hunyuan',
                       help='LLM provider to use (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Model name to use. For Ollama, check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
+                      help='Model name to use for first LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
     parser.add_argument('--parser-provider', type=str, default=None,
                       help='LLM provider to use for parsing (if not specified, uses the same as --provider)')
     parser.add_argument('--parser-model', type=str, default=None,
@@ -130,14 +130,36 @@ def parse_arguments():
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
                       help='Pause between sequential moves in seconds (default: 1.0)')
     
-    return parser.parse_args()
+    # Parse the arguments
+    args = parser.parse_args()
+    
+    # Validate the command-line arguments to detect duplicate or invalid arguments
+    raw_args = ' '.join(sys.argv[1:])
+    
+    # Check for duplicate --model arguments (which would silently overwrite each other)
+    model_count = raw_args.count('--model')
+    if model_count > 1:
+        raise ValueError(f"Error: '--model' argument appears {model_count} times. Use '--model' for the first LLM and '--parser-model' for the parser LLM.")
+    
+    # Check for duplicate --provider arguments
+    provider_count = raw_args.count('--provider')
+    if provider_count > 1:
+        raise ValueError(f"Error: '--provider' argument appears {provider_count} times. Use '--provider' for the first LLM and '--parser-provider' for the parser LLM.")
+    
+    return args
 
 def main():
     """Initialize and run the LLM Snake game."""
-    # Parse command line arguments
-    args = parse_arguments()
-    
     try:
+        # Parse command line arguments
+        try:
+            args = parse_arguments()
+        except ValueError as e:
+            # Handle command line argument errors cleanly
+            print(Fore.RED + f"Command-line error: {e}")
+            print(Fore.YELLOW + "For help, use: python main.py --help")
+            sys.exit(1)
+        
         # Initialize pygame
         pygame.init()
         pygame.font.init()

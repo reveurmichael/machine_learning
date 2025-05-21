@@ -63,6 +63,11 @@ Options:
 - `--max-games 10` - Set maximum number of games to play
 - `--move-pause 0.5` - Set pause time between moves in seconds (default: 1.0)
 
+> **Important:** Always use `--model` for the primary LLM and `--parser-model` for the parser LLM. Using `--model` twice will cause an error. For example, use:
+> ```bash
+> python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model mistral:7b
+> ```
+
 ### Using DeepSeek Models
 
 DeepSeek offers two models:

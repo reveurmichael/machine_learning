@@ -178,10 +178,20 @@ def main():
                         raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
                         save_to_file(timestamped_response, responses_dir, raw_response_filename)
                         
+                        # Get the current head and apple positions for the parser
+                        head_x, head_y = game.head_position
+                        head_pos = f"({head_x}, {head_y})"
+                        apple_x, apple_y = game.apple_position
+                        apple_pos = f"({apple_x}, {apple_y})"
+                        
                         # Use second LLM to parse and format the response
                         print(Fore.CYAN + f"Parsing response with second LLM")
                         parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        parsed_response, parser_prompt = parser_client.parse_and_format(raw_llm_response)
+                        parsed_response, parser_prompt = parser_client.parse_and_format(
+                            raw_llm_response, 
+                            head_pos=head_pos, 
+                            apple_pos=apple_pos
+                        )
                         parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         
                         # Always log the parser prompt and increment usage count

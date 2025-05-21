@@ -20,11 +20,13 @@ class LLMOutputParser:
         """
         self.llm_client = LLMClient(provider=provider, model=model)
         
-    def parse_and_format(self, llm_response):
+    def parse_and_format(self, llm_response, head_pos=None, apple_pos=None):
         """Parse the output from the first LLM and convert it to the required JSON format.
         
         Args:
             llm_response: The raw response from the first LLM
+            head_pos: Optional head position string in format "(x, y)"
+            apple_pos: Optional apple position string in format "(x, y)"
             
         Returns:
             A tuple containing (formatted_response, parser_prompt) where:
@@ -37,7 +39,7 @@ class LLMOutputParser:
             print("First LLM response already contains valid JSON, but will still use second LLM for consistency")
         
         # Always use the second LLM to ensure consistent formatting
-        parser_prompt = self._create_parser_prompt(llm_response)
+        parser_prompt = self._create_parser_prompt(llm_response, head_pos, apple_pos)
         
         # Get response from the second LLM
         print("Using second LLM to parse and format response")
@@ -56,15 +58,24 @@ class LLMOutputParser:
             
         return json.dumps(json_data), parser_prompt
 
-    def _create_parser_prompt(self, llm_response):
+    def _create_parser_prompt(self, llm_response, head_pos=None, apple_pos=None):
         """Create a prompt for the second LLM to parse the output of the first LLM.
         
         Args:
             llm_response: The raw response from the first LLM
+            head_pos: Optional head position string in format "(x, y)"
+            apple_pos: Optional apple position string in format "(x, y)"
             
         Returns:
             Prompt for the second LLM
         """
         # Use string replacement like in snake_game.py instead of string formatting
         parser_prompt = PARSER_PROMPT_TEMPLATE.replace("TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE", llm_response)
+        
+        # Replace head and apple position placeholders if provided
+        if head_pos:
+            parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
+        if apple_pos:
+            parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
+            
         return parser_prompt 

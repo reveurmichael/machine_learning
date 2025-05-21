@@ -137,6 +137,23 @@ OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
   "reasoning": "brief explanation"
 }
 
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the head now at TEXT_TO_BE_REPLACED_HEAD_POS to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
+
 RULES:
 - Text at the beginning of RESPONSE_1 is less important than the text at the end.
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"

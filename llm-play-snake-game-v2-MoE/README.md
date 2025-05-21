@@ -1,7 +1,23 @@
 # How to play the game
 
 ```
+python main.py --provider ollama --model deepseek-r1:7b --parser-provider ollama --parser-model llama3.1:8b
+
+
+python main.py --provider ollama --model deepseek-r1:7b --parser-provider ollama --parser-model gemma2:9b
+
+
 python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model llama3.1:8b
+
+
+python main.py --provider ollama --model deepseek-r1:14b --parser-provider ollama --parser-model gemma2:9b
+
+
+python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model llama3.1:8b
+
+
+python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model gemma2:9b
+
 ```
 
 ## Installation

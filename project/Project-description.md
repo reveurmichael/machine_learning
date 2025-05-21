@@ -83,7 +83,7 @@ Also, it's always good to double check your final results with
 - video downloaded by yt-dlp
 - VLC playing the video with srt file loaded
 
-It's a very good idea to get mistralai/deepseek/huanyuan involved, at some point of the task, provided that you don't go bankrupt with the cost.
+It's a very good idea to get mistralai/deepseek/hunyuan involved, at some point of the task, provided that you don't go bankrupt with the cost.
 
 
 I am a research guy so those ideas are quite research-oriented.

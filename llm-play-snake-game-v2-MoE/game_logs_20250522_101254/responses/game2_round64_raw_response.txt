@@ -1,0 +1,9 @@
+Timestamp: 2025-05-22 10:14:23
+Request Time: 2025-05-22 10:14:23
+Response Time: 2025-05-22 10:14:23
+Model: deepseek-r1:32b
+Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: No response field in JSON

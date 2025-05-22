@@ -1,0 +1,9 @@
+Timestamp: 2025-05-22 08:54:28
+Secondary LLM Request Time: 2025-05-22 08:54:25
+Secondary LLM Response Time: 2025-05-22 08:54:28
+Secondary LLM Model: mistral:7b
+Secondary LLM Provider: ollama
+
+========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
+
+{"moves": [], "reasoning": "ERROR: Could not generate valid moves from LLM response"}

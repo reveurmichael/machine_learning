@@ -1,0 +1,535 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, I need to solve this classic Snake game problem where my snake is at (4,7) facing RIGHT and needs to reach the apple at (4,0). Let's break down the steps.
+
+First, understanding the movement rules. The snake can't reverse direction unless it's NONE. So from RIGHT, next move can only be RIGHT again or any other except LEFT. Also, each move updates the snake: head moves in the current direction, body follows, and tail only stays if an apple is eaten.
+
+The snake starts with head at (4,7) and body at [(3,6), (3,7)]. So its initial position looks like:
+- Head: (4,7)
+- Body: [ (3,7), (3,6) ]
+So the tail will be removed unless it eats the apple.
+
+The apple is at (4,0). To get there from (4,7), since x is same, I need to move LEFT 7 times. But direction can't reverse immediately if not NONE. So first move must be RIGHT or something else but then adjust accordingly.
+
+Wait, initial direction is RIGHT. So the next move cannot be LEFT because that's a reversal. Hmm, so starting with RIGHT would make it impossible to turn around quickly, which might block the path towards the apple at (4,0) since y has to decrease.
+
+Alternatively, maybe start with a different direction but since current direction is RIGHT, we can't choose NONE first? Wait, no: the initial move from RIGHT cannot reverse immediately. So after moving RIGHT once, next step can be any except LEFT. But the snake needs to maneuver towards (4,0) which is 7 steps up in y-direction.
+
+Wait, starting at y=7 and need to reach y=0, so I have to decrease y by 7 units. Since each move UP decreases y by 1. So maybe initial moves should be UP as much as possible.
+
+But the snake's body is at (3,6) and (3,7), so head can't go beyond that without colliding. Wait, when moving UP from (4,7): new position would be (4,8). Since y=8 is within bounds. Then check if next step is allowed.
+
+Wait no: the initial move right after RIGHT? Or maybe I should start with UP because it's towards decreasing y.
+
+Let me think again about possible moves:
+
+Current head at (4,7), direction RIGHT. So options for first move are RIGHT or NONE.
+
+If we choose NONE, snake doesn't move, which is allowed but not helpful. So the next move after NONE can be any direction except reversing immediately if needed.
+
+But since initial direction is RIGHT, and movement cannot reverse unless it's NONE. Wait: rule says "if going UP, cannot move DOWN next". So from RIGHT, we can only go LEFT or something else? Or wait, maybe I misread the rule: the snake cannot reverse direction on the first move if not NONE.
+
+Wait, Rule 3: Direction cannot reverse except when current is NONE. So for initial move after RIGHT, you can't move LEFT next because it's a reversal of direction.
+
+So from RIGHT, possible moves are UP, DOWN, or another RIGHT, but once moved RIGHT again, then next can be anything except LEFT if following the chain.
+
+But since we need to go from y=7 to y=0, that's 7 steps up. So each move UP would decrease y by 1, which is towards the apple.
+
+So let me think of a path:
+
+Start at (4,7), direction RIGHT.
+
+First move: maybe NONE? But then how do I reach the apple. Alternatively, first move can be RIGHT or any except LEFT if needed.
+
+Wait, but initial direction is RIGHT, so next after moving can't reverse to LEFT unless allowed. Maybe better to start by moving UP as much as possible towards the apple.
+
+But from (4,7), moving UP would go to (4,8). Then another UP to (4,9) which is beyond grid? No, because y must be <10. So (4,9) is still within bounds since it's 0<=y<10. Wait no: the coordinate system has y from 0 at bottom-left to 9 at top-right.
+
+So moving UP increases y by 1 each time. From (4,7), moving UP would be (4,8). Then again UP is (4,9). But then if we keep moving UP, next move could be UP again? No, because from direction RIGHT, after a move in another direction like UP or DOWN.
+
+Wait no: the current direction is RIGHT; movement can't reverse unless it's NONE. So first move after RIGHT cannot be LEFT immediately. But UP and DOWN are allowed as long as they don't cause reversal.
+
+Alternatively, maybe the snake should turn towards UP to decrease y.
+
+But wait, the head is at (4,7). Moving UP would take us further away from the apple in terms of x but closer in y? Wait no: moving RIGHT increases x. To get to (4,0), we need x same as current, so maybe better to move LEFT 7 times, but since direction can't reverse unless NONE.
+
+Wait, I'm getting confused. Let's outline steps:
+
+1. Initial position:
+   - Head at (4,7)
+   - Body parts: [(3,6), (3,7)]
+   Direction is RIGHT
+
+2. To reach apple at (4,0), need to decrease y by 7 units.
+
+3. Each UP move increases y by 1; each DOWN decreases y by 1.
+
+But from current position:
+
+- Moving UP would go to (4,8)
+- Then again UP: (4,9) [if allowed]
+Wait but grid is up to y=9 since it's less than 10. So moving UP twice more would reach (4,9), then another move could be UP or DOWN.
+
+But wait, we need to decrease y from 7 to 0, so maybe prefer DOWN moves? But the head can't go beyond grid boundaries.
+
+Wait: starting at (4,7). Direction is RIGHT. So first possible moves are RIGHT or NONE.
+
+If I choose RIGHT as first move:
+
+- Move RIGHT once: new position is (5,7)
+But this changes x to 5; but the apple is at (4,0), so perhaps not optimal.
+
+Alternatively, moving NONE: no movement, then next can be any direction except reversing. Hmm.
+
+Wait maybe a better approach: use BFS (breadth-first search) to find shortest path considering snake's body and movement constraints.
+
+But since it's complex, let me try to simulate possible moves step by step:
+
+Current position:
+Head: (4,7)
+Body: [(3,6), (3,7)]
+Direction: RIGHT
+Apple at (4,0)
+
+Step 1:
+
+Possible moves from RIGHT can be NONE, UP, DOWN.
+
+Let's consider each:
+
+a) Move NONE: no movement. Then next step can choose any direction except LEFT if previous was LEFT? Wait current move is NONE, so previous was RIGHT; so after moving NONE again, next move cannot be LEFT immediately?
+
+Wait rule says "the snake cannot reverse direction unless it is NONE." So I think that refers to consecutive moves being reverses.
+
+So from RIGHT, a subsequent move can't be LEFT. But if we choose NONE first, then the next move could be any except after another RIGHT or other non-reversing directions? Not entirely sure. Maybe better to avoid moving NONE unless necessary since it doesn't help us get closer.
+
+Alternatively:
+
+Step 1: Move UP
+
+After moving UP once from (4,7), new position is (4,8). Now direction remains RIGHT.
+
+Check for collision with body or walls.
+
+Head at (4,8): Is this colliding? The body is at [(3,6), (3,7)] and next segment would be at [new head], so no immediate collision. So now the snake's new body after moving is:
+
+[ Head: (4,8), Previous head: (4,7) ] + old body.
+
+Wait actually, when you move up, the head moves to (4,8). The body parts follow, each taking the position of the previous one.
+
+So from initial [3,6], [3,7], after moving UP:
+
+new body would be [(4,7), (3,6), (3,7)] but I think that's not correct. Wait, the snake is a chain: head at current position, then each link follows behind it in the same direction.
+
+Wait perhaps my initial representation is incorrect. Let me model the snake as a list of segments where each segment is the previous one. So when moving forward, each segment shifts to the next position, and new head moves accordingly.
+
+But maybe that's complicating things.
+
+Alternatively: After moving UP once:
+
+Head is (4,8). The body parts are [(3,7), (3,6)], because each part follows behind.
+
+Wait no, original body was [ (3,6), (3,7) ]. So the first segment after head would be where the previous head was. So when moving UP from (4,7):
+
+new head is (4,8). Then each next segment takes the position of the previous one: so new segments are [(4,8)] + [old head] at (3,7), then old body.
+
+Wait that seems off. Maybe I need to think differently.
+
+Each time the snake moves forward, all segments follow their previous positions. So if you have a snake with head at H and body parts B1, B2,...Bn.
+
+Moving in direction D:
+
+- New head position is computed based on current head's direction.
+- The new body consists of:
+   - Previous head becomes the next segment after new head
+   - Each subsequent body part follows their previous positions.
+
+So for example: initial segments are [ H0, B1=H0_prev, B2=H1_prev,...]
+
+After moving once in direction D:
+
+- New H is computed as H0's movement.
+- Then new segments are:
+   - H = (new head)
+   - next segment is previous H
+   - then previous B1 becomes the next segment after that.
+
+So in our case, initial segments: [H=(4,7), B1=(3,6), B2=(3,7)]
+
+Wait wait, no. The body parts are at [(3,6), (3,7)], meaning each of those is behind the head?
+
+If that's so, perhaps I'm misrepresenting the direction.
+
+Alternatively: Each segment in the snake follows directly behind it. So for a horizontal snake to the right:
+
+Segments would be [H, H-1, H-2,...]
+
+Wait maybe this needs clearer notation.
+
+But regardless, after moving UP from (4,7), the new position is (4,8). Then each body part moves forward as well: so B1 was at (3,6) before. Now where will it go? If direction is RIGHT, then when head moved UP, does the body parts also move accordingly?
+
+Wait this might get too complicated; perhaps I should model the entire snake and track each segment.
+
+Alternatively, maybe think of each movement as adding a new segment to the front while moving all segments forward based on their previous positions. But that's more accurate but computationally intensive.
+
+But given the time constraints, let me try another approach: focus only on the head position and see how it can move towards the apple at (4,0). Since each movement is one step in a direction, perhaps I can think of this as a graph where each node is a head position along with the body positions.
+
+But tracking both head and body is too much. Alternatively, since the body has fixed offsets from the head when moving forward, perhaps we can model only the head's position and assume that the rest of the body segments are always 1 unit behind in some direction.
+
+Wait for example:
+
+When the snake moves UP once, all its segments (head and body) move UP one step. So if I only track the head, each move will be a single step in some direction without worrying about body parts because they just follow.
+
+But that might not capture collisions with itself correctly. For instance, when the tail is moving forward, it could wrap around or collide even before all segments are updated.
+
+Hmm perhaps this is too error-prone.
+
+Alternatively: Let me consider only the head movement as a BFS problem where each step can be UP, DOWN, LEFT, RIGHT, and track visited positions along with the state of the body (segments). But since the snake's body has 2 segments after initial position, it's not feasible to track all possible states without considering memory.
+
+Alternatively, perhaps model this as the head moving in a grid where certain positions are blocked by previous body parts. For each move, check if any part of the snake is about to overlap with itself, and also consider that when moving forward, the tail leaves its position open for the next step.
+
+But that requires knowing all segments' positions before and after movement.
+
+Given time constraints, perhaps it's best to proceed with BFS focusing on head movements only but accounting for potential collisions as the body moves or leaves parts of the body in different positions.
+
+Alternatively: Maybe consider each possible direction from RIGHT (the initial state) and simulate a few steps until either apple is reached or no path exists.
+
+Step 1:
+
+Option A: Move UP
+
+After moving up, head is at (4,8). Then next step can move again. But let's see if this helps us get closer to the apple.
+
+But from there, each time we have to manage all segments and check for collisions which complicates things.
+
+Alternatively, perhaps trying LEFT as first step:
+
+Step 1: Move LEFT
+
+Head would be at (3,7). Body parts are [(4,7), (3,6), (3,7)]. Wait no; wait if the initial body was [ (3,6), (3,7) ], then moving LEFT from (4,7):
+
+- New head is (3,7)
+- Then next segments would be previous positions:
+   - H_prev = (4,7) becomes new B1
+   - B1_prev = (3,6) becomes new B2
+
+So the body after first move left: [ (3,7), (4,7), (3,6) ]
+
+Wait this might make sense. So now head is at (3,7). Next step:
+
+Check for collisions.
+
+Is any part of the snake in collision?
+
+Current head: (3,7)
+
+Body parts: [ (4,7), (3,6) ]
+
+So, moving left again: from (3,7):
+
+New head would be (2,7).
+
+Then body would shift:
+   - H_prev = (3,7) becomes B1
+   - B1_prev = (4,7) becomes B2
+
+Thus after step 2: [ (2,7), (3,7), (4,7) ]
+
+Wait but the body is moving along with the head. So as we move each segment left by one.
+
+But since the apple is at (4,0), and currently, the snake's head is at (3,7). Moving further left would take it to (2,7); then step 3: (1,7), etc., which are moving away from the apple. So perhaps not a good path.
+
+Alternatively, after step 1: move UP or right?
+
+Wait initial position:
+
+Head: (4,7)
+
+Body parts: [ (3,6), (3,7) ]
+
+So when head moves Up to (4,8):
+
+Then body becomes [ (4,7), (3,6), (3,7) ]
+
+Wait no; after moving up, the head is at (4,8). Then each segment follows:
+
+B1: previous H_prev = (4,7)
+
+B2: previous B1_prev = (3,6)
+
+So body parts are [ (4,7), (3,6) ].
+
+Thus snake's position now has head at (4,8), then a tail at (3,6). So moving again up from there:
+
+H becomes (4,9); but if apple is in (4,0), which is below. So that would be going away.
+
+Alternatively, maybe after step 1: move UP or RIGHT?
+
+Wait alternatively, perhaps we can model this as the head needs to get closer vertically towards y=0 while managing x-coordinate movement.
+
+But from current position of head at (4,7):
+
+Option:
+
+Move DOWN? No; since body parts are above it. At initial state, moving down would be possible because B1 is at (3,6) and B2 at (3,7). So if we move head down to (4,6), then body shifts: H_prev=(4,7) becomes B1, which is still below the new position of H.
+
+But wait:
+
+Current positions before moving down:
+
+Head: (4,7)
+
+Body parts: [ (3,6), (3,7) ]
+
+So when head moves down to (4,6):
+
+Then body parts become:
+
+H_prev = (4,7) becomes B1 at (4,7)
+B1_prev = (3,6) becomes B2.
+
+Wait that would make the snake's position: [ (4,6), (4,7), (3,6) ]
+
+But then in this case, is there any collision? The head is now at (4,6). Are any body parts overlapping?
+
+B1 is at (4,7); so no. So moving down is possible.
+
+Alternatively, when the snake moves down, it's adding a segment below itself but since it was free before, maybe that's allowed.
+
+Wait but if the snake is currently in positions [ (3,6), (3,7) ], and head is at (4,7). So to move down from (4,7):
+
+H becomes (4,6).
+
+Then body parts are H_prev = (4,7) → B1, which would be at (4,7).
+
+B1_prev was (3,6) → B2.
+
+Thus the new positions: [ (4,6), (4,7), (3,6) ]
+
+But now there's no collision because all segments are unique.
+
+So moving down is possible. That gives us a way to move closer towards the apple which is at lower y-coordinate.
+
+But from this point, perhaps we can see that if we keep moving down, snake would be going further away in x-direction but coming closer in y?
+
+Wait head was at (4,7). Moving down to (4,6), then next step: could move up again? Probably not helpful as it may cause collision.
+
+Alternatively, from (4,6):
+
+Next move right:
+
+From (4,6) moving right → (5,6).
+
+Body parts after that would be [H_prev=(4,6)] becomes B1 at (4,6), and previous H_prev of head is the prior position which was (4,7). So body segments are [(5,6), (4,6)]
+
+But wait, snake's new positions: [ (5,6), (4,6) ].
+
+So with head now at (5,6).
+
+Is that collision-free? Yes because previous head was at (4,7); when moving right, no body parts are overlapping. So this is possible.
+
+Alternatively, maybe after a few moves down and to the right or left, snake can get closer to apple.
+
+But seems like going step by step would take too long; perhaps there's a pattern here.
+
+Wait but from initial position:
+
+At (4,7), if we keep moving down towards lower y-values, it will reach (4,0). But does that require the snake's body not to block itself?
+
+Wait no because each move is adding a new segment below. But at some point when the head is above certain segments, moving further might cause collision with previous parts.
+
+Let me try:
+
+Head: 1st position (4,7)
+
+Move down → (4,6). No issues.
+
+Then again from (4,6), move down to (4,5): body parts become [H_prev=(4,6)→B1 at (4,6); H_prev of that was (4,7)→B2].
+
+So positions: [(4,5),(4,6)].
+
+Wait then next step can we move down again? From (4,5):
+
+Move to (4,4): body parts [ (4,4), (4,5) ].
+
+Is this okay?
+
+Yes. Similarly continues until it reaches y=0.
+
+So in that case, just keep moving down each time—each step is possible as the new head doesn't conflict with existing segments.
+
+Wait wait: if we do so, snake's body will be a straight line from (4,7) to (3,6), but when moving further would require adding another segment below. However, in reality, since the body was originally at [ (3,6), (3,7) ], which is one column left and same row.
+
+Wait no:
+
+Initially, snake's head is at (4,7).
+
+Body parts: (3,6) and (3,7).
+
+So moving down from (4,7) to (4,6):
+
+Then body becomes [ (4,6), (4,7) ].
+
+But the original body part was at (3,7). So when we move head to (4,6), that's fine; no overlap with existing segments.
+
+Similarly next steps:
+
+From (4,6) moving down to (4,5): new head is (4,5).
+
+Body parts: [(4,5), (4,6)].
+
+No collision because original body was at (3,7), so nothing blocking.
+
+Continuing this way will snake move all the way down from y=7 to y=0.
+
+Thus in that case, the path requires moving straight down each time. So minimum number of moves is 7-0 = 7 steps: but wait starting position is at y=7; moving down once per step would take 7 steps to reach (4,0).
+
+Wait initial head position is (4,7): so if we move down 6 more times (total 12 moves?), no:
+
+Wait correction:
+
+Each "move" is a single direction change. So from (4,7), moving down once takes us to y=6.
+
+To get from y=7 to y=0: that's seven steps downward (since starting at 7, each step reduces by one).
+
+But in reality, with the initial position having two body parts above and left of the head. So we need to make sure as snake moves down, it doesn't collide with any previous segments.
+
+But since our initial body was on x=3 while moving down (y decreasing) at same x=4; thus there's no collision.
+
+Therefore, the minimum number is 7 steps: each step moving down one unit in y-direction.
+
+Wait but let me check:
+
+Move1: from (4,7) → down to (4,6). Body parts [ (4,6), (4,7) ]
+
+Move2: from (4,6) → down to (4,5). Body parts [ (4,5), (4,6) ]
+
+Move3: ... and so on.
+
+After seven such moves:
+
+Head is at y=0. But body segments are along x=4; but original body was at x=3,7.
+
+Wait wait no—original body parts were at (3,6) and (3,7). So when moving down from the head's current position, which has moved to lower y-values, each new segment is added on top of previous ones? Or does it shift over?
+
+Wait confusion arises due to coordinate system: usually increasing y is upwards.
+
+But in any case, assuming that moving straight down would take 7 steps (from row 7 to 0). But the original body was at x=3 and same or lower rows. So snake's movement downward from x=4 doesn't interfere with those segments because they are on left side.
+
+Wait I'm getting a bit tangled here, maybe it helps to think of the grid.
+
+Alternatively, perhaps there is an alternative path that requires fewer steps.
+
+Maybe moving right once, then down repeatedly?
+
+But since head is at (4,7), moving right would take it away from apple, which is on left side. So not ideal.
+
+Wait initial body parts are [ (3,6), (3,7) ]
+
+So if we move the head to (5,7): that's moving right once; then when trying to move down, but since body was at x=3 and y=6, which is lower than 7. So when moving from (5,7) → (5,6), would this create collision with (3,6)?
+
+Wait (5,6) vs (3,6): no conflict in same row.
+
+Similarly next step: (5,5). No problem until y=0?
+
+But then why not just move down 7 times from the start? Because moving straight down doesn't cause any overlapping.
+
+So is it possible to reach apple at minimum 7 moves?
+
+Wait but initial position requires two body parts. So in order for movement to occur without collision, each new head must be on a unique cell that isn't already occupied by another part of the snake's body.
+
+In our case, when moving down from (4,7) we add segments (4,6), (4,5), etc., but none are overlapping with the original body at x=3. So it should be fine.
+
+But then why do I have a feeling that sometimes in these puzzles you need to maneuver around blocks.
+
+Wait maybe another approach: model this as graph where each node is the position of head and tail, but perhaps overcomplicating for now.
+
+Alternatively, think about whether moving straight down 7 steps from (4,7) gets us at (4,0), which is the apple's location. Since movement doesn't cause any overlap because new head positions are on x=4 while original body was on x=3 and same row or lower.
+
+Therefore perhaps minimum number of moves is seven.
+
+Wait but in each move you can only change direction once? Or per step?
+
+No, actually: Each move is a single directional shift. So moving straight down would require 7 individual steps (each time moving one cell down), resulting in total of 7 moves.
+
+But the initial position is already given; how many more moves to reach apple?
+
+Wait clarification needed: Is "minimum number of moves" counting each direction change as a move, or each step as movement regardless of direction?
+
+Typically, in such puzzles, a 'move' is considered as moving one cell in any direction.
+
+So if the head can't stay still; needs to keep moving towards apple. So assuming we need seven steps down from starting position (4,7) to reach y=0.
+
+But then why would there be an optimal path? Because perhaps other paths could involve less moves by zig-zagging or something else.
+
+Alternatively, perhaps the snake can move diagonally?
+
+Wait no: in grid movement, it's typically orthogonal unless specified otherwise.
+
+So probably moving straight down is minimal.
+
+Therefore tentative answer is 7 steps. So \boxed{7}
+
+But just to make sure:
+
+Each move from (4,7) → (4,6): head moves one step down.
+
+Similarly each next step till y=0: total of seven such steps. Hence minimum number of moves is 7.
+</think>
+
+To determine the minimum number of moves required for the snake to reach the apple located at position $(3,0)$ starting from $(4,7)$, we analyze the movement constraints and the structure of the grid.
+
+1. **Starting Position**: The head of the snake is initially at $(4,7)$. The body occupies positions $(3,6)$ and $(3,7)$.
+2. **Movement Strategy**: To reach the apple, the snake needs to move towards lower y-values (downwards). Each movement must ensure that the new head position does not overlap with any existing segments of the snake's body.
+3. **Path Analysis**: Moving straight down from $(4,7)$ would place each subsequent head position at $(4,6)$, $(4,5)$, ..., until reaching $(4,0)$. Since the original body segments are on different x-coordinates (left side), there is no collision risk during this downward movement.
+4. **Number of Moves**: Each step down reduces the y-coordinate by 1. Starting from $y=7$ and needing to reach $y=0$, it takes exactly 7 moves.
+
+Thus, the minimum number of moves required for the snake to reach the apple is $\boxed{7}$.
+```
+
+END OF RESPONSE_1.
+
+WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (4, 7) and whose body cells are in list format [(3, 6), (3, 7)], to eat the apple at (4, 0).
+
+RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Second, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

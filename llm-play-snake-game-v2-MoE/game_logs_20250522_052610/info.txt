@@ -1,0 +1,34 @@
+Experiment Information
+====================
+Date: 2025-05-22 05:26:10
+
+Primary LLM (Game Strategy Expert):
+- Provider: ollama
+- Model: deepseek-r1:14b
+
+Secondary LLM (Formatting Expert):
+- Provider: ollama
+- Model: mistral:7b
+
+Max Games: 6
+Move Pause: 1.0 seconds
+
+Other Information:
+- Time Delay: Default
+- Time Tick: Default
+
+
+Game Statistics
+==============
+Total Games Played: 6
+Total Score: 56
+Total Steps: 442
+Average Score per Game: 9.33
+Average Steps per Game: 73.67
+Secondary LLM Usage: 102 times
+Secondary LLM Usage Rate: 100% (Always used for consistency)
+
+Efficiency Metrics
+=================
+Apples per Step: 0.1267
+Steps per Game: 73.67

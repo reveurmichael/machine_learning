@@ -1,0 +1,18 @@
+Game 1 Summary:
+=========================================
+Timestamp: 2025-05-22 06:04:18
+Score: 11
+Steps: 91
+Last direction: LEFT
+
+Performance Metrics:
+- Apples/Step: 0.1209
+- Secondary LLM usage: 17 times (100% of rounds)
+- Final board size: 12 segments
+
+Game End Reason: Self collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 93
+- Total Secondary LLM invocations: 17
+=========================================

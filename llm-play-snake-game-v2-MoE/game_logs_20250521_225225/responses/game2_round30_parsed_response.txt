@@ -1,0 +1,9 @@
+Timestamp: 2025-05-22 00:52:55
+Secondary LLM Request Time: 2025-05-22 00:52:46
+Secondary LLM Response Time: 2025-05-22 00:52:55
+Secondary LLM Model: mistral:7b
+Secondary LLM Provider: ollama
+
+========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
+
+{"moves": [], "reasoning": "NO_PATH_FOUND"}

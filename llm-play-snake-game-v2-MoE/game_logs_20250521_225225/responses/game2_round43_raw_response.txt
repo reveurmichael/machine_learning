@@ -1,0 +1,9 @@
+Timestamp: 2025-05-22 01:19:14
+Request Time: 2025-05-22 01:09:14
+Response Time: 2025-05-22 01:19:14
+Model: deepseek-r1:7b
+Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: Invalid JSON response - 

@@ -1,0 +1,53 @@
+# AgenticVM Configuration
+# IMPORTANT: Never store API keys in this file. All API keys should be in the .env file.
+
+# Default LLM client to use when none is specified
+llm:
+  default_client: local_ollama
+
+  # LLM Client configurations
+  clients:
+    local_ollama:
+      type: local
+      provider: ollama
+      model: devstral:24b
+      host: 129.226.148.125  # Default to a remote server instead of localhost
+      port: 9999
+      
+    cloud_mistral:
+      type: cloud
+      provider: mistral
+      model: mistral-medium-latest
+      # API key should be in .env file as MISTRAL_API_KEY
+      
+    cloud_deepseek:
+      type: cloud
+      provider: deepseek
+      model: deepseek-chat
+      # API key should be in .env file as DEEPSEEK_API_KEY
+      api_base: https://api.deepseek.com
+      
+    cloud_hunyuan:
+      type: cloud
+      provider: hunyuan
+      model: hunyuan-turbos-latest
+      # API key should be in .env file as HUNYUAN_API_KEY
+      api_base: https://api.hunyuan.cloud.tencent.com/v1
+
+# Git configuration
+git:
+  use_ssh: true
+  ssh_key_path: ~/.ssh/id_rsa
+  default_user_name: AgenticVM User
+  default_user_email: abcdefg@utseus.shu.edu.cn
+
+# Python configuration
+python:
+  default_venv_path: .venv
+  preferred_formatter: black
+
+# Shell configuration
+shell:
+  max_history: 100
+  timeout: 60
+  default_working_directory: ~ 

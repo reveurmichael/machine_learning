@@ -1,0 +1,9 @@
+Timestamp: 2025-05-23 11:47:56
+Request Time: 2025-05-23 11:37:56
+Response Time: 2025-05-23 11:47:56
+Model: qwen3:14b
+Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: Invalid JSON response - 

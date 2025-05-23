@@ -1,0 +1,96 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+I'll analyze the current situation to determine the best path for the snake's head to reach the apple at (1, 6) from its current position at (7, 7).
+
+Let's break down the requirements:
+- Current Head Position: (7, 7)
+- Apple Position: (1, 6)
+- Body Positions: [(7, 4), (7, 5), (7, 6)]
+- Current Direction: UP
+
+We need to move from (7, 7) to (1, 6). Let's calculate the required moves:
+
+### Calculations
+1. Move LEFT from x=7 to x=1:
+   - We need 6 LEFT moves (since 7 - 1 = 6).
+
+2. Move DOWN from y=7 to y=6:
+   - We need 1 DOWN move (since 7 - 6 = 1).
+
+### Planning the Moves
+We'll plan the sequence of moves, ensuring we avoid any collisions with the body and maintain the constraints:
+
+Since the snake is initially moving UP, it cannot reverse direction immediately. Hence, our first few moves should be LEFT or RIGHT to change the x-coordinate until we can safely go DOWN.
+
+Let's construct the path step by step:
+1. Move LEFT 6 times: (7, 7) → (6, 7) → ... → (1, 7)
+2. Move DOWN once: (1, 7) → (1, 6)
+
+### Final Path
+This results in the following sequence of moves:
+
+```
+LEFT, LEFT, LEFT, LEFT, LEFT, LEFT, DOWN
+```
+
+### Reasoning
+The snake needs to move left six times and down once to reach the apple position at (1, 6). This path avoids collisions with walls and its body.
+
+Let's construct the JSON output:
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Move LEFT six times to adjust x-coordinate from 7 to 1, then DOWN once to adjust y-coordinate from 7 to 6."
+}
+```
+
+This is the valid JSON object output following the required format.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (7, 7) and whose body cells are in list format [(7, 4), (7, 5), (7, 6)], to eat the apple at (1, 6).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

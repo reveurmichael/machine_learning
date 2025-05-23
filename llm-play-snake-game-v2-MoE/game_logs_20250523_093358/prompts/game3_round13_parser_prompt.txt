@@ -1,0 +1,123 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+I'll generate a solution for this problem using Python code that calculates the optimal path from the snake's head to the apple position while considering all constraints. Here is the implementation:
+
+```python
+import json
+
+def find_path(head, direction, body, apple):
+    def valid_move(new_head, body):
+        x, y = new_head
+        if not (0 <= x < 10 and 0 <= y < 10):
+            return False
+        if new_head in body:
+            return False
+        return True
+
+    moves = []
+    current_head = head
+    current_direction = direction
+    body_set = set(body)
+
+    while current_head != apple:
+        x, y = current_head
+
+        # Possible directions from current position
+        possible_moves = {
+            "UP": (x, y+1),
+            "DOWN": (x, y-1),
+            "LEFT": (x-1, y),
+            "RIGHT": (x+1, y)
+        }
+
+        # Filter valid moves based on direction rules and collision
+        if current_direction == "NONE":
+            valid_moves = {move: pos for move, pos in possible_moves.items() if valid_move(pos, body_set)}
+        else:
+            opposite_directions = {
+                "UP": "DOWN",
+                "DOWN": "UP",
+                "LEFT": "RIGHT",
+                "RIGHT": "LEFT"
+            }
+            valid_moves = {move: pos for move, pos in possible_moves.items() if
+                          (valid_move(pos, body_set) and move != opposite_directions[current_direction])}
+
+        # If there are no valid moves left, return empty path
+        if not valid_moves:
+            return {"moves": [], "reasoning": "NO_PATH_FOUND"}
+
+        # Choose the move that gets closest to the apple (using Manhattan distance)
+        chosen_move = min(valid_moves.items(), key=lambda item: abs(item[1][0] - apple[0]) + abs(item[1][1] - apple[1]))
+        moves.append(chosen_move[0])
+        current_direction = chosen_move[0]
+        current_head = valid_moves[current_direction]
+
+    return {
+        "moves": moves,
+        "reasoning": f"Move towards the apple at {apple} from {head}, avoiding collisions with body and grid boundaries."
+    }
+
+# Input
+head_position = (9, 7)
+current_direction = "UP"
+body_cells = [(8, 6), (9, 6)]
+apple_position = (3, 9)
+
+# Compute path
+path = find_path(head_position, current_direction, body_cells, apple_position)
+
+print(json.dumps(path, indent=2))
+```
+
+This Python script defines a function `find_path` that calculates the optimal sequence of moves for the snake to reach the apple. The function takes into account all constraints such as avoiding collisions with walls and the snake's own body, not reversing direction abruptly, and ensuring there is at least one legal move after eating the apple.
+
+When this code is executed, it will output a JSON object containing the "moves" list with the sequence of moves needed to reach the apple safely, along with a brief reasoning statement. If no valid path exists, it returns an empty moves list and the reason that no path was found.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (9, 7) and whose body cells are in list format [(8, 6), (9, 6)], to eat the apple at (3, 9).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

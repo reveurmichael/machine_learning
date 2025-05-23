@@ -1,3 +1,6 @@
+![](./a.jpg)
+
+
 # LLM Snake Game
 
 A classic Snake game controlled by an LLM (Language Model).

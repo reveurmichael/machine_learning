@@ -1,3 +1,6 @@
+![](./a.jpg)
+
+
 # LLM-Powered Snake Game (MoE Variant)
 
 This project implements a classic Snake game controlled by two Large Language Models in a Mixture-of-Experts inspired approach.

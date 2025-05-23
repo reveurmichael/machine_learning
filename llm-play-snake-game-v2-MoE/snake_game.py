@@ -365,7 +365,9 @@ class SnakeGame:
         
         # Get body cells (excluding head)
         body_cells = []
-        for x, y in self.snake_positions[:-1]:  # Exclude the head
+        # Reverse the snake positions to start from the element adjacent to head
+        # Head is at self.snake_positions[-1], so we start from [-2] and go backwards
+        for x, y in reversed(self.snake_positions[:-1]):
             body_cells.append(f"({x},{y})")
         body_cells_str = "[" + ", ".join(body_cells) + "]"
         

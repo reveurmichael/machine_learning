@@ -53,19 +53,19 @@ def calculate_move_differences(head_pos, apple_pos):
     x_diff_text = ""
     if head_x <= apple_x:
         x_diff = apple_x - head_x
-        x_diff_text = f"the number of RIGHT moves, minus, the number of LEFT moves, should be equal to {x_diff} (= {apple_x} - {head_x})"
+        x_diff_text = f"#RIGHT - #LEFT = {x_diff} (= {apple_x} - {head_x})"
     else:
         x_diff = head_x - apple_x
-        x_diff_text = f"the number of LEFT moves, minus, the number of RIGHT moves, should be equal to {x_diff} (= {head_x} - {apple_x})"
+        x_diff_text = f"#LEFT - #RIGHT = {x_diff} (= {head_x} - {apple_x})"
     
     # Calculate vertical differences
     y_diff_text = ""
     if head_y <= apple_y:
         y_diff = apple_y - head_y
-        y_diff_text = f"the number of UP moves, minus, the number of DOWN moves, should be equal to {y_diff} (= {apple_y} - {head_y})"
+        y_diff_text = f"#UP - #DOWN = {y_diff} (= {apple_y} - {head_y})"
     else:
         y_diff = head_y - apple_y
-        y_diff_text = f"the number of DOWN moves, minus, the number of UP moves, should be equal to {y_diff} (= {head_y} - {apple_y})"
+        y_diff_text = f"#DOWN - #UP = {y_diff} (= {head_y} - {apple_y})"
     
     return f"{x_diff_text}, and {y_diff_text}"
 

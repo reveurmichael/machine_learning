@@ -41,6 +41,8 @@ def parse_arguments():
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
                       help='Pause between sequential moves in seconds (default: 1.0)')
+    parser.add_argument('--sleep-before-launching', type=int, default=0,
+                      help='Time to sleep (in minutes) before launching the program')
     
     # Parse the arguments
     args = parser.parse_args()
@@ -71,6 +73,13 @@ def main():
             print(Fore.RED + f"Command-line error: {e}")
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
+        
+        # Handle sleep before launching if specified
+        if args.sleep_before_launching > 0:
+            minutes = args.sleep_before_launching
+            print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{'s' if minutes > 1 else ''} before launching...")
+            time.sleep(minutes * 60)
+            print(Fore.GREEN + "⏰ Waking up and starting the program...")
         
         # Initialize pygame
         pygame.init()

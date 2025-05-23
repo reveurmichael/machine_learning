@@ -1,0 +1,115 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+I'll help you plan a safe path for the snake to reach the apple while avoiding collisions with walls or its body.
+
+Let's analyze the current game state:
+
+- Head position: (3, 6)
+- Current direction: DOWN
+- Body cells: [(3, 7)]
+- Apple position: (9, 7)
+
+First, let's determine how we can move from (3, 6) to (9, 7):
+
+1. We need to move RIGHT 6 times (from x=3 to x=9)
+2. We need to move UP 1 time (from y=6 to y=7)
+
+Since the snake is currently moving DOWN, we can't immediately reverse direction and go UP. Let's analyze possible safe moves:
+
+The first move must be either RIGHT or continue DOWN. However, if we keep going DOWN, we'll move away from the apple in the y-direction.
+
+Let's plan a path:
+
+1. Move RIGHT (to reach x=9)
+2. Then move UP to adjust y
+
+This is generally safe, but let's ensure at each step that:
+- We don't collide with our body
+- We stay within grid bounds
+- After reaching apple, we have escape routes
+
+Let's check for body collision as we go:
+
+Starting from (3, 6):
+1. RIGHT to (4, 6)
+2. RIGHT to (5, 6)
+3. RIGHT to (6, 6)
+4. RIGHT to (7, 6)
+5. RIGHT to (8, 6)
+6. RIGHT to (9, 6)
+
+Now at (9, 6), we need to move UP once to reach the apple at (9, 7):
+
+7. UP to (9, 7) - We've reached the apple!
+
+Now let's check if this path is safe:
+
+- At each step, our body only has one segment and it doesn't interfere with our planned moves
+- No wall collisions as we stay within bounds
+- After reaching the apple at (9, 7), we have UP/DOWN/LEFT movement options
+
+So the final plan of moves is:
+1. RIGHT
+2. RIGHT
+3. RIGHT
+4. RIGHT
+5. RIGHT
+6. RIGHT
+7. UP
+
+Let's format this as a JSON object:
+
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP"],
+  "reasoning": "Move RIGHT six times to match the x-coordinate of the apple, then move UP once to match the y-coordinate. This path avoids body collision and stays within grid bounds."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (3, 6) and whose body cells are in list format [(3, 7)], to eat the apple at (9, 7).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

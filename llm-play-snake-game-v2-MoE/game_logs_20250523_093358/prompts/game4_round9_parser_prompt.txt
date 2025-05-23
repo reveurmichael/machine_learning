@@ -1,0 +1,108 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+I'll analyze the current game state and plan a safe path for the snake to reach the apple.
+
+Here's what we know:
+
+- Current head position: (2, 9)
+- Apple position: (1, 4)
+
+To get from (2, 9) to (1, 4):
+- We need to move LEFT once (from x=2 to x=1)
+- We need to move DOWN five times (from y=9 to y=4)
+
+The snake is currently moving UP. Since we can't reverse direction immediately, the first move must be either LEFT or RIGHT.
+
+Let's plan the path step by step:
+
+1. Move LEFT once (to get to x=1)
+2. Then move DOWN 5 times (to get to y=4)
+
+Since we need to avoid collisions with the body and walls, let's check if this path is safe.
+
+Current body cells: [(3, 7), (2, 7), (2, 8)]
+- After moving LEFT once, our new head will be at (1, 9)
+- We need to make sure we won't run into the snake's body or go out of bounds
+
+Let's construct the path and check for safety:
+
+1. Move LEFT (from (2, 9) to (1, 9))
+2. Move DOWN five times (from (1, 9) to (1, 4))
+
+We need to verify that no position in this path will collide with the body or go out of bounds. The body positions are:
+- [(3, 7), (2, 7), (2, 8)]
+
+As we move from (2, 9) to (1, 9) and then downwards, none of these intermediate positions should overlap with the snake's body.
+
+Now let me check if this path actually works:
+
+Let's confirm the planned moves:
+- Move LEFT once
+- Then DOWN five times
+
+So our path would be: ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"]
+
+But we need to make sure that after reaching (1, 4), there is at least one legal move. Let's verify:
+
+When we reach (1, 4):
+- We can go LEFT or RIGHT from here (since x=1 is on the left edge but not out of bounds)
+- We cannot go UP since it will collide with our body
+
+So the path seems safe and valid.
+
+Here's the final JSON output:
+
+```json
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move LEFT once to reach x=1, then move DOWN five times to reach y=4. This path avoids collisions with walls and body."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (2, 9) and whose body cells are in list format [(3, 7), (2, 7), (2, 8)], to eat the apple at (1, 4).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

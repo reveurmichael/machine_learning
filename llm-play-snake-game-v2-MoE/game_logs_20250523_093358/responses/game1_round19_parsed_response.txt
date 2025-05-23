@@ -1,0 +1,9 @@
+Timestamp: 2025-05-23 09:58:18
+Secondary LLM Request Time: 2025-05-23 09:58:12
+Secondary LLM Response Time: 2025-05-23 09:58:18
+Secondary LLM Model: mistral:7b
+Secondary LLM Provider: ollama
+
+========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
+
+{"moves": ["LEFT", "UP", "UP", "UP", "RIGHT", "UP"], "reasoning": "Move left to avoid body collision, then move up towards the apple while avoiding walls."}

@@ -1,0 +1,9 @@
+Timestamp: 2025-05-23 10:33:05
+Request Time: 2025-05-23 10:23:05
+Response Time: 2025-05-23 10:33:05
+Model: phi4-reasoning:plus
+Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: Invalid JSON response - 

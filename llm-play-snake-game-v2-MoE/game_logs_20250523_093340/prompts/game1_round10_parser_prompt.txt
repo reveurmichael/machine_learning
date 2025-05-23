@@ -1,0 +1,171 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, let's see. The snake's head is at (7,4), and the apple is at (3,0). The current direction is UP. The body is at [(8,3), (7,3)]. So the snake is moving upwards, and the body is two segments behind. 
+
+First, I need to figure out a path from (7,4) to (3,0) without colliding with the body or the walls. Also, after eating the apple, the snake will grow, so I have to make sure that after eating, there's still a way to move without getting stuck.
+
+The Manhattan distance between the head and the apple is (7-3) + (4-0) = 4 +4=8. But since the snake can't reverse direction immediately, the first move can't be DOWN because current direction is UP. So the first move has to be either UP, LEFT, or RIGHT.
+
+Looking at the body positions: the head is at (7,4), and the body is at (8,3) and (7,3). So the next positions after moving would need to avoid those. If the snake moves UP first, the new head would be (7,5). Then the body would shift. But the original body is at (8,3) and (7,3). Wait, the body is behind the head. So when the snake moves, the body follows. So if the head moves up, the next body segments will be (7,4) and (8,3). Wait, maybe I need to think about how the body moves step by step.
+
+Let me think about the movement step by step. Each move, the head moves in the direction, then the body follows. So for example, if the head moves UP, then the next head is (7,5), and the previous head (7,4) becomes the next body segment. The existing body segments shift forward. But the initial body is [(8,3), (7,3)]. So when the head moves, the body shifts. So after moving, the body would be [(7,4), (8,3)], and the head is (7,5). Wait, maybe I need to track the body movement properly.
+
+But maybe I should focus on the path first. The apple is at (3,0), which is to the left and down from the current head position. The current direction is UP, so the first move can't be DOWN. So the first move options are UP, LEFT, RIGHT.
+
+If I go UP first, then the head moves to (7,5). Then the body would be [(7,4), (8,3)], and the next move can't be DOWN (since the previous move was UP). But then moving further up might not be the best path since the apple is below. Alternatively, moving left or right first.
+
+But the apple is at x=3, which is left of the current x=7. So the snake needs to move left multiple times. However, the body is at (8,3) and (7,3). So if the snake moves left from (7,4), the next head is (6,4). Then the body becomes [(7,4), (8,3)]. Then the next move can't be RIGHT (since the previous move was LEFT). So maybe moving left is a good first step.
+
+But need to check for collisions. Let's see: the head is at (7,4), body is at (8,3) and (7,3). If the snake moves left to (6,4), then the body is [(7,4), (8,3)], and the new head is (6,4). The body is at (7,4) and (8,3). So the next step, the head is at (6,4), and the body is (7,4) and (8,3). So the head is not overlapping with the body. That's safe.
+
+Then, from (6,4), the snake can move left again to (5,4), then (4,4), (3,4), etc. But the apple is at (3,0), which is lower. So after moving left to (3,4), the snake needs to move down towards the apple.
+
+But the problem is that the body is following. So each time the snake moves, the body shifts. For example, moving left from (7,4) to (6,4), then the body becomes [(7,4), (8,3)]. Then moving left again to (5,4), the body becomes [(6,4), (7,4)]. So the body is now [(6,4), (7,4)], and the head is (5,4). So the body is at (6,4) and (7,4). So if the snake moves down from (5,4) to (5,3), the body becomes [(5,4), (6,4)], and the head is (5,3). That's safe. Then continue moving down towards (5,0), but need to check for collisions with the body.
+
+Alternatively, maybe the snake can move left until it reaches x=3, then move down. Let's see:
+
+Current head (7,4). Move left to (6,4) [move 1: LEFT]. Then move left again to (5,4) [move 2: LEFT]. Then (4,4) [move 3: LEFT]. Then (3,4) [move 4: LEFT]. Now the head is at (3,4). Then from there, move down to (3,3) [move 5: DOWN], then (3,2) [move 6: DOWN], then (3,1) [move 7: DOWN], then (3,0) [move 8: DOWN]. That would reach the apple.
+
+But need to check if any of these steps would cause a collision with the body. Let's track the body positions step by step:
+
+Initial body: [(8,3), (7,3)].
+
+After move 1 (LEFT to (6,4)): body becomes [(7,4), (8,3)].
+
+After move 2 (LEFT to (5,4)): body becomes [(6,4), (7,4)].
+
+After move 3 (LEFT to (4,4)): body becomes [(5,4), (6,4)].
+
+After move 4 (LEFT to (3,4)): body becomes [(4,4), (5,4)].
+
+Now, head is at (3,4), body is [(4,4), (5,4)]. So the head is at (3,4), and the body is at (4,4) and (5,4). So when moving down to (3,3), the new head is (3,3). The body becomes [(3,4), (4,4)]. Then next move down to (3,2), body becomes [(3,3), (3,4)]. Then (3,1) body becomes [(3,2), (3,3)], then (3,0) body becomes [(3,1), (3,2)]. So during this path, the head is moving down, and the body is following. Since the body is moving to the right, and the head is moving down, there's no collision here. The body positions are all to the right of the head. So this seems safe.
+
+But wait, after the first four moves, the head is at (3,4). Then moving down each step. So each time, the head moves down, and the body shifts. The body is at (4,4), (5,4) after the fourth move. Then, moving down to (3,3), the body becomes [(3,4), (4,4)]. Then moving down to (3,2), the body becomes [(3,3), (3,4)]. Then (3,1), body becomes [(3,2), (3,3)], then (3,0), body becomes [(3,1), (3,2)]. So no collision here. So that path would work.
+
+But wait, the initial direction is UP. So the first move can't be DOWN. But in this plan, the first move is LEFT, which is allowed. So that's okay.
+
+But what about when the snake reaches the apple? The apple is at (3,0). So when the head moves to (3,0), the snake eats the apple. Then the body doesn't shrink. So after eating, the body would have one more segment. So when the head is at (3,0), the body would be [(3,1), (3,2), (3,3)], and the head is (3,0). Now, after eating, the snake can't move into the body. So the next move after eating the apple must be a direction that doesn't collide with the body. For example, if the head is at (3,0), and the body is [(3,1), (3,2), (3,3)], then moving up would take the head to (3,1), which is part of the body. That's a collision. Moving down would take it to (3,-1), which is out of bounds. Moving left or right would be possible. So after eating, the snake must be able to move left or right. But in this path, the snake arrives at (3,0) with the last move being DOWN. So after eating, the snake's head is at (3,0), and the body is [(3,1), (3,2), (3,3)]. So possible moves: LEFT (to 2,0) or RIGHT (to 4,0). Since the grid is 10x10, x can be up to 9. So moving left or right is safe. So that's acceptable.
+
+So this path seems safe. The moves would be:
+
+LEFT, LEFT, LEFT, LEFT, DOWN, DOWN, DOWN, DOWN.
+
+But let's check the count of moves. From (7,4) to (3,0) requires moving left 4 times (from x=7 to x=3) and down 4 times (from y=4 to y=0). So total of 8 moves. Each move is LEFT or DOWN.
+
+But the initial direction is UP. So the first move can't be DOWN, but the first move is LEFT, which is allowed.
+
+So the moves would be:
+
+["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"]
+
+But wait, let's check each step for collision with the body.
+
+Step 1: head at (6,4), body [(7,4), (8,3)] – no collision.
+
+Step 2: head at (5,4), body [(6,4), (7,4)] – no collision.
+
+Step 3: head at (4,4), body [(5,4), (6,4)] – no collision.
+
+Step 4: head at (3,4), body [(4,4), (5,4)] – no collision.
+
+Step 5: head moves down to (3,3), body becomes [(3,4), (4,4)] – no collision.
+
+Step 6: head moves to (3,2), body [(3,3), (3,4)] – no collision.
+
+Step 7: head to (3,1), body [(3,2), (3,3)] – no collision.
+
+Step 8: head to (3,0), body [(3,1), (3,2)] – no collision. Then the apple is eaten, so the body doesn't shrink. So after eating, the body is [(3,1), (3,2), (3,3)].
+
+So that's safe.
+
+But wait, after step 4, the head is at (3,4), and the body is [(4,4), (5,4)]. So when moving down, the head is moving to (3,3), and the body is [(4,4), (5,4)]? Wait, no. Let me re-examine the body movement.
+
+Each time the snake moves, the body shifts. So the first move is LEFT, head moves to (6,4). The body becomes [(7,4), (8,3)].
+
+Second move, head moves to (5,4), body becomes [(6,4), (7,4)].
+
+Third move, head moves to (4,4), body becomes [(5,4), (6,4)].
+
+Fourth move, head moves to (3,4), body becomes [(4,4), (5,4)].
+
+Then, moving down to (3,3): the new head is (3,3), and the body becomes [(3,4), (4,4)].
+
+Then moving down to (3,2): body becomes [(3,3), (3,4)].
+
+Then moving down to (3,1): body becomes [(3,2), (3,3)].
+
+Then moving down to (3,0): body becomes [(3,1), (3,2)].
+
+So yes, each step is safe. Therefore, this path is valid.
+
+Another possible path is to move left first, then down, but maybe there's a shorter path? But according to the Manhattan distance, it's 8 steps, which is the minimum. So this is the optimal path.
+
+But need to check for any possible collisions during the movement. For example, when moving down, the head is at (3,4), and the body is at (4,4) and (5,4). So moving down is safe.
+
+Yes, this seems to work. So the moves are 4 LEFTs and 4 DOWNs in order.
+
+But the initial direction is UP, so the first move can't be DOWN, but the first move is LEFT, which is allowed.
+
+So the JSON output would be:
+
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves left four times to align horizontally with the apple, then moves down four times to reach it, avoiding body collisions and ensuring a safe path after consuming the apple."
+}
+
+I think that's correct. Let me check again for any possible collision. For example, during the steps, when the head is moving left, the body is shifting to the right, so no overlap. Then moving down, the body is to the right, so no collision. So yes, this path works.
+</think>
+
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves left four times to align horizontally with the apple, then moves down four times to reach it, avoiding body collisions and ensuring a safe path after consuming the apple."
+}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (7, 4) and whose body cells are in list format [(8, 3), (7, 3)], to eat the apple at (3, 0).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

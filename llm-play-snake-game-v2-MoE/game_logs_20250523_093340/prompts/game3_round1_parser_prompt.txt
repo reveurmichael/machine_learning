@@ -1,0 +1,124 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, let's see. The snake's head is at (5,5), and the apple is at (8,5). So the apple is three units to the right, same y-coordinate. The current direction is NONE, so the first move can be any direction, but can't reverse. Since the snake's body is empty, there's no body to collide with except the head moving into itself, but since the body is empty, maybe that's not an issue here.
+
+First, I need to get from (5,5) to (8,5). The straightforward path is moving right three times. But I need to make sure that after eating the apple, the snake can still move. Since the body is empty, when the snake eats the apple, the body will grow by one segment. So the tail is added, but since the snake is moving right, after eating the apple, the tail would be at (5,5), but the head is at (8,5). Wait, when the snake moves, the head moves first, then the body follows. Let me think about the movement steps.
+
+Let me break it down step by step. Let's assume the snake moves right three times. The head starts at (5,5). First move right to (6,5). Then to (7,5), then to (8,5). At that point, the snake eats the apple. So the body would now have the previous positions of the head. Wait, the body list is empty. When the snake moves, the body is updated. For each move, the new head is added, and the tail is removed unless the apple was eaten. Since the apple is eaten on the third move, the tail remains. So after moving to (8,5), the body would be [(5,5), (6,5), (7,5)]? Wait, no. Let me think again.
+
+The movement process: when the snake moves, the new head is calculated. Then, the body is updated. If the apple is eaten, the tail is not removed. So initially, the body is empty. Let's simulate each step.
+
+Initial state: head (5,5), body empty. Apple at (8,5).
+
+First move: RIGHT. New head is (6,5). Since the apple hasn't been eaten yet, the tail (which is nothing) is removed. But since the body was empty, the body becomes [(5,5)]? Wait, no. The movement rules say that the head becomes a body segment. So when the snake moves, the new head is added, and the tail is removed unless the apple is eaten. Wait, the description says:
+
+"New head = head + direction
+Head becomes body segment
+Tail is removed unless apple is eaten (in that case, tail remains)"
+
+So, for each move, the head moves, then the body is updated. The head becomes a new body segment. Then, the tail is removed unless the apple is eaten. So for the first move, moving right to (6,5). The body is empty. So the new body would be [(5,5)], because the head (now at (6,5)) becomes a body segment. Wait, maybe the body is the list of segments following the head. So when the snake moves, the head moves, and the body segments shift. Let me think again.
+
+Actually, the body list is the positions of the body excluding the head. So when the snake moves, the head moves to the new position, and the body is updated. The first body segment (the one closest to the head) is the previous head position. Then, the tail is removed unless the apple was eaten. So for example, if the snake moves right, the new head is (6,5). The body becomes [(5,5)] (since the previous head was (5,5), which becomes the first body segment). If the apple is not eaten, the tail is removed, but since the body was empty, maybe the body remains [(5,5)]? Wait, this is confusing.
+
+Alternatively, perhaps the body is updated as follows: when the snake moves, the new head is added to the front of the body list. Then, if the apple is not eaten, the last element of the body list is removed. But in the initial case, the body is empty. So moving right would add (5,5) to the body (since the head was at (5,5)), and then since the apple isn't eaten, remove the last element (which is (5,5)), making the body empty again. That can't be right. Hmm, maybe I need to refer to the movement rules again.
+
+The movement rules say:
+
+"New head = head + direction
+Head becomes body segment
+Tail is removed unless apple is eaten (in that case, tail remains)"
+
+So when moving, the head moves, then becomes a body segment. Then, the tail is removed unless the apple is eaten. So the body is the list of body segments. So, for the first move, the head is at (5,5). After moving right, the new head is (6,5). The head becomes a body segment, so the body is [(5,5)]. Since the apple hasn't been eaten, the tail is removed. But the body has only one segment, so removing the tail (the last element) would make the body empty. So after the first move, the body is empty again. Wait, but that seems odd. Maybe the body is the list of segments that the snake has, excluding the head. So when the snake moves, the head moves to the new position, and the body is updated by adding the previous head position to the front, and then removing the tail if the apple wasn't eaten. So for the first move, initial body is empty. New head is (6,5). The body becomes [(5,5)] (the previous head position). Since the apple isn't eaten, the tail (which is (5,5)) is removed. So the body is empty again. But that would mean that after moving, the body is empty again. Then, for the next move, the same thing happens. But that seems like the snake is not growing. But when the apple is eaten, the tail is not removed, so the body would grow by one segment.
+
+So, in the scenario where the snake moves right three times and then eats the apple on the third move:
+
+First move: head to (6,5). Body becomes [(5,5)], then tail removed (empty). Body is empty.
+
+Second move: head to (7,5). Body becomes [(6,5)], then tail removed. Body is empty.
+
+Third move: head to (8,5). Now, the apple is at (8,5), so the snake eats the apple. So the body becomes [(7,5)] (previous head position). Since the apple is eaten, the tail is not removed. So the body is [(7,5)].
+
+So after eating the apple, the body is [(7,5)]. Now, the snake has grown. The next move would be to move again. But the head is at (8,5), and the body is [(7,5)]. So if the snake moves right again to (9,5), that's valid. But if it moves left to (7,5), that would collide with the body. So after eating the apple, the snake has to be careful not to move into the body.
+
+So the plan is to move right three times. But after that, when the snake has the body [(7,5)], the next move can't be left. So the path needs to ensure that after eating the apple, there is at least one legal move. Since the apple is at (8,5), and the snake is moving there, the first three moves are right. Let's check if that path is safe.
+
+First, the initial position is (5,5). Let's simulate each step:
+
+Move 1: RIGHT to (6,5). Body after move: empty (since the apple wasn't eaten). No collision with body or walls.
+
+Move 2: RIGHT to (7,5). Body after move: empty.
+
+Move 3: RIGHT to (8,5). Here, the apple is eaten. Body becomes [(7,5)] (since the tail isn't removed). Now, the snake's head is at (8,5), body is [(7,5)].
+
+Now, the next move (after eating the apple) must not be left, because that would take the head to (7,5), which is the body's position. So the snake must have at least one other move. For example, moving up, down, or right. So the path of three rights is valid because after eating the apple, the snake can move in another direction, like up or down, without colliding.
+
+But the problem says that the moves should be the sequence leading to the apple. So the moves would be ["RIGHT", "RIGHT", "RIGHT"]. Let's check the constraints:
+
+- No reversal. The initial direction is NONE, so first move can be any. Since the first move is right, that's allowed.
+
+- Avoid collisions. Since the body is empty until the third move, and the path is straight, no collision.
+
+- After eating the apple, there's at least one legal move. As discussed, yes.
+
+But wait, the body after eating the apple is [(7,5)]. So the head is at (8,5). The next move can't be left (to (7,5)), but can be up, down, or right. So that's okay.
+
+So the moves should be three rights. That's the minimal path. But I need to check if there's any possible collision during the movement. For example, if the snake's body was in the way, but in this case, the body is empty except during the third move. So the path is safe.
+
+Another thing to check: the coordinates are from (0,0) to (9,9). The x-coordinate 8 is within range. So moving to (8,5) is valid.
+
+Therefore, the answer is three RIGHT moves. The reasoning is that the apple is directly to the right, so moving right three times reaches it safely without collision, and after eating, the snake can move in another direction.
+</think>
+
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The apple is directly to the right of the head at (5,5). Moving right three times reaches the apple at (8,5) without collision. After eating, the snake's body will be [(7,5)], allowing safe subsequent moves (e.g., UP, DOWN, or RIGHT)."
+}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 5) and whose body cells are in list format [], to eat the apple at (8, 5).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

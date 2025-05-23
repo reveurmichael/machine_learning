@@ -6,134 +6,74 @@ https://github.com/reveurmichael/cv_latex
 You can also explore other templates:
 - https://www.overleaf.com/gallery/tagged/cv
 
+and then donwload the source code and open it in VSCode/Cursor.
+
 ## LaTeX Workshop extension for VSCode/Cursor
 
-Install the **LaTeX Workshop** extension for VSCode/Cursor.
+Install the **[LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)** extension for VSCode/Cursor.
 
 Then, install TexLive:
 
 - https://github.com/James-Yu/LaTeX-Workshop/wiki/Install
 
 
-On MacOS:
+### On MacOS:
 
 ```bash
 brew install texlive
 ```
 
-On Windows:
-- Install TexLive 
-- Install Perl 
-- Add the following to VS Code settings.json:
+### On Windows:
+- Install [TexLive](https://www.tug.org/texlive/) 
+- Install [Perl](https://strawberryperl.com/) 
+- Hit `Ctrl + Shift + P` and type `settings`, choose `Preferences: Open User Settings (JSON)` to open the `settings.json` file.
+- Add the following to the `settings.json` file:
 
 ```json
- "latex-workshop.latex.tools": [
-        {
-            "name": "pdflatex",
-            "command": "pdflatex",
-            "args": [
-                "-synctex=1",
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "%DOC%"
-            ]
-        }
-    ],
-    "latex-workshop.latex.recipes": [
-        {
-            "name": "pdflatex",
-            "tools": [
-                "pdflatex"
-            ]
-        }
-    ],
-    "latex-workshop.latex.autoBuild.run": "onSave",
-    "latex-workshop.view.pdf.viewer": "tab",
-    "latex-workshop.latex.magic.args": [
-        "-synctex=1",
-        "-interaction=nonstopmode",
-        "-file-line-error",
-        "%DOC%"
-    ],
-    "latex-workshop.message.error.show": true,
-    "latex-workshop.message.warning.show": true
+"latex-workshop.latex.tools": [
+    {
+        "name": "pdflatex",
+        "command": "pdflatex",
+        "args": [
+            "-synctex=1",
+            "-interaction=nonstopmode",
+            "-file-line-error",
+            "%DOC%"
+        ]
+    }
+],
+"latex-workshop.latex.recipes": [
+    {
+        "name": "pdflatex",
+        "tools": [
+            "pdflatex"
+        ]
+    }
+],
+"latex-workshop.latex.autoBuild.run": "onSave",
+"latex-workshop.view.pdf.viewer": "tab",
+"latex-workshop.latex.magic.args": [
+    "-synctex=1",
+    "-interaction=nonstopmode",
+    "-file-line-error",
+    "%DOC%"
+],
+"latex-workshop.message.error.show": true,
+"latex-workshop.message.warning.show": true
 ```
 
-## Compilation of Tex file
+## Compiling Your CV
 
-1. Open your `.tex` file in VSCode/Cursor
-1. Click the "Build LaTeX" button (green play button)
-1. PDF output will be generated automatically
+1. Open your `.tex` file in VS Code/Cursor
+2. Either:
+   - Click the "Build LaTeX" button (green play button), or
+   - Save the file to trigger automatic PDF generation
 
-Or, even better, on saving the file, the PDF will be generated automatically.
+## Continuous Integration
 
-## `.gitignore`
+### GitHub Actions Setup
 
-```
-~*
-~*.pptx
-~*.docx
-~*.pdf
-*/_build/**
-__pycache__
-**/__pycache__/**
-.pytest_cache
-.vscode
-.idea
-/cmake-build-debug/
-/out/
-/experiments/
-~$*
-*~
-*.swp
-*.swo
-.ipynb_checkpoints
-*.pyc
-/venv/
-*.py[cod]
-*.DS_Store
-*/tmp/*
-/tmp/
-*/tmp/**
-*/**/node_modules/*
-*/node_modules/*
-*/.python-version
-.python-version
-*.aux
-*.lof
-*.log
-*.lot
-*.fls
-*.out
-*.toc
-*.fmt
-*.fot
-*.cb
-*.cb2
-*.ptc
-.*.lb
-*.bbl
-*.bcf
-*.blg
-*-blx.aux
-*-blx.bib
-*.run.xml
-*.fdb_latexmk
-*.synctex
-*.synctex(busy)
-*.synctex.gz
-*.synctex.gz(busy)
-*.pdfsync
-latex.out/
-# algorithms
-*.alg
-*.loa
-*.pdf
-```
-
-## GitHub Actions 
-
-Create a file, in `.github/workflows/build-cv.yml`, with the content
+Create a file at `.github/workflows/build-cv.yml` with the following content:
 
 ```yml
 name: Build LaTeX CV
@@ -199,4 +139,74 @@ jobs:
           asset_content_type: application/pdf 
 ```
 
-If you are using the template from the demo repo, you can just copy the file and rename it to `build-cv.yml`. For other templates, you might need to twist a little bit the yml file.
+**Note:** You may need to modify this workflow based on your specific template structure and file names.
+
+## Recommended .gitignore
+
+```
+# LaTeX temporary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.ptc
+.*.lb
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+latex.out/
+
+# Algorithm files
+*.alg
+*.loa
+
+# Generated PDFs
+*.pdf
+
+# Other common ignore patterns
+~*
+~*.pptx
+~*.docx
+~*.pdf
+*/_build/**
+__pycache__
+**/__pycache__/**
+.pytest_cache
+.vscode
+.idea
+/cmake-build-debug/
+/out/
+/experiments/
+~$*
+*~
+*.swp
+*.swo
+.ipynb_checkpoints
+*.pyc
+/venv/
+*.py[cod]
+*.DS_Store
+*/tmp/*
+/tmp/
+*/tmp/**
+*/**/node_modules/*
+*/node_modules/*
+*/.python-version
+.python-version
+```

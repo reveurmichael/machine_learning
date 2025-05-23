@@ -32,93 +32,108 @@ DIRECTIONS = {
 }
 
 PROMPT_TEMPLATE_TEXT = """
-You are an AI agent controlling a snake in the classic Snake game on a 10×10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
+You are an AI agent controlling a snake in the classic Snake game on a 10x10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
 
 You are given the following inputs:
   • Head position: TEXT_TO_BE_REPLACED_HEAD_POS — (x, y) of the snake's head.
   • Current direction: TEXT_TO_BE_REPLACED_CURRENT_DIRECTION — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".
-  • Body cells: TEXT_TO_BE_REPLACED_BODY_CELLS — List of (x, y) positions occupied by the snake's body (excluding the head).
+  • Body cells: TEXT_TO_BE_REPLACED_BODY_CELLS — Ordered list of (x, y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail.
   • Apple position: TEXT_TO_BE_REPLACED_APPLE_POS — (x, y) coordinate of the apple.
 
+## SNAKE REPRESENTATION AND CONTINUITY:
+1. The full snake S is `[HEAD, BODY1, BODY2, ..., BODYN]`.  
+2. BODYi is adjacent (Manhattan distance = 1) to its predecessor (HEAD or BODYi-1).  
+3. BODYN is the tail segment. The provided Body cells list (in the inputs) excludes the head and goes from BODY1 (nearest the head) to BODYN (the tail).  
+4. Example valid S: `[(4,4) (head), (4,3), (4,2), (3,2), (3,1), (2,1), (2,2), (3,2), (3,3) (tail)]`; each consecutive pair differs by exactly 1 in either x or y.
+
+## MOVEMENT UPDATE RULE:
+Each move proceeds as follows:
+1. **Compute new head**:  
+   new_head = (head_x + dx[D], head_y + dy[D])  
+   where direction vectors are `{ "UP": (0, +1), "DOWN": (0, -1), "LEFT": (-1, 0), "RIGHT": (+1, 0) }`.  
+2. **Check for collisions** (using the state before body shifts):  
+   • If new_head is outside grid bounds (0 ≤ x < 10, 0 ≤ y < 10), the snake dies.  
+   • If new_head coincides with any BODYi except the tail's current cell when that tail will move this turn, the snake dies.  
+3. **Update body positions** (assuming no collision and within bounds):  
+   a. Insert the old head position at the front of the BODY list (becomes BODY1).  
+   b. If new_head == apple position, **grow**: do not remove the tail this turn (BODY length increases by 1).  
+   c. Otherwise, **move normally**: remove the last element of BODY (the tail) so total length remains the same.  
+4. **Set HEAD = new_head**; the BODY list is now updated from BODY1 to BODYN.
+
+### Movement Example:
+If S = `[HEAD (4,4), BODY1 (4,3)]` and you choose "LEFT":  
+- new_head = (4-1, 4) = (3,4).  
+- No collision if (3,4) is empty.  
+- Insert old head (4,4) at front of BODY ⇒ BODY becomes `[(4,4), (4,3)]`.  
+- Remove tail (4,3) (assuming not eating apple) ⇒ BODY becomes `[(4,4)]`.  
+- Update HEAD to (3,4).  
+- Resulting S = `[(3,4) (head), (4,4) (body1)]`.
+
 ## MOVEMENT RULES:
-1. Valid directions: "UP", "DOWN", "LEFT", "RIGHT".
-2. Direction vectors: 
-   { "UP": (0, 1), "DOWN": (0, -1), "LEFT": (-1, 0), "RIGHT": (1, 0) }
-3. The snake **cannot** reverse direction (e.g., if going UP, cannot move DOWN next). If the direction is "NONE", any move is allowed.
-4. The snake **dies** if it:
-   - Collides with its body (which shifts every step),
-   - Moves outside the grid bounds (0 ≤ x < 10, 0 ≤ y < 10).
-5. Eating the apple at TEXT_TO_BE_REPLACED_APPLE_POS:
-   - Increases score by 1.
-   - Grows the body by 1 segment (tail doesn't shrink on next move).
+1. Valid directions: "UP", "DOWN", "LEFT", "RIGHT".  
+2. **Cannot reverse**: If current direction is "UP", you may not choose "DOWN" next; similarly for "LEFT"↔"RIGHT". If current direction is "NONE", any first move is allowed.  
+3. **Death conditions** (the snake dies if):  
+   - HEAD moves outside grid bounds.  
+   - HEAD moves into a BODY cell that is not the tail's current cell when the tail is about to move.  
+4. **Eating the apple** (when new_head == apple position):  
+   - Score increases by 1.  
+   - BODY grows by 1 (tail does not move on this step).  
+   - After eating, ensure there is at least one legal move on the next turn to avoid immediate trapping.
 
 ## COORDINATE SYSTEM:
-- UP = y + 1
-- DOWN = y - 1
-- RIGHT = x + 1
-- LEFT = x - 1
+- "UP" means y+1  
+- "DOWN" means y-1  
+- "RIGHT" means x+1  
+- "LEFT" means x-1  
 
-Example Moves from (1,1):
-  • UP → (1,2)
-  • DOWN → (1,0)
-  • RIGHT → (2,1)
+Example Moves from (1,1):  
+  • UP → (1,2)  
+  • DOWN → (1,0)  
+  • RIGHT → (2,1)  
   • LEFT → (0,1)
 
 ## OBJECTIVE:
-Plan a safe path for the head to reach the apple, avoiding collisions. Output a JSON object whose "moves" field is a sequence of moves that leads the head now at TEXT_TO_BE_REPLACED_HEAD_POS to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.  
+Plan a safe path for the HEAD to reach the APPLE, avoiding collisions and respecting all rules. Output a JSON object whose "moves" field is a sequence of directions that takes the head (now at TEXT_TO_BE_REPLACED_HEAD_POS) to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
 
 ## REQUIRED OUTPUT FORMAT:
-Return a **JSON object** in this **exact format**:
+Return a **JSON object** in this **exact format** (and nothing else!):
 
 {
-  "moves": ["MOVE1", "MOVE2", ...],
-  "reasoning": "..." 
+  "moves": ["MOVE1", "MOVE2", …],
+  "reasoning": "…"
 }
 
-* "moves" must be a list of valid directions unless the apple is reachable in fewer.
-* "reasoning" must be a brief explanation (1–2 sentences) of the path-planning rationale.
-* If **no safe path** moves exists, return:
+* "moves" must be a list of valid direction strings that lead from HEAD to APPLE safely.  
+* "reasoning" must be a brief explanation (1-2 sentences) of your path-planning rationale.  
+* If **no safe path** exists, return exactly:  
+  { "moves": [], "reasoning": "NO_PATH_FOUND" }
 
-{ "moves": [], "reasoning": "NO_PATH_FOUND" }
-
-
-## CONSTRAINTS:
-
-* Must not reverse direction on the first move.
-* Avoid collisions with walls and body.
-* After eating the apple, avoid traps—ensure there's at least one legal move afterward.
-* Use Manhattan distance as a heuristic, but prioritize safety.
-* Snake movement update (per move):
-
-  * New head = head + direction
-  * Head becomes body segment
-  * Tail is removed **unless** apple is eaten (in that case, tail remains)
+## PATH-PLANNING GUIDELINES:
+1. Must not reverse direction on the first move.  
+2. Avoid collisions: walls, body segments, and future body positions given shifts.  
+3. After eating the apple, there must be at least one legal move next turn (do not trap yourself).  
+4. Use Manhattan distance as a heuristic, but prioritize safety over shortest path.  
+5. Ensure the BODY remains continuous after each move (each adjacent pair differs by exactly 1 in x or y).
 
 ## FINAL POSITION CHECK:
+Verify that the net number of horizontal and vertical moves matches the apple's offset from the head:  
+  • Let (x1, y1) = TEXT_TO_BE_REPLACED_HEAD_POS, (x2, y2) = TEXT_TO_BE_REPLACED_APPLE_POS.  
+    - If x1 ≤ x2 → (#RIGHT - #LEFT) = (x2 - x1).  
+    - If x1 > x2 → (#LEFT - #RIGHT) = (x1 - x2).  
+    - If y1 ≤ y2 → (#UP - #DOWN) = (y2 - y1).  
+    - If y1 > y2 → (#DOWN - #UP) = (y1 - y2).  
+  → In your case: TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE
 
-Make sure the total number of LEFT/RIGHT and UP/DOWN moves matches the apple's offset:
+## ADDITIONAL EDGE CASES TO CONSIDER:
+* **Snake of Length 1**: If the snake has no body segments (BODY list is empty), you may move directly toward the apple unimpeded.  
+* **Almost-Full Grid**: If the snake's body occupies most cells, ensure you leave a path open to avoid getting trapped—even if it's longer.  
+* **Adjacent Apple with Blocking Body**: If the apple is adjacent but a body segment is between head and apple, plan a detour.  
+* **Border Hugging**: Avoid hugging walls unnecessarily—especially near the apple—to prevent getting boxed in.  
+* **Immediate Self-Collision**: Don't move into the cell the tail will vacate if the tail does **not** move (i.e., when eating an apple, the tail stays).  
 
-* From TEXT_TO_BE_REPLACED_HEAD_POS to TEXT_TO_BE_REPLACED_APPLE_POS:
-
-  * x1 ≤ x2 → RIGHTs - LEFTs = x2 - x1
-  * x1 > x2 → LEFTs - RIGHTs = x1 - x2
-  * y1 ≤ y2 → UPs - DOWNs = y2 - y1
-  * y1 > y2 → DOWNs - UPs = y1 - y2
-    → In your case: TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE
-
-## EDGE CASES TO CONSIDER:
-
-* If apple is behind current direction, detour safely.
-* If snake has no body, go directly toward apple.
-* Avoid hugging walls unnecessarily, especially near apple.
-
-Now, analyze the game state and return the JSON output. Return only a valid JSON object in the exact format:
-{
-  "moves": ["MOVE1", "MOVE2", ...],
-  "reasoning": "..." 
-}
-
+Now analyze the game state and return only the JSON output as specified. Do **not** include any additional text or code, do not return any python code or other code—only the valid JSON object in the exact format.
 """
+
 
 # Parser prompt for the secondary LLM (formatting expert)
 PARSER_PROMPT_TEMPLATE = """You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
@@ -167,7 +182,7 @@ The main objective of RESPONSE_1 is to generate a list of moves that leads the s
 - If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
 
 ## WHAT YOU SHOULD DO:
-- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
 - Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
 - Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
 

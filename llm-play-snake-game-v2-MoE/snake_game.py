@@ -355,7 +355,7 @@ class SnakeGame:
         """
         # Get head position in (x, y) format for prompt
         head_x, head_y = self.head_position
-        head_pos = f"({head_x}, {head_y})"
+        head_pos = f"({head_x},{head_y})"
         
         # Get current direction
         if self.current_direction is None:
@@ -366,12 +366,12 @@ class SnakeGame:
         # Get body cells (excluding head)
         body_cells = []
         for x, y in self.snake_positions[:-1]:  # Exclude the head
-            body_cells.append(f"({x}, {y})")
+            body_cells.append(f"({x},{y})")
         body_cells_str = "[" + ", ".join(body_cells) + "]"
         
         # Get apple position
         apple_x, apple_y = self.apple_position
-        apple_pos = f"({apple_x}, {apple_y})"
+        apple_pos = f"({apple_x},{apple_y})"
         
         # Calculate the expected move differences
         move_differences = calculate_move_differences(self.head_position, self.apple_position)

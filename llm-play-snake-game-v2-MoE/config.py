@@ -35,10 +35,10 @@ PROMPT_TEMPLATE_TEXT = """
 You are an AI agent controlling a snake in the classic Snake game on a 10x10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
 
 You are given the following inputs:
-  • Head position: TEXT_TO_BE_REPLACED_HEAD_POS — (x, y) of the snake's head.
-  • Current direction: TEXT_TO_BE_REPLACED_CURRENT_DIRECTION — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".
-  • Body cells: TEXT_TO_BE_REPLACED_BODY_CELLS — Ordered list of (x, y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail.
-  • Apple position: TEXT_TO_BE_REPLACED_APPLE_POS — (x, y) coordinate of the apple.
+  • Head position: `TEXT_TO_BE_REPLACED_HEAD_POS` — (x, y) of the snake's head.
+  • Current direction: "TEXT_TO_BE_REPLACED_CURRENT_DIRECTION" — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".
+  • Body cells: `TEXT_TO_BE_REPLACED_BODY_CELLS` — Ordered list of (x, y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail.
+  • Apple position: `TEXT_TO_BE_REPLACED_APPLE_POS` — (x, y) coordinate of the apple.
 
 ## SNAKE REPRESENTATION AND CONTINUITY:
 1. The full snake S is `[HEAD, BODY1, BODY2, ..., BODYN]`.  

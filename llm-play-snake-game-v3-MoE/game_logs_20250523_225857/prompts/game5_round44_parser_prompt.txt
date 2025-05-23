@@ -1,0 +1,114 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I need to figure out how the snake can move from (2,5) to eat the apple at (1,5). Let me start by understanding the current state of the snake.
+
+The head is at (2,5), and the current direction is "LEFT". The body cells are [(3,5), (3,4), (3,3), (4,3), (4,2)]. So the snake's body is a bit spread out. From the head at (2,5), moving left would take it to (1,5), which is exactly where the apple is. That seems promising.
+
+But I need to make sure that this move is safe. Let me check for collisions before the move. The new head position is (1,5). Is this outside the grid? No, because x ranges from 0 to 9, so 1 is within bounds. Now, does it collide with any body cells?
+
+The current body cells are at (3,5), (3,4), (3,3), (4,3), (4,2). The new head position is (1,5), which isn't occupied by any of these, so no collision there. Also, since it's the first move and the direction is "LEFT", I don't need to worry about reversing because it's allowed on the first move.
+
+After moving to (1,5), the snake will eat the apple, which means the body should grow. So the new head becomes (1,5), and the old head position (2,5) is added to the front of the body list. The tail remains as it was because we're growing. Wait, no—if we eat the apple, the body grows by one segment without removing the tail. So the body will now include the previous head at the front, followed by the existing body segments, and then the tail stays where it is.
+
+But wait, after eating, do I have to ensure there's a move next turn? Because if not, the snake might get trapped. Let me see: after eating, the new head is at (1,5), with the rest of the body extending from (2,5) down. Now, the direction was "LEFT". If I continue moving left from (1,5), it would go to (0,5). That's within bounds and not blocked by any body parts because the next segment is at (2,5), which is safe.
+
+So the plan is:
+
+1. Move left from (2,5) to (1,5).
+2. Eat the apple, growing one segment.
+3. Then move left again to (0,5) if needed, but since the goal is already achieved by eating, maybe just stopping there isn't necessary. Wait, no—the objective is to eat the apple, so once that's done, the snake can stop.
+
+Wait, but in the rules, after eating, you have to ensure there's at least one legal move next turn. So if I'm at (1,5), and the direction was "LEFT", then my next possible moves are "RIGHT" or change direction? But no, because the direction can't reverse unless it's allowed.
+
+Wait, no—after eating, the direction is still "LEFT". The next move would have to be in a direction that doesn't reverse. So from "LEFT", I cannot go "DOWN" or "UP"—I can only go "LEFT" again or change to another non-reversing direction if possible.
+
+But since we've already eaten, maybe the snake can choose any allowed direction except for reversing. So after eating, moving left again would take it to (0,5), which is fine because there's nothing blocking that path.
+
+So the moves are:
+
+- Move "LEFT" from (2,5) to (1,5).
+- Then since we ate the apple, the body grows, and the next move could be another "LEFT", but perhaps that's beyond what's needed.
+
+But the problem is to get the head to eat the apple. So the first move is sufficient for that purpose.
+
+Wait, no—the snake can't just make one move because it needs to reach the apple. The initial position is (2,5), and the apple is at (1,5). So moving "LEFT" once will take the head there, which is where the apple is. Therefore, the first move is sufficient.
+
+But let me double-check all the rules:
+
+- Can't reverse direction on the first move unless it's allowed. Since the initial direction is "LEFT", the next direction can be any except reversing to "RIGHT". Wait, no—reversing is when you change from "LEFT" to "RIGHT" or vice versa.
+
+Wait, no—the rule says that you cannot reverse directions, meaning if your current direction is "UP", you cannot choose "DOWN" next. Similarly for "LEFT" and "RIGHT". So after moving "LEFT", the next move can be any direction except "RIGHT"—so "LEFT", "DOWN", or "UP".
+
+But in this case, we've already reached the apple on the first move, so there's no need to make another move beyond that. Therefore, the sequence of moves is just one move: "LEFT".
+</think>
+
+To solve this problem, I need to determine a safe path for the snake to reach and eat the apple at (1,5) without reversing direction or causing collisions. The snake starts at (2,5), with the current direction set to "LEFT". 
+
+### Analysis:
+1. **Current Position and Direction**: The head of the snake is at (2,5), and it's currently facing "LEFT".
+2. **Apple Position**: The apple is located at (1,5), which is adjacent to the head's starting position.
+3. **Body Segments**: The body segments are positioned such that moving left from (2,5) would take the snake directly to the apple without any immediate collision.
+
+### Move Details:
+- **First Move**: Moving "LEFT" from (2,5) will bring the head to (1,5), where the apple is located. This move is valid as it does not cause a collision and stays within grid bounds.
+- **Eating the Apple**: Upon moving to (1,5), the snake will eat the apple, causing the body to grow by one segment. The new head becomes (1,5), and the old head position (2,5) is added to the front of the body list, while the tail remains at its current position.
+- **Next Move**: After eating, there must be at least one legal move. From (1,5), moving "LEFT" again would take the snake to (0,5), which is valid and within bounds.
+
+### Conclusion:
+The optimal path involves a single move: "LEFT", bringing the head to the apple's position safely without causing any collisions or reversing directions unnecessarily.
+
+```json
+{
+  "moves": ["LEFT"],
+  "reasoning": "The head can move directly left from (2,5) to (1,5), where the apple is located, following the rules and avoiding collisions."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (2, 5) and whose body cells are in list format [(4, 2), (4, 3), (3, 3), (3, 4), (3, 5)], to eat the apple at (1, 5).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

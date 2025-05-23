@@ -1,0 +1,291 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, let's tackle this problem step by step. The goal is to help a snake move from its current position to eat an apple on a 10x10 grid while following specific movement rules. 
+
+First, I need to understand the initial state of the game. The head of the snake is at (1,2), and it's facing "DOWN". The body cells are [(1,3), (2,3), (3,3)], meaning there are three body segments behind the head. The apple is located at (3,8). 
+
+The movement rules are quite detailed. The snake can move in four directions: UP, DOWN, LEFT, or RIGHT. It cannot reverse direction on the first move unless it's initially facing "NONE". Also, it must avoid collisions with its own body segments and grid boundaries. When the snake eats the apple, its body grows by one segment without moving the tail, which can affect future moves.
+
+To plan a safe path, I should consider the following:
+
+1. **Current Position and Direction**: The head is at (1,2) facing "DOWN". From here, possible first moves are UP or RIGHT because the snake can't reverse direction on the first move since it's not initially facing "NONE".
+
+2. **Manhattan Distance Heuristic**: Calculating the Manhattan distance from the head to the apple gives a starting point for the shortest path. The apple is at (3,8), so the distance in x-direction is 2 and y-direction is 6. This suggests that moving primarily right and up would be efficient.
+
+3. **Avoiding Collisions**: The snake's body segments are fixed initially. Moving into any of these or grid boundaries will result in death. Additionally, after each move, the snake must not collide with its own body except for the tail, which may move after this turn if it's a normal move.
+
+4. **Eating the Apple**: If the head moves to (3,8), the snake grows by one segment. This means that in the next turn, the tail will remain where it is, potentially increasing collision risks if the path isn't carefully planned.
+
+5. **Path Planning Considerations**:
+   - After eating the apple, there must be at least one legal move to prevent trapping.
+   - Avoid hugging walls unnecessarily as this can limit movement later on.
+   - Check for any immediate self-collisions, especially when the tail's position could cause issues in future moves.
+
+6. **Possible Moves**:
+   - From (1,2), possible initial moves are UP or RIGHT because reversing direction isn't allowed unless it's "NONE".
+   - Moving UP would take the snake to (1,3). However, this is already a body segment. Since the new head position can't coincide with any body segment except the tail after movement, this move might be invalid.
+   
+Wait, in the initial state, the body segments are [(1,3), (2,3), (3,3)]. So moving UP from (1,2) would take the head to (1,3), which is a body cell. According to the rules, the new head can't coincide with any BODYi except the tail's current cell when that tail will move this turn. Since in this case, the tail is at (3,3), moving UP would result in a collision because the new head would be on a body segment. Therefore, moving UP is invalid.
+
+So the only valid initial move is RIGHT to (2,2). Let's explore that path.
+
+After moving RIGHT:
+- New head position is (2,2).
+- Check for collisions: (2,2) is within bounds and not occupied by any body segments (body cells are [(1,3), (2,3), (3,3)].
+- Update the body: Insert old head (1,2) at front ⇒ BODY becomes [(1,2), (1,3), (2,3), (3,3)]. Since the new head doesn't eat the apple, remove the tail (3,3). So new body is [(1,2), (1,3), (2,3)].
+
+Now the snake's position is:
+- Head: (2,2)
+- Body: [(1,2), (1,3), (2,3)]
+
+Next move options: The current direction is RIGHT. So possible next directions are RIGHT again or UP/DOWN if it changes direction without reversing. But since it can't reverse on the first move, but subsequent moves allow changing direction as long as it's not a reversal.
+
+Wait, no. Rule 2 says you cannot reverse direction. For example, if current direction is "UP", you may not choose "DOWN" next. So if the snake is currently facing RIGHT, it can continue RIGHT or change to UP/DOWN but not LEFT since that would be reversing.
+
+But actually, from the initial move, after moving RIGHT, the snake's direction remains RIGHT unless changed by subsequent moves.
+
+Wait, no. The movement direction is chosen each time. So after moving RIGHT, if in the next step it moves RIGHT again, that's allowed. If it wants to change direction, like UP, that's also allowed unless it would reverse.
+
+In this case, since the snake just moved RIGHT and is now facing RIGHT, changing direction to UP or DOWN is allowed because it's not reversing (RIGHT can be followed by any non-LEFT direction except perhaps immediate reversal). Wait, no—LEFT is the opposite of RIGHT. So after moving RIGHT, you cannot move LEFT next. Because that would reverse direction.
+
+So from (2,2), facing RIGHT, possible directions are RIGHT or UP/DOWN but not LEFT.
+
+But actually, rule 2 says: "Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for "LEFT"↔"RIGHT". So if the snake is currently moving RIGHT, it cannot move LEFT next. But it can continue RIGHT or change to UP or DOWN.
+
+So from (2,2), facing RIGHT, possible directions are RIGHT, UP, or DOWN.
+
+Let's consider each:
+
+1. Move RIGHT again: new head would be (3,2). Check for collisions:
+   - Is (3,2) within grid? Yes.
+   - BODY cells after insertion and before eating the apple would be [(1,2), (1,3), (2,3)] plus inserting old head (2,2) ⇒ [(2,2), (1,2), (1,3), (2,3)]. Then, since new_head is (3,2), which isn't the apple, remove tail (2,3). So body becomes [(2,2), (1,2), (1,3)].
+
+   This seems safe. But we need to check if the path is leading towards the apple at (3,8). It's a long way off, so maybe there's a better route.
+
+2. Move UP: new head would be (2,3). Check collisions:
+   - Is (2,3) within grid? Yes.
+   - BODY after insertion and before eating would be [(2,2), (1,2), (1,3), (2,3)]. Since new_head is (2,3), which is already a body cell. This causes collision because the new head can't coincide with any BODYi except the tail's current cell when that tail will move this turn. In this case, the tail is at (2,3). But since we're moving UP to (2,3), which is now occupied by the head, but after movement, the tail would have moved? Wait, no—if it's a normal move and doesn't eat the apple, the tail will be removed. So in this case, inserting the old head (2,2) at front makes the body [(2,2), (1,2), (1,3), (2,3)]. Then, since new_head is (2,3), which was the tail's position before movement. However, moving into a body segment that's not the tail's current cell when it will move this turn would cause collision.
+
+   Specifically, after inserting the old head, the new body includes (2,3) as part of the body. The new head is (2,3), which is already in the body list except for the tail's position. So this would result in a collision because the new head can't coincide with any body segment except possibly the tail after it moves.
+
+   Therefore, moving UP from (2,2) to (2,3) is invalid due to collision.
+
+3. Move DOWN: new_head would be (2,1). Check collisions:
+   - Within grid? Yes.
+   - BODY after insertion and before eating: [(2,2), (1,2), (1,3), (2,1)]. Since new_head isn't the apple, remove tail (2,3) → body becomes [(2,2), (1,2), (1,3)].
+
+   This is also a safe move. However, moving DOWN takes us away from the target at (3,8). So perhaps this isn't the optimal path, but it's a valid one.
+
+Given that both RIGHT and DOWN are possible, but RIGHT is more aligned towards the target's x-coordinate of 3, which is closer than y=2. However, the apple is at (3,8), so we need to move right and up a lot.
+
+But wait, from (1,2), moving RIGHT twice would take us to (3,2). Then, from there, perhaps moving UP multiple times to reach y=8.
+
+However, let's think about the body segments. After each move, the snake grows or moves normally. So if we keep moving RIGHT and then UP as much as possible, avoiding collisions with our own body.
+
+Alternatively, after (3,2), moving UP six times would take us from y=2 to y=8. But each move needs to be checked for validity.
+
+But perhaps a more efficient path is needed. Let's consider that after eating the apple, the snake grows by one segment, so it's better to plan to eat it when possible.
+
+Another consideration: When we reach near the apple, if the head is at (3,7), moving UP would take us to (3,8) and eat the apple. Then, in the next move, the body grows, which could help avoid collisions.
+
+However, there are many steps involved here. To simplify, let's outline a possible path:
+
+1. Move RIGHT to (2,2).
+2. Continue moving RIGHT to (3,2).
+3. Then move UP repeatedly until reaching (3,8).
+
+But step 3 involves moving from (3,2) to (3,8), which is six moves up.
+
+Each of these moves must be checked for collisions and ensure that the body segments don't interfere.
+
+Alternatively, after eating the apple, the snake's body will have an extra segment. So if we can plan to reach the apple in a position where moving UP won't collide with our own body, it would be better.
+
+But given the complexity, perhaps the safest path is:
+
+- Move RIGHT twice to (3,2), then move UP six times to (3,8).
+
+Let's check this step by step.
+
+1. Initial Position: (1,2) facing RIGHT.
+   - Move RIGHT to (2,2). Direction remains RIGHT.
+   - Body becomes [(1,2), (1,3), (2,3)] after removing tail (3,3).
+   
+2. From (2,2), move RIGHT to (3,2):
+   - New head is (3,2).
+   - Check collisions: No body segments in that position.
+   - Body becomes [(2,2), (1,2), (1,3)] after removing tail (2,3).
+
+3. Now at (3,2). Next move UP:
+   - To (3,3). Is this a body segment? Yes, (1,3) and (2,3) are in the body, but not (3,3) anymore since it was removed. Wait, initial body segments were [(1,3), (2,3), (3,3)], but after moving to (3,2), we had body [(2,2), (1,2), (1,3)]. So when we insert the old head (3,2) into the body, it becomes [(3,2), (2,2), (1,2), (1,3)]. Then, since new_head is (3,3) if moving UP from (3,2). Is (3,3) a body segment? No, because in this step, we are only inserting the old head and then moving. So after insertion, the body includes [(3,2), (2,2), (1,2), (1,3)]. Moving UP to (3,3): is that safe?
+
+   Wait, when you move, the new_head becomes part of the body in the next step. So from (3,2), moving UP to (3,3):
+
+   - Check collisions: (3,3) was originally a body segment but it's not in the current body list because we removed it when moving to (3,2). So now, moving to (3,3): is that safe?
+
+   The new_head would be at (3,3), which isn't occupied by any body segments after this move. Because:
+
+   - Insert old head (3,2) ⇒ body becomes [(3,2), (2,2), (1,2), (1,3)].
+   - Then, moving to (3,3): check if it's a body segment? No, because the only segments are at (3,2), (2,2), (1,2), (1,3).
+   
+   So this move is valid. Also, since (3,3) isn't the apple, we remove the tail (1,3). So new body becomes [(3,2), (2,2), (1,2)].
+
+4. Next, from (3,3), move UP to (3,4):
+   - Check collisions: safe.
+   - Insert old head (3,3) ⇒ body becomes [(3,3), (3,2), (2,2), (1,2)].
+   - Move UP to (3,4): not a body segment. Safe. Remove tail (1,2). Body becomes [(3,3), (3,2), (2,2)].
+
+5. Continue this process until reaching (3,8).
+
+Each step involves moving UP once from the current position. Since we're at (3,3) after two moves, we can continue moving up:
+
+6. (3,4) → (3,5): safe.
+7. (3,5) → (3,6): safe.
+8. (3,6) → (3,7): safe.
+9. (3,7) → (3,8): Now, eating the apple.
+
+At this point:
+
+- New head is at (3,8), which is the apple's location.
+- So, the snake grows by one segment without moving the tail. The body becomes [(3,2), (2,2), (1,2), (3,7)].
+   
+Wait, let me re-examine this step.
+
+When moving to (3,8):
+
+- Insert old head (3,7) ⇒ new body is [(3,7), (3,6), (3,5), (3,4), (3,3), (3,2), (2,2), (1,2)].
+   
+Wait, no. Actually, each time we move UP from (3,7) to (3,8):
+
+- The body after inserting the old head (3,7) becomes [(3,7), (3,6), (3,5), (3,4), (3,3), (3,2), (2,2), (1,2)].
+   
+Then, moving to (3,8):
+
+- Check for collisions: Is (3,8) a body segment? No. So this move is valid.
+
+Eating the apple means:
+
+- The snake's body grows by one segment, so we add (3,8) as the new tail or append it to the end of the body. Wait, in reality, when you eat an apple, your body grows, meaning that your head doesn't move into a body segment except for possibly the tail.
+
+Wait, actually, no: When you eat the apple, you grow by one segment, which means that after moving into (3,8), your body length increases by one. So your new body would be:
+
+- The original head at (3,8) plus all previous segments. But wait, in reality, it's a bit different.
+
+Let me clarify: When the snake eats the apple, its body grows by one segment without moving the tail. So if the head is at (A), after eating, the new body includes (A) as the new tail and shifts all other segments forward.
+
+Wait no—that’s not quite right. The snake's body doesn't shift; it just adds a segment at the head. But according to some rules, when you eat an apple, your body length increases by one segment, but I think in this game, it actually means that the tail moves forward, effectively adding a segment.
+
+But perhaps I'm overcomplicating. The main point is that after eating the apple, the snake's head is at (3,8), and its body includes all previous segments plus an extra one.
+
+However, regardless of how it's represented, the key point is that after moving to (3,8), we need to ensure that in subsequent moves, the snake can continue without colliding with its own body.
+
+So from (3,8), the next move could be UP or DOWN. But since we're at the top of the grid (assuming it's a 4x4 grid?), moving UP would take us out of bounds, so only DOWN is possible.
+
+But let's not get bogged down in specifics—let's just outline that after eating the apple, the snake can still move safely.
+
+So summarizing the path:
+
+1. Start at (1,2), face RIGHT.
+2. Move to (2,2).
+3. Move to (3,2).
+4. Move UP repeatedly until reaching (3,8) and eat the apple.
+5. Continue moving DOWN or other directions as needed to exit safely.
+
+This seems like a viable path. Let's check for any possible collisions along the way.
+
+From (1,2) → (2,2): safe.
+From (2,2) → (3,2): safe.
+Then from (3,2):
+
+- Move UP to (3,3): body becomes [(3,2), (2,2), (1,2)] after removing (1,3). Safe.
+- Then move UP to (3,4): body becomes [(3,3), (3,2), (2,2)]. Safe.
+- Continue until reaching (3,7).
+- Move to (3,8) and eat the apple.
+
+After eating, the snake's body is longer by one segment. So when moving from (3,8), it can't immediately reverse direction if needed.
+
+But since we're at the apple's location, which is at (3,8), after eating, the next move could be DOWN to avoid reversing.
+
+However, this might not matter much as the objective is achieved by reaching (3,8).
+
+Therefore, a possible path is:
+
+- Move RIGHT → RIGHT → UP ×6
+
+But translating that into specific moves:
+
+1. Right
+2. Right
+3. Up
+4. Up
+5. Up
+6. Up
+7. Up
+8. Up
+9. Up
+
+Total of 9 moves: 2 Rights and 7 Ups.
+
+This ensures we reach (3,8) safely without colliding with our own body segments.
+</think>
+
+To solve the problem, you can follow these steps:
+
+1. **Move Right**: From your starting position at (1,2), move right to (2,2).
+2. **Move Right Again**: Continue moving right to (3,2).
+3. **Move Up Repeatedly**: Move up six times from (3,2) to reach (3,8). This will allow you to eat the apple at (3,8).
+
+After eating the apple, your snake's body grows by one segment. From there, you can move down or exit safely without reversing direction if needed.
+
+**Final Path**:
+- Right → Right → Up ×6
+
+This path leads you to the apple's location at (3,8), allowing you to eat it and complete the objective.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (1, 2) and whose body cells are in list format [(3, 3), (2, 3), (1, 3)], to eat the apple at (3, 8).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

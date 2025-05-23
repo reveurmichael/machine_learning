@@ -1,0 +1,162 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I have to plan a safe path for the snake's head to reach the apple at (4,9) starting from (4,2). Let me think about this step by step.
+
+First, I need to understand the movement rules. The snake can move in four directions: UP, DOWN, LEFT, RIGHT. Each direction change is considered a new move. Also, after each move, the tail doesn't move unless it eats the apple, which causes the body to grow but keeps the head moving towards the apple.
+
+The snake's state includes its position and the positions of its body segments. The snake can only move if it doesn't go outside the grid or collide with itself or any other part except for the tail when that tail moves. 
+
+I start at (4,2) facing DOWN. So my first move should be either up, down, left, or right. But I also have to consider future steps because after eating the apple, I might need a legal move.
+
+Let me map out the grid. It's 10x10 with coordinates from (0,0) at bottom-left to (9,9) at top-right. The head is at (4,2), which is in row 5 (since y=2 is lower than y=3). The apple is at (4,9), which is near the top of column x=4.
+
+First, I'll visualize the initial position. My body consists only of my head because it's a snake with one segment: [(4,2)]. 
+
+Now, movement rules:
+
+1. Compute new_head based on direction.
+2. Check for collisions:
+   - If moving beyond grid boundaries.
+   - If moving into another part except the tail when that tail is about to move.
+
+So if I move down from (4,2), my head would be at (4,3). But before making this move, I need to ensure that no other body parts (which there are none) collide with it except for the tail's next position. Since the snake has only one segment, the tail is moving.
+
+Wait, if I choose DOWN, the new_head is (4,3). The old head was at (4,2), so the old head is the same as my current position minus direction vectors. So in this case, it's just me moving down, which is allowed because no other parts are around to collide.
+
+Wait, actually, when I move DOWN, I'm changing the y-coordinate from 2 to 3. The next cell (4,3) should not be occupied by any part of the snake except for the tail if that tail moves.
+
+Since my body only has one segment, the tail is moving. So as long as the new_head is within grid and not in the old head's position minus direction vectors, which would be (5,2), since I'm going DOWN from (4,2). So (4,3) is fine because it's adjacent.
+
+So I can move DOWN to (4,3).
+
+Now, after this move, my body becomes [(4,3)] and the new_head is (4,3). Since there's no apple yet, this doesn't eat anything. So the snake continues moving in the same direction.
+
+Next move: Still facing DOWN. Moving to (4,4). This is allowed unless it collides with any part except if that tail moves when I eat the apple.
+
+But since I haven't eaten anything yet, (4,4) is safe. So now my body is [(4,3), (4,4)].
+
+Continue moving DOWN: new_head would be (4,5). Again, no collision until I eat the apple.
+
+This pattern continues down column x=4, y from 2 to 9. But wait, at y=9, that's (4,9) which is the apple position. So when does the snake move there?
+
+Wait, each time I move DOWN, I end up in (4,y+1). At y=8, new_head would be (4,9), which is the apple. So moving DOWN seven times from y=2 to y=9.
+
+But before that, perhaps I should consider other moves if they provide a better path or avoid some collisions.
+
+Wait, but let me check the movement rules again. Each move proceeds by computing new_head, checking for collisions as per steps 1-3. So in each step after moving, I need to ensure that when I move down, the new_head is safe except if the tail moves (which it won't yet because we haven't eaten anything).
+
+So let's see:
+
+Start at (4,2). Move DOWN to (4,3), then (4,4)... until (4,9). So 7 steps. But that seems too straightforward.
+
+Wait, but perhaps moving in another direction earlier could lead to a shorter path? Let me think.
+
+If I go DOWN for the first few moves and then change direction when near the apple.
+
+But moving DOWN continuously is safe because it's just pushing towards (4,9). Since each step only increases y by 1. So that seems like the shortest path.
+
+Wait, but let me make sure about collision with body parts. The snake has no other segments except for its head and tail. So as long as I don't move into any part of the snake's body beyond just the tail moving, it should be fine.
+
+But since there are only two points, head and tail, if I move down without eating the apple, the new_head is (4,y+1). The old head was at (4,y), so new_head is adjacent. Since no other parts except the tail are around, which will move to (4,y) when I eat the apple.
+
+Wait, but in this case, since I'm moving down, my new_head is (4,y+1), and the old_head is (4,y). So if I move down continuously, each step is safe because the snake's body only has these two points. So as long as I don't collide with them except when eating.
+
+But in this case, since the apple is at (4,9), moving DOWN for 7 steps should take me to the apple without collision until then.
+
+Wait, but after each move, do I check if new_head coincides with any body part except the tail's current cell? Since there are only two parts, head and tail. So as long as I don't land on them, it's okay.
+
+But the head is moving down, so when I move to (4,y+1), that's where my old head was before, which isn't an issue unless it's overlapping with any other part except the tail.
+
+So for each step, new_head is (4,y+1). The old head was at (4,y), but since we're moving down, as long as y < 9, this should be okay. Once I reach (4,9), that's the apple.
+
+But let me check if moving DOWN from (4,2) to (4,3) is allowed. Since the snake has only one segment, and no body parts around except the tail, which moves each step when I eat. So as long as new_head isn't in the old head minus direction vectors, it's okay.
+
+Wait, for the first move: moving down from (4,2). Old head was at (4,2), moving to (4,3). The old head is 5th row (y=2) but that doesn't affect anything. So yes, safe.
+
+So I can plan to move DOWN seven times.
+
+But wait, maybe moving right in some steps could lead me towards the apple if it's easier? Let me think about that.
+
+Wait, at y=9, I'm already there. But perhaps from other positions, moving right or up could provide a better path. However, since I'm starting from (4,2), moving DOWN is the most straightforward way to increase y.
+
+But let me check: After each move, does any collision occur? Since each step only moves one cell down and doesn't change x, which isn't in the snake's body except for the tail. So as long as I don't land on the old head (which is 5th row) but since new_head is y+1, it's not overlapping with any other part.
+
+Wait a second: the snake has only two parts—head and tail. When moving down, each step only changes y by 1. The head moves down, so the next segment is just adjacent to the current head. So as long as I don't move into the old head's position minus direction vector (which would be (5,2)), which isn't an issue because new_head is (4,y+1).
+
+So it seems that moving DOWN for seven steps will take me from y=2 to y=9.
+
+But wait, let me count the moves. Starting at (4,2):
+
+1. Move down to (4,3)
+2. Move down to (4,4)
+3. Move down to (4,5)
+4. Move down to (4,6)
+5. Move down to (4,7)
+6. Move down to (4,8)
+7. Move down to (4,9) — which is the apple.
+
+So that's seven moves of DOWN.
+
+But wait, in the movement example given, if the snake's head and body are considered as a single list, perhaps I should think about it differently. But no, since there's only one segment, moving DOWN each time is straightforward.
+
+Wait, but when moving DOWN, would that cause any collision with other parts except the tail? Since all other cells are empty, it's safe.
+
+So the plan is:
+
+Move DOWN seven times to reach y=9 from (4,2).
+
+But let me double-check if there's a possible detour or a different path that might be shorter. But since moving straight down seems like the shortest way, and no collisions in between, this should be acceptable.
+
+Therefore, the moves would be all DOWN.
+</think>
+
+{"moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"], "reasoning": "Starting at (4,2), moving down seven times to reach (4,9) where the apple is located. Each move maintains safety with respect to the snake's body and prevents collisions with other parts of the snake except the tail during movement towards the apple."}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (4, 2) and whose body cells are in list format [], to eat the apple at (4, 9).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

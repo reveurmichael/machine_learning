@@ -1,0 +1,149 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, I need to figure out a path for the snake's head from (0,8) to (3,3) without colliding with walls, itself, or its body. The snake has no initial body since the body list is empty. So it can move freely as long as it doesn't hit anything.
+
+First, I should consider the movement rules and constraints:
+
+1. **Direction Constraints**: The snake cannot reverse direction on the first move. Since it's starting at (0,8), moving left would take it out of bounds, so the first move must be either UP or RIGHT.
+
+2. **Path Planning**: The goal is to reach (3,3) with enough moves and avoid self-collisions. I'll plan a path that allows each move without overlapping with any body cells or walls. Since there's no initial body, only the head needs to be considered for collisions except when growing after eating an apple.
+
+3. **Manhattan Distance**: The apple is 3 units right and 5 units down from the head. So I need a net movement of RIGHT 3 times and DOWN 5 times.
+
+4. **Avoiding Immediate Traps**: After eating the apple, there should be at least one legal move left. But since we're planning to eat it directly without moving first (as in the example where after eating, you can still move right), I need a path that allows this.
+
+Let me sketch out possible moves step by step:
+
+Starting position: HEAD = (0,8)
+Apple location: (3,3)
+
+First move options:
+- UP is not possible because it's already at y=8. Moving up would take it to (0,9), which is beyond the grid.
+So first move must be RIGHT.
+
+Move 1: RIGHT → new_head = (1,8). Check for collision: no one is there yet since body list is empty. So proceed.
+
+Now, HEAD is at (1,8).
+
+Second move options:
+- Can't reverse direction from RIGHT to LEFT. Wait, the initial direction was RIGHT, so next can be UP, DOWN, or continue RIGHT.
+But moving further right would take it closer to apple's x=3 but y remains 8, which isn't helpful for getting down.
+
+Alternatively, moving UP could help reduce y-coordinate towards 3.
+
+Move 2: UP → new_head = (1,7). No collision. Proceed.
+
+Now HEAD is at (1,7).
+
+Third move options:
+- Previous direction was UP. Next can be RIGHT, DOWN, or continue UP.
+
+Moving UP again would get to (1,6), which might allow reaching the apple by moving right and down more.
+
+Move 3: UP → new_head = (1,6). No collision.
+
+Fourth move:
+
+Previous direction UP again, so options are RIGHT, DOWN, or continue UP. Let's try RIGHT to start moving towards x=3.
+
+Move 4: RIGHT → new_head = (2,6). Proceeding without collision.
+
+Fifth move:
+
+Current direction is RIGHT. Previous was also RIGHT. So can't reverse. Next moves could be RIGHT again, but let me check the path. To reach x=3 quickly, another RIGHT would get us to (3,6).
+
+Move 5: RIGHT → new_head = (3,6). Check collision: no one there.
+
+Now at (3,6), need to move down towards y=3. Previous direction was RIGHT, so next can be DOWN or continue RIGHT but that's same x. So moving DOWN:
+
+Move 6: DOWN → new_head = (3,5). Proceeding without collision.
+
+Next Move options from (3,5):
+- Can't go back RIGHT as previous was RIGHT.
+Options are DOWN or LEFT or UP.
+
+Moving DOWN would take us to (3,4), closer to the apple at y=3. Then next move can be DOWN again to (3,3).
+
+So:
+
+Move 7: DOWN → new_head = (3,4). Proceeding without collision.
+
+Move 8: DOWN → new_head = (3,3). Reached the apple! Since we are eating the apple, the tail doesn't need to move. So after this move, the snake's body will grow by one as it eats.
+
+Wait, but according to the rules:
+
+After eating the apple, the snake grows, so the body increases in length by 1 because the new head is added and no tail is removed. Therefore, the next move should be possible without immediately getting trapped.
+
+But since we're done once the apple is eaten, perhaps I don't need to plan further moves beyond this point.
+
+So total moves: RIGHT, UP, UP, RIGHT, RIGHT, DOWN, DOWN.
+
+Let me verify each step:
+
+1. Start at (0,8)
+2. Move RIGHT to (1,8)
+3. Move UP to (1,7)
+4. Move UP to (1,6)
+5. Move RIGHT to (2,6)
+6. Move RIGHT to (3,6)
+7. Move DOWN to (3,5)
+8. Move DOWN to (3,3) – apple eaten.
+
+This seems valid with no collisions and each move is legal.
+</think>
+
+```json
+{
+  "moves": ["RIGHT", "UP", "UP", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The path moves right twice, then up three times to reach the apple's x-coordinate, followed by two downs to reach y=3. This ensures no self-collisions and progresses towards the target without reversing initially."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (0, 8) and whose body cells are in list format [(0, 7)], to eat the apple at (3, 3).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

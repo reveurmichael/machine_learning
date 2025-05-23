@@ -1,0 +1,466 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I need to help plan a safe path for the snake's head from (5,5) to (3,0) on a 10x10 grid. The snake has a body list provided, and I can't collide with any cells except maybe when eating the apple. Let me think through how to approach this.
+
+First, let me visualize the grid. Coordinates are (x,y) where x ranges from bottom-left (0,0) to top-right (9,9). So (5,5) is somewhere in the middle, and (3,0) is on the right edge, way below it.
+
+The snake's body segments are given as a list starting from behind the head. The provided example has (4,4), (4,3), etc., down to (2,1). So the initial position of the snake is:
+
+Head at (5,5), then each segment before that in reverse order: (4,4), (4,3), (3,3), (3,2), (2,2), (2,1). Wait, but the body segments are from behind the head to the tail. So for a snake of length 9, it's [5,5] followed by 8 body cells.
+
+Wait no, the provided list is ordered as head, then the next in front towards the tail? Or maybe not. Let me see: the given example has (4,4) as first after head at (5,5). So perhaps the snake's body includes segments behind the head and up to tail.
+
+So the snake starts with the head at (5,5), then each segment is one step in the direction of movement. Wait no, because the direction can be "NONE", which means we don't know yet, but for the initial move, it's allowed as per rules 2.
+
+Wait the problem states that when current direction is NONE, any first move is allowed. So I guess the snake starts with some direction? Or maybe not; perhaps we need to find an initial path regardless of direction, or perhaps the snake's body list gives us clues about its initial position and movement.
+
+But in this case, since it's given that the snake's head is at (5,5) and the body cells are provided as a list starting from behind the head, which includes segments like (4,4), then maybe we need to figure out where each segment is placed.
+
+Wait, perhaps the snake's body list is ordered as segments immediately behind the head up to the tail. So for a length n snake, the body has n-1 segments after the head. Or maybe it's n segments including the head? I'm getting confused.
+
+Wait, in the example given, the snake starts with (4,4) as the first segment after (5,5). That suggests that from (5,5), moving to (4,4) is one step. So perhaps each subsequent body cell represents a previous position of the head.
+
+So the snake's body has segments in reverse order of where it moved from the head. So if I'm at (5,5), then moving right would go to (6,5), but that's not shown here. Alternatively, maybe each segment is one step back from the current head's position.
+
+Wait no, because (5,5) has body cells starting with (4,4). So perhaps moving in direction "RIGHT" would bring the snake to (6,5), and then the next body cell is (7,5), but that's not shown. Alternatively, maybe the given list includes all the body segments after the head as it moves backward.
+
+So if the given body cells are [ (4,4), (4,3), ... ] for a snake of length 9, then perhaps the initial move is to change direction and come back.
+
+Wait no, because in movement example, when moving right from (5,5) to (6,5), but that's not in the body list. Wait, maybe the body segments are all cells occupied by the snake except the head. So if the snake moves right, then the new_head is at (6,5), which is not in the body list.
+
+Hmm, this is a bit confusing. Let me try to clarify:
+
+The snake's full S is [HEAD, BODY1, BODY2, ..., BODYn]. The given Body cells are from behind HEAD to Tail. So for a snake with length n+1 (including head), the body has n segments after the head.
+
+So in this case, the given list is 8 segments: starting at (4,4) and ending at (2,1). That suggests that from the initial head of (5,5), moving in some direction brings us to (4,4). So the direction could be "DOWN" since x decreases by 1, y same.
+
+So let me confirm. If the snake is at (5,5) and wants to move to (6,5), which would be a RIGHT movement, then after that, the new_head would be (7,5), but perhaps in this case, I'm not allowed to go there if it's blocked.
+
+But wait, according to movement rules, each move updates the body. So for each step:
+
+1. Compute new_head based on direction.
+2. Check collisions: if outside grid or overlapping with any existing body (except tail when moving), collision occurs.
+3. Update body by inserting old head and possibly removing the tail.
+
+Wait no, in the example, after moving RIGHT from (5,5) to (6,5), the new_head is checked against all existing body cells except the tail? Or including the tail?
+
+In movement rule 2: "if new_head coincides with any BODYi except the tail's current cell when that tail will move this turn".
+
+So during the collision check before moving, we need to consider if the new_head is in a body segment (from behind) other than the tail. Because the tail moves next.
+
+Wait, but in this scenario, the movement is from (5,5), trying to go right to (6,5). But the given body list includes all cells except the head. So when checking for collision before moving:
+
+- new_head is (6,5).
+- existing body segments are (4,4), (4,3), ..., (2,1).
+
+So (6,5) doesn't coincide with any of these, so it's safe.
+
+Then, step 3a: Insert old head at front. So the snake becomes [(6,5), (4,4), ... ].
+
+Step 3b: If new_head is apple position, grow by adding the new head to the end. But in this case, new_head is not (3,0).
+
+Then step 3c: Else, remove tail.
+
+But wait, when moving RIGHT from (5,5) to (6,5), we're considering whether that move would cause the snake to collide with any body cell except the tail's current position. But in this case, since new_head is (6,5), which isn't a body segment, it's safe.
+
+So now the snake has [ (6,5), (4,4), ... ] and we proceed.
+
+But wait, after moving to (6,5), the next move would be trying to check collisions with other body segments.
+
+Wait, but if in this scenario I'm at (6,5) and try to go RIGHT again, new_head is (7,5). Then I have to see if that's outside grid. If x=9, it's on the edge. So movement would be invalid because beyond the grid.
+
+But perhaps after moving right from (5,5), I can't move further without hitting a wall or another body segment.
+
+Alternatively, maybe the snake has multiple moves possible before colliding with itself or other parts.
+
+Wait, but according to rule 4: death conditions include if new_head is outside bounds. So any move that takes new_head beyond x=9 or y=9 is invalid.
+
+So perhaps from (5,5), moving right to (6,5) is allowed, as it's within the grid.
+
+But wait, looking at the body list again: [(4,4), (4,3), ..., (2,1)]. So (6,5) isn't in there. So no collision yet.
+
+Wait, but if I try to move further right from (5,5) to (7,5), that's beyond grid? No, x ranges up to 9, so y=5 is okay as long as x<=9.
+
+So moving RIGHT again would be allowed unless it collides with a body segment or the apple.
+
+But in this case, I'm not sure. Maybe I should try another approach: starting from (5,5) and see how far I can move without hitting any other parts of the snake except for possible blocking.
+
+Wait, perhaps after moving to (6,5), which is allowed, then trying to move again in some direction.
+
+Alternatively, maybe it's better to find a path that doesn't get too close to the body, especially when eating the apple.
+
+Wait, but when I'm at (6,5), I need to check if any of the existing body segments are adjacent except for the tail. So from (5,5) -> (6,5): after moving right, the new_head is (6,5). The existing body list includes all segments before the tail.
+
+So when checking for collision with new_head and existing body cells:
+
+- Is new_head in a segment except the tail? Well, new_head is the head of the snake. So no, it's not part of the body except the head itself. But according to movement rule 2, we're considering if new_head coincides with any BODYi (which are behind the current tail) when that tail moves.
+
+Wait, maybe I'm overcomplicating this. Let me consider another approach: perhaps start by moving towards the apple from (5,5).
+
+The apple is at (3,0). So to get there, the snake needs to move up and left.
+
+But in the given body list, starting at (4,4), etc., so movement can't go directly to (3,0) without hitting other parts.
+
+Wait, perhaps moving right from (5,5) is allowed. Then trying to move back left? But how?
+
+Alternatively, maybe I'm missing some key steps or needs to find an initial direction that allows me to maneuver towards the apple.
+
+Wait, but given the body list, it's possible that in each step, the snake has to adjust its position based on previous moves.
+
+Let me try to outline a potential path:
+
+Start at (5,5).
+
+First move: RIGHT to (6,5). This is allowed because new_head isn't a body segment yet. Then check for any collisions with existing body segments except tail? No, so proceed.
+
+Second move: Try moving LEFT from (6,5) to (5,5). But that's the current head; perhaps allowed if not overlapping other parts.
+
+Wait, but according to movement rule 2, new_head shouldn't coincide with any existing segment except maybe itself. Hmm.
+
+Alternatively, moving left would take me back to (5,5), which is the head. So in this case, the new_head would be (5,5). But that's already occupied by the head; does that cause a collision? Well, it's part of the body, but not a segment except for itself.
+
+But movement rule 2 says if the new_head coincides with any existing segment, meaning including other body parts. So perhaps moving back to (5,5) would be allowed as long as it doesn't conflict with any other parts except for the tail.
+
+Wait no, because the tail is at (2,1). The current snake's segments are [(6,5), (4,4), ... ] and the new_head could potentially create a collision if it aligns with another body part.
+
+But in this case, from (6,5) moving back to (5,5): the new_head is (5,5). Are any other body parts adjacent?
+
+Looking at the given body list: [(4,4), (4,3), ..., (2,1)]. So each segment is two units apart.
+
+(5,5) isn't in this list. So no collision yet.
+
+So after moving to (6,5), then trying to move back left to (5,5). Then new_head is (5,5), which is not part of the body except for itself. So allowed.
+
+Wait, but when you remove the tail from a snake of length n+1, you get a snake of length n.
+
+So perhaps each move affects the body list accordingly.
+
+But I'm getting stuck here. Maybe it's better to think about how the collision check works.
+
+In movement rule 2:
+
+After computing new_head, check if new_head is outside grid: invalid.
+
+Else, for all existing segments (excluding tail?), check if any segment contains new_head. If yes, invalid.
+
+Wait, no: in the example, when moving from (5,5) to (6,5), which is not a body segment, but perhaps after that, I could move back left to (4,4). Wait, let's see:
+
+From (6,5), trying to move LEFT to (5,5): allowed if new_head isn't colliding with any other segments.
+
+But in this case, the existing body segments are [(4,4), (4,3)...], so (5,5) is not a segment. So collision occurs? No, because movement rule 2 says that only check against existing segments except for the tail when moving.
+
+Wait no: in step 2 of movement rules:
+
+- If new_head coincides with any bodyi (from behind the current tail) when it's about to move again.
+
+So perhaps during each step after moving, we need to ensure that the new_head isn't colliding with any other segments except possibly itself as part of the tail. But I'm not entirely sure.
+
+Alternatively, maybe the collision check is done only against existing segments (excluding bodyi except for the current head). Hmm, this is getting complicated.
+
+Perhaps a better approach is to consider each move step-by-step, keeping track of the snake's position and body list.
+
+But given that it's time-consuming, perhaps I should look for alternative methods or constraints.
+
+Wait, since the given body list includes (4,4), (4,3), etc., which are behind the head at (5,5), this suggests that each segment is one step back from the previous. So from (5,5) to (4,4) would be a move right, but then to (4,3) perhaps another direction.
+
+Wait no, if it's moving in direction "right" from (5,5), new_head becomes (6,5). Then, moving back left, new_head is (5,5), which is the same as the previous head. So that would be allowed.
+
+But wait, according to movement rule 2:
+
+After computing new_head based on current direction, we need to check whether it collides with any existing segment except for the tail's current position when the tail will move next step.
+
+Wait no: during the collision check before moving, new_head can't coincide with any of the existing body segments (except possibly itself as part of the head).
+
+But in this case, since we're at (6,5), trying to move back left to (5,5). The current tail is at (2,1). So from (5,5), moving left would take us to (4,5) or something. Wait no: from (5,5), moving left is towards decreasing x.
+
+So if I'm at (6,5), move left once to (5,5): that's allowed as long as it doesn't collide with any existing body segments except for the tail's position when they next move.
+
+Wait, but in this scenario, after moving right from (5,5) to (6,5):
+
+- new_head is (6,5)
+- check against all current body segments except for the current tail?
+
+But I'm not sure. Alternatively, perhaps the collision check is done before any moves, so we can't have any collisions with existing body parts.
+
+In that case, from (5,5), moving right to (6,5) would create a new_head at (6,5). The existing body list is [(4,4), (4,3)...], so none of these are at (6,5). So allowed.
+
+Then, trying to move back left: from (6,5) to (5,5). The new_head is (5,5), which isn't in the current body segments except for itself. But since it's part of the snake's head, that might be considered a collision? Or perhaps not.
+
+But movement rule 2 says "if new_head coincides with any other segment", i.e., existing bodyi excluding the tail. So if (5,5) is in the current body segments except for the tail?
+
+Wait no: the current snake's body includes [ (4,4), ... , (2,1) ], which are all behind the head at (5,5). The new_head is (5,5), so it's not part of the existing body. So perhaps this movement is allowed.
+
+But then trying to move back left from (6,5) to (5,5): would that cause any collision? Because the current tail is at (2,1).
+
+Wait, when I'm moving left and new_head is (5,5), which isn't in the body except for the head. So no collision yet.
+
+But wait, perhaps after this move, if I try to proceed further, there might be a collision with existing body segments.
+
+Alternatively, maybe I should consider other directions initially.
+
+Wait, but given that movement from (5,5) is allowed right and left, how do I avoid getting stuck without the apple? Because in this case, the snake's body list includes several cells behind it, so any move that brings it too close to those might cause a collision.
+
+But perhaps there are multiple possible paths. Let me try another approach: trying to move up from (5,5) to (3,5). Then check if new_head is within grid, and doesn't coincide with existing body segments except for the tail's position when moving.
+
+Wait, but according to movement rule 2, the collision check happens before any moves. So perhaps I can try a different initial direction.
+
+Alternatively, maybe it's better to consider that from (5,5), moving in some direction is necessary to maneuver towards the apple at (3,0).
+
+But given the body list, which includes cells beyond x=4, like (4,4) and down to (2,1), perhaps I can't move directly left without getting stuck.
+
+Alternatively, maybe it's better to try to find an initial direction that allows me to avoid collisions with those body parts when moving forward or backward.
+
+Wait, but given the problem statement, we need to plan a series of moves starting from (5,5) and ending at (3,0), avoiding any collision between itself and other cells except for possible overlaps on the way.
+
+But perhaps it's better to think about how the movement rules enforce movement:
+
+Each move must not have new_head collide with any existing body segment except when moving towards the tail. So each time you try to move in a direction that brings you too close to another part of the snake, it's invalid unless you're moving directly away from those parts.
+
+Wait no: rule 2 says "if new_head coincides with any BODYi (from behind the current tail) when that tail will move this turn", meaning that during each step after moving, we must ensure that new_head isn't in a segment except for the current body's position as the head. So perhaps I can proceed to move left from (5,5) to (4,5), but if (4,5) is not part of the current body segments, it would be allowed.
+
+But given that the body list includes cells at x=2 and beyond, maybe moving back without aligning with those could lead to a collision.
+
+Hmm, this seems quite complicated. Maybe I should try to outline a possible sequence of moves from (5,5):
+
+1. Move Right: (6,5)
+   - Check for collision with existing body segments except tail? No.
+   - Proceed.
+
+2. Try moving Left: (5,5)
+   - Check if new_head is in current body segments except head? No.
+   - Proceed.
+
+3. Now at (5,5), try Moving Right to (6,5) again?
+   - But that's already done. Or move up?
+
+4. Move Up from (5,5): (5,4)
+   - Check if new_head is in body segments except head? No.
+   - Proceed.
+
+Wait, but maybe this leads to moving further away and not getting closer to the apple at (3,0).
+
+Alternatively, perhaps I should move down:
+
+From (6,5), try Moving Down: (6,4)
+- Check collision with existing body? No.
+- Then Move Down again: (6,3)
+   - Still no problem.
+
+But that's moving away from the apple. Maybe another approach is needed.
+
+Wait, maybe the snake needs to maneuver around its own body parts in order to reach the apple.
+
+For example:
+
+1. From (5,5), move right to (6,5).
+2. Then move down to (6,4).
+3. Move up to (6,3) [but this is moving away from apple].
+Hmm, that's not helpful.
+
+Alternatively, perhaps I should try a different initial direction after the first step.
+
+Wait, but movement from (5,5) isn't limited except by collision with existing body segments. So maybe the best approach is to move right as much as possible before trying to go back left or down.
+
+But if moving right too far could lead me beyond (6,5), perhaps it's not necessary and causes a collision?
+
+Wait no: from (5,5) moving right takes me to (6,5). Then the body list includes cells like (4,4), etc., which are two steps back. So moving from (6,5) to (7,5) would be allowed since it's beyond the existing body segments.
+
+Wait no: but the problem is that I can't move in a direction that brings me too close to any other part of the snake except for when moving towards the tail.
+
+Wait, perhaps each step after moving must not bring new_head into a position where it overlaps with another segment, unless it's moving away from those parts.
+
+But this is getting quite intricate. Maybe I should approach it by trying to model possible moves and see which path leads me closer to (3,0) without getting stuck in a loop or collision.
+
+Another thought: since the body list includes cells like (4,4), (4,3), etc., maybe moving left from (5,5) to (4,5) could lead to collisions. So perhaps it's better to move up first before trying to move back left.
+
+So let me outline a possible path:
+
+1. Move Up: From (5,5) to (5,4).
+2. Then Right to (6,4).
+3. Move Up again to (6,3).
+   - Check collision with existing body segments except for tail? No.
+4. Now at (6,3), move Right to (7,3). Allowed?
+Yes, as it's beyond the existing body.
+
+5. At (7,3): Maybe try moving down to (7,2) or up to (7,4).
+
+But this might not be helpful for reaching (3,0).
+
+Alternatively, perhaps a different initial approach: from (5,5), first move left towards (4,5):
+
+1. Move Left from (5,5) to (4,5).
+   - Check collision with existing body segments except head? No.
+2. Now at (4,5): Try moving right back to (5,5).
+   - Collision possible?
+   - Yes: new_head is (5,5), which is not in the existing body except for itself as the head.
+   So this would be allowed since it's the current head.
+
+3. Then move up from (4,5) to (4,4):
+   - Check collision with existing segments? No.
+4. Move right to (5,4).
+   - Allowed?
+Yes.
+
+Alternatively, maybe a better path is needed.
+
+Wait, perhaps trying to approach the apple while avoiding being too close to any body parts.
+
+But I'm not sure. It's time-consuming and I might be getting stuck here.
+
+Perhaps it would help to consider that the collision check only considers existing segments except for the tail when moving towards it. So during each move after moving, we need to make sure that new_head doesn't align with any segment except for being part of the head's position as current direction.
+
+So in this scenario:
+
+- From (5,5), moving right to (6,5): allowed.
+   - Then, when trying to move left again, could it cause a collision? Let's see: from (6,5) moving left to (5,5). The new_head is (5,5), which isn't in any of the existing body segments except for itself as part of the head. So that's allowed.
+   
+- From (5,5), trying to move up to (5,4):
+   - Then right back to (6,4): allowed.
+
+But this approach might not reach the apple yet.
+
+Alternatively, perhaps from (6,5) moving down to (6,3):
+
+1. At (6,5), try Moving Down: (6,4).
+2. Then Moving Down again: (6,3).
+
+Now at (6,3). But that's away from the apple.
+
+Hmm, not helpful.
+
+Perhaps I need to consider a different initial direction when moving left or right after some steps.
+
+Alternatively, maybe trying to move up and down first before moving in any other direction.
+
+From (5,5), perhaps:
+
+1. Move Up: (5,4).
+   - Then, Right to (6,4).
+2. At (6,4): Try Moving Down to (6,3).
+   - Collide with existing body? No.
+3. Now at (6,3). Maybe move right to (7,3):
+   - Allowed?
+Yes.
+
+But this doesn't get me close to the apple yet.
+
+Alternatively, perhaps it's better to think about using a step-by-step approach and see which moves are possible without getting into loops or collisions.
+
+But given time constraints, maybe I should consider that the minimum number of steps is 8, as per some online references. But I'm not sure.
+
+Wait, perhaps considering that in each movement, we might have to change direction twice before moving towards a new area.
+
+Alternatively, since the problem requires me to find a valid path from (5,5) to (3,0), I should consider the minimal steps required and possible paths.
+
+But without knowing exact collision constraints, it's hard to say. So perhaps the answer is 8 moves, but that's just a guess.
+</think>
+
+To solve this problem, we need to navigate a snake from its starting position (5,5) on a grid towards the apple at (3,0), while avoiding collisions with itself and other cells on the way. The snake can move in four directions: up, down, left, and right.
+
+### Approach
+1. **Movement Rules**: Each move must ensure that the new head of the snake does not collide with any existing body segments except when moving towards the current tail position.
+2. **Collision Check**: Before each move, check if the new head would overlap with any segment excluding the current tail's position as the next target for movement.
+3. **Path Finding**: From (5,5), attempt to move in directions that avoid immediate collisions and gradually close in on the apple at (3,0).
+
+### Solution Code
+```python
+# Initialize the snake's position and body segments
+snake = [(6, 5)]  # Starting head at (6,5) based on input example
+
+# Directions: right, left, down, up (in terms of x, y changes)
+directions = [(1, 0), (-1, 0), (0, -1), (0, 1)]
+
+# Current position and snake's segments
+current_head = None
+body_segments = set(snake)
+
+# Main loop to move the snake towards the apple
+while current_head != (3, 0) and len(body_segments) > 0:
+    # Find possible directions where new head doesn't collide with body segments except tail
+    next_positions = []
+    for dx, dy in directions:
+        new_head = (current_head[0] + dx, current_head[1] + dy)
+        if new_head == (3, 0):
+            # Moving to the apple's position; check if it's allowed based on collision rules
+            # We are moving directly towards the target and not into any other segments except as part of body
+            next_positions.append(new_head)
+        else:
+            # Check if new_head is in body_segments except for current_head (the head itself)
+            collision = False
+            for x, y in snake[1:]:
+                if x == new_head[0] and y == new_head[1]:
+                    collision = True
+                    break
+            if not collision:
+                next_positions.append(new_head)
+    # If no valid direction found yet (i.e., the apple isn't reachable without more moves), proceed to move towards it
+    if len(next_positions) == 0:
+        for dx, dy in directions:
+            new_head = (current_head[0] + dx, current_head[1] + dy)
+            # Move as close as possible towards the apple while avoiding immediate collisions
+            # For example, moving down to (3,5), then left, etc.
+            next_positions.append(new_head)
+    # Move in the first valid direction found
+    if not next_positions:
+        # This should theoretically never happen since snake can reach the target eventually
+        pass
+    current_head = next_positions[0]
+    body_segments.add(current_head)
+
+# Output the final position of the head (should be near or on the apple)
+print("Final position:", current_head)
+```
+
+### Explanation
+The code simulates the movement of a snake starting from (6,5) trying to reach the apple at (3,0). It uses predefined directions and checks each possible move to avoid immediate collisions. The algorithm ensures that each new head moves in a way that either reaches the apple directly or gets closer without causing immediate blockades.
+
+The solution iteratively updates the snake's position based on collision constraints until it successfully navigates towards the apple. This approach efficiently explores possible paths and avoids getting stuck, ensuring the snake can reach its goal within minimal steps.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 5) and whose body cells are in list format [], to eat the apple at (3, 0).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -1,0 +1,592 @@
+Timestamp: 2025-05-24 01:56:00
+Request Time: 2025-05-24 01:52:54
+Response Time: 2025-05-24 01:56:00
+Model: deepseek-r1:7b
+Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+<think>
+Alright, let's tackle this Snake game problem step by step. I'm a bit new to this, so I'll need to think carefully about each move and plan ahead.
+
+First, the snake is currently at position (8,3), facing LEFT. The body cells are just [(9,3)], which means it's only two segments long: the head at (8,3) and the tail at (9,3). The apple is at (1,4).
+
+I need to get from (8,3) to (1,4) without colliding with the walls or the snake's body. Since the snake can't reverse direction on the first move, I have to choose a direction that doesn't immediately take it back.
+
+Let me consider possible directions:
+
+1. **LEFT**: Moving left would decrease x by 1 each step. From (8,3), moving LEFT takes it to (7,3). But let's check for collisions. The current body is at (9,3) and (8,3). The new head after moving LEFT would be (7,3), which isn't occupied yet. So that seems safe.
+
+2. **RIGHT**: Moving RIGHT from (8,3) would go to (9,3), but that's where the tail is currently. Since it's not the first move and we're just starting, maybe this could work if we can manage body segments correctly. But since the snake is only two segments, moving RIGHT might cause issues later when shifting.
+
+3. **UP** or **DOWN**: Moving UP would increase y by 1 to (8,4), and DOWN would decrease y to (8,2). Either seems possible at first glance. Let's see what happens after each move.
+
+Since the apple is at (1,4), which is significantly left of the current head position, moving LEFT seems like a logical initial step because it reduces x quickly towards the target.
+
+Let me outline a tentative path:
+
+- Move LEFT to (7,3)
+- Continue moving LEFT to (6,3)
+- Keep going LEFT until reaching (1,3)
+- Then move UP or DOWN to reach y=4
+
+Wait, but after each move, the snake's body shifts. The current body is [(9,3), (8,3)]. When we move LEFT, the new head becomes (7,3). The old head (8,3) moves to position 2, and the tail at (9,3) might stay or change based on whether it eats an apple.
+
+But in this scenario, I'm not eating the apple yet. So when moving, after each step:
+
+- Insert new head at the front of the body list.
+- Remove the last element if not eating apple.
+
+So let's simulate a few steps to see how it goes.
+
+1. **First move: LEFT**
+   - New head: (7,3)
+   - Body becomes [(8,3), (9,3)] → Wait, no. Wait, the old head is moved into position 2, so the new body after moving would be [new_head] + previous_body[:-1]. So from [(9,3), (8,3)], after moving LEFT and not eating apple:
+     - New_head = (7,3)
+     - Insert at front: [(7,3), (9,3)]
+     - Remove last element since no apple eaten: [(7,3), (9,3) becomes [(7,3), (8,3)]
+   Wait, that doesn't make sense. Let me correct this.
+
+Actually, the body list is [BODY1, BODY2, ..., TAIL]. When moving, we insert the new head at the front and remove the last element if not eating apple.
+
+So initial body: [(9,3)] since it's just one segment behind the head (8,3). Wait no, wait. The given body cells list is [(9,3)], which includes all segments except the head, in order from the segment immediately behind the head to the tail.
+
+Wait, correction: According to rule 2, the body list excludes the head and goes from the segment behind to the tail. So with head at (8,3) and body list as [(9,3)], that's just the tail since it's a two-segment snake.
+
+So after moving LEFT:
+
+- new_head = (7,3)
+- insert into the front of the body: [new_head] + body → [ (7,3), (9,3) ]
+- Since not eating apple, remove last element: [ (7,3), (9,3) ] becomes [ (7,3), (9,3) ]? Wait no, because it's a list of [HEAD, BODY1]. So when you move and don't eat apple, the tail is removed.
+
+Wait maybe I need to re-express this. The body list starts as [(9,3)] which is just the tail since the head is (8,3). When moving:
+
+- new_head = (7,3)
+- Insert it at front: [ (7,3), (9,3) ]
+- Since not eating apple, remove last element (tail): [ (7,3), (9,3) ] becomes [ (7,3) ]
+
+Wait that can't be right. If the body list is [(9,3)], moving LEFT results in inserting (7,3) at front and removing the tail (which was (9,3)), so new body list is just [(7,3)].
+
+But wait, the snake's length remains 2 after each move except when eating apple.
+
+Wait no: According to rule 3b, if not eating apple, remove the last element. So the initial body has one segment, which is (9,3). Moving LEFT:
+
+- new_head = (7,3)
+- Insert into front → [ (7,3), (9,3) ]
+- Remove last element because no apple eaten: [ (7,3) ]
+
+Wait that would make the snake's body only contain [(7,3)], but then how is it connected? The head should be followed by the tail.
+
+Hmm maybe I'm misunderstanding. Let me re-examine rule 2:
+
+Rule 2 states:
+- S is a list where each BODYi is adjacent to its predecessor.
+- The full snake is [HEAD, BODY1, BODY2, ..., BODYN], with each consecutive pair being adjacent.
+- The body cells exclude the head and go from the segment behind (immediately after head) to tail.
+
+So in our case, initial S is [(8,3), (9,3)] → so body list is [ (9,3) ]
+
+When moving LEFT:
+
+1. new_head = (7,3)
+2. Insert at front: [ (7,3), (9,3) ]
+3. Since not eating apple, remove last element: becomes [ (7,3) ].
+
+But then the snake's body is only [(7,3)], which would mean it's just the head and no tail? That can't be right because a two-segment snake should have both head and tail.
+
+Wait perhaps I'm misapplying rule 3b. If not eating apple, remove the last element of the current body list before moving?
+
+No, according to rule 3:
+
+- After inserting new_head at front:
+   - If new_head is apple: do not remove tail.
+   - Else: remove tail.
+
+So if not eating apple:
+
+- Insert new_head into S as new front → [new_head, old_head, ... ]
+- Remove last element (tail) → effectively keeping the length same except when eating apple.
+
+But in our case, initial body is [(9,3)]. After moving LEFT and not eating apple:
+
+- New S becomes [ (7,3), (8,3) ] because we add new_head at front and remove tail. Wait no: wait, original S was [HEAD, BODY], so after inserting new_head, it's [new_head, HEAD] before removing.
+
+Wait maybe I'm mixing up the steps.
+
+Let me clarify:
+
+Original state:
+- HEAD = (8,3)
+- BODY = [(9,3)]
+
+When moving LEFT:
+1. Compute new_head: (7,3)
+2. Check collision with apple? No.
+   - Check if new_head is outside grid? No.
+   - Check if new_head coincides with any body cell except when it's the tail after movement.
+
+But before body shifts:
+
+Current body cells are [(9,3)]. So new_head is (7,3), which isn't in the current body. So no collision.
+
+3. Update body positions:
+   a. Insert old head at front: new S is [ (8,3), (9,3) ]
+   b. Since not eating apple, remove last element → new S becomes [(8,3)]
+   
+Wait that can't be right because the snake would just have its head and no tail.
+
+This suggests that moving LEFT might cause an issue with the body structure.
+
+Alternatively, perhaps after moving, since it's two-segment snake:
+
+When you move, insert new_head at front → [new_head, old_head]. Then remove last element if not eating apple. So from [(8,3), (9,3)], when moving LEFT:
+
+Insert (7,3) → [ (7,3), (8,3), (9,3) ]
+But wait no: because the initial S is [HEAD, BODY1], which is length 2.
+
+Wait I think my confusion arises from how the body list and snake's overall structure changes with each move. Let me try to simulate this step by step more carefully.
+
+Initial state:
+- HEAD = (8,3)
+- BODY = [(9,3)]
+So full S: [ (8,3), (9,3) ]
+
+Move LEFT:
+
+1. new_head = (7,3)
+2. Check collisions: no walls and not in body.
+3. Insert new_head at front of body → S becomes [ (7,3), (8,3) ]
+   - Wait, because the previous S was [ (8,3), (9,3) ], inserting new_head makes it [ (7,3), 8,3 ), and then removing last element since not eating apple.
+   
+Wait no: according to rule 3b:
+
+After inserting new_head into front of body list, we have the full snake as [new_head] + previous_body.
+
+Then, if not eating apple, remove the tail (last element) → so S becomes [new_head] + previous_body[:-1]
+
+But in our case, initial body is [(9,3)]. So after inserting new_head at front: [7,3], 8,3), then removing last element gives [ (7,3) ].
+
+So the snake would be just [ (7,3) ], which doesn't make sense because it's two segments. Therefore, my understanding must be flawed here.
+
+Perhaps when you move LEFT, since the tail is moving forward as well:
+
+Wait no: according to rule 2, the body list represents all body parts except the head, so after inserting new_head and removing last element (if not eating), the snake remains a connected line.
+
+But in this case, initial body has one segment. After moving LEFT and not eating apple:
+
+- Insert new_head → [7,3], 8,3
+- Remove last element because no apple: becomes [7,3]
+
+Which would leave the snake with only the head? That can't be right.
+
+I think I'm misunderstanding how the body list is updated. Maybe when you have a two-segment snake:
+
+After moving, you add new_head to front and remove tail if not eating apple. So from [(8,3), (9,3)]:
+
+Move LEFT → insert 7,3 at front: [7,3], 8,3, 9,3]
+
+Then since no apple eaten, remove last element → [7,3], 8,3
+
+But then the snake would be two segments again. Wait that makes sense.
+
+Wait in this case:
+
+After moving LEFT:
+
+- new_head = (7,3)
+- insert into front: S becomes [ (7,3), (8,3) ]
+   - Because the previous body was [(9,3)]
+   - But since we're adding new_head at front, it's [new_head] + body → but if the body is just a single element, how does that connect?
+
+Wait perhaps I need to model this more accurately.
+
+Another approach: Let's consider the snake as a list of positions from head to tail. So after moving LEFT:
+
+- Current S = [(8,3), (9,3)]
+   - Because head is first, then body1 at 9,3.
+- new_head = (7,3)
+- Insert into front → [ (7,3) ] + current S[:-0] ? Not sure.
+
+Wait no: the full snake after moving would be:
+
+[ new_head, old_head ]
+
+But since it's a two-segment snake, the tail is then removed if not eating apple. So from [(8,3), (9,3)], adding new_head gives [(7,3), (8,3), (9,3)]. Then remove last element: [(7,3), (8,3)].
+
+So after moving LEFT:
+
+- S becomes [ (7,3), (8,3) ]
+
+That makes sense. So the snake's body is now 7,3 followed by 8,3.
+
+Now check for collisions with walls or body.
+
+(7,3): x=7, y=3 → within grid.
+(8,3): head was at previous step, which is not a problem as it's moved to (7,3). Wait no: after the move, S becomes [new_head] + old_body[:-1], so in this case:
+
+From initial S = [(8,3), (9,3)]
+
+After moving LEFT:
+- new_S = [ (7,3) ] + [(8,3)] → because we remove tail.
+
+Wait that would make the snake's body as [(7,3), (8,3)], which is two segments: head at 7,3 and body1 at 8,3. So when moving forward, next step will have to check if new_head after moving would collide with any of these positions except for the tail.
+
+So seems okay.
+
+Continuing this way:
+
+Next move: LEFT again → new_head = (6,3)
+
+Insert into front of current S [(7,3), (8,3)]: becomes [6,3], 7,3; then remove last element because not eating apple. So S becomes [(6,3), (7,3)].
+
+This seems to be a way to move left and decrease x each time until reaching the desired y=4.
+
+But let's consider when we reach the point where moving LEFT would take us closer in x but still have a lot of space. It might make sense to start moving UP or DOWN after some steps to adjust the y-coordinate.
+
+Wait, since our target is (1,4), which is much lower than current position, perhaps it's better to move up once we've reduced x sufficiently.
+
+Alternatively, maybe moving LEFT until reaching column 5, then moving DOWN towards row 4 would be more efficient. Let me calculate:
+
+Current path so far: Starting at (8,3). Moving LEFT three times gets us to (5,3), and S is [(6,3), (7,3)].
+
+Wait no: after each move, the snake shifts forward, with head moving left, and tail dropping off.
+
+But perhaps this approach is not efficient. Maybe I should consider alternative directions once we reach certain points.
+
+Alternatively, maybe moving LEFT all the way to x=1 would make it impossible since y has to be adjusted to 4. Let's see:
+
+If we move LEFT until x=1, starting from (8,3):
+
+Number of moves left: 7 times → to get from 8→7→6→5→4→3→2→1.
+
+So after moving LEFT seven times, head is at (1,3). Then next step would be to move UP or DOWN.
+
+But let's think about that:
+
+After 7 LEFT moves:
+
+- S would have been [(1,3), (2,3)]
+Wait no: Starting from (8,3):
+
+Move LEFT once → (7,3)
+Move again → (6,3)
+...
+Seven times left moves would take us to x=1.
+
+But wait in each move, the snake shifts. So after 7 left moves:
+
+- Original S: [(8,3), (9,3)]
+After first left:
+   - Insert (7,3) at front
+   - Remove last element → new S is [ (7,3) ]
+
+Wait no, that doesn't make sense because the snake should have two segments.
+
+I think I'm making a mistake in understanding how the body list changes with each move. Let me try to model it step by step for multiple moves:
+
+Initial state:
+- HEAD: (8,3)
+- BODY: [(9,3)]
+S = [ (8,3), (9,3) ]
+
+Move 1: LEFT
+   - new_head: (7,3)
+   - Insert at front → S becomes [ (7,3), (8,3), (9,3) ]
+   - Since not eating apple, remove last element → S becomes [ (7,3), (8,3) ]
+
+Move 2: LEFT
+   - new_head: (6,3)
+   - Insert at front → [ (6,3), (7,3), (8,3) ]
+   - Remove last element → [ (6,3), (7,3) ]
+
+...
+
+After seven left moves:
+
+S would be [(2,3), (3,3)]
+
+Then next move: LEFT
+
+new_head: (1,3)
+Insert at front → [ (1,3), (2,3), (3,3) ]
+Remove last element because not eating apple → S becomes [ (1,3), (2,3) ]
+
+Now, to reach y=4 from (1,3). Let's move UP next:
+
+Move 8: UP
+   - new_head: (1,4)
+   Check if this is the position of any body cells? Current S = [(1,3), (2,3)]
+   So new_head is at (1,4), which isn't in current body. Also not outside grid.
+
+Update body:
+- Insert 1,4 into front → [ (1,4), (1,3) ]
+- Since not eating apple, remove last element? Wait no:
+
+Wait after moving:
+
+Original S: [(1,3), (2,3)]
+
+After inserting new_head at front: [ (1,4), (1,3), (2,3) ]
+
+Then since it's a two-segment snake, do we need to keep both segments?
+
+Wait rule 3b says if not eating apple, remove last element. So:
+
+- After insertion, S is [(1,4), (1,3), (2,3)]
+   - Since body was previously [ (1,3), (2,3) ]
+   - Inserting new_head makes it [ (1,4), 1,3 ), 2,3 ]
+
+But since we're not eating apple, remove last element → S becomes [(1,4), (1,3)]
+
+Now the body is two segments: (1,4) and (1,3). That's good.
+
+Next step:
+
+Move UP again:
+
+new_head = (1,5)
+Check if it's outside grid? y=5 > 4? So yes, at y=4 maximum. Wait no: apple is at (1,4), which is within the grid (since y can be from 0 to7). So moving up would take us to y=4+1=5?
+
+Wait wait problem statement says rows are numbered 0-7.
+
+So if we're currently at y=3 and move UP once → y=4. But in our current state, after moving UP the first time, new_head is (1,4). So perhaps:
+
+After seven LEFT moves and one UP move, we reach (1,4), which is where the apple is.
+
+Wait but let's see: After seven LEFT moves, head was at x=1, y=3. Then moved UP to y=4. So new_head would be (1,4). Since this position isn't in current body (current S after moving UP is [ (1,4), (1,3) ] → the tail is still at (1,3)). Therefore, it's safe.
+
+But wait: when you move into a cell that another part of your body is on? So for example, if new_head moves to where body1 was. In our case:
+
+After moving UP once from y=3 to 4 in x=1 position:
+
+Current S = [ (1,4), (1,3) ]
+
+So the head is at (1,4). The tail was at (2,3) before move, but after inserting new_head and removing last element.
+
+Wait no: Let me re-examine.
+
+After moving UP once from [(1,3), (2,3)]:
+
+- Insert new_head → [ (1,4), 1,3 ), 2,3 ]
+   - Then remove last element because not eating apple. So S becomes [ (1,4), (1,3) ]
+
+Now the snake's body is at positions (1,4) and (1,3). So moving to (1,4) which isn't occupied by the tail at (1,3). Wait wait no: when you move UP once from y=3 → y=4. The new_head would be at (1,4), while the tail is still at (2,3)? Or does it shift accordingly?
+
+Wait maybe I'm not correctly updating the body list.
+
+Another approach: After moving up:
+
+The current S before moving was [(1,3), (2,3)]. 
+
+Move UP → new_head = (1,4).
+
+Insert into front of [ (1,3), (2,3) ] to make [ (1,4), 1,3 ), 2,3 ]
+
+Then since we're not eating apple, remove the last element: 2,3.
+
+So S becomes [(1,4), (1,3)].
+
+Now, in this state:
+
+- The head is at (1,4).
+- The body part after that is at (1,3).
+
+So when moving UP again from here would take us to y=5. Let's see if that's safe:
+
+new_head = (1,5). Is this position occupied by any body parts? Current S: [(1,4), (1,3)]. So new_head is at (1,5) which isn't in the current S.
+
+But after moving, we would add 1,5 to front and then remove last element:
+
+S becomes [1,5], 1,4 → but since body was length 2, removing last makes it [(1,5), (1,4)]
+
+Thus, when trying to move into a position beyond the current grid boundaries? No. Because y=5 is still within 0-7.
+
+Wait no: moving UP once from y=3 takes us to y=4; moving again would take us to y=5. But our target was (1,4), which we have already reached on the first UP move after seven LEFT moves. So perhaps I made a mistake in counting steps.
+
+Alternatively, maybe it's better not to go all the way to x=1 but stop earlier and then adjust y accordingly.
+
+Wait, let me recast my approach:
+
+Starting at (8,3). Target is (1,4).
+
+Maybe instead of moving all the way left first, we can find a path that allows us to move closer in both x and y directions.
+
+Another idea: Maybe turn around once you're aligned with the target's row or column. For example, align along a diagonal.
+
+Wait considering the movement rules, turning might be necessary to snake towards the apple.
+
+Alternatively, let me try another approach:
+
+After each LEFT move until we reach (5,3), then start moving UP. Let's see how that plays out.
+
+Wait it's getting complicated without a diagram, so perhaps I should consider the sequence of moves step by step.
+
+Alternative plan: Model the snake as having two segments and track their positions after each move.
+
+But since this is time-consuming, maybe another approach would be to calculate the minimal path considering possible turns.
+
+Another thought: The Manhattan distance between (8,3) and (1,4) is |8-1| + |3-4| = 7 +1=8. So a minimum of eight moves if we could move directly without obstacles. But since it's on grid with walls, some moves are blocked.
+
+But in our case, the snake can't be on itself or outside the grid. Also, each move shifts the entire snake forward by one cell.
+
+Wait perhaps I'm overcomplicating this. Maybe I should just try to find a path step by step.
+
+Let's list possible moves and see if we can reach (1,4) safely:
+
+Start at (8,3). S = [(8,3), (9,3)]
+
+Move 1: LEFT → new_head=(7,3)
+S becomes [ (7,3), (8,3) ]
+
+Move 2: LEFT → [6,3]
+S becomes [6,3], 7,3
+
+...
+
+After 5 moves LEFT:
+
+Head is at (4,3). S = [(4,3), 5,3]
+
+Move 6: LEFT
+new_head=(3,3)
+S becomes [ (3,3), (4,3) ]
+
+Move 7: LEFT → head=2,3. S=[ (2,3), (3,3) ]
+
+Move 8: LEFT → head=1,3. S = [(1,3), 2,3]
+
+Now at move 8: head is at (1,3). S has two segments.
+
+Next step: move UP to reach (1,4).
+
+new_head=(1,4)
+S becomes [ (1,4), (1,3) ]
+
+Is this position safe? Check if it's on the grid. Yes, within bounds.
+
+But let me check for collisions with body:
+
+Current S after moving is [(1,4), (1,3)]. So new_head at 1,4 isn't part of current body except as head. That's fine because the body is [1,3]. Wait no: when we added the new_head, it's inserted into front and then tail is removed.
+
+Wait in this case:
+
+Original S before move: [(1,3), (2,3)]
+
+After inserting new_head at front: [ (1,4), 1,3 ), 2,3 ]
+
+Then remove last element → S becomes [ (1,4), (1,3) ].
+
+So now the body is two segments: head at (1,4), tail at (1,3). The position we're moving into isn't occupied by any part of our body except for the new head. So it's safe.
+
+Thus, after move 9:
+
+S = [ (1,4), (1,3) ]
+
+But wait apple is at (1,4), so if in this move we moved to where the apple was, but only when eating? Or can we reach there without eating?
+
+Wait no: moving into the apple's position doesn't require eating. So if new_head reaches (1,4), which is where the apple is, and that's our target.
+
+But let me confirm:
+
+After move 9, S = [ (1,4), (1,3) ]
+
+Is this a correct state? The head is at (1,4), body part at (1,3). So we have successfully reached the apple without eating it yet. Therefore, no need to eat, so perhaps we can stop here.
+
+Wait but how?
+
+Because when moving into (1,4):
+
+- new_head is (1,4)
+   - not in current S [(1,3), 2,3] → correct
+   - after inserting and removing tail: [ (1,4), (1,3) ]
+
+So the movement was successful.
+
+But wait no. Wait we have to be careful here. When moving into a cell that is occupied by another part of our body:
+
+If new_head's position matches any other part of S except itself, it would result in collision with self.
+
+In this case, moving UP from (1,3) → y=4. The current S before move was [ (1,3), 2,3 ].
+
+So new_head is at (1,4). Check if that's in the previous body: no, because the body parts are at (1,3) and (2,3). So it's safe.
+
+Thus, successfully moved into apple's position. But wait: does this mean we have eaten the apple? Because only when you move into its position do you eat it?
+
+No, in the problem statement, "eat" is a consequence of moving onto that cell during your turn. So if you can reach (1,4) without being on the apple's cell until then.
+
+Wait no: when you make the move to 1,4, you are moving into the apple's position. Therefore, according to the rules:
+
+"When you move in any direction, check whether that new cell has food. If so and if it is your turn (i.e., you just made a move), then eat the food."
+
+Wait wait I'm not sure about the exact rule here.
+
+From problem statement: "In this case, you will eat the apple when you pass through it." Or maybe more precisely: When moving into the cell where the apple is located during your turn, you would eat it.
+
+But in our movement sequence:
+
+At move 9, we moved to (1,4) which contains the apple. Therefore, yes, that's an opportunity to eat.
+
+So this suggests that at step 9, when moving UP from (1,3) to reach (1,4), you can eat the apple if it's your turn.
+
+Thus, after move 9, you have eaten the apple and can stop.
+
+But wait is the initial position considered "your turn"? Because presumably, the first move is done by you.
+
+Yes: the initial state is that you're about to make a move. So each step in our list represents one of your turns.
+
+Therefore, at step 9, moving into (1,4) would allow you to eat the apple and finish the game.
+
+So the path taken was:
+
+Move LEFT seven times → x from 8→7→6→5→4→3→2→1
+
+Then move UP once → y=3+1=4.
+
+But wait after moving LEFT eight times, we reach (0,3), but in our earlier step-by-step, it took only seven moves to get to x=1. Wait no: starting at 8:
+
+Move 1:7
+
+2:6
+
+3:5
+
+4:4
+
+5:3
+
+6:2
+
+7:1 → after 7 moves.
+
+Wait so move 7 would be reaching (1,3), then move 8: moving UP to reach apple's position.
+
+So total of 8 moves.
+
+Thus, the sequence is:
+
+Move LEFT x7 → then move UP once.
+
+Which results in a path that reaches (1,4).
+
+But wait earlier thought process indicated that after eight moves LEFT, we would be at x=0, but let me recast it correctly. Starting at (8,3):
+
+Each move LEFT subtracts 1 from x:
+
+Move 1:7
+
+2:6
+
+...
+
+After seven moves: x =1.
+
+So the first seven moves are all LEFT.
+
+Then move eight is UP to reach y=4.
+
+Therefore, minimal number of moves is 8. So that's our answer.
+</think>
+
+The snake starts at (8,3). Moving left repeatedly decreases its x-coordinate until it reaches (1,3) after seven moves. Then moving up once changes the y-coordinate to 4 without colliding with its body, allowing the snake to eat the apple.
+
+**Answer:** The minimum number of steps required is $\boxed{8}$.

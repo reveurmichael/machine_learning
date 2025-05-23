@@ -1,0 +1,92 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, I'm trying to figure out how to get my snake from position (4,2) towards the apple at (4,9). Let me think through this step by step.
+
+First, the snake starts with just its head at (4,2), and no body segments. The apple is directly above it at (4,9). So I need to eat the apple somehow without getting caught by the body.
+
+I remember from the rules that when the snake eats the apple, it doesn't move the tail anymore this turn. That means if I manage to reach the apple in one go, I can skip moving my body segments. But since the snake is only a single cell long, eating it just changes the direction of movement for the next turn.
+
+Wait, no, even if the snake has one segment and eats the apple, that's not possible because the apple isn't on the same grid point as the head; they're two different positions. Wait, maybe I'm misinterpreting. Let me check.
+
+Oh right! The snake is made up of multiple body segments. So when it's length 1, eating the apple would mean growing into that position. But wait, in this case, moving from (4,2) to (4,9) directly isn't possible because they are vertically aligned, but the grid has a distance between them.
+
+Wait no, actually, if I just move straight up, each step changes y by 1. So starting at (4,2), moving up would take me through (4,3), then (4,4)... all the way to (4,9). Each move is in the same direction. But after each move, I need to check if any body segments are blocked.
+
+Wait, but initially, there's no body. So when I make a move up from (4,2) to (4,3), that's allowed because all the cells between my head and the tail (which is at (4,9) in this case? No, wait, the body list isn't filled yet.
+
+Wait, maybe if I move directly towards the apple without any turns, I can eat it. But since there are no other segments to block me, as long as each step doesn't land on a cell that's already part of the snake's body after shifts, I should be fine.
+
+Let me outline this:
+
+1. Current position: (4,2), direction is UP.
+2. Move up by 7 steps, each time checking if the new head would land on any existing cell in the snake or the tail after this move.
+
+Wait, but since there's no body yet, moving up just takes me further north until I reach (4,9). Each step will check: is (4,3) blocked? It shouldn't be because the body hasn't moved yet. Similarly for each subsequent y-coordinate.
+
+So if I move directly without any turns, this should work. But wait, let me think about collision detection:
+
+- After moving to (4,3), is there any cell that's already occupied by another segment in the snake? No, so it's safe.
+- Then move up again to (4,4). Again, safe because no body segments are blocking.
+- Continue this way until I reach (4,9).
+
+Since there's only one body segment, eating the apple should allow me to skip moving the tail. So after reaching (4,9), that's my apple position.
+
+So the sequence would be just 7 "UP" moves: ["MOVE1": UP, "MOVE2": UP, ..., up to 7 times]. That seems straightforward.
+
+Wait, but let me make sure about the collision rules. The snake starts with only the head and no body. So when moving straight up, each new cell is outside the current grid's y=9? Wait, (4,9) is at x=4, y=9 on a 10x10 grid where (0,0) is bottom-left.
+
+So when I move to (4,3), that's within bounds. The next moves up to (4,4)...(4,5)... until (4,9). Each of these positions doesn't conflict with any existing snake body because there's only the head moving upward.
+
+Therefore, it should be safe to just move straight up without any turns. So the answer is a list of seven "UP" moves.
+</think>
+
+{"moves": ["MOVE1", "MOVE2", "MOVE3", "MOVE4", "MOVE5", "MOVE6", "MOVE7"], "reasoning": "To safely reach the apple at (4,9) from (4,2), the snake should move straight up seven times. Each step is within grid bounds and does not block existing body segments, allowing direct traversal to the apple."}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (4, 2) and whose body cells are in list format [], to eat the apple at (4, 9).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -1,0 +1,159 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, let's tackle this Snake game problem step by step. I'm starting from position (5,9) as the head and need to reach the apple at (4,4). The snake has a body segment at (5,8), so it's not just a single cell. 
+
+First, I'll consider the direction options available. Currently, the snake is moving "UP" based on the given information. Since reversing directions isn't allowed on the first move, my next move can't be "DOWN". That leaves me with "LEFT", "RIGHT", or staying in "UP" but that might not be the most efficient path.
+
+Looking at the Manhattan distance, I need to cover a horizontal difference of 1 (from x=5 to x=4) and a vertical difference of 5 (from y=9 to y=4). To minimize moves, I'd prefer to move downwards since it's a longer vertical distance. But moving down might lead me into the body segment at (5,8), which could cause a collision.
+
+Wait, if I move "LEFT" from (5,9) to (4,9), that gets me closer horizontally but still needs to navigate vertically. Then I can start moving down towards (4,4). However, moving left and then down might lead into the body segment at (5,8), so I need to check if that's a problem.
+
+Another option is to move "DOWN" from (5,9) to (5,8). But hold on, the body segment is already at (5,8), which would mean moving down would collide with itself. That's not allowed. So moving down isn't an option unless I can somehow avoid it, but since the body is there, it's risky.
+
+So "LEFT" seems safer initially. From (4,9), I can then consider moving "DOWN". Let's see: from (4,9), moving down would take me to (4,8). Is that cell free? The current body cells are [(5,8)], so yes, it's free. Then from (4,8), moving down again to (4,7), and continue this until I reach (4,4).
+
+But wait, the snake's body is in (5,8), which is one cell to the right of my new position at (4,8). As I move downward, each step I take would add a new head position, and the old head positions would become part of the body. However, if I'm growing because I eat the apple, I need to ensure that after eating, I don't get trapped.
+
+Let me outline the steps:
+
+1. Start at (5,9).
+2. Move "LEFT" to (4,9). This is safe as there's no body segment here.
+3. Now, I need to move downward towards (4,4). Each step I take down will add a new head position and shift the body accordingly.
+
+As I move from (4,9) to (4,8), then to (4,7), etc., I have to make sure that each new head position doesn't collide with any existing body segments or the walls. Also, I need to ensure that when I reach (4,4), it's safe and that there's a way to move next turn.
+
+Wait, but after moving down several times, the tail might be at (5,8). So each time I move, I add my old position to the body, which is growing. However, since we're not eating the apple yet, the tail will move normally. But if I eat the apple when I land on it, I need to grow without losing the tail.
+
+But in this case, the apple is at (4,4), so I'd have to navigate all the way down from y=9 to y=4. That's five steps downward. Each step would involve moving into a new cell below me. Let me count:
+
+From (5,9):
+- Move LEFT to (4,9)
+- Then move DOWN to (4,8), then (4,7), (4,6), (4,5), and finally (4,4).
+
+But wait, each time I move, I need to check if the new head position is safe. Also, after moving into (4,4), I have to make sure that there's a way to continue moving without getting trapped.
+
+Another consideration: when I reach (4,4) and eat the apple, my body will grow by one cell, so the tail won't move this turn. This means that the next move must be possible; otherwise, I'll be stuck.
+
+After eating, if I'm at (4,4), the snake's new head is (4,4), and the body cells would include all previous positions leading up to it. But since the tail didn't move, the last segment is still at (5,8). So the next move from (4,4) has to be possible without colliding.
+
+Wait, perhaps I'm overcomplicating this. Let me try a different approach: plan the moves step by step ensuring safety and adherence to rules.
+
+First Move: "LEFT" to (4,9). This is safe because it's within bounds and not occupied by any body segments except potentially the tail, which is at (5,8).
+
+Second Move: From (4,9), moving "DOWN" to (4,8) is safe as well. The cell is free.
+
+Third Move: From (4,8), move "DOWN" to (4,7). Still free.
+
+Fourth Move: From (4,7), move "DOWN" to (4,6).
+
+Fifth Move: From (4,6), move "DOWN" to (4,5).
+
+Sixth Move: From (4,5), move "DOWN" to (4,4). This is the apple's position. Now, I need to check if this move is safe.
+
+Is (4,4) free? Yes, because it hasn't been occupied by any body segments yet. So, I can land here and eat the apple.
+
+Upon eating, the snake grows by one cell. So the tail doesn't move this turn. That means the new head is (4,4), and the body includes all previous positions from (5,9) down to (5,8).
+
+Now, for the next move, I need to make sure there's a valid direction that won't cause a collision or take me outside the grid.
+
+From (4,4), possible directions are "UP", "DOWN", "LEFT", and "RIGHT". But "LEFT" would take me to (3,4). Is that safe? Let's check:
+
+- Moving LEFT from (4,4) to (3,4): is this cell free? Yes, it hasn't been occupied by any body segments yet. So the next move can be "LEFT".
+
+Therefore, the path seems viable.
+
+So the sequence of moves would be: "LEFT", then four times "DOWN" steps, and finally when at (4,4), a "LEFT" to proceed further if needed, but in this case, after eating, I need only to make sure there's a next move. But according to the problem statement, after eating, I must have at least one legal move. Since from (4,4) moving "UP", "DOWN", "LEFT", or "RIGHT" is possible without immediate trapping, it's safe.
+
+So the final moves would be: "LEFT", followed by four "DOWN"s, and then at (4,4), I can proceed further if needed, but since the problem only requires reaching the apple, maybe that's sufficient.
+
+Wait, no. The initial head is at (5,9). So the path needs to take the head from there to (4,4). Let me recount:
+
+Start at (5,9).
+
+1. Move "LEFT" → (4,9)
+2. Move "DOWN" → (4,8)
+3. Move "DOWN" → (4,7)
+4. Move "DOWN" → (4,6)
+5. Move "DOWN" → (4,5)
+6. Move "DOWN" → (4,4)
+
+That's six moves in total: one "LEFT" and five "DOWN"s.
+
+Wait, but from (4,9) to (4,8) is one "DOWN", then to (4,7), etc., so yes, five "DOWN"s after the initial "LEFT".
+
+But let me verify each step:
+
+1. From (5,9): "LEFT" → (4,9). Safe.
+2. From (4,9): "DOWN" → (4,8). Is this safe? The body is at (5,8), so no collision yet.
+3. From (4,8): "DOWN" → (4,7). Still free.
+4. From (4,7): "DOWN" → (4,6).
+5. From (4,6): "DOWN" → (4,5).
+6. From (4,5): "DOWN" → (4,4).
+
+Yes, each step is safe and within the grid.
+
+After eating at (4,4), the snake's new head is there, and the body includes all previous segments. The next move must be possible without collision or going out of bounds. For example, moving "LEFT" from (4,4) to (3,4) is allowed as it's within the grid and not occupied by any body except the tail at (5,8). So there are still valid moves available.
+
+Therefore, this path seems safe and meets all the criteria.
+</think>
+
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts by moving left to (4,9), then proceeds downward towards the apple at (4,4). Each move is checked for safety and grid boundaries."
+}
+
+```json
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts by moving left to (4,9), then proceeds downward towards the apple at (4,4). Each move is checked for safety and grid boundaries."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 9) and whose body cells are in list format [(5, 8)], to eat the apple at (4, 4).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

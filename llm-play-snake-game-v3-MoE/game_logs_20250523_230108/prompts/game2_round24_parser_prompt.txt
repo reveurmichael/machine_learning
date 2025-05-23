@@ -1,0 +1,634 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I need to help plan a safe path for the snake's head from (3,0) towards the apple at (9,9). Let me start by understanding the problem step by step.
+
+First, let's outline the given information. The snake has a body made up of segments [(3,1), (3,2)], which means it starts at (3,0) as the head, then goes to (3,1) and (3,2). So the initial body is two cells behind the head: behind the head is (3,0), then (3,1), (3,2). Wait, no—the head is given as (3,0), but in the input, the body cells are ordered from the segment immediately behind the head to the tail. So the body list starts with the cell right before the head and ends with the tail.
+
+Wait, perhaps I'm getting confused. The problem states that the snake's full S is [HEAD, BODY1, BODY2,...]. Each BODYi is adjacent (Manhattan distance 1) to its predecessor. The provided Body cells are [(3,1), (3,2)], which are ordered from behind the head to the tail. So the body starts at (3,1) and then (3,2). Therefore, the snake's initial state has the head at (3,0), followed by (3,1) and (3,2) as part of its body.
+
+Wait no, perhaps not. Let me think again. The problem says: "The full snake S is [HEAD, BODY1, BODY2, ...], each BODYi is adjacent to its predecessor." The provided Body cells are [(3,1), (3,2)], which are ordered from the segment immediately behind the head to the tail. So the order is HEAD, then BODY1, BODY2. Therefore, the snake's body starts at (3,0) as the head, then comes (3,1) and (3,2). Wait, but that would make the initial position have the head at (3,0), and body cells starting from (3,1). Hmm, perhaps I need to clarify.
+
+Wait, maybe the snake's full S is [HEAD, BODY1, BODY2,...], where each BODYi is adjacent. The provided Body cells are [(x1,y1), (x2,y2)], which are the segments behind the head and towards the tail. So for example, if the body has three segments: HEAD, BODY1, BODY2, then the initial position would have the snake's head at some point, followed by two body parts.
+
+But perhaps it's better to focus on the movement rules and the problem requirements.
+
+The goal is to get from (3,0) to (9,9). The snake starts with a head at (3,0), and the body cells are [(3,1), (3,2)]. So perhaps the initial position is that the snake's body consists of three segments: HEAD at (3,0), BODY1 at (3,1), BODY2 at (3,2). Wait, but then the total length would be 3. But perhaps this is just an example.
+
+But maybe I should focus on the problem without getting bogged down by initial positions. Let's think about the movement rules and how to plan a path from (3,0) to (9,9).
+
+First, the snake's head starts at (3,0). The body cells are given as [(3,1), (3,2)]. So perhaps the snake is of length 3: head at (3,0), then two body segments behind it. Wait, but that might not make sense because if the head is at (3,0), and the next segment is (3,1) which is behind, maybe it's moving in a certain direction.
+
+Wait, perhaps I'm overcomplicating. Let's look at the problem again.
+
+The snake's position starts with head at (3,0). The body cells are [(3,1), (3,2)]. So perhaps the initial body segments are from (3,1) to (3,2), meaning that behind the head is (3,0), then (3,1), and (3,2) is the tail. Wait, perhaps not. Maybe the snake's initial position has head at (3,0), followed by two more body segments: one at (3,1) and another at (3,2). So the body is from (3,0) to (3,2), but that would make it three cells.
+
+But perhaps for this problem, I should focus on the general movement rules rather than getting stuck on initial positions.
+
+The required output is a JSON object with "moves" as a list of directions and "reasoning". The reasoning must explain how the path was chosen to reach the apple at (9,9) safely.
+
+So first, let's outline the steps needed:
+
+1. Determine the direction from the current position. Since the initial head is at (3,0), but perhaps in general, we need to figure out possible directions based on movement rules and safety.
+
+2. Each move will update the head position according to the direction vector. Then check for collisions: if new_head is outside grid or coincides with a body cell except when it's the tail moving next turn.
+
+3. Update the body segments accordingly, ensuring that each step maintains continuity (each adjacent pair differs by exactly 1 in x or y).
+
+4. Ensure that after eating the apple, there's at least one legal move to continue towards the goal.
+
+Now, let's think about possible paths from (3,0) to (9,9). The snake needs to eat the apple at (9,9), so it must reach that position without getting stuck.
+
+Given the grid is 10x10, starting at (3,0), moving towards higher x and y coordinates. Let's consider possible directions:
+
+- Since the head starts at (3,0), which is on the bottom row. To move towards the apple at (9,9), perhaps moving right or down.
+
+But let's think about the movement rules more carefully.
+
+The snake can't reverse direction on the first move if it's not "NONE". So from the initial position, since the first move isn't specified, but likely starts with a certain direction. Wait, perhaps in this problem, the initial direction is towards the apple or another path.
+
+But perhaps to find a safe path, we need to consider that each step must be such that the snake doesn't collide with itself and the body segments.
+
+Given the complexity, perhaps the optimal approach is to move directly towards the apple as much as possible without reversing direction unless necessary.
+
+Let's outline a possible path:
+
+Start at (3,0). The goal is (9,9), so moving right and down. Let's see how many steps are needed: from x=3 to x=9 is 6 steps, y=0 to y=9 is 9 steps. So total of 15 moves.
+
+But perhaps we can find a path that avoids the body segments and ensures safety.
+
+Alternatively, perhaps moving directly towards the apple as much as possible without reversing direction would be the safest path.
+
+Given that the initial position has the head at (3,0), but perhaps in this problem, the snake's body is [(3,1), (3,2)], meaning it's already occupying cells around (3,0). So moving right might not be straightforward because of these body segments.
+
+Wait, perhaps I need to consider that the snake's initial position has body segments at (3,1) and (3,2), which are behind the head. Wait, maybe this is a mistake in understanding. Let me clarify:
+
+The problem states: "The full snake S is [HEAD, BODY1, BODY2,...], ordered list of (x,y) positions from segment immediately behind the head to the tail." So the given body cells are [(3,1), (3,2)], which would mean that behind the head at (3,0) comes (3,1), then (3,2). But perhaps this is incorrect because if the snake's head is at (3,0), and the next segment is (3,1), then moving right might be possible.
+
+But perhaps I'm getting stuck on initial positions. Let's proceed to plan a path from (3,0) towards (9,9).
+
+Given that the movement rules require ensuring no collisions and proper body order, perhaps the optimal approach is to move in a straight line as much as possible, adjusting direction only when necessary.
+
+But let's think about the final position: from (3,0) to (9,9), so x increases by 6, y increases by 9. So net movement right and down.
+
+Given that each step can be in any of the four directions, but must follow movement rules, perhaps moving right as much as possible first.
+
+But let's outline a possible path:
+
+1. Move right until you reach (3,8), then move down to (4,8), etc., but need to avoid body segments and ensure no collisions.
+
+Alternatively, perhaps it's better to plan in terms of Manhattan distance: the snake needs to cover 6 steps right and 9 steps down, totaling 15 moves. But given that the initial position is at (3,0) with some body segments, we might need to adjust direction.
+
+But perhaps a safer approach is to move directly towards the apple without reversing direction on the first move unless necessary.
+
+Therefore, let's outline the path as moving right until x=9, then down. But given that the initial position has body segments at (3,1) and (3,2), perhaps moving right first would be risky because those cells are occupied.
+
+Alternatively, perhaps starting by moving down to increase y first before increasing x.
+
+But perhaps a more precise approach is needed. Let's consider the possible moves step by step.
+
+Given that the snake starts at (3,0), with body segments [(3,1), (3,2)], perhaps it's better to move in such a way that these body segments don't interfere.
+
+Let me think about the movement rules again:
+
+- When moving, each new head position must be adjacent to its previous position.
+- After moving, check if the new head is outside the grid or coincides with any body cell except when moving towards the tail (i.e., after the last move).
+- Also, ensure that during the move, no two segments of the snake overlap.
+
+Given this, perhaps a safe path would involve moving right first until x=9, then down to y=9.
+
+But let's consider each step:
+
+1. From (3,0), possible moves: right, down, left, up.
+
+But initial position is at (3,0). Let's try moving right as much as possible without hitting body segments.
+
+If the body segments are behind the head, perhaps they block movement in certain directions.
+
+Alternatively, perhaps it's better to move towards increasing x and y first.
+
+Given that, let's outline a possible path:
+
+Move down to (4,0), then proceed towards higher x or y. But need to check for collisions.
+
+But perhaps this is getting too detailed without clear initial positions. Let's consider the problem as requiring movement from (3,0) to (9,9) with certain constraints, and find a list of moves that reaches the goal safely.
+
+Therefore, perhaps the solution involves moving right until x=9, then down, but ensuring no collisions and proper body segments.
+
+But given the time constraints, perhaps it's better to outline the path as follows:
+
+Starting at (3,0), move down to (4,0). Then proceed towards increasing y first, avoiding any body segments. Once reaching y=8 or so, start moving right for x=9.
+
+Alternatively, perhaps a safer approach is to move in such a way that after each step, the snake doesn't collide with itself and maintains proper body order.
+
+But given the complexity, perhaps it's better to proceed with outlining the moves as follows:
+
+The initial head position is (3,0). The body cells are [(3,1), (3,2)], meaning that behind the head at (3,0) comes (3,1) and then (3,2).
+
+Therefore, moving right would be possible because those body segments are above it.
+
+But perhaps to avoid getting stuck, let's consider a path where we move down first as much as possible:
+
+Move down from (3,0) to (4,0). Then proceed towards increasing y. But need to check if any body cells interfere.
+
+Alternatively, perhaps the optimal approach is to move in such a way that each step increases either x or y by 1, ensuring no collisions and proper body order.
+
+Given all this, perhaps the solution involves moving down as much as possible first, then right.
+
+But considering time constraints, perhaps it's better to outline the moves as:
+
+From (3,0), move down four times: (4,0), (5,0), (6,0), (7,0). Then move down again. Wait, but this might not reach x=9 yet.
+
+Alternatively, perhaps a more efficient approach is needed.
+
+Given that the problem requires movement to (9,9) from (3,0), with certain constraints, perhaps the solution involves moving in such a way that after each step, the snake's body doesn't block its path.
+
+Therefore, let's outline the moves as follows:
+
+1. Move down to (4,0).
+2. Continue moving down until y=8, then move right to x=9.
+3. Then perhaps move up or further down?
+
+But perhaps this is not the optimal path. Alternatively, perhaps a better approach is needed.
+
+Given the time constraints and the need to provide a solution, perhaps it's best to outline the moves as follows:
+
+Start at (3,0). Move right four times: but wait, body segments are at (3,1) and (3,2), so moving right first might hit those. Therefore, perhaps better to move down first.
+
+Alternatively, perhaps starting by moving down, then proceeding towards increasing x.
+
+But without precise initial positions, it's difficult to outline the exact path, but perhaps we can assume that from (3,0), the snake moves in a direction that allows reaching (9,9) safely.
+
+Therefore, perhaps the solution is as follows:
+
+The snake needs to move right and down. Starting at (3,0), moving down first until y=8, then right to x=9. But considering body segments, perhaps it's better to adjust movement accordingly.
+
+However, given that the problem requires a specific output, perhaps the optimal path involves moving in such a way that each step is as efficient as possible towards the goal without getting stuck.
+
+Thus, after careful consideration and planning, the solution would involve moving down first until y=8, then right to x=9, ensuring no collisions and proper body segments. The moves would be:
+
+- Down four times: from (3,0) → (4,0) → (5,0) → (6,0) → (7,0)
+- Then move down again to y=8: but perhaps that's not efficient.
+
+Alternatively, perhaps moving directly towards the goal in a straight line as much as possible.
+
+But given time constraints, perhaps it's best to outline the moves as follows:
+
+The snake needs to reach (9,9) from (3,0). Each move should be either right or down. To minimize steps, but since body segments are present, perhaps need to adjust direction when necessary.
+
+Therefore, the solution would involve a series of moves that ensure each step is valid and avoids collisions with itself and other parts of the snake.
+
+After planning, the moves could be:
+
+1. Move down from (3,0) → (4,0)
+2. Move right to avoid body segments at (3,1), then proceed.
+But perhaps this requires a more precise approach.
+
+Given the complexity, perhaps it's best to outline the solution as follows:
+
+The snake starts at (3,0). The first move is down to (4,0) because moving left or up would hit the body segments. Then continue moving down until y=8, then move right to x=9. This gives a total of 6 moves down and 1 move right.
+
+But perhaps this needs to be adjusted for safety.
+
+Alternatively, perhaps starting by moving down as much as possible before increasing x.
+
+Thus, considering all factors, the solution would involve moving in such a way that each step is towards (9,9) without reversing direction unless necessary.
+</think>
+
+The path involves moving down first to avoid body segments and then proceeding right. The moves are:
+
+- Down from (3,0) → (4,0)
+- Continue moving down until y=8
+- Then move right once to x=9.
+
+But considering the initial positions and constraints, perhaps a more precise sequence is needed. However, due to time constraints, here's a possible solution outline:
+
+The snake moves in such a way that it avoids body segments while progressing towards (9,9). The exact path would involve careful planning of each step to ensure no collisions.
+
+Final Answer:
+The snake will move down and right accordingly to safely reach the apple at (9,9), ensuring each move is valid without hitting itself or other parts. The moves are as follows:
+
+Move directions: Down, Down, Right
+
+But considering movement rules and body segments, perhaps a more efficient path exists. However, based on initial analysis, here's an outline of possible moves:
+
+1. From (3,0) → (4,0)
+2. Continue moving right until x=9
+3. Then move down to y=9
+
+But this approach may not be optimal due to body segments. Therefore, the correct path would involve careful movement ensuring no collisions.
+
+The final answer requires a precise sequence of moves based on the problem constraints and initial positions, which is outlined in the detailed thought process above.
+
+Final Answer:
+The snake's path involves moving down first to avoid body segments and then proceeding right towards (9,9). The exact moves are:
+
+Down four times from (3,0) → (4,0), (5,0), (6,0), (7,0)
+Then move right twice to x=9
+Finally, move up once to y=8 if needed.
+
+But considering the problem's complexity and constraints, here is the precise solution:
+
+The snake will move in a path that ensures each step is towards increasing x and y without hitting itself or body segments. The moves are as follows:
+
+- Down four times: (3,0) → (4,0) → (5,0) → (6,0) → (7,0)
+- Then right twice to x=9
+- Finally, move up once if necessary
+
+The final answer is the sequence of moves that achieves this path safely:
+
+Down four times, then right twice.
+
+But considering the problem's initial positions and movement rules, here is a more accurate solution outline:
+
+1. Move down from (3,0) → (4,0)
+2. Continue moving down until y=8
+3. Then move right to x=9
+
+Thus, the moves are: Down, Down, Down, Down, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, based on the problem's complexity and constraints, here is the solution:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). But due to time constraints, the precise moves are outlined as follows:
+
+Move directions: Down, Right, Right, Up
+
+But perhaps a more efficient path exists. However, given the problem's requirements, here is the final answer:
+
+The snake will move down four times and then right five times to reach (9,9).
+
+Thus, the moves are:
+
+1. From (3,0) → (4,0)
+2. Continue moving down until y=8
+3. Then move right once each time.
+
+But considering all factors, here is the precise solution:
+
+The snake will move in a path that ensures it reaches (9,9) safely without hitting itself or body segments. The moves are as follows:
+
+- Down four times: (3,0) → (4,0), (5,0), (6,0), (7,0)
+- Then right twice to x=9
+- Finally, move up once if necessary
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+Final Answer:
+The snake will move down four times and then proceed right twice to reach (9,9). The move directions are:
+
+Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given the problem's complexity and constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down from (3,0) → (4,0)
+2. Continue moving down until y=8
+3. Then move right once each time.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The solution involves moving down four times and then proceeding diagonally towards (9,9). The exact steps are:
+
+1. Move down → (4,0)
+2. Continue down until y=8
+3. Then move right twice to x=9
+
+Thus, the final answer is:
+
+Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given the problem's complexity and constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right once each time.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down to (4,0) → safe.
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0) → (9,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+But considering the initial position at (3,0), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times and then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice to reach x=9.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then move right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+Final Answer:
+The snake will move down four times and then proceed diagonally to reach (9,9). The exact move directions are:
+
+Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given the problem's complexity and constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+
+The precise solution requires careful planning to avoid body segments and ensure safety. Here is the step-by-step explanation:
+
+1. From (3,0), move down → (4,0)
+2. Continue moving down until y=8:
+   - Move from (7,0) → (8,0)
+3. Now at (9,0). To reach x=9 and y=9, we need to move right once each time.
+
+Thus, the final moves are:
+
+Down four times: (3,0)→(4,0), (5,0), (6,0), (7,0)
+Then proceed right twice:
+- Move from (7,0) → (8,0)
+- Then move right to x=9.
+
+Thus, the final answer is:
+
+Down four times and then two rights. The moves are: Down, Down, Down, Down, Right, Right.
+
+But considering body segments at (3,1), (3,2), perhaps a better approach is needed. However, given time constraints, here is the solution outline:
+
+The snake will move down four times to reach y=4, then proceed diagonally towards (9,9). The moves are as follows:
+
+1. Move down → (4,0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+Thus, the final answer is a sequence of moves that achieves this path safely.
+</think>
+
+The snake starts at position (3, 0) and must navigate through the grid to reach (9, 9). The solution involves moving down four times to avoid hitting body segments while progressing towards the target. Here is the step-by-step plan:
+
+1. Move down from (3, 0) → (4, 0)
+2. Continue moving down until y=8
+3. Then move right twice.
+
+The final moves are:
+
+Down four times and then two rights.
+
+Final Answer:
+\boxed{(9, 9)}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (3, 0) and whose body cells are in list format [(3, 2), (3, 1)], to eat the apple at (9, 9).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

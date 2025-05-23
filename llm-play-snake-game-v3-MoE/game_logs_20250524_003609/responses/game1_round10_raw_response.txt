@@ -1,0 +1,12 @@
+Timestamp: 2025-05-24 00:46:16
+Request Time: 2025-05-24 00:43:54
+Response Time: 2025-05-24 00:46:16
+Model: deepseek-reasoner
+Provider: deepseek
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["LEFT", "DOWN", "DOWN"],
+"reasoning": "Move left to (6,4), then down twice to reach apple safely without collisions and ensuring a legal next move."
+}

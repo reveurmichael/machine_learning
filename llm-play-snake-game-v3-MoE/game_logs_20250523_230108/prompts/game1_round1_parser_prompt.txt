@@ -1,0 +1,152 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I need to help plan a safe path for the snake's head from (5,5) to eat the apple at (5,6). Let me start by understanding all the given information and constraints.
+
+First, the snake's current state includes its body segments. The input is an array of positions ordered from behind the head to the tail. Wait, actually, looking back, the problem states that the Body cells list excludes the head and goes from BODY1 (nearest the head) to BODYN (the tail). So in the given input, the snake's body is provided as a list starting from the segment immediately behind the head. For example, if the snake is [(4,4), (4,3)], that means the head is at (5,5)? Wait, no, wait. Let me think again.
+
+Wait, perhaps I'm misunderstanding. The problem says: "The full snake S is [HEAD, BODY1, BODY2, ..., BODYN]. Each BODYi is adjacent to its predecessor." So the Body list given in the input excludes the head and goes from BODY1 (nearest the head) to BODYN (the tail). So if the snake's body includes positions like (5,5), then perhaps the input might not include it? Or maybe I need to clarify.
+
+Wait, no. Let me re-read: "The provided Body cells list [...] is an ordered list of (x,y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail." So the first element in the body list is the segment immediately behind the head. For example, if the head is at (5,5), then the next segment could be (4,5) or something else.
+
+But perhaps I'm overcomplicating this. Let's focus on what's given: the snake's current position is at (5,5) as the head. The body cells are provided as an ordered list starting from behind the head to the tail. So maybe the first element in the Body list is the segment immediately before the head.
+
+But perhaps I need to model this differently. Let me think about how the snake moves. Each move, the head moves according to the direction, and then the body shifts, removing the old head and adding the new head at the front.
+
+Wait, no. The movement rule says: compute new_head as (head_x + dx[D], head_y + dy[D]). Then check for collisions. If the new_head is outside bounds or coincides with a non-target cell, then proceed. Otherwise, update body positions by inserting old head and removing tail if needed.
+
+But perhaps I'm getting stuck. Let's think about the problem step by step.
+
+The snake's current position: head at (5,5). The apple is at (5,6), which is one cell to the right of the head.
+
+So the goal is for the head to move from (5,5) to (5,6).
+
+But wait, the apple is at (5,6), so perhaps the snake's head needs to move to that position. However, since it's a grid, maybe it can move directly if possible.
+
+But let's check the movement rules and constraints.
+
+First, the snake's body is given as an ordered list of positions from behind the head to the tail. So for example, if the snake has segments at (5,5), (4,5), (3,5), etc., perhaps? Or maybe not necessarily aligned in a particular direction.
+
+But perhaps I need to focus on the movement rules and constraints, especially since the problem requires finding a path from (5,5) to (5,6).
+
+Given that the snake's head is at (5,5), and the apple is at (5,6). So perhaps moving right once would take the head directly to the apple.
+
+But I need to ensure that this movement doesn't cause any collision with the body segments or other parts of the snake.
+
+Let me consider the initial state. The snake's head is at (5,5), and the body list may include positions like (4,5) if it's moving left, but perhaps in this case, since we're trying to move right, let's assume that the body doesn't block the path yet.
+
+Wait, perhaps I should consider the given Body cells list. The problem states: "The provided Body cells list [...] is an ordered list of (x,y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail." So if the snake has a body with several segments, each adjacent to the previous.
+
+But perhaps for this problem, since we're moving towards the apple at (5,6), and the head is at (5,5), let's consider that the path could be straightforward.
+
+Let me outline possible moves:
+
+1. The snake's head is at (5,5). To move right to (5,6) would require moving in the "RIGHT" direction.
+
+But before making this move, we need to check if it causes any collisions.
+
+First, after moving right, the new_head would be (5+1,5) = (6,5). Wait no: wait, the movement rule says that dx and dy are based on the direction. So for "RIGHT", which is +x direction, so x increases by 1, y remains same.
+
+Wait, perhaps I'm getting confused with the coordinate system. Let's clarify:
+
+- UP: y+1 (since in the problem statement, "UP" means y+1)
+- DOWN: y-1
+- LEFT: x-1
+- RIGHT: x+1
+
+So moving right increases x by 1.
+
+But perhaps I'm overcomplicating. Let's proceed step by step.
+
+The snake's current position is (5,5) as the head. The apple is at (5,6). So to reach the apple, the head needs to move from (5,5) to (5,6).
+
+So moving right once would take it directly to the apple. Now, we need to check if this movement causes any collisions.
+
+But first, let's consider whether the body blocks the path. Since the snake is just a single segment at (5,5), perhaps there are no other segments blocking the way.
+
+Wait, but perhaps the body list includes positions around (5,5). For example, maybe the body has several segments that could block movement.
+
+But without knowing the exact Body cells list, it's hard to say. However, since we're trying to plan a path, let's assume that moving right is possible as long as there are no other segments blocking.
+
+Alternatively, perhaps the snake's body includes positions that would cause a collision if moved in any direction.
+
+Wait, perhaps I should consider the initial state: the snake's head is at (5,5), and the Body list starts from behind the head. So perhaps the first element of the Body list is (6,5) or something else.
+
+But perhaps this is getting too complicated. Let's try to model the problem as follows:
+
+The snake's body includes all its segments. The head is at (5,5), and the apple is at (5,6). We need to find a path from (5,5) to (5,6) that doesn't cause any collisions.
+
+Since moving right would take us directly to (5,6), let's check if that's possible.
+
+Assuming that the body does not block this movement. So perhaps the initial Body list includes positions such that when we move right, the new_head is safe.
+
+Alternatively, perhaps the body has a segment at (5,4) and (5,3), but moving to (5,6) would require passing through them, which may cause collisions.
+
+But without knowing the exact Body list, it's hard to say. However, since the problem requires us to output a path that leads from head to apple safely, perhaps we can assume that moving right is possible.
+
+Thus, the move would be "MOVE RIGHT" or "RIGHT".
+
+Wait, but let me check the movement rules and constraints again.
+
+The movement rules state that after choosing a direction, if new_head coincides with any BODYi except the tail when that tail will move this turn, it's invalid. Also, for eating the apple, we must ensure there's at least one legal move next turn to avoid immediate trapping.
+
+In our case, since we're moving right and not eating the apple yet, perhaps it's acceptable.
+
+Additionally, after moving, if the new_head is the tail's current position when that tail would move, then we need to adjust the body to allow movement without collision.
+
+But in this case, since we're moving towards the apple, perhaps this isn't an issue.
+
+Thus, the plan is to move right once from (5,5) to (5,6), which is where the apple is located. So the path would be just one "MOVE RIGHT" step.
+
+Therefore, the moves list should contain ["MOVE RIGHT"].
+</think>
+
+{"moves": ["MOVE RIGHT"], "reasoning": "The snake's head is at (5,5) and needs to reach (5,6). Moving right once directly leads to the apple position without causing any collisions as there are no blocking body segments in this path."}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 5) and whose body cells are in list format [], to eat the apple at (5, 6).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

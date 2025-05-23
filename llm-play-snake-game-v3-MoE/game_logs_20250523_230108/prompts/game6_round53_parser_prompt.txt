@@ -1,0 +1,551 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, so I need to help plan a safe path for the snake's head from (5,9) to the apple at (9,4). Let me start by understanding all the given information and constraints.
+
+First, the snake's current state includes its body segments. The head is at (5,9), and the body cells are [(5,8), (5,7), (4,7), (4,6), (3,6)]. Wait, but according to point 2 in SNAKE REPRESENTATION AND CONTINUITY, each BODYi is adjacent to its predecessor. So maybe I should list all the body parts correctly.
+
+Looking at the given body cells: [(5,8), (5,7), (4,7), (4,6), (3,6)]. Wait, that seems a bit off because from (4,6) to (3,6) is moving left by 1 in x, which is valid. But let's check if each consecutive pair is adjacent.
+
+Head is (5,9). The next body cells are (5,8), then (5,7), then (4,7), (4,6), and finally (3,6). Wait, but that doesn't make sense because from (4,6) to (3,6) would require moving left by 1 in x, which is correct. But perhaps the body list should be ordered from head to tail, with each consecutive pair differing by exactly one cell.
+
+Let me try to reconstruct the snake's body:
+
+- The body cells are given as [(5,8), (5,7), (4,7), (4,6), (3,6)]. Wait, but this seems like it's moving from (5,8) down to (4,7). Is that correct? Or perhaps the body is ordered starting from behind the head. So perhaps the snake has segments: head at (5,9), then the previous segment would be (5,8), and so on.
+
+Wait, maybe I should list all the body parts correctly. The given body cells are [(5,8), (5,7), (4,7), (4,6), (3,6)]. Let's see:
+
+- From (5,9) to head is at (5,9). Wait, but the first cell in the body list is (5,8). So perhaps the body starts from behind the head. So the order should be: head is (5,9), then the previous segments are (5,8), (4,8), etc., but perhaps I'm getting confused.
+
+Alternatively, maybe the given body cells already include the entire snake's body except the head. Let me think again.
+
+The given body cells are [(5,8), (5,7), (4,7), (4,6), (3,6)]. So these are the positions of the body segments from behind the head to the tail. Since the head is at (5,9), perhaps the first segment in the body list is the cell just before the head.
+
+Wait, that doesn't make sense because if the head is at (5,9), then the previous cell would be (5,8) or something else. Maybe I should consider that the body list starts from behind the head and goes to the tail. So perhaps the snake's body includes all these cells plus the head.
+
+Wait, maybe it's better to reconstruct the full body list as per the given information. The full snake S is [HEAD, BODY1, BODY2, ..., BODYN], where each BODYi is adjacent to its predecessor. So the given body cells are from BODY1 to BODYN-1 (since the head is at position (5,9)).
+
+So perhaps the full body list includes all these segments plus the head. Let's try to reconstruct it:
+
+Given that the snake starts with the head at (5,9), then the first segment behind would be one step back in direction. But since we don't know the initial direction yet, maybe I can proceed by considering the given body cells.
+
+The given body cells are [(5,8), (5,7), (4,7), (4,6), (3,6)]. Wait, perhaps these are all the body segments from behind the head to the tail. So including the head, the full body would be:
+
+[ (5,9), (5,8), (5,7), (4,7), (4,6), (3,6) ]
+
+But I'm not sure. Alternatively, perhaps the given body cells are from behind the head to the tail, so including all segments except the head.
+
+Wait, perhaps it's better to consider that the snake's body is a list where each consecutive pair differs by exactly one cell in x or y. So let's check if the given body cells satisfy this condition.
+
+Looking at the body cells:
+
+(5,8) → (5,7): same x, y decreases by 1 → valid.
+(5,7) → (4,7): x decreases by 1, y same → valid.
+(4,7) → (4,6): same x, y decreases by 1 → valid.
+(4,6) → (3,6): same y, x decreases by 1 → valid.
+
+So that seems correct. So the body segments are:
+
+Body segment 1: (5,8)
+Body segment 2: (5,7)
+Body segment 3: (4,7)
+Body segment 4: (4,6)
+Body segment 5: (3,6)
+
+But wait, since the head is at (5,9), perhaps these body segments are from behind the head to the tail. So including the head as the first element in the full snake list.
+
+So the full snake S would be:
+
+[ (5,9), (5,8), (5,7), (4,7), (4,6), (3,6) ]
+
+But wait, that seems a bit odd because from (3,6) to where? Maybe I'm getting confused. Alternatively, perhaps the given body cells are all except the head, so the full body list would be:
+
+[ (5,9), (5,8), (5,7), (4,7), (4,6), (3,6) ]
+
+But let's check if each consecutive pair is adjacent.
+
+From (5,9) to any of these? Wait, no. The head is at (5,9). So perhaps the body list starts from behind the head. Let me think again.
+
+Alternatively, perhaps the given body cells are all except the head, so the full snake S would be:
+
+[ (5,8), (5,7), (4,7), (4,6), (3,6) ]
+
+Wait, that doesn't include the head at (5,9). So perhaps I need to clarify.
+
+Alternatively, maybe the given body cells are from behind the head to the tail. So if the head is at (5,9), then the first segment in the body list would be the cell before the head. But since we don't have that information, perhaps it's better to proceed by considering that the snake has a certain length.
+
+Given the full snake S as [HEAD, BODY1, BODY2, ..., BODYN], where each consecutive pair differs by exactly one cell. From the given body cells, maybe the snake is longer than this list.
+
+Alternatively, perhaps I should focus on the movement rules and try to find a path from (5,9) to (9,4).
+
+First, let's check if the direction can be chosen without reversing on the first move. Since it's the first move, no previous directions, so any direction is allowed.
+
+Now, the head is at (5,9). The apple is at (9,4). Let's compute the Manhattan distance: x difference is 4 (from 5 to 9), y difference is 5 (from 9 to 4). So total steps needed could be up to 9 moves if moving straight.
+
+But perhaps a better approach is to plan a path from (5,9) towards (9,4).
+
+Let's consider the possible directions:
+
+From (5,9), possible directions are UP, DOWN, LEFT, RIGHT. But since we're at the top right corner of the grid (x=9, y=9?), wait no. Wait, the grid is from (0,0) to (9,9). So (5,9) is near the bottom-right? Wait, coordinates are such that (0,0) is bottom-left and (9,9) is top-right.
+
+So (5,9) is on the right edge of the grid. The apple is at (9,4), which is on the top side.
+
+Wait, perhaps it's better to visualize:
+
+- Head at (5,9): that's near the right edge of the grid.
+- Apple at (9,4): upper part of the grid.
+
+So moving towards the apple would require decreasing x and y. But since from (5,9), moving left or down might be options.
+
+But perhaps let's consider the given body cells and see if we can model the snake's movement correctly.
+
+Given that the head is at (5,9), and the body segments are [(5,8), (5,7), (4,7), (4,6), (3,6)], perhaps the full body list should include these plus the head. So let's see:
+
+The given body cells start from behind the head. So if the head is at (5,9), then the previous segment would be one step back in some direction.
+
+But perhaps it's better to proceed by considering that the snake has a certain length. Let's count the given body segments: there are 5 body segments after the head, including the tail? Or perhaps not.
+
+Alternatively, perhaps the full snake list is [ (5,9), (5,8), (5,7), (4,7), (4,6), (3,6) ], which would make a length of 6. But I'm not sure.
+
+But since we need to move from (5,9) towards (9,4), perhaps let's consider the direction choices:
+
+Possible initial directions: UP, DOWN, LEFT, RIGHT.
+
+From (5,9):
+
+- UP would take us back to y=8 or lower.
+- DOWN would go further down if possible.
+- LEFT would decrease x, but since x is 5, going left would take it beyond grid boundaries? Wait, the grid goes up to x=9, so perhaps moving left from (5,9) may not be allowed because x=4 would still be within bounds.
+
+But perhaps let's try each possible initial direction and see which one leads closer to the apple.
+
+Let's first consider moving DOWN. From (5,9), DOWN would go to (6,9). But that might take us away from the apple at (9,4). Alternatively, maybe it's better to move LEFT, but perhaps let's try:
+
+Alternative approach: since the head is at (5,9), and we need to reach (9,4), perhaps moving DOWN as much as possible.
+
+But wait, let's think about movement steps. To get from (5,9) to (9,4):
+
+We need to increase x by 4 (from 5 to 9) and decrease y by 5 (from 9 to 4). But since each move can only change one coordinate by ±1.
+
+But perhaps the snake's body might block certain paths. Alternatively, maybe it's better to plan a path that avoids getting stuck in the current body segments.
+
+Given that the head is at (5,9), and the given body cells are [(5,8), (5,7), (4,7), (4,6), (3,6)], perhaps we can model this as:
+
+The snake starts with the head at (5,9). Then it moves to (5,8), then to (5,7), etc., but perhaps that's not correct.
+
+Alternatively, maybe the body list is [(5,9), (5,8), (4,8), (3,8), ...], but I'm getting confused.
+
+Perhaps an alternative approach: since each step must move to a cell adjacent, let's try to find a path from (5,9) towards (9,4).
+
+But perhaps the initial direction should be DOWN. Because if we move down as much as possible, that would take us closer to y=4.
+
+So let's consider moving DOWN first:
+
+From (5,9), moving DOWN would go to (6,9). But then from there, maybe we can turn left or something.
+
+Alternatively, perhaps it's better to model this step by step.
+
+But perhaps a better approach is to find the path that goes as close as possible to the apple without getting stuck in the current body segments.
+
+Let me try drawing the grid mentally:
+
+- The grid has rows from y=0 (bottom) to y=9 (top), and columns x=0 (left) to x=9 (right).
+
+So (5,9) is on the right edge at row 9, column 5. The apple is at (9,4): column 9, row 4.
+
+Thus, moving from (5,9) towards (9,4) would require increasing x by 4 and decreasing y by 5. But perhaps that's not possible in one move because each step can only change one coordinate.
+
+Alternatively, let's think about the movement rules:
+
+When moving, you must choose a direction that leads closer to the apple or allows the snake to extend without getting stuck.
+
+Given that we're at (5,9), and our first move options are DOWN, LEFT, RIGHT.
+
+But perhaps the optimal path is to move DOWN as much as possible because that would bring us closer to y=4. Wait, but moving down from (5,9) takes us further away since it's already at the maximum y of 9.
+
+Wait no: in this grid, higher y means higher up, which is towards the top. So perhaps moving DOWN from (5,9) would take us to (6,9), which is still high y but lower x. Then moving LEFT would be better because we can decrease x further towards 9 and increase y if possible.
+
+Alternatively, perhaps let's consider that since each step must move closer or extend the snake as much as possible without getting stuck in a position where no moves are allowed.
+
+Given that from (5,9), the first move options could be DOWN, LEFT, RIGHT. Let's try moving DOWN:
+
+From (5,9) to (6,9). Then we need to check if this is allowed according to movement rules and whether it leads us closer or opens up new possibilities.
+
+Alternatively, perhaps after moving DOWN once, let's see where the snake would be.
+
+But perhaps a better approach is to consider that each move must not go beyond the grid boundaries. So let's try step by step:
+
+1. Starting position: (5,9)
+2. Possible moves:
+   - DOWN: (6,9) → but check if this leads us closer.
+   - LEFT: (4,9) → which is within bounds.
+   - RIGHT: Not possible because x=5, moving right would go beyond 9? Wait no, since the grid is from x=0 to x=9. So moving right from x=5 could be up to x=9.
+
+Wait, perhaps let's consider all four directions:
+
+From (5,9):
+
+- DOWN: y increases by 1 → but wait in our coordinate system, higher y is towards top. Wait no, maybe I'm getting confused again. Let me clarify the coordinate system.
+
+In the problem statement, it says that coordinates are such that (0,0) is bottom-left and (9,9) is top-right. So moving up increases y, while moving right increases x.
+
+Thus:
+
+- From any cell (x,y), DOWN would mean decreasing y by 1 (since higher y is towards the top).
+- LEFT would decrease x by 1.
+- RIGHT would increase x by 1.
+- UP would increase y by 1.
+
+So from (5,9):
+
+Possible moves are:
+
+- DOWN: (5,8)
+- LEFT: (4,9)
+- RIGHT: (6,9)
+- UP: Not possible because moving up from y=9 is beyond the grid.
+
+Thus, initial options are DOWN to (5,8), LEFT to (4,9), or RIGHT to (6,9).
+
+Now, let's evaluate each option:
+
+Option 1: Move DOWN to (5,8)
+
+From here, check if this leads us closer to the apple at (9,4). The current position is (5,8). The distance to the apple would be x difference of 4 and y difference of -4. But perhaps moving further down might not be optimal.
+
+Alternatively, let's consider that after moving DOWN, we can see if this leads us towards a path where we don't block ourselves or allow extending the snake without issues.
+
+But perhaps it's better to try another approach: since the apple is at (9,4), which is in the top right area, maybe the optimal path would involve moving RIGHT and then DOWN as much as possible.
+
+Alternatively, let's consider that from (5,9), moving LEFT once brings us to x=4. Then perhaps we can move DOWN several times to increase y towards 4. But perhaps it's better to proceed with step-by-step movement planning.
+
+Let me try this approach:
+
+1. From (5,9):
+
+Possible moves: DOWN (5,8) → may not be optimal.
+Option LEFT: go to (4,9)
+But let's see what happens if we move LEFT first.
+
+Move 1: LEFT from (5,9) → (4,9)
+
+Now at (4,9), possible moves:
+
+- DOWN: (4,8)
+- LEFT: can't go further left as x=0 is invalid? Wait no. From x=4, moving left would take us to x=3, then 2, etc., until x=0.
+
+But perhaps moving DOWN from (4,9) is better because it brings y closer to 4.
+
+Move 2: DOWN from (4,9) → (4,8)
+
+Now at (4,8), possible moves:
+
+- RIGHT: increase x to 5
+- LEFT: decrease x to 3
+- UP: maybe not since higher up would be worse.
+
+But perhaps moving RIGHT is better because it's closer to the apple's column of 9.
+
+Move 3: RIGHT from (4,8) → (5,8)
+
+Wait, but that's where we started after the first move. That seems like a loop.
+
+Alternatively, perhaps it's better to consider other initial moves.
+
+Alternative approach:
+
+Since moving DOWN is not necessarily optimal because y=9 is high, maybe moving LEFT or RIGHT could be better.
+
+Let me try another path starting with moving LEFT from (5,9):
+
+Move 1: LEFT → (4,9)
+
+Now at (4,9), move DOWN to (4,8).
+
+At (4,8), perhaps move RIGHT to (5,8). But this seems similar to the previous steps.
+
+Alternatively, perhaps after (4,9), moving LEFT as much as possible would take us all the way to x=0. Let's see:
+
+Move 1: LEFT → (4,9)
+Move 2: LEFT → (3,9)
+Move 3: LEFT → (2,9)
+Move 4: LEFT → (1,9)
+Move 5: LEFT → (0,9) → but x=0 is allowed.
+
+But from (0,9), moving DOWN would take us to (0,8), which might not be optimal. Alternatively, perhaps at this point, the snake could decide to extend its body segments by moving further down or right.
+
+This seems complicated; perhaps a better approach is needed.
+
+Let's consider that after several moves, the snake can reach closer to the apple and then move towards it step by step.
+
+But perhaps given time constraints, I'll try to outline a potential path:
+
+1. Start at (5,9)
+2. Move LEFT → (4,9)
+3. From there, perhaps move DOWN as much as possible until y=4.
+   - But from y=9 down to y=4 is 5 moves.
+
+But let's see how this would work:
+
+After moving LEFT once: position (4,9)
+
+Then, each move DOWN brings us closer:
+
+Move 2: DOWN → (4,8)
+Move 3: DOWN → (4,7)
+Move 4: DOWN → (4,6)
+Move 5: DOWN → (4,5)
+Move 6: DOWN → (4,4) → but y=4 is not the apple's position. The apple is at x=9, y=4.
+
+So perhaps this path isn't correct because it doesn't reach x=9 before getting too close to y=4.
+
+Alternatively, perhaps after moving LEFT and then down several times, we can change direction.
+
+Perhaps another approach: move DOWN as much as possible first.
+
+Move 1: DOWN → (5,8)
+But wait, from (5,9), moving DOWN would take us to (5,8). Then perhaps this is better because x remains same.
+
+From here:
+
+At (5,8), we can consider moving LEFT or RIGHT.
+
+If we move LEFT:
+
+Move 2: LEFT → (4,8)
+
+Now at (4,8):
+
+Possible moves: DOWN to (4,7) etc., but perhaps it's better to move RIGHT first.
+
+Move 3: RIGHT → (5,8) again. Hmm, that seems like a loop.
+
+Alternatively, maybe after reaching (5,8), moving DOWN as much as possible:
+
+From (5,8):
+
+Move 2: DOWN → (5,7)
+Move 3: DOWN → (5,6)
+Move 4: DOWN → (5,5)
+Move 5: DOWN → (5,4)
+
+Now at (5,4). Now from here, perhaps move RIGHT to reach x=9.
+
+But wait, how?
+
+From (5,4), moving RIGHT would take us to (6,4) etc. But perhaps let's see:
+
+At (5,4):
+
+Possible moves: DOWN → (5,3)
+But perhaps it's better to move RIGHT as much as possible until reaching x=9.
+
+Alternatively, perhaps from (5,4):
+
+Move 1: RIGHT → (6,4)
+Move 2: RIGHT → (7,4)
+Move 3: RIGHT → (8,4)
+Move 4: RIGHT → (9,4) → which is the apple!
+
+So this path would be:
+
+(5,9) → DOWN → (5,8)
+
+Then at (5,8):
+
+→ DOWN → (5,7)
+
+→ DOWN → (5,6)
+
+→ DOWN → (5,5)
+
+→ DOWN → (5,4)
+
+Now from (5,4), move RIGHT four times to reach x=9.
+
+So total steps:
+
+Down from 9 to 4: that's 5 moves? Wait no. From y=9 down to y=4 is a difference of 5 units. So perhaps moving DOWN five times would take us from y=9 to y=4, but let's count the number of steps.
+
+Wait, each DOWN move decreases y by 1. So starting at (5,9), moving DOWN once gets to (5,8) → that's one step. To get down to y=4, we need five more steps: from y=8 to y=7 is another step, etc., but perhaps it's better to count each direction as a move.
+
+Alternatively, perhaps this approach isn't the most efficient because moving DOWN multiple times could block the snake's body segments or make movement impossible later on.
+
+Perhaps instead of trying every possible path manually, let me think about an optimal strategy:
+
+The goal is to reach (9,4) from (5,9). The minimal number of moves would be moving right 4 steps and down 5 steps. But perhaps the snake's body constraints could affect this.
+
+But since each move must not go beyond grid boundaries or cause a collision with existing segments, perhaps we need to ensure that our path doesn't get stuck in positions where no further movement is possible without blocking the snake.
+
+Given that after moving DOWN several times from y=9, and then moving RIGHT towards x=9, perhaps this would be feasible.
+
+Thus, here's a potential path:
+
+1. From (5,9), move DOWN to (5,8)
+2. Move DOWN to (5,7)
+3. Move DOWN to (5,6)
+4. Move DOWN to (5,5)
+5. Move DOWN to (5,4)
+Now at (5,4), we can start moving RIGHT four times:
+6. RIGHT → (6,4)
+7. RIGHT → (7,4)
+8. RIGHT → (8,4)
+9. RIGHT → (9,4) → which is the apple!
+
+This would take a total of 5 DOWN moves and then 4 RIGHT moves, totaling 9 steps.
+
+But perhaps this path may not be feasible because after moving DOWN several times from y=9, we might reach an area where movement becomes impossible without getting stuck in the current body segments.
+
+Alternatively, perhaps another approach is better:
+
+Perhaps starting by moving LEFT as much as possible to get closer to x=0 and then moving DOWN and RIGHT accordingly.
+
+Let's try this path:
+
+1. From (5,9), move LEFT → (4,9)
+2. Move LEFT → (3,9)
+3. Continue moving LEFT until reaching x=0:
+   - After 5 moves: from x=5 to x=0
+   At x=0, possible moves are DOWN and RIGHT.
+
+But perhaps at this point, it's better to move DOWN as much as possible:
+
+From x=0, y=9:
+
+Move DOWN → (0,8)
+Then continue moving DOWN until y=4:
+- From y=8 down to y=5: four steps
+Wait no. Let me count the moves correctly.
+
+Alternatively, perhaps this approach is more complicated than necessary. Given that time is limited and I need to find a feasible path, perhaps the earlier approach of moving DOWN from (5,9) five times and then RIGHT four times is acceptable.
+
+Thus, summarizing the steps:
+
+1. Move DOWN from (5,9) → (5,8)
+2. Move DOWN → (5,7)
+3. Move DOWN → (5,6)
+4. Move DOWN → (5,5)
+5. Move DOWN → (5,4)
+6. Move RIGHT four times to reach x=9.
+
+Thus, total moves: 5 DOWN and then 4 RIGHT = 9 moves.
+
+But perhaps this is not the optimal path because it might get stuck at some point without being able to move further without blocking.
+
+Alternatively, perhaps another approach is better:
+
+Let's try moving LEFT as much as possible first:
+
+1. From (5,9), move LEFT → (4,9)
+2. Move LEFT → (3,9)
+3. Move LEFT → (2,9)
+4. Move LEFT → (1,9)
+5. Move LEFT → (0,9) → but from x=0 and y=9, moving DOWN is possible.
+
+From (0,9):
+
+6. Move DOWN → (0,8)
+7. Move DOWN → (0,7)
+8. Move DOWN → (0,6)
+9. Move DOWN → (0,5)
+10. Move RIGHT → (1,5) → but perhaps better to move right again.
+
+This approach seems more complicated and may not reach the apple efficiently.
+
+Thus, perhaps the initial approach of moving DOWN five times and then RIGHT four times is a feasible solution, though I'm not entirely sure if it's possible due to constraints. But given time constraints, perhaps this is the best approach.
+
+Therefore, the path would be:
+
+(5,9) → (5,8) → (5,7) → (5,6) → (5,5) → (5,4) → (6,4) → (7,4) → (8,4) → (9,4)
+
+But this seems like 10 moves instead of the earlier calculation. Hmm.
+
+Alternatively, perhaps a more optimized path would be:
+
+From (5,9), move DOWN once to (5,8).
+
+Then from there, move RIGHT four times and then DOWN five times? That doesn't seem efficient.
+
+Perhaps another approach is needed.
+
+Given that I'm stuck on figuring out the exact path due to time constraints, perhaps it's better to note that moving DOWN as much as possible first would be a good strategy because each DOWN move brings us closer to y=4 without getting stuck in x positions that prevent further movement. Then, once near enough, move RIGHT towards x=9.
+
+Thus, perhaps the optimal path is:
+
+(5,9) → (5,8) → (5,7) → (5,6) → (5,5) → (5,4) → (6,4) → (7,4) → (8,4) → (9,4)
+
+Which would take 10 moves. But perhaps the minimal number of steps is fewer.
+
+Alternatively, considering that from (5,9), moving DOWN five times to y=4 and then RIGHT four times is nine moves.
+
+Thus, perhaps the solution path is:
+
+Start at (5,9)
+Move DOWN five times:
+(5,8) → (5,7) → (5,6) → (5,5) → (5,4)
+Then move RIGHT four times to reach x=9.
+Total steps: 5 + 4 = 9.
+
+Thus, the path can be described as:
+
+1. DOWN five times:
+   (5,9) → (5,8) → (5,7) → (5,6) → (5,5) → (5,4)
+2. RIGHT four times:
+   (5,4) → (6,4) → (7,4) → (8,4) → (9,4)
+
+This would reach the apple in 9 steps.
+
+Therefore, the answer is that it's possible to reach the apple in nine moves by moving down five times and then right four times.
+</think>
+
+The problem can be solved by strategically moving the snake downward until reaching y=4, then moving right towards x=9. This approach ensures efficient movement toward the goal without getting stuck.
+
+$\boxed{Yes}$
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 9) and whose body cells are in list format [(3, 6), (4, 6), (4, 7), (5, 7), (5, 8)], to eat the apple at (9, 4).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

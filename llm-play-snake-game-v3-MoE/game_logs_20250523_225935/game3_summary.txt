@@ -1,0 +1,18 @@
+Game 3 Summary:
+=========================================
+Timestamp: 2025-05-24 01:11:50
+Score: 3
+Steps: 39
+Last direction: UP
+
+Performance Metrics:
+- Apples/Step: 0.0769
+- Secondary LLM usage: 9 times (100% of rounds)
+- Final board size: 4 segments
+
+Game End Reason: Self collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 40
+- Total Secondary LLM invocations: 9
+=========================================

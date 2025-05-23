@@ -1,0 +1,18 @@
+Game 6 Summary:
+=========================================
+Timestamp: 2025-05-24 02:52:08
+Score: 6
+Steps: 66
+Last direction: DOWN
+
+Performance Metrics:
+- Apples/Step: 0.0909
+- Secondary LLM usage: 17 times (100% of rounds)
+- Final board size: 7 segments
+
+Game End Reason: Wall collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 67
+- Total Secondary LLM invocations: 17
+=========================================

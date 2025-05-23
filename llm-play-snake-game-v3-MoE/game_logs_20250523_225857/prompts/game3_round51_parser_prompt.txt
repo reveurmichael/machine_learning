@@ -1,0 +1,124 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, I'm trying to figure out a safe path for the snake to reach the apple without colliding with itself or moving out of bounds. Let me start by analyzing the given positions and the current state.
+
+The head is at (7,2), and it's currently facing "DOWN". The body segments are [(7,3), (7,4), ..., (8,8)]. The apple is located at (9,6). 
+
+First, I need to make sure that each move follows the movement rules. The snake can't reverse direction unless it's the first move. Since the current direction is "DOWN", the next move can't be "UP". So, possible directions are "RIGHT", "DOWN", or if it changes direction after the first move.
+
+The goal is to reach (9,6). The Manhattan distance from (7,2) to (9,6) suggests that moving right twice and up four times would get there. But I need to consider the body segments in between.
+
+Looking at the current body positions, the snake is almost along the same column as the head, except for a segment that's extended down to (8,8). So, the snake's tail is near the bottom-right corner of the grid.
+
+I need to plan a path that avoids collisions. Since the snake can't reverse direction immediately, moving right first might be a good start because it aligns with the target's x-coordinate. Moving "RIGHT" from (7,2) would take the head to (8,2). Then, checking if this move is safe: the new position isn't blocked by any body segments and is within bounds.
+
+After that, moving "RIGHT" again would take the head to (9,2), which is still below the apple. But I need to get up to y=6. So, maybe after the first right move, switching direction might be necessary.
+
+Alternatively, considering the current direction is "DOWN", perhaps a "RIGHT" move followed by some "UP" moves could work. But I have to ensure that the body doesn't collide with itself as it moves.
+
+Another approach is to try moving "RIGHT" until the snake reaches x=9 and then start moving up. However, since the apple is at (9,6), which is four units above y=2, I need to make sure that the path upwards is clear.
+
+I should also consider eating the apple when possible, but that only happens if the head moves onto it. So, planning a path where the head can reach the apple without getting blocked by its own body is crucial.
+
+Looking at the current body segments, they are all along x=7 and y from 2 down to 8. The tail is at (8,8). So, moving right from (7,2) won't immediately collide with any body segments except possibly when the snake starts growing.
+
+If I move "RIGHT" first to (8,2), that's safe because there are no body segments in that cell. Then, moving "UP" towards y=6. But since the current direction is "DOWN", I can't suddenly switch to "UP" unless it's a valid move after changing direction.
+
+Wait, the movement rules state that you can't reverse direction on the first move. So, if the initial direction is "DOWN", the first move must be either "RIGHT", "LEFT", or "DOWN". Changing direction later is allowed except for reversing directions like "UP" to "DOWN" or "LEFT" to "RIGHT".
+
+So, after moving right once, I can then start moving up. Let me outline a possible path:
+
+1. Move "RIGHT" to (8,2).
+2. Then move "RIGHT" again to (9,2).
+3. Now, I need to move up towards y=6. But I have to avoid reversing direction. Since the last move was right, the next move can be up without reversing.
+
+Wait, moving from x=9,y=2 upwards would require multiple "UP" moves. Let me see how many steps that would take.
+
+From (9,2), moving up once brings me to (9,3). Then (9,4), (9,5), and finally (9,6) where the apple is.
+
+So the sequence would be: RIGHT, RIGHT, UP, UP, UP, UP. But I need to check if any of these moves cause a collision with body segments or walls.
+
+Additionally, after each move, I have to make sure that the new head position doesn't collide with any body cells except potentially the tail when it's about to move.
+
+Let me simulate this step by step:
+
+1. Initial state: head at (7,2), direction "DOWN", body segments from (7,3) down to (8,8).
+
+2. Move "RIGHT" to (8,2). Check if this is within bounds and not occupied by any body segment except the tail when it's about to move. The tail is currently at (8,8), so moving to (8,2) is safe.
+
+3. Now, direction is "RIGHT", so next move can be another "RIGHT" or a change without reversing. Moving right again would take us to (9,2).
+
+4. At (9,2), the head needs to move up towards y=6. Since the last move was right, we can now move up without reversing.
+
+5. Moving up from (9,2): each "UP" move increases y by 1. So:
+
+   - (9,3)
+   - (9,4)
+   - (9,5)
+   - (9,6)
+
+6. The apple is at (9,6), so on the final "UP" move, we eat the apple.
+
+Now, let's check for collisions and body segments:
+
+- At each step, after moving, the new head position should not be in any of the body cells except possibly the tail if it's about to move.
+
+In this path, none of the moves would collide with existing body segments because the snake is mostly along x=7, y from 2 down, and then x=8, y=8. Moving right into x=9 and up to y=6 doesn't interfere with these positions.
+
+Another consideration: after eating the apple, the snake grows by one segment, so the tail remains at (8,8) unless it's about to move, but in this case, since we're growing, the tail stays. So, as long as there's a way for the snake to continue moving without getting trapped, this path is safe.
+
+I also need to ensure that each body segment is adjacent to its predecessor by exactly 1 in x or y. Since the body segments are all along x=7 or x=8 with y decreasing, moving right and then up should maintain this adjacency as the snake grows.
+
+Therefore, the proposed moves would be: RIGHT, RIGHT, UP, UP, UP, UP.
+</think>
+
+{"moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP"], "reasoning": "The snake will move right twice to align x-coordinate with the apple's x=9. Then it will move up four times to reach y=6, safely avoiding collisions and walls."}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (7, 2) and whose body cells are in list format [(8, 8), (7, 8), (7, 7), (7, 6), (7, 5), (7, 4), (7, 3)], to eat the apple at (9, 6).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

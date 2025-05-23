@@ -1,0 +1,499 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, let's tackle this problem step by step. I'm a bit new to this Snake game mechanics, but I'll try my best to figure out how to get the snake from (3,7) to (3,3) without dying.
+
+First, the current state of the snake: head is at (3,7), direction is LEFT, and there's a body segment at (4,7). The apple is at (3,3). I need to plan a path that moves the head from (3,7) leftwards towards (3,3) while avoiding any potential collisions with walls or other parts of the snake.
+
+The movement rules are important here. The snake can't reverse direction immediately; since it's moving LEFT now, the next move can't be RIGHT. Also, if the snake eats the apple, it needs to have at least one legal move left after that turn to avoid getting stuck.
+
+Let me visualize the grid. Starting at (3,7), going left means decreasing x each time. The target is at (3,3), so I need to move 4 steps left in terms of y-axis movement since from y=7 to y=3 is a difference of -4.
+
+Wait, no—since the direction is LEFT, which affects x. So moving from x=3 towards lower x values. The apple is at (3,3), so we need four left moves: 3→2→1→0→ but wait, that's more than needed because (3,7) to (3,3) is a difference of -4 in y? Wait no, sorry. Let me clarify:
+
+The coordinates are (x,y). The head is at (3,7), and the apple is at (3,3). So moving from 7 to 3 on the y-axis means going left four times because each LEFT move decreases x by 1. So to go from 3 to 3 in x? No, wait—no, that's not right.
+
+Wait no: direction is LEFT, so head moves in x-direction. But the apple is directly below (same x) at lower y. So maybe I need to adjust my thinking.
+
+Wait, perhaps there's a mistake here. The movement is based on current direction. If the snake is moving left, that affects the x-coordinate. But since the apple is in the same x but lower y, how can we get there? Maybe we have to first move down, but then the direction was LEFT. Hmm.
+
+Wait no: the head's position and direction determine where it will go next. The initial direction is LEFT, so each step moves x-1. But if I keep moving left from (3,7), that would take me towards (2,7), (1,7), etc., which doesn't help because the apple is at (3,3). So perhaps to move towards the apple, we need a different approach.
+
+Wait maybe I'm misunderstanding the grid. Let's clarify: in this problem, moving LEFT decreases x by 1, RIGHT increases x, UP increases y, DOWN decreases y. Wait no: according to the problem statement:
+
+"Direction vectors are { "UP": (0, +1), "DOWN": (0, -1), "LEFT": (-1, 0), "RIGHT": (+1, 0) }".
+
+So moving LEFT from (3,7) would take us to (2,7). But the apple is at (3,3). So moving directly left won't reach it. Hmm.
+
+Wait maybe I'm getting confused with x and y directions. Maybe I need to think differently: perhaps the snake can change direction in such a way that after some steps, it can turn towards the apple.
+
+Alternatively, since the current body is at (4,7), which is right next to the head but in front if moving LEFT. So when moving left from (3,7), the new head would be (2,7). But then the body behind is at (4,7) after shifting? Wait no: each move shifts the entire body forward by one segment.
+
+Wait let's think about how movement works:
+
+When we compute the new_head as (head_x + dx[direction], head_y + dy[direction]), which for LEFT is (-1, 0), so from (3,7) to (2,7).
+
+Then, before shifting, check if this new_head collides with any body segments except possibly the tail when it's about to move. The current body is [(4,7)]. So after moving left, new_head is (2,7). This position isn't in the body list, so no collision.
+
+Then update the body: insert old head at front → body becomes [(3,7), (4,7)] and then remove the tail if not eating apple. Since direction is LEFT and not eating apple yet, we just shift, resulting in new body [(2,7), (3,7)].
+
+Wait no: Wait, original body was [head] + [body segments], so initial state before movement:
+
+Current head is at (3,7). Body list is [(4,7)]. So the snake's full S is [ (3,7) , (4,7) ] because the body list is from behind to tail.
+
+When we move left, new_head = (2,7).
+
+Check for collision: (2,7) isn't in the current body segments, which are [(4,7)]. So safe. Then update the body by adding old head at front and removing the last element if not eating apple.
+
+So after movement:
+
+Body becomes [ (3,7), (4,7) ] → no, wait: when moving left, new_head is added to the front of the body list, making it [(2,7)] + [(4,7)]? No. Wait no—let me re-read the update rules.
+
+Rule 3:
+
+a. Insert the old head at the front of the BODY list (becomes BODY1). So current body before movement is [ (4,7) ] as it's after the head.
+
+Wait wait: S is [HEAD, BODY1, ...,BODYN]. The body cells are given as [(4,7)], which excludes the head and goes from behind to tail. So when moving:
+
+Insert old head at front → so new body starts with (3,7), then followed by the existing body segments.
+
+So after inserting, it's [ (3,7) , (4,7) ] but since we are not eating apple yet, step 3b removes the last element. So the new body is [(3,7)]? Wait no:
+
+Wait rule 3: if you don't eat the apple, remove the tail.
+
+So after inserting old head at front → [ (new_head=2,7), (3,7) ] because current body was [4,7]. Then step 3b removes last element. So new body is [ (new_head=2,7), (3,7) ] minus the last element? Wait no:
+
+No: rule 3a says insert old head at front of BODY list → so if previous body was [(4,7)], inserting before would make it [ (3,7), (4,7) ]. Then step 3b: since not eating apple, remove tail. So the new body becomes [ (3,7) ].
+
+Wait that can't be right because each move requires a shift of one segment behind.
+
+This is getting confusing. Maybe I should try to outline an example movement as per the problem statement.
+
+In the example given:
+
+Original S = [(4,4), (4,3), ...], direction RIGHT → new_head becomes (5,4). Then insert old head at front: [5,4, 4,4], remove last element if not eating apple. So after moving right, the body is [ (5,4), (4,4) ].
+
+Wait no, in that example, before movement:
+
+Current position was [4,4] as head and [4,3] as behind? Or wait: S = [HEAD, BODY1]. So before movement, S is [(4,4), (4,3)]. After moving RIGHT to (5,4), insert old head at front → new S becomes [(5,4), (4,4)], then if not eating apple, remove tail. Wait no—the example says:
+
+After moving right, they say that the body becomes [ (4,4) ].
+
+Wait, maybe I'm misunderstanding how the movement works. Let me re-read rule 3:
+
+Update body positions: a. Insert old head at front of BODY list (becomes BODY1). So if current body is [(4,7)], after moving left to (2,7), insert head (3,7) → new body becomes [ (3,7), (4,7) ].
+
+Then step 3b: if not eating apple, remove tail. Current length was 1, so adding a new head makes it 2, then removing last element brings back to 1? So after movement, the body is [(3,7)]. But wait that's only one segment.
+
+Wait no—original body before movement had [ (4,7) ] as per the input. When moving left:
+
+- Compute new_head = (2,7).
+
+- Check: not a collision since it's empty.
+
+- Insert head at front → body becomes [ (3,7), (4,7) ].
+
+- Since not eating apple, remove tail → new body is [ (3,7) ].
+
+So after movement, the snake's head moves to (2,7), and body is only [(3,7)]—which seems too short. But according to rule 1: Body list excludes the head and goes from behind to tail. So in this case, if the body becomes empty except for the new head, does that mean there's no body? Or perhaps I'm misapplying the rules.
+
+Alternatively, maybe after moving left once, the snake would be [ (2,7) ] as head and no body segments because we just shifted one. But according to rule 3a: insert old head at front → making it a new segment, then step 3b removes last if not eating apple.
+
+Wait perhaps in this case, when moving left from (3,7), which is followed by [4,7], the body becomes:
+
+After inserting (3,7) and before removing tail, it's [(3,7), (4,7)]. Then remove last to get [(3,7)] as the only segment. So now the snake has only a head? That can't be right.
+
+Wait but in reality, after each move, the snake should have at least one body segment besides itself because you're shifting forward by one.
+
+This is confusing; perhaps I'm misunderstanding how the movement and insertion works.
+
+Maybe to avoid getting stuck, it's better to try another approach. Since the apple is directly below (same x) but lower y than the current position of the snake, maybe the only way to reach the apple is if the snake can turn down towards it after moving left for a few steps.
+
+But in that case, the initial direction is LEFT, so first step would be to go from (3,7) → (2,7). Then next move might need to change direction to DOWN or something else. But let's see:
+
+After first move: new_head = (2,7), body becomes [ (3,7) ].
+
+Then second move: current head is at (2,7), direction is LEFT still? Or can we change direction?
+
+Wait no—direction is fixed as per the input; unless we eat apple or change due to rules. Wait in this case, initial direction is LEFT and not eating apple yet, so movement continues in same direction.
+
+So second move: new_head would be (1,7). Check collision with body segments which are now [3,7]—so safe.
+
+Insert old head at front → body becomes [(2,7), 3,7]. Then remove last if not eating. So body is [(2,7)] after removing tail.
+
+Wait no: previous step's body was [(3,7)], insert (2,7) in front makes it [(2,7), (3,7)]. Remove last element → [(2,7)] as the new body. Hmm, again only one segment—this seems inconsistent because a snake with just head and no body would be invalid.
+
+Wait maybe I'm approaching this wrong. Perhaps when moving left from (3,7) in initial state where body is [4,7], after insertion it becomes [(3,7), 4,7]. Then since not eating apple, remove tail → new body is [(3,7)]. So the snake's length has decreased? That can't be.
+
+Alternatively, maybe when you move and insert the head at front, if you then have multiple segments but need to remove one because you're not eating apple. So for a two-segment snake: [4,7] → moving left makes new_head (3,7), body becomes [(3,7), 4,7]. Then step 3b removes last element → back to [3,7], which is the only segment.
+
+But that would mean after each move without eating apple, the snake's body is just the head. That can't be correct because a snake must have at least one body segment besides itself.
+
+I think I'm misunderstanding rule 3a and 3b. Let me read them again:
+
+Rule 3: Update body positions
+
+a) Insert the old head (previous position) into the beginning of the list; new_head becomes body1 → so for example, current S is [head, body1], inserting previous head at front makes it [old_head, head].
+
+b) if you don't eat apple in this step, remove the last element. So only when not eating, you shift back.
+
+Wait no: after movement:
+
+new_head = (x_new, y_new).
+
+Insert old head into the beginning → which was the current head before moving. Then check for collision.
+
+If not eating apple, then body list is updated by removing last segment because it's shifted forward.
+
+So in initial state: body is [4,7]. new_head is 2,7 (left from 3,7).
+
+Insert old head at front → [ (3,7), 4,7 ].
+
+Check for collision with current body? Current body before movement was [4,7], which doesn't include (3,7). So no collision. Then step b: since not eating apple, remove tail. The new body becomes [(3,7)] as the last element is removed from [3,7, 4,7]?
+
+Wait I'm getting more confused.
+
+Maybe it's better to try moving in steps and see what happens:
+
+Start:
+head at (3,7)
+body: [(4,7)]
+
+Move LEFT once:
+
+new_head = (2,7)
+
+Insert old head (3,7) → body becomes [ (3,7), 4,7 ]
+
+Check collision with existing body segments ([4,7]).
+
+(3,7) is not in [4,7], so no collision.
+
+Since not eating apple, remove tail from new body. So after removing last element, the new body is [(3,7)].
+
+So now snake's head is at (2,7), body is empty except for that?
+
+Wait but the problem statement says that the body list doesn't include the head and goes from behind to tail. So if we have only one segment in the body after this movement, does it mean that there are no body segments? Or perhaps I'm making a mistake.
+
+Alternatively, maybe after moving left once:
+
+head moves to (2,7), and since not eating apple, the old last segment [4,7] is removed. So new body becomes [(3,7)] as previous head. But in reality, how can that be?
+
+I think perhaps my approach is wrong because I'm trying to move step by step without considering that when you shift forward, each movement must maintain at least one body segment.
+
+Wait maybe the initial condition allows only for a certain number of moves before needing to change direction or eating apple. Since the snake's body includes [4,7], perhaps moving left too much would cause it to have no body segments after some steps.
+
+Alternatively, perhaps in this case, the snake can't move further LEFT because the next step would require removing another segment and leaving nothing behind.
+
+Wait maybe I need to think about the movement rules differently. Let's try:
+
+Current position: head (3,7), body [(4,7)]
+
+Move direction: LEFT
+
+new_head = 2,7
+
+Insert old head into front → body becomes [3,7, 4,7]
+
+Check for collision with existing body segments ([4,7]). No collision.
+
+Since not eating apple, remove last element → new body is [3,7].
+
+So now the snake's S is [(2,7), (3,7)]. But that implies the body is only one segment behind—so when moving again in the same direction:
+
+new_head would be 1,7. Insert old head (2,7) to front → body becomes [2,7, 3,7]
+
+No collision with current body segments ([3,7]).
+
+Since not eating apple, remove last element → new body is [2,7].
+
+Wait but now the snake's S would be [(1,7), (2,7)], so two segments. Then again moving left:
+
+new_head=0,7
+
+Insert previous head at front: [1,7]
+
+Body becomes [1,7, 2,7] → check for collision with current body [2,7].
+
+No.
+
+Remove last: new body is [1,7]. So after each step, the snake's body is just one segment? That doesn't make sense because a snake must have at least two segments to exist—head and tail. Wait but according to the problem statement, in this scenario:
+
+Body list includes all behind, so when you move left once more from (1,7), inserting head → [0,7, 1,7]
+
+Then since not eating apple, remove last: body becomes [0,7].
+
+So now S is [(0,7), (1,7)]—two segments.
+
+But then next step:
+
+new_head = (-1,7). Insert previous head at front → [-1,7, 0,7]. Then if not eating apple, body becomes [-1,7], so snake's position would be [(-1,7)], which is impossible. So this seems to imply that moving left continuously without changing direction causes the snake to have only one segment after a few steps.
+
+Alternatively, perhaps when you reach x=0, you can't move further left because you'd go out of grid or collide with walls.
+
+So in this scenario, maybe the snake has already moved left once successfully. Then again, if it moves left three more times:
+
+But wait: starting from (3,7), moving left 4 steps would reach ( -1,7 ), which is beyond x=0—so the maximum you can move left without going out of bounds (assuming grid starts at 0) is to x=0.
+
+So perhaps it's not possible for this snake to move directly left towards the apple because each move requires shifting body segments, and after a few steps, it would have no body behind anymore unless turning around or eating apple.
+
+This suggests that maybe we need another approach—perhaps moving in some other direction first to create space ahead.
+
+Wait but initial direction is LEFT; according to problem statement, current direction can't be changed until the next move. Or wait, per rules: you can change direction as long as it's not reversing immediately if you just moved a certain way.
+
+But no—if previous movement was left, the next cannot be right unless you've eaten apple or something else allows it.
+
+Wait I think my confusion is coming from the fact that moving LEFT without eating apple makes the snake's body list lose segments each time. So maybe to reach the apple which is directly below (same x), we need to somehow move DOWN first, but since initial direction is LEFT, perhaps turning down requires changing direction after some left moves.
+
+Wait no—if you're facing left and want to go down, that would be a 90-degree turn, not allowed unless via other steps. Alternatively, maybe moving right initially could allow us to come back up.
+
+But this seems too complicated. Perhaps the only way is for the snake's head to move towards decreasing y while increasing x—but given current direction is left, perhaps we can't directly change that until after some movement.
+
+Wait but I'm getting stuck on how the body segments are managed in each step. Maybe it's better to think of this as a pathfinding problem where certain movements are possible based on the snake's position and body constraints.
+
+Alternatively, maybe the answer is to have the snake move left four times (from 3→2→1→0→-1) but that would go out of grid; so perhaps it's impossible. But no, because in this scenario:
+
+Wait apple is at (3,6). So y is decreasing from 7.
+
+But movement direction is LEFT—so without changing direction or eating apple, you can't reach the apple because you're moving in x direction and not y.
+
+So maybe I need to change direction. How?
+
+Perhaps first move left once, then turn down, but that would require facing downward after some steps.
+
+Wait let's see:
+
+Start:
+head at (3,7), body [4,7]
+
+Move LEFT: new_head is (2,7). Body becomes [(3,7)]—assuming rules are followed correctly. Then second move: can I change direction to DOWN?
+
+But according to problem statement, you can only reverse direction if conditions allow; maybe after moving a certain way for some steps.
+
+Wait the initial movement was LEFT—if I don't eat apple and keep going, each time I shift left but lose body segments—it's getting impossible. So perhaps it's better to change direction earlier.
+
+Alternatively, perhaps we need to consider that with only one body segment in front, you can’t turn around unless you have something else—maybe the tail is in a position that allows turning.
+
+But without more information about other parts of the snake (since problem statement doesn't give much), it's challenging.
+
+Perhaps, given this complexity, I should look for alternative reasoning. Since the snake is at head (3,7) and body [4,7], to reach apple at (3,6)—same x as current position but lower y—so movement in negative y direction would be required.
+
+But initial direction is LEFT; so without changing direction or eating apple, you can't get closer to the apple.
+
+Thus, perhaps moving left isn't enough. The snake needs to turn around and head towards decreasing y.
+
+Therefore, maybe we need to first move down after some steps—but how?
+
+Wait but since current direction is LEFT, it's not possible to change direction unless certain conditions are met, such as eating apple or meeting a certain condition that allows changing of movement.
+
+Alternatively, perhaps the snake can't reach the apple because moving left would only shift its body further ahead without any way to turn towards y-axis. So maybe the answer is no?
+
+But the problem asks for "which is the path", so probably it's possible with some moves.
+
+Perhaps I need to find a path where after each move, the snake can adjust direction as needed, based on previous movement and collision rules.
+
+Wait another approach: To get closer to apple in y-axis (from 7→6), maybe the head needs to be at same x=3 but y=6. So how?
+
+Perhaps first moving down towards y=6 while adjusting position using left or right direction—though initial direction is LEFT, so perhaps after some steps we can change.
+
+Wait no, because in this scenario:
+
+Starting from (3,7), with body [4,7], the snake moves left to (2,7). Then maybe it can move down towards y=6?
+
+But movement down would be negative y-direction. Let me see how that works.
+
+Let's try:
+
+1st step: Move LEFT → new_head=(2,7)
+
+- Insert old head into front
+- Remove tail if not eating apple
+So body becomes [(3,7)]
+
+2nd step: Can we now move DOWN?
+
+To move down, direction should be negative y. But in problem statement, initial movement was left.
+
+Wait but the snake can't change direction unless it's allowed—per rules, perhaps only possible when certain conditions are met (like eating apple or moving forward and then reversing if needed).
+
+But I'm not sure about that.
+
+Alternatively, maybe after some movements without eating apple, the snake can eventually turn around to face towards decreasing y.
+
+Wait but with body segments getting fewer each time you move left without eating apple—it's impossible for this snake to move right again unless it has a tail behind which is facing in opposite direction. But if all body segments are at positions lower x than head, then turning back would require collision check—which may be allowed.
+
+But I think the only way out of this confusion is to accept that without moving down (to y=6), the snake can't reach apple, so path isn't possible—probably not intended as answer. Therefore perhaps my initial understanding was wrong about movement direction or body handling.
+
+Wait another thought: maybe when you move left from head at 3→2, and after inserting old head, the new_body is [ (3,7),4,7 ], then since not eating apple, remove last element—so it's [3,7]. But how? Is that possible?
+
+Because current body before moving was [4,7], so if you insert 3,7 at front and remove back, after movement the new_body is [3,7].
+
+But that would leave a snake with only head (3,7) and no tail—so it's impossible. That can't be right.
+
+Therefore, perhaps my entire approach is wrong because of misunderstanding how body segments are handled upon each movement step.
+
+Alternative idea: Perhaps when moving left without eating apple:
+
+- Insert old_head in front
+- Then remove last element only if not eating apple
+
+So after the first move:
+
+new_head = (2,7)
+
+old_body = [4,7]
+
+so new_body becomes [(3,7), 4,7], then since no apple eaten, remove tail: so body is now just [3,7]. So head moves to 2,7 and body has only the previous head. But that leaves a snake with no behind—it can't exist.
+
+Therefore perhaps this movement isn't possible because it would result in an invalid snake configuration (with no behind segments after some steps).
+
+Thus, given that the initial direction is LEFT and no apple eaten yet, the snake cannot move further left without causing an invalid state—so it's impossible to reach the apple by moving only left.
+
+But then how can we get closer?
+
+Wait another approach: perhaps in each movement step, you must have at least one body segment besides head. So initial position has a tail at 4,7; after first move:
+
+new_head = (2,7)
+
+insert old_head=3,7 → new_body is [ (3,7),4,7 ]
+
+then remove last element because not eating apple: so body becomes [3,7]
+
+So now snake's S is [(2,7), 3,7]. But in this case, how can the next move be made?
+
+Move again to left:
+
+new_head =1,7
+
+insert previous head=2,7 → new_body=[ (1,7), 2,7 ]
+
+check for collision: current body is [3,7] which doesn't include 1,7.
+
+So no collision.
+
+Since not eating apple, remove last element → [1,7]
+
+Now snake's S becomes [(1,7), 2,7], but only two segments. Wait but I thought the new_body was supposed to be shorter by one—so that seems inconsistent.
+
+Alternatively, maybe in this case, each movement without eating reduces the number of body segments until it can't move further left because body would be exhausted.
+
+So perhaps after a certain number of steps moving left, the snake cannot make another step and must change direction. But since you can only change direction upon meeting certain conditions (like reversing immediately), which aren't met here, maybe this is impossible.
+
+Thus, given these constraints, it's likely that the snake can't reach the apple by moving solely in LEFT directions without having a body segment to allow turning around or changing direction when needed. Therefore, perhaps there isn't a valid path—unless we have some other consideration.
+
+Wait another possibility: Maybe after several moves left and then down if possible—but initial movement is only LEFT.
+
+Alternatively, maybe this problem assumes that the snake can turn in any direction as long as it's not immediate reverse unless conditions allow—so moving towards decreasing y while facing same x requires a change of direction which isn't allowed yet. So perhaps no solution exists under these constraints.
+
+But since the question asks for "which is the path", I must be missing something because presumably, such a path exists.
+
+Wait maybe my initial assumption about movement without changing body segments is incorrect. Perhaps when moving left once more from (2,7), inserting head and then removing tail:
+
+new_head =1,7
+
+body becomes [3,7], insert previous head → [1,7, 4,7]
+
+then remove last: new_body=[1,7]. So the snake's S is [(0,7), 1,7].
+
+Then moving left again—new_head=-1,7.
+
+Insert old_head=0,7 into front → [-1,7, 1,7], then remove tail→ [-1,7]
+
+So body after this step: [ -1 ]
+
+This can't be—it's invalid. So snake with head at (-1,7) and no behind—so impossible.
+
+Therefore, perhaps the only way is to somehow change direction earlier but I don't see how without causing invalid movement.
+
+Wait maybe in each of these steps, when moving left multiple times without eating apple, body segments are being lost. So after four moves left:
+
+First move: new_head (2,7) → new_body [3,7]
+
+Second:1→ new_head=1; new_body=[1, 4]?
+
+Wait maybe this is wrong.
+
+Perhaps each time you insert the old head and then remove tail if no apple eaten. So perhaps after moving left once:
+
+new_head =2
+
+old_body becomes [3,4]
+
+so new_body is (2) inserted front → [2,3], remove last: body is [2,3].
+
+No that doesn't make sense.
+
+Alternatively, let me think differently.
+
+Perhaps the initial snake has head at 3,7 and tail at 4,7. So when moving left:
+
+new_head=2,7
+
+insert old_head=3,7 into front → new_body becomes [ (3,7),4,7 ]
+
+then remove last element because no apple eaten: body is now [3,7]
+
+So the snake's S after first move would be head at 2 and tail at 3.
+
+But that seems invalid—it has only one segment—so perhaps movement in left direction once isn't possible without causing an impossible state. Therefore, maybe the only way to reach apple is by moving right?
+
+Wait but initial direction is LEFT—could we somehow face right if allowed? But problem statement says initial direction is LEFT. So facing right would require reversal of direction which might not be permitted unless conditions allow.
+
+Alternatively, perhaps I made a mistake in the initial step—if after each left move without eating apple, body segments are just reduced by one—but that seems to reduce until no movement possible. Therefore, maybe we have to find another approach where moving down is considered earlier.
+
+But since direction was LEFT, can't change unless certain conditions allow—so probably not possible.
+
+Thus, perhaps this problem doesn’t have a solution under the given constraints.
+</think>
+
+The snake cannot reach the apple by moving only in the left direction without causing an invalid state. Therefore, there is no valid path for the snake to reach the apple from its current position with the given movement constraints.
+
+$\boxed{\text{No possible path}}$
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (3, 7) and whose body cells are in list format [(4, 7)], to eat the apple at (3, 3).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -1,0 +1,12 @@
+Timestamp: 2025-05-24 02:36:21
+Request Time: 2025-05-24 02:33:16
+Response Time: 2025-05-24 02:36:21
+Model: deepseek-reasoner
+Provider: deepseek
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["RIGHT", "DOWN", "DOWN", "DOWN"],
+"reasoning": "Moves right to align x-coordinate with the apple, then descends directly without self-collision. Ensures a legal move exists after eating by keeping adjacent cells clear."
+}

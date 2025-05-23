@@ -167,8 +167,9 @@ The main objective of RESPONSE_1 is to generate a list of moves that leads the s
 - If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
 
 ## WHAT YOU SHOULD DO:
-- First, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
-- Second, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+- First, if RESPONSE_1 contains the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
 
 Return ONLY the JSON object without any additional text.
 """

@@ -1,9 +1,0 @@
-Timestamp: 2025-05-23 12:19:54
-Request Time: 2025-05-23 12:09:54
-Response Time: 2025-05-23 12:19:54
-Model: devstral:24b
-Provider: ollama
-
-========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
-
-ERROR: Invalid JSON response - 

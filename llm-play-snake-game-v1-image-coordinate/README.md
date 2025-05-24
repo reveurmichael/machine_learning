@@ -1,4 +1,4 @@
-![](./a.jpg)
+![](./img/a.jpg)
 
 # LLM Snake Game
 

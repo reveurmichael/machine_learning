@@ -1,4 +1,4 @@
-![](./a.jpg)
+![](./img/a.jpg)
 
 
 # LLM-Powered Snake Game (MoE Variant)

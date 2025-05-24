@@ -94,6 +94,11 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
+    # Check if parser was used
+    parser_used = parser_usage_count > 0
+    parser_usage_str = f"{parser_usage_count} times" if parser_used else "Not used"
+    parser_usage_rate = f"{100*parser_usage_count/(game_count*2):.1f}%" if parser_used else "0%"
+    
     # Add statistics section
     stats = f"""
 
@@ -104,8 +109,8 @@ Total Score: {total_score}
 Total Steps: {total_steps}
 Average Score per Game: {total_score/game_count:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
-Secondary LLM Usage: {parser_usage_count} times
-Secondary LLM Usage Rate: 100% (Always used for consistency)
+Secondary LLM Usage: {parser_usage_str}
+Secondary LLM Usage Rate: {parser_usage_rate}
 
 Efficiency Metrics
 =================
@@ -186,6 +191,9 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
     Returns:
         Formatted game summary text
     """
+    # Check if parser was used
+    parser_info = f"Secondary LLM usage: {game_parser_usage} times" if game_parser_usage > 0 else "Secondary LLM: Not used"
+    
     return f"""Game {game_count} Summary:
 =========================================
 Timestamp: {timestamp}
@@ -195,7 +203,7 @@ Last direction: {next_move}
 
 Performance Metrics:
 - Apples/Step: {score/(steps if steps > 0 else 1):.4f}
-- Secondary LLM usage: {game_parser_usage} times (100% of rounds)
+- {parser_info}
 - Final board size: {snake_positions_length} segments
 
 Game End Reason: {'Wall collision' if last_collision_type == 'wall' else 'Self collision' if last_collision_type == 'self' else 'Unknown'}

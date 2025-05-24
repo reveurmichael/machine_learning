@@ -29,6 +29,14 @@ python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollam
 python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model gemma2:9b
 ```
 
+You can also run the game with just a primary LLM (no parser):
+
+```
+python main.py --provider ollama --model deepseek-r1:7b --parser-provider none
+```
+
+This will bypass the secondary LLM and use the primary LLM's output directly.
+
 ## Installation
 
 Set up API keys in a `.env` file:
@@ -55,12 +63,19 @@ This project implements a Mixture-of-Experts inspired approach where two special
    - Specializes in parsing and formatting the response
    - Ensures the final output follows the required JSON format
    - Acts as a guarantor of response quality
+   - Can be disabled with `--parser-provider none` to use primary LLM output directly
 
 ## Command Line Arguments
 
 - `--provider`: LLM provider for the primary LLM (hunyuan, ollama, deepseek, or mistral)
 - `--model`: Model name for the primary LLM
-- `--parser-provider`: LLM provider for the secondary LLM (defaults to primary provider if not specified)
+- `--parser-provider`: LLM provider for the secondary LLM (defaults to primary provider if not specified). Use "none" to skip using a parser.
 - `--parser-model`: Model name for the secondary LLM
 - `--max-games`: Maximum number of games to play
 - `--move-pause`: Pause between sequential moves in seconds
+
+## Logging
+
+The game automatically logs all prompts, responses, and game statistics to a folder named `game_logs_primarymodel_timestamp` where:
+- `primarymodel` is the name of the primary model (with ":" replaced by "-")
+- `timestamp` is the current date and time

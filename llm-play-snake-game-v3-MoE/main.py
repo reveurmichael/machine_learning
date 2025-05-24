@@ -34,7 +34,7 @@ def parse_arguments():
     parser.add_argument('--model', type=str, default=None,
                       help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
     parser.add_argument('--parser-provider', type=str, default=None,
-                      help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider)')
+                      help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider). Use "none" to skip using a parser LLM and use primary LLM output directly.')
     parser.add_argument('--parser-model', type=str, default=None,
                       help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
     parser.add_argument('--max-games', type=int, default=6,
@@ -97,16 +97,25 @@ def main():
         # Set up the secondary LLM client for parsing and formatting the response
         parser_provider = args.parser_provider if args.parser_provider else args.provider
         parser_model = args.parser_model
-        parser_client = LLMOutputParser(provider=parser_provider, model=parser_model)
-        print(Fore.GREEN + f"✅ Using parser LLM provider: {parser_provider}")
-        if parser_model:
-            print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
+        
+        # Only initialize the parser client if we're using a parser
+        if parser_provider and parser_provider.lower() != "none":
+            parser_client = LLMOutputParser(provider=parser_provider, model=parser_model)
+            print(Fore.GREEN + f"✅ Using parser LLM provider: {parser_provider}")
+            if parser_model:
+                print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
+        else:
+            print(Fore.GREEN + f"✅ Not using a parser LLM - primary LLM output will be used directly")
         
         print(Fore.GREEN + f"⏱️ Pause between moves: {args.move_pause} seconds")
         
         # Set up logging directories
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_dir = f"game_logs_{timestamp}"
+        # Get primary model name for the log directory
+        primary_model = args.model if args.model else f'default_{args.provider}'
+        # Replace colon with hyphen in model name
+        primary_model = primary_model.replace(':', '-')
+        log_dir = f"game_logs_{primary_model}_{timestamp}"
         prompts_dir = os.path.join(log_dir, "prompts")
         responses_dir = os.path.join(log_dir, "responses")
         
@@ -187,51 +196,59 @@ def main():
                         raw_response_filename = f"game{game_count+1}_round{round_count+1}_raw_response.txt"
                         save_to_file(timestamped_response, responses_dir, raw_response_filename)
                         
-                        # Get the current head and apple positions for the parser
-                        head_x, head_y = game.head_position
-                        head_pos = f"({head_x}, {head_y})"
-                        apple_x, apple_y = game.apple_position
-                        apple_pos = f"({apple_x}, {apple_y})"
+                        # Check if we should use the parser LLM
+                        if parser_provider and parser_provider.lower() != "none":
+                            # Get the current head and apple positions for the parser
+                            head_x, head_y = game.head_position
+                            head_pos = f"({head_x}, {head_y})"
+                            apple_x, apple_y = game.apple_position
+                            apple_pos = f"({apple_x}, {apple_y})"
+                            
+                            # Get body cells for the parser
+                            body_cells = []
+                            for x, y in game.snake_positions[:-1]:  # Exclude the head
+                                body_cells.append(f"({x}, {y})")
+                            body_cells_str = "[" + ", ".join(body_cells) + "]"
+                            
+                            # Use secondary LLM to parse and format the response
+                            print(Fore.CYAN + f"Using secondary LLM to parse primary LLM's response")
+                            parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            parsed_response, parser_prompt = parser_client.parse_and_format(
+                                raw_llm_response, 
+                                head_pos=head_pos, 
+                                apple_pos=apple_pos,
+                                body_cells=body_cells_str
+                            )
+                            parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            
+                            # Log the parser prompt and increment usage count
+                            parser_usage_count += 1
+                            parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
+                            save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
+                            print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
+                            
+                            # Format the parsed response with timestamp metadata
+                            parser_model_name = args.parser_model if args.parser_model else f'Default model for {parser_provider}'
+                            timestamped_parsed_response = format_parsed_llm_response(
+                                parsed_response, 
+                                parser_request_time, 
+                                parser_response_time, 
+                                parser_model_name, 
+                                parser_provider
+                            )
+                            
+                            # Log the parsed response from secondary LLM
+                            response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
+                            save_to_file(timestamped_parsed_response, responses_dir, response_filename)
+                            
+                            # Parse and get the first move from the sequence
+                            next_move = game.parse_llm_response(parsed_response)
+                        else:
+                            # Use the primary LLM response directly
+                            print(Fore.CYAN + f"Using primary LLM response directly (no parser)")
+                            next_move = game.parse_llm_response(raw_llm_response)
+                            # No parser usage in this case
                         
-                        # Get body cells for the parser
-                        body_cells = []
-                        for x, y in game.snake_positions[:-1]:  # Exclude the head
-                            body_cells.append(f"({x}, {y})")
-                        body_cells_str = "[" + ", ".join(body_cells) + "]"
-                        
-                        # Use secondary LLM to parse and format the response
-                        print(Fore.CYAN + f"Using secondary LLM to parse primary LLM's response")
-                        parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        parsed_response, parser_prompt = parser_client.parse_and_format(
-                            raw_llm_response, 
-                            head_pos=head_pos, 
-                            apple_pos=apple_pos,
-                            body_cells=body_cells_str
-                        )
-                        parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        
-                        # Log the parser prompt and increment usage count
-                        parser_usage_count += 1
-                        parser_prompt_filename = f"game{game_count+1}_round{round_count+1}_parser_prompt.txt"
-                        save_to_file(parser_prompt, prompts_dir, parser_prompt_filename)
-                        print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_filename}")
-                        
-                        # Format the parsed response with timestamp metadata
-                        parser_model_name = args.parser_model if args.parser_model else f'Default model for {parser_provider}'
-                        timestamped_parsed_response = format_parsed_llm_response(
-                            parsed_response, 
-                            parser_request_time, 
-                            parser_response_time, 
-                            parser_model_name, 
-                            parser_provider
-                        )
-                        
-                        # Log the parsed response from secondary LLM
-                        response_filename = f"game{game_count+1}_round{round_count+1}_parsed_response.txt"
-                        save_to_file(timestamped_parsed_response, responses_dir, response_filename)
-                        
-                        # Parse and get the first move from the sequence
-                        next_move = game.parse_llm_response(parsed_response)
                         print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {game_count+1}, Round {round_count+1})")
                         
                         # We now have a new plan, so don't request another one until we need it

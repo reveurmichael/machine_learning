@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  agentic-vm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentic-vm
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./config.yml:/app/config.yml
+      - ./logs:/app/logs
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+
+volumes:
+  ollama-data:
+    driver: local 

@@ -1,0 +1,503 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, I'm trying to figure out how the snake can move from (4,3) to eat the apple at (0,0). Let's break this down step by step.
+
+First, the current state: The head is at (4,3), and it's moving right. The body cells are [(3,3), (2,3)], which means the snake is extending from (4,3) all the way to (2,3). So the snake is in a straight line moving to the left.
+
+The apple is at (0,0), which is the bottom-left corner of the grid. To get there, the snake needs to move mostly to the left and down. But since it's currently moving right, the first move can't be directly opposite, which would be left. Wait, no—the movement rule says you can't reverse direction immediately. So if the current direction is "RIGHT", the next move can't be "LEFT". That complicates things because we need to change direction.
+
+So from (4,3), moving right is the current direction. The possible moves are up, down, or stay in a non-reverse direction. Wait, no—the movement rules say you can't reverse, so after RIGHT, you can choose any except LEFT, but actually, since it's the first move, maybe I'm getting confused.
+
+Wait, the initial direction is "RIGHT", and according to rule 2, you cannot reverse. So if current direction is RIGHT, next move can be UP, DOWN, or RIGHT again? Or wait, does the 'current direction' affect the possible moves? The rules say: "Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for LEFT↔RIGHT. If current direction is "NONE", any first move is allowed.
+
+In this case, the initial direction is RIGHT, so the next move cannot be LEFT. So from (4,3), the possible moves are UP, DOWN, or RIGHT.
+
+But moving right would take the head to (5,3), but that's away from the apple at (0,0). That doesn't make sense for reaching the apple quickly. So maybe moving up or down is better.
+
+Wait, the apple is at (0,0), which is to the left and down from (4,3). But since the snake can't move left immediately after RIGHT, we need to find a path that turns appropriately.
+
+Let me think about possible paths:
+
+Option 1: Move UP first. From (4,3) moving up would go to (4,4). Then, maybe change direction to LEFT or DOWN.
+
+But wait, when the snake moves, it's body cells are [(3,3), (2,3)]. So if we move up, new_head is (4,4). Check collision: Is (4,4) in any body cell except possibly the tail? The body cells are (3,3) and (2,3), so no. So it's safe.
+
+After moving up, the body would insert (4,3) at front, making body [(4,3), (3,3), (2,3)]. Then, since we didn't eat apple, remove tail: (2,3). Now body is [(4,3), (3,3)].
+
+Then next move can be LEFT, as current direction was UP, so next moves can't be DOWN. Wait no, the current direction after moving UP would be UP, so next move can't be DOWN. But maybe I'm getting confused about how the directions work.
+
+Wait, each move's direction is chosen regardless of previous steps except for not reversing. So after moving UP, next move can be any direction except DOWN.
+
+Alternatively, perhaps a better approach is to find a way to maneuver left without immediately going opposite.
+
+Another option: After RIGHT, maybe turn down first. Let's see:
+
+From (4,3), moving right would take us to (5,3). But that's not helpful because the apple is at (0,0). Alternatively, perhaps turning down first.
+
+Wait no—current direction is RIGHT, so we can't move LEFT next. So from (4,3), possible moves are UP, DOWN, or RIGHT again.
+
+But moving right isn't useful for reaching (0,0), as it's further away. So perhaps moving up or down is better.
+
+Let me try moving up first:
+
+1. Move UP: new_head (4,4). Body becomes [(4,3), (3,3), (2,3)] after inserting old head and removing tail if not eating apple. Since we're not eating apple yet, the body would be [ (4,3), (3,3) ].
+
+Then next move can't be DOWN because current direction is UP.
+
+From (4,4), possible moves are LEFT, RIGHT, or UP again. But moving UP further would take us away from the apple. So perhaps move LEFT.
+
+2. Move LEFT: new_head (3,4). Check collision with body: The body is [(4,3), (3,3)]. New head (3,4) is not in any of these, so safe. Update body by inserting (4,4) at front: [ (4,4), (4,3), (3,3) ]. Since we didn't eat apple, remove tail: (3,3). So body becomes [(4,4), (4,3)].
+
+Now, the snake is at (3,4), moving LEFT. Next move can be any except RIGHT.
+
+But the apple is still at (0,0), which is to the left and down from current position. Maybe continue moving left or down.
+
+Alternatively, let's think about a different approach: The snake needs to make a U-turn without reversing direction, but that might not be possible due to movement constraints.
+
+Wait, perhaps another strategy: Instead of immediately trying to go towards the apple, find a way to change direction without causing collision.
+
+Let me try moving DOWN first from (4,3):
+
+1. Move DOWN: new_head (4,2). Check collision with body [(3,3), (2,3)]. New head is (4,2), which isn't in body except possibly the tail if it's about to move. But in this case, the tail is at (2,3), and since we're not eating apple, after moving, the tail would move, but new_head is (4,2) which is safe.
+
+So body becomes [ (4,3), (3,3), (2,3) ] after inserting old head. Then remove tail: (2,3). So body is [(4,3), (3,3)].
+
+Now, current direction is DOWN. Next move can't be UP.
+
+From (4,2), possible moves are LEFT, RIGHT, or DOWN again.
+
+Moving left would take us to (3,2), but let's check if that's safe. Body cells after moving would be [ (4,2), (4,3) ]. So new head is (3,2). Is this in any body cell? The body cells are [(4,3), (3,3)], so no collision.
+
+So move LEFT:
+
+2. Move LEFT: new_head (3,2). Body becomes [ (4,2), (4,3), (3,3) ]. Remove tail: (3,3). So body is [ (4,2), (4,3) ].
+
+Now at (3,2), direction is LEFT. Next move can't be RIGHT.
+
+From here, moving further left would take to (2,2), but let's see if that's safe. Body cells are [(4,2), (4,3)], so new head (2,2) isn't in body except possibly the tail which hasn't moved yet. So it's safe.
+
+3. Move LEFT: new_head (2,2). Body becomes [ (3,2), (4,2), (4,3) ]. Remove tail: (4,3). Now body is [ (3,2), (4,2) ].
+
+Now at (2,2), direction is LEFT. Next move can't be RIGHT.
+
+Continuing left to (1,2):
+
+4. Move LEFT: new_head (1,2). Check collision with body [(3,2), (4,2)]. No collision. Body becomes [ (2,2), (3,2), (4,2) ]. Remove tail: (4,2). So body is [ (2,2), (3,2) ].
+
+Now at (1,2), direction LEFT. Next move can't be RIGHT.
+
+5. Move LEFT: new_head (0,2). Check collision with body [(2,2), (3,2)]. No collision. Body becomes [ (1,2), (2,2), (3,2) ]. Remove tail: (3,2). So body is [ (1,2), (2,2) ].
+
+Now at (0,2), direction LEFT. Next move can't be RIGHT. But we're already at x=0, so moving left would go out of bounds and die. So need to change direction.
+
+So from here, possible moves are DOWN or UP since current direction is LEFT.
+
+6. Move DOWN: new_head (0,1). Check collision with body [(1,2), (2,2)]. No collision. Body becomes [ (0,2), (1,2), (2,2) ]. Remove tail: (2,2). So body is [ (0,2), (1,2) ].
+
+Now at (0,1), direction DOWN. Next move can't be UP.
+
+From here, we're near the apple at (0,0). Let's see:
+
+7. Move DOWN again: new_head (0,0). That's the apple! So eat it.
+
+After eating the apple, body grows by 1. So after inserting old head (0,1) into body, which becomes [ (0,1), (1,2), (2,2) ], and since we ate the apple, we don't remove tail. So body becomes [ (0,1), (1,2), (2,2) ].
+
+But wait, the new head is at (0,0), which is safe as it's not in any body cells except perhaps the tail, but in this case, after eating, the body doesn't remove the tail. So that's okay.
+
+Now, after moving to (0,0), the apple is eaten, and we need to ensure that the next move won't cause collision.
+
+But wait, let me retrace because I might have taken a longer path than necessary.
+
+Alternatively, perhaps there's a shorter path:
+
+After step 1: moved DOWN to (4,2). Then LEFT to (3,2), then LEFT again to (2,2), etc., which took too many steps. Maybe instead of moving all the way down and left, find a more direct path.
+
+Wait, let me think differently: Since we can't move left immediately from RIGHT, perhaps the first move should be DOWN to get closer to the apple's row.
+
+Alternatively, maybe another approach:
+
+From (4,3), current direction is RIGHT. Next moves cannot be LEFT.
+
+So possible directions are UP, DOWN, or RIGHT again.
+
+Let me try moving RIGHT first, then see if I can change direction.
+
+1. Move RIGHT: new_head (5,3). Body becomes [ (4,3), (3,3), (2,3) ] after inserting old head and removing tail since we didn't eat apple. So body is [(4,3), (3,3)].
+
+Now at (5,3), direction is RIGHT. Next move can't be LEFT.
+
+But moving further right isn't helpful for reaching the apple. Alternatively, maybe change direction to DOWN or UP.
+
+2. From (5,3), move DOWN: new_head (5,2). Check collision with body [(4,3), (3,3)]. No collision. Body becomes [ (5,3), (4,3) ]. Remove tail: (3,3). So body is [ (5,3), (4,3) ].
+
+Now at (5,2), direction DOWN. Next move can't be UP.
+
+From here, moving LEFT would take us towards the apple's column.
+
+3. Move LEFT: new_head (4,2). Check collision with body [(5,3), (4,3)]. No collision. Body becomes [ (5,2), (5,3) ]. Remove tail: (4,3). So body is [ (5,2), (5,3) ].
+
+Now at (4,2), direction LEFT. Next move can't be RIGHT.
+
+Continue moving left:
+
+4. Move LEFT: new_head (3,2). Check collision with body [(5,2), (5,3)]. No collision. Body becomes [ (4,2), (5,2), (5,3) ]. Remove tail: (5,3). So body is [ (4,2), (5,2) ].
+
+Now at (3,2), direction LEFT. Next move can't be RIGHT.
+
+Continue:
+
+5. Move LEFT: new_head (2,2). Check collision with body [(4,2), (5,2)]. No collision. Body becomes [ (3,2), (4,2), (5,2) ]. Remove tail: (5,2). So body is [ (3,2), (4,2) ].
+
+At (2,2), direction LEFT. Next move can't be RIGHT.
+
+6. Move LEFT: new_head (1,2). Check collision with body [(3,2), (4,2)]. No collision. Body becomes [ (2,2), (3,2), (4,2) ]. Remove tail: (4,2). So body is [ (2,2), (3,2) ].
+
+At (1,2), direction LEFT. Next move can't be RIGHT.
+
+7. Move LEFT: new_head (0,2). Check collision with body [(2,2), (3,2)]. No collision. Body becomes [ (1,2), (2,2), (3,2) ]. Remove tail: (3,2). So body is [ (1,2), (2,2) ].
+
+Now at (0,2), direction LEFT. Next move can't be RIGHT.
+
+8. Move DOWN: new_head (0,1). Check collision with body [(1,2), (2,2)]. No collision. Body becomes [ (0,2), (1,2), (2,2) ]. Remove tail: (2,2). So body is [ (0,2), (1,2) ].
+
+At (0,1), direction DOWN. Next move can't be UP.
+
+9. Move DOWN again to (0,0): eat apple!
+
+So that's 9 moves, but I think this might not be the most efficient way. Alternatively, perhaps there's a more direct path where we can change direction without too many steps.
+
+Wait, maybe instead of moving right first and then down, find another route.
+
+Alternatively, consider that after the initial move UP or DOWN, we can maneuver towards the apple.
+
+But I'm getting stuck because I have to avoid reversing directions. So perhaps the shortest path is 6 moves:
+
+From (4,3):
+
+1. Move DOWN: (4,2)
+2. Move LEFT: (3,2)
+3. Move LEFT: (2,2)
+4. Move LEFT: (1,2)
+5. Move LEFT: (0,2)
+6. Move DOWN twice to reach (0,0).
+
+But that's 8 moves as well.
+
+Wait, maybe another approach: After moving UP once and then change direction.
+
+From (4,3):
+
+1. Move UP: (4,4). Body becomes [ (4,3), (3,3) ].
+2. Now, from (4,4), can't move DOWN because current direction is UP, so next moves can be LEFT, RIGHT, or UP again. But moving UP isn't helpful.
+
+So move LEFT:
+
+2. Move LEFT: (3,4). Body becomes [ (4,4), (4,3) ].
+3. From (3,4), possible directions: DOWN, RIGHT, UP, but not LEFT since current direction is LEFT.
+
+Wait, no—the movement rule says you can't reverse the previous direction. So if you were moving LEFT, next move can't be RIGHT. Wait, no—if you're currently moving in a certain direction, you can't choose its opposite.
+
+So after moving LEFT from (4,4), current direction is LEFT, so next move can't be RIGHT.
+
+But that complicates things because to get back towards the apple, we might need to turn around.
+
+Alternatively, perhaps it's impossible to reach the apple in fewer than 6 moves because of the movement constraints.
+
+Wait, let me think again. The minimal number of moves required to go from (4,3) to (0,0) is 7 steps: 4 left and 3 down, but due to movement constraints, we might need more.
+
+But considering that after each move, we can't reverse direction immediately, it's going to take at least 6 or 7 moves.
+
+Wait, perhaps I'm overcomplicating. The user didn't specify the number of moves, just to find a path. So here's one possible path:
+
+1. From (4,3), current direction is RIGHT. Next move can be UP, DOWN, or RIGHT again.
+
+Let me choose DOWN first.
+
+Move 1: DOWN → (4,2). Body becomes [ (4,3), (3,3) ] after removing tail.
+Move 2: LEFT → (3,2). Check collision: safe. Body becomes [ (4,2), (4,3) ]. Remove tail: (3,3) is now part of body? Wait no—the body after inserting old head is [ (4,2), (3,3), (2,3) ] but then we remove the tail if not eating apple. So after moving LEFT to (3,2), body becomes [ (4,2), (3,3), (2,3) ], but since we didn't eat apple, we remove tail: (2,3). So body is [ (4,2), (3,3) ].
+
+Wait no, I think I'm getting confused. Let me clarify:
+
+When moving from (4,2) to (3,2):
+
+- New head is (3,2).
+- Body inserts old head (4,2) at front: so body becomes [ (4,2), (3,3), (2,3) ].
+- Since we didn't eat apple, remove the last element (tail): which was (2,3). So body after move is [ (4,2), (3,3) ].
+
+So now at (3,2), direction is LEFT. Next moves can't be RIGHT.
+
+Move 3: From (3,2), possible directions are UP, DOWN, or LEFT again.
+
+But moving further left would take us to (2,2). Let's check:
+
+Move 3: LEFT → (2,2). Body becomes [ (3,2), (4,2), (3,3) ]. Remove tail: (3,3). So body is [ (3,2), (4,2) ].
+
+Now at (2,2), direction LEFT. Next move can't be RIGHT.
+
+Move 4: LEFT → (1,2). Check collision with body [(3,2), (4,2)]. Safe. Body becomes [ (2,2), (3,2), (4,2) ]. Remove tail: (4,2). So body is [ (2,2), (3,2) ].
+
+Move 5: LEFT → (0,2). Check collision with body [(2,2), (3,2)]. Safe. Body becomes [ (1,2), (2,2), (3,2) ]. Remove tail: (3,2). So body is [ (1,2), (2,2) ].
+
+Now at (0,2), direction LEFT. Next move can't be RIGHT.
+
+Move 6: DOWN → (0,1). Check collision with body [(1,2), (2,2)]. Safe. Body becomes [ (0,2), (1,2), (2,2) ]. Remove tail: (2,2). So body is [ (0,2), (1,2) ].
+
+Move 7: DOWN → (0,0). Eat apple! Now, check collision: new head at (0,0) and body is [ (0,2), (1,2) ]. Since the previous tail was at (1,2), moving to (0,0) doesn't collide because it's not part of the body anymore.
+
+So total moves: 7.
+
+But I think there might be a shorter path. Let me try another approach:
+
+From (4,3):
+
+Move 1: DOWN → (4,2). Body is [ (4,3), (3,3) ].
+Move 2: LEFT → (3,2). Body becomes [ (4,2), (4,3) ]. Remove tail: (3,3).
+Move 3: LEFT → (2,2). Body becomes [ (3,2), (4,2) ].
+Move 4: DOWN → (2,1). Check collision with body [(3,2), (4,2)]. Safe. Body becomes [ (2,2), (3,2), (4,2) ]. Remove tail: (4,2).
+Now at (2,1), direction is DOWN. Next move can't be UP.
+Move 5: LEFT → (1,1). Check collision with body [(2,2), (3,2)]. Safe. Body becomes [ (2,1), (2,2) ]. Remove tail: (3,2).
+Move 6: LEFT → (0,1). Check collision with body [(2,1), (2,2)]. Safe. Body becomes [ (1,1), (2,1) ].
+Move 7: DOWN → (0,0). Eat apple! Now, check collision: new head at (0,0), body is [ (1,1), (2,1) ]. No collision.
+
+So that's also 7 moves. It seems like it's taking 7 moves regardless of the path I choose, which makes sense because you have to move left four times and down three times, totaling seven steps. But due to the movement constraints, you can't always go directly; sometimes you have to take detours.
+
+Wait a minute, perhaps there's a way to interleave LEFT and DOWN moves without having to reverse directions too much. Let me try:
+
+From (4,3):
+
+Move 1: DOWN → (4,2). Body is [ (4,3), (3,3) ].
+Move 2: RIGHT → can't do that because previous direction was DOWN, so next move can't be UP; wait no—the rule is you can't reverse the immediate previous direction. So if you moved DOWN, next move can't be UP. But LEFT or RIGHT or DOWN again are allowed.
+
+Wait no, I think the movement constraints are only about not reversing the last direction immediately. So after moving in one direction, you can't move in the opposite direction right away.
+
+So from (4,3):
+
+Move 1: DOWN → (4,2). Previous direction: DOWN.
+Move 2: Can move LEFT, RIGHT, or DOWN again.
+
+Let's try moving LEFT:
+
+Move 2: LEFT → (3,2). Body becomes [ (4,2), (4,3) ]. Remove tail: (3,3).
+Now at (3,2), previous direction: LEFT. Next moves can't be RIGHT.
+Move 3: DOWN → (3,1). Check collision with body [(4,2), (4,3)]. Safe. Body becomes [ (3,2), (4,2) ]. Remove tail: (4,3).
+Now at (3,1), previous direction: DOWN. Next moves can't be UP.
+Move 4: LEFT → (2,1). Check collision with body [(3,2), (4,2)]. Safe. Body becomes [ (3,1), (3,2) ]. Remove tail: (4,2).
+Now at (2,1), previous direction: LEFT. Next moves can't be RIGHT.
+Move 5: DOWN → (2,0). Check collision with body [(3,1), (3,2)]. Safe. Body becomes [ (2,1), (3,1) ]. Remove tail: (3,2).
+Now at (2,0), previous direction: DOWN. Next moves can't be UP.
+Move 6: LEFT → (1,0). Check collision with body [(2,1), (3,1)]. Safe. Body becomes [ (2,0), (2,1) ]. Remove tail: (3,1).
+Now at (1,0), previous direction: LEFT. Next moves can't be RIGHT.
+Move 7: DOWN → Not possible since y is already 0. Alternatively, move UP or RIGHT.
+
+Wait, this path leads to a dead end because we're at y=0 and can't go further down. So maybe this isn't the best route.
+
+Alternatively, from (3,1):
+
+Move 4 could be something else. Let me try another approach:
+
+From (3,2), previous direction: LEFT.
+
+Move 3: Instead of DOWN, move RIGHT → but wait, that would reverse the previous direction (from LEFT to RIGHT). Is that allowed?
+
+Wait no—the rule is you can't immediately reverse the last direction. So after moving LEFT, you can't move RIGHT next. But you can move in other directions like UP or DOWN.
+
+So from (3,2), previous direction: LEFT. Next moves can be UP, DOWN, but not RIGHT.
+
+Move 3: DOWN → (3,1). As before.
+Then move 4: LEFT to (2,1).
+Move 5: DOWN to (2,0).
+Move 6: LEFT to (1,0).
+Move 7: Can't move further down. Alternatively, from (1,0), move UP to (1,1), but that's backtracking and not helpful.
+
+So perhaps this path isn't better than the previous ones.
+
+Alternatively, after moving DOWN once, change direction differently.
+
+Wait, maybe the minimal number of moves is indeed 7, given the need to make four LEFT moves and three DOWN moves without being able to reverse directions immediately.
+
+So, in conclusion, one possible path is:
+
+1. Down
+2. Left
+3. Left
+4. Down
+5. Left
+6. Down
+7. Left
+8. Down
+
+Wait no, that would be more than 7. I think the correct minimal path is 7 moves, as per earlier steps.
+
+But perhaps a better way to visualize it:
+
+Start at (4,3).
+
+1. Move DOWN → (4,2)
+2. Move LEFT → (3,2)
+3. Move LEFT → (2,2)
+4. Move DOWN → (2,1)
+5. Move LEFT → (1,1)
+6. Move DOWN → (1,0)
+7. Move LEFT → (0,0)
+
+Wait, but that's only 6 moves if you do:
+
+1. Down
+2. Left
+3. Down
+4. Left
+5. Down
+6. Left
+
+But wait, from (4,3):
+
+Move 1: DOWN to (4,2)
+Move 2: LEFT to (3,2) [can't reverse as previous was DOWN]
+Move 3: DOWN to (3,1)
+Move 4: LEFT to (2,1)
+Move 5: DOWN to (2,0)
+Move 6: LEFT to (1,0)
+Move 7: DOWN → can't move further down. So instead, from (1,0), move LEFT to (0,0). But that's another step.
+
+So total moves: 7.
+
+Yes, so the path is:
+
+(4,3) → (4,2) [DOWN]
+→ (3,2) [LEFT]
+→ (3,1) [DOWN]
+→ (2,1) [LEFT]
+→ (2,0) [DOWN]
+→ (1,0) [LEFT]
+→ (0,0) [DOWN]
+
+Wait no, from (1,0), you can't move DOWN further. So to get to (0,0), you have to move LEFT from (1,0).
+
+So:
+
+Move 7: LEFT → (0,0)
+
+Thus, total of 7 moves.
+
+So the final path is:
+Down, Left, Down, Left, Down, Left, Left.
+
+Wait no, let's recount:
+
+From (4,3):
+
+1. DOWN to (4,2)
+2. LEFT to (3,2)
+3. DOWN to (3,1)
+4. LEFT to (2,1)
+5. DOWN to (2,0)
+6. LEFT to (1,0)
+7. LEFT to (0,0)
+
+Yes, that's 7 moves.
+
+So the final answer is a series of moves: Down, Left, Down, Left, Down, Left, Left.
+
+But in terms of the path, it's:
+
+Down once, then alternate Left and Down until reaching y=0, then Left twice more to reach x=0.
+
+Thus, the steps are:
+
+1. DOWN
+2. LEFT
+3. DOWN
+4. LEFT
+5. DOWN
+6. LEFT
+7. LEFT
+
+So the final position is (0,0), having eaten the apple.
+</think>
+
+To solve this problem, we need to navigate from the starting position (4, 3) to the target position (0, 0) on a grid, ensuring that we do not reverse direction immediately after each move. The goal is to eat the apple located at (0, 0).
+
+### Approach
+1. **Understand Movement Constraints**: We cannot move in the opposite direction of our previous move immediately. For example, if we move down, we can't move up next, but we can move left or right.
+2. **Plan the Path**: The target is at (0, 0), which requires moving left four times and down three times from (4, 3). We need to interleave these moves without reversing direction immediately.
+3. **Determine Moves**: Alternate between moving down and left to avoid immediate reversals. Continue this pattern until reaching the target.
+
+### Solution Code
+```python
+# This code represents the thought process for solving the problem but does not execute any function call.
+# The actual solution would involve a series of moves: DOWN, LEFT, DOWN, LEFT, DOWN, LEFT, LEFT.
+
+# Explanation:
+# Starting at (4, 3):
+# 1. Move DOWN to (4, 2)
+# 2. Move LEFT to (3, 2)
+# 3. Move DOWN to (3, 1)
+# 4. Move LEFT to (2, 1)
+# 5. Move DOWN to (2, 0)
+# 6. Move LEFT to (1, 0)
+# 7. Move LEFT to (0, 0)
+
+# The final position is (0, 0), successfully eating the apple.
+```
+
+### Explanation
+The solution involves a series of moves that alternate between moving down and left to avoid reversing direction immediately after each move. Here's the step-by-step breakdown:
+
+1. **Move DOWN**: From (4, 3) to (4, 2).
+2. **Move LEFT**: From (4, 2) to (3, 2).
+3. **Move DOWN**: From (3, 2) to (3, 1).
+4. **Move LEFT**: From (3, 1) to (2, 1).
+5. **Move DOWN**: From (2, 1) to (2, 0).
+6. **Move LEFT**: From (2, 0) to (1, 0).
+7. **Move LEFT**: From (1, 0) to (0, 0).
+
+By following this path, we reach the target position (0, 0) without reversing direction immediately, thus successfully eating the apple.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (4, 3) and whose body cells are in list format [(2, 3), (3, 3)], to eat the apple at (0, 0).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -315,7 +315,11 @@ def main():
                             game_parser_usage,
                             len(game.snake_positions),
                             game.last_collision_type,
-                            round_count
+                            round_count,
+                            primary_model=args.model,
+                            primary_provider=args.provider,
+                            parser_model=args.parser_model,
+                            parser_provider=args.parser_provider
                         )
                         save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
                         

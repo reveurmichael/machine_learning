@@ -66,13 +66,6 @@ Primary LLM (Game Strategy Expert):
 Secondary LLM (Formatting Expert):
 - Provider: {args.parser_provider if args.parser_provider else args.provider}
 - Model: {args.parser_model if args.parser_model else 'Default model for parser provider'}
-
-Max Games: {args.max_games}
-Move Pause: {args.move_pause} seconds
-
-Other Information:
-- Time Delay: {args.time_delay if hasattr(args, 'time_delay') else 'Default'}
-- Time Tick: {args.time_tick if hasattr(args, 'time_tick') else 'Default'}
 """
     
     # Save to file
@@ -94,11 +87,6 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Check if parser was used
-    parser_used = parser_usage_count > 0
-    parser_usage_str = f"{parser_usage_count} times" if parser_used else "Not used"
-    parser_usage_rate = f"{100*parser_usage_count/(game_count*2):.1f}%" if parser_used else "0%"
-    
     # Add statistics section
     stats = f"""
 
@@ -109,8 +97,6 @@ Total Score: {total_score}
 Total Steps: {total_steps}
 Average Score per Game: {total_score/game_count:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
-Secondary LLM Usage: {parser_usage_str}
-Secondary LLM Usage Rate: {parser_usage_rate}
 
 Efficiency Metrics
 =================
@@ -141,8 +127,8 @@ def format_raw_llm_response(raw_response, request_time, response_time, model, pr
     return f"""Timestamp: {response_time}
 Request Time: {request_time}
 Response Time: {response_time}
-Model: {model}
-Provider: {provider}
+PRIMARY LLM Model: {model}
+PRIMARY LLM Provider: {provider}
 
 ========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
 
@@ -165,8 +151,8 @@ def format_parsed_llm_response(parsed_response, parser_request_time, parser_resp
     return f"""Timestamp: {parser_response_time}
 Secondary LLM Request Time: {parser_request_time}
 Secondary LLM Response Time: {parser_response_time}
-Secondary LLM Model: {parser_model}
-Secondary LLM Provider: {parser_provider}
+SECONDARY LLM Model: {parser_model}
+SECONDARY LLM Provider: {parser_provider}
 
 ========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
 
@@ -174,7 +160,8 @@ Secondary LLM Provider: {parser_provider}
 """
 
 def generate_game_summary(game_count, timestamp, score, steps, next_move, game_parser_usage, 
-                         snake_positions_length, last_collision_type, round_count):
+                         snake_positions_length, last_collision_type, round_count, 
+                         primary_model=None, primary_provider=None, parser_model=None, parser_provider=None):
     """Generate a game summary text.
     
     Args:
@@ -187,29 +174,35 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         snake_positions_length: Length of the snake
         last_collision_type: Type of collision that ended the game
         round_count: Number of rounds played
+        primary_model: Primary LLM model name
+        primary_provider: Primary LLM provider
+        parser_model: Secondary LLM model name
+        parser_provider: Secondary LLM provider
         
     Returns:
         Formatted game summary text
     """
-    # Check if parser was used
-    parser_info = f"Secondary LLM usage: {game_parser_usage} times" if game_parser_usage > 0 else "Secondary LLM: Not used"
+    # Format LLM information
+    primary_llm_info = f"Primary LLM: {primary_provider} - {primary_model}" if primary_provider else ""
+    secondary_llm_info = f"Secondary LLM: {parser_provider} - {parser_model}" if parser_provider and parser_provider.lower() != "none" else "Secondary LLM: Not used"
     
     return f"""Game {game_count} Summary:
 =========================================
 Timestamp: {timestamp}
+{primary_llm_info}
+{secondary_llm_info}
+
 Score: {score}
 Steps: {steps}
 Last direction: {next_move}
 
 Performance Metrics:
 - Apples/Step: {score/(steps if steps > 0 else 1):.4f}
-- {parser_info}
 - Final board size: {snake_positions_length} segments
 
 Game End Reason: {'Wall collision' if last_collision_type == 'wall' else 'Self collision' if last_collision_type == 'self' else 'Unknown'}
 
 Prompt/Response Stats:
 - Total prompts sent to Primary LLM: {round_count}
-- Total Secondary LLM invocations: {game_parser_usage}
 =========================================
 """ 

@@ -53,7 +53,7 @@ fi
 
 sudo apt install python3.10-venv
 
-# Check if .env file exists, if not, create it from example
+# Check if .env file exists, if not, create it from example. If the .env file exists, start the application.
 if [ ! -f .env ]; then
     if [ -f env.example ]; then
         echo "Creating .env file from example..."
@@ -67,8 +67,7 @@ if [ ! -f .env ]; then
         echo "HUNYUAN_API_KEY=" >> .env
         echo "Please edit the .env file and add your API keys."
     fi
+else
+    echo "Starting AgenticVM..."
+    streamlit run app.py --server.address=0.0.0.0
 fi
-
-# Run the application
-echo "Starting AgenticVM..."
-streamlit run app.py --server.address=0.0.0.0

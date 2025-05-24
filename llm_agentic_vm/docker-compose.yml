@@ -15,7 +15,3 @@ services:
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
-
-volumes:
-  ollama-data:
-    driver: local 

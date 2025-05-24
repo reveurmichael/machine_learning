@@ -133,6 +133,7 @@ def main():
         need_new_plan = True
         total_score = 0
         total_steps = 0
+        game_scores = []  # List to track individual game scores
         parser_usage_count = 0  # Track how many times the secondary LLM is used
         previous_parser_usage = 0  # Track previous secondary LLM usage
         
@@ -301,6 +302,7 @@ def main():
                         # Update totals
                         total_score += game.score
                         total_steps += game.steps
+                        game_scores.append(game.score)  # Add this game's score to the list
                         
                         # Calculate game-specific statistics
                         game_parser_usage = parser_usage_count if game_count == 1 else parser_usage_count - previous_parser_usage
@@ -351,7 +353,7 @@ def main():
             clock.tick(time_tick)
         
         # Update experiment info with final statistics
-        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count)
+        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count, game_scores)
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")

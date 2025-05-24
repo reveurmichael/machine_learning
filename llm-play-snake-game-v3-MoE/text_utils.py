@@ -71,7 +71,7 @@ Secondary LLM (Formatting Expert):
     # Save to file
     return save_to_file(content, directory, "info.txt")
 
-def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0):
+def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None):
     """Update the experiment information file with game statistics.
     
     Args:
@@ -80,12 +80,22 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
         total_score: Total score across all games
         total_steps: Total steps taken across all games
         parser_usage_count: Number of times the secondary LLM was used
+        game_scores: List of individual game scores
     """
     file_path = os.path.join(directory, "info.txt")
     
     # Read existing content
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
+    
+    # Calculate score statistics
+    mean_score = total_score / game_count if game_count > 0 else 0
+    max_score = 0
+    min_score = 0
+    
+    if game_scores and len(game_scores) > 0:
+        max_score = max(game_scores)
+        min_score = min(game_scores)
     
     # Add statistics section
     stats = f"""
@@ -95,7 +105,9 @@ Game Statistics
 Total Games Played: {game_count}
 Total Score: {total_score}
 Total Steps: {total_steps}
-Average Score per Game: {total_score/game_count:.2f}
+Maximum Score: {max_score}
+Minimum Score: {min_score}
+Mean Score: {mean_score:.2f}
 Average Steps per Game: {total_steps/game_count:.2f}
 
 Efficiency Metrics

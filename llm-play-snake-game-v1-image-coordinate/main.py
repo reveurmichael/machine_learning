@@ -70,7 +70,7 @@ def main():
         
         # Set up logging directories
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        log_dir = f"game_logs_{timestamp}"
+        log_dir = f"{timestamp}"
         prompts_dir = os.path.join(log_dir, "prompts")
         responses_dir = os.path.join(log_dir, "responses")
         

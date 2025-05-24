@@ -76,6 +76,6 @@ This project implements a Mixture-of-Experts inspired approach where two special
 
 ## Logging
 
-The game automatically logs all prompts, responses, and game statistics to a folder named `game_logs_primarymodel_timestamp` where:
+The game automatically logs all prompts, responses, and game statistics to a folder named `primarymodel_timestamp` where:
 - `primarymodel` is the name of the primary model (with ":" replaced by "-")
 - `timestamp` is the current date and time

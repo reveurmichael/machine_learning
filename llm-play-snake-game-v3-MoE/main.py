@@ -115,7 +115,7 @@ def main():
         primary_model = args.model if args.model else f'default_{args.provider}'
         # Replace colon with hyphen in model name
         primary_model = primary_model.replace(':', '-')
-        log_dir = f"game_logs_{primary_model}_{timestamp}"
+        log_dir = f"{primary_model}_{timestamp}"
         prompts_dir = os.path.join(log_dir, "prompts")
         responses_dir = os.path.join(log_dir, "responses")
         

@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  cv-builder:
+    build: .
+    volumes:
+      - .:/latex
+    command: pdflatex main.tex
+    # Override command when using VSCode devcontainer
+    # This allows the container to keep running
+    stdin_open: true
+    tty: true
+    # Additional command for development mode
+    # Comment out the command line above and uncomment this when using VSCode
+    # command: sleep infinity 

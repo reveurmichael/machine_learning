@@ -121,10 +121,9 @@ Or, in a playlist:
 
 ### Week 10
 - DQN
-
-
-
-### Week 20
+- PPO
+- Transformer
+- Diffusion Model
 - https://poloclub.github.io/transformer-explainer/
 - https://poloclub.github.io/diffusion-explainer/
 

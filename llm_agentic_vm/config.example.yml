@@ -1,6 +1,3 @@
-# AgenticVM Configuration
-# IMPORTANT: Never store API keys in this file. All API keys should be in the .env file.
-
 # Default LLM client to use when none is specified
 llm:
   default_client: local_ollama

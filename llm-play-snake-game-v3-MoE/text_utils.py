@@ -111,7 +111,8 @@ Steps per Game: {total_steps/game_count:.2f}
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
-def format_raw_llm_response(raw_response, request_time, response_time, model, provider):
+def format_raw_llm_response(raw_response, request_time, response_time, model, provider, 
+                          parser_model=None, parser_provider=None):
     """Format a raw LLM response with metadata.
     
     Args:
@@ -120,15 +121,26 @@ def format_raw_llm_response(raw_response, request_time, response_time, model, pr
         response_time: Time when the response was received
         model: The model used
         provider: The provider used
+        parser_model: The secondary LLM model (if any)
+        parser_provider: The secondary LLM provider (if any)
         
     Returns:
         Formatted response with metadata
     """
+    # Format secondary LLM info
+    secondary_llm_info = ""
+    if parser_provider and parser_provider.lower() != "none":
+        secondary_llm_info = f"""SECONDARY LLM Model: {parser_model if parser_model else 'Default model'}
+SECONDARY LLM Provider: {parser_provider}"""
+    else:
+        secondary_llm_info = "SECONDARY LLM: Not used"
+        
     return f"""Timestamp: {response_time}
 Request Time: {request_time}
 Response Time: {response_time}
 PRIMARY LLM Model: {model}
 PRIMARY LLM Provider: {provider}
+{secondary_llm_info}
 
 ========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
 

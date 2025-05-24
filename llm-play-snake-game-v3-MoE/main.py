@@ -189,7 +189,9 @@ def main():
                             request_time, 
                             response_time, 
                             model_name, 
-                            args.provider
+                            args.provider,
+                            parser_model=args.parser_model,
+                            parser_provider=args.parser_provider
                         )
                         
                         # Log the raw response from primary LLM

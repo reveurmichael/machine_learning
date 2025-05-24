@@ -1,0 +1,244 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, I'm trying to figure out how the snake can move from (9,8) to eat the apple at (5,9). Let's break this down step by step.
+
+First, the current position of the head is (9,8), and it's facing up. The body cells are [(9,7), (9,6), (9,5), (9,4), (9,3)], which means the snake is currently in a vertical line along x=9, from y=8 down to y=3.
+
+The apple is at (5,9), which is to the left and up a bit from the head. Since the snake's head is at (9,8), we need to move it left several times and then maybe up once to reach (5,9).
+
+Let me think about the directions. The current direction is UP, so the next move can't be DOWN because that would reverse direction. So possible initial moves are LEFT or RIGHT. But moving right from (9,8) isn't possible since x=9 is the maximum. So the first move has to be LEFT.
+
+Wait, but after moving left once, where will the head go? Let's see:
+
+1. Move LEFT: new_head = (8,8). Since this is within bounds and not colliding with any body cells except perhaps the tail? The body cells are behind the head at (9,7), which was the first body cell before moving. After moving left, the old head (9,8) becomes the first body cell, so the new body list would be [ (9,8), (9,7), (9,6), ... ] and we remove the tail unless we ate an apple.
+
+But wait, the apple is at (5,9), which is far left. So after moving left once to (8,8), then again left to (7,8), etc., until we reach x=5.
+
+Wait, but let's calculate the required moves:
+
+From (9,8) to (5,9): x decreases by 4 and y increases by 1. That requires four LEFT moves and one UP move.
+
+But the snake is currently facing up, so the first move can't be DOWN. So we need to make sure that after moving left, we can then change direction to UP without reversing.
+
+Let's plan a path:
+
+- Move LEFT: (8,8)
+- Then LEFT again: (7,8)
+- Again LEFT: (6,8)
+- Again LEFT: (5,8)
+- Now, move UP to (5,9)
+
+But wait, after moving left four times, the head is at (5,8). Then moving up would take it to (5,9), which is where the apple is. So that's five moves in total.
+
+Wait, but let me check for collisions:
+
+After each move, we need to ensure that the new head doesn't collide with any body cells except possibly the tail when it's about to move.
+
+Let's simulate the first few steps.
+
+Initial state:
+Head: (9,8)
+Body: [(9,7), (9,6), (9,5), (9,4), (9,3)]
+
+Move 1: LEFT
+New head: (8,8). Check if this is safe. The body cells are [(9,7), ...], so no collision except maybe the tail? But since we're moving left, the new head is at (8,8) which isn't part of the body after the move.
+
+After inserting the old head into the body list, it becomes [ (9,8), (9,7), (9,6), (9,5), (9,4), (9,3) ]. Then, since we didn't eat an apple, we remove the tail (9,3). So new body is [ (9,8), (9,7), (9,6), (9,5), (9,4) ].
+
+So after move 1:
+Head: (8,8)
+Body: [(9,8), (9,7), (9,6), (9,5), (9,4)]
+
+Move 2: LEFT again
+New head: (7,8). Check collisions: body cells are [ (8,8) is the first now? Wait no, after move 1, the body list is [(9,8), ...]. So moving to (7,8) should be safe.
+
+After inserting old head (8,8) into the body, it becomes [ (8,8), (9,8), ... ] and then we remove the tail. Wait no: after each move, when you insert the old head at the front of the body list, the new body list becomes [old_head] + current_body. So:
+
+After first move:
+Body is [(9,8), (9,7), (9,6), (9,5), (9,4)]
+
+Then second move: LEFT again to (7,8). The old head is (8,8), so the new body list becomes [ (8,8), (9,8), (9,7), (9,6), (9,5) ] and then we remove the tail (9,5 if length was 5 before adding? Wait, I'm getting confused.
+
+Wait, initial body is 5 cells. After first move, since we didn't eat apple, the body remains 5 cells: [ (9,8), (9,7), (9,6), (9,5), (9,4) ] because we added the old head and removed the tail.
+
+Wait no, wait the process is:
+
+After computing new_head, if it's safe, then:
+
+a. Insert old head into the front of BODY → this increases the body length by 1.
+
+b. If new_head == apple: don't remove tail; so body grows by 1.
+
+c. Else: remove tail to keep same length.
+
+So in our case, after first move:
+
+Old head is (9,8). New head is (8,8).
+
+BODY was [(9,7), (9,6), (9,5), (9,4), (9,3)] before the move. After inserting old head at front, it becomes [ (9,8), (9,7), (9,6), (9,5), (9,4), (9,3) ].
+
+But since we didn't eat apple, we remove the last element (9,3). So new BODY is [ (9,8), (9,7), (9,6), (9,5), (9,4) ].
+
+Now, after second move:
+
+Move LEFT again: new_head is (7,8).
+
+BODY becomes [ (8,8), (9,8), (9,7), (9,6), (9,5), (9,4) ]. Then remove tail (9,4). So new BODY is [ (8,8), (9,8), (9,7), (9,6), (9,5) ].
+
+Wait, I'm getting confused about how the body updates each time. Maybe it's better to simulate each step carefully.
+
+Alternatively, perhaps a better approach would be to move the snake left until it reaches x=5, then up once.
+
+So moves would be: LEFT, LEFT, LEFT, LEFT, UP.
+
+Let me check if that causes any collisions:
+
+Move 1: LEFT from (9,8) → (8,8). Body becomes [(9,8), (9,7), (9,6), (9,5), (9,4)].
+
+Move 2: LEFT → (7,8). Body: [ (8,8), (9,8), (9,7), (9,6), (9,5) ].
+
+Move 3: LEFT → (6,8). Body: [ (7,8), (8,8), (9,8), (9,7), (9,6) ].
+
+Move 4: LEFT → (5,8). Body: [ (6,8), (7,8), (8,8), (9,8), (9,7) ].
+
+Now, move UP from (5,8) to (5,9).
+
+Check if this is safe. The body cells after four moves are [ (6,8), (7,8), (8,8), (9,8), (9,7) ].
+
+The new head would be (5,9). Check against each body cell:
+
+- 6,8: no
+- 7,8: no
+- 8,8: no
+- 9,8: no
+- 9,7: no
+
+So no collision. Also, the apple is at (5,9), so we eat it.
+
+After eating, body grows by 1. So after this move:
+
+Insert old head (5,8) into front of BODY → [ (5,8), (6,8), (7,8), (8,8), (9,8), (9,7) ].
+
+Since we ate apple, don't remove tail. So body becomes 6 cells: [ (5,8), (6,8), (7,8), (8,8), (9,8), (9,7) ].
+
+Now the head is at (5,9).
+
+We need to check that after this move, there's at least one legal next move. Since the snake has a body that extends from (5,8) up, but we're at (5,9). Possible directions: LEFT is not possible since x=0? No, wait x can be 0-9. So from (5,9), moving UP would go to (5,10), which is invalid. DOWN would take us back to (5,8), which is the first body cell after head. That's allowed because when we move down, the tail will move, so collision only if it's not the tail.
+
+Wait, no: After eating apple, the body is [ (5,8), (6,8), ... ] so when at (5,9), moving DOWN to (5,8) would be colliding with the first body cell. So that's invalid.
+
+But we can move LEFT or RIGHT? From (5,9):
+
+- LEFT → (4,9): safe?
+- RIGHT → (6,9): check if it's in body?
+
+Wait, after the last move, the body is [ (5,8), (6,8), (7,8), (8,8), (9,8), (9,7) ]. So at y=9, only the head is there. So moving RIGHT to (6,9) would be safe because no body cell is at (6,9).
+
+Alternatively, moving LEFT to (4,9) is also safe.
+
+So after eating the apple, there are possible moves. Thus, this path should work.
+
+Wait, but in our initial plan, we only have five moves: four LEFTs and one UP. So that's a total of five moves. But let me count:
+
+Move 1: LEFT → (8,8)
+
+Move 2: LEFT → (7,8)
+
+Move 3: LEFT → (6,8)
+
+Move 4: LEFT → (5,8)
+
+Move 5: UP → (5,9)
+
+Yes, five moves in total.
+
+So the sequence would be: L, L, L, L, U.
+
+Wait, but let's see if any of these moves cause a collision before eating the apple.
+
+After move 4: head at (5,8), body is [ (6,8), (7,8), (8,8), (9,8), (9,7) ].
+
+So moving UP to (5,9):
+
+Is this position in the body? The body has y=8 and y=7. So no collision except for possibly the tail? No, because the new head is at (5,9). The tail after move 4 was at (9,7), so it's not colliding.
+
+So yes, moving up is safe.
+
+Another thing to consider: When we make four LEFT moves and then one UP, does any of these moves cause a collision with the body?
+
+After each left move:
+
+Move 1: (8,8) → no collision except maybe old head which becomes part of body. So it's allowed.
+
+Similarly for other moves.
+
+So I think this path is safe.
+</think>
+
+The optimal sequence of moves to reach the apple at (5,9) without colliding with the snake's body is four LEFT moves followed by one UP move.
+
+**Step-by-Step Explanation:**
+
+1. **Initial Position:** The snake's head is at (9,8), and its body extends downward along x=9 from y=7 to y=3.
+2. **Move 1 - LEFT:** Head moves to (8,8). No collision as the new position isn't part of the updated body.
+3. **Move 2 - LEFT:** Head moves to (7,8). Safe as no collision with current body.
+4. **Move 3 - LEFT:** Head moves to (6,8). Still safe.
+5. **Move 4 - LEFT:** Head moves to (5,8). No collision detected.
+6. **Move 5 - UP:** Head moves up to (5,9), which is the apple's location. Safe as no body part occupies this position.
+
+This sequence results in the snake successfully reaching and eating the apple without any self-collisions.
+
+**Answer:**
+
+The snake should make four consecutive LEFT moves followed by one UP move. The sequence of moves is:
+
+\boxed{L, L, L, L, U}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (9, 8) and whose body cells are in list format [(9, 3), (9, 4), (9, 5), (9, 6), (9, 7)], to eat the apple at (5, 9).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

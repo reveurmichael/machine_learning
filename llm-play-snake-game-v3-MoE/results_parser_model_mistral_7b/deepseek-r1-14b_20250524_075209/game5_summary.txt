@@ -1,0 +1,18 @@
+Game 5 Summary:
+=========================================
+Timestamp: 2025-05-24 09:35:03
+Score: 7
+Steps: 35
+Last direction: RIGHT
+
+Performance Metrics:
+- Apples/Step: 0.2000
+- Secondary LLM usage: 10 times (100% of rounds)
+- Final board size: 8 segments
+
+Game End Reason: Self collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 37
+- Total Secondary LLM invocations: 10
+=========================================

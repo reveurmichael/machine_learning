@@ -1,0 +1,159 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, let's tackle this problem step by step. The snake is currently at (3,4) and needs to reach the apple at (0,4). Let's break down the situation.
+
+First, I'll note that both positions share the same y-coordinate, which means we don't need any vertical movement—just horizontal. Since the apple is to the left of the head, moving left will be necessary.
+
+The snake's body is a bit complex here. The body segments are [(3,3), (4,3), (4,4), (4,5), (3,5), (3,6), (2,6), (2,5), (2,4), (1,4)]. So the tail is at (1,4), which is directly next to the apple. That's interesting because if we move left without considering the body, we might collide with it.
+
+The current direction is "UP," so according to the rules, I can't reverse and go down immediately. But since we need to move left, that's allowed as it's not a reversal from UP.
+
+Let me visualize the grid. The head is at (3,4), and the apple is at (0,4). Directly in front of the head, on the same row, the body extends to the right and upwards. Moving left would take us towards (2,4), which is part of the body, but that's not allowed unless it's the tail.
+
+Wait, looking at the body list, the last segment is (1,4), so when we move left, the new head will be (2,4). The next segments are (2,5) and others. So after moving, the old head becomes part of the body, but since the apple is being eaten, the tail won't move this turn.
+
+Wait no, if we eat the apple, the body grows. Let me clarify: when the new head is on the apple, the body doesn't remove the tail, so the length increases by one.
+
+So here's the plan:
+
+1. The first move needs to be LEFT since that's the direction towards the apple.
+2. After moving left to (2,4), we check for collisions. The next segment after the head is (3,3), which was behind before the move. But after the move, the new body will have the old head at (3,4) as the first segment, then (3,3). So when the head moves to (2,4), it's not in any of these segments except possibly the tail.
+
+Wait, no. The body list after moving would be [(3,4), (3,3), ... , (1,4)]. But since we're moving left to (2,4), which is not part of the new body segments except for (2,4) being the new head. So it's safe.
+
+Wait no, the body list provided excludes the head, so after inserting the old head, the body becomes [(3,4), (3,3), ... , (1,4)]. But when we move left, the new head is (2,4). The next segment in the body is (3,3), which is at x=3, y=3. So it's not conflicting.
+
+So moving LEFT first is safe.
+
+After that, the apple is still at (0,4). Now the snake has grown because we ate the apple? Wait no—wait, after moving to (2,4), are we eating the apple?
+
+Wait, in this case, the apple is at (0,4), and the new head is at (2,4). That's not the apple yet. So perhaps I need to take more steps.
+
+Let me think again: current position is (3,4), body segments as given. Apple is at (0,4).
+
+If we move LEFT once, head becomes (2,4), and since it's not the apple, we proceed normally—remove the tail. But wait, if the new head isn't the apple, then we just shift the body. But in this case, moving to (2,4) is part of the body? Let me check.
+
+The body list after inserting the old head would be [(3,4), (3,3), (4,3), (4,4), ...]. So when moving left, new head is (2,4). The next segment in the body is (3,4) because the body was inserted with the old head. Wait no: after inserting the old head at the front of the body list, which was previously [(3,3), ... , (1,4)], so the new body becomes [(3,4), (3,3), ...]. So when we move left to (2,4), that's not part of any body segments except maybe if it's the tail. The tail is at (1,4). So no collision.
+
+After moving left once, we're at (2,4). Now, next step, can we continue moving left?
+
+But wait, after the first move, since we didn't eat the apple, the body remains the same length. So the new head is (2,4), and the body starts with (3,4). The tail was (1,4) before; now it's removed because we didn't grow. Wait no: if we didn't eat the apple, the tail moves, so the last segment is popped.
+
+Wait, in step 3c of movement rules: if not eating, remove the tail. So after moving left to (2,4), the body becomes [(3,4), (3,3), ..., up to (2,5), etc.] minus the last element. Hmm, perhaps I'm getting confused.
+
+Alternatively, maybe it's better to plan a path that moves directly left without immediate collision risks.
+
+But wait, another approach: since the apple is at (0,4), which is three cells left from the head. So we need to make three LEFT moves.
+
+However, after each move, the body shifts, so we have to ensure that moving left doesn't cause any collisions with the new positions of the body.
+
+Let me try mapping out each step:
+
+Current state:
+Head: (3,4)
+Body: [(3,3), (4,3), (4,4), (4,5), (3,5), (3,6), (2,6), (2,5), (2,4), (1,4)]
+Apple: (0,4)
+
+Move 1: LEFT to (2,4). Since it's the first move, allowed. Check collision: new head is (2,4) which is not in body except possibly if it's the tail.
+
+Wait, but the current body includes (2,4) as the ninth element, index 8 (0-based). After moving, when we insert the old head at front, the body becomes [(3,4), (3,3), (4,3), ..., (1,4)]. Then, since new_head is not apple, remove last element (which was (1,4)). So body after move 1 would be [(3,4), (3,3), (4,3), (4,4), (4,5), (3,5), (3,6), (2,6), (2,5)]. Head is now at (2,4). No collision.
+
+Move 2: LEFT again to (1,4). Now, check if this position is in the body. The body after first move includes (1,4) as the last segment? Wait no, because we removed it. After move 1, the tail was popped, so the new body ends at (2,5). So moving to (1,4) would be checking against [(3,4), ... , (2,5)]. Is (1,4) in any of these?
+
+Looking at the body list after first move: positions are (3,4), (3,3), (4,3), (4,4), (4,5), (3,5), (3,6), (2,6), (2,5). So (1,4) is not present. Therefore, moving left again is safe.
+
+After move 2: head at (1,4). Since we didn't eat the apple yet, the body shifts again. The old head (2,4) is added to the front of the body list, which becomes [(2,4), ...], and then remove the last segment (which was (2,5)). So body after move 2 is [(2,4), (3,3), ..., (3,6), (2,6)]. Head at (1,4).
+
+Move 3: LEFT to (0,4). Check collision. The new head is (0,4), which was the apple's position. So in this step, we eat the apple. Now, according to movement rules, since we ate the apple, the body grows by not removing the tail.
+
+So after move 3, the body becomes [(1,4), (2,4), ... , (2,6)]. The head is at (0,4). No collision because the new_head was the apple and no other body segments are there except possibly the tail, which in this case hasn't moved yet.
+
+Wait, but after moving to (0,4), since it's the apple, we don't remove the tail. So the body grows by one segment.
+
+But wait, in move 3, new_head is at (0,4). The previous head was at (1,4). So when inserting old head into body, it becomes [(1,4), ...], and since we ate the apple, the tail isn't removed. Therefore, the body grows.
+
+However, after this, the next move needs to ensure that there's at least one legal move left to prevent being trapped.
+
+So the moves would be ["LEFT", "LEFT", "LEFT"].
+
+But wait, let me check each step for collisions:
+
+Move 1: LEFT to (2,4). Body becomes [(3,4), (3,3), ... , (2,5)]. No collision.
+
+Move 2: LEFT to (1,4). Body becomes [(2,4), (3,3), ... , (2,6)]. No collision.
+
+Move 3: LEFT to (0,4). Eat apple. Body grows, so no collision as the new head isn't in the previous body except for possible tail, which remains.
+
+Thus, three LEFT moves are safe.
+</think>
+
+The snake needs to move left three times to reach the apple without colliding with its own body. Each move is safe because after each shift, the body adjusts, and the new head position doesn't overlap with any existing segments except possibly the tail, which isn't a concern when eating the apple.
+
+**Step-by-Step Explanation:**
+
+1. **Initial Position:** Head at (3,4), Apple at (0,4). Body extends from (3,3) to (1,4).
+
+2. **Move 1 - LEFT:** 
+   - New head position: (2,4).
+   - Check collision: This position isn't in the updated body segments after inserting the old head and removing the tail.
+   
+3. **Move 2 - LEFT:** 
+   - New head position: (1,4).
+   - Check collision: Not present in the updated body.
+
+4. **Move 3 - LEFT:** 
+   - New head position: (0,4) where the apple is located.
+   - Since it's the apple, the snake grows, and no collision occurs as the new head isn't part of any existing body segments except the tail which remains.
+
+**Answer:** The snake should move left three times in a row. 
+
+\boxed{["LEFT", "LEFT", "LEFT"]}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (3, 4) and whose body cells are in list format [(1, 4), (2, 4), (2, 5), (2, 6), (3, 6), (3, 5), (4, 5), (4, 4), (4, 3), (3, 3)], to eat the apple at (0, 4).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

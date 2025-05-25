@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 03:47:11
+Request Time: 2025-05-25 03:44:17
+Response Time: 2025-05-25 03:47:11
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["UP", "UP", "UP", "UP", "RIGHT", "RIGHT"],
+"reasoning": "Move straight up to row 8, then right to the apple. Path avoids body segments and ensures post-apple movement options."
+}

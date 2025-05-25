@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 04:36:41
+Request Time: 2025-05-25 04:33:30
+Response Time: 2025-05-25 04:36:41
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["RIGHT", "UP", "UP"],
+"reasoning": "Shortest safe path: RIGHT to align x, then UP twice. Avoids body and ensures post-apple escape upwards."
+}

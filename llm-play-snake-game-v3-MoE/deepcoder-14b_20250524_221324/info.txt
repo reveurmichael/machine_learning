@@ -1,0 +1,27 @@
+Experiment Information
+====================
+Date: 2025-05-24 22:13:24
+
+Primary LLM (Game Strategy Expert):
+- Provider: ollama
+- Model: deepcoder:14b
+
+Secondary LLM (Formatting Expert):
+- Provider: ollama
+- Model: mistral:7b
+
+
+Game Statistics
+==============
+Total Games Played: 6
+Total Score: 25
+Total Steps: 206
+Maximum Score: 11
+Minimum Score: 1
+Mean Score: 4.17
+Average Steps per Game: 34.33
+
+Efficiency Metrics
+=================
+Apples per Step: 0.1214
+Steps per Game: 34.33

@@ -1,0 +1,543 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, I'm trying to figure out how to get the snake from its current position to eat the apple without dying. Let's see what the situation is.
+
+The snake's head is at (8,3), and the apple is just one cell to the right at (9,3). The current direction is "DOWN", which means if I don't change direction, the next move would be down from (8,3) to (8,2). But wait, the apple is directly to the right. So maybe I should change direction.
+
+Wait, no. The current direction is DOWN, so according to the rules, I can't reverse. That means if I'm going DOWN now, my next move can't be UP. Similarly, LEFT and RIGHT are allowed as long as they're not the opposite of the current direction. Wait, no—the rule says you cannot choose the reverse direction on the first move after NONE, but in this case, the current direction is already set to DOWN. So I can't change direction to UP if that's the immediate next step? Or wait, no: the rules say "Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for LEFT↔RIGHT. So since current direction is DOWN, I cannot choose UP next. Wait, no—current direction is DOWN, so can't choose UP as the next move? Or wait, no: it's that if current direction is UP, you can't choose DOWN next, and vice versa. Similarly for LEFT and RIGHT.
+
+Wait, but in this case, the current direction is DOWN, which means I cannot immediately switch to UP. But since the apple is directly to the right (same y, x increases by 1), maybe I should turn right or left if possible.
+
+Wait, no—the current direction is DOWN, so next move can be LEFT, RIGHT, or DOWN again? Wait, no: according to rule 2: "Cannot reverse": If current direction is UP, you may not choose DOWN next; similarly for LEFT↔RIGHT. So for example, if current direction is LEFT, you can't choose RIGHT next. But in this case, the current direction is DOWN, so I think any direction except UP is allowed? Wait no—the rule says that if current direction is UP, you can't choose DOWN next. Similarly, LEFT can't be followed by RIGHT and vice versa.
+
+Wait, but for DOWN, what's the reverse? It would be UP. So if current direction is DOWN, then next move cannot be UP. But other directions are allowed: LEFT, RIGHT, or same as current (DOWN). Wait no—wait, the movement rules say that you can't choose the opposite direction on the first move after NONE. Wait, no—the rule says "Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for "LEFT"↔"RIGHT". So if current direction is DOWN, I cannot choose UP as the next direction.
+
+Wait, but in this case, the current direction is DOWN. The apple is at (9,3), which is to the right of the head's x-coordinate 8. So from (8,3) moving right would take me to (9,3), which is where the apple is. That seems like a direct path.
+
+But wait, can I just move RIGHT? Let me check the current body segments.
+
+The body cells are [(8,4), (8,5)]. Wait no—the body cells are given as [(8,4), (8,5)], but according to the snake representation, the full snake is [HEAD, BODY1, BODY2,...]. So HEAD is at (8,3). Then the next segment is (8,4), which is directly above the head. Then (8,5) is two cells up.
+
+Wait, that can't be right because if the head is moving down, but the body segments are above it. Wait no—the snake's direction is DOWN, so the head is at (8,3), and the next segment (BODY1) would be behind the head in the direction of movement. Wait wait, when you move, the new head is computed, then the old head is added to the body list.
+
+Wait no—let me clarify: The current snake's head is at (8,3). The body cells are [(8,4), (8,5)], which means that after the head, the next segment is (8,4) and then (8,5). Wait, but if the head is moving in a certain direction, the body follows.
+
+Wait, wait—the current snake's body is [BODY1, BODY2,...], where BODY1 is immediately behind the head. So the full snake would be HEAD at (8,3), followed by (8,4) and (8,5). That suggests that the snake is moving upwards because each subsequent body part is higher in y-coordinate.
+
+Wait no—because if the current direction is DOWN, then the next segment after the head should be in the same direction as DOWN. Wait, perhaps I'm getting confused here.
+
+Let me think: The snake's movement. When you move in a certain direction, the new head is computed, and then each body part follows by moving into the position of the previous one.
+
+Wait no—each step, the old head becomes BODY1, then the next steps shift accordingly.
+
+So in this case, current HEAD is (8,3). The body cells are [(8,4), (8,5)], which means that after the head comes (8,4) and then (8,5). So the snake's path is from head at (8,3) → (8,4) → (8,5).
+
+Wait no—that can't be right because if the current direction is DOWN, moving down would take the head to (8,2), but the body segments are above it. That suggests that perhaps the snake is currently moving upwards.
+
+Wait, I'm getting confused. Let me try to visualize this:
+
+Current HEAD: (8,3)
+
+BODY cells: [(8,4), (8,5)]
+
+So the full snake would be:
+
+HEAD at (8,3), then BODY1 at (8,4), then BODY2 at (8,5). So the body is extending upwards from the head.
+
+That suggests that the snake's tail is at (8,5). Wait no—the body cells are ordered from the segment immediately behind the head to the tail. So in this case, HEAD is (8,3); the next segment (BODY1) is (8,4), which is above it; then BODY2 is (8,5), which is two steps up.
+
+So the snake's direction must be upwards because each subsequent body part is higher in y-coordinate.
+
+Wait but the current direction given is "DOWN". That seems contradictory. How can the body parts be above the head if the snake is moving DOWN?
+
+Ah, wait no—maybe I'm misunderstanding how the body cells are ordered. The body cells list is from the segment immediately behind the head to the tail. So if the snake is moving in a certain direction, the next body part would be that way.
+
+Wait, perhaps the current direction is DOWN, but the body parts after the head are (8,4) and (8,5), which suggests that the snake was previously moving UP. That can't be right because the movement rules say you cannot reverse directions immediately. Wait no—the current direction is DOWN, so the next move can't be UP.
+
+Wait, perhaps I'm mixing up how the body segments are ordered. Let me think: when the head moves in a certain direction, each body segment follows by moving into the position of the previous one.
+
+So if the current HEAD is (8,3), and the snake's direction is DOWN, then the next move would take the head to (8,2). Then, after that, the old head (8,3) becomes BODY1, and the body segments behind it shift accordingly.
+
+But in this case, the body cells are [(8,4), (8,5)], which suggests that the body is above the head. So perhaps the snake was previously moving UP, but the current direction is DOWN—wait, no, because you can't reverse directions immediately unless it's NONE.
+
+Wait, I'm getting stuck here. Let me try to think step by step.
+
+The problem says:
+
+Current direction: "DOWN".
+
+Head position: (8,3).
+
+Body cells: [(8,4), (8,5)].
+
+So the full snake is [HEAD=(8,3), BODY1=(8,4), BODY2=(8,5)].
+
+Wait that can't be right because if the head is at (8,3) and moving DOWN, then the next body part should be below it. But in this case, the body parts are above it.
+
+This suggests that perhaps I'm misunderstanding the direction vectors or the movement.
+
+Wait no—direction "DOWN" means y decreases by 1. So from (8,3), moving down would take you to (8,2). But the body cells are [(8,4), (8,5)], which is above the head. That suggests that perhaps the snake was previously moving UP, but the current direction is DOWN.
+
+Wait, maybe the current direction is DOWN, and the body segments are in front of it? No—the body segments behind the head should be in the direction opposite to movement. Wait no: when you move, each body part follows the previous one. So if the head moves forward (direction DOWN), then the next segment would be where the head was.
+
+Wait, no: Let's say the snake is moving RIGHT:
+
+- HEAD at (x,y).
+
+After moving right, new_head is (x+1, y). Then the old head becomes the first body part, and each subsequent body part follows.
+
+So in this case, the current direction is DOWN. So when you move down from (8,3), the new head would be (8,2). Then the body cells would shift: the old head (8,3) becomes BODY1, and the previous BODY1 (if any) would become BODY2.
+
+Wait but in this case, the current body cells are [(8,4), (8,5)], which suggests that after the head at (8,3), the next segments are above it. That can't be if the snake is moving DOWN.
+
+So perhaps there's a mistake here. Or maybe I'm misunderstanding how the directions work.
+
+Alternatively, perhaps the body cells list represents the path in reverse. Maybe the tail comes first and then the closer segments to the head. No—the problem says: "the segment immediately behind the head to the tail". So BODY1 is immediately behind the head, then BODY2, etc., down to the tail.
+
+So if HEAD is at (8,3), and the body cells are [(8,4), (8,5)], that would mean that the next segment after the head is (8,4), which is above it. Then the one after that is (8,5), two steps up.
+
+That suggests that the snake's direction was UP, not DOWN. Because each subsequent body part is in the same direction as movement.
+
+Wait no—wait, if the snake is moving down, then the next segment would be below the head, not above.
+
+So perhaps there's a mistake in the problem, or I'm misunderstanding it.
+
+Alternatively, maybe the current direction is UP, but the problem says DOWN. That could be possible, but let's proceed.
+
+Assuming that the body cells are [(8,4), (8,5)], which suggests that the snake is moving upwards because each next segment is higher in y-coordinate.
+
+But the current direction is given as DOWN. So perhaps this is a mistake, or perhaps I'm misunderstanding how the directions work.
+
+Alternatively, maybe the body segments are listed from tail to head? No—the problem says: "the segment immediately behind the head to the tail". So it's head -> BODY1 -> BODY2 -> ... -> tail.
+
+So in this case, HEAD at (8,3), then BODY1 at (8,4), which is above, then BODY2 at (8,5), two steps up. That suggests that the snake was moving UP when these body segments were added.
+
+But the current direction is DOWN, which would mean that after the last movement, the head moved down from some position to (8,3). But if the body segments are above it, that would suggest that the previous movement was up, but you can't reverse directions immediately unless you're coming from NONE.
+
+Wait, no—the current direction is DOWN. So perhaps the body segments were added when the snake was moving in a different direction before, and now it's changed to DOWN.
+
+But according to rule 2: "Cannot reverse": If current direction is UP, you may not choose DOWN next; similarly for LEFT↔RIGHT. Wait, no—the rule says that if current direction is UP, you cannot choose DOWN next, and vice versa. So from UP, you can't go DOWN; from DOWN, you can't go UP.
+
+Wait, but the problem says current direction is DOWN. So I cannot choose to move UP as my next step.
+
+But in this case, perhaps it's possible that the body segments are above the head because the snake was previously moving up, and then changed direction to down.
+
+Wait no—because if you're moving in a certain direction, each new movement adds to the front of the snake. So if you were moving up and then change direction to down, you'd have to do so by turning around, but that's not allowed because you can't reverse directions immediately unless it's NONE.
+
+Wait, no: rule 2 says you cannot choose the reverse direction on the first move after NONE. Wait no—it says "Cannot reverse": If current direction is UP, you may not choose DOWN next; similarly for LEFT↔RIGHT.
+
+So if you're currently moving DOWN, you can't choose UP as your next direction. But other directions (LEFT, RIGHT) are allowed, assuming they don't conflict with the movement rules.
+
+Wait no—no, wait: the rule says that if current direction is UP, you may not choose DOWN next; similarly for LEFT and RIGHT. So if current direction is LEFT, you can't choose RIGHT next, and vice versa.
+
+But in this case, current direction is DOWN, which doesn't have a direct opposite in terms of left/right—DOWN's opposite would be UP. So from DOWN, the only forbidden direction is UP.
+
+Wait no: let me re-read rule 2:
+
+"Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for "LEFT"↔"RIGHT". So if current direction is LEFT, can't choose RIGHT next; if it's RIGHT, can't choose LEFT. Similarly, if current is UP, can't choose DOWN, and vice versa.
+
+But what about when current direction is DOWN or UP? Wait, no: the rule says for "UP", you can't choose "DOWN" next, and vice versa. So from DOWN, you can't choose UP; but other directions (LEFT, RIGHT) are allowed unless they're the reverse of your current direction.
+
+Wait, no—no, if your current direction is DOWN, the only forbidden next direction would be UP because that's the reverse. LEFT and RIGHT are not reverses of DOWN, so they're allowed.
+
+So in this case, current direction is DOWN, so I can't choose UP as my next move, but I can choose LEFT, RIGHT, or continue moving DOWN (if possible).
+
+But wait, can you move in the same direction again? The rule doesn't say you can't; it only says you can't reverse. So yes, you can keep moving in the same direction.
+
+So back to the problem: I'm at (8,3), current direction is DOWN. The apple is at (9,3). So if I choose to move RIGHT next, that would take me from (8,3) to (9,3), which is where the apple is.
+
+But wait, can I do that? Let's check:
+
+- Current direction: DOWN. Next direction: RIGHT. Since RIGHT isn't the reverse of DOWN, it's allowed.
+
+So moving right would be possible.
+
+Now, when I move right, the new head becomes (9,3). Then, the old head (8,3) becomes BODY1. The previous BODY1 (8,4) would become BODY2, and the previous BODY2 (8,5) would become BODY3.
+
+Wait no—the body cells are a list of segments behind the head to the tail. So after moving right:
+
+- New HEAD: (9,3)
+- Old HEAD becomes BODY1: (8,3)
+- Previous BODY1 (8,4) becomes BODY2
+- Previous BODY2 (8,5) becomes BODY3
+
+So now the body cells would be [(8,3), (8,4), (8,5)].
+
+Wait no—no, wait. The body cells are stored as a list where each element represents a segment behind the head in order from immediately behind to the tail.
+
+So after moving right:
+
+- HEAD is at (9,3)
+- BODY1 is now at (8,3) (old head position)
+- Then the previous BODY1 (which was (8,4)) would move into (8,3), but wait no—each body segment moves into the position of the previous one.
+
+Wait no: when you move, each body part follows the path of the previous one. So:
+
+Original positions before moving:
+
+HEAD: (8,3)
+
+BODY1: (8,4)
+
+BODY2: (8,5)
+
+After moving RIGHT to (9,3):
+
+New HEAD: (9,3)
+
+Old HEAD (8,3) becomes BODY1.
+
+BODY1 (8,4) moves into where the old head was (now BODY1's position), so it would be at (8,3). Wait no—no, when you move, each body part takes the place of the previous one. So:
+
+- New HEAD: (9,3)
+
+- Old HEAD (8,3) becomes BODY1.
+
+- Previous BODY1 (8,4) moves into where the old BODY1 was. But wait, no—the body parts follow in order.
+
+Wait perhaps it's better to think that when you move, each body part takes the position of the previous one.
+
+So:
+
+After moving right, HEAD is at (9,3).
+
+BODY1 was at (8,4), but now it needs to move into where the old head was (8,3). Wait no—that can't be because the body parts follow in order. So perhaps:
+
+Wait no—the movement works as follows:
+
+When you move the head, each body part moves into the position of the previous one.
+
+So after moving right:
+
+- HEAD is at (9,3).
+
+- The old HEAD (8,3) becomes BODY1.
+
+- The old BODY1 (8,4) becomes BODY2.
+
+Wait no—no. Wait, perhaps it's better to think that each body part moves into the position of the previous one in the direction of movement.
+
+Wait I'm getting confused here. Let me try to visualize:
+
+Original positions before moving:
+
+HEAD: (8,3)
+
+BODY1: (8,4) — this is the segment immediately behind the head, which would be in the opposite direction of where the head was moving previously. Wait no—if the current direction is DOWN, then the body parts should be below the head.
+
+Wait I'm getting stuck here because the body cells are [(8,4), (8,5)], which suggests that they're above the head, but current direction is DOWN.
+
+This inconsistency might mean that there's a mistake in the problem or my understanding. Alternatively, perhaps the direction is UP and the problem has a typo. But I'll proceed with what's given.
+
+Assuming that the body cells are [(8,4), (8,5)] despite the current direction being DOWN, which seems contradictory, but perhaps it's possible due to some prior movement.
+
+So if I choose to move right, the new head is at (9,3). The old head (8,3) becomes BODY1. Then, the previous BODY1 (8,4) would need to move into where the old head was, which is (8,3), but that's now occupied by the new BODY1.
+
+Wait no—no, each body part follows the one in front of it. So:
+
+After moving right:
+
+- HEAD: (9,3)
+
+- BODY1: (8,3) — this was the old head position
+
+- Then, what happens to the previous BODY1 at (8,4)? It would need to move into where the current BODY1 was, which is (8,3). But that's now taken by BODY1. Wait no—no, each body part moves into the position of the previous one in the order.
+
+Wait perhaps it's better to think that after moving right:
+
+- HEAD: (9,3)
+
+- The old head (8,3) becomes the new tail? No, wait—the tail is at the end of the body. So when you move forward, the head moves, and each body part follows in order.
+
+Wait no—when you move, the head moves first, then each body segment takes the place of the previous one. So:
+
+Original positions:
+
+HEAD: (8,3)
+
+BODY1: (8,4)
+
+BODY2: (8,5)
+
+After moving right to (9,3):
+
+- HEAD: (9,3)
+
+- BODY1: where HEAD was — (8,3)
+
+Wait no—that can't be because the body parts follow in order. So:
+
+No, wait—no, when you move the head, each body part moves into the position of the previous one.
+
+So:
+
+After moving right:
+
+HEAD: (9,3)
+
+BODY1: (8,4) — this was where BODY1 was before, but now it's following the head.
+
+Wait no—that doesn't make sense. Let me think step by step.
+
+When you move right from (8,3), new head is at (9,3).
+
+The old head (8,3) becomes the new tail? No, that's not correct. Wait no—the body parts follow in order, so when you move forward, the head moves, and each body part takes the position of the one in front.
+
+Wait I'm getting stuck here. Let me try a different approach.
+
+The key point is whether moving right from (8,3) to (9,3) is possible given the current direction is DOWN. According to the rules, since current direction is DOWN and next move is RIGHT, which isn't forbidden (only UP is forbidden), so it's allowed.
+
+So I can choose to move right to reach the apple at (9,3).
+
+But wait—another consideration: when moving in a new direction that isn't directly forward or backward, could there be any collision with body parts?
+
+In this case, after moving right, the old head would be at (8,3), which is now part of the body. Since I'm not overlapping with any other part except perhaps the tail, but it's allowed as long as I don't collide with myself.
+
+Wait no—the snake can't pass through itself. So when moving right, I need to ensure that the new head position (9,3) isn't occupied by any body part.
+
+In this case, the body parts are at (8,4), (8,5). The new head is at (9,3), which is clear. So no collision.
+
+Therefore, moving right is possible and would allow me to reach the apple.
+
+Alternatively, perhaps I could also consider other directions:
+
+- Moving down: from (8,3) to (8,2). But the apple is at (9,3), so that's not helpful.
+
+- Moving left: to (7,3). Not helpful for reaching the apple.
+
+So moving right seems like the best option.
+
+Another consideration: after moving right, what would the new body look like?
+
+After moving:
+
+HEAD: (9,3)
+
+BODY1: (8,3) — old head
+
+BODY2: (8,4) — old BODY1
+
+BODY3: (8,5) — old BODY2
+
+Wait no—that can't be because when you move right, the body parts follow in order. So:
+
+Original positions:
+
+HEAD: (8,3)
+
+BODY1: (8,4)
+
+BODY2: (8,5)
+
+After moving right to (9,3):
+
+- HEAD: (9,3)
+
+- BODY1: (8,3) — where the head was
+
+But wait, that would mean that the body part at (8,4) needs to move into (8,3), which is now occupied by BODY1. But no—each body part takes the place of the previous one in order.
+
+Wait I'm getting stuck again. Let me think:
+
+When you move right, the head moves from (8,3) to (9,3).
+
+The old head (8,3) becomes the new tail? No, wait—the tail is at the end of the body. So when you add a new head, all body parts shift forward.
+
+Wait no—when you move, each segment follows the one in front of it. So:
+
+After moving right:
+
+- HEAD: (9,3)
+
+- BODY1: (8,4) — this was where BODY1 was before
+
+Wait no—that can't be because the head moved from (8,3) to (9,3), so the old head (8,3) becomes the new tail's position? No.
+
+I'm getting confused here. Maybe it's better to think that when you move right:
+
+- The head moves to (9,3).
+
+- Each body part moves into the position of the previous one in the order.
+
+So:
+
+Original:
+
+HEAD: (8,3)
+
+BODY1: (8,4)
+
+BODY2: (8,5)
+
+After moving right:
+
+- HEAD: (9,3)
+
+- BODY1: (8,3) — because it was behind the head
+
+Wait no—that can't be because the body parts are in order. So after moving right:
+
+- The new head is at (9,3).
+
+- The old head (8,3) becomes the new tail? No—wait, when you move forward, the body follows.
+
+Wait perhaps it's better to model this as a list where each element represents a segment in order from head to tail.
+
+So original:
+
+Segments: [ (8,3), (8,4), (8,5) ]
+
+After moving right:
+
+- New head is added at (9,3).
+
+- The old segments are shifted: the first becomes second, etc., and the last segment is removed if it's a fixed-length snake (but in this case, we're just moving, not growing).
+
+Wait no—the problem doesn't mention growing, so I assume the snake's length remains the same. So when you move, all body parts shift forward.
+
+So after moving right:
+
+New head: (9,3)
+
+Old segments become:
+
+BODY1: (8,3) — which was the old head
+
+BODY2: (8,4) — which was the old BODY1
+
+But wait, this would mean that the new head is at (9,3), and BODY1 is at (8,3). But then, is (8,3) a valid position? Yes, as long as it's not overlapping with any other part except possibly itself if it's part of the body.
+
+Wait no—the snake can't overlap itself. So when moving right, the new head must not be on any existing body segment except for the tail, which is allowed only if it's moving into its own previous position (like in a standard snake game where you grow by eating food; but here, we're just moving without growing).
+
+Wait no—the problem doesn't mention growing, so I assume the snake's length remains the same. So when you move right, the head moves to (9,3), and all body parts shift forward.
+
+So:
+
+Original segments: [ (8,3), (8,4), (8,5) ]
+
+After moving right:
+
+New head: (9,3)
+
+Shift each segment:
+
+BODY1 becomes where HEAD was: (8,3)
+
+BODY2 becomes where BODY1 was: (8,4)
+
+But wait, that would mean that the new segments are [ (9,3), (8,3), (8,4) ], and the tail (8,5) is removed? Or does it stay?
+
+Wait no—if the snake's length remains the same, then when you move forward, each segment takes the place of the previous one. So:
+
+Original: HEAD at (8,3), BODY1 at (8,4), BODY2 at (8,5)
+
+After moving right:
+
+HEAD moves to (9,3).
+
+BODY1 was at (8,4) and now moves into where HEAD was: (8,3).
+
+BODY2 was at (8,5) and now moves into where BODY1 was: (8,4).
+
+So the new segments are [ (9,3), (8,3), (8,4) ]
+
+Wait no—that can't be because then the body would have crossed over itself. Wait no—the snake is moving right, so the head is at (9,3), and each body part follows in order.
+
+But wait, if BODY1 was at (8,4) and moves to (8,3), which is now where the old head was, but that's okay as long as it's not overlapping with any other body parts except perhaps itself in a way that doesn't cause collision.
+
+Wait no—the snake can't occupy the same space more than once unless it's part of its own body. Wait no—actually, in most snake games, the snake can't pass through itself, meaning that the new head can't be on any part of the body except possibly the tail if there's food to grow.
+
+But in this case, we're not growing; we're just moving. So when you move right:
+
+- New head at (9,3)
+
+- Old head (8,3) becomes BODY1
+
+- Old BODY1 (8,4) becomes BODY2
+
+- Old BODY2 (8,5) would be removed if the snake's length remains the same.
+
+Wait no—if the snake's length is fixed, then when you move forward, each segment shifts forward, and the last one is lost. But in this problem, I don't know if the snake grows or not. The problem says "You are the head of a snake," but doesn't specify whether it's growing or just moving.
+
+Assuming that the snake can't pass through itself, we need to ensure that the new head position isn't on any existing body segments except possibly the tail (if there's no food, which there is in this case—the apple at (9,3)).
+
+Wait no—the apple is the target; it's not part of the snake. So moving into (9,3) is allowed as long as that position isn't occupied by any body part.
+
+In our original setup:
+
+BODY1: (8,4)
+
+BODY2: (8,5)
+
+So (9,3) is clear.
+
+Therefore, moving right to (9,3) is possible and would allow the snake's head to reach the apple.
+
+Another consideration: after reaching the apple, what happens? The problem doesn't specify whether we need to consider growing or not. Since the focus is on getting to the apple, I think it's sufficient to just move in that direction.
+
+So the best answer is to move right.
+</think>
+
+The snake should move right (east) to reach the apple located at position (9,3). 
+
+**Step-by-Step Explanation:**
+
+1. **Current Position:** The snake's head is at (8,3).
+2. **Target Location:** The apple is at (9,3), which is one unit to the east.
+3. **Possible Moves:** From (8,3), the snake can move right (east) to (9,3), left (west) to (7,3), down (south) to (8,2), or up (north) to (8,4).
+4. **Obstruction Check:** The body segments are at (8,4) and (8,5). Moving right doesn't interfere with these positions.
+5. **Direction Decision:** Moving east is the shortest path to the apple without any obstructions.
+
+**Answer:**
+The snake should move right (east) to reach the apple. 
+
+\boxed{\text{Move Right}}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (8, 3) and whose body cells are in list format [(8, 5), (8, 4)], to eat the apple at (9, 3).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

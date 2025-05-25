@@ -1,0 +1,9 @@
+Timestamp: 2025-05-25 05:37:59
+Secondary LLM Request Time: 2025-05-25 05:37:54
+Secondary LLM Response Time: 2025-05-25 05:37:59
+SECONDARY LLM Model: Default model for deepseek
+SECONDARY LLM Provider: deepseek
+
+========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
+
+{"moves": [], "reasoning": "NO_PATH_FOUND"}

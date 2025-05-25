@@ -1,0 +1,19 @@
+Game 3 Summary:
+=========================================
+Timestamp: 2025-05-24 23:37:32
+Primary LLM: ollama - deepcoder:14b
+Secondary LLM: ollama - mistral:7b
+
+Score: 3
+Steps: 10
+Last direction: RIGHT
+
+Performance Metrics:
+- Apples/Step: 0.3000
+- Final board size: 4 segments
+
+Game End Reason: Wall collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 12
+=========================================

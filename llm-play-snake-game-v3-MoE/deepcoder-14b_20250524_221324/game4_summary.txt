@@ -1,0 +1,19 @@
+Game 4 Summary:
+=========================================
+Timestamp: 2025-05-25 01:46:27
+Primary LLM: ollama - deepcoder:14b
+Secondary LLM: ollama - mistral:7b
+
+Score: 11
+Steps: 85
+Last direction: RIGHT
+
+Performance Metrics:
+- Apples/Step: 0.1294
+- Final board size: 12 segments
+
+Game End Reason: Self collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 90
+=========================================

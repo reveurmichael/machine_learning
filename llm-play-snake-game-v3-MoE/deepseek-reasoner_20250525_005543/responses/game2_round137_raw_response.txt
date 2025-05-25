@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 04:15:19
+Request Time: 2025-05-25 04:10:46
+Response Time: 2025-05-25 04:15:19
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+"reasoning": "Path moves down to avoid body, then left along the bottom edge to reach apple safely. Ensures no collision and a valid move post-consumption."
+}

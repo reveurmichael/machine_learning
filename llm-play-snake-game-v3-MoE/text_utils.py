@@ -69,13 +69,14 @@ Secondary LLM (Formatting Expert):
 
 Game Configuration:
 - Max Steps per Game: {args.max_steps}
+- Max Consecutive Empty Moves: {args.max_empty_moves}
 - Max Games: {args.max_games}
 """
     
     # Save to file
     return save_to_file(content, directory, "info.txt")
 
-def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, json_error_stats=None):
+def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, json_error_stats=None, max_empty_moves=3):
     """Update the experiment information file with game statistics.
     
     Args:
@@ -88,6 +89,7 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
         empty_steps: Number of empty steps (moves with empty JSON)
         error_steps: Number of steps with ERROR in reasoning
         json_error_stats: Dictionary containing JSON extraction error statistics
+        max_empty_moves: Maximum number of consecutive empty moves before termination
     """
     file_path = os.path.join(directory, "info.txt")
     
@@ -231,7 +233,7 @@ SECONDARY LLM Provider: {parser_provider}
 def generate_game_summary(game_count, timestamp, score, steps, next_move, game_parser_usage, 
                          snake_positions_length, last_collision_type, round_count, 
                          primary_model=None, primary_provider=None, parser_model=None, parser_provider=None,
-                         json_error_stats=None):
+                         json_error_stats=None, max_empty_moves=3):
     """Generate a game summary text.
     
     Args:
@@ -242,13 +244,14 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         next_move: Last direction moved
         game_parser_usage: Number of times the secondary LLM was used in this game
         snake_positions_length: Length of the snake
-        last_collision_type: Type of collision that ended the game (wall, self, max_steps, empty_moves)
+        last_collision_type: Type of collision that ended the game (wall, self, max_steps, empty_moves, error)
         round_count: Number of rounds played
         primary_model: Primary LLM model name
         primary_provider: Primary LLM provider
         parser_model: Secondary LLM model name
         parser_provider: Secondary LLM provider
         json_error_stats: Dictionary containing JSON extraction error statistics
+        max_empty_moves: Maximum number of consecutive empty moves before termination
         
     Returns:
         Formatted game summary text
@@ -265,7 +268,7 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
     elif last_collision_type == 'max_steps':
         game_end_reason = 'Maximum steps reached'
     elif last_collision_type == 'empty_moves':
-        game_end_reason = '3 consecutive empty moves'
+        game_end_reason = f'{max_empty_moves} consecutive empty moves'
     elif last_collision_type == 'error':
         game_end_reason = 'Game aborted due to error'
     else:

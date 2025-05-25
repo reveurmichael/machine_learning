@@ -3,6 +3,9 @@ Utility module for snake-specific functions in the Snake game.
 Provides helper functions for snake movement and game rules.
 """
 
+import traceback
+from json_utils import extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
+
 def filter_invalid_reversals(moves, current_direction):
     """Filter out invalid reversal moves from a sequence.
     
@@ -81,8 +84,6 @@ def parse_llm_response(response, processed_response_func, game_instance):
         The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
         or None if no valid moves were found
     """
-    from json_utils import extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
-    
     try:
         # Store the raw response for display
         game_instance.last_llm_response = response
@@ -110,7 +111,6 @@ def parse_llm_response(response, processed_response_func, game_instance):
             if valid_moves:
                 game_instance.planned_moves = valid_moves
                 print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")
-        
 
         # Method 3: Try finding arrays if other methods failed
         if not game_instance.planned_moves:
@@ -136,7 +136,6 @@ def parse_llm_response(response, processed_response_func, game_instance):
             
     except Exception as e:
         print(f"Error in parse_llm_response: {e}")
-        import traceback
         traceback.print_exc()
         
         # Ensure the game can continue even if parsing fails
@@ -151,5 +150,4 @@ def parse_llm_response(response, processed_response_func, game_instance):
         # Clear planned moves
         game_instance.planned_moves = []
         
-        # Return None to indicate no valid moves were found
         return None 

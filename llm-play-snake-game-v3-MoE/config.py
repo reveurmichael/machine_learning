@@ -22,7 +22,9 @@ TIME_TICK = 280
 # Pause time between sequential moves (in seconds)
 MOVE_PAUSE = 1.0
 
+# Game configuration
 GRID_SIZE = 10
+MAX_CONSECUTIVE_EMPTY_MOVES = 3  # Maximum consecutive empty moves before game over
 
 DIRECTIONS = {
     "UP": (0, 1),  # No change in x, increase y (move up)

@@ -160,7 +160,7 @@ def extract_json_from_code_block(response):
     global json_error_stats
     
     try:
-        # Look for JSON code block which is common in LLM responses - Use a more robust pattern
+        # Look for JSON code block which is common in LLM responses
         json_block_match = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', response, re.DOTALL)
         if not json_block_match:
             return None
@@ -193,11 +193,14 @@ def extract_json_from_text(response):
             data = json.loads(response)
             if isinstance(data, dict) and "moves" in data:
                 return data
-        except:
+        except json.JSONDecodeError:
+            # Expected error for malformed JSON, just continue to next method
             pass
+        except Exception as e:
+            # Unexpected error during direct parsing
+            print(f"Unexpected error during direct JSON parsing: {e}")
             
         # Try to match both double-quoted and single-quoted JSON patterns
-        # Look for patterns with either single or double quotes in key names
         json_match = re.search(r'\{[\s\S]*?["\']moves["\']?\s*:\s*\[[\s\S]*?\][\s\S]*?\}', response, re.DOTALL)
         
         # If that fails, try a more permissive pattern that might match unquoted keys
@@ -205,6 +208,7 @@ def extract_json_from_text(response):
             json_match = re.search(r'\{\s*moves\s*:[\s\S]*?\}', response, re.DOTALL)
             
         if not json_match:
+            # No JSON-like structure found
             return None
             
         json_str = json_match.group(0)
@@ -212,32 +216,54 @@ def extract_json_from_text(response):
         json_str = preprocess_json_string(json_str)
         
         # Now try to parse the cleaned JSON
-        return json.loads(json_str)
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            json_error_stats["text_extraction_errors"] += 1
+            print(f"Failed to parse JSON after preprocessing: {e}, trying fallback extraction")
+            
+            # Try to extract just the moves array using fallback method
+            return extract_moves_fallback(json_str)
     except json.JSONDecodeError as e:
         json_error_stats["text_extraction_errors"] += 1
-        print(f"Failed to parse JSON: {e}, trying simplified parsing")
+        print(f"JSON decode error: {e}, trying fallback extraction")
         
         # Try to extract just the moves array
-        try:
-            moves_array_match = re.search(r'["\']?moves["\']?\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
-            if not moves_array_match:
-                return None
-                
-            moves_array = moves_array_match.group(1)
-            # Extract both single and double quoted strings
-            move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
-            valid_moves = [move.upper() for move in move_matches 
-                          if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-            if valid_moves:
-                json_error_stats["fallback_extraction_success"] += 1
-                return {"moves": valid_moves}
-        except Exception:
-            pass
-            
-        return None
+        return extract_moves_fallback(json_str if 'json_str' in locals() else response)
     except Exception as e:
         json_error_stats["text_extraction_errors"] += 1
-        print(f"Error in JSON parsing: {e}")
+        print(f"Unexpected error in JSON extraction: {e}")
+        return None
+
+def extract_moves_fallback(json_str):
+    """Extract moves from a JSON string as a fallback method.
+    
+    Args:
+        json_str: JSON string that couldn't be parsed normally
+        
+    Returns:
+        Dictionary with moves key or None if extraction failed
+    """
+    global json_error_stats
+    
+    try:
+        # Try to extract just the moves array
+        moves_array_match = re.search(r'["\']?moves["\']?\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
+        if not moves_array_match:
+            return None
+            
+        moves_array = moves_array_match.group(1)
+        # Extract both single and double quoted strings
+        move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
+        valid_moves = [move.upper() for move in move_matches 
+                      if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        
+        if valid_moves:
+            json_error_stats["fallback_extraction_success"] += 1
+            return {"moves": valid_moves}
+        return None
+    except Exception as e:
+        print(f"Failed in fallback extraction: {e}")
         return None
 
 def extract_moves_from_arrays(response):

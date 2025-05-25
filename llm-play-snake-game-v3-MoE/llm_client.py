@@ -6,6 +6,7 @@ import os
 import json
 import time
 import requests
+import traceback
 from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -114,8 +115,6 @@ class LLMClient:
 
         except Exception as e:
             print(f"Error generating response from Hunyuan: {e}")
-            import traceback
-
             traceback.print_exc()
             return "ERROR LLMCLIENT"
 
@@ -182,8 +181,6 @@ class LLMClient:
 
         except Exception as e:
             print(f"Error generating response from Deepseek: {e}")
-            import traceback
-
             traceback.print_exc()
             return "ERROR LLMCLIENT"
 
@@ -255,8 +252,6 @@ class LLMClient:
 
         except Exception as e:
             print(f"Error generating response from Mistral: {e}")
-            import traceback
-
             traceback.print_exc()
             return "ERROR LLMCLIENT"
 
@@ -302,10 +297,13 @@ class LLMClient:
 
         except requests.exceptions.Timeout:
             print(f"Timeout error connecting to Ollama server at {server}")
+            traceback.print_exc()
             return "ERROR LLMCLIENT"
         except requests.exceptions.ConnectionError:
             print(f"Connection error to Ollama server at {server}")
+            traceback.print_exc()
             return "ERROR LLMCLIENT"
         except Exception as e:
             print(f"Error generating response from Ollama: {e}")
+            traceback.print_exc()
             return "ERROR LLMCLIENT"

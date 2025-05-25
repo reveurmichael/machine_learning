@@ -7,6 +7,7 @@ import numpy as np
 import re
 import json
 import pygame
+import traceback
 from gui import DrawWindow
 from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
 from json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
@@ -90,9 +91,7 @@ class SnakeGame:
         return self.get_state_representation()
     
     def update(self):
-        """Update the game state.
-        Note: Currently, the state is fully updated after each move.
-        """
+        """Update the game state."""
         pass
     
     def draw(self):
@@ -154,7 +153,6 @@ class SnakeGame:
             # Get direction vector
             if direction_key not in DIRECTIONS:
                 print(f"Invalid direction from LLM: {direction_key}, defaulting to RIGHT")
-                # Use default of RIGHT if the LLM returns an invalid direction
                 direction_key = "RIGHT"
             
             direction = DIRECTIONS[direction_key]
@@ -163,24 +161,16 @@ class SnakeGame:
             if (self.current_direction is not None and 
                 np.array_equal(np.array(direction), -np.array(self.current_direction))):
                 print(f"LLM tried to reverse direction: {direction_key}. Using current direction instead.")
-                # Trying to reverse direction, use current direction instead
                 direction = self.current_direction
                 direction_key = self._get_current_direction_key()
             
             # Update current direction
             self.current_direction = direction
             
-            # Calculate new head position according to our coordinate system:
-            # In config.py and prompt, we define:
-            # UP = (0, 1) → increases y
-            # DOWN = (0, -1) → decreases y
-            # RIGHT = (1, 0) → increases x
-            # LEFT = (-1, 0) → decreases x
+            # Calculate new head position according to our coordinate system
             head_x, head_y = self.head_position
             
             # Apply direction vector to head position
-            # direction[0] affects x-coordinate
-            # direction[1] affects y-coordinate
             new_head = np.array([
                 head_x + direction[0],  # Apply dx to x-coordinate
                 head_y + direction[1]   # Apply dy to y-coordinate
@@ -231,9 +221,7 @@ class SnakeGame:
         
         except Exception as e:
             print(f"Error in make_move: {e}")
-            import traceback
             traceback.print_exc()
-            # Return conservative result to prevent game crashes
             return False, False  # End game on error
     
     def _check_collision(self, position):
@@ -354,6 +342,25 @@ class SnakeGame:
     # LLM Interaction
     #-----------------------
     
+    def format_body_cells_str(self, snake_positions, exclude_head=True):
+        """Format the snake body cells as a string representation.
+        
+        Args:
+            snake_positions: List of [x, y] coordinates of the snake segments
+            exclude_head: Whether to exclude the head from the output (default: True)
+            
+        Returns:
+            String representation of body cells in format: "[(x1,y1), (x2,y2), ...]"
+        """
+        body_cells = []
+        positions = snake_positions[:-1] if exclude_head else snake_positions
+        
+        # Optionally reverse the positions to start from the segment adjacent to head
+        for x, y in reversed(positions):
+            body_cells.append(f"({x},{y})")
+            
+        return "[" + ", ".join(body_cells) + "]"
+    
     def get_state_representation(self):
         """Generate a variable-based representation of the game state.
         
@@ -372,12 +379,7 @@ class SnakeGame:
             current_direction = self._get_current_direction_key()
         
         # Get body cells (excluding head)
-        body_cells = []
-        # Reverse the snake positions to start from the element adjacent to head
-        # Head is at self.snake_positions[-1], so we start from [-2] and go backwards
-        for x, y in reversed(self.snake_positions[:-1]):
-            body_cells.append(f"({x},{y})")
-        body_cells_str = "[" + ", ".join(body_cells) + "]"
+        body_cells_str = self.format_body_cells_str(self.snake_positions)
         
         # Get apple position
         apple_x, apple_y = self.apple_position
@@ -410,8 +412,8 @@ class SnakeGame:
             return parse_llm_response(response, process_response_for_display, self)
         except Exception as e:
             print(f"Error parsing LLM response: {e}")
-            import traceback
             traceback.print_exc()
+            
             # Store the raw response for display
             self.last_llm_response = response
             
@@ -421,7 +423,6 @@ class SnakeGame:
             # Clear previous planned moves
             self.planned_moves = []
             
-            # Return None to indicate no valid moves were found
             return None
     
     def get_next_planned_move(self):

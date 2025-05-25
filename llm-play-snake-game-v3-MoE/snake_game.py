@@ -32,7 +32,7 @@ class SnakeGame:
         self.steps = 0
         self.score = 0
         self.generation = 1
-        self.last_collision_type = None  # Will be 'wall' or 'self' or None
+        self.last_collision_type = None  # Will be 'wall', 'self', 'max_steps', or 'empty_moves'
         
         # Board entity codes
         self.board_info = {

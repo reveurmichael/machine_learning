@@ -43,6 +43,8 @@ def parse_arguments():
                       help='Pause between sequential moves in seconds (default: 1.0)')
     parser.add_argument('--sleep-before-launching', type=int, default=0,
                       help='Time to sleep (in minutes) before launching the program')
+    parser.add_argument('--max-steps', type=int, default=400,
+                      help='Maximum steps a snake can take in a single game (default: 400)')
     
     # Parse the arguments
     args = parser.parse_args()
@@ -108,6 +110,7 @@ def main():
             print(Fore.GREEN + f"✅ Not using a parser LLM - primary LLM output will be used directly")
         
         print(Fore.GREEN + f"⏱️ Pause between moves: {args.move_pause} seconds")
+        print(Fore.GREEN + f"⏱️ Maximum steps per game: {args.max_steps}")
         
         # Set up logging directories
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -133,6 +136,9 @@ def main():
         need_new_plan = True
         total_score = 0
         total_steps = 0
+        empty_steps = 0  # Track empty steps
+        consecutive_empty_steps = 0  # Track consecutive empty steps without ERROR
+        error_steps = 0  # Track ERROR steps
         game_scores = []  # List to track individual game scores
         parser_usage_count = 0  # Track how many times the secondary LLM is used
         previous_parser_usage = 0  # Track previous secondary LLM usage
@@ -152,6 +158,7 @@ def main():
                         game.reset()
                         game_active = True
                         need_new_plan = True
+                        consecutive_empty_steps = 0  # Reset on game reset
                         print(Fore.GREEN + "🔄 Game reset")
             
             if game_active:
@@ -246,26 +253,61 @@ def main():
                             
                             # Parse and get the first move from the sequence
                             next_move = game.parse_llm_response(parsed_response)
+                            
+                            # Check for empty moves with ERROR in reasoning
+                            if not next_move and "ERROR" in parsed_response:
+                                error_steps += 1
+                                consecutive_empty_steps = 0  # Reset consecutive empty steps if ERROR occurs
+                                print(Fore.YELLOW + f"⚠️ ERROR in LLM response. Continuing with next round.")
+                            elif not next_move:
+                                empty_steps += 1
+                                consecutive_empty_steps += 1
+                                print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {consecutive_empty_steps})")
+                            else:
+                                consecutive_empty_steps = 0  # Reset on valid move
                         else:
                             # Use the primary LLM response directly
                             print(Fore.CYAN + f"Using primary LLM response directly (no parser)")
                             next_move = game.parse_llm_response(raw_llm_response)
                             # No parser usage in this case
+                            
+                            # Check for empty moves with ERROR in reasoning
+                            if not next_move and "ERROR" in raw_llm_response:
+                                error_steps += 1
+                                consecutive_empty_steps = 0  # Reset consecutive empty steps if ERROR occurs
+                                print(Fore.YELLOW + f"⚠️ ERROR in LLM response. Continuing with next round.")
+                            elif not next_move:
+                                empty_steps += 1
+                                consecutive_empty_steps += 1
+                                print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {consecutive_empty_steps})")
+                            else:
+                                consecutive_empty_steps = 0  # Reset on valid move
                         
                         print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {game_count+1}, Round {round_count+1})")
                         
                         # We now have a new plan, so don't request another one until we need it
                         need_new_plan = False
                         
-                        # Only execute the move if we got a valid direction
-                        if next_move:
+                        # Check if we've reached max steps or had 3 consecutive empty moves without ERROR
+                        if game.steps >= args.max_steps:
+                            print(Fore.RED + f"❌ Game over! Maximum steps ({args.max_steps}) reached.")
+                            game_active = False
+                            game.last_collision_type = 'max_steps'
+                        elif consecutive_empty_steps >= 3:
+                            print(Fore.RED + f"❌ Game over! 3 consecutive empty moves without ERROR.")
+                            game_active = False
+                            game.last_collision_type = 'empty_moves'
+                        # Only execute the move if we got a valid direction and game is still active
+                        elif next_move and game_active:
                             # Execute the move and check if game continues
                             game_active, apple_eaten = game.make_move(next_move)
                         else:
                             # No valid move found, but we still count this as a round
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
                             # No movement, so the game remains active and no apple is eaten
-                            game_active, apple_eaten = True, False
+                            # But we still count this as a step
+                            game.steps += 1
+                            total_steps += 1
                         
                         # Increment round count
                         round_count += 1
@@ -277,8 +319,14 @@ def main():
                         if next_move:
                             print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_count+1}, Round {round_count+1})")
                             
-                            # Execute the move and check if game continues
-                            game_active, apple_eaten = game.make_move(next_move)
+                            # Check if we've reached max steps
+                            if game.steps >= args.max_steps:
+                                print(Fore.RED + f"❌ Game over! Maximum steps ({args.max_steps}) reached.")
+                                game_active = False
+                                game.last_collision_type = 'max_steps'
+                            else:
+                                # Execute the move and check if game continues
+                                game_active, apple_eaten = game.make_move(next_move)
                             
                             # If we've eaten an apple, request a new plan
                             if apple_eaten:
@@ -327,8 +375,9 @@ def main():
                         )
                         save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
                         
-                        # Reset round count for next game
+                        # Reset round count and consecutive empty steps for next game
                         round_count = 0
+                        consecutive_empty_steps = 0
                         
                         # Wait a moment before resetting if not the last game
                         if game_count < args.max_games:
@@ -353,7 +402,7 @@ def main():
             clock.tick(time_tick)
         
         # Update experiment info with final statistics
-        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count, game_scores)
+        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count, game_scores, empty_steps, error_steps)
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
@@ -362,6 +411,8 @@ def main():
         print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
         print(Fore.GREEN + f"📊 Average Score: {total_score/game_count:.2f}")
         print(Fore.GREEN + f"📈 Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}")
+        print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
+        print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

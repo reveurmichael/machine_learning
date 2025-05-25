@@ -82,43 +82,12 @@ The snake game will terminate under any of the following conditions:
 1. Snake hits a wall (boundary of the game board)
 2. Snake collides with its own body
 3. Maximum steps limit is reached (default: 400 steps)
-4. Three consecutive empty moves are returned without ERROR
+4. Three consecutive empty moves occur without ERROR
+   - Empty moves are checked immediately when detected
    - An empty move occurs when the LLM returns `{"moves":[], "reasoning":"..."}`
    - If the reasoning contains "ERROR", the consecutive count is reset
+5. A game error occurs
+   - The system will catch errors, log them, and continue to the next game
+   - Error information is saved in the game summary
 
-## Improved Statistics and Logging
-
-The game now tracks detailed statistics about LLM performance:
-- Empty steps: Moves where the LLM returned empty move array
-- Error steps: Moves where the LLM returned a response with "ERROR"
-- Valid steps: Moves that were successfully executed
-- JSON extraction statistics: Detailed tracking of JSON parsing success/failure rates
-- Efficiency metrics including valid move ratio
-
-### JSON Error Tracking
-
-The system automatically tracks various JSON parsing statistics:
-- Total extraction attempts
-- Successful and failed extractions (with success rate)
-- JSON decode errors
-- Format validation errors
-- Extraction errors from code blocks and regular text
-- Fallback extraction successes
-
-These statistics help diagnose issues with LLM outputs and improve prompt engineering.
-
-### Log Files
-
-The game automatically logs all prompts, responses, and game statistics to a folder named `primarymodel_timestamp` where:
-- `primarymodel` is the name of the primary model (with ":" replaced by "-")
-- `timestamp` is the current date and time
-
-When running without a parser LLM (`--parser-provider none`), the system will not create parser-related log files.
-
-## Game Summary
-
-At the end of each game, a summary is generated with:
-- Score and steps taken
-- Game end reason (wall collision, self collision, max steps, or consecutive empty moves)
-- Performance metrics
-- LLM usage statistics
+After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.

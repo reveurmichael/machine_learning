@@ -267,6 +267,11 @@ def main():
                                 empty_steps += 1
                                 consecutive_empty_steps += 1
                                 print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {consecutive_empty_steps})")
+                                # Check if we've reached 3 consecutive empty moves
+                                if consecutive_empty_steps >= 3:
+                                    print(Fore.RED + f"❌ Game over! 3 consecutive empty moves without ERROR.")
+                                    game_active = False
+                                    game.last_collision_type = 'empty_moves'
                             else:
                                 consecutive_empty_steps = 0  # Reset on valid move
                         else:
@@ -284,6 +289,11 @@ def main():
                                 empty_steps += 1
                                 consecutive_empty_steps += 1
                                 print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {consecutive_empty_steps})")
+                                # Check if we've reached 3 consecutive empty moves
+                                if consecutive_empty_steps >= 3:
+                                    print(Fore.RED + f"❌ Game over! 3 consecutive empty moves without ERROR.")
+                                    game_active = False
+                                    game.last_collision_type = 'empty_moves'
                             else:
                                 consecutive_empty_steps = 0  # Reset on valid move
                         
@@ -292,15 +302,11 @@ def main():
                         # We now have a new plan, so don't request another one until we need it
                         need_new_plan = False
                         
-                        # Check if we've reached max steps or had 3 consecutive empty moves without ERROR
+                        # Check if we've reached max steps
                         if game.steps >= args.max_steps:
                             print(Fore.RED + f"❌ Game over! Maximum steps ({args.max_steps}) reached.")
                             game_active = False
                             game.last_collision_type = 'max_steps'
-                        elif consecutive_empty_steps >= 3:
-                            print(Fore.RED + f"❌ Game over! 3 consecutive empty moves without ERROR.")
-                            game_active = False
-                            game.last_collision_type = 'empty_moves'
                         # Only execute the move if we got a valid direction and game is still active
                         elif next_move and game_active:
                             # Execute the move and check if game continues
@@ -400,7 +406,51 @@ def main():
                     print(Fore.RED + f"Error in game loop: {e}")
                     import traceback
                     traceback.print_exc()
-                    # Continue to next iteration, don't crash the game
+                    
+                    # End the current game and continue to the next one
+                    if game_active:
+                        game_active = False
+                        game_count += 1
+                        print(Fore.RED + f"❌ Game aborted due to error! Moving to game {game_count + 1}")
+                        
+                        # Update totals with current game state
+                        total_score += game.score
+                        total_steps += game.steps
+                        game_scores.append(game.score)
+                        
+                        # Save a game summary with error information
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        game.last_collision_type = 'error'  # Mark collision type as error
+                        summary = generate_game_summary(
+                            game_count,
+                            now,
+                            game.score,
+                            game.steps,
+                            "ERROR",
+                            parser_usage_count - previous_parser_usage,
+                            len(game.snake_positions),
+                            game.last_collision_type,
+                            round_count,
+                            primary_model=args.model,
+                            primary_provider=args.provider,
+                            parser_model=args.parser_model,
+                            parser_provider=args.parser_provider,
+                            json_error_stats=get_json_error_stats()
+                        )
+                        save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
+                        
+                        # Prepare for next game if we haven't reached the limit
+                        if game_count < args.max_games:
+                            pygame.time.delay(1000)  # Wait 1 second
+                            game.reset()
+                            game_active = True
+                            need_new_plan = True
+                            round_count = 0
+                            consecutive_empty_steps = 0
+                            previous_parser_usage = parser_usage_count
+                            print(Fore.GREEN + f"🔄 Starting game {game_count + 1}/{args.max_games}")
+                    
+                    # Continue to next iteration rather than crashing
             
             # Control game speed
             pygame.time.delay(time_delay)

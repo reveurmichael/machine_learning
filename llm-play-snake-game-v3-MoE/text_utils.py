@@ -266,6 +266,8 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         game_end_reason = 'Maximum steps reached'
     elif last_collision_type == 'empty_moves':
         game_end_reason = '3 consecutive empty moves'
+    elif last_collision_type == 'error':
+        game_end_reason = 'Game aborted due to error'
     else:
         game_end_reason = 'Unknown'
     

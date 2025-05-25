@@ -150,83 +150,91 @@ class SnakeGame:
                 game_active: Boolean indicating if the game is still active
                 apple_eaten: Boolean indicating if an apple was eaten on this move
         """
-        # Get direction vector
-        if direction_key not in DIRECTIONS:
-            print(f"Invalid direction from LLM: {direction_key}, defaulting to RIGHT")
-            # Use default of RIGHT if the LLM returns an invalid direction
-            direction_key = "RIGHT"
-        
-        direction = DIRECTIONS[direction_key]
-        
-        # Don't allow reversing direction directly
-        if (self.current_direction is not None and 
-            np.array_equal(np.array(direction), -np.array(self.current_direction))):
-            print(f"LLM tried to reverse direction: {direction_key}. Using current direction instead.")
-            # Trying to reverse direction, use current direction instead
-            direction = self.current_direction
-            direction_key = self._get_current_direction_key()
-        
-        # Update current direction
-        self.current_direction = direction
-        
-        # Calculate new head position according to our coordinate system:
-        # In config.py and prompt, we define:
-        # UP = (0, 1) → increases y
-        # DOWN = (0, -1) → decreases y
-        # RIGHT = (1, 0) → increases x
-        # LEFT = (-1, 0) → decreases x
-        head_x, head_y = self.head_position
-        
-        # Apply direction vector to head position
-        # direction[0] affects x-coordinate
-        # direction[1] affects y-coordinate
-        new_head = np.array([
-            head_x + direction[0],  # Apply dx to x-coordinate
-            head_y + direction[1]   # Apply dy to y-coordinate
-        ])
-        
-        # Debug log
-        print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
-        
-        # Validate move follows coordinate system
-        self._validate_move(self.head_position, new_head, direction_key)
-        
-        # Check for collisions
-        wall_collision, body_collision = self._check_collision(new_head)
-        
-        if wall_collision:
-            print(f"Game over! Snake hit wall moving {direction_key}")
-            self.last_collision_type = 'wall'
-            return False, False  # Game over, no apple eaten
+        try:
+            # Get direction vector
+            if direction_key not in DIRECTIONS:
+                print(f"Invalid direction from LLM: {direction_key}, defaulting to RIGHT")
+                # Use default of RIGHT if the LLM returns an invalid direction
+                direction_key = "RIGHT"
             
-        if body_collision:
-            print(f"Game over! Snake hit itself moving {direction_key}")
-            self.last_collision_type = 'self'
-            return False, False  # Game over, no apple eaten
-        
-        # Move the snake: add new head
-        self.snake_positions = np.vstack([self.snake_positions, new_head])
-        self.head_position = new_head
-        
-        # Check if apple is eaten
-        apple_eaten = False
-        if np.array_equal(new_head, self.apple_position):
-            self.score += 1
-            print(f"Apple eaten! Score: {self.score}")
-            # Generate a new apple
-            self.apple_position = self._generate_apple()
-            apple_eaten = True
-        else:
-            # Remove the tail if no apple is eaten
-            self.snake_positions = self.snake_positions[1:]
+            direction = DIRECTIONS[direction_key]
             
-        # Update the board
-        self._update_board()
+            # Don't allow reversing direction directly
+            if (self.current_direction is not None and 
+                np.array_equal(np.array(direction), -np.array(self.current_direction))):
+                print(f"LLM tried to reverse direction: {direction_key}. Using current direction instead.")
+                # Trying to reverse direction, use current direction instead
+                direction = self.current_direction
+                direction_key = self._get_current_direction_key()
+            
+            # Update current direction
+            self.current_direction = direction
+            
+            # Calculate new head position according to our coordinate system:
+            # In config.py and prompt, we define:
+            # UP = (0, 1) → increases y
+            # DOWN = (0, -1) → decreases y
+            # RIGHT = (1, 0) → increases x
+            # LEFT = (-1, 0) → decreases x
+            head_x, head_y = self.head_position
+            
+            # Apply direction vector to head position
+            # direction[0] affects x-coordinate
+            # direction[1] affects y-coordinate
+            new_head = np.array([
+                head_x + direction[0],  # Apply dx to x-coordinate
+                head_y + direction[1]   # Apply dy to y-coordinate
+            ])
+            
+            # Debug log
+            print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
+            
+            # Validate move follows coordinate system
+            self._validate_move(self.head_position, new_head, direction_key)
+            
+            # Check for collisions
+            wall_collision, body_collision = self._check_collision(new_head)
+            
+            if wall_collision:
+                print(f"Game over! Snake hit wall moving {direction_key}")
+                self.last_collision_type = 'wall'
+                return False, False  # Game over, no apple eaten
+                
+            if body_collision:
+                print(f"Game over! Snake hit itself moving {direction_key}")
+                self.last_collision_type = 'self'
+                return False, False  # Game over, no apple eaten
+            
+            # Move the snake: add new head
+            self.snake_positions = np.vstack([self.snake_positions, new_head])
+            self.head_position = new_head
+            
+            # Check if apple is eaten
+            apple_eaten = False
+            if np.array_equal(new_head, self.apple_position):
+                self.score += 1
+                print(f"Apple eaten! Score: {self.score}")
+                # Generate a new apple
+                self.apple_position = self._generate_apple()
+                apple_eaten = True
+            else:
+                # Remove the tail if no apple is eaten
+                self.snake_positions = self.snake_positions[1:]
+                
+            # Update the board
+            self._update_board()
+            
+            # Increment steps
+            self.steps += 1
+            
+            return True, apple_eaten  # Game continues, indicates if apple was eaten
         
-        # Increment steps
-        self.steps += 1
-        
-        return True, apple_eaten  # Game continues, indicates if apple was eaten
+        except Exception as e:
+            print(f"Error in make_move: {e}")
+            import traceback
+            traceback.print_exc()
+            # Return conservative result to prevent game crashes
+            return False, False  # End game on error
     
     def _check_collision(self, position):
         """Check if a position collides with wall or snake body.
@@ -398,7 +406,23 @@ class SnakeGame:
             The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
             or None if no valid moves were found
         """
-        return parse_llm_response(response, process_response_for_display, self)
+        try:
+            return parse_llm_response(response, process_response_for_display, self)
+        except Exception as e:
+            print(f"Error parsing LLM response: {e}")
+            import traceback
+            traceback.print_exc()
+            # Store the raw response for display
+            self.last_llm_response = response
+            
+            # Process a simplified version for display
+            self.processed_response = f"ERROR: Failed to parse LLM response\n\n{response[:200]}..."
+            
+            # Clear previous planned moves
+            self.planned_moves = []
+            
+            # Return None to indicate no valid moves were found
+            return None
     
     def get_next_planned_move(self):
         """Get the next move from the planned sequence.

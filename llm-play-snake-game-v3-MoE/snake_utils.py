@@ -83,52 +83,73 @@ def parse_llm_response(response, processed_response_func, game_instance):
     """
     from json_utils import extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
     
-    # Store the raw response for display
-    game_instance.last_llm_response = response
-    
-    # Process the response for display
-    game_instance.processed_response = processed_response_func(response)
-    
-    # Clear previous planned moves
-    game_instance.planned_moves = []
-    
-    # Print raw response snippet for debugging
-    print(f"Parsing LLM response: '{response[:50]}...'")
-    
-    # Method 1: Try to extract from JSON code block
-    json_data = extract_json_from_code_block(response)
-    
-    # Method 2: Try to extract JSON from regular text if code block fails
-    if not json_data or "moves" not in json_data or not json_data["moves"]:
-        json_data = extract_json_from_text(response)
+    try:
+        # Store the raw response for display
+        game_instance.last_llm_response = response
         
-    # Extract moves from JSON if found
-    if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
-        valid_moves = [move.upper() for move in json_data["moves"] 
-                     if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-        if valid_moves:
-            game_instance.planned_moves = valid_moves
-            print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")
-    
+        # Process the response for display
+        game_instance.processed_response = processed_response_func(response)
+        
+        # Clear previous planned moves
+        game_instance.planned_moves = []
+        
+        # Print raw response snippet for debugging
+        print(f"Parsing LLM response: '{response[:50]}...'")
+        
+        # Method 1: Try to extract from JSON code block
+        json_data = extract_json_from_code_block(response)
+        
+        # Method 2: Try to extract JSON from regular text if code block fails
+        if not json_data or "moves" not in json_data or not json_data["moves"]:
+            json_data = extract_json_from_text(response)
+            
+        # Extract moves from JSON if found
+        if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
+            valid_moves = [move.upper() for move in json_data["moves"] 
+                        if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+            if valid_moves:
+                game_instance.planned_moves = valid_moves
+                print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")
+        
 
-    # Method 3: Try finding arrays if other methods failed
-    if not game_instance.planned_moves:
-        array_moves = extract_moves_from_arrays(response)
-        if array_moves:
-            game_instance.planned_moves = array_moves
-            print(f"Found {len(game_instance.planned_moves)} moves in array format: {game_instance.planned_moves}")
-    
-    # If we still have no moves, leave planned_moves empty
-    if not game_instance.planned_moves:
-        print("No valid directions found. Not moving.")
-    else:
-        # Filter out invalid reversal moves if we have moves
-        current_direction = game_instance._get_current_direction_key()
-        game_instance.planned_moves = filter_invalid_reversals(game_instance.planned_moves, current_direction)
-    
-    # Get the next move from the sequence (or None if empty)
-    if game_instance.planned_moves:
-        next_move = game_instance.planned_moves.pop(0)
-        return next_move
-    else:
+        # Method 3: Try finding arrays if other methods failed
+        if not game_instance.planned_moves:
+            array_moves = extract_moves_from_arrays(response)
+            if array_moves:
+                game_instance.planned_moves = array_moves
+                print(f"Found {len(game_instance.planned_moves)} moves in array format: {game_instance.planned_moves}")
+        
+        # If we still have no moves, leave planned_moves empty
+        if not game_instance.planned_moves:
+            print("No valid directions found. Not moving.")
+        else:
+            # Filter out invalid reversal moves if we have moves
+            current_direction = game_instance._get_current_direction_key()
+            game_instance.planned_moves = filter_invalid_reversals(game_instance.planned_moves, current_direction)
+        
+        # Get the next move from the sequence (or None if empty)
+        if game_instance.planned_moves:
+            next_move = game_instance.planned_moves.pop(0)
+            return next_move
+        else:
+            return None
+            
+    except Exception as e:
+        print(f"Error in parse_llm_response: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Ensure the game can continue even if parsing fails
+        game_instance.last_llm_response = response
+        
+        # Store an error message as processed response
+        try:
+            game_instance.processed_response = f"ERROR: Failed to parse response: {str(e)}\n\n{response[:200]}..."
+        except:
+            game_instance.processed_response = "ERROR: Failed to parse response and display error details"
+            
+        # Clear planned moves
+        game_instance.planned_moves = []
+        
+        # Return None to indicate no valid moves were found
         return None 

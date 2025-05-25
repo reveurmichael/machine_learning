@@ -6,6 +6,40 @@ Consolidates JSON extraction and validation functions used by multiple component
 import json
 import re
 
+# Global counter for JSON extraction errors
+json_error_stats = {
+    "total_extraction_attempts": 0,
+    "successful_extractions": 0,
+    "failed_extractions": 0,
+    "json_decode_errors": 0,
+    "format_validation_errors": 0,
+    "code_block_extraction_errors": 0,
+    "text_extraction_errors": 0,
+    "fallback_extraction_success": 0
+}
+
+def get_json_error_stats():
+    """Get the current JSON error statistics.
+    
+    Returns:
+        Dictionary with error statistics
+    """
+    return json_error_stats
+
+def reset_json_error_stats():
+    """Reset the JSON error statistics."""
+    global json_error_stats
+    json_error_stats = {
+        "total_extraction_attempts": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "json_decode_errors": 0,
+        "format_validation_errors": 0,
+        "code_block_extraction_errors": 0,
+        "text_extraction_errors": 0,
+        "fallback_extraction_success": 0
+    }
+
 def extract_valid_json(text):
     """Extract valid JSON data from text.
     
@@ -15,27 +49,38 @@ def extract_valid_json(text):
     Returns:
         Parsed JSON data or None if no valid JSON found
     """
+    global json_error_stats
+    json_error_stats["total_extraction_attempts"] += 1
+    
     try:
         # First try to parse the entire text as JSON
-        return json.loads(text)
+        data = json.loads(text)
+        json_error_stats["successful_extractions"] += 1
+        return data
     except json.JSONDecodeError:
+        json_error_stats["json_decode_errors"] += 1
         # Try with our preprocessing for single quotes and unquoted keys
         try:
             preprocessed_text = preprocess_json_string(text)
-            return json.loads(preprocessed_text)
+            data = json.loads(preprocessed_text)
+            json_error_stats["successful_extractions"] += 1
+            return data
         except json.JSONDecodeError:
-            pass
+            json_error_stats["json_decode_errors"] += 1
         
         # Try extracting from code block
         json_data = extract_json_from_code_block(text)
         if json_data:
+            json_error_stats["successful_extractions"] += 1
             return json_data
             
         # Try extracting from regular text
         json_data = extract_json_from_text(text)
         if json_data:
+            json_error_stats["successful_extractions"] += 1
             return json_data
-                
+    
+    json_error_stats["failed_extractions"] += 1
     return None
 
 def preprocess_json_string(json_str):
@@ -72,26 +117,33 @@ def validate_json_format(json_data):
     Returns:
         Boolean indicating if the JSON follows the required format
     """
+    global json_error_stats
+    
     # Check that json_data is a dict with the required keys
     if not isinstance(json_data, dict):
+        json_error_stats["format_validation_errors"] += 1
         return False
         
     # Check for required keys
     if "moves" not in json_data or "reasoning" not in json_data:
+        json_error_stats["format_validation_errors"] += 1
         return False
         
     # Check that moves is a list
     if not isinstance(json_data["moves"], list):
+        json_error_stats["format_validation_errors"] += 1
         return False
         
     # Check that each move is a valid direction
     valid_directions = ["UP", "DOWN", "LEFT", "RIGHT"]
     for move in json_data["moves"]:
         if not isinstance(move, str) or move.upper() not in valid_directions:
+            json_error_stats["format_validation_errors"] += 1
             return False
             
     # Check that reasoning is a string
     if not isinstance(json_data["reasoning"], str):
+        json_error_stats["format_validation_errors"] += 1
         return False
         
     return True
@@ -105,6 +157,8 @@ def extract_json_from_code_block(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
+    global json_error_stats
+    
     try:
         # Look for JSON code block which is common in LLM responses - Use a more robust pattern
         json_block_match = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', response, re.DOTALL)
@@ -118,6 +172,7 @@ def extract_json_from_code_block(response):
         data = json.loads(json_str)
         return data
     except Exception as e:
+        json_error_stats["code_block_extraction_errors"] += 1
         print(f"Failed to parse JSON code block: {e}")
         return None
 
@@ -130,6 +185,8 @@ def extract_json_from_text(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
+    global json_error_stats
+    
     try:
         # First try direct JSON parsing (for clean JSON responses)
         try:
@@ -157,6 +214,7 @@ def extract_json_from_text(response):
         # Now try to parse the cleaned JSON
         return json.loads(json_str)
     except json.JSONDecodeError as e:
+        json_error_stats["text_extraction_errors"] += 1
         print(f"Failed to parse JSON: {e}, trying simplified parsing")
         
         # Try to extract just the moves array
@@ -171,12 +229,14 @@ def extract_json_from_text(response):
             valid_moves = [move.upper() for move in move_matches 
                           if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
             if valid_moves:
+                json_error_stats["fallback_extraction_success"] += 1
                 return {"moves": valid_moves}
         except Exception:
             pass
             
         return None
     except Exception as e:
+        json_error_stats["text_extraction_errors"] += 1
         print(f"Error in JSON parsing: {e}")
         return None
 

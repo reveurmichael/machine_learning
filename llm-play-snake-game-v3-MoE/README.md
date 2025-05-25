@@ -86,6 +86,27 @@ The snake game will terminate under any of the following conditions:
    - An empty move occurs when the LLM returns `{"moves":[], "reasoning":"..."}`
    - If the reasoning contains "ERROR", the consecutive count is reset
 
+## Improved Statistics and Logging
+
+The game now tracks detailed statistics about LLM performance:
+- Empty steps: Moves where the LLM returned empty move array
+- Error steps: Moves where the LLM returned a response with "ERROR"
+- Valid steps: Moves that were successfully executed
+- JSON extraction statistics: Detailed tracking of JSON parsing success/failure rates
+- Efficiency metrics including valid move ratio
+
+### JSON Error Tracking
+
+The system automatically tracks various JSON parsing statistics:
+- Total extraction attempts
+- Successful and failed extractions (with success rate)
+- JSON decode errors
+- Format validation errors
+- Extraction errors from code blocks and regular text
+- Fallback extraction successes
+
+These statistics help diagnose issues with LLM outputs and improve prompt engineering.
+
 ### Log Files
 
 The game automatically logs all prompts, responses, and game statistics to a folder named `primarymodel_timestamp` where:

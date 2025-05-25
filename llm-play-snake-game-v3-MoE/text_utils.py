@@ -75,7 +75,7 @@ Game Configuration:
     # Save to file
     return save_to_file(content, directory, "info.txt")
 
-def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0):
+def update_experiment_info(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, json_error_stats=None):
     """Update the experiment information file with game statistics.
     
     Args:
@@ -87,6 +87,7 @@ def update_experiment_info(directory, game_count, total_score, total_steps, pars
         game_scores: List of individual game scores
         empty_steps: Number of empty steps (moves with empty JSON)
         error_steps: Number of steps with ERROR in reasoning
+        json_error_stats: Dictionary containing JSON extraction error statistics
     """
     file_path = os.path.join(directory, "info.txt")
     
@@ -128,7 +129,31 @@ Empty Steps (empty moves): {empty_steps} ({empty_step_percentage:.2f}%)
 Error Steps (with ERROR in reasoning): {error_steps} ({error_step_percentage:.2f}%)
 Valid Steps: {valid_steps} ({valid_step_percentage:.2f}%)
 Parser Usage Count: {parser_usage_count}
+"""
+    
+    # Add JSON error statistics if available
+    if json_error_stats:
+        # Calculate success rate
+        success_rate = (json_error_stats["successful_extractions"] / json_error_stats["total_extraction_attempts"]) * 100 if json_error_stats["total_extraction_attempts"] > 0 else 0
+        failure_rate = (json_error_stats["failed_extractions"] / json_error_stats["total_extraction_attempts"]) * 100 if json_error_stats["total_extraction_attempts"] > 0 else 0
+        
+        json_stats = f"""
+JSON Parsing Statistics
+======================
+Total JSON Extraction Attempts: {json_error_stats["total_extraction_attempts"]}
+Successful Extractions: {json_error_stats["successful_extractions"]} ({success_rate:.2f}%)
+Failed Extractions: {json_error_stats["failed_extractions"]} ({failure_rate:.2f}%)
 
+JSON Error Breakdown:
+- JSON Decode Errors: {json_error_stats["json_decode_errors"]}
+- Format Validation Errors: {json_error_stats["format_validation_errors"]}
+- Code Block Extraction Errors: {json_error_stats["code_block_extraction_errors"]}
+- Text Extraction Errors: {json_error_stats["text_extraction_errors"]}
+- Fallback Extraction Successes: {json_error_stats["fallback_extraction_success"]}
+"""
+        stats += json_stats
+
+    stats += f"""
 Efficiency Metrics
 =================
 Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}
@@ -205,7 +230,8 @@ SECONDARY LLM Provider: {parser_provider}
 
 def generate_game_summary(game_count, timestamp, score, steps, next_move, game_parser_usage, 
                          snake_positions_length, last_collision_type, round_count, 
-                         primary_model=None, primary_provider=None, parser_model=None, parser_provider=None):
+                         primary_model=None, primary_provider=None, parser_model=None, parser_provider=None,
+                         json_error_stats=None):
     """Generate a game summary text.
     
     Args:
@@ -222,6 +248,7 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         primary_provider: Primary LLM provider
         parser_model: Secondary LLM model name
         parser_provider: Secondary LLM provider
+        json_error_stats: Dictionary containing JSON extraction error statistics
         
     Returns:
         Formatted game summary text
@@ -242,7 +269,7 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
     else:
         game_end_reason = 'Unknown'
     
-    return f"""Game {game_count} Summary:
+    summary = f"""Game {game_count} Summary:
 =========================================
 Timestamp: {timestamp}
 {primary_llm_info}
@@ -261,5 +288,17 @@ Game End Reason: {game_end_reason}
 Prompt/Response Stats:
 - Total prompts sent to Primary LLM: {round_count}
 - Parser usage: {game_parser_usage} times
-=========================================
-""" 
+"""
+
+    # Add JSON parsing statistics if available
+    if json_error_stats:
+        json_success_rate = (json_error_stats["successful_extractions"] / json_error_stats["total_extraction_attempts"] * 100) if json_error_stats["total_extraction_attempts"] > 0 else 0
+        summary += f"""
+JSON Parsing Stats:
+- Extraction Attempts: {json_error_stats["total_extraction_attempts"]}
+- Success Rate: {json_success_rate:.2f}%
+- Format Validation Errors: {json_error_stats["format_validation_errors"]}
+"""
+    
+    summary += "=========================================\n"
+    return summary 

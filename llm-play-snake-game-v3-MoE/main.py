@@ -22,6 +22,7 @@ from text_utils import (
     format_parsed_llm_response,
     generate_game_summary
 )
+from json_utils import get_json_error_stats, reset_json_error_stats
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
@@ -75,6 +76,9 @@ def main():
             print(Fore.RED + f"Command-line error: {e}")
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
+        
+        # Reset JSON error statistics at the start of the run
+        reset_json_error_stats()
         
         # Handle sleep before launching if specified
         if args.sleep_before_launching > 0:
@@ -371,7 +375,8 @@ def main():
                             primary_model=args.model,
                             primary_provider=args.provider,
                             parser_model=args.parser_model,
-                            parser_provider=args.parser_provider
+                            parser_provider=args.parser_provider,
+                            json_error_stats=get_json_error_stats()
                         )
                         save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
                         
@@ -401,8 +406,19 @@ def main():
             pygame.time.delay(time_delay)
             clock.tick(time_tick)
         
-        # Update experiment info with final statistics
-        update_experiment_info(log_dir, game_count, total_score, total_steps, parser_usage_count, game_scores, empty_steps, error_steps)
+        # When the game loop ends, update experiment info with final statistics including JSON error stats
+        json_error_stats = get_json_error_stats()
+        update_experiment_info(
+            log_dir, 
+            game_count, 
+            total_score, 
+            total_steps, 
+            parser_usage_count, 
+            game_scores, 
+            empty_steps, 
+            error_steps,
+            json_error_stats
+        )
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
@@ -413,6 +429,9 @@ def main():
         print(Fore.GREEN + f"📈 Apples per Step: {total_score/(total_steps if total_steps > 0 else 1):.4f}")
         print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
         print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
+        print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
+        success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts'] * 100) if json_error_stats['total_extraction_attempts'] > 0 else 0
+        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

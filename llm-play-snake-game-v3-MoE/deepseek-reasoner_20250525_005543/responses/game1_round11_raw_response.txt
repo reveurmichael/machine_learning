@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 01:06:54
+Request Time: 2025-05-25 01:03:10
+Response Time: 2025-05-25 01:06:54
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["UP", "RIGHT", "RIGHT", "UP"],
+"reasoning": "Moved up to avoid immediate reversal, then right twice and up to reach apple safely without self-collision."
+}

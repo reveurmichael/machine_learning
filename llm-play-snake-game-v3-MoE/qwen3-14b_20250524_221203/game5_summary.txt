@@ -1,0 +1,19 @@
+Game 5 Summary:
+=========================================
+Timestamp: 2025-05-25 03:11:13
+Primary LLM: ollama - qwen3:14b
+Secondary LLM: ollama - mistral:7b
+
+Score: 6
+Steps: 40
+Last direction: LEFT
+
+Performance Metrics:
+- Apples/Step: 0.1500
+- Final board size: 7 segments
+
+Game End Reason: Wall collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 43
+=========================================

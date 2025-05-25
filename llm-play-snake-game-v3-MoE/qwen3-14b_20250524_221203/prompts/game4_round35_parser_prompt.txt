@@ -1,0 +1,214 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, let's see. The snake's head is at (5,7), and the apple is at (7,8). The current direction is UP. The body is [(5,6), (5,5), (5,4), (5,3)]. So the snake is moving upwards, and the body is a vertical line from (5,7) down to (5,3). 
+
+First, I need to figure out a path from the head to the apple without colliding with the body. The apple is two steps to the right (x increases by 2) and one step up (y increases by 1). The current direction is UP, so the first move can't be DOWN. So possible initial moves are UP, LEFT, RIGHT. But moving UP would take the head to (5,8). Let me check if that's safe. The body is at (5,6), (5,5), etc. So (5,8) is not part of the body. That's okay. But then, after moving up, the body would shift. Wait, the movement rules say that when moving, the new head is calculated, then check for collisions. 
+
+Let me think step by step. The initial position: head is (5,7), body segments are (5,6), (5,5), (5,4), (5,3). The direction is UP. So the next move can't be DOWN. Let's consider moving RIGHT first. If the snake moves RIGHT, the new head would be (6,7). Is that position safe? The body segments are at (5,6), (5,5), etc. So (6,7) is not in the body. That's okay. Then, the body would insert the old head (5,7) into the front of the body list. Then, since the new head is not the apple, the tail (5,3) is removed. So the body becomes [(5,7), (5,6), (5,5), (5,4)]. 
+
+Now, the head is at (6,7). Next, maybe move RIGHT again to (7,7). Check for collision. The body is [(5,7), (5,6), (5,5), (5,4)]. So (7,7) is not in the body. That's safe. Then, the body would be updated. Insert (6,7) at front, and remove the tail (5,4). New body is [(6,7), (5,7), (5,6), (5,5)]. 
+
+Now the head is at (7,7). Then, moving UP to (7,8), which is the apple. Let's check. The new head (7,8) is not in the body. The body is [(6,7), (5,7), (5,6), (5,5)]. So yes, that's safe. Then, since it's the apple, the body grows. So the body would be [(7,7), (6,7), (5,7), (5,6), (5,5)], and the head is (7,8). 
+
+But wait, after eating the apple, the snake has to have at least one legal move next turn. So after reaching the apple, the next move needs to be possible. Let's think: after eating, the body is longer. The head is at (7,8), and the body is [(7,7), (6,7), (5,7), (5,6), (5,5)]. So the next move can't be DOWN (since the current direction is UP). Let's see. Suppose the next move is RIGHT (to (8,8)), but that's possible. Or LEFT to (6,8), etc. So that's okay. 
+
+So the moves would be RIGHT, RIGHT, UP. Let me check each step again for collisions. 
+
+First move: RIGHT to (6,7). Body after move is [(5,7), (5,6), (5,5), (5,4)] (since the tail was removed). No collision here. 
+
+Second move: RIGHT to (7,7). The body is [(6,7), (5,7), (5,6), (5,5)]. Is (7,7) in the body? No. 
+
+Third move: UP to (7,8). The body is [(7,7), (6,7), (5,7), (5,6), (5,5)]. So (7,8) is not in the body. 
+
+Yes, this seems safe. 
+
+But wait, what about the direction reversal? The first move is RIGHT, then again RIGHT, then UP. The initial direction is UP, so the first move is RIGHT, which is allowed. Then, moving RIGHT again is okay. Then, moving UP. 
+
+Another possible path: move UP first. Let's see. Head is (5,7), current direction is UP. So moving UP again would take the head to (5,8). Check if that's safe. The body is [(5,6), (5,5), (5,4), (5,3)]. (5,8) is not in the body. So that's safe. Then, the body would be [(5,7), (5,6), (5,5), (5,4)]. Then, next move could be RIGHT. 
+
+From (5,8), moving RIGHT to (6,8). Body is [(5,8), (5,7), (5,6), (5,5)]. Check if (6,8) is safe. Yes. Then, move RIGHT again to (7,8). That's the apple. 
+
+So that path would be UP, RIGHT, RIGHT. 
+
+But wait, the initial direction is UP, so moving UP again is allowed. Then, moving RIGHT twice. Let's check for collisions. 
+
+First move: UP to (5,8). Body becomes [(5,7), (5,6), (5,5), (5,4)]. Then, moving RIGHT to (6,8). The body is [(5,8), (5,7), (5,6), (5,5)]. So (6,8) is not in the body. Then, moving RIGHT to (7,8). The body is [(6,8), (5,8), (5,7), (5,6), (5,5)]. So the new head (7,8) is not in the body. That works. 
+
+This path is also valid. Which one is better? Let's check the number of moves. Both paths take 3 moves. The first path (RIGHT, RIGHT, UP) and the second (UP, RIGHT, RIGHT). Both are valid. 
+
+But the problem says to prioritize safety over shortest path. However, both paths are safe. 
+
+Another consideration: after eating the apple, the snake's body is longer. So, for example, in the first path, after moving to (7,8), the body is [(7,7), (6,7), (5,7), (5,6), (5,5)]. The next move can be any direction except DOWN (since the current direction is UP). So possible moves would be UP, LEFT, RIGHT. 
+
+In the second path, after eating, the body is [(7,8), (6,8), (5,8), (5,7), (5,6), (5,5)]. The next move can't be DOWN. So again, possible to move in other directions. 
+
+Either path is acceptable. 
+
+But let's check if there are any collisions in these steps. For example, in the first path: moving RIGHT, RIGHT, UP. 
+
+After first move: head is (6,7). Body is [(5,7), (5,6), (5,5), (5,4)]. 
+
+Second move: head (7,7). Body is [(6,7), (5,7), (5,6), (5,5)]. 
+
+Third move: head (7,8). Body is [(7,7), (6,7), (5,7), (5,6), (5,5)]. 
+
+No collisions here. 
+
+In the second path: moving UP, RIGHT, RIGHT. 
+
+After first move: head (5,8). Body is [(5,7), (5,6), (5,5), (5,4)]. 
+
+Second move: head (6,8). Body is [(5,8), (5,7), (5,6), (5,5)]. 
+
+Third move: head (7,8). Body is [(6,8), (5,8), (5,7), (5,6), (5,5)]. 
+
+No collisions. 
+
+Either way, both paths are valid. The user might accept either. 
+
+But the problem says to use Manhattan distance as a heuristic. The Manhattan distance from head to apple is (7-5) + (8-7) = 2 + 1 = 3. So three moves, which matches both paths. 
+
+So either path is acceptable. 
+
+Now, the user's required output needs to have the moves in a list. Let's pick one. For example, the first path: RIGHT, RIGHT, UP. 
+
+Wait, but the initial direction is UP. So the first move can't be DOWN, but RIGHT is allowed. 
+
+Yes. So the moves would be ["RIGHT", "RIGHT", "UP"]. 
+
+But let me check if there's any other possible issues. For example, when moving up first, then right twice. 
+
+Another thing to consider: after eating the apple, the snake has grown. So the next move must not be into the tail's position. But in the first case, after moving to (7,8), the body is [(7,7), (6,7), (5,7), (5,6), (5,5)]. The next move can't be into (7,7) if the direction is UP. But the next move can be, say, RIGHT (to (8,8)), which is safe. 
+
+Alternatively, if the snake moves UP again, but that's allowed. 
+
+So both paths are okay. 
+
+I think either is acceptable. Let's go with the first one: RIGHT, RIGHT, UP. But let me check again for possible collisions. 
+
+Yes, that's safe. 
+
+Another possible path: move RIGHT, then UP, then RIGHT. Let's see. 
+
+First move: RIGHT to (6,7). 
+
+Second move: UP to (6,8). 
+
+Third move: RIGHT to (7,8). 
+
+Is that safe? 
+
+After first move: head (6,7). Body is [(5,7), (5,6), (5,5), (5,4)]. 
+
+Second move: head (6,8). Check if that's in the body. The body is [(6,7), (5,7), (5,6), (5,5)]. (6,8) is not in the body. 
+
+Third move: head (7,8). Body is [(6,8), (6,7), (5,7), (5,6), (5,5)]. So yes, that's safe. 
+
+This is another valid path. 
+
+So there are multiple valid paths. The answer can be any of them. 
+
+The user's required answer probably expects one of them. For example, the first one I thought of: RIGHT, RIGHT, UP. 
+
+But let me check again. 
+
+Yes. So the answer would be ["RIGHT", "RIGHT", "UP"].
+</think>
+
+To determine a valid and safe path from the initial position of the snake to the apple, we must ensure that:
+
+1. **Each move does not result in a collision** with the body or itself.
+2. **The direction of movement is not reversed** from the previous move (e.g., if the snake is moving up, the next move cannot be down).
+3. **After reaching the apple, the snake must be able to move in at least one direction** in the next step (ensuring it does not get stuck).
+
+---
+
+### 🐍 Initial Conditions:
+
+- **Head position**: (5,7)
+- **Body positions**: (5,6), (5,5), (5,4), (5,3)
+- **Direction**: Up
+- **Apple position**: (7,8)
+
+---
+
+### 🚶‍♂️ Step-by-Step Path:
+
+1. **Move Right** to (6,7):
+   - The new head is (6,7), which is not occupied by the body.
+   - The body updates to: [(5,7), (5,6), (5,5), (5,4)].
+
+2. **Move Right** to (7,7):
+   - The new head is (7,7), which is not in the body.
+   - The body updates to: [(6,7), (5,7), (5,6), (5,5)].
+
+3. **Move Up** to (7,8):
+   - This is the **apple's position**.
+   - The new head is (7,8), which is not in the body.
+   - Since the snake eats the apple, the body grows and becomes: [(7,7), (6,7), (5,7), (5,6), (5,5)].
+   - The snake is now at (7,8), and the next move is unobstructed.
+
+---
+
+### ✅ Validation of Safety:
+
+- **No collision** occurs at any step.
+- **Direction reversal** is not attempted (e.g., from moving up, the next move is not down).
+- **After eating the apple**, the snake can still move (e.g., to (7,9), (8,8), or (6,8)).
+
+---
+
+### 📦 Final Answer:
+
+```python
+["RIGHT", "RIGHT", "UP"]
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 7) and whose body cells are in list format [(5, 3), (5, 4), (5, 5), (5, 6)], to eat the apple at (7, 8).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

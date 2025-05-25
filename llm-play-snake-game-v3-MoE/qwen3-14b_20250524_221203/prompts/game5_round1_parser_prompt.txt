@@ -1,0 +1,102 @@
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, let's see. The snake's head is at (5,5), and the apple is at (6,4). The current direction is NONE, so the first move can be any direction except reversing, but since the direction is NONE, there's no reversal restriction yet. The body is empty, which means the snake is just the head. So, the snake is of length 1.
+
+First, I need to find a path from (5,5) to (6,4) without colliding with the body. Since the body is empty, the main obstacles are the walls and the apple's position. Let me think about the coordinates. The apple is one step to the right (x increases by 1) and one step down (y decreases by 1). So the Manhattan distance is 2. But the snake can't move directly right then down, or down then right? Wait, but the head is at (5,5). Let's check possible moves.
+
+If the snake moves right first to (6,5), then down to (6,4). That would reach the apple. But wait, when moving right, the body is empty, so that's safe. Then moving down would be okay. But let's check each step.
+
+First move: RIGHT. New head is (6,5). Since the body is empty, there's no collision. Then, the next move is DOWN. New head would be (6,4), which is the apple. Then, the snake would grow. After eating, the body would have the previous head (6,5) added, and the tail remains. Wait, the body was empty, so when the snake eats the apple, the body becomes [ (6,5) ]? Let me check the movement rules.
+
+When the snake moves, if it eats the apple, the body grows. For the first move, the body is empty. Let's simulate:
+
+Initial state: head (5,5), body empty. Direction NONE.
+
+First move: RIGHT. New head (6,5). Check collision: no body, so okay. Insert old head (5,5) into body. Since the apple is not eaten yet (the new head is (6,5) not (6,4)), so the body would be [ (5,5) ] and then the tail is removed. Wait, the body was empty. So when you insert the old head into the body list, the body becomes [ (5,5) ]. Then, since the snake is moving normally (not eating apple), the tail is removed. But the body was empty, so after inserting, the body is [ (5,5) ] and then remove the last element, which is (5,5). So the body becomes empty again. Wait, that can't be right. Maybe I'm misunderstanding the update rules.
+
+Rule 3a says: Insert the old head position at the front of the BODY list. Then, if the new head is apple, don't remove the tail. Otherwise, remove the last element.
+
+In the first move, the body is empty. So inserting the old head (5,5) makes the body [ (5,5) ]. Since the new head (6,5) is not the apple (which is at (6,4)), the tail is removed. So the body becomes empty again. So after the first move, the body is empty again. Then the head is at (6,5), and the body is empty.
+
+Then the second move is DOWN. New head is (6,4). Check collision: no body, so okay. Insert old head (6,5) into body, making it [ (6,5) ]. Since the new head is the apple, we don't remove the tail. So the body becomes [ (6,5) ], and the head is now (6,4). So the snake is now length 2. That works.
+
+So the moves would be RIGHT then DOWN. But wait, the apple is at (6,4), so when moving down from (6,5), the new head is (6,4), which is the apple. That would work. So the moves are ["RIGHT", "DOWN"].
+
+But wait, let me check for collision when moving down. After the first move, the head is at (6,5), body is empty. Then, moving down to (6,4). The body is empty, so no collision. So that's safe.
+
+But what about the final position? After eating the apple, the snake's body is [ (6,5) ], and the head is (6,4). Now, the next move (after eating) needs to have at least one legal move. But the problem says that the moves list should be the sequence to reach the apple. So the answer is two moves: RIGHT then DOWN.
+
+But wait, the apple is at (6,4). When the snake moves down from (6,5) to (6,4), that's the apple. So that's correct.
+
+But let me check if there are any other possible paths. For example, moving down first then right. Let's see:
+
+First move: DOWN. New head (5,4). Then move RIGHT to (6,4). That's also two moves. But is that safe?
+
+First move: DOWN. The head moves to (5,4). Since the body is empty, no collision. Then body becomes [ (5,5) ] and then removed, so body is empty again. Then move RIGHT: new head (6,4). That's the apple. So that's also a valid path. So either path is possible.
+
+But the problem requires the moves to be a sequence that takes the head to eat the apple. Both paths are valid. However, the user's final position check requires that the net number of horizontal and vertical moves matches the apple's offset. The apple is at (6,4), which is x+1, y-1. So the number of RIGHT minus LEFT should be 1, and DOWN minus UP should be 1. Both paths satisfy that. For the first path (RIGHT then DOWN), RIGHT is +1, DOWN is +1 (since DOWN is y-1, but the difference in y is 5-4=1, so #DOWN - #UP = 1). For the second path (DOWN then RIGHT), same thing.
+
+So either path is acceptable. Which one is better? Well, the problem says to prioritize safety over shortest path, but since both are same length, either is okay. Let's pick one. Let's go with moving RIGHT then DOWN.
+
+So the moves would be ["RIGHT", "DOWN"].
+
+Now, check for any possible collisions. For the first move, moving right to (6,5), no body. Then moving down to (6,4), which is the apple. No collision. Also, after eating, the body is [ (6,5) ]. The next move (if any) would need to have at least one legal move. But since the problem only requires reaching the apple, the answer is correct.
+
+Another thing to consider: the initial direction is NONE, so the first move can be any direction. So moving RIGHT is allowed. No reversal here.
+
+Therefore, the correct answer is two moves: RIGHT then DOWN.
+</think>
+
+{
+"moves": ["RIGHT", "DOWN"],
+"reasoning": "The snake can move right to (6,5) then down to (6,4) to reach the apple safely. This path avoids collisions and satisfies the required movement offsets."
+}
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at (5, 5) and whose body cells are in list format [], to eat the apple at (6, 4).
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

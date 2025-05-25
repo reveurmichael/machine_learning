@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 03:44:07
+Request Time: 2025-05-25 03:39:17
+Response Time: 2025-05-25 03:44:07
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["LEFT", "LEFT", "LEFT", "UP"],
+"reasoning": "Direct path left three times to reach x=6, then up to apple. Avoids body segments and ensures safe post-apple moves."
+}

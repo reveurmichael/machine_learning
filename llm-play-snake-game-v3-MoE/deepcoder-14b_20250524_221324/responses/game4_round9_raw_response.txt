@@ -1,0 +1,11 @@
+Timestamp: 2025-05-25 00:08:28
+Request Time: 2025-05-24 23:58:28
+Response Time: 2025-05-25 00:08:28
+PRIMARY LLM Model: deepcoder:14b
+PRIMARY LLM Provider: ollama
+SECONDARY LLM Model: mistral:7b
+SECONDARY LLM Provider: ollama
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: Invalid JSON response - 

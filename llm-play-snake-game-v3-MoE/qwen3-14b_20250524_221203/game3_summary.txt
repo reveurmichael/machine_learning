@@ -1,0 +1,19 @@
+Game 3 Summary:
+=========================================
+Timestamp: 2025-05-25 01:07:46
+Primary LLM: ollama - qwen3:14b
+Secondary LLM: ollama - mistral:7b
+
+Score: 12
+Steps: 98
+Last direction: RIGHT
+
+Performance Metrics:
+- Apples/Step: 0.1224
+- Final board size: 13 segments
+
+Game End Reason: Wall collision
+
+Prompt/Response Stats:
+- Total prompts sent to Primary LLM: 100
+=========================================

@@ -1,0 +1,13 @@
+Timestamp: 2025-05-25 01:46:01
+Request Time: 2025-05-25 01:41:47
+Response Time: 2025-05-25 01:46:01
+PRIMARY LLM Model: deepseek-reasoner
+PRIMARY LLM Provider: deepseek
+SECONDARY LLM: Not used
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["LEFT", "LEFT", "UP"],
+"reasoning": "Move left twice to approach the apple's x-coordinate, then up to consume it. This path avoids body collisions and ensures a legal move after eating."
+}

@@ -47,12 +47,20 @@ class SnakeGame:
         self.last_llm_response = ""
         self.processed_response = ""
         
+        # Performance tracking
+        self.response_times = []  # List of primary LLM response times in seconds
+        self.secondary_response_times = []  # List of secondary LLM response times in seconds
+        
+        # Track apple positions for replay
+        self.apple_positions_history = []
+        self.apple_positions_history.append(self.apple_position.copy())  # Record initial apple
+        self.replay_mode = False  # Flag to indicate if we're in replay mode
+        
         # Initialize the UI
         pygame.display.set_caption("LLM Snake Agent")
         self.window = DrawWindow()
         
-        # Generate the first apple and initialize the board
-        self.apple_position = self._generate_apple()
+        # Initialize the board
         self._update_board()
         
         # Verify coordinate system
@@ -79,6 +87,10 @@ class SnakeGame:
         self.planned_moves = []
         self.processed_response = ""
         self.last_collision_type = None  # Reset collision type
+        
+        # Reset apple history
+        self.apple_positions_history = []
+        self.apple_positions_history.append(self.apple_position.copy())
         
         # Clear any key states that might be stuck
         pygame.event.clear()
@@ -133,6 +145,72 @@ class SnakeGame:
             # Check if position is empty (not occupied by snake)
             if not any(np.array_equal([x, y], pos) for pos in self.snake_positions):
                 return np.array([x, y])
+    
+    def set_apple_position(self, position):
+        """Set the apple position manually (for replay purposes).
+        
+        Args:
+            position: Position to place the apple as [x, y]
+            
+        Returns:
+            Boolean indicating if the position was valid and set successfully
+        """
+        try:
+            if isinstance(position, str):
+                # Handle string format like "(x,y)"
+                match = re.match(r'\((\d+),\s*(\d+)\)', position)
+                if match:
+                    x, y = int(match.group(1)), int(match.group(2))
+                    position = [x, y]
+                else:
+                    print(f"Invalid position format: {position}")
+                    return False
+            
+            x, y = position
+            
+            # Validate position
+            if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
+                print(f"Invalid apple position: {position}")
+                return False
+                
+            # Check if position is empty
+            if any(np.array_equal([x, y], pos) for pos in self.snake_positions):
+                print(f"Cannot place apple on snake: {position}")
+                return False
+                
+            # Set the position
+            self.apple_position = np.array([x, y])
+            
+            # Update the board
+            self._update_board()
+            
+            return True
+        except Exception as e:
+            print(f"Error setting apple position: {e}")
+            return False
+    
+    def get_apple_positions_history(self):
+        """Get the history of apple positions.
+        
+        Returns:
+            List of apple positions as strings in format "(x,y)"
+        """
+        return [f"({pos[0]},{pos[1]})" for pos in self.apple_positions_history]
+    
+    def set_replay_mode(self, enabled=True):
+        """Set the replay mode flag.
+        
+        Args:
+            enabled: Boolean indicating if replay mode should be enabled
+            
+        Returns:
+            None
+        """
+        self.replay_mode = enabled
+        if enabled:
+            print("Replay mode enabled - using predefined apple positions")
+        else:
+            print("Replay mode disabled - generating random apple positions")
     
     #-----------------------
     # Movement & Collision
@@ -204,8 +282,21 @@ class SnakeGame:
             if np.array_equal(new_head, self.apple_position):
                 self.score += 1
                 print(f"Apple eaten! Score: {self.score}")
+                
                 # Generate a new apple
-                self.apple_position = self._generate_apple()
+                if self.replay_mode and len(self.apple_positions_history) > self.score:
+                    # In replay mode, use the next apple position from history
+                    next_apple = self.apple_positions_history[self.score]
+                    self.apple_position = next_apple.copy()
+                    print(f"Replay: using predefined apple position: ({next_apple[0]}, {next_apple[1]})")
+                else:
+                    # Generate a new random apple position
+                    self.apple_position = self._generate_apple()
+                    # In normal mode, record this position for future replay
+                    if not self.replay_mode:
+                        self.apple_positions_history.append(self.apple_position.copy())
+                        print(f"Recorded new apple position: ({self.apple_position[0]}, {self.apple_position[1]})")
+                
                 apple_eaten = True
             else:
                 # Remove the tail if no apple is eaten
@@ -449,4 +540,54 @@ class SnakeGame:
         Returns:
             Processed LLM response text
         """
-        return self.processed_response 
+        return self.processed_response
+    
+    #-----------------------
+    # Performance Metrics
+    #-----------------------
+    
+    def add_response_time(self, duration):
+        """Add a primary LLM response time to the tracking list.
+        
+        Args:
+            duration: Response time duration in seconds
+        """
+        self.response_times.append(duration)
+    
+    def add_secondary_response_time(self, duration):
+        """Add a secondary LLM response time to the tracking list.
+        
+        Args:
+            duration: Response time duration in seconds
+        """
+        self.secondary_response_times.append(duration)
+    
+    def get_average_response_time(self):
+        """Get the average primary LLM response time.
+        
+        Returns:
+            Average response time in seconds, or 0 if no responses
+        """
+        if not self.response_times:
+            return 0
+        return sum(self.response_times) / len(self.response_times)
+    
+    def get_average_secondary_response_time(self):
+        """Get the average secondary LLM response time.
+        
+        Returns:
+            Average secondary response time in seconds, or 0 if no responses
+        """
+        if not self.secondary_response_times:
+            return 0
+        return sum(self.secondary_response_times) / len(self.secondary_response_times)
+    
+    def get_steps_per_apple(self):
+        """Get the average number of steps taken to eat one apple.
+        
+        Returns:
+            Average steps per apple, or 0 if no apples eaten
+        """
+        if self.score == 0:
+            return 0
+        return self.steps / self.score 

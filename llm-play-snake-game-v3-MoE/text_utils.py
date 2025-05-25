@@ -171,7 +171,7 @@ Valid Move Ratio: {valid_steps/(total_steps if total_steps > 0 else 1):.4f}
         f.write(content)
 
 def format_raw_llm_response(raw_response, request_time, response_time, model, provider, 
-                          parser_model=None, parser_provider=None):
+                          parser_model=None, parser_provider=None, response_duration=None):
     """Format a raw LLM response with metadata.
     
     Args:
@@ -182,6 +182,7 @@ def format_raw_llm_response(raw_response, request_time, response_time, model, pr
         provider: The provider used
         parser_model: The secondary LLM model (if any)
         parser_provider: The secondary LLM provider (if any)
+        response_duration: The duration of the response in seconds (if available)
         
     Returns:
         Formatted response with metadata
@@ -193,10 +194,16 @@ def format_raw_llm_response(raw_response, request_time, response_time, model, pr
 SECONDARY LLM Provider: {parser_provider}"""
     else:
         secondary_llm_info = "SECONDARY LLM: Not used"
+    
+    # Add response duration if available
+    duration_info = ""
+    if response_duration is not None:
+        duration_info = f"Response Duration: {response_duration:.2f} seconds"
         
     return f"""Timestamp: {response_time}
 Request Time: {request_time}
 Response Time: {response_time}
+{duration_info}
 PRIMARY LLM Model: {model}
 PRIMARY LLM Provider: {provider}
 {secondary_llm_info}
@@ -206,7 +213,7 @@ PRIMARY LLM Provider: {provider}
 {raw_response}
 """
 
-def format_parsed_llm_response(parsed_response, parser_request_time, parser_response_time, parser_model, parser_provider):
+def format_parsed_llm_response(parsed_response, parser_request_time, parser_response_time, parser_model, parser_provider, response_duration=None):
     """Format a parsed LLM response with metadata.
     
     Args:
@@ -215,13 +222,20 @@ def format_parsed_llm_response(parsed_response, parser_request_time, parser_resp
         parser_response_time: Time when the secondary LLM response was received
         parser_model: The secondary LLM model used
         parser_provider: The secondary LLM provider used
+        response_duration: The duration of the response in seconds (if available)
         
     Returns:
         Formatted response with metadata
     """
+    # Add response duration if available
+    duration_info = ""
+    if response_duration is not None:
+        duration_info = f"Secondary LLM Response Duration: {response_duration:.2f} seconds"
+        
     return f"""Timestamp: {parser_response_time}
 Secondary LLM Request Time: {parser_request_time}
 Secondary LLM Response Time: {parser_response_time}
+{duration_info}
 SECONDARY LLM Model: {parser_model}
 SECONDARY LLM Provider: {parser_provider}
 
@@ -230,11 +244,12 @@ SECONDARY LLM Provider: {parser_provider}
 {parsed_response}
 """
 
-def generate_game_summary(game_count, timestamp, score, steps, next_move, game_parser_usage, 
+def generate_game_summary_json(game_count, timestamp, score, steps, next_move, game_parser_usage, 
                          snake_positions_length, last_collision_type, round_count, 
                          primary_model=None, primary_provider=None, parser_model=None, parser_provider=None,
-                         json_error_stats=None, max_empty_moves=3):
-    """Generate a game summary text.
+                         json_error_stats=None, max_empty_moves=3, apple_positions=None,
+                         avg_response_time=0, avg_secondary_response_time=0, steps_per_apple=0):
+    """Generate a game summary in JSON format.
     
     Args:
         game_count: Number of the current game
@@ -252,14 +267,14 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
         parser_provider: Secondary LLM provider
         json_error_stats: Dictionary containing JSON extraction error statistics
         max_empty_moves: Maximum number of consecutive empty moves before termination
+        apple_positions: List of apple positions in format "(x,y)"
+        avg_response_time: Average primary LLM response time in seconds
+        avg_secondary_response_time: Average secondary LLM response time in seconds
+        steps_per_apple: Average steps taken to eat one apple
         
     Returns:
-        Formatted game summary text
+        Dictionary containing game summary data ready for JSON serialization
     """
-    # Format LLM information
-    primary_llm_info = f"Primary LLM: {primary_provider} - {primary_model}" if primary_provider else ""
-    secondary_llm_info = f"Secondary LLM: {parser_provider} - {parser_model}" if parser_provider and parser_provider.lower() != "none" else "Secondary LLM: Not used"
-    
     # Format game end reason
     if last_collision_type == 'wall':
         game_end_reason = 'Wall collision'
@@ -274,36 +289,46 @@ def generate_game_summary(game_count, timestamp, score, steps, next_move, game_p
     else:
         game_end_reason = 'Unknown'
     
-    summary = f"""Game {game_count} Summary:
-=========================================
-Timestamp: {timestamp}
-{primary_llm_info}
-{secondary_llm_info}
-
-Score: {score}
-Steps: {steps}
-Last direction: {next_move}
-
-Performance Metrics:
-- Apples/Step: {score/(steps if steps > 0 else 1):.4f}
-- Final board size: {snake_positions_length} segments
-
-Game End Reason: {game_end_reason}
-
-Prompt/Response Stats:
-- Total prompts sent to Primary LLM: {round_count}
-- Parser usage: {game_parser_usage} times
-"""
-
+    # Create JSON-serializable dictionary
+    summary_data = {
+        "game_number": game_count,
+        "timestamp": timestamp,
+        "score": score,
+        "steps": steps,
+        "last_direction": next_move,
+        "performance_metrics": {
+            "apples_per_step": score/(steps if steps > 0 else 1),
+            "steps_per_apple": steps_per_apple,
+            "final_snake_length": snake_positions_length
+        },
+        "game_end_reason": game_end_reason,
+        "llm_info": {
+            "primary_llm": f"{primary_provider} - {primary_model}" if primary_provider else "Unknown",
+            "secondary_llm": f"{parser_provider} - {parser_model}" if parser_provider and parser_provider.lower() != "none" else "None",
+        },
+        "prompt_response_stats": {
+            "total_prompts": round_count,
+            "parser_usage": game_parser_usage,
+            "avg_primary_response_time": avg_response_time,
+            "avg_secondary_response_time": avg_secondary_response_time
+        }
+    }
+    
+    # Add apple positions if available
+    if apple_positions:
+        summary_data["apple_positions"] = apple_positions
+    
     # Add JSON parsing statistics if available
     if json_error_stats:
         json_success_rate = (json_error_stats["successful_extractions"] / json_error_stats["total_extraction_attempts"] * 100) if json_error_stats["total_extraction_attempts"] > 0 else 0
-        summary += f"""
-JSON Parsing Stats:
-- Extraction Attempts: {json_error_stats["total_extraction_attempts"]}
-- Success Rate: {json_success_rate:.2f}%
-- Format Validation Errors: {json_error_stats["format_validation_errors"]}
-"""
+        summary_data["json_parsing_stats"] = {
+            "extraction_attempts": json_error_stats["total_extraction_attempts"],
+            "success_rate": json_success_rate,
+            "format_validation_errors": json_error_stats["format_validation_errors"],
+            "json_decode_errors": json_error_stats.get("json_decode_errors", 0),
+            "code_block_extraction_errors": json_error_stats.get("code_block_extraction_errors", 0),
+            "text_extraction_errors": json_error_stats.get("text_extraction_errors", 0),
+            "fallback_extraction_success": json_error_stats.get("fallback_extraction_success", 0)
+        }
     
-    summary += "=========================================\n"
-    return summary 
+    return summary_data 

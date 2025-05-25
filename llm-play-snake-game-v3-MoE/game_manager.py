@@ -7,6 +7,7 @@ import os
 import time
 import pygame
 import traceback
+import json
 from datetime import datetime
 from colorama import Fore
 from snake_game import SnakeGame
@@ -19,7 +20,7 @@ from text_utils import (
     update_experiment_info, 
     format_raw_llm_response, 
     format_parsed_llm_response,
-    generate_game_summary
+    generate_game_summary_json
 )
 from json_utils import get_json_error_stats, reset_json_error_stats
 
@@ -162,10 +163,16 @@ class GameManager:
         else:
             print(Fore.CYAN + f"Using default model for provider: {self.args.provider}")
             
-        # Get raw response from first LLM
+        # Get raw response from first LLM with timing
         request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        request_timestamp = datetime.now()
         raw_llm_response = self.llm_client.generate_response(prompt, **kwargs)
+        response_timestamp = datetime.now()
         response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Calculate and record response time duration
+        primary_response_duration = (response_timestamp - request_timestamp).total_seconds()
+        self.game.add_response_time(primary_response_duration)
         
         # Format the raw response with timestamp metadata
         model_name = self.args.model if self.args.model else f'Default model for {self.args.provider}'
@@ -176,7 +183,8 @@ class GameManager:
             model_name, 
             self.args.provider,
             parser_model=self.args.parser_model,
-            parser_provider=self.args.parser_provider
+            parser_provider=self.args.parser_provider,
+            response_duration=primary_response_duration
         )
         
         # Log the raw response from primary LLM
@@ -194,16 +202,22 @@ class GameManager:
             # Get body cells for the parser using the helper method
             body_cells_str = self.game.format_body_cells_str(self.game.snake_positions)
             
-            # Use secondary LLM to parse and format the response
+            # Use secondary LLM to parse and format the response with timing
             print(Fore.CYAN + f"Using secondary LLM to parse primary LLM's response")
             parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            parser_request_timestamp = datetime.now()
             parsed_response, parser_prompt = self.parser_client.parse_and_format(
                 raw_llm_response, 
                 head_pos=head_pos, 
                 apple_pos=apple_pos,
                 body_cells=body_cells_str
             )
+            parser_response_timestamp = datetime.now()
             parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Calculate and record secondary LLM response time
+            secondary_response_duration = (parser_response_timestamp - parser_request_timestamp).total_seconds()
+            self.game.add_secondary_response_time(secondary_response_duration)
             
             # Log the parser prompt and increment usage count
             self.parser_usage_count += 1
@@ -218,7 +232,8 @@ class GameManager:
                 parser_request_time, 
                 parser_response_time, 
                 parser_model_name, 
-                self.parser_provider
+                self.parser_provider,
+                response_duration=secondary_response_duration
             )
             
             # Log the parsed response from secondary LLM
@@ -308,9 +323,17 @@ class GameManager:
         game_parser_usage = self.parser_usage_count if self.game_count == 1 else self.parser_usage_count - self.previous_parser_usage
         self.previous_parser_usage = self.parser_usage_count
         
-        # Save detailed game summary
+        # Get apple positions history
+        apple_positions = self.game.get_apple_positions_history()
+        
+        # Get performance metrics
+        avg_response_time = self.game.get_average_response_time()
+        avg_secondary_response_time = self.game.get_average_secondary_response_time()
+        steps_per_apple = self.game.get_steps_per_apple()
+        
+        # Generate JSON summary
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        summary = generate_game_summary(
+        json_summary = generate_game_summary_json(
             self.game_count,
             now,
             self.game.score,
@@ -325,9 +348,18 @@ class GameManager:
             parser_model=self.args.parser_model,
             parser_provider=self.args.parser_provider,
             json_error_stats=get_json_error_stats(),
-            max_empty_moves=self.args.max_empty_moves
+            max_empty_moves=self.args.max_empty_moves,
+            apple_positions=apple_positions,
+            avg_response_time=avg_response_time,
+            avg_secondary_response_time=avg_secondary_response_time,
+            steps_per_apple=steps_per_apple
         )
-        save_to_file(summary, self.log_dir, f"game{self.game_count}_summary.txt")
+        
+        # Save JSON summary
+        json_path = os.path.join(self.log_dir, f"game{self.game_count}_summary.json")
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(json_summary, f, indent=2)
+        print(Fore.GREEN + f"📝 JSON summary saved to {json_path}")
         
         # Reset round count and consecutive empty steps for next game
         self.round_count = 0
@@ -361,10 +393,18 @@ class GameManager:
             self.total_steps += self.game.steps
             self.game_scores.append(self.game.score)
             
-            # Save a game summary with error information
+            # Get apple positions history
+            apple_positions = self.game.get_apple_positions_history()
+            
+            # Get performance metrics
+            avg_response_time = self.game.get_average_response_time()
+            avg_secondary_response_time = self.game.get_average_secondary_response_time()
+            steps_per_apple = self.game.get_steps_per_apple()
+            
+            # Generate JSON summary with error information
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.game.last_collision_type = 'error'
-            summary = generate_game_summary(
+            json_summary = generate_game_summary_json(
                 self.game_count,
                 now,
                 self.game.score,
@@ -379,9 +419,18 @@ class GameManager:
                 parser_model=self.args.parser_model,
                 parser_provider=self.args.parser_provider,
                 json_error_stats=get_json_error_stats(),
-                max_empty_moves=self.args.max_empty_moves
+                max_empty_moves=self.args.max_empty_moves,
+                apple_positions=apple_positions,
+                avg_response_time=avg_response_time,
+                avg_secondary_response_time=avg_secondary_response_time,
+                steps_per_apple=steps_per_apple
             )
-            save_to_file(summary, self.log_dir, f"game{self.game_count}_summary.txt")
+            
+            # Save JSON summary
+            json_path = os.path.join(self.log_dir, f"game{self.game_count}_summary.json")
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(json_summary, f, indent=2)
+            print(Fore.GREEN + f"📝 JSON summary saved to {json_path}")
             
             # Prepare for next game if we haven't reached the limit
             if self.game_count < self.args.max_games:

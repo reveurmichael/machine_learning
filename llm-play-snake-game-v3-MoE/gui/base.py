@@ -1,228 +1,179 @@
 """
-Base GUI components for the Snake game.
-Provides common setup and drawing functionality.
+Base GUI module for the Snake game.
+Provides common GUI elements and functionality.
 """
 
 import pygame
-from config import (
-    SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GREY2, GREY3, SNAKE_HEAD_C,
-    APP_WIDTH, APP_HEIGHT, GRID_SIZE
-)
+import numpy as np
+from config import GRID_SIZE, CELL_SIZE, COLORS
+
 
 class BaseGUI:
-    """Base class for UI setup."""
-    
-    def __init__(self):
-        """Initialize the UI dimensions."""
-        self.width = APP_WIDTH
-        self.width_plus = 200
-        self.height = APP_HEIGHT
-        self.info_panel = self.width - self.height
-        self.grid_size = GRID_SIZE
-        self.pixel = self.height // self.grid_size
+    """Base class for all GUI implementations."""
+
+    def __init__(self, grid_size=GRID_SIZE, cell_size=CELL_SIZE):
+        """Initialize the base GUI.
         
-        # These will be initialized in derived classes
+        Args:
+            grid_size: Size of the game grid
+            cell_size: Size of each cell in pixels
+        """
+        self.grid_size = grid_size
+        self.cell_size = cell_size
+        self.window_size = grid_size * cell_size
         self.screen = None
         self.font = None
-        self.small_font = None
-    
-    def init_display(self, caption="Snake Game"):
-        """Initialize the pygame display.
-        
-        Args:
-            caption: Window caption text
-        """
-        # Initialize pygame if not already done
-        if not pygame.get_init():
-            pygame.init()
-            
-        if not pygame.font.get_init():
-            pygame.font.init()
-            
-        # Set up the screen
-        self.screen = pygame.display.set_mode((self.width + self.width_plus, self.height))
-        pygame.display.set_caption(caption)
-        
-        # Set up fonts
-        self.font = pygame.font.SysFont("freesansbold.ttf", 24)
-        self.small_font = pygame.font.SysFont("freesansbold.ttf", 16)
-        
-        # Calculate the width of the text panel
-        self.text_panel_width = self.width + self.width_plus - self.height - 40
-    
+
+    def initialize(self):
+        """Initialize pygame and create the window."""
+        pygame.init()
+        pygame.font.init()
+        self.screen = pygame.display.set_mode((self.window_size, self.window_size))
+        pygame.display.set_caption("Snake Game")
+        self.font = pygame.font.Font(None, 36)
+
     def draw_grid(self):
-        """Draw the grid lines on the board."""
-        # Draw horizontal grid lines
-        for y in range(self.grid_size + 1):
-            pygame.draw.line(
-                self.screen, 
-                GRID_BG, 
-                (0, y * self.pixel), 
-                (self.grid_size * self.pixel, y * self.pixel), 
-                1
-            )
-        
-        # Draw vertical grid lines
-        for x in range(self.grid_size + 1):
-            pygame.draw.line(
-                self.screen, 
-                GRID_BG, 
-                (x * self.pixel, 0), 
-                (x * self.pixel, self.grid_size * self.pixel), 
-                1
-            )
-    
-    def draw_snake(self, snake_positions, flip_y=False):
-        """Draw the snake at the given positions.
+        """Draw the game grid."""
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                rect = pygame.Rect(
+                    x * self.cell_size,
+                    y * self.cell_size,
+                    self.cell_size,
+                    self.cell_size
+                )
+                pygame.draw.rect(self.screen, COLORS['GRID'], rect, 1)
+
+    def draw_snake(self, snake_positions):
+        """Draw the snake.
         
         Args:
-            snake_positions: List of [x,y] positions for snake segments
-            flip_y: Whether to flip the y-coordinate (for different coordinate systems)
+            snake_positions: List of [x, y] positions for each snake segment
         """
-        for i, position in enumerate(snake_positions):
-            x, y = position
-            
-            # Handle flipping y coordinate if needed
-            if flip_y:
-                display_y = self.grid_size - 1 - y
-            else:
-                display_y = y
-                
-            # Draw rectangle for snake segment
+        for i, pos in enumerate(snake_positions):
+            x, y = pos
             rect = pygame.Rect(
-                x * self.pixel,
-                display_y * self.pixel,
-                self.pixel - 5,
-                self.pixel - 5
+                x * self.cell_size,
+                y * self.cell_size,
+                self.cell_size,
+                self.cell_size
             )
-            
-            # Draw head in different color
-            if i == 0:
-                pygame.draw.rect(self.screen, SNAKE_HEAD_C, rect)
-            else:
-                pygame.draw.rect(self.screen, SNAKE_C, rect)
-    
-    def draw_apple(self, apple_position, flip_y=False):
-        """Draw the apple at the given position.
+            # Head is a different color
+            color = COLORS['SNAKE_HEAD'] if i == 0 else COLORS['SNAKE_BODY']
+            pygame.draw.rect(self.screen, color, rect)
+            pygame.draw.rect(self.screen, COLORS['GRID'], rect, 1)
+
+    def draw_apple(self, apple_position):
+        """Draw the apple.
         
         Args:
-            apple_position: [x,y] position of the apple
-            flip_y: Whether to flip the y-coordinate
+            apple_position: [x, y] position of the apple
         """
-        x, y = apple_position
-        
-        # Handle flipping y coordinate if needed
-        if flip_y:
-            display_y = self.grid_size - 1 - y
-        else:
-            display_y = y
-            
-        # Draw rectangle for apple
-        rect = pygame.Rect(
-            x * self.pixel,
-            display_y * self.pixel,
-            self.pixel - 5,
-            self.pixel - 5
-        )
-        
-        pygame.draw.rect(self.screen, APPLE_C, rect)
-    
-    def draw_walls(self):
-        """Draw the walls/borders of the game board."""
-        wall_thickness = 2
-        
-        # Draw four walls
-        pygame.draw.rect(
-            self.screen,
-            WHITE,  # Wall color
-            (0, 0, self.height, wall_thickness)  # Top wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            WHITE,  # Wall color
-            (0, 0, wall_thickness, self.height)  # Left wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            WHITE,  # Wall color
-            (0, self.height - wall_thickness, self.height, wall_thickness)  # Bottom wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            WHITE,  # Wall color
-            (self.height - wall_thickness, 0, wall_thickness, self.height)  # Right wall
-        )
-    
-    def clear_game_area(self):
-        """Clear the game board area."""
-        # Draw background rectangle for game section
-        pygame.draw.rect(
-            self.screen, 
-            BG, 
-            (0, 0, self.height+1, self.height+1)
-        )
-    
-    def clear_info_panel(self):
-        """Clear the information panel area."""
-        # Draw background rectangle for info panel
-        pygame.draw.rect(
-            self.screen,
-            APP_BG,
-            (self.height+1, 0, self.width+self.width_plus, self.height)
-        )
-    
-    def render_text_area(self, text, x, y, width, height, max_lines=20):
-        """Render text inside a scrollable text area.
+        if apple_position is not None:
+            x, y = apple_position
+            rect = pygame.Rect(
+                x * self.cell_size,
+                y * self.cell_size,
+                self.cell_size,
+                self.cell_size
+            )
+            pygame.draw.rect(self.screen, COLORS['APPLE'], rect)
+            pygame.draw.rect(self.screen, COLORS['GRID'], rect, 1)
+
+    def draw_score(self, score):
+        """Draw the current score.
         
         Args:
-            text: Text to render
-            x: X position of text area
-            y: Y position of text area
-            width: Width of text area
-            height: Height of text area
-            max_lines: Maximum number of lines to render
+            score: Current game score
         """
-        # Setup text area with border
-        pygame.draw.rect(
-            self.screen,
-            GREY2,  # Light gray background for text area
-            (x, y, width, height),
-            0,  # Filled rectangle
-            3   # Rounded corners
-        )
+        score_text = self.font.render(f"Score: {score}", True, COLORS['TEXT'])
+        self.screen.blit(score_text, (10, 10))
+
+    def draw_steps(self, steps):
+        """Draw the current step count.
         
-        pygame.draw.rect(
-            self.screen,
-            GREY3,  # Darker border
-            (x, y, width, height),
-            2,  # Border only (not filled)
-            3   # Rounded corners
-        )
+        Args:
+            steps: Current number of steps
+        """
+        steps_text = self.font.render(f"Steps: {steps}", True, COLORS['TEXT'])
+        self.screen.blit(steps_text, (10, 50))
+
+    def draw_game_over(self, collision_type):
+        """Draw the game over screen.
         
-        # Calculate text parameters
-        avg_char_width = self.small_font.size("m")[0]
-        max_chars_per_line = int(width / avg_char_width * 1.7)
-        line_height = 20
-        padding_left = 10
+        Args:
+            collision_type: Type of collision that ended the game
+        """
+        # Create a semi-transparent overlay
+        overlay = pygame.Surface((self.window_size, self.window_size))
+        overlay.set_alpha(128)
+        overlay.fill(COLORS['BLACK'])
+        self.screen.blit(overlay, (0, 0))
+
+        # Draw game over text
+        game_over_text = self.font.render("Game Over!", True, COLORS['TEXT'])
+        text_rect = game_over_text.get_rect(center=(self.window_size/2, self.window_size/2 - 50))
+        self.screen.blit(game_over_text, text_rect)
+
+        # Draw collision type
+        collision_text = self.font.render(f"Collision: {collision_type}", True, COLORS['TEXT'])
+        collision_rect = collision_text.get_rect(center=(self.window_size/2, self.window_size/2))
+        self.screen.blit(collision_text, collision_rect)
+
+        # Draw restart instructions
+        restart_text = self.font.render("Press R to restart", True, COLORS['TEXT'])
+        restart_rect = restart_text.get_rect(center=(self.window_size/2, self.window_size/2 + 50))
+        self.screen.blit(restart_text, restart_rect)
+
+    def draw_error(self, error_message):
+        """Draw an error message.
         
-        # Split into lines and render
-        y_offset = y + 10  # Starting y position inside the text area
-        lines = text.split('\n')
+        Args:
+            error_message: The error message to display
+        """
+        # Create a semi-transparent overlay
+        overlay = pygame.Surface((self.window_size, self.window_size))
+        overlay.set_alpha(128)
+        overlay.fill(COLORS['BLACK'])
+        self.screen.blit(overlay, (0, 0))
+
+        # Draw error text
+        error_text = self.font.render("Error!", True, COLORS['ERROR'])
+        text_rect = error_text.get_rect(center=(self.window_size/2, self.window_size/2 - 50))
+        self.screen.blit(error_text, text_rect)
+
+        # Draw error message
+        message_text = self.font.render(error_message, True, COLORS['ERROR'])
+        message_rect = message_text.get_rect(center=(self.window_size/2, self.window_size/2))
+        self.screen.blit(message_text, message_rect)
+
+    def draw_llm_response(self, response_text):
+        """Draw the LLM response.
         
-        for line in lines[:max_lines]:
-            # Skip empty lines
-            if not line.strip():
-                y_offset += line_height
-                continue
-                
-            # Further split lines that are too long
-            for i in range(0, len(line), max_chars_per_line):
-                segment = line[i:i+max_chars_per_line]
-                if segment:
-                    text_surface = self.small_font.render(segment, True, BLACK)
-                    self.screen.blit(text_surface, (x + padding_left, y_offset))
-                    y_offset += line_height
-                    
-                    # Stop if we've reached the bottom of the text area
-                    if y_offset > y + height - line_height:
-                        return 
+        Args:
+            response_text: The LLM response text to display
+        """
+        # Create a semi-transparent overlay
+        overlay = pygame.Surface((self.window_size, self.window_size))
+        overlay.set_alpha(128)
+        overlay.fill(COLORS['BLACK'])
+        self.screen.blit(overlay, (0, 0))
+
+        # Draw response text
+        response_lines = response_text.split('\n')
+        for i, line in enumerate(response_lines):
+            line_text = self.font.render(line, True, COLORS['TEXT'])
+            line_rect = line_text.get_rect(center=(self.window_size/2, self.window_size/2 - 100 + i*40))
+            self.screen.blit(line_text, line_rect)
+
+    def clear_screen(self):
+        """Clear the screen."""
+        self.screen.fill(COLORS['BACKGROUND'])
+
+    def update_display(self):
+        """Update the display."""
+        pygame.display.flip()
+
+    def quit(self):
+        """Clean up pygame resources."""
+        pygame.quit() 

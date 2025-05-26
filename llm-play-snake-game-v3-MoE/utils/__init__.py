@@ -11,11 +11,7 @@ from .json_utils import (
     preprocess_json_string,
     validate_json_format,
     extract_json_from_code_block,
-    extract_json_from_text,
-    extract_moves_fallback,
-    extract_moves_from_arrays,
-    save_experiment_info_json,
-    update_experiment_info_json
+    extract_json_from_text
 )
 
 # Import and expose all from snake_utils
@@ -30,7 +26,9 @@ from .log_utils import (
     save_to_file,
     format_raw_llm_response,
     format_parsed_llm_response,
-    generate_game_summary_json
+    generate_game_summary_json,
+    save_experiment_info_json,
+    update_experiment_info_json
 )
 
 # Import and expose all from file_utils
@@ -85,10 +83,6 @@ __all__ = [
     'validate_json_format',
     'extract_json_from_code_block',
     'extract_json_from_text',
-    'extract_moves_fallback',
-    'extract_moves_from_arrays',
-    'save_experiment_info_json',
-    'update_experiment_info_json',
     
     # snake_utils
     'filter_invalid_reversals',
@@ -100,6 +94,8 @@ __all__ = [
     'format_raw_llm_response',
     'format_parsed_llm_response',
     'generate_game_summary_json',
+    'save_experiment_info_json',
+    'update_experiment_info_json',
     
     # file_utils
     'find_log_folders',

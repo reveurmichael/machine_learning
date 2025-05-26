@@ -5,88 +5,58 @@ Handles parsing, extracting, and processing responses from language models.
 
 import traceback
 from colorama import Fore
-from utils.json_utils import extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
+from utils.json_utils import extract_valid_json
+from utils.snake_utils import filter_invalid_reversals
 
-def parse_llm_response(response, processed_response_func, game_instance):
+def parse_llm_response(response_text, current_direction_key, process_response_for_display_func):
     """Parse the LLM's response to extract multiple sequential moves.
     
     Args:
-        response: Text response from the LLM in JSON format
-        processed_response_func: Function to process the response for display
-        game_instance: The game instance with all necessary attributes
+        response_text: Text response from the LLM.
+        current_direction_key: The current direction of the snake to filter reversals.
+        process_response_for_display_func: Function to process the raw response for display.
         
     Returns:
-        The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
-        or None if no valid moves were found
+        A tuple (planned_moves, processed_display_response_text, error_message).
+        planned_moves: A list of extracted and filtered moves.
+        processed_display_response_text: The response formatted for display.
+        error_message: An error message string if parsing failed, else None.
     """
+    planned_moves = []
+    error_message = None
+    
+    # Process the response for display first
+    processed_display_response_text = process_response_for_display_func(response_text)
+    
     try:
-        # Store the raw response for display
-        game_instance.last_llm_response = response
+        print(f"Parsing LLM response: '{response_text[:50]}...'")
         
-        # Process the response for display
-        game_instance.processed_response = processed_response_func(response)
+        # Try to extract valid JSON data
+        json_data = extract_valid_json(response_text)
         
-        # Reset planned moves
-        game_instance.planned_moves = []
-        
-        # Print raw response snippet for debugging
-        print(f"Parsing LLM response: '{response[:50]}...'")
-        
-        # Method 1: Try to extract from JSON code block
-        json_data = extract_json_from_code_block(response)
-        
-        # Method 2: Try to extract JSON from regular text if code block fails
-        if not json_data or "moves" not in json_data or not json_data["moves"]:
-            json_data = extract_json_from_text(response)
-            
         # Extract moves from JSON if found
         if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
             valid_moves = [move.upper() for move in json_data["moves"] 
                          if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
             if valid_moves:
-                game_instance.planned_moves = valid_moves
-                print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")
-
-        # Method 3: Try finding arrays if other methods failed
-        if not game_instance.planned_moves:
-            array_moves = extract_moves_from_arrays(response)
-            if array_moves:
-                game_instance.planned_moves = array_moves
-                print(f"Found {len(game_instance.planned_moves)} moves in array format: {game_instance.planned_moves}")
+                planned_moves = valid_moves
+                print(f"Found {len(planned_moves)} moves in JSON: {planned_moves}")
         
-        # If we still have no moves, leave planned_moves empty
-        if not game_instance.planned_moves:
-            print("No valid directions found. Not moving.")
+        if not planned_moves:
+            print("No valid directions found in response.")
         else:
-            # Filter out invalid reversal moves if we have moves
-            from utils.snake_utils import filter_invalid_reversals
-            current_direction = game_instance._get_current_direction_key()
-            game_instance.planned_moves = filter_invalid_reversals(game_instance.planned_moves, current_direction)
-        
-        # Get the next move from the sequence (or None if empty)
-        if game_instance.planned_moves:
-            next_move = game_instance.planned_moves.pop(0)
-            return next_move
-        else:
-            return None
-            
+            # Filter out invalid reversal moves
+            planned_moves = filter_invalid_reversals(planned_moves, current_direction_key)
+            if not planned_moves:
+                print("All extracted moves were invalid reversals.")
+                error_message = "All extracted moves were invalid reversals."
+    
     except Exception as e:
-        print(f"Error in parse_llm_response: {e}")
+        error_message = f"Error parsing LLM response: {str(e)}"
+        print(f"{Fore.RED}{error_message}")
         traceback.print_exc()
-        
-        # Ensure the game can continue even if parsing fails
-        game_instance.last_llm_response = response
-        
-        # Store an error message as processed response
-        try:
-            game_instance.processed_response = f"ERROR: Failed to parse response: {str(e)}\n\n{response[:200]}..."
-        except:
-            game_instance.processed_response = "ERROR: Failed to parse response and display error details"
-            
-        # Clear planned moves
-        game_instance.planned_moves = []
-        
-        return None
+    
+    return planned_moves, processed_display_response_text, error_message
 
 def handle_llm_response(response, next_move, error_steps, empty_steps, consecutive_empty_steps, max_empty_moves):
     """Handle the common logic for LLM response processing.

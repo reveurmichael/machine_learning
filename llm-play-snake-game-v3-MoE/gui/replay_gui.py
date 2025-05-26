@@ -1,90 +1,83 @@
 """
-Replay GUI components for the Snake game.
-Provides specialized GUI functionality for replay mode.
+Replay GUI module for the Snake game.
+Handles the replay interface.
 """
 
 import pygame
 from gui.base import BaseGUI
-from config import WHITE, APP_BG, GRID_BG, SNAKE_HEAD_C, SNAKE_C, APPLE_C
+
 
 class ReplayGUI(BaseGUI):
-    """GUI class for replay display."""
-    
-    def __init__(self):
-        """Initialize the replay GUI."""
-        super().__init__()
-        self.init_display("Snake Game Replay")
-    
-    def draw(self, snake_positions, apple_position, game_number, score, steps, 
-             move_index, total_moves, current_direction):
-        """Draw the complete replay state.
+    """Handles the replay interface."""
+
+    def __init__(self, grid_size=10, cell_size=40):
+        """Initialize the replay GUI.
         
         Args:
-            snake_positions: List of snake segment positions
-            apple_position: Position of the apple
-            game_number: Current game number
-            score: Current score
-            steps: Current step count
-            move_index: Index of current move
-            total_moves: Total number of moves
-            current_direction: Current direction of movement
+            grid_size: Size of the game grid
+            cell_size: Size of each cell in pixels
         """
-        # Fill background
-        self.screen.fill(APP_BG)
+        super().__init__(grid_size, cell_size)
+        self.initialize()
+
+    def draw(self, game, game_number, round_number, current_move):
+        """Draw the current replay state.
         
-        # Draw grid
+        Args:
+            game: SnakeGame instance
+            game_number: Current game number
+            round_number: Current round number
+            current_move: Current move number
+        """
+        # Clear the screen
+        self.clear_screen()
+        
+        # Draw the grid
         self.draw_grid()
         
-        # Draw snake
-        self.draw_snake(snake_positions)
+        # Draw the snake
+        self.draw_snake(game.body)
         
-        # Draw apple if available
-        if apple_position is not None:
-            self.draw_apple(apple_position)
+        # Draw the apple
+        self.draw_apple(game.apple)
         
-        # Draw game info
-        self.draw_replay_info(
-            game_number=game_number,
-            score=score,
-            steps=steps,
-            move_index=move_index,
-            total_moves=total_moves,
-            current_direction=current_direction
-        )
+        # Draw the score and steps
+        self.draw_score(game.score)
+        self.draw_steps(game.steps)
         
-        # Update display
-        pygame.display.flip()
-    
-    def draw_replay_info(self, game_number, score, steps, move_index, total_moves, current_direction):
-        """Draw replay information panel.
+        # Draw replay information
+        self.draw_replay_info(game_number, round_number, current_move)
+        
+        # Draw game over message if game is over
+        if game.game_over:
+            self.draw_game_over(game.collision_type)
+        
+        # Update the display
+        self.update_display()
+
+    def draw_replay_info(self, game_number, round_number, current_move):
+        """Draw replay-specific information.
         
         Args:
             game_number: Current game number
-            score: Current score
-            steps: Current step count
-            move_index: Index of current move
-            total_moves: Total number of moves
-            current_direction: Current direction of movement
+            round_number: Current round number
+            current_move: Current move number
         """
-        # Set up font
-        font = pygame.font.SysFont('arial', 20)
-        
-        # Right panel info
+        # Create the info text
         info_text = [
             f"Game: {game_number}",
-            f"Score: {score}",
-            f"Steps: {steps}",
-            f"Moves: {move_index}/{total_moves}",
-            f"Current Direction: {current_direction or 'None'}",
-            f"Press Space to pause/resume",
-            f"Press N for next game",
-            f"Press R to restart game",
-            f"Press Esc to quit"
+            f"Round: {round_number}",
+            f"Move: {current_move}",
+            "",
+            "Controls:",
+            "Space: Pause/Resume",
+            "Right: Next Move",
+            "Left: Previous Move",
+            "R: Restart",
+            "Q: Quit"
         ]
         
-        # Display each line
-        y_offset = 20
-        for text in info_text:
-            text_surface = font.render(text, True, WHITE)
-            self.screen.blit(text_surface, (self.height + 20, y_offset))
-            y_offset += 30 
+        # Draw each line of text
+        for i, line in enumerate(info_text):
+            text = self.font.render(line, True, (255, 255, 255))
+            self.screen.blit(text, (10, 10 + i * 20)) 

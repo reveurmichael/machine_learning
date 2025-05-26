@@ -7,6 +7,7 @@ import traceback
 import numpy as np
 from pathlib import Path
 import json
+from colorama import Fore
 
 def filter_invalid_reversals(moves, current_direction=None):
     """Filter out invalid reversal moves from a sequence.
@@ -106,4 +107,113 @@ def extract_apple_positions(log_dir, game_number):
     except Exception as e:
         print(f"Error extracting apple positions from JSON summary: {e}")
     
-    return apple_positions 
+    return apple_positions
+
+def validate_move(move, current_direction):
+    """Validate if a move is valid given the current direction.
+    
+    Args:
+        move: Move direction to validate
+        current_direction: Current direction of the snake
+        
+    Returns:
+        True if move is valid, False otherwise
+    """
+    if not move or not current_direction:
+        return False
+        
+    # Check if move is a valid direction
+    if move not in ["UP", "DOWN", "LEFT", "RIGHT"]:
+        return False
+        
+    # Check if move is not a reversal
+    if (current_direction == "UP" and move == "DOWN") or \
+       (current_direction == "DOWN" and move == "UP") or \
+       (current_direction == "LEFT" and move == "RIGHT") or \
+       (current_direction == "RIGHT" and move == "LEFT"):
+        return False
+        
+    return True
+
+def get_next_position(current_pos, move):
+    """Calculate the next position based on current position and move.
+    
+    Args:
+        current_pos: Current position as [x, y]
+        move: Move direction
+        
+    Returns:
+        Next position as [x, y]
+    """
+    x, y = current_pos
+    
+    if move == "UP":
+        return [x, y - 1]
+    elif move == "DOWN":
+        return [x, y + 1]
+    elif move == "LEFT":
+        return [x - 1, y]
+    elif move == "RIGHT":
+        return [x + 1, y]
+    else:
+        return current_pos
+
+def check_collision(position, snake_positions, board_size):
+    """Check if a position collides with the snake or board boundaries.
+    
+    Args:
+        position: Position to check as [x, y]
+        snake_positions: List of snake body positions
+        board_size: Size of the game board
+        
+    Returns:
+        Tuple of (collision_type, is_collision)
+        collision_type: Type of collision ("wall" or "self")
+        is_collision: True if collision occurred, False otherwise
+    """
+    x, y = position
+    
+    # Check wall collision
+    if x < 0 or x >= board_size[0] or y < 0 or y >= board_size[1]:
+        return "wall", True
+        
+    # Check self collision
+    if position in snake_positions:
+        return "self", True
+        
+    return None, False
+
+def calculate_distance(pos1, pos2):
+    """Calculate Manhattan distance between two positions.
+    
+    Args:
+        pos1: First position as [x, y]
+        pos2: Second position as [x, y]
+        
+    Returns:
+        Manhattan distance between positions
+    """
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+def get_available_moves(current_pos, current_direction, board_size, snake_positions):
+    """Get list of available valid moves from current position.
+    
+    Args:
+        current_pos: Current position as [x, y]
+        current_direction: Current direction of the snake
+        board_size: Size of the game board
+        snake_positions: List of snake body positions
+        
+    Returns:
+        List of valid move directions
+    """
+    available_moves = []
+    
+    for move in ["UP", "DOWN", "LEFT", "RIGHT"]:
+        if validate_move(move, current_direction):
+            next_pos = get_next_position(current_pos, move)
+            collision_type, is_collision = check_collision(next_pos, snake_positions, board_size)
+            if not is_collision:
+                available_moves.append(move)
+                
+    return available_moves 

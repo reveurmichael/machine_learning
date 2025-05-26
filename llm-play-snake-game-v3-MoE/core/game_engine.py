@@ -1,283 +1,203 @@
 """
-Game engine for the Snake game.
-Provides core game logic that can run with or without a GUI.
+Game engine module for the Snake game.
+Handles the game loop and move execution.
 """
 
-import numpy as np
-from config import GRID_SIZE, DIRECTIONS
+import os
+import json
+import time
+import pygame
+import datetime
+from colorama import Fore
+from llm_client import LLMClient, LLMOutputParser
+from utils.log_utils import save_to_file
+
 
 class GameEngine:
-    """Base class for the Snake game engine."""
-    
-    def __init__(self, grid_size=GRID_SIZE, use_gui=True):
+    """Handles the game loop and move execution."""
+
+    def __init__(self, game, llm_client, parser_client, move_delay=0.5, max_steps=100, max_empty_moves=3):
         """Initialize the game engine.
         
         Args:
-            grid_size: Size of the game grid
-            use_gui: Whether to use GUI for display
+            game: SnakeGame instance
+            llm_client: Primary LLM client
+            parser_client: Parser LLM client
+            move_delay: Delay between moves in seconds
+            max_steps: Maximum number of steps per game
+            max_empty_moves: Maximum number of empty moves before game over
         """
-        if not isinstance(grid_size, int) or grid_size <= 0:
-            raise ValueError(f"grid_size must be a positive integer, got {grid_size}")
-            
-        # Game state variables
-        self.grid_size = grid_size
-        self.board = np.zeros((grid_size, grid_size))
-        self.snake_positions = np.array([[grid_size//2, grid_size//2]])  # Start in middle
-        self.head_position = self.snake_positions[-1]
-        self.apple_position = self._generate_apple()
-        self.current_direction = None
-        self.steps = 0
-        self.score = 0
-        self.last_collision_type = None  # Will be 'wall', 'self', 'max_steps', or 'empty_moves'
+        self.game = game
+        self.llm_client = llm_client
+        self.parser_client = parser_client
+        self.move_delay = move_delay
+        self.max_steps = max_steps
+        self.max_empty_moves = max_empty_moves
         
-        # Board entity codes
-        self.board_info = {
-            "empty": 0,
-            "snake": 1,
-            "apple": 2
-        }
+        # Game state
+        self.need_new_plan = True
+        self.current_plan = []
+        self.empty_moves = 0
+        self.parser_usage_count = 0
+        self.empty_steps = 0
+        self.error_steps = 0
         
-        # Track apple positions history for replay
-        self.apple_positions_history = []
-        self.apple_positions_history.append(self.apple_position.copy())
-        self.replay_mode = False
-        
-        # GUI settings
-        self.use_gui = use_gui
-        self.gui = None
-        
-        # Initialize the board
-        self._update_board()
-    
-    def set_gui(self, gui_instance):
-        """Set the GUI instance to use for display.
+        # Logging
+        self.log_dir = None
+        self.prompts_dir = None
+        self.responses_dir = None
+
+    def set_game(self, game):
+        """Set the game instance.
         
         Args:
-            gui_instance: Instance of a GUI class
+            game: SnakeGame instance
         """
-        self.gui = gui_instance
-        self.use_gui = (gui_instance is not None)
-    
-    def reset(self):
-        """Reset the game to the initial state."""
-        # Reset game state
-        self.snake_positions = np.array([[self.grid_size//2, self.grid_size//2]])
-        self.head_position = self.snake_positions[-1]
-        self.apple_position = self._generate_apple()
-        self.current_direction = None
-        self.steps = 0
-        self.score = 0
-        self.last_collision_type = None
-        
-        # Reset apple history
-        self.apple_positions_history = []
-        self.apple_positions_history.append(self.apple_position.copy())
-        
-        # Update the board
-        self._update_board()
-        
-        # Draw if GUI is available
-        if self.use_gui and self.gui:
-            self.draw()
-    
-    def draw(self):
-        """Draw the current game state if GUI is available."""
-        if self.use_gui and self.gui:
-            # Specific drawing handled by the GUI implementation
-            pass
-    
-    def _update_board(self):
-        """Update the game board with current snake and apple positions."""
-        # Clear the board
-        self.board.fill(self.board_info["empty"])
-        
-        # Place the snake (board is indexed as [y][x] since it's a 2D array)
-        for x, y in self.snake_positions:
-            self.board[y, x] = self.board_info["snake"]
-        
-        # Place the apple
-        x, y = self.apple_position
-        self.board[y, x] = self.board_info["apple"]
-    
-    def _generate_apple(self):
-        """Generate a new apple at a random empty position.
+        self.game = game
+        self.need_new_plan = True
+        self.current_plan = []
+        self.empty_moves = 0
+
+    def get_llm_response(self):
+        """Get a response from the LLM.
         
         Returns:
-            Array of [x, y] coordinates for the new apple
+            Tuple of (parsed_response, parser_prompt)
         """
-        while True:
-            # Generate random position
-            x, y = np.random.randint(0, self.grid_size, 2)
-            
-            # Check if position is empty (not occupied by snake)
-            if not any(np.array_equal([x, y], pos) for pos in self.snake_positions):
-                return np.array([x, y])
-    
-    def set_apple_position(self, position):
-        """Set the apple position manually (for replay purposes).
+        # Create the prompt
+        prompt = self._create_prompt()
         
-        Args:
-            position: Position to place the apple as [x, y]
+        # Save the prompt
+        if self.prompts_dir:
+            prompt_file = os.path.join(
+                self.prompts_dir,
+                f"prompt_{self.game.steps}.txt"
+            )
+            save_to_file(prompt_file, prompt)
+        
+        # Get response from primary LLM
+        response = self.llm_client.generate_response(prompt)
+        
+        # Save the response
+        if self.responses_dir:
+            response_file = os.path.join(
+                self.responses_dir,
+                f"response_{self.game.steps}.txt"
+            )
+            save_to_file(response_file, response)
+        
+        # Parse the response
+        parsed_response, parser_prompt = self.parser_client.parse_and_format(
+            response,
+            self.game.head,
+            self.game.apple,
+            self.game.body
+        )
+        
+        # Save the parser prompt and response
+        if self.prompts_dir:
+            parser_prompt_file = os.path.join(
+                self.prompts_dir,
+                f"parser_prompt_{self.game.steps}.txt"
+            )
+            save_to_file(parser_prompt_file, parser_prompt)
             
+        if self.responses_dir:
+            parsed_response_file = os.path.join(
+                self.responses_dir,
+                f"parsed_response_{self.game.steps}.txt"
+            )
+            save_to_file(parsed_response_file, parsed_response)
+        
+        return parsed_response, parser_prompt
+
+    def _create_prompt(self):
+        """Create a prompt for the LLM.
+        
         Returns:
-            Boolean indicating if the position was valid and set successfully
+            The prompt string
         """
-        try:
-            x, y = position
+        return f"""You are playing a game of Snake. The goal is to eat the apple and grow as long as possible without hitting the walls or yourself.
+
+Current game state:
+- Head position: {self.game.head}
+- Apple position: {self.game.apple}
+- Body cells: {self.game.body}
+- Score: {self.game.score}
+- Steps: {self.game.steps}
+
+Please provide a sequence of moves to reach the apple. Valid moves are: UP, DOWN, LEFT, RIGHT.
+Format your response as a JSON object with a "moves" array containing the sequence of moves.
+
+Example response:
+{{
+    "moves": ["UP", "RIGHT", "DOWN", "LEFT"]
+}}
+"""
+
+    def run_game(self):
+        """Run the game loop."""
+        # Set up logging directories
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.log_dir = os.path.join("logs", f"game_{timestamp}")
+        self.prompts_dir = os.path.join(self.log_dir, "prompts")
+        self.responses_dir = os.path.join(self.log_dir, "responses")
+        os.makedirs(self.prompts_dir, exist_ok=True)
+        os.makedirs(self.responses_dir, exist_ok=True)
+        
+        # Main game loop
+        while not self.game.game_over and self.game.steps < self.max_steps:
+            # Process events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
             
-            # Validate position
-            if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
-                print(f"Invalid apple position: {position}")
-                return False
+            # Get new plan if needed
+            if self.need_new_plan:
+                try:
+                    parsed_response, _ = self.get_llm_response()
+                    self.parser_usage_count += 1
+                    
+                    # Parse the moves
+                    try:
+                        moves = json.loads(parsed_response)["moves"]
+                        if moves:
+                            self.current_plan = moves
+                            self.need_new_plan = False
+                            self.empty_moves = 0
+                        else:
+                            self.empty_moves += 1
+                            self.empty_steps += 1
+                    except (json.JSONDecodeError, KeyError):
+                        self.error_steps += 1
+                        self.need_new_plan = True
+                        
+                except Exception as e:
+                    print(f"{Fore.RED}Error getting LLM response: {str(e)}{Fore.RESET}")
+                    self.error_steps += 1
+                    self.need_new_plan = True
+            
+            # Execute next move
+            if self.current_plan:
+                move = self.current_plan.pop(0)
+                self.game.move(move)
                 
-            # Check if position is empty
-            if any(np.array_equal([x, y], pos) for pos in self.snake_positions):
-                print(f"Cannot place apple on snake: {position}")
-                return False
-                
-            # Set the position
-            self.apple_position = np.array([x, y])
+                # Check if we need a new plan
+                if not self.current_plan:
+                    self.need_new_plan = True
             
-            # Update the board
-            self._update_board()
+            # Check for game over conditions
+            if self.empty_moves >= self.max_empty_moves:
+                self.game.game_over = True
+                self.game.collision_type = "max_empty_moves"
             
-            # Update display if GUI is available
-            if self.use_gui and self.gui:
-                self.draw()
-                
-            return True
-        except Exception as e:
-            print(f"Error setting apple position: {e}")
-            return False
-    
-    def make_move(self, direction_key):
-        """Execute a move in the specified direction.
-        
-        Args:
-            direction_key: String key of the direction to move in ("UP", "DOWN", etc.)
+            # Update display
+            if self.game.gui:
+                self.game.gui.draw()
+                pygame.display.flip()
             
-        Returns:
-            Tuple of (game_active, apple_eaten) where:
-                game_active: Boolean indicating if the game is still active
-                apple_eaten: Boolean indicating if an apple was eaten on this move
-        """
-        # Get direction vector
-        if direction_key not in DIRECTIONS:
-            print(f"Invalid direction: {direction_key}, defaulting to RIGHT")
-            direction_key = "RIGHT"
-        
-        direction = DIRECTIONS[direction_key]
-        
-        # Don't allow reversing direction directly
-        if (self.current_direction is not None and 
-            np.array_equal(np.array(direction), -np.array(self.current_direction))):
-            print(f"Tried to reverse direction: {direction_key}. Using current direction instead.")
-            direction = self.current_direction
-            direction_key = self._get_current_direction_key()
-        
-        # Update current direction
-        self.current_direction = direction
-        
-        # Calculate new head position according to our coordinate system
-        head_x, head_y = self.head_position
-        
-        # Apply direction vector to head position
-        new_head = np.array([
-            head_x + direction[0],  # Apply dx to x-coordinate
-            head_y + direction[1]   # Apply dy to y-coordinate
-        ])
-        
-        # Debug log
-        print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
-        
-        # Check for collisions
-        wall_collision, body_collision = self._check_collision(new_head)
-        
-        if wall_collision:
-            print(f"Game over! Snake hit wall moving {direction_key}")
-            self.last_collision_type = 'wall'
-            return False, False  # Game over, no apple eaten
-            
-        if body_collision:
-            print(f"Game over! Snake hit itself moving {direction_key}")
-            self.last_collision_type = 'self'
-            return False, False  # Game over, no apple eaten
-        
-        # Move the snake: add new head
-        self.snake_positions = np.vstack([self.snake_positions, new_head])
-        self.head_position = new_head
-        
-        # Check if apple is eaten
-        apple_eaten = False
-        if np.array_equal(new_head, self.apple_position):
-            self.score += 1
-            print(f"Apple eaten! Score: {self.score}")
-            
-            # Generate a new apple
-            if self.replay_mode and len(self.apple_positions_history) > self.score:
-                # In replay mode, use the next apple position from history
-                next_apple = self.apple_positions_history[self.score]
-                self.apple_position = next_apple.copy()
-                print(f"Replay: using predefined apple position: ({next_apple[0]}, {next_apple[1]})")
-            else:
-                # Generate a new random apple position
-                self.apple_position = self._generate_apple()
-                # In normal mode, record this position for future replay
-                if not self.replay_mode:
-                    self.apple_positions_history.append(self.apple_position.copy())
-                    print(f"Recorded new apple position: ({self.apple_position[0]}, {self.apple_position[1]})")
-            
-            apple_eaten = True
-        else:
-            # Remove the tail if no apple is eaten
-            self.snake_positions = self.snake_positions[1:]
-            
-        # Update the board
-        self._update_board()
-        
-        # Increment steps
-        self.steps += 1
-        
-        # Update display if GUI is available
-        if self.use_gui and self.gui:
-            self.draw()
-        
-        return True, apple_eaten  # Game continues, indicates if apple was eaten
-    
-    def _check_collision(self, position):
-        """Check if a position collides with wall or snake body.
-        
-        Args:
-            position: Position to check as [x, y]
-            
-        Returns:
-            Tuple of (wall_collision, body_collision) booleans
-        """
-        x, y = position
-        
-        # Check wall collision
-        wall_collision = (x < 0 or x >= self.grid_size or 
-                         y < 0 or y >= self.grid_size)
-        
-        # Check body collision (skip head position which is at index 0)
-        body_collision = False
-        if len(self.snake_positions) > 1:
-            body_collision = any(np.array_equal(position, pos) 
-                               for pos in self.snake_positions[1:])
-        
-        return wall_collision, body_collision
-    
-    def _get_current_direction_key(self):
-        """Get the string key for the current direction.
-        
-        Returns:
-            String key ("UP", "DOWN", "LEFT", "RIGHT") for current direction
-        """
-        if self.current_direction is None:
-            return "RIGHT"  # Default direction
-            
-        for key, value in DIRECTIONS.items():
-            if np.array_equal(self.current_direction, value):
-                return key
-                
-        return "RIGHT"  # Default if no match found 
+            # Control game speed
+            time.sleep(self.move_delay) 

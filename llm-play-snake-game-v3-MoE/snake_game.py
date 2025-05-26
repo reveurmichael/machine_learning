@@ -193,9 +193,9 @@ class SnakeGame:
         """Get the history of apple positions.
         
         Returns:
-            List of apple positions as strings in format "(x,y)"
+            List of apple positions as numpy arrays
         """
-        return [f"({pos[0]},{pos[1]})" for pos in self.apple_positions_history]
+        return self.apple_positions_history
     
     def set_replay_mode(self, enabled=True):
         """Set the replay mode flag.

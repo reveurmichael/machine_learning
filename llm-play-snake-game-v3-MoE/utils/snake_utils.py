@@ -107,7 +107,7 @@ def parse_llm_response(response, processed_response_func, game_instance):
         # Extract moves from JSON if found
         if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
             valid_moves = [move.upper() for move in json_data["moves"] 
-                        if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+                         if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
             if valid_moves:
                 game_instance.planned_moves = valid_moves
                 print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")

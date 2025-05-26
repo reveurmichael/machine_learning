@@ -29,84 +29,40 @@ def extract_moves_from_log_dir(log_dir, game_number=None):
     all_game_moves = {}
     log_dir_path = Path(log_dir)
     
-    # Check if responses directory exists in the log directory
-    responses_dir = log_dir_path / "responses"
-    if responses_dir.exists() and responses_dir.is_dir():
-        response_pattern = str(responses_dir / "response_*.txt")
-    else:
-        # Fall back to the main directory if responses subdirectory doesn't exist
-        response_pattern = str(log_dir_path / "response_*.txt")
-    
-    # Get all response files
-    response_files = sorted(glob.glob(response_pattern))
-    
-    if not response_files:
-        print(f"No response files found in {log_dir}")
-        return {} if game_number is None else []
-    
-    # Process each response file
-    for response_file in response_files:
-        # Extract game number from filename
-        file_game_num_match = re.search(r'response_(\d+)\.txt', os.path.basename(response_file))
-        if not file_game_num_match:
-            continue
-            
-        file_game_num = int(file_game_num_match.group(1))
-        
-        # If a specific game number is requested, skip other games
-        if game_number is not None and file_game_num != game_number:
-            continue
-        
-        # Extract moves from this file
-        moves = []
-        try:
-            with open(response_file, 'r', encoding='utf-8') as f:
-                log_content = f.read()
-            
-            # Try to find JSON responses in the log
-            json_pattern = r'\{[\s\S]*?"moves"\s*:\s*\[([\s\S]*?)\][\s\S]*?\}'
-            json_matches = re.finditer(json_pattern, log_content)
-            
-            for match in json_matches:
-                json_str = match.group(0)
-                try:
-                    # Try to parse the JSON
-                    json_data = json.loads(json_str)
-                    if "moves" in json_data and isinstance(json_data["moves"], list):
-                        # Extract the moves
-                        valid_moves = [move.upper() for move in json_data["moves"] 
-                                      if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-                        if valid_moves:
-                            moves.extend(valid_moves)
-                except json.JSONDecodeError:
-                    # Try to parse a more specific part of the match
-                    moves_array = match.group(1)
-                    # Extract all quoted strings (both single and double quotes)
-                    move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
-                    valid_moves = [move.upper() for move in move_matches 
-                                  if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-                    if valid_moves:
-                        moves.extend(valid_moves)
-                
-            if moves:
-                # Store the moves for this game
-                all_game_moves[file_game_num] = moves
-                print(f"Extracted {len(moves)} moves from game {file_game_num}")
-            
-        except Exception as e:
-            print(f"Error extracting moves from {response_file}: {e}")
-    
-    # Check for game summary file
+    # Extract moves from JSON summary files
     if game_number is not None:
+        # Try to extract moves for a specific game from its JSON summary
         json_summary_file = log_dir_path / f"game{game_number}_summary.json"
         if json_summary_file.exists():
             try:
                 with open(json_summary_file, 'r', encoding='utf-8') as f:
                     summary_data = json.load(f)
-                print(f"Found JSON summary file for game {game_number}")
-                # Could extract additional information from JSON summary if needed
+                
+                # Extract moves from JSON summary
+                if 'moves' in summary_data and isinstance(summary_data['moves'], list):
+                    moves = summary_data['moves']
+                    print(f"Extracted {len(moves)} moves from game {game_number} JSON summary")
+                    return moves
+                else:
+                    print(f"No moves found in JSON summary for game {game_number}")
             except Exception as e:
                 print(f"Error reading JSON summary file: {e}")
+    else:
+        # Try to extract moves for all games from their JSON summaries
+        for i in range(1, 10):  # Assume a reasonable maximum number of games
+            json_summary_file = log_dir_path / f"game{i}_summary.json"
+            if json_summary_file.exists():
+                try:
+                    with open(json_summary_file, 'r', encoding='utf-8') as f:
+                        summary_data = json.load(f)
+                    
+                    # Extract moves from JSON summary
+                    if 'moves' in summary_data and isinstance(summary_data['moves'], list):
+                        moves = summary_data['moves']
+                        all_game_moves[i] = moves
+                        print(f"Extracted {len(moves)} moves from game {i} JSON summary")
+                except Exception as e:
+                    print(f"Error reading JSON summary file for game {i}: {e}")
     
     # Return the appropriate result based on the input
     if game_number is not None:
@@ -138,12 +94,8 @@ def extract_apple_positions(log_dir, game_number):
         
         # Extract apple positions from JSON
         if 'apple_positions' in summary_data and summary_data['apple_positions']:
-            # Convert string positions like "(x,y)" to arrays [x,y]
-            for pos_str in summary_data['apple_positions']:
-                match = re.match(r'\((\d+),(\d+)\)', pos_str)
-                if match:
-                    x, y = int(match.group(1)), int(match.group(2))
-                    apple_positions.append(np.array([x, y]))
+            for pos in summary_data['apple_positions']:
+                apple_positions.append(np.array([pos['x'], pos['y']]))
         
         print(f"Extracted {len(apple_positions)} apple positions from game {game_number} JSON summary")
     

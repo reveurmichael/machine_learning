@@ -3,8 +3,10 @@ Utility module for JSON processing in the Snake game.
 Consolidates JSON extraction and validation functions used by multiple components.
 """
 
+import os
 import json
 import re
+from datetime import datetime
 
 # Global counter for JSON extraction errors
 json_error_stats = {
@@ -39,6 +41,136 @@ def reset_json_error_stats():
         "text_extraction_errors": 0,
         "fallback_extraction_success": 0
     }
+
+def save_experiment_info_json(args, directory):
+    """Save experiment information to a JSON file.
+    
+    Args:
+        args: Command line arguments
+        directory: Directory to save to
+        
+    Returns:
+        Path to the saved file
+    """
+    # Create experiment information in structured JSON format
+    info_data = {
+        "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "primary_llm": {
+            "provider": args.provider,
+            "model": args.model if args.model else 'Default model for provider'
+        },
+        "secondary_llm": {
+            "provider": args.parser_provider if args.parser_provider else args.provider,
+            "model": args.parser_model if args.parser_model else 'Default model for parser provider'
+        },
+        "game_configuration": {
+            "max_steps_per_game": args.max_steps,
+            "max_consecutive_empty_moves": args.max_empty_moves,
+            "max_games": args.max_games
+        }
+    }
+    
+    # Create directory if it doesn't exist
+    os.makedirs(directory, exist_ok=True)
+    
+    # Save to JSON file
+    file_path = os.path.join(directory, "info.json")
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(info_data, f, indent=2)
+    
+    return os.path.abspath(file_path)
+
+def update_experiment_info_json(directory, game_count, total_score, total_steps, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, json_error_stats=None, max_empty_moves=3):
+    """Update the experiment information JSON file with game statistics.
+    
+    Args:
+        directory: Directory containing the info.json file
+        game_count: Total number of games played
+        total_score: Total score across all games
+        total_steps: Total steps taken across all games
+        parser_usage_count: Number of times the secondary LLM was used
+        game_scores: List of individual game scores
+        empty_steps: Number of empty steps (moves with empty JSON)
+        error_steps: Number of steps with ERROR in reasoning
+        json_error_stats: Dictionary containing JSON extraction error statistics
+        max_empty_moves: Maximum number of consecutive empty moves before termination
+    """
+    file_path = os.path.join(directory, "info.json")
+    
+    # Read existing content
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            info_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Create a new file if it doesn't exist or is invalid
+        info_data = {}
+    
+    # Calculate score statistics
+    mean_score = total_score / game_count if game_count > 0 else 0
+    max_score = 0
+    min_score = 0
+    
+    if game_scores and len(game_scores) > 0:
+        max_score = max(game_scores)
+        min_score = min(game_scores)
+    
+    # Calculate step statistics
+    empty_step_percentage = (empty_steps / total_steps) * 100 if total_steps > 0 else 0
+    error_step_percentage = (error_steps / total_steps) * 100 if total_steps > 0 else 0
+    valid_steps = total_steps - empty_steps - error_steps
+    valid_step_percentage = (valid_steps / total_steps) * 100 if total_steps > 0 else 0
+    
+    # Create or update game statistics section
+    info_data["game_statistics"] = {
+        "total_games": game_count,
+        "total_score": total_score,
+        "total_steps": total_steps,
+        "max_score": max_score,
+        "min_score": min_score,
+        "mean_score": mean_score,
+        "average_steps_per_game": total_steps/game_count if game_count > 0 else 0
+    }
+    
+    # Create or update response statistics section
+    info_data["response_statistics"] = {
+        "empty_steps": empty_steps,
+        "empty_step_percentage": empty_step_percentage,
+        "error_steps": error_steps,
+        "error_step_percentage": error_step_percentage,
+        "valid_steps": valid_steps,
+        "valid_step_percentage": valid_step_percentage,
+        "parser_usage_count": parser_usage_count
+    }
+    
+    # Add JSON error statistics if available
+    if json_error_stats:
+        # Calculate success rate
+        success_rate = (json_error_stats["successful_extractions"] / json_error_stats["total_extraction_attempts"]) * 100 if json_error_stats["total_extraction_attempts"] > 0 else 0
+        failure_rate = (json_error_stats["failed_extractions"] / json_error_stats["total_extraction_attempts"]) * 100 if json_error_stats["total_extraction_attempts"] > 0 else 0
+        
+        info_data["json_parsing_stats"] = {
+            "total_extraction_attempts": json_error_stats["total_extraction_attempts"],
+            "successful_extractions": json_error_stats["successful_extractions"],
+            "success_rate": success_rate,
+            "failed_extractions": json_error_stats["failed_extractions"],
+            "failure_rate": failure_rate,
+            "json_decode_errors": json_error_stats["json_decode_errors"],
+            "format_validation_errors": json_error_stats["format_validation_errors"],
+            "code_block_extraction_errors": json_error_stats["code_block_extraction_errors"],
+            "text_extraction_errors": json_error_stats["text_extraction_errors"],
+            "fallback_extraction_success": json_error_stats["fallback_extraction_success"]
+        }
+    
+    # Add efficiency metrics
+    info_data["efficiency_metrics"] = {
+        "apples_per_step": total_score/(total_steps if total_steps > 0 else 1),
+        "steps_per_game": total_steps/game_count if game_count > 0 else 0,
+        "valid_move_ratio": valid_steps/(total_steps if total_steps > 0 else 1)
+    }
+    
+    # Write updated content back to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(info_data, f, indent=2)
 
 def extract_valid_json(text):
     """Extract valid JSON data from text.
@@ -79,7 +211,7 @@ def extract_valid_json(text):
         if json_data:
             json_error_stats["successful_extractions"] += 1
             return json_data
-    
+                
     json_error_stats["failed_extractions"] += 1
     return None
 
@@ -257,7 +389,7 @@ def extract_moves_fallback(json_str):
         move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
         valid_moves = [move.upper() for move in move_matches 
                       if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-        
+    
         if valid_moves:
             json_error_stats["fallback_extraction_success"] += 1
             return {"moves": valid_moves}

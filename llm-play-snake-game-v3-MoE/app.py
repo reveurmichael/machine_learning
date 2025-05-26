@@ -14,8 +14,9 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime
 from replay import extract_apple_positions
+import numpy as np
 
-def find_log_folders(base_dir='.', max_depth=2):
+def find_log_folders(base_dir='.', max_depth=4):
     """Find all log folders in the given directory and its subdirectories.
     
     Args:
@@ -28,27 +29,31 @@ def find_log_folders(base_dir='.', max_depth=2):
     log_folders = []
     base_path = Path(base_dir)
     
-    # Pattern to match log folders (contains info.txt and/or response_*.txt files)
     for depth in range(max_depth + 1):
         # Create pattern for current depth
         # Use wildcards for each directory level up to the current depth
         if depth == 0:
             # Just look in the base directory
-            patterns = [str(base_path / "*_*")]  # modelname_timestamp pattern
+            patterns = [str(base_path / "*")]
         else:
             # Look in subdirectories up to depth
             parts = ['*'] * depth
-            patterns = [str(base_path.joinpath(*parts) / "*_*")]
+            patterns = [str(base_path.joinpath(*parts) / "*")]
         
         # Find all potential log folders for current patterns
         for pattern in patterns:
             potential_folders = glob.glob(pattern)
             
             for folder in potential_folders:
-                # Check if folder contains info.txt, response files, or JSON summary files
-                if (Path(folder) / 'info.txt').exists() or \
-                   glob.glob(str(Path(folder) / 'response_*.txt')) or \
-                   glob.glob(str(Path(folder) / 'game*_summary.json')):
+                folder_path = Path(folder)
+                # Check if folder contains required files and directories
+                has_info_json = (folder_path / 'info.json').exists()
+                has_summary_files = bool(glob.glob(str(folder_path / 'game*_summary.json')))
+                has_prompts_dir = (folder_path / 'prompts').is_dir()
+                has_responses_dir = (folder_path / 'responses').is_dir()
+                
+                # If it has all required components, it's a log folder
+                if has_info_json and has_summary_files and has_prompts_dir and has_responses_dir:
                     log_folders.append(folder)
     
     return log_folders
@@ -82,75 +87,60 @@ def extract_game_stats(log_folder):
         'game_data': {}  # Store per-game data
     }
     
-    # Try to extract info from info.txt
-    info_path = Path(log_folder) / 'info.txt'
+    # Try to extract info from info.json
+    info_path = Path(log_folder) / 'info.json'
     if info_path.exists():
-        with open(info_path, 'r', encoding='utf-8') as f:
-            info_content = f.read()
+        try:
+            with open(info_path, 'r', encoding='utf-8') as f:
+                info_data = json.load(f)
             
-            # Extract date
-            date_match = re.search(r'Date: ([\d-]+ [\d:]+)', info_content)
-            if date_match:
-                stats['date'] = date_match.group(1)
-                
+            # Extract experiment information
+            stats['date'] = info_data.get('date')
+            
             # Extract LLM information
-            primary_llm_match = re.search(r'PRIMARY LLM Provider: (\w+)', info_content)
-            if primary_llm_match:
-                primary_provider = primary_llm_match.group(1)
-                stats['primary_llm'] = primary_provider
-                stats['providers'].append(primary_provider)
+            primary_llm_info = info_data.get('primary_llm', {})
+            if primary_llm_info:
+                primary_provider = primary_llm_info.get('provider')
+                primary_model = primary_llm_info.get('model')
                 
-            primary_model_match = re.search(r'PRIMARY LLM Model: ([^\n]+)', info_content)
-            if primary_model_match:
-                primary_model = primary_model_match.group(1)
-                stats['primary_llm'] += f" - {primary_model}"
-                stats['models'].append(primary_model)
+                if primary_provider:
+                    stats['primary_llm'] = primary_provider
+                    stats['providers'].append(primary_provider)
                 
-            secondary_llm_match = re.search(r'SECONDARY LLM Provider: (\w+)', info_content)
-            if secondary_llm_match:
-                secondary_provider = secondary_llm_match.group(1)
-                stats['secondary_llm'] = secondary_provider
-                if secondary_provider not in stats['providers']:
-                    stats['providers'].append(secondary_provider)
+                if primary_model:
+                    stats['primary_llm'] += f" - {primary_model}"
+                    stats['models'].append(primary_model)
+            
+            secondary_llm_info = info_data.get('secondary_llm', {})
+            if secondary_llm_info:
+                secondary_provider = secondary_llm_info.get('provider')
+                secondary_model = secondary_llm_info.get('model')
                 
-                secondary_model_match = re.search(r'SECONDARY LLM Model: ([^\n]+)', info_content)
-                if secondary_model_match:
-                    secondary_model = secondary_model_match.group(1)
+                if secondary_provider:
+                    stats['secondary_llm'] = secondary_provider
+                    if secondary_provider not in stats['providers']:
+                        stats['providers'].append(secondary_provider)
+                
+                if secondary_model:
                     stats['secondary_llm'] += f" - {secondary_model}"
                     if secondary_model not in stats['models']:
                         stats['models'].append(secondary_model)
-            elif 'SECONDARY LLM: Not used' in info_content:
-                stats['secondary_llm'] = 'None'
-                
+            
             # Extract game statistics
-            total_games_match = re.search(r'Total Games Played: (\d+)', info_content)
-            if total_games_match:
-                stats['total_games'] = int(total_games_match.group(1))
-                
-            total_score_match = re.search(r'Total Score: (\d+)', info_content)
-            if total_score_match:
-                stats['total_score'] = int(total_score_match.group(1))
-                
-            total_steps_match = re.search(r'Total Steps: (\d+)', info_content)
-            if total_steps_match:
-                stats['total_steps'] = int(total_steps_match.group(1))
-                
-            max_score_match = re.search(r'Maximum Score: (\d+)', info_content)
-            if max_score_match:
-                stats['max_score'] = int(max_score_match.group(1))
-                
-            min_score_match = re.search(r'Minimum Score: (\d+)', info_content)
-            if min_score_match:
-                stats['min_score'] = int(min_score_match.group(1))
-                
-            mean_score_match = re.search(r'Mean Score: ([\d.]+)', info_content)
-            if mean_score_match:
-                stats['mean_score'] = float(mean_score_match.group(1))
-                
-            # JSON success rate
-            json_success_rate_match = re.search(r'Successful Extractions: \d+ \(([\d.]+)%\)', info_content)
-            if json_success_rate_match:
-                stats['json_success_rate'] = float(json_success_rate_match.group(1))
+            game_stats = info_data.get('game_statistics', {})
+            stats['total_games'] = game_stats.get('total_games', 0)
+            stats['total_score'] = game_stats.get('total_score', 0)
+            stats['total_steps'] = game_stats.get('total_steps', 0)
+            stats['max_score'] = game_stats.get('max_score', 0)
+            stats['min_score'] = game_stats.get('min_score', 0)
+            stats['mean_score'] = game_stats.get('mean_score', 0.0)
+            
+            # Extract JSON success rate
+            json_stats = info_data.get('json_parsing_stats', {})
+            stats['json_success_rate'] = json_stats.get('success_rate', 0.0)
+            
+        except Exception as e:
+            print(f"Error reading info.json: {e}")
     
     # Extract per-game data from JSON summary files
     total_response_time = 0
@@ -182,29 +172,45 @@ def extract_game_stats(log_folder):
         stats['avg_secondary_response_time'] = total_secondary_response_time / game_count
         stats['steps_per_apple'] = total_steps_per_apple / game_count
     
-    # Check response files if no game data was found from summary files
-    if not stats['game_data']:
-        # Check if responses directory exists
-        responses_dir = Path(log_folder) / "responses"
-        if responses_dir.exists() and responses_dir.is_dir():
-            response_pattern = str(responses_dir / "response_*.txt")
-        else:
-            # Fall back to the main directory
-            response_pattern = str(Path(log_folder) / "response_*.txt")
-            
-        response_files = sorted(glob.glob(response_pattern))
-        
-        for response_file in response_files:
-            game_num_match = re.search(r'response_(\d+)\.txt', os.path.basename(response_file))
-            if game_num_match:
-                game_num = int(game_num_match.group(1))
-                stats['game_data'][game_num] = {'file': response_file}
-    
-    # Update total_games if not set from info.txt
+    # Update total_games if not set from info.json
     if stats['total_games'] == 0:
         stats['total_games'] = len(stats['game_data'])
     
     return stats
+
+def extract_apple_positions(log_dir, game_number):
+    """Extract apple positions from a game summary file.
+    
+    Args:
+        log_dir: Path to the log directory
+        game_number: Game number to extract apple positions for
+        
+    Returns:
+        List of apple positions as [x, y] arrays
+    """
+    log_dir_path = Path(log_dir)
+    json_summary_file = log_dir_path / f"game{game_number}_summary.json"
+    apple_positions = []
+    
+    if not json_summary_file.exists():
+        print(f"No JSON summary file found for game {game_number}")
+        return apple_positions
+    
+    try:
+        with open(json_summary_file, 'r', encoding='utf-8') as f:
+            summary_data = json.load(f)
+        
+        # Extract apple positions from JSON
+        if 'apple_positions' in summary_data and summary_data['apple_positions']:
+            for pos in summary_data['apple_positions']:
+                apple_positions.append(np.array([pos['x'], pos['y']]))
+        
+        print(f"Extracted {len(apple_positions)} apple positions from game {game_number} JSON summary")
+    
+    except Exception as e:
+        print(f"Error extracting apple positions from JSON summary: {e}")
+    
+    return apple_positions
 
 def extract_game_summary(summary_file):
     """Extract game summary from a summary file.
@@ -221,6 +227,8 @@ def extract_game_summary(summary_file):
         'steps': 0,
         'game_end_reason': None,
         'has_apple_positions': False,
+        'has_moves': False,
+        'move_count': 0,
         'avg_primary_response_time': 0,
         'avg_secondary_response_time': 0,
         'steps_per_apple': 0,
@@ -240,7 +248,11 @@ def extract_game_summary(summary_file):
         # Check if the file has apple positions
         if 'apple_positions' in data and data['apple_positions']:
             summary['has_apple_positions'] = True
-            summary['apple_positions'] = data['apple_positions']
+            
+        # Check if the file has moves
+        if 'moves' in data and data['moves']:
+            summary['has_moves'] = True
+            summary['move_count'] = len(data['moves'])
         
         # Extract response time metrics if available
         if 'prompt_response_stats' in data:
@@ -275,6 +287,24 @@ def run_replay(log_dir, game_number=None, move_pause=1.0):
     
     if game_number is not None:
         cmd.extend(["--game", str(game_number)])
+        
+        # Show information about available moves if a specific game is selected
+        try:
+            json_summary_file = os.path.join(log_dir, f"game{game_number}_summary.json")
+            if os.path.exists(json_summary_file):
+                with open(json_summary_file, 'r') as f:
+                    summary_data = json.load(f)
+                
+                move_info = ""
+                if 'moves' in summary_data and summary_data['moves']:
+                    move_count = len(summary_data['moves'])
+                    move_info = f"Found {move_count} stored moves in summary file."
+                else:
+                    move_info = "No stored moves found in summary file."
+                
+                st.info(move_info)
+        except Exception as e:
+            st.warning(f"Error checking for moves in summary file: {e}")
     
     try:
         process = subprocess.Popen(cmd)
@@ -512,15 +542,23 @@ def app():
             game_options = []
             for game_num, data in sorted(game_data.items()):
                 has_positions = data.get('has_apple_positions', False)
+                has_moves = data.get('has_moves', False)
+                move_count = data.get('move_count', 0)
                 score = data.get('score', 0)
                 steps = data.get('steps', 0)
                 
-                # Check if summary file has apple positions
+                # Build detailed info string
+                position_info = ""
                 if has_positions:
-                    apple_positions = extract_apple_positions(replay_folder, game_num)
-                    position_info = f" [✓ {len(apple_positions)} apple positions]" if apple_positions else ""
+                    position_info += f" [✓ apple positions]"
                 else:
-                    position_info = " [no apple positions]"
+                    position_info += " [no apple positions]"
+                    
+                # Add move information
+                if has_moves:
+                    position_info += f" [✓ {move_count} stored moves]"
+                else:
+                    position_info += " [no stored moves]"
                     
                 option_text = f"Game {game_num} - Score: {score}, Steps: {steps}{position_info}"
                 game_options.append((game_num, option_text))

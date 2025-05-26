@@ -14,15 +14,26 @@ from snake_game import SnakeGame
 from llm_client import LLMClient
 from llm_parser import LLMOutputParser
 from config import TIME_DELAY, TIME_TICK, MOVE_PAUSE
-from text_utils import (
-    save_to_file, 
-    save_experiment_info, 
-    update_experiment_info, 
-    format_raw_llm_response, 
+from utils import (
+    # Log utilities
+    save_to_file,
+    format_raw_llm_response,
     format_parsed_llm_response,
-    generate_game_summary_json
+    generate_game_summary_json,
+    
+    # JSON utilities
+    get_json_error_stats,
+    reset_json_error_stats,
+    save_experiment_info_json,
+    update_experiment_info_json,
+    
+    # Game management utilities
+    check_max_steps,
+    process_game_over,
+    handle_error,
+    report_final_statistics,
+    handle_llm_response
 )
-from json_utils import get_json_error_stats, reset_json_error_stats
 
 
 class GameManager:
@@ -53,6 +64,9 @@ class GameManager:
         self.game_active = True
         self.need_new_plan = True
         self.running = True
+        
+        # Track moves for this game
+        self.current_game_moves = []
         
         # Pygame and timing
         self.clock = pygame.time.Clock()
@@ -119,7 +133,7 @@ class GameManager:
         self.responses_dir = os.path.join(self.log_dir, "responses")
         
         # Save experiment information
-        model_info_path = save_experiment_info(self.args, self.log_dir)
+        model_info_path = save_experiment_info_json(self.args, self.log_dir)
         print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
     
     def process_events(self):
@@ -136,6 +150,7 @@ class GameManager:
                     self.game_active = True
                     self.need_new_plan = True
                     self.consecutive_empty_steps = 0  # Reset on game reset
+                    self.current_game_moves = []  # Reset moves for new game
                     print(Fore.GREEN + "🔄 Game reset")
     
     def get_llm_response(self):
@@ -244,9 +259,14 @@ class GameManager:
             next_move = self.game.parse_llm_response(parsed_response)
             
             # Handle the response and update counters
-            self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active = self.handle_llm_response(
-                parsed_response, next_move
+            self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active = handle_llm_response(
+                parsed_response, next_move, self.error_steps, self.empty_steps, 
+                self.consecutive_empty_steps, self.args.max_empty_moves
             )
+            
+            # Update collision type if needed
+            if not game_active:
+                self.game.last_collision_type = 'empty_moves'
         else:
             # Use the primary LLM response directly
             print(Fore.CYAN + f"Using primary LLM response directly (no parser)")
@@ -254,44 +274,22 @@ class GameManager:
             # No parser usage in this case
             
             # Handle the response and update counters
-            self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active = self.handle_llm_response(
-                raw_llm_response, next_move
+            self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active = handle_llm_response(
+                raw_llm_response, next_move, self.error_steps, self.empty_steps, 
+                self.consecutive_empty_steps, self.args.max_empty_moves
             )
+            
+            # Update collision type if needed
+            if not game_active:
+                self.game.last_collision_type = 'empty_moves'
         
         print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {self.game_count+1}, Round {self.round_count+1})")
         
+        # Record the move if valid
+        if next_move:
+            self.current_game_moves.append(next_move)
+        
         return next_move, game_active
-    
-    def handle_llm_response(self, response, next_move):
-        """Handle the common logic for LLM response processing.
-        
-        Args:
-            response: The LLM response text
-            next_move: The parsed next move (or None)
-            
-        Returns:
-            Tuple of (error_steps, empty_steps, consecutive_empty_steps, game_active)
-        """
-        game_active = True
-        
-        # Check for empty moves with ERROR in reasoning
-        if not next_move and "ERROR" in response:
-            self.error_steps += 1
-            self.consecutive_empty_steps = 0  # Reset consecutive empty steps if ERROR occurs
-            print(Fore.YELLOW + f"⚠️ ERROR in LLM response. Continuing with next round.")
-        elif not next_move:
-            self.empty_steps += 1
-            self.consecutive_empty_steps += 1
-            print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {self.consecutive_empty_steps})")
-            # Check if we've reached max consecutive empty moves
-            if self.consecutive_empty_steps >= self.args.max_empty_moves:
-                print(Fore.RED + f"❌ Game over! {self.args.max_empty_moves} consecutive empty moves without ERROR.")
-                game_active = False
-                self.game.last_collision_type = 'empty_moves'
-        else:
-            self.consecutive_empty_steps = 0  # Reset on valid move
-            
-        return self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active
     
     def check_max_steps(self):
         """Check if the game has reached the maximum number of steps.
@@ -299,11 +297,8 @@ class GameManager:
         Returns:
             Boolean indicating if max steps has been reached
         """
-        if self.game.steps >= self.args.max_steps:
-            print(Fore.RED + f"❌ Game over! Maximum steps ({self.args.max_steps}) reached.")
-            self.game.last_collision_type = 'max_steps'
-            return True
-        return False
+        # Use the utility function from utils
+        return check_max_steps(self.game, self.args.max_steps)
     
     def process_game_over(self, next_move=None):
         """Process game over state and prepare for the next game.
@@ -311,59 +306,15 @@ class GameManager:
         Args:
             next_move: The last move made (or None)
         """
-        self.game_count += 1
-        print(Fore.RED + f"❌ Game over! Score: {self.game.score}, Steps: {self.game.steps}")
-        
-        # Update totals
-        self.total_score += self.game.score
-        self.total_steps += self.game.steps
-        self.game_scores.append(self.game.score)
-        
-        # Calculate game-specific statistics
-        game_parser_usage = self.parser_usage_count if self.game_count == 1 else self.parser_usage_count - self.previous_parser_usage
-        self.previous_parser_usage = self.parser_usage_count
-        
-        # Get apple positions history
-        apple_positions = self.game.get_apple_positions_history()
-        
-        # Get performance metrics
-        avg_response_time = self.game.get_average_response_time()
-        avg_secondary_response_time = self.game.get_average_secondary_response_time()
-        steps_per_apple = self.game.get_steps_per_apple()
-        
-        # Generate JSON summary
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        json_summary = generate_game_summary_json(
-            self.game_count,
-            now,
-            self.game.score,
-            self.game.steps,
-            next_move,
-            game_parser_usage,
-            len(self.game.snake_positions),
-            self.game.last_collision_type,
-            self.round_count,
-            primary_model=self.args.model,
-            primary_provider=self.args.provider,
-            parser_model=self.args.parser_model,
-            parser_provider=self.args.parser_provider,
-            json_error_stats=get_json_error_stats(),
-            max_empty_moves=self.args.max_empty_moves,
-            apple_positions=apple_positions,
-            avg_response_time=avg_response_time,
-            avg_secondary_response_time=avg_secondary_response_time,
-            steps_per_apple=steps_per_apple
+        # Use the utility function from utils
+        self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count, self.previous_parser_usage = process_game_over(
+            self.game, self.game_count, self.total_score, self.total_steps, 
+            self.game_scores, self.round_count, self.parser_usage_count, 
+            self.previous_parser_usage, self.log_dir, self.args, self.current_game_moves
         )
         
-        # Save JSON summary
-        json_path = os.path.join(self.log_dir, f"game{self.game_count}_summary.json")
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(json_summary, f, indent=2)
-        print(Fore.GREEN + f"📝 JSON summary saved to {json_path}")
-        
-        # Reset round count and consecutive empty steps for next game
-        self.round_count = 0
-        self.consecutive_empty_steps = 0
+        # Reset for next game
+        self.current_game_moves = []  # Reset moves for next game
         
         # Wait a moment before resetting if not the last game
         if self.game_count < self.args.max_games:
@@ -379,106 +330,30 @@ class GameManager:
         Args:
             error: The exception that occurred
         """
-        print(Fore.RED + f"Error in game loop: {error}")
-        traceback.print_exc()
+        # Use the utility function from utils
+        self.game_active, self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count, self.previous_parser_usage = handle_error(
+            self.game, self.game_active, self.game_count, self.total_score, self.total_steps, 
+            self.game_scores, self.round_count, self.parser_usage_count, self.previous_parser_usage, 
+            self.log_dir, self.args, self.current_game_moves, error
+        )
         
-        # End the current game and continue to the next one
-        if self.game_active:
-            self.game_active = False
-            self.game_count += 1
-            print(Fore.RED + f"❌ Game aborted due to error! Moving to game {self.game_count + 1}")
-            
-            # Update totals with current game state
-            self.total_score += self.game.score
-            self.total_steps += self.game.steps
-            self.game_scores.append(self.game.score)
-            
-            # Get apple positions history
-            apple_positions = self.game.get_apple_positions_history()
-            
-            # Get performance metrics
-            avg_response_time = self.game.get_average_response_time()
-            avg_secondary_response_time = self.game.get_average_secondary_response_time()
-            steps_per_apple = self.game.get_steps_per_apple()
-            
-            # Generate JSON summary with error information
-            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self.game.last_collision_type = 'error'
-            json_summary = generate_game_summary_json(
-                self.game_count,
-                now,
-                self.game.score,
-                self.game.steps,
-                "ERROR",
-                self.parser_usage_count - self.previous_parser_usage,
-                len(self.game.snake_positions),
-                self.game.last_collision_type,
-                self.round_count,
-                primary_model=self.args.model,
-                primary_provider=self.args.provider,
-                parser_model=self.args.parser_model,
-                parser_provider=self.args.parser_provider,
-                json_error_stats=get_json_error_stats(),
-                max_empty_moves=self.args.max_empty_moves,
-                apple_positions=apple_positions,
-                avg_response_time=avg_response_time,
-                avg_secondary_response_time=avg_secondary_response_time,
-                steps_per_apple=steps_per_apple
-            )
-            
-            # Save JSON summary
-            json_path = os.path.join(self.log_dir, f"game{self.game_count}_summary.json")
-            with open(json_path, 'w', encoding='utf-8') as f:
-                json.dump(json_summary, f, indent=2)
-            print(Fore.GREEN + f"📝 JSON summary saved to {json_path}")
-            
-            # Prepare for next game if we haven't reached the limit
-            if self.game_count < self.args.max_games:
-                pygame.time.delay(1000)  # Wait 1 second
-                self.game.reset()
-                self.game_active = True
-                self.need_new_plan = True
-                self.round_count = 0
-                self.consecutive_empty_steps = 0
-                self.previous_parser_usage = self.parser_usage_count
-                print(Fore.GREEN + f"🔄 Starting game {self.game_count + 1}/{self.args.max_games}")
+        # Prepare for next game if we haven't reached the limit
+        if self.game_count < self.args.max_games and not self.game_active:
+            pygame.time.delay(1000)  # Wait 1 second
+            self.game.reset()
+            self.game_active = True
+            self.need_new_plan = True
+            self.current_game_moves = []  # Reset moves for next game
+            print(Fore.GREEN + f"🔄 Starting game {self.game_count + 1}/{self.args.max_games}")
     
     def report_final_statistics(self):
         """Report final statistics at the end of the game session."""
-        # Update experiment info with final statistics
-        json_error_stats = get_json_error_stats()
-        update_experiment_info(
-            self.log_dir, 
-            self.game_count, 
-            self.total_score, 
-            self.total_steps, 
-            self.parser_usage_count, 
-            self.game_scores, 
-            self.empty_steps, 
-            self.error_steps,
-            json_error_stats,
-            max_empty_moves=self.args.max_empty_moves
+        # Use the utility function from utils
+        report_final_statistics(
+            self.log_dir, self.game_count, self.total_score, self.total_steps,
+            self.parser_usage_count, self.game_scores, self.empty_steps, 
+            self.error_steps, self.args.max_empty_moves
         )
-        
-        print(Fore.GREEN + f"👋 Game session complete. Played {self.game_count} games.")
-        print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(self.log_dir)}")
-        print(Fore.GREEN + f"🏁 Final Score: {self.total_score}")
-        print(Fore.GREEN + f"👣 Total Steps: {self.total_steps}")
-        print(Fore.GREEN + f"🔄 Secondary LLM was used {self.parser_usage_count} times")
-        
-        if self.game_count > 0:
-            print(Fore.GREEN + f"📊 Average Score: {self.total_score/self.game_count:.2f}")
-        
-        if self.total_steps > 0:
-            print(Fore.GREEN + f"📈 Apples per Step: {self.total_score/self.total_steps:.4f}")
-            
-        print(Fore.GREEN + f"📈 Empty Steps: {self.empty_steps}")
-        print(Fore.GREEN + f"📈 Error Steps: {self.error_steps}")
-        
-        if json_error_stats['total_extraction_attempts'] > 0:
-            print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
-            success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts'] * 100)
-            print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
     
     def run_game_loop(self):
         """Run the main game loop."""
@@ -519,6 +394,9 @@ class GameManager:
                             # If we have a move, execute it
                             if next_move:
                                 print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {self.game_count+1}, Round {self.round_count+1})")
+                                
+                                # Record the move
+                                self.current_game_moves.append(next_move)
                                 
                                 # Check if we've reached max steps
                                 if self.check_max_steps():

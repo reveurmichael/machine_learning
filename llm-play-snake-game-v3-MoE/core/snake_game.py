@@ -8,7 +8,7 @@ import traceback
 from core.game_engine import GameEngine
 from utils.snake_utils import calculate_move_differences
 from utils.llm_utils import parse_llm_response
-from config import PROMPT_TEMPLATE_TEXT
+from config import PROMPT_TEMPLATE_TEXT, GRID_SIZE
 
 class SnakeGame(GameEngine):
     """Snake game with LLM agent integration."""
@@ -20,6 +20,10 @@ class SnakeGame(GameEngine):
             grid_size: Size of the game grid (default from config)
             use_gui: Whether to use GUI for display
         """
+        # Use default grid size from config if none provided
+        if grid_size is None:
+            grid_size = GRID_SIZE
+            
         super().__init__(grid_size, use_gui)
         
         # LLM interaction state

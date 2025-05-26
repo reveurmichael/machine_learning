@@ -22,9 +22,6 @@ from .json_utils import (
 from .snake_utils import (
     filter_invalid_reversals,
     calculate_move_differences,
-    is_collision,
-    generate_apple,
-    update_snake,
     extract_apple_positions
 )
 
@@ -96,9 +93,6 @@ __all__ = [
     # snake_utils
     'filter_invalid_reversals',
     'calculate_move_differences',
-    'is_collision',
-    'generate_apple',
-    'update_snake',
     'extract_apple_positions',
     
     # log_utils

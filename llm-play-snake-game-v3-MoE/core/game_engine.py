@@ -16,6 +16,9 @@ class GameEngine:
             grid_size: Size of the game grid
             use_gui: Whether to use GUI for display
         """
+        if not isinstance(grid_size, int) or grid_size <= 0:
+            raise ValueError(f"grid_size must be a positive integer, got {grid_size}")
+            
         # Game state variables
         self.grid_size = grid_size
         self.board = np.zeros((grid_size, grid_size))
@@ -248,37 +251,33 @@ class GameEngine:
             position: Position to check as [x, y]
             
         Returns:
-            Tuple of (collides_with_wall, collides_with_body)
+            Tuple of (wall_collision, body_collision) booleans
         """
         x, y = position
         
-        # Check for collision with wall
+        # Check wall collision
         wall_collision = (x < 0 or x >= self.grid_size or 
-                        y < 0 or y >= self.grid_size)
+                         y < 0 or y >= self.grid_size)
         
-        # Check for collision with self (except tail which will move)
+        # Check body collision (skip head position which is at index 0)
         body_collision = False
-        for pos in self.snake_positions[:-1]:  # Skip the tail
-            if np.array_equal(position, pos):
-                body_collision = True
-                break
-                
+        if len(self.snake_positions) > 1:
+            body_collision = any(np.array_equal(position, pos) 
+                               for pos in self.snake_positions[1:])
+        
         return wall_collision, body_collision
     
     def _get_current_direction_key(self):
         """Get the string key for the current direction.
         
         Returns:
-            Direction key ("UP", "DOWN", "LEFT", "RIGHT") or "NONE" if no direction is set
+            String key ("UP", "DOWN", "LEFT", "RIGHT") for current direction
         """
         if self.current_direction is None:
-            return "NONE"
+            return "RIGHT"  # Default direction
             
         for key, value in DIRECTIONS.items():
             if np.array_equal(self.current_direction, value):
                 return key
-        
-        # If direction doesn't match any known direction (shouldn't happen),
-        # return a safe default
-        print("Warning: Unknown direction vector, defaulting to RIGHT")
-        return "RIGHT" 
+                
+        return "RIGHT"  # Default if no match found 

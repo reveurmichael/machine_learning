@@ -1,6 +1,6 @@
 """
 Snake game utility functions.
-Provides snake game mechanics like collision detection and move validation.
+Provides utility functions for snake game mechanics.
 """
 
 import traceback
@@ -73,98 +73,6 @@ def calculate_move_differences(head_pos, apple_pos):
         y_diff_text = f"#DOWN - #UP = {y_diff} (= {head_y} - {apple_y})"
     
     return f"{x_diff_text}, and {y_diff_text}"
-
-def is_collision(snake_head, snake_positions, grid_size):
-    """Check if a collision has occurred.
-    
-    Args:
-        snake_head: Current position of the snake head
-        snake_positions: List of all positions the snake occupies
-        grid_size: Size of the game grid
-        
-    Returns:
-        Boolean indicating if a collision has occurred and collision type
-    """
-    # Get position values
-    head_x, head_y = snake_head
-    
-    # Check wall collision
-    if (head_x < 0 or head_x >= grid_size or 
-        head_y < 0 or head_y >= grid_size):
-        return True, "wall"
-    
-    # Check self collision (skip head position which is at index 0)
-    if len(snake_positions) > 1 and any(
-        head_x == x and head_y == y for x, y in snake_positions[1:]):
-        return True, "self"
-    
-    return False, None
-
-def generate_apple(snake_positions, grid_size, apple_pos=None):
-    """Generate a new apple position that doesn't overlap with the snake.
-    
-    Args:
-        snake_positions: List of all positions the snake occupies
-        grid_size: Size of the game grid
-        apple_pos: Predefined apple position (for replays)
-        
-    Returns:
-        Coordinates of the new apple as a numpy array
-    """
-    # If a position is provided (for replay), use it
-    if apple_pos is not None:
-        return apple_pos
-    
-    # Generate random position
-    while True:
-        apple = np.array([
-            np.random.randint(0, grid_size),
-            np.random.randint(0, grid_size)
-        ])
-        
-        # Check if the apple overlaps with the snake
-        if not any(apple[0] == x and apple[1] == y for x, y in snake_positions):
-            return apple
-
-def update_snake(snake_positions, direction, apple_pos):
-    """Update the snake's position based on the direction and apple position.
-    
-    Args:
-        snake_positions: List of all positions the snake occupies
-        direction: Direction to move the snake
-        apple_pos: Current position of the apple
-        
-    Returns:
-        Updated snake positions and boolean indicating if apple was eaten
-    """
-    # Make a copy of the snake positions
-    new_positions = snake_positions.copy()
-    
-    # Get current head position
-    head_x, head_y = new_positions[0]
-    
-    # Calculate new head position based on direction
-    if direction == "UP":
-        head_y -= 1
-    elif direction == "DOWN":
-        head_y += 1
-    elif direction == "LEFT":
-        head_x -= 1
-    elif direction == "RIGHT":
-        head_x += 1
-    
-    # Insert new head position
-    new_positions.insert(0, [head_x, head_y])
-    
-    # Check if apple was eaten
-    apple_eaten = False
-    if head_x == apple_pos[0] and head_y == apple_pos[1]:
-        apple_eaten = True
-    else:
-        # Remove tail if no apple was eaten
-        new_positions.pop()
-    
-    return new_positions, apple_eaten
 
 def extract_apple_positions(log_dir, game_number):
     """Extract apple positions from a game summary file.

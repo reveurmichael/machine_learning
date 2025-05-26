@@ -1,0 +1,16 @@
+{
+  "date": "2025-05-26 14:24:52",
+  "primary_llm": {
+    "provider": "ollama",
+    "model": "deepseek-r1:7b"
+  },
+  "secondary_llm": {
+    "provider": "ollama",
+    "model": "mistral:7b"
+  },
+  "game_configuration": {
+    "max_steps_per_game": 400,
+    "max_consecutive_empty_moves": 3,
+    "max_games": 6
+  }
+}

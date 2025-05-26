@@ -437,8 +437,7 @@ class GameManager:
                         if not self.game_active:
                             self.process_game_over(next_move)
                         
-                        # Update the game and draw
-                        self.game.update()
+                        # Draw the current state
                         self.game.draw()
                         
                     except Exception as e:

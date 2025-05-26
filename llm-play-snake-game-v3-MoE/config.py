@@ -21,6 +21,8 @@ TIME_DELAY = 40
 TIME_TICK = 280
 # Pause time between sequential moves (in seconds)
 MOVE_PAUSE = 1.0
+# Pause time between games in replay mode (in seconds)
+PAUSE_BETWEEN_GAMES_SECONDS = 1.0
 
 # Game configuration
 GRID_SIZE = 10

@@ -10,7 +10,8 @@ import traceback
 import json
 from datetime import datetime
 from colorama import Fore
-from snake_game import SnakeGame
+from core.snake_game import SnakeGame
+from gui.game_gui import GameGUI
 from llm_client import LLMClient
 from llm_parser import LLMOutputParser
 from config import TIME_DELAY, TIME_TICK, MOVE_PAUSE
@@ -84,6 +85,9 @@ class GameManager:
         self.log_dir = None
         self.prompts_dir = None
         self.responses_dir = None
+        
+        # GUI settings
+        self.use_gui = not args.no_gui
     
     def initialize(self):
         """Initialize the game, LLM clients, and logging directories."""
@@ -97,12 +101,18 @@ class GameManager:
             time.sleep(minutes * 60)
             print(Fore.GREEN + "⏰ Waking up and starting the program...")
         
-        # Initialize pygame
-        pygame.init()
-        pygame.font.init()
+        # Initialize pygame if using GUI
+        if self.use_gui:
+            pygame.init()
+            pygame.font.init()
         
         # Set up the game
-        self.game = SnakeGame()
+        self.game = SnakeGame(use_gui=self.use_gui)
+        
+        # Set up the GUI if needed
+        if self.use_gui:
+            gui = GameGUI()
+            self.game.set_gui(gui)
         
         # Set up the primary LLM client
         self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
@@ -139,6 +149,9 @@ class GameManager:
     
     def process_events(self):
         """Process pygame events."""
+        if not self.use_gui:
+            return
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -446,11 +459,33 @@ class GameManager:
             pygame.quit()
     
     def run(self):
-        """Initialize and run the game."""
+        """Initialize and run the game session."""
         try:
+            # Initialize the game and LLM clients
             self.initialize()
+            
+            # Run the game loop
             self.run_game_loop()
+            
         except Exception as e:
-            print(Fore.RED + f"Fatal error during game initialization: {e}")
-            traceback.print_exc()
-            pygame.quit() 
+            # Handle any unexpected errors
+            self.handle_error(e)
+            
+        finally:
+            # Final cleanup
+            if self.use_gui and pygame.get_init():
+                pygame.quit()
+            
+            # Report final statistics
+            self.report_final_statistics()
+            
+            # Update experiment info with final statistics
+            update_experiment_info_json(
+                self.log_dir,
+                game_count=self.game_count,
+                total_score=self.total_score,
+                avg_score=self.total_score / max(1, self.game_count),
+                total_steps=self.total_steps,
+                avg_steps=self.total_steps / max(1, self.game_count),
+                json_error_stats=get_json_error_stats()
+            ) 

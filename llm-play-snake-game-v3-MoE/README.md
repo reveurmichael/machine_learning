@@ -76,6 +76,40 @@ This project implements a Mixture-of-Experts inspired approach where two special
 - `--max-steps`: Maximum steps a snake can take in a single game (default: 400)
 - `--sleep-before-launching`: Time to sleep (in minutes) before launching the program
 
+## Project Structure
+
+The codebase is organized in a modular structure to ensure maintainability and separation of concerns:
+
+- `/core`: Core game engine components
+  - `game_engine.py`: Base game logic that can run with or without a GUI
+  - `snake_game.py`: Snake game implementation with LLM integration
+  
+- `/gui`: Graphical user interface components
+  - `base.py`: Base UI classes
+  - `game_gui.py`: Game-specific UI implementation
+  - `replay_gui.py`: UI for replaying saved games
+  
+- `/utils`: Utility modules
+  - `file_utils.py`: File management utilities
+  - `game_manager_utils.py`: Game session management helpers
+  - `game_stats_utils.py`: Statistics gathering and reporting
+  - `json_utils.py`: JSON processing and validation
+  - `llm_utils.py`: LLM response handling
+  - `log_utils.py`: Logging utilities
+  - `replay_utils.py`: Game replay functionality
+  - `snake_utils.py`: Snake game-specific utilities
+  - `text_utils.py`: Text processing for LLM responses
+  
+- `/replay`: Replay functionality
+  - `replay_engine.py`: Engine for replaying saved games
+  
+- Main modules:
+  - `main.py`: Entry point with command-line argument parsing
+  - `game_manager.py`: Manages game sessions and statistics
+  - `llm_client.py`: Client for communicating with LLMs
+  - `llm_parser.py`: Parser for processing LLM outputs
+  - `config.py`: Configuration constants
+
 ## Game Termination Conditions
 
 The snake game will terminate under any of the following conditions:

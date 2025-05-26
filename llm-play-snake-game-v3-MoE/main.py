@@ -34,6 +34,8 @@ def parse_arguments():
                       help='Maximum steps a snake can take in a single game (default: 400)')
     parser.add_argument('--max-empty-moves', type=int, default=MAX_CONSECUTIVE_EMPTY_MOVES,
                       help=f'Maximum consecutive empty moves before game termination (default: {MAX_CONSECUTIVE_EMPTY_MOVES})')
+    parser.add_argument('--no-gui', action='store_true',
+                      help='Run the game without GUI for headless environments')
     
     # Parse the arguments
     args = parser.parse_args()
@@ -60,7 +62,7 @@ def main():
         try:
             args = parse_arguments()
         except ValueError as e:
-            # Handle command line argument errors cleanly
+            # Handle command line argument errors
             print(Fore.RED + f"Command-line error: {e}")
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
@@ -75,7 +77,8 @@ def main():
         traceback.print_exc()
     finally:
         # Clean up pygame
-        pygame.quit()
+        if pygame.get_init():
+            pygame.quit()
         sys.exit()
 
 if __name__ == "__main__":

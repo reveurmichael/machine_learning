@@ -12,56 +12,181 @@ from datetime import datetime
 import json
 from pathlib import Path
 from colorama import Fore
+import plotly.express as px
 
 def create_display_dataframe(stats_df):
-    """Create a user-friendly display DataFrame for the UI.
+    """Create a display dataframe with selected columns.
     
     Args:
-        stats_df: DataFrame with raw game statistics
+        stats_df: DataFrame containing game statistics
         
     Returns:
-        DataFrame formatted for display
+        DataFrame with selected columns for display
     """
-    # Select relevant columns
-    display_df = stats_df[['folder', 'total_score', 'total_steps', 'mean_score', 'max_score', 
-                          'primary_llm', 'secondary_llm', 'avg_response_time', 
-                          'avg_secondary_response_time', 'steps_per_apple', 'json_success_rate']].copy()
+    if stats_df is None or len(stats_df) == 0:
+        return pd.DataFrame()
     
-    # Rename columns for better display
-    display_df.columns = ['Folder', 'Total Score', 'Total Steps', 'Mean Score', 'Max Score', 
-                          'Primary LLM', 'Secondary LLM', 'Avg Response Time (s)', 
-                          'Avg Secondary Response Time (s)', 'Steps Per Apple', 'JSON Success Rate (%)']
+    # Create a copy of the dataframe
+    display_df = stats_df.copy()
     
-    # Format display values
-    display_df['Folder'] = display_df['Folder'].apply(lambda x: os.path.basename(x))
-    display_df['Avg Response Time (s)'] = display_df['Avg Response Time (s)'].apply(lambda x: f"{x:.2f}")
-    display_df['Avg Secondary Response Time (s)'] = display_df['Avg Secondary Response Time (s)'].apply(lambda x: f"{x:.2f}")
-    display_df['Steps Per Apple'] = display_df['Steps Per Apple'].apply(lambda x: f"{x:.2f}")
-    display_df['JSON Success Rate (%)'] = display_df['JSON Success Rate (%)'].apply(lambda x: f"{x:.2f}")
+    # Extract LLM information
+    display_df['LLM'] = display_df['primary_llm'].apply(lambda x: x.split('-')[0].strip() if isinstance(x, str) else 'Unknown')
+    display_df['Model'] = display_df['primary_llm'].apply(lambda x: x.split('-')[1].strip() if isinstance(x, str) and '-' in x else 'Unknown')
     
-    return display_df
+    # Create a dataframe with selected columns
+    columns = [
+        'date', 
+        'LLM', 
+        'Model', 
+        'total_games', 
+        'total_score', 
+        'total_steps', 
+        'mean_score', 
+        'steps_per_apple',
+        'json_success_rate', 
+        'avg_response_time',
+        'avg_secondary_response_time'
+    ]
+    
+    # Add token statistics if available
+    if 'avg_prompt_tokens' in display_df.columns:
+        columns.extend(['avg_prompt_tokens', 'avg_completion_tokens', 'avg_total_tokens'])
+    
+    # Select columns that exist in the dataframe
+    existing_columns = [col for col in columns if col in display_df.columns]
+    
+    # Create the display dataframe
+    result_df = display_df[existing_columns].copy()
+    
+    # Format date column
+    if 'date' in result_df.columns:
+        result_df['date'] = pd.to_datetime(result_df['date']).dt.strftime('%Y-%m-%d %H:%M')
+    
+    # Format numeric columns to 2 decimal places
+    numeric_columns = [
+        'mean_score', 
+        'steps_per_apple', 
+        'json_success_rate', 
+        'avg_response_time',
+        'avg_secondary_response_time',
+        'avg_prompt_tokens',
+        'avg_completion_tokens',
+        'avg_total_tokens'
+    ]
+    
+    for col in numeric_columns:
+        if col in result_df.columns:
+            result_df[col] = result_df[col].apply(lambda x: f"{x:.2f}" if pd.notnull(x) else "N/A")
+    
+    # Add token usage columns if they exist
+    if 'token_stats' in stats_df.columns:
+        # Extract primary token stats
+        result_df['Primary Tokens'] = stats_df['token_stats'].apply(
+            lambda x: x.get('primary', {}).get('total_tokens', 0) if isinstance(x, dict) else 0
+        )
+        
+        # Extract secondary token stats
+        result_df['Secondary Tokens'] = stats_df['token_stats'].apply(
+            lambda x: x.get('secondary', {}).get('total_tokens', 0) if isinstance(x, dict) else 0
+        )
+        
+        # Calculate total tokens
+        result_df['Total Tokens'] = result_df['Primary Tokens'] + result_df['Secondary Tokens']
+    
+    # Rename columns for display
+    column_renames = {
+        'date': 'Date',
+        'total_games': 'Games',
+        'total_score': 'Score',
+        'total_steps': 'Steps',
+        'mean_score': 'Avg Score',
+        'steps_per_apple': 'Steps/Apple',
+        'json_success_rate': 'JSON Success %',
+        'avg_response_time': 'Primary LLM Response (s)',
+        'avg_secondary_response_time': 'Secondary LLM Response (s)',
+        'avg_prompt_tokens': 'Avg Prompt Tokens',
+        'avg_completion_tokens': 'Avg Completion Tokens',
+        'avg_total_tokens': 'Avg Total Tokens'
+    }
+    
+    # Rename columns that exist in the dataframe
+    rename_dict = {k: v for k, v in column_renames.items() if k in result_df.columns}
+    result_df = result_df.rename(columns=rename_dict)
+    
+    return result_df
 
 def create_game_performance_chart(stats_df, output_dir=None):
-    """Create a performance chart comparing different experiments.
+    """Create a chart comparing game performance metrics.
     
     Args:
-        stats_df: DataFrame with experiment statistics
-        output_dir: Optional directory to save the chart
+        stats_df: DataFrame containing game statistics
+        output_dir: Directory to save the chart (optional)
+        
+    Returns:
+        Plotly figure object
     """
-    plt.figure(figsize=(12, 6))
+    if stats_df is None or len(stats_df) == 0:
+        return None
     
-    # Plot mean score for each experiment
-    plt.bar(stats_df['folder'].apply(os.path.basename), stats_df['mean_score'])
-    plt.title('Mean Score by Experiment')
-    plt.xlabel('Experiment')
-    plt.ylabel('Mean Score')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+    # Extract folder names for display
+    stats_df['session'] = stats_df['folder'].apply(lambda x: os.path.basename(x))
     
+    # Extract performance metrics
+    performance_df = pd.DataFrame({
+        'Session': stats_df['session'],
+        'Average Score': stats_df['mean_score'],
+        'Steps per Apple': stats_df['steps_per_apple'],
+        'JSON Success Rate (%)': stats_df['json_success_rate'],
+        'Primary Response Time (s)': stats_df['avg_response_time'],
+        'Secondary Response Time (s)': stats_df['avg_secondary_response_time']
+    })
+    
+    # Add token metrics if available
+    if 'token_stats' in stats_df.columns:
+        # Check for primary token stats
+        has_primary_tokens = any(
+            isinstance(x, dict) and 'primary' in x and 'avg_total_tokens' in x['primary']
+            for x in stats_df['token_stats'] if isinstance(x, dict)
+        )
+        
+        if has_primary_tokens:
+            performance_df['Primary Tokens per Request'] = stats_df['token_stats'].apply(
+                lambda x: x.get('primary', {}).get('avg_total_tokens', 0) if isinstance(x, dict) else 0
+            )
+        
+        # Check for secondary token stats
+        has_secondary_tokens = any(
+            isinstance(x, dict) and 'secondary' in x and 'avg_total_tokens' in x['secondary']
+            for x in stats_df['token_stats'] if isinstance(x, dict)
+        )
+        
+        if has_secondary_tokens:
+            performance_df['Secondary Tokens per Request'] = stats_df['token_stats'].apply(
+                lambda x: x.get('secondary', {}).get('avg_total_tokens', 0) if isinstance(x, dict) else 0
+            )
+    
+    # Melt the dataframe for plotting
+    melted_df = pd.melt(performance_df, id_vars=['Session'], var_name='Metric', value_name='Value')
+    
+    # Create the plot
+    fig = px.bar(melted_df, x='Session', y='Value', color='Metric', barmode='group',
+                title='Game Performance Comparison', template='plotly_white')
+    
+    # Update layout
+    fig.update_layout(
+        xaxis_title='Game Session',
+        yaxis_title='Value',
+        legend_title='Metric',
+        height=600
+    )
+    
+    # Save the chart if output_dir is provided
     if output_dir:
-        plt.savefig(os.path.join(output_dir, 'performance_chart.png'))
-    else:
-        plt.show()
+        os.makedirs(output_dir, exist_ok=True)
+        fig.write_image(os.path.join(output_dir, 'performance_chart.png'))
+        fig.write_html(os.path.join(output_dir, 'performance_chart.html'))
+    
+    return fig
 
 def create_game_dataframe(game_data):
     """Create a DataFrame from game data dictionary.
@@ -328,7 +453,7 @@ def extract_game_summary(summary_file):
 
 def update_experiment_info(log_dir, game_count, total_score, total_steps, 
                          json_error_stats, parser_usage_count=0, game_scores=None, 
-                         empty_steps=0, error_steps=0, max_empty_moves=3):
+                         empty_steps=0, error_steps=0, max_empty_moves=3, token_stats=None):
     """Update the experiment information JSON file with game statistics.
     
     Args:
@@ -342,6 +467,7 @@ def update_experiment_info(log_dir, game_count, total_score, total_steps,
         empty_steps: Number of empty steps
         error_steps: Number of error steps
         max_empty_moves: Maximum allowed empty moves
+        token_stats: Token statistics from game summary files
     """
     file_path = os.path.join(log_dir, 'info.json')
     
@@ -354,25 +480,31 @@ def update_experiment_info(log_dir, game_count, total_score, total_steps,
         except Exception as e:
             print(f"Error reading existing info.json: {e}")
     
-    # Update basic information
-    info_data['date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    info_data['total_games'] = game_count
+    # Create a new ordered dictionary with important information at the top
+    ordered_info = {}
     
-    # Update game statistics
-    info_data['game_statistics'] = {
-        'total_games': game_count,
+    # 1. Basic session information (date, session ID, etc.)
+    ordered_info['date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ordered_info['total_games'] = game_count
+    
+    # 2. Critical performance metrics
+    ordered_info['game_statistics'] = {
         'total_score': total_score,
         'total_steps': total_steps,
+        'mean_score': total_score / game_count if game_count > 0 else 0,
         'max_score': max(game_scores) if game_scores else 0,
         'min_score': min(game_scores) if game_scores else 0,
-        'mean_score': total_score / game_count if game_count > 0 else 0,
-        'parser_usage_count': parser_usage_count,
-        'empty_steps': empty_steps,
-        'error_steps': error_steps,
-        'max_empty_moves': max_empty_moves
+        'steps_per_apple': total_score/(total_steps if total_steps > 0 else 1),
     }
     
-    # Add JSON error statistics if available
+    # 3. LLM information (extract from existing data)
+    if 'primary_llm' in info_data:
+        ordered_info['primary_llm'] = info_data['primary_llm']
+    
+    if 'secondary_llm' in info_data:
+        ordered_info['secondary_llm'] = info_data['secondary_llm']
+    
+    # 4. JSON success metrics
     if json_error_stats:
         # Calculate success rate
         total_attempts = json_error_stats.get("total_extraction_attempts", 0)
@@ -382,29 +514,53 @@ def update_experiment_info(log_dir, game_count, total_score, total_steps,
         success_rate = (successful_extractions / total_attempts) * 100 if total_attempts > 0 else 0
         failure_rate = (failed_extractions / total_attempts) * 100 if total_attempts > 0 else 0
         
-        info_data["json_parsing_stats"] = {
+        ordered_info["json_parsing_stats"] = {
+            "success_rate": success_rate,
+            "failure_rate": failure_rate,
             "total_extraction_attempts": total_attempts,
             "successful_extractions": successful_extractions,
-            "success_rate": success_rate,
             "failed_extractions": failed_extractions,
-            "failure_rate": failure_rate,
-            "json_decode_errors": json_error_stats.get("json_decode_errors",0),
-            "format_validation_errors": json_error_stats.get("format_validation_errors",0),
-            "code_block_extraction_errors": json_error_stats.get("code_block_extraction_errors",0),
-            "text_extraction_errors": json_error_stats.get("text_extraction_errors",0),
-            "fallback_extraction_success": json_error_stats.get("fallback_extraction_success",0)
         }
     
-    # Add efficiency metrics
-    info_data["efficiency_metrics"] = {
+    # 5. Efficiency metrics
+    ordered_info["efficiency_metrics"] = {
         "apples_per_step": total_score/(total_steps if total_steps > 0 else 1),
         "steps_per_game": total_steps/game_count if game_count > 0 else 0,
         "valid_move_ratio": (total_steps - empty_steps - error_steps)/(total_steps if total_steps > 0 else 1)
     }
     
+    # 6. Detailed game statistics (moved lower in priority)
+    ordered_info['detailed_game_statistics'] = {
+        'total_games': game_count,
+        'parser_usage_count': parser_usage_count,
+        'empty_steps': empty_steps,
+        'error_steps': error_steps,
+        'max_empty_moves': max_empty_moves
+    }
+    
+    # 7. Detailed JSON stats (lower priority)
+    if json_error_stats:
+        ordered_info["detailed_json_parsing_stats"] = {
+            "json_decode_errors": json_error_stats.get("json_decode_errors", 0),
+            "format_validation_errors": json_error_stats.get("format_validation_errors", 0),
+            "code_block_extraction_errors": json_error_stats.get("code_block_extraction_errors", 0),
+            "text_extraction_errors": json_error_stats.get("text_extraction_errors", 0),
+            "fallback_extraction_success": json_error_stats.get("fallback_extraction_success", 0)
+        }
+    
+    # 8. Raw data (lowest priority)
+    if 'game_scores' in info_data:
+        ordered_info['game_scores'] = info_data['game_scores']
+    elif game_scores:
+        ordered_info['game_scores'] = game_scores
+    
+    # 9. Token statistics (lowest priority)
+    if token_stats:
+        ordered_info['token_stats'] = token_stats
+    
     # Write updated content back to file
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(info_data, f, indent=2)
+        json.dump(ordered_info, f, indent=2)
     print(Fore.GREEN + f"📝 Updated experiment info saved to {file_path}")
 
 def report_final_statistics(log_dir, game_count, total_score, total_steps,
@@ -425,6 +581,9 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
     """
     from utils.json_utils import get_json_error_stats
     
+    # Get token statistics from game summary files
+    token_stats = extract_token_stats_from_summaries(log_dir)
+    
     # Update experiment info with final statistics
     json_error_stats = get_json_error_stats()
     update_experiment_info(
@@ -437,7 +596,8 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
         game_scores, 
         empty_steps, 
         error_steps,
-        max_empty_moves=max_empty_moves
+        max_empty_moves=max_empty_moves,
+        token_stats=token_stats
     )
     
     print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
@@ -458,4 +618,104 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
     if json_error_stats['total_extraction_attempts'] > 0:
         print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
         success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
-        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%") 
+        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
+
+def extract_token_stats_from_summaries(log_dir):
+    """Extract token statistics from game summary files.
+    
+    Args:
+        log_dir: Directory containing game summary files
+        
+    Returns:
+        Dictionary with aggregated token statistics
+    """
+    primary_token_stats = {
+        "total_tokens": 0,
+        "total_prompt_tokens": 0,
+        "total_completion_tokens": 0,
+        "response_times": []
+    }
+    
+    secondary_token_stats = {
+        "total_tokens": 0,
+        "total_prompt_tokens": 0,
+        "total_completion_tokens": 0,
+        "response_times": []
+    }
+    
+    # Loop through game summary files
+    for i in range(1, 7):  # Assuming max 6 games
+        summary_file = os.path.join(log_dir, f"game{i}_summary.json")
+        if os.path.exists(summary_file):
+            try:
+                with open(summary_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Extract token statistics
+                if "token_stats" in data:
+                    token_stats = data["token_stats"]
+                    
+                    # Primary LLM token stats
+                    if "primary" in token_stats:
+                        primary = token_stats["primary"]
+                        primary_token_stats["total_tokens"] += primary.get("total_tokens", 0)
+                        primary_token_stats["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
+                        primary_token_stats["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                    
+                    # Secondary LLM token stats
+                    if "secondary" in token_stats:
+                        secondary = token_stats["secondary"]
+                        secondary_token_stats["total_tokens"] += secondary.get("total_tokens", 0)
+                        secondary_token_stats["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
+                        secondary_token_stats["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
+                
+                # Extract response time statistics
+                if "prompt_response_stats" in data:
+                    stats = data["prompt_response_stats"]
+                    
+                    # Store primary response times
+                    if "avg_primary_response_time" in stats:
+                        # Use min/max/avg to approximate response times
+                        avg_time = stats.get("avg_primary_response_time", 0)
+                        min_time = stats.get("min_primary_response_time", avg_time)
+                        max_time = stats.get("max_primary_response_time", avg_time)
+                        
+                        # Add approximate times to the list
+                        primary_token_stats["response_times"].append(avg_time)
+                        if min_time != avg_time:
+                            primary_token_stats["response_times"].append(min_time)
+                        if max_time != avg_time:
+                            primary_token_stats["response_times"].append(max_time)
+                    
+                    # Store secondary response times
+                    if "avg_secondary_response_time" in stats:
+                        # Use min/max/avg to approximate response times
+                        avg_time = stats.get("avg_secondary_response_time", 0)
+                        min_time = stats.get("min_secondary_response_time", avg_time)
+                        max_time = stats.get("max_secondary_response_time", avg_time)
+                        
+                        # Add approximate times to the list
+                        secondary_token_stats["response_times"].append(avg_time)
+                        if min_time != avg_time:
+                            secondary_token_stats["response_times"].append(min_time)
+                        if max_time != avg_time:
+                            secondary_token_stats["response_times"].append(max_time)
+                
+            except Exception as e:
+                print(f"Error extracting token stats from {summary_file}: {e}")
+    
+    # Calculate averages if data is available
+    request_count_primary = max(1, len(primary_token_stats["response_times"]))
+    primary_token_stats["avg_total_tokens"] = primary_token_stats["total_tokens"] / request_count_primary
+    primary_token_stats["avg_prompt_tokens"] = primary_token_stats["total_prompt_tokens"] / request_count_primary
+    primary_token_stats["avg_completion_tokens"] = primary_token_stats["total_completion_tokens"] / request_count_primary
+    
+    request_count_secondary = max(1, len(secondary_token_stats["response_times"]))
+    secondary_token_stats["avg_total_tokens"] = secondary_token_stats["total_tokens"] / request_count_secondary
+    secondary_token_stats["avg_prompt_tokens"] = secondary_token_stats["total_prompt_tokens"] / request_count_secondary
+    secondary_token_stats["avg_completion_tokens"] = secondary_token_stats["total_completion_tokens"] / request_count_secondary
+    
+    return {
+        "primary": primary_token_stats,
+        "secondary": secondary_token_stats
+    } 

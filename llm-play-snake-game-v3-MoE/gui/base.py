@@ -174,6 +174,15 @@ class BaseGUI:
         """Update the display."""
         pygame.display.flip()
 
+    def get_surface_as_image(self):
+        """Return the current Pygame surface as a PIL Image for Streamlit."""
+        if self.screen:
+            import io
+            from PIL import Image
+            rgb_string = pygame.image.tostring(self.screen, 'RGB')
+            return Image.frombytes('RGB', self.screen.get_size(), rgb_string)
+        return None
+
     def quit(self):
         """Clean up pygame resources."""
         pygame.quit() 

@@ -16,10 +16,10 @@ init_colorama(autoreset=True)
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='LLM-guided Snake game')
-    parser.add_argument('--provider', type=str, default='hunyuan',
+    parser.add_argument('--provider', type=str, default='ollama',
                       help='LLM provider to use for primary LLM (hunyuan, ollama, deepseek, or mistral)')
     parser.add_argument('--model', type=str, default=None,
-                      help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
+                      help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest". For Hunyuan: "hunyuan-turbos-latest" or "hunyuan-t1-latest"')
     parser.add_argument('--parser-provider', type=str, default=None,
                       help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider). Use "none" to skip using a parser LLM and use primary LLM output directly.')
     parser.add_argument('--parser-model', type=str, default=None,
@@ -39,6 +39,17 @@ def parse_arguments():
     
     # Parse the arguments
     args = parser.parse_args()
+    
+    # Validate provider
+    valid_providers = ["hunyuan", "ollama", "deepseek", "mistral", "none"]
+    if args.provider not in valid_providers:
+        print(f"{Fore.YELLOW}Warning: Invalid provider '{args.provider}'. Defaulting to 'ollama'.{Fore.RESET}")
+        args.provider = "ollama"
+        
+    # Validate parser provider if specified
+    if args.parser_provider and args.parser_provider not in valid_providers:
+        print(f"{Fore.YELLOW}Warning: Invalid parser provider '{args.parser_provider}'. Defaulting to same as primary provider '{args.provider}'.{Fore.RESET}")
+        args.parser_provider = args.provider
     
     # Validate the command-line arguments to detect duplicate or invalid arguments
     raw_args = ' '.join(sys.argv[1:])

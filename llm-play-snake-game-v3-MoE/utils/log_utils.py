@@ -7,27 +7,43 @@ import os
 import json
 from datetime import datetime
 from pathlib import Path
+from colorama import Fore
 
-def save_to_file(content, directory, filename):
+def save_to_file(content, directory_or_file_path, filename=None):
     """Save content to a file, creating the directory if it doesn't exist.
+    
+    This function can be called in two ways:
+    1. save_to_file(content, directory, filename)
+    2. save_to_file(content, file_path)
     
     Args:
         content: Content to save
-        directory: Directory to save to
-        filename: Name of the file
+        directory_or_file_path: Directory to save to or complete file path
+        filename: Name of the file (optional, required if directory is provided)
         
     Returns:
         Path to the saved file
     """
+    # Check if we have a complete file path or a directory + filename
+    if filename is None:
+        # First argument is a complete file path
+        file_path = directory_or_file_path
+        directory = os.path.dirname(file_path)
+    else:
+        # First argument is a directory, second is the filename
+        directory = directory_or_file_path
+        file_path = os.path.join(directory, filename)
+    
     # Create directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
     
-    # Create file path
-    file_path = os.path.join(directory, filename)
-    
     # Save content to file
     with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
+        # Check if content is a string or a dict/object that needs to be serialized
+        if isinstance(content, (dict, list)):
+            json.dump(content, f, indent=2)
+        else:
+            f.write(str(content))
     
     return file_path
 
@@ -35,27 +51,30 @@ def save_experiment_info_json(args, directory):
     """Save experiment information to a JSON file.
     
     Args:
-        args: Command line arguments
+        args: Command line arguments (as Namespace or dictionary)
         directory: Directory to save to
         
     Returns:
         Path to the saved file
     """
+    # Convert to dictionary if args is a Namespace
+    config = vars(args) if not isinstance(args, dict) else args
+    
     # Create experiment information in structured JSON format
     info_data = {
         "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         "primary_llm": {
-            "provider": args.provider,
-            "model": args.model if args.model else 'Default model for provider'
+            "provider": config.get("provider"),
+            "model": config.get("model")
         },
         "secondary_llm": {
-            "provider": args.parser_provider if args.parser_provider else args.provider,
-            "model": args.parser_model if args.parser_model else 'Default model for parser provider'
+            "provider": config.get("parser_provider", config.get("provider")),
+            "model": config.get("parser_model")
         },
         "game_configuration": {
-            "max_steps_per_game": args.max_steps,
-            "max_consecutive_empty_moves": args.max_empty_moves,
-            "max_games": args.max_games
+            "max_steps_per_game": config.get("max_steps"),
+            "max_consecutive_empty_moves": config.get("max_empty_moves"),
+            "max_games": config.get("max_games")
         }
     }
     
@@ -69,7 +88,7 @@ def save_experiment_info_json(args, directory):
     
     return os.path.abspath(file_path)
 
-def update_experiment_info_json(directory, game_count, total_score, total_steps, json_error_stats, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, max_empty_moves=3):
+def update_experiment_info_json(directory, game_count, total_score, total_steps, json_error_stats, parser_usage_count=0, game_scores=None, empty_steps=0, error_steps=0, max_empty_moves=3, token_stats=None):
     """Update the experiment information JSON file with game statistics.
     
     Args:
@@ -83,6 +102,7 @@ def update_experiment_info_json(directory, game_count, total_score, total_steps,
         empty_steps: Number of empty steps (moves with empty JSON)
         error_steps: Number of steps with ERROR in reasoning
         max_empty_moves: Maximum number of consecutive empty moves before termination
+        token_stats: Dictionary containing token usage statistics
     """
     file_path = os.path.join(directory, "info.json")
     
@@ -109,8 +129,24 @@ def update_experiment_info_json(directory, game_count, total_score, total_steps,
     valid_steps = total_steps - empty_steps - error_steps
     valid_step_percentage = (valid_steps / total_steps) * 100 if total_steps > 0 else 0
     
-    # Add game statistics to the info data
-    info_data["game_statistics"] = {
+    # Create a new ordered info_data dictionary
+    ordered_info = {}
+    
+    # 1. Preserve the date and session info from the original data
+    ordered_info["date"] = info_data.get("date", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    
+    # 2. Key performance metrics and results (most important information)
+    ordered_info["performance_summary"] = {
+        "total_score": total_score,
+        "mean_score": mean_score,
+        "total_steps": total_steps,
+        "steps_per_apple": total_score/(total_steps if total_steps > 0 else 1),
+        "apples_per_step": total_score/(total_steps if total_steps > 0 else 1),
+        "valid_move_ratio": valid_steps/(total_steps if total_steps > 0 else 1),
+    }
+    
+    # 3. Game statistics
+    ordered_info["game_statistics"] = {
         "total_games": game_count,
         "total_score": total_score,
         "total_steps": total_steps,
@@ -120,24 +156,74 @@ def update_experiment_info_json(directory, game_count, total_score, total_steps,
         "steps_per_game": total_steps / game_count if game_count > 0 else 0
     }
     
-    # Add LLM usage statistics
-    info_data["llm_usage_stats"] = {
-        "parser_usage_count": parser_usage_count,
-        "parser_usage_per_game": parser_usage_count / game_count if game_count > 0 else 0
-    }
+    # 4. Response time and token statistics
+    response_stats = {}
+    if token_stats:
+        # Organize time statistics
+        response_time_stats = {}
+        
+        # Primary LLM response time stats
+        if token_stats.get("primary") and "response_times" in token_stats.get("primary", {}):
+            primary_times = token_stats["primary"]["response_times"]
+            if primary_times:
+                response_time_stats["primary_llm"] = {
+                    "avg_response_time": sum(primary_times) / len(primary_times),
+                    "min_response_time": min(primary_times),
+                    "max_response_time": max(primary_times),
+                    "total_response_time": sum(primary_times),
+                    "response_count": len(primary_times)
+                }
+        
+        # Secondary LLM response time stats
+        if token_stats.get("secondary") and "response_times" in token_stats.get("secondary", {}):
+            secondary_times = token_stats["secondary"]["response_times"]
+            if secondary_times:
+                response_time_stats["secondary_llm"] = {
+                    "avg_response_time": sum(secondary_times) / len(secondary_times),
+                    "min_response_time": min(secondary_times),
+                    "max_response_time": max(secondary_times),
+                    "total_response_time": sum(secondary_times),
+                    "response_count": len(secondary_times)
+                }
+        
+        if response_time_stats:
+            response_stats["response_time_stats"] = response_time_stats
+        
+        # Organize token statistics
+        token_usage_stats = {}
+        
+        # Primary LLM token stats
+        if "primary" in token_stats:
+            primary_tokens = token_stats["primary"]
+            token_usage_stats["primary_llm"] = {
+                "total_tokens": primary_tokens.get("total_tokens", 0),
+                "total_prompt_tokens": primary_tokens.get("total_prompt_tokens", 0),
+                "total_completion_tokens": primary_tokens.get("total_completion_tokens", 0),
+                "avg_tokens_per_request": primary_tokens.get("avg_total_tokens", 0),
+                "avg_prompt_tokens": primary_tokens.get("avg_prompt_tokens", 0),
+                "avg_completion_tokens": primary_tokens.get("avg_completion_tokens", 0)
+            }
+        
+        # Secondary LLM token stats
+        if "secondary" in token_stats:
+            secondary_tokens = token_stats["secondary"]
+            token_usage_stats["secondary_llm"] = {
+                "total_tokens": secondary_tokens.get("total_tokens", 0),
+                "total_prompt_tokens": secondary_tokens.get("total_prompt_tokens", 0),
+                "total_completion_tokens": secondary_tokens.get("total_completion_tokens", 0),
+                "avg_tokens_per_request": secondary_tokens.get("avg_total_tokens", 0),
+                "avg_prompt_tokens": secondary_tokens.get("avg_prompt_tokens", 0),
+                "avg_completion_tokens": secondary_tokens.get("avg_completion_tokens", 0)
+            }
+        
+        if token_usage_stats:
+            response_stats["token_usage_stats"] = token_usage_stats
     
-    # Add step statistics
-    info_data["step_stats"] = {
-        "empty_steps": empty_steps,
-        "empty_step_percentage": empty_step_percentage,
-        "error_steps": error_steps,
-        "error_step_percentage": error_step_percentage,
-        "valid_steps": valid_steps,
-        "valid_step_percentage": valid_step_percentage,
-        "max_consecutive_empty_moves": max_empty_moves
-    }
+    # Add response stats to ordered info if available
+    if response_stats:
+        ordered_info.update(response_stats)
     
-    # Add JSON error statistics if available
+    # 5. JSON parsing statistics if available
     if json_error_stats:
         # Calculate success rate
         total_attempts = json_error_stats.get("total_extraction_attempts", 0)
@@ -147,29 +233,58 @@ def update_experiment_info_json(directory, game_count, total_score, total_steps,
         success_rate = (successful_extractions / total_attempts) * 100 if total_attempts > 0 else 0
         failure_rate = (failed_extractions / total_attempts) * 100 if total_attempts > 0 else 0
         
-        info_data["json_parsing_stats"] = {
+        ordered_info["json_parsing_stats"] = {
+            "success_rate": success_rate,
             "total_extraction_attempts": total_attempts,
             "successful_extractions": successful_extractions,
-            "success_rate": success_rate,
             "failed_extractions": failed_extractions,
-            "failure_rate": failure_rate,
-            "json_decode_errors": json_error_stats.get("json_decode_errors",0),
-            "format_validation_errors": json_error_stats.get("format_validation_errors",0),
-            "code_block_extraction_errors": json_error_stats.get("code_block_extraction_errors",0),
-            "text_extraction_errors": json_error_stats.get("text_extraction_errors",0),
-            "fallback_extraction_success": json_error_stats.get("fallback_extraction_success",0)
+            "failure_rate": failure_rate
+        }
+        
+        # Detailed JSON parsing stats (less important)
+        ordered_info["detailed_json_parsing_stats"] = {
+            "json_decode_errors": json_error_stats.get("json_decode_errors", 0),
+            "format_validation_errors": json_error_stats.get("format_validation_errors", 0),
+            "code_block_extraction_errors": json_error_stats.get("code_block_extraction_errors", 0),
+            "text_extraction_errors": json_error_stats.get("text_extraction_errors", 0),
+            "fallback_extraction_success": json_error_stats.get("fallback_extraction_success", 0)
         }
     
-    # Add efficiency metrics
-    info_data["efficiency_metrics"] = {
-        "apples_per_step": total_score/(total_steps if total_steps > 0 else 1),
-        "steps_per_game": total_steps/game_count if game_count > 0 else 0,
-        "valid_move_ratio": valid_steps/(total_steps if total_steps > 0 else 1)
+    # 6. Step statistics
+    ordered_info["step_stats"] = {
+        "valid_steps": valid_steps,
+        "valid_step_percentage": valid_step_percentage,
+        "empty_steps": empty_steps,
+        "empty_step_percentage": empty_step_percentage,
+        "error_steps": error_steps,
+        "error_step_percentage": error_step_percentage,
+        "max_consecutive_empty_moves": max_empty_moves
     }
+    
+    # 7. LLM usage statistics
+    ordered_info["llm_usage_stats"] = {
+        "parser_usage_count": parser_usage_count,
+        "parser_usage_per_game": parser_usage_count / game_count if game_count > 0 else 0
+    }
+    
+    # 8. Configuration information (moved lower as it's the same for all runs)
+    if "primary_llm" in info_data:
+        ordered_info["primary_llm"] = info_data["primary_llm"]
+    
+    if "secondary_llm" in info_data:
+        ordered_info["secondary_llm"] = info_data["secondary_llm"]
+    
+    if "game_configuration" in info_data:
+        ordered_info["game_configuration"] = info_data["game_configuration"]
+    
+    # 9. Copy any other fields from the original info_data not already included
+    for key, value in info_data.items():
+        if key not in ordered_info and key != "token_stats" and key != "efficiency_metrics":
+            ordered_info[key] = value
     
     # Write updated content back to file
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(info_data, f, indent=2)
+        json.dump(ordered_info, f, indent=2)
 
 def format_raw_llm_response(raw_response, request_time, response_time, model_name, provider, 
                            parser_model=None, parser_provider=None, response_duration=None):
@@ -242,7 +357,7 @@ def generate_game_summary_json(game_number, timestamp, score, steps, next_move, 
                               primary_provider=None, parser_model=None, parser_provider=None,
                               json_error_stats=None, max_empty_moves=3, apple_positions=None,
                               avg_response_time=None, avg_secondary_response_time=None,
-                              steps_per_apple=None, moves=None):
+                              steps_per_apple=None, moves=None, token_stats=None):
     """Generate a JSON summary of a game.
     
     Args:
@@ -266,70 +381,180 @@ def generate_game_summary_json(game_number, timestamp, score, steps, next_move, 
         avg_secondary_response_time: Average secondary response time
         steps_per_apple: Average steps per apple
         moves: Dictionary of moves by round
+        token_stats: Dictionary with token usage statistics
         
     Returns:
         Dictionary containing game summary
     """
-    summary = {
-        "game_number": game_number,
-        "timestamp": timestamp,
-        "score": score,
-        "steps": steps,
-        "last_move": next_move,
-        "game_end_reason": collision_type,
-        "max_empty_moves": max_empty_moves,
-        "snake_length": snake_length,
-        "round_count": round_count
-    }
+    # Create an ordered dictionary with important information at the top
+    summary = {}
     
-    # Add optional fields
-    if primary_model:
-        summary["primary_model"] = primary_model
+    # 1. Core game metrics (most important first)
+    summary["score"] = score
+    summary["steps"] = steps
+    summary["game_end_reason"] = collision_type
+    summary["snake_length"] = snake_length
     
+    # 2. LLM information
     if primary_provider:
         summary["primary_provider"] = primary_provider
-    
+    if primary_model:
+        summary["primary_model"] = primary_model
+    if parser_provider:
+        summary["parser_provider"] = parser_provider
     if parser_model:
         summary["parser_model"] = parser_model
     
-    if parser_provider:
-        summary["parser_provider"] = parser_provider
-    
-    if parser_usage_count > 0:
-        summary["parser_usage_count"] = parser_usage_count
-    
-    # Add JSON error statistics if available
-    if json_error_stats:
-        summary["json_parsing_stats"] = json_error_stats
-    
-    # Add apple positions if available
-    if apple_positions:
-        summary["apple_positions"] = apple_positions
-    
-    # Add response time statistics if available
-    if avg_response_time is not None or avg_secondary_response_time is not None:
-        prompt_response_stats = {}
-        
-        if avg_response_time is not None:
-            prompt_response_stats["avg_primary_response_time"] = avg_response_time
-        
-        if avg_secondary_response_time is not None:
-            prompt_response_stats["avg_secondary_response_time"] = avg_secondary_response_time
-        
-        summary["prompt_response_stats"] = prompt_response_stats
-    
-    # Add performance metrics if available
+    # 3. Performance metrics
     if steps_per_apple is not None:
         summary["performance_metrics"] = {
             "steps_per_apple": steps_per_apple
         }
     
-    # Add moves if available, organized by round
-    if moves:
-        # Convert moves to a dictionary with round numbers as keys
-        moves_by_round = {}
-        for round_num, move in enumerate(moves, 1):
-            moves_by_round[f"round_{round_num}"] = move
-        summary["moves"] = moves_by_round
+    # 4. Response time statistics
+    if avg_response_time is not None or avg_secondary_response_time is not None or token_stats is not None:
+        prompt_response_stats = {}
+        if avg_response_time is not None:
+            prompt_response_stats["avg_primary_response_time"] = avg_response_time
+        if avg_secondary_response_time is not None:
+            prompt_response_stats["avg_secondary_response_time"] = avg_secondary_response_time
+        
+        # Add token statistics if available
+        if token_stats:
+            if "total_prompt_tokens" in token_stats:
+                prompt_response_stats["total_prompt_tokens"] = token_stats["total_prompt_tokens"]
+            if "total_completion_tokens" in token_stats:
+                prompt_response_stats["total_completion_tokens"] = token_stats["total_completion_tokens"]
+            if "total_tokens" in token_stats:
+                prompt_response_stats["total_tokens"] = token_stats["total_tokens"]
+            if "avg_prompt_tokens" in token_stats:
+                prompt_response_stats["avg_prompt_tokens"] = token_stats["avg_prompt_tokens"]
+            if "avg_completion_tokens" in token_stats:
+                prompt_response_stats["avg_completion_tokens"] = token_stats["avg_completion_tokens"]
+            if "avg_total_tokens" in token_stats:
+                prompt_response_stats["avg_total_tokens"] = token_stats["avg_total_tokens"]
+            
+        summary["prompt_response_stats"] = prompt_response_stats
     
-    return summary 
+    # 5. JSON extraction success metrics
+    if json_error_stats:
+        # Only include the most important metrics in the top-level
+        successful = json_error_stats.get("successful_extractions", 0)
+        total = json_error_stats.get("total_extraction_attempts", 0)
+        success_rate = (successful / total) * 100 if total > 0 else 0
+        
+        summary["json_parsing_stats"] = {
+            "success_rate": success_rate,
+            "successful_extractions": successful,
+            "total_extraction_attempts": total
+        }
+    
+    # 6. Game metadata (medium importance)
+    summary["game_number"] = game_number
+    summary["timestamp"] = timestamp
+    summary["last_move"] = next_move
+    summary["round_count"] = round_count
+    summary["max_empty_moves"] = max_empty_moves
+    
+    if parser_usage_count > 0:
+        summary["parser_usage_count"] = parser_usage_count
+    
+    # 7. Detailed JSON error statistics (lower importance)
+    if json_error_stats:
+        detailed_json_stats = {k: v for k, v in json_error_stats.items() 
+                             if k not in ["successful_extractions", "total_extraction_attempts", "success_rate"]}
+        if detailed_json_stats:
+            summary["detailed_json_parsing_stats"] = detailed_json_stats
+    
+    # 8. Group apple positions and moves together by round (at the bottom of the JSON)
+    if apple_positions or moves:
+        rounds_data = {}
+        
+        # Determine the number of rounds
+        num_rounds = max(
+            len(apple_positions) if apple_positions else 0,
+            len(moves) if moves else 0,
+            round_count if round_count else 0
+        )
+        
+        for i in range(num_rounds):
+            round_key = f"round_{i+1}"
+            round_info = {}
+            
+            # Add apple position for this round if available
+            if apple_positions and i < len(apple_positions):
+                round_info["apple_position"] = apple_positions[i]
+            
+            # Add moves for this round if available
+            if moves and i < len(moves):
+                round_info["moves"] = moves[i]
+            
+            # Only add round data if we have either apple position or moves
+            if round_info:
+                rounds_data[round_key] = round_info
+        
+        # Add rounds data to summary (at the bottom)
+        if rounds_data:
+            summary["rounds_data"] = rounds_data
+    
+    return summary
+
+def load_game_from_file(game_file_path):
+    """Load game data directly from a game summary file.
+    
+    Args:
+        game_file_path: Path to the game summary file
+        
+    Returns:
+        Tuple containing the moves list and game info
+    """
+    try:
+        with open(game_file_path, "r") as f:
+            data = json.load(f)
+            
+            # Extract moves data
+            moves_data = []
+            
+            # Check if using old format with "moves" array
+            if "moves" in data:
+                # Check if moves is a list
+                if isinstance(data["moves"], list):
+                    moves_data = data["moves"]
+                # Check if moves is a dictionary with round keys
+                elif isinstance(data["moves"], dict):
+                    # Convert dictionary of moves by round to flat list of moves
+                    moves_list = []
+                    # Sort round keys numerically
+                    sorted_rounds = sorted(data["moves"].keys(), 
+                                         key=lambda x: int(x.split("_")[1]) if x.startswith("round_") else 0)
+                    for round_key in sorted_rounds:
+                        move = data["moves"][round_key]
+                        moves_list.append(move)
+                    moves_data = moves_list
+            
+            # Check if using new format with "rounds_data"
+            elif "rounds_data" in data:
+                # Extract moves from rounds_data and flatten into a list
+                moves_list = []
+                # Sort round keys numerically
+                sorted_rounds = sorted(data["rounds_data"].keys(),
+                                     key=lambda x: int(x.split("_")[1]) if x.startswith("round_") else 0)
+                for round_key in sorted_rounds:
+                    round_data = data["rounds_data"][round_key]
+                    if "moves" in round_data:
+                        moves_list.append(round_data["moves"])
+                moves_data = moves_list
+            
+            # Extract basic game info for display
+            game_info = {
+                "score": data.get("score", 0),
+                "steps": data.get("steps", 0),
+                "game_end_reason": data.get("game_end_reason", "Unknown"),
+                "primary_model": data.get("primary_model", "Unknown"),
+                "parser_model": data.get("parser_model", "Unknown")
+            }
+            
+            return moves_data, game_info
+    except Exception as e:
+        print(f"{Fore.RED}Error loading game data from {game_file_path}: {e}{Fore.RESET}")
+        return [], {} 

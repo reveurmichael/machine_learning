@@ -6,6 +6,8 @@ Handles the core game logic and state.
 import random
 import pygame
 from gui.game_gui import GameGUI
+from utils.snake_utils import calculate_move_differences, format_body_cells
+from config import PROMPT_TEMPLATE_TEXT
 
 
 class SnakeGame:
@@ -110,4 +112,36 @@ class SnakeGame:
             y = random.randint(0, self.grid_size - 1)
             pos = (x, y)
             if pos not in self.body:
-                return pos 
+                return pos
+                
+    def get_state_representation(self):
+        """Generate a variable-based representation of the game state.
+        
+        Returns:
+            A string representing the game state for the LLM prompt that follows the template
+            defined in config.py, with variables replaced with actual game state values.
+        """
+        # Get head position formatted for prompt
+        head_pos = f"({self.head[0]},{self.head[1]})"
+        
+        # Get current direction
+        current_direction = self.direction if self.direction else "NONE"
+        
+        # Get body cells (excluding head)
+        body_cells_str = format_body_cells(self.body)
+        
+        # Get apple position
+        apple_pos = f"({self.apple[0]},{self.apple[1]})"
+        
+        # Calculate the expected move differences
+        move_differences = calculate_move_differences(self.head, self.apple)
+        
+        # Create a prompt from the template text using string replacements
+        prompt = PROMPT_TEMPLATE_TEXT
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_CURRENT_DIRECTION", current_direction)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_BODY_CELLS", body_cells_str)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
+        prompt = prompt.replace("TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE", move_differences)
+        
+        return prompt 

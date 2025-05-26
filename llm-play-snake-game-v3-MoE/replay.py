@@ -7,10 +7,12 @@ import os
 import json
 import pygame
 import argparse
-import datetime
-from colorama import Fore
+from colorama import Fore, init as colorama_init
+
 from core.snake_game import SnakeGame
 from gui.replay_gui import ReplayGUI
+from replay.replay_engine import ReplayEngine
+from utils.log_utils import load_game_from_file
 
 
 def parse_args():
@@ -20,129 +22,84 @@ def parse_args():
         Parsed arguments
     """
     parser = argparse.ArgumentParser(description="Replay recorded Snake games")
-    parser.add_argument("--log-dir", type=str, required=True,
-                      help="Directory containing game logs")
+    
+    # Create a mutually exclusive group for log directory vs specific game file
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--log-dir", type=str,
+                      help="Directory containing game logs (e.g., logs/game_session_YYYYMMDD_HHMMSS)")
+    group.add_argument("--game-file", type=str,
+                      help="Path to a specific game summary file (e.g., logs/game_session_YYYYMMDD_HHMMSS/game1_summary.json)")
+    
+    # Other arguments
     parser.add_argument("--game", type=int, default=None,
-                      help="Specific game number to replay")
-    parser.add_argument("--speed", type=float, default=1.0,
-                      help="Replay speed multiplier")
+                      help="Specific game number (0-indexed) within the session to replay. Only used with --log-dir.")
+    parser.add_argument("--move-pause", type=float, default=1.0,
+                      help="Pause time between moves in seconds (e.g., 0.5 for half speed, 2.0 for double speed)")
+    
     return parser.parse_args()
 
 
 def main():
     """Main replay function."""
-    # Parse arguments
+    colorama_init() # Initialize colorama for cross-platform color output
     args = parse_args()
     
-    # Initialize pygame
     pygame.init()
+    pygame.font.init() # Ensure font system is initialized for GUIs
     
-    # Create game instance
-    game = SnakeGame()
+    # Create game instance (this is the model)
+    game = SnakeGame() # You might pass grid_size etc. from config if replay needs it
     
-    # Create GUI
-    gui = ReplayGUI()
-    game.set_gui(gui)
+    # Create GUI instance (this is the view)
+    # GUI needs to be initialized before being passed to ReplayEngine if it does its own pygame setup
+    gui = ReplayGUI() # Assuming ReplayGUI also calls pygame.init() or similar, or relies on it being called
     
-    # Load game data
-    game_data = load_game_data(args.log_dir, args.game)
-    if not game_data:
-        print(f"{Fore.RED}No game data found{Fore.RESET}")
-        return
-        
-    # Replay the game
     try:
-        replay_game(game, gui, game_data, args.speed)
+        if args.game_file:
+            # Load game directly from file
+            moves_data, game_info = load_game_from_file(args.game_file)
+            if not moves_data:
+                print(f"{Fore.RED}No moves found in {args.game_file}{Fore.RESET}")
+                return
+                
+            print(f"{Fore.GREEN}Loaded game from {args.game_file}{Fore.RESET}")
+            print(f"{Fore.GREEN}Score: {game_info.get('score', 0)}, Steps: {game_info.get('steps', 0)}{Fore.RESET}")
+            print(f"{Fore.GREEN}Starting replay with {len(moves_data)} moves. Speed: {args.move_pause}x{Fore.RESET}")
+            
+            # Create a custom replay engine just for this file
+            custom_replay = ReplayEngine(
+                game=game,
+                gui=gui,
+                log_dir=os.path.dirname(args.game_file),
+                game_number=None,
+                speed=args.move_pause
+            )
+            
+            # Set the moves directly
+            custom_replay.all_moves_for_game = moves_data
+            custom_replay.game_number_display = 1
+            
+            # Run the replay engine
+            custom_replay.run()
+        else:
+            # The ReplayEngine is the controller for the replay
+            replay_engine_instance = ReplayEngine(
+                game=game,
+                gui=gui,
+                log_dir=args.log_dir,
+                game_number=args.game, # Pass the specific game number
+                speed=args.move_pause
+            )
+            
+            # Run the replay engine
+            replay_engine_instance.run()
     except Exception as e:
         print(f"{Fore.RED}Error during replay: {str(e)}{Fore.RESET}")
+        import traceback
+        traceback.print_exc() # Print full traceback for debugging
     finally:
         pygame.quit()
-
-
-def load_game_data(log_dir, game_number=None):
-    """Load game data from logs.
-    
-    Args:
-        log_dir: Directory containing game logs
-        game_number: Specific game number to load
-        
-    Returns:
-        List of game moves
-    """
-    # Find available game logs
-    game_logs = []
-    for filename in os.listdir(log_dir):
-        if filename.startswith("game_") and filename.endswith(".json"):
-            game_logs.append(os.path.join(log_dir, filename))
-    
-    if not game_logs:
-        return None
-        
-    # Sort logs by timestamp
-    game_logs.sort()
-    
-    # Load specific game if requested
-    if game_number is not None:
-        if game_number < 0 or game_number >= len(game_logs):
-            print(f"{Fore.RED}Invalid game number: {game_number}{Fore.RESET}")
-            return None
-        game_logs = [game_logs[game_number]]
-    
-    # Load game data
-    game_data = []
-    for log_file in game_logs:
-        with open(log_file, "r") as f:
-            data = json.load(f)
-            game_data.extend(data["moves"])
-    
-    return game_data
-
-
-def replay_game(game, gui, game_data, speed=1.0):
-    """Replay a recorded game.
-    
-    Args:
-        game: SnakeGame instance
-        gui: ReplayGUI instance
-        game_data: List of game moves
-        speed: Replay speed multiplier
-    """
-    # Game state
-    current_move = 0
-    paused = False
-    
-    # Main replay loop
-    while True:
-        # Process events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    paused = not paused
-                elif event.key == pygame.K_RIGHT and current_move < len(game_data):
-                    if not paused:
-                        move = game_data[current_move]
-                        game.move(move)
-                        current_move += 1
-                elif event.key == pygame.K_LEFT and current_move > 0:
-                    if not paused:
-                        game.reset()
-                        current_move = 0
-                        for i in range(current_move):
-                            game.move(game_data[i])
-                elif event.key == pygame.K_r:
-                    game.reset()
-                    current_move = 0
-                elif event.key == pygame.K_q:
-                    return
-        
-        # Draw the current state
-        gui.draw(game, 1, 1, current_move)
-        pygame.display.flip()
-        
-        # Control replay speed
-        pygame.time.delay(int(1000 / speed))
+        print(f"{Fore.CYAN}Pygame quit. Replay finished or exited.{Fore.RESET}")
 
 
 if __name__ == "__main__":

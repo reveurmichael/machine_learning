@@ -106,8 +106,7 @@ The codebase is organized in a modular structure to ensure maintainability and s
 - Main modules:
   - `main.py`: Entry point with command-line argument parsing
   - `game_manager.py`: Manages game sessions and statistics
-  - `llm_client.py`: Client for communicating with LLMs
-  - `llm_parser.py`: Parser for processing LLM outputs
+  - `llm_client.py`: Client for interacting with LLMs (OpenAI, Anthropic, etc.)
   - `config.py`: Configuration constants
 
 ## Game Termination Conditions
@@ -144,7 +143,7 @@ The system tracks comprehensive performance metrics for both game play and LLM p
 
 All metrics are saved in detailed JSON summary files for each game and can be analyzed using the included analytics dashboard.
 
-## Analytics Dashboard
+## Analytics and Replay Dashboard
 
 Run the Streamlit analytics dashboard to visualize and compare experiment results:
 
@@ -152,19 +151,4 @@ Run the Streamlit analytics dashboard to visualize and compare experiment result
 streamlit run app.py
 ```
 
-The dashboard provides:
-
-- **Experiment Overview**: Summary statistics across all experiments
-- **Filtering Capabilities**: 
-  - Filter by provider (OpenAI, Mistral, Ollama, etc.)
-  - Filter by model (GPT-4, Claude, Llama, etc.)
-  - Filter by primary LLM configuration
-  - Filter by secondary LLM configuration
-- **Detailed Metrics**:
-  - Total steps taken across games
-  - Average steps per apple (efficiency measure)
-  - JSON extraction success rate
-  - Average response wait times for both LLMs
-- **Game Replay**: Visually replay saved games to analyze LLM decision-making
-
-This dashboard is essential for comparing the performance of different LLM configurations and understanding their strengths and weaknesses in the Snake game environment.
+You can also replay games from the dashboard.

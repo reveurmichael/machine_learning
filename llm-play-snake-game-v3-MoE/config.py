@@ -11,6 +11,21 @@ GREY2 = (189, 195, 199)
 GREY3 = (87, 96, 111)
 SNAKE_HEAD_C = (255, 140, 0)  # Bright orange for the head
 
+# Colors dictionary for use throughout the application
+COLORS = {
+    'SNAKE_HEAD': (255, 140, 0),    # Bright orange for snake head
+    'SNAKE_BODY': (209, 204, 192),  # Light gray for snake body
+    'APPLE': (192, 57, 43),         # Red for apple
+    'BACKGROUND': (44, 44, 84),     # Dark blue background
+    'GRID': (87, 96, 111),          # Grid lines
+    'TEXT': (255, 255, 255),        # White text
+    'ERROR': (231, 76, 60),         # Red for error messages
+    'BLACK': (0, 0, 0),             # Black
+    'WHITE': (255, 255, 255),       # White
+    'GREY': (113, 128, 147),        # Medium grey
+    'GREY2': (189, 195, 199),       # Light grey
+    'GREY3': (87, 96, 111)          # Dark grey
+}
 
 # GUI
 PIXEL = 100
@@ -26,6 +41,7 @@ PAUSE_BETWEEN_GAMES_SECONDS = 1.0
 
 # Game configuration
 GRID_SIZE = 10
+CELL_SIZE = 40  # Size of each cell in pixels
 MAX_CONSECUTIVE_EMPTY_MOVES = 3  # Maximum consecutive empty moves before game over
 
 DIRECTIONS = {

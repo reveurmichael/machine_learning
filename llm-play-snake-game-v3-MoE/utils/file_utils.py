@@ -79,7 +79,7 @@ def extract_game_stats(log_folder):
         'game_data': {}  # Store per-game data
     }
     
-    # Try to extract info from info.json
+    # Load data from info.json
     info_path = Path(log_folder) / 'info.json'
     if info_path.exists():
         try:

@@ -49,8 +49,8 @@ def process_game_over(game, game_count, total_score, total_steps,
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage)
     """
-    from .log_utils import generate_game_summary_json
-    from .json_utils import get_json_error_stats
+    from utils.log_utils import generate_game_summary_json
+    from utils.json_utils import get_json_error_stats
     
     game_count += 1
     print(Fore.RED + f"❌ Game over! Score: {game.score}, Steps: {game.steps}")
@@ -134,8 +134,8 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
                  round_count, previous_parser_usage)
     """
-    from .log_utils import generate_game_summary_json
-    from .json_utils import get_json_error_stats
+    from utils.log_utils import generate_game_summary_json
+    from utils.json_utils import get_json_error_stats
     
     print(Fore.RED + f"Error in game loop: {error}")
     traceback.print_exc()
@@ -214,7 +214,7 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
         error_steps: Number of error steps
         max_empty_moves: Maximum allowed empty moves
     """
-    from .json_utils import get_json_error_stats, update_experiment_info_json
+    from utils.json_utils import get_json_error_stats, update_experiment_info_json
     
     # Update experiment info with final statistics
     json_error_stats = get_json_error_stats()
@@ -248,7 +248,7 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
     
     if json_error_stats['total_extraction_attempts'] > 0:
         print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
-        success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts'] * 100)
+        success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
         print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
 
 def handle_llm_response(response, next_move, error_steps, empty_steps, consecutive_empty_steps, max_empty_moves):

@@ -1,317 +1,366 @@
 """
-Replay module for the Snake game.
+Snake Game Replay Module.
 Allows replaying of previously recorded games based on logged moves.
 """
 
 import os
-import re
+import sys
 import json
 import time
 import argparse
-import pygame
 import numpy as np
-import glob
 from pathlib import Path
-from snake_game import SnakeGame
-from config import MOVE_PAUSE, DIRECTIONS
-from gui import DrawWindow
+import pygame
+from pygame.locals import *
 
-def extract_moves_from_log_dir(log_dir, game_number=None):
-    """Extract the sequence of moves from log files in a directory.
-    
-    Args:
-        log_dir: Path to the log directory
-        game_number: Specific game number to extract moves for (None means all games)
-        
-    Returns:
-        Dictionary mapping game numbers to move lists, or a single list of moves if game_number is specified
+from config import (
+    SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GRID_SIZE, DIRECTIONS,
+    APP_WIDTH, APP_HEIGHT, SNAKE_HEAD_C, PAUSE_BETWEEN_GAMES_SECONDS
+)
+
+# Import after config to avoid circular imports
+from gui import SetUp, draw_grid
+from utils.file_utils import extract_apple_positions
+from utils.snake_utils import filter_invalid_reversals
+
+class ReplaySnakeGame(SetUp):
     """
-    all_game_moves = {}
-    log_dir_path = Path(log_dir)
+    A class to replay Snake games based on saved game data.
+    """
     
-    # Extract moves from JSON summary files
-    if game_number is not None:
-        # Try to extract moves for a specific game from its JSON summary
-        json_summary_file = log_dir_path / f"game{game_number}_summary.json"
-        if json_summary_file.exists():
-            try:
-                with open(json_summary_file, 'r', encoding='utf-8') as f:
-                    summary_data = json.load(f)
+    def __init__(self, log_dir, move_pause=1.0, auto_advance=False):
+        """
+        Initialize the replay environment.
+        
+        Args:
+            log_dir: Directory containing game logs
+            move_pause: Time in seconds to pause between moves
+            auto_advance: Whether to automatically advance through games
+        """
+        super().__init__()
+        
+        # Initialize pygame and screen
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.width + self.width_plus, self.height))
+        pygame.display.set_caption('Snake Game Replay')
+        
+        # Initialize replay parameters
+        self.log_dir = log_dir
+        self.move_pause = move_pause
+        self.auto_advance = auto_advance
+        
+        # Game state
+        self.game_number = 1
+        self.snake_positions = []
+        self.apple_positions = []
+        self.apple_index = 0
+        self.moves = []
+        self.move_index = 0
+        self.moves_made = []
+        self.game_score = 0
+        self.game_steps = 0
+        self.current_direction = None
+        self.game_stats = {}
+        self.last_move_time = time.time()
+        self.running = True
+    
+    def load_game_data(self, game_number):
+        """Load data for a specific game number.
+        
+        Args:
+            game_number: The game number to load
+            
+        Returns:
+            Boolean indicating if game data was loaded successfully
+        """
+        # Reset game state
+        self.snake_positions = [[GRID_SIZE // 2, GRID_SIZE // 2]]
+        self.apple_positions = []
+        self.apple_index = 0
+        self.moves = []
+        self.move_index = 0
+        self.moves_made = []
+        self.game_score = 0
+        self.game_steps = 0
+        self.current_direction = None
+        
+        # Load game data from summary file
+        summary_file = os.path.join(self.log_dir, f"game{game_number}_summary.json")
+        
+        if not os.path.exists(summary_file):
+            print(f"Game {game_number} summary file not found.")
+            return False
+        
+        try:
+            with open(summary_file, 'r') as f:
+                summary_data = json.load(f)
+            
+            # Extract game statistics
+            self.game_stats = {
+                'score': summary_data.get('score', 0),
+                'steps': summary_data.get('steps', 0),
+                'game_end_reason': summary_data.get('game_end_reason', 'Unknown'),
+                'snake_length': summary_data.get('snake_length', 1)
+            }
+            
+            # Load apple positions from JSON summary
+            self.apple_positions = extract_apple_positions(self.log_dir, game_number)
+            
+            # Load moves from JSON summary
+            if 'moves' in summary_data and summary_data['moves']:
+                raw_moves = summary_data['moves']
                 
-                # Extract moves from JSON summary
-                if 'moves' in summary_data and isinstance(summary_data['moves'], list):
-                    moves = summary_data['moves']
-                    print(f"Extracted {len(moves)} moves from game {game_number} JSON summary")
-                    return moves
-                else:
-                    print(f"No moves found in JSON summary for game {game_number}")
-            except Exception as e:
-                print(f"Error reading JSON summary file: {e}")
-    else:
-        # Try to extract moves for all games from their JSON summaries
-        for i in range(1, 10):  # Assume a reasonable maximum number of games
-            json_summary_file = log_dir_path / f"game{i}_summary.json"
-            if json_summary_file.exists():
-                try:
-                    with open(json_summary_file, 'r', encoding='utf-8') as f:
-                        summary_data = json.load(f)
-                    
-                    # Extract moves from JSON summary
-                    if 'moves' in summary_data and isinstance(summary_data['moves'], list):
-                        moves = summary_data['moves']
-                        all_game_moves[i] = moves
-                        print(f"Extracted {len(moves)} moves from game {i} JSON summary")
-                except Exception as e:
-                    print(f"Error reading JSON summary file for game {i}: {e}")
-    
-    # Return the appropriate result based on the input
-    if game_number is not None:
-        return all_game_moves.get(game_number, [])
-    else:
-        return all_game_moves
-
-def extract_apple_positions(log_dir, game_number):
-    """Extract apple positions from a game summary file.
-    
-    Args:
-        log_dir: Path to the log directory
-        game_number: Game number to extract apple positions for
-        
-    Returns:
-        List of apple positions as [x, y] arrays
-    """
-    log_dir_path = Path(log_dir)
-    json_summary_file = log_dir_path / f"game{game_number}_summary.json"
-    apple_positions = []
-    
-    if not json_summary_file.exists():
-        print(f"No JSON summary file found for game {game_number}")
-        return apple_positions
-    
-    try:
-        with open(json_summary_file, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
-        
-        # Extract apple positions from JSON
-        if 'apple_positions' in summary_data and summary_data['apple_positions']:
-            for pos in summary_data['apple_positions']:
-                apple_positions.append(np.array([pos['x'], pos['y']]))
-        
-        print(f"Extracted {len(apple_positions)} apple positions from game {game_number} JSON summary")
-    
-    except Exception as e:
-        print(f"Error extracting apple positions from JSON summary: {e}")
-    
-    return apple_positions
-
-def filter_invalid_moves(moves):
-    """Filter out invalid moves (e.g., reversals) from the sequence.
-    
-    Args:
-        moves: List of moves
-        
-    Returns:
-        Filtered list of moves
-    """
-    if not moves:
-        return []
-        
-    filtered_moves = [moves[0]]
-    
-    for i in range(1, len(moves)):
-        current = moves[i]
-        previous = filtered_moves[-1]
-        
-        # Skip invalid reversals
-        if (previous == "UP" and current == "DOWN") or \
-           (previous == "DOWN" and current == "UP") or \
-           (previous == "LEFT" and current == "RIGHT") or \
-           (previous == "RIGHT" and current == "LEFT"):
-            print(f"Skipping invalid reversal: {previous} -> {current}")
-            continue
+                # Ensure moves are valid and no invalid reversals
+                self.moves = filter_invalid_reversals(raw_moves)
+                
+                print(f"Loaded {len(self.moves)} moves for game {game_number}")
+                
+                if len(self.moves) != len(raw_moves):
+                    print(f"Warning: Filtered out {len(raw_moves) - len(self.moves)} invalid moves")
+                
+                return len(self.moves) > 0
+            else:
+                print(f"No moves found for game {game_number}")
+                return False
             
-        filtered_moves.append(current)
+        except Exception as e:
+            print(f"Error loading game data: {e}")
+            return False
     
-    return filtered_moves
-
-def replay_game(moves, apple_positions=None, move_pause=MOVE_PAUSE, game_number=None):
-    """Replay a game using the provided sequence of moves and apple positions.
-    
-    Args:
-        moves: List of moves to replay
-        apple_positions: List of apple positions to use in replay
-        move_pause: Pause between moves in seconds
-        game_number: Game number being replayed (for display purposes)
+    def make_move(self, direction):
+        """Make a move in the specified direction.
         
-    Returns:
-        Final score of the game
-    """
-    # Initialize pygame
-    pygame.init()
-    pygame.font.init()
-    
-    game_title = "Snake Game - Replay Mode"
-    if game_number is not None:
-        game_title += f" (Game {game_number})"
-    pygame.display.set_caption(game_title)
-    
-    # Initialize game
-    game = SnakeGame()
-    
-    # Enable replay mode and set apple positions if provided
-    if apple_positions and len(apple_positions) > 0:
-        game.set_replay_mode(True)
-        # We need to set the initial apple position and populate the history
-        game.apple_positions_history = []
-        for pos in apple_positions:
-            game.apple_positions_history.append(pos)
+        Args:
+            direction: Direction to move (UP, DOWN, LEFT, RIGHT)
+            
+        Returns:
+            Boolean indicating if game continues
+        """
+        # Skip invalid direction
+        if not direction or direction not in DIRECTIONS:
+            print(f"Invalid direction: {direction}")
+            return True
         
-        # Set the first apple position
-        if len(apple_positions) > 0:
-            game.set_apple_position(apple_positions[0])
-            print(f"Set initial apple position to ({apple_positions[0][0]}, {apple_positions[0][1]})")
-    
-    # Set up game variables
-    clock = pygame.time.Clock()
-    running = True
-    game_active = True
-    
-    # Process moves to filter out invalid ones
-    processed_moves = filter_invalid_moves(moves)
-    move_index = 0
-    
-    # Display information
-    print(f"Replaying game with {len(processed_moves)} moves")
-    if game_number is not None:
-        print(f"Game number: {game_number}")
-    
-    # Main game loop
-    while running and move_index < len(processed_moves):
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_SPACE:
-                    # Pause/resume on space
-                    time.sleep(1)
+        # Get current head position
+        head_x, head_y = self.snake_positions[0]
         
-        if game_active:
-            # Get the next move
-            next_move = processed_moves[move_index]
-            print(f"Move {move_index+1}/{len(processed_moves)}: {next_move}")
-            
-            # Execute the move
-            game_active, apple_eaten = game.make_move(next_move)
-            
-            # Update the game state
-            game.update()
-            
-            # Set custom text for replay mode
-            replay_info = f"REPLAY MODE - Game {game_number}" if game_number else "REPLAY MODE"
-            move_info = f"Move: {move_index+1}/{len(processed_moves)}"
-            custom_text = f"{replay_info}\n{move_info}"
-            
-            # Use the existing draw method, adding custom text if possible
-            # This minimizes code changes by using the existing draw interface
-            game.processed_response = custom_text
-            game.draw()
-            
-            # Increment move index
-            move_index += 1
-            
-            # Pause between moves
-            time.sleep(move_pause)
+        # Calculate new head position based on direction
+        if direction == "UP":
+            head_y -= 1
+        elif direction == "DOWN":
+            head_y += 1
+        elif direction == "LEFT":
+            head_x -= 1
+        elif direction == "RIGHT":
+            head_x += 1
         
-        if not game_active:
-            print(f"Game over! Score: {game.score}")
-            time.sleep(2)  # Pause before exiting
-            break
-    
-    # Clean up
-    pygame.quit()
-    
-    return game.score
-
-def replay_all_games(log_dir, move_pause=MOVE_PAUSE):
-    """Replay all games from a log directory.
-    
-    Args:
-        log_dir: Path to the log directory
-        move_pause: Pause between moves in seconds
+        # Check for collision with walls
+        if head_x < 0 or head_x >= GRID_SIZE or head_y < 0 or head_y >= GRID_SIZE:
+            print(f"Hit wall at ({head_x}, {head_y})")
+            return False
         
-    Returns:
-        Dictionary mapping game numbers to scores
-    """
-    all_game_moves = extract_moves_from_log_dir(log_dir)
+        # Check for collision with self
+        if [head_x, head_y] in self.snake_positions:
+            print(f"Hit self at ({head_x}, {head_y})")
+            return False
+        
+        # Update head position
+        self.snake_positions.insert(0, [head_x, head_y])
+        
+        # Check for apple
+        apple_eaten = False
+        if self.apple_index < len(self.apple_positions):
+            apple_pos = self.apple_positions[self.apple_index]
+            if head_x == apple_pos[0] and head_y == apple_pos[1]:
+                apple_eaten = True
+                self.apple_index += 1
+                self.game_score += 1
+        
+        # Remove tail if no apple eaten
+        if not apple_eaten:
+            self.snake_positions.pop()
+        
+        # Update game state
+        self.current_direction = direction
+        self.moves_made.append(direction)
+        self.game_steps += 1
+        
+        return True
     
-    if not all_game_moves:
-        print("No games found to replay")
-        return {}
-    
-    scores = {}
-    for game_number, moves in sorted(all_game_moves.items()):
-        if moves:
-            print(f"\n===== Replaying Game {game_number} =====")
+    def draw(self):
+        """Draw the game state."""
+        # Fill background
+        self.screen.fill(APP_BG)
+        
+        # Draw grid
+        draw_grid(self.screen, self.pixel, self.grid_size, GRID_BG)
+        
+        # Draw snake
+        for i, position in enumerate(self.snake_positions):
+            x, y = position
             
-            # Extract apple positions for this game
-            apple_positions = extract_apple_positions(log_dir, game_number)
+            # Convert grid position to pixel position
+            rect = pygame.Rect(
+                x * self.pixel,
+                y * self.pixel,
+                self.pixel,
+                self.pixel
+            )
             
-            # Replay the game with apple positions
-            score = replay_game(moves, apple_positions, move_pause, game_number)
-            scores[game_number] = score
-            print(f"Game {game_number} complete. Score: {score}")
+            # Draw head in different color
+            if i == 0:
+                pygame.draw.rect(self.screen, SNAKE_HEAD_C, rect)
+            else:
+                pygame.draw.rect(self.screen, SNAKE_C, rect)
+        
+        # Draw apple if available
+        if self.apple_index < len(self.apple_positions):
+            apple_pos = self.apple_positions[self.apple_index]
+            x, y = apple_pos
+            
+            # Convert grid position to pixel position
+            rect = pygame.Rect(
+                x * self.pixel,
+                y * self.pixel,
+                self.pixel,
+                self.pixel
+            )
+            
+            pygame.draw.rect(self.screen, APPLE_C, rect)
+        
+        # Draw game info
+        font = pygame.font.SysFont('arial', 20)
+        
+        # Right panel info
+        info_text = [
+            f"Game: {self.game_number}",
+            f"Score: {self.game_score}",
+            f"Steps: {self.game_steps}",
+            f"Moves: {self.move_index}/{len(self.moves)}",
+            f"Current Direction: {self.current_direction or 'None'}",
+            f"Press Space to pause/resume",
+            f"Press N for next game",
+            f"Press R to restart game",
+            f"Press Esc to quit"
+        ]
+        
+        y_offset = 20
+        for text in info_text:
+            text_surface = font.render(text, True, WHITE)
+            self.screen.blit(text_surface, (self.height + 20, y_offset))
+            y_offset += 30
+        
+        # Update display
+        pygame.display.flip()
     
-    return scores
-
-def parse_arguments():
-    """Parse command line arguments.
+    def update(self):
+        """Update game state for each frame."""
+        current_time = time.time()
+        
+        # Check if it's time for the next move
+        if current_time - self.last_move_time >= self.move_pause and self.move_index < len(self.moves):
+            # Make the next move
+            next_move = self.moves[self.move_index]
+            self.move_index += 1
+            
+            # Update game state
+            game_continues = self.make_move(next_move)
+            
+            # Update last move time
+            self.last_move_time = current_time
+            
+            # Check if game is over
+            if not game_continues:
+                print(f"Game {self.game_number} over. Score: {self.game_score}, Steps: {self.game_steps}")
+                
+                # Check if we should advance to next game
+                if self.auto_advance:
+                    pygame.time.delay(PAUSE_BETWEEN_GAMES_SECONDS * 1000)
+                    self.game_number += 1
+                    self.load_game_data(self.game_number)
+            
+            # Check if we're out of moves
+            elif self.move_index >= len(self.moves):
+                print(f"Replay complete for game {self.game_number}. Score: {self.game_score}, Steps: {self.game_steps}")
+                
+                # Check if we should advance to next game
+                if self.auto_advance:
+                    pygame.time.delay(PAUSE_BETWEEN_GAMES_SECONDS * 1000)
+                    self.game_number += 1
+                    self.load_game_data(self.game_number)
     
-    Returns:
-        Parsed arguments
-    """
-    parser = argparse.ArgumentParser(description='Replay a Snake game from log files')
-    parser.add_argument('--log-dir', type=str, required=True,
-                      help='Path to the log directory containing game responses')
-    parser.add_argument('--game', type=int, default=None,
-                      help='Specific game number to replay (default: replay all games)')
-    parser.add_argument('--move-pause', type=float, default=MOVE_PAUSE,
-                      help=f'Pause between moves in seconds (default: {MOVE_PAUSE})')
-    
-    return parser.parse_args()
+    def run(self):
+        """Run the replay loop."""
+        clock = pygame.time.Clock()
+        paused = False
+        
+        # Load first game
+        if not self.load_game_data(self.game_number):
+            print(f"Could not load game {self.game_number}. Trying next game.")
+            self.game_number += 1
+            if not self.load_game_data(self.game_number):
+                print("No valid games found in log directory.")
+                return
+        
+        # Main game loop
+        while self.running:
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    self.running = False
+                elif event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        self.running = False
+                    elif event.key == K_SPACE:
+                        paused = not paused
+                        print("Replay " + ("paused" if paused else "resumed"))
+                    elif event.key == K_n:
+                        # Next game
+                        self.game_number += 1
+                        if not self.load_game_data(self.game_number):
+                            print(f"Could not load game {self.game_number}. Staying with current game.")
+                            self.game_number -= 1
+                    elif event.key == K_r:
+                        # Restart current game
+                        self.load_game_data(self.game_number)
+            
+            # Update game state if not paused
+            if not paused:
+                self.update()
+            
+            # Draw game state
+            self.draw()
+            
+            # Control game speed
+            clock.tick(60)
+        
+        # Clean up
+        pygame.quit()
 
 def main():
-    """Main function for the replay script."""
-    args = parse_arguments()
+    """Main function to run the replay."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Replay a Snake game.')
+    parser.add_argument('--log-dir', type=str, required=True, help='Directory containing game logs')
+    parser.add_argument('--game', type=int, help='Specific game number to replay')
+    parser.add_argument('--move-pause', type=float, default=1.0, help='Pause between moves in seconds')
+    parser.add_argument('--auto-advance', action='store_true', help='Automatically advance to next game')
+    args = parser.parse_args()
     
-    if args.game is not None:
-        # Replay a specific game
-        print(f"Replaying game {args.game} from {args.log_dir}")
-        moves = extract_moves_from_log_dir(args.log_dir, args.game)
-        
-        if not moves:
-            print(f"No valid moves found for game {args.game}")
-            return
-        
-        # Extract apple positions for this game
-        apple_positions = extract_apple_positions(args.log_dir, args.game)
-        
-        # Replay the game
-        final_score = replay_game(moves, apple_positions, args.move_pause, args.game)
-        print(f"Replay of game {args.game} complete. Final score: {final_score}")
-    else:
-        # Replay all games
-        print(f"Replaying all games from {args.log_dir}")
-        scores = replay_all_games(args.log_dir, args.move_pause)
-        
-        if scores:
-            print("\n===== Replay Summary =====")
-            for game_number, score in sorted(scores.items()):
-                print(f"Game {game_number}: Score {score}")
-        else:
-            print("No games were replayed")
+    # Check if log directory exists
+    if not os.path.isdir(args.log_dir):
+        print(f"Log directory does not exist: {args.log_dir}")
+        sys.exit(1)
+    
+    # Initialize and run replay
+    replay = ReplaySnakeGame(args.log_dir, args.move_pause, args.auto_advance)
+    
+    # Set specific game if provided
+    if args.game:
+        replay.game_number = args.game
+    
+    # Run replay
+    replay.run()
 
 if __name__ == "__main__":
     main()

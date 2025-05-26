@@ -31,9 +31,10 @@ from utils import (
     check_max_steps,
     process_game_over,
     handle_error,
-    report_final_statistics,
-    handle_llm_response
+    report_final_statistics
 )
+
+from utils.llm_utils import handle_llm_response
 
 
 class GameManager:

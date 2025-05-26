@@ -10,9 +10,10 @@ import pygame
 import traceback
 from gui import DrawWindow
 from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
-from json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
-from text_utils import process_response_for_display
-from snake_utils import filter_invalid_reversals, calculate_move_differences, parse_llm_response
+from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
+from utils.text_utils import process_response_for_display
+from utils.snake_utils import filter_invalid_reversals, calculate_move_differences
+from utils.llm_utils import parse_llm_response
 
 class SnakeGame:
     """Main class for the Snake game logic and rendering."""

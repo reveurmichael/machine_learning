@@ -231,40 +231,4 @@ def extract_game_summary(summary_file):
     except Exception as e:
         print(f"Error extracting summary from {summary_file}: {e}")
     
-    return summary
-
-def extract_apple_positions(log_dir, game_number):
-    """Extract apple positions from a game summary file.
-    
-    Args:
-        log_dir: Path to the log directory
-        game_number: Game number to extract apple positions for
-        
-    Returns:
-        List of apple positions as [x, y] arrays
-    """
-    import numpy as np  # Import here to avoid circular imports
-    
-    log_dir_path = Path(log_dir)
-    json_summary_file = log_dir_path / f"game{game_number}_summary.json"
-    apple_positions = []
-    
-    if not json_summary_file.exists():
-        print(f"No JSON summary file found for game {game_number}")
-        return apple_positions
-    
-    try:
-        with open(json_summary_file, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
-        
-        # Extract apple positions from JSON
-        if 'apple_positions' in summary_data and summary_data['apple_positions']:
-            for pos in summary_data['apple_positions']:
-                apple_positions.append(np.array([pos['x'], pos['y']]))
-        
-        print(f"Extracted {len(apple_positions)} apple positions from game {game_number} JSON summary")
-    
-    except Exception as e:
-        print(f"Error extracting apple positions from JSON summary: {e}")
-    
-    return apple_positions 
+    return summary 

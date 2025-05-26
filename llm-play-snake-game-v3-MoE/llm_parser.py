@@ -4,9 +4,14 @@ Uses a secondary LLM to ensure the response follows the required format.
 """
 
 import json
+import time
+import traceback
+from datetime import datetime
+from colorama import Fore
 from llm_client import LLMClient
 from config import PARSER_PROMPT_TEMPLATE
-from json_utils import extract_valid_json, validate_json_format
+from utils.json_utils import extract_valid_json, validate_json_format
+from utils.log_utils import save_to_file, format_parsed_llm_response
 
 class LLMOutputParser:
     """Class for parsing primary LLM output and ensuring it follows the required format."""

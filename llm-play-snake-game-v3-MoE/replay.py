@@ -15,13 +15,33 @@ from pygame.locals import *
 
 from config import (
     SNAKE_C, APPLE_C, BG, APP_BG, GRID_BG, BLACK, WHITE, GREY, GRID_SIZE, DIRECTIONS,
-    APP_WIDTH, APP_HEIGHT, SNAKE_HEAD_C, PAUSE_BETWEEN_GAMES_SECONDS
+    APP_WIDTH, APP_HEIGHT, SNAKE_HEAD_C
 )
 
+# Define the pause time between games
+PAUSE_BETWEEN_GAMES_SECONDS = 1
+
 # Import after config to avoid circular imports
-from gui import SetUp, draw_grid
-from utils.file_utils import extract_apple_positions
-from utils.snake_utils import filter_invalid_reversals
+from gui import SetUp
+from utils.snake_utils import filter_invalid_reversals, extract_apple_positions
+
+# Define a simple draw_grid function
+def draw_grid(screen, pixel_size, grid_size, color):
+    """Draw grid lines on the screen.
+    
+    Args:
+        screen: Pygame screen surface
+        pixel_size: Size of each grid cell in pixels
+        grid_size: Number of cells in the grid
+        color: Color of the grid lines
+    """
+    # Draw horizontal lines
+    for y in range(grid_size + 1):
+        pygame.draw.line(screen, color, (0, y * pixel_size), (grid_size * pixel_size, y * pixel_size), 1)
+    
+    # Draw vertical lines
+    for x in range(grid_size + 1):
+        pygame.draw.line(screen, color, (x * pixel_size, 0), (x * pixel_size, grid_size * pixel_size), 1)
 
 class ReplaySnakeGame(SetUp):
     """

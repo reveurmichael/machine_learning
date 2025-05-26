@@ -22,7 +22,10 @@ from .json_utils import (
 from .snake_utils import (
     filter_invalid_reversals,
     calculate_move_differences,
-    parse_llm_response
+    is_collision,
+    generate_apple,
+    update_snake,
+    extract_apple_positions
 )
 
 # Import and expose all from log_utils
@@ -37,8 +40,7 @@ from .log_utils import (
 from .file_utils import (
     find_log_folders,
     extract_game_stats,
-    extract_game_summary,
-    extract_apple_positions
+    extract_game_summary
 )
 
 # Import and expose all from replay_utils
@@ -61,8 +63,19 @@ from .game_manager_utils import (
     check_max_steps,
     process_game_over,
     handle_error,
-    report_final_statistics,
+    report_final_statistics
+)
+
+# Import and expose all from llm_utils
+from .llm_utils import (
+    parse_llm_response,
     handle_llm_response
+)
+
+# Import and expose all from text_utils
+from .text_utils import (
+    process_response_for_display,
+    format_code_blocks
 )
 
 # Make it easy to import from specific modules
@@ -83,7 +96,10 @@ __all__ = [
     # snake_utils
     'filter_invalid_reversals',
     'calculate_move_differences',
-    'parse_llm_response',
+    'is_collision',
+    'generate_apple',
+    'update_snake',
+    'extract_apple_positions',
     
     # log_utils
     'save_to_file',
@@ -95,7 +111,6 @@ __all__ = [
     'find_log_folders',
     'extract_game_stats',
     'extract_game_summary',
-    'extract_apple_positions',
     
     # replay_utils
     'run_replay',
@@ -113,5 +128,12 @@ __all__ = [
     'process_game_over',
     'handle_error',
     'report_final_statistics',
-    'handle_llm_response'
+    
+    # llm_utils
+    'parse_llm_response',
+    'handle_llm_response',
+    
+    # text_utils
+    'process_response_for_display',
+    'format_code_blocks'
 ]

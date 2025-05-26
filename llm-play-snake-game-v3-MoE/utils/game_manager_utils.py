@@ -249,38 +249,4 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
     if json_error_stats['total_extraction_attempts'] > 0:
         print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
         success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
-        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
-
-def handle_llm_response(response, next_move, error_steps, empty_steps, consecutive_empty_steps, max_empty_moves):
-    """Handle the common logic for LLM response processing.
-    
-    Args:
-        response: The LLM response text
-        next_move: The parsed next move (or None)
-        error_steps: Count of error steps
-        empty_steps: Count of empty steps
-        consecutive_empty_steps: Count of consecutive empty steps
-        max_empty_moves: Maximum allowed consecutive empty moves
-        
-    Returns:
-        Tuple of (error_steps, empty_steps, consecutive_empty_steps, game_active)
-    """
-    game_active = True
-    
-    # Check for empty moves with ERROR in reasoning
-    if not next_move and "ERROR" in response:
-        error_steps += 1
-        consecutive_empty_steps = 0  # Reset consecutive empty steps if ERROR occurs
-        print(Fore.YELLOW + f"⚠️ ERROR in LLM response. Continuing with next round.")
-    elif not next_move:
-        empty_steps += 1
-        consecutive_empty_steps += 1
-        print(Fore.YELLOW + f"⚠️ Empty move (consecutive: {consecutive_empty_steps})")
-        # Check if we've reached max consecutive empty moves
-        if consecutive_empty_steps >= max_empty_moves:
-            print(Fore.RED + f"❌ Game over! {max_empty_moves} consecutive empty moves without ERROR.")
-            game_active = False
-    else:
-        consecutive_empty_steps = 0  # Reset on valid move
-        
-    return error_steps, empty_steps, consecutive_empty_steps, game_active 
+        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%") 

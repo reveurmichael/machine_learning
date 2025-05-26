@@ -4,8 +4,9 @@ Provides snake game mechanics like collision detection and move validation.
 """
 
 import traceback
-from utils.json_utils import extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
 import numpy as np
+from pathlib import Path
+import json
 
 def filter_invalid_reversals(moves, current_direction=None):
     """Filter out invalid reversal moves from a sequence.
@@ -72,86 +73,6 @@ def calculate_move_differences(head_pos, apple_pos):
         y_diff_text = f"#DOWN - #UP = {y_diff} (= {head_y} - {apple_y})"
     
     return f"{x_diff_text}, and {y_diff_text}"
-
-def parse_llm_response(response, processed_response_func, game_instance):
-    """Parse the LLM's response to extract multiple sequential moves.
-    
-    Args:
-        response: Text response from the LLM in JSON format
-        processed_response_func: Function to process the response for display
-        game_instance: The game instance with all necessary attributes
-        
-    Returns:
-        The next move to make as a direction key string ("UP", "DOWN", "LEFT", "RIGHT")
-        or None if no valid moves were found
-    """
-    try:
-        # Store the raw response for display
-        game_instance.last_llm_response = response
-        
-        # Process the response for display
-        game_instance.processed_response = processed_response_func(response)
-        
-        # Reset planned moves
-        game_instance.planned_moves = []
-        
-        # Print raw response snippet for debugging
-        print(f"Parsing LLM response: '{response[:50]}...'")
-        
-        # Method 1: Try to extract from JSON code block
-        json_data = extract_json_from_code_block(response)
-        
-        # Method 2: Try to extract JSON from regular text if code block fails
-        if not json_data or "moves" not in json_data or not json_data["moves"]:
-            json_data = extract_json_from_text(response)
-            
-        # Extract moves from JSON if found
-        if json_data and "moves" in json_data and isinstance(json_data["moves"], list):
-            valid_moves = [move.upper() for move in json_data["moves"] 
-                         if isinstance(move, str) and move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-            if valid_moves:
-                game_instance.planned_moves = valid_moves
-                print(f"Found {len(game_instance.planned_moves)} moves in JSON: {game_instance.planned_moves}")
-
-        # Method 3: Try finding arrays if other methods failed
-        if not game_instance.planned_moves:
-            array_moves = extract_moves_from_arrays(response)
-            if array_moves:
-                game_instance.planned_moves = array_moves
-                print(f"Found {len(game_instance.planned_moves)} moves in array format: {game_instance.planned_moves}")
-        
-        # If we still have no moves, leave planned_moves empty
-        if not game_instance.planned_moves:
-            print("No valid directions found. Not moving.")
-        else:
-            # Filter out invalid reversal moves if we have moves
-            current_direction = game_instance._get_current_direction_key()
-            game_instance.planned_moves = filter_invalid_reversals(game_instance.planned_moves, current_direction)
-        
-        # Get the next move from the sequence (or None if empty)
-        if game_instance.planned_moves:
-            next_move = game_instance.planned_moves.pop(0)
-            return next_move
-        else:
-            return None
-            
-    except Exception as e:
-        print(f"Error in parse_llm_response: {e}")
-        traceback.print_exc()
-        
-        # Ensure the game can continue even if parsing fails
-        game_instance.last_llm_response = response
-        
-        # Store an error message as processed response
-        try:
-            game_instance.processed_response = f"ERROR: Failed to parse response: {str(e)}\n\n{response[:200]}..."
-        except:
-            game_instance.processed_response = "ERROR: Failed to parse response and display error details"
-            
-        # Clear planned moves
-        game_instance.planned_moves = []
-        
-        return None 
 
 def is_collision(snake_head, snake_positions, grid_size):
     """Check if a collision has occurred.
@@ -243,4 +164,38 @@ def update_snake(snake_positions, direction, apple_pos):
         # Remove tail if no apple was eaten
         new_positions.pop()
     
-    return new_positions, apple_eaten 
+    return new_positions, apple_eaten
+
+def extract_apple_positions(log_dir, game_number):
+    """Extract apple positions from a game summary file.
+    
+    Args:
+        log_dir: Path to the log directory
+        game_number: Game number to extract apple positions for
+        
+    Returns:
+        List of apple positions as [x, y] arrays
+    """
+    log_dir_path = Path(log_dir)
+    json_summary_file = log_dir_path / f"game{game_number}_summary.json"
+    apple_positions = []
+    
+    if not json_summary_file.exists():
+        print(f"No JSON summary file found for game {game_number}")
+        return apple_positions
+    
+    try:
+        with open(json_summary_file, 'r', encoding='utf-8') as f:
+            summary_data = json.load(f)
+        
+        # Extract apple positions from JSON
+        if 'apple_positions' in summary_data and summary_data['apple_positions']:
+            for pos in summary_data['apple_positions']:
+                apple_positions.append(np.array([pos['x'], pos['y']]))
+        
+        print(f"Extracted {len(apple_positions)} apple positions from game {game_number} JSON summary")
+    
+    except Exception as e:
+        print(f"Error extracting apple positions from JSON summary: {e}")
+    
+    return apple_positions 

@@ -395,45 +395,75 @@ class GameManager:
         if self.game_count == 0:
             return
         
-        # Get aggregated stats from GameState
-        aggregated_stats = self.game.game_state.get_aggregated_stats_for_summary_json(
-            self.game_count, 
-            self.game_scores
-        )
+        # Check if this is a continuation mode
+        is_continuation = False
+        if hasattr(self.game.game_state, 'is_continuation'):
+            is_continuation = self.game.game_state.is_continuation
         
-        # Add experiment configuration
-        aggregated_stats["game_configuration"] = {
-            "max_steps_per_game": self.args.max_steps,
-            "max_consecutive_empty_moves": self.args.max_empty_moves,
-            "max_games": self.args.max_games,
-            "use_gui": self.use_gui
-        }
-        
-        # Add LLM usage stats
-        aggregated_stats["llm_usage_stats"] = {
-            "parser_usage_count": self.parser_usage_count,
-            "parser_usage_per_game": self.parser_usage_count / max(1, self.game_count)
-        }
-        
-        # Add efficiency metrics
-        aggregated_stats["efficiency_metrics"] = {
-            "apples_per_step": self.total_score / max(1, self.total_steps),
-            "steps_per_game": self.total_steps / max(1, self.game_count),
-            "valid_move_ratio": self.game.game_state.valid_steps / max(1, self.total_steps) * 100
-        }
-        
-        # Add continuation information if this is a continuation
-        if hasattr(self.game.game_state, 'is_continuation') and self.game.game_state.is_continuation:
-            aggregated_stats["is_continuation"] = True
-            aggregated_stats["continuation_count"] = self.game.game_state.continuation_count
-            aggregated_stats["continuation_timestamps"] = self.game.game_state.continuation_timestamps
-            if hasattr(self.game.game_state, 'continuation_metadata'):
-                aggregated_stats["continuation_metadata"] = self.game.game_state.continuation_metadata
+        # In continuation mode, merge statistics from all game files for accurate summary
+        if is_continuation and hasattr(self, 'log_dir') and self.log_dir:
+            from utils.json_utils import merge_game_stats_for_continuation
+            
+            print(Fore.GREEN + f"📊 Merging statistics from all games for accurate summary...")
+            aggregated_stats = merge_game_stats_for_continuation(self.log_dir)
+            
+            # Add current session's data that might not be in game files yet
+            # (e.g. if the last game wasn't completed)
+            current_session_stats = self.game.game_state.get_aggregated_stats_for_summary_json(
+                self.game_count, 
+                self.game_scores
+            )
+            
+            # Add experiment configuration
+            aggregated_stats["game_configuration"] = {
+                "max_steps_per_game": self.args.max_steps,
+                "max_consecutive_empty_moves": self.args.max_empty_moves,
+                "max_games": self.args.max_games,
+                "use_gui": self.use_gui
+            }
+            
+            # Add LLM usage stats
+            aggregated_stats["llm_usage_stats"] = {
+                "parser_usage_count": self.parser_usage_count,
+                "parser_usage_per_game": self.parser_usage_count / max(1, self.game_count)
+            }
+            
+            # Add continuation information
+            if hasattr(self.game.game_state, 'continuation_count'):
+                aggregated_stats["is_continuation"] = True
+                aggregated_stats["continuation_count"] = self.game.game_state.continuation_count
+                
+                if hasattr(self.game.game_state, 'continuation_timestamps'):
+                    aggregated_stats["continuation_timestamps"] = self.game.game_state.continuation_timestamps
+                    
+                if hasattr(self.game.game_state, 'continuation_metadata'):
+                    aggregated_stats["continuation_metadata"] = self.game.game_state.continuation_metadata
+        else:
+            # Regular mode - use standard statistics collection
+            aggregated_stats = self.game.game_state.get_aggregated_stats_for_summary_json(
+                self.game_count, 
+                self.game_scores
+            )
+            
+            # Add experiment configuration
+            aggregated_stats["game_configuration"] = {
+                "max_steps_per_game": self.args.max_steps,
+                "max_consecutive_empty_moves": self.args.max_empty_moves,
+                "max_games": self.args.max_games,
+                "use_gui": self.use_gui
+            }
+            
+            # Add LLM usage stats
+            aggregated_stats["llm_usage_stats"] = {
+                "parser_usage_count": self.parser_usage_count,
+                "parser_usage_per_game": self.parser_usage_count / max(1, self.game_count)
+            }
         
         # Update experiment info JSON
         update_experiment_info_json(
             self.log_dir,
             **aggregated_stats,
+            is_continuation=is_continuation,
             json_error_stats=get_json_error_stats()
         )
         
@@ -596,16 +626,41 @@ class GameManager:
             log_dir: Path to the log directory to continue from
             start_game_number: The game number to start from
         """
+        # Verify log directory exists and is valid
+        if not os.path.isdir(log_dir):
+            print(Fore.RED + f"❌ Log directory does not exist: {log_dir}")
+            sys.exit(1)
+            
+        # Check if summary.json exists
+        summary_path = os.path.join(log_dir, "summary.json")
+        if not os.path.exists(summary_path):
+            print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
+            sys.exit(1)
+            
         # Set the log directory
         self.log_dir = log_dir
         self.prompts_dir = os.path.join(log_dir, "prompts")
         self.responses_dir = os.path.join(log_dir, "responses")
         
-        # Create responses directory if it doesn't exist
+        # Create directories if they don't exist
+        os.makedirs(self.prompts_dir, exist_ok=True)
         os.makedirs(self.responses_dir, exist_ok=True)
         
         # Reset JSON error statistics
         reset_json_error_stats()
+        
+        # Load and validate the previous game number
+        if start_game_number < 1:
+            print(Fore.RED + f"❌ Invalid starting game number: {start_game_number}")
+            sys.exit(1)
+            
+        # Check if the previous game files exist
+        game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
+        alt_game_file_path = os.path.join(log_dir, f"game{start_game_number-1}.json")
+        
+        if start_game_number > 1 and not (os.path.exists(game_file_path) or os.path.exists(alt_game_file_path)):
+            print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")
+            sys.exit(1)
         
         # Load statistics from existing games
         (self.total_score, self.total_steps, self.game_scores, game_durations, 
@@ -667,6 +722,28 @@ class GameManager:
         self.game.game_state.record_continuation()
         print(Fore.GREEN + f"📝 Marked session as continuation ({self.game.game_state.continuation_count})")
         
+        # Load summary.json to get information about the previous session
+        try:
+            with open(summary_path, 'r') as f:
+                summary_data = json.load(f)
+                
+            # Check for any continuation info already in the summary
+            if 'continuation_info' in summary_data:
+                cont_info = summary_data['continuation_info']
+                prev_count = cont_info.get('continuation_count', 0)
+                print(Fore.GREEN + f"ℹ️ This is continuation #{prev_count + 1} of this experiment")
+                
+                # Update continuation timestamps in game state if they exist
+                if 'continuation_timestamps' in cont_info and hasattr(self.game.game_state, 'continuation_timestamps'):
+                    for timestamp in cont_info['continuation_timestamps']:
+                        if timestamp not in self.game.game_state.continuation_timestamps:
+                            self.game.game_state.continuation_timestamps.append(timestamp)
+                    
+                    # Update continuation count to match
+                    self.game.game_state.continuation_count = len(self.game.game_state.continuation_timestamps)
+        except Exception as e:
+            print(Fore.YELLOW + f"⚠️ Warning: Could not load continuation info from summary.json: {e}")
+        
         print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
         print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
         print(Fore.GREEN + f"📊 Continuing from game {start_game_number}, with {self.total_score} total score so far")
@@ -674,7 +751,7 @@ class GameManager:
         # Run the game loop
         self.run_game_loop()
         
-        # Report final statistics
+        # Report final statistics (with merged data from all games)
         self.report_final_statistics()
     
     def read_existing_game_data(self, log_dir, start_game_number):

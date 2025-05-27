@@ -123,19 +123,51 @@ def update_experiment_info_json(log_dir, **kwargs):
         except Exception as e:
             print(f"Error loading existing summary.json: {e}")
     
-    # Track continuation information
-    if not data.get('continuation_info'):
-        data['continuation_info'] = {
-            'is_continued': False,
-            'continuation_count': 0,
-            'continuation_timestamps': []
-        }
+    # Extract continuation information to place at the bottom
+    continuation_info = {}
+    is_continuation = kwargs.get('is_continuation', False)
     
-    # Check if this is a continuation update
-    if 'is_continuation' in kwargs and kwargs['is_continuation']:
-        data['continuation_info']['is_continued'] = True
-        data['continuation_info']['continuation_count'] = data['continuation_info'].get('continuation_count', 0) + 1
-        data['continuation_info']['continuation_timestamps'].append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    # If this is a continuation or we have continuation data
+    if is_continuation or data.get('continuation_info'):
+        # Initialize continuation info structure if it doesn't exist
+        if not data.get('continuation_info'):
+            data['continuation_info'] = {
+                'is_continued': False,
+                'continuation_count': 0,
+                'continuation_timestamps': [],
+                'session_metadata': []
+            }
+        
+        continuation_info = data.get('continuation_info', {}).copy()
+        
+        # Update continuation info
+        if is_continuation:
+            continuation_info['is_continued'] = True
+            continuation_info['continuation_count'] = continuation_info.get('continuation_count', 0) + 1
+            
+            # Add timestamp for this continuation
+            current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            if 'continuation_timestamps' not in continuation_info:
+                continuation_info['continuation_timestamps'] = []
+            continuation_info['continuation_timestamps'].append(current_timestamp)
+            
+            # Add session metadata
+            if 'session_metadata' not in continuation_info:
+                continuation_info['session_metadata'] = []
+            
+            # Add metadata about this continuation session
+            session_meta = {
+                'timestamp': current_timestamp,
+                'games_before_continuation': kwargs.get('game_count', 0),
+                'score_before_continuation': kwargs.get('total_score', 0),
+                'steps_before_continuation': kwargs.get('total_steps', 0)
+            }
+            continuation_info['session_metadata'].append(session_meta)
+        
+        # Remove continuation info from kwargs to handle it separately
+        for key in ['is_continuation', 'continuation_count', 'continuation_timestamps']:
+            if key in kwargs:
+                del kwargs[key]
     
     # Update nested dictionaries intelligently (don't completely overwrite them)
     for key, value in kwargs.items():
@@ -145,6 +177,10 @@ def update_experiment_info_json(log_dir, **kwargs):
         else:
             # Direct update for non-dictionary values or new keys
             data[key] = value
+    
+    # Add continuation info at the end to ensure it appears at the bottom
+    if continuation_info:
+        data['continuation_info'] = continuation_info
     
     # Save updated data
     try:
@@ -442,4 +478,159 @@ def extract_moves_from_arrays(response):
         if valid_moves and len(valid_moves) > 0:
             return {"moves": valid_moves}
     
-    return None 
+    return None
+
+def merge_game_stats_for_continuation(log_dir):
+    """Merge statistics from all game files for a more accurate summary in continuation mode.
+    
+    This function reads all game_N.json files in the log directory and combines them
+    to create accurate aggregated statistics.
+    
+    Args:
+        log_dir: Directory containing game log files
+        
+    Returns:
+        Dictionary containing merged statistics from all games
+    """
+    import glob
+    
+    # Get all game files
+    game_files = glob.glob(os.path.join(log_dir, "game_*.json")) + glob.glob(os.path.join(log_dir, "game*.json"))
+    
+    # Initialize aggregated stats
+    aggregated_stats = {
+        "game_statistics": {
+            "total_games": 0,
+            "total_score": 0,
+            "total_steps": 0,
+            "scores": []
+        },
+        "time_statistics": {
+            "total_llm_communication_time": 0,
+            "total_game_movement_time": 0,
+            "total_waiting_time": 0
+        },
+        "token_usage_stats": {
+            "primary_llm": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            },
+            "secondary_llm": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+        },
+        "step_stats": {
+            "empty_steps": 0,
+            "error_steps": 0,
+            "valid_steps": 0,
+            "invalid_reversals": 0
+        },
+        "json_parsing_stats": {
+            "total_extraction_attempts": 0,
+            "successful_extractions": 0,
+            "failed_extractions": 0
+        }
+    }
+    
+    # Extract data from each game file
+    for game_file in sorted(game_files, key=lambda x: int(re.search(r'game_?(\d+)', x).group(1))):
+        try:
+            with open(game_file, 'r') as f:
+                game_data = json.load(f)
+            
+            # Basic stats
+            aggregated_stats["game_statistics"]["total_games"] += 1
+            aggregated_stats["game_statistics"]["total_score"] += game_data.get("score", 0)
+            aggregated_stats["game_statistics"]["scores"].append(game_data.get("score", 0))
+            aggregated_stats["game_statistics"]["total_steps"] += game_data.get("steps", 0)
+            
+            # Time stats
+            if "time_stats" in game_data:
+                time_stats = game_data["time_stats"]
+                aggregated_stats["time_statistics"]["total_llm_communication_time"] += time_stats.get("llm_communication_time", 0)
+                aggregated_stats["time_statistics"]["total_game_movement_time"] += time_stats.get("game_movement_time", 0)
+                aggregated_stats["time_statistics"]["total_waiting_time"] += time_stats.get("waiting_time", 0)
+            
+            # Token stats
+            if "token_stats" in game_data:
+                token_stats = game_data["token_stats"]
+                
+                # Primary LLM
+                if "primary" in token_stats:
+                    primary = token_stats["primary"]
+                    aggregated_stats["token_usage_stats"]["primary_llm"]["total_tokens"] += primary.get("total_tokens", 0)
+                    aggregated_stats["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
+                    aggregated_stats["token_usage_stats"]["primary_llm"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                
+                # Secondary LLM
+                if "secondary" in token_stats:
+                    secondary = token_stats["secondary"]
+                    aggregated_stats["token_usage_stats"]["secondary_llm"]["total_tokens"] += secondary.get("total_tokens", 0)
+                    aggregated_stats["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
+                    aggregated_stats["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
+            
+            # Step stats
+            if "step_stats" in game_data:
+                step_stats = game_data["step_stats"]
+                aggregated_stats["step_stats"]["empty_steps"] += step_stats.get("empty_steps", 0)
+                aggregated_stats["step_stats"]["error_steps"] += step_stats.get("error_steps", 0)
+                aggregated_stats["step_stats"]["valid_steps"] += step_stats.get("valid_steps", 0)
+                aggregated_stats["step_stats"]["invalid_reversals"] += step_stats.get("invalid_reversals", 0)
+            
+            # JSON parsing stats
+            if "json_parsing_stats" in game_data:
+                json_stats = game_data["json_parsing_stats"]
+                aggregated_stats["json_parsing_stats"]["total_extraction_attempts"] += json_stats.get("total_extraction_attempts", 0)
+                aggregated_stats["json_parsing_stats"]["successful_extractions"] += json_stats.get("successful_extractions", 0)
+                aggregated_stats["json_parsing_stats"]["failed_extractions"] += json_stats.get("failed_extractions", 0)
+                
+        except Exception as e:
+            print(f"Error processing game file {game_file}: {e}")
+    
+    # Calculate derived statistics
+    if aggregated_stats["game_statistics"]["total_games"] > 0:
+        scores = aggregated_stats["game_statistics"]["scores"]
+        aggregated_stats["game_statistics"]["mean_score"] = sum(scores) / len(scores)
+        aggregated_stats["game_statistics"]["max_score"] = max(scores) if scores else 0
+        aggregated_stats["game_statistics"]["min_score"] = min(scores) if scores else 0
+    
+    # Calculate steps per game
+    if aggregated_stats["game_statistics"]["total_games"] > 0:
+        aggregated_stats["game_statistics"]["steps_per_game"] = (
+            aggregated_stats["game_statistics"]["total_steps"] / 
+            aggregated_stats["game_statistics"]["total_games"]
+        )
+    
+    # Calculate steps per apple
+    if aggregated_stats["game_statistics"]["total_score"] > 0:
+        aggregated_stats["game_statistics"]["steps_per_apple"] = (
+            aggregated_stats["game_statistics"]["total_steps"] / 
+            aggregated_stats["game_statistics"]["total_score"]
+        )
+        
+        aggregated_stats["game_statistics"]["apples_per_step"] = (
+            aggregated_stats["game_statistics"]["total_score"] / 
+            aggregated_stats["game_statistics"]["total_steps"]
+        )
+    
+    # Calculate valid move ratio
+    total_steps = aggregated_stats["game_statistics"]["total_steps"]
+    if total_steps > 0:
+        aggregated_stats["game_statistics"]["valid_move_ratio"] = (
+            aggregated_stats["step_stats"]["valid_steps"] / total_steps * 100
+        )
+    
+    # JSON parsing success rate
+    total_attempts = aggregated_stats["json_parsing_stats"]["total_extraction_attempts"]
+    if total_attempts > 0:
+        aggregated_stats["json_parsing_stats"]["success_rate"] = (
+            aggregated_stats["json_parsing_stats"]["successful_extractions"] / total_attempts * 100
+        )
+        aggregated_stats["json_parsing_stats"]["failure_rate"] = (
+            aggregated_stats["json_parsing_stats"]["failed_extractions"] / total_attempts * 100
+        )
+    
+    return aggregated_stats 

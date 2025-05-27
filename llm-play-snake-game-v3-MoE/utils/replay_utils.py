@@ -29,71 +29,75 @@ def run_replay(log_dir, game_number=None, move_pause=1.0):
     return subprocess.call(cmd)
 
 def check_game_summary_for_moves(log_dir, game_number):
-    """Check if the game summary contains move data for replay.
+    """Check if a game summary file contains moves.
     
     Args:
         log_dir: Path to the log directory
         game_number: Game number to check
         
     Returns:
-        Boolean indicating if the game has move data
+        Boolean indicating if the game has moves
     """
+    # Support both old and new filename formats
+    new_format_file = os.path.join(log_dir, f"game_{game_number}.json")
+    old_format_file = os.path.join(log_dir, f"game{game_number}.json")
+    
+    # Use the file that exists (prefer new format)
+    if os.path.exists(new_format_file):
+        json_summary_file = new_format_file
+    elif os.path.exists(old_format_file):
+        json_summary_file = old_format_file
+    else:
+        return False
+    
     try:
-        # Try to load the game summary file
-        json_summary_file = os.path.join(log_dir, f"game{game_number}.json")
-        
-        if not os.path.exists(json_summary_file):
-            print(f"Game {game_number} summary file not found: {json_summary_file}")
-            return False
-        
-        with open(json_summary_file, 'r') as f:
+        with open(json_summary_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
         # Check if the file has moves
-        if 'detailed_history' in data and 'moves' in data['detailed_history'] and data['detailed_history']['moves']:
-            return True
-        elif 'moves' in data and data['moves']:
-            return True
-            
-        return False
-    except Exception as e:
-        print(f"Error checking game summary: {e}")
+        return 'moves' in data and isinstance(data['moves'], list) and len(data['moves']) > 0
+    except Exception:
         return False
 
-def extract_apple_positions(log_dir_path, game_number):
+def extract_apple_positions(log_dir, game_number):
     """Extract apple positions from a game summary file.
     
     Args:
-        log_dir_path: Path to the log directory
-        game_number: Game number to extract apple positions from
+        log_dir: Path to the log directory
+        game_number: Game number to extract from
         
     Returns:
-        List of apple positions or empty list if not found
+        List of apple positions or None if not found
     """
+    log_dir_path = Path(log_dir)
+    
+    # Support both old and new filename formats
+    new_format_file = log_dir_path / f"game_{game_number}.json"
+    old_format_file = log_dir_path / f"game{game_number}.json"
+    
+    # Use the file that exists (prefer new format)
+    if new_format_file.exists():
+        json_summary_file = new_format_file
+    elif old_format_file.exists():
+        json_summary_file = old_format_file
+    else:
+        return None
+    
     try:
-        # Convert to Path object if not already
-        if not isinstance(log_dir_path, Path):
-            log_dir_path = Path(log_dir_path)
-        
-        # Get the game summary file
-        json_summary_file = log_dir_path / f"game{game_number}.json"
-        
-        if not json_summary_file.exists():
-            print(f"Game {game_number} summary file not found: {json_summary_file}")
-            return []
-        
-        # Load the JSON data
-        with open(json_summary_file, 'r') as f:
+        with open(json_summary_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
+            
         # Extract apple positions
-        if 'detailed_history' in data and 'apple_positions' in data['detailed_history']:
-            return data['detailed_history']['apple_positions']
-        elif 'apple_positions' in data:
+        if 'apple_positions' in data and isinstance(data['apple_positions'], list):
             return data['apple_positions']
         
-        return []
-    except Exception as e:
-        print(f"Error extracting apple positions: {e}")
-        traceback.print_exc()
-        return [] 
+        # Check in detailed history for backward compatibility
+        if ('detailed_history' in data and 
+            'apple_positions' in data['detailed_history'] and 
+            isinstance(data['detailed_history']['apple_positions'], list)):
+            return data['detailed_history']['apple_positions']
+            
+    except Exception:
+        pass
+        
+    return None 

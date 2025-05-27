@@ -183,6 +183,9 @@ class GameManager:
         Returns:
             Tuple of (next_move, game_active)
         """
+        # Start tracking LLM communication time
+        self.game.game_state.record_llm_communication_start()
+        
         # Get game state
         game_state = self.game.get_state_representation()
         
@@ -190,7 +193,7 @@ class GameManager:
         prompt = game_state
         
         # Log the prompt
-        prompt_filename = f"game{self.game_count+1}_round{self.round_count+1}_prompt.txt"
+        prompt_filename = f"game_{self.game_count+1}_round{self.round_count+1}_prompt.txt"
         prompt_path = save_to_file(prompt, self.prompts_dir, prompt_filename)
         print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
         
@@ -198,148 +201,93 @@ class GameManager:
         kwargs = {}
         if self.args.model:
             kwargs['model'] = self.args.model
-            print(Fore.CYAN + f"Using {self.args.provider} model: {self.args.model}")
-        else:
-            print(Fore.CYAN + f"Using default model for provider: {self.args.provider}")
             
-        # Get raw response from first LLM with timing
-        request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        request_timestamp = datetime.now()
-        raw_llm_response = self.llm_client.generate_response(prompt, **kwargs)
-        response_timestamp = datetime.now()
-        response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
-        # Record primary response time
-        primary_response_time = (response_timestamp - request_timestamp).total_seconds()
-        self.game.game_state.record_primary_response_time(primary_response_time)
-        
-        # Record primary token statistics if available
-        if hasattr(self.llm_client, 'last_token_count') and self.llm_client.last_token_count:
-            token_count = self.llm_client.last_token_count
-            if 'prompt_tokens' in token_count and 'completion_tokens' in token_count:
-                self.game.game_state.record_primary_token_stats(
-                    token_count['prompt_tokens'],
-                    token_count['completion_tokens']
-                )
-        
-        # Extract necessary information for parser
-        head_pos, apple_pos, body_cells = self._extract_state_for_parser()
-        
-        # Process the response
-        if self.parser_provider and self.parser_provider.lower() != "none":
-            print(Fore.CYAN + f"Using {self.parser_provider} LLM to parse response")
-            parser_client = LLMClient(provider=self.parser_provider, model=self.parser_model)
-            
-            # Format the response using the secondary LLM
-            self.parser_usage_count += 1
-            parser_request_timestamp = datetime.now()
-            formatted_response, parser_prompt = parse_and_format(
-                parser_client, 
-                raw_llm_response,
-                head_pos=head_pos,
-                apple_pos=apple_pos,
-                body_cells=body_cells
-            )
-            parser_response_timestamp = datetime.now()
-            
-            # Record secondary response time
-            secondary_response_time = (parser_response_timestamp - parser_request_timestamp).total_seconds()
-            self.game.game_state.record_secondary_response_time(secondary_response_time)
-            
-            # Record secondary token statistics if available
-            if hasattr(parser_client, 'last_token_count') and parser_client.last_token_count:
-                token_count = parser_client.last_token_count
-                if 'prompt_tokens' in token_count and 'completion_tokens' in token_count:
-                    self.game.game_state.record_secondary_token_stats(
-                        token_count['prompt_tokens'],
-                        token_count['completion_tokens']
-                    )
-            
-            # Log the parser prompt
-            parser_prompt_filename = f"game{self.game_count+1}_round{self.round_count+1}_parser_prompt.txt"
-            parser_prompt_path = save_to_file(parser_prompt, self.prompts_dir, parser_prompt_filename)
-            
-            # Calculate timing information
-            parsing_time = (datetime.now() - response_timestamp).total_seconds()
-            
-            # Log the response and timing information
-            response_filename = f"game{self.game_count+1}_round{self.round_count+1}_response.txt"
-            response_path = save_to_file(
-                format_parsed_llm_response(
-                    raw_llm_response, 
-                    formatted_response, 
-                    request_time, 
-                    response_time,
-                    parsing_time
-                ),
-                self.responses_dir, 
-                response_filename
-            )
-            print(Fore.GREEN + f"📝 Response saved to {response_path}")
-            
-            # Parse the response to get the next move
-            from utils.json_utils import extract_valid_json
-            json_data = extract_valid_json(formatted_response)
-            if not json_data or "moves" not in json_data:
-                next_move = None
-            else:
-                moves = json_data["moves"]
-                next_move = moves[0] if moves and len(moves) > 0 else None
-                
-                # Save remaining moves for future use
-                if moves and len(moves) > 1:
-                    self.game.planned_moves = moves[1:]
-                else:
-                    self.game.planned_moves = []
-        else:
-            # Use the raw response directly
-            formatted_response = raw_llm_response
+        try:
+            response = self.llm_client.get_chat_response(prompt, **kwargs)
             
             # Log the response
-            response_filename = f"game{self.game_count+1}_round{self.round_count+1}_response.txt"
-            response_path = save_to_file(
-                format_raw_llm_response(
-                    raw_llm_response, 
-                    request_time, 
-                    response_time,
-                    model_name=self.args.model,
-                    provider=self.args.provider
-                ),
-                self.responses_dir, 
-                response_filename
-            )
+            response_filename = f"game_{self.game_count+1}_round{self.round_count+1}_response.txt"
+            response_path = save_to_file(response, self.responses_dir, response_filename)
             print(Fore.GREEN + f"📝 Response saved to {response_path}")
             
-            # Parse the response to get the next move
-            from utils.json_utils import extract_valid_json
-            json_data = extract_valid_json(formatted_response)
-            if not json_data or "moves" not in json_data:
-                next_move = None
-            else:
-                moves = json_data["moves"]
-                next_move = moves[0] if moves and len(moves) > 0 else None
+            # Parse the response
+            parser_output = None
+            if self.args.parser_provider and self.args.parser_provider.lower() != "none":
+                # Track the previous parser usage count to detect if it gets used
+                self.previous_parser_usage = self.game.game_state.parser_usage_count
                 
-                # Save remaining moves for future use
-                if moves and len(moves) > 1:
-                    self.game.planned_moves = moves[1:]
-                else:
-                    self.game.planned_moves = []
-        
-        # Process the next move
-        self.error_steps, self.empty_steps, self.consecutive_empty_steps, game_active = handle_llm_response(
-            formatted_response,
-            next_move,
-            self.error_steps,
-            self.empty_steps,
-            self.consecutive_empty_steps,
-            self.args.max_empty_moves
-        )
-        
-        # Update the current game moves
-        if next_move:
-            self.current_game_moves.append(next_move)
+                # Get parser input
+                parser_input = self._extract_state_for_parser()
+                
+                # Get next move using the parser
+                parser_output = handle_llm_response(
+                    self.llm_client,
+                    response,
+                    parser_input,
+                    self.game.game_state
+                )
+                
+                # Check if parser was used (parser usage count increased)
+                if self.game.game_state.parser_usage_count > self.previous_parser_usage:
+                    self.parser_usage_count += 1
+                    print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {self.parser_usage_count})")
+                    
+                    # Format and save the parsed response
+                    parsed_response_filename = f"game_{self.game_count+1}_round{self.round_count+1}_parsed.txt"
+                    parsed_path = save_to_file(
+                        format_parsed_llm_response(parser_output),
+                        self.responses_dir,
+                        parsed_response_filename
+                    )
+                    print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
+            else:
+                # Direct extraction from primary LLM
+                parser_output = parse_and_format(
+                    self.llm_client,
+                    response,
+                    self.game.game_state
+                )
             
-        return next_move, game_active
+            # Extract the next move
+            next_move = None
+            if parser_output and "moves" in parser_output and parser_output["moves"]:
+                # Record the move
+                self.current_game_moves.extend(parser_output["moves"])
+                
+                # Set the next move
+                next_move = parser_output["moves"][0] if parser_output["moves"] else None
+                self.game.set_planned_moves(parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else [])
+                
+                # If we got a valid move, reset the consecutive empty steps counter
+                if next_move:
+                    self.consecutive_empty_steps = 0
+                    print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {self.game_count+1}, Round {self.round_count+1})")
+                else:
+                    self.consecutive_empty_steps += 1
+                    print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {self.consecutive_empty_steps}/{self.args.max_empty_moves}")
+            else:
+                # No valid moves found
+                self.consecutive_empty_steps += 1
+                print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {self.consecutive_empty_steps}/{self.args.max_empty_moves}")
+            
+            # End tracking LLM communication time
+            self.game.game_state.record_llm_communication_end()
+            
+            # Check if we've reached the max consecutive empty moves
+            if self.consecutive_empty_steps >= self.args.max_empty_moves:
+                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({self.args.max_empty_moves}). Game over.")
+                self.game.game_state.record_game_end("EMPTY_MOVES")
+                return next_move, False
+                
+            return next_move, True
+            
+        except Exception as e:
+            # End tracking LLM communication time even if there was an error
+            self.game.game_state.record_llm_communication_end()
+            
+            print(Fore.RED + f"❌ Error getting response from LLM: {e}")
+            traceback.print_exc()
+            return None, False
     
     def _extract_state_for_parser(self):
         """Extract state information for the parser.
@@ -369,57 +317,56 @@ class GameManager:
         return check_max_steps(self.game, self.args.max_steps)
     
     def process_game_over(self, next_move=None):
-        """Process game over state and prepare for the next game.
+        """Process the end of a game.
         
         Args:
-            next_move: The last move made (or None)
+            next_move: The last move made
         """
-        # Update game count and statistics
+        print(Fore.YELLOW + f"🏁 Game over! (Game {self.game_count+1})")
+        print(Fore.YELLOW + f"🍎 Final score: {self.game.score}")
+        print(Fore.YELLOW + f"🐍 Snake length: {self.game.snake_length}")
+        print(Fore.YELLOW + f"⏱️ Steps: {self.game.steps}")
+        
+        # Get the reason the game ended
+        reason = self.game.game_state.game_end_reason or "ERROR"
+        
+        if reason == "WALL":
+            print(Fore.RED + "💥 Game over! Snake hit the wall.")
+        elif reason == "SELF":
+            print(Fore.RED + "💥 Game over! Snake hit itself.")
+        elif reason == "MAX_STEPS":
+            print(Fore.RED + "⏱️ Game over! Maximum steps reached.")
+        elif reason == "EMPTY_MOVES":
+            print(Fore.RED + "⏱️ Game over! Too many consecutive empty moves.")
+        else:
+            print(Fore.RED + f"❌ Game over! Reason: {reason}")
+        
+        # Update statistics
         self.game_count += 1
         self.total_score += self.game.score
-        self.total_steps += self.game.steps
         self.game_scores.append(self.game.score)
         
-        # Set a reason if not already set by the game engine
-        if not self.game.game_state.game_end_reason:
-            if self.game.last_collision_type == 'empty_moves':
-                self.game.game_state.record_game_end("EMPTY_MOVES")
-            elif self.game.last_collision_type == 'max_steps':
-                self.game.game_state.record_game_end("MAX_STEPS")
-            else:
-                self.game.game_state.record_game_end("UNKNOWN")
+        # Save game summary to JSON
+        if self.log_dir:
+            # Use new file naming convention: game_N.json instead of gameN.json
+            game_summary_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
+            
+            self.game.game_state.save_game_summary(
+                game_summary_file,
+                self.args.provider,
+                self.args.model,
+                self.args.parser_provider,
+                self.args.parser_model
+            )
+            print(Fore.GREEN + f"📝 Game summary saved to {game_summary_file}")
         
-        # Save game summary
-        game_summary_file = os.path.join(self.log_dir, f"game{self.game_count}.json")
-        self.game.game_state.save_game_summary(
-            game_summary_file,
-            self.args.provider, 
-            self.args.model or f"default_{self.args.provider}",
-            self.args.parser_provider or self.args.provider,
-            self.args.parser_model
-        )
-        print(Fore.GREEN + f"📊 Game {self.game_count} summary saved to {game_summary_file}")
-        
-        # Print game over message with statistics
-        print(Fore.RED + f"❌ Game over! Score: {self.game.score}, Steps: {self.game.steps}")
-        print(Fore.YELLOW + f"Average Score: {self.total_score / self.game_count:.2f} after {self.game_count} games")
-        
-        # Prepare parser usage tracking for next game
-        self.previous_parser_usage = self.parser_usage_count
-        
-        # Reset round count for next game
-        self.round_count = 0
-        
-        # Reset the current game moves
+        # Reset for next game
+        self.game.reset()
+        self.consecutive_empty_steps = 0
         self.current_game_moves = []
-        
-        # Wait a moment before resetting if not the last game
-        if self.game_count < self.args.max_games:
-            pygame.time.delay(1000)  # Wait 1 second
-            self.game.reset()
-            self.game_active = True
-            self.need_new_plan = True
-            print(Fore.GREEN + f"🔄 Starting game {self.game_count + 1}/{self.args.max_games}")
+        self.round_count = 0
+        self.parser_usage_count = 0
+        self.need_new_plan = True
     
     def handle_error(self, error):
         """Handle errors that occur during the game loop.
@@ -514,8 +461,12 @@ class GameManager:
                 
                 if self.game_active:
                     try:
-                        # Check if we need to request a new plan from the LLM
+                        # Start tracking game movement time
+                        self.game.game_state.record_game_movement_start()
+                        
+                        # Check if we need a new plan
                         if self.need_new_plan:
+                            # Get the next move from the LLM
                             next_move, self.game_active = self.get_llm_response()
                             
                             # We now have a new plan, so don't request another one until we need it
@@ -536,6 +487,9 @@ class GameManager:
                                 self.game.steps += 1
                                 self.total_steps += 1
                                 self.game.game_state.record_empty_move()
+                            
+                            # End tracking game movement time
+                            self.game.game_state.record_game_movement_end()
                             
                             # Increment round count
                             self.round_count += 1
@@ -566,8 +520,17 @@ class GameManager:
                                 # Increment round count
                                 self.round_count += 1
                                 
+                                # End tracking game movement time
+                                self.game.game_state.record_game_movement_end()
+                                
+                                # Start tracking waiting time (for pause between moves)
+                                self.game.game_state.record_waiting_start()
+                                
                                 # Pause between moves for visualization
                                 time.sleep(PAUSE_BETWEEN_MOVES_SECONDS)
+                                
+                                # End tracking waiting time
+                                self.game.game_state.record_waiting_end()
                             else:
                                 # No more planned moves, request a new plan
                                 self.need_new_plan = True
@@ -652,8 +615,14 @@ class GameManager:
         self.game_count = start_game_number - 1  # Start from the next game
         
         # Load existing game data
+        game_durations = []
         for game_num in range(1, start_game_number):
-            game_file = os.path.join(log_dir, f"game{game_num}.json")
+            # Support both old (gameN.json) and new (game_N.json) file naming conventions
+            old_game_file = os.path.join(log_dir, f"game{game_num}.json")
+            new_game_file = os.path.join(log_dir, f"game_{game_num}.json")
+            
+            game_file = new_game_file if os.path.exists(new_game_file) else old_game_file
+            
             if os.path.exists(game_file):
                 try:
                     with open(game_file, 'r') as f:
@@ -663,8 +632,12 @@ class GameManager:
                         self.game_scores.append(score)
                         self.total_score += score
                         self.total_steps += steps
+                        
+                        # Extract game duration if available in the new format
+                        if 'time_stats' in game_data:
+                            game_durations.append(game_data['time_stats'].get('total_duration_seconds', 0))
                 except Exception as e:
-                    print(Fore.YELLOW + f"⚠️ Warning: Could not load data from game{game_num}.json: {e}")
+                    print(Fore.YELLOW + f"⚠️ Warning: Could not load data from {game_file}: {e}")
         
         # Initialize primary LLM client
         self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)

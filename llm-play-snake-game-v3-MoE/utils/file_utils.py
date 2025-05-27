@@ -298,7 +298,7 @@ def get_next_game_number(log_dir):
     Returns:
         The next game number to use
     """
-    # Check for existing game files
+    # Check for existing game files (support both old and new naming formats)
     game_files = glob.glob(os.path.join(log_dir, "game*.json"))
     
     if not game_files:
@@ -309,7 +309,14 @@ def get_next_game_number(log_dir):
     for file in game_files:
         filename = os.path.basename(file)
         try:
-            game_number = int(filename.replace("game", "").replace(".json", ""))
+            # Support both formats: gameN.json and game_N.json
+            if '_' in filename:
+                # New format: game_N.json
+                game_number = int(filename.replace("game_", "").replace(".json", ""))
+            else:
+                # Old format: gameN.json
+                game_number = int(filename.replace("game", "").replace(".json", ""))
+                
             game_numbers.append(game_number)
         except ValueError:
             continue
@@ -332,11 +339,19 @@ def clean_prompt_files(log_dir, start_game):
     # Clean prompt files
     if os.path.exists(prompts_dir):
         for file in os.listdir(prompts_dir):
-            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
+            # Match both old and new formats
+            if (file.startswith(f"game{start_game}_") or 
+                file.startswith(f"game_{start_game}_") or 
+                any(file.startswith(f"game{i}_") for i in range(start_game, 100)) or
+                any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
                 os.remove(os.path.join(prompts_dir, file))
     
     # Clean response files
     if os.path.exists(responses_dir):
         for file in os.listdir(responses_dir):
-            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
+            # Match both old and new formats
+            if (file.startswith(f"game{start_game}_") or 
+                file.startswith(f"game_{start_game}_") or 
+                any(file.startswith(f"game{i}_") for i in range(start_game, 100)) or
+                any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
                 os.remove(os.path.join(responses_dir, file)) 

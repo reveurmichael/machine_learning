@@ -79,6 +79,8 @@ This project implements a Mixture-of-Experts inspired approach where two special
 
 ## Continue mode
 
+For some reasons, you might want to pause an ongoing experiment, and then continue with the same game. 
+
 In continue mode, only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
 
 
@@ -113,7 +115,6 @@ The codebase is organized in a modular structure to ensure maintainability and s
   - `main.py`: Entry point with command-line argument parsing
   - `game_manager.py`: Manages game sessions and statistics
   - `llm_client.py`: Client for communicating with LLMs
-  - `llm_parser.py`: Parser for processing LLM outputs
   - `config.py`: Configuration constants
 
 ## Game Termination Conditions

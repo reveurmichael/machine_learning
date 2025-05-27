@@ -79,25 +79,29 @@ class ReplayEngine(GameController):
             )
     
     def load_game_data(self, game_number):
-        """Load game data from the summary file.
+        """Load game data for a specific game number.
         
         Args:
             game_number: The game number to load
             
         Returns:
-            Boolean indicating if loading was successful
+            Game data dictionary or None if loading failed
         """
-        # Build path to the game summary file
-        summary_file = os.path.join(self.log_dir, f"game{game_number}.json")
+        # Support both old and new filename formats
+        new_format_file = os.path.join(self.log_dir, f"game_{game_number}.json")
+        old_format_file = os.path.join(self.log_dir, f"game{game_number}.json")
         
-        # Check if file exists
-        if not os.path.exists(summary_file):
-            print(f"Game summary file not found: {summary_file}")
-            return False
+        # Check which file exists (prefer new format)
+        if os.path.exists(new_format_file):
+            summary_file = new_format_file
+        elif os.path.exists(old_format_file):
+            summary_file = old_format_file
+        else:
+            print(f"Game {game_number} data not found")
+            return None
         
-        # Load game data from JSON
         try:
-            with open(summary_file, 'r') as f:
+            with open(summary_file, 'r', encoding='utf-8') as f:
                 game_data = json.load(f)
             
             # Get apple positions
@@ -107,7 +111,7 @@ class ReplayEngine(GameController):
                 self.apple_positions = game_data['apple_positions']
             else:
                 print("No apple positions found in game data")
-                return False
+                return None
             
             # Get moves
             if 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
@@ -116,7 +120,7 @@ class ReplayEngine(GameController):
                 self.moves = game_data['moves']
             else:
                 print("No moves found in game data")
-                return False
+                return None
             
             # Reset move index
             self.move_index = 0
@@ -168,13 +172,11 @@ class ReplayEngine(GameController):
             if self.use_gui and self.gui and hasattr(self.gui, 'move_history'):
                 self.gui.move_history = []
             
-            return True
+            return game_data
             
         except Exception as e:
             print(f"Error loading game data: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
+            return None
     
     def update(self):
         """Update game state for each frame."""

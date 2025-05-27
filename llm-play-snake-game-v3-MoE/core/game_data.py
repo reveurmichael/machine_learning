@@ -18,6 +18,14 @@ class GameData:
         self.game_number = 0
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
+        # Time tracking
+        self.start_time = time.time()
+        self.end_time = None
+        self.llm_communication_time = 0  # Total time spent communicating with LLMs
+        self.game_movement_time = 0      # Time spent in actual game movement
+        self.waiting_time = 0            # Time spent waiting (pauses, etc.)
+        self.last_action_time = self.start_time  # For tracking time between actions
+        
         # Basic game stats
         self.score = 0
         self.steps = 0
@@ -87,6 +95,14 @@ class GameData:
     
     def reset(self):
         """Reset the game data for a new game."""
+        # Reset time tracking for new game
+        self.start_time = time.time()
+        self.end_time = None
+        self.llm_communication_time = 0
+        self.game_movement_time = 0
+        self.waiting_time = 0
+        self.last_action_time = self.start_time
+        
         self.score = 0
         self.steps = 0
         self.game_end_reason = None
@@ -198,6 +214,36 @@ class GameData:
         self.steps += 1
         self.consecutive_empty_moves = 0  # Reset on error (as per game rules)
     
+    def record_llm_communication_start(self):
+        """Mark the start of communication with an LLM."""
+        self.last_action_time = time.time()
+        
+    def record_llm_communication_end(self):
+        """Record time spent communicating with an LLM."""
+        current_time = time.time()
+        self.llm_communication_time += (current_time - self.last_action_time)
+        self.last_action_time = current_time
+        
+    def record_game_movement_start(self):
+        """Mark the start of game movement."""
+        self.last_action_time = time.time()
+        
+    def record_game_movement_end(self):
+        """Record time spent on game movement."""
+        current_time = time.time()
+        self.game_movement_time += (current_time - self.last_action_time)
+        self.last_action_time = current_time
+        
+    def record_waiting_start(self):
+        """Mark the start of waiting time."""
+        self.last_action_time = time.time()
+        
+    def record_waiting_end(self):
+        """Record time spent waiting."""
+        current_time = time.time()
+        self.waiting_time += (current_time - self.last_action_time)
+        self.last_action_time = current_time
+    
     def record_game_end(self, reason):
         """Record the end of a game.
         
@@ -206,6 +252,7 @@ class GameData:
         """
         self.game_end_reason = reason
         self.game_number += 1
+        self.end_time = time.time()
         
         # Save any remaining round data
         if self.current_round_data["moves"]:
@@ -472,6 +519,41 @@ class GameData:
             "fallback_extraction_success": self.fallback_extraction_success
         }
     
+    def get_time_stats(self):
+        """Calculate time-related statistics.
+        
+        Returns:
+            Dictionary of time statistics
+        """
+        # Calculate total game duration
+        if self.end_time is None:
+            self.end_time = time.time()  # If game isn't over yet, use current time
+        
+        total_duration = self.end_time - self.start_time
+        
+        # Calculate percentages
+        llm_percent = (self.llm_communication_time / total_duration * 100) if total_duration > 0 else 0
+        movement_percent = (self.game_movement_time / total_duration * 100) if total_duration > 0 else 0
+        waiting_percent = (self.waiting_time / total_duration * 100) if total_duration > 0 else 0
+        
+        # Calculate other time (time not accounted for in the other categories)
+        other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
+        other_percent = (other_time / total_duration * 100) if total_duration > 0 else 0
+        
+        return {
+            "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": datetime.fromtimestamp(self.end_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "total_duration_seconds": total_duration,
+            "llm_communication_time": self.llm_communication_time,
+            "game_movement_time": self.game_movement_time,
+            "waiting_time": self.waiting_time,
+            "other_time": other_time,
+            "llm_communication_percent": llm_percent,
+            "game_movement_percent": movement_percent,
+            "waiting_percent": waiting_percent,
+            "other_percent": other_percent
+        }
+    
     def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model):
         """Generate a complete game summary.
         
@@ -491,6 +573,9 @@ class GameData:
             "snake_length": self.snake_length,
             "game_end_reason": self.game_end_reason,
             "efficiency_metrics": self.get_efficiency_metrics(),
+            
+            # Time statistics
+            "time_stats": self.get_time_stats(),
             
             # Provider and model info
             "llm_info": {
@@ -525,12 +610,13 @@ class GameData:
             }
         }
     
-    def get_aggregated_stats_for_summary_json(self, game_count, game_scores):
+    def get_aggregated_stats_for_summary_json(self, game_count, game_scores, game_durations=None):
         """Generate aggregated statistics for summary.json file.
         
         Args:
             game_count: Total number of games played
             game_scores: List of scores for all games
+            game_durations: List of game durations in seconds
             
         Returns:
             Dictionary with aggregated statistics
@@ -541,23 +627,34 @@ class GameData:
         max_score = max(game_scores) if game_scores else 0
         min_score = min(game_scores) if game_scores else 0
         
-        # Primary LLM response times
-        primary_times = self.primary_response_times
-        avg_primary = np.mean(primary_times) if primary_times else 0
-        min_primary = np.min(primary_times) if primary_times else 0
-        max_primary = np.max(primary_times) if primary_times else 0
-        total_primary_time = sum(primary_times) if primary_times else 0
+        # Time statistics
+        session_start_time = datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S")
+        session_end_time = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S")
+        session_duration = time.time() - self.start_time
         
-        # Secondary LLM response times
-        secondary_times = self.secondary_response_times
-        avg_secondary = np.mean(secondary_times) if secondary_times else 0
-        min_secondary = np.min(secondary_times) if secondary_times else 0
-        max_secondary = np.max(secondary_times) if secondary_times else 0
-        total_secondary_time = sum(secondary_times) if secondary_times else 0
-        
-        # Token statistics
-        primary_token_stats = self.get_token_stats()["primary"]
-        secondary_token_stats = self.get_token_stats()["secondary"]
+        # Game duration statistics
+        time_stats = {}
+        if game_durations and len(game_durations) > 0:
+            time_stats = {
+                "total_session_duration_seconds": session_duration,
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time,
+                "avg_game_duration_seconds": np.mean(game_durations),
+                "min_game_duration_seconds": np.min(game_durations),
+                "max_game_duration_seconds": np.max(game_durations),
+                "total_llm_communication_time": self.llm_communication_time,
+                "total_game_movement_time": self.game_movement_time,
+                "total_waiting_time": self.waiting_time,
+                "llm_communication_percent": (self.llm_communication_time / session_duration * 100) if session_duration > 0 else 0,
+                "game_movement_percent": (self.game_movement_time / session_duration * 100) if session_duration > 0 else 0,
+                "waiting_percent": (self.waiting_time / session_duration * 100) if session_duration > 0 else 0
+            }
+        else:
+            time_stats = {
+                "total_session_duration_seconds": session_duration,
+                "session_start_time": session_start_time,
+                "session_end_time": session_end_time
+            }
         
         return {
             "game_statistics": {
@@ -572,38 +669,39 @@ class GameData:
                 "apples_per_step": total_score / max(1, self.steps),
                 "valid_move_ratio": self.valid_steps / max(1, self.steps) * 100
             },
+            "time_statistics": time_stats,
             "response_time_stats": {
                 "primary_llm": {
-                    "avg_response_time": avg_primary,
-                    "min_response_time": min_primary,
-                    "max_response_time": max_primary,
-                    "total_response_time": total_primary_time,
-                    "response_count": len(primary_times)
+                    "avg_response_time": np.mean(self.primary_response_times) if self.primary_response_times else 0,
+                    "min_response_time": np.min(self.primary_response_times) if self.primary_response_times else 0,
+                    "max_response_time": np.max(self.primary_response_times) if self.primary_response_times else 0,
+                    "total_response_time": sum(self.primary_response_times) if self.primary_response_times else 0,
+                    "response_count": len(self.primary_response_times)
                 },
                 "secondary_llm": {
-                    "avg_response_time": avg_secondary,
-                    "min_response_time": min_secondary,
-                    "max_response_time": max_secondary,
-                    "total_response_time": total_secondary_time,
-                    "response_count": len(secondary_times)
+                    "avg_response_time": np.mean(self.secondary_response_times) if self.secondary_response_times else 0,
+                    "min_response_time": np.min(self.secondary_response_times) if self.secondary_response_times else 0,
+                    "max_response_time": np.max(self.secondary_response_times) if self.secondary_response_times else 0,
+                    "total_response_time": sum(self.secondary_response_times) if self.secondary_response_times else 0,
+                    "response_count": len(self.secondary_response_times)
                 }
             },
             "token_usage_stats": {
                 "primary_llm": {
-                    "total_tokens": primary_token_stats["total_tokens"],
-                    "total_prompt_tokens": primary_token_stats["total_prompt_tokens"],
-                    "total_completion_tokens": primary_token_stats["total_completion_tokens"],
-                    "avg_tokens_per_request": primary_token_stats["avg_total_tokens"],
-                    "avg_prompt_tokens": primary_token_stats["avg_prompt_tokens"],
-                    "avg_completion_tokens": primary_token_stats["avg_completion_tokens"]
+                    "total_tokens": self.get_token_stats()["primary"]["total_tokens"],
+                    "total_prompt_tokens": self.get_token_stats()["primary"]["total_prompt_tokens"],
+                    "total_completion_tokens": self.get_token_stats()["primary"]["total_completion_tokens"],
+                    "avg_tokens_per_request": self.get_token_stats()["primary"]["avg_total_tokens"],
+                    "avg_prompt_tokens": self.get_token_stats()["primary"]["avg_prompt_tokens"],
+                    "avg_completion_tokens": self.get_token_stats()["primary"]["avg_completion_tokens"]
                 },
                 "secondary_llm": {
-                    "total_tokens": secondary_token_stats["total_tokens"],
-                    "total_prompt_tokens": secondary_token_stats["total_prompt_tokens"],
-                    "total_completion_tokens": secondary_token_stats["total_completion_tokens"],
-                    "avg_tokens_per_request": secondary_token_stats["avg_total_tokens"],
-                    "avg_prompt_tokens": secondary_token_stats["avg_prompt_tokens"],
-                    "avg_completion_tokens": secondary_token_stats["avg_completion_tokens"]
+                    "total_tokens": self.get_token_stats()["secondary"]["total_tokens"],
+                    "total_prompt_tokens": self.get_token_stats()["secondary"]["total_prompt_tokens"],
+                    "total_completion_tokens": self.get_token_stats()["secondary"]["total_completion_tokens"],
+                    "avg_tokens_per_request": self.get_token_stats()["secondary"]["avg_total_tokens"],
+                    "avg_prompt_tokens": self.get_token_stats()["secondary"]["avg_prompt_tokens"],
+                    "avg_completion_tokens": self.get_token_stats()["secondary"]["avg_completion_tokens"]
                 }
             },
             "step_stats": self.get_step_stats(),

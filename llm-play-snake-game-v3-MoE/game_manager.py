@@ -65,6 +65,7 @@ class GameManager:
         self.empty_steps = 0
         self.error_steps = 0
         self.consecutive_empty_steps = 0
+        self.consecutive_errors = 0  # Track consecutive errors
         self.game_scores = []
         self.parser_usage_count = 0
         self.previous_parser_usage = 0

@@ -77,7 +77,7 @@ def process_game_over(game, game_active, game_count, total_score, total_steps, g
 
 def handle_error(game, game_active, game_count, total_score, total_steps, 
                 game_scores, round_count, parser_usage_count, previous_parser_usage, 
-                log_dir, args, current_game_moves, error):
+                log_dir, args, current_game_moves, error, consecutive_errors=0):
     """Handle errors that occur during the game loop.
     
     Args:
@@ -94,19 +94,24 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
         args: Command line arguments
         current_game_moves: List of moves made in the current game
         error: The exception that occurred
+        consecutive_errors: Current count of consecutive errors
         
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
-                 round_count, previous_parser_usage)
+                 round_count, previous_parser_usage, consecutive_errors)
     """
     print(Fore.RED + f"Error in game loop: {error}")
     traceback.print_exc()
     
-    # End the current game and continue to the next one
-    if game_active:
+    # Increment consecutive errors count
+    consecutive_errors += 1
+    
+    # End the current game if consecutive errors exceed threshold or if this is a critical error
+    if game_active and (consecutive_errors >= args.max_consecutive_errors_allowed):
         game_active = False
         game_count += 1
-        print(Fore.RED + f"❌ Game aborted due to error! Moving to game {game_count + 1}")
+        print(Fore.RED + f"❌ Game aborted due to {consecutive_errors} consecutive errors! Maximum allowed: {args.max_consecutive_errors_allowed}")
+        print(Fore.RED + f"Moving to game {game_count + 1}")
         
         # Update totals with current game state
         total_score += game.score
@@ -115,7 +120,7 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
         
         # Set game end reason
         game.last_collision_type = 'error'
-        game.game_state.record_game_end("ERROR")
+        game.game_state.record_game_end("ERROR_THRESHOLD")
         
         # Store moves in game state
         if current_game_moves:
@@ -131,12 +136,15 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
             args.parser_model
         )
         print(Fore.GREEN + f"📝 Game summary saved to {json_path}")
+        
+        # Reset consecutive errors for next game
+        consecutive_errors = 0
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors
 
 def report_final_statistics(log_dir, game_count, total_score, total_steps,
                            parser_usage_count, game_scores, empty_steps, 
-                           error_steps, max_empty_moves):
+                           error_steps, max_empty_moves, max_consecutive_errors_allowed=5):
     """Report final statistics at the end of the game session.
     
     Args:
@@ -149,6 +157,7 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
         empty_steps: Number of empty steps
         error_steps: Number of error steps
         max_empty_moves: Maximum allowed empty moves
+        max_consecutive_errors_allowed: Maximum allowed consecutive errors
     """
     from utils.json_utils import get_json_error_stats, update_experiment_info_json
     
@@ -164,7 +173,8 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
         empty_steps=empty_steps, 
         error_steps=error_steps,
         json_error_stats=json_error_stats,
-        max_empty_moves=max_empty_moves
+        max_empty_moves=max_empty_moves,
+        max_consecutive_errors_allowed=max_consecutive_errors_allowed
     )
     
     print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
@@ -181,6 +191,8 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
         
     print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
     print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
+    print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves}")
+    print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     
     if json_error_stats['total_extraction_attempts'] > 0:
         print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")

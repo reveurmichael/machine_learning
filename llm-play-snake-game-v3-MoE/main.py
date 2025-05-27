@@ -10,7 +10,7 @@ import glob
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES
+from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
 from utils import (
     save_experiment_info_json,
     get_next_game_number,
@@ -42,6 +42,8 @@ def parse_arguments():
                       help='Maximum steps a snake can take in a single game (default: 400)')
     parser.add_argument('--max-empty-moves', type=int, default=MAX_CONSECUTIVE_EMPTY_MOVES,
                       help=f'Maximum consecutive empty moves before game over (default: {MAX_CONSECUTIVE_EMPTY_MOVES})')
+    parser.add_argument('--max-consecutive-errors-allowed', type=int, default=MAX_CONSECUTIVE_ERRORS_ALLOWED,
+                      help=f'Maximum consecutive errors allowed before game over (default: {MAX_CONSECUTIVE_ERRORS_ALLOWED})')
     parser.add_argument('--no-gui', action='store_true',
                       help='Run without GUI (text-only mode)')
     parser.add_argument('--continue-with-game-in-dir', type=str, default=None,

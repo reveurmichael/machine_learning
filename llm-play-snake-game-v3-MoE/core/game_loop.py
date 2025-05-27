@@ -42,6 +42,9 @@ def run_game_loop(game_manager):
                         elif next_move and game_manager.game_active:
                             # Execute the move and check if game continues
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            
+                            # Reset consecutive errors counter on successful move
+                            game_manager.consecutive_errors = 0
                         else:
                             # No valid move found, but we still count this as a round
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
@@ -73,6 +76,9 @@ def run_game_loop(game_manager):
                             else:
                                 # Execute the move and check if game continues
                                 game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            
+                            # Reset consecutive errors counter on successful move
+                            game_manager.consecutive_errors = 0
                             
                             # If we've eaten an apple, request a new plan
                             if apple_eaten:
@@ -121,12 +127,13 @@ def run_game_loop(game_manager):
                         # Reset the game
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0  # Reset on new game
+                        game_manager.consecutive_errors = 0  # Reset on new game
                     
                     # Draw the current state
                     game_manager.game.draw()
                     
                 except Exception as e:
-                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage = handle_error(
+                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors = handle_error(
                         game_manager.game, 
                         game_manager.game_active,
                         game_manager.game_count,
@@ -139,7 +146,8 @@ def run_game_loop(game_manager):
                         game_manager.log_dir,
                         game_manager.args,
                         game_manager.current_game_moves,
-                        e
+                        e,
+                        game_manager.consecutive_errors  # Pass the consecutive errors counter
                     )
                     
                     # Prepare for next game if we haven't reached the limit
@@ -149,6 +157,7 @@ def run_game_loop(game_manager):
                         game_manager.game_active = True
                         game_manager.need_new_plan = True
                         game_manager.current_game_moves = []  # Reset moves for next game
+                        game_manager.consecutive_errors = 0  # Reset on new game
                         print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
             
             # Control game speed
@@ -166,7 +175,8 @@ def run_game_loop(game_manager):
             game_manager.game_scores,
             game_manager.empty_steps,
             game_manager.error_steps,
-            game_manager.args.max_empty_moves
+            game_manager.args.max_empty_moves,
+            game_manager.args.max_consecutive_errors_allowed
         )
         
     except Exception as e:

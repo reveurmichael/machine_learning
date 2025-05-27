@@ -341,4 +341,27 @@ def clean_prompt_files(log_dir, start_game):
         for file in os.listdir(responses_dir):
             if (file.startswith(f"game_{start_game}_") or 
                 any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
-                os.remove(os.path.join(responses_dir, file)) 
+                os.remove(os.path.join(responses_dir, file))
+
+def save_to_file(content, directory, filename):
+    """Save content to a file in the specified directory.
+    
+    Args:
+        content: The content to save
+        directory: The directory to save the file in
+        filename: The name of the file
+        
+    Returns:
+        The path to the saved file
+    """
+    # Create the directory if it doesn't exist
+    os.makedirs(directory, exist_ok=True)
+    
+    # Create the full path
+    file_path = os.path.join(directory, filename)
+    
+    # Write the content to the file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    return file_path 

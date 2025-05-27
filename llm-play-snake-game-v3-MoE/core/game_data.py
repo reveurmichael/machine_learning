@@ -35,6 +35,10 @@ class GameData:
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
         
+        # Game state
+        self.game_over = False
+        self.win = False  # Added missing win attribute
+        
         # Other tracking data
         self.start_time = time.time()
         self.end_time = None
@@ -244,6 +248,7 @@ class GameData:
             reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS", "EMPTY_MOVES")
         """
         self.game_end_reason = reason
+        self.game_over = True  # Set game_over to True
         self.game_number += 1
         self.end_time = time.time()
         
@@ -315,6 +320,10 @@ class GameData:
     def record_secondary_llm_error(self):
         """Record an error from the secondary LLM."""
         self.secondary_llm_errors += 1
+    
+    def record_parser_usage(self):
+        """Record that the parser was used."""
+        self.parser_usage_count += 1
     
     def record_json_extraction_attempt(self, success, error_type=None):
         """Record a JSON extraction attempt.
@@ -578,7 +587,7 @@ class GameData:
             "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else 1,
             "win": self.win,
             "game_over": self.game_over,
-            "game_over_reason": self.game_over_reason,
+            "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
             
             # Time statistics
             "time_stats": self.get_time_stats(),

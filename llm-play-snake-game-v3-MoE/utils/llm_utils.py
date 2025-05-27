@@ -12,7 +12,7 @@ from colorama import Fore
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
 from utils.file_utils import save_to_file
-from utils.format_utils import format_parsed_llm_response
+from utils.log_utils import format_parsed_llm_response
 
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
     """Format the raw LLM response with metadata for saving to a file.
@@ -358,7 +358,7 @@ def get_llm_response(game_manager):
         kwargs['model'] = game_manager.args.model
         
     try:
-        response = game_manager.llm_client.get_chat_response(prompt, **kwargs)
+        response = game_manager.llm_client.generate_response(prompt, **kwargs)
         
         # Log the response
         response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_response.txt"
@@ -412,7 +412,7 @@ def get_llm_response(game_manager):
             
             # Set the next move
             next_move = parser_output["moves"][0] if parser_output["moves"] else None
-            game_manager.game.set_planned_moves(parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else [])
+            game_manager.game.planned_moves = parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else []
             
             # If we got a valid move, reset the consecutive empty steps counter
             if next_move:

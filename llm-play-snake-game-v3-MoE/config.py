@@ -29,6 +29,7 @@ PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between
 # Game configuration
 GRID_SIZE = 10
 MAX_CONSECUTIVE_EMPTY_MOVES = 3  # Maximum consecutive empty moves before game over
+MAX_CONSECUTIVE_ERRORS_ALLOWED = 5  # Maximum consecutive errors allowed before game over
 
 DIRECTIONS = {
     "UP": (0, 1),  # No change in x, increase y (move up)

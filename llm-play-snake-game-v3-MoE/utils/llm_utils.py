@@ -13,6 +13,7 @@ from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECOND
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
 from utils.file_utils import save_to_file
 from utils.log_utils import format_parsed_llm_response
+from datetime import datetime
 
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
     """Format the raw LLM response with metadata for saving to a file.
@@ -338,6 +339,8 @@ def get_llm_response(game_manager):
     Returns:
         Tuple of (next_move, game_active)
     """
+    from datetime import datetime
+    
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()
     
@@ -347,9 +350,16 @@ def get_llm_response(game_manager):
     # Format prompt for LLM
     prompt = game_state
     
-    # Log the prompt
+    # Log the prompt with updated filename format
     prompt_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_prompt.txt"
-    prompt_path = save_to_file(prompt, game_manager.prompts_dir, prompt_filename)
+    prompt_metadata = {
+        "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "Game": game_manager.game_count+1,
+        "Round": game_manager.round_count+1,
+        "PRIMARY LLM Model": game_manager.args.model or "default",
+        "PRIMARY LLM Provider": game_manager.args.provider
+    }
+    prompt_path = save_to_file(prompt, game_manager.prompts_dir, prompt_filename, metadata=prompt_metadata)
     print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
     
     # Get next move from first LLM
@@ -358,11 +368,27 @@ def get_llm_response(game_manager):
         kwargs['model'] = game_manager.args.model
         
     try:
+        # Record request time
+        request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Get response from primary LLM
         response = game_manager.llm_client.generate_response(prompt, **kwargs)
         
-        # Log the response
+        # Record response time
+        response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Log the response with updated filename format
         response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_response.txt"
-        response_path = save_to_file(response, game_manager.responses_dir, response_filename)
+        response_metadata = {
+            "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "Request Time": request_time,
+            "Response Time": response_time,
+            "PRIMARY LLM Model": game_manager.args.model or "default",
+            "PRIMARY LLM Provider": game_manager.args.provider,
+            "SECONDARY LLM": "Not used" if not game_manager.args.parser_provider or game_manager.args.parser_provider.lower() == "none" else game_manager.args.parser_provider,
+            "Response Format": "PRIMARY LLM RESPONSE (GAME STRATEGY)"
+        }
+        response_path = save_to_file(response, game_manager.responses_dir, response_filename, metadata=response_metadata)
         print(Fore.GREEN + f"📝 Response saved to {response_path}")
         
         # Parse the response
@@ -375,6 +401,27 @@ def get_llm_response(game_manager):
             from utils.game_manager_utils import extract_state_for_parser
             parser_input = extract_state_for_parser(game_manager)
             
+            # Create parser prompt
+            parser_prompt = create_parser_prompt(response, *parser_input)
+            
+            # Save the secondary LLM prompt with updated filename format
+            parser_prompt_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_parser_prompt.txt"
+            parser_prompt_metadata = {
+                "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "Game": game_manager.game_count+1,
+                "Round": game_manager.round_count+1,
+                "SECONDARY LLM Model": game_manager.args.parser_model or "default",
+                "SECONDARY LLM Provider": game_manager.args.parser_provider,
+                "Head Position": parser_input[0],
+                "Apple Position": parser_input[1],
+                "Body Cells": parser_input[2]
+            }
+            parser_prompt_path = save_to_file(parser_prompt, game_manager.prompts_dir, parser_prompt_filename, metadata=parser_prompt_metadata)
+            print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_path}")
+            
+            # Record parser request time
+            parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
             # Get next move using the parser
             parser_output = handle_llm_response(
                 game_manager.llm_client,
@@ -383,17 +430,29 @@ def get_llm_response(game_manager):
                 game_manager.game.game_state
             )
             
+            # Record parser response time
+            parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
             # Check if parser was used (parser usage count increased)
             if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
                 game_manager.parser_usage_count += 1
                 print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {game_manager.parser_usage_count})")
                 
                 # Format and save the parsed response
-                parsed_response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_parsed.txt"
+                parsed_response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_parsed_response.txt"
+                parsed_response_metadata = {
+                    "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "Secondary LLM Request Time": parser_request_time,
+                    "Secondary LLM Response Time": parser_response_time,
+                    "SECONDARY LLM Model": game_manager.args.parser_model or "default",
+                    "SECONDARY LLM Provider": game_manager.args.parser_provider,
+                    "Response Format": "SECONDARY LLM RESPONSE (FORMATTED JSON)"
+                }
                 parsed_path = save_to_file(
                     format_parsed_response(parser_output),
                     game_manager.responses_dir,
-                    parsed_response_filename
+                    parsed_response_filename,
+                    metadata=parsed_response_metadata
                 )
                 print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
         else:

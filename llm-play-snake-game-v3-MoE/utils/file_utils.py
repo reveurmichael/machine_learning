@@ -343,13 +343,14 @@ def clean_prompt_files(log_dir, start_game):
                 any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
                 os.remove(os.path.join(responses_dir, file))
 
-def save_to_file(content, directory, filename):
+def save_to_file(content, directory, filename, metadata=None):
     """Save content to a file in the specified directory.
     
     Args:
         content: The content to save
         directory: The directory to save the file in
         filename: The name of the file
+        metadata: Optional dictionary of metadata to include at the top of the file
         
     Returns:
         The path to the saved file
@@ -360,8 +361,39 @@ def save_to_file(content, directory, filename):
     # Create the full path
     file_path = os.path.join(directory, filename)
     
+    # If metadata is provided, format it for inclusion
+    formatted_content = ""
+    if metadata:
+        from datetime import datetime
+        
+        # Add timestamp if not provided
+        if 'timestamp' not in metadata:
+            metadata['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+        # Format metadata as key-value pairs
+        for key, value in metadata.items():
+            formatted_content += f"{key}: {value}\n"
+            
+        # Add separator
+        formatted_content += "\n=========================================================="
+        
+        # Add section header based on the file type
+        if "prompt" in filename.lower():
+            if "parser" in filename.lower():
+                formatted_content += "\n\n========== SECONDARY LLM PROMPT ==========\n\n"
+            else:
+                formatted_content += "\n\n========== PRIMARY LLM PROMPT ==========\n\n"
+        elif "response" in filename.lower() or "parsed" in filename.lower():
+            if "parsed" in filename.lower():
+                formatted_content += "\n\n========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========\n\n"
+            else:
+                formatted_content += "\n\n========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========\n\n"
+    
+    # Append the main content
+    formatted_content += content
+    
     # Write the content to the file
     with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
+        f.write(formatted_content)
     
     return file_path 

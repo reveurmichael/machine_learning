@@ -1,51 +1,11 @@
-# COLORS
-COLORS = {
-    'SNAKE_HEAD': (255, 140, 0),    # Bright orange for snake head
-    'SNAKE_BODY': (209, 204, 192),  # Light gray for snake body
-    'APPLE': (192, 57, 43),         # Red for apple
-    'BACKGROUND': (44, 44, 84),     # Dark blue background
-    'GRID': (87, 96, 111),          # Grid lines
-    'TEXT': (255, 255, 255),        # White text
-    'ERROR': (231, 76, 60),         # Red for error messages
-    'BLACK': (0, 0, 0),             # Black
-    'WHITE': (255, 255, 255),       # White
-    'GREY': (113, 128, 147),        # Medium grey
-    'GREY2': (189, 195, 199),       # Light grey
-    'GREY3': (87, 96, 111),         # Dark grey
-    'APP_BG': (240, 240, 240)       # App background
-}
 
-# GUI
-GRID_CELL_SIZE_PX = 100  # Size of each grid cell in pixels
-GAME_AREA_SIZE = 800     # Size of the square game area
-WINDOW_WIDTH = 800       # Width of the application window
-WINDOW_HEIGHT = 600      # Height of the application window
-TIME_DELAY = 40          # General delay time for the game loop
-TIME_TICK = 280          # Tick rate for the game
-
-# Pause times (in seconds)
-PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between 
-
-# Game configuration
-GRID_SIZE = 10
-MAX_CONSECUTIVE_EMPTY_MOVES = 3  # Maximum consecutive empty moves before game over
-
-DIRECTIONS = {
-    "UP": (0, 1),  # No change in x, increase y (move up)
-    "RIGHT": (1, 0),  # Increase x, no change in y (move right)
-    "DOWN": (0, -1),  # No change in x, decrease y (move down)
-    "LEFT": (-1, 0),  # Decrease x, no change in y (move left)
-}
-
-
-PROMPT_TEMPLATE_TEXT_PRIMARY_LLM = """
 You are an AI agent controlling a snake in the classic Snake game on a 10x10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
 
 You are given the following inputs:
-  • Head position: `TEXT_TO_BE_REPLACED_HEAD_POS` — (x,y) of the snake's head.  
-  • Current direction: `"TEXT_TO_BE_REPLACED_CURRENT_DIRECTION"` — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".  
-  • Body cells: `TEXT_TO_BE_REPLACED_BODY_CELLS` — Ordered list of (x,y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail.  
-  • Apple position: `TEXT_TO_BE_REPLACED_APPLE_POS` — (x,y) coordinate of the apple.
+  • Head position: `(5,5)` — (x,y) of the snake's head.  
+  • Current direction: `"NONE"` — One of "UP", "DOWN", "LEFT", "RIGHT", or "NONE".  
+  • Body cells: `[]` — Ordered list of (x,y) positions occupied by the snake's body segments, from the segment immediately behind the head to the tail.  
+  • Apple position: `(4,7)` — (x,y) coordinate of the apple.
 
 ## SNAKE REPRESENTATION AND CONTINUITY:
 1. The full snake S is `[HEAD, BODY1, BODY2, ..., BODYN]`.  
@@ -109,7 +69,7 @@ Example Moves from (1,1):
 • LEFT → (0,1)
 
 ## OBJECTIVE:
-Plan a safe path for the HEAD to reach the APPLE, avoiding collisions and respecting all rules. If you cannot determine a complete safe path to the apple, output as many initial moves as you are confident are safe—even if it's just one. Output a JSON object whose "moves" field is a sequence of directions that takes the head (now at `TEXT_TO_BE_REPLACED_HEAD_POS`) to eat the apple at `TEXT_TO_BE_REPLACED_APPLE_POS`.
+Plan a safe path for the HEAD to reach the APPLE, avoiding collisions and respecting all rules. If you cannot determine a complete safe path to the apple, output as many initial moves as you are confident are safe—even if it's just one. Output a JSON object whose "moves" field is a sequence of directions that takes the head (now at `(5,5)`) to eat the apple at `(4,7)`.
 
 ## REQUIRED OUTPUT FORMAT:
 Return a **JSON object** in this **exact format** (and nothing else!):
@@ -133,12 +93,12 @@ Return a **JSON object** in this **exact format** (and nothing else!):
 
 ## FINAL POSITION CHECK:
 Verify that the net number of horizontal and vertical moves in your proposed answer matches the apple's offset from the head:  
-• Let (x1, y1) = `TEXT_TO_BE_REPLACED_HEAD_POS`, (x2, y2) = `TEXT_TO_BE_REPLACED_APPLE_POS`.  
+• Let (x1, y1) = `(5,5)`, (x2, y2) = `(4,7)`.  
  - If x1 ≤ x2 → #RIGHT - #LEFT = x2 - x1.  
  - If x1 > x2 → #LEFT - #RIGHT = x1 - x2.  
  - If y1 ≤ y2 → #UP - #DOWN = y2 - y1.  
  - If y1 > y2 → #DOWN - #UP = y1 - y2.  
-→ In your case: TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE
+→ In your case: #LEFT - #RIGHT = 1 (= 5 - 4), and #UP - #DOWN = 2 (= 7 - 5)
 
 ## ADDITIONAL EDGE CASES TO CONSIDER:
 * **Snake of Length 1**: If the snake has no body segments (BODY list is empty), you may move directly toward the apple unimpeded.  
@@ -148,59 +108,3 @@ Verify that the net number of horizontal and vertical moves in your proposed ans
 * **Immediate Self-Collision**: Don't move into the cell the tail will vacate if the tail does **not** move (i.e., when eating an apple, the tail stays).
 
 Now analyze the game state and return only the JSON output as specified.  If you cannot determine a complete safe path to the apple, output as many initial moves as you are confident are safe—even if it's just one. Do **not** include any additional text or code, do not return any python code or other code, do not return Latex—return only the valid JSON object in the exact format.
-"""
-
-
-# Parser prompt for the secondary LLM (formatting expert)
-PROMPT_TEMPLATE_TEXT_SECONDARY_LLM = """You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
-
-Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
-
-BEGINNING OF RESPONSE_1:
-
-```
-TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE
-```
-
-END OF RESPONSE_1.
-
-## WHAT RESPONSE_1 LOOKS LIKE:
-RESPONSE_1 might look like this:
-  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
-  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
-
-## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
-{
-  "moves": ["MOVE1", "MOVE2", ...],
-  "reasoning": "brief explanation"
-}
-
-
-## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
-- UP = y + 1
-- DOWN = y - 1
-- RIGHT = x + 1
-- LEFT = x - 1
-
-Example Moves from (1,1):
-  • UP → (1,2)
-  • DOWN → (1,0)
-  • RIGHT → (2,1)
-  • LEFT → (0,1)
-
-## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
-
-The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at TEXT_TO_BE_REPLACED_HEAD_POS and whose body cells are in list format TEXT_TO_BE_REPLACED_BODY_CELLS, to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
-
-## RULES:
-- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
-- "reasoning" must be a brief explanation for the chosen path
-- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
-
-## WHAT YOU SHOULD DO:
-- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
-- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
-- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
-
-Return ONLY the JSON object without any additional text.
-"""

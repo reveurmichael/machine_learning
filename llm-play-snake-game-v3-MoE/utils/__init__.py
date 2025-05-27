@@ -11,14 +11,11 @@ from .json_utils import (
     preprocess_json_string,
     validate_json_format,
     extract_json_from_code_block,
-    extract_json_from_text
-)
-
-# Import and expose all from snake_utils
-from .snake_utils import (
-    filter_invalid_reversals,
-    calculate_move_differences,
-    extract_apple_positions
+    extract_json_from_text,
+    extract_moves_fallback,
+    extract_moves_from_arrays,
+    save_experiment_info_json,
+    update_experiment_info_json
 )
 
 # Import and expose all from log_utils
@@ -26,9 +23,7 @@ from .log_utils import (
     save_to_file,
     format_raw_llm_response,
     format_parsed_llm_response,
-    generate_game_summary_json,
-    save_experiment_info_json,
-    update_experiment_info_json
+    generate_game_summary_json
 )
 
 # Import and expose all from file_utils
@@ -41,7 +36,8 @@ from .file_utils import (
 # Import and expose all from replay_utils
 from .replay_utils import (
     run_replay,
-    check_game_summary_for_moves
+    check_game_summary_for_moves,
+    extract_apple_positions
 )
 
 # Import and expose all from game_stats_utils
@@ -64,7 +60,12 @@ from .game_manager_utils import (
 # Import and expose all from llm_utils
 from .llm_utils import (
     parse_llm_response,
-    handle_llm_response
+    handle_llm_response,
+    prepare_snake_prompt,
+    format_body_cells_str,
+    parse_and_format,
+    create_parser_prompt,
+    check_llm_health
 )
 
 # Import and expose all from text_utils
@@ -83,19 +84,16 @@ __all__ = [
     'validate_json_format',
     'extract_json_from_code_block',
     'extract_json_from_text',
-    
-    # snake_utils
-    'filter_invalid_reversals',
-    'calculate_move_differences',
-    'extract_apple_positions',
+    'extract_moves_fallback',
+    'extract_moves_from_arrays',
+    'save_experiment_info_json',
+    'update_experiment_info_json',
     
     # log_utils
     'save_to_file',
     'format_raw_llm_response',
     'format_parsed_llm_response',
     'generate_game_summary_json',
-    'save_experiment_info_json',
-    'update_experiment_info_json',
     
     # file_utils
     'find_log_folders',
@@ -105,6 +103,7 @@ __all__ = [
     # replay_utils
     'run_replay',
     'check_game_summary_for_moves',
+    'extract_apple_positions',
     
     # game_stats_utils
     'create_display_dataframe',
@@ -122,6 +121,11 @@ __all__ = [
     # llm_utils
     'parse_llm_response',
     'handle_llm_response',
+    'prepare_snake_prompt',
+    'format_body_cells_str',
+    'parse_and_format',
+    'create_parser_prompt',
+    'check_llm_health',
     
     # text_utils
     'process_response_for_display',

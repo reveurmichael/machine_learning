@@ -81,8 +81,9 @@ This project implements a Mixture-of-Experts inspired approach where two special
 The codebase is organized in a modular structure to ensure maintainability and separation of concerns:
 
 - `/core`: Core game engine components
-  - `game_engine.py`: Base game logic that can run with or without a GUI
-  - `snake_game.py`: Snake game implementation with LLM integration
+  - `game_controller.py`: Base game logic that can run with or without a GUI
+  - `game_logic.py`: Snake game implementation with LLM integration
+  - `game_data.py`: Game state tracking and statistics management
   
 - `/gui`: Graphical user interface components
   - `base.py`: Base UI classes
@@ -97,7 +98,6 @@ The codebase is organized in a modular structure to ensure maintainability and s
   - `llm_utils.py`: LLM response handling
   - `log_utils.py`: Logging utilities
   - `replay_utils.py`: Game replay functionality
-  - `snake_utils.py`: Snake game-specific utilities
   - `text_utils.py`: Text processing for LLM responses
   
 - `/replay`: Replay functionality
@@ -106,7 +106,8 @@ The codebase is organized in a modular structure to ensure maintainability and s
 - Main modules:
   - `main.py`: Entry point with command-line argument parsing
   - `game_manager.py`: Manages game sessions and statistics
-  - `llm_client.py`: Client for interacting with LLMs (OpenAI, Anthropic, etc.)
+  - `llm_client.py`: Client for communicating with LLMs
+  - `llm_parser.py`: Parser for processing LLM outputs
   - `config.py`: Configuration constants
 
 ## Game Termination Conditions
@@ -125,30 +126,4 @@ The snake game will terminate under any of the following conditions:
 
 After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.
 
-## Performance Metrics and Analytics
 
-The system tracks comprehensive performance metrics for both game play and LLM performance:
-
-- **Game Performance Metrics**:
-  - Total score (apples eaten)
-  - Total steps taken
-  - Steps per apple (efficiency measure)
-  - Apple positions history for replay
-
-- **LLM Performance Metrics**:
-  - Response time for primary LLM
-  - Response time for secondary LLM
-  - JSON extraction success rate
-  - Parser usage count
-
-All metrics are saved in detailed JSON summary files for each game and can be analyzed using the included analytics dashboard.
-
-## Analytics and Replay Dashboard
-
-Run the Streamlit analytics dashboard to visualize and compare experiment results:
-
-```
-streamlit run app.py
-```
-
-You can also replay games from the dashboard.

@@ -1,9 +1,10 @@
 """
 Core package initialization.
-This file exposes the core game engine and snake game for use by the application.
+This file exposes the core game components for use by the application.
 """
 
-from core.game_engine import GameEngine
-from core.snake_game import SnakeGame
+from core.game_controller import GameController
+from core.game_logic import GameLogic
+from core.game_data import GameData
 
-__all__ = ['GameEngine', 'SnakeGame'] 
+__all__ = ['GameController', 'GameLogic', 'GameData'] 

@@ -1,213 +1,262 @@
 """
-Replay engine module for the Snake game.
-Handles the replay engine functionality.
+Replay engine for the Snake game.
+Handles replaying of previously recorded games.
 """
 
 import os
 import json
 import time
 import pygame
-import datetime
-from colorama import Fore
-from core.snake_game import SnakeGame
+from pygame.locals import *
+from core.game_controller import GameController
+from utils.replay_utils import extract_apple_positions
+from config import TIME_DELAY, TIME_TICK
 
-
-class ReplayEngine:
-    """Handles the replay engine functionality."""
-
-    def __init__(self, game: SnakeGame, gui, log_dir: str, game_number: int = None, speed: float = 1.0):
+class ReplayEngine(GameController):
+    """Engine for replaying recorded Snake games."""
+    
+    def __init__(self, log_dir, move_pause=1.0, auto_advance=False, use_gui=True):
         """Initialize the replay engine.
         
         Args:
-            game: SnakeGame instance
-            gui: GUI instance (e.g., ReplayGUI)
             log_dir: Directory containing game logs
-            game_number: Specific game number to replay
-            speed: Replay speed multiplier
+            move_pause: Time in seconds to pause between moves
+            auto_advance: Whether to automatically advance through games
+            use_gui: Whether to use GUI for display
         """
-        self.game = game
-        self.gui = gui # Store the gui instance
+        super().__init__(use_gui=use_gui)
+        
+        # Initialize replay parameters
         self.log_dir = log_dir
-        self.game_to_load = game_number
-        self.speed = speed
+        self.pause_between_moves = move_pause
+        self.auto_advance = auto_advance
         
-        # Game state
-        self.current_move_index = 0
+        # Game state specific to replay
+        self.game_number = 1
+        self.apple_positions = []
+        self.apple_index = 0
+        self.moves = []
+        self.move_index = 0
+        self.moves_made = []
+        self.game_stats = {}
+        self.last_move_time = time.time()
+        self.running = True
         self.paused = False
-        self.all_moves_for_game = [] # Will hold moves for the loaded game
         
-        self.game_number_display = 1 # For display purposes in GUI
-        self.round_number_display = 1 # For display purposes in GUI
-
-        # Load game data immediately
-        if not self._load_game_data():
-            # Handle case where game data couldn't be loaded
-            print(f"{Fore.RED}Failed to load game data. ReplayEngine will not run.{Fore.RESET}")
-            self.all_moves_for_game = [] # Ensure it's empty
-
-    def _load_game_data(self) -> bool:
-        """Load game data from logs. Returns True if successful, False otherwise."""
-        game_summary_files = []  # List to store game summary files
-        try:
-            for filename in os.listdir(self.log_dir):
-                if filename.startswith("game") and filename.endswith("_summary.json"):
-                    game_summary_files.append(os.path.join(self.log_dir, filename))
-        except FileNotFoundError:
-            print(f"{Fore.RED}Log directory not found: {self.log_dir}{Fore.RESET}")
-            return False
+        # Game statistics from the log file
+        self.game_end_reason = None
+        self.primary_llm = None
+        self.secondary_llm = None
+        self.game_timestamp = None
+    
+    def set_gui(self, gui_instance):
+        """Set the GUI instance to use for display.
         
-        if not game_summary_files:
-            print(f"{Fore.YELLOW}No game summary files found in {self.log_dir}{Fore.RESET}")
-            return False
+        Args:
+            gui_instance: Instance of a GUI class for replay
+        """
+        super().set_gui(gui_instance)
+        # Sync the GUI paused state with the replay engine
+        if hasattr(gui_instance, 'set_paused'):
+            gui_instance.set_paused(self.paused)
+    
+    def draw(self):
+        """Draw the current game state if GUI is available."""
+        if self.use_gui and self.gui:
+            self.gui.draw(
+                snake_positions=self.snake_positions,
+                apple_position=self.apple_position if self.apple_index < len(self.apple_positions) else None,
+                game_number=self.game_number,
+                score=self.score,
+                steps=self.steps,
+                move_index=self.move_index,
+                total_moves=len(self.moves),
+                current_direction=self.current_direction,
+                game_end_reason=self.game_end_reason,
+                primary_llm=self.primary_llm,
+                secondary_llm=self.secondary_llm,
+                game_timestamp=self.game_timestamp
+            )
+    
+    def load_game_data(self, game_number):
+        """Load game data from the summary file.
+        
+        Args:
+            game_number: The game number to load
             
-        # Sort files by game number
-        game_summary_files.sort(key=lambda x: int(os.path.basename(x).split("game")[1].split("_")[0]))
+        Returns:
+            Boolean indicating if loading was successful
+        """
+        # Build path to the game summary file
+        summary_file = os.path.join(self.log_dir, f"game{game_number}.json")
         
-        summary_file_to_load = None
-        if self.game_to_load is not None:
-            if 0 <= self.game_to_load < len(game_summary_files):
-                summary_file_to_load = game_summary_files[self.game_to_load]
-                self.game_number_display = self.game_to_load + 1  # Update display number
-            else:
-                print(f"{Fore.RED}Invalid game number: {self.game_to_load}. Valid range: 0-{len(game_summary_files)-1}{Fore.RESET}")
-                return False
-        elif game_summary_files:  # Default to the first game if no specific game is requested
-            summary_file_to_load = game_summary_files[0]
-            self.game_number_display = 1
-
-        if not summary_file_to_load:
-            print(f"{Fore.YELLOW}No specific game summary file to load.{Fore.RESET}")
+        # Check if file exists
+        if not os.path.exists(summary_file):
+            print(f"Game summary file not found: {summary_file}")
             return False
         
+        # Load game data from JSON
         try:
-            with open(summary_file_to_load, "r") as f:
-                data = json.load(f)
-                
-                # Check if using old format with "moves" array
-                if "moves" in data:
-                    # Check if moves is a list
-                    if isinstance(data["moves"], list):
-                        self.all_moves_for_game = data["moves"]
-                    # Check if moves is a dictionary with round keys
-                    elif isinstance(data["moves"], dict):
-                        # Convert dictionary of moves by round to flat list of moves
-                        moves_list = []
-                        # Sort round keys numerically
-                        sorted_rounds = sorted(data["moves"].keys(), 
-                                              key=lambda x: int(x.split("_")[1]) if x.startswith("round_") else 0)
-                        for round_key in sorted_rounds:
-                            move = data["moves"][round_key]
-                            moves_list.append(move)
-                        self.all_moves_for_game = moves_list
-                    else:
-                        print(f"{Fore.RED}Unexpected format for 'moves' in {os.path.basename(summary_file_to_load)}{Fore.RESET}")
-                        return False
-                
-                # Check if using new format with "rounds_data"
-                elif "rounds_data" in data:
-                    # Extract moves from rounds_data and flatten into a list
-                    moves_list = []
-                    # Sort round keys numerically
-                    sorted_rounds = sorted(data["rounds_data"].keys(),
-                                         key=lambda x: int(x.split("_")[1]) if x.startswith("round_") else 0)
-                    for round_key in sorted_rounds:
-                        round_data = data["rounds_data"][round_key]
-                        if "moves" in round_data:
-                            moves_list.append(round_data["moves"])
-                    self.all_moves_for_game = moves_list
-                else:
-                    print(f"{Fore.RED}Game summary file {os.path.basename(summary_file_to_load)} is missing 'moves' and 'rounds_data'.{Fore.RESET}")
-                    return False
-                
-                if not self.all_moves_for_game:
-                    print(f"{Fore.YELLOW}Loaded game summary {os.path.basename(summary_file_to_load)} has no moves.{Fore.RESET}")
-                return True
-        except json.JSONDecodeError:
-            print(f"{Fore.RED}Error decoding JSON from {summary_file_to_load}{Fore.RESET}")
-            return False
-        except Exception as e:
-            print(f"{Fore.RED}Error loading game data from {summary_file_to_load}: {e}{Fore.RESET}")
-            return False
-
-    def _apply_next_move(self):
-        """Applies the next move from the loaded game data."""
-        if self.current_move_index < len(self.all_moves_for_game):
-            move = self.all_moves_for_game[self.current_move_index]
-            self.game.move(move)
-            self.current_move_index += 1
-
-    def _revert_to_previous_move(self):
-        """Reverts to the state before the current_move_index by replaying from start."""
-        if self.current_move_index > 0:
-            self.game.reset()
-            # Go to the state before the current index by replaying up to index-1
-            previous_target_index = self.current_move_index - 1
-            self.current_move_index = 0 # Reset internal counter before replaying
-            for _ in range(previous_target_index):
-                if self.current_move_index < len(self.all_moves_for_game):
-                     self._apply_next_move() # Use the internal method that increments index
-                else:
-                    break
-
-    def _process_events(self) -> bool:
-        """Process pygame events. Returns False if replay should quit."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            with open(summary_file, 'r') as f:
+                game_data = json.load(f)
+            
+            # Get apple positions
+            if 'detailed_history' in game_data and 'apple_positions' in game_data['detailed_history']:
+                self.apple_positions = game_data['detailed_history']['apple_positions']
+            elif 'apple_positions' in game_data:
+                self.apple_positions = game_data['apple_positions']
+            else:
+                print("No apple positions found in game data")
                 return False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    self.paused = not self.paused
-                    print(f"{Fore.CYAN}Replay {'Paused' if self.paused else 'Resumed'}{Fore.RESET}")
-                elif event.key == pygame.K_RIGHT:
-                    if not self.paused:
-                        self._apply_next_move()
-                    else:
-                        # Allow step-forward even if paused
-                        self._apply_next_move()
-                        print(f"{Fore.CYAN}Stepped forward to move {self.current_move_index}{Fore.RESET}")
-                elif event.key == pygame.K_LEFT:
-                    if not self.paused:
-                         self._revert_to_previous_move()
-                    else:
-                        # Allow step-backward even if paused
-                        self._revert_to_previous_move()
-                        print(f"{Fore.CYAN}Stepped backward to move {self.current_move_index}{Fore.RESET}")
-                elif event.key == pygame.K_r:
-                    print(f"{Fore.CYAN}Restarting replay of game {self.game_number_display}{Fore.RESET}")
-                    self.game.reset()
-                    self.current_move_index = 0
-                    # Potentially re-load or just reset state if that's preferred for 'r'
-                elif event.key == pygame.K_q:
-                    print(f"{Fore.CYAN}Quitting replay.{Fore.RESET}")
-                    return False
-        return True
-
-    def run(self):
-        """Run the replay engine's main loop."""
-        if not self.all_moves_for_game: # Don't run if no moves loaded
-            print(f"{Fore.YELLOW}No game data to replay. Exiting replay engine.{Fore.RESET}")
+            
+            # Get moves
+            if 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
+                self.moves = game_data['detailed_history']['moves']
+            elif 'moves' in game_data:
+                self.moves = game_data['moves']
+            else:
+                print("No moves found in game data")
+                return False
+            
+            # Reset move index
+            self.move_index = 0
+            self.apple_index = 0
+            self.moves_made = []
+            self.score = 0
+            self.steps = 0
+            
+            # Extract additional information for display
+            self.game_end_reason = game_data.get('game_end_reason', None)
+            
+            # Get LLM information if available
+            if 'llm_info' in game_data:
+                llm_info = game_data['llm_info']
+                self.primary_llm = f"{llm_info.get('primary_provider', 'Unknown')}/{llm_info.get('primary_model', 'Unknown')}"
+                if llm_info.get('parser_provider') and llm_info.get('parser_provider').lower() != 'none':
+                    self.secondary_llm = f"{llm_info.get('parser_provider', 'None')}/{llm_info.get('parser_model', 'None')}"
+                else:
+                    self.secondary_llm = "None/None"
+            else:
+                self.primary_llm = "Unknown/Unknown"
+                self.secondary_llm = "Unknown/Unknown"
+            
+            # Get timestamp if available
+            if 'metadata' in game_data and 'timestamp' in game_data['metadata']:
+                self.game_timestamp = game_data['metadata']['timestamp']
+            else:
+                self.game_timestamp = "Unknown"
+            
+            # Save other game stats
+            self.game_stats = game_data
+            
+            print(f"Loaded {len(self.apple_positions)} apple positions and {len(self.moves)} moves")
+            print(f"Game {game_number}: End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
+            
+            # Reset the game state
+            self.reset()
+            
+            # Set the initial apple position
+            if self.apple_positions:
+                first_apple = self.apple_positions[0]
+                if 'x' in first_apple and 'y' in first_apple:
+                    self.apple_position = [first_apple['x'], first_apple['y']]
+                
+            # Update the board
+            self._update_board()
+            
+            # Reset GUI move history if available
+            if self.use_gui and self.gui and hasattr(self.gui, 'move_history'):
+                self.gui.move_history = []
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error loading game data: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+    
+    def update(self):
+        """Update game state for each frame."""
+        if self.paused:
             return
             
-        print(f"{Fore.GREEN}Starting replay of game {self.game_number_display} with {len(self.all_moves_for_game)} moves. Speed: {self.speed}x{Fore.RESET}")
-        self.game.reset() # Ensure clean game state at start
-        self.current_move_index = 0
-
-        running = True
-        while running:
-            running = self._process_events()
-            if not running: # Exit if _process_events returns False (e.g. Quit event)
-                break
-
-            if not self.paused:
-                if self.current_move_index < len(self.all_moves_for_game):
-                    self._apply_next_move()
-                # else: game has finished replaying all moves
+        current_time = time.time()
+        
+        # Check if it's time for the next move
+        if current_time - self.last_move_time >= self.pause_between_moves and self.move_index < len(self.moves):
+            # Make the next move
+            next_move = self.moves[self.move_index]
+            self.move_index += 1
+            self.moves_made.append(next_move)
             
-            if self.gui: # Check if GUI is provided
-                # The ReplayGUI.draw expects: game, game_number, round_number, current_move
-                self.gui.draw(self.game, self.game_number_display, self.round_number_display, self.current_move_index)
-                pygame.display.flip()
+            # Update game state
+            game_continues, apple_eaten = self.make_move(next_move)
             
-            pygame.time.delay(int(1000 / self.speed)) 
-
-        print(f"{Fore.GREEN}Replay finished.{Fore.RESET}") 
+            # Update last move time
+            self.last_move_time = current_time
+            
+            # Check if game is over
+            if not game_continues:
+                print(f"Game {self.game_number} over. Score: {self.score}, Steps: {self.steps}, End reason: {self.game_end_reason}")
+                
+                # Check if we should advance to next game
+                if self.auto_advance:
+                    pygame.time.delay(1000)  # 1 second pause
+                    self.game_number += 1
+                    if not self.load_game_data(self.game_number):
+                        print(f"No more games to load. Replay complete.")
+                        self.running = False
+            
+            # Check if we're out of moves
+            elif self.move_index >= len(self.moves):
+                print(f"Replay complete for game {self.game_number}. Score: {self.score}, Steps: {self.steps}")
+                
+                # Check if we should advance to next game
+                if self.auto_advance:
+                    pygame.time.delay(1000)  # 1 second pause
+                    self.game_number += 1
+                    if not self.load_game_data(self.game_number):
+                        print(f"No more games to load. Replay complete.")
+                        self.running = False
+    
+    def handle_events(self):
+        """Handle pygame events."""
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                self.running = False
+    
+    def run(self):
+        """Run the replay loop."""
+        # Initialize pygame if not already done
+        if not pygame.get_init():
+            pygame.init()
+            
+        clock = pygame.time.Clock()
+        
+        # Load first game
+        if not self.load_game_data(self.game_number):
+            print(f"Could not load game {self.game_number}. Trying next game.")
+            self.game_number += 1
+            if not self.load_game_data(self.game_number):
+                print("No valid games found in log directory.")
+                return
+        
+        # Main game loop
+        while self.running:
+            # Handle events
+            self.handle_events()
+            
+            # Update game state
+            self.update()
+            
+            # Draw game state
+            if self.use_gui and self.gui:
+                self.draw()
+            
+            # Control game speed
+            pygame.time.delay(TIME_DELAY)
+            clock.tick(TIME_TICK)
+        
+        # Clean up
+        pygame.quit() 

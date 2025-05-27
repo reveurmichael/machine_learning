@@ -6,6 +6,19 @@ Consolidates JSON extraction and validation functions used by multiple component
 import os
 import json
 import re
+import numpy as np
+from datetime import datetime
+
+# Custom JSON encoder to handle numpy types
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 # Global counter for JSON extraction errors
 json_error_stats = {
@@ -40,6 +53,69 @@ def reset_json_error_stats():
         "text_extraction_errors": 0,
         "fallback_extraction_success": 0
     }
+
+def save_experiment_info_json(args, directory):
+    """Save experiment information to a JSON file.
+    
+    Args:
+        args: Command line arguments
+        directory: Directory to save to
+        
+    Returns:
+        Path to the saved file
+    """
+    # Create experiment information in structured JSON format
+    info_data = {
+        "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "primary_llm": {
+            "provider": args.provider,
+            "model": args.model if args.model else 'Default model for provider'
+        },
+        "secondary_llm": {
+            "provider": args.parser_provider if args.parser_provider else args.provider,
+            "model": args.parser_model if args.parser_model else 'Default model for parser provider'
+        },
+        "game_configuration": {
+            "max_steps_per_game": args.max_steps,
+            "max_consecutive_empty_moves": args.max_empty_moves,
+            "max_games": args.max_games
+        }
+    }
+    
+    # Create directory if it doesn't exist
+    os.makedirs(directory, exist_ok=True)
+    
+    # Save to JSON file
+    file_path = os.path.join(directory, "summary.json")
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(info_data, f, indent=2, cls=NumpyEncoder)
+    
+    return os.path.abspath(file_path)
+
+def update_experiment_info_json(directory, **kwargs):
+    """Update the experiment summary JSON file with game statistics.
+    
+    Args:
+        directory: Directory containing the summary.json file
+        **kwargs: Keyword arguments to update in the summary.json file
+    """
+    file_path = os.path.join(directory, "summary.json")
+    
+    # Read existing content
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            info_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Create a new file if it doesn't exist or is invalid
+        info_data = {}
+    
+    # Update info_data with provided kwargs
+    for key, value in kwargs.items():
+        info_data[key] = value
+    
+    # Write updated content back to file
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(info_data, f, indent=2, cls=NumpyEncoder)
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to handle common issues.
@@ -123,56 +199,6 @@ def validate_json_format(data):
     
     return True
 
-def extract_moves_fallback(json_str):
-    """Extract moves from a JSON string using pattern matching when normal parsing fails.
-    
-    Args:
-        json_str: JSON-like string that couldn't be parsed normally.
-        
-    Returns:
-        Dictionary with "moves" key or None if extraction failed.
-    """
-    try:
-        moves_array_match = re.search(r'["\']?moves["\']?\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
-        if not moves_array_match:
-            return None
-            
-        moves_array = moves_array_match.group(1)
-        move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
-        valid_moves = [move.upper() for move in move_matches 
-                      if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-    
-        if valid_moves:
-            json_error_stats["fallback_extraction_success"] += 1
-            return {"moves": valid_moves}
-        return None
-    except Exception as e:
-        print(f"Error in extract_moves_fallback: {e}")
-        return None
-
-def extract_moves_from_arrays(response_text):
-    """Extract moves from array-like structures in the LLM response text.
-    
-    Args:
-        response_text: LLM response text.
-        
-    Returns:
-        Dictionary with "moves" key or None if extraction failed.
-    """
-    try:
-        array_matches = re.findall(r'\[(.*?)\]', response_text, re.DOTALL)
-        for array_str in array_matches:
-            quoted_items = re.findall(r'["\']([^"\']+)["\']', array_str)
-            valid_moves = [item.upper() for item in quoted_items 
-                          if item.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
-            if valid_moves:
-                json_error_stats["fallback_extraction_success"] += 1
-                return {"moves": valid_moves}
-        return None
-    except Exception as e:
-        print(f"Error in extract_moves_from_arrays: {e}")
-        return None
-
 def extract_json_from_code_block(response):
     """Extract JSON data from a code block in text.
     
@@ -182,6 +208,8 @@ def extract_json_from_code_block(response):
     Returns:
         Parsed JSON data or None if extraction failed
     """
+    global json_error_stats
+    
     try:
         # Match code blocks with optional language specifier
         code_block_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', response, re.MULTILINE)
@@ -208,6 +236,49 @@ def extract_json_from_code_block(response):
         print(f"Error extracting JSON from code block: {e}")
         return None
 
+def extract_valid_json(text):
+    """Extract valid JSON data from text.
+    
+    Args:
+        text: Text that may contain JSON
+        
+    Returns:
+        Parsed JSON data or None if no valid JSON found
+    """
+    global json_error_stats
+    json_error_stats["total_extraction_attempts"] += 1
+    
+    try:
+        # First try to parse the entire text as JSON
+        data = json.loads(text)
+        json_error_stats["successful_extractions"] += 1
+        return data
+    except json.JSONDecodeError:
+        json_error_stats["json_decode_errors"] += 1
+        # Try with our preprocessing for single quotes and unquoted keys
+        try:
+            preprocessed_text = preprocess_json_string(text)
+            data = json.loads(preprocessed_text)
+            json_error_stats["successful_extractions"] += 1
+            return data
+        except json.JSONDecodeError:
+            json_error_stats["json_decode_errors"] += 1
+        
+        # Try extracting from code block
+        json_data = extract_json_from_code_block(text)
+        if json_data:
+            json_error_stats["successful_extractions"] += 1
+            return json_data
+            
+        # Try extracting from regular text
+        json_data = extract_json_from_text(text)
+        if json_data:
+            json_error_stats["successful_extractions"] += 1
+            return json_data
+                
+    json_error_stats["failed_extractions"] += 1
+    return None
+
 def extract_json_from_text(response):
     """Extract JSON data directly from text without code block.
     
@@ -217,6 +288,8 @@ def extract_json_from_text(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
+    global json_error_stats
+    
     try:
         # First try direct JSON parsing (for clean JSON responses)
         try:
@@ -254,51 +327,69 @@ def extract_json_from_text(response):
             
             # Try to extract just the moves array using fallback method
             return extract_moves_fallback(json_str)
+    except json.JSONDecodeError as e:
+        json_error_stats["text_extraction_errors"] += 1
+        print(f"JSON decode error: {e}, trying fallback extraction")
+        
+        # Try to extract just the moves array
+        return extract_moves_fallback(json_str if 'json_str' in locals() else response)
     except Exception as e:
         json_error_stats["text_extraction_errors"] += 1
         print(f"Unexpected error in JSON extraction: {e}")
         return None
 
-def extract_valid_json(text):
-    """Extract valid JSON data from text.
+def extract_moves_fallback(json_str):
+    """Extract moves from a JSON string using pattern matching.
     
     Args:
-        text: Text that may contain JSON
+        json_str: JSON string that couldn't be parsed normally
         
     Returns:
-        Parsed JSON data or None if no valid JSON found
+        Dictionary with moves key or None if extraction failed
     """
-    json_error_stats["total_extraction_attempts"] += 1
+    global json_error_stats
     
     try:
-        # First try to parse the entire text as JSON
-        data = json.loads(text)
-        if validate_json_format(data):
-            json_error_stats["successful_extractions"] += 1
-            return data
-    except json.JSONDecodeError:
-        json_error_stats["json_decode_errors"] += 1
-        # Try with our preprocessing for single quotes and unquoted keys
-        try:
-            preprocessed_text = preprocess_json_string(text)
-            data = json.loads(preprocessed_text)
-            if validate_json_format(data):
-                json_error_stats["successful_extractions"] += 1
-                return data
-        except json.JSONDecodeError:
-            json_error_stats["json_decode_errors"] += 1
-        
-        # Try extracting from code block
-        json_data = extract_json_from_code_block(text)
-        if json_data:
-            json_error_stats["successful_extractions"] += 1
-            return json_data
+        # Try to extract just the moves array
+        moves_array_match = re.search(r'["\']?moves["\']?\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
+        if not moves_array_match:
+            return None
             
-        # Try extracting from regular text
-        json_data = extract_json_from_text(text)
-        if json_data:
-            json_error_stats["successful_extractions"] += 1
-            return json_data
-                
-    json_error_stats["failed_extractions"] += 1
+        moves_array = moves_array_match.group(1)
+        # Extract both single and double quoted strings
+        move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
+        valid_moves = [move.upper() for move in move_matches 
+                      if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+    
+        if valid_moves:
+            json_error_stats["fallback_extraction_success"] += 1
+            return {"moves": valid_moves}
+        return None
+    except Exception as e:
+        print(f"Failed in fallback extraction: {e}")
+        return None
+
+def extract_moves_from_arrays(response):
+    """Extract moves from arrays in the response.
+    
+    Args:
+        response: LLM response text
+        
+    Returns:
+        Dictionary with moves key or None if extraction failed
+    """
+    # Look for arrays in the response
+    array_matches = re.findall(r'\[(.*?)\]', response, re.DOTALL)
+    
+    for array_str in array_matches:
+        # Extract quoted strings
+        quoted_items = re.findall(r'["\']([^"\']+)["\']', array_str)
+        
+        # Check if these are valid moves
+        valid_moves = [item.upper() for item in quoted_items 
+                      if item.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        
+        if valid_moves and len(valid_moves) > 0:
+            return {"moves": valid_moves}
+    
     return None 

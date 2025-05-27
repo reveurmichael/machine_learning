@@ -1,118 +1,180 @@
 """
-Human-controlled Snake Game.
-Allows playing the Snake game with keyboard controls for fun.
+Human playable version of the Snake game.
+Allows a human player to control the snake with arrow keys.
 """
 
-import sys
+import time
 import pygame
-import importlib.util
-from colorama import Fore, init as colorama_init
-
-# Import the game components from the project
-from core.snake_game import SnakeGame
+import sys
+from pygame.locals import *
+import os
+from datetime import datetime
 from gui.game_gui import GameGUI
+from core.game_controller import GameController
+from config import DIRECTIONS, TIME_TICK, COLORS
 
-# Game settings
-TIME_DELAY = 100  # Milliseconds between moves
-TIME_TICK = 60    # FPS target
+class HumanGameGUI(GameGUI):
+    """GUI class for the human-played Snake game."""
+    
+    def __init__(self):
+        """Initialize the human game GUI."""
+        super().__init__()
+        self.init_display("Snake Game - Human Player")
+    
+    def draw_game_info(self, score, steps, planned_moves=None, llm_response=None):
+        """Draw game information for human player mode.
+        
+        Args:
+            score: Current game score
+            steps: Current step count
+            planned_moves: Optional parameter (unused in human mode)
+            llm_response: Optional parameter (unused in human mode)
+        """
+        # Clear info panel
+        self.clear_info_panel()
+        
+        # Draw score and steps
+        title_font = pygame.font.SysFont('arial', 22, bold=True)
+        regular_font = pygame.font.SysFont('arial', 20)
+        
+        # Title for game stats
+        stats_title = title_font.render("Game Statistics", True, COLORS['BLACK'])
+        self.screen.blit(stats_title, (self.height + 20, 20))
+        
+        # Game stats
+        score_text = regular_font.render(f"Score: {score}", True, COLORS['BLACK'])
+        steps_text = regular_font.render(f"Steps: {steps}", True, COLORS['BLACK'])
+        
+        self.screen.blit(score_text, (self.height + 30, 50))
+        self.screen.blit(steps_text, (self.height + 30, 80))
+        
+        # Controls section
+        controls_title = title_font.render("Controls", True, COLORS['BLACK'])
+        self.screen.blit(controls_title, (self.height + 20, 130))
+        
+        controls = [
+            "Arrow Keys: Move Snake",
+            "R: Reset Game",
+            "Esc: Quit Game"
+        ]
+        
+        y_offset = 160
+        for control in controls:
+            control_text = regular_font.render(control, True, COLORS['BLACK'])
+            self.screen.blit(control_text, (self.height + 30, y_offset))
+            y_offset += 30
+        
+        # Instructions section
+        instructions_title = title_font.render("Instructions", True, COLORS['BLACK'])
+        self.screen.blit(instructions_title, (self.height + 20, 270))
+        
+        instructions = [
+            "Eat apples to grow longer",
+            "Avoid hitting walls",
+            "Don't collide with yourself",
+            "Try to get the highest score!"
+        ]
+        
+        y_offset = 300
+        for instruction in instructions:
+            instruction_text = regular_font.render(instruction, True, COLORS['BLACK'])
+            self.screen.blit(instruction_text, (self.height + 30, y_offset))
+            y_offset += 30
+            
+        # Game status section for game over
+        if hasattr(self, 'game_over') and self.game_over:
+            status_title = title_font.render("Game Status", True, COLORS['ERROR'])
+            self.screen.blit(status_title, (self.height + 20, 430))
+            
+            status_text = regular_font.render("GAME OVER!", True, COLORS['ERROR'])
+            self.screen.blit(status_text, (self.height + 30, 460))
+            
+            restart_text = regular_font.render("Press R to restart", True, COLORS['BLACK'])
+            self.screen.blit(restart_text, (self.height + 30, 490))
+        
+        # Update display
+        pygame.display.flip()
+    
+    def set_game_over(self, is_game_over):
+        """Set the game over status for display.
+        
+        Args:
+            is_game_over: Boolean indicating if game is over
+        """
+        self.game_over = is_game_over
+
+
+def handle_input(game, gui):
+    """Handle keyboard input for snake control.
+    
+    Args:
+        game: The GameController instance
+        gui: The GUI instance
+        
+    Returns:
+        Boolean indicating if the game should continue
+    """
+    # Default to continuing the game
+    running = True
+    
+    # Process all events
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            running = False
+        elif event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                running = False
+            elif event.key == K_UP:
+                game_active, _ = game.make_move("UP")
+                gui.set_game_over(not game_active)
+            elif event.key == K_DOWN:
+                game_active, _ = game.make_move("DOWN")
+                gui.set_game_over(not game_active)
+            elif event.key == K_LEFT:
+                game_active, _ = game.make_move("LEFT")
+                gui.set_game_over(not game_active)
+            elif event.key == K_RIGHT:
+                game_active, _ = game.make_move("RIGHT")
+                gui.set_game_over(not game_active)
+            elif event.key == K_r:
+                game.reset()
+                gui.set_game_over(False)
+    
+    return running
 
 def main():
-    """Run the human-controlled Snake game."""
-    # Initialize colorama for cross-platform color output
-    colorama_init()
-    
+    """Run the human playable snake game."""
     # Initialize pygame
     pygame.init()
-    pygame.font.init()
-    pygame.display.set_caption("Snake Game - Human Control")
     
-    # Initialize game
-    game = SnakeGame()
-    gui = GameGUI()
+    # Set up game components with custom GUI
+    gui = HumanGameGUI()
+    gui.game_over = False
+    
+    # Create game controller and connect it to the GUI
+    game = GameController(use_gui=True)
     game.set_gui(gui)
     
-    # Set up game variables
-    clock = pygame.time.Clock()
-    running = True
-    game_active = True
-    game_count = 0
-    direction = "RIGHT"  # Initial direction
-    
-    # Direction mapping for WASD keys
-    key_direction_map = {
-        pygame.K_w: "UP",
-        pygame.K_s: "DOWN",
-        pygame.K_a: "LEFT",
-        pygame.K_d: "RIGHT",
-        pygame.K_UP: "UP",
-        pygame.K_DOWN: "DOWN",
-        pygame.K_LEFT: "LEFT",
-        pygame.K_RIGHT: "RIGHT"
-    }
-    
-    # Display instructions
-    print(f"{Fore.CYAN}Snake Game - Human Control{Fore.RESET}")
-    print(f"{Fore.YELLOW}Controls:{Fore.RESET}")
-    print("  W or Up Arrow = UP")
-    print("  S or Down Arrow = DOWN")
-    print("  A or Left Arrow = LEFT")
-    print("  D or Right Arrow = RIGHT")
-    print("  R = Reset Game")
-    print("  ESC = Quit Game")
-    print(f"{Fore.GREEN}Game started! Use WASD or arrow keys to control the snake.{Fore.RESET}")
+    # Set window title
+    pygame.display.set_caption("Snake Game - Human Player")
     
     # Main game loop
+    clock = pygame.time.Clock()
+    running = True
+    
     while running:
-        # Handle events
-        next_direction = None
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key in key_direction_map and not game.game_over:
-                    next_direction = key_direction_map[event.key]
-                elif event.key == pygame.K_r:
-                    # Reset game
-                    game.reset()
-                    print(f"{Fore.CYAN}🔄 Game reset{Fore.RESET}")
+        # Handle user input
+        running = handle_input(game, gui)
         
-        # Update game state if a key was pressed
-        if not game.game_over and next_direction:
-            # Store the previous direction for validation
-            prev_direction = direction
-            
-            # Prevent 180-degree turns (snake can't turn back on itself)
-            if (next_direction == "UP" and prev_direction == "DOWN") or \
-               (next_direction == "DOWN" and prev_direction == "UP") or \
-               (next_direction == "LEFT" and prev_direction == "RIGHT") or \
-               (next_direction == "RIGHT" and prev_direction == "LEFT"):
-                # Invalid move, continue in the same direction
-                next_direction = prev_direction
-            
-            # Execute the move
-            direction = next_direction
-            game.move(direction)
-            print(f"Move: {direction}, Score: {game.score}, Steps: {game.steps}")
-            
-            # Check if game is over
-            if game.game_over:
-                game_count += 1
-                print(f"{Fore.RED}❌ Game over! Score: {game.score}, Steps: {game.steps}{Fore.RESET}")
-                print(f"{Fore.YELLOW}Press R to start a new game or ESC to quit{Fore.RESET}")
-        
-        # Draw the game
-        gui.draw(game)
-        pygame.display.flip()
+        # Draw the game state
+        gui.draw_board(game.board, game.board_info, game.head_position)
+        gui.draw_game_info(score=game.score, steps=game.steps)
         
         # Control game speed
-        pygame.time.delay(TIME_DELAY)
         clock.tick(TIME_TICK)
     
     # Clean up
     pygame.quit()
-    print(f"{Fore.CYAN}Thanks for playing!{Fore.RESET}")
     sys.exit()
 
 if __name__ == "__main__":

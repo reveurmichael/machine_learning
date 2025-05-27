@@ -12,125 +12,177 @@ from colorama import Fore
 from datetime import datetime
 from pathlib import Path
 
-from utils.log_utils import generate_game_summary_json
-from utils.json_utils import get_json_error_stats
-
-def _save_game_summary(game, log_dir, args, game_number, round_count, 
-                       collision_type, current_game_moves, game_parser_usage):
-    """Helper function to generate and save the game summary JSON file."""
-    # Get apple positions history in structured format
-    apple_positions = []
-    for pos in game.apple_positions_history:
-        apple_positions.append({
-            "x": int(pos[0]),
-            "y": int(pos[1])
-        })
-    
-    # Get performance metrics
-    avg_response_time = game.get_average_response_time()
-    avg_secondary_response_time = game.get_average_secondary_response_time()
-    steps_per_apple = game.get_steps_per_apple()
-    
-    # Generate JSON summary
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    json_summary_data = generate_game_summary_json(
-        game_number=game_number,
-        timestamp=now,
-        score=game.score,
-        steps=game.steps,
-        next_move=collision_type,  # Pass a more descriptive end reason/last move
-        parser_usage_count=game_parser_usage,
-        snake_length=len(game.snake_positions),
-        collision_type=collision_type,
-        round_count=round_count,
-        primary_model=args.model,
-        primary_provider=args.provider,
-        parser_model=args.parser_model,
-        parser_provider=args.parser_provider,
-        json_error_stats=get_json_error_stats(),
-        max_empty_moves=args.max_empty_moves,
-        apple_positions=apple_positions,
-        avg_response_time=avg_response_time,
-        avg_secondary_response_time=avg_secondary_response_time,
-        steps_per_apple=steps_per_apple,
-        moves=current_game_moves
-    )
-    
-    # Save JSON summary
-    json_path = os.path.join(log_dir, f"game{game_number}_summary.json")
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(json_summary_data, f, indent=2)
-    print(Fore.GREEN + f"📝 JSON summary saved to {json_path}")
-
 def check_max_steps(game, max_steps):
-    """Check if the game has exceeded the maximum number of steps.
+    """Check if the game has reached the maximum number of steps.
     
     Args:
-        game: Game instance
+        game: The snake game instance
         max_steps: Maximum number of steps allowed
         
     Returns:
-        True if max steps exceeded, False otherwise
+        Boolean indicating if max steps has been reached
     """
-    return game.steps >= max_steps
+    if game.steps >= max_steps:
+        print(Fore.RED + f"❌ Game over! Maximum steps ({max_steps}) reached.")
+        game.last_collision_type = 'max_steps'
+        return True
+    return False
 
-def process_game_over(game, log_dir, args, game_number, round_count, 
-                     collision_type, current_game_moves, game_parser_usage):
-    """Process game over state and save game summary.
+def process_game_over(game, game_active, game_count, total_score, total_steps, game_scores, 
+                    round_count, args, log_dir, current_game_moves=None, next_move=None):
+    """Process game over state and prepare for the next game.
     
     Args:
-        game: Game instance
-        log_dir: Directory to save logs
+        game: The game instance
+        game_active: Boolean indicating if the game is active
+        game_count: Count of games played
+        total_score: Total score across all games
+        total_steps: Total steps across all games
+        game_scores: List of scores for all games
+        round_count: Count of rounds in the current game
         args: Command line arguments
-        game_number: Current game number
-        round_count: Number of rounds played
-        collision_type: Type of collision that ended the game
-        current_game_moves: List of moves made in the game
-        game_parser_usage: Number of times parser was used
+        log_dir: Directory for logging
+        current_game_moves: List of moves made in the current game
+        next_move: The last move made (or None)
+        
+    Returns:
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count)
     """
-    _save_game_summary(game, log_dir, args, game_number, round_count,
-                      collision_type, current_game_moves, game_parser_usage)
+    # Update game count and statistics
+    game_count += 1
+    total_score += game.score
+    total_steps += game.steps
+    game_scores.append(game.score)
+    
+    # Set a reason if not already set by the game engine
+    if not game.game_state.game_end_reason:
+        if game.last_collision_type == 'empty_moves':
+            game.game_state.record_game_end("EMPTY_MOVES")
+        elif game.last_collision_type == 'max_steps':
+            game.game_state.record_game_end("MAX_STEPS")
+        else:
+            game.game_state.record_game_end("UNKNOWN")
+    
+    # Save game summary
+    json_path = os.path.join(log_dir, f"game{game_count}.json")
+    game.game_state.save_game_summary(
+        json_path,
+        args.provider, 
+        args.model or f"default_{args.provider}",
+        args.parser_provider or args.provider,
+        args.parser_model
+    )
+    
+    return game_count, total_score, total_steps, game_scores, round_count
 
-def handle_error(error, game, log_dir, args, game_number, round_count,
-                current_game_moves, game_parser_usage):
-    """Handle game errors and save error summary.
+def handle_error(game, game_active, game_count, total_score, total_steps, 
+                game_scores, round_count, parser_usage_count, previous_parser_usage, 
+                log_dir, args, current_game_moves, error):
+    """Handle errors that occur during the game loop.
     
     Args:
-        error: Error that occurred
-        game: Game instance
-        log_dir: Directory to save logs
+        game: The snake game instance
+        game_active: Boolean indicating if game is active
+        game_count: Current game count
+        total_score: Total score across all games
+        total_steps: Total steps across all games
+        game_scores: List of scores from all games
+        round_count: Current round count
+        parser_usage_count: Count of parser usage
+        previous_parser_usage: Previous parser usage count
+        log_dir: Directory for logs
         args: Command line arguments
-        game_number: Current game number
-        round_count: Number of rounds played
-        current_game_moves: List of moves made in the game
-        game_parser_usage: Number of times parser was used
+        current_game_moves: List of moves made in the current game
+        error: The exception that occurred
+        
+    Returns:
+        Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
+                 round_count, previous_parser_usage)
     """
-    error_message = f"Error: {str(error)}"
-    print(f"{Fore.RED}{error_message}")
+    print(Fore.RED + f"Error in game loop: {error}")
     traceback.print_exc()
     
-    _save_game_summary(game, log_dir, args, game_number, round_count,
-                      error_message, current_game_moves, game_parser_usage)
+    # End the current game and continue to the next one
+    if game_active:
+        game_active = False
+        game_count += 1
+        print(Fore.RED + f"❌ Game aborted due to error! Moving to game {game_count + 1}")
+        
+        # Update totals with current game state
+        total_score += game.score
+        total_steps += game.steps
+        game_scores.append(game.score)
+        
+        # Set game end reason
+        game.last_collision_type = 'error'
+        game.game_state.record_game_end("ERROR")
+        
+        # Store moves in game state
+        if current_game_moves:
+            game.game_state.moves = current_game_moves
+        
+        # Save game summary
+        json_path = os.path.join(log_dir, f"game{game_count}.json")
+        game.game_state.save_game_summary(
+            json_path,
+            args.provider, 
+            args.model or f"default_{args.provider}",
+            args.parser_provider or args.provider,
+            args.parser_model
+        )
+        print(Fore.GREEN + f"📝 Game summary saved to {json_path}")
+    
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage
 
-def report_final_statistics(total_games, total_score, total_steps, json_error_stats):
-    """Report final game statistics.
+def report_final_statistics(log_dir, game_count, total_score, total_steps,
+                           parser_usage_count, game_scores, empty_steps, 
+                           error_steps, max_empty_moves):
+    """Report final statistics at the end of the game session.
     
     Args:
-        total_games: Total number of games played
+        log_dir: Directory for logs
+        game_count: Total games played
         total_score: Total score across all games
-        total_steps: Total steps taken across all games
-        json_error_stats: Statistics about JSON parsing errors
+        total_steps: Total steps across all games
+        parser_usage_count: Count of parser usage
+        game_scores: List of scores from all games
+        empty_steps: Number of empty steps
+        error_steps: Number of error steps
+        max_empty_moves: Maximum allowed empty moves
     """
-    print(f"\n{Fore.CYAN}=== Final Statistics ===")
-    print(f"Total Games: {total_games}")
-    print(f"Total Score: {total_score}")
-    print(f"Total Steps: {total_steps}")
-    print(f"Average Score: {total_score/total_games if total_games > 0 else 0:.2f}")
-    print(f"Average Steps: {total_steps/total_games if total_games > 0 else 0:.2f}")
+    from utils.json_utils import get_json_error_stats, update_experiment_info_json
     
-    if json_error_stats:
-        print(f"\nJSON Parsing Statistics:")
-        print(f"Total Attempts: {json_error_stats.get('total_extraction_attempts', 0)}")
-        print(f"Successful: {json_error_stats.get('successful_extractions', 0)}")
-        print(f"Failed: {json_error_stats.get('failed_extractions', 0)}")
-        print(f"Success Rate: {json_error_stats.get('success_rate', 0):.2f}%") 
+    # Update experiment summary with final statistics
+    json_error_stats = get_json_error_stats()
+    update_experiment_info_json(
+        log_dir, 
+        game_count=game_count, 
+        total_score=total_score, 
+        total_steps=total_steps, 
+        parser_usage_count=parser_usage_count, 
+        game_scores=game_scores, 
+        empty_steps=empty_steps, 
+        error_steps=error_steps,
+        json_error_stats=json_error_stats,
+        max_empty_moves=max_empty_moves
+    )
+    
+    print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
+    print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
+    print(Fore.GREEN + f"🏁 Final Score: {total_score}")
+    print(Fore.GREEN + f"👣 Total Steps: {total_steps}")
+    print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
+    
+    if game_count > 0:
+        print(Fore.GREEN + f"📊 Average Score: {total_score/game_count:.2f}")
+    
+    if total_steps > 0:
+        print(Fore.GREEN + f"📈 Apples per Step: {total_score/total_steps:.4f}")
+        
+    print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
+    print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
+    
+    if json_error_stats['total_extraction_attempts'] > 0:
+        print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
+        success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
+        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%") 

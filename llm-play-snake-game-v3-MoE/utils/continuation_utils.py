@@ -143,7 +143,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         
     # Check if the previous game files exist
     game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
-    alt_game_file_path = os.path.join(log_dir, f"game{start_game_number-1}.json")
+    alt_game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
     
     if start_game_number > 1 and not (os.path.exists(game_file_path) or os.path.exists(alt_game_file_path)):
         print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")

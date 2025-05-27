@@ -164,7 +164,7 @@ def extract_game_stats(log_folder):
     game_count = 0
     
     for i in range(1, 7):  # Assuming max 6 games
-        json_game_file = Path(log_folder) / f"game{i}.json"
+        json_game_file = Path(log_folder) / f"game_{i}.json"
         if json_game_file.exists():
             game_data = extract_game_summary(json_game_file)
             if game_data:
@@ -374,19 +374,16 @@ def save_to_file(content, directory, filename, metadata=None):
         for key, value in metadata.items():
             formatted_content += f"{key}: {value}\n"
             
-        # Add separator
-        formatted_content += "\n=========================================================="
-        
         # Add section header based on the file type
         if "prompt" in filename.lower():
             if "parser" in filename.lower():
                 formatted_content += "\n\n========== SECONDARY LLM PROMPT ==========\n\n"
             else:
                 formatted_content += "\n\n========== PRIMARY LLM PROMPT ==========\n\n"
-        elif "response" in filename.lower() or "parsed" in filename.lower():
+        elif "response" in filename.lower():
             if "parsed" in filename.lower():
                 formatted_content += "\n\n========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========\n\n"
-            else:
+            elif "raw" in filename.lower():
                 formatted_content += "\n\n========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========\n\n"
     
     # Append the main content

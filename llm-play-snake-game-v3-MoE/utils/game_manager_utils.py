@@ -64,7 +64,7 @@ def process_game_over(game, game_active, game_count, total_score, total_steps, g
             game.game_state.record_game_end("UNKNOWN")
     
     # Save game summary
-    json_path = os.path.join(log_dir, f"game{game_count}.json")
+    json_path = os.path.join(log_dir, f"game_{game_count}.json")
     game.game_state.save_game_summary(
         json_path,
         args.provider, 
@@ -128,7 +128,7 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
             game.game_state.moves = current_game_moves
         
         # Save game summary
-        json_path = os.path.join(log_dir, f"game{game_count}.json")
+        json_path = os.path.join(log_dir, f"game_{game_count}.json")
         game.game_state.save_game_summary(
             json_path,
             args.provider, 

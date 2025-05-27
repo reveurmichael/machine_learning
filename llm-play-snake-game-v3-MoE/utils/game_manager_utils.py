@@ -185,4 +185,138 @@ def report_final_statistics(log_dir, game_count, total_score, total_steps,
     if json_error_stats['total_extraction_attempts'] > 0:
         print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
         success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
-        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%") 
+        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
+
+def initialize_game_manager(game_manager):
+    """Initialize the game manager with necessary setup.
+    
+    Args:
+        game_manager: The GameManager instance
+    """
+    from utils.json_utils import reset_json_error_stats, save_experiment_info_json
+    from utils.llm_utils import check_llm_health
+    import os
+    import sys
+    import time
+    import pygame
+    from datetime import datetime
+    
+    # Reset JSON error statistics
+    reset_json_error_stats()
+    
+    # Initialize primary LLM client
+    game_manager.llm_client = game_manager.create_llm_client(
+        game_manager.args.provider, 
+        game_manager.args.model
+    )
+    
+    print(Fore.GREEN + f"Using primary LLM provider: {game_manager.args.provider}")
+    if game_manager.args.model:
+        print(Fore.GREEN + f"Using primary LLM model: {game_manager.args.model}")
+    
+    # Perform health check for primary LLM
+    primary_healthy, primary_response = check_llm_health(game_manager.llm_client)
+    if not primary_healthy:
+        print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
+        sys.exit(1)
+    else:
+        print(Fore.GREEN + f"✅ Primary LLM health check passed!")
+        
+    # Configure secondary LLM (parser) if specified
+    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
+        print(Fore.GREEN + f"Using parser LLM provider: {game_manager.args.parser_provider}")
+        parser_model = game_manager.args.parser_model
+        print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
+        
+        # Set up the secondary LLM in the client
+        game_manager.llm_client.set_secondary_llm(game_manager.args.parser_provider, parser_model)
+        
+        # Perform health check for parser LLM
+        parser_healthy, _ = check_llm_health(
+            game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
+        )
+        if not parser_healthy:
+            print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
+            game_manager.args.parser_provider = "none"
+            game_manager.args.parser_model = None
+    else:
+        print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
+        game_manager.args.parser_provider = "none"
+        game_manager.args.parser_model = None
+    
+    # Handle sleep before launching if specified
+    if game_manager.args.sleep_before_launching > 0:
+        minutes = game_manager.args.sleep_before_launching
+        print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{'s' if minutes > 1 else ''} before launching...")
+        time.sleep(minutes * 60)
+        print(Fore.GREEN + "⏰ Waking up and starting the program...")
+    
+    # Initialize pygame if using GUI
+    if game_manager.use_gui:
+        pygame.init()
+        pygame.font.init()
+    
+    # Set up the game
+    game_manager.setup_game()
+    
+    print(Fore.GREEN + f"⏱️ Pause between moves: {game_manager.get_pause_between_moves()} seconds")
+    print(Fore.GREEN + f"⏱️ Maximum steps per game: {game_manager.args.max_steps}")
+    
+    # Set up logging directories
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    primary_model = game_manager.args.model if game_manager.args.model else f'default_{game_manager.args.provider}'
+    primary_model = primary_model.replace(':', '-')  # Replace colon with hyphen
+    game_manager.log_dir = f"{primary_model}_{timestamp}"
+    game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
+    game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
+    
+    # Save experiment information
+    model_info_path = save_experiment_info_json(game_manager.args, game_manager.log_dir)
+    print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
+
+def process_events(game_manager):
+    """Process pygame events.
+    
+    Args:
+        game_manager: The GameManager instance
+    """
+    import pygame
+    
+    if not game_manager.use_gui:
+        return
+        
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_manager.running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                game_manager.running = False
+            elif event.key == pygame.K_r:
+                # Reset game
+                game_manager.game.reset()
+                game_manager.game_active = True
+                game_manager.need_new_plan = True
+                game_manager.consecutive_empty_steps = 0  # Reset on game reset
+                game_manager.current_game_moves = []  # Reset moves for new game
+                print(Fore.GREEN + "🔄 Game reset")
+
+def extract_state_for_parser(game_manager):
+    """Extract state information for the parser.
+    
+    Args:
+        game_manager: The GameManager instance
+        
+    Returns:
+        Tuple of (head_pos, apple_pos, body_cells) as strings
+    """
+    # Get the game state
+    head_x, head_y = game_manager.game.head
+    apple_x, apple_y = game_manager.game.apple
+    body_cells = game_manager.game.body
+    
+    # Format for parser
+    head_pos = f"({head_x}, {head_y})"
+    apple_pos = f"({apple_x}, {apple_y})"
+    body_cells_str = str(body_cells) if body_cells else "[]"
+    
+    return head_pos, apple_pos, body_cells_str 

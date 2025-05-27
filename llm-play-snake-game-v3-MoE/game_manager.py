@@ -41,6 +41,9 @@ from utils.game_manager_utils import check_max_steps as utils_check_max_steps
 from utils.game_manager_utils import process_game_over as utils_process_game_over
 from utils.game_manager_utils import handle_error as utils_handle_error
 from utils.game_manager_utils import report_final_statistics as utils_report_final_statistics
+from utils.game_manager_utils import initialize_game_manager, process_events
+from utils.continuation_utils import setup_continuation_session, setup_llm_clients, handle_continuation_game_state, continue_from_directory
+from core.game_loop import run_game_loop
 
 
 class GameManager:
@@ -93,59 +96,20 @@ class GameManager:
         # GUI settings
         self.use_gui = not args.no_gui
     
-    def initialize(self):
-        """Initialize the game, LLM clients, and logging directories."""
-        # Reset JSON error statistics
-        reset_json_error_stats()
+    def create_llm_client(self, provider, model=None):
+        """Create an LLM client with the specified provider and model.
         
-        # Initialize primary LLM client
-        self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
-        print(Fore.GREEN + f"Using primary LLM provider: {self.args.provider}")
-        if self.args.model:
-            print(Fore.GREEN + f"Using primary LLM model: {self.args.model}")
-        
-        # Perform health check for primary LLM
-        primary_healthy, primary_response = check_llm_health(self.llm_client)
-        if not primary_healthy:
-            print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
-            sys.exit(1)
-        else:
-            print(Fore.GREEN + f"✅ Primary LLM health check passed!")
+        Args:
+            provider: LLM provider name
+            model: Model name (optional)
             
-        # Configure secondary LLM (parser) if specified
-        if self.args.parser_provider and self.args.parser_provider.lower() != "none":
-            print(Fore.GREEN + f"Using parser LLM provider: {self.args.parser_provider}")
-            parser_model = self.args.parser_model
-            print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
-            
-            # Set up the secondary LLM in the client
-            self.llm_client.set_secondary_llm(self.args.parser_provider, parser_model)
-            
-            # Perform health check for parser LLM
-            parser_healthy, _ = check_llm_health(
-                LLMClient(provider=self.args.parser_provider, model=parser_model)
-            )
-            if not parser_healthy:
-                print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
-                self.args.parser_provider = "none"
-                self.args.parser_model = None
-        else:
-            print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
-            self.args.parser_provider = "none"
-            self.args.parser_model = None
-        
-        # Handle sleep before launching if specified
-        if self.args.sleep_before_launching > 0:
-            minutes = self.args.sleep_before_launching
-            print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{'s' if minutes > 1 else ''} before launching...")
-            time.sleep(minutes * 60)
-            print(Fore.GREEN + "⏰ Waking up and starting the program...")
-        
-        # Initialize pygame if using GUI
-        if self.use_gui:
-            pygame.init()
-            pygame.font.init()
-        
+        Returns:
+            LLMClient instance
+        """
+        return LLMClient(provider=provider, model=model)
+    
+    def setup_game(self):
+        """Set up the game logic and GUI."""
         # Set up the game
         self.game = GameLogic(use_gui=self.use_gui)
         
@@ -153,241 +117,26 @@ class GameManager:
         if self.use_gui:
             gui = GameGUI()
             self.game.set_gui(gui)
+    
+    def get_pause_between_moves(self):
+        """Get the pause time between moves.
         
-        # Mark this as a continuation in the game data
-        self.game.game_state.record_continuation()
-        print(Fore.GREEN + f"📝 Marked session as continuation ({self.game.game_state.continuation_count})")
-        
-        print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
-        print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
-        
-        # Set up logging directories
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        primary_model = self.args.model if self.args.model else f'default_{self.args.provider}'
-        primary_model = primary_model.replace(':', '-')  # Replace colon with hyphen
-        self.log_dir = f"{primary_model}_{timestamp}"
-        self.prompts_dir = os.path.join(self.log_dir, "prompts")
-        self.responses_dir = os.path.join(self.log_dir, "responses")
-        
-        # Save experiment information
-        model_info_path = save_experiment_info_json(self.args, self.log_dir)
-        print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
+        Returns:
+            Float representing pause time in seconds
+        """
+        return PAUSE_BETWEEN_MOVES_SECONDS
+    
+    def initialize(self):
+        """Initialize the game, LLM clients, and logging directories."""
+        initialize_game_manager(self)
     
     def process_events(self):
         """Process pygame events."""
-        if not self.use_gui:
-            return
-            
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                elif event.key == pygame.K_r:
-                    # Reset game
-                    self.game.reset()
-                    self.game_active = True
-                    self.need_new_plan = True
-                    self.consecutive_empty_steps = 0  # Reset on game reset
-                    self.current_game_moves = []  # Reset moves for new game
-                    print(Fore.GREEN + "🔄 Game reset")
+        process_events(self)
     
-    def get_llm_response(self):
-        """Get a response from the LLM based on the current game state.
-        
-        Returns:
-            Tuple of (next_move, game_active)
-        """
-        # Start tracking LLM communication time
-        self.game.game_state.record_llm_communication_start()
-        
-        # Get game state
-        game_state = self.game.get_state_representation()
-        
-        # Format prompt for LLM
-        prompt = game_state
-        
-        # Log the prompt
-        prompt_filename = f"game_{self.game_count+1}_round{self.round_count+1}_prompt.txt"
-        prompt_path = save_to_file(prompt, self.prompts_dir, prompt_filename)
-        print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
-        
-        # Get next move from first LLM
-        kwargs = {}
-        if self.args.model:
-            kwargs['model'] = self.args.model
-            
-        try:
-            response = self.llm_client.get_chat_response(prompt, **kwargs)
-            
-            # Log the response
-            response_filename = f"game_{self.game_count+1}_round{self.round_count+1}_response.txt"
-            response_path = save_to_file(response, self.responses_dir, response_filename)
-            print(Fore.GREEN + f"📝 Response saved to {response_path}")
-            
-            # Parse the response
-            parser_output = None
-            if self.args.parser_provider and self.args.parser_provider.lower() != "none":
-                # Track the previous parser usage count to detect if it gets used
-                self.previous_parser_usage = self.game.game_state.parser_usage_count
-                
-                # Get parser input
-                parser_input = self._extract_state_for_parser()
-                
-                # Get next move using the parser
-                parser_output = handle_llm_response(
-                    self.llm_client,
-                    response,
-                    parser_input,
-                    self.game.game_state
-                )
-                
-                # Check if parser was used (parser usage count increased)
-                if self.game.game_state.parser_usage_count > self.previous_parser_usage:
-                    self.parser_usage_count += 1
-                    print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {self.parser_usage_count})")
-                    
-                    # Format and save the parsed response
-                    parsed_response_filename = f"game_{self.game_count+1}_round{self.round_count+1}_parsed.txt"
-                    parsed_path = save_to_file(
-                        format_parsed_llm_response(parser_output),
-                        self.responses_dir,
-                        parsed_response_filename
-                    )
-                    print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
-            else:
-                # Direct extraction from primary LLM
-                parser_output = parse_and_format(
-                    self.llm_client,
-                    response,
-                    self.game.game_state
-                )
-            
-            # Extract the next move
-            next_move = None
-            if parser_output and "moves" in parser_output and parser_output["moves"]:
-                # Record the move
-                self.current_game_moves.extend(parser_output["moves"])
-                
-                # Set the next move
-                next_move = parser_output["moves"][0] if parser_output["moves"] else None
-                self.game.set_planned_moves(parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else [])
-                
-                # If we got a valid move, reset the consecutive empty steps counter
-                if next_move:
-                    self.consecutive_empty_steps = 0
-                    print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {self.game_count+1}, Round {self.round_count+1})")
-                else:
-                    self.consecutive_empty_steps += 1
-                    print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {self.consecutive_empty_steps}/{self.args.max_empty_moves}")
-            else:
-                # No valid moves found
-                self.consecutive_empty_steps += 1
-                print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {self.consecutive_empty_steps}/{self.args.max_empty_moves}")
-            
-            # End tracking LLM communication time
-            self.game.game_state.record_llm_communication_end()
-            
-            # Check if we've reached the max consecutive empty moves
-            if self.consecutive_empty_steps >= self.args.max_empty_moves:
-                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({self.args.max_empty_moves}). Game over.")
-                self.game.game_state.record_game_end("EMPTY_MOVES")
-                return next_move, False
-                
-            return next_move, True
-            
-        except Exception as e:
-            # End tracking LLM communication time even if there was an error
-            self.game.game_state.record_llm_communication_end()
-            
-            print(Fore.RED + f"❌ Error getting response from LLM: {e}")
-            traceback.print_exc()
-            return None, False
-    
-    def _extract_state_for_parser(self):
-        """Extract state information for the parser.
-        
-        Returns:
-            Tuple of (head_pos, apple_pos, body_cells) as strings
-        """
-        # Get the game state
-        head_x, head_y = self.game.head
-        apple_x, apple_y = self.game.apple
-        body_cells = self.game.body
-        
-        # Format for parser
-        head_pos = f"({head_x}, {head_y})"
-        apple_pos = f"({apple_x}, {apple_y})"
-        body_cells_str = str(body_cells) if body_cells else "[]"
-        
-        return head_pos, apple_pos, body_cells_str
-    
-    def check_max_steps(self):
-        """Check if the maximum number of steps has been reached.
-        
-        Returns:
-            Boolean indicating if max steps has been reached
-        """
-        return utils_check_max_steps(self.game, self.args.max_steps)
-    
-    def process_game_over(self, next_move=None):
-        """Process game over state and prepare for the next game.
-        
-        Args:
-            next_move: The next move to make (or None)
-        
-        Returns:
-            Boolean indicating if game is active
-        """
-        # Call the utility function
-        self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count = utils_process_game_over(
-            self.game,
-            self.game_active,
-            self.game_count,
-            self.total_score,
-            self.total_steps,
-            self.game_scores,
-            self.round_count,
-            self.args,
-            self.log_dir,
-            self.current_game_moves,
-            next_move
-        )
-        
-        # Reset for next game
-        self.need_new_plan = True
-        self.game_active = False
-        self.current_game_moves = []
-        
-        # Reset the game
-        self.game.reset()
-        self.consecutive_empty_steps = 0  # Reset on new game
-        
-        # Return game active status
-        return False
-    
-    def handle_error(self, error):
-        """Handle errors that occur during the game loop.
-        
-        Args:
-            error: The exception that occurred
-        """
-        # Use the utility function from utils
-        self.game_active, self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count, self.previous_parser_usage = utils_handle_error(
-            self.game, self.game_active, self.game_count, self.total_score, self.total_steps, 
-            self.game_scores, self.round_count, self.parser_usage_count, self.previous_parser_usage, 
-            self.log_dir, self.args, self.current_game_moves, error
-        )
-        
-        # Prepare for next game if we haven't reached the limit
-        if self.game_count < self.args.max_games and not self.game_active:
-            pygame.time.delay(1000)  # Wait 1 second
-            self.game.reset()
-            self.game_active = True
-            self.need_new_plan = True
-            self.current_game_moves = []  # Reset moves for next game
-            print(Fore.GREEN + f"🔄 Starting game {self.game_count + 1}/{self.args.max_games}")
+    def run_game_loop(self):
+        """Run the main game loop."""
+        run_game_loop(self)
     
     def report_final_statistics(self):
         """Report final statistics at the end of the game session."""
@@ -399,76 +148,16 @@ class GameManager:
         is_continuation = False
         if hasattr(self.game.game_state, 'is_continuation'):
             is_continuation = self.game.game_state.is_continuation
-        
-        # In continuation mode, merge statistics from all game files for accurate summary
-        if is_continuation and hasattr(self, 'log_dir') and self.log_dir:
-            from utils.json_utils import merge_game_stats_for_continuation
             
-            print(Fore.GREEN + f"📊 Merging statistics from all games for accurate summary...")
-            aggregated_stats = merge_game_stats_for_continuation(self.log_dir)
-            
-            # Add current session's data that might not be in game files yet
-            # (e.g. if the last game wasn't completed)
-            current_session_stats = self.game.game_state.get_aggregated_stats_for_summary_json(
-                self.game_count, 
-                self.game_scores
-            )
-            
-            # Add experiment configuration
-            aggregated_stats["game_configuration"] = {
-                "max_steps_per_game": self.args.max_steps,
-                "max_consecutive_empty_moves": self.args.max_empty_moves,
-                "max_games": self.args.max_games,
-                "use_gui": self.use_gui
-            }
-            
-            # Add LLM usage stats
-            aggregated_stats["llm_usage_stats"] = {
-                "parser_usage_count": self.parser_usage_count,
-                "parser_usage_per_game": self.parser_usage_count / max(1, self.game_count)
-            }
-            
-            # Add continuation information
-            if hasattr(self.game.game_state, 'continuation_count'):
-                aggregated_stats["is_continuation"] = True
-                aggregated_stats["continuation_count"] = self.game.game_state.continuation_count
-                
-                if hasattr(self.game.game_state, 'continuation_timestamps'):
-                    aggregated_stats["continuation_timestamps"] = self.game.game_state.continuation_timestamps
-                    
-                if hasattr(self.game.game_state, 'continuation_metadata'):
-                    aggregated_stats["continuation_metadata"] = self.game.game_state.continuation_metadata
-        else:
-            # Regular mode - use standard statistics collection
-            aggregated_stats = self.game.game_state.get_aggregated_stats_for_summary_json(
-                self.game_count, 
-                self.game_scores
-            )
-            
-            # Add experiment configuration
-            aggregated_stats["game_configuration"] = {
-                "max_steps_per_game": self.args.max_steps,
-                "max_consecutive_empty_moves": self.args.max_empty_moves,
-                "max_games": self.args.max_games,
-                "use_gui": self.use_gui
-            }
-            
-            # Add LLM usage stats
-            aggregated_stats["llm_usage_stats"] = {
-                "parser_usage_count": self.parser_usage_count,
-                "parser_usage_per_game": self.parser_usage_count / max(1, self.game_count)
-            }
-        
         # Update experiment info JSON
         update_experiment_info_json(
             self.log_dir,
-            **aggregated_stats,
             is_continuation=is_continuation,
             json_error_stats=get_json_error_stats()
         )
         
-        # Use the utility function to report statistics to console
-        utils_report_final_statistics(
+        # Call the utility function
+        report_final_statistics(
             self.log_dir,
             self.game_count,
             self.total_score,
@@ -480,113 +169,6 @@ class GameManager:
             self.args.max_empty_moves
         )
     
-    def run_game_loop(self):
-        """Run the main game loop."""
-        try:
-            while self.running and self.game_count < self.args.max_games:
-                # Handle events
-                self.process_events()
-                
-                if self.game_active:
-                    try:
-                        # Start tracking game movement time
-                        self.game.game_state.record_game_movement_start()
-                        
-                        # Check if we need a new plan
-                        if self.need_new_plan:
-                            # Get the next move from the LLM
-                            next_move, self.game_active = self.get_llm_response()
-                            
-                            # We now have a new plan, so don't request another one until we need it
-                            self.need_new_plan = False
-                            
-                            # Check if we've reached max steps
-                            if self.check_max_steps():
-                                self.game_active = False
-                                self.game.game_state.record_game_end("MAX_STEPS")
-                            # Only execute the move if we got a valid direction and game is still active
-                            elif next_move and self.game_active:
-                                # Execute the move and check if game continues
-                                self.game_active, apple_eaten = self.game.make_move(next_move)
-                            else:
-                                # No valid move found, but we still count this as a round
-                                print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
-                                # No movement, so the game remains active and no apple is eaten
-                                self.game.steps += 1
-                                self.total_steps += 1
-                                self.game.game_state.record_empty_move()
-                            
-                            # End tracking game movement time
-                            self.game.game_state.record_game_movement_end()
-                            
-                            # Increment round count
-                            self.round_count += 1
-                        else:
-                            # Get the next move from the existing plan
-                            next_move = self.game.get_next_planned_move()
-                            
-                            # If we have a move, execute it
-                            if next_move:
-                                print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {self.game_count+1}, Round {self.round_count+1})")
-                                
-                                # Record the move
-                                self.current_game_moves.append(next_move)
-                                
-                                # Check if we've reached max steps
-                                if self.check_max_steps():
-                                    self.game_active = False
-                                    self.game.game_state.record_game_end("MAX_STEPS")
-                                else:
-                                    # Execute the move and check if game continues
-                                    self.game_active, apple_eaten = self.game.make_move(next_move)
-                                
-                                # If we've eaten an apple, request a new plan
-                                if apple_eaten:
-                                    print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
-                                    self.need_new_plan = True
-                                
-                                # Increment round count
-                                self.round_count += 1
-                                
-                                # End tracking game movement time
-                                self.game.game_state.record_game_movement_end()
-                                
-                                # Start tracking waiting time (for pause between moves)
-                                self.game.game_state.record_waiting_start()
-                                
-                                # Pause between moves for visualization
-                                time.sleep(PAUSE_BETWEEN_MOVES_SECONDS)
-                                
-                                # End tracking waiting time
-                                self.game.game_state.record_waiting_end()
-                            else:
-                                # No more planned moves, request a new plan
-                                self.need_new_plan = True
-                        
-                        # Check if game is over
-                        if not self.game_active:
-                            self.process_game_over(next_move)
-                        
-                        # Draw the current state
-                        self.game.draw()
-                        
-                    except Exception as e:
-                        self.handle_error(e)
-                
-                # Control game speed
-                pygame.time.delay(self.time_delay)
-                self.clock.tick(self.time_tick)
-            
-            # Report final statistics
-            self.report_final_statistics()
-            
-        except Exception as e:
-            print(Fore.RED + f"Fatal error: {e}")
-            traceback.print_exc()
-        finally:
-            # Clean up
-            pygame.quit()
-    
     def run(self):
         """Initialize and run the game session."""
         try:
@@ -596,10 +178,6 @@ class GameManager:
             # Run the game loop
             self.run_game_loop()
             
-        except Exception as e:
-            # Handle any unexpected errors
-            self.handle_error(e)
-            
         finally:
             # Final cleanup
             if self.use_gui and pygame.get_init():
@@ -607,17 +185,6 @@ class GameManager:
             
             # Report final statistics
             self.report_final_statistics()
-            
-            # Update experiment info with final statistics
-            update_experiment_info_json(
-                self.log_dir,
-                game_count=self.game_count,
-                total_score=self.total_score,
-                avg_score=self.total_score / max(1, self.game_count),
-                total_steps=self.total_steps,
-                avg_steps=self.total_steps / max(1, self.game_count),
-                json_error_stats=get_json_error_stats()
-            )
     
     def continue_from_session(self, log_dir, start_game_number):
         """Continue from a previous game session.
@@ -626,199 +193,20 @@ class GameManager:
             log_dir: Path to the log directory to continue from
             start_game_number: The game number to start from
         """
-        # Verify log directory exists and is valid
-        if not os.path.isdir(log_dir):
-            print(Fore.RED + f"❌ Log directory does not exist: {log_dir}")
-            sys.exit(1)
-            
-        # Check if summary.json exists
-        summary_path = os.path.join(log_dir, "summary.json")
-        if not os.path.exists(summary_path):
-            print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
-            sys.exit(1)
-            
-        # Set the log directory
-        self.log_dir = log_dir
-        self.prompts_dir = os.path.join(log_dir, "prompts")
-        self.responses_dir = os.path.join(log_dir, "responses")
+        # Set up continuation session
+        setup_continuation_session(self, log_dir, start_game_number)
         
-        # Create directories if they don't exist
-        os.makedirs(self.prompts_dir, exist_ok=True)
-        os.makedirs(self.responses_dir, exist_ok=True)
+        # Set up LLM clients
+        setup_llm_clients(self)
         
-        # Reset JSON error statistics
-        reset_json_error_stats()
-        
-        # Load and validate the previous game number
-        if start_game_number < 1:
-            print(Fore.RED + f"❌ Invalid starting game number: {start_game_number}")
-            sys.exit(1)
-            
-        # Check if the previous game files exist
-        game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
-        alt_game_file_path = os.path.join(log_dir, f"game{start_game_number-1}.json")
-        
-        if start_game_number > 1 and not (os.path.exists(game_file_path) or os.path.exists(alt_game_file_path)):
-            print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")
-            sys.exit(1)
-        
-        # Load statistics from existing games
-        (self.total_score, self.total_steps, self.game_scores, game_durations, 
-         self.empty_steps, self.error_steps, self.parser_usage_count) = self.read_existing_game_data(log_dir, start_game_number)
-        
-        # Set game count to continue from the next game
-        self.game_count = start_game_number - 1
-        
-        # Initialize primary LLM client
-        self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
-        print(Fore.GREEN + f"Using primary LLM provider: {self.args.provider}")
-        if self.args.model:
-            print(Fore.GREEN + f"Using primary LLM model: {self.args.model}")
-        
-        # Perform health check for primary LLM
-        primary_healthy, primary_response = check_llm_health(self.llm_client)
-        if not primary_healthy:
-            print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
-            sys.exit(1)
-        else:
-            print(Fore.GREEN + f"✅ Primary LLM health check passed!")
-        
-        # Configure secondary LLM (parser) if specified
-        if self.args.parser_provider and self.args.parser_provider.lower() != "none":
-            print(Fore.GREEN + f"Using parser LLM provider: {self.args.parser_provider}")
-            parser_model = self.args.parser_model
-            print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
-            
-            # Set up the secondary LLM in the client
-            self.llm_client.set_secondary_llm(self.args.parser_provider, parser_model)
-            
-            # Perform health check for parser LLM
-            parser_healthy, _ = check_llm_health(
-                LLMClient(provider=self.args.parser_provider, model=parser_model)
-            )
-            if not parser_healthy:
-                print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
-                self.args.parser_provider = "none"
-                self.args.parser_model = None
-        else:
-            print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
-            self.args.parser_provider = "none"
-            self.args.parser_model = None
-        
-        # Initialize pygame if using GUI
-        if self.use_gui:
-            pygame.init()
-            pygame.font.init()
-        
-        # Set up the game
-        self.game = GameLogic(use_gui=self.use_gui)
-        
-        # Set up the GUI if needed
-        if self.use_gui:
-            gui = GameGUI()
-            self.game.set_gui(gui)
-        
-        # Mark this as a continuation in the game data
-        self.game.game_state.record_continuation()
-        print(Fore.GREEN + f"📝 Marked session as continuation ({self.game.game_state.continuation_count})")
-        
-        # Load summary.json to get information about the previous session
-        try:
-            with open(summary_path, 'r') as f:
-                summary_data = json.load(f)
-                
-            # Check for any continuation info already in the summary
-            if 'continuation_info' in summary_data:
-                cont_info = summary_data['continuation_info']
-                prev_count = cont_info.get('continuation_count', 0)
-                print(Fore.GREEN + f"ℹ️ This is continuation #{prev_count + 1} of this experiment")
-                
-                # Update continuation timestamps in game state if they exist
-                if 'continuation_timestamps' in cont_info and hasattr(self.game.game_state, 'continuation_timestamps'):
-                    for timestamp in cont_info['continuation_timestamps']:
-                        if timestamp not in self.game.game_state.continuation_timestamps:
-                            self.game.game_state.continuation_timestamps.append(timestamp)
-                    
-                    # Update continuation count to match
-                    self.game.game_state.continuation_count = len(self.game.game_state.continuation_timestamps)
-        except Exception as e:
-            print(Fore.YELLOW + f"⚠️ Warning: Could not load continuation info from summary.json: {e}")
-        
-        print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
-        print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
-        print(Fore.GREEN + f"📊 Continuing from game {start_game_number}, with {self.total_score} total score so far")
+        # Handle game state for continuation
+        handle_continuation_game_state(self)
         
         # Run the game loop
         self.run_game_loop()
         
-        # Report final statistics (with merged data from all games)
+        # Report final statistics
         self.report_final_statistics()
-    
-    def read_existing_game_data(self, log_dir, start_game_number):
-        """Read existing game data from log_dir for games before start_game_number.
-        
-        Args:
-            log_dir: Directory containing game files
-            start_game_number: First game number to start from (1-indexed)
-            
-        Returns:
-            Tuple of (total_score, total_steps, game_scores, game_durations)
-        """
-        game_scores = []
-        total_score = 0
-        total_steps = 0
-        game_durations = []
-        empty_steps = 0
-        error_steps = 0
-        parser_usage_count = 0
-        
-        # Load existing game data
-        for game_num in range(1, start_game_number):
-            # Try both file naming conventions (game_{num}.json and game{num}.json)
-            game_files = [
-                os.path.join(log_dir, f"game_{game_num}.json"),
-                os.path.join(log_dir, f"game{game_num}.json")
-            ]
-            
-            game_file = None
-            for file in game_files:
-                if os.path.exists(file):
-                    game_file = file
-                    break
-                    
-            if game_file:
-                try:
-                    with open(game_file, 'r') as f:
-                        game_data = json.load(f)
-                        
-                        # Basic game stats
-                        score = game_data.get('score', 0)
-                        steps = game_data.get('steps', 0)
-                        game_scores.append(score)
-                        total_score += score
-                        total_steps += steps
-                        
-                        # Track step types if available
-                        if 'step_stats' in game_data:
-                            step_stats = game_data.get('step_stats', {})
-                            empty_steps += step_stats.get('empty_steps', 0)
-                            error_steps += step_stats.get('error_steps', 0)
-                        
-                        # Track parser usage
-                        parser_usage_count += game_data.get('parser_usage_count', 0)
-                        
-                        # Extract game duration
-                        if 'time_stats' in game_data:
-                            time_stats = game_data.get('time_stats', {})
-                            if 'active_duration_seconds' in time_stats:
-                                # Prefer active duration for continuations
-                                game_durations.append(time_stats.get('active_duration_seconds', 0))
-                            else:
-                                game_durations.append(time_stats.get('total_duration_seconds', 0))
-                except Exception as e:
-                    print(f"Warning: Could not load data from {game_file}: {e}")
-        
-        return total_score, total_steps, game_scores, game_durations, empty_steps, error_steps, parser_usage_count
 
     @classmethod
     def continue_from_directory(cls, args):
@@ -830,21 +218,4 @@ class GameManager:
         Returns:
             GameManager instance set up for continuation
         """
-        from utils.file_utils import get_next_game_number, clean_prompt_files
-        from colorama import Fore
-        
-        log_dir = args.continue_with_game_in_dir
-        print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
-        
-        # Determine the next game number
-        next_game = get_next_game_number(log_dir)
-        print(Fore.GREEN + f"✅ Starting from game {next_game}")
-        
-        # Clean existing prompt and response files for games >= next_game
-        clean_prompt_files(log_dir, next_game)
-        
-        # Create and run the game manager with continuation settings
-        game_manager = cls(args)
-        game_manager.continue_from_session(log_dir, next_game)
-        
-        return game_manager 
+        return continue_from_directory(cls, args) 

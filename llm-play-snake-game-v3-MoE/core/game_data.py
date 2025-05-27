@@ -559,7 +559,7 @@ class GameData:
         }
     
     def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model):
-        """Generate a complete game summary.
+        """Generate a summary of the game.
         
         Args:
             primary_provider: The provider of the primary LLM
@@ -568,15 +568,17 @@ class GameData:
             parser_model: The model of the parser LLM
             
         Returns:
-            Dictionary with complete game summary
+            Dictionary with game summary
         """
-        return {
-            # Core performance metrics (most important/abstract at top)
+        # Create the base summary
+        summary = {
+            # Core game data
             "score": self.score,
             "steps": self.steps,
-            "snake_length": self.snake_length,
-            "game_end_reason": self.game_end_reason,
-            "efficiency_metrics": self.get_efficiency_metrics(),
+            "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else 1,
+            "win": self.win,
+            "game_over": self.game_over,
+            "game_over_reason": self.game_over_reason,
             
             # Time statistics
             "time_stats": self.get_time_stats(),
@@ -603,11 +605,7 @@ class GameData:
                 "last_move": self.last_move,
                 "round_count": self.round_count,
                 "max_empty_moves": self.max_empty_moves,
-                "parser_usage_count": self.parser_usage_count,
-                "is_continuation": self.is_continuation,
-                "continuation_count": self.continuation_count,
-                "continuation_timestamps": self.continuation_timestamps,
-                "continuation_metadata": self.continuation_metadata
+                "parser_usage_count": self.parser_usage_count
             },
             
             # Detailed game history (at bottom)
@@ -617,6 +615,12 @@ class GameData:
                 "rounds_data": self.rounds_data
             }
         }
+        
+        # Update with continuation info (this will place it at the bottom of the metadata section)
+        if self.is_continuation:
+            summary = self.update_continuation_info_in_summary(summary)
+            
+        return summary
     
     def get_aggregated_stats_for_summary_json(self, game_count, game_scores, game_durations=None):
         """Generate aggregated statistics for summary.json file.
@@ -664,7 +668,8 @@ class GameData:
                 "session_end_time": session_end_time
             }
         
-        return {
+        # Create the base summary data
+        summary = {
             "game_statistics": {
                 "total_games": game_count,
                 "total_score": total_score,
@@ -724,6 +729,27 @@ class GameData:
             },
             "game_scores": game_scores
         }
+        
+        # Add continuation info at the bottom
+        if self.is_continuation:
+            # Create a dedicated continuation section
+            continuation_info = {
+                "is_continued": True,
+                "continuation_count": self.continuation_count
+            }
+            
+            # Add timestamps if available
+            if hasattr(self, 'continuation_timestamps') and self.continuation_timestamps:
+                continuation_info['continuation_timestamps'] = self.continuation_timestamps
+                
+            # Add metadata if available
+            if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
+                continuation_info['continuation_metadata'] = self.continuation_metadata
+                
+            # Add to summary at the end
+            summary['continuation_info'] = continuation_info
+            
+        return summary
     
     def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model):
         """Save the game summary to a JSON file.
@@ -745,11 +771,25 @@ class GameData:
             
         return filepath
 
-    def record_continuation(self):
-        """Record that this game is a continuation of a previous session."""
+    def record_continuation(self, previous_session_data=None):
+        """Record that this game is a continuation of a previous session.
+        
+        Args:
+            previous_session_data: Optional dictionary with data from previous session
+        """
         self.is_continuation = True
         self.continuation_count += 1
         continuation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Initialize continuation timestamps if needed
+        if not hasattr(self, 'continuation_timestamps'):
+            self.continuation_timestamps = []
+            
+        # Initialize continuation metadata if needed
+        if not hasattr(self, 'continuation_metadata'):
+            self.continuation_metadata = []
+            
+        # Add current timestamp
         self.continuation_timestamps.append(continuation_timestamp)
         
         # Reset the start time for accurate time tracking during this continuation session
@@ -762,20 +802,125 @@ class GameData:
             time_delta = current_time - self.last_action_time
             
             # Record this continuation event with metadata for analytics
-            if not hasattr(self, 'continuation_metadata'):
-                self.continuation_metadata = []
-                
-            self.continuation_metadata.append({
+            continuation_meta = {
                 "timestamp": continuation_timestamp,
                 "time_since_last_action": time_delta,
                 "previous_duration": current_time - self.start_time if hasattr(self, 'start_time') else 0,
                 "game_state": {
                     "score": self.score,
                     "steps": self.steps,
-                    "snake_length": self.snake_length
+                    "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else 1
                 }
-            })
+            }
+            
+            # Add additional data from previous session if provided
+            if previous_session_data:
+                # Add previous game statistics if available
+                if 'game_statistics' in previous_session_data:
+                    game_stats = previous_session_data['game_statistics']
+                    continuation_meta['previous_session'] = {
+                        'total_games': game_stats.get('total_games', 0),
+                        'total_score': game_stats.get('total_score', 0),
+                        'total_steps': game_stats.get('total_steps', 0)
+                    }
+                
+                # Add previous continuation info if available
+                if 'continuation_info' in previous_session_data:
+                    cont_info = previous_session_data['continuation_info']
+                    
+                    # Import timestamps from previous session if they're not already in our list
+                    if 'continuation_timestamps' in cont_info:
+                        for timestamp in cont_info['continuation_timestamps']:
+                            if timestamp not in self.continuation_timestamps:
+                                self.continuation_timestamps.append(timestamp)
+            
+            # Add the metadata
+            self.continuation_metadata.append(continuation_meta)
             
         # Update the start time to the current time
         # This essentially "pauses" the timer when continuing
-        self.last_action_time = current_time 
+        self.last_action_time = current_time
+        
+        # Update continuation count to match actual number of continuations
+        self.continuation_count = len(self.continuation_timestamps)
+        
+    def synchronize_with_summary_json(self, summary_data):
+        """Synchronize game state with data from summary.json.
+        
+        This helps ensure continuation data is accurate.
+        
+        Args:
+            summary_data: Dictionary loaded from summary.json
+        """
+        # Check if continuation info exists in summary
+        if 'continuation_info' in summary_data:
+            cont_info = summary_data['continuation_info']
+            
+            # Initialize continuation attributes if needed
+            if not hasattr(self, 'continuation_timestamps'):
+                self.continuation_timestamps = []
+                
+            if not hasattr(self, 'continuation_metadata'):
+                self.continuation_metadata = []
+                
+            # Import timestamps from summary
+            if 'continuation_timestamps' in cont_info:
+                for timestamp in cont_info['continuation_timestamps']:
+                    if timestamp not in self.continuation_timestamps:
+                        self.continuation_timestamps.append(timestamp)
+            
+            # Import session metadata from summary
+            if 'session_metadata' in cont_info:
+                for metadata in cont_info['session_metadata']:
+                    # Check if this metadata is already in our list
+                    timestamp = metadata.get('timestamp')
+                    if timestamp:
+                        # Check if we already have this timestamp in our metadata
+                        existing = [m for m in self.continuation_metadata if m.get('timestamp') == timestamp]
+                        if not existing:
+                            self.continuation_metadata.append(metadata)
+            
+            # Update continuation count
+            self.continuation_count = max(
+                len(self.continuation_timestamps),
+                cont_info.get('continuation_count', 0)
+            )
+            
+            # Mark as continuation if it has happened before
+            if self.continuation_count > 0:
+                self.is_continuation = True 
+
+    def update_continuation_info_in_summary(self, summary_dict):
+        """Update the continuation information in a game summary dictionary.
+        
+        This ensures continuation information is properly organized and placed at the bottom
+        of the JSON file.
+        
+        Args:
+            summary_dict: Dictionary representing a game summary to update
+            
+        Returns:
+            Updated summary dictionary with organized continuation info
+        """
+        # Initialize continuation section if needed
+        if 'metadata' not in summary_dict:
+            summary_dict['metadata'] = {}
+            
+        # Add continuation info to metadata section
+        continuation_data = {
+            'is_continuation': self.is_continuation,
+            'continuation_count': self.continuation_count
+        }
+        
+        # Add timestamps if available
+        if hasattr(self, 'continuation_timestamps') and self.continuation_timestamps:
+            continuation_data['continuation_timestamps'] = self.continuation_timestamps
+            
+        # Add metadata if available
+        if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
+            continuation_data['continuation_metadata'] = self.continuation_metadata
+            
+        # Update the metadata
+        summary_dict['metadata']['continuation_info'] = continuation_data
+        
+        return summary_dict 

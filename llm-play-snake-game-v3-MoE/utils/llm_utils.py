@@ -1,14 +1,18 @@
 """
-Utility module for LLM response processing and prompt preparation.
-Handles parsing, extracting, and processing responses from language models.
+Utility module for LLM response processing, prompt preparation, and interaction.
+Handles parsing, extracting, and processing responses from language models,
+as well as interactions between the game and LLMs.
 """
 
 import json
 import traceback
 import time
+import os
 from colorama import Fore
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
+from utils.file_utils import save_to_file
+from utils.format_utils import format_parsed_llm_response
 
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
     """Format the raw LLM response with metadata for saving to a file.
@@ -102,20 +106,19 @@ def format_body_cells_str(body_positions):
         
     return "[" + ", ".join(body_cells) + "]"
 
-def parse_and_format(llm_client, llm_response, head_pos=None, apple_pos=None, body_cells=None):
+def parse_and_format(llm_client, llm_response, game_state=None, head_pos=None, apple_pos=None, body_cells=None):
     """Parse the output from the primary LLM and convert it to the required JSON format.
     
     Args:
         llm_client: The LLM client to use for secondary LLM
         llm_response: The raw response from the primary LLM
+        game_state: Optional game state object
         head_pos: Optional head position string in format "(x, y)"
         apple_pos: Optional apple position string in format "(x, y)"
         body_cells: Optional body cells string in format "[(x1, y1), (x2, y2), ...]"
         
     Returns:
-        A tuple containing (formatted_response, parser_prompt) where:
-          - formatted_response: The properly formatted JSON response
-          - parser_prompt: The prompt that was sent to the secondary LLM
+        Properly formatted JSON response as a dictionary
     """
     # Check if the primary LLM response contains valid JSON (for logging purposes only)
     first_json_valid = False
@@ -131,6 +134,10 @@ def parse_and_format(llm_client, llm_response, head_pos=None, apple_pos=None, bo
     print("Using secondary LLM to parse and format response")
     formatted_response = llm_client.generate_text_with_secondary_llm(parser_prompt)
     
+    # If game_state is provided, record parser usage
+    if game_state:
+        game_state.record_parser_usage()
+    
     # Extract JSON from the secondary LLM's response
     json_data = extract_valid_json(formatted_response)
     
@@ -141,9 +148,9 @@ def parse_and_format(llm_client, llm_response, head_pos=None, apple_pos=None, bo
             "moves": [],
             "reasoning": "ERROR: Could not generate valid moves from LLM response"
         }
-        return json.dumps(fallback_data), parser_prompt
+        return fallback_data
         
-    return json.dumps(json_data), parser_prompt
+    return json_data
 
 def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells=None):
     """Create a prompt for the secondary LLM to parse the output of the primary LLM.
@@ -304,41 +311,158 @@ def parse_llm_response(response, processed_response_func, game_instance):
         
         return None
 
-def handle_llm_response(response, next_move, error_steps, empty_steps, consecutive_empty_steps, max_empty_moves):
-    """Handle LLM response and update game statistics.
+def handle_llm_response(llm_client, response, parser_input=None, game_state=None):
+    """Handle LLM response and process it for game use.
     
     Args:
+        llm_client: The LLM client
         response: Text response from the LLM
-        next_move: The next move to make (or None)
-        error_steps: Count of error steps
-        empty_steps: Count of empty steps
-        consecutive_empty_steps: Count of consecutive empty steps
-        max_empty_moves: Maximum allowed consecutive empty moves
+        parser_input: Tuple of (head_pos, apple_pos, body_cells) for parser
+        game_state: The game state object for recording stats
         
     Returns:
-        Tuple of (error_steps, empty_steps, consecutive_empty_steps, game_active)
+        Parsed output from the LLM
     """
-    # Default to game continuing
-    game_active = True
+    # Unpack parser input if provided
+    head_pos, apple_pos, body_cells = parser_input if parser_input else (None, None, None)
     
-    # If response contains an error marker, reset consecutive empty steps
-    if response and "ERROR" in response.upper():
-        consecutive_empty_steps = 0
-        error_steps += 1
-        print(f"Error in LLM response. Error steps: {error_steps}")
+    # Parse and format the response
+    return parse_and_format(llm_client, response, game_state, head_pos, apple_pos, body_cells)
+
+def get_llm_response(game_manager):
+    """Get a response from the LLM based on the current game state.
     
-    # If no valid move, count as empty step
-    if next_move is None:
-        empty_steps += 1
-        consecutive_empty_steps += 1
-        print(f"No valid move. Empty steps: {empty_steps}, Consecutive: {consecutive_empty_steps}")
+    Args:
+        game_manager: The GameManager instance
         
-        # Check if we've reached maximum consecutive empty moves
-        if consecutive_empty_steps >= max_empty_moves:
-            print(f"Game over! Maximum consecutive empty moves ({max_empty_moves}) reached.")
-            game_active = False
-    else:
-        # Reset consecutive empty steps on valid move
-        consecutive_empty_steps = 0
+    Returns:
+        Tuple of (next_move, game_active)
+    """
+    # Start tracking LLM communication time
+    game_manager.game.game_state.record_llm_communication_start()
     
-    return error_steps, empty_steps, consecutive_empty_steps, game_active 
+    # Get game state
+    game_state = game_manager.game.get_state_representation()
+    
+    # Format prompt for LLM
+    prompt = game_state
+    
+    # Log the prompt
+    prompt_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_prompt.txt"
+    prompt_path = save_to_file(prompt, game_manager.prompts_dir, prompt_filename)
+    print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
+    
+    # Get next move from first LLM
+    kwargs = {}
+    if game_manager.args.model:
+        kwargs['model'] = game_manager.args.model
+        
+    try:
+        response = game_manager.llm_client.get_chat_response(prompt, **kwargs)
+        
+        # Log the response
+        response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_response.txt"
+        response_path = save_to_file(response, game_manager.responses_dir, response_filename)
+        print(Fore.GREEN + f"📝 Response saved to {response_path}")
+        
+        # Parse the response
+        parser_output = None
+        if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
+            # Track the previous parser usage count to detect if it gets used
+            game_manager.previous_parser_usage = game_manager.game.game_state.parser_usage_count
+            
+            # Get parser input
+            from utils.game_manager_utils import extract_state_for_parser
+            parser_input = extract_state_for_parser(game_manager)
+            
+            # Get next move using the parser
+            parser_output = handle_llm_response(
+                game_manager.llm_client,
+                response,
+                parser_input,
+                game_manager.game.game_state
+            )
+            
+            # Check if parser was used (parser usage count increased)
+            if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
+                game_manager.parser_usage_count += 1
+                print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {game_manager.parser_usage_count})")
+                
+                # Format and save the parsed response
+                parsed_response_filename = f"game_{game_manager.game_count+1}_round{game_manager.round_count+1}_parsed.txt"
+                parsed_path = save_to_file(
+                    format_parsed_response(parser_output),
+                    game_manager.responses_dir,
+                    parsed_response_filename
+                )
+                print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
+        else:
+            # Direct extraction from primary LLM
+            parser_output = parse_and_format(
+                game_manager.llm_client,
+                response,
+                game_manager.game.game_state
+            )
+        
+        # Extract the next move
+        next_move = None
+        if parser_output and "moves" in parser_output and parser_output["moves"]:
+            # Record the move
+            game_manager.current_game_moves.extend(parser_output["moves"])
+            
+            # Set the next move
+            next_move = parser_output["moves"][0] if parser_output["moves"] else None
+            game_manager.game.set_planned_moves(parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else [])
+            
+            # If we got a valid move, reset the consecutive empty steps counter
+            if next_move:
+                game_manager.consecutive_empty_steps = 0
+                print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count+1})")
+            else:
+                game_manager.consecutive_empty_steps += 1
+                print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")
+        else:
+            # No valid moves found
+            game_manager.consecutive_empty_steps += 1
+            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")
+        
+        # End tracking LLM communication time
+        game_manager.game.game_state.record_llm_communication_end()
+        
+        # Check if we've reached the max consecutive empty moves
+        if game_manager.consecutive_empty_steps >= game_manager.args.max_empty_moves:
+            print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves}). Game over.")
+            game_manager.game.game_state.record_game_end("EMPTY_MOVES")
+            return next_move, False
+            
+        return next_move, True
+        
+    except Exception as e:
+        # End tracking LLM communication time even if there was an error
+        game_manager.game.game_state.record_llm_communication_end()
+        
+        print(Fore.RED + f"❌ Error getting response from LLM: {e}")
+        traceback.print_exc()
+        return None, False
+
+def format_parsed_response(parser_output):
+    """Format the parsed response for saving to file.
+    
+    Args:
+        parser_output: The output from the parser
+        
+    Returns:
+        Formatted string representation of the parsed output
+    """
+    if not parser_output:
+        return "No valid moves found."
+        
+    formatted = "Parsed Output:\n"
+    
+    if "moves" in parser_output:
+        formatted += f"Moves: {parser_output['moves']}\n"
+    
+    if "reasoning" in parser_output:
+        formatted += f"\nReasoning:\n{parser_output['reasoning']}\n"
+        
+    return formatted 

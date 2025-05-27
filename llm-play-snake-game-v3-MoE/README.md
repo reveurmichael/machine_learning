@@ -121,6 +121,9 @@ The codebase is organized in a modular structure to ensure maintainability and s
   - `game_manager.py`: Manages game sessions and statistics
   - `llm_client.py`: Client for communicating with LLMs
   - `config.py`: Configuration constants
+  - `app.py`: Streamlit dashboard for analyzing game statistics and replaying games
+  - `replay.py`: Command-line interface for replaying saved games
+  - `human_play.py`: Human-playable version of the Snake game
 
 ## Data Output
 

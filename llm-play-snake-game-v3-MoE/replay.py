@@ -39,8 +39,7 @@ def main():
     replay_engine = ReplayEngine(
         log_dir=args.log_dir, 
         move_pause=args.move_pause, 
-        auto_advance=args.auto_advance,
-        use_gui=True
+        auto_advance=args.auto_advance
     )
 
     # Set initial paused state if requested

@@ -636,15 +636,15 @@ class GameManager:
         
         # Initialize primary LLM client
         self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
-        print(Fore.GREEN + f"✅ Using primary LLM provider: {self.args.provider}")
+        print(Fore.GREEN + f"Using primary LLM provider: {self.args.provider}")
         if self.args.model:
-            print(Fore.GREEN + f"✅ Using primary LLM model: {self.args.model}")
+            print(Fore.GREEN + f"Using primary LLM model: {self.args.model}")
         
         # Configure secondary LLM (parser) if specified
         if self.args.parser_provider and self.args.parser_provider.lower() != "none":
-            print(Fore.GREEN + f"✅ Using parser LLM provider: {self.args.parser_provider}")
+            print(Fore.GREEN + f"Using parser LLM provider: {self.args.parser_provider}")
             parser_model = self.args.parser_model
-            print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
+            print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
             
             # Set up the secondary LLM in the client
             self.llm_client.set_secondary_llm(self.args.parser_provider, parser_model)

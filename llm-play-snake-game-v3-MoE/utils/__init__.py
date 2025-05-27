@@ -30,7 +30,9 @@ from .log_utils import (
 from .file_utils import (
     find_log_folders,
     extract_game_stats,
-    extract_game_summary
+    extract_game_summary,
+    get_next_game_number,
+    clean_prompt_files
 )
 
 # Import and expose all from replay_utils
@@ -99,6 +101,8 @@ __all__ = [
     'find_log_folders',
     'extract_game_stats',
     'extract_game_summary',
+    'get_next_game_number',
+    'clean_prompt_files',
     
     # replay_utils
     'run_replay',

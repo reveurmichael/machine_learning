@@ -288,3 +288,55 @@ def extract_game_summary(summary_file):
         print(f"Error extracting summary from {summary_file}: {e}")
     
     return summary 
+
+def get_next_game_number(log_dir):
+    """Determine the next game number to start from.
+    
+    Args:
+        log_dir: The log directory to check
+        
+    Returns:
+        The next game number to use
+    """
+    # Check for existing game files
+    game_files = glob.glob(os.path.join(log_dir, "game*.json"))
+    
+    if not game_files:
+        return 1  # Start from game 1 if no games exist
+    
+    # Extract game numbers from filenames
+    game_numbers = []
+    for file in game_files:
+        filename = os.path.basename(file)
+        try:
+            game_number = int(filename.replace("game", "").replace(".json", ""))
+            game_numbers.append(game_number)
+        except ValueError:
+            continue
+    
+    if not game_numbers:
+        return 1
+        
+    return max(game_numbers) + 1
+
+def clean_prompt_files(log_dir, start_game):
+    """Clean prompt and response files for games >= start_game.
+    
+    Args:
+        log_dir: The log directory
+        start_game: The starting game number
+    """
+    prompts_dir = os.path.join(log_dir, "prompts")
+    responses_dir = os.path.join(log_dir, "responses")
+    
+    # Clean prompt files
+    if os.path.exists(prompts_dir):
+        for file in os.listdir(prompts_dir):
+            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
+                os.remove(os.path.join(prompts_dir, file))
+    
+    # Clean response files
+    if os.path.exists(responses_dir):
+        for file in os.listdir(responses_dir):
+            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
+                os.remove(os.path.join(responses_dir, file)) 

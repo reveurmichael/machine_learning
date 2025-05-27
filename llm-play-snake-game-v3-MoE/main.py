@@ -11,6 +11,11 @@ import argparse
 import pygame
 from colorama import Fore, init as init_colorama
 from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES
+from utils import (
+    save_experiment_info_json,
+    get_next_game_number,
+    clean_prompt_files
+)
 from game_manager import GameManager
 
 # Initialize colorama for colored terminal output
@@ -114,58 +119,6 @@ def parse_arguments():
             raise ValueError(f"Error: '--provider' argument appears {provider_count} times. Use '--provider' for the primary LLM and '--parser-provider' for the secondary LLM.")
 
     return args
-
-def get_next_game_number(log_dir):
-    """Determine the next game number to start from.
-    
-    Args:
-        log_dir: The log directory to check
-        
-    Returns:
-        The next game number to use
-    """
-    # Check for existing game files
-    game_files = glob.glob(os.path.join(log_dir, "game*.json"))
-    
-    if not game_files:
-        return 1  # Start from game 1 if no games exist
-    
-    # Extract game numbers from filenames
-    game_numbers = []
-    for file in game_files:
-        filename = os.path.basename(file)
-        try:
-            game_number = int(filename.replace("game", "").replace(".json", ""))
-            game_numbers.append(game_number)
-        except ValueError:
-            continue
-    
-    if not game_numbers:
-        return 1
-        
-    return max(game_numbers) + 1
-
-def clean_prompt_files(log_dir, start_game):
-    """Clean prompt and response files for games >= start_game.
-    
-    Args:
-        log_dir: The log directory
-        start_game: The starting game number
-    """
-    prompts_dir = os.path.join(log_dir, "prompts")
-    responses_dir = os.path.join(log_dir, "responses")
-    
-    # Clean prompt files
-    if os.path.exists(prompts_dir):
-        for file in os.listdir(prompts_dir):
-            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
-                os.remove(os.path.join(prompts_dir, file))
-    
-    # Clean response files
-    if os.path.exists(responses_dir):
-        for file in os.listdir(responses_dir):
-            if file.startswith(f"game{start_game}_") or any(file.startswith(f"game{i}_") for i in range(start_game, 100)):
-                os.remove(os.path.join(responses_dir, file))
 
 def main():
     """Initialize and run the LLM Snake game."""

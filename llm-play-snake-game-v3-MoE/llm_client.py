@@ -324,12 +324,12 @@ class LLMClient:
                 return chat_response.choices[0].message.content
             except Exception as api_error:
                 print(f"Error during Mistral API call: {api_error}")
-                return "ERROR LLMCLIENT"
+                return f"ERROR LLMCLIENT: {api_error}"
 
         except Exception as e:
             print(f"Error generating response from Mistral: {e}")
             traceback.print_exc()
-            return "ERROR LLMCLIENT"
+            return f"ERROR LLMCLIENT: {e}"
 
     def _generate_ollama_response(self, prompt: str, **kwargs) -> str:
         """Generate a response from Ollama LLM.
@@ -385,12 +385,12 @@ class LLMClient:
         except requests.exceptions.Timeout:
             print(f"Timeout error connecting to Ollama server at {server}")
             traceback.print_exc()
-            return "ERROR LLMCLIENT"
+            return f"ERROR LLMCLIENT: Timeout connecting to Ollama server at {server}"
         except requests.exceptions.ConnectionError:
             print(f"Connection error to Ollama server at {server}")
             traceback.print_exc()
-            return "ERROR LLMCLIENT"
+            return f"ERROR LLMCLIENT: Connection error to Ollama server at {server}"
         except Exception as e:
             print(f"Error generating response from Ollama: {e}")
             traceback.print_exc()
-            return "ERROR LLMCLIENT"
+            return f"ERROR LLMCLIENT: {e}"

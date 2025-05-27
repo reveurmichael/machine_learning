@@ -35,6 +35,12 @@ You can also run the game with just a primary LLM (no parser):
 python main.py --provider ollama --model deepseek-r1:7b --parser-provider none
 ```
 
+or simply:
+
+```
+python main.py --provider ollama --model deepseek-r1:7b
+```
+
 This will bypass the secondary LLM and use the primary LLM's output directly.
 
 ## Installation
@@ -151,6 +157,24 @@ The snake game will terminate under any of the following conditions:
 After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.
 
 
-## What's missing
+## What's missing, if this were a real research project
+
+Launching the application can be in a more "script" way and often parallelized, instead of using command line arguments. 
+
+Helper script for checking GPU usage, and then launching the application accordingly. 
 
 Logging system with log files.
+
+Data processing and analysis.
+
+
+
+
+
+
+
+
+
+
+
+

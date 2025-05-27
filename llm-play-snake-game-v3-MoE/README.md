@@ -163,6 +163,13 @@ logging into json files: very comprehensive.
 
 continue mode: it's like checkpoint. 
 
+--no-gui: it's like a headless mode. Visual + non visual mode.
+
+replay mode: for double checking results.
+
+app.py: for analyzing preliminary results, giving insights and adjust experiment parameters.
+
+
 
 ## What's missing, if this were a real research project
 

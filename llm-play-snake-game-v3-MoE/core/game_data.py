@@ -8,6 +8,16 @@ import time
 from datetime import datetime
 import numpy as np
 
+class NumPyJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle NumPy types."""
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
@@ -633,6 +643,6 @@ class GameData:
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model)
         
         with open(filepath, 'w') as f:
-            json.dump(summary, f, indent=2)
+            json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
             
         return filepath 

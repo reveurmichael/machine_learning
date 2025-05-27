@@ -99,31 +99,27 @@ class GameManager:
         if self.args.model:
             print(Fore.GREEN + f"✅ Using primary LLM model: {self.args.model}")
             
-        # Initialize parser LLM settings
-        self.parser_provider = self.args.parser_provider if self.args.parser_provider else self.args.provider
-        self.parser_model = self.args.parser_model
-        
-        # Check primary LLM health
-        primary_healthy, primary_response = check_llm_health(self.llm_client)
-        if not primary_healthy:
-            print(Fore.RED + "❌ Primary LLM health check failed! Unable to proceed.")
-            print(Fore.RED + f"❌ Reason: {primary_response}")
-            sys.exit(1)
+        # Configure secondary LLM (parser) if specified
+        if self.args.parser_provider and self.args.parser_provider.lower() != "none":
+            print(Fore.GREEN + f"✅ Using parser LLM provider: {self.args.parser_provider}")
+            parser_model = self.args.parser_model
+            print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
             
-        # Check parser LLM health if configured
-        if self.parser_provider and self.parser_provider.lower() != "none":
-            parser_client = LLMClient(provider=self.parser_provider, model=self.parser_model)
-            print(Fore.GREEN + f"✅ Using parser LLM provider: {self.parser_provider}")
-            if self.parser_model:
-                print(Fore.GREEN + f"✅ Using parser LLM model: {self.parser_model}")
-                
-            parser_healthy, parser_response = check_llm_health(parser_client)
+            # Set up the secondary LLM in the client
+            self.llm_client.set_secondary_llm(self.args.parser_provider, parser_model)
+            
+            # Perform health check for parser LLM
+            parser_healthy, _ = check_llm_health(
+                LLMClient(provider=self.args.parser_provider, model=parser_model)
+            )
             if not parser_healthy:
-                print(Fore.RED + "❌ Parser LLM health check failed! Unable to proceed.")
-                print(Fore.RED + f"❌ Reason: {parser_response}")
-                sys.exit(1)
+                print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
+                self.args.parser_provider = "none"
+                self.args.parser_model = None
         else:
-            print(Fore.GREEN + f"✅ Not using a parser LLM - primary LLM output will be used directly")
+            print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
+            self.args.parser_provider = "none"
+            self.args.parser_model = None
         
         # Handle sleep before launching if specified
         if self.args.sleep_before_launching > 0:
@@ -301,7 +297,13 @@ class GameManager:
             # Log the response
             response_filename = f"game{self.game_count+1}_round{self.round_count+1}_response.txt"
             response_path = save_to_file(
-                format_raw_llm_response(raw_llm_response, request_time, response_time),
+                format_raw_llm_response(
+                    raw_llm_response, 
+                    request_time, 
+                    response_time,
+                    model_name=self.args.model,
+                    provider=self.args.provider
+                ),
                 self.responses_dir, 
                 response_filename
             )
@@ -488,8 +490,17 @@ class GameManager:
         print(f"Best Score: {aggregated_stats['game_statistics']['max_score']}")
         print(f"Steps per Apple: {aggregated_stats['game_statistics']['steps_per_apple']:.2f}")
         print(f"Total Steps: {self.total_steps}")
-        print(f"Empty Steps: {self.empty_steps} ({(self.empty_steps / self.total_steps * 100):.2f}%)")
-        print(f"Error Steps: {self.error_steps} ({(self.error_steps / self.total_steps * 100):.2f}%)")
+        
+        # Avoid division by zero
+        if self.total_steps > 0:
+            empty_steps_percent = (self.empty_steps / self.total_steps * 100)
+            error_steps_percent = (self.error_steps / self.total_steps * 100)
+        else:
+            empty_steps_percent = 0
+            error_steps_percent = 0
+        
+        print(f"Empty Steps: {self.empty_steps} ({empty_steps_percent:.2f}%)")
+        print(f"Error Steps: {self.error_steps} ({error_steps_percent:.2f}%)")
         
         print(Fore.GREEN + "\n✅ Experiment completed successfully.")
     

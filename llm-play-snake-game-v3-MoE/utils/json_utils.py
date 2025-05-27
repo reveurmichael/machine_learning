@@ -8,6 +8,7 @@ import json
 import re
 import numpy as np
 from datetime import datetime
+from core.game_data import NumPyJSONEncoder
 
 # Custom JSON encoder to handle numpy types
 class NumpyEncoder(json.JSONEncoder):
@@ -92,30 +93,34 @@ def save_experiment_info_json(args, directory):
     
     return os.path.abspath(file_path)
 
-def update_experiment_info_json(directory, **kwargs):
-    """Update the experiment summary JSON file with game statistics.
+def update_experiment_info_json(log_dir, **kwargs):
+    """Update the experiment info JSON file with additional statistics.
     
     Args:
-        directory: Directory containing the summary.json file
-        **kwargs: Keyword arguments to update in the summary.json file
+        log_dir: Directory containing the experiment logs
+        **kwargs: Additional data to add to the JSON file
     """
-    file_path = os.path.join(directory, "summary.json")
+    summary_path = os.path.join(log_dir, "summary.json")
+    data = {}
     
-    # Read existing content
+    # Load existing data if file exists
+    if os.path.exists(summary_path):
+        try:
+            with open(summary_path, 'r') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Error loading existing summary.json: {e}")
+    
+    # Update data with new values
+    data.update(kwargs)
+    
+    # Save updated data
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            info_data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        # Create a new file if it doesn't exist or is invalid
-        info_data = {}
-    
-    # Update info_data with provided kwargs
-    for key, value in kwargs.items():
-        info_data[key] = value
-    
-    # Write updated content back to file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(info_data, f, indent=2, cls=NumpyEncoder)
+        with open(summary_path, 'w') as f:
+            json.dump(data, f, indent=2, cls=NumPyJSONEncoder)
+        print(f"📝 Experiment information saved to {summary_path}")
+    except Exception as e:
+        print(f"Error saving summary.json: {e}")
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to handle common issues.

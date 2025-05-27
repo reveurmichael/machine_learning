@@ -30,6 +30,50 @@ class LLMClient:
         self.provider = provider
         self.model = model
         self.last_token_count = None
+        self.secondary_provider = None
+        self.secondary_model = None
+
+    def set_secondary_llm(self, provider: str, model: str):
+        """Set the secondary LLM (parser) details.
+        
+        Args:
+            provider: The LLM provider to use for the secondary LLM
+            model: The specific model to use with the provider
+        """
+        self.secondary_provider = provider
+        self.secondary_model = model
+
+    def generate_text_with_secondary_llm(self, prompt: str, **kwargs) -> str:
+        """Generate a response from the secondary LLM.
+        
+        Args:
+            prompt: The prompt to send to the secondary LLM
+            **kwargs: Additional arguments to pass to the LLM
+            
+        Returns:
+            The secondary LLM's response as a string
+        """
+        if not self.secondary_provider or not self.secondary_model:
+            print("Warning: Secondary LLM not configured properly")
+            return "ERROR: Secondary LLM not configured"
+            
+        # Save current provider and model
+        original_provider = self.provider
+        original_model = self.model
+        
+        try:
+            # Temporarily switch to secondary LLM
+            self.provider = self.secondary_provider
+            self.model = self.secondary_model
+            
+            # Generate response using the secondary LLM
+            response = self.generate_response(prompt, **kwargs)
+            
+            return response
+        finally:
+            # Restore original provider and model
+            self.provider = original_provider
+            self.model = original_model
 
     def generate_response(self, prompt: str, **kwargs) -> str:
         """Generate a response from the LLM.

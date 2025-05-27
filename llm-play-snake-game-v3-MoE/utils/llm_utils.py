@@ -10,6 +10,39 @@ from colorama import Fore
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
 
+def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
+    """Format the raw LLM response with metadata for saving to a file.
+    
+    Args:
+        response: The raw response from the LLM
+        request_time: Timestamp when the request was sent
+        response_time: Duration of the response in seconds
+        model_name: Name of the model used (optional)
+        provider: Name of the provider used (optional)
+        
+    Returns:
+        Formatted response with metadata
+    """
+    # Format the metadata section
+    metadata = [
+        f"Time: {request_time}",
+        f"Response time: {response_time:.2f} seconds",
+    ]
+    
+    if model_name:
+        metadata.append(f"Model: {model_name}")
+    
+    if provider:
+        metadata.append(f"Provider: {provider}")
+    
+    # Format the full response
+    formatted_response = "=== METADATA ===\n"
+    formatted_response += "\n".join(metadata)
+    formatted_response += "\n\n=== RESPONSE ===\n"
+    formatted_response += response
+    
+    return formatted_response
+
 def prepare_snake_prompt(head_position, body_positions, apple_position, current_direction):
     """Prepare a prompt for the primary LLM to determine the next snake move.
     

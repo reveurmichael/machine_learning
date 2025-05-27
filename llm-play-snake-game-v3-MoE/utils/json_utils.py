@@ -123,8 +123,28 @@ def update_experiment_info_json(log_dir, **kwargs):
         except Exception as e:
             print(f"Error loading existing summary.json: {e}")
     
-    # Update data with new values
-    data.update(kwargs)
+    # Track continuation information
+    if not data.get('continuation_info'):
+        data['continuation_info'] = {
+            'is_continued': False,
+            'continuation_count': 0,
+            'continuation_timestamps': []
+        }
+    
+    # Check if this is a continuation update
+    if 'is_continuation' in kwargs and kwargs['is_continuation']:
+        data['continuation_info']['is_continued'] = True
+        data['continuation_info']['continuation_count'] = data['continuation_info'].get('continuation_count', 0) + 1
+        data['continuation_info']['continuation_timestamps'].append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    
+    # Update nested dictionaries intelligently (don't completely overwrite them)
+    for key, value in kwargs.items():
+        if isinstance(value, dict) and key in data and isinstance(data[key], dict):
+            # Recursively update the nested dictionary
+            deep_update_dict(data[key], value)
+        else:
+            # Direct update for non-dictionary values or new keys
+            data[key] = value
     
     # Save updated data
     try:
@@ -133,6 +153,19 @@ def update_experiment_info_json(log_dir, **kwargs):
         print(f"📝 Experiment information saved to {summary_path}")
     except Exception as e:
         print(f"Error saving summary.json: {e}")
+
+def deep_update_dict(original, update):
+    """Recursively update a dictionary without overwriting nested dictionaries.
+    
+    Args:
+        original: Original dictionary to update
+        update: Dictionary with new values to apply
+    """
+    for key, value in update.items():
+        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
+            deep_update_dict(original[key], value)
+        else:
+            original[key] = value
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to handle common issues.

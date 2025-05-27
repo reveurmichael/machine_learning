@@ -18,6 +18,12 @@ class GameData:
         self.game_number = 0
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
+        # Continuation tracking
+        self.is_continuation = False
+        self.continuation_count = 0
+        self.continuation_timestamps = []
+        self.continuation_metadata = []
+        
         # Time tracking
         self.start_time = time.time()
         self.end_time = None
@@ -531,19 +537,34 @@ class GameData:
         
         total_duration = self.end_time - self.start_time
         
-        # Calculate percentages
-        llm_percent = (self.llm_communication_time / total_duration * 100) if total_duration > 0 else 0
-        movement_percent = (self.game_movement_time / total_duration * 100) if total_duration > 0 else 0
-        waiting_percent = (self.waiting_time / total_duration * 100) if total_duration > 0 else 0
+        # Calculate pause time from continuations if applicable
+        pause_time = 0
+        if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
+            for meta in self.continuation_metadata:
+                if 'time_since_last_action' in meta:
+                    pause_time += meta['time_since_last_action']
+        
+        # Calculate active duration (excluding pauses from continuations)
+        active_duration = total_duration - pause_time
+        
+        # Calculate percentages based on active time
+        divisor = max(0.001, active_duration)  # Avoid division by zero
+        llm_percent = (self.llm_communication_time / divisor * 100)
+        movement_percent = (self.game_movement_time / divisor * 100)
+        waiting_percent = (self.waiting_time / divisor * 100)
         
         # Calculate other time (time not accounted for in the other categories)
-        other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
-        other_percent = (other_time / total_duration * 100) if total_duration > 0 else 0
+        other_time = active_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
+        other_percent = (other_time / divisor * 100)
         
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": datetime.fromtimestamp(self.end_time).strftime("%Y-%m-%d %H:%M:%S"),
             "total_duration_seconds": total_duration,
+            "active_duration_seconds": active_duration,
+            "pause_duration_seconds": pause_time,
+            "is_continuation": self.is_continuation,
+            "continuation_count": self.continuation_count,
             "llm_communication_time": self.llm_communication_time,
             "game_movement_time": self.game_movement_time,
             "waiting_time": self.waiting_time,
@@ -599,7 +620,11 @@ class GameData:
                 "last_move": self.last_move,
                 "round_count": self.round_count,
                 "max_empty_moves": self.max_empty_moves,
-                "parser_usage_count": self.parser_usage_count
+                "parser_usage_count": self.parser_usage_count,
+                "is_continuation": self.is_continuation,
+                "continuation_count": self.continuation_count,
+                "continuation_timestamps": self.continuation_timestamps,
+                "continuation_metadata": self.continuation_metadata
             },
             
             # Detailed game history (at bottom)
@@ -733,4 +758,39 @@ class GameData:
         with open(filepath, 'w') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
             
-        return filepath 
+        return filepath
+
+    def record_continuation(self):
+        """Record that this game is a continuation of a previous session."""
+        self.is_continuation = True
+        self.continuation_count += 1
+        continuation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.continuation_timestamps.append(continuation_timestamp)
+        
+        # Reset the start time for accurate time tracking during this continuation session
+        # This ensures we don't include the time between sessions in our calculations
+        current_time = time.time()
+        
+        # Store the time delta between the last action and the continuation
+        # This helps in accurately tracking time spent in the game vs. paused time
+        if hasattr(self, 'last_action_time') and self.last_action_time:
+            time_delta = current_time - self.last_action_time
+            
+            # Record this continuation event with metadata for analytics
+            if not hasattr(self, 'continuation_metadata'):
+                self.continuation_metadata = []
+                
+            self.continuation_metadata.append({
+                "timestamp": continuation_timestamp,
+                "time_since_last_action": time_delta,
+                "previous_duration": current_time - self.start_time if hasattr(self, 'start_time') else 0,
+                "game_state": {
+                    "score": self.score,
+                    "steps": self.steps,
+                    "snake_length": self.snake_length
+                }
+            })
+            
+        # Update the start time to the current time
+        # This essentially "pauses" the timer when continuing
+        self.last_action_time = current_time 

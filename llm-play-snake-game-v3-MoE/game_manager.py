@@ -142,6 +142,10 @@ class GameManager:
             gui = GameGUI()
             self.game.set_gui(gui)
         
+        # Mark this as a continuation in the game data
+        self.game.game_state.record_continuation()
+        print(Fore.GREEN + f"📝 Marked session as continuation ({self.game.game_state.continuation_count})")
+        
         print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
         print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
         
@@ -422,6 +426,14 @@ class GameManager:
             "valid_move_ratio": self.game.game_state.valid_steps / max(1, self.total_steps) * 100
         }
         
+        # Add continuation information if this is a continuation
+        if hasattr(self.game.game_state, 'is_continuation') and self.game.game_state.is_continuation:
+            aggregated_stats["is_continuation"] = True
+            aggregated_stats["continuation_count"] = self.game.game_state.continuation_count
+            aggregated_stats["continuation_timestamps"] = self.game.game_state.continuation_timestamps
+            if hasattr(self.game.game_state, 'continuation_metadata'):
+                aggregated_stats["continuation_metadata"] = self.game.game_state.continuation_metadata
+        
         # Update experiment info JSON
         update_experiment_info_json(
             self.log_dir,
@@ -608,31 +620,12 @@ class GameManager:
         # Reset JSON error statistics
         reset_json_error_stats()
         
-        # Load game scores and statistics from existing games
-        self.game_scores = []
-        self.total_score = 0
-        self.game_count = start_game_number - 1  # Start from the next game
+        # Load statistics from existing games
+        (self.total_score, self.total_steps, self.game_scores, game_durations, 
+         self.empty_steps, self.error_steps, self.parser_usage_count) = self.read_existing_game_data(log_dir, start_game_number)
         
-        # Load existing game data
-        game_durations = []
-        for game_num in range(1, start_game_number):
-            game_file = os.path.join(log_dir, f"game_{game_num}.json")
-            
-            if os.path.exists(game_file):
-                try:
-                    with open(game_file, 'r') as f:
-                        game_data = json.load(f)
-                        score = game_data.get('score', 0)
-                        steps = game_data.get('steps', 0)
-                        self.game_scores.append(score)
-                        self.total_score += score
-                        self.total_steps += steps
-                        
-                        # Extract game duration
-                        if 'time_stats' in game_data:
-                            game_durations.append(game_data['time_stats'].get('total_duration_seconds', 0))
-                except Exception as e:
-                    print(Fore.YELLOW + f"⚠️ Warning: Could not load data from {game_file}: {e}")
+        # Set game count to continue from the next game
+        self.game_count = start_game_number - 1
         
         # Initialize primary LLM client
         self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
@@ -675,6 +668,10 @@ class GameManager:
             gui = GameGUI()
             self.game.set_gui(gui)
         
+        # Mark this as a continuation in the game data
+        self.game.game_state.record_continuation()
+        print(Fore.GREEN + f"📝 Marked session as continuation ({self.game.game_state.continuation_count})")
+        
         print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
         print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
         print(Fore.GREEN + f"📊 Continuing from game {start_game_number}, with {self.total_score} total score so far")
@@ -683,4 +680,99 @@ class GameManager:
         self.run_game_loop()
         
         # Report final statistics
-        self.report_final_statistics() 
+        self.report_final_statistics()
+    
+    def read_existing_game_data(self, log_dir, start_game_number):
+        """Read existing game data from log_dir for games before start_game_number.
+        
+        Args:
+            log_dir: Directory containing game files
+            start_game_number: First game number to start from (1-indexed)
+            
+        Returns:
+            Tuple of (total_score, total_steps, game_scores, game_durations)
+        """
+        game_scores = []
+        total_score = 0
+        total_steps = 0
+        game_durations = []
+        empty_steps = 0
+        error_steps = 0
+        parser_usage_count = 0
+        
+        # Load existing game data
+        for game_num in range(1, start_game_number):
+            # Try both file naming conventions (game_{num}.json and game{num}.json)
+            game_files = [
+                os.path.join(log_dir, f"game_{game_num}.json"),
+                os.path.join(log_dir, f"game{game_num}.json")
+            ]
+            
+            game_file = None
+            for file in game_files:
+                if os.path.exists(file):
+                    game_file = file
+                    break
+                    
+            if game_file:
+                try:
+                    with open(game_file, 'r') as f:
+                        game_data = json.load(f)
+                        
+                        # Basic game stats
+                        score = game_data.get('score', 0)
+                        steps = game_data.get('steps', 0)
+                        game_scores.append(score)
+                        total_score += score
+                        total_steps += steps
+                        
+                        # Track step types if available
+                        if 'step_stats' in game_data:
+                            step_stats = game_data.get('step_stats', {})
+                            empty_steps += step_stats.get('empty_steps', 0)
+                            error_steps += step_stats.get('error_steps', 0)
+                        
+                        # Track parser usage
+                        parser_usage_count += game_data.get('parser_usage_count', 0)
+                        
+                        # Extract game duration
+                        if 'time_stats' in game_data:
+                            time_stats = game_data.get('time_stats', {})
+                            if 'active_duration_seconds' in time_stats:
+                                # Prefer active duration for continuations
+                                game_durations.append(time_stats.get('active_duration_seconds', 0))
+                            else:
+                                game_durations.append(time_stats.get('total_duration_seconds', 0))
+                except Exception as e:
+                    print(f"Warning: Could not load data from {game_file}: {e}")
+        
+        return total_score, total_steps, game_scores, game_durations, empty_steps, error_steps, parser_usage_count
+
+    @classmethod
+    def continue_from_directory(cls, args):
+        """Factory method to create a GameManager instance for continuation.
+        
+        Args:
+            args: Command-line arguments with continue_with_game_in_dir set
+            
+        Returns:
+            GameManager instance set up for continuation
+        """
+        from utils.file_utils import get_next_game_number, clean_prompt_files
+        from colorama import Fore
+        
+        log_dir = args.continue_with_game_in_dir
+        print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
+        
+        # Determine the next game number
+        next_game = get_next_game_number(log_dir)
+        print(Fore.GREEN + f"✅ Starting from game {next_game}")
+        
+        # Clean existing prompt and response files for games >= next_game
+        clean_prompt_files(log_dir, next_game)
+        
+        # Create and run the game manager with continuation settings
+        game_manager = cls(args)
+        game_manager.continue_from_session(log_dir, next_game)
+        
+        return game_manager 

@@ -67,6 +67,7 @@ def parse_arguments():
             raise ValueError(f"Missing 'prompts' directory in '{args.continue_with_game_in_dir}'")
 
         # Ensure no other arguments are provided
+        # Only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode
         raw_args = ' '.join(sys.argv[1:])
         disallowed_args = [
             "--provider",
@@ -77,7 +78,7 @@ def parse_arguments():
             "--move-pause",
             "--max-steps",
             "--max-empty-moves",
-        ]  # only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode
+        ]  
 
         for arg in disallowed_args:
             if arg in raw_args and not raw_args.startswith(f"--continue-with-game-in-dir {args.continue_with_game_in_dir}"):
@@ -134,18 +135,8 @@ def main():
         
         # Handle continuing from a previous session
         if args.continue_with_game_in_dir:
-            print(Fore.GREEN + f"🔄 Continuing from previous session in '{args.continue_with_game_in_dir}'")
-            
-            # Determine the next game number
-            next_game = get_next_game_number(args.continue_with_game_in_dir)
-            print(Fore.GREEN + f"✅ Starting from game {next_game}")
-            
-            # Clean existing prompt and response files for games >= next_game
-            clean_prompt_files(args.continue_with_game_in_dir, next_game)
-            
-            # Create and run the game manager with continuation settings
-            game_manager = GameManager(args)
-            game_manager.continue_from_session(args.continue_with_game_in_dir, next_game)
+            # Create and run the game manager with continuation
+            GameManager.continue_from_directory(args)
         else:
             # Create and run the game manager
             game_manager = GameManager(args)

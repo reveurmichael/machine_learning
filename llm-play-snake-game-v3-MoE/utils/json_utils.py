@@ -74,7 +74,7 @@ def save_experiment_info_json(args, directory):
         },
         "secondary_llm": {
             "provider": args.parser_provider if args.parser_provider else args.provider,
-            "model": args.parser_model if args.parser_model else 'Default model for parser provider'
+            "model": None if (args.parser_provider and args.parser_provider.lower() == "none") else (args.parser_model if args.parser_model else 'Default model for parser provider')
         },
         "game_configuration": {
             "max_steps_per_game": args.max_steps,

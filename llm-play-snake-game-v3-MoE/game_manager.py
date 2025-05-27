@@ -9,6 +9,7 @@ import pygame
 import traceback
 import json
 import sys
+import glob
 from datetime import datetime
 from colorama import Fore
 from core.game_logic import GameLogic
@@ -625,4 +626,93 @@ class GameManager:
                 total_steps=self.total_steps,
                 avg_steps=self.total_steps / max(1, self.game_count),
                 json_error_stats=get_json_error_stats()
-            ) 
+            )
+    
+    def continue_from_session(self, log_dir, start_game_number):
+        """Continue from a previous game session.
+        
+        Args:
+            log_dir: Path to the log directory to continue from
+            start_game_number: The game number to start from
+        """
+        # Set the log directory
+        self.log_dir = log_dir
+        self.prompts_dir = os.path.join(log_dir, "prompts")
+        self.responses_dir = os.path.join(log_dir, "responses")
+        
+        # Create responses directory if it doesn't exist
+        os.makedirs(self.responses_dir, exist_ok=True)
+        
+        # Reset JSON error statistics
+        reset_json_error_stats()
+        
+        # Load game scores and statistics from existing games
+        self.game_scores = []
+        self.total_score = 0
+        self.game_count = start_game_number - 1  # Start from the next game
+        
+        # Load existing game data
+        for game_num in range(1, start_game_number):
+            game_file = os.path.join(log_dir, f"game{game_num}.json")
+            if os.path.exists(game_file):
+                try:
+                    with open(game_file, 'r') as f:
+                        game_data = json.load(f)
+                        score = game_data.get('score', 0)
+                        steps = game_data.get('steps', 0)
+                        self.game_scores.append(score)
+                        self.total_score += score
+                        self.total_steps += steps
+                except Exception as e:
+                    print(Fore.YELLOW + f"⚠️ Warning: Could not load data from game{game_num}.json: {e}")
+        
+        # Initialize primary LLM client
+        self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
+        print(Fore.GREEN + f"✅ Using primary LLM provider: {self.args.provider}")
+        if self.args.model:
+            print(Fore.GREEN + f"✅ Using primary LLM model: {self.args.model}")
+        
+        # Configure secondary LLM (parser) if specified
+        if self.args.parser_provider and self.args.parser_provider.lower() != "none":
+            print(Fore.GREEN + f"✅ Using parser LLM provider: {self.args.parser_provider}")
+            parser_model = self.args.parser_model
+            print(Fore.GREEN + f"✅ Using parser LLM model: {parser_model}")
+            
+            # Set up the secondary LLM in the client
+            self.llm_client.set_secondary_llm(self.args.parser_provider, parser_model)
+            
+            # Perform health check for parser LLM
+            parser_healthy, _ = check_llm_health(
+                LLMClient(provider=self.args.parser_provider, model=parser_model)
+            )
+            if not parser_healthy:
+                print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
+                self.args.parser_provider = "none"
+                self.args.parser_model = None
+        else:
+            print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
+            self.args.parser_provider = "none"
+            self.args.parser_model = None
+        
+        # Initialize pygame if using GUI
+        if self.use_gui:
+            pygame.init()
+            pygame.font.init()
+        
+        # Set up the game
+        self.game = GameLogic(use_gui=self.use_gui)
+        
+        # Set up the GUI if needed
+        if self.use_gui:
+            gui = GameGUI()
+            self.game.set_gui(gui)
+        
+        print(Fore.GREEN + f"⏱️ Pause between moves: {PAUSE_BETWEEN_MOVES_SECONDS} seconds")
+        print(Fore.GREEN + f"⏱️ Maximum steps per game: {self.args.max_steps}")
+        print(Fore.GREEN + f"📊 Continuing from game {start_game_number}, with {self.total_score} total score so far")
+        
+        # Run the game loop
+        self.run_game_loop()
+        
+        # Report final statistics
+        self.report_final_statistics() 

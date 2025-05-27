@@ -76,6 +76,12 @@ This project implements a Mixture-of-Experts inspired approach where two special
 - `--max-steps`: Maximum steps a snake can take in a single game (default: 400)
 - `--sleep-before-launching`: Time to sleep (in minutes) before launching the program
 
+
+## Continue mode
+
+In continue mode, only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
+
+
 ## Project Structure
 
 The codebase is organized in a modular structure to ensure maintainability and separation of concerns:

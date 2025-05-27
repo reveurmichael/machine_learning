@@ -130,6 +130,9 @@ class GameController:
                (last_direction == "LEFT" and move == "RIGHT") or \
                (last_direction == "RIGHT" and move == "LEFT"):
                 print(f"Filtering out invalid reversal move: {move} after {last_direction}")
+                # Record invalid reversal in game state
+                if hasattr(self, 'game_state'):
+                    self.game_state.record_invalid_reversal(move, last_direction)
             else:
                 filtered_moves.append(move)
                 last_direction = move

@@ -14,44 +14,54 @@ class GameData:
     
     def __init__(self):
         """Initialize the game data tracking."""
+        self.reset()
+    
+    def reset(self):
+        """Reset all tracking data to initial state."""
         # Game metadata
-        self.game_number = 0
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Continuation tracking
+        self.game_number = 0
         self.is_continuation = False
         self.continuation_count = 0
         self.continuation_timestamps = []
         self.continuation_metadata = []
         
-        # Time tracking
+        # Game stats
+        self.score = 0
+        self.steps = 0
+        self.empty_steps = 0
+        self.error_steps = 0
+        self.invalid_reversals = 0  # New counter for invalid reversals
+        self.consecutive_empty_moves = 0
+        self.max_consecutive_empty_moves_reached = 0
+        
+        # Other tracking data
         self.start_time = time.time()
         self.end_time = None
+        self.rounds_data = {}
+        self.current_round = 0
+        self.current_round_data = self._create_empty_round_data()
+        self.apple_positions = []
+        self.round_count = 0
+        self.game_end_reason = None
+        self.last_move = None
+        self.last_action_time = None
+        
+        # Time tracking
         self.llm_communication_time = 0  # Total time spent communicating with LLMs
         self.game_movement_time = 0      # Time spent in actual game movement
         self.waiting_time = 0            # Time spent waiting (pauses, etc.)
         self.last_action_time = self.start_time  # For tracking time between actions
         
         # Basic game stats
-        self.score = 0
-        self.steps = 0
-        self.game_end_reason = None  # "WALL", "SELF", "MAX_STEPS", "EMPTY_MOVES"
         self.snake_length = 1
-        self.round_count = 0
         self.max_empty_moves = 3
-        self.last_move = None
         
         # Game history
-        self.apple_positions = []
         self.moves = []
-        self.rounds_data = {}
         
         # Step statistics
-        self.empty_steps = 0
-        self.error_steps = 0
         self.valid_steps = 0
-        self.consecutive_empty_moves = 0
-        self.max_consecutive_empty_moves_reached = 0
         
         # Response times
         self.primary_response_times = []
@@ -87,49 +97,9 @@ class GameData:
         
         # Parser usage
         self.parser_usage_count = 0
-        
-        # Current round data tracking
-        self.current_round_data = {
-            "apple_position": None,
-            "moves": [],
-            "primary_response_times": [],
-            "secondary_response_times": [],
-            "primary_token_stats": [],
-            "secondary_token_stats": []
-        }
-        self.current_round = 1
     
-    def reset(self):
-        """Reset the game data for a new game."""
-        # Reset time tracking for new game
-        self.start_time = time.time()
-        self.end_time = None
-        self.llm_communication_time = 0
-        self.game_movement_time = 0
-        self.waiting_time = 0
-        self.last_action_time = self.start_time
-        
-        self.score = 0
-        self.steps = 0
-        self.game_end_reason = None
-        self.snake_length = 1
-        self.round_count = 0
-        self.last_move = None
-        
-        # Reset game history for this game
-        self.apple_positions = []
-        self.moves = []
-        self.rounds_data = {}
-        
-        # Reset step statistics for this game
-        self.empty_steps = 0
-        self.error_steps = 0
-        self.valid_steps = 0
-        self.consecutive_empty_moves = 0
-        self.max_consecutive_empty_moves_reached = 0
-        
-        # Reset current round data
-        self.current_round_data = {
+    def _create_empty_round_data(self):
+        return {
             "apple_position": None,
             "moves": [],
             "primary_response_times": [],
@@ -137,9 +107,6 @@ class GameData:
             "primary_token_stats": [],
             "secondary_token_stats": []
         }
-        self.current_round = 1
-        
-        # Keep response times and token stats as they are cumulative
     
     def start_new_round(self, apple_position):
         """Start a new round of moves.
@@ -213,6 +180,26 @@ class GameData:
             self.max_consecutive_empty_moves_reached, 
             self.consecutive_empty_moves
         )
+    
+    def record_invalid_reversal(self, attempted_move, current_direction):
+        """Record an invalid reversal move.
+        
+        Args:
+            attempted_move: The direction that was attempted ("UP", "DOWN", etc.)
+            current_direction: The current direction of the snake
+        """
+        self.invalid_reversals += 1
+        
+        # Add to the current round data if we're tracking a round
+        if self.current_round_data:
+            if "invalid_reversals" not in self.current_round_data:
+                self.current_round_data["invalid_reversals"] = []
+            
+            self.current_round_data["invalid_reversals"].append({
+                "attempted_move": attempted_move,
+                "current_direction": current_direction,
+                "step": self.steps
+            })
     
     def record_error_move(self):
         """Record an error move (error in LLM response)."""
@@ -411,17 +398,13 @@ class GameData:
         Returns:
             Dictionary of step statistics
         """
-        empty_step_percentage = self.empty_steps / max(1, self.steps) * 100
-        error_step_percentage = self.error_steps / max(1, self.steps) * 100
-        valid_step_percentage = self.valid_steps / max(1, self.steps) * 100
-        
         return {
-            "empty_steps": self.empty_steps,
-            "empty_step_percentage": empty_step_percentage,
-            "error_steps": self.error_steps,
-            "error_step_percentage": error_step_percentage,
+            "total_steps": self.steps,
             "valid_steps": self.valid_steps,
-            "valid_step_percentage": valid_step_percentage,
+            "empty_steps": self.empty_steps,
+            "error_steps": self.error_steps,
+            "invalid_reversals": self.invalid_reversals,
+            "consecutive_empty_moves": self.consecutive_empty_moves,
             "max_consecutive_empty_moves": self.max_consecutive_empty_moves_reached
         }
     
@@ -692,7 +675,9 @@ class GameData:
                 "steps_per_game": self.steps / max(1, game_count),
                 "steps_per_apple": self.steps / max(1, total_score) if total_score > 0 else self.steps,
                 "apples_per_step": total_score / max(1, self.steps),
-                "valid_move_ratio": self.valid_steps / max(1, self.steps) * 100
+                "valid_move_ratio": self.valid_steps / max(1, self.steps) * 100,
+                "invalid_reversals": self.invalid_reversals,
+                "invalid_reversal_ratio": self.invalid_reversals / max(1, self.steps) * 100
             },
             "time_statistics": time_stats,
             "response_time_stats": {

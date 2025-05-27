@@ -190,7 +190,7 @@ Example Moves from (1,1):
 
 ## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
 
-The main objective of RESPONSE_1 is to generate a list of moves that leads the snake, whose head is now at TEXT_TO_BE_REPLACED_HEAD_POS and whose body cells are in list format TEXT_TO_BE_REPLACED_BODY_CELLS, to eat the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
+The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at TEXT_TO_BE_REPLACED_HEAD_POS and whose body cells are in list format TEXT_TO_BE_REPLACED_BODY_CELLS, to eat (or at least get close to) the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
 
 ## RULES:
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"

@@ -75,14 +75,19 @@ This project implements a Mixture-of-Experts inspired approach where two special
 - `--move-pause`: Pause between sequential moves in seconds
 - `--max-steps`: Maximum steps a snake can take in a single game (default: 400)
 - `--sleep-before-launching`: Time to sleep (in minutes) before launching the program
+- `--max-empty-moves`: Maximum consecutive empty moves before game over
+- `--no-gui`: Run without the graphical interface (text-only mode)
+- `--continue-with-game-in-dir`: Continue from a previous game session in the specified directory
 
-
-## Continue mode
+## Continue Mode
 
 For some reasons, you might want to pause an ongoing experiment, and then continue with the same game. 
 
 In continue mode, only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
 
+```
+python main.py --continue-with-game-in-dir ./results/my_experiment_directory
+```
 
 ## Project Structure
 
@@ -116,6 +121,15 @@ The codebase is organized in a modular structure to ensure maintainability and s
   - `game_manager.py`: Manages game sessions and statistics
   - `llm_client.py`: Client for communicating with LLMs
   - `config.py`: Configuration constants
+
+## Data Output
+
+The system generates structured output for each game session:
+
+- `game_N.json`: Contains complete data for game number N, including moves, statistics, and time metrics
+- `summary.json`: Contains aggregated statistics for the entire session
+- `prompts/`: Directory containing all prompts sent to the LLMs
+- `responses/`: Directory containing all responses received from the LLMs
 
 ## Game Termination Conditions
 

@@ -348,7 +348,6 @@ class GameManager:
         
         # Save game summary to JSON
         if self.log_dir:
-            # Use new file naming convention: game_N.json instead of gameN.json
             game_summary_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
             
             self.game.game_state.save_game_summary(

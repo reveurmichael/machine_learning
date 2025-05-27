@@ -192,16 +192,16 @@ def check_llm_health(llm_client, max_retries=2, retry_delay=2):
             
             # Check if we got a response that contains the expected text or something reasonable
             if response and isinstance(response, str) and len(response) > 5 and "ERROR" not in response:
-                print(Fore.GREEN + f"✅ {llm_client.provider} LLM health check passed!")
+                print(Fore.GREEN + f"✅ {llm_client.provider}/{llm_client.model} LLM health check passed!")
                 return True, response
             else:
-                print(Fore.YELLOW + f"⚠️ {llm_client.provider} LLM returned an unusual response: {response}")
+                print(Fore.YELLOW + f"⚠️ {llm_client.provider}/{llm_client.model} LLM returned an unusual response: {response}")
                 
                 if attempt < max_retries - 1:
                     print(f"Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
         except Exception as e:
-            error_msg = f"Error connecting to {llm_client.provider} LLM: {str(e)}"
+            error_msg = f"Error connecting to {llm_client.provider}/{llm_client.model} LLM: {str(e)}"
             print(Fore.RED + f"❌ {error_msg}")
             traceback.print_exc()
             
@@ -209,7 +209,7 @@ def check_llm_health(llm_client, max_retries=2, retry_delay=2):
                 print(f"Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
     
-    return False, f"Failed to get a valid response from {llm_client.provider} LLM after {max_retries} attempts"
+    return False, f"Failed to get a valid response from {llm_client.provider}/{llm_client.model} LLM after {max_retries} attempts"
 
 def parse_llm_response(response, processed_response_func, game_instance):
     """Parse the LLM's response to extract multiple sequential moves.

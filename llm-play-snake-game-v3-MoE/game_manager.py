@@ -37,6 +37,10 @@ from utils import (
 )
 
 from utils.llm_utils import handle_llm_response, check_llm_health, parse_and_format
+from utils.game_manager_utils import check_max_steps as utils_check_max_steps
+from utils.game_manager_utils import process_game_over as utils_process_game_over
+from utils.game_manager_utils import handle_error as utils_handle_error
+from utils.game_manager_utils import report_final_statistics as utils_report_final_statistics
 
 
 class GameManager:
@@ -94,11 +98,19 @@ class GameManager:
         # Reset JSON error statistics
         reset_json_error_stats()
         
-        # Initialize primary LLM client for health check
+        # Initialize primary LLM client
         self.llm_client = LLMClient(provider=self.args.provider, model=self.args.model)
         print(Fore.GREEN + f"Using primary LLM provider: {self.args.provider}")
         if self.args.model:
             print(Fore.GREEN + f"Using primary LLM model: {self.args.model}")
+        
+        # Perform health check for primary LLM
+        primary_healthy, primary_response = check_llm_health(self.llm_client)
+        if not primary_healthy:
+            print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
+            sys.exit(1)
+        else:
+            print(Fore.GREEN + f"✅ Primary LLM health check passed!")
             
         # Configure secondary LLM (parser) if specified
         if self.args.parser_provider and self.args.parser_provider.lower() != "none":
@@ -312,64 +324,48 @@ class GameManager:
         return head_pos, apple_pos, body_cells_str
     
     def check_max_steps(self):
-        """Check if the game has reached the maximum number of steps.
+        """Check if the maximum number of steps has been reached.
         
         Returns:
             Boolean indicating if max steps has been reached
         """
-        # Use the utility function from utils
-        return check_max_steps(self.game, self.args.max_steps)
+        return utils_check_max_steps(self.game, self.args.max_steps)
     
     def process_game_over(self, next_move=None):
-        """Process the end of a game.
+        """Process game over state and prepare for the next game.
         
         Args:
-            next_move: The last move made
+            next_move: The next move to make (or None)
+        
+        Returns:
+            Boolean indicating if game is active
         """
-        print(Fore.YELLOW + f"🏁 Game over! (Game {self.game_count+1})")
-        print(Fore.YELLOW + f"🍎 Final score: {self.game.score}")
-        print(Fore.YELLOW + f"🐍 Snake length: {self.game.snake_length}")
-        print(Fore.YELLOW + f"⏱️ Steps: {self.game.steps}")
-        
-        # Get the reason the game ended
-        reason = self.game.game_state.game_end_reason or "ERROR"
-        
-        if reason == "WALL":
-            print(Fore.RED + "💥 Game over! Snake hit the wall.")
-        elif reason == "SELF":
-            print(Fore.RED + "💥 Game over! Snake hit itself.")
-        elif reason == "MAX_STEPS":
-            print(Fore.RED + "⏱️ Game over! Maximum steps reached.")
-        elif reason == "EMPTY_MOVES":
-            print(Fore.RED + "⏱️ Game over! Too many consecutive empty moves.")
-        else:
-            print(Fore.RED + f"❌ Game over! Reason: {reason}")
-        
-        # Update statistics
-        self.game_count += 1
-        self.total_score += self.game.score
-        self.game_scores.append(self.game.score)
-        
-        # Save game summary to JSON
-        if self.log_dir:
-            game_summary_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-            
-            self.game.game_state.save_game_summary(
-                game_summary_file,
-                self.args.provider,
-                self.args.model,
-                self.args.parser_provider,
-                self.args.parser_model
-            )
-            print(Fore.GREEN + f"📝 Game summary saved to {game_summary_file}")
+        # Call the utility function
+        self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count = utils_process_game_over(
+            self.game,
+            self.game_active,
+            self.game_count,
+            self.total_score,
+            self.total_steps,
+            self.game_scores,
+            self.round_count,
+            self.args,
+            self.log_dir,
+            self.current_game_moves,
+            next_move
+        )
         
         # Reset for next game
-        self.game.reset()
-        self.consecutive_empty_steps = 0
-        self.current_game_moves = []
-        self.round_count = 0
-        self.parser_usage_count = 0
         self.need_new_plan = True
+        self.game_active = False
+        self.current_game_moves = []
+        
+        # Reset the game
+        self.game.reset()
+        self.consecutive_empty_steps = 0  # Reset on new game
+        
+        # Return game active status
+        return False
     
     def handle_error(self, error):
         """Handle errors that occur during the game loop.
@@ -378,8 +374,7 @@ class GameManager:
             error: The exception that occurred
         """
         # Use the utility function from utils
-        from utils.game_manager_utils import handle_error
-        self.game_active, self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count, self.previous_parser_usage = handle_error(
+        self.game_active, self.game_count, self.total_score, self.total_steps, self.game_scores, self.round_count, self.previous_parser_usage = utils_handle_error(
             self.game, self.game_active, self.game_count, self.total_score, self.total_steps, 
             self.game_scores, self.round_count, self.parser_usage_count, self.previous_parser_usage, 
             self.log_dir, self.args, self.current_game_moves, error
@@ -410,7 +405,8 @@ class GameManager:
         aggregated_stats["game_configuration"] = {
             "max_steps_per_game": self.args.max_steps,
             "max_consecutive_empty_moves": self.args.max_empty_moves,
-            "max_games": self.args.max_games
+            "max_games": self.args.max_games,
+            "use_gui": self.use_gui
         }
         
         # Add LLM usage stats
@@ -441,27 +437,18 @@ class GameManager:
             json_error_stats=get_json_error_stats()
         )
         
-        # Print summary to console
-        print(Fore.YELLOW + "\n📊 Final Statistics:")
-        print(f"Games Played: {self.game_count}")
-        print(f"Total Score: {self.total_score}")
-        print(f"Average Score: {aggregated_stats['game_statistics']['mean_score']:.2f}")
-        print(f"Best Score: {aggregated_stats['game_statistics']['max_score']}")
-        print(f"Steps per Apple: {aggregated_stats['game_statistics']['steps_per_apple']:.2f}")
-        print(f"Total Steps: {self.total_steps}")
-        
-        # Avoid division by zero
-        if self.total_steps > 0:
-            empty_steps_percent = (self.empty_steps / self.total_steps * 100)
-            error_steps_percent = (self.error_steps / self.total_steps * 100)
-        else:
-            empty_steps_percent = 0
-            error_steps_percent = 0
-        
-        print(f"Empty Steps: {self.empty_steps} ({empty_steps_percent:.2f}%)")
-        print(f"Error Steps: {self.error_steps} ({error_steps_percent:.2f}%)")
-        
-        print(Fore.GREEN + "\n✅ Experiment completed successfully.")
+        # Use the utility function to report statistics to console
+        utils_report_final_statistics(
+            self.log_dir,
+            self.game_count,
+            self.total_score,
+            self.total_steps,
+            self.parser_usage_count,
+            self.game_scores,
+            self.empty_steps,
+            self.error_steps,
+            self.args.max_empty_moves
+        )
     
     def run_game_loop(self):
         """Run the main game loop."""
@@ -632,6 +619,14 @@ class GameManager:
         print(Fore.GREEN + f"Using primary LLM provider: {self.args.provider}")
         if self.args.model:
             print(Fore.GREEN + f"Using primary LLM model: {self.args.model}")
+        
+        # Perform health check for primary LLM
+        primary_healthy, primary_response = check_llm_health(self.llm_client)
+        if not primary_healthy:
+            print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
+            sys.exit(1)
+        else:
+            print(Fore.GREEN + f"✅ Primary LLM health check passed!")
         
         # Configure secondary LLM (parser) if specified
         if self.args.parser_provider and self.args.parser_provider.lower() != "none":

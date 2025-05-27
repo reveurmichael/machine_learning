@@ -157,6 +157,13 @@ The snake game will terminate under any of the following conditions:
 After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.
 
 
+## How this project resembles a real research project
+
+logging into json files: very comprehensive.
+
+continue mode: it's like checkpoint. 
+
+
 ## What's missing, if this were a real research project
 
 Launching the application can be in a more "script" way and often parallelized, instead of using command line arguments. 

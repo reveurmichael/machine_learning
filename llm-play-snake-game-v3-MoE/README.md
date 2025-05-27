@@ -151,3 +151,6 @@ The snake game will terminate under any of the following conditions:
 After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.
 
 
+## What's missing
+
+Logging system with log files.

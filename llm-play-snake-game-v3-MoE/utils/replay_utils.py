@@ -38,16 +38,9 @@ def check_game_summary_for_moves(log_dir, game_number):
     Returns:
         Boolean indicating if the game has moves
     """
-    # Support both old and new filename formats
-    new_format_file = os.path.join(log_dir, f"game_{game_number}.json")
-    old_format_file = os.path.join(log_dir, f"game{game_number}.json")
+    json_summary_file = os.path.join(log_dir, f"game_{game_number}.json")
     
-    # Use the file that exists (prefer new format)
-    if os.path.exists(new_format_file):
-        json_summary_file = new_format_file
-    elif os.path.exists(old_format_file):
-        json_summary_file = old_format_file
-    else:
+    if not os.path.exists(json_summary_file):
         return False
     
     try:
@@ -70,17 +63,9 @@ def extract_apple_positions(log_dir, game_number):
         List of apple positions or None if not found
     """
     log_dir_path = Path(log_dir)
+    json_summary_file = log_dir_path / f"game_{game_number}.json"
     
-    # Support both old and new filename formats
-    new_format_file = log_dir_path / f"game_{game_number}.json"
-    old_format_file = log_dir_path / f"game{game_number}.json"
-    
-    # Use the file that exists (prefer new format)
-    if new_format_file.exists():
-        json_summary_file = new_format_file
-    elif old_format_file.exists():
-        json_summary_file = old_format_file
-    else:
+    if not json_summary_file.exists():
         return None
     
     try:
@@ -91,7 +76,7 @@ def extract_apple_positions(log_dir, game_number):
         if 'apple_positions' in data and isinstance(data['apple_positions'], list):
             return data['apple_positions']
         
-        # Check in detailed history for backward compatibility
+        # Check in detailed history
         if ('detailed_history' in data and 
             'apple_positions' in data['detailed_history'] and 
             isinstance(data['detailed_history']['apple_positions'], list)):

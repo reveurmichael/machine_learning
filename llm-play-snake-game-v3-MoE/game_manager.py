@@ -617,11 +617,7 @@ class GameManager:
         # Load existing game data
         game_durations = []
         for game_num in range(1, start_game_number):
-            # Support both old (gameN.json) and new (game_N.json) file naming conventions
-            old_game_file = os.path.join(log_dir, f"game{game_num}.json")
-            new_game_file = os.path.join(log_dir, f"game_{game_num}.json")
-            
-            game_file = new_game_file if os.path.exists(new_game_file) else old_game_file
+            game_file = os.path.join(log_dir, f"game_{game_num}.json")
             
             if os.path.exists(game_file):
                 try:
@@ -633,7 +629,7 @@ class GameManager:
                         self.total_score += score
                         self.total_steps += steps
                         
-                        # Extract game duration if available in the new format
+                        # Extract game duration
                         if 'time_stats' in game_data:
                             game_durations.append(game_data['time_stats'].get('total_duration_seconds', 0))
                 except Exception as e:

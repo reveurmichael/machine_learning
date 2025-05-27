@@ -87,16 +87,11 @@ class ReplayEngine(GameController):
         Returns:
             Game data dictionary or None if loading failed
         """
-        # Support both old and new filename formats
-        new_format_file = os.path.join(self.log_dir, f"game_{game_number}.json")
-        old_format_file = os.path.join(self.log_dir, f"game{game_number}.json")
+        # Build the path to the game data file
+        summary_file = os.path.join(self.log_dir, f"game_{game_number}.json")
         
-        # Check which file exists (prefer new format)
-        if os.path.exists(new_format_file):
-            summary_file = new_format_file
-        elif os.path.exists(old_format_file):
-            summary_file = old_format_file
-        else:
+        # Check if the file exists
+        if not os.path.exists(summary_file):
             print(f"Game {game_number} data not found")
             return None
         
@@ -105,19 +100,19 @@ class ReplayEngine(GameController):
                 game_data = json.load(f)
             
             # Get apple positions
-            if 'detailed_history' in game_data and 'apple_positions' in game_data['detailed_history']:
-                self.apple_positions = game_data['detailed_history']['apple_positions']
-            elif 'apple_positions' in game_data:
+            if 'apple_positions' in game_data:
                 self.apple_positions = game_data['apple_positions']
+            elif 'detailed_history' in game_data and 'apple_positions' in game_data['detailed_history']:
+                self.apple_positions = game_data['detailed_history']['apple_positions']
             else:
                 print("No apple positions found in game data")
                 return None
             
             # Get moves
-            if 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
-                self.moves = game_data['detailed_history']['moves']
-            elif 'moves' in game_data:
+            if 'moves' in game_data:
                 self.moves = game_data['moves']
+            elif 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
+                self.moves = game_data['detailed_history']['moves']
             else:
                 print("No moves found in game data")
                 return None

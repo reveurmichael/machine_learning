@@ -90,6 +90,7 @@ def save_experiment_info_json(args, directory):
         "game_configuration": {
             "max_steps_per_game": args.max_steps,
             "max_consecutive_empty_moves": args.max_empty_moves,
+            "max_consecutive_errors_allowed": args.max_consecutive_errors_allowed,
             "max_games": args.max_games,
             "use_gui": not args.no_gui
         }

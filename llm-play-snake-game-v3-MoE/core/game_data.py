@@ -567,7 +567,7 @@ class GameData:
             "other_percent": other_percent
         }
     
-    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model):
+    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
         """Generate a summary of the game.
         
         Args:
@@ -575,6 +575,7 @@ class GameData:
             primary_model: The model of the primary LLM
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
+            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
             
         Returns:
             Dictionary with game summary
@@ -614,6 +615,7 @@ class GameData:
                 "last_move": self.last_move,
                 "round_count": self.round_count,
                 "max_empty_moves": self.max_empty_moves,
+                "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
                 "parser_usage_count": self.parser_usage_count
             },
             
@@ -760,7 +762,7 @@ class GameData:
             
         return summary
     
-    def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model):
+    def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
         """Save the game summary to a JSON file.
         
         Args:
@@ -769,11 +771,12 @@ class GameData:
             primary_model: The model of the primary LLM
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
+            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
             
         Returns:
             Path to the saved file
         """
-        summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model)
+        summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
         
         with open(filepath, 'w') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)

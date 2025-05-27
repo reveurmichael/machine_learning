@@ -167,7 +167,8 @@ class GameManager:
             self.game_scores,
             self.empty_steps,
             self.error_steps,
-            self.args.max_empty_moves
+            self.args.max_empty_moves,
+            self.args.max_consecutive_errors_allowed
         )
     
     def run(self):

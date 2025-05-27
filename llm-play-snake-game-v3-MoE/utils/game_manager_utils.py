@@ -70,7 +70,8 @@ def process_game_over(game, game_active, game_count, total_score, total_steps, g
         args.provider, 
         args.model or f"default_{args.provider}",
         args.parser_provider or args.provider,
-        args.parser_model
+        args.parser_model,
+        args.max_consecutive_errors_allowed
     )
     
     return game_count, total_score, total_steps, game_scores, round_count
@@ -107,7 +108,7 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
     consecutive_errors += 1
     
     # End the current game if consecutive errors exceed threshold or if this is a critical error
-    if game_active and (consecutive_errors >= args.max_consecutive_errors_allowed):
+    if game_active and (consecutive_errors > args.max_consecutive_errors_allowed):
         game_active = False
         game_count += 1
         print(Fore.RED + f"❌ Game aborted due to {consecutive_errors} consecutive errors! Maximum allowed: {args.max_consecutive_errors_allowed}")
@@ -133,7 +134,8 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
             args.provider, 
             args.model or f"default_{args.provider}",
             args.parser_provider or args.provider,
-            args.parser_model
+            args.parser_model,
+            args.max_consecutive_errors_allowed
         )
         print(Fore.GREEN + f"📝 Game summary saved to {json_path}")
         

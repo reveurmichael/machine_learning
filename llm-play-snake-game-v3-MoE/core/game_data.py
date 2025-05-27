@@ -7,17 +7,7 @@ import json
 import time
 from datetime import datetime
 import numpy as np
-
-class NumPyJSONEncoder(json.JSONEncoder):
-    """Custom JSON encoder to handle NumPy types."""
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super().default(obj)
+from utils.json_utils import NumPyJSONEncoder
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""

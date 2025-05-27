@@ -8,7 +8,6 @@ import json
 import re
 import numpy as np
 from datetime import datetime
-from core.game_data import NumPyJSONEncoder
 
 # Custom JSON encoder to handle numpy types
 class NumpyEncoder(json.JSONEncoder):
@@ -20,6 +19,18 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
+
+# NumPyJSONEncoder moved from core/game_data.py to fix circular imports
+class NumPyJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle NumPy types."""
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
 
 # Global counter for JSON extraction errors
 json_error_stats = {

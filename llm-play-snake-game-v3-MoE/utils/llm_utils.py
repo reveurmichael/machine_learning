@@ -108,53 +108,34 @@ def format_body_cells_str(body_positions):
     return "[" + ", ".join(body_cells) + "]"
 
 def parse_and_format(llm_client, llm_response, game_state=None, head_pos=None, apple_pos=None, body_cells=None):
-    """Parse the output from the primary LLM and convert it to the required JSON format.
+    """Parse an LLM response and format it for use by the game.
     
     Args:
-        llm_client: The LLM client to use for secondary LLM
-        llm_response: The raw response from the primary LLM
-        game_state: Optional game state object
-        head_pos: Optional head position string in format "(x, y)"
-        apple_pos: Optional apple position string in format "(x, y)"
-        body_cells: Optional body cells string in format "[(x1, y1), (x2, y2), ...]"
+        llm_client: LLM client used to generate the response
+        llm_response: Raw response from the LLM
+        game_state: Optional GameData instance to track statistics
+        head_pos: Current head position [x, y]
+        apple_pos: Current apple position [x, y]
+        body_cells: List of body cell positions [[x1, y1], [x2, y2], ...]
         
     Returns:
-        Properly formatted JSON response as a dictionary
+        Dictionary with parsed data or None if parsing failed
     """
-    # Check if the primary LLM response contains valid JSON (for logging purposes only)
-    first_json_valid = False
-    json_data = extract_valid_json(llm_response)
-    if json_data and validate_json_format(json_data):
-        first_json_valid = True
-        print("Primary LLM response contains valid JSON, but will still use secondary LLM for consistency")
+    from utils.json_utils import extract_valid_json
     
-    # Create the prompt for the secondary LLM
-    parser_prompt = create_parser_prompt(llm_response, head_pos, apple_pos, body_cells)
-    
-    # Get response from the secondary LLM
-    print("Using secondary LLM to parse and format response")
-    formatted_response = llm_client.generate_text_with_secondary_llm(parser_prompt)
-    
-    # If game_state is provided, record parser usage
-    if game_state:
-        game_state.record_parser_usage()
-    
-    # Store the raw response for later saving
-    raw_secondary_response = formatted_response
-    
-    # Extract JSON from the secondary LLM's response
-    json_data = extract_valid_json(formatted_response)
-    
-    # If we don't have valid JSON from the secondary LLM, create a fallback response
-    if not json_data or not validate_json_format(json_data):
-        print("Warning: Secondary LLM failed to generate valid JSON, using fallback")
-        fallback_data = {
-            "moves": [],
-            "reasoning": "ERROR: Could not generate valid moves from LLM response"
-        }
-        return fallback_data
+    try:
+        # First try direct parsing as is
+        parsed_data = extract_valid_json(llm_response, game_state)
         
-    return json_data
+        if parsed_data and "moves" in parsed_data:
+            # If the parsed data includes a 'moves' field, we're good
+            return parsed_data
+        
+        # No valid data found with direct parsing
+        return None
+    except Exception as e:
+        print(f"Error parsing LLM response: {e}")
+        return None
 
 def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells=None):
     """Create a prompt for the secondary LLM to parse the output of the primary LLM.
@@ -252,7 +233,7 @@ def parse_llm_response(response, processed_response_func, game_instance):
         # Parse JSON from the response
         try:
             # Try to extract JSON from the response
-            json_data = extract_valid_json(response)
+            json_data = extract_valid_json(response, game_instance.game_state)
             
             # If we couldn't extract JSON, try looking for code blocks
             if not json_data:
@@ -316,16 +297,16 @@ def parse_llm_response(response, processed_response_func, game_instance):
         return None
 
 def handle_llm_response(llm_client, response, parser_input=None, game_state=None):
-    """Handle LLM response and process it for game use.
+    """Handle a response from an LLM, extracting and processing moves.
     
     Args:
-        llm_client: The LLM client
-        response: Text response from the LLM
-        parser_input: Tuple of (head_pos, apple_pos, body_cells) for parser
-        game_state: The game state object for recording stats
+        llm_client: LLM client used to generate the response
+        response: Raw response from the LLM
+        parser_input: Optional tuple of (head_pos, apple_pos, body_cells) for parsing
+        game_state: Optional GameData instance to track statistics
         
     Returns:
-        Parsed output from the LLM
+        Parsed JSON data with moves, or None if parsing failed
     """
     # Unpack parser input if provided
     head_pos, apple_pos, body_cells = parser_input if parser_input else (None, None, None)

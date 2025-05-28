@@ -1,6 +1,6 @@
 """
 Core game loop module for the Snake game.
-Handles the main game loop and interactions with the LLM.
+Handles the main game execution logic and LLM interactions.
 """
 
 import time
@@ -13,125 +13,141 @@ from utils.llm_utils import get_llm_response
 def run_game_loop(game_manager):
     """Run the main game loop.
     
+    Executes the core game logic including:
+    - Processing user input events
+    - Getting moves from the LLM
+    - Executing moves with appropriate timing
+    - Handling game state transitions
+    
     Args:
-        game_manager: The GameManager instance
+        game_manager: The GameManager instance controlling the game session
     """
     try:
         while game_manager.running and game_manager.game_count < game_manager.args.max_games:
-            # Handle events
+            # Process player input and system events
             process_events(game_manager)
             
             if game_manager.game_active:
                 try:
-                    # Start tracking game movement time
+                    # Start tracking game movement time for analytics
                     game_manager.game.game_state.record_game_movement_start()
                     
-                    # Check if we need a new plan
+                    # Check if we need a new plan from the LLM
                     if game_manager.need_new_plan:
                         # Get the next move from the LLM
                         next_move, game_manager.game_active = get_llm_response(game_manager)
                         
-                        # We now have a new plan, so don't request another one until we need it
+                        # Set flag to avoid requesting another plan until needed
                         game_manager.need_new_plan = False
                         
-                        # Check if we've reached max steps
+                        # Check if maximum steps limit has been reached
                         if check_max_steps(game_manager.game, game_manager.args.max_steps):
                             game_manager.game_active = False
                             game_manager.game.game_state.record_game_end("MAX_STEPS")
-                        # Only execute the move if we got a valid direction and game is still active
+                        # Execute the move if valid and game is still active
                         elif next_move and game_manager.game_active:
-                            # Execute the move and check if game continues
-                            game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
-                            
-                            # Make sure UI is updated with current game state
+                            # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
-                            # Reset consecutive errors counter on successful move
+                            # Delay to let user see LLM response before snake moves
+                            game_manager.game.game_state.record_waiting_start()
+                            time.sleep(2.0)  # User-friendly delay for reading LLM plans
+                            game_manager.game.game_state.record_waiting_end()
+                            
+                            # Execute the move
+                            game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            
+                            # Update UI to show the new state after move
+                            game_manager.game.draw()
+                            
+                            # Reset error tracking on successful move
                             game_manager.consecutive_errors = 0
                             
-                            # Add a pause between the first move after getting a new plan
-                            # This ensures the snake doesn't move too quickly after receiving an LLM response
-                            # Track waiting time for this pause
+                            # Standard pause between moves for gameplay rhythm
                             game_manager.game.game_state.record_waiting_start()
                             time.sleep(game_manager.get_pause_between_moves())
                             game_manager.game.game_state.record_waiting_end()
                         else:
-                            # No valid move found, but we still count this as a round
+                            # Handle the case where no valid move was found
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
-                            # No movement, so the game remains active and no apple is eaten
+                            
+                            # Update stats for empty move
                             game_manager.game.steps += 1
                             game_manager.total_steps += 1
                             game_manager.game.game_state.record_empty_move()
                             
-                            # Record this empty move in the moves history for replay
+                            # Record for replay and analysis
                             game_manager.current_game_moves.append("EMPTY")
                             game_manager.game.game_state.moves.append("EMPTY")
                             
-                            # Increment consecutive empty steps
+                            # Track consecutive empty moves
                             game_manager.consecutive_empty_steps += 1
                             print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")
                             
-                            # Check if we've reached max empty moves
+                            # End game if too many consecutive empty moves
                             if game_manager.consecutive_empty_steps >= game_manager.args.max_empty_moves:
                                 print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves}). Game over.")
                                 game_manager.game_active = False
                                 game_manager.game.last_collision_type = 'empty_moves'
                                 game_manager.game.game_state.record_game_end("EMPTY_MOVES")
                         
-                        # End tracking game movement time
+                        # End movement time tracking
                         game_manager.game.game_state.record_game_movement_end()
                         
-                        # Increment round count
+                        # Update round counter
                         game_manager.round_count += 1
                     else:
-                        # Get the next move from the existing plan
+                        # Execute the next move from previously planned moves
                         next_move = game_manager.game.get_next_planned_move()
                         
-                        # If we have a move, execute it
                         if next_move:
                             print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count+1})")
                             
-                            # Record the move
+                            # Record move for logging and replay
                             game_manager.current_game_moves.append(next_move)
                             
-                            # Check if we've reached max steps
+                            # Check max steps limit
                             if check_max_steps(game_manager.game, game_manager.args.max_steps):
                                 game_manager.game_active = False
                                 game_manager.game.game_state.record_game_end("MAX_STEPS")
                             else:
-                                # Execute the move and check if game continues
+                                # Update UI before executing the move
+                                game_manager.game.draw()
+                                
+                                # Delay to let user see which planned move will be executed
+                                game_manager.game.game_state.record_waiting_start()
+                                time.sleep(2.0)  # User-friendly delay for move visibility
+                                game_manager.game.game_state.record_waiting_end()
+                                
+                                # Execute the move
                                 game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                                 
-                                # Make sure UI is updated with current game state and planned moves
+                                # Update UI after the move
                                 game_manager.game.draw()
                             
-                            # Reset consecutive errors counter on successful move
+                            # Reset error tracking on successful move
                             game_manager.consecutive_errors = 0
                             
-                            # If we've eaten an apple, request a new plan
+                            # Request new plan if apple was eaten
                             if apple_eaten:
                                 print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
                                 game_manager.need_new_plan = True
                             
-                            # Increment round count
+                            # Update round counter
                             game_manager.round_count += 1
                             
-                            # End tracking game movement time
+                            # End movement time tracking
                             game_manager.game.game_state.record_game_movement_end()
                             
-                            # Start tracking waiting time (for pause between moves)
+                            # Standard pause between moves
                             game_manager.game.game_state.record_waiting_start()
-                            
-                            # Pause between moves for visualization
                             time.sleep(game_manager.get_pause_between_moves())
-                            
-                            # End tracking waiting time
                             game_manager.game.game_state.record_waiting_end()
                         else:
-                            # No more planned moves, request a new plan
+                            # No more planned moves available, request new plan
                             game_manager.need_new_plan = True
                     
-                    # Check if game is over
+                    # Handle game over state
                     if not game_manager.game_active:
                         game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count = process_game_over(
                             game_manager.game,
@@ -152,15 +168,16 @@ def run_game_loop(game_manager):
                         game_manager.game_active = True
                         game_manager.current_game_moves = []
                         
-                        # Reset the game
+                        # Reset game state and counters
                         game_manager.game.reset()
-                        game_manager.consecutive_empty_steps = 0  # Reset on new game
-                        game_manager.consecutive_errors = 0  # Reset on new game
+                        game_manager.consecutive_empty_steps = 0
+                        game_manager.consecutive_errors = 0
                     
-                    # Draw the current state
+                    # Ensure UI is updated
                     game_manager.game.draw()
                     
                 except Exception as e:
+                    # Handle errors during gameplay
                     game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors = handle_error(
                         game_manager.game, 
                         game_manager.game_active,
@@ -175,24 +192,24 @@ def run_game_loop(game_manager):
                         game_manager.args,
                         game_manager.current_game_moves,
                         e,
-                        game_manager.consecutive_errors  # Pass the consecutive errors counter
+                        game_manager.consecutive_errors
                     )
                     
-                    # Prepare for next game if we haven't reached the limit
+                    # Prepare for next game if not at limit
                     if game_manager.game_count < game_manager.args.max_games and not game_manager.game_active:
-                        pygame.time.delay(1000)  # Wait 1 second
+                        pygame.time.delay(1000)  # Brief pause for user visibility
                         game_manager.game.reset()
                         game_manager.game_active = True
                         game_manager.need_new_plan = True
-                        game_manager.current_game_moves = []  # Reset moves for next game
-                        game_manager.consecutive_errors = 0  # Reset on new game
+                        game_manager.current_game_moves = []
+                        game_manager.consecutive_errors = 0
                         print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
             
-            # Control game speed
+            # Control frame rate
             pygame.time.delay(game_manager.time_delay)
             game_manager.clock.tick(game_manager.time_tick)
         
-        # Report final statistics
+        # Report final statistics at end of session
         from utils.game_manager_utils import report_final_statistics
         report_final_statistics(
             game_manager.log_dir,
@@ -211,5 +228,5 @@ def run_game_loop(game_manager):
         print(Fore.RED + f"Fatal error: {e}")
         traceback.print_exc()
     finally:
-        # Clean up
+        # Ensure pygame is properly shut down
         pygame.quit() 

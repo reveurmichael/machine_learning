@@ -43,10 +43,10 @@ class GameData:
         self.start_time = time.time()
         self.end_time = None
         self.rounds_data = {}
-        self.current_round = 0
+        self.current_round = 1  # Use 1-based indexing for rounds (was 0)
         self.current_round_data = self._create_empty_round_data()
         self.apple_positions = []
-        self.round_count = 0  # Will be properly incremented in start_new_round and record_move
+        self.round_count = 1  # Start from 1 instead of 0
         self.game_end_reason = None
         self.last_move = None
         self.last_action_time = None
@@ -89,7 +89,7 @@ class GameData:
         self.format_validation_errors = 0
         self.code_block_extraction_errors = 0
         self.text_extraction_errors = 0
-        self.fallback_extraction_success = 0
+        self.pattern_extraction_success = 0
         
         # Parser usage
         self.parser_usage_count = 0
@@ -114,6 +114,8 @@ class GameData:
         if self.current_round_data["moves"]:
             self.rounds_data[f"round_{self.current_round}"] = self.current_round_data.copy()
             self.current_round += 1
+            # Also update round_count to keep it in sync
+            self.round_count = self.current_round
         
         # Reset current round data
         self.current_round_data = {
@@ -146,6 +148,8 @@ class GameData:
             # Save the current round data
             self.rounds_data[f"round_{self.current_round}"] = self.current_round_data.copy()
             self.current_round += 1
+            # Also update round_count to keep it in sync
+            self.round_count = self.current_round
             
             # Reset for next round
             self.current_round_data = {
@@ -342,9 +346,9 @@ class GameData:
             elif error_type == "text":
                 self.text_extraction_errors += 1
     
-    def record_fallback_extraction_success(self):
-        """Record a successful fallback extraction."""
-        self.fallback_extraction_success += 1
+    def record_pattern_extraction_success(self):
+        """Record a successful pattern-based extraction."""
+        self.pattern_extraction_success += 1
     
     def record_round_data(self, round_number, apple_position, moves, 
                          primary_response_time=None, secondary_response_time=None,
@@ -510,7 +514,7 @@ class GameData:
             "format_validation_errors": self.format_validation_errors,
             "code_block_extraction_errors": self.code_block_extraction_errors,
             "text_extraction_errors": self.text_extraction_errors,
-            "fallback_extraction_success": self.fallback_extraction_success
+            "pattern_extraction_success": self.pattern_extraction_success
         }
     
     def get_time_stats(self):

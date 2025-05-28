@@ -1,49 +1,40 @@
 """
 Game manager module for the Snake game.
-Handles game session management, initialization, and statistics reporting.
+Handles game session management, initialization, and statistics tracking.
 """
 
 import os
 import time
 import pygame
-import traceback
-import json
-import sys
-import glob
-from datetime import datetime
 from colorama import Fore
+from datetime import datetime
+
+# Core game components
 from core.game_logic import GameLogic
+from core.game_loop import run_game_loop
 from gui.game_gui import GameGUI
 from llm_client import LLMClient
 from config import TIME_DELAY, TIME_TICK, PAUSE_BETWEEN_MOVES_SECONDS
-from utils import (
-    # Log utilities
-    save_to_file,
-    format_raw_llm_response,
-    format_parsed_llm_response,
-    generate_game_summary_json,
-    
-    # JSON utilities
-    get_json_error_stats,
-    reset_json_error_stats,
-    save_experiment_info_json,
-    update_experiment_info_json,
-    
-    # Game management utilities
+
+# Utils imports - organized by functionality
+from utils.file_utils import save_to_file
+from utils.log_utils import format_raw_llm_response, format_parsed_llm_response, generate_game_summary_json
+from utils.json_utils import get_json_error_stats, reset_json_error_stats, save_experiment_info_json, update_experiment_info_json
+from utils.game_manager_utils import (
     check_max_steps,
     process_game_over,
     handle_error,
-    report_final_statistics
+    report_final_statistics,
+    initialize_game_manager,
+    process_events
 )
-
 from utils.llm_utils import handle_llm_response, check_llm_health, parse_and_format
-from utils.game_manager_utils import check_max_steps as utils_check_max_steps
-from utils.game_manager_utils import process_game_over as utils_process_game_over
-from utils.game_manager_utils import handle_error as utils_handle_error
-from utils.game_manager_utils import report_final_statistics as utils_report_final_statistics
-from utils.game_manager_utils import initialize_game_manager, process_events
-from utils.continuation_utils import setup_continuation_session, setup_llm_clients, handle_continuation_game_state, continue_from_directory
-from core.game_loop import run_game_loop
+from utils.continuation_utils import (
+    setup_continuation_session,
+    setup_llm_clients,
+    handle_continuation_game_state,
+    continue_from_directory
+)
 
 
 class GameManager:
@@ -65,7 +56,7 @@ class GameManager:
         self.empty_steps = 0
         self.error_steps = 0
         self.consecutive_empty_steps = 0
-        self.consecutive_errors = 0  # Track consecutive errors
+        self.consecutive_errors = 0
         self.game_scores = []
         self.parser_usage_count = 0
         self.previous_parser_usage = 0
@@ -111,10 +102,10 @@ class GameManager:
     
     def setup_game(self):
         """Set up the game logic and GUI."""
-        # Set up the game
+        # Initialize game logic
         self.game = GameLogic(use_gui=self.use_gui)
         
-        # Set up the GUI if needed
+        # Set up the GUI if enabled
         if self.use_gui:
             gui = GameGUI()
             self.game.set_gui(gui)
@@ -157,7 +148,7 @@ class GameManager:
             json_error_stats=get_json_error_stats()
         )
         
-        # Call the utility function
+        # Report statistics to console and save to files
         report_final_statistics(
             self.log_dir,
             self.game_count,

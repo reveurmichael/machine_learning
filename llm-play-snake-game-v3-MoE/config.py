@@ -16,8 +16,6 @@ COLORS = {
 }
 
 # GUI
-GRID_CELL_SIZE_PX = 100  # Size of each grid cell in pixels
-GAME_AREA_SIZE = 800     # Size of the square game area
 WINDOW_WIDTH = 800       # Width of the application window
 WINDOW_HEIGHT = 600      # Height of the application window
 TIME_DELAY = 40          # General delay time for the game loop

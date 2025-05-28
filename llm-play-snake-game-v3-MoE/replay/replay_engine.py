@@ -275,24 +275,33 @@ class ReplayEngine(GameController):
                         self.gui.set_paused(self.paused)
                     print(f"Replay {'paused' if self.paused else 'resumed'}")
                     redraw_needed = True
-                elif event.key == pygame.K_n:
+                elif event.key == pygame.K_RIGHT:
                     # Next game
                     self.game_number += 1
                     if not self.load_game_data(self.game_number):
                         print(f"No more games to load. Staying on current game.")
                         self.game_number -= 1
                     redraw_needed = True
+                elif event.key == pygame.K_LEFT:
+                    # Previous game
+                    if self.game_number > 1:
+                        self.game_number -= 1
+                        self.load_game_data(self.game_number)
+                        print(f"Going to previous game {self.game_number}")
+                    else:
+                        print("Already at the first game")
+                    redraw_needed = True
                 elif event.key == pygame.K_r:
                     # Restart current game
                     self.load_game_data(self.game_number)
                     print(f"Restarting game {self.game_number}")
                     redraw_needed = True
-                elif event.key == pygame.K_s:
+                elif event.key == pygame.K_UP:
                     # Speed up
                     self.pause_between_moves = max(0.1, self.pause_between_moves * 0.75)
                     print(f"Speed increased: {1/self.pause_between_moves:.1f}x")
                     redraw_needed = True
-                elif event.key == pygame.K_d:
+                elif event.key == pygame.K_DOWN:
                     # Slow down
                     self.pause_between_moves = min(2.0, self.pause_between_moves * 1.25)
                     print(f"Speed decreased: {1/self.pause_between_moves:.1f}x")

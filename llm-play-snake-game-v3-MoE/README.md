@@ -159,7 +159,7 @@ After game termination (for any reason), the system will automatically start the
 
 ## How this project resembles a real research project
 
-logging into json files: very comprehensive.
+logging into json files: very comprehensive. Keep track of almost everything, maybe it can be useful, somehow.
 
 continue mode: it's like checkpoint. 
 
@@ -169,7 +169,7 @@ replay mode: for double checking results.
 
 app.py: for analyzing preliminary results, giving insights and adjust experiment parameters.
 
-fail fast, going lean: ```python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0```
+fail fast, going lean: ```python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0```, instead of doing a complete run each time.
 
 
 ## What's missing, if this were a real research project
@@ -178,7 +178,7 @@ Launching the application can be in a more "script" way and often parallelized, 
 
 Helper script for checking GPU usage, and then launching the application accordingly. 
 
-Logging system with log files.
+Logging system with log files (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 
 Data processing and analysis.
 

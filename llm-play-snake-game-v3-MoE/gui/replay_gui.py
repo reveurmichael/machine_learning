@@ -41,8 +41,8 @@ class ReplayGUI(BaseGUI):
         # Fill background
         self.screen.fill(COLORS['BACKGROUND'])
         
-        # Draw snake
-        self.draw_snake(snake_positions)
+        # Draw snake with custom method to ensure head is properly identified
+        self.draw_snake_for_replay(snake_positions)
         
         # Draw apple if available
         if apple_position is not None:
@@ -71,6 +71,35 @@ class ReplayGUI(BaseGUI):
         
         # Update display
         pygame.display.flip()
+        
+    def draw_snake_for_replay(self, snake_positions):
+        """Draw the snake for replay mode, ensuring the head is correctly identified.
+        
+        Args:
+            snake_positions: List of [x,y] positions for snake segments
+        """
+        if not snake_positions:
+            return
+            
+        # In replay mode, the head is always the last segment in the list
+        head_index = len(snake_positions) - 1
+        
+        for i, position in enumerate(snake_positions):
+            x, y = position
+            
+            # Draw rectangle for snake segment
+            rect = pygame.Rect(
+                x * self.pixel,
+                y * self.pixel,
+                self.pixel - 5,
+                self.pixel - 5
+            )
+            
+            # Use different color for head (which is the last segment in the positions list)
+            if i == head_index:
+                pygame.draw.rect(self.screen, COLORS['SNAKE_HEAD'], rect)
+            else:
+                pygame.draw.rect(self.screen, COLORS['SNAKE_BODY'], rect)
         
     def set_paused(self, paused):
         """Set the paused state of the replay.
@@ -119,12 +148,12 @@ class ReplayGUI(BaseGUI):
         stats_title = title_font.render("Game Statistics", True, COLORS['BLACK'])
         self.screen.blit(stats_title, (self.height + 20, 50))
         
+        # Stats without direction
         stats_text = [
             f"Game: {game_number}",
             f"Score: {score}",
             f"Steps: {steps}",
-            f"Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)",
-            f"Direction: {current_direction or 'None'}"
+            f"Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)"
         ]
         
         # Display each statistic
@@ -134,25 +163,24 @@ class ReplayGUI(BaseGUI):
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
         
-        # Recent moves history
-        moves_title = title_font.render("Recent Moves", True, COLORS['BLACK'])
-        self.screen.blit(moves_title, (self.height + 20, y_offset + 10))
-        y_offset += 40
-        
-        # Show last 5 moves
-        recent_moves = self.move_history[-5:] if len(self.move_history) > 0 else ["None"]
-        for i, move in enumerate(recent_moves):
-            # Use highlight font for current move
-            if i == len(recent_moves) - 1:
-                move_text = highlight_font.render(f"➤ {move}", True, COLORS['SNAKE_HEAD'])
-            else:
-                move_text = font.render(f"   {move}", True, COLORS['BLACK'])
-            self.screen.blit(move_text, (self.height + 30, y_offset))
-            y_offset += 25
+        # Add game end reason if available
+        if game_end_reason:
+            end_reason_map = {
+                "WALL": "Hit Wall",
+                "SELF": "Hit Self",
+                "MAX_STEPS": "Max Steps",
+                "EMPTY_MOVES": "Empty Moves",
+                "ERROR": "LLM Error"
+            }
+            end_reason_text = end_reason_map.get(game_end_reason, game_end_reason)
+            reason_text = font.render(f"End Reason: {end_reason_text}", True, COLORS['BLACK'])
+            self.screen.blit(reason_text, (self.height + 30, y_offset))
+            y_offset += 30
         
         # LLM information section
+        y_offset += 10
         llm_title = title_font.render("LLM Information", True, COLORS['BLACK'])
-        self.screen.blit(llm_title, (self.height + 20, y_offset + 10))
+        self.screen.blit(llm_title, (self.height + 20, y_offset))
         y_offset += 40
         
         llm_text = [
@@ -165,49 +193,22 @@ class ReplayGUI(BaseGUI):
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
         
-        # Game metadata section
-        meta_title = title_font.render("Game Metadata", True, COLORS['BLACK'])
-        self.screen.blit(meta_title, (self.height + 20, y_offset + 10))
+        # Progress bar for replay
+        y_offset += 10
+        self.draw_progress_bar(move_index, total_moves, self.height + 20, y_offset, 
+                              self.text_panel_width - 40, 20)
         y_offset += 40
         
-        # Format game end reason if available
-        end_reason_text = "Unknown"
-        if game_end_reason:
-            end_reason_map = {
-                "WALL": "Hit Wall",
-                "SELF": "Hit Self",
-                "MAX_STEPS": "Max Steps",
-                "EMPTY_MOVES": "Empty Moves",
-                "ERROR": "LLM Error"
-            }
-            end_reason_text = end_reason_map.get(game_end_reason, game_end_reason)
-        
-        meta_text = [
-            f"End Reason: {end_reason_text}",
-            f"Timestamp: {game_timestamp or 'Unknown'}"
-        ]
-        
-        for text in meta_text:
-            text_surface = font.render(text, True, COLORS['BLACK'])
-            self.screen.blit(text_surface, (self.height + 30, y_offset))
-            y_offset += 30
-        
-        # Progress bar for replay
-        self.draw_progress_bar(move_index, total_moves, self.height + 20, y_offset + 20, 
-                              self.text_panel_width - 40, 20)
-        y_offset += 50
-        
-        # Controls section
+        # Controls section with updated instructions
         controls_title = title_font.render("Controls", True, COLORS['BLACK'])
-        self.screen.blit(controls_title, (self.height + 20, y_offset + 10))
+        self.screen.blit(controls_title, (self.height + 20, y_offset))
         y_offset += 40
         
         controls_text = [
             "Space: Pause/Resume",
-            "N: Next Game",
-            "R: Restart Game",
-            "S: Speed Up",
-            "D: Slow Down",
+            "Left/Right Arrows: Prev/Next Game",
+            "Up/Down Arrows: Speed Up/Down",
+            "R: Restart Current Game",
             "Esc: Quit"
         ]
         

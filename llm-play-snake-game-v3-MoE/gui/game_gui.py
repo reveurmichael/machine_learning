@@ -87,11 +87,17 @@ class GameGUI(BaseGUI):
         moves_text = self.font.render("Planned moves:", True, COLORS['BLACK'])
         self.screen.blit(moves_text, (self.height + 20, 100))
         
-        # Display planned moves if available, otherwise show "None"
-        if planned_moves:
-            moves_str = ", ".join(planned_moves)
+        # Display planned moves with proper formatting:
+        # - When planned_moves is a non-empty list: show the moves
+        # - When planned_moves is an empty list: show "[]" (LLM returned zero moves)
+        # - When planned_moves is None: show empty string (all moves completed)
+        if planned_moves is not None:
+            if len(planned_moves) > 0:
+                moves_str = "[" + ", ".join(planned_moves) + "]"
+            else:
+                moves_str = "[]"  # Empty list from LLM
         else:
-            moves_str = "None"
+            moves_str = ""  # No more planned moves to execute
             
         moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
         self.screen.blit(moves_display, (self.height + 20, 130))

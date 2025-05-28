@@ -74,14 +74,6 @@ class BaseGUI:
         
         pygame.draw.rect(self.screen, COLORS['APPLE'], rect)
     
-    def draw_walls(self):
-        """Draw the walls/borders of the game board.
-        
-        This method is kept for backward compatibility with older versions of the game.
-        Current design doesn't display walls but derived classes may override.
-        """
-        # No walls or borders in the cleaner design
-    
     def clear_game_area(self):
         """Clear the game board area."""
         # Draw background rectangle for game section without any padding

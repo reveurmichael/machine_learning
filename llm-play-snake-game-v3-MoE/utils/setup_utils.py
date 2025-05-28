@@ -51,6 +51,8 @@ def setup_llm_clients(game_manager, check_llm_health):
             print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
             game_manager.args.parser_provider = "none"
             game_manager.args.parser_model = None
+        else:
+            print(Fore.GREEN + "✅ Parser LLM health check passed!")
     else:
         print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
         game_manager.args.parser_provider = "none"

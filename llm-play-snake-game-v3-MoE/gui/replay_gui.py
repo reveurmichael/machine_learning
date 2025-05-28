@@ -67,7 +67,7 @@ class ReplayGUI(BaseGUI):
         primary_llm = replay_data.get('primary_llm', 'Unknown')
         secondary_llm = replay_data.get('secondary_llm', 'Unknown')
         paused = replay_data.get('paused', False)
-        speed = replay_data.get('speed', 1.0)
+        speed = replay_data.get('speed', 1.0)  # Retrieved but not currently used directly in drawing - for future speed indicator
         timestamp = replay_data.get('timestamp', 'Unknown')
         game_end_reason = replay_data.get('game_end_reason', None)
 

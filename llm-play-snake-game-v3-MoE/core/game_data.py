@@ -368,6 +368,7 @@ class GameData:
         """Record data for a game round.
         
         This method is used for backward compatibility with older versions of the game.
+        KEPT FOR BACKWARD COMPATIBILITY - Do not remove.
         
         Args:
             round_data: Dictionary containing round data:
@@ -649,7 +650,13 @@ class GameData:
         return summary
     
     def get_aggregated_stats_for_summary_json(self, game_count, game_scores):
-        """This method has been deprecated and is no longer used."""
+        """This method has been deprecated and is no longer used.
+        
+        KEPT FOR BACKWARD COMPATIBILITY - Do not remove.
+        This function is maintained for compatibility with older versions of the codebase.
+        """
+        # Intentionally empty as this method is deprecated
+        pass
     
     def save_prompt_response_rounds(self, log_dir, game_number):
         """Save rounds data based on the prompt/response files in the log directory.

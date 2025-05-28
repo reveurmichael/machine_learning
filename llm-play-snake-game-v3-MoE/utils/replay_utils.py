@@ -5,9 +5,7 @@ Provides functionality for running replays and extracting data.
 
 import os
 import subprocess
-import time
 import json
-import traceback
 from pathlib import Path
 
 def run_replay(log_dir, game_number=None, move_pause=1.0):

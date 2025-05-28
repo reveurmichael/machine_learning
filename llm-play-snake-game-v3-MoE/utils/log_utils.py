@@ -3,11 +3,7 @@ Utility module for logging and data formatting.
 Handles saving and formatting of game logs, LLM responses, and game summaries.
 """
 
-import os
 import json
-from datetime import datetime
-from pathlib import Path
-from utils.file_utils import save_to_file
 
 def format_raw_llm_response(raw_response, request_time, response_time, model_name, provider, 
                            parser_model=None, parser_provider=None, response_duration=None):

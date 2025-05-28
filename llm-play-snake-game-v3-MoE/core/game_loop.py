@@ -130,7 +130,7 @@ def run_game_loop(game_manager):
                             
                             # Request new plan if apple was eaten
                             if apple_eaten:
-                                print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
+                                print(Fore.GREEN + "🍎 Apple eaten! Requesting new plan.")
                                 game_manager.need_new_plan = True
                             
                             # Update round counter

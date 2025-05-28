@@ -5,12 +5,10 @@ error handling, and statistics reporting.
 """
 
 import os
-import json
 import traceback
 import pygame
 from colorama import Fore
 from datetime import datetime
-from pathlib import Path
 
 def check_max_steps(game, max_steps):
     """Check if the game has reached the maximum number of steps.
@@ -212,8 +210,6 @@ def initialize_game_manager(game_manager):
     import os
     import sys
     import time
-    import pygame
-    from datetime import datetime
     
     # Reset JSON error statistics
     reset_json_error_stats()
@@ -231,10 +227,10 @@ def initialize_game_manager(game_manager):
     # Perform health check for primary LLM
     primary_healthy, primary_response = check_llm_health(game_manager.llm_client)
     if not primary_healthy:
-        print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
+        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
         sys.exit(1)
     else:
-        print(Fore.GREEN + f"✅ Primary LLM health check passed!")
+        print(Fore.GREEN + "✅ Primary LLM health check passed!")
         
     # Configure secondary LLM (parser) if specified
     if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
@@ -250,7 +246,7 @@ def initialize_game_manager(game_manager):
             game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
         )
         if not parser_healthy:
-            print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
+            print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
             game_manager.args.parser_provider = "none"
             game_manager.args.parser_model = None
     else:
@@ -294,7 +290,6 @@ def process_events(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    import pygame
     
     if not game_manager.use_gui:
         return

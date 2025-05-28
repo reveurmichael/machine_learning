@@ -822,8 +822,6 @@ class GameData:
             log_dir: Directory containing prompts and responses
             game_number: The game number to look for
         """
-        import os
-        import re
         
         # Get prompt files to identify round numbers
         prompts_dir = os.path.join(log_dir, 'prompts')
@@ -915,8 +913,6 @@ class GameData:
             Path to the saved file
         """
         # Get the game number from the filepath
-        import os
-        import re
         match = re.search(r'game_(\d+)\.json', os.path.basename(filepath))
         if match:
             game_number = int(match.group(1))

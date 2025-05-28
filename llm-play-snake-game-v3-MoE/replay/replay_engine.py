@@ -9,7 +9,6 @@ import time
 import pygame
 from pygame.locals import *
 from core.game_controller import GameController
-from utils.replay_utils import extract_apple_positions
 from config import TIME_DELAY, TIME_TICK, DIRECTIONS
 import numpy as np
 import traceback
@@ -400,7 +399,7 @@ class ReplayEngine(GameController):
                     # Next game
                     self.game_number += 1
                     if not self.load_game_data(self.game_number):
-                        print(f"No more games to load. Staying on current game.")
+                        print("No more games to load. Staying on current game.")
                         self.game_number -= 1
                     redraw_needed = True
                 elif event.key == pygame.K_LEFT:

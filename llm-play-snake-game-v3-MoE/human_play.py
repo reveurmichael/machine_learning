@@ -3,15 +3,12 @@ Human playable version of the Snake game.
 Allows a human player to control the snake with arrow keys.
 """
 
-import time
 import pygame
 import sys
 from pygame.locals import *
-import os
-from datetime import datetime
 from gui.game_gui import GameGUI
 from core.game_controller import GameController
-from config import DIRECTIONS, TIME_TICK, COLORS
+from config import TIME_TICK, COLORS
 
 class HumanGameGUI(GameGUI):
     """GUI class for the human-played Snake game."""

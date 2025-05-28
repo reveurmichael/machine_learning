@@ -5,16 +5,9 @@ A Streamlit app for analyzing and replaying recorded Snake game sessions.
 """
 
 import os
-import json
-import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pathlib import Path
 import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime
 
 from utils.file_utils import find_log_folders, extract_game_stats
 from replay.replay_engine import ReplayEngine

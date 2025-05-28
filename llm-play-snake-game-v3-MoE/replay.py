@@ -50,7 +50,7 @@ def main():
         replay_engine.game_number = args.game
         print(f"Starting replay with game {args.game}")
     else:
-        print(f"Starting replay with game 1. All games will be replayed in sequence.")
+        print("Starting replay with game 1. All games will be replayed in sequence.")
 
     # Set up the GUI
     gui = ReplayGUI()

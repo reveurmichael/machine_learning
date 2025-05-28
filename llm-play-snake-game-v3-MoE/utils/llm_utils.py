@@ -4,15 +4,12 @@ Handles parsing, extracting, and processing responses from language models,
 as well as interactions between the game and LLMs.
 """
 
-import json
 import traceback
 import time
-import os
 from colorama import Fore
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
-from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
+from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
 from utils.file_utils import save_to_file
-from utils.log_utils import format_parsed_llm_response
 from datetime import datetime
 
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
@@ -323,7 +320,6 @@ def get_llm_response(game_manager):
     Returns:
         Tuple of (next_move, game_active)
     """
-    from datetime import datetime
 
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()

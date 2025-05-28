@@ -3,7 +3,6 @@ Snake game implementation with LLM integration.
 Extends the base game controller with LLM-specific functionality.
 """
 
-import re
 import traceback
 from core.game_controller import GameController
 from utils.llm_utils import parse_llm_response, prepare_snake_prompt

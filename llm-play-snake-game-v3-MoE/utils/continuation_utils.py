@@ -6,11 +6,7 @@ Handles reading existing game data and continuing sessions.
 import os
 import sys
 import json
-import re
-import time
 import traceback
-from datetime import datetime
-from pathlib import Path
 from colorama import Fore
 
 def read_existing_game_data(log_dir, start_game_number):
@@ -182,10 +178,10 @@ def setup_llm_clients(game_manager):
     # Perform health check for primary LLM
     primary_healthy, primary_response = check_llm_health(game_manager.llm_client)
     if not primary_healthy:
-        print(Fore.RED + f"❌ Primary LLM health check failed. The program cannot continue.")
+        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
         sys.exit(1)
     else:
-        print(Fore.GREEN + f"✅ Primary LLM health check passed!")
+        print(Fore.GREEN + "✅ Primary LLM health check passed!")
     
     # Configure secondary LLM (parser) if specified
     if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
@@ -201,7 +197,7 @@ def setup_llm_clients(game_manager):
             game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
         )
         if not parser_healthy:
-            print(Fore.RED + f"❌ Parser LLM health check failed. Continuing without parser.")
+            print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
             game_manager.args.parser_provider = "none"
             game_manager.args.parser_model = None
     else:
@@ -288,7 +284,7 @@ def continue_from_directory(game_manager_class, args):
     
     if not game_files:
         print(Fore.YELLOW + f"⚠️ Warning: No game files found in '{log_dir}'")
-        print(Fore.YELLOW + f"⚠️ Starting from game 1 but in continuation mode")
+        print(Fore.YELLOW + "⚠️ Starting from game 1 but in continuation mode")
         next_game = 1
     else:
         # Determine the next game number

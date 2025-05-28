@@ -6,16 +6,10 @@ This script parses command line arguments and launches the game.
 import sys
 import os
 import json
-import glob
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
 from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
-from utils import (
-    save_experiment_info_json,
-    get_next_game_number,
-    clean_prompt_files
-)
 from game_manager import GameManager
 
 # Initialize colorama for colored terminal output

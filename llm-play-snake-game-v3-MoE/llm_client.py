@@ -4,13 +4,10 @@ LLM client module for handling communication with different LLM providers.
 
 import os
 import json
-import time
 import requests
 import traceback
-from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
-import subprocess
 from mistralai import Mistral
 
 # Load environment variables from .env file
@@ -125,7 +122,7 @@ class LLMClient:
             api_key = os.environ.get("HUNYUAN_API_KEY")
             if not api_key or api_key == "your_hunyuan_api_key_here":
                 print("Warning: Hunyuan API key not properly configured in .env file")
-                return f"ERROR LLMCLIENT: Hunyuan API key not properly configured"
+                return "ERROR LLMCLIENT: Hunyuan API key not properly configured"
 
             # Construct OpenAI client for Hunyuan
             client = OpenAI(
@@ -193,7 +190,7 @@ class LLMClient:
             api_key = os.environ.get("DEEPSEEK_API_KEY")
             if not api_key or api_key == "your_deepseek_api_key_here":
                 print("Warning: Deepseek API key not properly configured in .env file")
-                return f"ERROR LLMCLIENT: Deepseek API key not properly configured"
+                return "ERROR LLMCLIENT: Deepseek API key not properly configured"
 
             # Construct OpenAI client for Deepseek
             client = OpenAI(
@@ -267,7 +264,7 @@ class LLMClient:
             api_key = os.environ.get("MISTRAL_API_KEY")
             if not api_key or api_key == "your_mistral_api_key_here":
                 print("Warning: Mistral API key not properly configured in .env file")
-                return f"ERROR LLMCLIENT: Mistral API key not properly configured"
+                return "ERROR LLMCLIENT: Mistral API key not properly configured"
 
             # Extract parameters
             model = kwargs.get(

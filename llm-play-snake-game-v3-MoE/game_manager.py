@@ -3,11 +3,7 @@ Game manager module for the Snake game.
 Handles game session management, initialization, and statistics tracking.
 """
 
-import os
-import time
 import pygame
-from colorama import Fore
-from datetime import datetime
 
 # Core game components
 from core.game_logic import GameLogic
@@ -17,18 +13,12 @@ from llm_client import LLMClient
 from config import TIME_DELAY, TIME_TICK, PAUSE_BETWEEN_MOVES_SECONDS
 
 # Utils imports - organized by functionality
-from utils.file_utils import save_to_file
-from utils.log_utils import format_raw_llm_response, format_parsed_llm_response, generate_game_summary_json
-from utils.json_utils import get_json_error_stats, reset_json_error_stats, save_experiment_info_json, update_experiment_info_json
+from utils.json_utils import get_json_error_stats, update_experiment_info_json
 from utils.game_manager_utils import (
-    check_max_steps,
-    process_game_over,
-    handle_error,
     report_final_statistics,
     initialize_game_manager,
     process_events
 )
-from utils.llm_utils import handle_llm_response, check_llm_health, parse_and_format
 from utils.continuation_utils import (
     setup_continuation_session,
     setup_llm_clients,

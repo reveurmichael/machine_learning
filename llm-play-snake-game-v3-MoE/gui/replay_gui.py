@@ -78,7 +78,9 @@ class ReplayGUI(BaseGUI):
         Args:
             snake_positions: List of [x,y] positions for snake segments
         """
-        if not snake_positions:
+        # Safely check if snake_positions exists and has elements
+        # Use numpy's size or shape attribute instead of direct boolean evaluation
+        if snake_positions is None or len(snake_positions) == 0:
             return
             
         # In replay mode, the head is always the last segment in the list

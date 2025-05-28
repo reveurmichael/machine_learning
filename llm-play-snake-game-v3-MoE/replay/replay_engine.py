@@ -10,7 +10,9 @@ import pygame
 from pygame.locals import *
 from core.game_controller import GameController
 from utils.replay_utils import extract_apple_positions
-from config import TIME_DELAY, TIME_TICK
+from config import TIME_DELAY, TIME_TICK, DIRECTIONS
+import numpy as np
+import traceback
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games."""
@@ -93,116 +95,113 @@ class ReplayEngine(GameController):
             Game data dictionary or None if loading failed
         """
         # Build the path to the game data file
-        summary_file = os.path.join(self.log_dir, f"game_{game_number}.json")
+        game_file = os.path.join(self.log_dir, f"game_{game_number}.json")
         
         # Check if the file exists
-        if not os.path.exists(summary_file):
+        if not os.path.exists(game_file):
             print(f"Game {game_number} data not found")
             return None
         
         try:
-            with open(summary_file, 'r', encoding='utf-8') as f:
+            print(f"Loading game data from {game_file}")
+            with open(game_file, 'r', encoding='utf-8') as f:
                 game_data = json.load(f)
             
-            # Get apple positions
-            if 'apple_positions' in game_data:
-                self.apple_positions = game_data['apple_positions']
-            elif 'detailed_history' in game_data and 'apple_positions' in game_data['detailed_history']:
-                self.apple_positions = game_data['detailed_history']['apple_positions']
-            else:
-                print("No apple positions found in game data")
+            # Get basic game information
+            self.score = game_data.get('score', 0)
+            self.game_end_reason = game_data.get('game_end_reason', None)
+            
+            # Extract game data from detailed_history
+            if 'detailed_history' not in game_data:
+                print("Error: No detailed_history in game data")
                 return None
+                
+            detailed_history = game_data['detailed_history']
+            
+            # Get apple positions
+            self.apple_positions = detailed_history.get('apple_positions', [])
+            print(f"Loaded {len(self.apple_positions)} apple positions")
             
             # Get moves
-            if 'moves' in game_data:
-                self.moves = game_data['moves']
-            elif 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
-                self.moves = game_data['detailed_history']['moves']
-            else:
-                print("No moves found in game data")
+            self.moves = detailed_history.get('moves', [])
+            print(f"Loaded {len(self.moves)} moves")
+            
+            if not self.moves:
+                print("Error: No moves found in game data")
                 return None
             
-            # Reset move index
+            # Reset game state indices
             self.move_index = 0
             self.apple_index = 0
             self.moves_made = []
-            self.score = 0
             self.steps = 0
             
-            # Extract additional information for display
-            self.game_end_reason = game_data.get('game_end_reason', None)
+            # Get round information
+            round_count = game_data.get('metadata', {}).get('round_count', 1)
+            print(f"Game has {round_count} rounds")
             
-            # Get LLM information if available
+            # Get LLM information
             if 'llm_info' in game_data:
                 llm_info = game_data['llm_info']
                 self.primary_llm = f"{llm_info.get('primary_provider', 'Unknown')}/{llm_info.get('primary_model', 'Unknown')}"
+                
                 if llm_info.get('parser_provider') and llm_info.get('parser_provider').lower() != 'none':
                     self.secondary_llm = f"{llm_info.get('parser_provider', 'None')}/{llm_info.get('parser_model', 'None')}"
                 else:
                     self.secondary_llm = "None/None"
             else:
                 self.primary_llm = "Unknown/Unknown"
-                self.secondary_llm = "Unknown/Unknown"
+                self.secondary_llm = "None/None"
             
-            # Get timestamp if available
-            if 'metadata' in game_data and 'timestamp' in game_data['metadata']:
-                self.game_timestamp = game_data['metadata']['timestamp']
-            else:
-                self.game_timestamp = "Unknown"
+            # Get timestamp
+            self.game_timestamp = game_data.get('metadata', {}).get('timestamp', "Unknown")
             
-            # Save other game stats
+            # Store game data
             self.game_stats = game_data
             
-            print(f"Loaded {len(self.apple_positions)} apple positions and {len(self.moves)} moves")
             print(f"Game {game_number}: End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
             
-            # Reset the game state
+            # Initialize game state
+            print("Initializing game state...")
             self.reset()
             
-            # Set the initial apple position
+            # Set initial snake position (middle of grid)
+            self.snake_positions = np.array([[self.grid_size // 2, self.grid_size // 2]])
+            self.head_position = self.snake_positions[-1]
+            
+            # Set initial apple position
             if self.apple_positions:
                 first_apple = self.apple_positions[0]
-                if 'x' in first_apple and 'y' in first_apple:
-                    self.apple_position = [first_apple['x'], first_apple['y']]
                 
-            # Update the board
+                if isinstance(first_apple, dict) and 'x' in first_apple and 'y' in first_apple:
+                    self.apple_position = np.array([first_apple['x'], first_apple['y']])
+                elif isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
+                    self.apple_position = np.array(first_apple)
+                else:
+                    # Default position if format is unexpected
+                    self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
+                    
+                print(f"Set initial apple position: {self.apple_position}")
+            
+            # Update game board
             self._update_board()
             
             # Reset GUI move history if available
             if self.use_gui and self.gui and hasattr(self.gui, 'move_history'):
                 self.gui.move_history = []
             
-            # Extract LLM response and planned moves
-            self.llm_response = None
-            
-            # Try multiple places to find the LLM response
-            if 'llm_response' in game_data:
-                self.llm_response = game_data['llm_response']
-            elif 'processed_response' in game_data:
-                self.llm_response = game_data['processed_response']
-            elif 'detailed_history' in game_data:
-                detailed = game_data['detailed_history']
-                if 'llm_response' in detailed:
-                    self.llm_response = detailed['llm_response']
-                elif 'processed_response' in detailed:
-                    self.llm_response = detailed['processed_response']
-            
-            # If we still don't have a response, use a generic message
-            if not self.llm_response:
-                self.llm_response = "No LLM response data available for this game."
+            # Get LLM response
+            self.llm_response = detailed_history.get('llm_response', "No LLM response data available for this game.")
             
             # Get planned moves
-            if 'planned_moves' in game_data:
-                self.planned_moves = game_data['planned_moves']
-            elif 'detailed_history' in game_data and 'planned_moves' in game_data['detailed_history']:
-                self.planned_moves = game_data['detailed_history']['planned_moves']
-            else:
-                self.planned_moves = []
+            self.planned_moves = detailed_history.get('planned_moves', [])
             
+            print(f"Game {game_number} loaded successfully")
             return game_data
             
         except Exception as e:
             print(f"Error loading game data: {e}")
+            traceback.print_exc()
             return None
     
     def update(self):
@@ -214,48 +213,152 @@ class ReplayEngine(GameController):
         
         # Check if it's time for the next move
         if current_time - self.last_move_time >= self.pause_between_moves and self.move_index < len(self.moves):
-            # Make the next move
-            next_move = self.moves[self.move_index]
-            self.move_index += 1
-            self.moves_made.append(next_move)
-            
-            # Update planned moves - remove the move we just made
-            if self.planned_moves and len(self.planned_moves) > 0:
-                self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
-            
-            # Update game state
-            game_continues, apple_eaten = self.make_move(next_move)
-            
-            # Update last move time
-            self.last_move_time = current_time
-            
-            # Check if game is over
-            if not game_continues:
-                print(f"Game {self.game_number} over. Score: {self.score}, Steps: {self.steps}, End reason: {self.game_end_reason}")
+            try:
+                # Get next move
+                next_move = self.moves[self.move_index]
+                print(f"Move {self.move_index+1}/{len(self.moves)}: {next_move}")
                 
-                # Check if we should advance to next game
-                if self.auto_advance:
-                    pygame.time.delay(1000)  # 1 second pause
-                    self.game_number += 1
-                    if not self.load_game_data(self.game_number):
-                        print(f"No more games to load. Replay complete.")
-                        self.running = False
-            
-            # Check if we're out of moves
-            elif self.move_index >= len(self.moves):
-                print(f"Replay complete for game {self.game_number}. Score: {self.score}, Steps: {self.steps}")
+                # Update move tracking
+                self.move_index += 1
+                self.moves_made.append(next_move)
                 
-                # Check if we should advance to next game
+                # Update planned moves display
+                if self.planned_moves and len(self.planned_moves) > 0:
+                    self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
+                
+                # Execute the move
+                game_continues, apple_eaten = self.execute_replay_move(next_move)
+                
+                # Update last move time
+                self.last_move_time = current_time
+                
+                # Handle game completion
+                if not game_continues:
+                    print(f"Game {self.game_number} over. Score: {self.score}, Steps: {self.steps}, End reason: {self.game_end_reason}")
+                    
+                    # Advance to next game if auto-advance is enabled
+                    if self.auto_advance:
+                        pygame.time.delay(1000)  # Pause before next game
+                        self.load_next_game()
+                
+                # Check if we've finished all moves
+                elif self.move_index >= len(self.moves):
+                    print(f"Replay complete for game {self.game_number}. Score: {self.score}, Steps: {self.steps}")
+                    
+                    # Advance to next game if auto-advance is enabled
+                    if self.auto_advance:
+                        pygame.time.delay(1000)  # Pause before next game
+                        self.load_next_game()
+                
+                # Update the display
+                if self.use_gui and self.gui:
+                    self.draw()
+                    
+            except Exception as e:
+                print(f"Error during replay: {e}")
+                traceback.print_exc()
+                
+                # Try to continue with next game if auto-advance is enabled
                 if self.auto_advance:
-                    pygame.time.delay(1000)  # 1 second pause
-                    self.game_number += 1
-                    if not self.load_game_data(self.game_number):
-                        print(f"No more games to load. Replay complete.")
-                        self.running = False
+                    self.load_next_game()
+                    
+    def load_next_game(self):
+        """Load the next game in sequence."""
+        self.game_number += 1
+        if not self.load_game_data(self.game_number):
+            print("No more games to load. Replay complete.")
+            self.running = False
+    
+    def execute_replay_move(self, direction_key):
+        """Execute a move for replay, updating game state accordingly.
+        
+        Args:
+            direction_key: String key of the direction to move in ("UP", "DOWN", etc.)
             
-            # Redraw the UI after move is processed
-            if self.use_gui and self.gui:
-                self.draw()
+        Returns:
+            Tuple of (game_active, apple_eaten) where:
+                game_active: Boolean indicating if the game is still active
+                apple_eaten: Boolean indicating if an apple was eaten on this move
+        """
+        # Get direction vector
+        if direction_key not in DIRECTIONS:
+            print(f"Invalid direction: {direction_key}, defaulting to RIGHT")
+            direction_key = "RIGHT"
+        
+        direction = DIRECTIONS[direction_key]
+        self.current_direction = direction
+        
+        # Calculate new head position
+        head_x, head_y = self.head_position
+        new_head = np.array([head_x + direction[0], head_y + direction[1]])
+        
+        # Check for wall collision
+        x, y = new_head
+        if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
+            print(f"Game over: Snake hit wall at position {new_head}")
+            return False, False
+        
+        # Check for body collision
+        body_collision = False
+        for pos in self.snake_positions[:-1]:
+            if pos[0] == new_head[0] and pos[1] == new_head[1]:
+                body_collision = True
+                break
+                
+        if body_collision:
+            print(f"Game over: Snake hit itself at position {new_head}")
+            return False, False
+        
+        # Prepare new snake positions
+        new_snake_positions = np.copy(self.snake_positions)
+        new_snake_positions = np.vstack((new_snake_positions, new_head))
+        
+        # Check for apple
+        apple_x, apple_y = self.apple_position
+        new_head_x, new_head_y = new_head
+        apple_eaten = apple_x == new_head_x and apple_y == new_head_y
+        
+        if not apple_eaten:
+            # Remove tail if no apple eaten
+            new_snake_positions = new_snake_positions[1:]
+        else:
+            # Apple eaten - update score and apple position
+            self.score += 1
+            print(f"Apple eaten! Score: {self.score}")
+            
+            # Move to next apple position if available
+            if self.apple_index + 1 < len(self.apple_positions):
+                self.apple_index += 1
+                next_apple = self.apple_positions[self.apple_index]
+                
+                if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
+                    self.apple_position = np.array([next_apple['x'], next_apple['y']])
+                elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
+                    self.apple_position = np.array(next_apple)
+                else:
+                    # Place apple away from snake
+                    self.apple_position = np.array([
+                        (self.head_position[0] + 5) % self.grid_size,
+                        (self.head_position[1] + 5) % self.grid_size
+                    ])
+            else:
+                # No more predefined apple positions
+                self.apple_position = np.array([
+                    (self.head_position[0] + 5) % self.grid_size,
+                    (self.head_position[1] + 5) % self.grid_size
+                ])
+            
+        # Update snake state
+        self.snake_positions = new_snake_positions
+        self.head_position = self.snake_positions[-1]
+        
+        # Update game board
+        self._update_board()
+        
+        # Update step counter
+        self.steps += 1
+        
+        return True, apple_eaten
     
     def handle_events(self):
         """Handle pygame events."""

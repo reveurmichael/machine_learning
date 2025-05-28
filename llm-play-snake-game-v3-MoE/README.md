@@ -89,7 +89,7 @@ This project implements a Mixture-of-Experts inspired approach where two special
 
 For some reasons, you might want to pause an ongoing experiment, and then continue with the same game. 
 
-In continue mode, only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
+In continue mode, only "--max-games", "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
 
 ```
 python main.py --continue-with-game-in-dir ./results/my_experiment_directory

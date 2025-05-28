@@ -17,7 +17,8 @@ def main():
     """Main function to run the replay."""
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Replay a Snake game session with detailed visualization.')
-    parser.add_argument('--log-dir', type=str, required=True, help='Directory containing game logs')
+    parser.add_argument('log_dir', type=str, nargs='?', help='Directory containing game logs')
+    parser.add_argument('--log-dir', type=str, dest='log_dir_opt', help='Directory containing game logs (alternative to positional argument)')
     parser.add_argument('--game', type=int, default=None, 
                       help='Specific game number (1-indexed) within the session to replay. If not specified, all games will be replayed in sequence.')
     parser.add_argument(
@@ -30,14 +31,22 @@ def main():
     parser.add_argument('--start-paused', action='store_true', help='Start replay in paused state')
     args = parser.parse_args()
 
+    # Use either positional argument or --log-dir option
+    log_dir = args.log_dir_opt if args.log_dir_opt else args.log_dir
+    
+    if not log_dir:
+        print("Error: Log directory must be specified either as a positional argument or using --log-dir")
+        parser.print_help()
+        sys.exit(1)
+
     # Check if log directory exists
-    if not os.path.isdir(args.log_dir):
-        print(f"Log directory does not exist: {args.log_dir}")
+    if not os.path.isdir(log_dir):
+        print(f"Log directory does not exist: {log_dir}")
         sys.exit(1)
 
     # Initialize replay engine
     replay_engine = ReplayEngine(
-        log_dir=args.log_dir, 
+        log_dir=log_dir, 
         move_pause=args.move_pause, 
         auto_advance=args.auto_advance
     )
@@ -57,7 +66,7 @@ def main():
     replay_engine.set_gui(gui)
 
     # Set window title
-    pygame.display.set_caption(f"Snake Game Replay - {os.path.basename(args.log_dir)}")
+    pygame.display.set_caption(f"Snake Game Replay - {os.path.basename(log_dir)}")
 
     # Print keyboard controls for user reference
     print("\nKeyboard Controls:")

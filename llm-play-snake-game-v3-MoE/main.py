@@ -63,14 +63,13 @@ def parse_arguments():
             raise ValueError(f"Missing 'prompts' directory in '{args.continue_with_game_in_dir}'")
 
         # Ensure no other arguments are provided
-        # Only "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode
+        # Only "--max-games", "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode
         raw_args = ' '.join(sys.argv[1:])
         disallowed_args = [
             "--provider",
             "--model",
             "--parser-provider",
             "--parser-model",
-            "--max-games",
             "--move-pause",
             "--max-steps",
             "--max-empty-moves",

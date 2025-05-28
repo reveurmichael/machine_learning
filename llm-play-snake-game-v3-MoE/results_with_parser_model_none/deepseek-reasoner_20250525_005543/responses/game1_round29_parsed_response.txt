@@ -1,9 +1,0 @@
-Timestamp: 2025-05-25 01:18:14
-Secondary LLM Request Time: 2025-05-25 01:18:07
-Secondary LLM Response Time: 2025-05-25 01:18:14
-SECONDARY LLM Model: Default model for deepseek
-SECONDARY LLM Provider: deepseek
-
-========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========
-
-{"moves": ["RIGHT", "UP"], "reasoning": "Move RIGHT first (no reversal from DOWN), then UP to reach the apple. Path avoids body segments and ensures a safe next move after eating."}

@@ -119,7 +119,15 @@ class ReplayEngine(GameController):
             detailed_history = game_data['detailed_history']
             
             # Get apple positions
-            self.apple_positions = detailed_history.get('apple_positions', [])
+            self.apple_positions = []
+            raw_apple_positions = detailed_history.get('apple_positions', [])
+            
+            for pos in raw_apple_positions:
+                if isinstance(pos, dict) and 'x' in pos and 'y' in pos:
+                    self.apple_positions.append([pos['x'], pos['y']])
+                elif isinstance(pos, (list, np.ndarray)) and len(pos) == 2:
+                    self.apple_positions.append(pos)
+            
             print(f"Loaded {len(self.apple_positions)} apple positions")
             
             # Get moves
@@ -136,8 +144,16 @@ class ReplayEngine(GameController):
             self.moves_made = []
             self.steps = 0
             
-            # Get round information
-            round_count = game_data.get('metadata', {}).get('round_count', 1)
+            # Get round information - looking in both metadata and at the root level for compatibility
+            round_count = game_data.get('metadata', {}).get('round_count', 0)
+            if round_count == 0:
+                # Try getting from root level for older log files
+                round_count = game_data.get('round_count', 1)
+            
+            # Count rounds from the rounds_data as a fallback
+            if round_count == 0 and 'rounds_data' in detailed_history:
+                round_count = len(detailed_history['rounds_data'])
+            
             print(f"Game has {round_count} rounds")
             
             # Get LLM information
@@ -173,9 +189,7 @@ class ReplayEngine(GameController):
             if self.apple_positions:
                 first_apple = self.apple_positions[0]
                 
-                if isinstance(first_apple, dict) and 'x' in first_apple and 'y' in first_apple:
-                    self.apple_position = np.array([first_apple['x'], first_apple['y']])
-                elif isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
+                if isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
                     self.apple_position = np.array(first_apple)
                 else:
                     # Default position if format is unexpected

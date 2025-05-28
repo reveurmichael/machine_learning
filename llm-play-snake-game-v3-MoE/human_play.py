@@ -53,9 +53,9 @@ class HumanGameGUI(GameGUI):
         self.screen.blit(controls_title, (self.height + 20, 130))
         
         controls = [
-            "Arrow Keys: Move Snake",
-            "R: Reset Game",
-            "Esc: Quit Game"
+            "- Arrow Keys: Move Snake",
+            "- R: Reset Game",
+            "- Esc: Quit Game"
         ]
         
         y_offset = 160
@@ -69,10 +69,10 @@ class HumanGameGUI(GameGUI):
         self.screen.blit(instructions_title, (self.height + 20, 270))
         
         instructions = [
-            "Eat apples to grow longer",
-            "Avoid hitting walls",
-            "Don't collide with yourself",
-            "Try to get the highest score!"
+            "- Eat apples to grow longer",
+            "- Avoid hitting walls",
+            "- Don't collide with yourself",
+            "- Try to get the highest score!"
         ]
         
         y_offset = 300

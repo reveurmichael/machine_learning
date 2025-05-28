@@ -31,13 +31,13 @@ class GameData:
         self.steps = 0
         self.empty_steps = 0
         self.error_steps = 0
-        self.invalid_reversals = 0  # New counter for invalid reversals
+        self.invalid_reversals = 0  # Counter for invalid reversals
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
         
         # Game state
         self.game_over = False
-        self.win = False  # Added missing win attribute
+        # Removed win attribute as it's redundant in Snake (there is no win, only game over)
         
         # Other tracking data
         self.start_time = time.time()
@@ -46,7 +46,7 @@ class GameData:
         self.current_round = 0
         self.current_round_data = self._create_empty_round_data()
         self.apple_positions = []
-        self.round_count = 0
+        self.round_count = 0  # Will be properly incremented in start_new_round and record_move
         self.game_end_reason = None
         self.last_move = None
         self.last_action_time = None
@@ -71,17 +71,9 @@ class GameData:
         self.primary_response_times = []
         self.secondary_response_times = []
         
-        # Token statistics
-        self.primary_token_stats = {
-            "prompt_tokens": [],
-            "completion_tokens": [],
-            "total_tokens": []
-        }
-        self.secondary_token_stats = {
-            "prompt_tokens": [],
-            "completion_tokens": [],
-            "total_tokens": []
-        }
+        # Token statistics - Simplified to just track totals
+        self.primary_token_stats = []
+        self.secondary_token_stats = []
         
         # LLM error statistics
         self.primary_llm_errors = 0
@@ -284,16 +276,17 @@ class GameData:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
-        self.primary_token_stats["prompt_tokens"].append(prompt_tokens)
-        self.primary_token_stats["completion_tokens"].append(completion_tokens)
-        self.primary_token_stats["total_tokens"].append(prompt_tokens + completion_tokens)
-        
-        # Add to current round data
-        self.current_round_data["primary_token_stats"].append({
+        token_stats = {
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "total_tokens": prompt_tokens + completion_tokens
-        })
+        }
+        
+        # Add to global token stats
+        self.primary_token_stats.append(token_stats)
+        
+        # Add to current round data
+        self.current_round_data["primary_token_stats"].append(token_stats)
     
     def record_secondary_token_stats(self, prompt_tokens, completion_tokens):
         """Record token usage statistics for the secondary LLM.
@@ -302,16 +295,17 @@ class GameData:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
-        self.secondary_token_stats["prompt_tokens"].append(prompt_tokens)
-        self.secondary_token_stats["completion_tokens"].append(completion_tokens)
-        self.secondary_token_stats["total_tokens"].append(prompt_tokens + completion_tokens)
-        
-        # Add to current round data
-        self.current_round_data["secondary_token_stats"].append({
+        token_stats = {
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "total_tokens": prompt_tokens + completion_tokens
-        })
+        }
+        
+        # Add to global token stats
+        self.secondary_token_stats.append(token_stats)
+        
+        # Add to current round data
+        self.current_round_data["secondary_token_stats"].append(token_stats)
     
     def record_primary_llm_error(self):
         """Record an error from the primary LLM."""
@@ -450,15 +444,15 @@ class GameData:
         Returns:
             Dictionary of token statistics
         """
-        # Primary LLM token stats
-        primary_prompt = self.primary_token_stats["prompt_tokens"]
-        primary_completion = self.primary_token_stats["completion_tokens"]
-        primary_total = self.primary_token_stats["total_tokens"]
+        # Calculate primary LLM token stats
+        primary_prompt = [stat["prompt_tokens"] for stat in self.primary_token_stats]
+        primary_completion = [stat["completion_tokens"] for stat in self.primary_token_stats]
+        primary_total = [stat["total_tokens"] for stat in self.primary_token_stats]
         
-        # Secondary LLM token stats
-        secondary_prompt = self.secondary_token_stats["prompt_tokens"]
-        secondary_completion = self.secondary_token_stats["completion_tokens"]
-        secondary_total = self.secondary_token_stats["total_tokens"]
+        # Calculate secondary LLM token stats
+        secondary_prompt = [stat["prompt_tokens"] for stat in self.secondary_token_stats]
+        secondary_completion = [stat["completion_tokens"] for stat in self.secondary_token_stats]
+        secondary_total = [stat["total_tokens"] for stat in self.secondary_token_stats]
         
         return {
             "primary": {
@@ -467,7 +461,8 @@ class GameData:
                 "total_completion_tokens": sum(primary_completion) if primary_completion else 0,
                 "avg_total_tokens": np.mean(primary_total) if primary_total else 0,
                 "avg_prompt_tokens": np.mean(primary_prompt) if primary_prompt else 0,
-                "avg_completion_tokens": np.mean(primary_completion) if primary_completion else 0
+                "avg_completion_tokens": np.mean(primary_completion) if primary_completion else 0,
+                "request_count": len(primary_total)
             },
             "secondary": {
                 "total_tokens": sum(secondary_total) if secondary_total else 0,
@@ -475,7 +470,8 @@ class GameData:
                 "total_completion_tokens": sum(secondary_completion) if secondary_completion else 0,
                 "avg_total_tokens": np.mean(secondary_total) if secondary_total else 0,
                 "avg_prompt_tokens": np.mean(secondary_prompt) if secondary_prompt else 0,
-                "avg_completion_tokens": np.mean(secondary_completion) if secondary_completion else 0
+                "avg_completion_tokens": np.mean(secondary_completion) if secondary_completion else 0,
+                "request_count": len(secondary_total)
             }
         }
     
@@ -585,8 +581,7 @@ class GameData:
             # Core game data
             "score": self.score,
             "steps": self.steps,
-            "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else 1,
-            "win": self.win,
+            "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else self.snake_length,
             "game_over": self.game_over,
             "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
             
@@ -618,6 +613,10 @@ class GameData:
                 "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
                 "parser_usage_count": self.parser_usage_count
             },
+            
+            # Raw token stats data (for detailed analysis)
+            "primary_token_stats": self.primary_token_stats,
+            "secondary_token_stats": self.secondary_token_stats,
             
             # Detailed game history (at bottom)
             "detailed_history": {

@@ -87,9 +87,12 @@ This project implements a Mixture-of-Experts inspired approach where two special
 
 ## Continue Mode
 
-For some reasons, you might want to pause an ongoing experiment, and then continue with the same game. 
+The continue mode will now be completely re-conceived. It will basically play around the notion of "--max-game". No need to detect/remove the "prompts" and "responses" folder. We assume that 1. First, at the very beginning, we run a new experiment with "python main.py --max-game A". statistics (especially regarding time, tokens) are collected in game_1.json, game_2.json, ... game_A.json and summary.json files. We should assume that all A games are finished.
+2. Then, we want to add more games to the existing experiment, with "python main.py --continue-with-game-in-dir dir_of_experiment --max-game B". Then the game will be running B-A games. Then statistics are updated in game_A+1.json, game_A+2.json, ... game_B.json and summary.json files. We should assume that all B-A games are finished.
+3. Then, we want to add more games to the existing experiment, with "python main.py --continue-with-game-in-dir dir_of_experiment --max-game C". Then the game will be running C-B games. Then statistics are updated in game_B+1.json, game_B+2.json, ... game_C.json and summary.json files. We should assume that all C-B games are finished.
+4. Then, we want to add more games to the existing experiment, with "python main.py --continue-with-game-in-dir dir_of_experiment --max-game D". Then the game will be running D-C games. Then statistics are updated in game_C+1.json, game_C+2.json, ... game_D.json and summary.json files. We should assume that all D games are finished
 
-Or, you just want to add more games to the existing experiment, so that, according to the central limit theorem, the results will converge to the true mean of current settings.
+In general, you just want to add more games to the existing experiment, so that, according to the central limit theorem, the results will converge to the true mean of current settings.
 
 In continue mode, only "--max-games", "--no-gui" and "--sleep-before-launching" are allowed when on "--continue-with-game-in-dir" mode. 
 

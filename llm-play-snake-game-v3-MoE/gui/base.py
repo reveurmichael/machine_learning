@@ -106,46 +106,25 @@ class BaseGUI:
     
     def draw_walls(self):
         """Draw the walls/borders of the game board."""
-        wall_thickness = 2
-        
-        # Draw four walls
-        pygame.draw.rect(
-            self.screen,
-            COLORS['WHITE'],  # Wall color
-            (0, 0, self.height, wall_thickness)  # Top wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            COLORS['WHITE'],  # Wall color
-            (0, 0, wall_thickness, self.height)  # Left wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            COLORS['WHITE'],  # Wall color
-            (0, self.height - wall_thickness, self.height, wall_thickness)  # Bottom wall
-        )
-        pygame.draw.rect(
-            self.screen,
-            COLORS['WHITE'],  # Wall color
-            (self.height - wall_thickness, 0, wall_thickness, self.height)  # Right wall
-        )
+        # No walls or borders in the cleaner design
+        pass
     
     def clear_game_area(self):
         """Clear the game board area."""
-        # Draw background rectangle for game section
+        # Draw background rectangle for game section without any padding
         pygame.draw.rect(
             self.screen, 
             COLORS['BACKGROUND'], 
-            (0, 0, self.height+1, self.height+1)
+            (0, 0, self.height, self.height)
         )
     
     def clear_info_panel(self):
         """Clear the information panel area."""
-        # Draw background rectangle for info panel
+        # Draw background rectangle for info panel without separation line
         pygame.draw.rect(
             self.screen,
             COLORS['APP_BG'],
-            (self.height+1, 0, self.width+self.width_plus, self.height)
+            (self.height, 0, self.width+self.width_plus-self.height, self.height)
         )
     
     def render_text_area(self, text, x, y, width, height, max_lines=20):

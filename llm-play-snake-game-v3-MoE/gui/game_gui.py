@@ -39,12 +39,9 @@ class GameGUI(BaseGUI):
                     self.draw_snake_segment(x, display_y, is_head)
                 elif value == board_info["apple"]:  # apple
                     self.draw_apple([x, y], flip_y=True)
-                    
-        # Draw walls/borders
-        self.draw_walls()
         
         # Update display for this region
-        pygame.display.update((0, 0, self.height+1, self.height+1))
+        pygame.display.update((0, 0, self.height, self.height))
     
     def draw_snake_segment(self, x, y, is_head=False):
         """Draw a single snake segment.

@@ -43,10 +43,10 @@ class GameData:
         self.start_time = time.time()
         self.end_time = None
         self.rounds_data = {}
-        self.current_round = 1  # Use 1-based indexing for rounds (was 0)
+        # Initialize round_count to 0 since we increment it before saving data
+        self.round_count = 0
         self.current_round_data = self._create_empty_round_data()
         self.apple_positions = []
-        self.round_count = 1  # Start from 1 instead of 0
         self.game_end_reason = None
         self.last_move = None
         self.last_action_time = None
@@ -112,10 +112,10 @@ class GameData:
         """
         # Save previous round data if we have moves
         if self.current_round_data["moves"]:
-            self.rounds_data[f"round_{self.current_round}"] = self.current_round_data.copy()
-            self.current_round += 1
-            # Also update round_count to keep it in sync
-            self.round_count = self.current_round
+            # Use round_count+1 to match the prompt/response file naming which uses round_count+1
+            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
+            # Increment round count after saving the data
+            self.round_count += 2  # Skip even numbers to match prompt/response files (1,3,5...)
         
         # Reset current round data
         self.current_round_data = {
@@ -145,11 +145,10 @@ class GameData:
             self.score += 1
             self.snake_length += 1
             
-            # Save the current round data
-            self.rounds_data[f"round_{self.current_round}"] = self.current_round_data.copy()
-            self.current_round += 1
-            # Also update round_count to keep it in sync
-            self.round_count = self.current_round
+            # Save the current round data using round_count+1 to match prompt/response files
+            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
+            # Increment round count by 2 to skip even numbers (1,3,5...)
+            self.round_count += 2
             
             # Reset for next round
             self.current_round_data = {
@@ -244,13 +243,14 @@ class GameData:
             reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS", "EMPTY_MOVES")
         """
         self.game_end_reason = reason
-        self.game_over = True  # Set game_over to True
+        self.game_over = True
         self.game_number += 1
         self.end_time = time.time()
         
         # Save any remaining round data
         if self.current_round_data["moves"]:
-            self.rounds_data[f"round_{self.current_round}"] = self.current_round_data.copy()
+            # Use round_count+1 to match prompt/response file naming
+            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
     
     def record_primary_response_time(self, duration):
         """Record a primary LLM response time.

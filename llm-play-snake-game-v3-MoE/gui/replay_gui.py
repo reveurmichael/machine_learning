@@ -235,7 +235,7 @@ class ReplayGUI(BaseGUI):
         """
         # Background
         bg_rect = pygame.Rect(x, y, width, height)
-        pygame.draw.rect(self.screen, COLORS['GREY2'], bg_rect)
+        pygame.draw.rect(self.screen, COLORS['GREY'], bg_rect)
 
         # Progress
         if total > 0:
@@ -273,7 +273,7 @@ class ReplayGUI(BaseGUI):
 
             # Display each planned move
             moves_str = ", ".join(planned_moves)
-            moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
+            moves_display = self.font.render(moves_str, True, COLORS['GREY'])
             self.screen.blit(moves_display, (self.height + 20, 130))
 
         # Draw LLM response if available

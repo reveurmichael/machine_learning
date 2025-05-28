@@ -99,7 +99,7 @@ class GameGUI(BaseGUI):
         else:
             moves_str = ""  # No more planned moves to execute
             
-        moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
+        moves_display = self.font.render(moves_str, True, COLORS['GREY'])
         self.screen.blit(moves_display, (self.height + 20, 130))
         
         # Draw LLM response if available

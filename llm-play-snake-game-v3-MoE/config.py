@@ -9,9 +9,7 @@ COLORS = {
     'ERROR': (231, 76, 60),         # Red for error messages
     'BLACK': (0, 0, 0),             # Black
     'WHITE': (255, 255, 255),       # White
-    'GREY': (113, 128, 147),        # Medium grey
-    'GREY2': (189, 195, 199),       # Light grey
-    'GREY3': (87, 96, 111),         # Dark grey
+    'GREY': (189, 195, 199),        # Light grey
     'APP_BG': (240, 240, 240)       # App background
 }
 

@@ -184,7 +184,7 @@ class BaseGUI:
         # Setup text area with border
         pygame.draw.rect(
             self.screen,
-            COLORS['GREY2'],  # Light gray background for text area
+            COLORS['GREY'],  # Light gray background for text area
             (x, y, width, height),
             0,  # Filled rectangle
             3   # Rounded corners
@@ -192,7 +192,7 @@ class BaseGUI:
         
         pygame.draw.rect(
             self.screen,
-            COLORS['GREY3'],  # Darker border
+            COLORS['GREY'],  # Darker border
             (x, y, width, height),
             2,  # Border only (not filled)
             3   # Rounded corners

@@ -152,10 +152,9 @@ class ReplayGUI(BaseGUI):
 
         # Stats without direction
         stats_text = [
-            f"Game: {game_number}",
-            f"Score: {score}",
-            f"Steps: {steps}",
-            f"Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)"
+            f"- Game: {game_number}",
+            f"- Score: {score}",
+            f"- Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)"
         ]
 
         # Display each statistic
@@ -175,7 +174,7 @@ class ReplayGUI(BaseGUI):
                 "ERROR": "LLM Error"
             }
             end_reason_text = end_reason_map.get(game_end_reason, game_end_reason)
-            reason_text = font.render(f"End Reason: {end_reason_text}", True, COLORS['BLACK'])
+            reason_text = font.render(f"- End Reason: {end_reason_text}", True, COLORS['BLACK'])
             self.screen.blit(reason_text, (self.height + 30, y_offset))
             y_offset += 30
 
@@ -186,24 +185,24 @@ class ReplayGUI(BaseGUI):
         y_offset += 40
 
         llm_text = [
-            f"Primary: {primary_llm or 'Unknown'}",
-            f"Parser: {secondary_llm or 'None'}"
+            f"- Primary: {primary_llm or 'Unknown'}",
+            f"- Parser: {secondary_llm or 'None'}"
         ]
 
         for text in llm_text:
             text_surface = font.render(text, True, COLORS['BLACK'])
             self.screen.blit(text_surface, (self.height + 30, y_offset))
-            y_offset += 30
+            y_offset += 33
 
         progress_title = title_font.render("Progress", True, COLORS["BLACK"])
         self.screen.blit(progress_title, (self.height + 20, y_offset))
-        y_offset += 40
+        y_offset += 30
 
         # Progress bar for replay
         y_offset += 10
         self.draw_progress_bar(move_index, total_moves, self.height + 20, y_offset, 
                               self.text_panel_width - 40, 20)
-        y_offset += 40
+        y_offset += 30
 
         # Controls section with updated instructions
         controls_title = title_font.render("Controls", True, COLORS['BLACK'])
@@ -211,11 +210,11 @@ class ReplayGUI(BaseGUI):
         y_offset += 40
 
         controls_text = [
-            "Space: Pause/Resume",
-            "Left/Right Arrows: Prev/Next Game",
-            "Up/Down Arrows: Speed Up/Down",
-            "R: Restart Current Game",
-            "Esc: Quit"
+            "- Space: Pause/Resume",
+            "- Left/Right Arrows: Prev/Next Game",
+            "- Up/Down Arrows: Speed Up/Down",
+            "- R: Restart Current Game",
+            "- Esc: Quit"
         ]
 
         for text in controls_text:

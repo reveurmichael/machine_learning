@@ -62,6 +62,21 @@ def run_game_loop(game_manager):
                             game_manager.game.steps += 1
                             game_manager.total_steps += 1
                             game_manager.game.game_state.record_empty_move()
+                            
+                            # Record this empty move in the moves history for replay
+                            game_manager.current_game_moves.append("EMPTY")
+                            game_manager.game.game_state.moves.append("EMPTY")
+                            
+                            # Increment consecutive empty steps
+                            game_manager.consecutive_empty_steps += 1
+                            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")
+                            
+                            # Check if we've reached max empty moves
+                            if game_manager.consecutive_empty_steps >= game_manager.args.max_empty_moves:
+                                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves}). Game over.")
+                                game_manager.game_active = False
+                                game_manager.game.last_collision_type = 'empty_moves'
+                                game_manager.game.game_state.record_game_end("EMPTY_MOVES")
                         
                         # End tracking game movement time
                         game_manager.game.game_state.record_game_movement_end()

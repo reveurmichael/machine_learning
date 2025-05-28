@@ -294,6 +294,12 @@ class ReplayEngine(GameController):
                 game_active: Boolean indicating if the game is still active
                 apple_eaten: Boolean indicating if an apple was eaten on this move
         """
+        # Handle special case for empty moves
+        if direction_key == "EMPTY":
+            print("Empty move - snake stays in place")
+            self.steps += 1
+            return True, False  # Game continues, no apple eaten
+            
         # Get direction vector
         if direction_key not in DIRECTIONS:
             print(f"Invalid direction: {direction_key}, defaulting to RIGHT")

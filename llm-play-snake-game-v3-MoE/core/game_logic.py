@@ -26,7 +26,6 @@ class GameLogic(GameController):
         
         # LLM interaction state
         self.planned_moves = []
-        self.last_llm_response = ""
         self.processed_response = ""
     
     @property
@@ -113,7 +112,6 @@ class GameLogic(GameController):
         """Reset the game to the initial state."""
         super().reset()
         self.planned_moves = []
-        self.last_llm_response = ""
         self.processed_response = ""
         
         # Return the current state representation for LLM
@@ -173,9 +171,6 @@ class GameLogic(GameController):
             traceback.print_exc()
             
             # Store the raw response for display
-            self.last_llm_response = response
-            
-            # Process a simplified version for display
             self.processed_response = f"ERROR: Failed to parse LLM response\n\n{response[:200]}..."
             
             # Clear previous planned moves
@@ -195,68 +190,4 @@ class GameLogic(GameController):
         if self.planned_moves:
             next_move = self.planned_moves.pop(0)
             return next_move
-        return None
-        
-    def has_planned_moves(self):
-        """Check if there are still planned moves available.
-        
-        Returns:
-            Boolean indicating if there are more planned moves
-        """
-        return len(self.planned_moves) > 0
-    
-    def get_display_response(self):
-        """Get the processed LLM response for display.
-        
-        Returns:
-            Processed LLM response text
-        """
-        return self.processed_response
-    
-    def add_response_time(self, duration):
-        """Add a primary LLM response time to the tracking list.
-        
-        Args:
-            duration: Response time duration in seconds
-        """
-        self.game_state.record_primary_response_time(duration)
-    
-    def add_secondary_response_time(self, duration):
-        """Add a secondary LLM response time to the tracking list.
-        
-        Args:
-            duration: Response time duration in seconds
-        """
-        self.game_state.record_secondary_response_time(duration)
-    
-    def get_average_response_time(self):
-        """Get the average primary LLM response time.
-        
-        Returns:
-            Average response time in seconds, or 0 if no responses
-        """
-        response_times = self.game_state.primary_response_times
-        if not response_times:
-            return 0
-        return sum(response_times) / len(response_times)
-    
-    def get_average_secondary_response_time(self):
-        """Get the average secondary LLM response time.
-        
-        Returns:
-            Average response time in seconds, or 0 if no responses
-        """
-        response_times = self.game_state.secondary_response_times
-        if not response_times:
-            return 0
-        return sum(response_times) / len(response_times)
-    
-    def get_steps_per_apple(self):
-        """Calculate steps taken per apple eaten.
-        
-        Returns:
-            Steps per apple ratio, or steps if no apples eaten
-        """
-        if self.score == 0:
-            return self.steps
-        return self.steps / self.score 
+        return None 

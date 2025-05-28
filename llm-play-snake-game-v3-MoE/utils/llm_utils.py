@@ -213,9 +213,6 @@ def parse_llm_response(response, processed_response_func, game_instance):
         or None if no valid moves were found
     """
     try:
-        # Store the raw response for display
-        game_instance.last_llm_response = response
-        
         # Process the response for display
         game_instance.processed_response = processed_response_func(response)
         

@@ -187,7 +187,11 @@ class ReplayEngine(GameController):
                 first_apple = self.apple_positions[0]
                 
                 if isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
-                    self.apple_position = np.array(first_apple)
+                    # Use set_apple_position method instead of direct assignment
+                    success = self.set_apple_position(first_apple)
+                    if not success:
+                        # Fallback if position is invalid
+                        self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
                 else:
                     # Default position if format is unexpected
                     self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
@@ -349,9 +353,23 @@ class ReplayEngine(GameController):
                 next_apple = self.apple_positions[self.apple_index]
                 
                 if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
-                    self.apple_position = np.array([next_apple['x'], next_apple['y']])
+                    # Use set_apple_position instead of direct assignment
+                    success = self.set_apple_position([next_apple['x'], next_apple['y']])
+                    if not success:
+                        # Fallback to generating a new apple position away from snake
+                        self.apple_position = np.array([
+                            (self.head_position[0] + 5) % self.grid_size,
+                            (self.head_position[1] + 5) % self.grid_size
+                        ])
                 elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
-                    self.apple_position = np.array(next_apple)
+                    # Use set_apple_position instead of direct assignment
+                    success = self.set_apple_position(next_apple)
+                    if not success:
+                        # Fallback to generating a new apple position away from snake
+                        self.apple_position = np.array([
+                            (self.head_position[0] + 5) % self.grid_size,
+                            (self.head_position[1] + 5) % self.grid_size
+                        ])
                 else:
                     # Place apple away from snake
                     self.apple_position = np.array([

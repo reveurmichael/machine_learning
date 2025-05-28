@@ -56,28 +56,8 @@ class BaseGUI:
             snake_positions: List of [x,y] positions for snake segments
             flip_y: Whether to flip the y-coordinate (for different coordinate systems)
         """
-        for i, position in enumerate(snake_positions):
-            x, y = position
-            
-            # Handle flipping y coordinate if needed
-            if flip_y:
-                display_y = self.grid_size - 1 - y
-            else:
-                display_y = y
-                
-            # Draw rectangle for snake segment
-            rect = pygame.Rect(
-                x * self.pixel,
-                display_y * self.pixel,
-                self.pixel - 5,
-                self.pixel - 5
-            )
-            
-            # Draw head in different color
-            if i == 0:
-                pygame.draw.rect(self.screen, COLORS['SNAKE_HEAD'], rect)
-            else:
-                pygame.draw.rect(self.screen, COLORS['SNAKE_BODY'], rect)
+        # I'll remove the draw_snake method from the BaseGUI class
+        pass
     
     def draw_apple(self, apple_position, flip_y=False):
         """Draw the apple at the given position.

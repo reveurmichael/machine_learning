@@ -347,18 +347,6 @@ class GameData:
         # Add to current round data
         self.current_round_data["secondary_token_stats"].append(token_stats)
     
-    def record_primary_llm_error(self):
-        """Record an error from the primary LLM."""
-        self.primary_llm_errors += 1
-    
-    def record_secondary_llm_error(self):
-        """Record an error from the secondary LLM."""
-        self.secondary_llm_errors += 1
-    
-    def record_parser_usage(self):
-        """Record that the parser was used."""
-        self.parser_usage_count += 1
-    
     def record_json_extraction_attempt(self, success, error_type=None):
         """Record a JSON extraction attempt.
         
@@ -381,10 +369,6 @@ class GameData:
                 self.code_block_extraction_errors += 1
             elif error_type == "text":
                 self.text_extraction_errors += 1
-    
-    def record_pattern_extraction_success(self):
-        """Record a successful pattern-based extraction."""
-        self.pattern_extraction_success += 1
     
     def record_round_data(self, round_number, apple_position, moves, 
                          primary_response_time=None, secondary_response_time=None,
@@ -433,21 +417,6 @@ class GameData:
         if file_round % 3 == 1:  # If round is 1, 4, 7, etc.
             logical_round = (file_round + 2) // 3
             self.round_count = max(self.round_count, logical_round)
-    
-    def get_efficiency_metrics(self):
-        """Calculate efficiency metrics.
-        
-        Returns:
-            Dictionary of efficiency metrics
-        """
-        apples_per_step = self.score / max(1, self.steps)
-        valid_move_ratio = self.valid_steps / max(1, self.steps) * 100
-        
-        return {
-            "apples_per_step": apples_per_step,
-            "steps_per_game": self.steps,
-            "valid_move_ratio": valid_move_ratio
-        }
     
     def get_step_stats(self):
         """Calculate step statistics.
@@ -687,133 +656,8 @@ class GameData:
         return summary
     
     def get_aggregated_stats_for_summary_json(self, game_count, game_scores, game_durations=None):
-        """Generate aggregated statistics for summary.json file.
-        
-        Args:
-            game_count: Total number of games played
-            game_scores: List of scores for all games
-            game_durations: List of game durations in seconds
-            
-        Returns:
-            Dictionary with aggregated statistics
-        """
-        # Calculate aggregate statistics
-        total_score = sum(game_scores) if game_scores else 0
-        mean_score = total_score / max(1, game_count)
-        max_score = max(game_scores) if game_scores else 0
-        min_score = min(game_scores) if game_scores else 0
-        
-        # Time statistics
-        session_start_time = datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S")
-        session_end_time = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S")
-        session_duration = time.time() - self.start_time
-        
-        # Game duration statistics
-        time_stats = {}
-        if game_durations and len(game_durations) > 0:
-            time_stats = {
-                "total_session_duration_seconds": session_duration,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time,
-                "avg_game_duration_seconds": np.mean(game_durations),
-                "min_game_duration_seconds": np.min(game_durations),
-                "max_game_duration_seconds": np.max(game_durations),
-                "total_llm_communication_time": self.llm_communication_time,
-                "total_game_movement_time": self.game_movement_time,
-                "total_waiting_time": self.waiting_time,
-                "llm_communication_percent": (self.llm_communication_time / session_duration * 100) if session_duration > 0 else 0,
-                "game_movement_percent": (self.game_movement_time / session_duration * 100) if session_duration > 0 else 0,
-                "waiting_percent": (self.waiting_time / session_duration * 100) if session_duration > 0 else 0
-            }
-        else:
-            time_stats = {
-                "total_session_duration_seconds": session_duration,
-                "session_start_time": session_start_time,
-                "session_end_time": session_end_time
-            }
-        
-        # Create the base summary data
-        summary = {
-            "game_statistics": {
-                "total_games": game_count,
-                "total_score": total_score,
-                "total_steps": self.steps,
-                "mean_score": mean_score,
-                "max_score": max_score,
-                "min_score": min_score,
-                "steps_per_game": self.steps / max(1, game_count),
-                "steps_per_apple": self.steps / max(1, total_score) if total_score > 0 else self.steps,
-                "apples_per_step": total_score / max(1, self.steps),
-                "valid_move_ratio": self.valid_steps / max(1, self.steps) * 100,
-                "invalid_reversals": self.invalid_reversals,
-                "invalid_reversal_ratio": self.invalid_reversals / max(1, self.steps) * 100
-            },
-            "time_statistics": time_stats,
-            "response_time_stats": {
-                "primary_llm": {
-                    "avg_response_time": np.mean(self.primary_response_times) if self.primary_response_times else 0,
-                    "min_response_time": np.min(self.primary_response_times) if self.primary_response_times else 0,
-                    "max_response_time": np.max(self.primary_response_times) if self.primary_response_times else 0,
-                    "total_response_time": sum(self.primary_response_times) if self.primary_response_times else 0,
-                    "response_count": len(self.primary_response_times)
-                },
-                "secondary_llm": {
-                    "avg_response_time": np.mean(self.secondary_response_times) if self.secondary_response_times else 0,
-                    "min_response_time": np.min(self.secondary_response_times) if self.secondary_response_times else 0,
-                    "max_response_time": np.max(self.secondary_response_times) if self.secondary_response_times else 0,
-                    "total_response_time": sum(self.secondary_response_times) if self.secondary_response_times else 0,
-                    "response_count": len(self.secondary_response_times)
-                }
-            },
-            "token_usage_stats": {
-                "primary_llm": {
-                    "total_tokens": self.get_token_stats()["primary"]["total_tokens"],
-                    "total_prompt_tokens": self.get_token_stats()["primary"]["total_prompt_tokens"],
-                    "total_completion_tokens": self.get_token_stats()["primary"]["total_completion_tokens"],
-                    "avg_tokens_per_request": self.get_token_stats()["primary"]["avg_total_tokens"],
-                    "avg_prompt_tokens": self.get_token_stats()["primary"]["avg_prompt_tokens"],
-                    "avg_completion_tokens": self.get_token_stats()["primary"]["avg_completion_tokens"]
-                },
-                "secondary_llm": {
-                    "total_tokens": self.get_token_stats()["secondary"]["total_tokens"],
-                    "total_prompt_tokens": self.get_token_stats()["secondary"]["total_prompt_tokens"],
-                    "total_completion_tokens": self.get_token_stats()["secondary"]["total_completion_tokens"],
-                    "avg_tokens_per_request": self.get_token_stats()["secondary"]["avg_total_tokens"],
-                    "avg_prompt_tokens": self.get_token_stats()["secondary"]["avg_prompt_tokens"],
-                    "avg_completion_tokens": self.get_token_stats()["secondary"]["avg_completion_tokens"]
-                }
-            },
-            "step_stats": self.get_step_stats(),
-            "json_parsing_stats": {
-                "success_rate": self.successful_extractions / max(1, self.total_extraction_attempts) * 100,
-                "total_extraction_attempts": self.total_extraction_attempts,
-                "successful_extractions": self.successful_extractions,
-                "failed_extractions": self.failed_extractions,
-                "failure_rate": self.failed_extractions / max(1, self.total_extraction_attempts) * 100
-            },
-            "game_scores": game_scores
-        }
-        
-        # Add continuation info at the bottom
-        if self.is_continuation:
-            # Create a dedicated continuation section
-            continuation_info = {
-                "is_continued": True,
-                "continuation_count": self.continuation_count
-            }
-            
-            # Add timestamps if available
-            if hasattr(self, 'continuation_timestamps') and self.continuation_timestamps:
-                continuation_info['continuation_timestamps'] = self.continuation_timestamps
-                
-            # Add metadata if available
-            if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
-                continuation_info['continuation_metadata'] = self.continuation_metadata
-                
-            # Add to summary at the end
-            summary['continuation_info'] = continuation_info
-            
-        return summary
+        """This method has been deprecated and is no longer used."""
+        pass
     
     def save_prompt_response_rounds(self, log_dir, game_number):
         """Save rounds data based on the prompt/response files in the log directory.

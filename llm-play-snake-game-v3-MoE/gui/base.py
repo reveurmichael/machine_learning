@@ -49,28 +49,6 @@ class BaseGUI:
         # Calculate the width of the text panel
         self.text_panel_width = self.width + self.width_plus - self.height - 40
     
-    def draw_grid(self):
-        """Draw the grid lines on the board."""
-        # Draw horizontal grid lines
-        for y in range(self.grid_size + 1):
-            pygame.draw.line(
-                self.screen, 
-                COLORS['GRID'], 
-                (0, y * self.pixel), 
-                (self.grid_size * self.pixel, y * self.pixel), 
-                1
-            )
-        
-        # Draw vertical grid lines
-        for x in range(self.grid_size + 1):
-            pygame.draw.line(
-                self.screen, 
-                COLORS['GRID'], 
-                (x * self.pixel, 0), 
-                (x * self.pixel, self.grid_size * self.pixel), 
-                1
-            )
-    
     def draw_snake(self, snake_positions, flip_y=False):
         """Draw the snake at the given positions.
         

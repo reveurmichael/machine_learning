@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 import numpy as np
 from utils.json_utils import NumPyJSONEncoder
+import os
+import re
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
@@ -45,6 +47,8 @@ class GameData:
         self.rounds_data = {}
         # Initialize round_count to 0 since we increment it before saving data
         self.round_count = 0
+        # Track file round numbers separately for file naming
+        self.file_round_numbers = []
         self.current_round_data = self._create_empty_round_data()
         self.apple_positions = []
         self.game_end_reason = None
@@ -112,10 +116,20 @@ class GameData:
         """
         # Save previous round data if we have moves
         if self.current_round_data["moves"]:
-            # Use round_count+1 to match the prompt/response file naming which uses round_count+1
-            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
-            # Increment round count after saving the data
-            self.round_count += 2  # Skip even numbers to match prompt/response files (1,3,5...)
+            # Increment round count
+            self.round_count += 1
+            
+            # Calculate the file round number (1, 3, 5...)
+            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
+            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
+            file_round = file_round + (self.round_count - 1) 
+            
+            # Store for later reference
+            if file_round not in self.file_round_numbers:
+                self.file_round_numbers.append(file_round)
+            
+            # Save the round data with the file round number
+            self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
         
         # Reset current round data
         self.current_round_data = {
@@ -145,10 +159,20 @@ class GameData:
             self.score += 1
             self.snake_length += 1
             
-            # Save the current round data using round_count+1 to match prompt/response files
-            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
-            # Increment round count by 2 to skip even numbers (1,3,5...)
-            self.round_count += 2
+            # Increment round count
+            self.round_count += 1
+            
+            # Calculate the file round number (1, 3, 5...)
+            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
+            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
+            file_round = file_round + (self.round_count - 1)
+            
+            # Store for later reference
+            if file_round not in self.file_round_numbers:
+                self.file_round_numbers.append(file_round)
+            
+            # Save the round data with the file round number
+            self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
             
             # Reset for next round
             self.current_round_data = {
@@ -249,8 +273,20 @@ class GameData:
         
         # Save any remaining round data
         if self.current_round_data["moves"]:
-            # Use round_count+1 to match prompt/response file naming
-            self.rounds_data[f"round_{self.round_count+1}"] = self.current_round_data.copy()
+            # Increment round count
+            self.round_count += 1
+            
+            # Calculate the file round number (1, 3, 5...)
+            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
+            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
+            file_round = file_round + (self.round_count - 1)
+            
+            # Store for later reference
+            if file_round not in self.file_round_numbers:
+                self.file_round_numbers.append(file_round)
+            
+            # Save the round data with the file round number
+            self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
     
     def record_primary_response_time(self, duration):
         """Record a primary LLM response time.
@@ -356,7 +392,7 @@ class GameData:
         """Record data for a specific round.
         
         Args:
-            round_number: The round number
+            round_number: The round number (should match prompt/response file round numbers)
             apple_position: Position of the apple as [x, y]
             moves: List of moves made in this round
             primary_response_time: Response time of the primary LLM
@@ -380,9 +416,23 @@ class GameData:
             
         if secondary_tokens is not None:
             round_data["secondary_token_stats"] = [secondary_tokens]
+        
+        # Use the exact round number provided (should match prompt/response files)
+        file_round = round_number
             
-        self.rounds_data[f"round_{round_number}"] = round_data
-        self.round_count = max(self.round_count, round_number)
+        # Store in file round numbers list if not already there
+        if file_round not in self.file_round_numbers:
+            self.file_round_numbers.append(file_round)
+            
+        # Save the round data with the file round number
+        self.rounds_data[f"round_{file_round}"] = round_data
+        
+        # Update internal round_count based on file_round
+        # This is a bit complex due to the non-continuous round numbers in prompt/response files
+        # We're trying to estimate what the logical round count would be based on the file round number
+        if file_round % 3 == 1:  # If round is 1, 4, 7, etc.
+            logical_round = (file_round + 2) // 3
+            self.round_count = max(self.round_count, logical_round)
     
     def get_efficiency_metrics(self):
         """Calculate efficiency metrics.
@@ -765,6 +815,91 @@ class GameData:
             
         return summary
     
+    def save_prompt_response_rounds(self, log_dir, game_number):
+        """Save rounds data based on the prompt/response files in the log directory.
+        
+        Args:
+            log_dir: Directory containing prompts and responses
+            game_number: The game number to look for
+        """
+        import os
+        import re
+        
+        # Get prompt files to identify round numbers
+        prompts_dir = os.path.join(log_dir, 'prompts')
+        if not os.path.exists(prompts_dir):
+            return
+            
+        # Get all prompt files for this game
+        prompt_files = [f for f in os.listdir(prompts_dir) if f.startswith(f'game_{game_number}_round_') and f.endswith('_prompt.txt')]
+        
+        # Extract round numbers
+        round_numbers = []
+        for file in prompt_files:
+            # Extract round number from format game_N_round_M_prompt.txt
+            match = re.search(r'game_\d+_round_(\d+)_prompt\.txt', file)
+            if match:
+                round_numbers.append(int(match.group(1)))
+        
+        if not round_numbers:
+            return
+            
+        # Sort round numbers
+        round_numbers.sort()
+        
+        # Save each round's data
+        for round_num in round_numbers:
+            # Only add if not already in rounds_data
+            if f'round_{round_num}' in self.rounds_data:
+                continue
+                
+            # Get moves for this round
+            moves = []
+            start_index = 0
+            end_index = 0
+            
+            # Calculate start index based on the round number
+            # Each prompt corresponds to 2 moves
+            # Round 1: moves 0-1
+            # Round 3: moves 2-3
+            # Round 5: moves 4-5, etc.
+            if round_num == 1:
+                start_index = 0
+                end_index = min(2, len(self.moves))
+            elif round_num > 1:
+                start_index = (round_num - 1)
+                end_index = min(start_index + 2, len(self.moves))
+            
+            # Get moves for this round
+            if end_index > start_index and start_index < len(self.moves):
+                moves = self.moves[start_index:end_index]
+            
+            # Create round data
+            round_data = {
+                "apple_position": [self.apple_positions[0]["x"], self.apple_positions[0]["y"]] if self.apple_positions else [0, 0],
+                "moves": moves,
+                "primary_response_times": [],
+                "secondary_response_times": [],
+                "primary_token_stats": [],
+                "secondary_token_stats": []
+            }
+            
+            # Add token stats and response times if available
+            # We have different indices for these since they're tracked separately
+            if round_num <= len(self.primary_response_times):
+                response_idx = round_num - 1
+                round_data["primary_response_times"] = [self.primary_response_times[response_idx]]
+                
+            if round_num <= len(self.primary_token_stats):
+                token_idx = round_num - 1
+                round_data["primary_token_stats"] = [self.primary_token_stats[token_idx]]
+            
+            # Save the round data
+            self.rounds_data[f'round_{round_num}'] = round_data
+            
+        # Update the file_round_numbers
+        self.file_round_numbers = round_numbers
+    
     def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
         """Save the game summary to a JSON file.
         
@@ -779,6 +914,17 @@ class GameData:
         Returns:
             Path to the saved file
         """
+        # Get the game number from the filepath
+        import os
+        import re
+        match = re.search(r'game_(\d+)\.json', os.path.basename(filepath))
+        if match:
+            game_number = int(match.group(1))
+            # Extract the log directory from the filepath
+            log_dir = os.path.dirname(filepath)
+            # Save rounds based on prompt/response files
+            self.save_prompt_response_rounds(log_dir, game_number)
+        
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
         
         with open(filepath, 'w') as f:

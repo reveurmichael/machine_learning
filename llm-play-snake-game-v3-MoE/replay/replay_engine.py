@@ -83,8 +83,6 @@ class ReplayEngine(GameController):
                 llm_response=self.llm_response
             )
             
-            # Don't call draw_game_info as it conflicts with draw_replay_info which is already called in draw()
-    
     def load_game_data(self, game_number):
         """Load game data for a specific game number.
         

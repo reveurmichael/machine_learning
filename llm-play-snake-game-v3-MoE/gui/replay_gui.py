@@ -65,7 +65,8 @@ class ReplayGUI(BaseGUI):
             primary_llm=primary_llm,
             secondary_llm=secondary_llm,
             game_timestamp=game_timestamp,
-            paused=self.paused
+            paused=self.paused,
+            llm_response=llm_response
         )
         
         # Update display
@@ -81,7 +82,7 @@ class ReplayGUI(BaseGUI):
     
     def draw_replay_info(self, game_number, score, steps, move_index, total_moves, current_direction,
                         game_end_reason=None, primary_llm=None, secondary_llm=None, game_timestamp=None,
-                        paused=False):
+                        paused=False, llm_response=None):
         """Draw replay information panel.
         
         Args:
@@ -96,6 +97,7 @@ class ReplayGUI(BaseGUI):
             secondary_llm: Secondary LLM provider/model (parser)
             game_timestamp: Timestamp when the game was played
             paused: Whether the replay is paused
+            llm_response: The LLM response to display
         """
         # Clear info panel with the same background color as other modes
         self.clear_info_panel()
@@ -214,6 +216,22 @@ class ReplayGUI(BaseGUI):
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
             
+        # Display LLM response if available
+        if llm_response:
+            y_offset += 10
+            response_title = title_font.render("LLM Response:", True, COLORS['BLACK'])
+            self.screen.blit(response_title, (self.height + 20, y_offset))
+            y_offset += 40
+            
+            # Draw the response text area
+            self.render_text_area(
+                llm_response,
+                self.height + 20,  # x
+                y_offset,          # y
+                self.text_panel_width - 40,  # width
+                200                # height
+            )
+        
     def draw_progress_bar(self, current, total, x, y, width, height):
         """Draw a progress bar for the replay progress.
         

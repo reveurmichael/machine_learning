@@ -81,14 +81,7 @@ class ReplayEngine(GameController):
                 llm_response=self.llm_response
             )
             
-            # Also pass planned moves for display in the game info panel
-            if hasattr(self.gui, 'draw_game_info'):
-                self.gui.draw_game_info(
-                    score=self.score,
-                    steps=self.steps,
-                    planned_moves=self.planned_moves if self.move_index < len(self.moves) else [],
-                    llm_response=self.llm_response
-                )
+            # Don't call draw_game_info as it conflicts with draw_replay_info which is already called in draw()
     
     def load_game_data(self, game_number):
         """Load game data for a specific game number.
@@ -180,13 +173,29 @@ class ReplayEngine(GameController):
                 self.gui.move_history = []
             
             # Extract LLM response and planned moves
+            self.llm_response = None
+            
+            # Try multiple places to find the LLM response
             if 'llm_response' in game_data:
                 self.llm_response = game_data['llm_response']
-            else:
-                self.llm_response = None
+            elif 'processed_response' in game_data:
+                self.llm_response = game_data['processed_response']
+            elif 'detailed_history' in game_data:
+                detailed = game_data['detailed_history']
+                if 'llm_response' in detailed:
+                    self.llm_response = detailed['llm_response']
+                elif 'processed_response' in detailed:
+                    self.llm_response = detailed['processed_response']
             
+            # If we still don't have a response, use a generic message
+            if not self.llm_response:
+                self.llm_response = "No LLM response data available for this game."
+            
+            # Get planned moves
             if 'planned_moves' in game_data:
                 self.planned_moves = game_data['planned_moves']
+            elif 'detailed_history' in game_data and 'planned_moves' in game_data['detailed_history']:
+                self.planned_moves = game_data['detailed_history']['planned_moves']
             else:
                 self.planned_moves = []
             
@@ -243,12 +252,55 @@ class ReplayEngine(GameController):
                     if not self.load_game_data(self.game_number):
                         print(f"No more games to load. Replay complete.")
                         self.running = False
+            
+            # Redraw the UI after move is processed
+            if self.use_gui and self.gui:
+                self.draw()
     
     def handle_events(self):
         """Handle pygame events."""
+        redraw_needed = False
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                # Handle key presses
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                elif event.key == pygame.K_SPACE:
+                    # Toggle pause
+                    self.paused = not self.paused
+                    if self.gui and hasattr(self.gui, 'set_paused'):
+                        self.gui.set_paused(self.paused)
+                    print(f"Replay {'paused' if self.paused else 'resumed'}")
+                    redraw_needed = True
+                elif event.key == pygame.K_n:
+                    # Next game
+                    self.game_number += 1
+                    if not self.load_game_data(self.game_number):
+                        print(f"No more games to load. Staying on current game.")
+                        self.game_number -= 1
+                    redraw_needed = True
+                elif event.key == pygame.K_r:
+                    # Restart current game
+                    self.load_game_data(self.game_number)
+                    print(f"Restarting game {self.game_number}")
+                    redraw_needed = True
+                elif event.key == pygame.K_s:
+                    # Speed up
+                    self.pause_between_moves = max(0.1, self.pause_between_moves * 0.75)
+                    print(f"Speed increased: {1/self.pause_between_moves:.1f}x")
+                    redraw_needed = True
+                elif event.key == pygame.K_d:
+                    # Slow down
+                    self.pause_between_moves = min(2.0, self.pause_between_moves * 1.25)
+                    print(f"Speed decreased: {1/self.pause_between_moves:.1f}x")
+                    redraw_needed = True
+        
+        # Redraw the UI if needed after processing events
+        if redraw_needed and self.use_gui and self.gui:
+            self.draw()
     
     def run(self):
         """Run the replay loop."""

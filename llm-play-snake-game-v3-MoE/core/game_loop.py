@@ -48,6 +48,13 @@ def run_game_loop(game_manager):
                             
                             # Reset consecutive errors counter on successful move
                             game_manager.consecutive_errors = 0
+                            
+                            # Add a pause between the first move after getting a new plan
+                            # This ensures the snake doesn't move too quickly after receiving an LLM response
+                            # Track waiting time for this pause
+                            game_manager.game.game_state.record_waiting_start()
+                            time.sleep(game_manager.get_pause_between_moves())
+                            game_manager.game.game_state.record_waiting_end()
                         else:
                             # No valid move found, but we still count this as a round
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")

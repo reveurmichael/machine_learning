@@ -83,15 +83,18 @@ class GameGUI(BaseGUI):
         self.screen.blit(score_text, (self.height + 20, 20))
         self.screen.blit(steps_text, (self.height + 20, 60))
         
-        # Draw planned moves if available
+        # Always display "Planned moves:" header
+        moves_text = self.font.render("Planned moves:", True, COLORS['BLACK'])
+        self.screen.blit(moves_text, (self.height + 20, 100))
+        
+        # Display planned moves if available, otherwise show "None"
         if planned_moves:
-            moves_text = self.font.render("Planned moves:", True, COLORS['BLACK'])
-            self.screen.blit(moves_text, (self.height + 20, 100))
-            
-            # Display each planned move
             moves_str = ", ".join(planned_moves)
-            moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
-            self.screen.blit(moves_display, (self.height + 20, 130))
+        else:
+            moves_str = "None"
+            
+        moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
+        self.screen.blit(moves_display, (self.height + 20, 130))
         
         # Draw LLM response if available
         if llm_response:

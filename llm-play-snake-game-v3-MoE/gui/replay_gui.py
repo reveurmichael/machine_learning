@@ -6,6 +6,7 @@ Provides specialized GUI functionality for replay mode.
 import pygame
 from gui.base import BaseGUI
 from config import COLORS
+import numpy as np
 
 class ReplayGUI(BaseGUI):
     """GUI class for replay display."""
@@ -14,9 +15,10 @@ class ReplayGUI(BaseGUI):
         """Initialize the replay GUI.
         
         Args:
-            gui_config: Optional dictionary with GUI configuration
+            gui_config: Optional dictionary with GUI configuration (not used)
         """
-        super().__init__(gui_config)
+        # Call parent's init without passing gui_config
+        super().__init__()
         
         # Initialize replay-specific attributes
         self.move_history = []
@@ -29,6 +31,9 @@ class ReplayGUI(BaseGUI):
         self.game_number = 1
         self.game_stats = None
         self.timestamp = "Unknown"
+        
+        # Initialize display with custom caption
+        self.init_display("Snake Game Replay")
 
     def draw(self, replay_data):
         """Draw the replay view.
@@ -81,9 +86,21 @@ class ReplayGUI(BaseGUI):
         if apple_position is not None:
             self.draw_apple(apple_position)
 
+        # Get current direction safely
+        current_direction = "NONE"
+        if (isinstance(snake_positions, list) and len(snake_positions) > 0 and 
+            isinstance(snake_positions[-1], (list, tuple, np.ndarray))):
+            # If snake_positions[-1] has at least 3 elements and the third is a string direction
+            if len(snake_positions[-1]) > 2 and isinstance(snake_positions[-1][2], str):
+                current_direction = snake_positions[-1][2]
+        
         # Update move history if there's a new move
         if move_index > 0 and (len(self.move_history) < move_index):
-            self.move_history.append(snake_positions[-1][2])
+            # Only add to history if we have a valid direction
+            if isinstance(current_direction, str) and current_direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                self.move_history.append(current_direction)
+            else:
+                self.move_history.append("UNKNOWN")
 
         # Draw game info
         self.draw_replay_info(
@@ -92,7 +109,7 @@ class ReplayGUI(BaseGUI):
             steps=steps,
             move_index=move_index,
             total_moves=total_moves,
-            current_direction=snake_positions[-1][2],
+            current_direction=current_direction,
             game_end_reason=game_end_reason,
             primary_llm=primary_llm,
             secondary_llm=secondary_llm,

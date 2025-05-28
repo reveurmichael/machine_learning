@@ -10,6 +10,8 @@ import os
 def create_display_dataframe(stats_df):
     """Create a user-friendly display DataFrame for the UI.
     
+    This function is used by the Streamlit analytics dashboard when run separately.
+    
     Args:
         stats_df: DataFrame with raw game statistics
         
@@ -38,6 +40,8 @@ def create_display_dataframe(stats_df):
 def create_game_performance_chart(game_df):
     """Create a matplotlib figure showing game performance.
     
+    This function is used by the Streamlit analytics dashboard when run separately.
+    
     Args:
         game_df: DataFrame with game data
         
@@ -55,6 +59,8 @@ def create_game_performance_chart(game_df):
 
 def create_game_dataframe(game_data):
     """Create a DataFrame from game data dictionary.
+    
+    This function is used by the Streamlit analytics dashboard when run separately.
     
     Args:
         game_data: Dictionary containing game data
@@ -78,6 +84,8 @@ def create_game_dataframe(game_data):
 
 def get_experiment_options(stats_df):
     """Extract experiment options for filtering.
+    
+    This function is used by the Streamlit analytics dashboard when run separately.
     
     Args:
         stats_df: DataFrame with experiment statistics
@@ -107,6 +115,8 @@ def get_experiment_options(stats_df):
 def filter_experiments(stats_df, selected_providers=None, selected_models=None, 
                        selected_primary_llms=None, selected_secondary_llms=None):
     """Filter experiments based on selected criteria.
+    
+    This function is used by the Streamlit analytics dashboard when run separately.
     
     Args:
         stats_df: DataFrame with experiment statistics

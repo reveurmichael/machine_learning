@@ -16,7 +16,7 @@ class BaseGUI:
         self.width = WINDOW_WIDTH
         self.width_plus = 200
         self.height = WINDOW_HEIGHT
-        self.info_panel = self.width - self.height
+        self.info_panel = self.width - self.height  # Used for layout calculations in derived classes
         self.grid_size = GRID_SIZE
         self.pixel = self.height // self.grid_size
         
@@ -75,7 +75,11 @@ class BaseGUI:
         pygame.draw.rect(self.screen, COLORS['APPLE'], rect)
     
     def draw_walls(self):
-        """Draw the walls/borders of the game board."""
+        """Draw the walls/borders of the game board.
+        
+        This method is kept for backward compatibility with older versions of the game.
+        Current design doesn't display walls but derived classes may override.
+        """
         # No walls or borders in the cleaner design
     
     def clear_game_area(self):
@@ -163,7 +167,6 @@ class BaseGUI:
                 - llm_response: LLM response text
                 - secondary_llm: Name of secondary LLM (optional)
                 - paused: Whether the game is paused (optional)
-                - speed: Game speed (optional)
         """
         if not self.screen:
             return
@@ -174,5 +177,4 @@ class BaseGUI:
         planned_moves = game_info.get('planned_moves', [])
         llm_response = game_info.get('llm_response', '')
         secondary_llm = game_info.get('secondary_llm', None)
-        paused = game_info.get('paused', False)
-        speed = game_info.get('speed', 1.0) 
+        paused = game_info.get('paused', False) 

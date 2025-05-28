@@ -29,6 +29,8 @@ def run_replay(log_dir, game_number=None, move_pause=1.0):
 def check_game_summary_for_moves(log_dir, game_number):
     """Check if a game summary file contains moves.
     
+    This function is used by the Streamlit analytics dashboard when run separately.
+    
     Args:
         log_dir: Path to the log directory
         game_number: Game number to check
@@ -52,6 +54,8 @@ def check_game_summary_for_moves(log_dir, game_number):
 
 def extract_apple_positions(log_dir, game_number):
     """Extract apple positions from a game summary file.
+    
+    This function is used by the Streamlit analytics dashboard when run separately.
     
     Args:
         log_dir: Path to the log directory

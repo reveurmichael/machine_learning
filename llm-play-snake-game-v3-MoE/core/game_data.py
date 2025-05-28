@@ -119,10 +119,8 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Calculate the file round number (1, 3, 5...)
-            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
-            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
-            file_round = file_round + (self.round_count - 1) 
+            # Use natural round numbering (1, 2, 3, 4, ...)
+            file_round = self.round_count
             
             # Store for later reference
             if file_round not in self.file_round_numbers:
@@ -162,10 +160,8 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Calculate the file round number (1, 3, 5...)
-            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
-            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
-            file_round = file_round + (self.round_count - 1)
+            # Use natural round numbering (1, 2, 3, 4, ...)
+            file_round = self.round_count
             
             # Store for later reference
             if file_round not in self.file_round_numbers:
@@ -276,10 +272,8 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Calculate the file round number (1, 3, 5...)
-            file_round = self.round_count if self.round_count % 2 == 1 else self.round_count - 1
-            # Then increase by 3 to create gaps (1, 4, 7...) to match prompt/response files
-            file_round = file_round + (self.round_count - 1)
+            # Use natural round numbering (1, 2, 3, 4, ...)
+            file_round = self.round_count
             
             # Store for later reference
             if file_round not in self.file_round_numbers:
@@ -372,6 +366,8 @@ class GameData:
     
     def record_round_data(self, round_data):
         """Record data for a game round.
+        
+        This method is used for backward compatibility with older versions of the game.
         
         Args:
             round_data: Dictionary containing round data:
@@ -652,7 +648,7 @@ class GameData:
             
         return summary
     
-    def get_aggregated_stats_for_summary_json(self, game_count, game_scores, game_durations=None):
+    def get_aggregated_stats_for_summary_json(self, game_count, game_scores):
         """This method has been deprecated and is no longer used."""
     
     def save_prompt_response_rounds(self, log_dir, game_number):
@@ -693,20 +689,11 @@ class GameData:
                 
             # Get moves for this round
             moves = []
-            start_index = 0
-            end_index = 0
             
-            # Calculate start index based on the round number
-            # Each prompt corresponds to 2 moves
-            # Round 1: moves 0-1
-            # Round 3: moves 2-3
-            # Round 5: moves 4-5, etc.
-            if round_num == 1:
-                start_index = 0
-                end_index = min(2, len(self.moves))
-            elif round_num > 1:
-                start_index = (round_num - 1)
-                end_index = min(start_index + 2, len(self.moves))
+            # With natural numbering, each round corresponds to moves from 
+            # (round_num-1)*2 to round_num*2-1
+            start_index = (round_num - 1) * 2
+            end_index = min(round_num * 2, len(self.moves))
             
             # Get moves for this round
             if end_index > start_index and start_index < len(self.moves):

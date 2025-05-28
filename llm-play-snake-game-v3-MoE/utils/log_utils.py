@@ -8,6 +8,9 @@ import json
 def format_raw_llm_response(raw_response, request_time, response_time, model_info):
     """Format a raw LLM response with metadata.
     
+    This function is kept for backward compatibility with older logging systems.
+    The save_to_file function now handles most of this functionality.
+    
     Args:
         raw_response: Raw response from the LLM
         request_time: Time the request was made
@@ -45,6 +48,9 @@ def format_raw_llm_response(raw_response, request_time, response_time, model_inf
 def format_parsed_llm_response(parsed_response, request_time, response_time, model_info):
     """Format a parsed LLM response with metadata.
     
+    This function is kept for backward compatibility with older logging systems.
+    The save_to_file function now handles most of this functionality.
+    
     Args:
         parsed_response: Parsed response from the LLM
         request_time: Time the request was made
@@ -73,6 +79,9 @@ def format_parsed_llm_response(parsed_response, request_time, response_time, mod
 
 def generate_game_summary_json(game_data):
     """Generate a JSON summary of a game.
+    
+    This function is kept for backward compatibility with older versions.
+    The GameData.generate_game_summary method now handles this functionality.
     
     Args:
         game_data: Dictionary containing game information:

@@ -17,6 +17,9 @@ from replay.replay_engine import ReplayEngine
 def handle_key_events(event):
     """Handle key events for replay navigation.
     
+    This function is kept for backward compatibility and is used by replay.py when run as a script.
+    The ReplayEngine handles these events internally when used as a library.
+    
     Args:
         event: Pygame event to handle
         
@@ -54,6 +57,9 @@ def handle_key_events(event):
 
 def replay_game(log_dir, game_number=1, move_pause=0.5, auto_advance=False):
     """Replay a recorded game.
+    
+    This function is kept for backward compatibility and is used when replay.py is run as a script.
+    The app.py file uses the ReplayEngine directly.
     
     Args:
         log_dir: Directory containing game logs

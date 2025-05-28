@@ -22,7 +22,7 @@ class ReplayGUI(BaseGUI):
         self.move_history = []
         self.planned_moves = []
         self.paused = False
-        self.speed = 1.0
+        self.speed = 1.0  # Used by the ReplayEngine to control playback speed
         self.primary_llm = "Unknown/Unknown"
         self.secondary_llm = "Unknown/Unknown"
         self.llm_response = ""

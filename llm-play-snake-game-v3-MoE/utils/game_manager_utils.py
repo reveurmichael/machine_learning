@@ -238,9 +238,9 @@ def initialize_game_manager(game_manager):
     
     # Import these functions inside the function to avoid cyclic imports
     from utils.llm_utils import check_llm_health
-    from utils import setup_llm_clients
+    from utils.setup_utils import setup_llm_clients
     
-    # Use the common setup function
+    # Set up the common setup function
     setup_llm_clients(game_manager, check_llm_health)
     
     # Handle sleep before launching if specified
@@ -296,25 +296,4 @@ def process_events(game_manager):
                 game_manager.need_new_plan = True
                 game_manager.consecutive_empty_steps = 0  # Reset on game reset
                 game_manager.current_game_moves = []  # Reset moves for new game
-                print(Fore.GREEN + "🔄 Game reset")
-
-def extract_state_for_parser(game_manager):
-    """Extract state information for the parser.
-    
-    Args:
-        game_manager: The GameManager instance
-        
-    Returns:
-        Tuple of (head_pos, apple_pos, body_cells) as strings
-    """
-    # Get the game state
-    head_x, head_y = game_manager.game.head
-    apple_x, apple_y = game_manager.game.apple
-    body_cells = game_manager.game.body
-    
-    # Format for parser
-    head_pos = f"({head_x}, {head_y})"
-    apple_pos = f"({apple_x}, {apple_y})"
-    body_cells_str = str(body_cells) if body_cells else "[]"
-    
-    return head_pos, apple_pos, body_cells_str 
+                print(Fore.GREEN + "🔄 Game reset") 

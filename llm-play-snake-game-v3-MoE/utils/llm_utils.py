@@ -16,6 +16,9 @@ from datetime import datetime
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
     """Format the raw LLM response with metadata for saving to a file.
     
+    This function is kept for backward compatibility with older versions.
+    The save_to_file function in file_utils now handles most of this functionality.
+    
     Args:
         response: The raw response from the LLM
         request_time: Timestamp when the request was sent
@@ -284,6 +287,9 @@ def parse_llm_response(response, processed_response_func, game_instance):
 def handle_llm_response(llm_client, response, parser_input=None, game_state=None):
     """Handle a response from an LLM, extracting and processing moves.
     
+    This function is kept for backward compatibility. The parse_and_format function
+    now handles most of this functionality directly.
+    
     Args:
         llm_client: LLM client used to generate the response
         response: Raw response from the LLM
@@ -308,8 +314,27 @@ def get_llm_response(game_manager):
     Returns:
         Tuple of (next_move, game_active)
     """
-    # Import here to avoid cyclic imports
-    from utils.game_manager_utils import extract_state_for_parser
+    # Extract the state for the parser directly here to avoid cyclic imports
+    def extract_state_for_parser(game_manager):
+        """Extract state information for the parser.
+        
+        Args:
+            game_manager: The GameManager instance
+            
+        Returns:
+            Tuple of (head_pos, apple_pos, body_cells) as strings
+        """
+        # Get the game state
+        head_x, head_y = game_manager.game.head
+        apple_x, apple_y = game_manager.game.apple
+        body_cells = game_manager.game.body
+        
+        # Format for parser
+        head_pos = f"({head_x}, {head_y})"
+        apple_pos = f"({apple_x}, {apple_y})"
+        body_cells_str = str(body_cells) if body_cells else "[]"
+        
+        return head_pos, apple_pos, body_cells_str
     
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()

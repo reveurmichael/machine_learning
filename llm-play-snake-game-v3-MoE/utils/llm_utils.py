@@ -345,8 +345,8 @@ def get_llm_response(game_manager):
     # Format prompt for LLM
     prompt = game_state
 
-    # Log the prompt with updated filename format
-    prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_prompt.txt"
+    # Log the prompt with updated filename format - use round_count directly
+    prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_prompt.txt"
 
     # Get parser input for metadata
     parser_input = extract_state_for_parser(game_manager)
@@ -387,8 +387,8 @@ def get_llm_response(game_manager):
         # Record response time
         response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Log the response with updated filename format
-        response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_raw_response.txt"
+        # Log the response with updated filename format - use round_count directly
+        response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_raw_response.txt"
 
         # Get parser input to include in metadata
         parser_input = extract_state_for_parser(game_manager)
@@ -417,8 +417,8 @@ def get_llm_response(game_manager):
             # Create parser prompt
             parser_prompt = create_parser_prompt(response, *parser_input)
 
-            # Save the secondary LLM prompt with updated filename format
-            parser_prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_parser_prompt.txt"
+            # Save the secondary LLM prompt with updated filename format - use round_count directly
+            parser_prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parser_prompt.txt"
             parser_prompt_metadata = {
                 "SECONDARY LLM Provider": game_manager.args.parser_provider,
                 "SECONDARY LLM Model": game_manager.args.parser_model or "default",
@@ -449,8 +449,8 @@ def get_llm_response(game_manager):
             # Record parser response time
             parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            # Save the secondary LLM response
-            parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_parsed_response.txt"
+            # Save the secondary LLM response - use round_count directly
+            parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parsed_response.txt"
             parsed_response_metadata = {
                 "SECONDARY LLM Request Time": parser_request_time,
                 "SECONDARY LLM Response Time": parser_response_time,
@@ -508,11 +508,14 @@ def get_llm_response(game_manager):
             # If we got a valid move, reset the consecutive empty steps counter
             if next_move:
                 game_manager.consecutive_empty_steps = 0
-                print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count+1})")
+                print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
                 
                 # For UI display, also log the planned moves
                 if len(parser_output["moves"]) > 1:
                     print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'][1:])}")
+                
+                # Increment round_count after getting a plan from the LLM
+                game_manager.round_count += 1
             else:
                 game_manager.consecutive_empty_steps += 1
                 print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")

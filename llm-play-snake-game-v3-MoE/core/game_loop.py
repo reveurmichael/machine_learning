@@ -101,14 +101,12 @@ def run_game_loop(game_manager):
                         # End movement time tracking
                         game_manager.game.game_state.record_game_movement_end()
                         
-                        # Update round counter
-                        game_manager.round_count += 1
                     else:
                         # Execute the next move from previously planned moves
                         next_move = game_manager.game.get_next_planned_move()
                         
                         if next_move:
-                            print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count+1})")
+                            print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
                             
                             # Record move for logging and replay
                             game_manager.current_game_moves.append(next_move)
@@ -140,9 +138,6 @@ def run_game_loop(game_manager):
                             if apple_eaten:
                                 print(Fore.GREEN + "🍎 Apple eaten! Requesting new plan.")
                                 game_manager.need_new_plan = True
-                            
-                            # Update round counter
-                            game_manager.round_count += 1
                             
                             # End movement time tracking
                             game_manager.game.game_state.record_game_movement_end()

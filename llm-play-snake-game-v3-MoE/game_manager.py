@@ -40,7 +40,7 @@ class GameManager:
         
         # Game counters and statistics
         self.game_count = 0
-        self.round_count = 0
+        self.round_count = 1  # Start at 1 to make round numbering more intuitive (1, 2, 3, ...)
         self.total_score = 0
         self.total_steps = 0
         self.empty_steps = 0

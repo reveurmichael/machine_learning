@@ -45,8 +45,8 @@ class GameData:
         self.start_time = time.time()
         self.end_time = None
         self.rounds_data = {}
-        # Initialize round_count to 0 since we increment it before saving data
-        self.round_count = 0
+        # Initialize round_count to 1 to make round numbering more intuitive (1, 2, 3, ...)
+        self.round_count = 1
         # Track file round numbers separately for file naming
         self.file_round_numbers = []
         self.current_round_data = self._create_empty_round_data()
@@ -119,7 +119,7 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Use natural round numbering (1, 2, 3, 4, ...)
+            # Use simple sequential numbering (1, 2, 3, 4, ...)
             file_round = self.round_count
             
             # Store for later reference
@@ -160,7 +160,7 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Use natural round numbering (1, 2, 3, 4, ...)
+            # Use simple sequential numbering (1, 2, 3, 4, ...)
             file_round = self.round_count
             
             # Store for later reference
@@ -272,7 +272,7 @@ class GameData:
             # Increment round count
             self.round_count += 1
             
-            # Use natural round numbering (1, 2, 3, 4, ...)
+            # Use simple sequential numbering (1, 2, 3, 4, ...)
             file_round = self.round_count
             
             # Store for later reference
@@ -697,10 +697,10 @@ class GameData:
             # Get moves for this round
             moves = []
             
-            # With natural numbering, each round corresponds to moves from 
-            # (round_num-1)*2 to round_num*2-1
-            start_index = (round_num - 1) * 2
-            end_index = min(round_num * 2, len(self.moves))
+            # With natural sequential numbering (1, 2, 3, ...), each round corresponds to 
+            # a single move in the moves list
+            start_index = round_num - 1  # Convert to 0-based index for the array
+            end_index = min(start_index + 1, len(self.moves))
             
             # Get moves for this round
             if end_index > start_index and start_index < len(self.moves):

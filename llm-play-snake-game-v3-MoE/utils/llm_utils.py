@@ -355,12 +355,18 @@ def get_llm_response(game_manager):
     
     # Log the prompt with updated filename format
     prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_prompt.txt"
+    
+    # Get parser input for metadata
+    from utils.game_manager_utils import extract_state_for_parser
+    parser_input = extract_state_for_parser(game_manager)
+    
     prompt_metadata = {
         "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        "Game": game_manager.game_count+1,
-        "Round": game_manager.round_count+1,
         "PRIMARY LLM Model": game_manager.args.model or "default",
-        "PRIMARY LLM Provider": game_manager.args.provider
+        "PRIMARY LLM Provider": game_manager.args.provider,
+        "Head Position": parser_input[0],
+        "Apple Position": parser_input[1],
+        "Body Cells": parser_input[2]
     }
     prompt_path = save_to_file(prompt, game_manager.prompts_dir, prompt_filename, metadata=prompt_metadata)
     print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
@@ -417,8 +423,6 @@ def get_llm_response(game_manager):
             parser_prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_parser_prompt.txt"
             parser_prompt_metadata = {
                 "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "Game": game_manager.game_count+1,
-                "Round": game_manager.round_count+1,
                 "SECONDARY LLM Model": game_manager.args.parser_model or "default",
                 "SECONDARY LLM Provider": game_manager.args.parser_provider,
                 "Head Position": parser_input[0],
@@ -441,8 +445,8 @@ def get_llm_response(game_manager):
             parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_parsed_response.txt"
             parsed_response_metadata = {
                 "Timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "Secondary LLM Request Time": parser_request_time,
-                "Secondary LLM Response Time": parser_response_time,
+                "SECONDARY LLM Request Time": parser_request_time,
+                "SECONDARY LLM Response Time": parser_response_time,
                 "SECONDARY LLM Provider": game_manager.args.parser_provider,
                 "SECONDARY LLM Model": game_manager.args.parser_model or "default",
                 "Head Position": parser_input[0],

@@ -367,11 +367,15 @@ def save_to_file(content, directory, filename, metadata=None):
         from datetime import datetime
         
         # Add timestamp if not provided
-        if 'timestamp' not in metadata:
-            metadata['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if 'timestamp' not in metadata and 'Timestamp' not in metadata:
+            metadata['Timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             
         # Format metadata as key-value pairs
         for key, value in metadata.items():
+            # Skip lowercase timestamp as we prefer the capitalized version
+            if key == 'timestamp' and 'Timestamp' in metadata:
+                continue
+                
             formatted_content += f"{key}: {value}\n"
             
         # Add section header based on the file type

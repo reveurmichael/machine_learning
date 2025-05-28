@@ -7,29 +7,7 @@ import os
 import json
 from datetime import datetime
 from pathlib import Path
-
-def save_to_file(content, directory, filename):
-    """Save content to a file, creating the directory if it doesn't exist.
-    
-    Args:
-        content: Content to save
-        directory: Directory to save to
-        filename: Name of the file
-        
-    Returns:
-        Path to the saved file
-    """
-    # Create directory if it doesn't exist
-    os.makedirs(directory, exist_ok=True)
-    
-    # Create file path
-    file_path = os.path.join(directory, filename)
-    
-    # Save content to file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    
-    return file_path
+from utils.file_utils import save_to_file
 
 def format_raw_llm_response(raw_response, request_time, response_time, model_name, provider, 
                            parser_model=None, parser_provider=None, response_duration=None):

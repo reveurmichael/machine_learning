@@ -197,49 +197,40 @@ def extract_game_summary(summary_file):
     """Extract game summary from a summary file.
     
     Args:
-        summary_file: Path to the game summary file
+        summary_file: Path to the summary file
         
     Returns:
         Dictionary with game summary information
     """
-    summary = {
-        'file': str(summary_file),
-        'score': 0,
-        'steps': 0,
-        'game_end_reason': None,
-        'has_apple_positions': False,
-        'has_moves': False,
-        'move_count': 0,
-        'avg_primary_response_time': 0,
-        'avg_secondary_response_time': 0,
-        'steps_per_apple': 0,
-        'apples_per_step': 0,
-        'json_success_rate': 0,
-        'valid_step_percentage': 0,
-        'parser_usage_count': 0
-    }
+    summary = {}
     
     try:
-        # Parse JSON file
-        with open(summary_file, 'r', encoding='utf-8') as f:
+        if not os.path.exists(summary_file):
+            return summary
+            
+        with open(summary_file, 'r') as f:
             data = json.load(f)
             
-        # Extract fields from JSON
-        summary['score'] = data.get('score', 0)
-        summary['steps'] = data.get('steps', 0)
-        summary['game_end_reason'] = data.get('game_end_reason', 'Unknown')
-        summary['parser_usage_count'] = data.get('parser_usage_count', 0)
+        # Extract basic stats
+        summary['date'] = data.get('date', 'Unknown')
+        summary['game_count'] = data.get('game_count', 0)
+        summary['total_score'] = data.get('total_score', 0)
+        summary['total_steps'] = data.get('total_steps', 0)
+        summary['avg_score'] = summary['total_score'] / max(1, summary['game_count'])
+        summary['avg_steps'] = summary['total_steps'] / max(1, summary['game_count'])
         
-        # Check if the file has apple positions
-        if 'apple_positions' in data and data['apple_positions']:
-            summary['has_apple_positions'] = True
+        # Extract LLM information
+        if 'primary_llm' in data:
+            llm_info = data['primary_llm']
+            summary['primary_provider'] = llm_info.get('provider', 'Unknown')
+            summary['primary_model'] = llm_info.get('model', 'Unknown')
             
-        # Check if the file has moves
-        if 'moves' in data and data['moves']:
-            summary['has_moves'] = True
-            summary['move_count'] = len(data['moves'])
-        
-        # Extract response time metrics if available
+        if 'secondary_llm' in data:
+            llm_info = data['secondary_llm']
+            summary['secondary_provider'] = llm_info.get('provider', 'None')
+            summary['secondary_model'] = llm_info.get('model', 'None')
+            
+        # Extract response time metrics
         if 'prompt_response_stats' in data:
             prompt_stats = data.get('prompt_response_stats', {})
             summary['avg_primary_response_time'] = prompt_stats.get('avg_primary_response_time', 0)
@@ -249,45 +240,25 @@ def extract_game_summary(summary_file):
             summary['min_secondary_response_time'] = prompt_stats.get('min_secondary_response_time', 0)
             summary['max_secondary_response_time'] = prompt_stats.get('max_secondary_response_time', 0)
         
-        # Extract efficiency metrics if available
+        # Extract performance metrics
         if 'efficiency_metrics' in data:
             eff_metrics = data.get('efficiency_metrics', {})
             summary['apples_per_step'] = eff_metrics.get('apples_per_step', 0)
             summary['steps_per_game'] = eff_metrics.get('steps_per_game', 0)
             summary['valid_move_ratio'] = eff_metrics.get('valid_move_ratio', 0)
         elif 'performance_metrics' in data:
-            # For backward compatibility
             perf_metrics = data.get('performance_metrics', {})
             summary['steps_per_apple'] = perf_metrics.get('steps_per_apple', 0)
         
-        # Extract token statistics if available
+        # Extract token statistics
         if 'token_stats' in data:
             token_stats = data.get('token_stats', {})
             summary['token_stats'] = token_stats
-        
-        # Extract step statistics if available
-        if 'step_stats' in data:
-            step_stats = data.get('step_stats', {})
-            summary['valid_steps'] = step_stats.get('valid_steps', 0)
-            summary['valid_step_percentage'] = step_stats.get('valid_step_percentage', 0)
-            summary['empty_steps'] = step_stats.get('empty_steps', 0)
-            summary['empty_step_percentage'] = step_stats.get('empty_step_percentage', 0)
-            summary['error_steps'] = step_stats.get('error_steps', 0)
-            summary['error_step_percentage'] = step_stats.get('error_step_percentage', 0)
-            summary['max_consecutive_empty_moves'] = step_stats.get('max_consecutive_empty_moves', 0)
-        
-        # Extract JSON parsing success rate if available
-        if 'json_parsing_stats' in data:
-            json_stats = data.get('json_parsing_stats', {})
-            summary['json_success_rate'] = json_stats.get('success_rate', 0)
-            summary['json_extraction_attempts'] = json_stats.get('total_extraction_attempts', 0)
-            summary['json_successful_extractions'] = json_stats.get('successful_extractions', 0)
-            summary['json_failed_extractions'] = json_stats.get('failed_extractions', 0)
             
     except Exception as e:
-        print(f"Error extracting summary from {summary_file}: {e}")
-    
-    return summary 
+        print(f"Error extracting summary: {e}")
+        
+    return summary
 
 def get_next_game_number(log_dir):
     """Determine the next game number to start from.

@@ -12,27 +12,28 @@ from .json_utils import (
     validate_json_format,
     extract_json_from_code_block,
     extract_json_from_text,
+    extract_moves_pattern,
     extract_moves_fallback,
     extract_moves_from_arrays,
     save_experiment_info_json,
     update_experiment_info_json
 )
 
-# Import and expose all from log_utils
-from .log_utils import (
-    save_to_file,
-    format_raw_llm_response,
-    format_parsed_llm_response,
-    generate_game_summary_json
-)
-
-# Import and expose all from file_utils
+# Import and expose all from file_utils first (because log_utils depends on it)
 from .file_utils import (
     find_log_folders,
     extract_game_stats,
     extract_game_summary,
     get_next_game_number,
-    clean_prompt_files
+    clean_prompt_files,
+    save_to_file
+)
+
+# Import and expose all from log_utils
+from .log_utils import (
+    format_raw_llm_response,
+    format_parsed_llm_response,
+    generate_game_summary_json
 )
 
 # Import and expose all from replay_utils
@@ -87,15 +88,10 @@ __all__ = [
     'extract_json_from_code_block',
     'extract_json_from_text',
     'extract_moves_fallback',
+    'extract_moves_pattern',
     'extract_moves_from_arrays',
     'save_experiment_info_json',
     'update_experiment_info_json',
-    
-    # log_utils
-    'save_to_file',
-    'format_raw_llm_response',
-    'format_parsed_llm_response',
-    'generate_game_summary_json',
     
     # file_utils
     'find_log_folders',
@@ -103,6 +99,12 @@ __all__ = [
     'extract_game_summary',
     'get_next_game_number',
     'clean_prompt_files',
+    'save_to_file',
+    
+    # log_utils
+    'format_raw_llm_response',
+    'format_parsed_llm_response',
+    'generate_game_summary_json',
     
     # replay_utils
     'run_replay',

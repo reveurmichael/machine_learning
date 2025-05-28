@@ -386,7 +386,7 @@ def save_to_file(content, directory, filename, metadata=None):
                 formatted_content += "\n\n========== PRIMARY LLM PROMPT ==========\n\n"
         elif "response" in filename.lower():
             if "parsed" in filename.lower():
-                formatted_content += "\n\n========== SECONDARY LLM RESPONSE (FORMATTED JSON) ==========\n\n"
+                formatted_content += "\n\n========== SECONDARY LLM RESPONSE ==========\n\n"
             elif "raw" in filename.lower():
                 formatted_content += "\n\n========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========\n\n"
     

@@ -38,7 +38,7 @@ class ReplayGUI(BaseGUI):
             game_timestamp: Timestamp when the game was played
         """
         # Fill background
-        self.screen.fill(COLORS['APP_BG'])
+        self.screen.fill(COLORS['BACKGROUND'])
         
         # Draw grid
         self.draw_grid()
@@ -109,11 +109,11 @@ class ReplayGUI(BaseGUI):
         title_text = "Game Replay"
         if paused:
             title_text += " (PAUSED)"
-        title = title_font.render(title_text, True, COLORS['ERROR'] if paused else COLORS['BLACK'])
+        title = title_font.render(title_text, True, COLORS['ERROR'] if paused else COLORS['TEXT'])
         self.screen.blit(title, (self.height + 20, 10))
         
         # Game statistics section
-        stats_title = title_font.render("Game Statistics", True, COLORS['BLACK'])
+        stats_title = title_font.render("Game Statistics", True, COLORS['TEXT'])
         self.screen.blit(stats_title, (self.height + 20, 50))
         
         stats_text = [
@@ -127,12 +127,12 @@ class ReplayGUI(BaseGUI):
         # Display each statistic
         y_offset = 80
         for text in stats_text:
-            text_surface = font.render(text, True, COLORS['BLACK'])
+            text_surface = font.render(text, True, COLORS['TEXT'])
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
         
         # Recent moves history
-        moves_title = title_font.render("Recent Moves", True, COLORS['BLACK'])
+        moves_title = title_font.render("Recent Moves", True, COLORS['TEXT'])
         self.screen.blit(moves_title, (self.height + 20, y_offset + 10))
         y_offset += 40
         
@@ -143,12 +143,12 @@ class ReplayGUI(BaseGUI):
             if i == len(recent_moves) - 1:
                 move_text = highlight_font.render(f"➤ {move}", True, COLORS['SNAKE_HEAD'])
             else:
-                move_text = font.render(f"   {move}", True, COLORS['BLACK'])
+                move_text = font.render(f"   {move}", True, COLORS['TEXT'])
             self.screen.blit(move_text, (self.height + 30, y_offset))
             y_offset += 25
         
         # LLM information section
-        llm_title = title_font.render("LLM Information", True, COLORS['BLACK'])
+        llm_title = title_font.render("LLM Information", True, COLORS['TEXT'])
         self.screen.blit(llm_title, (self.height + 20, y_offset + 10))
         y_offset += 40
         
@@ -158,12 +158,12 @@ class ReplayGUI(BaseGUI):
         ]
         
         for text in llm_text:
-            text_surface = font.render(text, True, COLORS['BLACK'])
+            text_surface = font.render(text, True, COLORS['TEXT'])
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
         
         # Game metadata section
-        meta_title = title_font.render("Game Metadata", True, COLORS['BLACK'])
+        meta_title = title_font.render("Game Metadata", True, COLORS['TEXT'])
         self.screen.blit(meta_title, (self.height + 20, y_offset + 10))
         y_offset += 40
         
@@ -185,7 +185,7 @@ class ReplayGUI(BaseGUI):
         ]
         
         for text in meta_text:
-            text_surface = font.render(text, True, COLORS['BLACK'])
+            text_surface = font.render(text, True, COLORS['TEXT'])
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
         
@@ -195,7 +195,7 @@ class ReplayGUI(BaseGUI):
         y_offset += 50
         
         # Controls section
-        controls_title = title_font.render("Controls", True, COLORS['BLACK'])
+        controls_title = title_font.render("Controls", True, COLORS['TEXT'])
         self.screen.blit(controls_title, (self.height + 20, y_offset + 10))
         y_offset += 40
         
@@ -209,7 +209,7 @@ class ReplayGUI(BaseGUI):
         ]
         
         for text in controls_text:
-            text_surface = font.render(text, True, COLORS['BLACK'])
+            text_surface = font.render(text, True, COLORS['TEXT'])
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
             
@@ -217,22 +217,23 @@ class ReplayGUI(BaseGUI):
         """Draw a progress bar for the replay progress.
         
         Args:
-            current: Current position
-            total: Total length
-            x: X coordinate of the bar
-            y: Y coordinate of the bar
-            width: Width of the bar
-            height: Height of the bar
+            current: Current value
+            total: Total value
+            x: X position
+            y: Y position
+            width: Width of the progress bar
+            height: Height of the progress bar
         """
         # Background
         bg_rect = pygame.Rect(x, y, width, height)
-        pygame.draw.rect(self.screen, COLORS['GREY3'], bg_rect)
+        pygame.draw.rect(self.screen, COLORS['GREY'], bg_rect)
         
         # Progress
         if total > 0:
-            progress_width = int((current / total) * width)
+            progress_percent = min(1.0, current / total)
+            progress_width = int(width * progress_percent)
             progress_rect = pygame.Rect(x, y, progress_width, height)
             pygame.draw.rect(self.screen, COLORS['SNAKE_HEAD'], progress_rect)
-            
+        
         # Border
-        pygame.draw.rect(self.screen, COLORS['BLACK'], bg_rect, 1) 
+        pygame.draw.rect(self.screen, COLORS['TEXT'], bg_rect, 1) 

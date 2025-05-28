@@ -8,6 +8,7 @@ import json
 import re
 import numpy as np
 from datetime import datetime
+import glob
 
 # Custom JSON encoder to handle numpy types
 class NumpyEncoder(json.JSONEncoder):
@@ -169,6 +170,138 @@ def update_experiment_info_json(log_dir, **kwargs):
         for key in ['is_continuation', 'continuation_count', 'continuation_timestamps']:
             if key in kwargs:
                 del kwargs[key]
+    
+    # Collect token usage and response time statistics from game files
+    game_files = glob.glob(os.path.join(log_dir, "game_*.json"))
+    token_stats = {
+        "primary_llm": {
+            "total_tokens": 0,
+            "total_prompt_tokens": 0,
+            "total_completion_tokens": 0,
+            "avg_tokens_per_request": 0,
+            "avg_prompt_tokens": 0,
+            "avg_completion_tokens": 0
+        },
+        "secondary_llm": {
+            "total_tokens": 0,
+            "total_prompt_tokens": 0,
+            "total_completion_tokens": 0,
+            "avg_tokens_per_request": 0,
+            "avg_prompt_tokens": 0,
+            "avg_completion_tokens": 0
+        }
+    }
+    
+    response_time_stats = {
+        "primary_llm": {
+            "total_response_time": 0,
+            "avg_response_time": 0,
+            "min_response_time": float('inf'),
+            "max_response_time": 0
+        },
+        "secondary_llm": {
+            "total_response_time": 0,
+            "avg_response_time": 0,
+            "min_response_time": float('inf'),
+            "max_response_time": 0
+        }
+    }
+    
+    primary_requests = 0
+    secondary_requests = 0
+    
+    for game_file in game_files:
+        try:
+            with open(game_file, 'r') as f:
+                game_data = json.load(f)
+            
+            # Collect token stats
+            if 'token_stats' in game_data:
+                # Primary LLM
+                if 'primary' in game_data['token_stats']:
+                    primary = game_data['token_stats']['primary']
+                    token_stats['primary_llm']['total_tokens'] += primary.get('total_tokens', 0)
+                    token_stats['primary_llm']['total_prompt_tokens'] += primary.get('total_prompt_tokens', 0)
+                    token_stats['primary_llm']['total_completion_tokens'] += primary.get('total_completion_tokens', 0)
+                    
+                    # Count requests based on primary response times
+                    if 'primary_response_times' in game_data:
+                        primary_requests += len(game_data['primary_response_times'])
+                
+                # Secondary LLM
+                if 'secondary' in game_data['token_stats']:
+                    secondary = game_data['token_stats']['secondary']
+                    token_stats['secondary_llm']['total_tokens'] += secondary.get('total_tokens', 0)
+                    token_stats['secondary_llm']['total_completion_tokens'] += secondary.get('total_completion_tokens', 0)
+                    token_stats['secondary_llm']['total_prompt_tokens'] += secondary.get('total_prompt_tokens', 0)
+                    
+                    # Count requests based on secondary response times
+                    if 'secondary_response_times' in game_data:
+                        secondary_requests += len(game_data['secondary_response_times'])
+            
+            # Collect response time stats
+            if 'prompt_response_stats' in game_data:
+                stats = game_data['prompt_response_stats']
+                
+                # Primary LLM
+                avg_primary = stats.get('avg_primary_response_time', 0)
+                min_primary = stats.get('min_primary_response_time', 0)
+                max_primary = stats.get('max_primary_response_time', 0)
+                
+                if avg_primary > 0:
+                    primary_count = len(game_data.get('primary_response_times', []))
+                    response_time_stats['primary_llm']['total_response_time'] += avg_primary * primary_count
+                    response_time_stats['primary_llm']['min_response_time'] = min(
+                        response_time_stats['primary_llm']['min_response_time'], 
+                        min_primary
+                    ) if min_primary > 0 else response_time_stats['primary_llm']['min_response_time']
+                    response_time_stats['primary_llm']['max_response_time'] = max(
+                        response_time_stats['primary_llm']['max_response_time'], 
+                        max_primary
+                    )
+                
+                # Secondary LLM
+                avg_secondary = stats.get('avg_secondary_response_time', 0)
+                min_secondary = stats.get('min_secondary_response_time', 0)
+                max_secondary = stats.get('max_secondary_response_time', 0)
+                
+                if avg_secondary > 0:
+                    secondary_count = len(game_data.get('secondary_response_times', []))
+                    response_time_stats['secondary_llm']['total_response_time'] += avg_secondary * secondary_count
+                    response_time_stats['secondary_llm']['min_response_time'] = min(
+                        response_time_stats['secondary_llm']['min_response_time'], 
+                        min_secondary
+                    ) if min_secondary > 0 else response_time_stats['secondary_llm']['min_response_time']
+                    response_time_stats['secondary_llm']['max_response_time'] = max(
+                        response_time_stats['secondary_llm']['max_response_time'], 
+                        max_secondary
+                    )
+                
+        except Exception as e:
+            print(f"Error processing game file {game_file} for stats: {e}")
+    
+    # Calculate averages
+    if primary_requests > 0:
+        token_stats['primary_llm']['avg_tokens_per_request'] = token_stats['primary_llm']['total_tokens'] / primary_requests
+        token_stats['primary_llm']['avg_prompt_tokens'] = token_stats['primary_llm']['total_prompt_tokens'] / primary_requests
+        token_stats['primary_llm']['avg_completion_tokens'] = token_stats['primary_llm']['total_completion_tokens'] / primary_requests
+        response_time_stats['primary_llm']['avg_response_time'] = response_time_stats['primary_llm']['total_response_time'] / primary_requests
+    
+    if secondary_requests > 0:
+        token_stats['secondary_llm']['avg_tokens_per_request'] = token_stats['secondary_llm']['total_tokens'] / secondary_requests
+        token_stats['secondary_llm']['avg_prompt_tokens'] = token_stats['secondary_llm']['total_prompt_tokens'] / secondary_requests
+        token_stats['secondary_llm']['avg_completion_tokens'] = token_stats['secondary_llm']['total_completion_tokens'] / secondary_requests
+        response_time_stats['secondary_llm']['avg_response_time'] = response_time_stats['secondary_llm']['total_response_time'] / secondary_requests
+    
+    # Reset min response time if it wasn't set
+    if response_time_stats['primary_llm']['min_response_time'] == float('inf'):
+        response_time_stats['primary_llm']['min_response_time'] = 0
+    if response_time_stats['secondary_llm']['min_response_time'] == float('inf'):
+        response_time_stats['secondary_llm']['min_response_time'] = 0
+    
+    # Add token and response time stats to data
+    data['token_usage_stats'] = token_stats
+    data['response_time_stats'] = response_time_stats
     
     # Update nested dictionaries intelligently (don't completely overwrite them)
     for key, value in kwargs.items():

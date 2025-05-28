@@ -169,7 +169,7 @@ replay mode: for double checking results.
 
 app.py: for analyzing preliminary results, giving insights and adjust experiment parameters.
 
-fail fast: ```python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0```
+fail fast, going lean: ```python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0```
 
 
 ## What's missing, if this were a real research project

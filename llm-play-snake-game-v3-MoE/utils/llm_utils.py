@@ -381,7 +381,18 @@ def get_llm_response(game_manager):
         request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Get response from primary LLM
+        start_time = time.time()
         response = game_manager.llm_client.generate_response(prompt, **kwargs)
+        primary_response_time = time.time() - start_time
+        
+        # Record response time in game state
+        game_manager.game.game_state.record_primary_response_time(primary_response_time)
+        
+        # Record token usage if available
+        if hasattr(game_manager.llm_client, 'last_token_count') and game_manager.llm_client.last_token_count:
+            prompt_tokens = game_manager.llm_client.last_token_count.get('prompt_tokens', 0)
+            completion_tokens = game_manager.llm_client.last_token_count.get('completion_tokens', 0)
+            game_manager.game.game_state.record_primary_token_stats(prompt_tokens, completion_tokens)
         
         # Record response time
         response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -436,7 +447,18 @@ def get_llm_response(game_manager):
             parser_request_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             
             # Get response from secondary LLM
+            start_time = time.time()
             secondary_response = game_manager.llm_client.generate_text_with_secondary_llm(parser_prompt)
+            secondary_response_time = time.time() - start_time
+            
+            # Record secondary response time in game state
+            game_manager.game.game_state.record_secondary_response_time(secondary_response_time)
+            
+            # Record secondary token usage if available
+            if hasattr(game_manager.llm_client, 'last_token_count') and game_manager.llm_client.last_token_count:
+                prompt_tokens = game_manager.llm_client.last_token_count.get('prompt_tokens', 0)
+                completion_tokens = game_manager.llm_client.last_token_count.get('completion_tokens', 0)
+                game_manager.game.game_state.record_secondary_token_stats(prompt_tokens, completion_tokens)
             
             # Record parser response time
             parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

@@ -93,9 +93,9 @@ class GameGUI(BaseGUI):
         # - When planned_moves is None: show empty string (all moves completed)
         if planned_moves is not None:
             if len(planned_moves) > 0:
-                moves_str = "[" + ", ".join(planned_moves) + "]"
+                moves_str = ", ".join(planned_moves)
             else:
-                moves_str = "[]"  # Empty list from LLM
+                moves_str = ""  # Empty list from LLM
         else:
             moves_str = ""  # No more planned moves to execute
             

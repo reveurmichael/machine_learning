@@ -104,9 +104,13 @@ class GameManager:
         """Get the pause time between moves.
         
         Returns:
-            Float representing pause time in seconds
+            Float representing pause time in seconds, 0 if no GUI is enabled
         """
-        return PAUSE_BETWEEN_MOVES_SECONDS
+        # Skip pause in no-gui mode
+        if not self.use_gui:
+            return 0.0
+        
+        return self.args.move_pause
     
     def initialize(self):
         """Initialize the game, LLM clients, and logging directories."""

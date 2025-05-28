@@ -61,17 +61,24 @@ class GameGUI(BaseGUI):
         color = COLORS['SNAKE_HEAD'] if is_head else COLORS['SNAKE_BODY']
         pygame.draw.rect(self.screen, color, rect)
     
-    def draw_game_info(self, score, steps, planned_moves=None, llm_response=None):
+    def draw_game_info(self, game_info):
         """Draw game information and LLM response.
         
         Args:
-            score: Current game score
-            steps: Current step count
-            planned_moves: List of planned moves from LLM
-            llm_response: Processed LLM response text ready for display
+            game_info: Dictionary containing game information:
+                - score: Current game score
+                - steps: Current step count
+                - planned_moves: List of planned moves from LLM
+                - llm_response: Processed LLM response text ready for display
         """
         # Clear info panel
         self.clear_info_panel()
+        
+        # Extract values from game_info dictionary
+        score = game_info.get('score', 0)
+        steps = game_info.get('steps', 0)
+        planned_moves = game_info.get('planned_moves')
+        llm_response = game_info.get('llm_response')
         
         # Draw score and steps
         score_text = self.font.render(f"Score: {score}", True, COLORS['BLACK'])

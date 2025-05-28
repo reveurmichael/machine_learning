@@ -54,7 +54,8 @@ def run_game_loop(game_manager):
                             
                             # Delay to let user see LLM response before snake moves
                             game_manager.game.game_state.record_waiting_start()
-                            time.sleep(2.0)  # User-friendly delay for reading LLM plans
+                            if game_manager.use_gui:  # Only sleep if GUI is enabled
+                                time.sleep(2.0)  # User-friendly delay for reading LLM plans
                             game_manager.game.game_state.record_waiting_end()
                             
                             # Execute the move
@@ -68,7 +69,10 @@ def run_game_loop(game_manager):
                             
                             # Standard pause between moves for gameplay rhythm
                             game_manager.game.game_state.record_waiting_start()
-                            time.sleep(game_manager.get_pause_between_moves())
+                            # Only sleep if there's a non-zero pause time (managed by get_pause_between_moves)
+                            pause_time = game_manager.get_pause_between_moves()
+                            if pause_time > 0:
+                                time.sleep(pause_time)
                             game_manager.game.game_state.record_waiting_end()
                         else:
                             # Handle the case where no valid move was found
@@ -119,7 +123,8 @@ def run_game_loop(game_manager):
                                 
                                 # Delay to let user see which planned move will be executed
                                 game_manager.game.game_state.record_waiting_start()
-                                time.sleep(2.0)  # User-friendly delay for move visibility
+                                if game_manager.use_gui:  # Only sleep if GUI is enabled
+                                    time.sleep(2.0)  # User-friendly delay for move visibility
                                 game_manager.game.game_state.record_waiting_end()
                                 
                                 # Execute the move
@@ -144,7 +149,10 @@ def run_game_loop(game_manager):
                             
                             # Standard pause between moves
                             game_manager.game.game_state.record_waiting_start()
-                            time.sleep(game_manager.get_pause_between_moves())
+                            # Only sleep if there's a non-zero pause time (managed by get_pause_between_moves)
+                            pause_time = game_manager.get_pause_between_moves()
+                            if pause_time > 0:
+                                time.sleep(pause_time)
                             game_manager.game.game_state.record_waiting_end()
                         else:
                             # No more planned moves available, request new plan

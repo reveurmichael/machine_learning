@@ -48,6 +48,8 @@ class ReplayEngine(GameController):
         self.primary_llm = None
         self.secondary_llm = None
         self.game_timestamp = None
+        self.llm_response = None
+        self.planned_moves = []
     
     def set_gui(self, gui_instance):
         """Set the GUI instance to use for display.
@@ -75,8 +77,18 @@ class ReplayEngine(GameController):
                 game_end_reason=self.game_end_reason,
                 primary_llm=self.primary_llm,
                 secondary_llm=self.secondary_llm,
-                game_timestamp=self.game_timestamp
+                game_timestamp=self.game_timestamp,
+                llm_response=self.llm_response
             )
+            
+            # Also pass planned moves for display in the game info panel
+            if hasattr(self.gui, 'draw_game_info'):
+                self.gui.draw_game_info(
+                    score=self.score,
+                    steps=self.steps,
+                    planned_moves=self.planned_moves if self.move_index < len(self.moves) else [],
+                    llm_response=self.llm_response
+                )
     
     def load_game_data(self, game_number):
         """Load game data for a specific game number.
@@ -167,6 +179,17 @@ class ReplayEngine(GameController):
             if self.use_gui and self.gui and hasattr(self.gui, 'move_history'):
                 self.gui.move_history = []
             
+            # Extract LLM response and planned moves
+            if 'llm_response' in game_data:
+                self.llm_response = game_data['llm_response']
+            else:
+                self.llm_response = None
+            
+            if 'planned_moves' in game_data:
+                self.planned_moves = game_data['planned_moves']
+            else:
+                self.planned_moves = []
+            
             return game_data
             
         except Exception as e:
@@ -186,6 +209,10 @@ class ReplayEngine(GameController):
             next_move = self.moves[self.move_index]
             self.move_index += 1
             self.moves_made.append(next_move)
+            
+            # Update planned moves - remove the move we just made
+            if self.planned_moves and len(self.planned_moves) > 0:
+                self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
             
             # Update game state
             game_continues, apple_eaten = self.make_move(next_move)

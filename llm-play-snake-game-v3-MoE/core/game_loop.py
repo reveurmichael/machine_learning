@@ -43,6 +43,9 @@ def run_game_loop(game_manager):
                             # Execute the move and check if game continues
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                             
+                            # Make sure UI is updated with current game state
+                            game_manager.game.draw()
+                            
                             # Reset consecutive errors counter on successful move
                             game_manager.consecutive_errors = 0
                         else:
@@ -76,6 +79,9 @@ def run_game_loop(game_manager):
                             else:
                                 # Execute the move and check if game continues
                                 game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                                
+                                # Make sure UI is updated with current game state and planned moves
+                                game_manager.game.draw()
                             
                             # Reset consecutive errors counter on successful move
                             game_manager.consecutive_errors = 0

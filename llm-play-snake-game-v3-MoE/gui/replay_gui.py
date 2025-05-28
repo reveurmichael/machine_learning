@@ -20,7 +20,7 @@ class ReplayGUI(BaseGUI):
         
     def draw(self, snake_positions, apple_position, game_number, score, steps, 
              move_index, total_moves, current_direction, 
-             game_end_reason=None, primary_llm=None, secondary_llm=None, game_timestamp=None):
+             game_end_reason=None, primary_llm=None, secondary_llm=None, game_timestamp=None, llm_response=None):
         """Draw the complete replay state.
         
         Args:
@@ -36,12 +36,10 @@ class ReplayGUI(BaseGUI):
             primary_llm: Primary LLM provider/model
             secondary_llm: Secondary LLM provider/model (parser)
             game_timestamp: Timestamp when the game was played
+            llm_response: The LLM response text to display
         """
         # Fill background
         self.screen.fill(COLORS['BACKGROUND'])
-        
-        # Draw grid
-        self.draw_grid()
         
         # Draw snake
         self.draw_snake(snake_positions)
@@ -239,4 +237,50 @@ class ReplayGUI(BaseGUI):
             pygame.draw.rect(self.screen, COLORS['SNAKE_HEAD'], progress_rect)
         
         # Border
-        pygame.draw.rect(self.screen, COLORS['BLACK'], bg_rect, 1) 
+        pygame.draw.rect(self.screen, COLORS['BLACK'], bg_rect, 1)
+        
+    def draw_game_info(self, score, steps, planned_moves=None, llm_response=None):
+        """Draw game information and LLM response.
+        
+        Args:
+            score: Current game score
+            steps: Current step count
+            planned_moves: List of planned moves from LLM
+            llm_response: Processed LLM response text ready for display
+        """
+        # Clear info panel
+        self.clear_info_panel()
+        
+        # Draw score and steps
+        score_text = self.font.render(f"Score: {score}", True, COLORS['BLACK'])
+        steps_text = self.font.render(f"Steps: {steps}", True, COLORS['BLACK'])
+        
+        self.screen.blit(score_text, (self.height + 20, 20))
+        self.screen.blit(steps_text, (self.height + 20, 60))
+        
+        # Draw planned moves if available
+        if planned_moves:
+            moves_text = self.font.render("Planned moves:", True, COLORS['BLACK'])
+            self.screen.blit(moves_text, (self.height + 20, 100))
+            
+            # Display each planned move
+            moves_str = ", ".join(planned_moves)
+            moves_display = self.font.render(moves_str, True, COLORS['GREY3'])
+            self.screen.blit(moves_display, (self.height + 20, 130))
+        
+        # Draw LLM response if available
+        if llm_response:
+            response_title = self.font.render("LLM Response:", True, COLORS['BLACK'])
+            self.screen.blit(response_title, (self.height + 20, 170))
+            
+            # Draw the response text area
+            self.render_text_area(
+                llm_response,
+                self.height + 20,  # x
+                200,               # y
+                self.text_panel_width,  # width
+                350                # height
+            )
+        
+        # Update display
+        pygame.display.flip() 

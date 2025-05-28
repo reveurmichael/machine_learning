@@ -486,6 +486,10 @@ def get_llm_response(game_manager):
                 game_manager.game.game_state,
                 *parser_input
             )
+            
+            # Store the secondary LLM response for display in the UI
+            from utils.text_utils import process_response_for_display
+            game_manager.game.processed_response = process_response_for_display(secondary_response)
 
             # Update parser usage count
             if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
@@ -498,6 +502,10 @@ def get_llm_response(game_manager):
                 response,
                 game_manager.game.game_state
             )
+            
+            # Store the primary LLM response for display in the UI
+            from utils.text_utils import process_response_for_display
+            game_manager.game.processed_response = process_response_for_display(response)
 
         # Extract the next move
         next_move = None
@@ -513,6 +521,10 @@ def get_llm_response(game_manager):
             if next_move:
                 game_manager.consecutive_empty_steps = 0
                 print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count+1})")
+                
+                # For UI display, also log the planned moves
+                if len(parser_output["moves"]) > 1:
+                    print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'][1:])}")
             else:
                 game_manager.consecutive_empty_steps += 1
                 print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")

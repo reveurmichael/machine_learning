@@ -76,6 +76,9 @@ def process_game_over(game, game_state_info):
         args.max_consecutive_errors_allowed
     )
     
+    # Reset round_count to 1 for the next game
+    round_count = 1
+    
     return game_count, total_score, total_steps, game_scores, round_count
 
 def handle_error(game, error_info):
@@ -152,6 +155,9 @@ def handle_error(game, error_info):
         
         # Reset consecutive errors for next game
         consecutive_errors = 0
+        
+        # Reset round_count to 1 for the next game
+        round_count = 1
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors
 

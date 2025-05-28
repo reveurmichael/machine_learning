@@ -636,10 +636,11 @@ class GameData:
             "secondary_token_stats": self.secondary_token_stats,
             
             # Detailed game history (at bottom)
+            # Create an ordered version of rounds_data
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
-                "rounds_data": self.rounds_data
+                "rounds_data": self._get_ordered_rounds_data()
             }
         }
         
@@ -648,6 +649,24 @@ class GameData:
             summary = self.update_continuation_info_in_summary(summary)
             
         return summary
+    
+    def _get_ordered_rounds_data(self):
+        """Get an ordered version of rounds_data with keys sorted numerically.
+        
+        Returns:
+            Ordered dictionary with rounds_data sorted by round number
+        """
+        # Extract round numbers from keys
+        round_keys = list(self.rounds_data.keys())
+        # Sort the keys numerically (extract the number from 'round_X')
+        sorted_keys = sorted(round_keys, key=lambda k: int(k.split('_')[1]))
+        
+        # Create new ordered dictionary
+        ordered_rounds_data = {}
+        for key in sorted_keys:
+            ordered_rounds_data[key] = self.rounds_data[key]
+            
+        return ordered_rounds_data
     
     def get_aggregated_stats_for_summary_json(self, game_count, game_scores):
         """This method has been deprecated and is no longer used.
@@ -680,13 +699,19 @@ class GameData:
             # Extract round number from format game_N_round_M_prompt.txt
             match = re.search(r'game_\d+_round_(\d+)_prompt\.txt', file)
             if match:
-                round_numbers.append(int(match.group(1)))
+                round_num = int(match.group(1))
+                # Skip round 0 if it exists (we want to start from 1)
+                if round_num > 0:
+                    round_numbers.append(round_num)
         
         if not round_numbers:
             return
             
         # Sort round numbers
         round_numbers.sort()
+        
+        # Clear existing rounds_data to ensure clean state
+        self.rounds_data = {}
         
         # Save each round's data
         for round_num in round_numbers:

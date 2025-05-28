@@ -10,38 +10,37 @@ import traceback
 from colorama import Fore
 
 def read_existing_game_data(log_dir, start_game_number):
-    """Read existing game data from log_dir for games before start_game_number.
+    """Read existing game data from game files.
     
     Args:
-        log_dir: Directory containing game files
-        start_game_number: First game number to start from (1-indexed)
+        log_dir: Path to the log directory
+        start_game_number: The game number to start from
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, game_durations,
-                 empty_steps, error_steps, parser_usage_count)
+        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count)
     """
-    game_scores = []
+    # Initialize counters
     total_score = 0
     total_steps = 0
-    game_durations = []
     empty_steps = 0
     error_steps = 0
     parser_usage_count = 0
-    
-    print(Fore.GREEN + f"🔍 Reading data from existing {start_game_number-1} games...")
-    
-    # Try both naming conventions for game files
+    game_scores = []
     missing_games = []
     corrupted_games = []
     
-    # Load existing game data
+    print(Fore.GREEN + f"🔍 Reading data from existing {start_game_number-1} games...")
+    
+    # Read game data from each file up to start_game_number - 1
     for game_num in range(1, start_game_number):
-        # Try both file naming conventions (game_{num}.json and game{num}.json)
-        game_files = [
-            os.path.join(log_dir, f"game_{game_num}.json"),
-            os.path.join(log_dir, f"game{game_num}.json")
-        ]
+        # Construct game file paths (checking both naming conventions)
+        game_file_path = os.path.join(log_dir, f"game_{game_num}.json")
+        alt_game_file_path = os.path.join(log_dir, f"game{game_num}.json")
         
+        # Find the first existing file
+        game_files = [path for path in [game_file_path, alt_game_file_path] if os.path.exists(path)]
+        
+        # Process the first available file
         game_file = None
         for file in game_files:
             if os.path.exists(file):
@@ -50,7 +49,7 @@ def read_existing_game_data(log_dir, start_game_number):
                 
         if game_file:
             try:
-                with open(game_file, 'r') as f:
+                with open(game_file, 'r', encoding='utf-8') as f:
                     game_data = json.load(f)
                     
                     # Basic game stats
@@ -72,11 +71,7 @@ def read_existing_game_data(log_dir, start_game_number):
                     # Extract game duration
                     if 'time_stats' in game_data:
                         time_stats = game_data.get('time_stats', {})
-                        if 'active_duration_seconds' in time_stats:
-                            # Prefer active duration for continuations
-                            game_durations.append(time_stats.get('active_duration_seconds', 0))
-                        else:
-                            game_durations.append(time_stats.get('total_duration_seconds', 0))
+                        # Note: we don't need to track game_durations as it's not used
             except json.JSONDecodeError as e:
                 corrupted_games.append(game_num)
                 print(Fore.YELLOW + f"⚠️ Warning: Game file {game_file} is corrupted: {e}")
@@ -97,7 +92,7 @@ def read_existing_game_data(log_dir, start_game_number):
     successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, game_durations, empty_steps, error_steps, parser_usage_count
+    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count
 
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
@@ -149,7 +144,6 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     (game_manager.total_score, 
      game_manager.total_steps, 
      game_manager.game_scores, 
-     game_durations, 
      game_manager.empty_steps, 
      game_manager.error_steps, 
      game_manager.parser_usage_count) = read_existing_game_data(log_dir, start_game_number)
@@ -164,46 +158,10 @@ def setup_llm_clients(game_manager):
         game_manager: The GameManager instance
     """
     from utils.llm_utils import check_llm_health
+    from utils import setup_llm_clients as common_setup_llm_clients
     
-    # Initialize primary LLM client
-    game_manager.llm_client = game_manager.create_llm_client(
-        game_manager.args.provider, 
-        game_manager.args.model
-    )
-    
-    print(Fore.GREEN + f"Using primary LLM provider: {game_manager.args.provider}")
-    if game_manager.args.model:
-        print(Fore.GREEN + f"Using primary LLM model: {game_manager.args.model}")
-    
-    # Perform health check for primary LLM
-    primary_healthy, primary_response = check_llm_health(game_manager.llm_client)
-    if not primary_healthy:
-        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
-        sys.exit(1)
-    else:
-        print(Fore.GREEN + "✅ Primary LLM health check passed!")
-    
-    # Configure secondary LLM (parser) if specified
-    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
-        print(Fore.GREEN + f"Using parser LLM provider: {game_manager.args.parser_provider}")
-        parser_model = game_manager.args.parser_model
-        print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
-        
-        # Set up the secondary LLM in the client
-        game_manager.llm_client.set_secondary_llm(game_manager.args.parser_provider, parser_model)
-        
-        # Perform health check for parser LLM
-        parser_healthy, _ = check_llm_health(
-            game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
-        )
-        if not parser_healthy:
-            print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
-            game_manager.args.parser_provider = "none"
-            game_manager.args.parser_model = None
-    else:
-        print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
-        game_manager.args.parser_provider = "none"
-        game_manager.args.parser_model = None
+    # Use the common utility function to set up LLM clients
+    common_setup_llm_clients(game_manager, check_llm_health)
 
 def handle_continuation_game_state(game_manager):
     """Handle game state for continuation mode.
@@ -228,7 +186,7 @@ def handle_continuation_game_state(game_manager):
     # Load summary.json to get information about the previous session
     try:
         summary_path = os.path.join(game_manager.log_dir, "summary.json")
-        with open(summary_path, 'r') as f:
+        with open(summary_path, 'r', encoding='utf-8') as f:
             summary_data = json.load(f)
             
         # Synchronize game state with summary.json data

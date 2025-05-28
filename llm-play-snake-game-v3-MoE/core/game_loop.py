@@ -34,11 +34,14 @@ def run_game_loop(game_manager):
                     
                     # Check if we need a new plan from the LLM
                     if game_manager.need_new_plan:
-                        # Get the next move from the LLM
+                        # Get next move from first LLM
                         next_move, game_manager.game_active = get_llm_response(game_manager)
                         
                         # Set flag to avoid requesting another plan until needed
                         game_manager.need_new_plan = False
+                        
+                        # Initialize apple_eaten for use in this block
+                        apple_eaten = False
                         
                         # Check if maximum steps limit has been reached
                         if check_max_steps(game_manager.game, game_manager.args.max_steps):
@@ -149,18 +152,22 @@ def run_game_loop(game_manager):
                     
                     # Handle game over state
                     if not game_manager.game_active:
+                        game_state_info = {
+                            "game_active": game_manager.game_active,
+                            "game_count": game_manager.game_count,
+                            "total_score": game_manager.total_score,
+                            "total_steps": game_manager.total_steps,
+                            "game_scores": game_manager.game_scores,
+                            "round_count": game_manager.round_count,
+                            "args": game_manager.args,
+                            "log_dir": game_manager.log_dir,
+                            "current_game_moves": game_manager.current_game_moves,
+                            "next_move": next_move
+                        }
+                        
                         game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count = process_game_over(
                             game_manager.game,
-                            game_manager.game_active,
-                            game_manager.game_count,
-                            game_manager.total_score,
-                            game_manager.total_steps,
-                            game_manager.game_scores,
-                            game_manager.round_count,
-                            game_manager.args,
-                            game_manager.log_dir,
-                            game_manager.current_game_moves,
-                            next_move
+                            game_state_info
                         )
                         
                         # Reset for next game
@@ -178,21 +185,25 @@ def run_game_loop(game_manager):
                     
                 except Exception as e:
                     # Handle errors during gameplay
+                    error_info = {
+                        "game_active": game_manager.game_active,
+                        "game_count": game_manager.game_count,
+                        "total_score": game_manager.total_score,
+                        "total_steps": game_manager.total_steps,
+                        "game_scores": game_manager.game_scores,
+                        "round_count": game_manager.round_count,
+                        "parser_usage_count": game_manager.parser_usage_count,
+                        "previous_parser_usage": game_manager.previous_parser_usage,
+                        "log_dir": game_manager.log_dir,
+                        "args": game_manager.args,
+                        "current_game_moves": game_manager.current_game_moves,
+                        "error": e,
+                        "consecutive_errors": game_manager.consecutive_errors
+                    }
+                    
                     game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors = handle_error(
-                        game_manager.game, 
-                        game_manager.game_active,
-                        game_manager.game_count,
-                        game_manager.total_score,
-                        game_manager.total_steps,
-                        game_manager.game_scores,
-                        game_manager.round_count,
-                        game_manager.parser_usage_count,
-                        game_manager.previous_parser_usage,
-                        game_manager.log_dir,
-                        game_manager.args,
-                        game_manager.current_game_moves,
-                        e,
-                        game_manager.consecutive_errors
+                        game_manager.game,
+                        error_info
                     )
                     
                     # Prepare for next game if not at limit
@@ -211,18 +222,21 @@ def run_game_loop(game_manager):
         
         # Report final statistics at end of session
         from utils.game_manager_utils import report_final_statistics
-        report_final_statistics(
-            game_manager.log_dir,
-            game_manager.game_count,
-            game_manager.total_score,
-            game_manager.total_steps,
-            game_manager.parser_usage_count,
-            game_manager.game_scores,
-            game_manager.empty_steps,
-            game_manager.error_steps,
-            game_manager.args.max_empty_moves,
-            game_manager.args.max_consecutive_errors_allowed
-        )
+        
+        stats_info = {
+            "log_dir": game_manager.log_dir,
+            "game_count": game_manager.game_count,
+            "total_score": game_manager.total_score,
+            "total_steps": game_manager.total_steps,
+            "parser_usage_count": game_manager.parser_usage_count,
+            "game_scores": game_manager.game_scores,
+            "empty_steps": game_manager.empty_steps,
+            "error_steps": game_manager.error_steps,
+            "max_empty_moves": game_manager.args.max_empty_moves,
+            "max_consecutive_errors_allowed": game_manager.args.max_consecutive_errors_allowed
+        }
+        
+        report_final_statistics(stats_info)
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

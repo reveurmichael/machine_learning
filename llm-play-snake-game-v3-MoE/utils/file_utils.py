@@ -208,7 +208,7 @@ def extract_game_summary(summary_file):
         if not os.path.exists(summary_file):
             return summary
             
-        with open(summary_file, 'r') as f:
+        with open(summary_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
         # Extract basic stats

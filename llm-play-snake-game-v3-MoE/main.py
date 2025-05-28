@@ -82,7 +82,7 @@ def parse_arguments():
 
         # Load configuration from summary.json
         try:
-            with open(summary_path, 'r') as f:
+            with open(summary_path, 'r', encoding='utf-8') as f:
                 summary_data = json.load(f)
 
             # Set configuration from summary.json
@@ -100,7 +100,7 @@ def parse_arguments():
                 args.max_games = summary_data['game_configuration'].get('max_games', 6)
 
         except Exception as e:
-            raise ValueError(f"Error loading summary.json: {e}")
+            raise ValueError(f"Error loading summary.json: {e}") from e
     else:
         # Validate the command-line arguments to detect duplicate or invalid arguments
         raw_args = ' '.join(sys.argv[1:])

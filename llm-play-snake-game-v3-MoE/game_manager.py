@@ -138,19 +138,22 @@ class GameManager:
             json_error_stats=get_json_error_stats()
         )
         
+        # Create stats dictionary
+        stats_info = {
+            "log_dir": self.log_dir,
+            "game_count": self.game_count,
+            "total_score": self.total_score,
+            "total_steps": self.total_steps,
+            "parser_usage_count": self.parser_usage_count,
+            "game_scores": self.game_scores,
+            "empty_steps": self.empty_steps,
+            "error_steps": self.error_steps,
+            "max_empty_moves": self.args.max_empty_moves,
+            "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed
+        }
+        
         # Report statistics to console and save to files
-        report_final_statistics(
-            self.log_dir,
-            self.game_count,
-            self.total_score,
-            self.total_steps,
-            self.parser_usage_count,
-            self.game_scores,
-            self.empty_steps,
-            self.error_steps,
-            self.args.max_empty_moves,
-            self.args.max_consecutive_errors_allowed
-        )
+        report_final_statistics(stats_info)
     
     def run(self):
         """Initialize and run the game session."""

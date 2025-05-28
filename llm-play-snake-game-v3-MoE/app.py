@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import traceback
 
 from utils.file_utils import find_log_folders, extract_game_stats
 from replay.replay_engine import ReplayEngine
@@ -244,57 +245,71 @@ def run_replay(log_folder, game_num, move_pause):
     Args:
         log_folder: Folder containing the game logs
         game_num: Game number to replay
-        move_pause: Pause between moves in seconds
+        move_pause: Pause time between moves in seconds
     """
-    # Initialize the replay
-    replay = ReplayEngine(log_folder, move_pause=move_pause)
-    
-    # Set the game number
-    replay.game_number = game_num
-    
-    # Run the replay
-    replay.run()
+    try:
+        # Create a replay engine and run the replay
+        engine = ReplayEngine(log_folder, move_pause)
+        if engine.load_game_data(game_num):
+            engine.run()
+        else:
+            st.error(f"Could not load game {game_num} from {log_folder}")
+    except Exception as e:
+        st.error(f"Error running replay: {e}")
+        traceback.print_exc()
 
 def main():
     """Main function to run the Streamlit app."""
-    # Set up sidebar
-    st.sidebar.title("Snake Game Analytics 🐍")
-    st.sidebar.markdown("Analyze and replay Snake game sessions.")
+    st.title("🐍 Snake Game Analytics Dashboard")
     
-    # Main content
-    st.title("Snake Game Analytics Dashboard 🐍")
-    
-    # Find log folders
-    with st.spinner("Finding log folders..."):
-        log_folders = find_log_folders()
+    # Find all log folders
+    log_folders = find_log_folders()
     
     if not log_folders:
-        st.warning("No log folders found. Make sure you're running this app from the correct directory.")
+        st.error("No log folders found! Please run the snake game first.")
         return
     
-    # Extract stats from log folders
-    with st.spinner("Extracting game statistics..."):
-        folder_stats = [extract_game_stats(folder) for folder in log_folders]
+    # Extract stats from all folders
+    all_stats = []
+    for folder in log_folders:
+        stats = extract_game_stats(folder)
+        if stats:
+            all_stats.append(stats)
     
-    # Convert to DataFrame for filtering and display
-    stats_df = pd.DataFrame(folder_stats)
+    if not all_stats:
+        st.error("No valid statistics found in log folders!")
+        return
     
-    # Add date column if missing
-    if 'date' not in stats_df:
-        stats_df['date'] = None
-    
-    # Convert date strings to datetime objects for sorting
-    stats_df['date'] = pd.to_datetime(stats_df['date'], errors='coerce')
-    
-    # Sort by date (newest first)
-    stats_df.sort_values(by='date', ascending=False, inplace=True, na_position='last')
+    # Create a DataFrame from the stats
+    stats_df = pd.DataFrame(all_stats)
     
     # Create tabs for different views
     tab1, tab2, tab3 = st.tabs(["Overview", "Game Details", "Replay"])
     
     with tab1:
-        # Filter options
+        st.header("Experiment Overview")
+        
+        # Display summary statistics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Experiments", len(stats_df))
+        
+        with col2:
+            st.metric("Total Games", stats_df['total_games'].sum())
+        
+        with col3:
+            st.metric("Average Score", f"{stats_df['mean_score'].mean():.2f}")
+        
+        with col4:
+            st.metric("Best Score", stats_df['max_score'].max())
+        
         st.header("Filter Options")
+        
+        # Initialize filter variables
+        selected_models = []
+        selected_providers = []
+        date_range = None
         
         # Create filter columns
         col1, col2, col3 = st.columns(3)

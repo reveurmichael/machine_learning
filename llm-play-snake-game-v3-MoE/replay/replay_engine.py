@@ -64,23 +64,29 @@ class ReplayEngine(GameController):
             gui_instance.set_paused(self.paused)
     
     def draw(self):
-        """Draw the current game state if GUI is available."""
+        """Draw the current game state."""
         if self.use_gui and self.gui:
-            self.gui.draw(
-                snake_positions=self.snake_positions,
-                apple_position=self.apple_position if self.apple_index < len(self.apple_positions) else None,
-                game_number=self.game_number,
-                score=self.score,
-                steps=self.steps,
-                move_index=self.move_index,
-                total_moves=len(self.moves),
-                current_direction=self.current_direction,
-                game_end_reason=self.game_end_reason,
-                primary_llm=self.primary_llm,
-                secondary_llm=self.secondary_llm,
-                game_timestamp=self.game_timestamp,
-                llm_response=self.llm_response
-            )
+            # Create replay data dictionary
+            replay_data = {
+                'snake_positions': self.snake_positions,
+                'apple_position': self.apple_position,
+                'game_number': self.game_number,
+                'score': self.score,
+                'steps': self.steps,
+                'move_index': self.move_index,
+                'total_moves': len(self.moves),
+                'planned_moves': self.planned_moves,
+                'llm_response': self.llm_response,
+                'primary_llm': self.primary_llm,
+                'secondary_llm': self.secondary_llm,
+                'paused': self.paused,
+                'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
+                'timestamp': self.game_timestamp,
+                'game_end_reason': self.game_end_reason
+            }
+            
+            # Draw the replay view
+            self.gui.draw(replay_data)
             
     def load_game_data(self, game_number):
         """Load game data for a specific game number.
@@ -242,7 +248,7 @@ class ReplayEngine(GameController):
                     self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
                 
                 # Execute the move
-                game_continues, apple_eaten = self.execute_replay_move(next_move)
+                game_continues = self.execute_replay_move(next_move)
                 
                 # Update last move time
                 self.last_move_time = current_time
@@ -291,15 +297,13 @@ class ReplayEngine(GameController):
             direction_key: String key of the direction to move in ("UP", "DOWN", etc.)
             
         Returns:
-            Tuple of (game_active, apple_eaten) where:
-                game_active: Boolean indicating if the game is still active
-                apple_eaten: Boolean indicating if an apple was eaten on this move
+            Boolean indicating if the game is still active
         """
         # Handle special case for empty moves
         if direction_key == "EMPTY":
             print("Empty move - snake stays in place")
             self.steps += 1
-            return True, False  # Game continues, no apple eaten
+            return True
             
         # Get direction vector
         if direction_key not in DIRECTIONS:
@@ -317,7 +321,7 @@ class ReplayEngine(GameController):
         x, y = new_head
         if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
             print(f"Game over: Snake hit wall at position {new_head}")
-            return False, False
+            return False
         
         # Check for body collision
         body_collision = False
@@ -328,7 +332,7 @@ class ReplayEngine(GameController):
                 
         if body_collision:
             print(f"Game over: Snake hit itself at position {new_head}")
-            return False, False
+            return False
         
         # Prepare new snake positions
         new_snake_positions = np.copy(self.snake_positions)
@@ -393,7 +397,7 @@ class ReplayEngine(GameController):
         # Update step counter
         self.steps += 1
         
-        return True, apple_eaten
+        return True
     
     def handle_events(self):
         """Handle pygame events."""
@@ -413,14 +417,29 @@ class ReplayEngine(GameController):
                         self.gui.set_paused(self.paused)
                     print(f"Replay {'paused' if self.paused else 'resumed'}")
                     redraw_needed = True
-                elif event.key == pygame.K_RIGHT:
+                elif event.key in (pygame.K_UP, pygame.K_s):
+                    # Speed up
+                    self.pause_between_moves = max(0.1, self.pause_between_moves * 0.75)
+                    print(f"Speed increased: {1/self.pause_between_moves:.1f}x")
+                    redraw_needed = True
+                elif event.key in (pygame.K_DOWN, pygame.K_d):
+                    # Slow down
+                    self.pause_between_moves = min(2.0, self.pause_between_moves * 1.25)
+                    print(f"Speed decreased: {1/self.pause_between_moves:.1f}x")
+                    redraw_needed = True
+                elif event.key == pygame.K_r:
+                    # Restart current game
+                    self.load_game_data(self.game_number)
+                    print(f"Restarting game {self.game_number}")
+                    redraw_needed = True
+                elif event.key in (pygame.K_RIGHT, pygame.K_n):
                     # Next game
                     self.game_number += 1
                     if not self.load_game_data(self.game_number):
                         print("No more games to load. Staying on current game.")
                         self.game_number -= 1
                     redraw_needed = True
-                elif event.key == pygame.K_LEFT:
+                elif event.key in (pygame.K_LEFT, pygame.K_p):
                     # Previous game
                     if self.game_number > 1:
                         self.game_number -= 1
@@ -428,21 +447,6 @@ class ReplayEngine(GameController):
                         print(f"Going to previous game {self.game_number}")
                     else:
                         print("Already at the first game")
-                    redraw_needed = True
-                elif event.key == pygame.K_r:
-                    # Restart current game
-                    self.load_game_data(self.game_number)
-                    print(f"Restarting game {self.game_number}")
-                    redraw_needed = True
-                elif event.key == pygame.K_UP:
-                    # Speed up
-                    self.pause_between_moves = max(0.1, self.pause_between_moves * 0.75)
-                    print(f"Speed increased: {1/self.pause_between_moves:.1f}x")
-                    redraw_needed = True
-                elif event.key == pygame.K_DOWN:
-                    # Slow down
-                    self.pause_between_moves = min(2.0, self.pause_between_moves * 1.25)
-                    print(f"Speed decreased: {1/self.pause_between_moves:.1f}x")
                     redraw_needed = True
         
         # Redraw the UI if needed after processing events

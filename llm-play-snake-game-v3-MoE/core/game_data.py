@@ -370,53 +370,50 @@ class GameData:
             elif error_type == "text":
                 self.text_extraction_errors += 1
     
-    def record_round_data(self, round_number, apple_position, moves, 
-                         primary_response_time=None, secondary_response_time=None,
-                         primary_tokens=None, secondary_tokens=None):
-        """Record data for a specific round.
+    def record_round_data(self, round_data):
+        """Record data for a game round.
         
         Args:
-            round_number: The round number (should match prompt/response file round numbers)
-            apple_position: Position of the apple as [x, y]
-            moves: List of moves made in this round
-            primary_response_time: Response time of the primary LLM
-            secondary_response_time: Response time of the secondary LLM
-            primary_tokens: Token stats for primary LLM as dict with prompt_tokens, completion_tokens, total_tokens
-            secondary_tokens: Token stats for secondary LLM as dict with prompt_tokens, completion_tokens, total_tokens
+            round_data: Dictionary containing round data:
+                - round_number: Round number
+                - apple_position: Position of the apple as [x, y]
+                - moves: List of moves made in this round
+                - primary_response_time: Time taken to get primary LLM response (optional)
+                - secondary_response_time: Time taken to get secondary LLM response (optional)
+                - primary_tokens: Dictionary with primary token stats (optional)
+                - secondary_tokens: Dictionary with secondary token stats (optional)
         """
-        round_data = {
-            "apple_position": apple_position,
-            "moves": moves
-        }
+        round_number = round_data.get('round_number')
+        apple_position = round_data.get('apple_position')
+        moves = round_data.get('moves', [])
         
-        if primary_response_time is not None:
-            round_data["primary_response_times"] = [primary_response_time]
-            
-        if secondary_response_time is not None:
-            round_data["secondary_response_times"] = [secondary_response_time]
-            
-        if primary_tokens is not None:
-            round_data["primary_token_stats"] = [primary_tokens]
-            
-        if secondary_tokens is not None:
-            round_data["secondary_token_stats"] = [secondary_tokens]
+        # Format the round key
+        round_key = f"round_{round_number}"
         
-        # Use the exact round number provided (should match prompt/response files)
-        file_round = round_number
-            
-        # Store in file round numbers list if not already there
-        if file_round not in self.file_round_numbers:
-            self.file_round_numbers.append(file_round)
-            
-        # Save the round data with the file round number
-        self.rounds_data[f"round_{file_round}"] = round_data
+        # Initialize round data if not exists
+        if round_key not in self.rounds_data:
+            self.rounds_data[round_key] = self._create_empty_round_data()
         
-        # Update internal round_count based on file_round
-        # This is a bit complex due to the non-continuous round numbers in prompt/response files
-        # We're trying to estimate what the logical round count would be based on the file round number
-        if file_round % 3 == 1:  # If round is 1, 4, 7, etc.
-            logical_round = (file_round + 2) // 3
-            self.round_count = max(self.round_count, logical_round)
+        # Update round data
+        self.rounds_data[round_key]["apple_position"] = apple_position
+        
+        # Update moves
+        if moves:
+            self.rounds_data[round_key]["moves"] = moves
+        
+        # Update response times if provided
+        if 'primary_response_time' in round_data and round_data['primary_response_time'] is not None:
+            self.rounds_data[round_key]["primary_response_times"].append(round_data['primary_response_time'])
+        
+        if 'secondary_response_time' in round_data and round_data['secondary_response_time'] is not None:
+            self.rounds_data[round_key]["secondary_response_times"].append(round_data['secondary_response_time'])
+        
+        # Update token stats if provided
+        if 'primary_tokens' in round_data and round_data['primary_tokens'] is not None:
+            self.rounds_data[round_key]["primary_token_stats"].append(round_data['primary_tokens'])
+        
+        if 'secondary_tokens' in round_data and round_data['secondary_tokens'] is not None:
+            self.rounds_data[round_key]["secondary_token_stats"].append(round_data['secondary_tokens'])
     
     def get_step_stats(self):
         """Calculate step statistics.
@@ -657,7 +654,6 @@ class GameData:
     
     def get_aggregated_stats_for_summary_json(self, game_count, game_scores, game_durations=None):
         """This method has been deprecated and is no longer used."""
-        pass
     
     def save_prompt_response_rounds(self, log_dir, game_number):
         """Save rounds data based on the prompt/response files in the log directory.
@@ -767,7 +763,7 @@ class GameData:
         
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
         
-        with open(filepath, 'w') as f:
+        with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
             
         return filepath

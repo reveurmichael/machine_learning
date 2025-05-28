@@ -125,10 +125,10 @@ class GameController:
         
         for move in moves:
             # Skip if this move would be a reversal of the last direction
-            if (last_direction == "UP" and move == "DOWN") or \
-               (last_direction == "DOWN" and move == "UP") or \
-               (last_direction == "LEFT" and move == "RIGHT") or \
-               (last_direction == "RIGHT" and move == "LEFT"):
+            if ((last_direction == "UP" and move == "DOWN") or
+                (last_direction == "DOWN" and move == "UP") or
+                (last_direction == "LEFT" and move == "RIGHT") or
+                (last_direction == "RIGHT" and move == "LEFT")):
                 print(f"Filtering out invalid reversal move: {move} after {last_direction}")
                 # Record invalid reversal in game state
                 if hasattr(self, 'game_state'):

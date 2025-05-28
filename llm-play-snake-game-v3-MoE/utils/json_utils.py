@@ -33,9 +33,9 @@ class NumPyJSONEncoder(json.JSONEncoder):
         """
         if isinstance(obj, np.integer):
             return int(obj)
-        elif isinstance(obj, np.floating):
+        if isinstance(obj, np.floating):
             return float(obj)
-        elif isinstance(obj, np.ndarray):
+        if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
@@ -106,7 +106,7 @@ def save_experiment_info_json(args, directory):
     
     # Save to file
     file_path = os.path.join(directory, "summary.json")
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding='utf-8') as f:
         json.dump(experiment_info, f, indent=2, cls=NumPyJSONEncoder)
     
     return experiment_info
@@ -125,7 +125,7 @@ def update_experiment_info_json(log_dir, **kwargs):
         return
     
     try:
-        with open(summary_path, "r") as f:
+        with open(summary_path, "r", encoding='utf-8') as f:
             summary = json.load(f)
     except Exception as e:
         print(f"Error reading summary.json: {e}")
@@ -149,7 +149,7 @@ def update_experiment_info_json(log_dir, **kwargs):
     
     # Save updated summary
     try:
-        with open(summary_path, "w") as f:
+        with open(summary_path, "w", encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
     except Exception as e:
         print(f"Error writing summary.json: {e}")
@@ -252,8 +252,6 @@ def extract_json_from_code_block(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
-    global json_error_stats
-    
     # Match JSON code blocks
     code_block_matches = re.findall(r'```(?:json)?\s*([\s\S]*?)```', response, re.DOTALL)
     
@@ -283,7 +281,6 @@ def extract_valid_json(text, game_state=None):
     Returns:
         Parsed JSON data or None if no valid JSON found
     """
-    global json_error_stats
     json_error_stats["total_extraction_attempts"] += 1
     
     # Also record in game_state if provided
@@ -347,8 +344,6 @@ def extract_json_from_text(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
-    global json_error_stats
-    
     try:
         # Direct JSON parsing for clean responses
         try:
@@ -400,8 +395,6 @@ def extract_moves_pattern(json_str):
     Returns:
         Dictionary with moves key or None if extraction failed
     """
-    global json_error_stats
-    
     try:
         # Extract moves array
         moves_array_match = re.search(r'["\']?moves["\']?\s*:\s*\[([\s\S]*?)\]', json_str, re.DOTALL)
@@ -508,7 +501,7 @@ def merge_game_stats_for_continuation(log_dir):
     # Process each game file
     for game_file in game_files:
         try:
-            with open(game_file, "r") as f:
+            with open(game_file, "r", encoding='utf-8') as f:
                 game_data = json.load(f)
                 
             # Update game statistics

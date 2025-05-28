@@ -49,16 +49,6 @@ class BaseGUI:
         # Calculate the width of the text panel
         self.text_panel_width = self.width + self.width_plus - self.height - 40
     
-    def draw_snake(self, snake_positions, flip_y=False):
-        """Draw the snake at the given positions.
-        
-        Args:
-            snake_positions: List of [x,y] positions for snake segments
-            flip_y: Whether to flip the y-coordinate (for different coordinate systems)
-        """
-        # I'll remove the draw_snake method from the BaseGUI class
-        pass
-    
     def draw_apple(self, apple_position, flip_y=False):
         """Draw the apple at the given position.
         
@@ -87,7 +77,6 @@ class BaseGUI:
     def draw_walls(self):
         """Draw the walls/borders of the game board."""
         # No walls or borders in the cleaner design
-        pass
     
     def clear_game_area(self):
         """Clear the game board area."""
@@ -162,3 +151,28 @@ class BaseGUI:
                     # Stop if we've reached the bottom of the text area
                     if y_offset > y + height - line_height:
                         return 
+    
+    def draw_game_info(self, game_info):
+        """Draw game information overlay.
+        
+        Args:
+            game_info: Dictionary containing game information:
+                - score: Current score
+                - steps: Current step count
+                - planned_moves: List of planned moves
+                - llm_response: LLM response text
+                - secondary_llm: Name of secondary LLM (optional)
+                - paused: Whether the game is paused (optional)
+                - speed: Game speed (optional)
+        """
+        if not self.screen:
+            return
+        
+        # Get values from the dictionary
+        score = game_info.get('score', 0)
+        steps = game_info.get('steps', 0)
+        planned_moves = game_info.get('planned_moves', [])
+        llm_response = game_info.get('llm_response', '')
+        secondary_llm = game_info.get('secondary_llm', None)
+        paused = game_info.get('paused', False)
+        speed = game_info.get('speed', 1.0) 

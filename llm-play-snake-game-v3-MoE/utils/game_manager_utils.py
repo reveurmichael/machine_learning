@@ -26,31 +26,35 @@ def check_max_steps(game, max_steps):
         return True
     return False
 
-def process_game_over(game, game_active, game_count, total_score, total_steps, game_scores, 
-                    round_count, args, log_dir, current_game_moves=None, next_move=None):
+def process_game_over(game, game_state_info):
     """Process game over state and prepare for the next game.
     
     Args:
         game: The game instance
-        game_active: Boolean indicating if the game is active
-        game_count: Count of games played
-        total_score: Total score across all games
-        total_steps: Total steps across all games
-        game_scores: List of scores for all games
-        round_count: Count of rounds in the current game
-        args: Command line arguments
-        log_dir: Directory for logging
-        current_game_moves: List of moves made in the current game
-        next_move: The last move made (or None)
+        game_state_info: Dictionary containing game state information:
+            - game_active: Boolean indicating if the game is active
+            - game_count: Count of games played
+            - total_score: Total score across all games
+            - total_steps: Total steps across all games
+            - game_scores: List of scores for all games
+            - round_count: Count of rounds in the current game
+            - args: Command line arguments
+            - log_dir: Directory for logging
+            - current_game_moves: List of moves made in the current game (optional)
+            - next_move: The last move made (optional)
         
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count)
     """
     # Update game count and statistics
-    game_count += 1
-    total_score += game.score
-    total_steps += game.steps
+    game_count = game_state_info["game_count"] + 1
+    total_score = game_state_info["total_score"] + game.score
+    total_steps = game_state_info["total_steps"] + game.steps
+    game_scores = game_state_info["game_scores"].copy()
     game_scores.append(game.score)
+    round_count = game_state_info["round_count"]
+    args = game_state_info["args"]
+    log_dir = game_state_info["log_dir"]
     
     # Set a reason if not already set by the game engine
     if not game.game_state.game_end_reason:
@@ -74,36 +78,45 @@ def process_game_over(game, game_active, game_count, total_score, total_steps, g
     
     return game_count, total_score, total_steps, game_scores, round_count
 
-def handle_error(game, game_active, game_count, total_score, total_steps, 
-                game_scores, round_count, parser_usage_count, previous_parser_usage, 
-                log_dir, args, current_game_moves, error, consecutive_errors=0):
+def handle_error(game, error_info):
     """Handle errors that occur during the game loop.
     
     Args:
         game: The snake game instance
-        game_active: Boolean indicating if game is active
-        game_count: Current game count
-        total_score: Total score across all games
-        total_steps: Total steps across all games
-        game_scores: List of scores from all games
-        round_count: Current round count
-        parser_usage_count: Count of parser usage
-        previous_parser_usage: Previous parser usage count
-        log_dir: Directory for logs
-        args: Command line arguments
-        current_game_moves: List of moves made in the current game
-        error: The exception that occurred
-        consecutive_errors: Current count of consecutive errors
+        error_info: Dictionary containing error handling information:
+            - game_active: Boolean indicating if game is active
+            - game_count: Current game count
+            - total_score: Total score across all games
+            - total_steps: Total steps across all games
+            - game_scores: List of scores from all games
+            - round_count: Current round count
+            - parser_usage_count: Count of parser usage
+            - previous_parser_usage: Previous parser usage count
+            - log_dir: Directory for logs
+            - args: Command line arguments
+            - current_game_moves: List of moves made in the current game
+            - error: The exception that occurred
+            - consecutive_errors: Current count of consecutive errors (default: 0)
         
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
                  round_count, previous_parser_usage, consecutive_errors)
     """
-    print(Fore.RED + f"Error in game loop: {error}")
+    print(Fore.RED + f"Error in game loop: {error_info['error']}")
     traceback.print_exc()
     
-    # Increment consecutive errors count
-    consecutive_errors += 1
+    # Initialize return values from input dictionary
+    game_active = error_info["game_active"]
+    game_count = error_info["game_count"]
+    total_score = error_info["total_score"]
+    total_steps = error_info["total_steps"]
+    game_scores = error_info["game_scores"].copy()
+    round_count = error_info["round_count"]
+    previous_parser_usage = error_info["previous_parser_usage"]
+    consecutive_errors = error_info.get("consecutive_errors", 0) + 1
+    args = error_info["args"]
+    log_dir = error_info["log_dir"]
+    current_game_moves = error_info.get("current_game_moves", [])
     
     # End the current game if consecutive errors exceed threshold or if this is a critical error
     if game_active and (consecutive_errors > args.max_consecutive_errors_allowed):
@@ -142,24 +155,35 @@ def handle_error(game, game_active, game_count, total_score, total_steps,
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors
 
-def report_final_statistics(log_dir, game_count, total_score, total_steps,
-                           parser_usage_count, game_scores, empty_steps, 
-                           error_steps, max_empty_moves, max_consecutive_errors_allowed=5):
+def report_final_statistics(stats_info):
     """Report final statistics at the end of the game session.
     
     Args:
-        log_dir: Directory for logs
-        game_count: Total games played
-        total_score: Total score across all games
-        total_steps: Total steps across all games
-        parser_usage_count: Count of parser usage
-        game_scores: List of scores from all games
-        empty_steps: Number of empty steps
-        error_steps: Number of error steps
-        max_empty_moves: Maximum allowed empty moves
-        max_consecutive_errors_allowed: Maximum allowed consecutive errors
+        stats_info: Dictionary containing statistics information:
+            - log_dir: Directory for logs
+            - game_count: Total games played
+            - total_score: Total score across all games
+            - total_steps: Total steps across all games
+            - parser_usage_count: Count of parser usage
+            - game_scores: List of scores from all games
+            - empty_steps: Number of empty steps
+            - error_steps: Number of error steps
+            - max_empty_moves: Maximum allowed empty moves
+            - max_consecutive_errors_allowed: Maximum allowed consecutive errors (default: 5)
     """
     from utils.json_utils import get_json_error_stats, update_experiment_info_json
+    
+    # Extract values from input dictionary
+    log_dir = stats_info["log_dir"]
+    game_count = stats_info["game_count"]
+    total_score = stats_info["total_score"]
+    total_steps = stats_info["total_steps"]
+    parser_usage_count = stats_info["parser_usage_count"]
+    game_scores = stats_info["game_scores"]
+    empty_steps = stats_info["empty_steps"]
+    error_steps = stats_info["error_steps"]
+    max_empty_moves = stats_info["max_empty_moves"]
+    max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
     # Update experiment summary with final statistics
     json_error_stats = get_json_error_stats()
@@ -206,53 +230,18 @@ def initialize_game_manager(game_manager):
         game_manager: The GameManager instance
     """
     from utils.json_utils import reset_json_error_stats, save_experiment_info_json
-    from utils.llm_utils import check_llm_health
     import os
-    import sys
     import time
     
     # Reset JSON error statistics
     reset_json_error_stats()
     
-    # Initialize primary LLM client
-    game_manager.llm_client = game_manager.create_llm_client(
-        game_manager.args.provider, 
-        game_manager.args.model
-    )
+    # Import these functions inside the function to avoid cyclic imports
+    from utils.llm_utils import check_llm_health
+    from utils import setup_llm_clients
     
-    print(Fore.GREEN + f"Using primary LLM provider: {game_manager.args.provider}")
-    if game_manager.args.model:
-        print(Fore.GREEN + f"Using primary LLM model: {game_manager.args.model}")
-    
-    # Perform health check for primary LLM
-    primary_healthy, primary_response = check_llm_health(game_manager.llm_client)
-    if not primary_healthy:
-        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
-        sys.exit(1)
-    else:
-        print(Fore.GREEN + "✅ Primary LLM health check passed!")
-        
-    # Configure secondary LLM (parser) if specified
-    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
-        print(Fore.GREEN + f"Using parser LLM provider: {game_manager.args.parser_provider}")
-        parser_model = game_manager.args.parser_model
-        print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
-        
-        # Set up the secondary LLM in the client
-        game_manager.llm_client.set_secondary_llm(game_manager.args.parser_provider, parser_model)
-        
-        # Perform health check for parser LLM
-        parser_healthy, _ = check_llm_health(
-            game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
-        )
-        if not parser_healthy:
-            print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
-            game_manager.args.parser_provider = "none"
-            game_manager.args.parser_model = None
-    else:
-        print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
-        game_manager.args.parser_provider = "none"
-        game_manager.args.parser_model = None
+    # Use the common setup function
+    setup_llm_clients(game_manager, check_llm_health)
     
     # Handle sleep before launching if specified
     if game_manager.args.sleep_before_launching > 0:

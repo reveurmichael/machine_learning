@@ -56,57 +56,20 @@ class GameLogic(GameController):
         # Convert each position to a tuple and exclude the head (last element)
         return [tuple(pos) for pos in self.snake_positions[:-1]]
     
-    def calculate_move_differences(self, head_pos, apple_pos):
-        """Calculate the expected move differences based on head and apple positions.
-        
-        Args:
-            head_pos: Position of the snake's head as [x, y]
-            apple_pos: Position of the apple as [x, y]
-            
-        Returns:
-            String describing the expected move differences with actual numbers
-        """
-        head_x, head_y = head_pos
-        apple_x, apple_y = apple_pos
-        
-        # Calculate horizontal differences
-        x_diff_text = ""
-        if head_x <= apple_x:
-            x_diff = apple_x - head_x
-            x_diff_text = f"#RIGHT - #LEFT = {x_diff} (= {apple_x} - {head_x})"
-        else:
-            x_diff = head_x - apple_x
-            x_diff_text = f"#LEFT - #RIGHT = {x_diff} (= {head_x} - {apple_x})"
-        
-        # Calculate vertical differences
-        y_diff_text = ""
-        if head_y <= apple_y:
-            y_diff = apple_y - head_y
-            y_diff_text = f"#UP - #DOWN = {y_diff} (= {apple_y} - {head_y})"
-        else:
-            y_diff = head_y - apple_y
-            y_diff_text = f"#DOWN - #UP = {y_diff} (= {head_y} - {apple_y})"
-        
-        return f"{x_diff_text}, and {y_diff_text}"
-    
-    def set_gui(self, gui_instance):
-        """Set the GUI instance to use for display.
-        
-        Args:
-            gui_instance: Instance of a GUI class for the snake game
-        """
-        super().set_gui(gui_instance)
-    
     def draw(self):
         """Draw the current game state if GUI is available."""
         if self.use_gui and self.gui:
             self.gui.draw_board(self.board, self.board_info, self.head_position)
-            self.gui.draw_game_info(
-                score=self.score,
-                steps=self.steps,
-                planned_moves=self.planned_moves,
-                llm_response=self.processed_response
-            )
+            
+            # Create game info dictionary
+            game_info = {
+                'score': self.score,
+                'steps': self.steps,
+                'planned_moves': self.planned_moves,
+                'llm_response': self.processed_response
+            }
+            
+            self.gui.draw_game_info(game_info)
     
     def reset(self):
         """Reset the game to the initial state."""
@@ -116,25 +79,6 @@ class GameLogic(GameController):
         
         # Return the current state representation for LLM
         return self.get_state_representation()
-    
-    def format_body_cells_str(self, snake_positions, exclude_head=True):
-        """Format the snake body cells as a string representation.
-        
-        Args:
-            snake_positions: List of [x, y] coordinates of the snake segments
-            exclude_head: Whether to exclude the head from the output (default: True)
-            
-        Returns:
-            String representation of body cells in format: "[(x1,y1), (x2,y2), ...]"
-        """
-        body_cells = []
-        positions = snake_positions[:-1] if exclude_head else snake_positions
-        
-        # Optionally reverse the positions to start from the segment adjacent to head
-        for x, y in reversed(positions):
-            body_cells.append(f"({x},{y})")
-            
-        return "[" + ", ".join(body_cells) + "]"
     
     def get_state_representation(self):
         """Generate a representation of the game state for the LLM prompt.

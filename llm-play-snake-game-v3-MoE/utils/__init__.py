@@ -3,6 +3,9 @@ Utils package initialization.
 This file exposes all functions, classes, and variables from utility modules.
 """
 
+import sys
+from colorama import Fore
+
 # Import and expose all from json_utils
 from .json_utils import (
     get_json_error_stats,
@@ -28,53 +31,8 @@ from .file_utils import (
     save_to_file
 )
 
-# Import and expose all from log_utils
-from .log_utils import (
-    format_raw_llm_response,
-    format_parsed_llm_response,
-    generate_game_summary_json
-)
-
-# Import and expose all from replay_utils
-from .replay_utils import (
-    run_replay,
-    check_game_summary_for_moves,
-    extract_apple_positions
-)
-
-# Import and expose all from game_stats_utils
-from .game_stats_utils import (
-    create_display_dataframe,
-    create_game_performance_chart,
-    create_game_dataframe,
-    get_experiment_options,
-    filter_experiments
-)
-
-# Import and expose all from game_manager_utils
-from .game_manager_utils import (
-    check_max_steps,
-    process_game_over,
-    handle_error,
-    report_final_statistics
-)
-
-# Import and expose all from llm_utils
-from .llm_utils import (
-    parse_llm_response,
-    handle_llm_response,
-    prepare_snake_prompt,
-    format_body_cells_str,
-    parse_and_format,
-    create_parser_prompt,
-    check_llm_health
-)
-
-# Import and expose all from text_utils
-from .text_utils import (
-    process_response_for_display,
-    format_code_blocks
-)
+# Delay importing the remaining modules to avoid cyclic imports
+# They'll be imported on-demand when needed
 
 # Make it easy to import from specific modules
 __all__ = [
@@ -99,39 +57,58 @@ __all__ = [
     'clean_prompt_files',
     'save_to_file',
     
-    # log_utils
-    'format_raw_llm_response',
-    'format_parsed_llm_response',
-    'generate_game_summary_json',
-    
-    # replay_utils
-    'run_replay',
-    'check_game_summary_for_moves',
-    'extract_apple_positions',
-    
-    # game_stats_utils
-    'create_display_dataframe',
-    'create_game_performance_chart',
-    'create_game_dataframe',
-    'get_experiment_options',
-    'filter_experiments',
-    
-    # game_manager_utils
-    'check_max_steps',
-    'process_game_over',
-    'handle_error',
-    'report_final_statistics',
-    
-    # llm_utils
-    'parse_llm_response',
-    'handle_llm_response',
-    'prepare_snake_prompt',
-    'format_body_cells_str',
-    'parse_and_format',
-    'create_parser_prompt',
-    'check_llm_health',
-    
-    # text_utils
-    'process_response_for_display',
-    'format_code_blocks'
+    # setup_llm_clients function
+    'setup_llm_clients'
 ]
+
+def setup_llm_clients(game_manager, check_llm_health):
+    """Set up the LLM clients with health checks.
+    
+    Args:
+        game_manager: The GameManager instance
+        check_llm_health: Function to check LLM health
+        
+    Returns:
+        Boolean indicating if setup was successful
+    """
+    # Initialize primary LLM client
+    game_manager.llm_client = game_manager.create_llm_client(
+        game_manager.args.provider, 
+        game_manager.args.model
+    )
+    
+    print(Fore.GREEN + f"Using primary LLM provider: {game_manager.args.provider}")
+    if game_manager.args.model:
+        print(Fore.GREEN + f"Using primary LLM model: {game_manager.args.model}")
+    
+    # Perform health check for primary LLM
+    primary_healthy = check_llm_health(game_manager.llm_client)[0]
+    if not primary_healthy:
+        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
+        sys.exit(1)
+    else:
+        print(Fore.GREEN + "✅ Primary LLM health check passed!")
+    
+    # Configure secondary LLM (parser) if specified
+    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
+        print(Fore.GREEN + f"Using parser LLM provider: {game_manager.args.parser_provider}")
+        parser_model = game_manager.args.parser_model
+        print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
+        
+        # Set up the secondary LLM in the client
+        game_manager.llm_client.set_secondary_llm(game_manager.args.parser_provider, parser_model)
+        
+        # Perform health check for parser LLM
+        parser_healthy = check_llm_health(
+            game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
+        )[0]
+        if not parser_healthy:
+            print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
+            game_manager.args.parser_provider = "none"
+            game_manager.args.parser_model = None
+    else:
+        print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
+        game_manager.args.parser_provider = "none"
+        game_manager.args.parser_model = None
+    
+    return True

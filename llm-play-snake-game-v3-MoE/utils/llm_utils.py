@@ -10,6 +10,7 @@ from colorama import Fore
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
 from utils.file_utils import save_to_file
+from utils.move_utils import calculate_move_differences, format_body_cells_str
 from datetime import datetime
 
 def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
@@ -71,11 +72,8 @@ def prepare_snake_prompt(head_position, body_positions, apple_position, current_
     apple_x, apple_y = apple_position
     apple_pos = f"({apple_x},{apple_y})"
     
-    # Calculate the expected move differences
-    # Use the function now in game_logic but imported here since we need it for prompt preparation
-    from core.game_logic import GameLogic
-    game_logic = GameLogic(use_gui=False)  # Create a temporary instance
-    move_differences = game_logic.calculate_move_differences(head_position, apple_position)
+    # Calculate the expected move differences using the utility function
+    move_differences = calculate_move_differences(head_position, apple_position)
     
     # Create a prompt from the template text using string replacements
     prompt = PROMPT_TEMPLATE_TEXT_PRIMARY_LLM
@@ -87,33 +85,17 @@ def prepare_snake_prompt(head_position, body_positions, apple_position, current_
     
     return prompt
 
-def format_body_cells_str(body_positions):
-    """Format the snake body cells as a string representation.
-    
-    Args:
-        body_positions: List of [x, y] coordinates of the snake segments
-        
-    Returns:
-        String representation of body cells in format: "[(x1,y1), (x2,y2), ...]"
-    """
-    body_cells = []
-    
-    # Format each position as a tuple string
-    for x, y in body_positions:
-        body_cells.append(f"({x},{y})")
-        
-    return "[" + ", ".join(body_cells) + "]"
-
-def parse_and_format(llm_client, llm_response, game_state=None, head_pos=None, apple_pos=None, body_cells=None):
+def parse_and_format(llm_client, llm_response, parser_options=None):
     """Parse an LLM response and format it for use by the game.
     
     Args:
         llm_client: LLM client used to generate the response
         llm_response: Raw response from the LLM
-        game_state: Optional GameData instance to track statistics
-        head_pos: Current head position [x, y]
-        apple_pos: Current apple position [x, y]
-        body_cells: List of body cell positions [[x1, y1], [x2, y2], ...]
+        parser_options: Dictionary containing optional parsing parameters:
+            - game_state: GameData instance to track statistics
+            - head_pos: Current head position [x, y]
+            - apple_pos: Current apple position [x, y]
+            - body_cells: List of body cell positions [[x1, y1], [x2, y2], ...]
         
     Returns:
         Dictionary with parsed data or None if parsing failed
@@ -121,6 +103,10 @@ def parse_and_format(llm_client, llm_response, game_state=None, head_pos=None, a
     from utils.json_utils import extract_valid_json
     
     try:
+        game_state = None
+        if parser_options and 'game_state' in parser_options:
+            game_state = parser_options['game_state']
+            
         # First try direct parsing as is
         parsed_data = extract_valid_json(llm_response, game_state)
         
@@ -183,12 +169,12 @@ def check_llm_health(llm_client, max_retries=2, retry_delay=2):
             if response and isinstance(response, str) and len(response) > 5 and "ERROR" not in response:
                 print(Fore.GREEN + f"✅ {llm_client.provider}/{llm_client.model} LLM health check passed!")
                 return True, response
-            else:
-                print(Fore.YELLOW + f"⚠️ {llm_client.provider}/{llm_client.model} LLM returned an unusual response: {response}")
-                
-                if attempt < max_retries - 1:
-                    print(f"Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
+            
+            print(Fore.YELLOW + f"⚠️ {llm_client.provider}/{llm_client.model} LLM returned an unusual response: {response}")
+            
+            if attempt < max_retries - 1:
+                print(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
         except Exception as e:
             error_msg = f"Error connecting to {llm_client.provider}/{llm_client.model} LLM: {str(e)}"
             print(Fore.RED + f"❌ {error_msg}")
@@ -254,7 +240,12 @@ def parse_llm_response(response, processed_response_func, game_instance):
                 # If we have moves, return the first one and store the rest
                 if moves and len(moves) > 0:
                     # Get the current direction to check for reversals
-                    current_direction = game_instance._get_current_direction_key() if game_instance.current_direction is not None else None
+                    current_direction = None
+                    if hasattr(game_instance, 'get_current_direction_key'):
+                        current_direction = game_instance.get_current_direction_key()
+                    elif game_instance.current_direction is not None:
+                        # Fallback if the method doesn't exist
+                        current_direction = game_instance._get_current_direction_key() 
                     
                     # Filter out any invalid reversals in the planned moves
                     # Use the filter_invalid_reversals function from game_controller.py
@@ -306,7 +297,7 @@ def handle_llm_response(llm_client, response, parser_input=None, game_state=None
     head_pos, apple_pos, body_cells = parser_input if parser_input else (None, None, None)
     
     # Parse and format the response
-    return parse_and_format(llm_client, response, game_state, head_pos, apple_pos, body_cells)
+    return parse_and_format(llm_client, response, {'game_state': game_state, 'head_pos': head_pos, 'apple_pos': apple_pos, 'body_cells': body_cells})
 
 def get_llm_response(game_manager):
     """Get a response from the LLM based on the current game state.
@@ -317,7 +308,9 @@ def get_llm_response(game_manager):
     Returns:
         Tuple of (next_move, game_active)
     """
-
+    # Import here to avoid cyclic imports
+    from utils.game_manager_utils import extract_state_for_parser
+    
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()
 
@@ -331,7 +324,6 @@ def get_llm_response(game_manager):
     prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_prompt.txt"
 
     # Get parser input for metadata
-    from utils.game_manager_utils import extract_state_for_parser
     parser_input = extract_state_for_parser(game_manager)
 
     prompt_metadata = {
@@ -374,7 +366,6 @@ def get_llm_response(game_manager):
         response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count+1}_raw_response.txt"
 
         # Get parser input to include in metadata
-        from utils.game_manager_utils import extract_state_for_parser
         parser_input = extract_state_for_parser(game_manager)
 
         response_metadata = {
@@ -396,7 +387,6 @@ def get_llm_response(game_manager):
             game_manager.previous_parser_usage = game_manager.game.game_state.parser_usage_count
 
             # Get parser input
-            from utils.game_manager_utils import extract_state_for_parser
             parser_input = extract_state_for_parser(game_manager)
 
             # Create parser prompt
@@ -457,8 +447,7 @@ def get_llm_response(game_manager):
             parser_output = parse_and_format(
                 game_manager.llm_client,
                 response,
-                game_manager.game.game_state,
-                *parser_input
+                {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
             )
             
             # Store the secondary LLM response for display in the UI
@@ -474,7 +463,7 @@ def get_llm_response(game_manager):
             parser_output = parse_and_format(
                 game_manager.llm_client,
                 response,
-                game_manager.game.game_state
+                {'game_state': game_manager.game.game_state}
             )
             
             # Store the primary LLM response for display in the UI

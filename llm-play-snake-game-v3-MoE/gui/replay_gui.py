@@ -10,34 +10,67 @@ from config import COLORS
 class ReplayGUI(BaseGUI):
     """GUI class for replay display."""
 
-    def __init__(self):
-        """Initialize the replay GUI."""
-        super().__init__()
-        self.init_display("Snake Game - Replay Mode")
-        self.move_history = []
-        self.current_move = None
-        self.paused = False
-
-    def draw(self, snake_positions, apple_position, game_number, score, steps, 
-             move_index, total_moves, current_direction, 
-             game_end_reason=None, primary_llm=None, secondary_llm=None, game_timestamp=None, llm_response=None):
-        """Draw the complete replay state.
+    def __init__(self, gui_config=None):
+        """Initialize the replay GUI.
         
         Args:
-            snake_positions: List of snake segment positions
-            apple_position: Position of the apple
-            game_number: Current game number
-            score: Current score
-            steps: Current step count
-            move_index: Index of current move
-            total_moves: Total number of moves
-            current_direction: Current direction of movement
-            game_end_reason: Reason the game ended (if applicable)
-            primary_llm: Primary LLM provider/model
-            secondary_llm: Secondary LLM provider/model (parser)
-            game_timestamp: Timestamp when the game was played
-            llm_response: The LLM response text to display
+            gui_config: Optional dictionary with GUI configuration
         """
+        super().__init__(gui_config)
+        
+        # Initialize replay-specific attributes
+        self.move_history = []
+        self.planned_moves = []
+        self.paused = False
+        self.speed = 1.0
+        self.primary_llm = "Unknown/Unknown"
+        self.secondary_llm = "Unknown/Unknown"
+        self.llm_response = ""
+        self.game_number = 1
+        self.game_stats = None
+        self.timestamp = "Unknown"
+
+    def draw(self, replay_data):
+        """Draw the replay view.
+        
+        Args:
+            replay_data: Dictionary containing replay information:
+                - snake_positions: Array of snake positions
+                - apple_position: Array of apple position
+                - game_number: Current game number
+                - score: Current score
+                - steps: Current step count
+                - move_index: Current move index
+                - total_moves: Total number of moves
+                - planned_moves: List of planned moves
+                - llm_response: LLM response text
+                - primary_llm: Name of primary LLM
+                - secondary_llm: Name of secondary LLM
+                - paused: Whether the replay is paused
+                - speed: Replay speed
+                - timestamp: Timestamp of the game
+                - game_end_reason: Reason the game ended (optional)
+        """
+        if not self.screen:
+            return
+        
+        # Extract values from dictionary
+        snake_positions = replay_data.get('snake_positions', [])
+        apple_position = replay_data.get('apple_position', [0, 0])
+        game_number = replay_data.get('game_number', 0)
+        score = replay_data.get('score', 0)
+        steps = replay_data.get('steps', 0)
+        move_index = replay_data.get('move_index', 0)
+        total_moves = replay_data.get('total_moves', 0)
+        planned_moves = replay_data.get('planned_moves', [])
+        llm_response = replay_data.get('llm_response', '')
+        primary_llm = replay_data.get('primary_llm', 'Unknown')
+        secondary_llm = replay_data.get('secondary_llm', 'Unknown')
+        paused = replay_data.get('paused', False)
+        speed = replay_data.get('speed', 1.0)
+        timestamp = replay_data.get('timestamp', 'Unknown')
+        game_end_reason = replay_data.get('game_end_reason', None)
+
         # Fill background
         self.screen.fill(COLORS['BACKGROUND'])
 
@@ -50,8 +83,7 @@ class ReplayGUI(BaseGUI):
 
         # Update move history if there's a new move
         if move_index > 0 and (len(self.move_history) < move_index):
-            self.current_move = current_direction
-            self.move_history.append(current_direction)
+            self.move_history.append(snake_positions[-1][2])
 
         # Draw game info
         self.draw_replay_info(
@@ -60,12 +92,12 @@ class ReplayGUI(BaseGUI):
             steps=steps,
             move_index=move_index,
             total_moves=total_moves,
-            current_direction=current_direction,
+            current_direction=snake_positions[-1][2],
             game_end_reason=game_end_reason,
             primary_llm=primary_llm,
             secondary_llm=secondary_llm,
-            game_timestamp=game_timestamp,
-            paused=self.paused,
+            game_timestamp=timestamp,
+            paused=paused,
             llm_response=llm_response
         )
 
@@ -136,7 +168,6 @@ class ReplayGUI(BaseGUI):
         # Set up fonts
         font = pygame.font.SysFont('arial', 20)
         title_font = pygame.font.SysFont('arial', 22, bold=True)
-        highlight_font = pygame.font.SysFont('arial', 20, bold=True)
 
         # Right panel info
         # Game title with status

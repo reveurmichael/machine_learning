@@ -13,7 +13,6 @@ from .json_utils import (
     extract_json_from_code_block,
     extract_json_from_text,
     extract_moves_pattern,
-    extract_moves_fallback,
     extract_moves_from_arrays,
     save_experiment_info_json,
     update_experiment_info_json
@@ -87,7 +86,6 @@ __all__ = [
     'validate_json_format',
     'extract_json_from_code_block',
     'extract_json_from_text',
-    'extract_moves_fallback',
     'extract_moves_pattern',
     'extract_moves_from_arrays',
     'save_experiment_info_json',

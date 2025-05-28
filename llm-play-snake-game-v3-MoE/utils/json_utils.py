@@ -531,6 +531,7 @@ def extract_json_from_text(response):
             
         if not json_match:
             # No JSON structure found
+            json_error_stats["text_extraction_errors"] += 1
             return None
             
         json_str = json_match.group(0)
@@ -575,15 +576,11 @@ def extract_moves_pattern(json_str):
                       if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
     
         if valid_moves:
-            json_error_stats["fallback_extraction_success"] += 1
             return {"moves": valid_moves}
         return None
     except Exception as e:
         print(f"Move extraction error: {e}")
         return None
-
-# Alias for backward compatibility
-extract_moves_fallback = extract_moves_pattern
 
 def extract_moves_from_arrays(response):
     """Extract moves from arrays in the response.

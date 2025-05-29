@@ -147,13 +147,10 @@ class ReplayEngine(GameController):
             self.moves_made = []
             self.steps = 0
             
-            # Get round information - looking in both metadata and at the root level for compatibility
+            # Get round information from metadata
             round_count = game_data.get('metadata', {}).get('round_count', 0)
-            if round_count == 0:
-                # Try getting from root level for older log files
-                round_count = game_data.get('round_count', 1)
             
-            # Count rounds from the rounds_data as a fallback
+            # Count rounds from the rounds_data
             if round_count == 0 and 'rounds_data' in detailed_history:
                 round_count = len(detailed_history['rounds_data'])
             
@@ -193,13 +190,13 @@ class ReplayEngine(GameController):
                 first_apple = self.apple_positions[0]
                 
                 if isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
-                    # Use set_apple_position method instead of direct assignment
+                    # Set initial apple position
                     success = self.set_apple_position(first_apple)
                     if not success:
-                        # Fallback if position is invalid
+                        # Use default position if invalid
                         self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
                 else:
-                    # Default position if format is unexpected
+                    # Default position
                     self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
                     
                 print(f"Set initial apple position: {self.apple_position}")
@@ -357,25 +354,25 @@ class ReplayEngine(GameController):
                 next_apple = self.apple_positions[self.apple_index]
                 
                 if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
-                    # Use set_apple_position instead of direct assignment
+                    # Set apple position
                     success = self.set_apple_position([next_apple['x'], next_apple['y']])
                     if not success:
-                        # Fallback to generating a new apple position away from snake
+                        # Use predetermined alternative position
                         self.apple_position = np.array([
                             (self.head_position[0] + 5) % self.grid_size,
                             (self.head_position[1] + 5) % self.grid_size
                         ])
                 elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
-                    # Use set_apple_position instead of direct assignment
+                    # Set apple position
                     success = self.set_apple_position(next_apple)
                     if not success:
-                        # Fallback to generating a new apple position away from snake
+                        # Use predetermined alternative position
                         self.apple_position = np.array([
                             (self.head_position[0] + 5) % self.grid_size,
                             (self.head_position[1] + 5) % self.grid_size
                         ])
                 else:
-                    # Place apple away from snake
+                    # Use predetermined position
                     self.apple_position = np.array([
                         (self.head_position[0] + 5) % self.grid_size,
                         (self.head_position[1] + 5) % self.grid_size
@@ -487,3 +484,46 @@ class ReplayEngine(GameController):
         
         # Clean up
         pygame.quit() 
+    
+    def set_apple_position(self, position):
+        """Set the apple position, avoiding snake body.
+        
+        Args:
+            position: The desired position as [x, y]
+            
+        Returns:
+            Boolean indicating success
+        """
+        if not isinstance(position, (list, tuple, np.ndarray)) or len(position) != 2:
+            return False
+            
+        # Convert to numpy array if needed
+        if not isinstance(position, np.ndarray):
+            position = np.array(position)
+            
+        # Check that position is within bounds
+        if (position[0] < 0 or position[0] >= self.grid_size or 
+            position[1] < 0 or position[1] >= self.grid_size):
+            return False
+        
+        # Check if position is on snake
+        for segment in self.snake_positions:
+            if np.array_equal(position, segment):
+                # Position is invalid
+                return False
+                
+        # Position is valid
+        self.apple_position = position
+        return True
+    
+    def _place_apple_away_from_snake(self):
+        """Place the apple at a fixed distance from the snake's head.
+        
+        Returns:
+            Array [x, y] with apple position
+        """
+        # Place apple at a fixed offset from head position
+        return np.array([
+            (self.head_position[0] + 5) % self.grid_size,
+            (self.head_position[1] + 5) % self.grid_size
+        ]) 

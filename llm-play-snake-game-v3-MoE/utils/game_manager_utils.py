@@ -1,7 +1,7 @@
 """
-Utility module for game management.
-Handles common game management tasks such as processing game over states,
-error handling, and statistics reporting.
+Game management utilities.
+Core functionality for the Snake game manager, handling game states, error processing,
+statistics reporting, and initialization functions.
 """
 
 import os
@@ -46,7 +46,7 @@ def process_game_over(game, game_state_info):
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count)
     """
-    # Update game count and statistics
+    # Calculate new statistics after game completion
     game_count = game_state_info["game_count"] + 1
     total_score = game_state_info["total_score"] + game.score
     total_steps = game_state_info["total_steps"] + game.steps
@@ -128,7 +128,7 @@ def handle_error(game, error_info):
         print(Fore.RED + f"❌ Game aborted due to {consecutive_errors} consecutive errors! Maximum allowed: {args.max_consecutive_errors_allowed}")
         print(Fore.RED + f"Moving to game {game_count + 1}")
         
-        # Update totals with current game state
+        # Include current game stats in totals
         total_score += game.score
         total_steps += game.steps
         game_scores.append(game.score)
@@ -177,7 +177,7 @@ def report_final_statistics(stats_info):
             - max_empty_moves: Maximum allowed empty moves
             - max_consecutive_errors_allowed: Maximum allowed consecutive errors (default: 5)
     """
-    from utils.json_utils import get_json_error_stats, update_experiment_info_json
+    from utils.json_utils import get_json_error_stats, save_session_stats
     
     # Extract values from input dictionary
     log_dir = stats_info["log_dir"]
@@ -191,9 +191,9 @@ def report_final_statistics(stats_info):
     max_empty_moves = stats_info["max_empty_moves"]
     max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
-    # Update experiment summary with final statistics
+    # Save session statistics to summary file
     json_error_stats = get_json_error_stats()
-    update_experiment_info_json(
+    save_session_stats(
         log_dir, 
         game_count=game_count, 
         total_score=total_score, 
@@ -232,6 +232,9 @@ def report_final_statistics(stats_info):
 def initialize_game_manager(game_manager):
     """Initialize the game manager with necessary setup.
     
+    Sets up the LLM clients (primary and optional secondary),
+    creates session directories, and initializes game state tracking.
+    
     Args:
         game_manager: The GameManager instance
     """
@@ -240,7 +243,7 @@ def initialize_game_manager(game_manager):
     import os
     import time
     
-    # Reset JSON error statistics
+    # Initialize statistics tracking
     reset_json_error_stats()
     
     # Handle sleep before launching if specified
@@ -250,7 +253,7 @@ def initialize_game_manager(game_manager):
         time.sleep(minutes * 60)
         print(Fore.GREEN + "⏰ Waking up and starting the program...")
     
-    # Set up the LLM clients
+    # Set up the LLM clients (primary and optional secondary)
     setup_llm_clients(game_manager)
     
     # Set up session directories

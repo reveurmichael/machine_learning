@@ -10,7 +10,7 @@ import argparse
 import pygame
 from colorama import Fore, init as init_colorama
 from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
-from game_manager import GameManager
+from core.game_manager import GameManager
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)

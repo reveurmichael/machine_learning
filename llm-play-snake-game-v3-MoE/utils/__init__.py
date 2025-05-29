@@ -1,12 +1,16 @@
 """
-Utils package initialization.
-This file exposes all functions, classes, and variables from utility modules.
+Core utilities for the LLM-powered Snake game.
+This package provides all essential functions and systems for the game, including:
+- Single and dual LLM integration and communication
+- File and session management
+- Game state processing and analytics
+- JSON parsing and response handling
 """
 
 import sys
 from colorama import Fore
 
-# Import and expose all from json_utils
+# JSON processing utilities
 from .json_utils import (
     get_json_error_stats,
     reset_json_error_stats,
@@ -18,10 +22,11 @@ from .json_utils import (
     extract_moves_pattern,
     extract_moves_from_arrays,
     save_experiment_info_json,
-    update_experiment_info_json
+    save_session_stats,
+    merge_nested_dicts
 )
 
-# Import and expose all from file_utils first (because log_utils depends on it)
+# File and storage management
 from .file_utils import (
     find_log_folders,
     extract_game_stats,
@@ -31,15 +36,34 @@ from .file_utils import (
     save_to_file
 )
 
-# Import from session_utils to avoid cyclic imports
-from .session_utils import setup_llm_clients, setup_session_directories, initialize_game_state
+# Session management
+from .session_utils import (
+    setup_llm_clients,
+    setup_session_directories,
+    initialize_game_state
+)
 
-# Delay importing the remaining modules to avoid cyclic imports
-# They'll be imported on-demand when needed
+# LLM integration system
+from .llm_utils import (
+    # Prompt generation
+    prepare_snake_prompt,
+    create_parser_prompt,
+    format_raw_llm_response,
+    
+    # Response parsing
+    parse_and_format,
+    parse_llm_response,
+    handle_llm_response,
+    
+    # LLM communication
+    check_llm_health,
+    extract_state_for_parser,
+    get_llm_response
+)
 
-# Make it easy to import from specific modules
+# Public API for the utils package
 __all__ = [
-    # json_utils
+    # JSON processing
     'get_json_error_stats',
     'reset_json_error_stats',
     'extract_valid_json',
@@ -50,16 +74,30 @@ __all__ = [
     'extract_moves_pattern',
     'extract_moves_from_arrays',
     'save_experiment_info_json',
-    'update_experiment_info_json',
-    # file_utils
+    'save_session_stats',
+    'merge_nested_dicts',
+    
+    # File management
     'find_log_folders',
     'extract_game_stats',
     'extract_game_summary',
     'get_next_game_number',
     'clean_prompt_files',
     'save_to_file',
-    # session_utils functions
+    
+    # Session management
     'setup_llm_clients',
     'setup_session_directories',
-    'initialize_game_state'
+    'initialize_game_state',
+    
+    # LLM integration
+    'prepare_snake_prompt',
+    'create_parser_prompt',
+    'format_raw_llm_response',
+    'parse_and_format',
+    'parse_llm_response',
+    'handle_llm_response',
+    'check_llm_health',
+    'extract_state_for_parser',
+    'get_llm_response'
 ]

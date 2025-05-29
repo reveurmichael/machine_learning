@@ -1,6 +1,7 @@
 """
-JSON utilities for the Snake game.
-Handles JSON parsing, validation, and extraction from LLM responses.
+JSON processing system for the Snake game.
+Comprehensive utilities for JSON parsing, validation, and extraction from LLM responses,
+with special handling for common formatting variations and error conditions.
 """
 
 import json
@@ -111,14 +112,14 @@ def save_experiment_info_json(args, directory):
     
     return experiment_info
 
-def update_experiment_info_json(log_dir, **kwargs):
-    """Update the experiment information JSON with new data.
+def save_session_stats(log_dir, **kwargs):
+    """Save session statistics to the summary JSON file.
     
     Args:
         log_dir: Directory containing the summary.json file
-        **kwargs: Additional fields to update
+        **kwargs: Statistics fields to save
     """
-    # Read existing summary
+    # Read existing summary file
     summary_path = os.path.join(log_dir, "summary.json")
     
     if not os.path.exists(summary_path):
@@ -131,34 +132,34 @@ def update_experiment_info_json(log_dir, **kwargs):
         print(f"Error reading summary.json: {e}")
         return
     
-    # Update summary with new values
+    # Apply new statistics values
     for key, value in kwargs.items():
         if key == "json_error_stats":
             summary["json_parsing_stats"] = value
         else:
-            # For other keys, just update directly
+            # Add or replace statistics values
             if key in summary:
                 summary[key] = value
     
-    # Save updated summary
+    # Save the summary file
     try:
         with open(summary_path, "w", encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
     except Exception as e:
         print(f"Error writing summary.json: {e}")
 
-def deep_update_dict(original, update):
-    """Recursively update a dictionary with values from another dictionary.
+def merge_nested_dicts(target, source):
+    """Recursively merge two dictionaries, including nested dictionaries.
     
     Args:
-        original: Dictionary to update
-        update: Dictionary with new values
+        target: Target dictionary to merge into
+        source: Source dictionary with values to merge
     """
-    for key, value in update.items():
-        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
-            deep_update_dict(original[key], value)
+    for key, value in source.items():
+        if key in target and isinstance(target[key], dict) and isinstance(value, dict):
+            merge_nested_dicts(target[key], value)
         else:
-            original[key] = value
+            target[key] = value
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to fix common formatting issues.
@@ -276,9 +277,9 @@ def extract_valid_json(text, game_state=None):
     """
     json_error_stats["total_extraction_attempts"] += 1
     
-    # Also record in game_state if provided
+    # Initialize tracking in game_state if provided
     if game_state is not None:
-        game_state.record_json_extraction_attempt(success=False)  # Will update if successful
+        game_state.record_json_extraction_attempt(success=False)
     
     try:
         # First try to parse the entire text as JSON
@@ -294,7 +295,7 @@ def extract_valid_json(text, game_state=None):
     except json.JSONDecodeError:
         json_error_stats["json_decode_errors"] += 1
         
-        # Record in game_state if provided
+        # Record error type in game_state if provided
         if game_state is not None:
             game_state.record_json_extraction_attempt(success=False, error_type="decode")
     
@@ -322,10 +323,7 @@ def extract_valid_json(text, game_state=None):
             
     json_error_stats["failed_extractions"] += 1
     
-    # Final failure record in game_state if provided
-    if game_state is not None:
-        game_state.record_json_extraction_attempt(success=False)
-        
+    # No valid JSON found
     return None
 
 def extract_json_from_text(response):

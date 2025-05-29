@@ -14,7 +14,7 @@ from llm_client import LLMClient
 from config import TIME_DELAY, TIME_TICK, PAUSE_BETWEEN_MOVES_SECONDS
 
 # Utils imports - organized by functionality
-from utils.json_utils import get_json_error_stats, update_experiment_info_json
+from utils.json_utils import get_json_error_stats, save_session_stats
 from utils.game_manager_utils import (
     report_final_statistics,
     initialize_game_manager,
@@ -126,7 +126,7 @@ class GameManager:
             return
             
         # Update experiment info JSON
-        update_experiment_info_json(
+        save_session_stats(
             self.log_dir,
             json_error_stats=get_json_error_stats()
         )

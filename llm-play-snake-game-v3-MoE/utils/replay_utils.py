@@ -1,6 +1,7 @@
 """
-Utility functions for replaying recorded games.
-Provides functionality for running replays and extracting data.
+Replay system for the Snake game.
+Functions for replaying recorded games and extracting replay data for analysis.
+Enables visualization of past gameplay and integration with analytics tools.
 """
 
 import os
@@ -74,14 +75,12 @@ def extract_apple_positions(log_dir, game_number):
         with open(json_summary_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
-        # Extract apple positions
+        # Extract apple positions from standard location
         if 'apple_positions' in data and isinstance(data['apple_positions'], list):
             return data['apple_positions']
         
-        # Check in detailed history
-        if ('detailed_history' in data and 
-            'apple_positions' in data['detailed_history'] and 
-            isinstance(data['detailed_history']['apple_positions'], list)):
+        # Check in game history structure
+        if 'detailed_history' in data and 'apple_positions' in data['detailed_history']:
             return data['detailed_history']['apple_positions']
             
     except Exception:

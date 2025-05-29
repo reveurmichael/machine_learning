@@ -1,6 +1,7 @@
 """
-Utility module for file and directory operations.
-Handles log folder detection, game statistics extraction, and other file-related operations.
+File and storage management system.
+Comprehensive functions for handling game logs, statistics extraction, and
+session management in the Snake game environment.
 """
 
 import os
@@ -9,44 +10,47 @@ import json
 from pathlib import Path
 
 def find_log_folders(base_dir='.', max_depth=4):
-    """Find all log folders in the given directory and its subdirectories.
+    """Find all session folders containing game data.
+    
+    Searches the given directory for folders that contain game data files
+    and session logs, up to the specified maximum depth.
     
     Args:
-        base_dir: Base directory to start search from
-        max_depth: Maximum depth of subdirectories to search
+        base_dir: Base directory to start searching from
+        max_depth: Maximum directory depth to search
         
     Returns:
-        List of paths to log folders containing game data
+        List of paths to session folders containing game data
     """
     log_folders = []
-    base_path = Path(base_dir)
     
-    for depth in range(max_depth + 1):
-        # Create pattern for current depth
-        # Use wildcards for each directory level up to the current depth
-        if depth == 0:
-            # Just look in the base directory
-            patterns = [str(base_path / "*")]
+    # Search for log directories in the specified base directory
+    for root, dirs, files in os.walk(base_dir):
+        # Skip if we've exceeded max depth
+        rel_path = os.path.relpath(root, base_dir)
+        if rel_path == '.':
+            depth = 0
         else:
-            # Look in subdirectories up to depth
-            parts = ['*'] * depth
-            patterns = [str(base_path.joinpath(*parts) / "*")]
-        
-        # Find all potential log folders for current patterns
-        for pattern in patterns:
-            potential_folders = glob.glob(pattern)
+            depth = rel_path.count(os.sep) + 1
             
-            for folder in potential_folders:
-                folder_path = Path(folder)
-                # Check if folder contains required files and directories
-                has_summary_json = (folder_path / 'summary.json').exists()
-                has_game_files = bool(glob.glob(str(folder_path / 'game*.json')))
-                has_prompts_dir = (folder_path / 'prompts').is_dir()
-                has_responses_dir = (folder_path / 'responses').is_dir()
-                
-                # If it has all required components, it's a log folder
-                if has_summary_json and has_game_files and has_prompts_dir and has_responses_dir:
-                    log_folders.append(folder)
+        if depth > max_depth:
+            continue
+        
+        # Check for session folders with game data
+        pattern = os.path.join(root, "logs/session_*")
+        potential_folders = glob.glob(pattern)
+        
+        for folder in potential_folders:
+            folder_path = Path(folder)
+            # Check if folder contains required files and directories
+            has_summary_json = (folder_path / 'summary.json').exists()
+            has_game_files = bool(glob.glob(str(folder_path / 'game*.json')))
+            has_prompts_dir = (folder_path / 'prompts').is_dir()
+            has_responses_dir = (folder_path / 'responses').is_dir()
+            
+            # If it has all required components, it's a valid session folder
+            if has_summary_json and has_game_files and has_prompts_dir and has_responses_dir:
+                log_folders.append(folder)
     
     return log_folders
 
@@ -187,7 +191,7 @@ def extract_game_stats(log_folder):
         stats['avg_secondary_response_time'] = total_secondary_response_time / game_count
         stats['steps_per_apple'] = total_steps_per_apple / game_count
     
-    # Update total_games if not set from summary.json
+    # Set total_games from game data if not already set
     if stats['total_games'] == 0:
         stats['total_games'] = len(stats['game_data'])
     

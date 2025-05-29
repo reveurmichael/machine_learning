@@ -7,6 +7,8 @@ import os
 import sys
 import json
 from colorama import Fore
+# Import directly from llm.health_utils to avoid circular dependency
+from llm.health_utils import check_llm_health
 
 def read_session_data(log_dir, game_count):
     """Read session data from game files.
@@ -84,13 +86,23 @@ def setup_session_directories(game_manager):
         game_manager: The GameManager instance
     """
     # Create session directory if specified
-    if game_manager.args.session_dir:
-        game_manager.log_dir = game_manager.args.session_dir
+    if game_manager.args.log_dir:
+        game_manager.log_dir = game_manager.args.log_dir
     else:
-        # Create timestamped log directory
+        # Create timestamped log directory with model name
         from datetime import datetime
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        game_manager.log_dir = os.path.join("logs", f"session_{timestamp}")
+        
+        # Get model name for directory
+        model_name = "unknown"
+        if game_manager.args.model:
+            # Clean up model name for directory use
+            model_name = game_manager.args.model.replace("/", "-").replace(":", "-")
+        elif game_manager.args.provider:
+            model_name = game_manager.args.provider
+            
+        # Create directory path with model name and timestamp
+        game_manager.log_dir = os.path.join("logs", f"{model_name}_{timestamp}")
     
     # Create subdirectories for detailed logs
     game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
@@ -109,8 +121,6 @@ def setup_llm_clients(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    from utils.llm_utils import check_llm_health
-    
     # Set up primary LLM client
     provider = game_manager.args.provider
     model = game_manager.args.model
@@ -123,13 +133,31 @@ def setup_llm_clients(game_manager):
     # Set up parser LLM client if needed
     if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
         game_manager.parser_provider = game_manager.args.parser_provider
-        game_manager.parser_model = game_manager.args.parser_model
-        parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)
-        print(Fore.GREEN + f"🤖 Parser LLM: {game_manager.parser_provider}" + 
-              (f" ({game_manager.parser_model})" if game_manager.parser_model else ""))
+        game_manager.parser_model = game_manager.args.parser_model or model  # Use primary model if parser model not specified
         
-        # Check if parser LLM is operational
-        check_llm_health(parser_client)
+        # Configure the secondary LLM in the main client
+        success = game_manager.llm_client.set_secondary_llm(game_manager.parser_provider, game_manager.parser_model)
+        
+        if success:
+            print(Fore.GREEN + f"🤖 Parser LLM: {game_manager.parser_provider}" + 
+                  (f" ({game_manager.parser_model})" if game_manager.parser_model else ""))
+            
+            # Create a separate client for health check
+            parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)
+            
+            # Check if parser LLM is operational
+            is_healthy, _ = check_llm_health(parser_client)
+            
+            if not is_healthy:
+                print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
+                game_manager.args.parser_provider = "none"
+                game_manager.args.parser_model = None
+                game_manager.llm_client.secondary_provider = None
+                game_manager.llm_client.secondary_model = None
+        else:
+            print(Fore.RED + "❌ Failed to configure secondary LLM. Continuing without parser.")
+            game_manager.args.parser_provider = "none"
+            game_manager.args.parser_model = None
     else:
         print(Fore.GREEN + "🤖 No separate parser LLM will be used")
 

@@ -8,7 +8,7 @@ import traceback
 import pygame
 from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, handle_error, process_events
-from utils.llm_utils import get_llm_response
+from llm.communication_utils import get_llm_response
 
 def run_game_loop(game_manager):
     """Run the main game loop.
@@ -52,13 +52,8 @@ def run_game_loop(game_manager):
                             # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
-                            # Delay to let user see LLM response before snake moves
-                            game_manager.game.game_state.record_waiting_start()
-                            if game_manager.use_gui:  # Only sleep if GUI is enabled
-                                time.sleep(2.0)  # User-friendly delay for reading LLM plans
-                            game_manager.game.game_state.record_waiting_end()
-                            
-                            # Execute the move
+                            # Remove the 2-second delay before snake moves
+                            # Execute the move immediately after displaying the LLM response
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                             
                             # Update UI to show the new state after move
@@ -119,13 +114,7 @@ def run_game_loop(game_manager):
                                 # Update UI before executing the move
                                 game_manager.game.draw()
                                 
-                                # Delay to let user see which planned move will be executed
-                                game_manager.game.game_state.record_waiting_start()
-                                if game_manager.use_gui:  # Only sleep if GUI is enabled
-                                    time.sleep(2.0)  # User-friendly delay for move visibility
-                                game_manager.game.game_state.record_waiting_end()
-                                
-                                # Execute the move
+                                # Execute the move immediately (remove 2-second delay)
                                 game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                                 
                                 # Update UI after the move
@@ -211,7 +200,9 @@ def run_game_loop(game_manager):
                     
                     # Prepare for next game if not at limit
                     if game_manager.game_count < game_manager.args.max_game and not game_manager.game_active:
-                        pygame.time.delay(1000)  # Brief pause for user visibility
+                        # Only use pygame.time.delay if GUI is active
+                        if game_manager.use_gui:
+                            pygame.time.delay(1000)  # Brief pause for user visibility
                         game_manager.game.reset()
                         game_manager.game_active = True
                         game_manager.need_new_plan = True
@@ -219,9 +210,10 @@ def run_game_loop(game_manager):
                         game_manager.consecutive_errors = 0
                         print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_game}")
             
-            # Control frame rate
-            pygame.time.delay(game_manager.time_delay)
-            game_manager.clock.tick(game_manager.time_tick)
+            # Control frame rate only in GUI mode
+            if game_manager.use_gui:
+                pygame.time.delay(game_manager.time_delay)
+                game_manager.clock.tick(game_manager.time_tick)
         
         # Report final statistics at end of session
         from utils.game_manager_utils import report_final_statistics

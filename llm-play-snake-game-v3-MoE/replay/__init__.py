@@ -1,10 +1,22 @@
 """
 Replay package initialization.
-This file exposes the replay engine for use by the application.
+This file exposes the replay engine and utility functions for use by the application.
 """
 
 from replay.replay_engine import ReplayEngine
+from replay.replay_utils import (
+    run_replay,
+    check_game_summary_for_moves,
+    extract_apple_positions,
+    find_valid_log_folders
+)
 
-__all__ = ['ReplayEngine']
+__all__ = [
+    'ReplayEngine',
+    'run_replay',
+    'check_game_summary_for_moves',
+    'extract_apple_positions',
+    'find_valid_log_folders'
+]
 
  

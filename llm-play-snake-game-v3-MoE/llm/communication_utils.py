@@ -10,49 +10,9 @@ import traceback
 from datetime import datetime
 from colorama import Fore
 from utils.file_utils import save_to_file
-from utils.llm_prompt_utils import create_parser_prompt
-from utils.llm_parsing_utils import parse_and_format
-
-def check_llm_health(llm_client, max_retries=2, retry_delay=2):
-    """Check if the LLM is accessible and responding by sending a simple test query.
-    
-    Args:
-        llm_client: The LLM client to check
-        max_retries: Maximum number of retry attempts
-        retry_delay: Delay in seconds between retries
-        
-    Returns:
-        A tuple containing (is_healthy, response) where:
-          - is_healthy: Boolean indicating if the LLM is healthy
-          - response: The response from the LLM or an error message
-    """
-    test_prompt = "Hello, are you there? Please respond with 'Yes, I am here.'"
-    
-    for attempt in range(max_retries):
-        try:
-            print(f"Health check attempt {attempt+1}/{max_retries} for {llm_client.provider} LLM...")
-            response = llm_client.generate_response(test_prompt)
-            
-            # Check if we got a response that contains the expected text or something reasonable
-            if response and isinstance(response, str) and len(response) > 5 and "ERROR" not in response:
-                print(Fore.GREEN + f"✅ {llm_client.provider}/{llm_client.model} LLM health check passed!")
-                return True, response
-            
-            print(Fore.YELLOW + f"⚠️ {llm_client.provider}/{llm_client.model} LLM returned an unusual response: {response}")
-            
-            if attempt < max_retries - 1:
-                print(f"Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
-        except Exception as e:
-            error_msg = f"Error connecting to {llm_client.provider}/{llm_client.model} LLM: {str(e)}"
-            print(Fore.RED + f"❌ {error_msg}")
-            traceback.print_exc()
-            
-            if attempt < max_retries - 1:
-                print(f"Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
-    
-    return False, f"Failed to get a valid response from {llm_client.provider}/{llm_client.model} LLM after {max_retries} attempts"
+from llm.prompt_utils import create_parser_prompt
+from llm.parsing_utils import parse_and_format
+from llm.health_utils import check_llm_health
 
 def extract_state_for_parser(game_manager):
     """Extract state information for the parser.
@@ -199,43 +159,57 @@ def get_llm_response(game_manager):
                 completion_tokens = game_manager.llm_client.last_token_count.get('completion_tokens', 0)
                 game_manager.game.game_state.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
-            # Record parser response time
-            parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # Check if we got a valid secondary response
+            if secondary_response is None or "ERROR" in secondary_response:
+                print(Fore.YELLOW + "⚠️ Secondary LLM returned an error or no response. Falling back to primary LLM.")
+                # Fall back to using the primary LLM response
+                parser_output = parse_and_format(
+                    game_manager.llm_client,
+                    response,
+                    {'game_state': game_manager.game.game_state}
+                )
+                
+                # Use the primary LLM response for display
+                from utils.text_utils import process_response_for_display
+                game_manager.game.processed_response = process_response_for_display(response)
+            else:
+                # Record parser response time
+                parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            # Save the secondary LLM response
-            parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parsed_response.txt"
-            parsed_response_metadata = {
-                "SECONDARY LLM Request Time": parser_request_time,
-                "SECONDARY LLM Response Time": parser_response_time,
-                "SECONDARY LLM Provider": game_manager.args.parser_provider,
-                "SECONDARY LLM Model": game_manager.args.parser_model or "default",
-                "Head Position": parser_input[0],
-                "Apple Position": parser_input[1],
-                "Body Cells": parser_input[2]
-            }
-            parsed_path = save_to_file(
-                secondary_response,
-                game_manager.responses_dir,
-                parsed_response_filename,
-                metadata=parsed_response_metadata
-            )
-            print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
+                # Save the secondary LLM response
+                parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parsed_response.txt"
+                parsed_response_metadata = {
+                    "SECONDARY LLM Request Time": parser_request_time,
+                    "SECONDARY LLM Response Time": parser_response_time,
+                    "SECONDARY LLM Provider": game_manager.args.parser_provider,
+                    "SECONDARY LLM Model": game_manager.args.parser_model or "default",
+                    "Head Position": parser_input[0],
+                    "Apple Position": parser_input[1],
+                    "Body Cells": parser_input[2]
+                }
+                parsed_path = save_to_file(
+                    secondary_response,
+                    game_manager.responses_dir,
+                    parsed_response_filename,
+                    metadata=parsed_response_metadata
+                )
+                print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
 
-            # Process the secondary LLM response
-            parser_output = parse_and_format(
-                game_manager.llm_client,
-                response,
-                {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
-            )
-            
-            # Store the secondary LLM response for display in the UI
-            from utils.text_utils import process_response_for_display
-            game_manager.game.processed_response = process_response_for_display(secondary_response)
+                # Process the secondary LLM response
+                parser_output = parse_and_format(
+                    game_manager.llm_client,
+                    response,
+                    {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
+                )
+                
+                # Store the secondary LLM response for display in the UI
+                from utils.text_utils import process_response_for_display
+                game_manager.game.processed_response = process_response_for_display(secondary_response)
 
-            # Track parser usage statistics
-            if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
-                game_manager.parser_usage_count += 1
-                print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {game_manager.parser_usage_count})")
+                # Track parser usage statistics
+                if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
+                    game_manager.parser_usage_count += 1
+                    print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {game_manager.parser_usage_count})")
         else:
             # SINGLE LLM MODE: Direct extraction from primary LLM
             parser_output = parse_and_format(

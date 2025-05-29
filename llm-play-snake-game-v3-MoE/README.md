@@ -48,11 +48,15 @@ This will bypass the secondary LLM and use the primary LLM's output directly.
 Set up API keys in a `.env` file:
 
 ```
-HUNYUAN_API_KEY=<your_hunyuan_api_key_here>
-OLLAMA_HOST=<your_ollama_host_ip_address>
-DEEPSEEK_API_KEY=<your_deepseek_api_key_here>
-MISTRAL_API_KEY=<your_mistral_api_key_here>
+# Ollama settings (optional, defaults to localhost)
+OLLAMA_HOST=localhost:11434
+
+# API keys for cloud LLM providers (required for respective providers)
+HUNYUAN_API_KEY=your_hunyuan_api_key_here
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+MISTRAL_API_KEY=your_mistral_api_key_here
 ```
+
 
 ## Two-LLM Architecture (MoE Approach)
 
@@ -83,39 +87,20 @@ This project implements a Mixture-of-Experts inspired approach where two special
 - `--sleep-before-launching`: Time to sleep (in minutes) before launching the program
 - `--max-empty-moves`: Maximum consecutive empty moves before game over
 - `--no-gui`: Run without the graphical interface (text-only mode)
-- `--session-dir`: Directory to store session data
+- `--log-dir`: Directory to store log files
 
 ## Project Structure
 
 The codebase is organized in a modular structure to ensure maintainability and separation of concerns:
 
 - `/core`: Core game engine components
-  - `game_controller.py`: Base game logic that can run with or without a GUI
-  - `game_logic.py`: Snake game implementation with LLM integration
-  - `game_data.py`: Game state tracking and statistics management
-  
 - `/gui`: Graphical user interface components
-  - `base.py`: Base UI classes
-  - `game_gui.py`: Game-specific UI implementation
-  - `replay_gui.py`: UI for replaying saved games
-  
-- `/utils`: Utility modules
-  - `file_utils.py`: File management utilities
-  - `game_manager_utils.py`: Game session management helpers
-  - `game_stats_utils.py`: Statistics gathering and reporting
-  - `json_utils.py`: JSON processing and validation
-  - `llm_utils.py`: LLM response handling
-  - `log_utils.py`: Logging utilities
-  - `replay_utils.py`: Game replay functionality
-  - `text_utils.py`: Text processing for LLM responses
-  
+- `/llm`: Language model integration  
+- `/utils`: Utility modules  
 - `/replay`: Replay functionality
-  - `replay_engine.py`: Engine for replaying saved games
   
 - Main modules:
   - `main.py`: Entry point with command-line argument parsing
-  - `game_manager.py`: Manages game sessions and statistics
-  - `llm_client.py`: Client for communicating with LLMs
   - `config.py`: Configuration constants
   - `app.py`: Streamlit dashboard for analyzing game statistics and replaying games
   - `replay.py`: Command-line interface for replaying saved games

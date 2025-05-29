@@ -257,9 +257,9 @@ def initialize_game_manager(game_manager):
     setup_llm_clients(game_manager)
     
     # Set up session directories
-    if game_manager.args.session_dir:
-        # Use provided session directory
-        game_manager.log_dir = game_manager.args.session_dir
+    if game_manager.args.log_dir:
+        # Use provided log directory
+        game_manager.log_dir = game_manager.args.log_dir
         game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
         game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
         

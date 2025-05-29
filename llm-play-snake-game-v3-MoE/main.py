@@ -11,6 +11,8 @@ import pygame
 from colorama import Fore, init as init_colorama
 from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
 from core.game_manager import GameManager
+from llm.client import LLMClient
+from llm.setup_utils import check_env_setup
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
@@ -40,8 +42,8 @@ def parse_arguments():
                       help=f'Maximum consecutive errors allowed before game over (default: {MAX_CONSECUTIVE_ERRORS_ALLOWED})')
     parser.add_argument('--no-gui', action='store_true',
                       help='Run without GUI (text-only mode)')
-    parser.add_argument('--session-dir', type=str, default=None,
-                      help='Directory to store session data')
+    parser.add_argument('--log-dir', type=str, default=None,
+                      help='Directory to store session data and logs')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -62,6 +64,21 @@ def main():
             print(Fore.RED + f"Command-line error: {e}")
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
+            
+        # Check environment setup
+        primary_env_ok = check_env_setup(args.provider)
+        
+        # Check secondary LLM environment if specified
+        if args.parser_provider and args.parser_provider.lower() != 'none':
+            secondary_env_ok = check_env_setup(args.parser_provider)
+            if not secondary_env_ok:
+                print(Fore.YELLOW + f"⚠️ Warning: Secondary LLM ({args.parser_provider}) environment setup issues detected")
+        
+        if not primary_env_ok:
+            user_choice = input(Fore.YELLOW + "Environment setup issues detected. Continue anyway? (y/n): ")
+            if user_choice.lower() != 'y':
+                print(Fore.RED + "Exiting due to environment setup issues.")
+                sys.exit(1)
         
         # Create and run the game manager
         game_manager = GameManager(args)

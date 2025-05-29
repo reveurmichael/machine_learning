@@ -526,4 +526,53 @@ class ReplayEngine(GameController):
         return np.array([
             (self.head_position[0] + 5) % self.grid_size,
             (self.head_position[1] + 5) % self.grid_size
-        ]) 
+        ])
+
+    @classmethod
+    def find_log_directories(cls, root_dir="logs", max_depth=4):
+        """Find valid log directories for replay.
+        
+        Args:
+            root_dir: Root directory to start search from
+            max_depth: Maximum directory depth to search
+            
+        Returns:
+            List of valid log directory paths
+        """
+        from replay.replay_utils import find_valid_log_folders
+        return find_valid_log_folders(root_dir, max_depth)
+        
+    @classmethod
+    def is_valid_log_directory(cls, directory):
+        """Check if a directory is a valid log directory.
+        
+        A valid log directory must have:
+        - A summary.json file
+        - At least one game_*.json file
+        - A prompts directory
+        - A responses directory
+        
+        Args:
+            directory: Directory path to check
+            
+        Returns:
+            Boolean indicating if the directory is a valid log directory
+        """
+        if not os.path.isdir(directory):
+            return False
+            
+        # Check for required files and directories
+        has_summary = os.path.exists(os.path.join(directory, "summary.json"))
+        
+        # Check for at least one game_*.json file
+        has_game_files = False
+        for filename in os.listdir(directory):
+            if filename.startswith("game_") and filename.endswith(".json"):
+                has_game_files = True
+                break
+                
+        # Check for required directories
+        has_prompts_dir = os.path.isdir(os.path.join(directory, "prompts"))
+        has_responses_dir = os.path.isdir(os.path.join(directory, "responses"))
+        
+        return has_summary and has_game_files and has_prompts_dir and has_responses_dir 

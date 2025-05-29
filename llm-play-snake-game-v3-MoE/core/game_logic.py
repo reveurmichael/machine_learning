@@ -5,7 +5,10 @@ Extends the base game controller with LLM-specific functionality.
 
 import traceback
 from core.game_controller import GameController
-from utils.llm_utils import parse_llm_response, prepare_snake_prompt
+from core.game_data import GameData
+from llm.prompt_utils import prepare_snake_prompt
+from llm.parsing_utils import parse_llm_response
+from utils.text_utils import process_response_for_display
 from config import GRID_SIZE
 
 class GameLogic(GameController):
@@ -108,7 +111,6 @@ class GameLogic(GameController):
             or None if no valid moves were found
         """
         try:
-            from utils.text_utils import process_response_for_display
             return parse_llm_response(response, process_response_for_display, self)
         except Exception as e:
             print(f"Error parsing LLM response: {e}")

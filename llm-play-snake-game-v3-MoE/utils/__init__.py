@@ -1,10 +1,10 @@
 """
 Core utilities for the LLM-powered Snake game.
 This package provides all essential functions and systems for the game, including:
-- Single and dual LLM integration and communication
 - File and session management
 - Game state processing and analytics
-- JSON parsing and response handling
+- JSON parsing and data handling
+- Move calculation and game mechanics
 """
 
 import sys
@@ -43,22 +43,15 @@ from .session_utils import (
     initialize_game_state
 )
 
-# LLM integration system
-from .llm_utils import (
-    # Prompt generation
-    prepare_snake_prompt,
-    create_parser_prompt,
-    format_raw_llm_response,
-    
-    # Response parsing
-    parse_and_format,
-    parse_llm_response,
-    handle_llm_response,
-    
-    # LLM communication
-    check_llm_health,
-    extract_state_for_parser,
-    get_llm_response
+# Game mechanics
+from .move_utils import (
+    calculate_move_differences, 
+    format_body_cells_str
+)
+
+# Text processing
+from .text_utils import (
+    process_response_for_display
 )
 
 # Public API for the utils package
@@ -90,14 +83,10 @@ __all__ = [
     'setup_session_directories',
     'initialize_game_state',
     
-    # LLM integration
-    'prepare_snake_prompt',
-    'create_parser_prompt',
-    'format_raw_llm_response',
-    'parse_and_format',
-    'parse_llm_response',
-    'handle_llm_response',
-    'check_llm_health',
-    'extract_state_for_parser',
-    'get_llm_response'
+    # Game mechanics
+    'calculate_move_differences',
+    'format_body_cells_str',
+    
+    # Text processing
+    'process_response_for_display'
 ]

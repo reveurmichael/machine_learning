@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN"],
-  "reasoning": "Move right three times to align horizontally with the apple, then down to reach it, avoiding collisions with the body and walls."
-}

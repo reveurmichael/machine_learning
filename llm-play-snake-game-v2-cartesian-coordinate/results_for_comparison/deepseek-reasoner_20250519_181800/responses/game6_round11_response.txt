@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "Three lefts to align x, then five downs to reach apple, avoiding body and walls safely."
+  "moves": [],
+  "reasoning": "NO_PATH_FOUND"
 }

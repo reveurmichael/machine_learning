@@ -1,1 +1,0 @@
-{"moves": ["DOWN", "LEFT", "LEFT", "LEFT"], "reasoning": "The shortest path is to move DOWN once (from (9,1) to (9,0)) and then LEFT three times (to (6,0)), avoiding collisions with the body and walls. This satisfies the Manhattan distance requirements and reaches the apple in 4 moves."}

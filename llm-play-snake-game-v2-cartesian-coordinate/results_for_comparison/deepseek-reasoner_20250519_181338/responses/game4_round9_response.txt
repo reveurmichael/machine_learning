@@ -1,4 +1,4 @@
 {
-  "moves": ["DOWN", "DOWN", "DOWN"],
-  "reasoning": "Apple is directly below the snake's current position. Moving straight down avoids body collisions and reaches the apple in minimal moves."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Shortest path along the bottom edge (y=0) requires 7 RIGHT moves. No body cells block this path, ensuring safe movement to the apple."
 }

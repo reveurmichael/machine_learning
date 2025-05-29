@@ -1,1 +1,4 @@
-{"moves": ["LEFT", "LEFT", "UP", "UP"], "reasoning": "The shortest path is to move left twice to align with the apple's x-coordinate (3), then up twice to reach the apple's y-coordinate (9). This avoids collisions with the body and walls."}
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (5,6) from (3,9) requires moving RIGHT twice (to reach x=5) and DOWN three times (to reach y=6). The initial direction is UP, so the first move RIGHT is allowed. Subsequent RIGHT moves follow to align with the x-coordinate goal, then DOWN moves achieve the y-coordinate. Each step avoids collisions with walls and the body."
+}

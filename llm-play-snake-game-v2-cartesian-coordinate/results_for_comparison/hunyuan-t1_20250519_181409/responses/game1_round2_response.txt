@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "UP", "LEFT", "UP", "LEFT", "UP", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake starts at (7,3) needing to reach (1,6). To avoid the body and walls, the optimal path moves LEFT towards x=1 and UP towards y=6. The first move must be LEFT (can't go UP due to direction). Subsequent moves alternate LEFT and UP to navigate toward the apple while avoiding collisions with the trailing body. Each move is validated to ensure it doesn't reverse direction or hit obstacles."
+}

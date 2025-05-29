@@ -1,4 +1,6 @@
+```json
 {
-  "moves": ["DOWN", "LEFT", "DOWN", "LEFT", "LEFT"],
-  "reasoning": "The path starts by moving DOWN to (8,7), avoiding immediate collision. It then moves LEFT three times and DOWN twice to reach the apple, adhering to direction constraints and avoiding body/wall collisions. This satisfies the required Manhattan distance adjustments (3 LEFT, 2 DOWN) without intersecting the body."
+  "moves": [],
+  "reasoning": "No safe path exists. The snake cannot navigate around the body blocking the direct route to the apple at (0,1) due to the extensive body segments occupying the critical y=3 row, preventing passage below or around without collision."
 }
+```

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Shortest path via LEFT then four DOWNS, avoiding body and walls. Net moves meet required left:1, down:4."
+}

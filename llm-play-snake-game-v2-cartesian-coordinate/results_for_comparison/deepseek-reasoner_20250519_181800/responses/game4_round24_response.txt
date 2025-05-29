@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "UP"],
-  "reasoning": "Move right three times to align x-coordinate with the apple, then up once to reach it, avoiding body collisions and walls safely."
-}

@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
-  "reasoning": "Move left 5 times to reach x=2, then up to apple. Path avoids body and walls."
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Path circles down and right to avoid body, then ascends safely to the apple. Net moves meet required Manhattan differences."
 }

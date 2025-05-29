@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
-  "reasoning": "Move right 7 times to reach x=9, then down twice to the apple, avoiding body collisions by staying below the snake's existing body segments."
-}

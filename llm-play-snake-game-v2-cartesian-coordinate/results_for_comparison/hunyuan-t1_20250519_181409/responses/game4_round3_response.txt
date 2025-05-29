@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake must move left once and down six times to reach the apple (6,3) from (7,9), totaling 7 moves. Starting with LEFT avoids the wall and aligns with the required x-direction. Subsequent DOWN moves navigate toward the apple while avoiding body collisions."
+}

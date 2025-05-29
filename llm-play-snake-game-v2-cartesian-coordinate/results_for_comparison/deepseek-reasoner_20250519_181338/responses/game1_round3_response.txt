@@ -1,4 +1,4 @@
 {
-  "moves": ["RIGHT", "RIGHT", "DOWN"],
-  "reasoning": "Shortest path: right twice then down to reach the apple (7,2) from (5,3) without colliding with the single body segment. Path is safe and meets Manhattan direction constraints."
+  "moves": ["DOWN", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "Move DOWN to avoid body, then LEFT and UP to navigate safely toward the apple. Ensures correct LEFT (1) and UP (2) net moves."
 }

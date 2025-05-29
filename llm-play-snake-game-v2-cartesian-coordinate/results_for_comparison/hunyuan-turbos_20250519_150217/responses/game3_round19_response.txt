@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT"],
-  "reasoning": "The apple is directly to the right of the snake's head at (8, 6). Moving RIGHT will bring the head to (9, 6) without colliding with the body or walls."
-}
-```

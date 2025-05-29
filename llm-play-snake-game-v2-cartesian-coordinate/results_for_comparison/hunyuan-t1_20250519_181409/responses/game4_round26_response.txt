@@ -1,4 +1,6 @@
+```json
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP"],
-  "reasoning": "The snake must move 6 left and 4 up to reach the apple. Starting with LEFT avoids the wall and current direction constraints. Sequential LEFT moves navigate leftward, then UP moves ascend safely as the body shifts, avoiding collisions."
+  "moves": [],
+  "reasoning": "NO_PATH_FOUND"
 }
+```

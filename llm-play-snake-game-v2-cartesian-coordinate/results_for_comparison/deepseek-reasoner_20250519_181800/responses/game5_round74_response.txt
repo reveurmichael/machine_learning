@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
-  "reasoning": "Path moves up to avoid body, then right to align x-coordinate with the apple, then up to reach it safely without collisions."
-}
-```

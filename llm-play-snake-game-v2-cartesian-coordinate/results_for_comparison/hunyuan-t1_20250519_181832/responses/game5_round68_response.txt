@@ -1,1 +1,0 @@
-{"moves": ["LEFT", "LEFT", "LEFT", "LEFT"], "reasoning": "The apple is directly left of the head. Moving left four times avoids all body segments and walls, reaching the apple safely in the minimum moves."}

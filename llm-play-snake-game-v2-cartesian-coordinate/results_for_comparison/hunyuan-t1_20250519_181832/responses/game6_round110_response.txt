@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
-  "reasoning": "The shortest path to the apple (9,6) from (1,2) requires 8 RIGHT and 4 UP moves. Starting with RIGHT avoids immediate collision with the body. Sequential RIGHT moves advance horizontally while the body shifts safely. After reaching column 9, UP moves navigate vertically to the apple, avoiding all body segments."
-}

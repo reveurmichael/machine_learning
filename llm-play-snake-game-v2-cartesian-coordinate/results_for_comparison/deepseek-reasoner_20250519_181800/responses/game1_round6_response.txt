@@ -1,4 +1,4 @@
 {
-  "moves": ["DOWN", "DOWN", "DOWN"],
-  "reasoning": "Direct path DOWN to the apple at (9,1) with no body or wall collisions."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP"],
+  "reasoning": "Move right along the bottom edge to x=8, then up to the apple. This path avoids body segments and walls, ensuring safe navigation."
 }

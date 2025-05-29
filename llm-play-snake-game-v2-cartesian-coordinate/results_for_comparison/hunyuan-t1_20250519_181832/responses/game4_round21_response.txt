@@ -1,4 +1,0 @@
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "The snake needs to move 6 LEFT and 5 DOWN steps to reach the apple. Starting with LEFT moves avoids immediate collisions and follows the required Manhattan distance. The body shifts safely as the snake moves left, creating space to then descend downward without intersecting its own segments."
-}

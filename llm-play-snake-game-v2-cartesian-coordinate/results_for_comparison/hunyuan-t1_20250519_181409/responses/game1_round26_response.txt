@@ -1,1 +1,0 @@
-{"moves": ["UP", "UP", "UP"], "reasoning": "The apple is directly above the head. Moving UP three times aligns the head with the apple without colliding with walls or body segments. The snake's vertical body follows the head upward safely."}

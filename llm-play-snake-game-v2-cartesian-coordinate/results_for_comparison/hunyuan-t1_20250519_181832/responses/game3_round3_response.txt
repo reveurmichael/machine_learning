@@ -1,0 +1,1 @@
+{"moves": ["DOWN", "DOWN", "DOWN", "DOWN"], "reasoning": "The snake moves directly downward four times from (9,7) to reach the apple at (9,3). Each move is valid, avoiding collisions with walls and body segments. The path aligns with Manhattan distance requirements and maintains safe spacing from the body."}

@@ -1,4 +1,0 @@
-{
-  "moves": [],
-  "reasoning": "NO_PATH_FOUND"
-}

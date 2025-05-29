@@ -1,4 +1,4 @@
 {
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP"],
-  "reasoning": "Direct path: move right four steps to x=6, then up to the apple, avoiding body segments at y=3."
+  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Detour left and up to avoid body block, then move right along the top edge to reach the apple safely."
 }

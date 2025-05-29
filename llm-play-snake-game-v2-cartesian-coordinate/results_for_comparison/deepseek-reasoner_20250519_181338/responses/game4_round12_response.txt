@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP"],
-  "reasoning": "Move left 7 steps to reach x=1, then up 5 steps to the apple. Path avoids body and walls."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move right along y=4 to x=9, then up to the apple. This path avoids body cells and walls, meeting required direction constraints."
 }

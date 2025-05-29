@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move right twice and down four times to reach the apple. Starting with two DOWN moves avoids the initial body segments. Then two RIGHT moves navigate around the body, followed by two more DOWN moves to reach the apple, satisfying all collision and direction constraints."
+}

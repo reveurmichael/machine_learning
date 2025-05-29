@@ -1,4 +1,4 @@
 {
-  "moves": ["DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
-  "reasoning": "Move down to avoid body, then take direct right path to apple. This path satisfies the required x/y deltas and avoids collisions."
+  "moves": ["DOWN", "DOWN", "DOWN"],
+  "reasoning": "Apple is directly below the snake's current position. Moving straight down avoids body collisions and reaches the apple in minimal moves."
 }

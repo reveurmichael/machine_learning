@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT"],
-  "reasoning": "The snake needs to move 4 LEFT and 2 DOWN to reach the apple. Starting with LEFT avoids the wall and initial body. Subsequent moves navigate downward while avoiding collisions, ensuring the path meets Manhattan distance requirements and direction constraints."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake moves RIGHT four times to align with the apple's x-coordinate (5), then UP eight times to reach the apple's y-coordinate (9). This path avoids collisions with the body and walls, adhering to direction constraints and Manhattan distance requirements."
 }

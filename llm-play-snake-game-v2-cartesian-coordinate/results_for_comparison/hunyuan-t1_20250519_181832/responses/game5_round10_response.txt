@@ -1,4 +1,1 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN"],
-  "reasoning": "The shortest path to the apple (4,8) requires moving RIGHT 4 times and DOWN 1 time. Starting from (0,9), the first move must be RIGHT (cannot reverse UP direction). Subsequent RIGHT moves avoid collisions, and the final DOWN reaches the apple safely without hitting the body or walls."
-}
+{"moves": ["LEFT", "LEFT", "LEFT", "LEFT"], "reasoning": "The apple is directly left of the head. Moving left four times avoids all body segments and walls, reaching the apple safely in the minimum moves."}

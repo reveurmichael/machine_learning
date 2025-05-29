@@ -1,4 +1,0 @@
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP"],
-  "reasoning": "The snake needs to move right 4 times and up 2 times to reach the apple. Starting with UP direction, first move right four times to (5,4), then up twice to (5,6). Each move avoids collisions with the body and walls."
-}

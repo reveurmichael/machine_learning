@@ -1,1 +1,0 @@
-{"moves": ["RIGHT", "RIGHT", "DOWN", "DOWN"], "reasoning": "The shortest path is to move RIGHT twice to reach the apple's x-coordinate (4), then DOWN twice to reach the apple's y-coordinate (2), avoiding body collisions."}

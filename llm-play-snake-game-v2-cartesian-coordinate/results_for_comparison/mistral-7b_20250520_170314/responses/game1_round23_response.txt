@@ -1,4 +1,0 @@
- {
-     "moves": ["RIGHT", "UP", "RIGHT", "UP", "UP"],
-     "reasoning": "The Manhattan distance between the snake's head and the apple is 5 (horizontal) + 1 (vertical). To reach the apple, we need to move right to match the x-coordinate of the apple. After that, since y_apple < y_head, we move up. Since moving up will bring us closer to the apple in terms of Manhattan distance, we continue to move up until the y-coordinates match."
-   }

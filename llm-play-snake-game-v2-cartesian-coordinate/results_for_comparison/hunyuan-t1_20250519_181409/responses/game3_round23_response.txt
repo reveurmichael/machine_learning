@@ -1,4 +1,4 @@
 {
-  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "UP", "RIGHT"],
-  "reasoning": "The snake starts at (1,1) with body segments blocking the direct right path. Moving UP first avoids collision and aligns towards the apple. Subsequent RIGHT moves navigate around the body, then UP and RIGHT complete the path to the apple while adhering to movement rules and avoiding self-collision."
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple (0,2) from (1,6) requires moving LEFT once and DOWN four times. Starting with LEFT avoids reversing direction and safely navigates around the body. Subsequent DOWN moves follow the Manhattan path without colliding with walls or the snake's body."
 }

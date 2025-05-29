@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["RIGHT", "UP", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT"],
-  "reasoning": "Move RIGHT to approach the apple, then detour around the body to avoid collision and reach the apple safely."
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Move left to reduce x-coordinate to match apple's x, then move down to match apple's y, avoiding body collisions."
 }
 ```

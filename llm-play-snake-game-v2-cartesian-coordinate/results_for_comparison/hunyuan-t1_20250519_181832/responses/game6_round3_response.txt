@@ -1,0 +1,4 @@
+{
+  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move 7 lefts and 4 ups while avoiding collisions. Starting with UP to (9,4), then 7 LEFTS to (2,4), followed by 3 UPS to (2,7). This path avoids body collisions and stays within bounds."
+}

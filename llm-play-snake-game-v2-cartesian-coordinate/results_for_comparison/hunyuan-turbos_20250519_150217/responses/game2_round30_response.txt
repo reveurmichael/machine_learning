@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
-  "reasoning": "The snake's head is at (6, 9) and the apple is at (0, 9). The shortest path is to move LEFT 6 times, avoiding collisions with the body and walls. The body is positioned such that moving LEFT is safe for these steps."
+  "moves": ["DOWN", "DOWN", "RIGHT", "UP", "UP"],
+  "reasoning": "The snake needs to move down twice to reduce the y-coordinate from 8 to 6 and then move right once to increase the x-coordinate from 6 to 7. However, after moving down twice and right once, the snake would be at (7, 6), which is the apple's position. To avoid immediate collision after eating the apple, the sequence includes two additional UP moves to simulate growth and ensure safety, though this might not be optimal. A more precise path would need detailed simulation of body growth and movement."
 }
 ```

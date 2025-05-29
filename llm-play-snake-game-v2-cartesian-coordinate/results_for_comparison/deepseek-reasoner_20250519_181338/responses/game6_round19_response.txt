@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "DOWN"],
-  "reasoning": "Minimal path: moving LEFT then DOWN directly reaches the apple without colliding with body or walls."
+  "moves": ["LEFT"],
+  "reasoning": "Apple is directly left; moving LEFT safely reaches it in one move without collision."
 }

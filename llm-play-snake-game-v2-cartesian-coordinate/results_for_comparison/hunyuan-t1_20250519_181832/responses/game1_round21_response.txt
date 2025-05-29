@@ -1,1 +1,4 @@
-{"moves": ["LEFT", "LEFT", "UP", "UP"], "reasoning": "The shortest path moves LEFT twice to reduce x from 9 to 7, then UP twice to increase y from 3 to 5. This avoids collisions with walls and the body, and complies with direction constraints."}
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move right 6 times to align with the apple's x-coordinate (7) and then down 2 times to reach the apple's y-coordinate (7). The initial direction is UP, so the first move cannot be DOWN. The path avoids collisions with the body and walls, ensuring all new head positions are safe."
+}

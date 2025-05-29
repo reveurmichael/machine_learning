@@ -1,0 +1,1 @@
+{"moves": ["LEFT", "LEFT", "UP", "UP"], "reasoning": "The shortest path moves LEFT twice to reduce x from 9 to 7, then UP twice to increase y from 3 to 5. This avoids collisions with walls and the body, and complies with direction constraints."}

@@ -71,7 +71,6 @@ class OllamaProvider(BaseProvider):
                     "stream": False,
                     "temperature": temperature,
                 },
-                timeout=60
             )
             
             # Check if response is valid JSON
@@ -99,11 +98,6 @@ class OllamaProvider(BaseProvider):
                 print(error_message)
                 return error_message, None
                 
-        except requests.exceptions.Timeout:
-            error_message = f"Timeout error connecting to Ollama server at {server}"
-            print(error_message)
-            return f"ERROR LLMCLIENT: {error_message}", None
-            
         except requests.exceptions.ConnectionError:
             error_message = f"Connection error to Ollama server at {server}"
             print(error_message)

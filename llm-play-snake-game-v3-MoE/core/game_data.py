@@ -23,10 +23,6 @@ class GameData:
         # Game metadata
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.game_number = 0
-        self.is_continuation = False
-        self.continuation_count = 0
-        self.continuation_timestamps = []
-        self.continuation_metadata = []
         
         # Game stats
         self.score = 0
@@ -542,34 +538,20 @@ class GameData:
         
         total_duration = self.end_time - self.start_time
         
-        # Calculate pause time from continuations if applicable
-        pause_time = 0
-        if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
-            for meta in self.continuation_metadata:
-                if 'time_since_last_action' in meta:
-                    pause_time += meta['time_since_last_action']
-        
-        # Calculate active duration (excluding pauses from continuations)
-        active_duration = total_duration - pause_time
-        
         # Calculate percentages based on active time
-        divisor = max(0.001, active_duration)  # Avoid division by zero
+        divisor = max(0.001, total_duration)  # Avoid division by zero
         llm_percent = (self.llm_communication_time / divisor * 100)
         movement_percent = (self.game_movement_time / divisor * 100)
         waiting_percent = (self.waiting_time / divisor * 100)
         
         # Calculate other time (time not accounted for in the other categories)
-        other_time = active_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
+        other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
         other_percent = (other_time / divisor * 100)
         
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": datetime.fromtimestamp(self.end_time).strftime("%Y-%m-%d %H:%M:%S"),
             "total_duration_seconds": total_duration,
-            "active_duration_seconds": active_duration,
-            "pause_duration_seconds": pause_time,
-            "is_continuation": self.is_continuation,
-            "continuation_count": self.continuation_count,
             "llm_communication_time": self.llm_communication_time,
             "game_movement_time": self.game_movement_time,
             "waiting_time": self.waiting_time,
@@ -644,10 +626,6 @@ class GameData:
             }
         }
         
-        # Update with continuation info (this will place it at the bottom of the metadata section)
-        if self.is_continuation:
-            summary = self.update_continuation_info_in_summary(summary)
-            
         return summary
     
     def _get_ordered_rounds_data(self):
@@ -785,158 +763,4 @@ class GameData:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
             
-        return filepath
-
-    def record_continuation(self, previous_session_data=None):
-        """Record that this game is a continuation of a previous session.
-        
-        Args:
-            previous_session_data: Optional dictionary with data from previous session
-        """
-        self.is_continuation = True
-        self.continuation_count += 1
-        continuation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Initialize continuation timestamps if needed
-        if not hasattr(self, 'continuation_timestamps'):
-            self.continuation_timestamps = []
-            
-        # Initialize continuation metadata if needed
-        if not hasattr(self, 'continuation_metadata'):
-            self.continuation_metadata = []
-            
-        # Add current timestamp
-        self.continuation_timestamps.append(continuation_timestamp)
-        
-        # Reset the start time for accurate time tracking during this continuation session
-        # This ensures we don't include the time between sessions in our calculations
-        current_time = time.time()
-        
-        # Store the time delta between the last action and the continuation
-        # This helps in accurately tracking time spent in the game vs. paused time
-        if hasattr(self, 'last_action_time') and self.last_action_time:
-            time_delta = current_time - self.last_action_time
-            
-            # Record this continuation event with metadata for analytics
-            continuation_meta = {
-                "timestamp": continuation_timestamp,
-                "time_since_last_action": time_delta,
-                "previous_duration": current_time - self.start_time if hasattr(self, 'start_time') else 0,
-                "game_state": {
-                    "score": self.score,
-                    "steps": self.steps,
-                    "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else 1
-                }
-            }
-            
-            # Add additional data from previous session if provided
-            if previous_session_data:
-                # Add previous game statistics if available
-                if 'game_statistics' in previous_session_data:
-                    game_stats = previous_session_data['game_statistics']
-                    continuation_meta['previous_session'] = {
-                        'total_games': game_stats.get('total_games', 0),
-                        'total_score': game_stats.get('total_score', 0),
-                        'total_steps': game_stats.get('total_steps', 0)
-                    }
-                
-                # Add previous continuation info if available
-                if 'continuation_info' in previous_session_data:
-                    cont_info = previous_session_data['continuation_info']
-                    
-                    # Import timestamps from previous session if they're not already in our list
-                    if 'continuation_timestamps' in cont_info:
-                        for timestamp in cont_info['continuation_timestamps']:
-                            if timestamp not in self.continuation_timestamps:
-                                self.continuation_timestamps.append(timestamp)
-            
-            # Add the metadata
-            self.continuation_metadata.append(continuation_meta)
-            
-        # Update the start time to the current time
-        # This essentially "pauses" the timer when continuing
-        self.last_action_time = current_time
-        
-        # Update continuation count to match actual number of continuations
-        self.continuation_count = len(self.continuation_timestamps)
-        
-    def synchronize_with_summary_json(self, summary_data):
-        """Synchronize game state with data from summary.json.
-        
-        This helps ensure continuation data is accurate.
-        
-        Args:
-            summary_data: Dictionary loaded from summary.json
-        """
-        # Check if continuation info exists in summary
-        if 'continuation_info' in summary_data:
-            cont_info = summary_data['continuation_info']
-            
-            # Initialize continuation attributes if needed
-            if not hasattr(self, 'continuation_timestamps'):
-                self.continuation_timestamps = []
-                
-            if not hasattr(self, 'continuation_metadata'):
-                self.continuation_metadata = []
-                
-            # Import timestamps from summary
-            if 'continuation_timestamps' in cont_info:
-                for timestamp in cont_info['continuation_timestamps']:
-                    if timestamp not in self.continuation_timestamps:
-                        self.continuation_timestamps.append(timestamp)
-            
-            # Import session metadata from summary
-            if 'session_metadata' in cont_info:
-                for metadata in cont_info['session_metadata']:
-                    # Check if this metadata is already in our list
-                    timestamp = metadata.get('timestamp')
-                    if timestamp:
-                        # Check if we already have this timestamp in our metadata
-                        existing = [m for m in self.continuation_metadata if m.get('timestamp') == timestamp]
-                        if not existing:
-                            self.continuation_metadata.append(metadata)
-            
-            # Update continuation count
-            self.continuation_count = max(
-                len(self.continuation_timestamps),
-                cont_info.get('continuation_count', 0)
-            )
-            
-            # Mark as continuation if it has happened before
-            if self.continuation_count > 0:
-                self.is_continuation = True 
-
-    def update_continuation_info_in_summary(self, summary_dict):
-        """Update the continuation information in a game summary dictionary.
-        
-        This ensures continuation information is properly organized and placed at the bottom
-        of the JSON file.
-        
-        Args:
-            summary_dict: Dictionary representing a game summary to update
-            
-        Returns:
-            Updated summary dictionary with organized continuation info
-        """
-        # Initialize continuation section if needed
-        if 'metadata' not in summary_dict:
-            summary_dict['metadata'] = {}
-            
-        # Add continuation info to metadata section
-        continuation_data = {
-            'is_continuation': self.is_continuation,
-            'continuation_count': self.continuation_count
-        }
-        
-        # Add timestamps if available
-        if hasattr(self, 'continuation_timestamps') and self.continuation_timestamps:
-            continuation_data['continuation_timestamps'] = self.continuation_timestamps
-            
-        # Add metadata if available
-        if hasattr(self, 'continuation_metadata') and self.continuation_metadata:
-            continuation_data['continuation_metadata'] = self.continuation_metadata
-            
-        # Update the metadata
-        summary_dict['metadata']['continuation_info'] = continuation_data
-        
-        return summary_dict 
+        return filepath 

@@ -236,18 +236,12 @@ def initialize_game_manager(game_manager):
         game_manager: The GameManager instance
     """
     from utils.json_utils import reset_json_error_stats, save_experiment_info_json
+    from utils.session_utils import setup_session_directories, setup_llm_clients, initialize_game_state
     import os
     import time
     
     # Reset JSON error statistics
     reset_json_error_stats()
-    
-    # Import these functions inside the function to avoid cyclic imports
-    from utils.llm_utils import check_llm_health
-    from utils.setup_utils import setup_llm_clients
-    
-    # Set up the common setup function
-    setup_llm_clients(game_manager, check_llm_health)
     
     # Handle sleep before launching if specified
     if game_manager.args.sleep_before_launching > 0:
@@ -256,28 +250,30 @@ def initialize_game_manager(game_manager):
         time.sleep(minutes * 60)
         print(Fore.GREEN + "⏰ Waking up and starting the program...")
     
-    # Initialize pygame if using GUI
-    if game_manager.use_gui:
-        pygame.init()
-        pygame.font.init()
+    # Set up the LLM clients
+    setup_llm_clients(game_manager)
     
-    # Set up the game
-    game_manager.setup_game()
-    
-    print(Fore.GREEN + f"⏱️ Pause between moves: {game_manager.get_pause_between_moves()} seconds")
-    print(Fore.GREEN + f"⏱️ Maximum steps per game: {game_manager.args.max_steps}")
-    
-    # Set up logging directories
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    primary_model = game_manager.args.model if game_manager.args.model else f'default_{game_manager.args.provider}'
-    primary_model = primary_model.replace(':', '-')  # Replace colon with hyphen
-    game_manager.log_dir = f"{primary_model}_{timestamp}"
-    game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
-    game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
+    # Set up session directories
+    if game_manager.args.session_dir:
+        # Use provided session directory
+        game_manager.log_dir = game_manager.args.session_dir
+        game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
+        game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
+        
+        # Create directories if they don't exist
+        os.makedirs(game_manager.log_dir, exist_ok=True)
+        os.makedirs(game_manager.prompts_dir, exist_ok=True)
+        os.makedirs(game_manager.responses_dir, exist_ok=True)
+    else:
+        # Create new session directory
+        setup_session_directories(game_manager)
     
     # Save experiment information
     model_info_path = save_experiment_info_json(game_manager.args, game_manager.log_dir)
     print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
+    
+    # Initialize game state
+    initialize_game_state(game_manager)
 
 def process_events(game_manager):
     """Process pygame events.

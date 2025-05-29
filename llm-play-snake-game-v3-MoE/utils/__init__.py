@@ -31,8 +31,8 @@ from .file_utils import (
     save_to_file
 )
 
-# Import from setup_utils to avoid cyclic imports
-from .setup_utils import setup_llm_clients
+# Import from session_utils to avoid cyclic imports
+from .session_utils import setup_llm_clients, setup_session_directories, initialize_game_state
 
 # Delay importing the remaining modules to avoid cyclic imports
 # They'll be imported on-demand when needed
@@ -58,6 +58,8 @@ __all__ = [
     'get_next_game_number',
     'clean_prompt_files',
     'save_to_file',
-    # setup_llm_clients function
-    'setup_llm_clients'
+    # session_utils functions
+    'setup_llm_clients',
+    'setup_session_directories',
+    'initialize_game_state'
 ]

@@ -4,6 +4,7 @@ Handles game session management, initialization, and statistics tracking.
 """
 
 import pygame
+from colorama import Fore
 
 # Core game components
 from core.game_logic import GameLogic
@@ -18,12 +19,6 @@ from utils.game_manager_utils import (
     report_final_statistics,
     initialize_game_manager,
     process_events
-)
-from utils.continuation_utils import (
-    setup_continuation_session,
-    setup_llm_clients,
-    handle_continuation_game_state,
-    continue_from_directory
 )
 
 
@@ -129,16 +124,10 @@ class GameManager:
         # Only report if games were played
         if self.game_count == 0:
             return
-        
-        # Check if this is a continuation mode
-        is_continuation = False
-        if hasattr(self.game.game_state, 'is_continuation'):
-            is_continuation = self.game.game_state.is_continuation
             
         # Update experiment info JSON
         update_experiment_info_json(
             self.log_dir,
-            is_continuation=is_continuation,
             json_error_stats=get_json_error_stats()
         )
         
@@ -165,8 +154,15 @@ class GameManager:
             # Initialize the game and LLM clients
             self.initialize()
             
-            # Run the game loop
-            self.run_game_loop()
+            # Run games until we reach max_game
+            while self.game_count < self.args.max_game and self.running:
+                # Run the game loop
+                self.run_game_loop()
+                
+                # Check if we've reached the max games
+                if self.game_count >= self.args.max_game:
+                    print(Fore.GREEN + f"🏁 Reached maximum games ({self.args.max_game}). Session complete.")
+                    break
             
         finally:
             # Final cleanup
@@ -174,38 +170,4 @@ class GameManager:
                 pygame.quit()
             
             # Report final statistics
-            self.report_final_statistics()
-    
-    def continue_from_session(self, log_dir, start_game_number):
-        """Continue from a previous game session.
-        
-        Args:
-            log_dir: Path to the log directory to continue from
-            start_game_number: The game number to start from
-        """
-        # Set up continuation session
-        setup_continuation_session(self, log_dir, start_game_number)
-        
-        # Set up LLM clients
-        setup_llm_clients(self)
-        
-        # Handle game state for continuation
-        handle_continuation_game_state(self)
-        
-        # Run the game loop
-        self.run_game_loop()
-        
-        # Report final statistics
-        self.report_final_statistics()
-
-    @classmethod
-    def continue_from_directory(cls, args):
-        """Factory method to create a GameManager instance for continuation.
-        
-        Args:
-            args: Command-line arguments with continue_with_game_in_dir set
-            
-        Returns:
-            GameManager instance set up for continuation
-        """
-        return continue_from_directory(cls, args) 
+            self.report_final_statistics() 

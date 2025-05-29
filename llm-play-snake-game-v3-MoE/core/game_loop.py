@@ -23,7 +23,7 @@ def run_game_loop(game_manager):
         game_manager: The GameManager instance controlling the game session
     """
     try:
-        while game_manager.running and game_manager.game_count < game_manager.args.max_games:
+        while game_manager.running and game_manager.game_count < game_manager.args.max_game:
             # Process player input and system events
             process_events(game_manager)
             
@@ -34,7 +34,7 @@ def run_game_loop(game_manager):
                     
                     # Check if we need a new plan from the LLM
                     if game_manager.need_new_plan:
-                        # Get next move from first LLM
+                        # Get next move from LLM
                         next_move, game_manager.game_active = get_llm_response(game_manager)
                         
                         # Set flag to avoid requesting another plan until needed
@@ -69,7 +69,7 @@ def run_game_loop(game_manager):
                             
                             # Standard pause between moves for gameplay rhythm
                             game_manager.game.game_state.record_waiting_start()
-                            # Only sleep if there's a non-zero pause time (managed by get_pause_between_moves)
+                            # Only sleep if there's a non-zero pause time
                             pause_time = game_manager.get_pause_between_moves()
                             if pause_time > 0:
                                 time.sleep(pause_time)
@@ -83,7 +83,7 @@ def run_game_loop(game_manager):
                             game_manager.total_steps += 1
                             game_manager.game.game_state.record_empty_move()
                             
-                            # Record for replay and analysis
+                            # Record for analysis
                             game_manager.current_game_moves.append("EMPTY")
                             game_manager.game.game_state.moves.append("EMPTY")
                             
@@ -108,7 +108,7 @@ def run_game_loop(game_manager):
                         if next_move:
                             print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
                             
-                            # Record move for logging and replay
+                            # Record move for logging
                             game_manager.current_game_moves.append(next_move)
                             
                             # Check max steps limit
@@ -144,7 +144,7 @@ def run_game_loop(game_manager):
                             
                             # Standard pause between moves
                             game_manager.game.game_state.record_waiting_start()
-                            # Only sleep if there's a non-zero pause time (managed by get_pause_between_moves)
+                            # Only sleep if there's a non-zero pause time
                             pause_time = game_manager.get_pause_between_moves()
                             if pause_time > 0:
                                 time.sleep(pause_time)
@@ -210,14 +210,14 @@ def run_game_loop(game_manager):
                     )
                     
                     # Prepare for next game if not at limit
-                    if game_manager.game_count < game_manager.args.max_games and not game_manager.game_active:
+                    if game_manager.game_count < game_manager.args.max_game and not game_manager.game_active:
                         pygame.time.delay(1000)  # Brief pause for user visibility
                         game_manager.game.reset()
                         game_manager.game_active = True
                         game_manager.need_new_plan = True
                         game_manager.current_game_moves = []
                         game_manager.consecutive_errors = 0
-                        print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
+                        print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_game}")
             
             # Control frame rate
             pygame.time.delay(game_manager.time_delay)

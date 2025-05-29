@@ -1,7 +1,7 @@
 """
 Core utilities for the LLM-powered Snake game.
 This package provides all essential functions and systems for the game, including:
-- File and session management
+- File and initialization management
 - Game state processing and analytics
 - JSON parsing and data handling
 - Move calculation and game mechanics
@@ -36,11 +36,12 @@ from .file_utils import (
     save_to_file
 )
 
-# Session management
-from .session_utils import (
+# Initialization and setup
+from .initialization_utils import (
     setup_llm_clients,
-    setup_session_directories,
-    initialize_game_state
+    setup_log_directories,
+    initialize_game_state,
+    read_game_data
 )
 
 # Game mechanics
@@ -78,10 +79,11 @@ __all__ = [
     'clean_prompt_files',
     'save_to_file',
     
-    # Session management
+    # Initialization and setup
     'setup_llm_clients',
-    'setup_session_directories',
+    'setup_log_directories',
     'initialize_game_state',
+    'read_game_data',
     
     # Game mechanics
     'calculate_move_differences',

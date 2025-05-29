@@ -31,7 +31,7 @@ from llm.communication_utils import (
 from llm.health_utils import check_llm_health
 
 # Import and re-export setup utilities
-from llm.setup_utils import setup_llm_clients, check_env_setup
+from llm.setup_utils import check_env_setup
 
 # Define the public API
 __all__ = [
@@ -54,6 +54,5 @@ __all__ = [
     'get_llm_response',
     
     # Setup utilities
-    'setup_llm_clients',
     'check_env_setup'
 ] 

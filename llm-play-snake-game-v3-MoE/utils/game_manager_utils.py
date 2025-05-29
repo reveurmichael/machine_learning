@@ -238,7 +238,7 @@ def initialize_game_manager(game_manager):
         game_manager: The GameManager instance
     """
     from utils.json_utils import reset_json_error_stats, save_experiment_info_json
-    from utils.session_utils import setup_session_directories, setup_llm_clients, initialize_game_state
+    from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
     import os
     import time
     
@@ -268,7 +268,7 @@ def initialize_game_manager(game_manager):
         os.makedirs(game_manager.responses_dir, exist_ok=True)
     else:
         # Create new session directory
-        setup_session_directories(game_manager)
+        setup_log_directories(game_manager)
     
     # Save experiment information
     model_info_path = save_experiment_info_json(game_manager.args, game_manager.log_dir)

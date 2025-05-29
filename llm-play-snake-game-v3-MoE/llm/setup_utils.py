@@ -1,6 +1,6 @@
 """
-Setup utilities for the Snake game.
-Handles LLM client setup and health checks to avoid cyclic imports.
+Setup utilities for LLM configuration in the Snake game.
+Handles environment validation for LLM providers.
 """
 
 import sys
@@ -54,68 +54,4 @@ MISTRAL_API_KEY=your_mistral_api_key_here
         print(Fore.YELLOW + f"⚠️ No API key found for {provider}. Make sure to set it in your .env file")
         return False
         
-    return True
-
-def setup_llm_clients(game_manager, check_llm_health):
-    """Set up the LLM clients with health checks.
-    
-    Args:
-        game_manager: The GameManager instance
-        check_llm_health: Function to check LLM health
-        
-    Returns:
-        Boolean indicating if setup was successful
-    """
-    # Initialize primary LLM client
-    game_manager.llm_client = game_manager.create_llm_client(
-        game_manager.args.provider, 
-        game_manager.args.model
-    )
-    
-    print(Fore.GREEN + f"Using primary LLM provider: {game_manager.args.provider}")
-    if game_manager.args.model:
-        print(Fore.GREEN + f"Using primary LLM model: {game_manager.args.model}")
-    
-    # Perform health check for primary LLM
-    primary_healthy = check_llm_health(game_manager.llm_client)[0]
-    if not primary_healthy:
-        print(Fore.RED + "❌ Primary LLM health check failed. The program cannot continue.")
-        sys.exit(1)
-    else:
-        print(Fore.GREEN + "✅ Primary LLM health check passed!")
-    
-    # Configure secondary LLM (parser) if specified
-    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
-        print(Fore.GREEN + f"Using parser LLM provider: {game_manager.args.parser_provider}")
-        parser_model = game_manager.args.parser_model or game_manager.args.model  # Default to primary model if parser model not specified
-        print(Fore.GREEN + f"Using parser LLM model: {parser_model}")
-        
-        # Set up the secondary LLM in the client
-        game_manager.llm_client.set_secondary_llm(game_manager.args.parser_provider, parser_model)
-        
-        # Verify that the secondary LLM was properly configured
-        if not game_manager.llm_client.secondary_provider or not game_manager.llm_client.secondary_model:
-            print(Fore.RED + "❌ Failed to configure secondary LLM. Continuing without parser.")
-            game_manager.args.parser_provider = "none"
-            game_manager.args.parser_model = None
-        else:
-            # Perform health check for parser LLM
-            # Create a temporary client for testing the secondary LLM
-            test_client = game_manager.create_llm_client(game_manager.args.parser_provider, parser_model)
-            parser_healthy = check_llm_health(test_client)[0]
-            
-            if not parser_healthy:
-                print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
-                game_manager.args.parser_provider = "none"
-                game_manager.args.parser_model = None
-                # Clear secondary LLM configuration to avoid confusion
-                game_manager.llm_client.secondary_provider = None
-                game_manager.llm_client.secondary_model = None
-            else:
-                print(Fore.GREEN + "✅ Parser LLM health check passed!")
-    else:
-        print(Fore.YELLOW + "⚠️ No parser LLM specified. Using primary LLM output directly.")
-        game_manager.args.parser_provider = "none"
-        game_manager.args.parser_model = None
-    
     return True 

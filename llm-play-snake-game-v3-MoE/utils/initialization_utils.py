@@ -1,6 +1,6 @@
 """
-Utility module for session management in Snake game.
-Handles reading and writing game data to persistent storage.
+Initialization utilities for the Snake game.
+Handles initial setup, game configuration, and data loading.
 """
 
 import os
@@ -9,8 +9,8 @@ from colorama import Fore
 # Import directly from llm.health_utils to avoid circular dependency
 from llm.health_utils import check_llm_health
 
-def read_session_data(log_dir, game_count):
-    """Read session data from game files.
+def read_game_data(log_dir, game_count):
+    """Read game data from previous log files.
     
     Args:
         log_dir: Path to the log directory
@@ -78,8 +78,8 @@ def read_session_data(log_dir, game_count):
     
     return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count
 
-def setup_session_directories(game_manager):
-    """Set up session directories for logging game data.
+def setup_log_directories(game_manager):
+    """Set up log directories for storing game data.
     
     Args:
         game_manager: The GameManager instance
@@ -115,7 +115,7 @@ def setup_session_directories(game_manager):
     print(Fore.GREEN + f"📁 Session directory created: {game_manager.log_dir}")
 
 def setup_llm_clients(game_manager):
-    """Set up the LLM clients for the game session.
+    """Set up the LLM clients for the game.
     
     Args:
         game_manager: The GameManager instance

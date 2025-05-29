@@ -66,12 +66,13 @@ def process_game_over(game, game_state_info):
     
     # Save game summary
     json_path = os.path.join(log_dir, f"game_{game_count}.json")
+    parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
     game.game_state.save_game_summary(
         json_path,
         args.provider, 
         args.model or f"default_{args.provider}",
-        args.parser_provider or args.provider,
-        args.parser_model,
+        parser_provider,
+        args.parser_model if parser_provider else None,
         args.max_consecutive_errors_allowed
     )
     
@@ -142,12 +143,13 @@ def handle_error(game, error_info):
         
         # Save game summary
         json_path = os.path.join(log_dir, f"game_{game_count}.json")
+        parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
         game.game_state.save_game_summary(
             json_path,
             args.provider, 
             args.model or f"default_{args.provider}",
-            args.parser_provider or args.provider,
-            args.parser_model,
+            parser_provider,
+            args.parser_model if parser_provider else None,
             args.max_consecutive_errors_allowed
         )
         print(Fore.GREEN + f"📝 Game summary saved to {json_path}")

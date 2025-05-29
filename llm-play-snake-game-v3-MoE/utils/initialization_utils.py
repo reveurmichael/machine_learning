@@ -6,8 +6,7 @@ Handles initial setup, game configuration, and data loading.
 import os
 import json
 from colorama import Fore
-# Import directly from llm.health_utils to avoid circular dependency
-from llm.health_utils import check_llm_health
+from llm.communication_utils import check_llm_health
 
 def read_game_data(log_dir, game_count):
     """Read game data from previous log files.

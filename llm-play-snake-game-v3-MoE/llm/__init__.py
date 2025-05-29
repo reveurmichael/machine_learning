@@ -24,13 +24,10 @@ from llm.parsing_utils import (
 # Import and re-export communication-related functions
 from llm.communication_utils import (
     extract_state_for_parser,
-    get_llm_response
+    get_llm_response,
+    check_llm_health
 )
 
-# Import and re-export health utilities
-from llm.health_utils import check_llm_health
-
-# Import and re-export setup utilities
 from llm.setup_utils import check_env_setup
 
 # Define the public API

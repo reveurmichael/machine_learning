@@ -3,7 +3,6 @@ Setup utilities for LLM configuration in the Snake game.
 Handles environment validation for LLM providers.
 """
 
-import sys
 import os
 from colorama import Fore
 

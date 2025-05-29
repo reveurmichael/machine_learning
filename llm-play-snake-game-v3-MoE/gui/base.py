@@ -43,8 +43,8 @@ class BaseGUI:
         pygame.display.set_caption(caption)
         
         # Set up fonts
-        self.font = pygame.font.SysFont("freesansbold.ttf", 24)
-        self.small_font = pygame.font.SysFont("freesansbold.ttf", 16)
+        self.font = pygame.font.SysFont("arial", 18)
+        self.small_font = pygame.font.SysFont("arial", 12)
         
         # Calculate the width of the text panel
         self.text_panel_width = self.width + self.width_plus - self.height - 40

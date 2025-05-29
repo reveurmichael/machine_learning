@@ -19,7 +19,7 @@ def check_env_setup(provider):
     if provider.lower() == 'ollama':
         # Check if OLLAMA_HOST is set
         if os.environ.get('OLLAMA_HOST'):
-            print(Fore.GREEN + f"✅ Using custom Ollama host: {os.environ.get('OLLAMA_HOST')}")
+            print(Fore.GREEN + f"Using custom Ollama host: {os.environ.get('OLLAMA_HOST')}")
         else:
             print(Fore.YELLOW + "⚠️ Using default Ollama host (localhost:11434). Set OLLAMA_HOST in .env if needed.")
         return True

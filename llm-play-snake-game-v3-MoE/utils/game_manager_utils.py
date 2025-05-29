@@ -241,27 +241,27 @@ def initialize_game_manager(game_manager):
     from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
     import os
     import time
-    
+
     # Initialize statistics tracking
     reset_json_error_stats()
-    
+
+    # Set up the LLM clients (primary and optional secondary)
+    setup_llm_clients(game_manager)
+
     # Handle sleep before launching if specified
     if game_manager.args.sleep_before_launching > 0:
         minutes = game_manager.args.sleep_before_launching
         print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{'s' if minutes > 1 else ''} before launching...")
         time.sleep(minutes * 60)
         print(Fore.GREEN + "⏰ Waking up and starting the program...")
-    
-    # Set up the LLM clients (primary and optional secondary)
-    setup_llm_clients(game_manager)
-    
+
     # Set up session directories
     if game_manager.args.log_dir:
         # Use provided log directory
         game_manager.log_dir = game_manager.args.log_dir
         game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
         game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
-        
+
         # Create directories if they don't exist
         os.makedirs(game_manager.log_dir, exist_ok=True)
         os.makedirs(game_manager.prompts_dir, exist_ok=True)
@@ -269,11 +269,11 @@ def initialize_game_manager(game_manager):
     else:
         # Create new session directory
         setup_log_directories(game_manager)
-    
+
     # Save experiment information
     model_info_path = save_experiment_info_json(game_manager.args, game_manager.log_dir)
     print(Fore.GREEN + f"📝 Experiment information saved to {model_info_path}")
-    
+
     # Initialize game state
     initialize_game_state(game_manager)
 

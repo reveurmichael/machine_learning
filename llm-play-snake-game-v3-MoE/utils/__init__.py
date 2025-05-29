@@ -45,7 +45,7 @@ from .initialization_utils import (
 )
 
 # Game mechanics
-from .move_utils import (
+from .game_manager_utils import (
     calculate_move_differences, 
     format_body_cells_str
 )

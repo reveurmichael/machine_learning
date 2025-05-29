@@ -1,4 +1,0 @@
-{
-  "moves": ["DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
-  "reasoning": "Detour left and up to avoid body block, then move right along the top edge to reach the apple safely."
-}

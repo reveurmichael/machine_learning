@@ -1,1 +1,4 @@
-{"moves": ["LEFT"], "reasoning": "The apple is directly to the left of the head. Moving LEFT reaches the apple in one step without collision."}
+{
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "The snake needs to move left from (6,5) to reach the apple at (1,5) but is blocked by its body at (3,5). By first moving down to (6,3), the snake creates space to navigate left safely. After reaching (1,3), it moves up to the apple. This avoids collisions and satisfies Manhattan distance requirements."
+}

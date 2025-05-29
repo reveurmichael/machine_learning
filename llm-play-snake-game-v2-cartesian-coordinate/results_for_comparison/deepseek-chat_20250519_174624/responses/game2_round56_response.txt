@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "DOWN"],
-  "reasoning": "Move left to reduce x-coordinate to match apple's x, then move down to match apple's y, avoiding body collisions."
-}
-```

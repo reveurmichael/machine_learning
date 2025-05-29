@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "DOWN", "DOWN", "DOWN"], "reasoning": "Move right to (7,3) to align with the apple's x-coordinate, then move down three times to reach (7,0). This path avoids collisions with the body and stays within the grid."}

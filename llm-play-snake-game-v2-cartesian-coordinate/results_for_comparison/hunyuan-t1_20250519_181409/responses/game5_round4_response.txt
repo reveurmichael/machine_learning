@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "DOWN", "RIGHT"], "reasoning": "The minimal path to the apple (3,3) from (1,4) requires moving RIGHT twice and DOWN once. The snake avoids collisions by navigating around its body, which is positioned vertically above the head. The moves satisfy the Manhattan distance requirements and adhere to direction constraints."}

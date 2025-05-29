@@ -1,4 +1,4 @@
 {
-  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "The shortest path to the apple (5,6) from (3,9) requires moving RIGHT twice (to reach x=5) and DOWN three times (to reach y=6). The initial direction is UP, so the first move RIGHT is allowed. Subsequent RIGHT moves follow to align with the x-coordinate goal, then DOWN moves achieve the y-coordinate. Each step avoids collisions with walls and the body."
+  "moves": ["DOWN", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left and down to reach the apple. Starting with DOWN avoids immediate collision and aligns with the required vertical movement. Subsequent LEFT moves navigate toward the apple while avoiding the body. The path ensures no collisions with walls or the snake's body, adhering to direction constraints and Manhattan distance requirements."
 }

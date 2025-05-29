@@ -1,4 +1,0 @@
-{
-  "moves": ["UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
-  "reasoning": "The snake moves up 5 times to align vertically with the apple (9,9) while avoiding body collisions. Then, it moves right 9 times towards the apple, ensuring each step avoids the shifting body. This path satisfies Manhattan distance requirements and maintains safe spacing from the body."
-}

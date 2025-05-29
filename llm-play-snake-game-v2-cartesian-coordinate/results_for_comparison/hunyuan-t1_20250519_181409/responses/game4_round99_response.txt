@@ -1,4 +1,0 @@
-{
-  "moves": ["UP", "LEFT", "LEFT", "LEFT", "UP", "UP"],
-  "reasoning": "The snake needs to move 3 left (from x=7 to x=4) and 3 up (from y=3 to y=6). Starting with UP avoids reversing direction. The path navigates left while ascending to avoid body collisions, ensuring each move stays within bounds and avoids the shifting body segments."
-}

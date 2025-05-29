@@ -1,4 +1,0 @@
-{
-  "moves": ["UP", "LEFT", "LEFT"],
-  "reasoning": "Move UP to avoid body, then LEFT twice to reach apple (x delta 2, y delta 1) safely."
-}

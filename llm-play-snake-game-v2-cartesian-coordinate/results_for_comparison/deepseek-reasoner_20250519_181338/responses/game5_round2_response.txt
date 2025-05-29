@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT"],
+  "reasoning": "Move right to avoid immediate body collision, then ascend vertically to reach the apple's row, then adjust left to align x-coordinate."
+}

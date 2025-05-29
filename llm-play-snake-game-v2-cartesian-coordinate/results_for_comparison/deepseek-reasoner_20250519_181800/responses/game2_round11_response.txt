@@ -1,4 +1,4 @@
 {
-  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP"],
-  "reasoning": "Optimal path: Move right to x=4, then up to apple. Body positions shift safely away, avoiding collisions."
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Move down to y=2 then left to x=1, ensuring minimal steps and avoiding body collisions by trailing safely."
 }

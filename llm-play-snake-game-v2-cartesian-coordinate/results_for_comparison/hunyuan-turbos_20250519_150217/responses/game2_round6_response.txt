@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["LEFT", "DOWN", "LEFT", "DOWN", "DOWN"],
-  "reasoning": "The snake starts at (2, 3) and needs to reach (1, 0). Moving LEFT reduces the x-coordinate by 1, and moving DOWN reduces the y-coordinate by 1. The sequence ensures the snake avoids collisions and moves closer to the apple while adhering to the movement rules."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake needs to move horizontally from x=0 to x=7 while keeping y=8 constant. The current direction is UP, so moving RIGHT is allowed. There are no obstacles in the path, and the snake can safely reach the apple in 7 moves."
 }
 ```

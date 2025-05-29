@@ -1,4 +1,4 @@
 {
-  "moves": ["UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP"],
-  "reasoning": "The snake needs to move 7 lefts and 4 ups while avoiding collisions. Starting with UP to (9,4), then 7 LEFTS to (2,4), followed by 3 UPS to (2,7). This path avoids body collisions and stays within bounds."
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (1,6) facing LEFT. To reach the apple at (6,2), it needs to move right 5 and down 4. The first move can't be RIGHT, so we move UP to (1,7). Then, we move RIGHT five times to reach (6,7). Finally, move DOWN five times to (6,2), ensuring the path avoids collisions with the body and walls. This satisfies all movement constraints and Manhattan distance requirements."
 }

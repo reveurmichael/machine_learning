@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "Direct path left 5 steps to x=2, then down 8 steps to y=0. Avoids body and walls at each move."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move right 7 steps to reach x=9, then up 4 steps to the apple. Path avoids body segments and walls."
 }

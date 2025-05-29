@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake needs to move 8 lefts and 3 downs while avoiding collisions. Starting with LEFT moves avoids the body and wall. After reaching (4,4), DOWN moves align with the apple's y-coordinate, then LEFT completes the path safely."
+}

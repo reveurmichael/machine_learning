@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "DOWN", "DOWN", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN"],
-  "reasoning": "The snake must move down 6 steps to reach the apple. Starting with direction UP, the first move cannot be DOWN. Moving LEFT avoids the body and initiates a path. Subsequent DOWN moves align with the apple's y-coordinate. A single RIGHT move corrects the x-coordinate, allowing continued DOWN moves to the apple without collisions."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The path moves RIGHT three times to align with the apple's x-coordinate (5), then DOWN twice to reach the apple's y-coordinate (1). This avoids collisions with the vertical body segment at x=2 and stays within bounds. The net RIGHT moves (3) and DOWN moves (2) match the required Manhattan distance."
 }

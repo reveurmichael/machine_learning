@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "LEFT"],
-  "reasoning": "The snake needs to move down from y=5 to y=1 to reach the apple at (7,1). Since the x-coordinate is already correct, no LEFT or RIGHT moves are initially needed except to adjust for the body. After moving down four times, a LEFT move is required to avoid the body at (6,5) and continue safely toward the apple."
-}
-```

@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "UP", "LEFT", "UP", "UP"],
+  "reasoning": "The snake starts at (2, 7) and needs to reach (1, 8). Moving LEFT first aligns the x-coordinate, then moving UP adjusts the y-coordinate. This path avoids collisions and ensures progress toward the apple."
+}
+```

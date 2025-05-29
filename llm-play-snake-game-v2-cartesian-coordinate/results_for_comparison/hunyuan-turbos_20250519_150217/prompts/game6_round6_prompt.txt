@@ -2,17 +2,17 @@
 You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You are given:
 
 INPUT VARIABLES:
-  • head position: (3, 8)              – Snake-head coordinate in (x,y).
-  • current direction: UP – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
-  • body cells: [(3, 7)]               – List of (x,y) positions occupied by the snake body (excluding the head).
-  • apple position: (9, 8)            – Apple coordinate in (x,y).
+  • head position: (3, 2)              – Snake-head coordinate in (x,y).
+  • current direction: DOWN – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
+  • body cells: [(3, 4), (3, 3)]               – List of (x,y) positions occupied by the snake body (excluding the head).
+  • apple position: (2, 2)            – Apple coordinate in (x,y).
 
 MOVEMENT RULES:
   1. Valid moves are "UP", "DOWN", "LEFT", "RIGHT". 
   2. DIRECTIONS = { "UP": (0, 1), "RIGHT": (1, 0), "DOWN": (0, -1), "LEFT": (-1, 0) }
   3. For each of your moves, you cannot move in the exact opposite of current direction. If current direction is NONE, then you can move in any direction.
-  4. The snake dies if head moves into any body cells (for this moment, the body is [(3, 7)] . However, the body will move along with the head, so this list of body cells is not fixed, and you have to think about it each time you plan a move) or outside 0 ≤ x < 10, 0 ≤ y < 10.  
-  5. Eating the apple at (9, 8) increments score by 1 and grows the body by 1 segment.
+  4. The snake dies if head moves into any body cells (for this moment, the body is [(3, 4), (3, 3)] . However, the body will move along with the head, so this list of body cells is not fixed, and you have to think about it each time you plan a move) or outside 0 ≤ x < 10, 0 ≤ y < 10.  
+  5. Eating the apple at (2, 2) increments score by 1 and grows the body by 1 segment.
 
 COORDINATE SYSTEM (IMPORTANT):
   The origin (0,0) is at the BOTTOM-LEFT of the grid.
@@ -41,7 +41,7 @@ EXAMPLE MOVES FROM POSITION (1,1):
   • LEFT → (0,1)
 
 OBJECTIVE:
-  Plan a safe path to reach the apple without colliding. Output a sequence of moves (length 5–30) that leads the head to (9, 8) if possible, unless you will reach the apple in fewer.  
+  Plan a safe path to reach the apple without colliding. Output a sequence of moves (length 5–30) that leads the head to (2, 2) if possible, unless you will reach the apple in fewer.  
 
 VITALLY IMPORTANT, CRITICALLY IMPORTANT, MUST FOLLOW THIS OUTPUT FORMAT FOR YOUR ANSWER:
   A JSON object exactly in this form:
@@ -64,7 +64,7 @@ CONSTRAINTS:
     - if x1 > x2, then the number of LEFT moves, minus, the number of RIGHT moves, should be equal to x1 - x2
     - if y1 <= y2, then the number of UP moves, minus, the number of DOWN moves, should be equal to y2 - y1
     - if y1 > y2, then the number of DOWN moves, minus, the number of UP moves, should be equal to y1 - y2
-    - In your case, as your head position is at (3, 8) and the apple is at (9, 8), in your answer's moves, the number of RIGHT moves, minus, the number of LEFT moves, should be equal to 6 (= 9 - 3), and the number of UP moves, minus, the number of DOWN moves, should be equal to 0 (= 8 - 8).
+    - In your case, as your head position is at (3, 2) and the apple is at (2, 2), in your answer's moves, the number of LEFT moves, minus, the number of RIGHT moves, should be equal to 1 (= 3 - 2), and the number of UP moves, minus, the number of DOWN moves, should be equal to 0 (= 2 - 2).
       
 
 EDGE CASES:

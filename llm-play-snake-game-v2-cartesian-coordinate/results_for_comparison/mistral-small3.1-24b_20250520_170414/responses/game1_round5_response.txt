@@ -1,6 +1,9 @@
 ```json
 {
-  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT"],
-  "reasoning": "Move right to avoid the body, then move up to reach the apple, finally move left to avoid the wall."
+  "moves": [
+    "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "LEFT",
+    "UP", "UP", "UP", "UP", "UP", "LEFT"
+  ],
+  "reasoning": "The path moves the snake downward to avoid immediate collisions with its body, then circles around to reach the apple at (1, 2)."
 }
 ```

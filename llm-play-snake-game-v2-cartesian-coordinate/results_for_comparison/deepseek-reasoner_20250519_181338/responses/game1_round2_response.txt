@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN"],
+  "reasoning": "Shortest path: right twice then down to reach the apple (7,2) from (5,3) without colliding with the single body segment. Path is safe and meets Manhattan direction constraints."
+}

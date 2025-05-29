@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
-  "reasoning": "The snake needs to move horizontally from x=4 to x=9 while keeping y=8 constant. Moving RIGHT five times will reach the apple at (9, 8) without colliding with the body or walls."
-}
-```

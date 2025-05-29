@@ -1,4 +1,4 @@
 {
-  "moves": ["DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
-  "reasoning": "The snake must move 4 RIGHT and 4 DOWN steps to reach the apple. Starting with DOWN moves avoids immediate collisions. The path navigates around the body by moving down first, then right, ensuring no collisions with walls or the body."
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP"],
+  "reasoning": "The shortest path to the apple (9,6) from (1,2) requires 8 RIGHT and 4 UP moves. Starting with RIGHT avoids immediate collision with the body. Sequential RIGHT moves advance horizontally while the body shifts safely. After reaching column 9, UP moves navigate vertically to the apple, avoiding all body segments."
 }

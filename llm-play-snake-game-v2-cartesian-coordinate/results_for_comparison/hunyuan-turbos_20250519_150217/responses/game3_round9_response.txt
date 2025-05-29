@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN", "RIGHT"],
-  "reasoning": "The snake starts at (1, 9) and needs to reach (9, 6). The Manhattan distance requires 8 RIGHT moves and 3 DOWN moves. The first move is RIGHT to avoid reversing direction, followed by a sequence of RIGHT and DOWN moves to approach the apple while avoiding collisions with the body or walls."
+  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake needs to move left to decrease the x-coordinate from 5 to 2 while keeping the y-coordinate at 7. After reaching (2, 7), it can safely eat the apple. The initial moves avoid the body and stay within bounds."
 }
 ```

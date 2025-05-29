@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "RIGHT"],
-  "reasoning": "The apple is at (1, 3) and the head is at (0, 7). We need to move RIGHT by 1 and DOWN by 4. First, move DOWN to avoid the body, then RIGHT to align x-coordinate, then continue DOWN to reach the apple's y-coordinate while avoiding collisions."
-}
-```

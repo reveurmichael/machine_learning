@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "DOWN", "LEFT", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (2, 3) and needs to reach (1, 0). Moving LEFT reduces the x-coordinate by 1, and moving DOWN reduces the y-coordinate by 1. The sequence ensures the snake avoids collisions and moves closer to the apple while adhering to the movement rules."
+}
+```

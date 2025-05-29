@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "LEFT", "UP"],
+  "reasoning": "The snake must move up 7 times to reach the apple's y-coordinate while staying at x=7. Since the initial direction is DOWN, the first move cannot be UP. Moving RIGHT first avoids the opposite direction and creates space. After moving RIGHT, the snake can ascend vertically. A final LEFT move adjusts the x-coordinate back to 7 before completing the ascent to the apple, ensuring no collisions with walls or the body."
+}

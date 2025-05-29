@@ -1,0 +1,6 @@
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The snake's head is at (6, 9) and the apple is at (0, 9). The shortest path is to move LEFT 6 times, avoiding collisions with the body and walls. The body is positioned such that moving LEFT is safe for these steps."
+}
+```

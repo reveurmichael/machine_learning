@@ -1,0 +1,1 @@
+{"moves": ["RIGHT", "RIGHT", "RIGHT", "DOWN"], "reasoning": "Move RIGHT three times to reach x=9, then DOWN to reach y=1, avoiding body collisions. This path satisfies the Manhattan distance requirements and ensures no wall or body contact."}

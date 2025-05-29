@@ -1,3 +1,4 @@
-
-
-{"moves": ["RIGHT", "RIGHT", "UP"], "reasoning": "The shortest path to the apple (9,3) from (7,2) is two RIGHT moves and one UP move. This avoids collisions with walls and the body, and complies with direction constraints (current direction DOWN, so first move cannot be UP)."}
+{
+  "moves": ["DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "DOWN"],
+  "reasoning": "The snake must move 4 RIGHT and 4 DOWN steps to reach the apple. Starting with DOWN moves avoids immediate collisions. The path navigates around the body by moving down first, then right, ensuring no collisions with walls or the body."
+}

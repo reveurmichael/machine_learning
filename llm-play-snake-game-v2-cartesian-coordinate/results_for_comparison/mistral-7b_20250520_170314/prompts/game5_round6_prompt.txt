@@ -2,7 +2,7 @@
 You are an AI agent that controls a snake in a classic Snake game, with coordinates (x,y) from (0,0) at the bottom-left to (9, 9) at the top-right. You are given:
 
 INPUT VARIABLES:
-  • head position: (5, 8)              – Snake-head coordinate in (x,y).
+  • head position: (0, 9)              – Snake-head coordinate in (x,y).
   • current direction: UP – One of "UP," "DOWN," "LEFT," "RIGHT," or "NONE."
   • body cells: []               – List of (x,y) positions occupied by the snake body (excluding the head).
   • apple position: (3, 3)            – Apple coordinate in (x,y).
@@ -64,7 +64,7 @@ CONSTRAINTS:
     - if x1 > x2, then the number of LEFT moves, minus, the number of RIGHT moves, should be equal to x1 - x2
     - if y1 <= y2, then the number of UP moves, minus, the number of DOWN moves, should be equal to y2 - y1
     - if y1 > y2, then the number of DOWN moves, minus, the number of UP moves, should be equal to y1 - y2
-    - In your case, as your head position is at (5, 8) and the apple is at (3, 3), in your answer's moves, the number of LEFT moves, minus, the number of RIGHT moves, should be equal to 2 (= 5 - 3), and the number of DOWN moves, minus, the number of UP moves, should be equal to 5 (= 8 - 3).
+    - In your case, as your head position is at (0, 9) and the apple is at (3, 3), in your answer's moves, the number of RIGHT moves, minus, the number of LEFT moves, should be equal to 3 (= 3 - 0), and the number of DOWN moves, minus, the number of UP moves, should be equal to 6 (= 9 - 3).
       
 
 EDGE CASES:

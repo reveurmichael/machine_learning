@@ -1,4 +1,0 @@
-{
-  "moves": ["LEFT", "DOWN", "DOWN", "DOWN", "RIGHT"],
-  "reasoning": "The snake must move down 3 units to reach the apple but is blocked by its body at (1,4). By moving left to (0,5), then down three times to (0,2), and finally right to (1,2), the snake avoids collisions and satisfies the Manhattan distance constraints (net 0 RIGHT/LEFT moves and 3 DOWN moves)."
-}

@@ -1,4 +1,4 @@
 {
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP"],
-  "reasoning": "Direct path to apple with minimal moves: move right to x=6 then up to y=3, avoiding body."
+  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Detour around body via top-right, then left and down to apple. Ensures 5 net LEFT moves and no collision."
 }

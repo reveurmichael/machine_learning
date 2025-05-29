@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
-  "reasoning": "Move left 6 times to reach x=1, then up to the apple. Path avoids body and walls, ensuring safe movement."
+  "moves": ["UP", "RIGHT", "RIGHT"],
+  "reasoning": "Direct path to apple via UP then two RIGHTs, avoiding body collisions."
 }

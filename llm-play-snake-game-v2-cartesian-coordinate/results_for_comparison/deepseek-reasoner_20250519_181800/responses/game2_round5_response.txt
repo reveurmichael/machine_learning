@@ -1,4 +1,4 @@
 {
-  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "UP"],
-  "reasoning": "Move left 5 times to align x-coordinate with apple, then up to reach (1,3). Path avoids body and walls, meets direction constraints."
+  "moves": ["DOWN", "LEFT"],
+  "reasoning": "Direct path: move DOWN to (4,2) avoiding body, then LEFT to apple (3,2). Moves meet Manhattan constraints (L-R=1, D-U=1) and avoid collisions."
 }

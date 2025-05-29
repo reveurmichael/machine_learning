@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
-  "reasoning": "Move right to align x-coordinate with the apple, then move up to reach the apple without colliding with the body or walls."
+  "moves": ["DOWN", "DOWN", "LEFT", "LEFT", "DOWN"],
+  "reasoning": "Move down twice to align y-coordinate with the apple, then left twice to align x-coordinate, and finally down to reach the apple."
 }
 ```

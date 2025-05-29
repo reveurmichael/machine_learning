@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "LEFT", "DOWN", "LEFT", "LEFT"],
+  "reasoning": "The path starts by moving DOWN to (8,7), avoiding immediate collision. It then moves LEFT three times and DOWN twice to reach the apple, adhering to direction constraints and avoiding body/wall collisions. This satisfies the required Manhattan distance adjustments (3 LEFT, 2 DOWN) without intersecting the body."
+}

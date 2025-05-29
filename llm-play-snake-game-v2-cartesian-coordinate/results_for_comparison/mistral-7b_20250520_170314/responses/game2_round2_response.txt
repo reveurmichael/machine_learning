@@ -1,0 +1,4 @@
+ {
+     "moves": ["LEFT", "DOWN", "LEFT", "LEFT", "DOWN"],
+     "reasoning": "To reach the apple at (3, 2), we need to move 4 units to the left and then move down since our current direction is DOWN. However, we cannot move directly opposite our current direction, so we take detours around our own tail."
+   }

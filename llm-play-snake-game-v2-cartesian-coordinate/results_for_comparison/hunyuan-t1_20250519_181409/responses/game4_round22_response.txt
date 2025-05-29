@@ -1,1 +1,4 @@
-{"moves": ["RIGHT", "DOWN", "DOWN", "DOWN"], "reasoning": "Move right to (7,3) to align with the apple's x-coordinate, then move down three times to reach (7,0). This path avoids collisions with the body and stays within the grid."}
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "DOWN", "RIGHT"],
+  "reasoning": "The snake needs to reach (8,2) from (3,6) while avoiding collisions. Moving down three times avoids the body and creates space. Moving right four times and down once navigates around the body's lower barrier, then right to the apple. This satisfies Manhattan distance requirements and ensures no self-collisions."
+}

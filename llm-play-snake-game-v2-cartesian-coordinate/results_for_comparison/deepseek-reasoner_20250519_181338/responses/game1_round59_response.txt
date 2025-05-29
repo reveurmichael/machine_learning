@@ -1,4 +1,0 @@
-{
-  "moves": ["DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "DOWN", "LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP"],
-  "reasoning": "Path circumvents body barrier by moving down and left, then ascends to apple. Avoids collisions and satisfies move constraints."
-}

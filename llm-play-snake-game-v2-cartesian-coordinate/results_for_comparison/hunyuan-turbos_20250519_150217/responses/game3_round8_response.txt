@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["UP"],
-  "reasoning": "The apple is directly above the snake's head at (1, 9), so moving UP is the safest and most direct path to reach it without colliding with the body or walls."
+  "moves": ["LEFT", "LEFT", "LEFT", "UP", "UP"],
+  "reasoning": "The snake needs to move left to decrease the x-coordinate from 8 to 2 and up to increase the y-coordinate from 5 to 7. The first move is LEFT to avoid reversing direction from the current LEFT direction. Subsequent moves continue to prioritize moving left and then up to reach the apple at (2, 7)."
 }
 ```

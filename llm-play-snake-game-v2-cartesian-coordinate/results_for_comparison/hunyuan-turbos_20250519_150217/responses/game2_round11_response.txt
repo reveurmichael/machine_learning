@@ -1,6 +1,6 @@
 ```json
 {
-  "moves": ["RIGHT"],
-  "reasoning": "The apple is directly to the right of the snake's head at (0, 0). Moving RIGHT will reach the apple in one move without any risk of collision."
+  "moves": ["RIGHT", "UP", "RIGHT", "UP", "LEFT"],
+  "reasoning": "The snake needs to move right to increase the x-coordinate from 5 to 6 and up to increase the y-coordinate from 4 to 5. The first move is RIGHT to approach the apple horizontally, followed by UP to approach vertically. Subsequent moves adjust the path to avoid the body and ensure safe progression toward the apple."
 }
 ```

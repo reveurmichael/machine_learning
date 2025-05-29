@@ -1,1 +1,4 @@
 {
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move 3 units right (from x=0 to x=3) and 6 units up (from y=3 to y=9). Starting with direction LEFT, the first move must not be RIGHT. Moving UP avoids immediate collisions and aligns with the y-direction needed. Subsequent RIGHT moves navigate toward the apple's x-coordinate, followed by UP moves to reach the apple. The path avoids the body and stays within grid bounds."
+}

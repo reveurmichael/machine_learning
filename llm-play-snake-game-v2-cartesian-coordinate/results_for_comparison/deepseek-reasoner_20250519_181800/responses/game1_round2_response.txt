@@ -1,0 +1,4 @@
+{
+  "moves": ["DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path DOWN to the apple at (9,1) with no body or wall collisions."
+}

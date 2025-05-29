@@ -1,4 +1,4 @@
 {
-  "moves": ["RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT"],
-  "reasoning": "Move right to approach the apple's x-coordinate, then ascend vertically to reach y=9, then move right to the apple. Avoids body and walls safely."
+  "moves": ["LEFT", "DOWN"],
+  "reasoning": "Minimal path: moving LEFT then DOWN directly reaches the apple without colliding with body or walls."
 }

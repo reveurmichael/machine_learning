@@ -1,0 +1,4 @@
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The shortest path to the apple at (9,7) is moving right 8 times from (1,7). The snake avoids collisions by moving right, as the body trails behind and no walls are hit."
+}

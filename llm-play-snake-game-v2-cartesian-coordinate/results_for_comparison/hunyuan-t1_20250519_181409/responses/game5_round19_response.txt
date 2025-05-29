@@ -1,1 +1,1 @@
-{"moves": ["RIGHT", "RIGHT", "UP"], "reasoning": "The shortest path is to move RIGHT twice (aligning horizontally with the apple) and then UP once to reach the apple, avoiding body collisions."}
+{

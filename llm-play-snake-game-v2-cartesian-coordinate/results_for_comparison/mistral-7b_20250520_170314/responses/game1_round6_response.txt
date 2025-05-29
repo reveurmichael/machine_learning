@@ -1,4 +1,4 @@
  {
-     "moves": ["RIGHT", "DOWN", "DOWN", "LEFT", "UP"],
-     "reasoning": "We are currently at (3, 6) and the apple is at (2, 3). To reach the apple with a minimum of 5 moves while avoiding collisions, we move RIGHT once to reach the apple's x-coordinate, then DOWN thrice to adjust for the difference in y-coordinates, then LEFT once to move towards the apple's x-coordinate and UP once to finally reach the apple."
+     "moves": ["RIGHT", "UP", "RIGHT", "UP", "UP"],
+     "reasoning": "The Manhattan distance between the snake's head and the apple is 5 (horizontal) + 1 (vertical). To reach the apple, we need to move right to match the x-coordinate of the apple. After that, since y_apple < y_head, we move up. Since moving up will bring us closer to the apple in terms of Manhattan distance, we continue to move up until the y-coordinates match."
    }

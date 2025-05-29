@@ -1,6 +1,0 @@
-```json
-{
-  "moves": ["LEFT", "LEFT", "LEFT", "DOWN", "DOWN"],
-  "reasoning": "The snake needs to move left to decrease the x-coordinate from 5 to 2 while keeping the y-coordinate at 7. After reaching (2, 7), it can safely eat the apple. The initial moves avoid the body and stay within bounds."
-}
-```

@@ -1,0 +1,4 @@
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Move left to x=5 then up to apple, avoiding body and walls with minimal steps."
+}

@@ -5,7 +5,6 @@ Extends the base game controller with LLM-specific functionality.
 
 import traceback
 from core.game_controller import GameController
-from core.game_data import GameData
 from llm.prompt_utils import prepare_snake_prompt
 from llm.parsing_utils import parse_llm_response
 from utils.text_utils import process_response_for_display

@@ -8,7 +8,6 @@ import os
 import traceback
 import pygame
 from colorama import Fore
-from datetime import datetime
 
 def check_max_steps(game, max_steps):
     """Check if the game has reached the maximum number of steps.

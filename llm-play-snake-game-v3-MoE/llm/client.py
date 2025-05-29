@@ -3,10 +3,9 @@ LLM client module for handling communication with different LLM providers.
 """
 
 import traceback
-from typing import Dict, Optional, Any
 
 from dotenv import load_dotenv
-from llm.providers import create_provider, BaseProvider
+from llm.providers import create_provider
 
 # Load environment variables from .env file
 load_dotenv()

@@ -4,7 +4,6 @@ Handles reading and writing game data to persistent storage.
 """
 
 import os
-import sys
 import json
 from colorama import Fore
 # Import directly from llm.health_utils to avoid circular dependency

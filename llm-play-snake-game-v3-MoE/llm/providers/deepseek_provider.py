@@ -5,7 +5,7 @@ Handles communication with the Deepseek API.
 
 import os
 import traceback
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional
 from openai import OpenAI
 
 from .base_provider import BaseProvider

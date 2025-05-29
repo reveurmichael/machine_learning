@@ -4,7 +4,7 @@ Defines the common interface that all provider implementations must follow.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Optional, Any
+from typing import Dict, Tuple, Optional
 
 
 class BaseProvider(ABC):

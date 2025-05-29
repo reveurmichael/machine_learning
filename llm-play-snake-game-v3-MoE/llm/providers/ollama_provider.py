@@ -6,8 +6,7 @@ Handles communication with the Ollama API.
 import os
 import json
 import requests
-import time
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional
 
 from .base_provider import BaseProvider
 

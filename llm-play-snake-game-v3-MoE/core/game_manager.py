@@ -11,7 +11,7 @@ from core.game_logic import GameLogic
 from core.game_loop import run_game_loop
 from gui.game_gui import GameGUI
 from llm.client import LLMClient
-from config import TIME_DELAY, TIME_TICK, PAUSE_BETWEEN_MOVES_SECONDS
+from config import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
 from utils.json_utils import get_json_error_stats, save_session_stats

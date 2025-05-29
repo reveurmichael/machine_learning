@@ -5,7 +5,7 @@ Handles communication with the Mistral API.
 
 import os
 import traceback
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional
 from mistralai import Mistral
 
 from .base_provider import BaseProvider

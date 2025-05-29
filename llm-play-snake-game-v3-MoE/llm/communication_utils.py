@@ -12,7 +12,6 @@ from colorama import Fore
 from utils.file_utils import save_to_file
 from llm.prompt_utils import create_parser_prompt
 from llm.parsing_utils import parse_and_format
-from llm.health_utils import check_llm_health
 
 def extract_state_for_parser(game_manager):
     """Extract state information for the parser.

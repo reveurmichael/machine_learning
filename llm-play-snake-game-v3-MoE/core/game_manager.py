@@ -15,7 +15,7 @@ from config import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
 from utils.json_utils import get_json_error_stats, save_session_stats
-from utils.continuation_utils import continue_from_directory, setup_continuation_session, handle_continuation_game_state
+from utils.continuation_utils import continue_from_directory, setup_continuation_session, handle_continuation_game_state, setup_llm_clients
 from utils.game_manager_utils import (
     report_final_statistics,
     initialize_game_manager,

@@ -43,9 +43,11 @@ def process_game_over(game, game_state_info):
             - next_move: The last move made (optional)
             - time_stats: Dictionary of accumulated time statistics
             - token_stats: Dictionary of accumulated token statistics
+            - valid_steps: Total valid steps across all games (optional)
+            - invalid_reversals: Total invalid reversals across all games (optional)
         
     Returns:
-        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats)
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals)
     """
     # Calculate new statistics after game completion
     game_count = game_state_info["game_count"] + 1
@@ -60,6 +62,15 @@ def process_game_over(game, game_state_info):
     # Get current time and token stats
     time_stats = game_state_info.get("time_stats", {})
     token_stats = game_state_info.get("token_stats", {})
+    
+    # Get valid steps and invalid reversals
+    valid_steps = game_state_info.get("valid_steps", 0)
+    invalid_reversals = game_state_info.get("invalid_reversals", 0)
+    
+    # Update valid steps and invalid reversals from this game
+    if hasattr(game, "game_state"):
+        valid_steps += game.game_state.valid_steps
+        invalid_reversals += game.game_state.invalid_reversals
     
     # Update time statistics from this game
     game_time_stats = game.game_state.get_time_stats()
@@ -107,7 +118,7 @@ def process_game_over(game, game_state_info):
     # Reset round_count to 1 for the next game
     round_count = 1
     
-    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats
+    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def handle_error(game, error_info):
     """Handle errors that occur during the game loop.
@@ -130,10 +141,13 @@ def handle_error(game, error_info):
             - consecutive_errors: Current count of consecutive errors (default: 0)
             - time_stats: Dictionary of accumulated time statistics
             - token_stats: Dictionary of accumulated token statistics
+            - valid_steps: Total valid steps across all games (optional)
+            - invalid_reversals: Total invalid reversals across all games (optional)
         
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
-                 round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats)
+                 round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats,
+                 valid_steps, invalid_reversals)
     """
     print(Fore.RED + f"Error in game loop: {error_info['error']}")
     traceback.print_exc()
@@ -155,6 +169,10 @@ def handle_error(game, error_info):
     time_stats = error_info.get("time_stats", {})
     token_stats = error_info.get("token_stats", {})
     
+    # Get valid steps and invalid reversals
+    valid_steps = error_info.get("valid_steps", 0)
+    invalid_reversals = error_info.get("invalid_reversals", 0)
+    
     # End the current game if consecutive errors exceed threshold or if this is a critical error
     if game_active and (consecutive_errors > args.max_consecutive_errors_allowed):
         game_active = False
@@ -166,6 +184,11 @@ def handle_error(game, error_info):
         total_score += game.score
         total_steps += game.steps
         game_scores.append(game.score)
+        
+        # Update valid steps and invalid reversals from this game
+        if hasattr(game, "game_state"):
+            valid_steps += game.game_state.valid_steps
+            invalid_reversals += game.game_state.invalid_reversals
         
         # Update time statistics from this game
         game_time_stats = game.game_state.get_time_stats()
@@ -216,7 +239,7 @@ def handle_error(game, error_info):
         # Reset round_count to 1 for the next game
         round_count = 1
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals
 
 def report_final_statistics(stats_info):
     """Report final statistics at the end of the game session.
@@ -231,6 +254,8 @@ def report_final_statistics(stats_info):
             - game_scores: List of scores from all games
             - empty_steps: Number of empty steps
             - error_steps: Number of error steps
+            - valid_steps: Number of valid steps
+            - invalid_reversals: Number of invalid reversals
             - max_empty_moves: Maximum allowed empty moves
             - max_consecutive_errors_allowed: Maximum allowed consecutive errors (default: 5)
     """
@@ -245,6 +270,8 @@ def report_final_statistics(stats_info):
     game_scores = stats_info["game_scores"]
     empty_steps = stats_info["empty_steps"]
     error_steps = stats_info["error_steps"]
+    valid_steps = stats_info.get("valid_steps", 0)
+    invalid_reversals = stats_info.get("invalid_reversals", 0)
     max_empty_moves = stats_info["max_empty_moves"]
     max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
@@ -280,6 +307,8 @@ def report_final_statistics(stats_info):
         game_scores=game_scores, 
         empty_steps=empty_steps, 
         error_steps=error_steps,
+        valid_steps=valid_steps,
+        invalid_reversals=invalid_reversals,
         json_error_stats=json_error_stats,
         max_empty_moves=max_empty_moves,
         max_consecutive_errors_allowed=max_consecutive_errors_allowed,
@@ -301,6 +330,8 @@ def report_final_statistics(stats_info):
         
     print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
     print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
+    print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
+    print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
     print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     

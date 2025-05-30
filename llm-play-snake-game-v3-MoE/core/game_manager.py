@@ -41,6 +41,8 @@ class GameManager:
         self.total_steps = 0
         self.empty_steps = 0
         self.error_steps = 0
+        self.valid_steps = 0
+        self.invalid_reversals = 0
         self.consecutive_empty_steps = 0
         self.consecutive_errors = 0
         self.game_scores = []
@@ -152,6 +154,15 @@ class GameManager:
             json_error_stats=get_json_error_stats()
         )
         
+        # Initialize step statistics for valid steps and invalid reversals
+        valid_steps = 0
+        invalid_reversals = 0
+        
+        # Get step statistics from the game state if available
+        if self.game and hasattr(self.game, "game_state"):
+            valid_steps = self.game.game_state.valid_steps
+            invalid_reversals = self.game.game_state.invalid_reversals
+        
         # Create stats dictionary
         stats_info = {
             "log_dir": self.log_dir,
@@ -162,6 +173,8 @@ class GameManager:
             "game_scores": self.game_scores,
             "empty_steps": self.empty_steps,
             "error_steps": self.error_steps,
+            "valid_steps": valid_steps,
+            "invalid_reversals": invalid_reversals,
             "max_empty_moves": self.args.max_empty_moves,
             "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed,
             "game": self.game,

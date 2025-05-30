@@ -186,6 +186,10 @@ def save_session_stats(log_dir, **kwargs):
             summary["step_stats"]["empty_steps"] = value
         elif key == "error_steps":
             summary["step_stats"]["error_steps"] = value
+        elif key == "valid_steps":
+            summary["step_stats"]["valid_steps"] = value
+        elif key == "invalid_reversals":
+            summary["step_stats"]["invalid_reversals"] = value
         elif key == "time_stats":
             # Handle time statistics if provided
             if value and isinstance(value, dict):
@@ -215,6 +219,17 @@ def save_session_stats(log_dir, **kwargs):
                         summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]
                     if "total_completion_tokens" in secondary:
                         summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]
+        elif key == "step_stats":
+            # Handle step statistics if provided as a complete dictionary
+            if value and isinstance(value, dict):
+                if "empty_steps" in value:
+                    summary["step_stats"]["empty_steps"] = value["empty_steps"]
+                if "error_steps" in value:
+                    summary["step_stats"]["error_steps"] = value["error_steps"]
+                if "valid_steps" in value:
+                    summary["step_stats"]["valid_steps"] = value["valid_steps"]
+                if "invalid_reversals" in value:
+                    summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]
         elif key == "parser_usage_count":
             if "metadata" not in summary:
                 summary["metadata"] = {}

@@ -61,8 +61,7 @@ class HunyuanProvider(BaseProvider):
             # Create the message
             messages = [{"role": "user", "content": prompt}]
 
-            # Extract parameters
-            model = model or self.get_default_model()
+            # Extract parameters - use the provided model (should be set already)
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
             max_tokens = kwargs.get("max_tokens", 8192)
             enable_enhancement = kwargs.get("enable_enhancement", True)

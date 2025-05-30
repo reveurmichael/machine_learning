@@ -47,6 +47,35 @@ def parse_arguments():
     # Parse the arguments
     args = parser.parse_args()
     
+    # Set default model names based on provider at the earliest stage
+    # This ensures model names are consistently set before any checks or logging
+    if args.provider:
+        # Set default model for primary LLM if not specified
+        if args.model is None:
+            if args.provider.lower() == 'hunyuan':
+                args.model = 'hunyuan-turbos-latest'
+            elif args.provider.lower() == 'mistral':
+                args.model = 'mistral-medium-latest'
+            elif args.provider.lower() == 'deepseek':
+                args.model = 'deepseek-chat'
+    
+    # Set parser provider and model if not specified
+    if args.parser_provider is None:
+        # Default to the same as primary provider
+        args.parser_provider = args.provider
+    
+    # Set default model for parser LLM if not specified but parser is enabled
+    if args.parser_provider and args.parser_provider.lower() != 'none' and args.parser_model is None:
+        if args.parser_provider.lower() == 'hunyuan':
+            args.parser_model = 'hunyuan-turbos-latest'
+        elif args.parser_provider.lower() == 'mistral':
+            args.parser_model = 'mistral-medium-latest'
+        elif args.parser_provider.lower() == 'deepseek':
+            args.parser_model = 'deepseek-chat'
+        # If no specific default, use the same as primary model
+        elif args.model:
+            args.parser_model = args.model
+    
     # Validate continue mode restrictions
     if args.continue_with_game_in_dir:
         # Get all command line arguments

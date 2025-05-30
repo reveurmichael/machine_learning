@@ -121,6 +121,7 @@ class LLMClient:
             # Add model to kwargs if not None
             if model:
                 kwargs['model'] = model
+                print(f"Using model: {model}")
             
             # Call the provider's generate_response method
             response, token_count = self._provider_instance.generate_response(prompt, **kwargs)

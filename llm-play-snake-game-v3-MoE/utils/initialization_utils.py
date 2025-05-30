@@ -123,8 +123,10 @@ def setup_llm_clients(game_manager):
     # Set up primary LLM client
     provider = game_manager.args.provider
     model = game_manager.args.model
+    
+    # Create the client with the explicitly set model name
     game_manager.llm_client = game_manager.create_llm_client(provider, model)
-    print(Fore.GREEN + f"Primary LLM: {provider}" + (f" ({model})" if model else ""))
+    print(Fore.GREEN + f"Primary LLM: {provider} ({model})")
 
     # Check if primary LLM is operational
     is_healthy, _ = check_llm_health(game_manager.llm_client)
@@ -135,14 +137,13 @@ def setup_llm_clients(game_manager):
     # Set up parser LLM client if needed
     if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
         game_manager.parser_provider = game_manager.args.parser_provider
-        game_manager.parser_model = game_manager.args.parser_model or model  # Use primary model if parser model not specified
+        game_manager.parser_model = game_manager.args.parser_model
 
         # Configure the secondary LLM in the main client
         success = game_manager.llm_client.set_secondary_llm(game_manager.parser_provider, game_manager.parser_model)
 
         if success:
-            print(Fore.GREEN + f"Parser LLM: {game_manager.parser_provider}" + 
-                  (f" ({game_manager.parser_model})" if game_manager.parser_model else ""))
+            print(Fore.GREEN + f"Parser LLM: {game_manager.parser_provider} ({game_manager.parser_model})")
 
             # Create a separate client for health check
             parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)

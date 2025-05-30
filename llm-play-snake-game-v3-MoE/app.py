@@ -296,7 +296,12 @@ def display_experiment_overview(log_folders):
         
         # Display the filtered data
         st.markdown("### Experiments")
+        # Remove unnecessary columns and prepare for display
         display_df = filtered_df.drop(columns=['providers', 'models', 'primary_llm', 'secondary_llm'])
+        
+        # Remove folder path from display
+        if 'Folder' in display_df.columns:
+            display_df = display_df.drop(columns=['Folder'])
         
         st.dataframe(
             display_df,
@@ -340,82 +345,94 @@ def display_experiment_details(folder_path):
     # Get game data
     games_data = load_game_data(folder_path)
     
-    # Display game scores chart
     if games_data:
-        st.markdown("## Game Scores")
+        # 1. Game Scores Histogram
+        st.markdown("## Game Scores Distribution")
         
-        # Prepare data for chart
-        game_numbers = []
-        scores = []
-        for game_num, data in sorted(games_data.items()):
-            game_numbers.append(f"Game {game_num}")
-            scores.append(data.get("score", 0))
+        # Prepare score data
+        scores = [data.get("score", 0) for _, data in games_data.items()]
         
-        # Create bar chart
-        fig = px.bar(
-            x=game_numbers,
-            y=scores,
-            labels={'x': 'Game', 'y': 'Score'},
-            title="Score by Game",
-            color=scores,
-            color_continuous_scale=px.colors.sequential.Viridis
-        )
-        fig.update_layout(
-            height=400,
-            margin=dict(l=20, r=20, t=40, b=20),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            xaxis_title="Game",
-            yaxis_title="Score"
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        # Bin configuration
+        max_score = max(scores) if scores else 0
+        col1, col2 = st.columns([3, 1])
         
-        # Display LLM Time and Token Statistics
-        st.markdown("## LLM Performance")
+        with col2:
+            # Allow user to configure bins
+            num_bins = st.slider(
+                "Number of bins", 
+                min_value=5, 
+                max_value=30, 
+                value=min(10, max_score) if max_score > 0 else 10,
+                step=1
+            )
         
-        # Get time statistics
-        time_stats = summary_data.get("time_statistics", {})
-        llm_communication_time = time_stats.get("total_llm_communication_time", 0)
-        game_movement_time = time_stats.get("total_game_movement_time", 0)
-        waiting_time = time_stats.get("total_waiting_time", 0)
+        with col1:
+            # Create histogram for game scores
+            fig_scores = px.histogram(
+                x=scores,
+                nbins=num_bins,
+                labels={'x': 'Score'},
+                title="Distribution of Game Scores",
+                color_discrete_sequence=['#3366CC']
+            )
+            
+            fig_scores.update_layout(
+                height=400,
+                margin=dict(l=20, r=20, t=40, b=20),
+                xaxis_title="Score",
+                yaxis_title="Frequency"
+            )
+            
+            st.plotly_chart(fig_scores, use_container_width=True)
         
-        # Create time stats chart
-        time_data = {
-            "Category": ["LLM Communication", "Game Movement", "Waiting Time"],
-            "Time (seconds)": [llm_communication_time, game_movement_time, waiting_time]
-        }
-        time_df = pd.DataFrame(time_data)
+        # 2. Primary LLM Communication Delay Histogram
+        st.markdown("## Primary LLM Response Time Distribution")
         
-        fig_time = px.bar(
-            time_df,
-            x="Category",
-            y="Time (seconds)",
-            title="Time Distribution",
-            color="Category"
-        )
-        st.plotly_chart(fig_time, use_container_width=True)
+        # Get response time data from rounds in all games
+        response_times = []
+        for _, game_data in games_data.items():
+            rounds_data = game_data.get("rounds_data", [])
+            for round_data in rounds_data:
+                if isinstance(round_data, dict):
+                    llm_time = round_data.get("llm_response_time", 0)
+                    if llm_time > 0:  # Only include valid times
+                        response_times.append(llm_time)
         
-        # Get token statistics
-        token_stats = summary_data.get("token_usage_stats", {})
-        primary_tokens = token_stats.get("primary_llm", {}).get("total_tokens", 0)
-        secondary_tokens = token_stats.get("secondary_llm", {}).get("total_tokens", 0)
-        
-        # Create token stats chart
-        token_data = {
-            "LLM": ["Primary LLM", "Secondary LLM"],
-            "Tokens": [primary_tokens, secondary_tokens]
-        }
-        token_df = pd.DataFrame(token_data)
-        
-        fig_tokens = px.bar(
-            token_df,
-            x="LLM",
-            y="Tokens",
-            title="Token Usage",
-            color="LLM"
-        )
-        st.plotly_chart(fig_tokens, use_container_width=True)
-        
+        if response_times:
+            col1, col2 = st.columns([3, 1])
+            
+            with col2:
+                # Allow user to configure bins for response time
+                time_bins = st.slider(
+                    "Number of time bins", 
+                    min_value=5, 
+                    max_value=30, 
+                    value=10,
+                    step=1,
+                    key="time_bins"
+                )
+            
+            with col1:
+                # Create histogram for LLM response times
+                fig_times = px.histogram(
+                    x=response_times,
+                    nbins=time_bins,
+                    labels={'x': 'Response Time (seconds)'},
+                    title="Distribution of Primary LLM Response Times",
+                    color_discrete_sequence=['#FF6633']
+                )
+                
+                fig_times.update_layout(
+                    height=400,
+                    margin=dict(l=20, r=20, t=40, b=20),
+                    xaxis_title="Response Time (seconds)",
+                    yaxis_title="Frequency"
+                )
+                
+                st.plotly_chart(fig_times, use_container_width=True)
+        else:
+            st.info("No LLM response time data available for this experiment.")
+            
         # Display game details table - kept as requested
         st.markdown("## Game Details")
         

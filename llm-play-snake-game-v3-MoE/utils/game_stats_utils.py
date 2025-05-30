@@ -93,23 +93,30 @@ def get_experiment_options(stats_df):
     Returns:
         Dictionary with options for providers, models, primary LLMs, and secondary LLMs
     """
-    # Get unique providers and models from all experiments
-    all_providers = []
-    all_models = []
-    for s in stats_df['providers']:
-        all_providers.extend([p for p in s if p not in all_providers and p is not None])
-    for s in stats_df['models']:
-        all_models.extend([m for m in s if m not in all_models and m is not None])
+    # Use sets to avoid duplicates
+    all_providers = set()
+    all_models = set()
     
-    # Get unique primary and secondary LLMs
-    all_primary_llms = sorted(stats_df['primary_llm'].unique())
-    all_secondary_llms = sorted([x for x in stats_df['secondary_llm'].unique() if x is not None])
+    # Add all valid providers and models to sets
+    for providers_list in stats_df['providers']:
+        for provider in providers_list:
+            if provider is not None:
+                all_providers.add(provider)
+    
+    for models_list in stats_df['models']:
+        for model in models_list:
+            if model is not None:
+                all_models.add(model)
+    
+    # Get unique primary and secondary LLMs (these are already strings, not lists)
+    primary_llms = set(stats_df['primary_llm'].dropna().unique())
+    secondary_llms = set(stats_df['secondary_llm'].dropna().unique())
     
     return {
         'providers': sorted(all_providers),
         'models': sorted(all_models),
-        'primary_llms': all_primary_llms,
-        'secondary_llms': all_secondary_llms
+        'primary_llms': sorted(primary_llms),
+        'secondary_llms': sorted(secondary_llms)
     }
 
 def filter_experiments(stats_df, selected_providers=None, selected_models=None, 

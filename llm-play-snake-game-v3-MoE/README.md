@@ -156,8 +156,11 @@ Logging system with log files (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 Data processing and analysis.
 
 
+## If you want to change the code
 
+You should specify:
 
+As a top rule, the schema of our game_N.json and summary.json is now totally fixed. We should never change the schema of these json files.
 
 
 

@@ -15,6 +15,7 @@ from config import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
 from utils.json_utils import get_json_error_stats, save_session_stats
+from utils.continuation_utils import continue_from_directory, setup_continuation_session, handle_continuation_game_state
 from utils.game_manager_utils import (
     report_final_statistics,
     initialize_game_manager,
@@ -148,11 +149,44 @@ class GameManager:
         # Report statistics to console and save to files
         report_final_statistics(stats_info)
     
+    def continue_from_session(self, log_dir, start_game_number):
+        """Continue from a previous game session.
+        
+        Args:
+            log_dir: Directory containing the previous session logs
+            start_game_number: Game number to start from
+        """
+        # Set up continuation session
+        setup_continuation_session(self, log_dir, start_game_number)
+        
+        # Set up LLM clients
+        self.initialize()
+        
+        # Handle game state for continuation
+        handle_continuation_game_state(self)
+        
+        # Run the game loop
+        self.run()
+        
+    @classmethod
+    def continue_from_directory(cls, args):
+        """Factory method to create a GameManager instance for continuation.
+        
+        Args:
+            args: Command line arguments with continue_with_game_in_dir set
+            
+        Returns:
+            GameManager instance configured for continuation
+        """
+        return continue_from_directory(cls, args)
+    
     def run(self):
         """Initialize and run the game session."""
         try:
-            # Initialize the game and LLM clients
-            self.initialize()
+            # Skip initialization if this is a continuation
+            if not hasattr(self.args, 'is_continuation') or not self.args.is_continuation:
+                # Initialize the game and LLM clients
+                self.initialize()
             
             # Run games until we reach max_game
             while self.game_count < self.args.max_game and self.running:

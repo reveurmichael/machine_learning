@@ -40,10 +40,36 @@ def parse_arguments():
     parser.add_argument('--no-gui', action='store_true',
                       help='Run without GUI (text-only mode)')
     parser.add_argument('--log-dir', type=str, default=None,
-                      help='Directory to store session data and logs')
+                      help='Directory to store logs')
+    parser.add_argument('--continue-with-game-in-dir', type=str, default=None,
+                      help='Continue an experiment from a directory containing previous games')
 
     # Parse the arguments
     args = parser.parse_args()
+    
+    # Validate continue mode restrictions
+    if args.continue_with_game_in_dir:
+        # Get all command line arguments
+        raw_args = ' '.join(sys.argv[1:])
+        
+        # List of arguments not allowed with continue mode
+        restricted_args = [
+            '--provider', 
+            '--model', 
+            '--parser-provider', 
+            '--parser-model', 
+            '--move-pause', 
+            '--max-steps', 
+            '--max-empty-moves', 
+            '--max-consecutive-errors-allowed',
+            '--log-dir'
+        ]
+        
+        # Check for any restricted arguments
+        for arg in restricted_args:
+            if arg in raw_args:
+                raise ValueError(f"Cannot use {arg} with --continue-with-game-in-dir. "
+                                 f"Only --max-game, --no-gui, and --sleep-before-launching are allowed.")
     
     # Set current game count to 0 for new sessions
     args.current_game_count = 0
@@ -62,24 +88,30 @@ def main():
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
             
-        # Check environment setup
-        primary_env_ok = check_env_setup(args.provider)
-        
-        # Check secondary LLM environment if specified
-        if args.parser_provider and args.parser_provider.lower() != 'none':
-            secondary_env_ok = check_env_setup(args.parser_provider)
-            if not secondary_env_ok:
-                print(Fore.YELLOW + f"⚠️ Warning: Secondary LLM ({args.parser_provider}) environment setup issues detected")
-        
-        if not primary_env_ok:
-            user_choice = input(Fore.YELLOW + "Environment setup issues detected. Continue anyway? (y/n): ")
-            if user_choice.lower() != 'y':
-                print(Fore.RED + "Exiting due to environment setup issues.")
-                sys.exit(1)
-        
-        # Create and run the game manager
-        game_manager = GameManager(args)
-        game_manager.run()
+        # Check if we're continuing from a previous session
+        if args.continue_with_game_in_dir:
+            # Continue from existing directory
+            print(Fore.GREEN + f"🔄 Continuing from existing session: {args.continue_with_game_in_dir}")
+            GameManager.continue_from_directory(args)
+        else:
+            # Check environment setup for new session
+            primary_env_ok = check_env_setup(args.provider)
+            
+            # Check secondary LLM environment if specified
+            if args.parser_provider and args.parser_provider.lower() != 'none':
+                secondary_env_ok = check_env_setup(args.parser_provider)
+                if not secondary_env_ok:
+                    print(Fore.YELLOW + f"⚠️ Warning: Secondary LLM ({args.parser_provider}) environment setup issues detected")
+            
+            if not primary_env_ok:
+                user_choice = input(Fore.YELLOW + "Environment setup issues detected. Continue anyway? (y/n): ")
+                if user_choice.lower() != 'y':
+                    print(Fore.RED + "Exiting due to environment setup issues.")
+                    sys.exit(1)
+            
+            # Create and run the game manager
+            game_manager = GameManager(args)
+            game_manager.run()
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

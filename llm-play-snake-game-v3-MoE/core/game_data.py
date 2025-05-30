@@ -338,11 +338,11 @@ class GameData:
         self.current_round_data["secondary_token_stats"].append(token_stats)
     
     def record_json_extraction_attempt(self, success, error_type=None):
-        """Record a JSON extraction attempt.
+        """Record an attempt to extract JSON from LLM response.
         
         Args:
             success: Whether the extraction was successful
-            error_type: Type of error if extraction failed ("decode", "validation", "code_block", "text")
+            error_type: Type of error if unsuccessful (decode, validation, etc.)
         """
         self.total_extraction_attempts += 1
         
@@ -351,6 +351,7 @@ class GameData:
         else:
             self.failed_extractions += 1
             
+            # Record specific error type if provided
             if error_type == "decode":
                 self.json_decode_errors += 1
             elif error_type == "validation":
@@ -359,6 +360,74 @@ class GameData:
                 self.code_block_extraction_errors += 1
             elif error_type == "text":
                 self.text_extraction_errors += 1
+    
+    def record_continuation(self, previous_session_data=None):
+        """Record that this game is a continuation of a previous session.
+        
+        Args:
+            previous_session_data: Optional dictionary containing data from the previous session
+        """
+        # Initialize continuation tracking attributes if they don't exist
+        if not hasattr(self, 'is_continuation'):
+            self.is_continuation = True
+            self.continuation_count = 1
+            self.continuation_timestamps = []
+            self.continuation_metadata = []
+        else:
+            self.continuation_count += 1
+        
+        # Record continuation timestamp
+        continuation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.continuation_timestamps.append(continuation_timestamp)
+        
+        # Store metadata about this continuation
+        continuation_meta = {
+            "timestamp": continuation_timestamp,
+            "continuation_number": self.continuation_count
+        }
+        
+        # Add previous session data if provided
+        if previous_session_data:
+            # Extract game statistics from summary.json
+            if 'game_count' in previous_session_data:
+                continuation_meta['previous_session'] = {
+                    'total_games': previous_session_data.get('game_count', 0),
+                    'total_score': previous_session_data.get('total_score', 0),
+                    'total_steps': previous_session_data.get('total_steps', 0),
+                    'scores': previous_session_data.get('game_scores', [])
+                }
+        
+        # Add this continuation's metadata
+        self.continuation_metadata.append(continuation_meta)
+    
+    def synchronize_with_summary_json(self, summary_data):
+        """Synchronize game state with data from summary.json.
+        
+        Args:
+            summary_data: Dictionary containing data from summary.json
+        """
+        # Import settings from summary.json
+        if 'max_empty_moves' in summary_data:
+            self.max_empty_moves = summary_data['max_empty_moves']
+        
+        # Import JSON parsing stats if available
+        if 'json_parsing_stats' in summary_data:
+            json_stats = summary_data['json_parsing_stats']
+            self.total_extraction_attempts = json_stats.get('total_extraction_attempts', 0)
+            self.successful_extractions = json_stats.get('successful_extractions', 0)
+            self.failed_extractions = json_stats.get('failed_extractions', 0)
+            self.json_decode_errors = json_stats.get('json_decode_errors', 0)
+            self.format_validation_errors = json_stats.get('format_validation_errors', 0)
+            self.code_block_extraction_errors = json_stats.get('code_block_extraction_errors', 0)
+            self.text_extraction_errors = json_stats.get('text_extraction_errors', 0)
+            self.pattern_extraction_success = json_stats.get('pattern_extraction_success', 0)
+        
+        # Initialize continuation attributes if needed
+        if not hasattr(self, 'is_continuation'):
+            self.is_continuation = False
+            self.continuation_count = 0
+            self.continuation_timestamps = []
+            self.continuation_metadata = []
     
     def record_round_data(self, round_data):
         """Record data for a game round.
@@ -622,6 +691,15 @@ class GameData:
                 "rounds_data": self._get_ordered_rounds_data()
             }
         }
+        
+        # Add continuation data if this is a continuation
+        if hasattr(self, 'is_continuation') and self.is_continuation:
+            summary["continuation_info"] = {
+                "is_continuation": True,
+                "continuation_count": self.continuation_count,
+                "continuation_timestamps": self.continuation_timestamps,
+                "continuation_metadata": self.continuation_metadata
+            }
         
         return summary
     

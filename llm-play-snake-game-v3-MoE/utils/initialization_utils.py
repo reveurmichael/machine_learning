@@ -7,6 +7,7 @@ import os
 import json
 from colorama import Fore
 from llm.communication_utils import check_llm_health
+import sys
 
 def read_game_data(log_dir, game_count):
     """Read game data from previous log files.
@@ -124,34 +125,34 @@ def setup_llm_clients(game_manager):
     model = game_manager.args.model
     game_manager.llm_client = game_manager.create_llm_client(provider, model)
     print(Fore.GREEN + f"Primary LLM: {provider}" + (f" ({model})" if model else ""))
-    
+
     # Check if primary LLM is operational
-    check_llm_health(game_manager.llm_client)
-    
+    is_healthy, _ = check_llm_health(game_manager.llm_client)
+    if not is_healthy:
+        print(Fore.RED + "❌ Primary LLM health check failed. Exiting.")
+        sys.exit(1)
+
     # Set up parser LLM client if needed
     if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
         game_manager.parser_provider = game_manager.args.parser_provider
         game_manager.parser_model = game_manager.args.parser_model or model  # Use primary model if parser model not specified
-        
+
         # Configure the secondary LLM in the main client
         success = game_manager.llm_client.set_secondary_llm(game_manager.parser_provider, game_manager.parser_model)
-        
+
         if success:
             print(Fore.GREEN + f"Parser LLM: {game_manager.parser_provider}" + 
                   (f" ({game_manager.parser_model})" if game_manager.parser_model else ""))
-            
+
             # Create a separate client for health check
             parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)
-            
+
             # Check if parser LLM is operational
             is_healthy, _ = check_llm_health(parser_client)
-            
+
             if not is_healthy:
-                print(Fore.RED + "❌ Parser LLM health check failed. Continuing without parser.")
-                game_manager.args.parser_provider = "none"
-                game_manager.args.parser_model = None
-                game_manager.llm_client.secondary_provider = None
-                game_manager.llm_client.secondary_model = None
+                print(Fore.RED + "❌ Parser LLM health check failed. Exiting.")
+                sys.exit(1)
         else:
             print(Fore.RED + "❌ Failed to configure secondary LLM. Continuing without parser.")
             game_manager.args.parser_provider = "none"

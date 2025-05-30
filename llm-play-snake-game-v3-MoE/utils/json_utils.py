@@ -17,7 +17,8 @@ json_error_stats = {
     "failed_extractions": 0,
     "json_decode_errors": 0,
     "text_extraction_errors": 0,
-    "pattern_extraction_success": 0
+    "pattern_extraction_success": 0,
+    "format_validation_errors": 0
 }
 
 class NumPyJSONEncoder(json.JSONEncoder):
@@ -322,22 +323,27 @@ def validate_json_format(data):
             message: Error message if not valid, None otherwise
     """
     if not isinstance(data, dict):
+        print(f"JSON validation error: Data is not a dictionary, it's {type(data)}")
         return False, "Data is not a dictionary"
     
     if "moves" not in data:
+        print(f"JSON validation error: Missing 'moves' key in {data.keys()}")
         return False, "Missing 'moves' key"
     
     if not isinstance(data["moves"], list):
+        print(f"JSON validation error: Moves is not a list, it's {type(data['moves'])}")
         return False, "Moves is not a list"
     
     # Validate moves
     valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
     for i, move in enumerate(data["moves"]):
         if not isinstance(move, str):
+            print(f"JSON validation error: Move {i} is not a string, it's {type(move)}")
             return False, f"Move {i} is not a string"
         
         move_upper = move.upper()
         if move_upper not in valid_moves:
+            print(f"JSON validation error: Invalid move: '{move}' (upper: '{move_upper}'), valid moves are {valid_moves}")
             return False, f"Invalid move: {move}"
     
     return True, None
@@ -351,22 +357,59 @@ def extract_json_from_code_block(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
-    # Match JSON code blocks
-    code_block_matches = re.findall(r'```(?:json)?\s*([\s\S]*?)```', response, re.DOTALL)
+    # Match JSON code blocks with more complete language identifier patterns
+    # This covers: ```json, ```javascript, ```js, and just plain ```
+    code_block_matches = re.findall(r'```(?:json|javascript|js)?\s*([\s\S]*?)```', response, re.DOTALL)
     
-    for code_block in code_block_matches:
+    print(f"Found {len(code_block_matches)} code blocks in response")
+    
+    for i, code_block in enumerate(code_block_matches):
         try:
             # Preprocess the code block
             processed_block = preprocess_json_string(code_block)
+            
+            # Print first part of processed block for debugging
+            preview = processed_block[:100] + "..." if len(processed_block) > 100 else processed_block
+            print(f"Processing code block {i+1}: {preview}")
+            
+            # Try to parse the JSON
             data = json.loads(processed_block)
             
             # Validate it has the expected format
             if isinstance(data, dict) and "moves" in data:
+                print(f"✅ Valid JSON found in code block {i+1}")
                 return data
-        except json.JSONDecodeError:
+            else:
+                print(f"❌ Code block {i+1} does not contain a 'moves' key")
+        except json.JSONDecodeError as e:
+            print(f"❌ JSON decode error in code block {i+1}: {e}")
             continue
         except Exception as e:
-            print(f"Error during code block extraction: {e}")
+            print(f"❌ Error during code block extraction for block {i+1}: {e}")
+    
+    # If the normal extraction fails, try a more aggressive approach
+    # This handles cases where the LLM is giving extra characters around the code blocks
+    try:
+        # Look for JSON-like patterns in the text
+        json_pattern = r'\{\s*"moves"\s*:\s*\[(.*?)\]'
+        match = re.search(json_pattern, response, re.DOTALL)
+        if match:
+            moves_content = match.group(1)
+            # Extract the move strings from the array
+            move_matches = re.findall(r'"([^"]+)"', moves_content)
+            
+            # Validate and convert to uppercase
+            valid_moves = []
+            for move in move_matches:
+                move_upper = move.upper()
+                if move_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                    valid_moves.append(move_upper)
+            
+            if valid_moves:
+                print(f"✅ Successfully extracted moves using pattern matching: {valid_moves}")
+                return {"moves": valid_moves}
+    except Exception as e:
+        print(f"❌ Error during aggressive pattern extraction: {e}")
     
     return None
 
@@ -390,14 +433,29 @@ def extract_valid_json(text, game_state=None):
         # First try to parse the entire text as JSON
         data = json.loads(text)
         if isinstance(data, dict) and "moves" in data:
+            # Validate the moves format
+            is_valid, error_msg = validate_json_format(data)
+            if not is_valid:
+                print(f"JSON format validation error: {error_msg}")
+                json_error_stats["format_validation_errors"] += 1
+                if game_state is not None:
+                    game_state.record_json_extraction_attempt(success=False, error_type="format")
+                return None
+                
             json_error_stats["successful_extractions"] += 1
+            
+            # Print detailed info about the moves
+            print(f"✅ Successfully extracted moves: {data['moves']}")
             
             # Record success in game_state if provided
             if game_state is not None:
                 game_state.record_json_extraction_attempt(success=True)
                 
             return data
-    except json.JSONDecodeError:
+        else:
+            print(f"JSON missing 'moves' key or not a dict. Keys: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         json_error_stats["json_decode_errors"] += 1
         
         # Record error type in game_state if provided
@@ -407,7 +465,19 @@ def extract_valid_json(text, game_state=None):
     # Try extracting from code block
     json_data = extract_json_from_code_block(text)
     if json_data:
+        # Validate the moves format
+        is_valid, error_msg = validate_json_format(json_data)
+        if not is_valid:
+            print(f"JSON format validation error (code block): {error_msg}")
+            json_error_stats["format_validation_errors"] += 1
+            if game_state is not None:
+                game_state.record_json_extraction_attempt(success=False, error_type="format")
+            return None
+            
         json_error_stats["successful_extractions"] += 1
+        
+        # Print detailed info about the moves
+        print(f"✅ Successfully extracted moves from code block: {json_data['moves']}")
         
         # Record success in game_state if provided
         if game_state is not None:
@@ -418,7 +488,42 @@ def extract_valid_json(text, game_state=None):
     # Try extracting from regular text
     json_data = extract_json_from_text(text)
     if json_data:
+        # Validate the moves format
+        is_valid, error_msg = validate_json_format(json_data)
+        if not is_valid:
+            print(f"JSON format validation error (text): {error_msg}")
+            json_error_stats["format_validation_errors"] += 1
+            if game_state is not None:
+                game_state.record_json_extraction_attempt(success=False, error_type="format")
+            return None
+            
         json_error_stats["successful_extractions"] += 1
+        
+        # Print detailed info about the moves
+        print(f"✅ Successfully extracted moves from text: {json_data['moves']}")
+        
+        # Record success in game_state if provided
+        if game_state is not None:
+            game_state.record_json_extraction_attempt(success=True)
+            
+        return json_data
+            
+    # As a last resort, try to extract move arrays directly
+    json_data = extract_moves_from_arrays(text)
+    if json_data:
+        # Validate the moves format
+        is_valid, error_msg = validate_json_format(json_data)
+        if not is_valid:
+            print(f"JSON format validation error (arrays): {error_msg}")
+            json_error_stats["format_validation_errors"] += 1
+            if game_state is not None:
+                game_state.record_json_extraction_attempt(success=False, error_type="format")
+            return None
+            
+        json_error_stats["successful_extractions"] += 1
+        
+        # Print detailed info about the moves
+        print(f"✅ Successfully extracted moves from arrays: {json_data['moves']}")
         
         # Record success in game_state if provided
         if game_state is not None:
@@ -427,6 +532,7 @@ def extract_valid_json(text, game_state=None):
         return json_data
             
     json_error_stats["failed_extractions"] += 1
+    print("❌ Failed to extract any valid moves from the response")
     
     # No valid JSON found
     return None

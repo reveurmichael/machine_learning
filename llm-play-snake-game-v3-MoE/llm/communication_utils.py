@@ -12,6 +12,8 @@ from colorama import Fore
 from utils.file_utils import save_to_file
 from llm.prompt_utils import create_parser_prompt
 from llm.parsing_utils import parse_and_format
+import re
+import json
 
 
 def check_llm_health(llm_client, max_retries=2, retry_delay=2):
@@ -256,9 +258,25 @@ def get_llm_response(game_manager):
                 # Process the secondary LLM response
                 parser_output = parse_and_format(
                     game_manager.llm_client,
-                    response,
+                    secondary_response,
                     {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
                 )
+                
+                # If we couldn't extract a valid parser output, try another approach to find code blocks
+                if not parser_output:
+                    print("Attempting direct code block extraction from secondary response...")
+                    # Try to find any code blocks directly in the response
+                    code_block_matches = re.findall(r'```(?:json|javascript|js)?\s*([\s\S]*?)```', secondary_response, re.DOTALL)
+                    if code_block_matches:
+                        for block in code_block_matches:
+                            try:
+                                json_data = json.loads(block)
+                                if 'moves' in json_data:
+                                    print(f"✅ Successfully extracted moves directly: {json_data['moves']}")
+                                    parser_output = json_data
+                                    break
+                            except Exception as e:
+                                print(f"Error parsing direct code block: {e}")
                 
                 # Store the secondary LLM response for display in the UI
                 from utils.text_utils import process_response_for_display
@@ -283,6 +301,8 @@ def get_llm_response(game_manager):
         # Extract the next move
         next_move = None
         if parser_output and "moves" in parser_output and parser_output["moves"]:
+            print(f"✅ Parser output contains moves: {parser_output['moves']}")
+            
             # Record the move
             game_manager.current_game_moves.extend(parser_output["moves"])
 
@@ -302,9 +322,18 @@ def get_llm_response(game_manager):
                 # Increment round_count after getting a plan from the LLM
                 game_manager.round_count += 1
             else:
+                print(f"❌ No valid next move found in parser output moves: {parser_output['moves']}")
                 game_manager.consecutive_empty_steps += 1
                 print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")
         else:
+            # Log detailed information about what's missing
+            if not parser_output:
+                print("❌ No parser output received")
+            elif "moves" not in parser_output:
+                print(f"❌ 'moves' key missing from parser output. Keys: {parser_output.keys()}")
+            elif not parser_output["moves"]:
+                print("❌ Empty moves list in parser output")
+            
             # No valid moves found
             game_manager.consecutive_empty_steps += 1
             print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves}")

@@ -68,24 +68,30 @@ def parse_llm_response(response, processed_response_func, game_instance):
         
         # Parse JSON from the response
         try:
+            print("Attempting to extract JSON from LLM response...")
+            
             # Try to extract JSON from the response
             json_data = extract_valid_json(response, game_instance.game_state)
             
             # If we couldn't extract JSON, try looking for code blocks
             if not json_data:
+                print("Direct JSON extraction failed, trying code block extraction...")
                 # First try to extract from a code block
                 json_data = extract_json_from_code_block(response)
                 
                 # If still no JSON, try to extract using regex
                 if not json_data:
+                    print("Code block extraction failed, trying text extraction...")
                     json_data = extract_json_from_text(response)
                     
                     # If still no JSON, try to extract move arrays
                     if not json_data:
+                        print("Text extraction failed, trying move arrays extraction...")
                         json_data = extract_moves_from_arrays(response)
             
             # If we have JSON data, get the moves
             if json_data and 'moves' in json_data:
+                print(f"Successfully extracted moves: {json_data['moves']}")
                 moves = json_data.get('moves', [])
                 
                 # Store the reasoning for display
@@ -95,6 +101,8 @@ def parse_llm_response(response, processed_response_func, game_instance):
                 
                 # If we have moves, return the first one and store the rest
                 if moves and len(moves) > 0:
+                    print(f"First move: {moves[0]}, Planned moves: {moves[1:] if len(moves) > 1 else []}")
+                    
                     # Get the current direction to check for reversals
                     current_direction = None
                     if hasattr(game_instance, 'get_current_direction_key'):
@@ -104,11 +112,20 @@ def parse_llm_response(response, processed_response_func, game_instance):
                         current_direction = game_instance._get_current_direction_key()
                     
                     # Filter out any invalid reversals in the planned moves
-                    # Use the filter_invalid_reversals function from game_controller.py
-                    game_instance.planned_moves = game_instance.filter_invalid_reversals(moves[1:], current_direction)
+                    filtered_moves = game_instance.filter_invalid_reversals(moves[1:], current_direction)
+                    if len(filtered_moves) < len(moves[1:]):
+                        print(f"Filtered out {len(moves[1:]) - len(filtered_moves)} invalid reversal moves")
+                    
+                    game_instance.planned_moves = filtered_moves
                     
                     # Return the first move
                     return moves[0]
+                else:
+                    print("Moves list is empty")
+            elif json_data:
+                print(f"JSON data found but no 'moves' key. Keys: {json_data.keys()}")
+            else:
+                print("No valid JSON data found")
             
             # If we didn't get moves, check if reasoning contains "ERROR"
             if json_data and 'reasoning' in json_data and "ERROR" in json_data['reasoning']:

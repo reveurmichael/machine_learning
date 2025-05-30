@@ -91,52 +91,85 @@ def get_experiment_options(stats_df):
         stats_df: DataFrame with experiment statistics
         
     Returns:
-        Dictionary with options for providers, models, primary LLMs, and secondary LLMs
+        Dictionary with options for providers, models, primary and secondary LLMs
     """
     # Use sets to avoid duplicates
     all_providers = set()
     all_models = set()
     
-    # Add all valid providers and models to sets
-    for providers_list in stats_df['providers']:
-        for provider in providers_list:
-            if provider is not None:
-                all_providers.add(provider)
+    # Specific provider and model sets
+    primary_providers = set()
+    primary_models = set()
+    secondary_providers = set()
+    secondary_models = set()
     
-    for models_list in stats_df['models']:
-        for model in models_list:
-            if model is not None:
-                all_models.add(model)
+    # Extract separate primary and secondary options
+    for _, row in stats_df.iterrows():
+        # Add primary provider and model
+        if row.get('primary_provider') is not None:
+            primary_providers.add(row['primary_provider'])
+            all_providers.add(row['primary_provider'])
+        
+        if row.get('primary_model_name') is not None:
+            primary_models.add(row['primary_model_name'])
+            all_models.add(row['primary_model_name'])
+        
+        # Add secondary provider and model if not None
+        if row.get('secondary_provider') is not None:
+            secondary_providers.add(row['secondary_provider'])
+            all_providers.add(row['secondary_provider'])
+        
+        if row.get('secondary_model_name') is not None:
+            secondary_models.add(row['secondary_model_name'])
+            all_models.add(row['secondary_model_name'])
     
-    # Get unique primary and secondary LLMs (these are already strings, not lists)
+    # Get unique full LLM strings (these are already strings)
     primary_llms = set(stats_df['primary_llm'].dropna().unique())
     secondary_llms = set(stats_df['secondary_llm'].dropna().unique())
+    
+    # Remove "None" from secondary providers and models
+    if "None" in secondary_providers:
+        secondary_providers.remove("None")
+    
+    if "None" in secondary_models:
+        secondary_models.remove("None")
     
     return {
         'providers': sorted(all_providers),
         'models': sorted(all_models),
+        'primary_providers': sorted(primary_providers),
+        'primary_models': sorted(primary_models),
+        'secondary_providers': sorted(secondary_providers),
+        'secondary_models': sorted(secondary_models),
         'primary_llms': sorted(primary_llms),
         'secondary_llms': sorted(secondary_llms)
     }
 
 def filter_experiments(stats_df, selected_providers=None, selected_models=None, 
-                       selected_primary_llms=None, selected_secondary_llms=None):
+                       selected_primary_llms=None, selected_secondary_llms=None,
+                       selected_primary_providers=None, selected_primary_models=None,
+                       selected_secondary_providers=None, selected_secondary_models=None):
     """Filter experiments based on selected criteria.
     
     This function is used by the Streamlit analytics dashboard when run separately.
     
     Args:
         stats_df: DataFrame with experiment statistics
-        selected_providers: List of selected providers
-        selected_models: List of selected models
-        selected_primary_llms: List of selected primary LLMs
-        selected_secondary_llms: List of selected secondary LLMs
+        selected_providers: List of selected providers (legacy)
+        selected_models: List of selected models (legacy)
+        selected_primary_llms: List of selected primary LLMs (legacy)
+        selected_secondary_llms: List of selected secondary LLMs (legacy)
+        selected_primary_providers: List of selected primary providers
+        selected_primary_models: List of selected primary models
+        selected_secondary_providers: List of selected secondary providers
+        selected_secondary_models: List of selected secondary models
         
     Returns:
         Filtered DataFrame
     """
     filtered_df = stats_df.copy()
     
+    # Legacy filtering (kept for backward compatibility)
     if selected_providers and len(selected_providers) > 0:
         filtered_df = filtered_df[filtered_df['providers'].apply(lambda x: any(p in x for p in selected_providers))]
     
@@ -148,5 +181,22 @@ def filter_experiments(stats_df, selected_providers=None, selected_models=None,
     
     if selected_secondary_llms and len(selected_secondary_llms) > 0:
         filtered_df = filtered_df[filtered_df['secondary_llm'].isin(selected_secondary_llms)]
+    
+    # New granular filtering
+    if selected_primary_providers and len(selected_primary_providers) > 0:
+        filtered_df = filtered_df[filtered_df['primary_provider'].isin(selected_primary_providers)]
+    
+    if selected_primary_models and len(selected_primary_models) > 0:
+        filtered_df = filtered_df[filtered_df['primary_model_name'].isin(selected_primary_models)]
+    
+    if selected_secondary_providers and len(selected_secondary_providers) > 0:
+        # Need to handle None values for secondary provider
+        has_provider_mask = filtered_df['secondary_provider'].isin(selected_secondary_providers)
+        filtered_df = filtered_df[has_provider_mask]
+    
+    if selected_secondary_models and len(selected_secondary_models) > 0:
+        # Need to handle None values for secondary model
+        has_model_mask = filtered_df['secondary_model_name'].isin(selected_secondary_models)
+        filtered_df = filtered_df[has_model_mask]
     
     return filtered_df 

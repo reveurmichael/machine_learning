@@ -171,19 +171,29 @@ def display_experiment_overview(log_folders):
             primary_model = f"{config.get('provider', 'Unknown')}/{config.get('model', 'default')}"
             secondary_model = "None"
             
+            # Store primary provider and model separately
+            primary_provider = config.get('provider', 'Unknown')
+            primary_model_name = config.get('model', 'default')
+            
+            # Store secondary provider and model
+            secondary_provider = None
+            secondary_model_name = None
+            
             # Only build secondary model string if parser_provider exists and isn't None or 'none'
             parser_provider = config.get('parser_provider')
             if parser_provider and str(parser_provider).lower() != 'none':
                 secondary_model = f"{parser_provider}/{config.get('parser_model', 'default')}"
+                secondary_provider = parser_provider
+                secondary_model_name = config.get('parser_model', 'default')
             
             # Store providers and models for filtering
-            providers = [config.get('provider', 'Unknown')]
-            if parser_provider and str(parser_provider).lower() != 'none':
-                providers.append(parser_provider)
+            providers = [primary_provider]
+            if secondary_provider:
+                providers.append(secondary_provider)
             
-            models = [config.get('model', 'default')]
-            if parser_provider and str(parser_provider).lower() != 'none':
-                models.append(config.get('parser_model', 'default'))
+            models = [primary_model_name]
+            if secondary_model_name:
+                models.append(secondary_model_name)
             
             # Game statistics
             game_stats = summary_data.get("game_statistics", {})
@@ -232,6 +242,10 @@ def display_experiment_overview(log_folders):
                 "Continuation Count": continuation_count,
                 "providers": providers,
                 "models": models,
+                "primary_provider": primary_provider,
+                "primary_model_name": primary_model_name,
+                "secondary_provider": secondary_provider,
+                "secondary_model_name": secondary_model_name,
                 "primary_llm": primary_model,
                 "secondary_llm": secondary_model
             })
@@ -251,45 +265,47 @@ def display_experiment_overview(log_folders):
             options = get_experiment_options(overview_df)
             
             # Create filter columns
-            col1, col2 = st.columns(2)
+            col1, col2, col3, col4 = st.columns(4)
             
             with col1:
-                # Filter by Primary LLM
-                selected_primary_llms = st.multiselect(
-                    "Filter by Primary LLM",
-                    options=options['primary_llms'],
-                    default=[]
-                )
-                
-                # Filter by Provider
-                selected_providers = st.multiselect(
-                    "Filter by Provider",
-                    options=options['providers'],
+                # Filter by Primary LLM Provider
+                selected_primary_providers = st.multiselect(
+                    "Filter by Primary LLM Provider",
+                    options=options['primary_providers'],
                     default=[]
                 )
             
             with col2:
-                # Filter by Secondary LLM
-                selected_secondary_llms = st.multiselect(
-                    "Filter by Secondary LLM",
-                    options=options['secondary_llms'],
+                # Filter by Primary LLM Model
+                selected_primary_models = st.multiselect(
+                    "Filter by Primary LLM Model",
+                    options=options['primary_models'],
                     default=[]
                 )
-                
-                # Filter by Model
-                selected_models = st.multiselect(
-                    "Filter by Model",
-                    options=options['models'],
+            
+            with col3:
+                # Filter by Parser LLM Provider
+                selected_secondary_providers = st.multiselect(
+                    "Filter by Parser LLM Provider",
+                    options=options['secondary_providers'],
+                    default=[]
+                )
+            
+            with col4:
+                # Filter by Parser LLM Model
+                selected_secondary_models = st.multiselect(
+                    "Filter by Parser LLM Model",
+                    options=options['secondary_models'],
                     default=[]
                 )
             
             # Apply filters
             filtered_df = filter_experiments(
                 overview_df,
-                selected_providers=selected_providers,
-                selected_models=selected_models,
-                selected_primary_llms=selected_primary_llms,
-                selected_secondary_llms=selected_secondary_llms
+                selected_primary_providers=selected_primary_providers,
+                selected_primary_models=selected_primary_models,
+                selected_secondary_providers=selected_secondary_providers,
+                selected_secondary_models=selected_secondary_models
             )
         else:
             filtered_df = overview_df
@@ -391,12 +407,42 @@ def display_experiment_details(folder_path):
         # Get response time data from rounds in all games
         response_times = []
         for _, game_data in games_data.items():
-            rounds_data = game_data.get("rounds_data", [])
-            for round_data in rounds_data:
-                if isinstance(round_data, dict):
-                    llm_time = round_data.get("llm_response_time", 0)
-                    if llm_time > 0:  # Only include valid times
-                        response_times.append(llm_time)
+            # Method 1: Extract from rounds_data
+            rounds_data = game_data.get("rounds_data", {})
+            
+            # Handle both new format (dictionary with round keys) and old format (list)
+            if isinstance(rounds_data, dict):
+                # New format: dictionary with keys like "round_1", "round_2", etc.
+                for round_key, round_data in rounds_data.items():
+                    if isinstance(round_data, dict):
+                        # Extract primary response times (which is a list)
+                        primary_times = round_data.get("primary_response_times", [])
+                        if primary_times:
+                            response_times.extend([t for t in primary_times if t > 0])
+            elif isinstance(rounds_data, list):
+                # Old format (list)
+                for round_data in rounds_data:
+                    if isinstance(round_data, dict):
+                        llm_time = round_data.get("llm_response_time", 0)
+                        if llm_time > 0:  # Only include valid times
+                            response_times.append(llm_time)
+            
+            # Method 2: Extract from prompt_response_stats
+            if not response_times:
+                prompt_stats = game_data.get("prompt_response_stats", {})
+                if prompt_stats:
+                    # Add min, avg, and max response times
+                    for stat_name in ["min_primary_response_time", "avg_primary_response_time", "max_primary_response_time"]:
+                        time_value = prompt_stats.get(stat_name, 0)
+                        if time_value > 0:
+                            response_times.append(time_value)
+            
+            # Method 3: Check time_stats if nothing else worked
+            if not response_times:
+                time_stats = game_data.get("time_stats", {})
+                llm_communication_time = time_stats.get("llm_communication_time", 0)
+                if llm_communication_time > 0:
+                    response_times.append(llm_communication_time)
         
         if response_times:
             col1, col2 = st.columns([3, 1])

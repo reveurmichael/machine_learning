@@ -343,7 +343,7 @@ def continue_from_directory(game_manager_class, args):
         sys.exit(1)
     
     # Save user-specified command line arguments that should override original settings
-    user_max_game = args.max_game
+    user_max_games = args.max_games
     user_no_gui = args.no_gui
     
     # Load the original experiment configuration from summary.json
@@ -376,12 +376,12 @@ def continue_from_directory(game_manager_class, args):
             args.no_gui = original_config.get('no_gui', args.no_gui)
             
             # Now restore user-specified parameters that should override the original settings
-            args.max_game = user_max_game
+            args.max_games = user_max_games
             if user_no_gui is not None:  # Only override if explicitly set
                 args.no_gui = user_no_gui
             
-            # Update the summary.json with the new max_game value
-            summary_data['configuration']['max_game'] = args.max_game
+            # Update the summary.json with the new max_games value
+            summary_data['configuration']['max_games'] = args.max_games
             
             # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
             if 'continue_with_game_in_dir' in summary_data['configuration']:
@@ -400,7 +400,7 @@ def continue_from_directory(game_manager_class, args):
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_empty_moves}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_errors_allowed}")
             print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
-            print(Fore.GREEN + f"🎲 Max games: {args.max_game}")
+            print(Fore.GREEN + f"🎲 Max games: {args.max_games}")
     except Exception as e:
         print(Fore.YELLOW + f"⚠️ Warning: Could not load configuration from summary.json: {e}")
         print(Fore.YELLOW + "⚠️ Continuing with command-line arguments")

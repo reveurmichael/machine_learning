@@ -227,14 +227,14 @@ class GameManager:
                 # Initialize the game and LLM clients
                 self.initialize()
             
-            # Run games until we reach max_game
-            while self.game_count < self.args.max_game and self.running:
+            # Run games until we reach max_games
+            while self.game_count < self.args.max_games and self.running:
                 # Run the game loop
                 self.run_game_loop()
                 
                 # Check if we've reached the max games
-                if self.game_count >= self.args.max_game:
-                    print(Fore.GREEN + f"🏁 Reached maximum games ({self.args.max_game}). Session complete.")
+                if self.game_count >= self.args.max_games:
+                    print(Fore.GREEN + f"🏁 Reached maximum games ({self.args.max_games}). Session complete.")
                     break
             
         finally:

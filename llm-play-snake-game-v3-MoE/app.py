@@ -345,7 +345,7 @@ def display_experiment_details(folder_path):
     
     with col3:
         st.markdown("### Game Settings")
-        st.markdown(f"**Max Games:** {config.get('max_game', 'Unknown')}")
+        st.markdown(f"**Max Games:** {config.get('max_games', 'Unknown')}")
         st.markdown(f"**Max Steps:** {config.get('max_steps', 'Unknown')}")
         st.markdown(f"**Max Empty Moves:** {config.get('max_empty_moves', 'Unknown')}")
         st.markdown(f"**GUI Enabled:** {'No' if config.get('no_gui', False) else 'Yes'}")
@@ -598,7 +598,7 @@ def main():
                     "Maximum Games to Play",
                     min_value=1,
                     max_value=100,
-                    value=int(config.get("max_game", 10)),
+                    value=int(config.get("max_games", 10)),
                     step=1
                 )
                 

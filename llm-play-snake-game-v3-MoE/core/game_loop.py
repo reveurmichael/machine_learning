@@ -26,7 +26,7 @@ def run_game_loop(game_manager):
         game_manager: The GameManager instance controlling the game session
     """
     try:
-        while game_manager.running and game_manager.game_count < game_manager.args.max_game:
+        while game_manager.running and game_manager.game_count < game_manager.args.max_games:
             # Process player input and system events
             process_events(game_manager)
             
@@ -197,9 +197,9 @@ def run_game_loop(game_manager):
                                 with open(summary_path, 'r', encoding='utf-8') as f:
                                     summary_data = json.load(f)
                                 
-                                # Update max_game in configuration
+                                # Update max_games in configuration
                                 if 'configuration' in summary_data:
-                                    summary_data['configuration']['max_game'] = game_manager.args.max_game
+                                    summary_data['configuration']['max_games'] = game_manager.args.max_games
                                     summary_data['configuration']['no_gui'] = game_manager.args.no_gui
                                     
                                     # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
@@ -264,7 +264,7 @@ def run_game_loop(game_manager):
                     )
                     
                     # Prepare for next game if not at limit
-                    if game_manager.game_count < game_manager.args.max_game and not game_manager.game_active:
+                    if game_manager.game_count < game_manager.args.max_games and not game_manager.game_active:
                         # Only use pygame.time.delay if GUI is active
                         if game_manager.use_gui:
                             pygame.time.delay(1000)  # Brief pause for user visibility
@@ -276,9 +276,9 @@ def run_game_loop(game_manager):
                                 with open(summary_path, 'r', encoding='utf-8') as f:
                                     summary_data = json.load(f)
                                 
-                                # Update max_game in configuration
+                                # Update max_games in configuration
                                 if 'configuration' in summary_data:
-                                    summary_data['configuration']['max_game'] = game_manager.args.max_game
+                                    summary_data['configuration']['max_games'] = game_manager.args.max_games
                                     summary_data['configuration']['no_gui'] = game_manager.args.no_gui
                                     
                                     # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
@@ -296,7 +296,7 @@ def run_game_loop(game_manager):
                         game_manager.need_new_plan = True
                         game_manager.current_game_moves = []
                         game_manager.consecutive_errors = 0
-                        print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_game}")
+                        print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
             
             # Control frame rate only in GUI mode
             if game_manager.use_gui:

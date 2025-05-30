@@ -7,13 +7,9 @@ A Streamlit app for analyzing, replaying, and continuing recorded Snake game ses
 import os
 import json
 import pandas as pd
-import numpy as np
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 import subprocess
-from datetime import datetime
-import time
 
 # Set page configuration
 st.set_page_config(

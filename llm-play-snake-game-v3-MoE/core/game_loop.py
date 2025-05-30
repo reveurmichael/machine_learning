@@ -55,9 +55,9 @@ def run_game_loop(game_manager):
                             # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
-                            # Execute the move 2 second after displaying the LLM response
+                            # Execute the move 3 second after displaying the LLM response
                             if game_manager.use_gui:
-                                time.sleep(2)
+                                time.sleep(3)
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                             
                             # Update UI to show the new state after move

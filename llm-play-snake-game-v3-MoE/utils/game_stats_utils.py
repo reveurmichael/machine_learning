@@ -97,13 +97,13 @@ def get_experiment_options(stats_df):
     all_providers = []
     all_models = []
     for s in stats_df['providers']:
-        all_providers.extend([p for p in s if p not in all_providers])
+        all_providers.extend([p for p in s if p not in all_providers and p is not None])
     for s in stats_df['models']:
-        all_models.extend([m for m in s if m not in all_models])
+        all_models.extend([m for m in s if m not in all_models and m is not None])
     
     # Get unique primary and secondary LLMs
     all_primary_llms = sorted(stats_df['primary_llm'].unique())
-    all_secondary_llms = sorted(stats_df['secondary_llm'].unique())
+    all_secondary_llms = sorted([x for x in stats_df['secondary_llm'].unique() if x is not None])
     
     return {
         'providers': sorted(all_providers),

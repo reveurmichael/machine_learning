@@ -15,6 +15,9 @@ import subprocess
 from datetime import datetime
 import time
 
+# Import utilities
+from utils.game_stats_utils import filter_experiments, get_experiment_options
+
 # Set page configuration
 st.set_page_config(
     page_title="Snake Game Analytics",
@@ -166,9 +169,21 @@ def display_experiment_overview(log_folders):
             
             # LLM information
             primary_model = f"{config.get('provider', 'Unknown')}/{config.get('model', 'default')}"
-            secondary_model = f"{config.get('parser_provider', 'None')}/{config.get('parser_model', 'default')}"
-            if config.get('parser_provider', '').lower() == 'none':
-                secondary_model = "None"
+            secondary_model = "None"
+            
+            # Only build secondary model string if parser_provider exists and isn't None or 'none'
+            parser_provider = config.get('parser_provider')
+            if parser_provider and str(parser_provider).lower() != 'none':
+                secondary_model = f"{parser_provider}/{config.get('parser_model', 'default')}"
+            
+            # Store providers and models for filtering
+            providers = [config.get('provider', 'Unknown')]
+            if parser_provider and str(parser_provider).lower() != 'none':
+                providers.append(parser_provider)
+            
+            models = [config.get('model', 'default')]
+            if parser_provider and str(parser_provider).lower() != 'none':
+                models.append(config.get('parser_model', 'default'))
             
             # Game statistics
             game_stats = summary_data.get("game_statistics", {})
@@ -214,7 +229,11 @@ def display_experiment_overview(log_folders):
                 "Invalid Reversals": invalid_reversals,
                 "JSON Success Rate": json_success_rate,
                 "Is Continuation": is_continuation,
-                "Continuation Count": continuation_count
+                "Continuation Count": continuation_count,
+                "providers": providers,
+                "models": models,
+                "primary_llm": primary_model,
+                "secondary_llm": secondary_model
             })
             
         except Exception as e:
@@ -224,9 +243,63 @@ def display_experiment_overview(log_folders):
     if experiments_data:
         overview_df = pd.DataFrame(experiments_data)
         
-        # Display the data
+        # Add filtering options
+        st.markdown("### Filter Experiments")
+        
+        # Get filter options
+        if not overview_df.empty:
+            options = get_experiment_options(overview_df)
+            
+            # Create filter columns
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Filter by Primary LLM
+                selected_primary_llms = st.multiselect(
+                    "Filter by Primary LLM",
+                    options=options['primary_llms'],
+                    default=[]
+                )
+                
+                # Filter by Provider
+                selected_providers = st.multiselect(
+                    "Filter by Provider",
+                    options=options['providers'],
+                    default=[]
+                )
+            
+            with col2:
+                # Filter by Secondary LLM
+                selected_secondary_llms = st.multiselect(
+                    "Filter by Secondary LLM",
+                    options=options['secondary_llms'],
+                    default=[]
+                )
+                
+                # Filter by Model
+                selected_models = st.multiselect(
+                    "Filter by Model",
+                    options=options['models'],
+                    default=[]
+                )
+            
+            # Apply filters
+            filtered_df = filter_experiments(
+                overview_df,
+                selected_providers=selected_providers,
+                selected_models=selected_models,
+                selected_primary_llms=selected_primary_llms,
+                selected_secondary_llms=selected_secondary_llms
+            )
+        else:
+            filtered_df = overview_df
+        
+        # Display the filtered data
+        st.markdown("### Experiments")
+        display_df = filtered_df.drop(columns=['providers', 'models', 'primary_llm', 'secondary_llm'])
+        
         st.dataframe(
-            overview_df,
+            display_df,
             column_config={
                 "Experiment": st.column_config.TextColumn("Experiment"),
                 "Timestamp": st.column_config.TextColumn("Timestamp"),
@@ -249,7 +322,7 @@ def display_experiment_overview(log_folders):
             hide_index=True
         )
         
-        return overview_df
+        return filtered_df
     
     return None
 

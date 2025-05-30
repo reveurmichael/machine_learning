@@ -383,6 +383,10 @@ def continue_from_directory(game_manager_class, args):
             # Update the summary.json with the new max_game value
             summary_data['configuration']['max_game'] = args.max_game
             
+            # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
+            if 'continue_with_game_in_dir' in summary_data['configuration']:
+                del summary_data['configuration']['continue_with_game_in_dir']
+            
             # Save the updated configuration
             with open(summary_path, 'w', encoding='utf-8') as f:
                 json.dump(summary_data, f, indent=2)

@@ -7,9 +7,13 @@ A Streamlit app for analyzing, replaying, and continuing recorded Snake game ses
 import os
 import json
 import pandas as pd
+import numpy as np
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import subprocess
+from datetime import datetime
+import time
 
 # Set page configuration
 st.set_page_config(
@@ -19,54 +23,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better appearance
-st.markdown("""
-<style>
-    .main .block-container {
-        padding-top: 2rem;
-    }
-    h1, h2, h3 {
-        color: #4CAF50;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #f0f2f6;
-        border-radius: 4px 4px 0px 0px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #4CAF50;
-        color: white;
-    }
-    .highlight-card {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .st-emotion-cache-1kyxreq {
-        justify-content: center;
-    }
-    .green-score {
-        color: #4CAF50;
-        font-weight: bold;
-    }
-    .red-metric {
-        color: #F44336;
-        font-weight: bold;
-    }
-    .blue-metric {
-        color: #2196F3;
-        font-weight: bold;
-    }
-</style>
-""", unsafe_allow_html=True)
+# No custom CSS for better appearance - removed as requested
 
 # Function to find log folders
 def find_log_folders():
@@ -246,65 +203,56 @@ def display_experiment_overview(log_folders):
                 "Timestamp": timestamp,
                 "Primary LLM": primary_model,
                 "Secondary LLM": secondary_model,
-                "Games": total_games,
+                "Total Games": total_games,
                 "Total Score": total_score,
-                "Mean Score": round(mean_score, 2),
+                "Mean Score": mean_score,
+                "Apples/Step": apples_per_step,
                 "Total Steps": total_steps,
-                "Apples/Step": round(apples_per_step, 4),
                 "Valid Steps": valid_steps,
                 "Empty Steps": empty_steps,
                 "Error Steps": error_steps,
                 "Invalid Reversals": invalid_reversals,
-                "JSON Success Rate": f"{json_success_rate:.1f}%",
-                "Is Continuation": "Yes" if is_continuation else "No",
+                "JSON Success Rate": json_success_rate,
+                "Is Continuation": is_continuation,
                 "Continuation Count": continuation_count
             })
+            
         except Exception as e:
             st.error(f"Error processing {folder}: {e}")
     
-    # Convert to DataFrame and display
+    # Create DataFrame from experiments data
     if experiments_data:
-        df = pd.DataFrame(experiments_data)
+        overview_df = pd.DataFrame(experiments_data)
         
-        # Format columns for display
-        display_cols = [
-            "Experiment", "Timestamp", "Primary LLM", "Secondary LLM", 
-            "Games", "Total Score", "Mean Score", "Apples/Step",
-            "Valid Steps", "Empty Steps", "Error Steps", "Invalid Reversals",
-            "JSON Success Rate", "Is Continuation", "Continuation Count"
-        ]
-        
-        # Add styling
-        st.markdown("## Experiment Overview")
+        # Display the data
         st.dataframe(
-            df[display_cols],
+            overview_df,
             column_config={
                 "Experiment": st.column_config.TextColumn("Experiment"),
                 "Timestamp": st.column_config.TextColumn("Timestamp"),
                 "Primary LLM": st.column_config.TextColumn("Primary LLM"),
                 "Secondary LLM": st.column_config.TextColumn("Secondary LLM"),
-                "Games": st.column_config.NumberColumn("Games", format="%d"),
+                "Total Games": st.column_config.NumberColumn("Total Games", format="%d"),
                 "Total Score": st.column_config.NumberColumn("Total Score", format="%d"),
                 "Mean Score": st.column_config.NumberColumn("Mean Score", format="%.2f"),
                 "Apples/Step": st.column_config.NumberColumn("Apples/Step", format="%.4f"),
+                "Total Steps": st.column_config.NumberColumn("Total Steps", format="%d"),
                 "Valid Steps": st.column_config.NumberColumn("Valid Steps", format="%d"),
                 "Empty Steps": st.column_config.NumberColumn("Empty Steps", format="%d"),
                 "Error Steps": st.column_config.NumberColumn("Error Steps", format="%d"),
                 "Invalid Reversals": st.column_config.NumberColumn("Invalid Reversals", format="%d"),
-                "JSON Success Rate": st.column_config.TextColumn("JSON Success Rate"),
-                "Is Continuation": st.column_config.TextColumn("Is Continuation"),
-                "Continuation Count": st.column_config.NumberColumn("Continuation Count", format="%d")
+                "JSON Success Rate": st.column_config.NumberColumn("JSON Success Rate", format="%.1f%%"),
+                "Is Continuation": st.column_config.CheckboxColumn("Continuation?"),
+                "Continuation Count": st.column_config.NumberColumn("# Continuations", format="%d")
             },
             use_container_width=True,
             hide_index=True
         )
         
-        return df
-    else:
-        st.warning("No valid experiment data found.")
-        return None
+        return overview_df
+    
+    return None
 
-# Function to display experiment details
 def display_experiment_details(folder_path):
     """Display detailed information about an experiment.
     
@@ -318,72 +266,6 @@ def display_experiment_details(folder_path):
     
     # Get game data
     games_data = load_game_data(folder_path)
-    
-    # Display configuration information
-    st.markdown("## Experiment Configuration")
-    config = summary_data.get("configuration", {})
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("### Primary LLM")
-        st.markdown(f"**Provider:** {config.get('provider', 'Unknown')}")
-        st.markdown(f"**Model:** {config.get('model', 'default')}")
-    
-    with col2:
-        st.markdown("### Secondary LLM")
-        parser_provider = config.get('parser_provider', 'None')
-        if parser_provider.lower() == 'none':
-            st.markdown("**Provider:** None")
-            st.markdown("**Model:** None")
-        else:
-            st.markdown(f"**Provider:** {parser_provider}")
-            st.markdown(f"**Model:** {config.get('parser_model', 'default')}")
-    
-    with col3:
-        st.markdown("### Game Settings")
-        st.markdown(f"**Max Games:** {config.get('max_games', 'Unknown')}")
-        st.markdown(f"**Max Steps:** {config.get('max_steps', 'Unknown')}")
-        st.markdown(f"**Max Empty Moves:** {config.get('max_empty_moves', 'Unknown')}")
-        st.markdown(f"**GUI Enabled:** {'No' if config.get('no_gui', False) else 'Yes'}")
-    
-    # Display game statistics
-    st.markdown("## Game Statistics")
-    game_stats = summary_data.get("game_statistics", {})
-    step_stats = summary_data.get("step_stats", {})
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Games", game_stats.get("total_games", 0))
-        st.metric("Total Score", game_stats.get("total_score", 0))
-    
-    with col2:
-        total_games = game_stats.get("total_games", 0)
-        total_score = game_stats.get("total_score", 0)
-        mean_score = total_score / total_games if total_games > 0 else 0
-        st.metric("Mean Score", f"{mean_score:.2f}")
-        
-        total_steps = game_stats.get("total_steps", 0)
-        apples_per_step = total_score / total_steps if total_steps > 0 else 0
-        st.metric("Apples per Step", f"{apples_per_step:.4f}")
-    
-    with col3:
-        valid_steps = step_stats.get("valid_steps", 0)
-        empty_steps = step_stats.get("empty_steps", 0)
-        error_steps = step_stats.get("error_steps", 0)
-        total_steps = valid_steps + empty_steps + error_steps
-        
-        st.metric("Valid Steps", valid_steps)
-        valid_pct = (valid_steps / total_steps * 100) if total_steps > 0 else 0
-        st.metric("Valid Step %", f"{valid_pct:.1f}%")
-    
-    with col4:
-        st.metric("Empty Steps", empty_steps)
-        empty_pct = (empty_steps / total_steps * 100) if total_steps > 0 else 0
-        st.metric("Empty Step %", f"{empty_pct:.1f}%")
-        
-        st.metric("Error Steps", error_steps)
-        error_pct = (error_steps / total_steps * 100) if total_steps > 0 else 0
-        st.metric("Error Step %", f"{error_pct:.1f}%")
     
     # Display game scores chart
     if games_data:
@@ -415,7 +297,53 @@ def display_experiment_details(folder_path):
         )
         st.plotly_chart(fig, use_container_width=True)
         
-        # Display game details table
+        # Display LLM Time and Token Statistics
+        st.markdown("## LLM Performance")
+        
+        # Get time statistics
+        time_stats = summary_data.get("time_statistics", {})
+        llm_communication_time = time_stats.get("total_llm_communication_time", 0)
+        game_movement_time = time_stats.get("total_game_movement_time", 0)
+        waiting_time = time_stats.get("total_waiting_time", 0)
+        
+        # Create time stats chart
+        time_data = {
+            "Category": ["LLM Communication", "Game Movement", "Waiting Time"],
+            "Time (seconds)": [llm_communication_time, game_movement_time, waiting_time]
+        }
+        time_df = pd.DataFrame(time_data)
+        
+        fig_time = px.bar(
+            time_df,
+            x="Category",
+            y="Time (seconds)",
+            title="Time Distribution",
+            color="Category"
+        )
+        st.plotly_chart(fig_time, use_container_width=True)
+        
+        # Get token statistics
+        token_stats = summary_data.get("token_usage_stats", {})
+        primary_tokens = token_stats.get("primary_llm", {}).get("total_tokens", 0)
+        secondary_tokens = token_stats.get("secondary_llm", {}).get("total_tokens", 0)
+        
+        # Create token stats chart
+        token_data = {
+            "LLM": ["Primary LLM", "Secondary LLM"],
+            "Tokens": [primary_tokens, secondary_tokens]
+        }
+        token_df = pd.DataFrame(token_data)
+        
+        fig_tokens = px.bar(
+            token_df,
+            x="LLM",
+            y="Tokens",
+            title="Token Usage",
+            color="LLM"
+        )
+        st.plotly_chart(fig_tokens, use_container_width=True)
+        
+        # Display game details table - kept as requested
         st.markdown("## Game Details")
         
         # Prepare data for table
@@ -475,8 +403,8 @@ def main():
     # Find log folders
     log_folders = find_log_folders()
     
-    # Create tabs
-    tab1, tab2, tab3 = st.tabs(["📊 Overview", "🎮 Replay Mode", "▶️ Continue Mode"])
+    # Create tabs - primitive style, no fancy styling
+    tab1, tab2, tab3 = st.tabs(["Overview", "Replay Mode", "Continue Mode"])
     
     with tab1:
         # Overview tab
@@ -500,8 +428,7 @@ def main():
             )
             
             # Display experiment details
-            if selected_exp:
-                display_experiment_details(selected_exp)
+            display_experiment_details(selected_exp)
     
     with tab2:
         # Replay Mode tab

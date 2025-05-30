@@ -55,8 +55,9 @@ def run_game_loop(game_manager):
                             # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
-                            # Remove the 2-second delay before snake moves
-                            # Execute the move immediately after displaying the LLM response
+                            # Execute the move 2 second after displaying the LLM response
+                            if game_manager.use_gui:
+                                time.sleep(2)
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                             
                             # Update UI to show the new state after move
@@ -69,7 +70,7 @@ def run_game_loop(game_manager):
                             game_manager.game.game_state.record_waiting_start()
                             # Only sleep if there's a non-zero pause time
                             pause_time = game_manager.get_pause_between_moves()
-                            if pause_time > 0:
+                            if pause_time > 0 and game_manager.use_gui:
                                 time.sleep(pause_time)
                             game_manager.game.game_state.record_waiting_end()
                         else:

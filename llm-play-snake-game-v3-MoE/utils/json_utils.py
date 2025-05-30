@@ -357,8 +357,8 @@ def extract_json_from_code_block(response):
     Returns:
         Extracted JSON data as a dictionary, or None if not found/invalid
     """
-    # Match JSON code blocks with more complete language identifier patterns
-    # This covers: ```json, ```javascript, ```js, and just plain ```
+    # Match JSON code blocks with comprehensive language identifier patterns
+    # Covers: ```json, ```javascript, ```js, and plain ```
     code_block_matches = re.findall(r'```(?:json|javascript|js)?\s*([\s\S]*?)```', response, re.DOTALL)
     
     print(f"Found {len(code_block_matches)} code blocks in response")
@@ -387,8 +387,8 @@ def extract_json_from_code_block(response):
         except Exception as e:
             print(f"❌ Error during code block extraction for block {i+1}: {e}")
     
-    # If the normal extraction fails, try a more aggressive approach
-    # This handles cases where the LLM is giving extra characters around the code blocks
+    # If the normal extraction fails, try a more aggressive pattern matching approach
+    # This handles cases where the LLM includes formatting characters around JSON
     try:
         # Look for JSON-like patterns in the text
         json_pattern = r'\{\s*"moves"\s*:\s*\[(.*?)\]'
@@ -409,12 +409,18 @@ def extract_json_from_code_block(response):
                 print(f"✅ Successfully extracted moves using pattern matching: {valid_moves}")
                 return {"moves": valid_moves}
     except Exception as e:
-        print(f"❌ Error during aggressive pattern extraction: {e}")
+        print(f"❌ Error during pattern extraction: {e}")
     
     return None
 
 def extract_valid_json(text, game_state=None):
     """Extract valid JSON data from text.
+    
+    Attempts multiple extraction strategies:
+    1. Direct JSON parsing
+    2. Code block extraction
+    3. Text-based extraction
+    4. Move array extraction
     
     Args:
         text: Text that may contain JSON

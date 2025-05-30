@@ -29,14 +29,14 @@ def parse_and_format(llm_client, llm_response, parser_options=None):
         if parser_options and 'game_state' in parser_options:
             game_state = parser_options['game_state']
             
-        # First try direct parsing as is
+        # Parse JSON directly from response
         parsed_data = extract_valid_json(llm_response, game_state)
         
         if parsed_data and "moves" in parsed_data:
-            # If the parsed data includes a 'moves' field, we're good
+            # Return data if it includes a 'moves' field
             return parsed_data
         
-        # No valid data found with direct parsing
+        # No valid data found
         return None
     except Exception as e:
         print(f"Error parsing LLM response: {e}")

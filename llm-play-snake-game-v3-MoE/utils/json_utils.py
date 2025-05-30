@@ -132,14 +132,104 @@ def save_session_stats(log_dir, **kwargs):
         print(f"Error reading summary.json: {e}")
         return
     
-    # Apply new statistics values
+    # Ensure all required sections exist
+    if "game_statistics" not in summary:
+        summary["game_statistics"] = {
+            "total_games": 0,
+            "total_score": 0,
+            "total_steps": 0,
+            "scores": []
+        }
+    
+    if "time_statistics" not in summary:
+        summary["time_statistics"] = {
+            "total_llm_communication_time": 0,
+            "total_game_movement_time": 0,
+            "total_waiting_time": 0
+        }
+    
+    if "token_usage_stats" not in summary:
+        summary["token_usage_stats"] = {
+            "primary_llm": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            },
+            "secondary_llm": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+        }
+    
+    if "step_stats" not in summary:
+        summary["step_stats"] = {
+            "empty_steps": 0,
+            "error_steps": 0,
+            "valid_steps": 0,
+            "invalid_reversals": 0
+        }
+    
+    # Apply new statistics values to the appropriate sections
     for key, value in kwargs.items():
         if key == "json_error_stats":
             summary["json_parsing_stats"] = value
+        elif key == "game_count":
+            summary["game_statistics"]["total_games"] = value
+        elif key == "total_score":
+            summary["game_statistics"]["total_score"] = value
+        elif key == "total_steps":
+            summary["game_statistics"]["total_steps"] = value
+        elif key == "game_scores":
+            summary["game_statistics"]["scores"] = value
+        elif key == "empty_steps":
+            summary["step_stats"]["empty_steps"] = value
+        elif key == "error_steps":
+            summary["step_stats"]["error_steps"] = value
+        elif key == "time_stats":
+            # Handle time statistics if provided
+            if value and isinstance(value, dict):
+                if "llm_communication_time" in value:
+                    summary["time_statistics"]["total_llm_communication_time"] = value["llm_communication_time"]
+                if "game_movement_time" in value:
+                    summary["time_statistics"]["total_game_movement_time"] = value["game_movement_time"]
+                if "waiting_time" in value:
+                    summary["time_statistics"]["total_waiting_time"] = value["waiting_time"]
+        elif key == "token_stats":
+            # Handle token statistics if provided
+            if value and isinstance(value, dict):
+                if "primary" in value and isinstance(value["primary"], dict):
+                    primary = value["primary"]
+                    if "total_tokens" in primary:
+                        summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]
+                    if "total_prompt_tokens" in primary:
+                        summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]
+                    if "total_completion_tokens" in primary:
+                        summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]
+                
+                if "secondary" in value and isinstance(value["secondary"], dict):
+                    secondary = value["secondary"]
+                    if "total_tokens" in secondary:
+                        summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]
+                    if "total_prompt_tokens" in secondary:
+                        summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]
+                    if "total_completion_tokens" in secondary:
+                        summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]
+        elif key == "parser_usage_count":
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["parser_usage_count"] = value
+        elif key == "max_empty_moves":
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["max_empty_moves"] = value
+        elif key == "max_consecutive_errors_allowed":
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["max_consecutive_errors_allowed"] = value
         else:
-            # Add or replace statistics values
-            if key in summary:
-                summary[key] = value
+            # For any other fields, add them at the top level
+            summary[key] = value
     
     # Save the summary file
     try:

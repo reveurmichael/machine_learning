@@ -47,6 +47,26 @@ class GameManager:
         self.parser_usage_count = 0
         self.previous_parser_usage = 0
         
+        # Time and token statistics
+        self.time_stats = {
+            "llm_communication_time": 0,
+            "game_movement_time": 0,
+            "waiting_time": 0
+        }
+        
+        self.token_stats = {
+            "primary": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            },
+            "secondary": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+        }
+        
         # Game state
         self.game = None
         self.game_active = True
@@ -143,7 +163,10 @@ class GameManager:
             "empty_steps": self.empty_steps,
             "error_steps": self.error_steps,
             "max_empty_moves": self.args.max_empty_moves,
-            "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed
+            "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed,
+            "game": self.game,
+            "time_stats": self.time_stats,
+            "token_stats": self.token_stats
         }
         
         # Report statistics to console and save to files

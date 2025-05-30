@@ -18,7 +18,7 @@ def read_existing_game_data(log_dir, start_game_number):
         start_game_number: The game number to start from
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count)
+        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats)
     """
     # Initialize counters
     total_score = 0
@@ -29,6 +29,26 @@ def read_existing_game_data(log_dir, start_game_number):
     game_scores = []
     missing_games = []
     corrupted_games = []
+    
+    # Initialize time and token statistics
+    time_stats = {
+        "llm_communication_time": 0,
+        "game_movement_time": 0,
+        "waiting_time": 0
+    }
+    
+    token_stats = {
+        "primary": {
+            "total_tokens": 0,
+            "total_prompt_tokens": 0,
+            "total_completion_tokens": 0
+        },
+        "secondary": {
+            "total_tokens": 0,
+            "total_prompt_tokens": 0,
+            "total_completion_tokens": 0
+        }
+    }
     
     print(Fore.GREEN + f"🔍 Reading data from existing {start_game_number-1} games...")
     
@@ -67,12 +87,32 @@ def read_existing_game_data(log_dir, start_game_number):
                         error_steps += step_stats.get('error_steps', 0)
                     
                     # Track parser usage
-                    parser_usage_count += game_data.get('parser_usage_count', 0)
+                    parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
                     
-                    # Extract game duration
+                    # Extract time statistics
                     if 'time_stats' in game_data:
-                        time_stats = game_data.get('time_stats', {})
-                        # Note: we don't need to track game_durations as it's not used
+                        game_time_stats = game_data.get('time_stats', {})
+                        time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
+                        time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
+                        time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+                    
+                    # Extract token statistics
+                    if 'token_stats' in game_data:
+                        game_token_stats = game_data.get('token_stats', {})
+                        
+                        # Primary LLM token stats
+                        if 'primary' in game_token_stats:
+                            primary = game_token_stats.get('primary', {})
+                            token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
+                            token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
+                            token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                        
+                        # Secondary LLM token stats
+                        if 'secondary' in game_token_stats:
+                            secondary = game_token_stats.get('secondary', {})
+                            token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
+                            token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
+                            token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
             except json.JSONDecodeError as e:
                 corrupted_games.append(game_num)
                 print(Fore.YELLOW + f"⚠️ Warning: Game file {game_file} is corrupted: {e}")
@@ -93,7 +133,7 @@ def read_existing_game_data(log_dir, start_game_number):
     successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count
+    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats
 
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
@@ -170,13 +210,37 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")
         sys.exit(1)
     
+    # Initialize time_stats and token_stats attributes if they don't exist
+    if not hasattr(game_manager, 'time_stats'):
+        game_manager.time_stats = {
+            "llm_communication_time": 0,
+            "game_movement_time": 0,
+            "waiting_time": 0
+        }
+    
+    if not hasattr(game_manager, 'token_stats'):
+        game_manager.token_stats = {
+            "primary": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            },
+            "secondary": {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+        }
+    
     # Load statistics from existing games
     (game_manager.total_score, 
      game_manager.total_steps, 
      game_manager.game_scores, 
      game_manager.empty_steps, 
      game_manager.error_steps, 
-     game_manager.parser_usage_count) = read_existing_game_data(log_dir, start_game_number)
+     game_manager.parser_usage_count,
+     game_manager.time_stats,
+     game_manager.token_stats) = read_existing_game_data(log_dir, start_game_number)
     
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1

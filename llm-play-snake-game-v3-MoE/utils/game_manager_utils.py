@@ -41,9 +41,11 @@ def process_game_over(game, game_state_info):
             - log_dir: Directory for logging
             - current_game_moves: List of moves made in the current game (optional)
             - next_move: The last move made (optional)
+            - time_stats: Dictionary of accumulated time statistics
+            - token_stats: Dictionary of accumulated token statistics
         
     Returns:
-        Tuple of (game_count, total_score, total_steps, game_scores, round_count)
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats)
     """
     # Calculate new statistics after game completion
     game_count = game_state_info["game_count"] + 1
@@ -54,6 +56,32 @@ def process_game_over(game, game_state_info):
     round_count = game_state_info["round_count"]
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
+    
+    # Get current time and token stats
+    time_stats = game_state_info.get("time_stats", {})
+    token_stats = game_state_info.get("token_stats", {})
+    
+    # Update time statistics from this game
+    game_time_stats = game.game_state.get_time_stats()
+    if time_stats and game_time_stats:
+        time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
+        time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
+        time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+    
+    # Update token statistics from this game
+    game_token_stats = game.game_state.get_token_stats()
+    if token_stats and game_token_stats:
+        # Update primary LLM token stats
+        if "primary" in token_stats and "primary" in game_token_stats:
+            token_stats["primary"]["total_tokens"] += game_token_stats["primary"].get("total_tokens", 0)
+            token_stats["primary"]["total_prompt_tokens"] += game_token_stats["primary"].get("total_prompt_tokens", 0)
+            token_stats["primary"]["total_completion_tokens"] += game_token_stats["primary"].get("total_completion_tokens", 0)
+        
+        # Update secondary LLM token stats
+        if "secondary" in token_stats and "secondary" in game_token_stats:
+            token_stats["secondary"]["total_tokens"] += game_token_stats["secondary"].get("total_tokens", 0)
+            token_stats["secondary"]["total_prompt_tokens"] += game_token_stats["secondary"].get("total_prompt_tokens", 0)
+            token_stats["secondary"]["total_completion_tokens"] += game_token_stats["secondary"].get("total_completion_tokens", 0)
     
     # Set a reason if not already set by the game engine
     if not game.game_state.game_end_reason:
@@ -79,7 +107,7 @@ def process_game_over(game, game_state_info):
     # Reset round_count to 1 for the next game
     round_count = 1
     
-    return game_count, total_score, total_steps, game_scores, round_count
+    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats
 
 def handle_error(game, error_info):
     """Handle errors that occur during the game loop.
@@ -100,10 +128,12 @@ def handle_error(game, error_info):
             - current_game_moves: List of moves made in the current game
             - error: The exception that occurred
             - consecutive_errors: Current count of consecutive errors (default: 0)
+            - time_stats: Dictionary of accumulated time statistics
+            - token_stats: Dictionary of accumulated token statistics
         
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
-                 round_count, previous_parser_usage, consecutive_errors)
+                 round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats)
     """
     print(Fore.RED + f"Error in game loop: {error_info['error']}")
     traceback.print_exc()
@@ -121,6 +151,10 @@ def handle_error(game, error_info):
     log_dir = error_info["log_dir"]
     current_game_moves = error_info.get("current_game_moves", [])
     
+    # Get current time and token stats
+    time_stats = error_info.get("time_stats", {})
+    token_stats = error_info.get("token_stats", {})
+    
     # End the current game if consecutive errors exceed threshold or if this is a critical error
     if game_active and (consecutive_errors > args.max_consecutive_errors_allowed):
         game_active = False
@@ -132,6 +166,28 @@ def handle_error(game, error_info):
         total_score += game.score
         total_steps += game.steps
         game_scores.append(game.score)
+        
+        # Update time statistics from this game
+        game_time_stats = game.game_state.get_time_stats()
+        if time_stats and game_time_stats:
+            time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
+            time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
+            time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+        
+        # Update token statistics from this game
+        game_token_stats = game.game_state.get_token_stats()
+        if token_stats and game_token_stats:
+            # Update primary LLM token stats
+            if "primary" in token_stats and "primary" in game_token_stats:
+                token_stats["primary"]["total_tokens"] += game_token_stats["primary"].get("total_tokens", 0)
+                token_stats["primary"]["total_prompt_tokens"] += game_token_stats["primary"].get("total_prompt_tokens", 0)
+                token_stats["primary"]["total_completion_tokens"] += game_token_stats["primary"].get("total_completion_tokens", 0)
+            
+            # Update secondary LLM token stats
+            if "secondary" in token_stats and "secondary" in game_token_stats:
+                token_stats["secondary"]["total_tokens"] += game_token_stats["secondary"].get("total_tokens", 0)
+                token_stats["secondary"]["total_prompt_tokens"] += game_token_stats["secondary"].get("total_prompt_tokens", 0)
+                token_stats["secondary"]["total_completion_tokens"] += game_token_stats["secondary"].get("total_completion_tokens", 0)
         
         # Set game end reason
         game.last_collision_type = 'error'
@@ -160,7 +216,7 @@ def handle_error(game, error_info):
         # Reset round_count to 1 for the next game
         round_count = 1
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats
 
 def report_final_statistics(stats_info):
     """Report final statistics at the end of the game session.
@@ -192,6 +248,27 @@ def report_final_statistics(stats_info):
     max_empty_moves = stats_info["max_empty_moves"]
     max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
+    # Get time and token statistics from the game instance if available
+    time_stats = {}
+    token_stats = {}
+    game = stats_info.get("game")
+    if game and hasattr(game, "game_state"):
+        game_state = game.game_state
+        
+        # Get time stats
+        time_stats = game_state.get_time_stats()
+        
+        # Get token stats
+        token_stats = game_state.get_token_stats()
+    
+    # Get token stats specifically from the game manager if available
+    if "token_stats" in stats_info:
+        token_stats = stats_info["token_stats"]
+        
+    # Get time stats specifically from the game manager if available
+    if "time_stats" in stats_info:
+        time_stats = stats_info["time_stats"]
+    
     # Save session statistics to summary file
     json_error_stats = get_json_error_stats()
     save_session_stats(
@@ -205,7 +282,9 @@ def report_final_statistics(stats_info):
         error_steps=error_steps,
         json_error_stats=json_error_stats,
         max_empty_moves=max_empty_moves,
-        max_consecutive_errors_allowed=max_consecutive_errors_allowed
+        max_consecutive_errors_allowed=max_consecutive_errors_allowed,
+        time_stats=time_stats,
+        token_stats=token_stats
     )
     
     print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")

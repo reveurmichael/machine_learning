@@ -8,6 +8,7 @@ import traceback
 import pygame
 from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, handle_error, process_events
+from utils.json_utils import save_session_stats
 from llm.communication_utils import get_llm_response
 
 def run_game_loop(game_manager):
@@ -154,12 +155,28 @@ def run_game_loop(game_manager):
                             "args": game_manager.args,
                             "log_dir": game_manager.log_dir,
                             "current_game_moves": game_manager.current_game_moves,
-                            "next_move": next_move
+                            "next_move": next_move,
+                            "time_stats": game_manager.time_stats,
+                            "token_stats": game_manager.token_stats
                         }
                         
-                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count = process_game_over(
+                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats = process_game_over(
                             game_manager.game,
                             game_state_info
+                        )
+                        
+                        # Make sure to update session stats after processing game over
+                        save_session_stats(
+                            game_manager.log_dir,
+                            game_count=game_manager.game_count,
+                            total_score=game_manager.total_score,
+                            total_steps=game_manager.total_steps,
+                            parser_usage_count=game_manager.parser_usage_count,
+                            game_scores=game_manager.game_scores,
+                            empty_steps=game_manager.empty_steps,
+                            error_steps=game_manager.error_steps,
+                            time_stats=game_manager.time_stats,
+                            token_stats=game_manager.token_stats
                         )
                         
                         # Reset for next game
@@ -190,12 +207,28 @@ def run_game_loop(game_manager):
                         "args": game_manager.args,
                         "current_game_moves": game_manager.current_game_moves,
                         "error": e,
-                        "consecutive_errors": game_manager.consecutive_errors
+                        "consecutive_errors": game_manager.consecutive_errors,
+                        "time_stats": game_manager.time_stats,
+                        "token_stats": game_manager.token_stats
                     }
                     
-                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors = handle_error(
+                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors, game_manager.time_stats, game_manager.token_stats = handle_error(
                         game_manager.game,
                         error_info
+                    )
+                    
+                    # Make sure to update session stats after handling errors
+                    save_session_stats(
+                        game_manager.log_dir,
+                        game_count=game_manager.game_count,
+                        total_score=game_manager.total_score,
+                        total_steps=game_manager.total_steps,
+                        parser_usage_count=game_manager.parser_usage_count,
+                        game_scores=game_manager.game_scores,
+                        empty_steps=game_manager.empty_steps,
+                        error_steps=game_manager.error_steps,
+                        time_stats=game_manager.time_stats,
+                        token_stats=game_manager.token_stats
                     )
                     
                     # Prepare for next game if not at limit

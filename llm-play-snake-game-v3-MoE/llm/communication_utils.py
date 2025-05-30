@@ -323,7 +323,11 @@ def get_llm_response(game_manager):
     except Exception as e:
         # End tracking LLM communication time even if there was an error
         game_manager.game.game_state.record_llm_communication_end()
+        
+        # Record that there was an error in the LLM response
+        game_manager.game.game_state.record_error_move()
+        game_manager.error_steps += 1
 
         print(Fore.RED + f"❌ Error getting response from LLM: {e}")
         traceback.print_exc()
-        return None, False 
+        return None, True 

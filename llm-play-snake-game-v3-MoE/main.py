@@ -25,7 +25,7 @@ def parse_arguments():
                       help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider). Use "none" to skip using a parser LLM and use primary LLM output directly.')
     parser.add_argument('--parser-model', type=str, default=None,
                       help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
-    parser.add_argument('--max-game', type=int, default=6,
+    parser.add_argument('--max-games', type=int, default=6,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=PAUSE_BETWEEN_MOVES_SECONDS,
                       help=f'Pause between moves in seconds (default: {PAUSE_BETWEEN_MOVES_SECONDS})')
@@ -69,7 +69,7 @@ def parse_arguments():
         for arg in restricted_args:
             if arg in raw_args:
                 raise ValueError(f"Cannot use {arg} with --continue-with-game-in-dir. "
-                                 f"Only --max-game, --no-gui, and --sleep-before-launching are allowed.")
+                                 f"Only --max-games, --no-gui, and --sleep-before-launching are allowed.")
     
     # Set current game count to 0 for new sessions
     args.current_game_count = 0

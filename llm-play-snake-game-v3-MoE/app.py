@@ -1,19 +1,21 @@
 """
 Snake Game Analytics Dashboard
 
-A Streamlit app for analyzing and replaying recorded Snake game sessions.
+A Streamlit app for analyzing, replaying, and continuing recorded Snake game sessions.
 """
 
 import os
+import json
 import pandas as pd
+import numpy as np
 import streamlit as st
 import plotly.express as px
-import traceback
+import plotly.graph_objects as go
+import subprocess
+from datetime import datetime
+import time
 
-from utils.file_utils import find_log_folders, extract_game_stats
-from replay.replay_engine import ReplayEngine
-
-# Set up page configuration
+# Set page configuration
 st.set_page_config(
     page_title="Snake Game Analytics",
     page_icon="🐍",
@@ -21,490 +23,606 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-def display_game_details(selected_stats):
-    """Display detailed information about a selected game.
+# Custom CSS for better appearance
+st.markdown("""
+<style>
+    .main .block-container {
+        padding-top: 2rem;
+    }
+    h1, h2, h3 {
+        color: #4CAF50;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #f0f2f6;
+        border-radius: 4px 4px 0px 0px;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .highlight-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .st-emotion-cache-1kyxreq {
+        justify-content: center;
+    }
+    .green-score {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+    .red-metric {
+        color: #F44336;
+        font-weight: bold;
+    }
+    .blue-metric {
+        color: #2196F3;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Function to find log folders
+def find_log_folders():
+    """Find all log folders in the logs directory.
+    
+    Returns:
+        List of log folder paths
+    """
+    logs_dir = os.path.join(os.getcwd(), "logs")
+    if not os.path.exists(logs_dir):
+        return []
+    
+    # Get subdirectories in logs folder
+    log_folders = []
+    for folder in os.listdir(logs_dir):
+        folder_path = os.path.join(logs_dir, folder)
+        if os.path.isdir(folder_path) and os.path.exists(os.path.join(folder_path, "summary.json")):
+            log_folders.append(folder_path)
+    
+    # Sort by folder name (typically contains timestamp)
+    log_folders.sort(reverse=True)
+    return log_folders
+
+# Function to extract folder name from path
+def get_folder_display_name(path):
+    """Extract the folder name from a path.
     
     Args:
-        selected_stats: Statistics for the selected game
+        path: The folder path
+        
+    Returns:
+        Display name for the folder
     """
-    if not selected_stats:
-        return
-    
-    st.subheader("Game Scores")
-    
-    # If we have game data, create a bar chart of scores
-    if 'game_data' in selected_stats and selected_stats['game_data']:
-        game_scores = []
-        for game_num, data in selected_stats['game_data'].items():
-            if 'score' in data:
-                game_scores.append((int(game_num), data['score']))
-        
-        if game_scores:
-            game_scores.sort(key=lambda x: x[0])  # Sort by game number
-            
-            fig = px.bar(
-                x=[f"Game {num}" for num, _ in game_scores],
-                y=[score for _, score in game_scores],
-                title="Score by Game",
-                labels={'x': 'Game', 'y': 'Score'},
-                color=[score for _, score in game_scores],
-                color_continuous_scale=px.colors.sequential.Viridis
-            )
-            st.plotly_chart(fig, use_container_width=True)
-    
-    # Display model information
-    st.subheader("Model Information")
-    
-    # Create columns for primary and secondary LLM
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("#### Primary LLM")
-        st.markdown(f"**Model:** {selected_stats['primary_llm']}")
-    
-    with col2:
-        st.markdown("#### Secondary LLM")
-        st.markdown(f"**Model:** {selected_stats['secondary_llm']}")
-    
-    # Display performance metrics
-    st.subheader("Performance Metrics")
-    
-    # Create metrics in columns
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Total Score", selected_stats['total_score'])
-    
-    with col2:
-        st.metric("Total Steps", selected_stats['total_steps'])
-    
-    with col3:
-        st.metric("Mean Score", round(selected_stats['mean_score'], 2))
-    
-    with col4:
-        st.metric("Steps per Apple", round(selected_stats['steps_per_apple'], 2))
-    
-    # Additional metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Max Score", selected_stats['max_score'])
-    
-    with col2:
-        st.metric("Min Score", selected_stats['min_score'])
-    
-    with col3:
-        st.metric("JSON Success Rate", f"{selected_stats['json_success_rate']:.1f}%")
-    
-    with col4:
-        if 'apples_per_step' in selected_stats:
-            st.metric("Apples per Step", f"{selected_stats['apples_per_step']:.4f}")
-        else:
-            st.metric("Avg Response Time", f"{selected_stats['avg_response_time']:.2f}s")
-    
-    # Display detailed response time metrics if available
-    if 'response_time_stats' in selected_stats:
-        st.subheader("Response Time Statistics")
-        
-        rt_stats = selected_stats['response_time_stats']
-        
-        # Create columns for primary and secondary LLM
-        col1, col2 = st.columns(2)
-        
-        # Primary LLM response times
-        with col1:
-            st.markdown("#### Primary LLM")
-            primary_stats = rt_stats.get('primary_llm', {})
-            
-            if primary_stats:
-                metrics_col1, metrics_col2 = st.columns(2)
-                with metrics_col1:
-                    st.metric("Avg Response Time", f"{primary_stats.get('avg_response_time', 0):.3f}s")
-                    st.metric("Min Response Time", f"{primary_stats.get('min_response_time', 0):.3f}s")
-                with metrics_col2:
-                    st.metric("Max Response Time", f"{primary_stats.get('max_response_time', 0):.3f}s")
-                    st.metric("Total Responses", primary_stats.get('response_count', 0))
-        
-        # Secondary LLM response times
-        with col2:
-            st.markdown("#### Secondary LLM")
-            secondary_stats = rt_stats.get('secondary_llm', {})
-            
-            if secondary_stats:
-                metrics_col1, metrics_col2 = st.columns(2)
-                with metrics_col1:
-                    st.metric("Avg Response Time", f"{secondary_stats.get('avg_response_time', 0):.3f}s")
-                    st.metric("Min Response Time", f"{secondary_stats.get('min_response_time', 0):.3f}s")
-                with metrics_col2:
-                    st.metric("Max Response Time", f"{secondary_stats.get('max_response_time', 0):.3f}s")
-                    st.metric("Total Responses", secondary_stats.get('response_count', 0))
-    
-    # Display token usage statistics if available
-    if 'token_usage_stats' in selected_stats:
-        st.subheader("Token Usage Statistics")
-        
-        token_stats = selected_stats['token_usage_stats']
-        
-        # Create columns for primary and secondary LLM
-        col1, col2 = st.columns(2)
-        
-        # Primary LLM token usage
-        with col1:
-            st.markdown("#### Primary LLM")
-            primary_tokens = token_stats.get('primary_llm', {})
-            
-            if primary_tokens:
-                metrics_col1, metrics_col2 = st.columns(2)
-                with metrics_col1:
-                    st.metric("Total Tokens", primary_tokens.get('total_tokens', 0))
-                    st.metric("Prompt Tokens", primary_tokens.get('total_prompt_tokens', 0))
-                with metrics_col2:
-                    st.metric("Completion Tokens", primary_tokens.get('total_completion_tokens', 0))
-                    st.metric("Avg Tokens per Request", f"{primary_tokens.get('avg_tokens_per_request', 0):.1f}")
-        
-        # Secondary LLM token usage
-        with col2:
-            st.markdown("#### Secondary LLM")
-            secondary_tokens = token_stats.get('secondary_llm', {})
-            
-            if secondary_tokens:
-                metrics_col1, metrics_col2 = st.columns(2)
-                with metrics_col1:
-                    st.metric("Total Tokens", secondary_tokens.get('total_tokens', 0))
-                    st.metric("Prompt Tokens", secondary_tokens.get('total_prompt_tokens', 0))
-                with metrics_col2:
-                    st.metric("Completion Tokens", secondary_tokens.get('total_completion_tokens', 0))
-                    st.metric("Avg Tokens per Request", f"{secondary_tokens.get('avg_tokens_per_request', 0):.1f}")
-    
-    # Display step statistics if available
-    if 'step_stats' in selected_stats:
-        st.subheader("Step Statistics")
-        
-        step_stats = selected_stats['step_stats']
-        
-        if step_stats:
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.metric("Valid Steps", step_stats.get('valid_steps', 0))
-                st.metric("Valid Step %", f"{step_stats.get('valid_step_percentage', 0):.1f}%")
-            
-            with col2:
-                st.metric("Empty Steps", step_stats.get('empty_steps', 0))
-                st.metric("Empty Step %", f"{step_stats.get('empty_step_percentage', 0):.1f}%")
-            
-            with col3:
-                st.metric("Error Steps", step_stats.get('error_steps', 0))
-                st.metric("Error Step %", f"{step_stats.get('error_step_percentage', 0):.1f}%")
-    
-    # Display JSON parsing statistics if available
-    if 'json_parsing_stats' in selected_stats:
-        st.subheader("JSON Parsing Statistics")
-        
-        json_stats = selected_stats['json_parsing_stats']
-        
-        if json_stats:
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.metric("Success Rate", f"{json_stats.get('success_rate', 0):.1f}%")
-                st.metric("Total Attempts", json_stats.get('total_extraction_attempts', 0))
-            
-            with col2:
-                st.metric("Successful Extractions", json_stats.get('successful_extractions', 0))
-                st.metric("Failed Extractions", json_stats.get('failed_extractions', 0))
-            
-            with col3:
-                st.metric("Failure Rate", f"{json_stats.get('failure_rate', 0):.1f}%")
-                st.metric("Decode Errors", json_stats.get('json_decode_errors', 0))
-    
-    # Check if we have per-game data to show
-    if 'game_data' in selected_stats and selected_stats['game_data']:
-        st.subheader("Games")
-        
-        # Create a list of games with key metrics
-        games_data = []
-        for game_num, data in selected_stats['game_data'].items():
-            games_data.append({
-                "Game": f"Game {game_num}",
-                "Score": data.get('score', 0),
-                "Steps": data.get('steps', 0),
-                "Steps per Apple": data.get('steps_per_apple', 0),
-                "JSON Success Rate": f"{data.get('json_success_rate', 0):.1f}%",
-                "End Reason": data.get('game_end_reason', 'Unknown')
-            })
-        
-        if games_data:
-            # Convert to DataFrame and display as table
-            games_df = pd.DataFrame(games_data)
-            st.dataframe(games_df, use_container_width=True)
+    return os.path.basename(path)
 
-def run_replay(log_folder, game_num, move_pause):
+# Function to load summary data
+def load_summary_data(folder_path):
+    """Load summary data from a log folder.
+    
+    Args:
+        folder_path: Path to the log folder
+        
+    Returns:
+        Dictionary with summary data
+    """
+    summary_path = os.path.join(folder_path, "summary.json")
+    try:
+        with open(summary_path, 'r') as f:
+            summary_data = json.load(f)
+        return summary_data
+    except Exception as e:
+        st.error(f"Error loading summary data: {e}")
+        return None
+
+# Function to load game data
+def load_game_data(folder_path):
+    """Load all game data from a log folder.
+    
+    Args:
+        folder_path: Path to the log folder
+        
+    Returns:
+        Dictionary of game data keyed by game number
+    """
+    games = {}
+    for file in os.listdir(folder_path):
+        if file.startswith("game_") and file.endswith(".json"):
+            try:
+                with open(os.path.join(folder_path, file), 'r') as f:
+                    game_data = json.load(f)
+                game_num = int(file.replace("game_", "").replace(".json", ""))
+                games[game_num] = game_data
+            except Exception:
+                pass
+    return games
+
+# Function to run replay in a subprocess
+def run_replay(log_folder, game_num):
     """Run a replay of a specific game.
     
     Args:
-        log_folder: Folder containing the game logs
+        log_folder: Path to the log folder
         game_num: Game number to replay
-        move_pause: Pause time between moves in seconds
     """
     try:
-        # Create a replay engine and run the replay
-        engine = ReplayEngine(log_folder, move_pause)
-        if engine.load_game_data(game_num):
-            engine.run()
-        else:
-            st.error(f"Could not load game {game_num} from {log_folder}")
+        cmd = ["python", "replay.py", "--log-dir", log_folder, "--game", str(game_num)]
+        process = subprocess.Popen(cmd)
+        st.info(f"Replay started for Game {game_num}. Close the replay window when finished.")
+        return process
     except Exception as e:
         st.error(f"Error running replay: {e}")
-        traceback.print_exc()
+        return None
+
+# Function to run continuation in a subprocess
+def continue_game(log_folder, max_games, no_gui):
+    """Continue a game session.
+    
+    Args:
+        log_folder: Path to the log folder
+        max_games: Maximum number of games to play
+        no_gui: Whether to disable GUI
+    """
+    try:
+        cmd = ["python", "main.py", "--continue-with-game-in-dir", log_folder, "--max-games", str(max_games)]
+        if no_gui:
+            cmd.append("--no-gui")
+        
+        process = subprocess.Popen(cmd)
+        st.info(f"Continuation started with max games: {max_games}. The process is running in the background.")
+        return process
+    except Exception as e:
+        st.error(f"Error continuing game: {e}")
+        return None
+
+# Function to display experiment overview
+def display_experiment_overview(log_folders):
+    """Display overview of all experiments.
+    
+    Args:
+        log_folders: List of log folder paths
+    """
+    if not log_folders:
+        st.warning("No experiment logs found.")
+        return
+    
+    # Create a list to store all experiment data
+    experiments_data = []
+    
+    # Process each log folder
+    for folder in log_folders:
+        try:
+            summary_data = load_summary_data(folder)
+            if not summary_data:
+                continue
+            
+            # Extract key information
+            folder_name = get_folder_display_name(folder)
+            timestamp = summary_data.get("timestamp", "Unknown")
+            config = summary_data.get("configuration", {})
+            
+            # LLM information
+            primary_model = f"{config.get('provider', 'Unknown')}/{config.get('model', 'default')}"
+            secondary_model = f"{config.get('parser_provider', 'None')}/{config.get('parser_model', 'default')}"
+            if config.get('parser_provider', '').lower() == 'none':
+                secondary_model = "None"
+            
+            # Game statistics
+            game_stats = summary_data.get("game_statistics", {})
+            total_games = game_stats.get("total_games", 0)
+            total_score = game_stats.get("total_score", 0)
+            total_steps = game_stats.get("total_steps", 0)
+            mean_score = total_score / total_games if total_games > 0 else 0
+            apples_per_step = total_score / total_steps if total_steps > 0 else 0
+            
+            # Step statistics
+            step_stats = summary_data.get("step_stats", {})
+            valid_steps = step_stats.get("valid_steps", 0)
+            empty_steps = step_stats.get("empty_steps", 0)
+            error_steps = step_stats.get("error_steps", 0)
+            invalid_reversals = step_stats.get("invalid_reversals", 0)
+            
+            # JSON parsing statistics
+            json_stats = summary_data.get("json_parsing_stats", {})
+            total_extractions = json_stats.get("total_extraction_attempts", 0)
+            successful_extractions = json_stats.get("successful_extractions", 0)
+            json_success_rate = (successful_extractions / total_extractions * 100) if total_extractions > 0 else 0
+            
+            # Continuation information
+            continuation_info = summary_data.get("continuation_info", {})
+            is_continuation = continuation_info.get("is_continuation", False)
+            continuation_count = continuation_info.get("continuation_count", 0) if is_continuation else 0
+            
+            # Add to experiments data
+            experiments_data.append({
+                "Folder": folder,
+                "Experiment": folder_name,
+                "Timestamp": timestamp,
+                "Primary LLM": primary_model,
+                "Secondary LLM": secondary_model,
+                "Games": total_games,
+                "Total Score": total_score,
+                "Mean Score": round(mean_score, 2),
+                "Total Steps": total_steps,
+                "Apples/Step": round(apples_per_step, 4),
+                "Valid Steps": valid_steps,
+                "Empty Steps": empty_steps,
+                "Error Steps": error_steps,
+                "Invalid Reversals": invalid_reversals,
+                "JSON Success Rate": f"{json_success_rate:.1f}%",
+                "Is Continuation": "Yes" if is_continuation else "No",
+                "Continuation Count": continuation_count
+            })
+        except Exception as e:
+            st.error(f"Error processing {folder}: {e}")
+    
+    # Convert to DataFrame and display
+    if experiments_data:
+        df = pd.DataFrame(experiments_data)
+        
+        # Format columns for display
+        display_cols = [
+            "Experiment", "Timestamp", "Primary LLM", "Secondary LLM", 
+            "Games", "Total Score", "Mean Score", "Apples/Step",
+            "Valid Steps", "Empty Steps", "Error Steps", "Invalid Reversals",
+            "JSON Success Rate", "Is Continuation", "Continuation Count"
+        ]
+        
+        # Add styling
+        st.markdown("## Experiment Overview")
+        st.dataframe(
+            df[display_cols],
+            column_config={
+                "Experiment": st.column_config.TextColumn("Experiment"),
+                "Timestamp": st.column_config.TextColumn("Timestamp"),
+                "Primary LLM": st.column_config.TextColumn("Primary LLM"),
+                "Secondary LLM": st.column_config.TextColumn("Secondary LLM"),
+                "Games": st.column_config.NumberColumn("Games", format="%d"),
+                "Total Score": st.column_config.NumberColumn("Total Score", format="%d"),
+                "Mean Score": st.column_config.NumberColumn("Mean Score", format="%.2f"),
+                "Apples/Step": st.column_config.NumberColumn("Apples/Step", format="%.4f"),
+                "Valid Steps": st.column_config.NumberColumn("Valid Steps", format="%d"),
+                "Empty Steps": st.column_config.NumberColumn("Empty Steps", format="%d"),
+                "Error Steps": st.column_config.NumberColumn("Error Steps", format="%d"),
+                "Invalid Reversals": st.column_config.NumberColumn("Invalid Reversals", format="%d"),
+                "JSON Success Rate": st.column_config.TextColumn("JSON Success Rate"),
+                "Is Continuation": st.column_config.TextColumn("Is Continuation"),
+                "Continuation Count": st.column_config.NumberColumn("Continuation Count", format="%d")
+            },
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        return df
+    else:
+        st.warning("No valid experiment data found.")
+        return None
+
+# Function to display experiment details
+def display_experiment_details(folder_path):
+    """Display detailed information about an experiment.
+    
+    Args:
+        folder_path: Path to the log folder
+    """
+    summary_data = load_summary_data(folder_path)
+    if not summary_data:
+        st.warning("No summary data found.")
+        return
+    
+    # Get game data
+    games_data = load_game_data(folder_path)
+    
+    # Display configuration information
+    st.markdown("## Experiment Configuration")
+    config = summary_data.get("configuration", {})
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("### Primary LLM")
+        st.markdown(f"**Provider:** {config.get('provider', 'Unknown')}")
+        st.markdown(f"**Model:** {config.get('model', 'default')}")
+    
+    with col2:
+        st.markdown("### Secondary LLM")
+        parser_provider = config.get('parser_provider', 'None')
+        if parser_provider.lower() == 'none':
+            st.markdown("**Provider:** None")
+            st.markdown("**Model:** None")
+        else:
+            st.markdown(f"**Provider:** {parser_provider}")
+            st.markdown(f"**Model:** {config.get('parser_model', 'default')}")
+    
+    with col3:
+        st.markdown("### Game Settings")
+        st.markdown(f"**Max Games:** {config.get('max_game', 'Unknown')}")
+        st.markdown(f"**Max Steps:** {config.get('max_steps', 'Unknown')}")
+        st.markdown(f"**Max Empty Moves:** {config.get('max_empty_moves', 'Unknown')}")
+        st.markdown(f"**GUI Enabled:** {'No' if config.get('no_gui', False) else 'Yes'}")
+    
+    # Display game statistics
+    st.markdown("## Game Statistics")
+    game_stats = summary_data.get("game_statistics", {})
+    step_stats = summary_data.get("step_stats", {})
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Total Games", game_stats.get("total_games", 0))
+        st.metric("Total Score", game_stats.get("total_score", 0))
+    
+    with col2:
+        total_games = game_stats.get("total_games", 0)
+        total_score = game_stats.get("total_score", 0)
+        mean_score = total_score / total_games if total_games > 0 else 0
+        st.metric("Mean Score", f"{mean_score:.2f}")
+        
+        total_steps = game_stats.get("total_steps", 0)
+        apples_per_step = total_score / total_steps if total_steps > 0 else 0
+        st.metric("Apples per Step", f"{apples_per_step:.4f}")
+    
+    with col3:
+        valid_steps = step_stats.get("valid_steps", 0)
+        empty_steps = step_stats.get("empty_steps", 0)
+        error_steps = step_stats.get("error_steps", 0)
+        total_steps = valid_steps + empty_steps + error_steps
+        
+        st.metric("Valid Steps", valid_steps)
+        valid_pct = (valid_steps / total_steps * 100) if total_steps > 0 else 0
+        st.metric("Valid Step %", f"{valid_pct:.1f}%")
+    
+    with col4:
+        st.metric("Empty Steps", empty_steps)
+        empty_pct = (empty_steps / total_steps * 100) if total_steps > 0 else 0
+        st.metric("Empty Step %", f"{empty_pct:.1f}%")
+        
+        st.metric("Error Steps", error_steps)
+        error_pct = (error_steps / total_steps * 100) if total_steps > 0 else 0
+        st.metric("Error Step %", f"{error_pct:.1f}%")
+    
+    # Display game scores chart
+    if games_data:
+        st.markdown("## Game Scores")
+        
+        # Prepare data for chart
+        game_numbers = []
+        scores = []
+        for game_num, data in sorted(games_data.items()):
+            game_numbers.append(f"Game {game_num}")
+            scores.append(data.get("score", 0))
+        
+        # Create bar chart
+        fig = px.bar(
+            x=game_numbers,
+            y=scores,
+            labels={'x': 'Game', 'y': 'Score'},
+            title="Score by Game",
+            color=scores,
+            color_continuous_scale=px.colors.sequential.Viridis
+        )
+        fig.update_layout(
+            height=400,
+            margin=dict(l=20, r=20, t=40, b=20),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            xaxis_title="Game",
+            yaxis_title="Score"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Display game details table
+        st.markdown("## Game Details")
+        
+        # Prepare data for table
+        games_list = []
+        for game_num, data in sorted(games_data.items()):
+            step_stats = data.get("step_stats", {})
+            total_game_steps = data.get("steps", 0)
+            valid_game_steps = step_stats.get("valid_steps", 0)
+            empty_game_steps = step_stats.get("empty_steps", 0)
+            error_game_steps = step_stats.get("error_steps", 0)
+            
+            # Calculate step percentages
+            valid_pct = (valid_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
+            empty_pct = (empty_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
+            error_pct = (error_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
+            
+            games_list.append({
+                "Game": game_num,
+                "Score": data.get("score", 0),
+                "Steps": total_game_steps,
+                "Valid Steps": valid_game_steps,
+                "Valid %": f"{valid_pct:.1f}%",
+                "Empty Steps": empty_game_steps,
+                "Empty %": f"{empty_pct:.1f}%",
+                "Error Steps": error_game_steps,
+                "Error %": f"{error_pct:.1f}%",
+                "End Reason": data.get("game_end_reason", "Unknown"),
+                "Rounds": data.get("round_count", 0)
+            })
+        
+        # Create DataFrame and display
+        games_df = pd.DataFrame(games_list)
+        st.dataframe(
+            games_df,
+            column_config={
+                "Game": st.column_config.NumberColumn("Game", format="%d"),
+                "Score": st.column_config.NumberColumn("Score", format="%d"),
+                "Steps": st.column_config.NumberColumn("Steps", format="%d"),
+                "Valid Steps": st.column_config.NumberColumn("Valid Steps", format="%d"),
+                "Valid %": st.column_config.TextColumn("Valid %"),
+                "Empty Steps": st.column_config.NumberColumn("Empty Steps", format="%d"),
+                "Empty %": st.column_config.TextColumn("Empty %"),
+                "Error Steps": st.column_config.NumberColumn("Error Steps", format="%d"),
+                "Error %": st.column_config.TextColumn("Error %"),
+                "End Reason": st.column_config.TextColumn("End Reason"),
+                "Rounds": st.column_config.NumberColumn("Rounds", format="%d")
+            },
+            use_container_width=True,
+            hide_index=True
+        )
 
 def main():
-    """Main function to run the Streamlit app."""
+    """Main application function."""
+    # Display header
     st.title("🐍 Snake Game Analytics Dashboard")
     
-    # Find all log folders
+    # Find log folders
     log_folders = find_log_folders()
     
-    if not log_folders:
-        st.error("No log folders found! Please run the snake game first.")
-        return
-    
-    # Extract stats from all folders
-    all_stats = []
-    for folder in log_folders:
-        stats = extract_game_stats(folder)
-        if stats:
-            all_stats.append(stats)
-    
-    if not all_stats:
-        st.error("No valid statistics found in log folders!")
-        return
-    
-    # Create a DataFrame from the stats
-    stats_df = pd.DataFrame(all_stats)
-    
-    # Create tabs for different views
-    tab1, tab2, tab3 = st.tabs(["Overview", "Game Details", "Replay"])
+    # Create tabs
+    tab1, tab2, tab3 = st.tabs(["📊 Overview", "🎮 Replay Mode", "▶️ Continue Mode"])
     
     with tab1:
-        st.header("Experiment Overview")
+        # Overview tab
+        st.markdown("### Experiment Overview")
+        st.markdown("View statistics and detailed information about all Snake game experiments.")
         
-        # Display summary statistics
-        col1, col2, col3, col4 = st.columns(4)
+        # Display experiment overview
+        overview_df = display_experiment_overview(log_folders)
         
-        with col1:
-            st.metric("Total Experiments", len(stats_df))
-        
-        with col2:
-            st.metric("Total Games", stats_df['total_games'].sum())
-        
-        with col3:
-            st.metric("Average Score", f"{stats_df['mean_score'].mean():.2f}")
-        
-        with col4:
-            st.metric("Best Score", stats_df['max_score'].max())
-        
-        st.header("Filter Options")
-        
-        # Initialize filter variables
-        selected_models = []
-        selected_providers = []
-        date_range = None
-        
-        # Create filter columns
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            # Filter by model
-            if 'models' in stats_df.columns:
-                all_models = []
-                for models_list in stats_df['models']:
-                    if isinstance(models_list, list):
-                        all_models.extend(models_list)
-                
-                unique_models = sorted(list(set([m for m in all_models if m])))
-                
-                if unique_models:
-                    selected_models = st.multiselect(
-                        "Filter by Model",
-                        options=unique_models,
-                        default=[]
-                    )
-        
-        with col2:
-            # Filter by provider
-            if 'providers' in stats_df.columns:
-                all_providers = []
-                for providers_list in stats_df['providers']:
-                    if isinstance(providers_list, list):
-                        all_providers.extend(providers_list)
-                
-                unique_providers = sorted(list(set([p for p in all_providers if p])))
-                
-                if unique_providers:
-                    selected_providers = st.multiselect(
-                        "Filter by Provider",
-                        options=unique_providers,
-                        default=[]
-                    )
-        
-        with col3:
-            # Filter by date range
-            if 'date' in stats_df.columns:
-                valid_dates = stats_df['date'].dropna()
-                
-                if not valid_dates.empty:
-                    min_date = valid_dates.min().date()
-                    max_date = valid_dates.max().date()
-                    
-                    date_range = st.date_input(
-                        "Filter by Date Range",
-                        value=(min_date, max_date)
-                    )
-        
-        # Apply filters
-        filtered_df = stats_df.copy()
-        
-        # Apply model filter
-        if 'models' in stats_df.columns and 'selected_models' in locals() and selected_models:
-            filtered_df = filtered_df[filtered_df['models'].apply(
-                lambda x: any(model in x for model in selected_models) if isinstance(x, list) else False
-            )]
-        
-        # Apply provider filter
-        if 'providers' in stats_df.columns and 'selected_providers' in locals() and selected_providers:
-            filtered_df = filtered_df[filtered_df['providers'].apply(
-                lambda x: any(provider in x for provider in selected_providers) if isinstance(x, list) else False
-            )]
-        
-        # Apply date filter
-        if 'date' in stats_df.columns and 'date_range' in locals() and len(date_range) == 2:
-            start_date, end_date = date_range
-            filtered_df = filtered_df[
-                (filtered_df['date'].dt.date >= start_date) &
-                (filtered_df['date'].dt.date <= end_date)
-            ]
-        
-        # Display filtered results
-        st.header("Game Statistics")
-        
-        # Create a display DataFrame with selected columns
-        display_df = filtered_df[['folder', 'total_score', 'total_steps', 'mean_score', 'max_score',
-                               'steps_per_apple', 'json_success_rate', 'primary_llm', 'date']]
-        
-        # Rename columns for display
-        display_df.columns = ['Folder', 'Total Score', 'Total Steps', 'Mean Score', 'Max Score',
-                           'Steps per Apple', 'JSON Success Rate', 'Primary LLM', 'Date']
-        
-        # Format the folder column to show only the basename
-        display_df['Folder'] = display_df['Folder'].apply(lambda x: os.path.basename(x))
-        
-        # Format the JSON success rate as percentage
-        if 'JSON Success Rate' in display_df:
-            display_df['JSON Success Rate'] = display_df['JSON Success Rate'].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "N/A")
-        
-        # Display the table
-        st.dataframe(display_df, use_container_width=True)
-        
-        # Display summary charts
-        st.header("Summary Charts")
-        
-        # Create side-by-side charts
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            # Score vs Steps scatter plot
-            if 'total_score' in filtered_df.columns and 'total_steps' in filtered_df.columns:
-                fig = px.scatter(
-                    filtered_df,
-                    x='total_steps',
-                    y='total_score',
-                    color='mean_score',
-                    size='total_games',
-                    hover_name=filtered_df['folder'].apply(os.path.basename),
-                    title="Score vs Steps",
-                    labels={'total_steps': 'Total Steps', 'total_score': 'Total Score', 'mean_score': 'Mean Score'},
-                    color_continuous_scale=px.colors.sequential.Viridis
-                )
-                st.plotly_chart(fig, use_container_width=True)
-        
-        with col2:
-            # Steps per Apple vs JSON Success Rate
-            if 'steps_per_apple' in filtered_df.columns and 'json_success_rate' in filtered_df.columns:
-                fig = px.scatter(
-                    filtered_df,
-                    x='json_success_rate',
-                    y='steps_per_apple',
-                    color='mean_score',
-                    size='total_games',
-                    hover_name=filtered_df['folder'].apply(os.path.basename),
-                    title="Efficiency vs JSON Success Rate",
-                    labels={'json_success_rate': 'JSON Success Rate (%)', 'steps_per_apple': 'Steps per Apple', 'mean_score': 'Mean Score'},
-                    color_continuous_scale=px.colors.sequential.Viridis
-                )
-                st.plotly_chart(fig, use_container_width=True)
+        # Allow selecting an experiment for detailed view
+        if overview_df is not None and not overview_df.empty:
+            st.markdown("### Experiment Details")
+            st.markdown("Select an experiment to view detailed information.")
+            
+            # Create a dropdown to select an experiment
+            selected_exp = st.selectbox(
+                "Select Experiment",
+                options=overview_df["Folder"].tolist(),
+                format_func=get_folder_display_name,
+                index=0
+            )
+            
+            # Display experiment details
+            if selected_exp:
+                display_experiment_details(selected_exp)
     
     with tab2:
-        # Let user select a folder
-        selected_folder_idx = st.selectbox(
-            "Select a folder to view details",
-            options=range(len(stats_df)),
-            format_func=lambda x: f"{stats_df.iloc[x]['folder']} ({stats_df.iloc[x]['date'] if not pd.isna(stats_df.iloc[x]['date']) else 'Unknown date'})",
-            key="folder_select"
-        )
+        # Replay Mode tab
+        st.markdown("### Replay Game")
+        st.markdown("Select an experiment and game to replay.")
         
-        # Display details for the selected folder
-        selected_stats = stats_df.iloc[selected_folder_idx]
-        
-        st.write(f"**Details for {os.path.basename(selected_stats['folder'])}**")
-        
-        # Extract game data for the selected folder
-        display_game_details(selected_stats)
+        # Select an experiment
+        if log_folders:
+            replay_exp = st.selectbox(
+                "Select Experiment for Replay",
+                options=log_folders,
+                format_func=get_folder_display_name,
+                index=0,
+                key="replay_exp"
+            )
+            
+            # Load game data for the selected experiment
+            games_data = load_game_data(replay_exp)
+            
+            if games_data:
+                # Select a game to replay
+                game_options = sorted(games_data.keys())
+                replay_game = st.selectbox(
+                    "Select Game to Replay",
+                    options=game_options,
+                    index=0,
+                    format_func=lambda x: f"Game {x} (Score: {games_data[x].get('score', 0)})"
+                )
+                
+                # Display game info
+                selected_game = games_data.get(replay_game, {})
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Score", selected_game.get("score", 0))
+                with col2:
+                    st.metric("Steps", selected_game.get("steps", 0))
+                with col3:
+                    st.metric("End Reason", selected_game.get("game_end_reason", "Unknown"))
+                
+                # Add replay button
+                if st.button("Start Replay", key="start_replay"):
+                    with st.spinner("Starting replay..."):
+                        process = run_replay(replay_exp, replay_game)
+                        if process:
+                            st.success("Replay started! Check the game window.")
+            else:
+                st.warning("No games found in the selected experiment.")
+        else:
+            st.warning("No experiment logs found.")
     
     with tab3:
-        # Game replay
-        st.header("Game Replay")
+        # Continue Mode tab
+        st.markdown("### Continue Game")
+        st.markdown("Select an experiment to continue from the last game.")
         
-        # Let user select a folder for replay
-        replay_folder_idx = st.selectbox(
-            "Select a folder to replay games from",
-            options=range(len(stats_df)),
-            format_func=lambda x: f"{stats_df.iloc[x]['folder']} ({stats_df.iloc[x]['date'] if not pd.isna(stats_df.iloc[x]['date']) else 'Unknown date'})",
-            key="replay_folder_select"
-        )
-        
-        # Get folder details
-        replay_stats = stats_df.iloc[replay_folder_idx]
-        replay_folder = replay_stats['folder']
-        
-        # Get available games from the folder
-        available_games = []
-        if 'game_data' in replay_stats and replay_stats['game_data']:
-            available_games = sorted([int(g) for g in replay_stats['game_data'].keys()])
-        
-        if available_games:
-            # Let user select a game
-            game_num = st.selectbox(
-                "Select a game to replay",
-                options=available_games,
-                format_func=lambda x: f"Game {x} (Score: {replay_stats['game_data'].get(str(x), {}).get('score', 0)})"
+        # Select an experiment
+        if log_folders:
+            continue_exp = st.selectbox(
+                "Select Experiment to Continue",
+                options=log_folders,
+                format_func=get_folder_display_name,
+                index=0,
+                key="continue_exp"
             )
             
-            # Let user set replay speed
-            move_pause = st.slider(
-                "Pause between moves (seconds)",
-                min_value=0.1,
-                max_value=2.0,
-                value=0.5,
-                step=0.1
-            )
+            # Load summary data
+            summary_data = load_summary_data(continue_exp)
             
-            # Add a button to start the replay
-            if st.button("Start Replay"):
-                st.write("Starting replay... (Close the pygame window when done)")
-                run_replay(replay_folder, game_num, move_pause)
+            if summary_data:
+                # Display experiment info
+                config = summary_data.get("configuration", {})
+                game_stats = summary_data.get("game_statistics", {})
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Games Played", game_stats.get("total_games", 0))
+                with col2:
+                    st.metric("Total Score", game_stats.get("total_score", 0))
+                with col3:
+                    total_games = game_stats.get("total_games", 0)
+                    total_score = game_stats.get("total_score", 0)
+                    mean_score = total_score / total_games if total_games > 0 else 0
+                    st.metric("Mean Score", f"{mean_score:.2f}")
+                
+                # Configuration for continuation
+                st.markdown("### Continuation Settings")
+                
+                max_games = st.number_input(
+                    "Maximum Games to Play",
+                    min_value=1,
+                    max_value=100,
+                    value=int(config.get("max_game", 10)),
+                    step=1
+                )
+                
+                no_gui = st.checkbox(
+                    "Disable GUI",
+                    value=bool(config.get("no_gui", False))
+                )
+                
+                # Add continue button
+                if st.button("Start Continuation", key="start_continuation"):
+                    with st.spinner("Starting continuation..."):
+                        process = continue_game(continue_exp, max_games, no_gui)
+                        if process:
+                            st.success(f"Continuation started with max games: {max_games}")
+                            
+                            # Show info about viewing results
+                            st.info(
+                                "The game is running in the background. " +
+                                "Refresh this page later to see updated results in the Overview tab."
+                            )
+            else:
+                st.warning("No summary data found for the selected experiment.")
         else:
-            st.warning("No games available for replay in the selected folder")
+            st.warning("No experiment logs found.")
 
 if __name__ == "__main__":
     main()

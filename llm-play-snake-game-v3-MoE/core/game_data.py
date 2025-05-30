@@ -410,6 +410,14 @@ class GameData:
         if 'max_empty_moves' in summary_data:
             self.max_empty_moves = summary_data['max_empty_moves']
         
+        # Import step statistics if available
+        if 'step_stats' in summary_data:
+            step_stats = summary_data['step_stats']
+            # Don't overwrite empty_steps and error_steps as they're already tracked from game files
+            # But import valid_steps and invalid_reversals
+            self.valid_steps = step_stats.get('valid_steps', 0)
+            self.invalid_reversals = step_stats.get('invalid_reversals', 0)
+        
         # Import JSON parsing stats if available
         if 'json_parsing_stats' in summary_data:
             json_stats = summary_data['json_parsing_stats']
@@ -649,6 +657,7 @@ class GameData:
             "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else self.snake_length,
             "game_over": self.game_over,
             "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
+            "round_count": self.round_count,  # Add round_count at the top level
             
             # Time statistics
             "time_stats": self.get_time_stats(),
@@ -673,7 +682,7 @@ class GameData:
                 "game_number": self.game_number,
                 "timestamp": self.timestamp,
                 "last_move": self.last_move,
-                "round_count": self.round_count,
+                "round_count": self.round_count,  # Keep it here for backward compatibility
                 "max_empty_moves": self.max_empty_moves,
                 "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
                 "parser_usage_count": self.parser_usage_count

@@ -18,13 +18,16 @@ def read_existing_game_data(log_dir, start_game_number):
         start_game_number: The game number to start from
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats)
+        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, 
+                 time_stats, token_stats, valid_steps, invalid_reversals)
     """
     # Initialize counters
     total_score = 0
     total_steps = 0
     empty_steps = 0
     error_steps = 0
+    valid_steps = 0
+    invalid_reversals = 0
     parser_usage_count = 0
     game_scores = []
     missing_games = []
@@ -85,6 +88,8 @@ def read_existing_game_data(log_dir, start_game_number):
                         step_stats = game_data.get('step_stats', {})
                         empty_steps += step_stats.get('empty_steps', 0)
                         error_steps += step_stats.get('error_steps', 0)
+                        valid_steps += step_stats.get('valid_steps', 0)
+                        invalid_reversals += step_stats.get('invalid_reversals', 0)
                     
                     # Track parser usage
                     parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
@@ -133,7 +138,7 @@ def read_existing_game_data(log_dir, start_game_number):
     successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats
+    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
@@ -240,7 +245,9 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
      game_manager.error_steps, 
      game_manager.parser_usage_count,
      game_manager.time_stats,
-     game_manager.token_stats) = read_existing_game_data(log_dir, start_game_number)
+     game_manager.token_stats,
+     game_manager.valid_steps,
+     game_manager.invalid_reversals) = read_existing_game_data(log_dir, start_game_number)
     
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1
@@ -335,6 +342,10 @@ def continue_from_directory(game_manager_class, args):
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
     
+    # Save user-specified command line arguments that should override original settings
+    user_max_game = args.max_game
+    user_no_gui = args.no_gui
+    
     # Load the original experiment configuration from summary.json
     try:
         with open(summary_path, 'r', encoding='utf-8') as f:
@@ -361,6 +372,21 @@ def continue_from_directory(game_manager_class, args):
             args.max_empty_moves = original_config.get('max_empty_moves', args.max_empty_moves)
             args.max_consecutive_errors_allowed = original_config.get('max_consecutive_errors_allowed', args.max_consecutive_errors_allowed)
             
+            # Preserve the original GUI setting
+            args.no_gui = original_config.get('no_gui', args.no_gui)
+            
+            # Now restore user-specified parameters that should override the original settings
+            args.max_game = user_max_game
+            if user_no_gui is not None:  # Only override if explicitly set
+                args.no_gui = user_no_gui
+            
+            # Update the summary.json with the new max_game value
+            summary_data['configuration']['max_game'] = args.max_game
+            
+            # Save the updated configuration
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary_data, f, indent=2)
+            
             # Log the applied configuration
             print(Fore.GREEN + f"🤖 Primary LLM: {args.provider}" + (f" ({args.model})" if args.model else ""))
             if args.parser_provider and args.parser_provider.lower() != 'none':
@@ -369,6 +395,8 @@ def continue_from_directory(game_manager_class, args):
             print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_empty_moves}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_errors_allowed}")
+            print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
+            print(Fore.GREEN + f"🎲 Max games: {args.max_game}")
     except Exception as e:
         print(Fore.YELLOW + f"⚠️ Warning: Could not load configuration from summary.json: {e}")
         print(Fore.YELLOW + "⚠️ Continuing with command-line arguments")

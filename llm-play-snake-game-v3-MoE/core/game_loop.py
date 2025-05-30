@@ -6,6 +6,8 @@ Handles the main game execution logic and LLM interactions.
 import time
 import traceback
 import pygame
+import os
+import json
 from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, handle_error, process_events
 from utils.json_utils import save_session_stats
@@ -188,6 +190,24 @@ def run_game_loop(game_manager):
                         game_manager.game_active = True
                         game_manager.current_game_moves = []
                         
+                        # Update summary.json with the latest configuration
+                        summary_path = os.path.join(game_manager.log_dir, "summary.json")
+                        try:
+                            if os.path.exists(summary_path):
+                                with open(summary_path, 'r', encoding='utf-8') as f:
+                                    summary_data = json.load(f)
+                                
+                                # Update max_game in configuration
+                                if 'configuration' in summary_data:
+                                    summary_data['configuration']['max_game'] = game_manager.args.max_game
+                                    summary_data['configuration']['no_gui'] = game_manager.args.no_gui
+                                
+                                # Save the updated configuration
+                                with open(summary_path, 'w', encoding='utf-8') as f:
+                                    json.dump(summary_data, f, indent=2)
+                        except Exception as e:
+                            print(Fore.YELLOW + f"⚠️ Warning: Could not update configuration in summary.json: {e}")
+                        
                         # Reset game state and counters
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
@@ -244,6 +264,25 @@ def run_game_loop(game_manager):
                         # Only use pygame.time.delay if GUI is active
                         if game_manager.use_gui:
                             pygame.time.delay(1000)  # Brief pause for user visibility
+                            
+                        # Update summary.json with the latest configuration
+                        summary_path = os.path.join(game_manager.log_dir, "summary.json")
+                        try:
+                            if os.path.exists(summary_path):
+                                with open(summary_path, 'r', encoding='utf-8') as f:
+                                    summary_data = json.load(f)
+                                
+                                # Update max_game in configuration
+                                if 'configuration' in summary_data:
+                                    summary_data['configuration']['max_game'] = game_manager.args.max_game
+                                    summary_data['configuration']['no_gui'] = game_manager.args.no_gui
+                                
+                                # Save the updated configuration
+                                with open(summary_path, 'w', encoding='utf-8') as f:
+                                    json.dump(summary_data, f, indent=2)
+                        except Exception as e:
+                            print(Fore.YELLOW + f"⚠️ Warning: Could not update configuration in summary.json: {e}")
+                                
                         game_manager.game.reset()
                         game_manager.game_active = True
                         game_manager.need_new_plan = True

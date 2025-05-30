@@ -8,6 +8,7 @@ import sys
 import json
 import traceback
 from colorama import Fore
+from datetime import datetime
 
 def read_existing_game_data(log_dir, start_game_number):
     """Read existing game data from game files.
@@ -114,6 +115,35 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     if not os.path.exists(summary_path):
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
+    
+    # Load the original experiment's summary to preserve configuration
+    try:
+        with open(summary_path, 'r', encoding='utf-8') as f:
+            summary_data = json.load(f)
+            
+        # Update the summary with continuation info if it doesn't exist
+        if 'continuation_info' not in summary_data:
+            summary_data['continuation_info'] = {
+                'is_continuation': True,
+                'continuation_count': 1,
+                'continuation_timestamps': [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+                'original_timestamp': summary_data.get('timestamp')
+            }
+        else:
+            # Update existing continuation info
+            continuation_info = summary_data['continuation_info']
+            continuation_info['continuation_count'] = continuation_info.get('continuation_count', 0) + 1
+            if 'continuation_timestamps' not in continuation_info:
+                continuation_info['continuation_timestamps'] = []
+            continuation_info['continuation_timestamps'].append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            
+        # Save the updated summary
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary_data, f, indent=2)
+            
+        print(Fore.GREEN + "📝 Updated continuation info in summary.json")
+    except Exception as e:
+        print(Fore.YELLOW + f"⚠️ Warning: Could not update continuation info in summary.json: {e}")
         
     # Set the log directory
     game_manager.log_dir = log_dir
@@ -134,7 +164,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         
     # Check if the previous game files exist
     game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
-    alt_game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
+    alt_game_file_path = os.path.join(log_dir, f"game{start_game_number-1}.json")
     
     if start_game_number > 1 and not (os.path.exists(game_file_path) or os.path.exists(alt_game_file_path)):
         print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")
@@ -157,11 +187,19 @@ def setup_llm_clients(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    from utils.llm_utils import check_llm_health
-    from utils.setup_utils import setup_llm_clients as common_setup_llm_clients
+    from utils.initialization_utils import setup_llm_clients as common_setup_llm_clients
+    
+    # Print configuration being used
+    print(Fore.GREEN + "🔄 Setting up LLM clients for continuation mode")
+    print(Fore.GREEN + f"🤖 Using Primary LLM: {game_manager.args.provider}" + 
+          (f" ({game_manager.args.model})" if game_manager.args.model else ""))
+    
+    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != 'none':
+        print(Fore.GREEN + f"🤖 Using Parser LLM: {game_manager.args.parser_provider}" + 
+              (f" ({game_manager.args.parser_model})" if game_manager.args.parser_model else ""))
     
     # Use the common utility function to set up LLM clients
-    common_setup_llm_clients(game_manager, check_llm_health)
+    common_setup_llm_clients(game_manager)
 
 def handle_continuation_game_state(game_manager):
     """Handle game state for continuation mode.
@@ -232,6 +270,44 @@ def continue_from_directory(game_manager_class, args):
     if not os.path.exists(summary_path):
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
+    
+    # Load the original experiment configuration from summary.json
+    try:
+        with open(summary_path, 'r', encoding='utf-8') as f:
+            summary_data = json.load(f)
+            
+        # Check if configuration exists in the summary
+        if 'configuration' in summary_data:
+            original_config = summary_data['configuration']
+            
+            # Apply the original experiment's configuration
+            print(Fore.GREEN + "📝 Loading original experiment configuration from summary.json")
+            
+            # Copy the original provider and model
+            args.provider = original_config.get('provider')
+            args.model = original_config.get('model')
+            
+            # Copy the original parser settings
+            args.parser_provider = original_config.get('parser_provider')
+            args.parser_model = original_config.get('parser_model')
+            
+            # Copy other important configuration parameters
+            args.move_pause = original_config.get('move_pause', args.move_pause)
+            args.max_steps = original_config.get('max_steps', args.max_steps)
+            args.max_empty_moves = original_config.get('max_empty_moves', args.max_empty_moves)
+            args.max_consecutive_errors_allowed = original_config.get('max_consecutive_errors_allowed', args.max_consecutive_errors_allowed)
+            
+            # Log the applied configuration
+            print(Fore.GREEN + f"🤖 Primary LLM: {args.provider}" + (f" ({args.model})" if args.model else ""))
+            if args.parser_provider and args.parser_provider.lower() != 'none':
+                print(Fore.GREEN + f"🤖 Parser LLM: {args.parser_provider}" + (f" ({args.parser_model})" if args.parser_model else ""))
+            print(Fore.GREEN + f"⏱️ Move pause: {args.move_pause} seconds")
+            print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
+            print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_empty_moves}")
+            print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_errors_allowed}")
+    except Exception as e:
+        print(Fore.YELLOW + f"⚠️ Warning: Could not load configuration from summary.json: {e}")
+        print(Fore.YELLOW + "⚠️ Continuing with command-line arguments")
         
     # Check if any game files exist
     game_files = []

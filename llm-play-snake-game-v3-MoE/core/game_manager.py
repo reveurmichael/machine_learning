@@ -156,11 +156,14 @@ class GameManager:
             log_dir: Directory containing the previous session logs
             start_game_number: Game number to start from
         """
+        print(Fore.GREEN + f"🔄 Continuing experiment from directory: {log_dir}")
+        print(Fore.GREEN + f"🔄 Starting from game number: {start_game_number}")
+        
         # Set up continuation session
         setup_continuation_session(self, log_dir, start_game_number)
         
-        # Set up LLM clients
-        self.initialize()
+        # Set up LLM clients with the configuration from the original experiment
+        setup_llm_clients(self)
         
         # Handle game state for continuation
         handle_continuation_game_state(self)

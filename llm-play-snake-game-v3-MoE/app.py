@@ -152,7 +152,7 @@ def run_web_replay(log_folder, game_num, host, port):
         port: Port number to use
     """
     try:
-        cmd = ["python", "web_replay.py", "--log-dir", log_folder, "--game", str(game_num), 
+        cmd = ["python", "replay_web.py", "--log-dir", log_folder, "--game", str(game_num), 
                "--host", host, "--port", str(port)]
         process = subprocess.Popen(cmd)
         st.info(f"Web replay started for Game {game_num} at http://{host}:{port}. Close the replay window when finished.")

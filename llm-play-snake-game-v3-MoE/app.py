@@ -141,6 +141,26 @@ def continue_game(log_folder, max_games, no_gui):
         st.error(f"Error continuing game: {e}")
         return None
 
+# Function to run web replay in a subprocess
+def run_web_replay(log_folder, game_num, host, port):
+    """Run a web-based replay of a specific game.
+    
+    Args:
+        log_folder: Path to the log folder
+        game_num: Game number to replay
+        host: Host IP address to bind to (localhost or 0.0.0.0)
+        port: Port number to use
+    """
+    try:
+        cmd = ["python", "web_replay.py", "--log-dir", log_folder, "--game", str(game_num), 
+               "--host", host, "--port", str(port)]
+        process = subprocess.Popen(cmd)
+        st.info(f"Web replay started for Game {game_num} at http://{host}:{port}. Close the replay window when finished.")
+        return process
+    except Exception as e:
+        st.error(f"Error running web replay: {e}")
+        return None
+
 # Function to display experiment overview
 def display_experiment_overview(log_folders):
     """Display overview of all experiments.
@@ -554,8 +574,8 @@ def main():
     # Find log folders
     log_folders = find_log_folders()
     
-    # Create tabs - primitive style, no fancy styling
-    tab1, tab2, tab3 = st.tabs(["Overview", "Replay Mode", "Continue Mode"])
+    # Create tabs - now with four tabs instead of three
+    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Replay Mode (PyGame)", "Replay Mode (Web)", "Continue Mode"])
     
     with tab1:
         # Overview tab
@@ -582,9 +602,9 @@ def main():
             display_experiment_details(selected_exp)
     
     with tab2:
-        # Replay Mode tab
-        st.markdown("### Replay Game")
-        st.markdown("Select an experiment and game to replay.")
+        # Replay Mode (PyGame) tab
+        st.markdown("### Replay Game (PyGame)")
+        st.markdown("Select an experiment and game to replay using PyGame.")
         
         # Select an experiment
         if log_folders:
@@ -593,7 +613,7 @@ def main():
                 options=log_folders,
                 format_func=get_folder_display_name,
                 index=0,
-                key="replay_exp"
+                key="replay_exp_pygame"
             )
             
             # Load game data for the selected experiment
@@ -606,7 +626,8 @@ def main():
                     "Select Game to Replay",
                     options=game_options,
                     index=0,
-                    format_func=lambda x: f"Game {x} (Score: {games_data[x].get('score', 0)})"
+                    format_func=lambda x: f"Game {x} (Score: {games_data[x].get('score', 0)})",
+                    key="replay_game_pygame"
                 )
         
                 # Display game info
@@ -621,7 +642,7 @@ def main():
                     st.metric("End Reason", selected_game.get("game_end_reason", "Unknown"))
                 
                 # Add replay button
-                if st.button("Start Replay", key="start_replay"):
+                if st.button("Start Replay", key="start_replay_pygame"):
                     with st.spinner("Starting replay..."):
                         process = run_replay(replay_exp, replay_game)
                         if process:
@@ -632,6 +653,82 @@ def main():
             st.warning("No experiment logs found.")
     
     with tab3:
+        # NEW - Replay Mode (Web) tab
+        st.markdown("### Replay Game (Web)")
+        st.markdown("Select an experiment and game to replay in a web browser.")
+        
+        # Select an experiment
+        if log_folders:
+            replay_exp_web = st.selectbox(
+                "Select Experiment for Web Replay",
+                options=log_folders,
+                format_func=get_folder_display_name,
+                index=0,
+                key="replay_exp_web"
+            )
+            
+            # Load game data for the selected experiment
+            games_data_web = load_game_data(replay_exp_web)
+            
+            if games_data_web:
+                # Select a game to replay
+                game_options_web = sorted(games_data_web.keys())
+                replay_game_web = st.selectbox(
+                    "Select Game to Replay",
+                    options=game_options_web,
+                    index=0,
+                    format_func=lambda x: f"Game {x} (Score: {games_data_web[x].get('score', 0)})",
+                    key="replay_game_web"
+                )
+        
+                # Display game info
+                selected_game_web = games_data_web.get(replay_game_web, {})
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Score", selected_game_web.get("score", 0))
+                with col2:
+                    st.metric("Steps", selected_game_web.get("steps", 0))
+                with col3:
+                    st.metric("End Reason", selected_game_web.get("game_end_reason", "Unknown"))
+                
+                # Add host and port configuration
+                st.markdown("### Web Server Configuration")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    host = st.selectbox(
+                        "Host IP",
+                        options=["localhost", "0.0.0.0", "127.0.0.1"],
+                        index=0,
+                        help="Use localhost for local access only, 0.0.0.0 to allow external connections"
+                    )
+                
+                with col2:
+                    port = st.number_input(
+                        "Port",
+                        min_value=1024,
+                        max_value=65535,
+                        value=8000,
+                        help="Port number for the web server (1024-65535)"
+                    )
+                
+                # Add replay button
+                if st.button("Start Web Replay", key="start_replay_web"):
+                    with st.spinner("Starting web replay..."):
+                        process = run_web_replay(replay_exp_web, replay_game_web, host, port)
+                        if process:
+                            st.success(f"Web replay started! Open http://{host if host != '0.0.0.0' else 'localhost'}:{port} in your browser.")
+                            
+                            # Display link to open directly
+                            display_host = "localhost" if host == "0.0.0.0" else host
+                            st.markdown(f"[Open Web Replay](http://{display_host}:{port})")
+            else:
+                st.warning("No games found in the selected experiment.")
+        else:
+            st.warning("No experiment logs found.")
+    
+    with tab4:
         # Continue Mode tab
         st.markdown("### Continue Game")
         st.markdown("Select an experiment to continue from the last game.")

@@ -6,11 +6,10 @@ Reuses existing replay engine, constants, and game logic from the pygame impleme
 
 import os
 import sys
-import json
 import argparse
 import threading
 import time
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify
 
 from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS, GRID_SIZE
 from replay.replay_engine import ReplayEngine
@@ -218,10 +217,6 @@ def main():
         print("Error: Log directory must be specified either as a positional argument or using --log-dir")
         parser.print_help()
         sys.exit(1)
-        
-    # Create a sample log directory if 'logs/example' is requested
-    if log_dir.replace('\\', '/') == 'logs/example':
-        create_sample_log_directory()
 
     # Check if log directory exists
     if not os.path.isdir(log_dir):
@@ -261,59 +256,5 @@ def main():
     # Run Flask app
     app.run(host=args.host, port=args.port, debug=False, threaded=True)
 
-def create_sample_log_directory():
-    """Create a sample log directory with game data for testing."""
-    sample_dir = os.path.join('logs', 'example')
-    os.makedirs(sample_dir, exist_ok=True)
-    
-    # Create a sample game data file
-    sample_game_data = {
-        "score": 3,
-        "steps": 45,
-        "game_end_reason": "WALL",
-        "metadata": {
-            "timestamp": "2023-06-15 12:34:56",
-            "round_count": 3
-        },
-        "llm_info": {
-            "primary_provider": "OpenAI",
-            "primary_model": "GPT-4",
-            "parser_provider": "Claude",
-            "parser_model": "Claude-3"
-        },
-        "detailed_history": {
-            "moves": ["UP", "RIGHT", "RIGHT", "UP", "LEFT", "DOWN", "RIGHT", "UP", "UP", "RIGHT"],
-            "apple_positions": [
-                {"x": 5, "y": 5},
-                {"x": 8, "y": 3},
-                {"x": 2, "y": 7}
-            ],
-            "llm_response": "I'll move UP first to get closer to the apple, then RIGHT twice to approach it.",
-            "planned_moves": ["UP", "RIGHT", "RIGHT"]
-        }
-    }
-    
-    # Create game 1
-    with open(os.path.join(sample_dir, 'game_1.json'), 'w') as f:
-        json.dump(sample_game_data, f, indent=2)
-    
-    # Create game 2 with different end reason
-    game2_data = sample_game_data.copy()
-    game2_data["score"] = 5
-    game2_data["steps"] = 60
-    game2_data["game_end_reason"] = "SELF"
-    game2_data["metadata"]["timestamp"] = "2023-06-15 13:45:22"
-    with open(os.path.join(sample_dir, 'game_2.json'), 'w') as f:
-        json.dump(game2_data, f, indent=2)
-    
-    print(f"Created sample log directory with 2 games: {sample_dir}")
-    return sample_dir
-
 if __name__ == "__main__":
-    # Check if 'logs/example' is requested as an argument
-    if len(sys.argv) > 1 and sys.argv[1].replace('\\', '/') == 'logs/example':
-        create_sample_log_directory()
-    elif '--log-dir' in sys.argv and sys.argv[sys.argv.index('--log-dir')+1].replace('\\', '/') == 'logs/example':
-        create_sample_log_directory()
-    
     main() 

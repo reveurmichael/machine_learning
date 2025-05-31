@@ -99,10 +99,6 @@ def parse_arguments():
             if arg in raw_args:
                 raise ValueError(f"Cannot use {arg} with --continue-with-game-in-dir. "
                                  f"Only --max-games, --no-gui, and --sleep-before-launching are allowed.")
-    
-    # Set current game count to 0 for new sessions
-    args.current_game_count = 0
-
     return args
 
 def main():

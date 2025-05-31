@@ -154,7 +154,7 @@ def display_experiment_overview(log_folders):
     
     # Create a list to store all experiment data
     experiments_data = []
-    
+        
     # Process each log folder
     for folder in log_folders:
         try:
@@ -185,7 +185,7 @@ def display_experiment_overview(log_folders):
                 secondary_model = f"{parser_provider}/{config.get('parser_model', 'default')}"
                 secondary_provider = parser_provider
                 secondary_model_name = config.get('parser_model', 'default')
-            
+        
             # Store providers and models for filtering
             providers = [primary_provider]
             if secondary_provider:
@@ -298,7 +298,7 @@ def display_experiment_overview(log_folders):
                     options=options['secondary_models'],
                     default=[]
                 )
-            
+    
             # Apply filters
             filtered_df = filter_experiments(
                 overview_df,
@@ -446,8 +446,8 @@ def display_experiment_details(folder_path):
         
         if response_times:
             col1, col2 = st.columns([3, 1])
-            
-            with col2:
+        
+        with col2:
                 # Allow user to configure bins for response time
                 time_bins = st.slider(
                     "Number of time bins", 
@@ -592,8 +592,8 @@ def main():
                     options=game_options,
                     index=0,
                     format_func=lambda x: f"Game {x} (Score: {games_data[x].get('score', 0)})"
-                )
-                
+        )
+        
                 # Display game info
                 selected_game = games_data.get(replay_game, {})
                 
@@ -629,8 +629,8 @@ def main():
                 format_func=get_folder_display_name,
                 index=0,
                 key="continue_exp"
-            )
-            
+        )
+        
             # Load summary data
             summary_data = load_summary_data(continue_exp)
             
@@ -649,7 +649,7 @@ def main():
                     total_score = game_stats.get("total_score", 0)
                     mean_score = total_score / total_games if total_games > 0 else 0
                     st.metric("Mean Score", f"{mean_score:.2f}")
-                
+            
                 # Configuration for continuation
                 st.markdown("### Continuation Settings")
                 
@@ -659,8 +659,8 @@ def main():
                     max_value=100,
                     value=int(config.get("max_games", 10)),
                     step=1
-                )
-                
+            )
+            
                 no_gui = st.checkbox(
                     "Disable GUI",
                     value=bool(config.get("no_gui", False))

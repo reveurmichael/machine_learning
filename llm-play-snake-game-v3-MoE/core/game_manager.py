@@ -224,8 +224,8 @@ class GameManager:
         try:
             # Skip initialization if this is a continuation
             if not hasattr(self.args, 'is_continuation') or not self.args.is_continuation:
-                # Initialize the game and LLM clients
-                self.initialize()
+            # Initialize the game and LLM clients
+            self.initialize()
             
             # Run games until we reach max_games
             while self.game_count < self.args.max_games and self.running:

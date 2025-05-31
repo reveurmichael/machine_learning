@@ -124,23 +124,23 @@ def main():
             GameManager.continue_from_directory(args)
         else:
             # Check environment setup for new session
-            primary_env_ok = check_env_setup(args.provider)
-            
-            # Check secondary LLM environment if specified
-            if args.parser_provider and args.parser_provider.lower() != 'none':
-                secondary_env_ok = check_env_setup(args.parser_provider)
-                if not secondary_env_ok:
-                    print(Fore.YELLOW + f"⚠️ Warning: Secondary LLM ({args.parser_provider}) environment setup issues detected")
-            
-            if not primary_env_ok:
-                user_choice = input(Fore.YELLOW + "Environment setup issues detected. Continue anyway? (y/n): ")
-                if user_choice.lower() != 'y':
-                    print(Fore.RED + "Exiting due to environment setup issues.")
-                    sys.exit(1)
-            
-            # Create and run the game manager
-            game_manager = GameManager(args)
-            game_manager.run()
+        primary_env_ok = check_env_setup(args.provider)
+        
+        # Check secondary LLM environment if specified
+        if args.parser_provider and args.parser_provider.lower() != 'none':
+            secondary_env_ok = check_env_setup(args.parser_provider)
+            if not secondary_env_ok:
+                print(Fore.YELLOW + f"⚠️ Warning: Secondary LLM ({args.parser_provider}) environment setup issues detected")
+        
+        if not primary_env_ok:
+            user_choice = input(Fore.YELLOW + "Environment setup issues detected. Continue anyway? (y/n): ")
+            if user_choice.lower() != 'y':
+                print(Fore.RED + "Exiting due to environment setup issues.")
+                sys.exit(1)
+        
+        # Create and run the game manager
+        game_manager = GameManager(args)
+        game_manager.run()
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

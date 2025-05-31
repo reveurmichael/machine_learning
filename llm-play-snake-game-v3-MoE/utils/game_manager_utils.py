@@ -395,10 +395,10 @@ def process_events(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-
+    
     if not game_manager.use_gui:
         return
-
+        
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_manager.running = False

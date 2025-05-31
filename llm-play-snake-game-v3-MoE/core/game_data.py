@@ -708,7 +708,7 @@ class GameData:
                 "continuation_count": self.continuation_count,
                 "continuation_timestamps": self.continuation_timestamps,
                 "continuation_metadata": self.continuation_metadata
-            }
+        }
         
         return summary
     

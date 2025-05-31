@@ -245,7 +245,7 @@ def save_session_stats(log_dir, **kwargs):
             summary["metadata"]["max_consecutive_errors_allowed"] = value
         else:
             # For any other fields, add them at the top level
-            summary[key] = value
+                summary[key] = value
     
     # Save the summary file
     try:

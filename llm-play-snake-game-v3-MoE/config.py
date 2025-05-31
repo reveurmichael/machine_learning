@@ -197,7 +197,7 @@ The main objective of RESPONSE_1 is to generate a list of safe moves that leads 
 ## WHAT YOU SHOULD DO:
 - First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
 - Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
-- Third, if THINK_PROCESS_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
+- Third, if FINAL_OUTPUT_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
 - Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
 
 Return ONLY the JSON object without any additional text.

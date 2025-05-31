@@ -48,10 +48,7 @@ This will bypass the secondary LLM and use the primary LLM's output directly.
 Set up API keys in a `.env` file:
 
 ```
-# Ollama settings (optional, defaults to localhost)
-OLLAMA_HOST=localhost:11434
-
-# API keys for cloud LLM providers (required for respective providers)
+OLLAMA_HOST=<IP_ADDRESS_OF_OLLAMA_SERVER>
 HUNYUAN_API_KEY=your_hunyuan_api_key_here
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 MISTRAL_API_KEY=your_mistral_api_key_here

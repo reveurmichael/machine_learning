@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game Replay</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Snake Game Replay</h1>
+            <div id="paused-indicator" class="paused-indicator">PAUSED</div>
+        </div>
+        
+        <div id="loading-message" class="loading-message">
+            <div class="spinner"></div>
+            <p>Loading game data...</p>
+        </div>
+        
+        <div class="game-container" id="game-container" style="display: none;">
+            <div class="game-board">
+                <canvas id="game-canvas"></canvas>
+            </div>
+            
+            <div class="game-sidebar">
+                <div class="stats-section">
+                    <h2>Game Information</h2>
+                    <div class="stats-grid">
+                        <div>Game: <span id="game-number">1</span></div>
+                        <div>Score: <span id="score">0</span></div>
+                        <div id="end-reason-container">End Reason: <span id="end-reason"></span></div>
+                    </div>
+                </div>
+                
+                <div class="progress-section">
+                    <h2>Progress</h2>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progress">0/0 (0%)</span>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <h2>Controls</h2>
+                    <div class="control-buttons">
+                        <button id="prev-game">&lt;&lt; Prev</button>
+                        <button id="restart">Restart</button>
+                        <button id="play-pause">Play</button>
+                        <button id="next-game">Next &gt;&gt;</button>
+                    </div>
+                    <div class="speed-controls">
+                        <span>Speed: </span>
+                        <button id="speed-down">-</button>
+                        <span id="speed-value">1.0x</span>
+                        <button id="speed-up">+</button>
+                    </div>
+                </div>
+                
+                <div class="llm-info-section">
+                    <h2>LLM Information</h2>
+                    <div>Primary: <span id="primary-llm">Unknown</span></div>
+                    <div>Parser: <span id="secondary-llm">None</span></div>
+                    <div>Timestamp: <span id="timestamp">Unknown</span></div>
+                </div>
+                
+                <div class="llm-response-section">
+                    <h2>LLM Response</h2>
+                    <div id="llm-response-text" class="response-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/replay.js') }}"></script>
+</body>
+</html>

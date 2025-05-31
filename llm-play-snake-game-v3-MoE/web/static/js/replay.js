@@ -1,0 +1,312 @@
+// Constants - colors will be overridden by values from the server
+let COLORS = {
+    SNAKE_HEAD: '#3498db',    // Blue for snake head
+    SNAKE_BODY: '#2980b9',    // Darker blue for snake body
+    APPLE: '#e74c3c',         // Red for apple
+    BACKGROUND: '#2c3e50',    // Dark background
+    GRID: '#34495e',          // Grid lines
+};
+
+// End reason mapping
+const END_REASON_MAP = {
+    "WALL": "Hit Wall",
+    "SELF": "Hit Self",
+    "MAX_STEPS": "Max Steps",
+    "EMPTY_MOVES": "Empty Moves",
+    "ERROR": "LLM Error"
+};
+
+// DOM elements
+const loadingMessage = document.getElementById('loading-message');
+const gameContainer = document.getElementById('game-container');
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const gameNumber = document.getElementById('game-number');
+const scoreElement = document.getElementById('score');
+const progressElement = document.getElementById('progress');
+const endReasonElement = document.getElementById('end-reason');
+const endReasonContainer = document.getElementById('end-reason-container');
+const primaryLlmElement = document.getElementById('primary-llm');
+const secondaryLlmElement = document.getElementById('secondary-llm');
+const timestampElement = document.getElementById('timestamp');
+const llmResponseElement = document.getElementById('llm-response-text');
+const playPauseButton = document.getElementById('play-pause');
+const prevGameButton = document.getElementById('prev-game');
+const nextGameButton = document.getElementById('next-game');
+const restartButton = document.getElementById('restart');
+const speedUpButton = document.getElementById('speed-up');
+const speedDownButton = document.getElementById('speed-down');
+const speedValueElement = document.getElementById('speed-value');
+const progressBar = document.getElementById('progress-bar');
+const pausedIndicator = document.getElementById('paused-indicator');
+
+// Game state
+let gameState = null;
+let pixelSize = 0;
+let updateInterval = null;
+let retryCount = 0;
+const MAX_RETRIES = 10;
+
+// Initialize
+function init() {
+    setupEventListeners();
+    startPolling();
+    document.addEventListener('keydown', handleKeyDown);
+}
+
+function setupEventListeners() {
+    playPauseButton.addEventListener('click', togglePlayPause);
+    prevGameButton.addEventListener('click', () => sendCommand('prev_game'));
+    nextGameButton.addEventListener('click', () => sendCommand('next_game'));
+    restartButton.addEventListener('click', () => sendCommand('restart_game'));
+    speedUpButton.addEventListener('click', () => sendCommand('speed_up'));
+    speedDownButton.addEventListener('click', () => sendCommand('speed_down'));
+}
+
+function startPolling() {
+    updateInterval = setInterval(fetchGameState, 100);
+}
+
+async function fetchGameState() {
+    try {
+        const response = await fetch('/api/state');
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error(data.error);
+            
+            if (!gameState && retryCount < MAX_RETRIES) {
+                retryCount++;
+                return;
+            }
+            
+            if (!gameState && retryCount >= MAX_RETRIES) {
+                loadingMessage.innerHTML = `<p class="error-message">Error loading game data: ${data.error}</p>`;
+                clearInterval(updateInterval);
+                return;
+            }
+            
+            return;
+        }
+        
+        gameState = data;
+        
+        if (loadingMessage.style.display !== 'none') {
+            loadingMessage.style.display = 'none';
+            gameContainer.style.display = 'flex';
+        }
+        
+        if (gameState.colors) {
+            COLORS.SNAKE_HEAD = rgbArrayToHex(gameState.colors.snake_head) || COLORS.SNAKE_HEAD;
+            COLORS.SNAKE_BODY = rgbArrayToHex(gameState.colors.snake_body) || COLORS.SNAKE_BODY;
+            COLORS.APPLE = rgbArrayToHex(gameState.colors.apple) || COLORS.APPLE;
+            COLORS.BACKGROUND = rgbArrayToHex(gameState.colors.background) || COLORS.BACKGROUND;
+            COLORS.GRID = rgbArrayToHex(gameState.colors.grid) || COLORS.GRID;
+        }
+        
+        updateUI();
+        drawGame();
+    } catch (error) {
+        console.error('Error fetching game state:', error);
+        
+        if (!gameState && retryCount < MAX_RETRIES) {
+            retryCount++;
+            return;
+        }
+        
+        if (!gameState && retryCount >= MAX_RETRIES) {
+            loadingMessage.innerHTML = `<p class="error-message">Error connecting to server: ${error.message}</p>`;
+            clearInterval(updateInterval);
+            return;
+        }
+    }
+}
+
+function rgbArrayToHex(rgbArray) {
+    if (!Array.isArray(rgbArray) || rgbArray.length < 3) {
+        return null;
+    }
+    return `#${rgbArray[0].toString(16).padStart(2, '0')}${rgbArray[1].toString(16).padStart(2, '0')}${rgbArray[2].toString(16).padStart(2, '0')}`;
+}
+
+function updateUI() {
+    if (!gameState) return;
+    
+    // Update game info
+    gameNumber.textContent = gameState.game_number;
+    scoreElement.textContent = gameState.score;
+    
+    // Update document title
+    document.title = `Snake Game ${gameState.game_number} - Score: ${gameState.score}`;
+    
+    // Update progress
+    progressElement.textContent = `${gameState.move_index}/${gameState.total_moves} (${Math.floor(gameState.move_index / Math.max(1, gameState.total_moves) * 100)}%)`;
+    
+    // Update progress bar
+    if (gameState.total_moves > 0) {
+        const progressPercent = (gameState.move_index / gameState.total_moves) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+    } else {
+        progressBar.style.width = '0%';
+    }
+    
+    // Update end reason if available
+    if (gameState.game_end_reason) {
+        const reason = END_REASON_MAP[gameState.game_end_reason] || gameState.game_end_reason;
+        endReasonElement.textContent = reason;
+        endReasonContainer.style.display = 'block';
+    } else {
+        endReasonContainer.style.display = 'none';
+    }
+    
+    // Update paused indicator
+    pausedIndicator.style.display = gameState.paused ? 'block' : 'none';
+    
+    // Update LLM info
+    primaryLlmElement.textContent = gameState.primary_llm || 'Unknown';
+    secondaryLlmElement.textContent = gameState.secondary_llm || 'None';
+    timestampElement.textContent = gameState.timestamp || 'Unknown';
+    
+    // Update LLM response
+    if (gameState.llm_response) {
+        llmResponseElement.textContent = gameState.llm_response;
+    }
+    
+    // Update play/pause button
+    playPauseButton.textContent = gameState.paused ? 'Play' : 'Pause';
+    
+    // Update speed display
+    speedValueElement.textContent = `${gameState.speed.toFixed(1)}x`;
+}
+
+function drawGame() {
+    if (!gameState) return;
+    
+    const gridSize = gameState.grid_size || 10;
+    const maxSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.7);
+    
+    canvas.width = maxSize;
+    canvas.height = maxSize;
+    
+    pixelSize = Math.floor(maxSize / gridSize);
+    
+    // Clear canvas
+    ctx.fillStyle = COLORS.BACKGROUND;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw grid lines
+    drawGrid(gridSize, pixelSize);
+    
+    // Draw snake
+    if (gameState.snake_positions && gameState.snake_positions.length > 0) {
+        // Draw body first
+        for (let i = 0; i < gameState.snake_positions.length - 1; i++) {
+            const [x, y] = gameState.snake_positions[i];
+            drawRect(x, y, COLORS.SNAKE_BODY);
+        }
+        
+        // Draw head
+        const head = gameState.snake_positions[gameState.snake_positions.length - 1];
+        drawRect(head[0], head[1], COLORS.SNAKE_HEAD);
+    }
+    
+    // Draw apple
+    if (gameState.apple_position && gameState.apple_position.length === 2) {
+        const [x, y] = gameState.apple_position;
+        drawRect(x, y, COLORS.APPLE);
+    }
+}
+
+function drawGrid(gridSize, pixelSize) {
+    ctx.strokeStyle = COLORS.GRID;
+    ctx.lineWidth = 0.5;
+    
+    // Draw vertical lines
+    for (let i = 0; i <= gridSize; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * pixelSize, 0);
+        ctx.lineTo(i * pixelSize, gridSize * pixelSize);
+        ctx.stroke();
+    }
+    
+    // Draw horizontal lines
+    for (let i = 0; i <= gridSize; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * pixelSize);
+        ctx.lineTo(gridSize * pixelSize, i * pixelSize);
+        ctx.stroke();
+    }
+}
+
+function drawRect(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(
+        x * pixelSize + 1,
+        y * pixelSize + 1,
+        pixelSize - 2,
+        pixelSize - 2
+    );
+}
+
+function togglePlayPause() {
+    if (!gameState) return;
+    const command = gameState.paused ? 'play' : 'pause';
+    sendCommand(command);
+}
+
+async function sendCommand(command) {
+    try {
+        const response = await fetch('/api/control', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ command })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error(data.error);
+        }
+        
+        if (data.speed) {
+            speedValueElement.textContent = `${data.speed.toFixed(1)}x`;
+        }
+    } catch (error) {
+        console.error('Error sending command:', error);
+    }
+}
+
+function handleKeyDown(event) {
+    switch (event.key) {
+        case ' ': // Space
+            togglePlayPause();
+            break;
+        case 'ArrowLeft':
+            sendCommand('prev_game');
+            break;
+        case 'ArrowRight':
+            sendCommand('next_game');
+            break;
+        case 'r':
+        case 'R':
+            sendCommand('restart_game');
+            break;
+        case 'ArrowUp':
+            sendCommand('speed_up');
+            break;
+        case 'ArrowDown':
+            sendCommand('speed_down');
+            break;
+        case 'Escape':
+            window.close();
+            break;
+    }
+}
+
+// Handle window resize
+window.addEventListener('resize', drawGame);
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', init);

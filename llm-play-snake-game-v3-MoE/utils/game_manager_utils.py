@@ -256,7 +256,7 @@ def report_final_statistics(stats_info):
             - error_steps: Number of error steps
             - valid_steps: Number of valid steps
             - invalid_reversals: Number of invalid reversals
-            - max_empty_moves: Maximum allowed empty moves
+            - max_empty_moves_allowed: Maximum allowed empty moves
             - max_consecutive_errors_allowed: Maximum allowed consecutive errors (default: 5)
     """
     from utils.json_utils import get_json_error_stats, save_session_stats
@@ -272,7 +272,7 @@ def report_final_statistics(stats_info):
     error_steps = stats_info["error_steps"]
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
-    max_empty_moves = stats_info["max_empty_moves"]
+    max_empty_moves_allowed = stats_info["max_empty_moves_allowed"]
     max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
     # Get time and token statistics from the game instance if available
@@ -310,7 +310,7 @@ def report_final_statistics(stats_info):
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         json_error_stats=json_error_stats,
-        max_empty_moves=max_empty_moves,
+        max_empty_moves_allowed=max_empty_moves_allowed,
         max_consecutive_errors_allowed=max_consecutive_errors_allowed,
         time_stats=time_stats,
         token_stats=token_stats
@@ -332,7 +332,7 @@ def report_final_statistics(stats_info):
     print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
-    print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves}")
+    print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves_allowed}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     
     if json_error_stats['total_extraction_attempts'] > 0:

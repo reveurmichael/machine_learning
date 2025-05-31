@@ -369,7 +369,7 @@ def continue_from_directory(game_manager_class, args):
             # Copy other important configuration parameters
             args.move_pause = original_config.get('move_pause', args.move_pause)
             args.max_steps = original_config.get('max_steps', args.max_steps)
-            args.max_empty_moves = original_config.get('max_empty_moves', args.max_empty_moves)
+            args.max_empty_moves_allowed = original_config.get('max_empty_moves_allowed', args.max_empty_moves_allowed)
             args.max_consecutive_errors_allowed = original_config.get('max_consecutive_errors_allowed', args.max_consecutive_errors_allowed)
             
             # Preserve the original GUI setting
@@ -397,7 +397,7 @@ def continue_from_directory(game_manager_class, args):
                 print(Fore.GREEN + f"🤖 Parser LLM: {args.parser_provider}" + (f" ({args.parser_model})" if args.parser_model else ""))
             print(Fore.GREEN + f"⏱️ Move pause: {args.move_pause} seconds")
             print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
-            print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_empty_moves}")
+            print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_empty_moves_allowed}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_errors_allowed}")
             print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
             print(Fore.GREEN + f"🎲 Max games: {args.max_games}")

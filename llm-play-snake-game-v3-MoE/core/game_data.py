@@ -59,7 +59,7 @@ class GameData:
         
         # Basic game stats
         self.snake_length = 1
-        self.max_empty_moves = 3
+        self.max_empty_moves_allowed = 3
         
         # Game history
         self.moves = []
@@ -407,8 +407,8 @@ class GameData:
             summary_data: Dictionary containing data from summary.json
         """
         # Import settings from summary.json
-        if 'max_empty_moves' in summary_data:
-            self.max_empty_moves = summary_data['max_empty_moves']
+        if 'max_empty_moves_allowed' in summary_data:
+            self.max_empty_moves_allowed = summary_data['max_empty_moves_allowed']
         
         # Import step statistics if available
         if 'step_stats' in summary_data:
@@ -683,7 +683,7 @@ class GameData:
                 "timestamp": self.timestamp,
                 "last_move": self.last_move,
                 "round_count": self.round_count,  # Keep it here for backward compatibility
-                "max_empty_moves": self.max_empty_moves,
+                "max_empty_moves_allowed": self.max_empty_moves_allowed,
                 "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
                 "parser_usage_count": self.parser_usage_count
             },

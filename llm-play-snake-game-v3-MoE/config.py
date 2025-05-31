@@ -187,17 +187,18 @@ Example Moves from (1,1):
 
 ## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
 
-The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at TEXT_TO_BE_REPLACED_HEAD_POS and whose body cells are in list format TEXT_TO_BE_REPLACED_BODY_CELLS, to eat (or at least get close to) the apple at TEXT_TO_BE_REPLACED_APPLE_POS.
+The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at TEXT_TO_BE_REPLACED_HEAD_POS and whose body cells are in list format TEXT_TO_BE_REPLACED_BODY_CELLS, to eat (or at least get close to) the apple at TEXT_TO_BE_REPLACED_APPLE_POS. It's possible that RESPONSE_1 cannot determine a complete safe path to the apple and gives just one or several initial moves.
 
 ## RULES:
 - "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT"
 - "reasoning" must be a brief explanation for the chosen path
-- If after reading RESPONSE_1, according to your understanding, no valid path exists or can't be determined, or if you are not sure about the text's meaning of path planning, use: { "moves": [], "reasoning": "NO_PATH_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or no safe initial moves can be performed, or if you are not sure about the text's meaning on path and move planning, use: { "moves": [], "reasoning": "NO_PATH_OR_SAFE_INITIAL_MOVES_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
 
 ## WHAT YOU SHOULD DO:
 - First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" }.
 - Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
-- Third, if RESPONSE_1 does not contain the <think>...</think> tags, you should use use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+- Third, if THINK_PROCESS_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
+- Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
 
 Return ONLY the JSON object without any additional text.
 """

@@ -97,9 +97,15 @@ def process_game_over(game, game_state_info):
     # Set a reason if not already set by the game engine
     if not game.game_state.game_end_reason:
         if game.last_collision_type == 'empty_moves':
-            game.game_state.record_game_end("EMPTY_MOVES")
+            game.game_state.record_game_end("MAX_EMPTY_MOVES_REACHED")
         elif game.last_collision_type == 'max_steps':
-            game.game_state.record_game_end("MAX_STEPS")
+            game.game_state.record_game_end("MAX_STEPS_REACHED")
+        elif game.last_collision_type == 'wall':
+            game.game_state.record_game_end("WALL")
+        elif game.last_collision_type == 'self':
+            game.game_state.record_game_end("SELF")
+        elif game.last_collision_type == 'error':
+            game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
         else:
             game.game_state.record_game_end("UNKNOWN")
     
@@ -214,7 +220,7 @@ def handle_error(game, error_info):
         
         # Set game end reason
         game.last_collision_type = 'error'
-        game.game_state.record_game_end("ERROR_THRESHOLD")
+        game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
         
         # Store moves in game state
         if current_game_moves:

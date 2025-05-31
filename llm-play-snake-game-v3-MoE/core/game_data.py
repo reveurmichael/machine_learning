@@ -256,8 +256,17 @@ class GameData:
         """Record the end of a game.
         
         Args:
-            reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS", "EMPTY_MOVES")
+            reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS_REACHED", 
+                   "MAX_EMPTY_MOVES_REACHED", "MAX_CONSECUTIVE_ERRORS_REACHED")
         """
+        # Standardize reason naming to ensure consistency
+        if reason == "MAX_STEPS":
+            reason = "MAX_STEPS_REACHED"
+        elif reason == "EMPTY_MOVES":
+            reason = "MAX_EMPTY_MOVES_REACHED"
+        elif reason == "ERROR_THRESHOLD":
+            reason = "MAX_CONSECUTIVE_ERRORS_REACHED"
+        
         self.game_end_reason = reason
         self.game_over = True
         self.game_number += 1
@@ -708,7 +717,7 @@ class GameData:
                 "continuation_count": self.continuation_count,
                 "continuation_timestamps": self.continuation_timestamps,
                 "continuation_metadata": self.continuation_metadata
-        }
+            }
         
         return summary
     

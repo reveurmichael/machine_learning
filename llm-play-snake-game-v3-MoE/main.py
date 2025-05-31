@@ -124,7 +124,7 @@ def main():
             GameManager.continue_from_directory(args)
         else:
             # Check environment setup for new session
-        primary_env_ok = check_env_setup(args.provider)
+            primary_env_ok = check_env_setup(args.provider)
         
         # Check secondary LLM environment if specified
         if args.parser_provider and args.parser_provider.lower() != 'none':

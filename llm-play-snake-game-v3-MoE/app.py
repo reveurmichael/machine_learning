@@ -496,6 +496,18 @@ def display_experiment_details(folder_path):
             empty_pct = (empty_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
             error_pct = (error_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
             
+            # Get game end reason with standardized formatting
+            game_end_reason = data.get("game_end_reason", "Unknown")
+            
+            # Format the game end reason for display
+            formatted_end_reason = game_end_reason
+            if game_end_reason == "MAX_EMPTY_MOVES_REACHED":
+                formatted_end_reason = "EMPTY MOVES"
+            elif game_end_reason == "MAX_CONSECUTIVE_ERRORS_REACHED":
+                formatted_end_reason = "LLM ERRORS"
+            elif game_end_reason == "MAX_STEPS_REACHED":
+                formatted_end_reason = "MAX STEPS"
+            
             games_list.append({
                 "Game": game_num,
                 "Score": data.get("score", 0),
@@ -506,7 +518,7 @@ def display_experiment_details(folder_path):
                 "Empty %": f"{empty_pct:.1f}%",
                 "Error Steps": error_game_steps,
                 "Error %": f"{error_pct:.1f}%",
-                "End Reason": data.get("game_end_reason", "Unknown"),
+                "End Reason": formatted_end_reason,
                 "Rounds": data.get("round_count", 0)
             })
         
@@ -592,7 +604,7 @@ def main():
                     options=game_options,
                     index=0,
                     format_func=lambda x: f"Game {x} (Score: {games_data[x].get('score', 0)})"
-        )
+                )
         
                 # Display game info
                 selected_game = games_data.get(replay_game, {})
@@ -629,8 +641,8 @@ def main():
                 format_func=get_folder_display_name,
                 index=0,
                 key="continue_exp"
-        )
-        
+            )
+            
             # Load summary data
             summary_data = load_summary_data(continue_exp)
             
@@ -659,7 +671,7 @@ def main():
                     max_value=100,
                     value=int(config.get("max_games", 10)),
                     step=1
-            )
+                )
             
                 no_gui = st.checkbox(
                     "Disable GUI",

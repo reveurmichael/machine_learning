@@ -95,7 +95,7 @@ def run_game_loop(game_manager):
                                 print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves_allowed}). Game over.")
                                 game_manager.game_active = False
                                 game_manager.game.last_collision_type = 'empty_moves'
-                                game_manager.game.game_state.record_game_end("EMPTY_MOVES")
+                                game_manager.game.game_state.record_game_end("MAX_EMPTY_MOVES_REACHED")
                         
                         # End movement time tracking
                         game_manager.game.game_state.record_game_movement_end()

@@ -63,7 +63,7 @@ def run_game_loop(game_manager):
                             # Update UI to show the new state after move
                             game_manager.game.draw()
                             
-                            # Reset error tracking on successful move
+                            # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_errors = 0
                             
                             # Standard pause between moves for gameplay rhythm
@@ -87,6 +87,7 @@ def run_game_loop(game_manager):
                             game_manager.game.game_state.moves.append("EMPTY")
                             
                             # Track consecutive empty moves
+                            # Only increment this counter for actual empty moves, not for LLM errors
                             game_manager.consecutive_empty_steps += 1
                             print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves_allowed}")
                             
@@ -124,7 +125,7 @@ def run_game_loop(game_manager):
                                 # Update UI after the move
                                 game_manager.game.draw()
                             
-                            # Reset error tracking on successful move
+                            # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_errors = 0
                             
                             # Request new plan if apple was eaten

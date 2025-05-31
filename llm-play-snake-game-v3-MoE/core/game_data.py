@@ -220,7 +220,6 @@ class GameData:
         """Record an error move (error in LLM response)."""
         self.error_steps += 1
         self.steps += 1
-        self.consecutive_empty_moves = 0  # Reset on error (as per game rules)
     
     def record_llm_communication_start(self):
         """Mark the start of communication with an LLM."""

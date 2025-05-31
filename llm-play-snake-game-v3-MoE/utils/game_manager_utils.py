@@ -218,7 +218,7 @@ def handle_error(game, error_info):
                 token_stats["secondary"]["total_prompt_tokens"] += game_token_stats["secondary"].get("total_prompt_tokens", 0)
                 token_stats["secondary"]["total_completion_tokens"] += game_token_stats["secondary"].get("total_completion_tokens", 0)
         
-        # Set game end reason
+        # Set game end reason specifically for error threshold
         game.last_collision_type = 'error'
         game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
         
@@ -244,6 +244,10 @@ def handle_error(game, error_info):
         
         # Reset round_count to 1 for the next game
         round_count = 1
+    else:
+        # If we haven't reached the threshold, just increment the error counter
+        # but don't affect the empty move counter
+        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {consecutive_errors}/{args.max_consecutive_errors_allowed}")
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals
 

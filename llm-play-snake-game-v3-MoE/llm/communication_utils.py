@@ -356,7 +356,18 @@ def get_llm_response(game_manager):
         # Record that there was an error in the LLM response
         game_manager.game.game_state.record_error_move()
         game_manager.error_steps += 1
-
+        
+        # Increment consecutive errors but DO NOT increment consecutive empty steps
+        # This keeps the two tracking mechanisms independent
+        game_manager.consecutive_errors += 1
         print(Fore.RED + f"❌ Error getting response from LLM: {e}")
+        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {game_manager.consecutive_errors}/{game_manager.args.max_consecutive_errors_allowed}")
+        
+        # End game if maximum consecutive errors reached
+        if game_manager.consecutive_errors >= game_manager.args.max_consecutive_errors_allowed:
+            print(Fore.RED + f"❌ Maximum consecutive LLM errors reached ({game_manager.args.max_consecutive_errors_allowed}). Game over.")
+            game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
+            return None, False
+        
         traceback.print_exc()
         return None, True 

@@ -28,8 +28,6 @@ const endReasonElement = document.getElementById('end-reason');
 const endReasonContainer = document.getElementById('end-reason-container');
 const primaryLlmElement = document.getElementById('primary-llm');
 const secondaryLlmElement = document.getElementById('secondary-llm');
-const timestampElement = document.getElementById('timestamp');
-const llmResponseElement = document.getElementById('llm-response-text');
 const playPauseButton = document.getElementById('play-pause');
 const prevGameButton = document.getElementById('prev-game');
 const nextGameButton = document.getElementById('next-game');
@@ -140,7 +138,7 @@ function updateUI() {
     document.title = `Snake Game ${gameState.game_number} - Score: ${gameState.score}`;
     
     // Update progress
-    progressElement.textContent = `${gameState.move_index}/${gameState.total_moves} (${Math.floor(gameState.move_index / Math.max(1, gameState.total_moves) * 100)}%)`;
+    progressElement.textContent = `${gameState.move_index}/${gameState.total_moves}`;
     
     // Update progress bar
     if (gameState.total_moves > 0) {
@@ -165,12 +163,6 @@ function updateUI() {
     // Update LLM info
     primaryLlmElement.textContent = gameState.primary_llm || 'Unknown';
     secondaryLlmElement.textContent = gameState.secondary_llm || 'None';
-    timestampElement.textContent = gameState.timestamp || 'Unknown';
-    
-    // Update LLM response
-    if (gameState.llm_response) {
-        llmResponseElement.textContent = gameState.llm_response;
-    }
     
     // Update play/pause button
     playPauseButton.textContent = gameState.paused ? 'Play' : 'Pause';
@@ -282,25 +274,28 @@ function handleKeyDown(event) {
     switch (event.key) {
         case ' ': // Space
             togglePlayPause();
+            event.preventDefault();
             break;
         case 'ArrowLeft':
             sendCommand('prev_game');
+            event.preventDefault();
             break;
         case 'ArrowRight':
             sendCommand('next_game');
+            event.preventDefault();
             break;
         case 'r':
         case 'R':
             sendCommand('restart_game');
+            event.preventDefault();
             break;
         case 'ArrowUp':
             sendCommand('speed_up');
+            event.preventDefault(); // Prevent page scrolling
             break;
         case 'ArrowDown':
             sendCommand('speed_down');
-            break;
-        case 'Escape':
-            window.close();
+            event.preventDefault(); // Prevent page scrolling
             break;
     }
 }

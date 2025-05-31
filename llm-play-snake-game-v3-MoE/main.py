@@ -22,7 +22,7 @@ def parse_arguments():
     parser.add_argument('--model', type=str, default=None,
                       help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"')
     parser.add_argument('--parser-provider', type=str, default=None,
-                      help='LLM provider to use for secondary LLM (if not specified, uses the same as --provider). Use "none" to skip using a parser LLM and use primary LLM output directly.')
+                      help='LLM provider to use for secondary LLM. Default: "none" (single LLM mode). Set to same as --provider for dual LLM mode.')
     parser.add_argument('--parser-model', type=str, default=None,
                       help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
     parser.add_argument('--max-games', type=int, default=6,
@@ -61,8 +61,9 @@ def parse_arguments():
     
     # Set parser provider and model if not specified
     if args.parser_provider is None:
-        # Default to the same as primary provider
-        args.parser_provider = args.provider
+        # Default to 'none' instead of using primary provider
+        # This makes single-LLM mode the default
+        args.parser_provider = 'none'
     
     # Set default model for parser LLM if not specified but parser is enabled
     if args.parser_provider and args.parser_provider.lower() != 'none' and args.parser_model is None:

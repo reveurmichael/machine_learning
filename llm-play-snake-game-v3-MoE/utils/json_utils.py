@@ -67,10 +67,17 @@ def save_experiment_info_json(args, directory):
     # Convert args to dict
     args_dict = vars(args)
     
+    # Clean up configuration - set parser info to null if it's 'none'
+    config_dict = args_dict.copy()
+    if 'parser_provider' in config_dict and (not config_dict['parser_provider'] or config_dict['parser_provider'].lower() == 'none'):
+        # In single LLM mode, set parser fields to null instead of removing them
+        config_dict['parser_provider'] = None
+        config_dict['parser_model'] = None
+    
     # Create experiment info
     experiment_info = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "configuration": args_dict,
+        "configuration": config_dict,
         "game_statistics": {
             "total_games": 0,
             "total_score": 0,

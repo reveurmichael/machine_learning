@@ -662,7 +662,7 @@ class GameData:
             # Core game data
             "score": self.score,
             "steps": self.steps,
-            "snake_length": len(self.snake_segments) if hasattr(self, 'snake_segments') else self.snake_length,
+            "snake_length": self.snake_length,
             "game_over": self.game_over,
             "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
             "round_count": self.round_count,  # Add round_count at the top level
@@ -674,8 +674,8 @@ class GameData:
             "llm_info": {
                 "primary_provider": primary_provider,
                 "primary_model": primary_model,
-                "parser_provider": parser_provider if parser_provider.lower() != "none" else None,
-                "parser_model": parser_model if parser_provider.lower() != "none" else None
+                "parser_provider": parser_provider if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none" else None,
+                "parser_model": parser_model if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none" else None
             },
             
             # Important statistics

@@ -143,7 +143,7 @@ def setup_llm_clients(game_manager):
         success = game_manager.llm_client.set_secondary_llm(game_manager.parser_provider, game_manager.parser_model)
 
         if success:
-            print(Fore.GREEN + f"Parser LLM: {game_manager.parser_provider} ({game_manager.parser_model})")
+            print(Fore.GREEN + f"Secondary LLM configured: {game_manager.parser_provider}/{game_manager.parser_model}")
 
             # Create a separate client for health check
             parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)
@@ -159,7 +159,9 @@ def setup_llm_clients(game_manager):
             game_manager.args.parser_provider = "none"
             game_manager.args.parser_model = None
     else:
-        print(Fore.GREEN + "🤖 No separate parser LLM will be used")
+        # Clear parser fields to ensure they're not included in logs
+        game_manager.args.parser_model = None
+        print(Fore.GREEN + "🤖 Using single LLM mode (no secondary parser LLM)")
 
 def initialize_game_state(game_manager):
     """Initialize the game state.

@@ -174,7 +174,7 @@ def display_experiment_overview(log_folders):
             # Store primary provider and model separately
             primary_provider = config.get('provider', 'Unknown')
             primary_model_name = config.get('model', 'default')
-            
+        
             # Store secondary provider and model
             secondary_provider = None
             secondary_model_name = None
@@ -445,9 +445,11 @@ def display_experiment_details(folder_path):
                     response_times.append(llm_communication_time)
         
         if response_times:
+            # Create two columns for the visualizations
             col1, col2 = st.columns([3, 1])
-        
-        with col2:
+            
+            # Configuration column
+            with col2:
                 # Allow user to configure bins for response time
                 time_bins = st.slider(
                     "Number of time bins", 
@@ -458,6 +460,7 @@ def display_experiment_details(folder_path):
                     key="time_bins"
                 )
             
+            # Histogram column
             with col1:
                 # Create histogram for LLM response times
                 fig_times = px.histogram(
@@ -478,7 +481,7 @@ def display_experiment_details(folder_path):
                 st.plotly_chart(fig_times, use_container_width=True)
         else:
             st.info("No LLM response time data available for this experiment.")
-            
+        
         # Display game details table - kept as requested
         st.markdown("## Game Details")
         

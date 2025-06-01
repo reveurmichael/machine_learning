@@ -471,7 +471,7 @@ def format_body_cells_str(body_positions):
     body_cells = []
 
     # Format each position as a tuple string
-    for x, y in body_positions[::-1]:
+    for x, y in body_positions:
         body_cells.append(f"({x},{y})")
 
     return "[" + ", ".join(body_cells) + "]"

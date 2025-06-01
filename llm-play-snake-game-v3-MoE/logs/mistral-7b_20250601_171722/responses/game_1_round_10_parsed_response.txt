@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-01 17:36:14
+SECONDARY LLM Response Time: 2025-06-01 17:38:15
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (8, 4)
+Apple Position: (7, 1)
+Body Cells: [(7, 4)]
+Timestamp: 2025-06-01 17:38:15
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["LEFT", "UP"],
+  "reasoning": "The snake is at (8,4) and the apple is at (7,1). The closest legal move to the apple while avoiding self-collision is LEFT followed by UP. Moving LEFT once gets us closer to the apple and prevents immediate self-collision since there is no body segment to our left. Then moving UP takes us directly towards the apple."
+}
+```

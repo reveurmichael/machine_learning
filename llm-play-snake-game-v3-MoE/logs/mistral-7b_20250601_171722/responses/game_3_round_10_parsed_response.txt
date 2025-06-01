@@ -1,0 +1,22 @@
+SECONDARY LLM Request Time: 2025-06-01 18:02:54
+SECONDARY LLM Response Time: 2025-06-01 18:05:48
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (6, 1)
+Apple Position: (7, 3)
+Body Cells: [(7, 1)]
+Timestamp: 2025-06-01 18:05:48
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT", "DOWN"],
+  "reasoning": "The snake moves right to get closer to the apple, and then down to reach the apple while avoiding self-collision."
+}
+``` 
+
+
+
+

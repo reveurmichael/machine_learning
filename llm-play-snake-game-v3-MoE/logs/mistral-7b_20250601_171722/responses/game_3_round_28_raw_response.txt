@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-01 18:40:30
+PRIMARY LLM Response Time: 2025-06-01 18:40:40
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: mistral:7b
+Head Position: (4, 6)
+Apple Position: (1, 7)
+Body Cells: [(4, 7), (3, 7)]
+Timestamp: 2025-06-01 18:40:40
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ {
+    "moves": ["LEFT", "DOWN", "RIGHT"],
+    "reasoning": "We start by moving LEFT to avoid potential collision with the tail since we are already at the top row and cannot move up. Then, we move DOWN to reach the next row with the apple. Lastly, we move RIGHT to reach the apple."
+   }

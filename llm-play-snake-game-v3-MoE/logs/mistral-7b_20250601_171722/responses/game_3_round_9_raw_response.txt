@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-01 18:01:30
+PRIMARY LLM Response Time: 2025-06-01 18:01:39
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: mistral:7b
+Head Position: (7, 1)
+Apple Position: (6, 1)
+Body Cells: []
+Timestamp: 2025-06-01 18:01:39
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ {
+     "moves": ["LEFT"],
+     "reasoning": "The snake is currently at (7,1) and the apple is at (6,1). Moving left avoids immediate collision with the body or walls. The snake can then move down to reach the apple safely."
+   }

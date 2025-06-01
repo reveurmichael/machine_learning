@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-01 17:38:15
+PRIMARY LLM Response Time: 2025-06-01 17:38:25
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: mistral:7b
+Head Position: (9, 5)
+Apple Position: (7, 1)
+Body Cells: [(9, 4)]
+Timestamp: 2025-06-01 17:38:25
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ {
+    "moves": ["LEFT", "DOWN", "RIGHT"],
+    "reasoning": "The snake is currently at (9,5) and the apple is at (7,1). To avoid immediate self-collision and stay within grid bounds, we move first to the left (to (8,5)), then down (to (8,4)) to leave room for potential future movements. After that, we move right (to (9,4)) so as not to hug the wall unnecessarily and approach the apple diagonally."
+   }

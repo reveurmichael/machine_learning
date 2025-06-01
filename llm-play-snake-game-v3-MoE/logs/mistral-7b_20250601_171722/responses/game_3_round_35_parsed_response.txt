@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-01 18:56:57
+SECONDARY LLM Response Time: 2025-06-01 18:58:20
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (1, 7)
+Apple Position: (5, 4)
+Body Cells: [(1, 6), (1, 5), (1, 4)]
+Timestamp: 2025-06-01 18:58:20
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+    "moves": ["RIGHT", "UP", "LEFT", "UP"],
+    "reasoning": "We start moving right to reach the apple horizontally due to its x-coordinate (5) being greater than our current x-coordinate (1). Then we move up to reach the apple vertically. After eating the apple, we adjust our path to avoid immediate self-collision by moving left before moving up again."
+}
+```

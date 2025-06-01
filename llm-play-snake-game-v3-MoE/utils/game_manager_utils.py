@@ -470,11 +470,8 @@ def format_body_cells_str(body_positions):
     """
     body_cells = []
 
-    # Reverse the body positions to list them from tail to segment behind head
-    body_positions = body_positions[::-1]  # Reverse the order
-
     # Format each position as a tuple string
-    for x, y in body_positions:
+    for x, y in body_positions[::-1]:
         body_cells.append(f"({x},{y})")
 
     return "[" + ", ".join(body_cells) + "]"

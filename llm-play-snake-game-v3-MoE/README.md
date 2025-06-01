@@ -1,9 +1,8 @@
 ![](./img/a.jpg)
 
-
 # LLM-Powered Snake Game (MoE Variant)
 
-This project implements a classic Snake game controlled by two Large Language Models in a Mixture-of-Experts inspired approach.
+This project implements a classic Snake game controlled by two Large Language Models using a Mixture-of-Experts inspired approach.
 
 ## How to Play the Game
 
@@ -29,7 +28,7 @@ python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollam
 python main.py --provider ollama --model deepseek-r1:32b --parser-provider ollama --parser-model gemma2:9b
 ```
 
-You can also run the game with just a primary LLM (no parser):
+You can also run the game with just a primary LLM (without a parser):
 
 ```
 python main.py --provider ollama --model deepseek-r1:7b --parser-provider none
@@ -53,7 +52,6 @@ HUNYUAN_API_KEY=your_hunyuan_api_key_here
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 MISTRAL_API_KEY=your_mistral_api_key_here
 ```
-
 
 ## Two-LLM Architecture (MoE Approach)
 
@@ -101,10 +99,10 @@ The codebase is organized in a modular structure to ensure maintainability and s
   - `main.py`: Entry point with command-line argument parsing
   - `config.py`: Configuration constants
   - `app.py`: Streamlit dashboard for analyzing game statistics and replaying games
-  - `replay.py`: Command-line interface for replaying saved games, pygame version
-  - `replay_web.py`: Command-line interface for replaying saved games, web version
-  - `human_play.py`: Human-playable version of the Snake game, pygame version
-  - `human_play_web.py`: Human-playable version of the Snake game, web version
+  - `replay.py`: Command-line interface for replaying saved games (pygame version)
+  - `replay_web.py`: Command-line interface for replaying saved games (web version)
+  - `human_play.py`: Human-playable version of the Snake game (pygame version)
+  - `human_play_web.py`: Human-playable version of the Snake game (web version)
 
 ## Data Output
 
@@ -131,36 +129,27 @@ The snake game will terminate under any of the following conditions:
 
 After game termination (for any reason), the system will automatically start the next game until the maximum number of games is reached.
 
+## How this Project Resembles a Real Research Project
 
-## How this project resembles a real research project
+- **Comprehensive Logging**: Extensive JSON file logging that tracks nearly everything, potentially useful for future analysis
+- **Multiple Execution Modes**: Supports both visual and non-visual (headless) modes
+- **Replay Functionality**: Enables result verification and analysis
+- **Analysis Dashboard**: Includes tools for preliminary result analysis and experiment parameter adjustment
+- **Rapid Prototyping**: Supports quick testing with minimal parameters:
+  ```
+  python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0
+  ```
 
-logging into json files: very comprehensive. Keep track of almost everything, maybe it can be useful, somehow.
+## What's Missing for a Complete Research Project
 
---no-gui: it's like a headless mode. Visual + non visual mode.
+- **Automated Launch System**: More script-based and parallelized application launching instead of command-line arguments
+- **Resource Management**: Helper scripts for GPU usage monitoring and application launch coordination
+- **Logging System**: Implementation of standard logging levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- **Data Analysis Pipeline**: Comprehensive data processing and analysis tools (for reporting and paper publication)
 
-replay mode: for double checking results.
+## If You Want to Change the Code
 
-app.py: for analyzing preliminary results, giving insights and adjust experiment parameters.
-
-fail fast, going lean: ```python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0```, instead of doing a complete run each time.
-
-
-## What's missing, if this were a real research project
-
-Launching the application can be in a more "script" way and often parallelized, instead of using command line arguments. 
-
-Helper script for checking GPU usage, and then launching the application accordingly. 
-
-Logging system with log files (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-
-Data processing and analysis.
-
-
-## If you want to change the code
-
-You should specify:
-
-As a top rule, the schema of our game_N.json and summary.json is now totally fixed. We should never change the schema of these json files.
+As a fundamental rule, the schema of our `game_N.json` and `summary.json` files is now fixed and should never be modified. You can, on the contrary, modify the code to change how those values are calculated.
 
 
 

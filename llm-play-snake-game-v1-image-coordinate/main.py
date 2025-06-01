@@ -82,6 +82,7 @@ def main():
         game_count = 0
         game_active = True
         round_count = 0
+        game_round_count = {}  # Dictionary to store round count per game
         need_new_plan = True
         
         # Main game loop
@@ -124,8 +125,16 @@ def main():
                             steps=game.steps
                         )
                         
-                        # Log the prompt
-                        prompt_filename = f"game{game_count+1}_round{round_count+1}_prompt.txt"
+                        # Initialize round count for this game if it doesn't exist
+                        current_game = game_count + 1
+                        if current_game not in game_round_count:
+                            game_round_count[current_game] = 0
+                        
+                        # Increment the round count for this game
+                        game_round_count[current_game] += 1
+                        
+                        # Log the prompt with sequential round number
+                        prompt_filename = f"game{current_game}_round{game_round_count[current_game]}_prompt.txt"
                         save_to_file(prompt, prompts_dir, prompt_filename)
                         
                         # Get next move from LLM, passing the specified model if provided
@@ -134,13 +143,13 @@ def main():
                             llm_kwargs['model'] = args.model
                         llm_response = llm_client.generate_response(prompt, **llm_kwargs)
                         
-                        # Log the response
-                        response_filename = f"game{game_count+1}_round{round_count+1}_response.txt"
+                        # Log the response with sequential round number
+                        response_filename = f"game{current_game}_round{game_round_count[current_game]}_response.txt"
                         save_to_file(llm_response, responses_dir, response_filename)
                         
                         # Parse and get the first move from the sequence
                         next_move = game.parse_llm_response(llm_response)
-                        print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {game_count+1}, Round {round_count+1})")
+                        print(Fore.CYAN + f"🐍 Move: {next_move if next_move else 'None - staying in place'} (Game {current_game}, Round {game_round_count[current_game]})")
                         
                         # We now have a new plan, so don't request another one until we need it
                         need_new_plan = False
@@ -155,7 +164,7 @@ def main():
                             # No movement, so the game remains active and no apple is eaten
                             game_active, apple_eaten = True, False
                         
-                        # Increment round count
+                        # Increment round count (global count across all moves)
                         round_count += 1
                     else:
                         # Get the next move from the existing plan
@@ -163,7 +172,8 @@ def main():
                         
                         # If we have a move, execute it
                         if next_move:
-                            print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_count+1}, Round {round_count+1})")
+                            current_game = game_count + 1
+                            print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {current_game}, Round {game_round_count[current_game]})")
                             
                             # Execute the move and check if game continues
                             game_active, apple_eaten = game.make_move(next_move)
@@ -173,8 +183,9 @@ def main():
                                 print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
                                 need_new_plan = True
                             
-                            # Increment round count
-                            round_count += 1
+                            # We don't increment game_round_count here as we're executing planned moves,
+                            # not generating new LLM responses and prompts
+                            round_count += 1  # Only increment the global round count
                             
                             # Pause between moves for visualization
                             if not speed_up:
@@ -186,18 +197,20 @@ def main():
                     # Check if game is over
                     if not game_active:
                         game_count += 1
+                        current_game = game_count
                         print(Fore.RED + f"❌ Game over! Score: {game.score}, Steps: {game.steps}")
                         
                         # Save game summary
-                        summary = f"""Game {game_count} Summary:
+                        summary = f"""Game {current_game} Summary:
 Score: {game.score}
 Steps: {game.steps}
+Rounds: {game_round_count.get(current_game, 0)}
 Last direction: {next_move}
 """
-                        save_to_file(summary, log_dir, f"game{game_count}_summary.txt")
+                        save_to_file(summary, log_dir, f"game{current_game}_summary.txt")
                         
-                        # Reset round count for next game
-                        round_count = 0
+                        # The game_round_count dictionary maintains separate round counts per game,
+                        # so we don't need to reset it here
                         
                         # Wait a moment before resetting if not the last game
                         if game_count < args.max_games:
@@ -223,6 +236,14 @@ Last direction: {next_move}
         
         print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
         print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
+        
+        # Write summary info file
+        info_content = f"""Session Summary:
+Total games played: {game_count}
+Total moves executed: {round_count}
+Rounds per game: {', '.join([f'Game {g}: {r}' for g, r in game_round_count.items()])}
+"""
+        save_to_file(info_content, log_dir, "info.txt")
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

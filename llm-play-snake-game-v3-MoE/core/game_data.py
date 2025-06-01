@@ -472,8 +472,9 @@ class GameData:
         # Update round data
         self.rounds_data[round_key]["apple_position"] = apple_position
         
-        # Update moves
+        # Update moves - store the full array of moves from the LLM
         if moves:
+            # Store the entire array of moves from the LLM
             self.rounds_data[round_key]["moves"] = moves
         
         # Update response times if provided
@@ -745,6 +746,8 @@ class GameData:
             log_dir: Directory containing prompts and responses
             game_number: The game number to look for
         """
+        import re
+        import json
         
         # Get prompt files to identify round numbers
         prompts_dir = os.path.join(log_dir, 'prompts')
@@ -774,49 +777,83 @@ class GameData:
         # Clear existing rounds_data to ensure clean state
         self.rounds_data = {}
         
-        # Calculate the number of moves per round
-        # In Snake, rounds typically end when an apple is eaten or the game ends
-        # So we need to determine the number of moves in each round
+        # Check for response files to get the original moves from LLM output
+        responses_dir = os.path.join(log_dir, 'responses')
+        parsed_responses = {}
         
-        # First, get the total number of moves
-        total_moves = len(self.moves)
+        if os.path.exists(responses_dir):
+            # Collect all parsed response files
+            for round_num in round_numbers:
+                # Look for parsed response files for each round
+                parsed_file = os.path.join(responses_dir, f'game_{game_number}_round_{round_num}_parsed_response.txt')
+                raw_file = os.path.join(responses_dir, f'game_{game_number}_round_{round_num}_raw_response.txt')
+                
+                # First try parsed response (from secondary LLM if available)
+                if os.path.exists(parsed_file):
+                    try:
+                        with open(parsed_file, 'r') as f:
+                            content = f.read()
+                            # Try to extract JSON from the content
+                            try:
+                                # Look for code blocks with JSON
+                                code_blocks = re.findall(r'```(?:json)?\s*([\s\S]*?)```', content, re.DOTALL)
+                                if code_blocks:
+                                    for block in code_blocks:
+                                        try:
+                                            data = json.loads(block)
+                                            if 'moves' in data:
+                                                parsed_responses[round_num] = data['moves']
+                                                break
+                                        except:
+                                            pass
+                            except:
+                                pass
+                    except:
+                        pass
+                
+                # If no parsed response, try raw response
+                if round_num not in parsed_responses and os.path.exists(raw_file):
+                    try:
+                        with open(raw_file, 'r') as f:
+                            content = f.read()
+                            # Try to extract JSON from the content
+                            try:
+                                # Look for code blocks with JSON
+                                code_blocks = re.findall(r'```(?:json)?\s*([\s\S]*?)```', content, re.DOTALL)
+                                if code_blocks:
+                                    for block in code_blocks:
+                                        try:
+                                            data = json.loads(block)
+                                            if 'moves' in data:
+                                                parsed_responses[round_num] = data['moves']
+                                                break
+                                        except:
+                                            pass
+                            except:
+                                pass
+                    except:
+                        pass
         
-        # Determine how many moves belong to each round
-        # For each round, find where it ends
-        moves_per_round = {}
-        
-        # For the last round, use all remaining moves
-        if round_numbers:
-            last_round = max(round_numbers)
-            
-            # Default allocation - try to distribute moves evenly among rounds
-            # This is a simple approach and may need refinement based on actual game rules
-            moves_per_round = {}
-            moves_left = total_moves
-            
-            for i in range(len(round_numbers)-1):
-                round_num = round_numbers[i]
-                # Each round gets a proportion of the moves
-                moves_per_round[round_num] = max(1, total_moves // len(round_numbers))
-                moves_left -= moves_per_round[round_num]
-            
-            # Last round gets all remaining moves
-            if round_numbers:
-                moves_per_round[round_numbers[-1]] = max(1, moves_left)
-        
-        # Save each round's data
-        start_idx = 0
+        # Now create the rounds data with all moves for each round
         for round_num in round_numbers:
             # Only add if not already in rounds_data
             if f'round_{round_num}' in self.rounds_data:
                 continue
             
-            # Get moves for this round
-            moves_count = moves_per_round.get(round_num, 1)  # Default to 1 if not specified
-            end_idx = min(start_idx + moves_count, len(self.moves))
-            
-            # Get all moves for this round
-            moves = self.moves[start_idx:end_idx] if start_idx < len(self.moves) else []
+            # Get moves for this round - use the parsed responses if available
+            if round_num in parsed_responses:
+                moves = parsed_responses[round_num]
+            else:
+                # If we can't find the original move array from the LLM responses,
+                # use a fallback approach by distributing the total moves
+                moves = []
+                
+                # Try to assign at least one move for this round from the total moves list
+                if len(self.moves) > 0:
+                    # For simplicity, just get the next move in the sequence
+                    next_move_idx = round_num - 1  # Convert to 0-based index
+                    if next_move_idx < len(self.moves):
+                        moves = [self.moves[next_move_idx]]
             
             # Create round data
             round_data = {
@@ -829,7 +866,6 @@ class GameData:
             }
             
             # Add token stats and response times if available
-            # We have different indices for these since they're tracked separately
             if round_num <= len(self.primary_response_times):
                 response_idx = round_num - 1
                 round_data["primary_response_times"] = [self.primary_response_times[response_idx]]
@@ -840,9 +876,6 @@ class GameData:
             
             # Save the round data
             self.rounds_data[f'round_{round_num}'] = round_data
-            
-            # Update start index for next round
-            start_idx = end_idx
             
         # Update the file_round_numbers
         self.file_round_numbers = round_numbers
@@ -875,4 +908,14 @@ class GameData:
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
             
-        return filepath 
+        return filepath
+    
+    def record_planned_moves(self, moves):
+        """Record the full array of moves planned by the LLM for the current round.
+        
+        Args:
+            moves: List of moves returned by the LLM (["UP", "DOWN", "LEFT", "RIGHT", ...])
+        """
+        if moves and isinstance(moves, list):
+            # Store the entire array of planned moves for the current round
+            self.current_round_data["moves"] = moves.copy() 

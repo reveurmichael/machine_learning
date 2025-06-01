@@ -305,6 +305,9 @@ def get_llm_response(game_manager):
             
             # Record the move
             game_manager.current_game_moves.extend(parser_output["moves"])
+            
+            # Store the full array of moves for the current round
+            game_manager.game.game_state.record_planned_moves(parser_output["moves"])
 
             # Set the next move
             next_move = parser_output["moves"][0] if parser_output["moves"] else None

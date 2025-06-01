@@ -95,13 +95,16 @@ The codebase is organized in a modular structure to ensure maintainability and s
 - `/llm`: Language model integration  
 - `/utils`: Utility modules  
 - `/replay`: Replay functionality
+- `/web`: Web version of the Snake game
   
 - Main modules:
   - `main.py`: Entry point with command-line argument parsing
   - `config.py`: Configuration constants
   - `app.py`: Streamlit dashboard for analyzing game statistics and replaying games
-  - `replay.py`: Command-line interface for replaying saved games
-  - `human_play.py`: Human-playable version of the Snake game
+  - `replay.py`: Command-line interface for replaying saved games, pygame version
+  - `replay_web.py`: Command-line interface for replaying saved games, web version
+  - `human_play.py`: Human-playable version of the Snake game, pygame version
+  - `human_play_web.py`: Human-playable version of the Snake game, web version
 
 ## Data Output
 

@@ -177,10 +177,12 @@ function drawGame() {
     const gridSize = gameState.grid_size || 10;
     const maxSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.7);
     
-    canvas.width = maxSize;
-    canvas.height = maxSize;
-    
+    // Calculate pixel size to ensure a perfect fit
     pixelSize = Math.floor(maxSize / gridSize);
+    
+    // Set canvas dimensions to exactly fit the grid (no extra margins)
+    canvas.width = pixelSize * gridSize;
+    canvas.height = pixelSize * gridSize;
     
     // Clear canvas
     ctx.fillStyle = COLORS.BACKGROUND;

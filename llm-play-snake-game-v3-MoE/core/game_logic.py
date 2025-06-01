@@ -56,7 +56,7 @@ class GameLogic(GameController):
             List of (x, y) tuples for body segments
         """
         # Convert each position to a tuple and exclude the head (last element)
-        return [tuple(pos) for pos in self.snake_positions[:-1]]
+        return [tuple(pos) for pos in self.snake_positions[:-1]][::-1]
     
     def draw(self):
         """Draw the current game state if GUI is available."""

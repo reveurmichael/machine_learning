@@ -4,14 +4,12 @@ Provides a web-based interface for playing the snake game.
 Reuses core game logic and implements a web interface for human control.
 """
 
-import os
-import sys
 import argparse
 import threading
 import time
 from flask import Flask, render_template, request, jsonify
 
-from config import COLORS, GRID_SIZE
+from config import COLORS
 from core.game_controller import GameController
 
 # Initialize Flask app

@@ -11,7 +11,7 @@ import threading
 import time
 from flask import Flask, render_template, request, jsonify
 
-from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS, GRID_SIZE
+from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS
 from replay.replay_engine import ReplayEngine
 
 # Initialize Flask app
@@ -180,14 +180,22 @@ def control():
     elif command == 'speed_up':  # Note: 'speed_up' decreases move pause time
         # Decrease move pause time by 0.1s (minimum 0.1s)
         replay_engine.pause_between_moves = max(0.1, replay_engine.pause_between_moves - 0.1)
-        # Return the move pause multiplier (inverse of pause time)
-        return jsonify({'status': 'ok', 'speed': 1.0 / replay_engine.pause_between_moves})
+        # Return both the move pause time and its multiplier
+        return jsonify({
+            'status': 'ok', 
+            'move_pause': replay_engine.pause_between_moves,
+            'speed': 1.0 / replay_engine.pause_between_moves
+        })
     
     elif command == 'speed_down':  # Note: 'speed_down' increases move pause time
         # Increase move pause time by 0.1s
         replay_engine.pause_between_moves += 0.1
-        # Return the move pause multiplier (inverse of pause time)
-        return jsonify({'status': 'ok', 'speed': 1.0 / replay_engine.pause_between_moves})
+        # Return both the move pause time and its multiplier
+        return jsonify({
+            'status': 'ok', 
+            'move_pause': replay_engine.pause_between_moves,
+            'speed': 1.0 / replay_engine.pause_between_moves
+        })
     
     return jsonify({'status': 'error', 'message': 'Unknown command'})
 

@@ -169,8 +169,14 @@ function updateUI() {
     // Update play/pause button
     playPauseButton.textContent = gameState.paused ? 'Play' : 'Pause';
     
-    // Update move pause display (inverse of pause time between moves)
-    movePauseValueElement.textContent = `${gameState.speed.toFixed(1)}x`;
+    // Update move pause display in seconds
+    if (gameState.move_pause) {
+        movePauseValueElement.textContent = `${gameState.move_pause.toFixed(1)}s`;
+    } else {
+        // Fallback to calculating from speed if move_pause is not provided
+        const pauseTime = gameState.speed > 0 ? 1.0 / gameState.speed : 1.0;
+        movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
+    }
 }
 
 function drawGame() {
@@ -266,9 +272,13 @@ async function sendCommand(command) {
             console.error(data.error);
         }
         
-        if (data.speed) {
-            // Update move pause multiplier display
-            movePauseValueElement.textContent = `${data.speed.toFixed(1)}x`;
+        // Update move pause display based on response
+        if (data.move_pause) {
+            movePauseValueElement.textContent = `${data.move_pause.toFixed(1)}s`;
+        } else if (data.speed) {
+            // Fallback to calculating from speed if move_pause is not provided
+            const pauseTime = data.speed > 0 ? 1.0 / data.speed : 1.0;
+            movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
         }
     } catch (error) {
         console.error('Error sending command:', error);

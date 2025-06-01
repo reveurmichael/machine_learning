@@ -774,23 +774,49 @@ class GameData:
         # Clear existing rounds_data to ensure clean state
         self.rounds_data = {}
         
+        # Calculate the number of moves per round
+        # In Snake, rounds typically end when an apple is eaten or the game ends
+        # So we need to determine the number of moves in each round
+        
+        # First, get the total number of moves
+        total_moves = len(self.moves)
+        
+        # Determine how many moves belong to each round
+        # For each round, find where it ends
+        moves_per_round = {}
+        
+        # For the last round, use all remaining moves
+        if round_numbers:
+            last_round = max(round_numbers)
+            
+            # Default allocation - try to distribute moves evenly among rounds
+            # This is a simple approach and may need refinement based on actual game rules
+            moves_per_round = {}
+            moves_left = total_moves
+            
+            for i in range(len(round_numbers)-1):
+                round_num = round_numbers[i]
+                # Each round gets a proportion of the moves
+                moves_per_round[round_num] = max(1, total_moves // len(round_numbers))
+                moves_left -= moves_per_round[round_num]
+            
+            # Last round gets all remaining moves
+            if round_numbers:
+                moves_per_round[round_numbers[-1]] = max(1, moves_left)
+        
         # Save each round's data
+        start_idx = 0
         for round_num in round_numbers:
             # Only add if not already in rounds_data
             if f'round_{round_num}' in self.rounds_data:
                 continue
-                
-            # Get moves for this round
-            moves = []
-            
-            # With natural sequential numbering (1, 2, 3, ...), each round corresponds to 
-            # a single move in the moves list
-            start_index = round_num - 1  # Convert to 0-based index for the array
-            end_index = min(start_index + 1, len(self.moves))
             
             # Get moves for this round
-            if end_index > start_index and start_index < len(self.moves):
-                moves = self.moves[start_index:end_index]
+            moves_count = moves_per_round.get(round_num, 1)  # Default to 1 if not specified
+            end_idx = min(start_idx + moves_count, len(self.moves))
+            
+            # Get all moves for this round
+            moves = self.moves[start_idx:end_idx] if start_idx < len(self.moves) else []
             
             # Create round data
             round_data = {
@@ -814,6 +840,9 @@ class GameData:
             
             # Save the round data
             self.rounds_data[f'round_{round_num}'] = round_data
+            
+            # Update start index for next round
+            start_idx = end_idx
             
         # Update the file_round_numbers
         self.file_round_numbers = round_numbers

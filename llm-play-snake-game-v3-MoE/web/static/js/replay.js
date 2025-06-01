@@ -32,9 +32,11 @@ const playPauseButton = document.getElementById('play-pause');
 const prevGameButton = document.getElementById('prev-game');
 const nextGameButton = document.getElementById('next-game');
 const restartButton = document.getElementById('restart');
-const speedUpButton = document.getElementById('speed-up');
-const speedDownButton = document.getElementById('speed-down');
-const speedValueElement = document.getElementById('speed-value');
+// Note: These elements use 'speed' in their IDs but control move pause time
+// speed-up button actually decreases pause time, speed-down button increases pause time
+const movePauseDecreaseButton = document.getElementById('speed-up');      // Decreases pause time
+const movePauseIncreaseButton = document.getElementById('speed-down');    // Increases pause time
+const movePauseValueElement = document.getElementById('speed-value');     // Displays pause multiplier
 const progressBar = document.getElementById('progress-bar');
 const pausedIndicator = document.getElementById('paused-indicator');
 
@@ -57,8 +59,8 @@ function setupEventListeners() {
     prevGameButton.addEventListener('click', () => sendCommand('prev_game'));
     nextGameButton.addEventListener('click', () => sendCommand('next_game'));
     restartButton.addEventListener('click', () => sendCommand('restart_game'));
-    speedUpButton.addEventListener('click', () => sendCommand('speed_up'));
-    speedDownButton.addEventListener('click', () => sendCommand('speed_down'));
+    movePauseDecreaseButton.addEventListener('click', () => sendCommand('speed_up'));
+    movePauseIncreaseButton.addEventListener('click', () => sendCommand('speed_down'));
 }
 
 function startPolling() {
@@ -167,8 +169,8 @@ function updateUI() {
     // Update play/pause button
     playPauseButton.textContent = gameState.paused ? 'Play' : 'Pause';
     
-    // Update speed display
-    speedValueElement.textContent = `${gameState.speed.toFixed(1)}x`;
+    // Update move pause display (inverse of pause time between moves)
+    movePauseValueElement.textContent = `${gameState.speed.toFixed(1)}x`;
 }
 
 function drawGame() {
@@ -265,7 +267,8 @@ async function sendCommand(command) {
         }
         
         if (data.speed) {
-            speedValueElement.textContent = `${data.speed.toFixed(1)}x`;
+            // Update move pause multiplier display
+            movePauseValueElement.textContent = `${data.speed.toFixed(1)}x`;
         }
     } catch (error) {
         console.error('Error sending command:', error);
@@ -292,11 +295,11 @@ function handleKeyDown(event) {
             event.preventDefault();
             break;
         case 'ArrowUp':
-            sendCommand('speed_up');
+            sendCommand('speed_down'); // Up key - increase pause time
             event.preventDefault(); // Prevent page scrolling
             break;
         case 'ArrowDown':
-            sendCommand('speed_down');
+            sendCommand('speed_up'); // Down key - decrease pause time
             event.preventDefault(); // Prevent page scrolling
             break;
     }

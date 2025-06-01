@@ -67,7 +67,8 @@ class WebReplayEngine(ReplayEngine):
             'primary_llm': self.primary_llm,
             'secondary_llm': self.secondary_llm,
             'paused': self.paused,
-            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
+            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,  # Move pause multiplier (kept as 'speed' for backward compatibility)
+            'move_pause': self.pause_between_moves,  # Actual pause time in seconds
             'game_end_reason': self.game_end_reason,
             'grid_size': self.grid_size,
             'colors': {
@@ -176,14 +177,16 @@ def control():
         replay_engine.load_game_data(replay_engine.game_number)
         return jsonify({'status': 'ok'})
     
-    elif command == 'speed_up':
-        # Increase replay speed - same logic as in replay.py
+    elif command == 'speed_up':  # Note: 'speed_up' decreases move pause time
+        # Decrease move pause time by 0.1s (minimum 0.1s)
         replay_engine.pause_between_moves = max(0.1, replay_engine.pause_between_moves - 0.1)
+        # Return the move pause multiplier (inverse of pause time)
         return jsonify({'status': 'ok', 'speed': 1.0 / replay_engine.pause_between_moves})
     
-    elif command == 'speed_down':
-        # Decrease replay speed - same logic as in replay.py
+    elif command == 'speed_down':  # Note: 'speed_down' increases move pause time
+        # Increase move pause time by 0.1s
         replay_engine.pause_between_moves += 0.1
+        # Return the move pause multiplier (inverse of pause time)
         return jsonify({'status': 'ok', 'speed': 1.0 / replay_engine.pause_between_moves})
     
     return jsonify({'status': 'error', 'message': 'Unknown command'})
@@ -249,7 +252,7 @@ def main():
     print("\nControls:")
     print("  • Play/Pause: Space bar or button")
     print("  • Navigate games: Left/Right arrow keys or buttons")
-    print("  • Adjust move pause: Up/Down arrow keys or +/- buttons")
+    print("  • Adjust move pause: Up arrow (increase by 0.1s) / Down arrow (decrease by 0.1s)")
     print("  • Restart game: R key or button")
     print("  • Exit: Ctrl+C in terminal\n")
     

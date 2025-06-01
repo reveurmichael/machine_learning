@@ -122,7 +122,7 @@ def replay_thread_function(log_dir, move_pause, auto_advance):
 @app.route('/')
 def index():
     """Render the main page."""
-    return render_template('index.html')
+    return render_template('replay.html')
 
 @app.route('/api/state')
 def get_state():

@@ -76,12 +76,15 @@ body {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 15px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #game-canvas {
     display: block;
-    margin: 0 auto;
+    margin: 0;
     background-color: #2c2c54;
 }
 
@@ -92,7 +95,7 @@ body {
     gap: 20px;
 }
 
-.stats-section, .controls-section, .llm-info-section, .progress-section {
+.stats-section, .controls-section, .llm-info-section, .progress-section, .instructions-section {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -187,6 +190,44 @@ button:disabled {
 .error-message {
     color: #e63946;
     font-weight: bold;
+}
+
+/* Human play specific styles */
+.control-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.control-info p {
+    text-align: center;
+    font-size: 16px;
+}
+
+.reset-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #e74c3c;
+}
+
+.reset-button:hover {
+    background-color: #c0392b;
+}
+
+.instructions-section ul {
+    list-style-position: inside;
+    margin-left: 10px;
+}
+
+.instructions-section li {
+    margin-bottom: 8px;
+}
+
+#game-over-indicator {
+    font-size: 18px;
+    padding: 8px 12px;
 }
 
 /* Responsive design */

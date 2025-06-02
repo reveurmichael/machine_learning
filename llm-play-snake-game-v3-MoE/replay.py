@@ -74,9 +74,6 @@ def main():
     print("  UP/DOWN: Increase/decrease replay speed")
     print("  LEFT/RIGHT: Navigate to previous/next game")
     print("  R: Restart current game")
-    print("  N: Jump to next game")
-    print("  S: Speed up (same as UP)")
-    print("  D: Slow down (same as DOWN)")
     print("  ESC: Quit replay\n")
 
     # Run the replay
@@ -100,11 +97,11 @@ def main():
                         if replay_engine.use_gui and replay_engine.gui and hasattr(replay_engine.gui, 'set_paused'):
                             replay_engine.gui.set_paused(replay_engine.paused)
                         print("Replay " + ("paused" if replay_engine.paused else "resumed"))
-                    elif event.key == K_UP or event.key == K_s:
+                    elif event.key == K_DOWN:
                         # Speed up replay (decrease pause time)
                         replay_engine.pause_between_moves = max(0.1, replay_engine.pause_between_moves - 0.1)
                         print(f"Replay speed increased. Pause between moves: {replay_engine.pause_between_moves:.1f}s")
-                    elif event.key == K_DOWN or event.key == K_d:
+                    elif event.key == K_UP:
                         # Slow down replay (increase pause time)
                         replay_engine.pause_between_moves += 0.1
                         print(f"Replay speed decreased. Pause between moves: {replay_engine.pause_between_moves:.1f}s")

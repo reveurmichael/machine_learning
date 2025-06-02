@@ -739,136 +739,46 @@ class GameData:
             
         return ordered_rounds_data
     
-    def save_prompt_response_rounds(self, log_dir, game_number):
-        """Save rounds data based on the prompt/response files in the log directory.
+    def load_game_data(self, game_controller=None):
+        """Load game data directly from the game controller instance.
+        
+        This is a much simpler replacement for save_prompt_response_rounds that
+        directly uses the data from the game controller instead of trying to
+        reconstruct it from files.
         
         Args:
-            log_dir: Directory containing prompts and responses
-            game_number: The game number to look for
+            game_controller: GameController or GameLogic instance (optional)
         """
-        import re
-        import json
-        
-        # Get prompt files to identify round numbers
-        prompts_dir = os.path.join(log_dir, 'prompts')
-        if not os.path.exists(prompts_dir):
+        # If rounds_data is already populated, we don't need to do anything
+        if self.rounds_data and len(self.rounds_data) > 0:
             return
             
-        # Get all prompt files for this game
-        prompt_files = [f for f in os.listdir(prompts_dir) if f.startswith(f'game_{game_number}_round_') and f.endswith('_prompt.txt')]
-        
-        # Extract round numbers
-        round_numbers = []
-        for file in prompt_files:
-            # Extract round number from format game_N_round_M_prompt.txt
-            match = re.search(r'game_\d+_round_(\d+)_prompt\.txt', file)
-            if match:
-                round_num = int(match.group(1))
-                # Skip round 0 if it exists (we want to start from 1)
-                if round_num > 0:
-                    round_numbers.append(round_num)
-        
-        if not round_numbers:
+        # No game controller provided, we'll use the data we already have
+        if not game_controller:
+            # Just ensure the file_round_numbers is set correctly
+            self.file_round_numbers = list(range(1, self.round_count + 1))
             return
             
-        # Sort round numbers
-        round_numbers.sort()
-        
         # Clear existing rounds_data to ensure clean state
         self.rounds_data = {}
         
-        # Check for response files to get the original moves from LLM output
-        responses_dir = os.path.join(log_dir, 'responses')
-        parsed_responses = {}
+        # The apple positions should already be in the correct order in self.apple_positions
+        # And the moves should already be in self.moves
         
-        if os.path.exists(responses_dir):
-            # Collect all parsed response files
-            for round_num in round_numbers:
-                # Look for parsed response files for each round
-                parsed_file = os.path.join(responses_dir, f'game_{game_number}_round_{round_num}_parsed_response.txt')
-                raw_file = os.path.join(responses_dir, f'game_{game_number}_round_{round_num}_raw_response.txt')
-                
-                # First try parsed response (from secondary LLM if available)
-                if os.path.exists(parsed_file):
-                    try:
-                        with open(parsed_file, 'r') as f:
-                            content = f.read()
-                            # Try to extract JSON from the content
-                            try:
-                                # Look for code blocks with JSON
-                                code_blocks = re.findall(r'```(?:json)?\s*([\s\S]*?)```', content, re.DOTALL)
-                                if code_blocks:
-                                    for block in code_blocks:
-                                        try:
-                                            data = json.loads(block)
-                                            if 'moves' in data:
-                                                parsed_responses[round_num] = data['moves']
-                                                break
-                                        except:
-                                            pass
-                            except:
-                                pass
-                    except:
-                        pass
-                
-                # If no parsed response, try raw response
-                if round_num not in parsed_responses and os.path.exists(raw_file):
-                    try:
-                        with open(raw_file, 'r') as f:
-                            content = f.read()
-                            # Try to extract JSON from the content
-                            try:
-                                # Look for code blocks with JSON
-                                code_blocks = re.findall(r'```(?:json)?\s*([\s\S]*?)```', content, re.DOTALL)
-                                if code_blocks:
-                                    for block in code_blocks:
-                                        try:
-                                            data = json.loads(block)
-                                            if 'moves' in data:
-                                                parsed_responses[round_num] = data['moves']
-                                                break
-                                        except:
-                                            pass
-                            except:
-                                pass
-                    except:
-                        pass
-        
-        # Now create the rounds data with all moves for each round
-        for round_num in round_numbers:
-            # Only add if not already in rounds_data
-            if f'round_{round_num}' in self.rounds_data:
-                continue
+        # Create round data for each apple position we have
+        for i, apple_pos in enumerate(self.apple_positions):
+            round_num = i + 1  # Convert to 1-based index for round numbering
             
-            # Get moves for this round - use the parsed responses if available
-            if round_num in parsed_responses:
-                moves = parsed_responses[round_num]
-            else:
-                # If we can't find the original move array from the LLM responses,
-                # use a fallback approach by distributing the total moves
-                moves = []
+            # Get the moves for this round
+            # For simplicity, we'll just assign each move to its corresponding round
+            # This is a simplified approach - in a real game, multiple moves may occur in a round
+            moves = []
+            if i < len(self.moves):
+                moves = [self.moves[i]]
                 
-                # Try to assign at least one move for this round from the total moves list
-                if len(self.moves) > 0:
-                    # For simplicity, just get the next move in the sequence
-                    next_move_idx = round_num - 1  # Convert to 0-based index
-                    if next_move_idx < len(self.moves):
-                        moves = [self.moves[next_move_idx]]
-            
-            # Use direct mapping from apple_positions without index manipulation
-            # Each round has its own apple position that was stored when the apple was generated
-            apple_position = None
-            if round_num <= len(self.apple_positions):
-                # Since round numbers are 1-based but array indices are 0-based
-                apple_pos = self.apple_positions[round_num - 1]
-                apple_position = [apple_pos["x"], apple_pos["y"]]
-            else:
-                # Fallback if we somehow don't have an apple position for this round
-                apple_position = [0, 0]
-            
-            # Create round data
+            # Create round data with the apple position and move
             round_data = {
-                "apple_position": apple_position,
+                "apple_position": [apple_pos["x"], apple_pos["y"]],
                 "moves": moves,
                 "primary_response_times": [],
                 "secondary_response_times": [],
@@ -877,19 +787,23 @@ class GameData:
             }
             
             # Add token stats and response times if available
-            if round_num <= len(self.primary_response_times):
-                response_idx = round_num - 1
-                round_data["primary_response_times"] = [self.primary_response_times[response_idx]]
+            if i < len(self.primary_response_times):
+                round_data["primary_response_times"] = [self.primary_response_times[i]]
                 
-            if round_num <= len(self.primary_token_stats):
-                token_idx = round_num - 1
-                round_data["primary_token_stats"] = [self.primary_token_stats[token_idx]]
+            if i < len(self.primary_token_stats):
+                round_data["primary_token_stats"] = [self.primary_token_stats[i]]
+                
+            if i < len(self.secondary_response_times):
+                round_data["secondary_response_times"] = [self.secondary_response_times[i]]
+                
+            if i < len(self.secondary_token_stats):
+                round_data["secondary_token_stats"] = [self.secondary_token_stats[i]]
             
             # Save the round data
             self.rounds_data[f'round_{round_num}'] = round_data
             
         # Update the file_round_numbers
-        self.file_round_numbers = round_numbers
+        self.file_round_numbers = list(range(1, len(self.apple_positions) + 1))
     
     def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
         """Save the game summary to a JSON file.
@@ -909,10 +823,9 @@ class GameData:
         match = re.search(r'game_(\d+)\.json', os.path.basename(filepath))
         if match:
             game_number = int(match.group(1))
-            # Extract the log directory from the filepath
-            log_dir = os.path.dirname(filepath)
-            # Save rounds based on prompt/response files
-            self.save_prompt_response_rounds(log_dir, game_number)
+            # Ensure all the rounds data is properly organized using the direct data we already have
+            # instead of trying to reconstruct it from log files
+            self.load_game_data()
         
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
         

@@ -308,23 +308,17 @@ class ReplayEngine(GameController):
             self.running = False
     
     def execute_replay_move(self, direction_key):
-        """Execute a move for replay, updating game state accordingly.
+        """Execute a move in the specified direction for replay.
         
         Args:
-            direction_key: String key of the direction to move in ("UP", "DOWN", etc.)
+            direction_key: String key of the direction to move in
             
         Returns:
             Boolean indicating if the game is still active
         """
-        # Handle special case for empty moves
-        if direction_key == "EMPTY":
-            print("Empty move - snake stays in place")
-            self.steps += 1
-            return True
-            
         # Get direction vector
         if direction_key not in DIRECTIONS:
-            print(f"Invalid direction: {direction_key}, defaulting to RIGHT")
+            print(f"Invalid direction: {direction_key}, using RIGHT")
             direction_key = "RIGHT"
         
         direction = DIRECTIONS[direction_key]
@@ -337,19 +331,41 @@ class ReplayEngine(GameController):
         # Debug information
         print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
         
+        # Check if the new head position will eat an apple
+        is_eating_apple = np.array_equal(new_head, self.apple_position)
+        
         # Check for wall collision
         x, y = new_head
-        if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
+        wall_collision = (x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size)
+        
+        if wall_collision:
             print(f"Game over: Snake hit wall at position {new_head}")
             return False
         
-        # Check for body collision
+        # Check for body collision using the improved logic
         body_collision = False
-        for pos in self.snake_positions[:-1]:
-            if pos[0] == new_head[0] and pos[1] == new_head[1]:
-                body_collision = True
-                break
-                
+        
+        # Get current snake structure for clarity
+        if len(self.snake_positions) > 0:
+            current_tail = self.snake_positions[0]  # First position is tail
+            current_head = self.snake_positions[-1] # Last position is head
+            
+            if is_eating_apple:
+                # CASE: Eating an apple - tail will NOT move
+                # Check collision with all segments EXCEPT the current head
+                # (since the head will move to the new position)
+                body_segments = self.snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
+                body_collision = any(np.array_equal(new_head, pos) for pos in body_segments)
+            else:
+                # CASE: Normal move (not eating apple) - tail WILL move
+                # Only need to check for collision with body segments, excluding both
+                # the current tail (which will move) and the current head (which will be replaced)
+                if len(self.snake_positions) > 2:
+                    # If snake has body segments between tail and head
+                    body_segments = self.snake_positions[1:-1]  # [body1, body2, ..., bodyN]
+                    body_collision = any(np.array_equal(new_head, pos) for pos in body_segments)
+                # If snake has only head and tail (or just head), no body segments to collide with
+        
         if body_collision:
             print(f"Game over: Snake hit itself at position {new_head}")
             return False
@@ -359,9 +375,7 @@ class ReplayEngine(GameController):
         new_snake_positions = np.vstack((new_snake_positions, new_head))
         
         # Check for apple
-        apple_x, apple_y = self.apple_position
-        new_head_x, new_head_y = new_head
-        apple_eaten = apple_x == new_head_x and apple_y == new_head_y
+        apple_eaten = is_eating_apple
         
         if not apple_eaten:
             # Remove tail if no apple eaten
@@ -398,7 +412,7 @@ class ReplayEngine(GameController):
                 # No more predefined apple positions
                 alt_pos = self._place_apple_away_from_snake()
                 self.apple_position = alt_pos
-            
+        
         # Update snake state
         self.snake_positions = new_snake_positions
         self.head_position = self.snake_positions[-1]

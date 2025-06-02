@@ -188,8 +188,11 @@ class SnakeGame:
         # Validate move follows coordinate system
         self._validate_move(self.head_position, new_head, direction_key)
         
-        # Check for collisions
-        wall_collision, body_collision = self._check_collision(new_head)
+        # Check if the new head position is where the apple is
+        is_eating_apple_at_new_head = np.array_equal(new_head, self.apple_position)
+        
+        # Check for collisions - pass the apple flag to handle collisions correctly
+        wall_collision, body_collision = self._check_collision(new_head, is_eating_apple_flag=is_eating_apple_at_new_head)
         
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
@@ -205,7 +208,7 @@ class SnakeGame:
         
         # Check if apple is eaten
         apple_eaten = False
-        if np.array_equal(new_head, self.apple_position):
+        if is_eating_apple_at_new_head:
             self.score += 1
             print(f"Apple eaten! Score: {self.score}")
             # Generate a new apple
@@ -223,11 +226,12 @@ class SnakeGame:
         
         return True, apple_eaten  # Game continues, indicates if apple was eaten
     
-    def _check_collision(self, position):
+    def _check_collision(self, position, is_eating_apple_flag):
         """Check if a position collides with wall or snake body.
         
         Args:
             position: Position to check as [x, y]
+            is_eating_apple_flag: Boolean indicating if this move will eat an apple
             
         Returns:
             Tuple of (collides_with_wall, collides_with_body)
@@ -238,12 +242,41 @@ class SnakeGame:
         wall_collision = (x < 0 or x >= self.grid_size or 
                         y < 0 or y >= self.grid_size)
         
-        # Check for collision with self (except tail which will move)
+        # Default to no collision
         body_collision = False
-        for pos in self.snake_positions[:-1]:  # Skip the tail
-            if np.array_equal(position, pos):
-                body_collision = True
-                break
+        
+        # Handle empty snake case (shouldn't happen normally)
+        if len(self.snake_positions) == 0:
+            return wall_collision, False
+        
+        # Get current snake structure for clarity
+        current_tail = self.snake_positions[0]  # First position is tail
+        current_head = self.snake_positions[-1] # Last position is head
+        
+        if is_eating_apple_flag:
+            # CASE: Eating an apple - tail will NOT move
+            # Check collision with all segments EXCEPT the current head
+            # (since the head will move to the new position)
+            
+            # Check all segments except the head
+            body_segments = self.snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
+            
+            # Check if new head position collides with any body segment (including tail)
+            body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+            
+        else:
+            # CASE: Normal move (not eating apple) - tail WILL move
+            # Only need to check for collision with body segments, excluding both
+            # the current tail (which will move) and the current head (which will be replaced)
+            
+            if len(self.snake_positions) > 2:
+                # If snake has body segments between tail and head
+                # Check segments excluding tail and head: [body1, body2, ..., bodyN]
+                body_segments = self.snake_positions[1:-1]
+                body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+            else:
+                # Snake has only head and tail (or just head), no body segments to collide with
+                body_collision = False
                 
         return wall_collision, body_collision
     

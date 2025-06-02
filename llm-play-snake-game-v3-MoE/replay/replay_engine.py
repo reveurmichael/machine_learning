@@ -121,7 +121,13 @@ class ReplayEngine(GameController):
                 
             detailed_history = game_data['detailed_history']
             
-            # Get apple positions
+            # ----- Simplified Data Loading Strategy -----
+            # Instead of complex loading and fallback mechanisms, we'll use a simple strategy:
+            # 1. Always use apple_positions from detailed_history for apples
+            # 2. Always use moves from detailed_history for moves
+            # This respects the fixed schema while being simple and reliable
+            
+            # Get apple positions - always use the top-level array
             self.apple_positions = []
             raw_apple_positions = detailed_history.get('apple_positions', [])
             
@@ -131,15 +137,16 @@ class ReplayEngine(GameController):
                 elif isinstance(pos, (list, np.ndarray)) and len(pos) == 2:
                     self.apple_positions.append(pos)
             
-            print(f"Loaded {len(self.apple_positions)} apple positions")
-            
-            # Get moves
+            # Get moves - always use the top-level array
             self.moves = detailed_history.get('moves', [])
-            print(f"Loaded {len(self.moves)} moves")
             
+            # Simple validation check
             if not self.moves:
                 print("Error: No moves found in game data")
                 return None
+                
+            if not self.apple_positions:
+                print("Warning: No apple positions found in game data")
             
             # Reset game state indices
             self.move_index = 0
@@ -149,11 +156,6 @@ class ReplayEngine(GameController):
             
             # Get round information from metadata
             round_count = game_data.get('metadata', {}).get('round_count', 0)
-            
-            # Count rounds from the rounds_data
-            if round_count == 0 and 'rounds_data' in detailed_history:
-                round_count = len(detailed_history['rounds_data'])
-            
             print(f"Game has {round_count} rounds")
             
             # Get LLM information
@@ -175,7 +177,7 @@ class ReplayEngine(GameController):
             # Store game data
             self.game_stats = game_data
             
-            print(f"Game {game_number}: End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
+            print(f"Game {game_number}: Score: {self.score}, Steps: {len(self.moves)}, End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
             
             # Initialize game state
             print("Initializing game state...")
@@ -208,11 +210,26 @@ class ReplayEngine(GameController):
             if self.use_gui and self.gui and hasattr(self.gui, 'move_history'):
                 self.gui.move_history = []
             
-            # Get LLM response
+            # Get LLM response if available
             self.llm_response = detailed_history.get('llm_response', "No LLM response data available for this game.")
             
             # Get planned moves
-            self.planned_moves = detailed_history.get('planned_moves', [])
+            # If rounds_data is available, try to extract planned moves from the first round
+            self.planned_moves = []
+            if 'rounds_data' in detailed_history and detailed_history['rounds_data']:
+                try:
+                    # Get the first round's data
+                    first_round_key = sorted(detailed_history['rounds_data'].keys(), 
+                                           key=lambda k: int(k.split('_')[1]))[0]
+                    first_round = detailed_history['rounds_data'][first_round_key]
+                    
+                    # Extract planned moves if available
+                    if 'moves' in first_round and isinstance(first_round['moves'], list) and len(first_round['moves']) > 1:
+                        # The first move is already used, so get the rest as planned moves
+                        self.planned_moves = first_round['moves'][1:] if len(first_round['moves']) > 1 else []
+                except Exception:
+                    # If anything goes wrong, just leave planned_moves empty
+                    pass
             
             print(f"Game {game_number} loaded successfully")
             return game_data
@@ -253,6 +270,9 @@ class ReplayEngine(GameController):
                 # Handle game completion
                 if not game_continues:
                     print(f"Game {self.game_number} over. Score: {self.score}, Steps: {self.steps}, End reason: {self.game_end_reason}")
+                    
+                    # Set move_index to the end to prevent further moves
+                    self.move_index = len(self.moves)
                     
                     # Advance to next game if auto-advance is enabled
                     if self.auto_advance:
@@ -314,6 +334,9 @@ class ReplayEngine(GameController):
         head_x, head_y = self.head_position
         new_head = np.array([head_x + direction[0], head_y + direction[1]])
         
+        # Debug information
+        print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
+        
         # Check for wall collision
         x, y = new_head
         if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
@@ -358,31 +381,23 @@ class ReplayEngine(GameController):
                     success = self.set_apple_position([next_apple['x'], next_apple['y']])
                     if not success:
                         # Use predetermined alternative position
-                        self.apple_position = np.array([
-                            (self.head_position[0] + 5) % self.grid_size,
-                            (self.head_position[1] + 5) % self.grid_size
-                        ])
+                        alt_pos = self._place_apple_away_from_snake()
+                        self.apple_position = alt_pos
                 elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
                     # Set apple position
                     success = self.set_apple_position(next_apple)
                     if not success:
                         # Use predetermined alternative position
-                        self.apple_position = np.array([
-                            (self.head_position[0] + 5) % self.grid_size,
-                            (self.head_position[1] + 5) % self.grid_size
-                        ])
+                        alt_pos = self._place_apple_away_from_snake()
+                        self.apple_position = alt_pos
                 else:
                     # Use predetermined position
-                    self.apple_position = np.array([
-                        (self.head_position[0] + 5) % self.grid_size,
-                        (self.head_position[1] + 5) % self.grid_size
-                    ])
+                    alt_pos = self._place_apple_away_from_snake()
+                    self.apple_position = alt_pos
             else:
                 # No more predefined apple positions
-                self.apple_position = np.array([
-                    (self.head_position[0] + 5) % self.grid_size,
-                    (self.head_position[1] + 5) % self.grid_size
-                ])
+                alt_pos = self._place_apple_away_from_snake()
+                self.apple_position = alt_pos
             
         # Update snake state
         self.snake_positions = new_snake_positions

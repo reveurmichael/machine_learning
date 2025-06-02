@@ -12,6 +12,7 @@ from core.game_controller import GameController
 from config import TIME_DELAY, TIME_TICK, DIRECTIONS
 import numpy as np
 import traceback
+from utils.game_manager_utils import check_collision
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games."""
@@ -334,37 +335,12 @@ class ReplayEngine(GameController):
         # Check if the new head position will eat an apple
         is_eating_apple = np.array_equal(new_head, self.apple_position)
         
-        # Check for wall collision
-        x, y = new_head
-        wall_collision = (x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size)
+        # Use the shared collision detection function from utils.game_manager_utils
+        wall_collision, body_collision = check_collision(new_head, self.snake_positions, self.grid_size, is_eating_apple)
         
         if wall_collision:
             print(f"Game over: Snake hit wall at position {new_head}")
             return False
-        
-        # Check for body collision using the improved logic
-        body_collision = False
-        
-        # Get current snake structure for clarity
-        if len(self.snake_positions) > 0:
-            current_tail = self.snake_positions[0]  # First position is tail
-            current_head = self.snake_positions[-1] # Last position is head
-            
-            if is_eating_apple:
-                # CASE: Eating an apple - tail will NOT move
-                # Check collision with all segments EXCEPT the current head
-                # (since the head will move to the new position)
-                body_segments = self.snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
-                body_collision = any(np.array_equal(new_head, pos) for pos in body_segments)
-            else:
-                # CASE: Normal move (not eating apple) - tail WILL move
-                # Only need to check for collision with body segments, excluding both
-                # the current tail (which will move) and the current head (which will be replaced)
-                if len(self.snake_positions) > 2:
-                    # If snake has body segments between tail and head
-                    body_segments = self.snake_positions[1:-1]  # [body1, body2, ..., bodyN]
-                    body_collision = any(np.array_equal(new_head, pos) for pos in body_segments)
-                # If snake has only head and tail (or just head), no body segments to collide with
         
         if body_collision:
             print(f"Game over: Snake hit itself at position {new_head}")

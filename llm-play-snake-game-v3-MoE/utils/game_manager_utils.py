@@ -7,7 +7,64 @@ statistics reporting, and initialization functions.
 import os
 import traceback
 import pygame
+import numpy as np
 from colorama import Fore
+
+def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=False):
+    """Check if a position collides with walls or snake body.
+    
+    Args:
+        position: Position to check as [x, y]
+        snake_positions: Array of snake body positions
+        grid_size: Size of the game grid
+        is_eating_apple_flag: Boolean indicating if an apple is being eaten at 'position'
+        
+    Returns:
+        Tuple of (wall_collision, body_collision) as booleans
+    """
+    x, y = position
+    
+    # Check wall collision
+    wall_collision = (x < 0 or x >= grid_size or 
+                     y < 0 or y >= grid_size)
+    
+    # Default to no collision
+    body_collision = False
+    
+    # Handle empty snake case (shouldn't happen normally)
+    if len(snake_positions) == 0:
+        return wall_collision, False
+    
+    # Get current snake structure for clarity
+    current_tail = snake_positions[0]  # First position is tail
+    current_head = snake_positions[-1] # Last position is head
+    
+    if is_eating_apple_flag:
+        # CASE: Eating an apple - tail will NOT move
+        # Check collision with all segments EXCEPT the current head
+        # (since the head will move to the new position)
+        
+        # Check all segments except the head
+        body_segments = snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
+        
+        # Check if new head position collides with any body segment (including tail)
+        body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+        
+    else:
+        # CASE: Normal move (not eating apple) - tail WILL move
+        # Only need to check for collision with body segments, excluding both
+        # the current tail (which will move) and the current head (which will be replaced)
+        
+        if len(snake_positions) > 2:
+            # If snake has body segments between tail and head
+            # Check segments excluding tail and head: [body1, body2, ..., bodyN]
+            body_segments = snake_positions[1:-1]
+            body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+        else:
+            # Snake has only head and tail (or just head), no body segments to collide with
+            body_collision = False
+        
+    return wall_collision, body_collision
 
 def check_max_steps(game, max_steps):
     """Check if the game has reached the maximum number of steps.

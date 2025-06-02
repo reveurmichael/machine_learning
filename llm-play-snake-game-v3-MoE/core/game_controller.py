@@ -6,6 +6,7 @@ Provides core game logic that can run with or without a GUI.
 import numpy as np
 from config import GRID_SIZE, DIRECTIONS
 from core.game_data import GameData
+from utils.game_manager_utils import check_collision
 
 class GameController:
     """Base class for the Snake game controller."""
@@ -324,49 +325,7 @@ class GameController:
         Returns:
             Tuple of (wall_collision, body_collision) as booleans
         """
-        x, y = position
-        
-        # Check wall collision
-        wall_collision = (x < 0 or x >= self.grid_size or 
-                         y < 0 or y >= self.grid_size)
-        
-        # Default to no collision
-        body_collision = False
-        
-        # Handle empty snake case (shouldn't happen normally)
-        if len(self.snake_positions) == 0:
-            return wall_collision, False
-        
-        # Get current snake structure for clarity
-        current_tail = self.snake_positions[0]  # First position is tail
-        current_head = self.snake_positions[-1] # Last position is head
-        
-        if is_eating_apple_flag:
-            # CASE: Eating an apple - tail will NOT move
-            # Check collision with all segments EXCEPT the current head
-            # (since the head will move to the new position)
-            
-            # Check all segments except the head
-            body_segments = self.snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
-            
-            # Check if new head position collides with any body segment (including tail)
-            body_collision = any(np.array_equal(position, pos) for pos in body_segments)
-            
-        else:
-            # CASE: Normal move (not eating apple) - tail WILL move
-            # Only need to check for collision with body segments, excluding both
-            # the current tail (which will move) and the current head (which will be replaced)
-            
-            if len(self.snake_positions) > 2:
-                # If snake has body segments between tail and head
-                # Check segments excluding tail and head: [body1, body2, ..., bodyN]
-                body_segments = self.snake_positions[1:-1]
-                body_collision = any(np.array_equal(position, pos) for pos in body_segments)
-            else:
-                # Snake has only head and tail (or just head), no body segments to collide with
-                body_collision = False
-            
-        return wall_collision, body_collision
+        return check_collision(position, self.snake_positions, self.grid_size, is_eating_apple_flag)
     
     def _get_current_direction_key(self):
         """Get the current direction as a key string.

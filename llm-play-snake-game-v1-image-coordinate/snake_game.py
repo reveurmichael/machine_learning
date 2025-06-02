@@ -74,6 +74,59 @@ class SnakeGame:
         # Place the apple
         self.board[self.apple_position[0], self.apple_position[1]] = self.board_info["apple"]
     
+    def _check_collision(self, position, is_eating_apple_flag):
+        """Check if a position collides with the walls or snake body.
+        
+        Args:
+            position: [y, x] position to check
+            is_eating_apple_flag: Boolean indicating if this move would eat an apple
+            
+        Returns:
+            Tuple of (wall_collision, body_collision) booleans
+        """
+        y, x = position
+        
+        # Check wall collision
+        wall_collision = (y < 0 or y >= self.row or x < 0 or x >= self.row)
+        
+        # Default to no collision
+        body_collision = False
+        
+        # Handle empty snake case (shouldn't happen normally)
+        if len(self.snake_positions) == 0:
+            return wall_collision, False
+        
+        # Get current snake structure for clarity
+        current_tail = self.snake_positions[0]  # First position is tail
+        current_head = self.snake_positions[-1]  # Last position is head
+        
+        if is_eating_apple_flag:
+            # CASE: Eating an apple - tail will NOT move
+            # Check collision with all segments EXCEPT the current head
+            # (since the head will move to the new position)
+            
+            # Check all segments except the head
+            body_segments = self.snake_positions[:-1]  # [tail, body1, body2, ..., bodyN]
+            
+            # Check if new head position collides with any body segment (including tail)
+            body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+            
+        else:
+            # CASE: Normal move (not eating apple) - tail WILL move
+            # Only need to check for collision with body segments, excluding both
+            # the current tail (which will move) and the current head (which will be replaced)
+            
+            if len(self.snake_positions) > 2:
+                # If snake has body segments between tail and head
+                # Check segments excluding tail and head: [body1, body2, ..., bodyN]
+                body_segments = self.snake_positions[1:-1]
+                body_collision = any(np.array_equal(position, pos) for pos in body_segments)
+            else:
+                # Snake has only head and tail (or just head), no body segments to collide with
+                body_collision = False
+        
+        return wall_collision, body_collision
+    
     def make_move(self, direction_key):
         """Execute a move in the specified direction.
         
@@ -108,17 +161,20 @@ class SnakeGame:
         head_y, head_x = self.head_position
         new_head = np.array([head_y + direction[1], head_x + direction[0]])
         
-        # Check for collision with wall
-        if (new_head[0] < 0 or new_head[0] >= self.row or 
-            new_head[1] < 0 or new_head[1] >= self.row):
+        # Check if the new head position is where the apple is
+        is_eating_apple = np.array_equal(new_head, self.apple_position)
+        
+        # Check for collisions - pass the apple flag to handle collisions correctly
+        wall_collision, body_collision = self._check_collision(new_head, is_eating_apple_flag=is_eating_apple)
+        
+        # Check if game is over due to collision
+        if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
             return False, False  # Game over, no apple eaten
         
-        # Check for collision with self (except tail which will move)
-        for pos in self.snake_positions[:-1]:  # Skip the tail
-            if np.array_equal(new_head, pos):
-                print(f"Game over! Snake hit itself moving {direction_key}")
-                return False, False  # Game over, no apple eaten
+        if body_collision:
+            print(f"Game over! Snake hit itself moving {direction_key}")
+            return False, False  # Game over, no apple eaten
         
         # Move the snake: add new head
         self.snake_positions = np.vstack([self.snake_positions, new_head])
@@ -126,7 +182,7 @@ class SnakeGame:
         
         # Check if apple is eaten
         apple_eaten = False
-        if np.array_equal(new_head, self.apple_position):
+        if is_eating_apple:
             self.score += 1
             print(f"Apple eaten! Score: {self.score}")
             # Generate a new apple

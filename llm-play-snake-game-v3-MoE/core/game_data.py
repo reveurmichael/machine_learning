@@ -112,10 +112,7 @@ class GameData:
         """
         # Save previous round data if we have moves
         if self.current_round_data["moves"]:
-            # Increment round count
-            self.round_count += 1
-            
-            # Use simple sequential numbering (1, 2, 3, 4, ...)
+            # Save the round data with the current round number (don't increment yet)
             file_round = self.round_count
             
             # Store for later reference
@@ -124,6 +121,11 @@ class GameData:
             
             # Save the round data with the file round number
             self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
+        
+        # Now increment round count for the new round being started
+        # NOTE: This is one of only two places where round_count is incremented
+        # The other is in llm/communication_utils.py after getting a valid move from the LLM
+        self.round_count += 1
         
         # Reset current round data
         self.current_round_data = {
@@ -152,30 +154,12 @@ class GameData:
         if apple_eaten:
             self.score += 1
             self.snake_length += 1
-            
-            # Increment round count
-            self.round_count += 1
-            
-            # Use simple sequential numbering (1, 2, 3, 4, ...)
-            file_round = self.round_count
-            
-            # Store for later reference
-            if file_round not in self.file_round_numbers:
-                self.file_round_numbers.append(file_round)
-            
-            # Save the round data with the file round number
-            self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
-            
-            # Reset for next round
-            self.current_round_data = {
-                "apple_position": None,  # Will be set when new apple is generated
-                "moves": [],
-                "primary_response_times": [],
-                "secondary_response_times": [],
-                "primary_token_stats": [],
-                "secondary_token_stats": []
-            }
-    
+            # Note: We DO NOT increment round_count here
+            # Round count is ONLY incremented in two places:
+            # 1. In llm/communication_utils.py after getting a move from the LLM
+            # 2. In start_new_round() when explicitly starting a new round
+            # This ensures that round numbers align with LLM queries, not with apple eating events
+        
     def record_apple_position(self, position):
         """Record an apple position.
         
@@ -271,15 +255,13 @@ class GameData:
         self.game_number += 1
         self.end_time = time.time()
         
-        # Save any remaining round data
+        # Save current round data without incrementing round count
+        # This ensures we capture the final state without creating an extra round at game end
         if self.current_round_data["moves"]:
-            # Increment round count
-            self.round_count += 1
-            
-            # Use simple sequential numbering (1, 2, 3, 4, ...)
+            # Use existing round count (don't increment)
             file_round = self.round_count
             
-            # Store for later reference
+            # Store for later reference if not already stored
             if file_round not in self.file_round_numbers:
                 self.file_round_numbers.append(file_round)
             

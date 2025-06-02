@@ -253,8 +253,11 @@ class GameController:
         # Debug log
         print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
         
-        # Check for collisions
-        wall_collision, body_collision = self._check_collision(new_head)
+        # Check if the new head position is where the apple is
+        moving_to_apple = np.array_equal(new_head, self.apple_position)
+        
+        # Check for collisions - pass the apple flag to handle collisions correctly
+        wall_collision, body_collision = self._check_collision(new_head, is_apple_position=moving_to_apple)
         
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
@@ -276,7 +279,7 @@ class GameController:
         new_snake_positions = np.vstack((new_snake_positions, new_head))
         
         # Check if the snake eats an apple
-        apple_eaten = np.array_equal(new_head, self.apple_position)
+        apple_eaten = moving_to_apple
         
         if not apple_eaten:
             # Remove tail (first element) if no apple eaten
@@ -291,7 +294,7 @@ class GameController:
             
             # Add to history
             self.apple_positions_history.append(self.apple_position.copy())
-            
+        
         # Update snake positions and head
         self.snake_positions = new_snake_positions
         self.head_position = self.snake_positions[-1]
@@ -311,11 +314,12 @@ class GameController:
             
         return True, apple_eaten  # Game continues, with or without apple eaten
     
-    def _check_collision(self, position):
+    def _check_collision(self, position, is_apple_position=False):
         """Check if a position collides with the walls or snake body.
         
         Args:
             position: Position to check as [x, y]
+            is_apple_position: Boolean indicating if the position being checked has an apple
             
         Returns:
             Tuple of (wall_collision, body_collision) as booleans
@@ -326,9 +330,14 @@ class GameController:
         wall_collision = (x < 0 or x >= self.grid_size or 
                          y < 0 or y >= self.grid_size)
         
-        # Check body collision (excluding the tail since it will move)
-        # Note: We only need to check against positions 0 to n-2 (excluding head and the last position if it's the tail)
-        body_collision = any(np.array_equal(position, pos) for pos in self.snake_positions[:-1])
+        # Check body collision
+        if is_apple_position:
+            # When eating an apple, check against ALL body positions
+            # (including tail since it won't move when eating an apple)
+            body_collision = any(np.array_equal(position, pos) for pos in self.snake_positions)
+        else:
+            # For normal moves, exclude the tail since it will move
+            body_collision = any(np.array_equal(position, pos) for pos in self.snake_positions[:-1])
         
         return wall_collision, body_collision
     

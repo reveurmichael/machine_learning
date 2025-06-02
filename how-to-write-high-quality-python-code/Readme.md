@@ -17,3 +17,6 @@ pylint **/*.py --disable=trailing-whitespace,line-too-long,missing-module-docstr
 
 
 GitHub Actions CI/CD
+
+
+pre-commit

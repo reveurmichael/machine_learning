@@ -855,9 +855,20 @@ class GameData:
                     if next_move_idx < len(self.moves):
                         moves = [self.moves[next_move_idx]]
             
+            # Use direct mapping from apple_positions without index manipulation
+            # Each round has its own apple position that was stored when the apple was generated
+            apple_position = None
+            if round_num <= len(self.apple_positions):
+                # Since round numbers are 1-based but array indices are 0-based
+                apple_pos = self.apple_positions[round_num - 1]
+                apple_position = [apple_pos["x"], apple_pos["y"]]
+            else:
+                # Fallback if we somehow don't have an apple position for this round
+                apple_position = [0, 0]
+            
             # Create round data
             round_data = {
-                "apple_position": [self.apple_positions[0]["x"], self.apple_positions[0]["y"]] if self.apple_positions else [0, 0],
+                "apple_position": apple_position,
                 "moves": moves,
                 "primary_response_times": [],
                 "secondary_response_times": [],

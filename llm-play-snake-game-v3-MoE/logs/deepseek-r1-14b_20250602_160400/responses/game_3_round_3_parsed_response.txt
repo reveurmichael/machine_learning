@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-02 16:53:15
+SECONDARY LLM Response Time: 2025-06-02 16:53:21
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (4, 7)
+Apple Position: (7, 2)
+Body Cells: [(4, 6), (4, 5)]
+Timestamp: 2025-06-02 16:53:21
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "RIGHT", "RIGHT"],
+  "reasoning": "The snake can reach the target by moving right once, then down five times, and finally right twice more without colliding with its body."
+}
+```

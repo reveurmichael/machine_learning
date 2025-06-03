@@ -158,10 +158,11 @@ class GameController:
             if not any(np.array_equal([x, y], pos) for pos in self.snake_positions):
                 position = np.array([x, y])
                 
-                # Record in game state
+                # Record the apple position in game state
                 self.game_state.record_apple_position(position)
                 
                 # Start a new round in game state
+                # This updates the current_round_data but doesn't increment round_count
                 self.game_state.start_new_round(position)
                 
                 return position
@@ -191,10 +192,11 @@ class GameController:
             # Set the position
             self.apple_position = np.array([x, y])
             
-            # Update game state
+            # Update game state with the new apple position
             self.game_state.record_apple_position(self.apple_position)
             
             # Start a new round in game state
+            # This updates the current_round_data but doesn't increment round_count
             self.game_state.start_new_round(self.apple_position)
             
             # Update the board

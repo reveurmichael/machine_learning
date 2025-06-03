@@ -127,8 +127,6 @@ class ReplayGUI(BaseGUI):
         Args:
             snake_positions: List of [x,y] positions for snake segments
         """
-        # Safely check if snake_positions exists and has elements
-        # Use numpy's size or shape attribute instead of direct boolean evaluation
         if snake_positions is None or len(snake_positions) == 0:
             return
 
@@ -137,16 +135,16 @@ class ReplayGUI(BaseGUI):
 
         for i, position in enumerate(snake_positions):
             x, y = position
-
+            
             # Draw rectangle for snake segment
             rect = pygame.Rect(
                 x * self.pixel,
-                y * self.pixel,
+                (self.grid_size - 1 - y) * self.pixel,
                 self.pixel - 5,
                 self.pixel - 5
             )
 
-            # Use different color for head (which is the last segment in the positions list)
+            # Use different color for head
             if i == head_index:
                 pygame.draw.rect(self.screen, COLORS['SNAKE_HEAD'], rect)
             else:

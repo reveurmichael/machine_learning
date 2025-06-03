@@ -242,9 +242,10 @@ function drawGrid(gridSize, pixelSize) {
 
 function drawRect(x, y, color) {
     ctx.fillStyle = color;
+    
     ctx.fillRect(
         x * pixelSize + 1,
-        y * pixelSize + 1,
+        (gameState.grid_size - 1 - y) * pixelSize + 1,
         pixelSize - 2,
         pixelSize - 2
     );

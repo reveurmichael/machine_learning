@@ -38,7 +38,8 @@ class GameGUI(BaseGUI):
                     is_head = (head_position is not None and head_position[0] == x and head_position[1] == y)
                     self.draw_snake_segment(x, display_y, is_head)
                 elif value == board_info["apple"]:  # apple
-                    self.draw_apple([x, y], flip_y=True)
+                    # We're passing the original Cartesian coordinates and letting draw_apple handle the transformation
+                    self.draw_apple([x, y])
         
         # Update display for this region
         pygame.display.update((0, 0, self.height, self.height))
@@ -48,7 +49,7 @@ class GameGUI(BaseGUI):
         
         Args:
             x: X coordinate
-            y: Y coordinate
+            y: Y coordinate (already transformed for display)
             is_head: Whether this segment is the head
         """
         rect = pygame.Rect(

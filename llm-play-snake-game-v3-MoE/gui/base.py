@@ -54,20 +54,19 @@ class BaseGUI:
         
         Args:
             apple_position: [x,y] position of the apple
-            flip_y: Whether to flip the y-coordinate
+            flip_y: Whether y-coordinate is already flipped (for GameGUI compatibility)
         """
         x, y = apple_position
         
-        # Handle flipping y coordinate if needed
-        if flip_y:
-            display_y = self.grid_size - 1 - y
-        else:
-            display_y = y
+        # Calculate display position
+        # If flip_y is True, y is already flipped in GameGUI, so use it directly
+        # Otherwise transform from Cartesian coordinates
+        y_display = y if flip_y else (self.grid_size - 1 - y)
             
         # Draw rectangle for apple
         rect = pygame.Rect(
             x * self.pixel,
-            display_y * self.pixel,
+            y_display * self.pixel,
             self.pixel - 5,
             self.pixel - 5
         )

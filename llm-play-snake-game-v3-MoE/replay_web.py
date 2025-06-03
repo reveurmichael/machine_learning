@@ -50,15 +50,18 @@ class WebReplayEngine(ReplayEngine):
 
     def get_current_state(self):
         """Get the current state for the web interface.
-        Transforms the replay engine state into a format suitable for JSON serialization.
         
         Returns:
             Dictionary with current game state
         """
-        # Create state object with all needed information from replay engine
-        state = {
-            'snake_positions': self.snake_positions.tolist() if hasattr(self.snake_positions, 'tolist') else self.snake_positions,
-            'apple_position': self.apple_position.tolist() if hasattr(self.apple_position, 'tolist') else self.apple_position,
+        # Convert numpy arrays to lists for JSON serialization
+        snake_positions = self.snake_positions.tolist() if hasattr(self.snake_positions, 'tolist') else self.snake_positions
+        apple_position = self.apple_position.tolist() if hasattr(self.apple_position, 'tolist') else self.apple_position
+        
+        # Create state object with game information
+        return {
+            'snake_positions': snake_positions,
+            'apple_position': apple_position,
             'game_number': self.game_number,
             'score': self.score,
             'steps': self.steps,
@@ -67,8 +70,8 @@ class WebReplayEngine(ReplayEngine):
             'primary_llm': self.primary_llm,
             'secondary_llm': self.secondary_llm,
             'paused': self.paused,
-            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,  # Move pause multiplier (kept as 'speed' for backward compatibility)
-            'move_pause': self.pause_between_moves,  # Actual pause time in seconds
+            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
+            'move_pause': self.pause_between_moves,
             'game_end_reason': self.game_end_reason,
             'grid_size': self.grid_size,
             'colors': {
@@ -79,8 +82,6 @@ class WebReplayEngine(ReplayEngine):
                 'grid': COLORS['GRID'],
             }
         }
-        
-        return state
     
     def run_web(self):
         """Run the replay engine for web interface.

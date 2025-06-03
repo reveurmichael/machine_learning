@@ -122,10 +122,9 @@ class GameData:
             # Save the round data with the file round number
             self.rounds_data[f"round_{file_round}"] = self.current_round_data.copy()
         
-        # Now increment round count for the new round being started
-        # NOTE: This is one of only two places where round_count is incremented
-        # The other is in llm/communication_utils.py after getting a valid move from the LLM
-        self.round_count += 1
+        # IMPORTANT: We DO NOT increment round_count here anymore
+        # Round count is ONLY incremented in llm/communication_utils.py after getting a valid move from the LLM
+        # This ensures rounds in JSON files match the prompt/response file counts
         
         # Reset current round data
         self.current_round_data = {

@@ -83,38 +83,39 @@ def check_max_steps(game, max_steps):
     return False
 
 def process_game_over(game, game_state_info):
-    """Process game over state and prepare for the next game.
+    """Process game over event.
     
     Args:
-        game: The game instance
+        game: The snake game instance
         game_state_info: Dictionary containing game state information:
-            - game_active: Boolean indicating if the game is active
-            - game_count: Count of games played
+            - game_active: Boolean indicating if game is active
+            - game_count: Current game count
             - total_score: Total score across all games
             - total_steps: Total steps across all games
-            - game_scores: List of scores for all games
+            - game_scores: List of scores from all games
             - round_count: Count of rounds in the current game
             - args: Command line arguments
-            - log_dir: Directory for logging
-            - current_game_moves: List of moves made in the current game (optional)
-            - next_move: The last move made (optional)
+            - log_dir: Directory for logs
+            - current_game_moves: List of moves made in the current game
+            - next_move: The next move to make
             - time_stats: Dictionary of accumulated time statistics
             - token_stats: Dictionary of accumulated token statistics
             - valid_steps: Total valid steps across all games (optional)
             - invalid_reversals: Total invalid reversals across all games (optional)
-        
+            
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals)
     """
-    # Calculate new statistics after game completion
+    # Extract values from input dictionary
     game_count = game_state_info["game_count"] + 1
     total_score = game_state_info["total_score"] + game.score
     total_steps = game_state_info["total_steps"] + game.steps
     game_scores = game_state_info["game_scores"].copy()
-    game_scores.append(game.score)
     round_count = game_state_info["round_count"]
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
+    current_game_moves = game_state_info.get("current_game_moves", [])
+    next_move = game_state_info.get("next_move")
     
     # Get current time and token stats
     time_stats = game_state_info.get("time_stats", {})
@@ -124,19 +125,22 @@ def process_game_over(game, game_state_info):
     valid_steps = game_state_info.get("valid_steps", 0)
     invalid_reversals = game_state_info.get("invalid_reversals", 0)
     
-    # Update valid steps and invalid reversals from this game
+    # Add score to game scores
+    game_scores.append(game.score)
+    
+    # Update valid steps and invalid reversals
     if hasattr(game, "game_state"):
         valid_steps += game.game_state.valid_steps
         invalid_reversals += game.game_state.invalid_reversals
     
-    # Update time statistics from this game
+    # Update time statistics
     game_time_stats = game.game_state.get_time_stats()
     if time_stats and game_time_stats:
         time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
         time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
         time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
     
-    # Update token statistics from this game
+    # Update token statistics
     game_token_stats = game.game_state.get_token_stats()
     if token_stats and game_token_stats:
         # Update primary LLM token stats
@@ -179,6 +183,7 @@ def process_game_over(game, game_state_info):
     )
     
     # Reset round_count to 1 for the next game
+    # This is essential for synchronizing game_manager.round_count and game_state.round_count
     round_count = 1
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals
@@ -189,7 +194,7 @@ def handle_error(game, error_info):
     Args:
         game: The snake game instance
         error_info: Dictionary containing error handling information:
-            - game_active: Boolean indicating if game is active
+            - game_active: Boolean indicating game is active
             - game_count: Current game count
             - total_score: Total score across all games
             - total_steps: Total steps across all games

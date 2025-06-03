@@ -268,16 +268,23 @@ class GameData:
         # Save current round data without incrementing round count
         # This ensures we capture the final state without creating an extra round at game end
         if self.current_round_data:
-            # Get round data for the current round
-            round_data = self._get_or_create_round_data(self.round_count)
-            
             # Save the round data by copying the current round data
-            for key, value in self.current_round_data.items():
-                if value is not None:
-                    round_data[key] = value
-            
-            # Log that we saved the final round data
-            print(f"💾 Saved final data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
+            # Only save if there's meaningful data to save
+            if (self.current_round_data.get("moves") or 
+                self.current_round_data.get("apple_position") is not None or
+                self.current_round_data.get("primary_response_times") or
+                self.current_round_data.get("secondary_response_times")):
+                
+                # Get round data for the current round
+                round_data = self._get_or_create_round_data(self.round_count)
+                
+                # Save the round data by copying the current round data
+                for key, value in self.current_round_data.items():
+                    if value is not None:
+                        round_data[key] = value
+                
+                # Log that we saved the final round data
+                print(f"💾 Saved final data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
     
     def record_primary_response_time(self, duration):
         """Record a primary LLM response time.
@@ -748,9 +755,7 @@ class GameData:
         round_keys = list(self.rounds_data.keys())
         
         # Log information about round data for debugging
-        print(f"Round data keys before ordering: {round_keys}")
-        print(f"Current round_count: {self.round_count}")
-        print(f"Total rounds to include: {len(round_keys)}")
+        print(f"Processing {len(round_keys)} rounds with data")
         
         # Sort the keys numerically (extract the number from 'round_X')
         sorted_keys = sorted(round_keys, key=lambda k: int(k.split('_')[1]))
@@ -859,21 +864,57 @@ class GameData:
         if match:
             game_number = int(match.group(1))
         
-        # Calculate the expected round_count
-        calculated_round_count = self._calculate_expected_round_count()
+        # Calculate the expected round_count based on actual gameplay data
+        actual_round_count = self._calculate_actual_round_count()
         
-        # Update round_count if it's inconsistent with game activity
-        if calculated_round_count > self.round_count:
-            print(f"⚠️ Adjusting round_count from {self.round_count} to {calculated_round_count} based on game activity")
-            self.round_count = calculated_round_count
+        # Update round_count if it doesn't match actual gameplay
+        if actual_round_count != self.round_count:
+            print(f"⚠️ Adjusting round_count from {self.round_count} to {actual_round_count} based on actual gameplay")
+            self.round_count = actual_round_count
         
-        # Force regeneration of rounds_data to ensure all rounds are included
-        # This is essential for matching the JSON rounds with prompt/response files
-        self.load_game_data()
+        # Create or populate round data for each round based on data we have
+        actual_rounds_data = {}
         
-        # Double-check that we have entries for all rounds up to and including the current round
+        # First, use the existing rounds_data
+        for round_key, round_data in self.rounds_data.items():
+            # Only include rounds that have some meaningful data
+            if (round_data.get("moves") or 
+                round_data.get("apple_position") is not None or
+                round_data.get("primary_response_times") or
+                round_data.get("secondary_response_times")):
+                actual_rounds_data[round_key] = round_data
+        
+        # Then, add any missing rounds based on game data (moves, apples, etc.)
         for round_num in range(1, self.round_count + 1):
-            self._get_or_create_round_data(round_num)
+            round_key = f'round_{round_num}'
+            
+            # Skip if we already have data for this round
+            if round_key in actual_rounds_data:
+                continue
+                
+            # Try to create meaningful data for this round
+            round_data = self._create_empty_round_data()
+            
+            # Add apple position if available
+            if self.apple_positions is not None and len(self.apple_positions) > 0 and round_num <= len(self.apple_positions):
+                apple_pos = self.apple_positions[round_num - 1]
+                if isinstance(apple_pos, np.ndarray):
+                    round_data["apple_position"] = apple_pos.tolist() if hasattr(apple_pos, 'tolist') else list(apple_pos)
+                elif isinstance(apple_pos, dict) and "x" in apple_pos and "y" in apple_pos:
+                    round_data["apple_position"] = [apple_pos["x"], apple_pos["y"]]
+                else:
+                    round_data["apple_position"] = list(apple_pos)
+            
+            # Add move if available
+            if round_num <= len(self.moves):
+                round_data["moves"] = [self.moves[round_num - 1]]
+                
+            # Only add if we have meaningful data
+            if (round_data.get("moves") or round_data.get("apple_position") is not None):
+                actual_rounds_data[round_key] = round_data
+        
+        # Replace the rounds_data with the actual version
+        self.rounds_data = actual_rounds_data
         
         # Generate and save the summary
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
@@ -929,7 +970,7 @@ class GameData:
             else:
                 round_data[key] = value
                 
-        # Log the sync operation
+        # Log the sync operation with the correct round number
         print(f"🔄 Synchronized data for round {self.round_count}")
     
     def _get_or_create_round_data(self, round_num):
@@ -983,3 +1024,31 @@ class GameData:
                   expected_rounds_from_apples,
                   expected_rounds_from_responses,
                   self.round_count) 
+    
+    def _calculate_actual_round_count(self):
+        """Calculate the actual round count based on meaningful game data.
+        
+        Returns:
+            The actual round count based on moves, apples eaten, and responses
+        """
+        # Count rounds with actual gameplay data
+        round_nums = []
+        
+        # Extract round numbers from existing round keys
+        for round_key in self.rounds_data.keys():
+            try:
+                round_num = int(round_key.split('_')[1])
+                round_nums.append(round_num)
+            except (IndexError, ValueError):
+                continue
+        
+        # Use gameplay statistics as additional signals
+        move_count = len(self.moves)
+        apple_count = len(self.apple_positions) if self.apple_positions is not None else 0
+        response_count = len(self.primary_response_times)
+        
+        # Calculate max round from existing data
+        max_round = max(round_nums) if round_nums else self.round_count
+        
+        # Return the maximum of these counts, or current round_count if higher
+        return max(max_round, move_count, apple_count, response_count, 1) 

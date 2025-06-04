@@ -83,77 +83,114 @@ def check_max_steps(game, max_steps):
     return False
 
 def process_game_over(game, game_state_info):
-    """Process game over event.
+    """Process game over state.
+    
+    Handles the game over state including:
+    - Saving game statistics
+    - Updating counters for the next game
+    - Creating the game summary JSON file
     
     Args:
-        game: The snake game instance
-        game_state_info: Dictionary containing game state information:
-            - game_active: Boolean indicating if game is active
-            - game_count: Current game count
-            - total_score: Total score across all games
-            - total_steps: Total steps across all games
-            - game_scores: List of scores from all games
-            - round_count: Count of rounds in the current game
-            - args: Command line arguments
-            - log_dir: Directory for logs
-            - current_game_moves: List of moves made in the current game
-            - next_move: The next move to make
-            - time_stats: Dictionary of accumulated time statistics
-            - token_stats: Dictionary of accumulated token statistics
-            - valid_steps: Total valid steps across all games (optional)
-            - invalid_reversals: Total invalid reversals across all games (optional)
-            
+        game: The Game instance
+        game_state_info: Dictionary with game state info
+        
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals)
     """
-    # Extract values from input dictionary
-    game_count = game_state_info["game_count"] + 1
-    total_score = game_state_info["total_score"] + game.score
-    total_steps = game_state_info["total_steps"] + game.steps
-    game_scores = game_state_info["game_scores"].copy()
-    round_count = game_state_info["round_count"]
+    from utils.json_utils import save_session_stats
+    import os
+    
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
-    current_game_moves = game_state_info.get("current_game_moves", [])
-    next_move = game_state_info.get("next_move")
+    current_game_moves = game_state_info["current_game_moves"]
     
-    # Get current time and token stats
+    # Extract or initialize counters
+    game_count = game_state_info["game_count"]
+    total_score = game_state_info["total_score"]
+    total_steps = game_state_info["total_steps"]
+    game_scores = game_state_info["game_scores"]
+    round_count = game_state_info["round_count"]
     time_stats = game_state_info.get("time_stats", {})
     token_stats = game_state_info.get("token_stats", {})
-    
-    # Get valid steps and invalid reversals
     valid_steps = game_state_info.get("valid_steps", 0)
     invalid_reversals = game_state_info.get("invalid_reversals", 0)
     
-    # Add score to game scores
+    # Print game over message with reason
+    if hasattr(game, "last_collision_type"):
+        collision_type = game.last_collision_type
+        if collision_type == "wall":
+            print(Fore.RED + "❌ Game over: Snake hit the wall!")
+        elif collision_type == "self":
+            print(Fore.RED + "❌ Game over: Snake hit itself!")
+        elif collision_type == "empty_moves":
+            print(Fore.RED + f"❌ Game over: Too many empty moves ({args.max_empty_moves_allowed})!")
+    
+    # Update counters for next game
+    game_count += 1
+    total_score += game.score
+    total_steps += game.steps
     game_scores.append(game.score)
     
-    # Update valid steps and invalid reversals
-    if hasattr(game, "game_state"):
-        valid_steps += game.game_state.valid_steps
-        invalid_reversals += game.game_state.invalid_reversals
+    # Increment valid_steps counter
+    valid_steps += game.game_state.valid_steps
+    
+    # Update invalid_reversals counter
+    # This ensures we're keeping track of invalid_reversals across all games
+    invalid_reversals += game.game_state.invalid_reversals
+    
+    # Print game stats
+    move_str = ", ".join(current_game_moves)
+    print(Fore.BLUE + f"Game {game_count} Stats:")
+    print(Fore.BLUE + f"- Score: {game.score}")
+    print(Fore.BLUE + f"- Steps: {game.steps}")
+    print(Fore.BLUE + f"- Moves: {move_str}")
     
     # Update time statistics
-    game_time_stats = game.game_state.get_time_stats()
-    if time_stats and game_time_stats:
-        time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
-        time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
-        time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+    if hasattr(game.game_state, "get_time_stats"):
+        game_time_stats = game.game_state.get_time_stats()
+        
+        # Add to accumulated time stats
+        if "llm_communication_time" in game_time_stats:
+            time_stats["llm_communication_time"] = time_stats.get("llm_communication_time", 0) + game_time_stats["llm_communication_time"]
+            
+        if "game_movement_time" in game_time_stats:
+            time_stats["game_movement_time"] = time_stats.get("game_movement_time", 0) + game_time_stats["game_movement_time"]
+            
+        if "waiting_time" in game_time_stats:
+            time_stats["waiting_time"] = time_stats.get("waiting_time", 0) + game_time_stats["waiting_time"]
     
     # Update token statistics
-    game_token_stats = game.game_state.get_token_stats()
-    if token_stats and game_token_stats:
-        # Update primary LLM token stats
-        if "primary" in token_stats and "primary" in game_token_stats:
-            token_stats["primary"]["total_tokens"] += game_token_stats["primary"].get("total_tokens", 0)
-            token_stats["primary"]["total_prompt_tokens"] += game_token_stats["primary"].get("total_prompt_tokens", 0)
-            token_stats["primary"]["total_completion_tokens"] += game_token_stats["primary"].get("total_completion_tokens", 0)
+    if hasattr(game.game_state, "get_token_stats"):
+        game_token_stats = game.game_state.get_token_stats()
         
-        # Update secondary LLM token stats
-        if "secondary" in token_stats and "secondary" in game_token_stats:
-            token_stats["secondary"]["total_tokens"] += game_token_stats["secondary"].get("total_tokens", 0)
-            token_stats["secondary"]["total_prompt_tokens"] += game_token_stats["secondary"].get("total_prompt_tokens", 0)
-            token_stats["secondary"]["total_completion_tokens"] += game_token_stats["secondary"].get("total_completion_tokens", 0)
+        # Initialize token stats if not present
+        if "primary" not in token_stats:
+            token_stats["primary"] = {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+            
+        if "secondary" not in token_stats:
+            token_stats["secondary"] = {
+                "total_tokens": 0,
+                "total_prompt_tokens": 0,
+                "total_completion_tokens": 0
+            }
+        
+        # Add primary LLM token stats
+        if "primary" in game_token_stats:
+            primary_stats = game_token_stats["primary"]
+            token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_stats.get("total_tokens", 0)
+            token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_stats.get("total_prompt_tokens", 0)
+            token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_stats.get("total_completion_tokens", 0)
+            
+        # Add secondary LLM token stats
+        if "secondary" in game_token_stats:
+            secondary_stats = game_token_stats["secondary"]
+            token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_stats.get("total_tokens", 0)
+            token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
+            token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
     
     # Set a reason if not already set by the game engine
     if not game.game_state.game_end_reason:
@@ -182,56 +219,52 @@ def process_game_over(game, game_state_info):
         args.max_consecutive_errors_allowed
     )
     
-    # Reset round_count to 1 for the next game
-    # This is essential for synchronizing game_manager.round_count and game_state.round_count
-    round_count = 1
+    # Keep the round_count from the game that just ended
+    # It will be reset to 1 in GameController.reset() when the next game starts
+    # This ensures round_count in game_N.json matches the prompts/responses folder
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def handle_error(game, error_info):
-    """Handle errors that occur during the game loop.
+    """Handle errors during gameplay.
     
     Args:
-        game: The snake game instance
-        error_info: Dictionary containing error handling information:
-            - game_active: Boolean indicating game is active
+        game: The Game instance
+        error_info: Dictionary containing error information:
+            - game_active: Boolean indicating if game is active
             - game_count: Current game count
             - total_score: Total score across all games
             - total_steps: Total steps across all games
             - game_scores: List of scores from all games
-            - round_count: Current round count
-            - parser_usage_count: Count of parser usage
-            - previous_parser_usage: Previous parser usage count
-            - log_dir: Directory for logs
+            - round_count: Count of rounds in the current game
             - args: Command line arguments
+            - log_dir: Directory for logs
             - current_game_moves: List of moves made in the current game
+            - consecutive_errors: Count of consecutive errors
             - error: The exception that occurred
-            - consecutive_errors: Current count of consecutive errors (default: 0)
-            - time_stats: Dictionary of accumulated time statistics
-            - token_stats: Dictionary of accumulated token statistics
             - valid_steps: Total valid steps across all games (optional)
             - invalid_reversals: Total invalid reversals across all games (optional)
-        
+            
     Returns:
-        Tuple of (game_active, game_count, total_score, total_steps, game_scores, 
-                 round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats,
-                 valid_steps, invalid_reversals)
+        Tuple of (game_active, game_count, total_score, total_steps, game_scores, round_count, 
+                 parser_usage_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals)
     """
-    print(Fore.RED + f"Error in game loop: {error_info['error']}")
-    traceback.print_exc()
+    import traceback
     
-    # Initialize return values from input dictionary
+    args = error_info["args"]
+    consecutive_errors = error_info["consecutive_errors"]
+    log_dir = error_info["log_dir"]
+    parser_usage_count = error_info.get("parser_usage_count", 0)
+    previous_parser_usage = error_info.get("previous_parser_usage", 0)
+    
+    # Extract values from input dictionary
     game_active = error_info["game_active"]
     game_count = error_info["game_count"]
     total_score = error_info["total_score"]
     total_steps = error_info["total_steps"]
     game_scores = error_info["game_scores"].copy()
     round_count = error_info["round_count"]
-    previous_parser_usage = error_info["previous_parser_usage"]
-    consecutive_errors = error_info.get("consecutive_errors", 0) + 1
-    args = error_info["args"]
-    log_dir = error_info["log_dir"]
-    current_game_moves = error_info.get("current_game_moves", [])
+    current_game_moves = error_info["current_game_moves"]
     
     # Get current time and token stats
     time_stats = error_info.get("time_stats", {})
@@ -241,54 +274,84 @@ def handle_error(game, error_info):
     valid_steps = error_info.get("valid_steps", 0)
     invalid_reversals = error_info.get("invalid_reversals", 0)
     
-    # End the current game if consecutive errors exceed threshold or if this is a critical error
-    if game_active and (consecutive_errors > args.max_consecutive_errors_allowed):
+    # Get the error details
+    error = error_info["error"]
+    traceback_str = "".join(traceback.format_exception(type(error), error, error.__traceback__))
+    
+    # Print error info
+    print(Fore.RED + f"❌ Error occurred: {str(error)}")
+    print(Fore.RED + traceback_str)
+    
+    # Record the error
+    if hasattr(game.game_state, "record_error_move"):
+        game.game_state.record_error_move()
+    
+    # Increment consecutive errors
+    consecutive_errors += 1
+    print(Fore.RED + f"⚠️ Consecutive errors: {consecutive_errors}/{args.max_consecutive_errors_allowed}")
+    
+    # Update valid steps and invalid reversals from the game state
+    if hasattr(game, "game_state"):
+        valid_steps += game.game_state.valid_steps
+        invalid_reversals += game.game_state.invalid_reversals
+    
+    # Check if we should end the game
+    if consecutive_errors >= args.max_consecutive_errors_allowed:
+        print(Fore.RED + f"❌ Maximum consecutive errors reached ({args.max_consecutive_errors_allowed}). Game over.")
         game_active = False
-        game_count += 1
-        print(Fore.RED + f"❌ Game aborted due to {consecutive_errors} consecutive errors! Maximum allowed: {args.max_consecutive_errors_allowed}")
-        print(Fore.RED + f"Moving to game {game_count + 1}")
         
-        # Include current game stats in totals
-        total_score += game.score
-        total_steps += game.steps
+        # Set the game end reason
+        game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
+        
+        # Add score to game scores
         game_scores.append(game.score)
         
-        # Update valid steps and invalid reversals from this game
-        if hasattr(game, "game_state"):
-            valid_steps += game.game_state.valid_steps
-            invalid_reversals += game.game_state.invalid_reversals
+        # Update counters
+        game_count += 1
+        total_score += game.score
+        total_steps += game.steps
         
-        # Update time statistics from this game
+        # Update time statistics
         game_time_stats = game.game_state.get_time_stats()
         if time_stats and game_time_stats:
-            time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
-            time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
-            time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+            time_stats["llm_communication_time"] = time_stats.get("llm_communication_time", 0) + game_time_stats.get("llm_communication_time", 0)
+            time_stats["game_movement_time"] = time_stats.get("game_movement_time", 0) + game_time_stats.get("game_movement_time", 0)
+            time_stats["waiting_time"] = time_stats.get("waiting_time", 0) + game_time_stats.get("waiting_time", 0)
         
-        # Update token statistics from this game
+        # Update token statistics
         game_token_stats = game.game_state.get_token_stats()
         if token_stats and game_token_stats:
+            # Initialize token stats if not present
+            if "primary" not in token_stats:
+                token_stats["primary"] = {
+                    "total_tokens": 0,
+                    "total_prompt_tokens": 0,
+                    "total_completion_tokens": 0
+                }
+                
+            if "secondary" not in token_stats:
+                token_stats["secondary"] = {
+                    "total_tokens": 0,
+                    "total_prompt_tokens": 0,
+                    "total_completion_tokens": 0
+                }
+            
             # Update primary LLM token stats
             if "primary" in token_stats and "primary" in game_token_stats:
-                token_stats["primary"]["total_tokens"] += game_token_stats["primary"].get("total_tokens", 0)
-                token_stats["primary"]["total_prompt_tokens"] += game_token_stats["primary"].get("total_prompt_tokens", 0)
-                token_stats["primary"]["total_completion_tokens"] += game_token_stats["primary"].get("total_completion_tokens", 0)
+                primary_stats = game_token_stats["primary"]
+                token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_stats.get("total_tokens", 0)
+                token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_stats.get("total_prompt_tokens", 0)
+                token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_stats.get("total_completion_tokens", 0)
             
             # Update secondary LLM token stats
             if "secondary" in token_stats and "secondary" in game_token_stats:
-                token_stats["secondary"]["total_tokens"] += game_token_stats["secondary"].get("total_tokens", 0)
-                token_stats["secondary"]["total_prompt_tokens"] += game_token_stats["secondary"].get("total_prompt_tokens", 0)
-                token_stats["secondary"]["total_completion_tokens"] += game_token_stats["secondary"].get("total_completion_tokens", 0)
-        
-        # Set game end reason specifically for error threshold
-        game.last_collision_type = 'error'
-        game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
-        
-        # Store moves in game state
-        if current_game_moves:
-            game.game_state.moves = current_game_moves
+                secondary_stats = game_token_stats["secondary"]
+                token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_stats.get("total_tokens", 0)
+                token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
+                token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
         
         # Save game summary
+        import os
         json_path = os.path.join(log_dir, f"game_{game_count}.json")
         parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
         game.game_state.save_game_summary(
@@ -299,41 +362,29 @@ def handle_error(game, error_info):
             args.parser_model if parser_provider else None,
             args.max_consecutive_errors_allowed
         )
-        print(Fore.GREEN + f"📝 Game summary saved to {json_path}")
-        
-        # Reset consecutive errors for next game
-        consecutive_errors = 0
-        
-        # Reset round_count to 1 for the next game
-        round_count = 1
-    else:
-        # If we haven't reached the threshold, just increment the error counter
-        # but don't affect the empty move counter
-        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {consecutive_errors}/{args.max_consecutive_errors_allowed}")
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals
 
 def report_final_statistics(stats_info):
-    """Report final statistics at the end of the game session.
+    """Report final statistics for the experiment.
     
     Args:
         stats_info: Dictionary containing statistics information:
-            - log_dir: Directory for logs
-            - game_count: Total games played
-            - total_score: Total score across all games
-            - total_steps: Total steps across all games
-            - parser_usage_count: Count of parser usage
-            - game_scores: List of scores from all games
-            - empty_steps: Number of empty steps
-            - error_steps: Number of error steps
-            - valid_steps: Number of valid steps
-            - invalid_reversals: Number of invalid reversals
-            - max_empty_moves_allowed: Maximum allowed empty moves
-            - max_consecutive_errors_allowed: Maximum allowed consecutive errors (default: 5)
+        - log_dir: Directory containing the summary.json file
+        - game_count: Number of games played
+        - total_score: Total score across all games
+        - total_steps: Total number of steps taken
+        - parser_usage_count: Number of times the parser was used
+        - game_scores: List of scores for each game
+        - empty_steps: Total empty steps across all games
+        - error_steps: Total error steps across all games
+        - valid_steps: Total valid steps across all games (optional)
+        - invalid_reversals: Total invalid reversals across all games (optional)
     """
     from utils.json_utils import get_json_error_stats, save_session_stats
+    import os
     
-    # Extract values from input dictionary
+    # Extract statistics
     log_dir = stats_info["log_dir"]
     game_count = stats_info["game_count"]
     total_score = stats_info["total_score"]
@@ -351,6 +402,8 @@ def report_final_statistics(stats_info):
     time_stats = {}
     token_stats = {}
     game = stats_info.get("game")
+    
+    # If we have access to the game instance, update our statistics from it
     if game and hasattr(game, "game_state"):
         game_state = game.game_state
         
@@ -359,6 +412,15 @@ def report_final_statistics(stats_info):
         
         # Get token stats
         token_stats = game_state.get_token_stats()
+        
+        # Get step stats - these are the stats that matter for each individual game
+        step_stats = game_state.get_step_stats()
+        
+        # Add the invalid_reversals from the current game state to our total
+        # This ensures we're counting invalid_reversals from all games correctly
+        invalid_reversals = stats_info.get("invalid_reversals", 0)
+        if 'invalid_reversals' in step_stats:
+            invalid_reversals = step_stats['invalid_reversals']
     
     # Get token stats specifically from the game manager if available
     if "token_stats" in stats_info:
@@ -367,6 +429,25 @@ def report_final_statistics(stats_info):
     # Get time stats specifically from the game manager if available
     if "time_stats" in stats_info:
         time_stats = stats_info["time_stats"]
+        
+    # Calculate invalid_reversals from all game files if they exist
+    # This ensures our summary has the correct total across all games
+    try:
+        total_invalid_reversals = 0
+        for game_num in range(1, game_count + 1):
+            game_file = os.path.join(log_dir, f"game_{game_num}.json")
+            if os.path.exists(game_file):
+                import json
+                with open(game_file, 'r', encoding='utf-8') as f:
+                    game_data = json.load(f)
+                    if 'step_stats' in game_data and 'invalid_reversals' in game_data['step_stats']:
+                        total_invalid_reversals += game_data['step_stats']['invalid_reversals']
+        
+        # Use the calculated total if it's greater than our current count
+        if total_invalid_reversals > invalid_reversals:
+            invalid_reversals = total_invalid_reversals
+    except Exception as e:
+        print(f"Warning: Could not read game files to calculate invalid_reversals: {e}")
     
     # Save session statistics to summary file
     json_error_stats = get_json_error_stats()

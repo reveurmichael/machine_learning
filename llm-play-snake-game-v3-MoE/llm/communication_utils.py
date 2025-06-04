@@ -323,25 +323,7 @@ def get_llm_response(game_manager):
                     print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'][1:])}")
                 
                 # Increment round_count after getting a plan from the LLM
-                game_manager.round_count += 1
-                
-                # Ensure the game state round data is synchronized
-                # This saves the current round's data to rounds_data before moving to the next round
-                current_round_key = f"round_{game_manager.round_count-1}"
-                if current_round_key not in game_manager.game.game_state.rounds_data:
-                    game_manager.game.game_state.rounds_data[current_round_key] = game_manager.game.game_state._create_empty_round_data()
-                
-                # Make sure key data is synchronized
-                if game_manager.game.game_state.current_round_data.get("apple_position") is not None:
-                    game_manager.game.game_state.rounds_data[current_round_key]["apple_position"] = \
-                        game_manager.game.game_state.current_round_data["apple_position"]
-                
-                if game_manager.game.game_state.current_round_data.get("moves") is not None:
-                    game_manager.game.game_state.rounds_data[current_round_key]["moves"] = \
-                        game_manager.game.game_state.current_round_data["moves"]
-                
-                # Log round increment
-                print(Fore.BLUE + f"📊 Advanced to round {game_manager.round_count}")
+                game_manager.increment_round("new LLM plan")
             else:
                 print(f"❌ No valid next move found in parser output moves: {parser_output['moves']}")
                 game_manager.consecutive_empty_steps += 1

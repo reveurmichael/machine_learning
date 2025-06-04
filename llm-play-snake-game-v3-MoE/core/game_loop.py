@@ -108,7 +108,8 @@ def run_game_loop(game_manager):
                         if next_move:
                             print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
                             
-                            # Record move for logging
+                            # Record move for logging (but game_state.record_move will be called in make_move)
+                            # No need to add to game_state.moves here as that will be done in make_move
                             game_manager.current_game_moves.append(next_move)
                             
                             # Check max steps limit
@@ -119,7 +120,7 @@ def run_game_loop(game_manager):
                                 # Update UI before executing the move
                                 game_manager.game.draw()
                                 
-                                # Execute the move immediately (remove 2-second delay)
+                                # Execute the move immediately
                                 game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
                                 
                                 # Update UI after the move
@@ -128,10 +129,18 @@ def run_game_loop(game_manager):
                             # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_errors = 0
                             
-                            # Request new plan if apple was eaten
+                            # Request new plan if apple was eaten AND no more planned moves
                             if apple_eaten:
-                                print(Fore.GREEN + "🍎 Apple eaten! Requesting new plan.")
-                                game_manager.need_new_plan = True
+                                print(Fore.GREEN + "🍎 Apple eaten!")
+                                # Do NOT increment round_count when an apple is eaten
+                                # Rounds should only be incremented when we get a new plan from the LLM
+                                
+                                # Only request new plan if there are no more planned moves
+                                if not game_manager.game.planned_moves:
+                                    print(Fore.YELLOW + "No more planned moves, requesting new plan.")
+                                    game_manager.need_new_plan = True
+                                else:
+                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves.")
                             
                             # End movement time tracking
                             game_manager.game.game_state.record_game_movement_end()
@@ -191,6 +200,10 @@ def run_game_loop(game_manager):
                         game_manager.need_new_plan = True
                         game_manager.game_active = True
                         game_manager.current_game_moves = []
+                        
+                        # Reset round_count to 1 for the new game
+                        # This ensures proper round counting for each game
+                        game_manager.round_count = 1
                         
                         # Update summary.json with the latest configuration
                         summary_path = os.path.join(game_manager.log_dir, "summary.json")

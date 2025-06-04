@@ -185,6 +185,40 @@ class GameManager:
         # Report statistics to console and save to files
         report_final_statistics(stats_info)
     
+    def increment_round(self, reason=""):
+        """Increment the round counter and synchronize with game state.
+        
+        This centralized method ensures consistent round counting across the codebase.
+        It properly increments round_count and synchronizes the count between
+        the game manager and game state for accurate replay functionality.
+        
+        IMPORTANT: Rounds should ONLY be incremented when:
+        1. We get a new plan from the LLM
+        
+        Rounds should NOT be incremented when:
+        1. An apple is eaten during planned moves
+        2. A game ends
+        
+        This ensures the number of rounds in game_N.json matches the
+        number of prompts/responses in the logs directory.
+        
+        Args:
+            reason: Optional reason for incrementing the round (for logging)
+        """
+        # Increment round counter
+        self.round_count += 1
+        
+        # Sync with game state
+        if self.game and hasattr(self.game, "game_state"):
+            self.game.game_state.round_count = self.round_count
+            
+            # Ensure game state data is synchronized
+            self.game.game_state.sync_round_data()
+        
+        # Log the round increment with reason if provided
+        reason_text = f" ({reason})" if reason else ""
+        print(Fore.BLUE + f"📊 Advanced to round {self.round_count}{reason_text}")
+    
     def continue_from_session(self, log_dir, start_game_number):
         """Continue from a previous game session.
         

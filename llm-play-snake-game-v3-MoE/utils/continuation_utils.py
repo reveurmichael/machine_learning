@@ -55,75 +55,55 @@ def read_existing_game_data(log_dir, start_game_number):
     
     print(Fore.GREEN + f"🔍 Reading data from existing {start_game_number-1} games...")
     
-    # Read game data from each file up to start_game_number - 1
+    # Get the previous game number
     for game_num in range(1, start_game_number):
-        # Construct game file paths (checking both naming conventions)
-        game_file_path = os.path.join(log_dir, f"game_{game_num}.json")
-        alt_game_file_path = os.path.join(log_dir, f"game{game_num}.json")
+        # Import centralized file naming utilities
+        from utils.file_utils import get_game_json_filename, join_log_path
         
-        # Find the first existing file
-        game_files = [path for path in [game_file_path, alt_game_file_path] if os.path.exists(path)]
+        # Get the game file path using utility functions
+        game_filename = get_game_json_filename(game_num)
+        game_file_path = join_log_path(log_dir, game_filename)
         
-        # Process the first available file
-        game_file = None
-        for file in game_files:
-            if os.path.exists(file):
-                game_file = file
-                break
+        if os.path.exists(game_file_path):
+            total_score += get_game_score(game_file_path)
+            total_steps += get_game_steps(game_file_path)
+            game_scores.append(get_game_score(game_file_path))
+            
+            # Track step types if available
+            if 'step_stats' in game_data:
+                step_stats = game_data.get('step_stats', {})
+                empty_steps += step_stats.get('empty_steps', 0)
+                error_steps += step_stats.get('error_steps', 0)
+                valid_steps += step_stats.get('valid_steps', 0)
+                invalid_reversals += step_stats.get('invalid_reversals', 0)
+            
+            # Track parser usage
+            parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
+            
+            # Extract time statistics
+            if 'time_stats' in game_data:
+                game_time_stats = game_data.get('time_stats', {})
+                time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
+                time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
+                time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+            
+            # Extract token statistics
+            if 'token_stats' in game_data:
+                game_token_stats = game_data.get('token_stats', {})
                 
-        if game_file:
-            try:
-                with open(game_file, 'r', encoding='utf-8') as f:
-                    game_data = json.load(f)
-                    
-                    # Basic game stats
-                    score = game_data.get('score', 0)
-                    steps = game_data.get('steps', 0)
-                    game_scores.append(score)
-                    total_score += score
-                    total_steps += steps
-                    
-                    # Track step types if available
-                    if 'step_stats' in game_data:
-                        step_stats = game_data.get('step_stats', {})
-                        empty_steps += step_stats.get('empty_steps', 0)
-                        error_steps += step_stats.get('error_steps', 0)
-                        valid_steps += step_stats.get('valid_steps', 0)
-                        invalid_reversals += step_stats.get('invalid_reversals', 0)
-                    
-                    # Track parser usage
-                    parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
-                    
-                    # Extract time statistics
-                    if 'time_stats' in game_data:
-                        game_time_stats = game_data.get('time_stats', {})
-                        time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
-                        time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
-                        time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
-                    
-                    # Extract token statistics
-                    if 'token_stats' in game_data:
-                        game_token_stats = game_data.get('token_stats', {})
-                        
-                        # Primary LLM token stats
-                        if 'primary' in game_token_stats:
-                            primary = game_token_stats.get('primary', {})
-                            token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
-                            token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
-                            token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
-                        
-                        # Secondary LLM token stats
-                        if 'secondary' in game_token_stats:
-                            secondary = game_token_stats.get('secondary', {})
-                            token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
-                            token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
-                            token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
-            except json.JSONDecodeError as e:
-                corrupted_games.append(game_num)
-                print(Fore.YELLOW + f"⚠️ Warning: Game file {game_file} is corrupted: {e}")
-            except Exception as e:
-                corrupted_games.append(game_num)
-                print(Fore.YELLOW + f"⚠️ Warning: Could not load data from {game_file}: {e}")
+                # Primary LLM token stats
+                if 'primary' in game_token_stats:
+                    primary = game_token_stats.get('primary', {})
+                    token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
+                    token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
+                    token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                
+                # Secondary LLM token stats
+                if 'secondary' in game_token_stats:
+                    secondary = game_token_stats.get('secondary', {})
+                    token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
+                    token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
+                    token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
         else:
             missing_games.append(game_num)
     
@@ -207,13 +187,17 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         print(Fore.RED + f"❌ Invalid starting game number: {start_game_number}")
         sys.exit(1)
         
-    # Check if the previous game files exist
-    game_file_path = os.path.join(log_dir, f"game_{start_game_number-1}.json")
-    alt_game_file_path = os.path.join(log_dir, f"game{start_game_number-1}.json")
+    # Get the data from the last game for continuation
+    from utils.file_utils import get_game_json_filename, join_log_path
     
-    if start_game_number > 1 and not (os.path.exists(game_file_path) or os.path.exists(alt_game_file_path)):
-        print(Fore.RED + f"❌ Previous game file not found for game {start_game_number-1}")
-        sys.exit(1)
+    # Get the previous game's data
+    prev_game_filename = get_game_json_filename(start_game_number-1)
+    game_file_path = join_log_path(log_dir, prev_game_filename)
+    
+    # If the previous game's file doesn't exist, can't continue
+    if not os.path.exists(game_file_path):
+        print(f"Error: Cannot find previous game file: {game_file_path}")
+        return None
     
     # Initialize time_stats and token_stats attributes if they don't exist
     if not hasattr(game_manager, 'time_stats'):
@@ -440,4 +424,38 @@ def continue_from_directory(game_manager_class, args):
         traceback.print_exc()
         sys.exit(1)
         
-    return game_manager 
+    return game_manager
+
+def get_game_score(game_file_path):
+    """Extract the score from a game file.
+    
+    Args:
+        game_file_path: Path to the game JSON file
+        
+    Returns:
+        Score value from the game file or 0 if not found
+    """
+    try:
+        with open(game_file_path, 'r', encoding='utf-8') as f:
+            game_data = json.load(f)
+        return game_data.get('score', 0)
+    except Exception as e:
+        print(f"Warning: Could not read score from {game_file_path}: {e}")
+        return 0
+
+def get_game_steps(game_file_path):
+    """Extract the step count from a game file.
+    
+    Args:
+        game_file_path: Path to the game JSON file
+        
+    Returns:
+        Step count from the game file or 0 if not found
+    """
+    try:
+        with open(game_file_path, 'r', encoding='utf-8') as f:
+            game_data = json.load(f)
+        return game_data.get('steps', 0)
+    except Exception as e:
+        print(f"Warning: Could not read steps from {game_file_path}: {e}")
+        return 0 

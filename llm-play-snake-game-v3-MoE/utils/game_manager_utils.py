@@ -207,8 +207,12 @@ def process_game_over(game, game_state_info):
         else:
             game.game_state.record_game_end("UNKNOWN")
     
+    # Import file naming utilities
+    from utils.file_utils import get_game_json_filename, join_log_path
+    
     # Save game summary
-    json_path = os.path.join(log_dir, f"game_{game_count}.json")
+    json_filename = get_game_json_filename(game_count)
+    json_path = join_log_path(log_dir, json_filename)
     parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
     game.game_state.save_game_summary(
         json_path,
@@ -352,7 +356,10 @@ def handle_error(game, error_info):
         
         # Save game summary
         import os
-        json_path = os.path.join(log_dir, f"game_{game_count}.json")
+        from utils.file_utils import get_game_json_filename, join_log_path
+        
+        json_filename = get_game_json_filename(game_count)
+        json_path = join_log_path(log_dir, json_filename)
         parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
         game.game_state.save_game_summary(
             json_path,
@@ -435,7 +442,9 @@ def report_final_statistics(stats_info):
     try:
         total_invalid_reversals = 0
         for game_num in range(1, game_count + 1):
-            game_file = os.path.join(log_dir, f"game_{game_num}.json")
+            from utils.file_utils import get_game_json_filename, join_log_path
+            game_filename = get_game_json_filename(game_num)
+            game_file = join_log_path(log_dir, game_filename)
             if os.path.exists(game_file):
                 import json
                 with open(game_file, 'r', encoding='utf-8') as f:

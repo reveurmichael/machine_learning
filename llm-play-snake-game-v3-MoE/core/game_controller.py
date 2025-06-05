@@ -161,9 +161,9 @@ class GameController:
                 # Record the apple position in game state
                 self.game_state.record_apple_position(position)
                 
-                # Start a new round in game state
-                # This updates the current_round_data but doesn't increment round_count
-                self.game_state.start_new_round(position)
+                # We do NOT start a new round when an apple is generated
+                # Rounds are ONLY tied to LLM communications
+                # self.game_state.start_new_round(position)  # This line has been removed
                 
                 return position
     
@@ -195,9 +195,9 @@ class GameController:
             # Update game state with the new apple position
             self.game_state.record_apple_position(self.apple_position)
             
-            # Start a new round in game state
-            # This updates the current_round_data but doesn't increment round_count
-            self.game_state.start_new_round(self.apple_position)
+            # We do NOT start a new round when an apple is set
+            # Rounds are ONLY tied to LLM communications
+            # self.game_state.start_new_round(self.apple_position)  # This line has been removed
             
             # Update the board
             self._update_board()
@@ -265,12 +265,16 @@ class GameController:
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
             self.last_collision_type = 'wall'
+            # Note: We do NOT increment round_count when a collision occurs
+            # This ensures round numbers in game_N.json match the prompts/responses folders
             self.game_state.record_game_end("WALL")
             return False, False  # Game over, no apple eaten
             
         if body_collision:
             print(f"Game over! Snake hit itself moving {direction_key}")
             self.last_collision_type = 'self'
+            # Note: We do NOT increment round_count when a collision occurs
+            # This ensures round numbers in game_N.json match the prompts/responses folders
             self.game_state.record_game_end("SELF")
             return False, False  # Game over, no apple eaten
         

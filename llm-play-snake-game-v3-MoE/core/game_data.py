@@ -225,19 +225,31 @@ class GameData:
                 "step": self.steps
             }
             
-            # Add to current round data
-            self.current_round_data["invalid_reversals"].append(invalid_reversal)
-            
-            # Get or create the round data for the current round
-            round_data = self._get_or_create_round_data(self.round_count)
-            
-            # Ensure invalid_reversals exists in round data
-            if "invalid_reversals" not in round_data:
-                round_data["invalid_reversals"] = []
+            # Check if this exact invalid reversal is already recorded for this step
+            # to prevent duplicates
+            duplicate_exists = False
+            for existing_reversal in self.current_round_data["invalid_reversals"]:
+                if (existing_reversal["attempted_move"] == attempted_move and
+                    existing_reversal["current_direction"] == current_direction and
+                    existing_reversal["step"] == self.steps):
+                    duplicate_exists = True
+                    break
                 
-            # Add to round data - each round should only track its own reversals
-            # WITHOUT duplicating the invalid reversals from the previous rounds
-            round_data["invalid_reversals"] = self.current_round_data["invalid_reversals"].copy()
+            # Only add if it's not a duplicate
+            if not duplicate_exists:
+                # Add to current round data
+                self.current_round_data["invalid_reversals"].append(invalid_reversal)
+                
+                # Get or create the round data for the current round
+                round_data = self._get_or_create_round_data(self.round_count)
+                
+                # Ensure invalid_reversals exists in round data
+                if "invalid_reversals" not in round_data:
+                    round_data["invalid_reversals"] = []
+                    
+                # Add only this specific invalid reversal to the round data
+                # instead of copying the entire list to prevent duplicates
+                round_data["invalid_reversals"].append(invalid_reversal)
     
     def record_error_move(self):
         """Record an error move (error in LLM response)."""
@@ -294,6 +306,10 @@ class GameData:
         self.game_number += 1
         self.end_time = time.time()
         
+        # IMPORTANT: We do NOT increment round_count here
+        # Round count is ONLY incremented in llm/communication_utils.py after getting a valid move from the LLM
+        # This ensures rounds in JSON files match the prompt/response file counts
+        
         # Save current round data without incrementing round count
         # This ensures we capture the final state without creating an extra round at game end
         if self.current_round_data:
@@ -347,7 +363,7 @@ class GameData:
         # Initialize empty lists if they don't exist
         if "primary_response_times" not in self.current_round_data:
             self.current_round_data["primary_response_times"] = []
-            
+        
         # Only add to current round data if this exact time isn't already recorded
         if duration not in self.current_round_data["primary_response_times"]:
             self.current_round_data["primary_response_times"].append(duration)
@@ -356,14 +372,14 @@ class GameData:
         
         # Also store directly in the rounds_data for the current round
         round_data = self._get_or_create_round_data(self.round_count)
-                
+        
         # Ensure the response_times list exists but clear it first
         if "primary_response_times" not in round_data:
             round_data["primary_response_times"] = []
         else:
             # Clear existing response times - each round should only have its own times
             round_data["primary_response_times"] = []
-            
+        
         # Add the new time
         round_data["primary_response_times"].append(duration)
     
@@ -380,7 +396,7 @@ class GameData:
         # Initialize empty lists if they don't exist
         if "secondary_response_times" not in self.current_round_data:
             self.current_round_data["secondary_response_times"] = []
-            
+        
         # Only add to current round data if this exact time isn't already recorded
         if duration not in self.current_round_data["secondary_response_times"]:
             self.current_round_data["secondary_response_times"].append(duration)
@@ -393,14 +409,14 @@ class GameData:
         
         # Also store directly in the rounds_data for the current round
         round_data = self._get_or_create_round_data(self.round_count)
-                
+        
         # Ensure the response_times list exists but clear it first
         if "secondary_response_times" not in round_data:
             round_data["secondary_response_times"] = []
         else:
             # Clear existing response times - each round should only have its own times
             round_data["secondary_response_times"] = []
-            
+        
         # Add the new time
         round_data["secondary_response_times"].append(duration)
     
@@ -852,7 +868,7 @@ class GameData:
             # Create an ordered version of rounds_data
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self.moves,
+                "moves": self._collect_all_moves_from_rounds(),  # Use our new helper method
                 "rounds_data": self._get_ordered_rounds_data()
             }
         }
@@ -867,6 +883,29 @@ class GameData:
             }
         
         return summary
+    
+    def _collect_all_moves_from_rounds(self):
+        """Collect all moves from all rounds to create a complete move history.
+        
+        This ensures that the moves list in detailed_history contains all moves
+        from all rounds, not just individual moves recorded during execution.
+        
+        Returns:
+            List of all moves across all rounds
+        """
+        all_moves = []
+        
+        # Get an ordered list of round keys
+        round_keys = sorted(self.rounds_data.keys(), 
+                           key=lambda k: int(k.split('_')[1]))
+        
+        # Collect moves from each round
+        for round_key in round_keys:
+            round_data = self.rounds_data[round_key]
+            if "moves" in round_data and round_data["moves"]:
+                all_moves.extend(round_data["moves"])
+                
+        return all_moves
     
     def _get_ordered_rounds_data(self):
         """Get an ordered version of rounds_data with keys sorted numerically.
@@ -987,25 +1026,30 @@ class GameData:
         if match:
             game_number = int(match.group(1))
         
-        # Calculate the expected round_count based on actual gameplay data
+        # Calculate the actual round_count based ONLY on LLM communications
         actual_round_count = self._calculate_actual_round_count()
         
-        # Update round_count if it doesn't match actual gameplay
+        # Update round_count if it doesn't match LLM communication count
         if actual_round_count != self.round_count:
-            print(f"⚠️ Adjusting round_count from {self.round_count} to {actual_round_count} based on actual gameplay")
+            print(f"🔄 Setting round_count to {actual_round_count} based strictly on LLM communication count")
             self.round_count = actual_round_count
         
-        # ADDED: Don't populate rounds beyond those actually played
-        # Clean up any excessive rounds that might have been created
+        # CRITICAL: Only include rounds that correspond to actual LLM communications
+        # This ensures that the number of rounds in the JSON exactly matches the number
+        # of prompt/response file pairs
         valid_keys = set()
         for i in range(1, self.round_count + 1):
             valid_keys.add(f"round_{i}")
         
-        # Remove any rounds beyond what we actually played
-        rounds_to_remove = [key for key in self.rounds_data.keys() if key not in valid_keys]
-        for key in rounds_to_remove:
-            del self.rounds_data[key]
-            
+        # Create a clean copy of rounds_data with ONLY the valid rounds
+        clean_rounds_data = {}
+        for key in valid_keys:
+            if key in self.rounds_data:
+                clean_rounds_data[key] = self.rounds_data[key]
+        
+        # Replace the original rounds_data with our clean version
+        self.rounds_data = clean_rounds_data
+        
         # Collect reference values for empty arrays
         reference_values = {
             "primary_response_times": None,
@@ -1057,7 +1101,7 @@ class GameData:
             else:
                 reference_values["secondary_token_stats"] = []  # Empty list when no parser is used
         
-        # Now, use the existing rounds_data with any necessary fixes
+        # Process the existing round data (which now contains only valid rounds)
         for round_key, round_data in self.rounds_data.items():
             # Only include rounds that have some meaningful data
             if (round_data.get("moves") or 
@@ -1114,7 +1158,7 @@ class GameData:
         """
         if moves and isinstance(moves, list):
             # Store the entire array of planned moves for the current round
-            self.current_round_data["moves"] = moves.copy()
+            self.current_round_data["moves"] = moves.copy() 
             
             # Also store directly in the rounds_data for the current round
             round_data = self._get_or_create_round_data(self.round_count)
@@ -1124,6 +1168,9 @@ class GameData:
             
             # Update moves in the round data with a deep copy
             round_data["moves"] = moves.copy()
+            
+            # Important: We don't add these to self.moves yet - they'll be added
+            # individually as they're executed by record_move
     
     def sync_round_data(self):
         """Synchronize the current round data with rounds_data.
@@ -1160,12 +1207,34 @@ class GameData:
                 if len(value) > 0:  # Only copy non-empty arrays
                     # Create a deep copy to prevent future modifications from affecting this data
                     if isinstance(value, (list, tuple)):
-                        # For invalid_reversals, make sure we're replacing the entire list
-                        # to avoid duplicating entries from previous rounds
                         if key == "invalid_reversals":
-                            round_data[key] = value.copy()
+                            # Special handling for invalid_reversals to prevent duplicates
+                            # Store as a completely new list instead of merging
+                            existing_reversals = round_data.get(key, [])
+                            
+                            # Create a list of unique invalid reversals by comparing fields
+                            unique_reversals = []
+                            seen_keys = set()
+                            
+                            # Process existing reversals first
+                            for reversal in existing_reversals:
+                                # Create a key based on the reversal's properties
+                                rev_key = f"{reversal.get('attempted_move')}:{reversal.get('current_direction')}:{reversal.get('step')}"
+                                if rev_key not in seen_keys:
+                                    seen_keys.add(rev_key)
+                                    unique_reversals.append(reversal)
+                            
+                            # Then add new reversals from current_round_data if not already present
+                            for reversal in value:
+                                rev_key = f"{reversal.get('attempted_move')}:{reversal.get('current_direction')}:{reversal.get('step')}"
+                                if rev_key not in seen_keys:
+                                    seen_keys.add(rev_key)
+                                    unique_reversals.append(reversal)
+                            
+                            # Set the deduplicated list back to round_data
+                            round_data[key] = unique_reversals
                         else:
-                            # For other lists, we might want to merge data
+                            # For other lists, just copy the entire list
                             round_data[key] = value.copy()
                     else:  # numpy array
                         round_data[key] = value.copy()
@@ -1265,29 +1334,14 @@ class GameData:
                   self.round_count) 
     
     def _calculate_actual_round_count(self):
-        """Calculate the actual round count based on meaningful game data.
+        """Calculate the actual round count based on LLM communications only.
+        
+        This method ensures round count is strictly based on the number of 
+        LLM interactions (send/receive), corresponding to prompt/response files.
         
         Returns:
-            The actual round count based on moves, apples eaten, and responses
+            The count of LLM interactions
         """
-        # Count rounds with actual gameplay data
-        round_nums = []
-        
-        # Extract round numbers from existing round keys
-        for round_key in self.rounds_data.keys():
-            try:
-                round_num = int(round_key.split('_')[1])
-                round_nums.append(round_num)
-            except (IndexError, ValueError):
-                continue
-        
-        # Use gameplay statistics as additional signals
-        apple_count = len(self.apple_positions) if self.apple_positions is not None else 0
-        response_count = len(self.primary_response_times)
-        
-        # Calculate max round from existing data
-        max_round = max(round_nums) if round_nums else self.round_count
-        
-        # FIXED: Don't use move_count (steps) as a proxy for round count
-        # The round count should be based on LLM queries or apple positions, not steps
-        return max(max_round, apple_count + 1, response_count, 1) 
+        # ONLY use LLM response times as the source of truth
+        # This directly corresponds to the number of prompt/response files
+        return len(self.primary_response_times) if self.primary_response_times else 0 

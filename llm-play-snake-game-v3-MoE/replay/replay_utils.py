@@ -8,6 +8,7 @@ import os
 import subprocess
 import json
 from pathlib import Path
+from utils.file_utils import get_game_json_filename, join_log_path
 
 def run_replay(log_dir, game_number=None, move_pause=1.0):
     """Run a replay of a specific game.
@@ -39,7 +40,8 @@ def check_game_summary_for_moves(log_dir, game_number):
     Returns:
         Boolean indicating if the game has moves
     """
-    json_summary_file = os.path.join(log_dir, f"game_{game_number}.json")
+    game_filename = get_game_json_filename(game_number)
+    json_summary_file = join_log_path(log_dir, game_filename)
     
     if not os.path.exists(json_summary_file):
         return False
@@ -66,7 +68,8 @@ def extract_apple_positions(log_dir, game_number):
         List of apple positions or None if not found
     """
     log_dir_path = Path(log_dir)
-    json_summary_file = log_dir_path / f"game_{game_number}.json"
+    game_filename = get_game_json_filename(game_number)
+    json_summary_file = log_dir_path / game_filename
     
     if not json_summary_file.exists():
         return None

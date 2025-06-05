@@ -11,7 +11,7 @@ import re
 import json
 from datetime import datetime
 from colorama import Fore
-from utils.file_utils import save_to_file
+from utils.file_utils import save_to_file, get_prompt_filename, join_log_path
 from llm.prompt_utils import create_parser_prompt
 from llm.parsing_utils import parse_and_format
 
@@ -117,11 +117,15 @@ def get_llm_response(game_manager):
     # Format prompt for LLM
     prompt = game_state
 
-    # Log the prompt
-    prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_prompt.txt"
-
     # Get parser input for metadata
     parser_input = extract_state_for_parser(game_manager)
+
+    # Log the prompt using centralized naming
+    prompt_filename = get_prompt_filename(
+        game_number=game_manager.game_count+1,
+        round_number=game_manager.round_count,
+        file_type="prompt"
+    )
 
     prompt_metadata = {
         "PRIMARY LLM Provider": game_manager.args.provider,
@@ -159,8 +163,12 @@ def get_llm_response(game_manager):
         # Record response time
         response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Log the response
-        response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_raw_response.txt"
+        # Log the response using centralized naming
+        response_filename = get_prompt_filename(
+            game_number=game_manager.game_count+1,
+            round_number=game_manager.round_count,
+            file_type="raw_response"
+        )
 
         # Get parser input to include in metadata
         parser_input = extract_state_for_parser(game_manager)
@@ -190,8 +198,13 @@ def get_llm_response(game_manager):
             # Create parser prompt
             parser_prompt = create_parser_prompt(response, *parser_input)
 
-            # Save the secondary LLM prompt
-            parser_prompt_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parser_prompt.txt"
+            # Save the secondary LLM prompt using centralized naming
+            parser_prompt_filename = get_prompt_filename(
+                game_number=game_manager.game_count+1,
+                round_number=game_manager.round_count,
+                file_type="parser_prompt"
+            )
+
             parser_prompt_metadata = {
                 "SECONDARY LLM Provider": game_manager.args.parser_provider,
                 "SECONDARY LLM Model": game_manager.args.parser_model or "default",
@@ -236,13 +249,18 @@ def get_llm_response(game_manager):
                 # Record parser response time
                 parser_response_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                # Save the secondary LLM response
-                parsed_response_filename = f"game_{game_manager.game_count+1}_round_{game_manager.round_count}_parsed_response.txt"
+                # Save the secondary LLM response using centralized naming
+                parsed_response_filename = get_prompt_filename(
+                    game_number=game_manager.game_count+1,
+                    round_number=game_manager.round_count,
+                    file_type="parsed_response"
+                )
+
                 parsed_response_metadata = {
                     "SECONDARY LLM Request Time": parser_request_time,
                     "SECONDARY LLM Response Time": parser_response_time,
                     "SECONDARY LLM Provider": game_manager.args.parser_provider,
-                    "SECONDARY LLM Model": game_manager.args.parser_model or "default",
+                    "SECONDARY LLM Model": game_manager.args.parser_model if game_manager.args.parser_provider else None,
                     "Head Position": parser_input[0],
                     "Apple Position": parser_input[1],
                     "Body Cells": parser_input[2]

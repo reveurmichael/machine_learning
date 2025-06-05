@@ -140,7 +140,7 @@ def run_game_loop(game_manager):
                                     print(Fore.YELLOW + "No more planned moves, requesting new plan.")
                                     game_manager.need_new_plan = True
                                 else:
-                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves.")
+                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
                             
                             # End movement time tracking
                             game_manager.game.game_state.record_game_movement_end()
@@ -153,8 +153,9 @@ def run_game_loop(game_manager):
                                 time.sleep(pause_time)
                             game_manager.game.game_state.record_waiting_end()
                         else:
-                            # No more planned moves available, request new plan
+                            # No more planned moves in the current round, we need a new plan
                             game_manager.need_new_plan = True
+                            print("🔄 No more planned moves in the current round, requesting new plan.")
                     
                     # Handle game over state
                     if not game_manager.game_active:

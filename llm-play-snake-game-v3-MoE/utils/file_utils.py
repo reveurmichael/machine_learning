@@ -372,4 +372,44 @@ def save_to_file(content, directory, filename, metadata=None):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(formatted_content)
     
-    return file_path 
+    return file_path
+
+def get_game_json_filename(game_number):
+    """Get the standardized filename for a game's JSON summary file.
+    
+    Args:
+        game_number: The game number (1-based)
+        
+    Returns:
+        String with the standardized filename
+    """
+    return f"game_{game_number}.json"
+
+def get_prompt_filename(game_number, round_number, file_type="prompt"):
+    """Get the standardized filename for a prompt or response file.
+    
+    Args:
+        game_number: The game number (1-based)
+        round_number: The round number (1-based)
+        file_type: Type of file ("prompt", "raw_response", "parser_prompt", "parsed_response")
+        
+    Returns:
+        String with the standardized filename
+    """
+    valid_types = ["prompt", "raw_response", "parser_prompt", "parsed_response"]
+    if file_type not in valid_types:
+        raise ValueError(f"Invalid file type '{file_type}'. Must be one of: {valid_types}")
+        
+    return f"game_{game_number}_round_{round_number}_{file_type}.txt"
+
+def join_log_path(log_dir, filename):
+    """Join the log directory with a filename.
+    
+    Args:
+        log_dir: The log directory path
+        filename: The filename to join
+        
+    Returns:
+        String with the full path
+    """
+    return os.path.join(log_dir, filename) 

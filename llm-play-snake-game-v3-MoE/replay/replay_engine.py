@@ -13,6 +13,7 @@ from config import TIME_DELAY, TIME_TICK, DIRECTIONS
 import numpy as np
 import traceback
 from utils.game_manager_utils import check_collision
+from utils.file_utils import get_game_json_filename, join_log_path
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games."""
@@ -98,8 +99,9 @@ class ReplayEngine(GameController):
         Returns:
             Game data dictionary or None if loading failed
         """
-        # Build the path to the game data file
-        game_file = os.path.join(self.log_dir, f"game_{game_number}.json")
+        # Build the path to the game data file using the utility functions
+        game_filename = get_game_json_filename(game_number)
+        game_file = join_log_path(self.log_dir, game_filename)
         
         # Check if the file exists
         if not os.path.exists(game_file):

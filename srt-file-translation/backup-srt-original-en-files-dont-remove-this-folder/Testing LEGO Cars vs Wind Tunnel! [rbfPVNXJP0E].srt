@@ -1,0 +1,6525 @@
+1
+00:00:00,160 --> 00:00:01,670
+
+Today I'm going to test crazy Lego
+
+2
+00:00:01,670 --> 00:00:01,680
+Today I'm going to test crazy Lego
+ 
+
+3
+00:00:01,680 --> 00:00:03,510
+Today I'm going to test crazy Lego
+vehicles in a customuilt wind tunnel to
+
+4
+00:00:03,510 --> 00:00:03,520
+vehicles in a customuilt wind tunnel to
+ 
+
+5
+00:00:03,520 --> 00:00:06,349
+vehicles in a customuilt wind tunnel to
+see which shapes are the most
+
+6
+00:00:06,349 --> 00:00:06,359
+see which shapes are the most
+ 
+
+7
+00:00:06,359 --> 00:00:08,150
+see which shapes are the most
+aerodynamic. If you guys didn't know,
+
+8
+00:00:08,150 --> 00:00:08,160
+aerodynamic. If you guys didn't know,
+ 
+
+9
+00:00:08,160 --> 00:00:10,470
+aerodynamic. If you guys didn't know,
+aerodynamics is the study of how gases
+
+10
+00:00:10,470 --> 00:00:10,480
+aerodynamics is the study of how gases
+ 
+
+11
+00:00:10,480 --> 00:00:12,230
+aerodynamics is the study of how gases
+like air can flow around and interact
+
+12
+00:00:12,230 --> 00:00:12,240
+like air can flow around and interact
+ 
+
+13
+00:00:12,240 --> 00:00:13,910
+like air can flow around and interact
+with moving objects. It's the reason why
+
+14
+00:00:13,910 --> 00:00:13,920
+with moving objects. It's the reason why
+ 
+
+15
+00:00:13,920 --> 00:00:15,749
+with moving objects. It's the reason why
+F1 cars and airplane wings have their
+
+16
+00:00:15,749 --> 00:00:15,759
+F1 cars and airplane wings have their
+ 
+
+17
+00:00:15,759 --> 00:00:17,109
+F1 cars and airplane wings have their
+own distinguished shapes. With car
+
+18
+00:00:17,109 --> 00:00:17,119
+own distinguished shapes. With car
+ 
+
+19
+00:00:17,119 --> 00:00:18,630
+own distinguished shapes. With car
+companies globally spending tens of
+
+20
+00:00:18,630 --> 00:00:18,640
+companies globally spending tens of
+ 
+
+21
+00:00:18,640 --> 00:00:20,470
+companies globally spending tens of
+billions every year researching the most
+
+22
+00:00:20,470 --> 00:00:20,480
+billions every year researching the most
+ 
+
+23
+00:00:20,480 --> 00:00:21,910
+billions every year researching the most
+efficient ways to reduce drag and
+
+24
+00:00:21,910 --> 00:00:21,920
+efficient ways to reduce drag and
+ 
+
+25
+00:00:21,920 --> 00:00:23,189
+efficient ways to reduce drag and
+increase fuel efficiency in their
+
+26
+00:00:23,189 --> 00:00:23,199
+increase fuel efficiency in their
+ 
+
+27
+00:00:23,199 --> 00:00:25,269
+increase fuel efficiency in their
+vehicles, all with the exception of one,
+
+28
+00:00:25,269 --> 00:00:25,279
+vehicles, all with the exception of one,
+ 
+
+29
+00:00:25,279 --> 00:00:26,870
+vehicles, all with the exception of one,
+the biggest tire manufacturer in the
+
+30
+00:00:26,870 --> 00:00:26,880
+the biggest tire manufacturer in the
+ 
+
+31
+00:00:26,880 --> 00:00:28,390
+the biggest tire manufacturer in the
+world, having released thousands of car
+
+32
+00:00:28,390 --> 00:00:28,400
+world, having released thousands of car
+ 
+
+33
+00:00:28,400 --> 00:00:30,630
+world, having released thousands of car
+models to date, the Lego company. So,
+
+34
+00:00:30,630 --> 00:00:30,640
+models to date, the Lego company. So,
+ 
+
+35
+00:00:30,640 --> 00:00:31,830
+models to date, the Lego company. So,
+not only are we going to build five
+
+36
+00:00:31,830 --> 00:00:31,840
+not only are we going to build five
+ 
+
+37
+00:00:31,840 --> 00:00:33,270
+not only are we going to build five
+custom cars with different shapes to
+
+38
+00:00:33,270 --> 00:00:33,280
+custom cars with different shapes to
+ 
+
+39
+00:00:33,280 --> 00:00:34,870
+custom cars with different shapes to
+test their effectiveness, but we're also
+
+40
+00:00:34,870 --> 00:00:34,880
+test their effectiveness, but we're also
+ 
+
+41
+00:00:34,880 --> 00:00:36,549
+test their effectiveness, but we're also
+going to put 10 LEGO car sets to the
+
+42
+00:00:36,549 --> 00:00:36,559
+going to put 10 LEGO car sets to the
+ 
+
+43
+00:00:36,559 --> 00:00:37,990
+going to put 10 LEGO car sets to the
+test to see if LEGO puts any thought
+
+44
+00:00:37,990 --> 00:00:38,000
+test to see if LEGO puts any thought
+ 
+
+45
+00:00:38,000 --> 00:00:39,590
+test to see if LEGO puts any thought
+into aerodynamics at all or if they're
+
+46
+00:00:39,590 --> 00:00:39,600
+into aerodynamics at all or if they're
+ 
+
+47
+00:00:39,600 --> 00:00:40,869
+into aerodynamics at all or if they're
+just built for looks. To start, we're
+
+48
+00:00:40,869 --> 00:00:40,879
+just built for looks. To start, we're
+ 
+
+49
+00:00:40,879 --> 00:00:42,389
+just built for looks. To start, we're
+going to need a way to visually see air
+
+50
+00:00:42,389 --> 00:00:42,399
+going to need a way to visually see air
+ 
+
+51
+00:00:42,399 --> 00:00:43,750
+going to need a way to visually see air
+moving around our vehicles so we can
+
+52
+00:00:43,750 --> 00:00:43,760
+moving around our vehicles so we can
+ 
+
+53
+00:00:43,760 --> 00:00:45,430
+moving around our vehicles so we can
+rate them effectively. usher in the wind
+
+54
+00:00:45,430 --> 00:00:45,440
+rate them effectively. usher in the wind
+ 
+
+55
+00:00:45,440 --> 00:00:47,990
+rate them effectively. usher in the wind
+tunnel. Invented in 1871 by Frank Wenim,
+
+56
+00:00:47,990 --> 00:00:48,000
+tunnel. Invented in 1871 by Frank Wenim,
+ 
+
+57
+00:00:48,000 --> 00:00:49,590
+tunnel. Invented in 1871 by Frank Wenim,
+the wind tunnel was an enclosed box that
+
+58
+00:00:49,590 --> 00:00:49,600
+the wind tunnel was an enclosed box that
+ 
+
+59
+00:00:49,600 --> 00:00:51,110
+the wind tunnel was an enclosed box that
+allowed high pressure air to flow
+
+60
+00:00:51,110 --> 00:00:51,120
+allowed high pressure air to flow
+ 
+
+61
+00:00:51,120 --> 00:00:52,549
+allowed high pressure air to flow
+through from one end to the other,
+
+62
+00:00:52,549 --> 00:00:52,559
+through from one end to the other,
+ 
+
+63
+00:00:52,559 --> 00:00:54,229
+through from one end to the other,
+allowing researchers to finally see the
+
+64
+00:00:54,229 --> 00:00:54,239
+allowing researchers to finally see the
+ 
+
+65
+00:00:54,239 --> 00:00:56,310
+allowing researchers to finally see the
+aerodynamics of their vehicles without
+
+66
+00:00:56,310 --> 00:00:56,320
+aerodynamics of their vehicles without
+ 
+
+67
+00:00:56,320 --> 00:00:58,310
+aerodynamics of their vehicles without
+testing. And with the added benefit of
+
+68
+00:00:58,310 --> 00:00:58,320
+testing. And with the added benefit of
+ 
+
+69
+00:00:58,320 --> 00:01:00,069
+testing. And with the added benefit of
+modern technology, we can include a fog
+
+70
+00:01:00,069 --> 00:01:00,079
+modern technology, we can include a fog
+ 
+
+71
+00:01:00,079 --> 00:01:01,349
+modern technology, we can include a fog
+machine in ours so we can actually see
+
+72
+00:01:01,349 --> 00:01:01,359
+machine in ours so we can actually see
+ 
+
+73
+00:01:01,359 --> 00:01:02,670
+machine in ours so we can actually see
+the air
+
+74
+00:01:02,670 --> 00:01:02,680
+the air
+ 
+
+75
+00:01:02,680 --> 00:01:05,509
+the air
+flow. I hope that doesn't trigger the
+
+76
+00:01:05,509 --> 00:01:05,519
+flow. I hope that doesn't trigger the
+ 
+
+77
+00:01:05,519 --> 00:01:07,429
+flow. I hope that doesn't trigger the
+Uh-oh. So, the first step is to lay out
+
+78
+00:01:07,429 --> 00:01:07,439
+Uh-oh. So, the first step is to lay out
+ 
+
+79
+00:01:07,439 --> 00:01:10,310
+Uh-oh. So, the first step is to lay out
+a base using 16x6 plates. I'm going to
+
+80
+00:01:10,310 --> 00:01:10,320
+a base using 16x6 plates. I'm going to
+ 
+
+81
+00:01:10,320 --> 00:01:11,910
+a base using 16x6 plates. I'm going to
+create some angled walls using these
+
+82
+00:01:11,910 --> 00:01:11,920
+create some angled walls using these
+ 
+
+83
+00:01:11,920 --> 00:01:13,590
+create some angled walls using these
+little techni pieces. So, let's create a
+
+84
+00:01:13,590 --> 00:01:13,600
+little techni pieces. So, let's create a
+ 
+
+85
+00:01:13,600 --> 00:01:14,789
+little techni pieces. So, let's create a
+bunch of these braces and put them all
+
+86
+00:01:14,789 --> 00:01:14,799
+bunch of these braces and put them all
+ 
+
+87
+00:01:14,799 --> 00:01:16,990
+bunch of these braces and put them all
+the way around the
+
+88
+00:01:16,990 --> 00:01:17,000
+the way around the
+ 
+
+89
+00:01:17,000 --> 00:01:18,950
+the way around the
+plates. Then, we'll just lay down a
+
+90
+00:01:18,950 --> 00:01:18,960
+plates. Then, we'll just lay down a
+ 
+
+91
+00:01:18,960 --> 00:01:20,550
+plates. Then, we'll just lay down a
+bunch of Technic bricks on the bottom to
+
+92
+00:01:20,550 --> 00:01:20,560
+bunch of Technic bricks on the bottom to
+ 
+
+93
+00:01:20,560 --> 00:01:22,789
+bunch of Technic bricks on the bottom to
+hold this together so it's not floppy.
+
+94
+00:01:22,789 --> 00:01:22,799
+hold this together so it's not floppy.
+ 
+
+95
+00:01:22,799 --> 00:01:24,390
+hold this together so it's not floppy.
+And boom. This thing should be pretty
+
+96
+00:01:24,390 --> 00:01:24,400
+And boom. This thing should be pretty
+ 
+
+97
+00:01:24,400 --> 00:01:26,149
+And boom. This thing should be pretty
+sturdy. Look at that. Can you see our
+
+98
+00:01:26,149 --> 00:01:26,159
+sturdy. Look at that. Can you see our
+ 
+
+99
+00:01:26,159 --> 00:01:28,469
+sturdy. Look at that. Can you see our
+wind tunnel yet? This is going to be so
+
+100
+00:01:28,469 --> 00:01:28,479
+wind tunnel yet? This is going to be so
+ 
+
+101
+00:01:28,479 --> 00:01:30,070
+wind tunnel yet? This is going to be so
+cool. And now we just got to add a ton
+
+102
+00:01:30,070 --> 00:01:30,080
+cool. And now we just got to add a ton
+ 
+
+103
+00:01:30,080 --> 00:01:31,670
+cool. And now we just got to add a ton
+of these little blue pins to lock
+
+104
+00:01:31,670 --> 00:01:31,680
+of these little blue pins to lock
+ 
+
+105
+00:01:31,680 --> 00:01:33,109
+of these little blue pins to lock
+together all those Technic bricks. And
+
+106
+00:01:33,109 --> 00:01:33,119
+together all those Technic bricks. And
+ 
+
+107
+00:01:33,119 --> 00:01:38,030
+together all those Technic bricks. And
+we'll finish up the top part of the
+
+108
+00:01:38,030 --> 00:01:38,040
+
+ 
+
+109
+00:01:38,040 --> 00:01:44,550
+
+frame. Ah, running out of blue pins.
+
+110
+00:01:44,550 --> 00:01:44,560
+
+ 
+
+111
+00:01:44,560 --> 00:01:46,710
+
+There we go. Now we got to build up some
+
+112
+00:01:46,710 --> 00:01:46,720
+There we go. Now we got to build up some
+ 
+
+113
+00:01:46,720 --> 00:01:48,230
+There we go. Now we got to build up some
+vertical pillars that come up from here
+
+114
+00:01:48,230 --> 00:01:48,240
+vertical pillars that come up from here
+ 
+
+115
+00:01:48,240 --> 00:01:55,870
+vertical pillars that come up from here
+about this
+
+116
+00:01:55,870 --> 00:01:55,880
+
+ 
+
+117
+00:01:55,880 --> 00:01:57,749
+
+high. There's just one more thing I'm
+
+118
+00:01:57,749 --> 00:01:57,759
+high. There's just one more thing I'm
+ 
+
+119
+00:01:57,759 --> 00:01:59,389
+high. There's just one more thing I'm
+adding to the frame of this and that's
+
+120
+00:01:59,389 --> 00:01:59,399
+adding to the frame of this and that's
+ 
+
+121
+00:01:59,399 --> 00:02:02,389
+adding to the frame of this and that's
+because it does that which is not ideal
+
+122
+00:02:02,389 --> 00:02:02,399
+because it does that which is not ideal
+ 
+
+123
+00:02:02,399 --> 00:02:03,749
+because it does that which is not ideal
+when you know we need this to be
+
+124
+00:02:03,749 --> 00:02:03,759
+when you know we need this to be
+ 
+
+125
+00:02:03,759 --> 00:02:05,109
+when you know we need this to be
+structurally sound. Simple way to fix
+
+126
+00:02:05,109 --> 00:02:05,119
+structurally sound. Simple way to fix
+ 
+
+127
+00:02:05,119 --> 00:02:06,870
+structurally sound. Simple way to fix
+this is just to introduce some triangle
+
+128
+00:02:06,870 --> 00:02:06,880
+this is just to introduce some triangle
+ 
+
+129
+00:02:06,880 --> 00:02:08,630
+this is just to introduce some triangle
+shapes. So, I'm adding a few of these
+
+130
+00:02:08,630 --> 00:02:08,640
+shapes. So, I'm adding a few of these
+ 
+
+131
+00:02:08,640 --> 00:02:10,469
+shapes. So, I'm adding a few of these
+lift arms in here to kind of cross over
+
+132
+00:02:10,469 --> 00:02:10,479
+lift arms in here to kind of cross over
+ 
+
+133
+00:02:10,479 --> 00:02:12,229
+lift arms in here to kind of cross over
+and connect. And once we do that, you
+
+134
+00:02:12,229 --> 00:02:12,239
+and connect. And once we do that, you
+ 
+
+135
+00:02:12,239 --> 00:02:13,990
+and connect. And once we do that, you
+can see just how sturdy this side
+
+136
+00:02:13,990 --> 00:02:14,000
+can see just how sturdy this side
+ 
+
+137
+00:02:14,000 --> 00:02:14,910
+can see just how sturdy this side
+already
+
+138
+00:02:14,910 --> 00:02:14,920
+already
+ 
+
+139
+00:02:14,920 --> 00:02:16,869
+already
+is. Now that we've got the frame for
+
+140
+00:02:16,869 --> 00:02:16,879
+is. Now that we've got the frame for
+ 
+
+141
+00:02:16,879 --> 00:02:18,390
+is. Now that we've got the frame for
+this thing built up, the next step is to
+
+142
+00:02:18,390 --> 00:02:18,400
+this thing built up, the next step is to
+ 
+
+143
+00:02:18,400 --> 00:02:19,750
+this thing built up, the next step is to
+build a really strong fan so we can
+
+144
+00:02:19,750 --> 00:02:19,760
+build a really strong fan so we can
+ 
+
+145
+00:02:19,760 --> 00:02:21,110
+build a really strong fan so we can
+actually push air through our wind
+
+146
+00:02:21,110 --> 00:02:21,120
+actually push air through our wind
+ 
+
+147
+00:02:21,120 --> 00:02:22,309
+actually push air through our wind
+tunnel. And for that, we're going to use
+
+148
+00:02:22,309 --> 00:02:22,319
+tunnel. And for that, we're going to use
+ 
+
+149
+00:02:22,319 --> 00:02:24,470
+tunnel. And for that, we're going to use
+these Lego fan blade pieces. And we just
+
+150
+00:02:24,470 --> 00:02:24,480
+these Lego fan blade pieces. And we just
+ 
+
+151
+00:02:24,480 --> 00:02:25,910
+these Lego fan blade pieces. And we just
+got to arrange these in a fan shape. I'm
+
+152
+00:02:25,910 --> 00:02:25,920
+got to arrange these in a fan shape. I'm
+ 
+
+153
+00:02:25,920 --> 00:02:27,510
+got to arrange these in a fan shape. I'm
+going to snap on two of these Technic
+
+154
+00:02:27,510 --> 00:02:27,520
+going to snap on two of these Technic
+ 
+
+155
+00:02:27,520 --> 00:02:28,869
+going to snap on two of these Technic
+pieces. And if we connect a few of these
+
+156
+00:02:28,869 --> 00:02:28,879
+pieces. And if we connect a few of these
+ 
+
+157
+00:02:28,879 --> 00:02:30,070
+pieces. And if we connect a few of these
+little pieces, we should be able to snap
+
+158
+00:02:30,070 --> 00:02:30,080
+little pieces, we should be able to snap
+ 
+
+159
+00:02:30,080 --> 00:02:31,390
+little pieces, we should be able to snap
+on our
+
+160
+00:02:31,390 --> 00:02:31,400
+on our
+ 
+
+161
+00:02:31,400 --> 00:02:34,630
+on our
+propellers. Look at that.
+
+162
+00:02:34,630 --> 00:02:34,640
+propellers. Look at that.
+ 
+
+163
+00:02:34,640 --> 00:02:35,750
+propellers. Look at that.
+We're going to need to connect a few
+
+164
+00:02:35,750 --> 00:02:35,760
+We're going to need to connect a few
+ 
+
+165
+00:02:35,760 --> 00:02:37,270
+We're going to need to connect a few
+motors together so that we'll have
+
+166
+00:02:37,270 --> 00:02:37,280
+motors together so that we'll have
+ 
+
+167
+00:02:37,280 --> 00:02:38,710
+motors together so that we'll have
+enough power to actually spin this
+
+168
+00:02:38,710 --> 00:02:38,720
+enough power to actually spin this
+ 
+
+169
+00:02:38,720 --> 00:02:40,070
+enough power to actually spin this
+really fast. And to make this thing spin
+
+170
+00:02:40,070 --> 00:02:40,080
+really fast. And to make this thing spin
+ 
+
+171
+00:02:40,080 --> 00:02:41,190
+really fast. And to make this thing spin
+as fast as possible, we're going to
+
+172
+00:02:41,190 --> 00:02:41,200
+as fast as possible, we're going to
+ 
+
+173
+00:02:41,200 --> 00:02:42,869
+as fast as possible, we're going to
+implement what's called a gear ratio,
+
+174
+00:02:42,869 --> 00:02:42,879
+implement what's called a gear ratio,
+ 
+
+175
+00:02:42,879 --> 00:02:44,309
+implement what's called a gear ratio,
+which essentially means if we connect a
+
+176
+00:02:44,309 --> 00:02:44,319
+which essentially means if we connect a
+ 
+
+177
+00:02:44,319 --> 00:02:46,070
+which essentially means if we connect a
+smaller and larger gear together like
+
+178
+00:02:46,070 --> 00:02:46,080
+smaller and larger gear together like
+ 
+
+179
+00:02:46,080 --> 00:02:47,750
+smaller and larger gear together like
+this, and we drive the larger gear, the
+
+180
+00:02:47,750 --> 00:02:47,760
+this, and we drive the larger gear, the
+ 
+
+181
+00:02:47,760 --> 00:02:49,949
+this, and we drive the larger gear, the
+small one is going to rotate a lot
+
+182
+00:02:49,949 --> 00:02:49,959
+small one is going to rotate a lot
+ 
+
+183
+00:02:49,959 --> 00:02:51,910
+small one is going to rotate a lot
+faster. So, it should give us the speed
+
+184
+00:02:51,910 --> 00:02:51,920
+faster. So, it should give us the speed
+ 
+
+185
+00:02:51,920 --> 00:02:53,190
+faster. So, it should give us the speed
+we need. So, let's connect these guys
+
+186
+00:02:53,190 --> 00:02:53,200
+we need. So, let's connect these guys
+ 
+
+187
+00:02:53,200 --> 00:02:54,790
+we need. So, let's connect these guys
+together and attach some large gears to
+
+188
+00:02:54,790 --> 00:02:54,800
+together and attach some large gears to
+ 
+
+189
+00:02:54,800 --> 00:02:55,990
+together and attach some large gears to
+them. And then we'll stick our small
+
+190
+00:02:55,990 --> 00:02:56,000
+them. And then we'll stick our small
+ 
+
+191
+00:02:56,000 --> 00:02:58,070
+them. And then we'll stick our small
+gear right here through the center.
+
+192
+00:02:58,070 --> 00:02:58,080
+gear right here through the center.
+ 
+
+193
+00:02:58,080 --> 00:03:00,229
+gear right here through the center.
+Let's see how fast this goes. Safety
+
+194
+00:03:00,229 --> 00:03:00,239
+Let's see how fast this goes. Safety
+ 
+
+195
+00:03:00,239 --> 00:03:02,740
+Let's see how fast this goes. Safety
+first, guys.
+
+196
+00:03:02,740 --> 00:03:02,750
+first, guys.
+ 
+
+197
+00:03:02,750 --> 00:03:06,390
+first, guys.
+[Music]
+
+198
+00:03:06,390 --> 00:03:06,400
+
+ 
+
+199
+00:03:06,400 --> 00:03:07,830
+
+That's why we have eye protection. We
+
+200
+00:03:07,830 --> 00:03:07,840
+That's why we have eye protection. We
+ 
+
+201
+00:03:07,840 --> 00:03:08,869
+That's why we have eye protection. We
+need to lock all of these pieces
+
+202
+00:03:08,869 --> 00:03:08,879
+need to lock all of these pieces
+ 
+
+203
+00:03:08,879 --> 00:03:10,670
+need to lock all of these pieces
+together so they don't fly off like
+
+204
+00:03:10,670 --> 00:03:10,680
+together so they don't fly off like
+ 
+
+205
+00:03:10,680 --> 00:03:12,869
+together so they don't fly off like
+that. See, I kind of interlocked it all
+
+206
+00:03:12,869 --> 00:03:12,879
+that. See, I kind of interlocked it all
+ 
+
+207
+00:03:12,879 --> 00:03:14,910
+that. See, I kind of interlocked it all
+together. And
+
+208
+00:03:14,910 --> 00:03:14,920
+together. And
+ 
+
+209
+00:03:14,920 --> 00:03:17,910
+together. And
+now that is breezy, dude. Oh gosh. Well,
+
+210
+00:03:17,910 --> 00:03:17,920
+now that is breezy, dude. Oh gosh. Well,
+ 
+
+211
+00:03:17,920 --> 00:03:20,070
+now that is breezy, dude. Oh gosh. Well,
+that's the suction. Wow, that's actually
+
+212
+00:03:20,070 --> 00:03:20,080
+that's the suction. Wow, that's actually
+ 
+
+213
+00:03:20,080 --> 00:03:21,910
+that's the suction. Wow, that's actually
+impressive. You can see we can put our
+
+214
+00:03:21,910 --> 00:03:21,920
+impressive. You can see we can put our
+ 
+
+215
+00:03:21,920 --> 00:03:24,229
+impressive. You can see we can put our
+fan on one side and that'll blow air
+
+216
+00:03:24,229 --> 00:03:24,239
+fan on one side and that'll blow air
+ 
+
+217
+00:03:24,239 --> 00:03:25,509
+fan on one side and that'll blow air
+through this way. So, we basically just
+
+218
+00:03:25,509 --> 00:03:25,519
+through this way. So, we basically just
+ 
+
+219
+00:03:25,519 --> 00:03:26,790
+through this way. So, we basically just
+need to cover all these walls with
+
+220
+00:03:26,790 --> 00:03:26,800
+need to cover all these walls with
+ 
+
+221
+00:03:26,800 --> 00:03:28,070
+need to cover all these walls with
+plates and we'll add some cool designs
+
+222
+00:03:28,070 --> 00:03:28,080
+plates and we'll add some cool designs
+ 
+
+223
+00:03:28,080 --> 00:03:29,190
+plates and we'll add some cool designs
+to it later. And the nice thing is
+
+224
+00:03:29,190 --> 00:03:29,200
+to it later. And the nice thing is
+ 
+
+225
+00:03:29,200 --> 00:03:30,710
+to it later. And the nice thing is
+because we've used Technic bricks on the
+
+226
+00:03:30,710 --> 00:03:30,720
+because we've used Technic bricks on the
+ 
+
+227
+00:03:30,720 --> 00:03:32,390
+because we've used Technic bricks on the
+outside of this, we now have studs to
+
+228
+00:03:32,390 --> 00:03:32,400
+outside of this, we now have studs to
+ 
+
+229
+00:03:32,400 --> 00:03:35,770
+outside of this, we now have studs to
+add our plates like
+
+230
+00:03:35,770 --> 00:03:35,780
+add our plates like
+ 
+
+231
+00:03:35,780 --> 00:03:40,990
+add our plates like
+[Music]
+
+232
+00:03:40,990 --> 00:03:41,000
+
+ 
+
+233
+00:03:41,000 --> 00:03:43,589
+
+that. Okay, so we have all the plates on
+
+234
+00:03:43,589 --> 00:03:43,599
+that. Okay, so we have all the plates on
+ 
+
+235
+00:03:43,599 --> 00:03:46,470
+that. Okay, so we have all the plates on
+the outside of the wind tunnel. The next
+
+236
+00:03:46,470 --> 00:03:46,480
+the outside of the wind tunnel. The next
+ 
+
+237
+00:03:46,480 --> 00:03:47,750
+the outside of the wind tunnel. The next
+thing I'm going to do is build up a road
+
+238
+00:03:47,750 --> 00:03:47,760
+thing I'm going to do is build up a road
+ 
+
+239
+00:03:47,760 --> 00:03:49,110
+thing I'm going to do is build up a road
+right here with a bunch of bricks so I
+
+240
+00:03:49,110 --> 00:03:49,120
+right here with a bunch of bricks so I
+ 
+
+241
+00:03:49,120 --> 00:03:51,229
+right here with a bunch of bricks so I
+can get it level with this lip
+
+242
+00:03:51,229 --> 00:03:51,239
+can get it level with this lip
+ 
+
+243
+00:03:51,239 --> 00:03:54,550
+can get it level with this lip
+here. Boom. I didn't forget to record.
+
+244
+00:03:54,550 --> 00:03:54,560
+here. Boom. I didn't forget to record.
+ 
+
+245
+00:03:54,560 --> 00:03:55,670
+here. Boom. I didn't forget to record.
+So, we essentially just need to figure
+
+246
+00:03:55,670 --> 00:03:55,680
+So, we essentially just need to figure
+ 
+
+247
+00:03:55,680 --> 00:03:57,750
+So, we essentially just need to figure
+out a way to mount this in here behind
+
+248
+00:03:57,750 --> 00:03:57,760
+out a way to mount this in here behind
+ 
+
+249
+00:03:57,760 --> 00:03:59,589
+out a way to mount this in here behind
+some sort of wall so you can't see it. I
+
+250
+00:03:59,589 --> 00:03:59,599
+some sort of wall so you can't see it. I
+ 
+
+251
+00:03:59,599 --> 00:04:01,350
+some sort of wall so you can't see it. I
+think the best way to do that is just to
+
+252
+00:04:01,350 --> 00:04:01,360
+think the best way to do that is just to
+ 
+
+253
+00:04:01,360 --> 00:04:03,030
+think the best way to do that is just to
+take our Technic connections we have on
+
+254
+00:04:03,030 --> 00:04:03,040
+take our Technic connections we have on
+ 
+
+255
+00:04:03,040 --> 00:04:04,390
+take our Technic connections we have on
+these motors and try and build something
+
+256
+00:04:04,390 --> 00:04:04,400
+these motors and try and build something
+ 
+
+257
+00:04:04,400 --> 00:04:05,830
+these motors and try and build something
+that goes across and attaches to these
+
+258
+00:04:05,830 --> 00:04:05,840
+that goes across and attaches to these
+ 
+
+259
+00:04:05,840 --> 00:04:08,030
+that goes across and attaches to these
+Technic bricks in here. Connect a few of
+
+260
+00:04:08,030 --> 00:04:08,040
+Technic bricks in here. Connect a few of
+ 
+
+261
+00:04:08,040 --> 00:04:10,710
+Technic bricks in here. Connect a few of
+these. Then we can put this guy right
+
+262
+00:04:10,710 --> 00:04:10,720
+these. Then we can put this guy right
+ 
+
+263
+00:04:10,720 --> 00:04:14,589
+these. Then we can put this guy right
+there. This guy here. Let's see if this
+
+264
+00:04:14,589 --> 00:04:14,599
+there. This guy here. Let's see if this
+ 
+
+265
+00:04:14,599 --> 00:04:16,469
+there. This guy here. Let's see if this
+works. I just got to add a little bit of
+
+266
+00:04:16,469 --> 00:04:16,479
+works. I just got to add a little bit of
+ 
+
+267
+00:04:16,479 --> 00:04:17,749
+works. I just got to add a little bit of
+something so this stops wiggling around.
+
+268
+00:04:17,749 --> 00:04:17,759
+something so this stops wiggling around.
+ 
+
+269
+00:04:17,759 --> 00:04:19,430
+something so this stops wiggling around.
+Give it a little bit more stability. But
+
+270
+00:04:19,430 --> 00:04:19,440
+Give it a little bit more stability. But
+ 
+
+271
+00:04:19,440 --> 00:04:21,749
+Give it a little bit more stability. But
+we have our fan mounted inside the
+
+272
+00:04:21,749 --> 00:04:21,759
+we have our fan mounted inside the
+ 
+
+273
+00:04:21,759 --> 00:04:23,590
+we have our fan mounted inside the
+window. Now that we got our fan all
+
+274
+00:04:23,590 --> 00:04:23,600
+window. Now that we got our fan all
+ 
+
+275
+00:04:23,600 --> 00:04:24,790
+window. Now that we got our fan all
+sturdied up, we need to add the fog
+
+276
+00:04:24,790 --> 00:04:24,800
+sturdied up, we need to add the fog
+ 
+
+277
+00:04:24,800 --> 00:04:25,990
+sturdied up, we need to add the fog
+mechanism that's going to go on this
+
+278
+00:04:25,990 --> 00:04:26,000
+mechanism that's going to go on this
+ 
+
+279
+00:04:26,000 --> 00:04:27,590
+mechanism that's going to go on this
+side. This little portable guy here is
+
+280
+00:04:27,590 --> 00:04:27,600
+side. This little portable guy here is
+ 
+
+281
+00:04:27,600 --> 00:04:28,870
+side. This little portable guy here is
+awesome because all you have to do is
+
+282
+00:04:28,870 --> 00:04:28,880
+awesome because all you have to do is
+ 
+
+283
+00:04:28,880 --> 00:04:31,670
+awesome because all you have to do is
+push one button and it makes fog. Except
+
+284
+00:04:31,670 --> 00:04:31,680
+push one button and it makes fog. Except
+ 
+
+285
+00:04:31,680 --> 00:04:33,590
+push one button and it makes fog. Except
+we want little pin points of fog so we
+
+286
+00:04:33,590 --> 00:04:33,600
+we want little pin points of fog so we
+ 
+
+287
+00:04:33,600 --> 00:04:35,350
+we want little pin points of fog so we
+can actually see layers of air. So my
+
+288
+00:04:35,350 --> 00:04:35,360
+can actually see layers of air. So my
+ 
+
+289
+00:04:35,360 --> 00:04:36,870
+can actually see layers of air. So my
+plan is to take a few of these pneumatic
+
+290
+00:04:36,870 --> 00:04:36,880
+plan is to take a few of these pneumatic
+ 
+
+291
+00:04:36,880 --> 00:04:38,629
+plan is to take a few of these pneumatic
+tubes that LEGO makes and glue them into
+
+292
+00:04:38,629 --> 00:04:38,639
+tubes that LEGO makes and glue them into
+ 
+
+293
+00:04:38,639 --> 00:04:40,150
+tubes that LEGO makes and glue them into
+this little end piece here so it'll
+
+294
+00:04:40,150 --> 00:04:40,160
+this little end piece here so it'll
+ 
+
+295
+00:04:40,160 --> 00:04:43,390
+this little end piece here so it'll
+force the fog through
+
+296
+00:04:43,390 --> 00:04:43,400
+
+ 
+
+297
+00:04:43,400 --> 00:04:46,150
+
+them. Hot, hot, hot. Fun fact about me,
+
+298
+00:04:46,150 --> 00:04:46,160
+them. Hot, hot, hot. Fun fact about me,
+ 
+
+299
+00:04:46,160 --> 00:04:47,430
+them. Hot, hot, hot. Fun fact about me,
+guys. Did you know I've been on the
+
+300
+00:04:47,430 --> 00:04:47,440
+guys. Did you know I've been on the
+ 
+
+301
+00:04:47,440 --> 00:04:49,350
+guys. Did you know I've been on the
+carnivore diet for over 2 months? So,
+
+302
+00:04:49,350 --> 00:04:49,360
+carnivore diet for over 2 months? So,
+ 
+
+303
+00:04:49,360 --> 00:04:51,430
+carnivore diet for over 2 months? So,
+literally every day my meals consist of
+
+304
+00:04:51,430 --> 00:04:51,440
+literally every day my meals consist of
+ 
+
+305
+00:04:51,440 --> 00:04:54,550
+literally every day my meals consist of
+steak, eggs, lots of butter, and salt.
+
+306
+00:04:54,550 --> 00:04:54,560
+steak, eggs, lots of butter, and salt.
+ 
+
+307
+00:04:54,560 --> 00:04:56,310
+steak, eggs, lots of butter, and salt.
+In other news, I've had five meals and
+
+308
+00:04:56,310 --> 00:04:56,320
+In other news, I've had five meals and
+ 
+
+309
+00:04:56,320 --> 00:04:58,469
+In other news, I've had five meals and
+over 4,000 calories today and still feel
+
+310
+00:04:58,469 --> 00:04:58,479
+over 4,000 calories today and still feel
+ 
+
+311
+00:04:58,479 --> 00:05:02,310
+over 4,000 calories today and still feel
+hungry. Oh, tube came out. All right,
+
+312
+00:05:02,310 --> 00:05:02,320
+hungry. Oh, tube came out. All right,
+ 
+
+313
+00:05:02,320 --> 00:05:03,670
+hungry. Oh, tube came out. All right,
+forget the whole hot glue idea. I just
+
+314
+00:05:03,670 --> 00:05:03,680
+forget the whole hot glue idea. I just
+ 
+
+315
+00:05:03,680 --> 00:05:05,189
+forget the whole hot glue idea. I just
+discovered something completely better.
+
+316
+00:05:05,189 --> 00:05:05,199
+discovered something completely better.
+ 
+
+317
+00:05:05,199 --> 00:05:07,029
+discovered something completely better.
+We have this little wheel. It has six
+
+318
+00:05:07,029 --> 00:05:07,039
+We have this little wheel. It has six
+ 
+
+319
+00:05:07,039 --> 00:05:08,790
+We have this little wheel. It has six
+little inlets, which means we can attach
+
+320
+00:05:08,790 --> 00:05:08,800
+little inlets, which means we can attach
+ 
+
+321
+00:05:08,800 --> 00:05:10,629
+little inlets, which means we can attach
+our pneumatics. And then we take this
+
+322
+00:05:10,629 --> 00:05:10,639
+our pneumatics. And then we take this
+ 
+
+323
+00:05:10,639 --> 00:05:12,230
+our pneumatics. And then we take this
+Lego tire that's supposed to fit but
+
+324
+00:05:12,230 --> 00:05:12,240
+Lego tire that's supposed to fit but
+ 
+
+325
+00:05:12,240 --> 00:05:14,390
+Lego tire that's supposed to fit but
+doesn't, and put it just on the end.
+
+326
+00:05:14,390 --> 00:05:14,400
+doesn't, and put it just on the end.
+ 
+
+327
+00:05:14,400 --> 00:05:16,790
+doesn't, and put it just on the end.
+Stick this on the top of this. And boom.
+
+328
+00:05:16,790 --> 00:05:16,800
+Stick this on the top of this. And boom.
+ 
+
+329
+00:05:16,800 --> 00:05:19,350
+Stick this on the top of this. And boom.
+Look, it only comes out of there.
+
+330
+00:05:19,350 --> 00:05:19,360
+Look, it only comes out of there.
+ 
+
+331
+00:05:19,360 --> 00:05:20,950
+Look, it only comes out of there.
+Just need a few more tubes for the top.
+
+332
+00:05:20,950 --> 00:05:20,960
+Just need a few more tubes for the top.
+ 
+
+333
+00:05:20,960 --> 00:05:23,790
+Just need a few more tubes for the top.
+That thing should be
+
+334
+00:05:23,790 --> 00:05:23,800
+
+ 
+
+335
+00:05:23,800 --> 00:05:26,870
+
+spewing. Perfect. Now they're all going.
+
+336
+00:05:26,870 --> 00:05:26,880
+spewing. Perfect. Now they're all going.
+ 
+
+337
+00:05:26,880 --> 00:05:28,390
+spewing. Perfect. Now they're all going.
+That is exactly what we need. So, I'm
+
+338
+00:05:28,390 --> 00:05:28,400
+That is exactly what we need. So, I'm
+ 
+
+339
+00:05:28,400 --> 00:05:29,590
+That is exactly what we need. So, I'm
+going to build the fog machine into a
+
+340
+00:05:29,590 --> 00:05:29,600
+going to build the fog machine into a
+ 
+
+341
+00:05:29,600 --> 00:05:31,029
+going to build the fog machine into a
+rack that we can actually slide in and
+
+342
+00:05:31,029 --> 00:05:31,039
+rack that we can actually slide in and
+ 
+
+343
+00:05:31,039 --> 00:05:32,310
+rack that we can actually slide in and
+out of the wind tunnel. And then on one
+
+344
+00:05:32,310 --> 00:05:32,320
+out of the wind tunnel. And then on one
+ 
+
+345
+00:05:32,320 --> 00:05:33,670
+out of the wind tunnel. And then on one
+side of this rack, I'm going to build up
+
+346
+00:05:33,670 --> 00:05:33,680
+side of this rack, I'm going to build up
+ 
+
+347
+00:05:33,680 --> 00:05:35,270
+side of this rack, I'm going to build up
+a wall using a bunch of these long
+
+348
+00:05:35,270 --> 00:05:35,280
+a wall using a bunch of these long
+ 
+
+349
+00:05:35,280 --> 00:05:36,710
+a wall using a bunch of these long
+Technic bricks. And because they have
+
+350
+00:05:36,710 --> 00:05:36,720
+Technic bricks. And because they have
+ 
+
+351
+00:05:36,720 --> 00:05:37,909
+Technic bricks. And because they have
+these little holes, it's actually going
+
+352
+00:05:37,909 --> 00:05:37,919
+these little holes, it's actually going
+ 
+
+353
+00:05:37,919 --> 00:05:39,830
+these little holes, it's actually going
+to directionalize the air flow. And we
+
+354
+00:05:39,830 --> 00:05:39,840
+to directionalize the air flow. And we
+ 
+
+355
+00:05:39,840 --> 00:05:41,189
+to directionalize the air flow. And we
+can take each of our little tubes and
+
+356
+00:05:41,189 --> 00:05:41,199
+can take each of our little tubes and
+ 
+
+357
+00:05:41,199 --> 00:05:43,029
+can take each of our little tubes and
+put it in a specific hole to test
+
+358
+00:05:43,029 --> 00:05:43,039
+put it in a specific hole to test
+ 
+
+359
+00:05:43,039 --> 00:05:44,790
+put it in a specific hole to test
+different things. Now, we can plug in
+
+360
+00:05:44,790 --> 00:05:44,800
+different things. Now, we can plug in
+ 
+
+361
+00:05:44,800 --> 00:05:50,550
+different things. Now, we can plug in
+all our pneumatic tubes.
+
+362
+00:05:50,550 --> 00:05:50,560
+
+ 
+
+363
+00:05:50,560 --> 00:05:51,909
+
+All right, that's what we want. Now we
+
+364
+00:05:51,909 --> 00:05:51,919
+All right, that's what we want. Now we
+ 
+
+365
+00:05:51,919 --> 00:05:52,870
+All right, that's what we want. Now we
+just got to mount this in here. This
+
+366
+00:05:52,870 --> 00:05:52,880
+just got to mount this in here. This
+ 
+
+367
+00:05:52,880 --> 00:05:55,090
+just got to mount this in here. This
+part should be
+
+368
+00:05:55,090 --> 00:05:55,100
+part should be
+ 
+
+369
+00:05:55,100 --> 00:06:00,590
+part should be
+[Music]
+
+370
+00:06:00,590 --> 00:06:00,600
+[Music]
+ 
+
+371
+00:06:00,600 --> 00:06:02,950
+[Music]
+done. Now we can slide this guy in the
+
+372
+00:06:02,950 --> 00:06:02,960
+done. Now we can slide this guy in the
+ 
+
+373
+00:06:02,960 --> 00:06:04,150
+done. Now we can slide this guy in the
+back here. And now we just got to
+
+374
+00:06:04,150 --> 00:06:04,160
+back here. And now we just got to
+ 
+
+375
+00:06:04,160 --> 00:06:05,670
+back here. And now we just got to
+connect our little button to the outside
+
+376
+00:06:05,670 --> 00:06:05,680
+connect our little button to the outside
+ 
+
+377
+00:06:05,680 --> 00:06:07,189
+connect our little button to the outside
+so we can access it. So to do that, I'm
+
+378
+00:06:07,189 --> 00:06:07,199
+so we can access it. So to do that, I'm
+ 
+
+379
+00:06:07,199 --> 00:06:08,550
+so we can access it. So to do that, I'm
+just going to add a long axle that goes
+
+380
+00:06:08,550 --> 00:06:08,560
+just going to add a long axle that goes
+ 
+
+381
+00:06:08,560 --> 00:06:09,590
+just going to add a long axle that goes
+through the wall. And that should press
+
+382
+00:06:09,590 --> 00:06:09,600
+through the wall. And that should press
+ 
+
+383
+00:06:09,600 --> 00:06:11,430
+through the wall. And that should press
+the button. Perfect. So, now that we
+
+384
+00:06:11,430 --> 00:06:11,440
+the button. Perfect. So, now that we
+ 
+
+385
+00:06:11,440 --> 00:06:13,189
+the button. Perfect. So, now that we
+have the fog machine installed and a way
+
+386
+00:06:13,189 --> 00:06:13,199
+have the fog machine installed and a way
+ 
+
+387
+00:06:13,199 --> 00:06:14,950
+have the fog machine installed and a way
+to turn it on and off, we need to just
+
+388
+00:06:14,950 --> 00:06:14,960
+to turn it on and off, we need to just
+ 
+
+389
+00:06:14,960 --> 00:06:16,309
+to turn it on and off, we need to just
+install one more mechanism to this
+
+390
+00:06:16,309 --> 00:06:16,319
+install one more mechanism to this
+ 
+
+391
+00:06:16,319 --> 00:06:17,670
+install one more mechanism to this
+before it'll be fully functional. And
+
+392
+00:06:17,670 --> 00:06:17,680
+before it'll be fully functional. And
+ 
+
+393
+00:06:17,680 --> 00:06:18,870
+before it'll be fully functional. And
+that mechanism is going to be this
+
+394
+00:06:18,870 --> 00:06:18,880
+that mechanism is going to be this
+ 
+
+395
+00:06:18,880 --> 00:06:20,550
+that mechanism is going to be this
+little tiny food scale. My plan is to
+
+396
+00:06:20,550 --> 00:06:20,560
+little tiny food scale. My plan is to
+ 
+
+397
+00:06:20,560 --> 00:06:22,230
+little tiny food scale. My plan is to
+put this on the inside underneath the
+
+398
+00:06:22,230 --> 00:06:22,240
+put this on the inside underneath the
+ 
+
+399
+00:06:22,240 --> 00:06:23,590
+put this on the inside underneath the
+road. And since this one's actually
+
+400
+00:06:23,590 --> 00:06:23,600
+road. And since this one's actually
+ 
+
+401
+00:06:23,600 --> 00:06:25,029
+road. And since this one's actually
+wireless, we'll be able to see how much
+
+402
+00:06:25,029 --> 00:06:25,039
+wireless, we'll be able to see how much
+ 
+
+403
+00:06:25,039 --> 00:06:26,870
+wireless, we'll be able to see how much
+weight is being lifted off of the car by
+
+404
+00:06:26,870 --> 00:06:26,880
+weight is being lifted off of the car by
+ 
+
+405
+00:06:26,880 --> 00:06:28,309
+weight is being lifted off of the car by
+installing this over here, and that'll
+
+406
+00:06:28,309 --> 00:06:28,319
+installing this over here, and that'll
+ 
+
+407
+00:06:28,319 --> 00:06:29,749
+installing this over here, and that'll
+wire connect to the scale underneath the
+
+408
+00:06:29,749 --> 00:06:29,759
+wire connect to the scale underneath the
+ 
+
+409
+00:06:29,759 --> 00:06:31,590
+wire connect to the scale underneath the
+road, which I've just simply built up
+
+410
+00:06:31,590 --> 00:06:31,600
+road, which I've just simply built up
+ 
+
+411
+00:06:31,600 --> 00:06:33,590
+road, which I've just simply built up
+out of a few plates and technic pieces
+
+412
+00:06:33,590 --> 00:06:33,600
+out of a few plates and technic pieces
+ 
+
+413
+00:06:33,600 --> 00:06:35,029
+out of a few plates and technic pieces
+on the bottom to make it strong. All we
+
+414
+00:06:35,029 --> 00:06:35,039
+on the bottom to make it strong. All we
+ 
+
+415
+00:06:35,039 --> 00:06:36,309
+on the bottom to make it strong. All we
+got to do now is just finish the details
+
+416
+00:06:36,309 --> 00:06:36,319
+got to do now is just finish the details
+ 
+
+417
+00:06:36,319 --> 00:06:37,749
+got to do now is just finish the details
+on the outside and build the glass
+
+418
+00:06:37,749 --> 00:06:37,759
+on the outside and build the glass
+ 
+
+419
+00:06:37,759 --> 00:06:38,870
+on the outside and build the glass
+window that's going to go on the front
+
+420
+00:06:38,870 --> 00:06:38,880
+window that's going to go on the front
+ 
+
+421
+00:06:38,880 --> 00:06:41,950
+window that's going to go on the front
+of
+
+422
+00:06:41,950 --> 00:06:41,960
+
+ 
+
+423
+00:06:41,960 --> 00:06:44,629
+
+this. Look at that. So, now that we have
+
+424
+00:06:44,629 --> 00:06:44,639
+this. Look at that. So, now that we have
+ 
+
+425
+00:06:44,639 --> 00:06:45,909
+this. Look at that. So, now that we have
+all the mechanics done, all we have to
+
+426
+00:06:45,909 --> 00:06:45,919
+all the mechanics done, all we have to
+ 
+
+427
+00:06:45,919 --> 00:06:47,510
+all the mechanics done, all we have to
+do is just add some exterior details on
+
+428
+00:06:47,510 --> 00:06:47,520
+do is just add some exterior details on
+ 
+
+429
+00:06:47,520 --> 00:06:48,870
+do is just add some exterior details on
+the outside and then some lights on the
+
+430
+00:06:48,870 --> 00:06:48,880
+the outside and then some lights on the
+ 
+
+431
+00:06:48,880 --> 00:06:50,550
+the outside and then some lights on the
+inside to make it look really cool. We
+
+432
+00:06:50,550 --> 00:06:50,560
+inside to make it look really cool. We
+ 
+
+433
+00:06:50,560 --> 00:06:57,309
+inside to make it look really cool. We
+can finally test it
+
+434
+00:06:57,309 --> 00:06:57,319
+
+ 
+
+435
+00:06:57,319 --> 00:06:59,909
+
+out. After 10 hours of work, I finally
+
+436
+00:06:59,909 --> 00:06:59,919
+out. After 10 hours of work, I finally
+ 
+
+437
+00:06:59,919 --> 00:07:06,950
+out. After 10 hours of work, I finally
+completed the Lego wind tunnel.
+
+438
+00:07:06,950 --> 00:07:06,960
+
+ 
+
+439
+00:07:06,960 --> 00:07:08,309
+
+You can see on this side we have the
+
+440
+00:07:08,309 --> 00:07:08,319
+You can see on this side we have the
+ 
+
+441
+00:07:08,319 --> 00:07:09,830
+You can see on this side we have the
+giant fan which we can flick on with
+
+442
+00:07:09,830 --> 00:07:09,840
+giant fan which we can flick on with
+ 
+
+443
+00:07:09,840 --> 00:07:11,749
+giant fan which we can flick on with
+this switch here and that will activate
+
+444
+00:07:11,749 --> 00:07:11,759
+this switch here and that will activate
+ 
+
+445
+00:07:11,759 --> 00:07:13,110
+this switch here and that will activate
+our wind tunnel. And now that we got
+
+446
+00:07:13,110 --> 00:07:13,120
+our wind tunnel. And now that we got
+ 
+
+447
+00:07:13,120 --> 00:07:14,390
+our wind tunnel. And now that we got
+this built up, we can finally test some
+
+448
+00:07:14,390 --> 00:07:14,400
+this built up, we can finally test some
+ 
+
+449
+00:07:14,400 --> 00:07:16,830
+this built up, we can finally test some
+Lego
+
+450
+00:07:16,830 --> 00:07:16,840
+
+ 
+
+451
+00:07:16,840 --> 00:07:18,950
+
+cars. As you see, we have quite a few
+
+452
+00:07:18,950 --> 00:07:18,960
+cars. As you see, we have quite a few
+ 
+
+453
+00:07:18,960 --> 00:07:20,230
+cars. As you see, we have quite a few
+cars to test. Let's start with the
+
+454
+00:07:20,230 --> 00:07:20,240
+cars to test. Let's start with the
+ 
+
+455
+00:07:20,240 --> 00:07:22,710
+cars to test. Let's start with the
+Ferrari F40. It's going to take me a
+
+456
+00:07:22,710 --> 00:07:22,720
+Ferrari F40. It's going to take me a
+ 
+
+457
+00:07:22,720 --> 00:07:23,749
+Ferrari F40. It's going to take me a
+while to build all these, but this is
+
+458
+00:07:23,749 --> 00:07:23,759
+while to build all these, but this is
+ 
+
+459
+00:07:23,759 --> 00:07:24,180
+while to build all these, but this is
+going to be
+
+460
+00:07:24,180 --> 00:07:24,190
+going to be
+ 
+
+461
+00:07:24,190 --> 00:07:25,950
+going to be
+[Music]
+
+462
+00:07:25,950 --> 00:07:25,960
+[Music]
+ 
+
+463
+00:07:25,960 --> 00:07:29,270
+[Music]
+fun. And there we have the Ferrari F40.
+
+464
+00:07:29,270 --> 00:07:29,280
+fun. And there we have the Ferrari F40.
+ 
+
+465
+00:07:29,280 --> 00:07:30,870
+fun. And there we have the Ferrari F40.
+This thing is absolutely beautiful. Just
+
+466
+00:07:30,870 --> 00:07:30,880
+This thing is absolutely beautiful. Just
+ 
+
+467
+00:07:30,880 --> 00:07:32,070
+This thing is absolutely beautiful. Just
+some of the connections on these cars
+
+468
+00:07:32,070 --> 00:07:32,080
+some of the connections on these cars
+ 
+
+469
+00:07:32,080 --> 00:07:33,430
+some of the connections on these cars
+are really, really interesting. Let's
+
+470
+00:07:33,430 --> 00:07:33,440
+are really, really interesting. Let's
+ 
+
+471
+00:07:33,440 --> 00:07:35,110
+are really, really interesting. Let's
+test this out and see how aerodynamic it
+
+472
+00:07:35,110 --> 00:07:35,120
+test this out and see how aerodynamic it
+ 
+
+473
+00:07:35,120 --> 00:07:36,950
+test this out and see how aerodynamic it
+really is. All we got to do is push this
+
+474
+00:07:36,950 --> 00:07:36,960
+really is. All we got to do is push this
+ 
+
+475
+00:07:36,960 --> 00:07:39,070
+really is. All we got to do is push this
+button and it should start kicking out
+
+476
+00:07:39,070 --> 00:07:39,080
+button and it should start kicking out
+ 
+
+477
+00:07:39,080 --> 00:07:43,710
+button and it should start kicking out
+fog. Dude, look at that. That is so
+
+478
+00:07:43,710 --> 00:07:43,720
+fog. Dude, look at that. That is so
+ 
+
+479
+00:07:43,720 --> 00:07:46,710
+fog. Dude, look at that. That is so
+sick. Wow. Yeah. Okay. The F40 is very
+
+480
+00:07:46,710 --> 00:07:46,720
+sick. Wow. Yeah. Okay. The F40 is very
+ 
+
+481
+00:07:46,720 --> 00:07:48,390
+sick. Wow. Yeah. Okay. The F40 is very
+aerodynamic. You can even see it kind of
+
+482
+00:07:48,390 --> 00:07:48,400
+aerodynamic. You can even see it kind of
+ 
+
+483
+00:07:48,400 --> 00:07:49,909
+aerodynamic. You can even see it kind of
+going through the rear wing there, which
+
+484
+00:07:49,909 --> 00:07:49,919
+going through the rear wing there, which
+ 
+
+485
+00:07:49,919 --> 00:07:51,589
+going through the rear wing there, which
+is really cool. So, there's a few
+
+486
+00:07:51,589 --> 00:07:51,599
+is really cool. So, there's a few
+ 
+
+487
+00:07:51,599 --> 00:07:53,189
+is really cool. So, there's a few
+different forces at work here. First, we
+
+488
+00:07:53,189 --> 00:07:53,199
+different forces at work here. First, we
+ 
+
+489
+00:07:53,199 --> 00:07:54,869
+different forces at work here. First, we
+have drag. Drag is the force that's
+
+490
+00:07:54,869 --> 00:07:54,879
+have drag. Drag is the force that's
+ 
+
+491
+00:07:54,879 --> 00:07:56,550
+have drag. Drag is the force that's
+acting in the opposite direction of our
+
+492
+00:07:56,550 --> 00:07:56,560
+acting in the opposite direction of our
+ 
+
+493
+00:07:56,560 --> 00:07:58,070
+acting in the opposite direction of our
+object moving through the air. So, to
+
+494
+00:07:58,070 --> 00:07:58,080
+object moving through the air. So, to
+ 
+
+495
+00:07:58,080 --> 00:07:59,670
+object moving through the air. So, to
+design a vehicle to move as fast as
+
+496
+00:07:59,670 --> 00:07:59,680
+design a vehicle to move as fast as
+ 
+
+497
+00:07:59,680 --> 00:08:01,430
+design a vehicle to move as fast as
+possible, we want to decrease the drag
+
+498
+00:08:01,430 --> 00:08:01,440
+possible, we want to decrease the drag
+ 
+
+499
+00:08:01,440 --> 00:08:03,029
+possible, we want to decrease the drag
+by getting the air to move out of the
+
+500
+00:08:03,029 --> 00:08:03,039
+by getting the air to move out of the
+ 
+
+501
+00:08:03,039 --> 00:08:05,110
+by getting the air to move out of the
+way or over and around our vehicle as
+
+502
+00:08:05,110 --> 00:08:05,120
+way or over and around our vehicle as
+ 
+
+503
+00:08:05,120 --> 00:08:07,029
+way or over and around our vehicle as
+easily as possible. There's also lift,
+
+504
+00:08:07,029 --> 00:08:07,039
+easily as possible. There's also lift,
+ 
+
+505
+00:08:07,039 --> 00:08:08,230
+easily as possible. There's also lift,
+which is when the pressure underneath
+
+506
+00:08:08,230 --> 00:08:08,240
+which is when the pressure underneath
+ 
+
+507
+00:08:08,240 --> 00:08:09,909
+which is when the pressure underneath
+the vehicle exceeds that of the pressure
+
+508
+00:08:09,909 --> 00:08:09,919
+the vehicle exceeds that of the pressure
+ 
+
+509
+00:08:09,919 --> 00:08:11,670
+the vehicle exceeds that of the pressure
+on top of our vehicle, causing it to
+
+510
+00:08:11,670 --> 00:08:11,680
+on top of our vehicle, causing it to
+ 
+
+511
+00:08:11,680 --> 00:08:13,189
+on top of our vehicle, causing it to
+flip. In order to test lift, we're going
+
+512
+00:08:13,189 --> 00:08:13,199
+flip. In order to test lift, we're going
+ 
+
+513
+00:08:13,199 --> 00:08:14,790
+flip. In order to test lift, we're going
+to actually use a leaf blower and blow
+
+514
+00:08:14,790 --> 00:08:14,800
+to actually use a leaf blower and blow
+ 
+
+515
+00:08:14,800 --> 00:08:16,070
+to actually use a leaf blower and blow
+it through this side. So, we can take
+
+516
+00:08:16,070 --> 00:08:16,080
+it through this side. So, we can take
+ 
+
+517
+00:08:16,080 --> 00:08:17,990
+it through this side. So, we can take
+out our fog machine. We just have this
+
+518
+00:08:17,990 --> 00:08:18,000
+out our fog machine. We just have this
+ 
+
+519
+00:08:18,000 --> 00:08:19,670
+out our fog machine. We just have this
+guy, which has two pins. These will
+
+520
+00:08:19,670 --> 00:08:19,680
+guy, which has two pins. These will
+ 
+
+521
+00:08:19,680 --> 00:08:20,950
+guy, which has two pins. These will
+actually go right into those little
+
+522
+00:08:20,950 --> 00:08:20,960
+actually go right into those little
+ 
+
+523
+00:08:20,960 --> 00:08:22,469
+actually go right into those little
+holes right there. And now, as you can
+
+524
+00:08:22,469 --> 00:08:22,479
+holes right there. And now, as you can
+ 
+
+525
+00:08:22,479 --> 00:08:24,710
+holes right there. And now, as you can
+see, if we push this down, we have a
+
+526
+00:08:24,710 --> 00:08:24,720
+see, if we push this down, we have a
+ 
+
+527
+00:08:24,720 --> 00:08:26,469
+see, if we push this down, we have a
+reading. For the lift test, it's a pass
+
+528
+00:08:26,469 --> 00:08:26,479
+reading. For the lift test, it's a pass
+ 
+
+529
+00:08:26,479 --> 00:08:28,070
+reading. For the lift test, it's a pass
+fail. If the scale drops under its
+
+530
+00:08:28,070 --> 00:08:28,080
+fail. If the scale drops under its
+ 
+
+531
+00:08:28,080 --> 00:08:29,589
+fail. If the scale drops under its
+original number, we know we're achieving
+
+532
+00:08:29,589 --> 00:08:29,599
+original number, we know we're achieving
+ 
+
+533
+00:08:29,599 --> 00:08:31,189
+original number, we know we're achieving
+lift, and we don't want that. And if the
+
+534
+00:08:31,189 --> 00:08:31,199
+lift, and we don't want that. And if the
+ 
+
+535
+00:08:31,199 --> 00:08:32,870
+lift, and we don't want that. And if the
+number on the scale increases, we know
+
+536
+00:08:32,870 --> 00:08:32,880
+number on the scale increases, we know
+ 
+
+537
+00:08:32,880 --> 00:08:34,709
+number on the scale increases, we know
+we've achieved what's called downforce,
+
+538
+00:08:34,709 --> 00:08:34,719
+we've achieved what's called downforce,
+ 
+
+539
+00:08:34,719 --> 00:08:36,389
+we've achieved what's called downforce,
+which is the byproduct of the air moving
+
+540
+00:08:36,389 --> 00:08:36,399
+which is the byproduct of the air moving
+ 
+
+541
+00:08:36,399 --> 00:08:38,149
+which is the byproduct of the air moving
+over the vehicle, pushing it down to the
+
+542
+00:08:38,149 --> 00:08:38,159
+over the vehicle, pushing it down to the
+ 
+
+543
+00:08:38,159 --> 00:08:39,750
+over the vehicle, pushing it down to the
+ground. We're getting about 10 points of
+
+544
+00:08:39,750 --> 00:08:39,760
+ground. We're getting about 10 points of
+ 
+
+545
+00:08:39,760 --> 00:08:41,670
+ground. We're getting about 10 points of
+downforce on the scale, which is great.
+
+546
+00:08:41,670 --> 00:08:41,680
+downforce on the scale, which is great.
+ 
+
+547
+00:08:41,680 --> 00:08:43,430
+downforce on the scale, which is great.
+I'd give this one a 10 out of 10, but
+
+548
+00:08:43,430 --> 00:08:43,440
+I'd give this one a 10 out of 10, but
+ 
+
+549
+00:08:43,440 --> 00:08:44,630
+I'd give this one a 10 out of 10, but
+let's build up the rest of the car sets
+
+550
+00:08:44,630 --> 00:08:44,640
+let's build up the rest of the car sets
+ 
+
+551
+00:08:44,640 --> 00:08:46,070
+let's build up the rest of the car sets
+so we can test them out. Next up, we
+
+552
+00:08:46,070 --> 00:08:46,080
+so we can test them out. Next up, we
+ 
+
+553
+00:08:46,080 --> 00:08:48,150
+so we can test them out. Next up, we
+have the McLaren Elva, the Nissan
+
+554
+00:08:48,150 --> 00:08:48,160
+have the McLaren Elva, the Nissan
+ 
+
+555
+00:08:48,160 --> 00:08:51,350
+have the McLaren Elva, the Nissan
+Skyline GTR. We have the Ferrari SF24.
+
+556
+00:08:51,350 --> 00:08:51,360
+Skyline GTR. We have the Ferrari SF24.
+ 
+
+557
+00:08:51,360 --> 00:08:53,030
+Skyline GTR. We have the Ferrari SF24.
+This is a Formula 1 car. Even have
+
+558
+00:08:53,030 --> 00:08:53,040
+This is a Formula 1 car. Even have
+ 
+
+559
+00:08:53,040 --> 00:09:03,760
+This is a Formula 1 car. Even have
+prints on the tires.
+
+560
+00:09:03,760 --> 00:09:03,770
+
+ 
+
+561
+00:09:03,770 --> 00:09:05,829
+
+[Music]
+
+562
+00:09:05,829 --> 00:09:05,839
+[Music]
+ 
+
+563
+00:09:05,839 --> 00:09:07,829
+[Music]
+Next up, we have the Ford Mustang, the
+
+564
+00:09:07,829 --> 00:09:07,839
+Next up, we have the Ford Mustang, the
+ 
+
+565
+00:09:07,839 --> 00:09:09,990
+Next up, we have the Ford Mustang, the
+Toyota Supra, a classic for car lovers
+
+566
+00:09:09,990 --> 00:09:10,000
+Toyota Supra, a classic for car lovers
+ 
+
+567
+00:09:10,000 --> 00:09:12,630
+Toyota Supra, a classic for car lovers
+everywhere. The Kennes Jesco, the
+
+568
+00:09:12,630 --> 00:09:12,640
+everywhere. The Kennes Jesco, the
+ 
+
+569
+00:09:12,640 --> 00:09:15,509
+everywhere. The Kennes Jesco, the
+Lamborghini V12 Vision. This one is
+
+570
+00:09:15,509 --> 00:09:15,519
+Lamborghini V12 Vision. This one is
+ 
+
+571
+00:09:15,519 --> 00:09:17,750
+Lamborghini V12 Vision. This one is
+super sick. Like, what the It's upside
+
+572
+00:09:17,750 --> 00:09:17,760
+super sick. Like, what the It's upside
+ 
+
+573
+00:09:17,760 --> 00:09:19,430
+super sick. Like, what the It's upside
+down. That's what the actual car looks
+
+574
+00:09:19,430 --> 00:09:19,440
+down. That's what the actual car looks
+ 
+
+575
+00:09:19,440 --> 00:09:32,790
+down. That's what the actual car looks
+like.
+
+576
+00:09:32,790 --> 00:09:32,800
+
+ 
+
+577
+00:09:32,800 --> 00:09:35,110
+
+The next car we have is McLaren Senna.
+
+578
+00:09:35,110 --> 00:09:35,120
+The next car we have is McLaren Senna.
+ 
+
+579
+00:09:35,120 --> 00:09:37,350
+The next car we have is McLaren Senna.
+And this is a larger F1 car. It's still
+
+580
+00:09:37,350 --> 00:09:37,360
+And this is a larger F1 car. It's still
+ 
+
+581
+00:09:37,360 --> 00:09:39,269
+And this is a larger F1 car. It's still
+minifigure scale, but this one is why we
+
+582
+00:09:39,269 --> 00:09:39,279
+minifigure scale, but this one is why we
+ 
+
+583
+00:09:39,279 --> 00:09:41,150
+minifigure scale, but this one is why we
+built the wind tunnel so
+
+584
+00:09:41,150 --> 00:09:41,160
+built the wind tunnel so
+ 
+
+585
+00:09:41,160 --> 00:09:43,350
+built the wind tunnel so
+big. Just look at it. It even has
+
+586
+00:09:43,350 --> 00:09:43,360
+big. Just look at it. It even has
+ 
+
+587
+00:09:43,360 --> 00:09:44,790
+big. Just look at it. It even has
+working steering if you turn the wheel
+
+588
+00:09:44,790 --> 00:09:44,800
+working steering if you turn the wheel
+ 
+
+589
+00:09:44,800 --> 00:09:46,070
+working steering if you turn the wheel
+in here. I'm excited to see how the
+
+590
+00:09:46,070 --> 00:09:46,080
+in here. I'm excited to see how the
+ 
+
+591
+00:09:46,080 --> 00:09:47,350
+in here. I'm excited to see how the
+shapes actually perform in the wind
+
+592
+00:09:47,350 --> 00:09:47,360
+shapes actually perform in the wind
+ 
+
+593
+00:09:47,360 --> 00:09:49,110
+shapes actually perform in the wind
+tunnel since it's so large. Next up, we
+
+594
+00:09:49,110 --> 00:09:49,120
+tunnel since it's so large. Next up, we
+ 
+
+595
+00:09:49,120 --> 00:09:51,430
+tunnel since it's so large. Next up, we
+got the McLaren Elva. Guys, before we
+
+596
+00:09:51,430 --> 00:09:51,440
+got the McLaren Elva. Guys, before we
+ 
+
+597
+00:09:51,440 --> 00:09:52,470
+got the McLaren Elva. Guys, before we
+test out the next one, make sure you
+
+598
+00:09:52,470 --> 00:09:52,480
+test out the next one, make sure you
+ 
+
+599
+00:09:52,480 --> 00:09:53,750
+test out the next one, make sure you
+subscribe so you can become a member of
+
+600
+00:09:53,750 --> 00:09:53,760
+subscribe so you can become a member of
+ 
+
+601
+00:09:53,760 --> 00:09:55,509
+subscribe so you can become a member of
+the Brickside Stud Army. That way, you
+
+602
+00:09:55,509 --> 00:09:55,519
+the Brickside Stud Army. That way, you
+ 
+
+603
+00:09:55,519 --> 00:09:57,190
+the Brickside Stud Army. That way, you
+won't miss any of our future videos.
+
+604
+00:09:57,190 --> 00:09:57,200
+won't miss any of our future videos.
+ 
+
+605
+00:09:57,200 --> 00:09:59,470
+won't miss any of our future videos.
+Test this out. Pop that
+
+606
+00:09:59,470 --> 00:09:59,480
+Test this out. Pop that
+ 
+
+607
+00:09:59,480 --> 00:10:02,230
+Test this out. Pop that
+on. Dude, look at that. It's got like
+
+608
+00:10:02,230 --> 00:10:02,240
+on. Dude, look at that. It's got like
+ 
+
+609
+00:10:02,240 --> 00:10:04,070
+on. Dude, look at that. It's got like
+those sunken doors on the sides. I feel
+
+610
+00:10:04,070 --> 00:10:04,080
+those sunken doors on the sides. I feel
+ 
+
+611
+00:10:04,080 --> 00:10:04,949
+those sunken doors on the sides. I feel
+like that's really going to help with
+
+612
+00:10:04,949 --> 00:10:04,959
+like that's really going to help with
+ 
+
+613
+00:10:04,959 --> 00:10:06,389
+like that's really going to help with
+the air flow around the sides of the
+
+614
+00:10:06,389 --> 00:10:06,399
+the air flow around the sides of the
+ 
+
+615
+00:10:06,399 --> 00:10:07,829
+the air flow around the sides of the
+car. You can even see it going
+
+616
+00:10:07,829 --> 00:10:07,839
+car. You can even see it going
+ 
+
+617
+00:10:07,839 --> 00:10:09,829
+car. You can even see it going
+underneath the car below the under tray
+
+618
+00:10:09,829 --> 00:10:09,839
+underneath the car below the under tray
+ 
+
+619
+00:10:09,839 --> 00:10:11,269
+underneath the car below the under tray
+and through that little rear diffuser
+
+620
+00:10:11,269 --> 00:10:11,279
+and through that little rear diffuser
+ 
+
+621
+00:10:11,279 --> 00:10:12,949
+and through that little rear diffuser
+right there. If we turn the fan off,
+
+622
+00:10:12,949 --> 00:10:12,959
+right there. If we turn the fan off,
+ 
+
+623
+00:10:12,959 --> 00:10:14,389
+right there. If we turn the fan off,
+what happens? Does it just completely
+
+624
+00:10:14,389 --> 00:10:14,399
+what happens? Does it just completely
+ 
+
+625
+00:10:14,399 --> 00:10:17,750
+what happens? Does it just completely
+fog up? Turn it back on.
+
+626
+00:10:17,750 --> 00:10:17,760
+fog up? Turn it back on.
+ 
+
+627
+00:10:17,760 --> 00:10:19,750
+fog up? Turn it back on.
+I'd say the McLaren Ela is definitely
+
+628
+00:10:19,750 --> 00:10:19,760
+I'd say the McLaren Ela is definitely
+ 
+
+629
+00:10:19,760 --> 00:10:21,509
+I'd say the McLaren Ela is definitely
+aerodynamic. I'd give this one an 8 out
+
+630
+00:10:21,509 --> 00:10:21,519
+aerodynamic. I'd give this one an 8 out
+ 
+
+631
+00:10:21,519 --> 00:10:22,870
+aerodynamic. I'd give this one an 8 out
+of 10. Let's test the lift of this
+
+632
+00:10:22,870 --> 00:10:22,880
+of 10. Let's test the lift of this
+ 
+
+633
+00:10:22,880 --> 00:10:25,710
+of 10. Let's test the lift of this
+[Music]
+
+634
+00:10:25,710 --> 00:10:25,720
+[Music]
+ 
+
+635
+00:10:25,720 --> 00:10:28,590
+[Music]
+one.
+
+636
+00:10:28,590 --> 00:10:28,600
+one.
+ 
+
+637
+00:10:28,600 --> 00:10:30,949
+one.
+Uh-oh. It went down by like at least 10
+
+638
+00:10:30,949 --> 00:10:30,959
+Uh-oh. It went down by like at least 10
+ 
+
+639
+00:10:30,959 --> 00:10:32,790
+Uh-oh. It went down by like at least 10
+points. Unfortunately, I got to say this
+
+640
+00:10:32,790 --> 00:10:32,800
+points. Unfortunately, I got to say this
+ 
+
+641
+00:10:32,800 --> 00:10:34,630
+points. Unfortunately, I got to say this
+one fails the lift test. Next up, we
+
+642
+00:10:34,630 --> 00:10:34,640
+one fails the lift test. Next up, we
+ 
+
+643
+00:10:34,640 --> 00:10:36,470
+one fails the lift test. Next up, we
+have the Nissan Skyline. It's got a
+
+644
+00:10:36,470 --> 00:10:36,480
+have the Nissan Skyline. It's got a
+ 
+
+645
+00:10:36,480 --> 00:10:37,910
+have the Nissan Skyline. It's got a
+little wing on the back here. It's also
+
+646
+00:10:37,910 --> 00:10:37,920
+little wing on the back here. It's also
+ 
+
+647
+00:10:37,920 --> 00:10:39,350
+little wing on the back here. It's also
+got a little air intake in the front.
+
+648
+00:10:39,350 --> 00:10:39,360
+got a little air intake in the front.
+ 
+
+649
+00:10:39,360 --> 00:10:41,110
+got a little air intake in the front.
+However, the Lego air intake doesn't
+
+650
+00:10:41,110 --> 00:10:41,120
+However, the Lego air intake doesn't
+ 
+
+651
+00:10:41,120 --> 00:10:42,710
+However, the Lego air intake doesn't
+actually have holes, so it might just
+
+652
+00:10:42,710 --> 00:10:42,720
+actually have holes, so it might just
+ 
+
+653
+00:10:42,720 --> 00:10:44,310
+actually have holes, so it might just
+stop the car up. We start by filling it
+
+654
+00:10:44,310 --> 00:10:44,320
+stop the car up. We start by filling it
+ 
+
+655
+00:10:44,320 --> 00:10:46,030
+stop the car up. We start by filling it
+with fog.
+
+656
+00:10:46,030 --> 00:10:46,040
+with fog.
+ 
+
+657
+00:10:46,040 --> 00:10:49,190
+with fog.
+And boom. Look at the air just flowing
+
+658
+00:10:49,190 --> 00:10:49,200
+And boom. Look at the air just flowing
+ 
+
+659
+00:10:49,200 --> 00:10:50,630
+And boom. Look at the air just flowing
+right over the top. So you can kind of
+
+660
+00:10:50,630 --> 00:10:50,640
+right over the top. So you can kind of
+ 
+
+661
+00:10:50,640 --> 00:10:52,550
+right over the top. So you can kind of
+see how it's cutting through the fog
+
+662
+00:10:52,550 --> 00:10:52,560
+see how it's cutting through the fog
+ 
+
+663
+00:10:52,560 --> 00:10:54,310
+see how it's cutting through the fog
+there. What if we angled the rear wing?
+
+664
+00:10:54,310 --> 00:10:54,320
+there. What if we angled the rear wing?
+ 
+
+665
+00:10:54,320 --> 00:10:55,630
+there. What if we angled the rear wing?
+What will that
+
+666
+00:10:55,630 --> 00:10:55,640
+What will that
+ 
+
+667
+00:10:55,640 --> 00:10:59,190
+What will that
+do? Wow. You know, for some reason, I
+
+668
+00:10:59,190 --> 00:10:59,200
+do? Wow. You know, for some reason, I
+ 
+
+669
+00:10:59,200 --> 00:11:01,030
+do? Wow. You know, for some reason, I
+want to give the Skyline a 10 out of 10
+
+670
+00:11:01,030 --> 00:11:01,040
+want to give the Skyline a 10 out of 10
+ 
+
+671
+00:11:01,040 --> 00:11:02,710
+want to give the Skyline a 10 out of 10
+for the aerodynamic test. Let's see how
+
+672
+00:11:02,710 --> 00:11:02,720
+for the aerodynamic test. Let's see how
+ 
+
+673
+00:11:02,720 --> 00:11:03,650
+for the aerodynamic test. Let's see how
+this one
+
+674
+00:11:03,650 --> 00:11:03,660
+this one
+ 
+
+675
+00:11:03,660 --> 00:11:08,509
+this one
+[Applause]
+
+676
+00:11:08,509 --> 00:11:08,519
+
+ 
+
+677
+00:11:08,519 --> 00:11:11,030
+
+does. Our Skyline does not pass the lift
+
+678
+00:11:11,030 --> 00:11:11,040
+does. Our Skyline does not pass the lift
+ 
+
+679
+00:11:11,040 --> 00:11:12,550
+does. Our Skyline does not pass the lift
+test. I don't know. It just it really
+
+680
+00:11:12,550 --> 00:11:12,560
+test. I don't know. It just it really
+ 
+
+681
+00:11:12,560 --> 00:11:15,110
+test. I don't know. It just it really
+wanted to go. Next up, we got our F1
+
+682
+00:11:15,110 --> 00:11:15,120
+wanted to go. Next up, we got our F1
+ 
+
+683
+00:11:15,120 --> 00:11:16,550
+wanted to go. Next up, we got our F1
+car. I'm going to put our little ooot
+
+684
+00:11:16,550 --> 00:11:16,560
+car. I'm going to put our little ooot
+ 
+
+685
+00:11:16,560 --> 00:11:18,190
+car. I'm going to put our little ooot
+crash test dummy in
+
+686
+00:11:18,190 --> 00:11:18,200
+crash test dummy in
+ 
+
+687
+00:11:18,200 --> 00:11:20,790
+crash test dummy in
+here. Here we go. Push our little button
+
+688
+00:11:20,790 --> 00:11:20,800
+here. Here we go. Push our little button
+ 
+
+689
+00:11:20,800 --> 00:11:22,790
+here. Here we go. Push our little button
+here. Like, this is working exactly how
+
+690
+00:11:22,790 --> 00:11:22,800
+here. Like, this is working exactly how
+ 
+
+691
+00:11:22,800 --> 00:11:23,910
+here. Like, this is working exactly how
+it's supposed to. I'm going to turn it
+
+692
+00:11:23,910 --> 00:11:23,920
+it's supposed to. I'm going to turn it
+ 
+
+693
+00:11:23,920 --> 00:11:25,750
+it's supposed to. I'm going to turn it
+up a little bit cuz, you know, F1 cars
+
+694
+00:11:25,750 --> 00:11:25,760
+up a little bit cuz, you know, F1 cars
+ 
+
+695
+00:11:25,760 --> 00:11:27,350
+up a little bit cuz, you know, F1 cars
+are going a little bit faster than that.
+
+696
+00:11:27,350 --> 00:11:27,360
+are going a little bit faster than that.
+ 
+
+697
+00:11:27,360 --> 00:11:28,710
+are going a little bit faster than that.
+You can definitely see the air going
+
+698
+00:11:28,710 --> 00:11:28,720
+You can definitely see the air going
+ 
+
+699
+00:11:28,720 --> 00:11:30,710
+You can definitely see the air going
+around that rear wing and over it. So,
+
+700
+00:11:30,710 --> 00:11:30,720
+around that rear wing and over it. So,
+ 
+
+701
+00:11:30,720 --> 00:11:31,910
+around that rear wing and over it. So,
+it's working good. And I also want to
+
+702
+00:11:31,910 --> 00:11:31,920
+it's working good. And I also want to
+ 
+
+703
+00:11:31,920 --> 00:11:33,750
+it's working good. And I also want to
+mention the under tray on this car. It's
+
+704
+00:11:33,750 --> 00:11:33,760
+mention the under tray on this car. It's
+ 
+
+705
+00:11:33,760 --> 00:11:35,269
+mention the under tray on this car. It's
+extremely welldesigned. So, you can see
+
+706
+00:11:35,269 --> 00:11:35,279
+extremely welldesigned. So, you can see
+ 
+
+707
+00:11:35,279 --> 00:11:37,110
+extremely welldesigned. So, you can see
+here there's no space for that air
+
+708
+00:11:37,110 --> 00:11:37,120
+here there's no space for that air
+ 
+
+709
+00:11:37,120 --> 00:11:38,069
+here there's no space for that air
+underneath, which is supposed to
+
+710
+00:11:38,069 --> 00:11:38,079
+underneath, which is supposed to
+ 
+
+711
+00:11:38,079 --> 00:11:39,430
+underneath, which is supposed to
+increase the grip on the road. Looks
+
+712
+00:11:39,430 --> 00:11:39,440
+increase the grip on the road. Looks
+ 
+
+713
+00:11:39,440 --> 00:11:42,150
+increase the grip on the road. Looks
+like we got 134 to start. Let's bump
+
+714
+00:11:42,150 --> 00:11:42,160
+like we got 134 to start. Let's bump
+ 
+
+715
+00:11:42,160 --> 00:11:44,870
+like we got 134 to start. Let's bump
+this up slowly. Wow, that we're getting
+
+716
+00:11:44,870 --> 00:11:44,880
+this up slowly. Wow, that we're getting
+ 
+
+717
+00:11:44,880 --> 00:11:51,230
+this up slowly. Wow, that we're getting
+a lot of downforce. 134, 150,
+
+718
+00:11:51,230 --> 00:11:51,240
+
+ 
+
+719
+00:11:51,240 --> 00:11:53,269
+
+160. That's pretty good. We're getting
+
+720
+00:11:53,269 --> 00:11:53,279
+160. That's pretty good. We're getting
+ 
+
+721
+00:11:53,279 --> 00:11:55,590
+160. That's pretty good. We're getting
+about 10 to 15 points of downforce. I
+
+722
+00:11:55,590 --> 00:11:55,600
+about 10 to 15 points of downforce. I
+ 
+
+723
+00:11:55,600 --> 00:11:56,949
+about 10 to 15 points of downforce. I
+was expecting this one to kind of fly up
+
+724
+00:11:56,949 --> 00:11:56,959
+was expecting this one to kind of fly up
+ 
+
+725
+00:11:56,959 --> 00:11:58,470
+was expecting this one to kind of fly up
+just because it's so thin, but this one
+
+726
+00:11:58,470 --> 00:11:58,480
+just because it's so thin, but this one
+ 
+
+727
+00:11:58,480 --> 00:11:59,990
+just because it's so thin, but this one
+definitely passes. I'd give it a 9 out
+
+728
+00:11:59,990 --> 00:12:00,000
+definitely passes. I'd give it a 9 out
+ 
+
+729
+00:12:00,000 --> 00:12:01,509
+definitely passes. I'd give it a 9 out
+of 10. Also, it's really beautifully
+
+730
+00:12:01,509 --> 00:12:01,519
+of 10. Also, it's really beautifully
+ 
+
+731
+00:12:01,519 --> 00:12:03,430
+of 10. Also, it's really beautifully
+designed, so great job, LEGO. Next up,
+
+732
+00:12:03,430 --> 00:12:03,440
+designed, so great job, LEGO. Next up,
+ 
+
+733
+00:12:03,440 --> 00:12:05,670
+designed, so great job, LEGO. Next up,
+we have the beautiful Ford Mustang. This
+
+734
+00:12:05,670 --> 00:12:05,680
+we have the beautiful Ford Mustang. This
+ 
+
+735
+00:12:05,680 --> 00:12:07,269
+we have the beautiful Ford Mustang. This
+one I'm excited to see. It's not as
+
+736
+00:12:07,269 --> 00:12:07,279
+one I'm excited to see. It's not as
+ 
+
+737
+00:12:07,279 --> 00:12:09,110
+one I'm excited to see. It's not as
+aerodynamic or like angular as the other
+
+738
+00:12:09,110 --> 00:12:09,120
+aerodynamic or like angular as the other
+ 
+
+739
+00:12:09,120 --> 00:12:12,629
+aerodynamic or like angular as the other
+cars, but ooh, look at that. You can
+
+740
+00:12:12,629 --> 00:12:12,639
+cars, but ooh, look at that. You can
+ 
+
+741
+00:12:12,639 --> 00:12:14,310
+cars, but ooh, look at that. You can
+totally see how the air is just going
+
+742
+00:12:14,310 --> 00:12:14,320
+totally see how the air is just going
+ 
+
+743
+00:12:14,320 --> 00:12:16,069
+totally see how the air is just going
+right over the front of the hood and
+
+744
+00:12:16,069 --> 00:12:16,079
+right over the front of the hood and
+ 
+
+745
+00:12:16,079 --> 00:12:17,750
+right over the front of the hood and
+then actually cutting underneath the
+
+746
+00:12:17,750 --> 00:12:17,760
+then actually cutting underneath the
+ 
+
+747
+00:12:17,760 --> 00:12:19,430
+then actually cutting underneath the
+spoiler. The cool thing is if we control
+
+748
+00:12:19,430 --> 00:12:19,440
+spoiler. The cool thing is if we control
+ 
+
+749
+00:12:19,440 --> 00:12:21,110
+spoiler. The cool thing is if we control
+our fan speed with this guy, we can
+
+750
+00:12:21,110 --> 00:12:21,120
+our fan speed with this guy, we can
+ 
+
+751
+00:12:21,120 --> 00:12:23,190
+our fan speed with this guy, we can
+actually simulate by filling it with fog
+
+752
+00:12:23,190 --> 00:12:23,200
+actually simulate by filling it with fog
+ 
+
+753
+00:12:23,200 --> 00:12:24,790
+actually simulate by filling it with fog
+our car accelerating. So there we are.
+
+754
+00:12:24,790 --> 00:12:24,800
+our car accelerating. So there we are.
+ 
+
+755
+00:12:24,800 --> 00:12:27,829
+our car accelerating. So there we are.
+It stopped and now it accelerates and
+
+756
+00:12:27,829 --> 00:12:27,839
+It stopped and now it accelerates and
+ 
+
+757
+00:12:27,839 --> 00:12:30,389
+It stopped and now it accelerates and
+that is the air moving around the car.
+
+758
+00:12:30,389 --> 00:12:30,399
+that is the air moving around the car.
+ 
+
+759
+00:12:30,399 --> 00:12:34,509
+that is the air moving around the car.
+Oh, that is so
+
+760
+00:12:34,509 --> 00:12:34,519
+
+ 
+
+761
+00:12:34,519 --> 00:12:37,740
+
+cool. Wow.
+
+762
+00:12:37,740 --> 00:12:37,750
+cool. Wow.
+ 
+
+763
+00:12:37,750 --> 00:12:40,069
+cool. Wow.
+[Music]
+
+764
+00:12:40,069 --> 00:12:40,079
+[Music]
+ 
+
+765
+00:12:40,079 --> 00:12:41,910
+[Music]
+We got about 179 at the highest there.
+
+766
+00:12:41,910 --> 00:12:41,920
+We got about 179 at the highest there.
+ 
+
+767
+00:12:41,920 --> 00:12:43,509
+We got about 179 at the highest there.
+And no lift at all on this one. So, I'd
+
+768
+00:12:43,509 --> 00:12:43,519
+And no lift at all on this one. So, I'd
+ 
+
+769
+00:12:43,519 --> 00:12:45,030
+And no lift at all on this one. So, I'd
+say the Ford Mustang performs really
+
+770
+00:12:45,030 --> 00:12:45,040
+say the Ford Mustang performs really
+ 
+
+771
+00:12:45,040 --> 00:12:47,030
+say the Ford Mustang performs really
+well. I give it a 9 out of 10. Next up,
+
+772
+00:12:47,030 --> 00:12:47,040
+well. I give it a 9 out of 10. Next up,
+ 
+
+773
+00:12:47,040 --> 00:12:49,670
+well. I give it a 9 out of 10. Next up,
+the Toyota Supra. A very popular car.
+
+774
+00:12:49,670 --> 00:12:49,680
+the Toyota Supra. A very popular car.
+ 
+
+775
+00:12:49,680 --> 00:12:53,030
+the Toyota Supra. A very popular car.
+Here we go. Ooh. Yeah, look at that. You
+
+776
+00:12:53,030 --> 00:12:53,040
+Here we go. Ooh. Yeah, look at that. You
+ 
+
+777
+00:12:53,040 --> 00:12:54,389
+Here we go. Ooh. Yeah, look at that. You
+can see it flying over the back of the
+
+778
+00:12:54,389 --> 00:12:54,399
+can see it flying over the back of the
+ 
+
+779
+00:12:54,399 --> 00:12:55,750
+can see it flying over the back of the
+spoiler as well. So, I feel like this
+
+780
+00:12:55,750 --> 00:12:55,760
+spoiler as well. So, I feel like this
+ 
+
+781
+00:12:55,760 --> 00:12:58,150
+spoiler as well. So, I feel like this
+one is shaped very aerodynamically. Also
+
+782
+00:12:58,150 --> 00:12:58,160
+one is shaped very aerodynamically. Also
+ 
+
+783
+00:12:58,160 --> 00:12:59,509
+one is shaped very aerodynamically. Also
+want to mention, I don't see a whole lot
+
+784
+00:12:59,509 --> 00:12:59,519
+want to mention, I don't see a whole lot
+ 
+
+785
+00:12:59,519 --> 00:13:01,350
+want to mention, I don't see a whole lot
+going underneath the vehicle and exiting
+
+786
+00:13:01,350 --> 00:13:01,360
+going underneath the vehicle and exiting
+ 
+
+787
+00:13:01,360 --> 00:13:02,790
+going underneath the vehicle and exiting
+at the back. And if we pull this guy
+
+788
+00:13:02,790 --> 00:13:02,800
+at the back. And if we pull this guy
+ 
+
+789
+00:13:02,800 --> 00:13:04,389
+at the back. And if we pull this guy
+out, you can see the under tray on this
+
+790
+00:13:04,389 --> 00:13:04,399
+out, you can see the under tray on this
+ 
+
+791
+00:13:04,399 --> 00:13:06,069
+out, you can see the under tray on this
+car is super flat with this front. So,
+
+792
+00:13:06,069 --> 00:13:06,079
+car is super flat with this front. So,
+ 
+
+793
+00:13:06,079 --> 00:13:07,590
+car is super flat with this front. So,
+if we put this on a flat surface, you
+
+794
+00:13:07,590 --> 00:13:07,600
+if we put this on a flat surface, you
+ 
+
+795
+00:13:07,600 --> 00:13:09,190
+if we put this on a flat surface, you
+barely have any clearance, which
+
+796
+00:13:09,190 --> 00:13:09,200
+barely have any clearance, which
+ 
+
+797
+00:13:09,200 --> 00:13:10,389
+barely have any clearance, which
+probably isn't a good thing on bumpy
+
+798
+00:13:10,389 --> 00:13:10,399
+probably isn't a good thing on bumpy
+ 
+
+799
+00:13:10,399 --> 00:13:12,470
+probably isn't a good thing on bumpy
+roads, but it's a Lego car. Let's do the
+
+800
+00:13:12,470 --> 00:13:12,480
+roads, but it's a Lego car. Let's do the
+ 
+
+801
+00:13:12,480 --> 00:13:13,450
+roads, but it's a Lego car. Let's do the
+lift test on the
+
+802
+00:13:13,450 --> 00:13:13,460
+lift test on the
+ 
+
+803
+00:13:13,460 --> 00:13:15,230
+lift test on the
+[Music]
+
+804
+00:13:15,230 --> 00:13:15,240
+[Music]
+ 
+
+805
+00:13:15,240 --> 00:13:20,110
+[Music]
+Supra. Yeah, there we
+
+806
+00:13:20,110 --> 00:13:20,120
+
+ 
+
+807
+00:13:20,120 --> 00:13:24,230
+
+go. Go down. Toyota Supra passes. The
+
+808
+00:13:24,230 --> 00:13:24,240
+go. Go down. Toyota Supra passes. The
+ 
+
+809
+00:13:24,240 --> 00:13:27,670
+go. Go down. Toyota Supra passes. The
+next car up we have is the Kennes Jes.
+
+810
+00:13:27,670 --> 00:13:27,680
+next car up we have is the Kennes Jes.
+ 
+
+811
+00:13:27,680 --> 00:13:29,910
+next car up we have is the Kennes Jes.
+This thing is so cool. Yeah. I just I'm
+
+812
+00:13:29,910 --> 00:13:29,920
+This thing is so cool. Yeah. I just I'm
+ 
+
+813
+00:13:29,920 --> 00:13:31,350
+This thing is so cool. Yeah. I just I'm
+so excited loading each one of these in
+
+814
+00:13:31,350 --> 00:13:31,360
+so excited loading each one of these in
+ 
+
+815
+00:13:31,360 --> 00:13:32,550
+so excited loading each one of these in
+here cuz I want to see how well it's
+
+816
+00:13:32,550 --> 00:13:32,560
+here cuz I want to see how well it's
+ 
+
+817
+00:13:32,560 --> 00:13:33,710
+here cuz I want to see how well it's
+going to
+
+818
+00:13:33,710 --> 00:13:33,720
+going to
+ 
+
+819
+00:13:33,720 --> 00:13:36,550
+going to
+do. Hey, that's pretty aerodynamic. Ooh,
+
+820
+00:13:36,550 --> 00:13:36,560
+do. Hey, that's pretty aerodynamic. Ooh,
+ 
+
+821
+00:13:36,560 --> 00:13:38,150
+do. Hey, that's pretty aerodynamic. Ooh,
+and check out that rear wing. You can
+
+822
+00:13:38,150 --> 00:13:38,160
+and check out that rear wing. You can
+ 
+
+823
+00:13:38,160 --> 00:13:40,829
+and check out that rear wing. You can
+totally see the air moving back
+
+824
+00:13:40,829 --> 00:13:40,839
+totally see the air moving back
+ 
+
+825
+00:13:40,839 --> 00:13:43,190
+totally see the air moving back
+there. It seems like at the front the
+
+826
+00:13:43,190 --> 00:13:43,200
+there. It seems like at the front the
+ 
+
+827
+00:13:43,200 --> 00:13:45,110
+there. It seems like at the front the
+bumper is kind of trapping a bit of that
+
+828
+00:13:45,110 --> 00:13:45,120
+bumper is kind of trapping a bit of that
+ 
+
+829
+00:13:45,120 --> 00:13:47,590
+bumper is kind of trapping a bit of that
+air. If we bring up the speed, I wonder
+
+830
+00:13:47,590 --> 00:13:47,600
+air. If we bring up the speed, I wonder
+ 
+
+831
+00:13:47,600 --> 00:13:48,829
+air. If we bring up the speed, I wonder
+if that'll get
+
+832
+00:13:48,829 --> 00:13:48,839
+if that'll get
+ 
+
+833
+00:13:48,839 --> 00:13:51,269
+if that'll get
+better. Not really. It is going over the
+
+834
+00:13:51,269 --> 00:13:51,279
+better. Not really. It is going over the
+ 
+
+835
+00:13:51,279 --> 00:13:53,670
+better. Not really. It is going over the
+top, which is what we want. That is
+
+836
+00:13:53,670 --> 00:13:53,680
+top, which is what we want. That is
+ 
+
+837
+00:13:53,680 --> 00:13:56,949
+top, which is what we want. That is
+really, really cool. We got 130. Slowly
+
+838
+00:13:56,949 --> 00:13:56,959
+really, really cool. We got 130. Slowly
+ 
+
+839
+00:13:56,959 --> 00:13:59,150
+really, really cool. We got 130. Slowly
+bring this up.
+
+840
+00:13:59,150 --> 00:13:59,160
+bring this up.
+ 
+
+841
+00:13:59,160 --> 00:14:02,910
+bring this up.
+33
+
+842
+00:14:02,910 --> 00:14:02,920
+
+ 
+
+843
+00:14:02,920 --> 00:14:05,949
+
+35. Wa
+
+844
+00:14:05,949 --> 00:14:05,959
+35. Wa
+ 
+
+845
+00:14:05,959 --> 00:14:09,030
+35. Wa
+wa. We just got about 65 points. That is
+
+846
+00:14:09,030 --> 00:14:09,040
+wa. We just got about 65 points. That is
+ 
+
+847
+00:14:09,040 --> 00:14:11,189
+wa. We just got about 65 points. That is
+some amazing downforce. So far, this is
+
+848
+00:14:11,189 --> 00:14:11,199
+some amazing downforce. So far, this is
+ 
+
+849
+00:14:11,199 --> 00:14:12,949
+some amazing downforce. So far, this is
+the best performing Lego set for
+
+850
+00:14:12,949 --> 00:14:12,959
+the best performing Lego set for
+ 
+
+851
+00:14:12,959 --> 00:14:14,550
+the best performing Lego set for
+downforce. I think it's because the air
+
+852
+00:14:14,550 --> 00:14:14,560
+downforce. I think it's because the air
+ 
+
+853
+00:14:14,560 --> 00:14:15,990
+downforce. I think it's because the air
+was getting caught in this little piece
+
+854
+00:14:15,990 --> 00:14:16,000
+was getting caught in this little piece
+ 
+
+855
+00:14:16,000 --> 00:14:17,430
+was getting caught in this little piece
+right here, which is like the little air
+
+856
+00:14:17,430 --> 00:14:17,440
+right here, which is like the little air
+ 
+
+857
+00:14:17,440 --> 00:14:18,949
+right here, which is like the little air
+intake on the front and it was just
+
+858
+00:14:18,949 --> 00:14:18,959
+intake on the front and it was just
+ 
+
+859
+00:14:18,959 --> 00:14:20,470
+intake on the front and it was just
+pushing it down. Wow, that is really
+
+860
+00:14:20,470 --> 00:14:20,480
+pushing it down. Wow, that is really
+ 
+
+861
+00:14:20,480 --> 00:14:22,389
+pushing it down. Wow, that is really
+good. That definitely passes. This is
+
+862
+00:14:22,389 --> 00:14:22,399
+good. That definitely passes. This is
+ 
+
+863
+00:14:22,399 --> 00:14:24,870
+good. That definitely passes. This is
+the Lamborghini V12 Vision. It is
+
+864
+00:14:24,870 --> 00:14:24,880
+the Lamborghini V12 Vision. It is
+ 
+
+865
+00:14:24,880 --> 00:14:27,110
+the Lamborghini V12 Vision. It is
+absolutely beautiful. I'm genuinely
+
+866
+00:14:27,110 --> 00:14:27,120
+absolutely beautiful. I'm genuinely
+ 
+
+867
+00:14:27,120 --> 00:14:28,949
+absolutely beautiful. I'm genuinely
+curious to see how all these angles and
+
+868
+00:14:28,949 --> 00:14:28,959
+curious to see how all these angles and
+ 
+
+869
+00:14:28,959 --> 00:14:30,790
+curious to see how all these angles and
+curves will do against wind. So, we're
+
+870
+00:14:30,790 --> 00:14:30,800
+curves will do against wind. So, we're
+ 
+
+871
+00:14:30,800 --> 00:14:32,230
+curves will do against wind. So, we're
+going to fill the room with fog and then
+
+872
+00:14:32,230 --> 00:14:32,240
+going to fill the room with fog and then
+ 
+
+873
+00:14:32,240 --> 00:14:33,990
+going to fill the room with fog and then
+we're going to simulate a acceleration.
+
+874
+00:14:33,990 --> 00:14:34,000
+we're going to simulate a acceleration.
+ 
+
+875
+00:14:34,000 --> 00:14:37,590
+we're going to simulate a acceleration.
+Here we go. Turn the fan on and boom.
+
+876
+00:14:37,590 --> 00:14:37,600
+Here we go. Turn the fan on and boom.
+ 
+
+877
+00:14:37,600 --> 00:14:39,350
+Here we go. Turn the fan on and boom.
+This is one of the most aerodynamic cars
+
+878
+00:14:39,350 --> 00:14:39,360
+This is one of the most aerodynamic cars
+ 
+
+879
+00:14:39,360 --> 00:14:40,790
+This is one of the most aerodynamic cars
+I think we've seen. It's really hard to
+
+880
+00:14:40,790 --> 00:14:40,800
+I think we've seen. It's really hard to
+ 
+
+881
+00:14:40,800 --> 00:14:41,990
+I think we've seen. It's really hard to
+see from this angle, too, but it's
+
+882
+00:14:41,990 --> 00:14:42,000
+see from this angle, too, but it's
+ 
+
+883
+00:14:42,000 --> 00:14:43,350
+see from this angle, too, but it's
+actually flowing through the hood of the
+
+884
+00:14:43,350 --> 00:14:43,360
+actually flowing through the hood of the
+ 
+
+885
+00:14:43,360 --> 00:14:45,269
+actually flowing through the hood of the
+car because there's some holes in it.
+
+886
+00:14:45,269 --> 00:14:45,279
+car because there's some holes in it.
+ 
+
+887
+00:14:45,279 --> 00:14:46,870
+car because there's some holes in it.
+That's sick. Yeah, this one's just
+
+888
+00:14:46,870 --> 00:14:46,880
+That's sick. Yeah, this one's just
+ 
+
+889
+00:14:46,880 --> 00:14:49,110
+That's sick. Yeah, this one's just
+cutting through the air like butter.
+
+890
+00:14:49,110 --> 00:14:49,120
+cutting through the air like butter.
+ 
+
+891
+00:14:49,120 --> 00:14:51,550
+cutting through the air like butter.
+Here we go.
+
+892
+00:14:51,550 --> 00:14:51,560
+Here we go.
+ 
+
+893
+00:14:51,560 --> 00:14:53,790
+Here we go.
+112
+
+894
+00:14:53,790 --> 00:14:53,800
+112
+ 
+
+895
+00:14:53,800 --> 00:14:56,670
+112
+116 wa
+
+896
+00:14:56,670 --> 00:14:56,680
+116 wa
+ 
+
+897
+00:14:56,680 --> 00:14:59,350
+116 wa
+140 about 130 that's about 20 points
+
+898
+00:14:59,350 --> 00:14:59,360
+140 about 130 that's about 20 points
+ 
+
+899
+00:14:59,360 --> 00:15:00,949
+140 about 130 that's about 20 points
+which is really quite good really cool
+
+900
+00:15:00,949 --> 00:15:00,959
+which is really quite good really cool
+ 
+
+901
+00:15:00,959 --> 00:15:02,710
+which is really quite good really cool
+car design and on top of that it's like
+
+902
+00:15:02,710 --> 00:15:02,720
+car design and on top of that it's like
+ 
+
+903
+00:15:02,720 --> 00:15:05,030
+car design and on top of that it's like
+really aerodynamic 10 out of 10 guys I
+
+904
+00:15:05,030 --> 00:15:05,040
+really aerodynamic 10 out of 10 guys I
+ 
+
+905
+00:15:05,040 --> 00:15:06,710
+really aerodynamic 10 out of 10 guys I
+just had an idea what if we built a wind
+
+906
+00:15:06,710 --> 00:15:06,720
+just had an idea what if we built a wind
+ 
+
+907
+00:15:06,720 --> 00:15:08,710
+just had an idea what if we built a wind
+tunnel but for planes and we could
+
+908
+00:15:08,710 --> 00:15:08,720
+tunnel but for planes and we could
+ 
+
+909
+00:15:08,720 --> 00:15:10,150
+tunnel but for planes and we could
+actually test the aerodynamics of like
+
+910
+00:15:10,150 --> 00:15:10,160
+actually test the aerodynamics of like
+ 
+
+911
+00:15:10,160 --> 00:15:11,670
+actually test the aerodynamics of like
+jets and planes if you guys think that'd
+
+912
+00:15:11,670 --> 00:15:11,680
+jets and planes if you guys think that'd
+ 
+
+913
+00:15:11,680 --> 00:15:13,189
+jets and planes if you guys think that'd
+be cool comment down below I'd have to
+
+914
+00:15:13,189 --> 00:15:13,199
+be cool comment down below I'd have to
+ 
+
+915
+00:15:13,199 --> 00:15:14,790
+be cool comment down below I'd have to
+rebuild this and make a completely
+
+916
+00:15:14,790 --> 00:15:14,800
+rebuild this and make a completely
+ 
+
+917
+00:15:14,800 --> 00:15:16,230
+rebuild this and make a completely
+different one but I think it'd be cool I
+
+918
+00:15:16,230 --> 00:15:16,240
+different one but I think it'd be cool I
+ 
+
+919
+00:15:16,240 --> 00:15:17,269
+different one but I think it'd be cool I
+want to give a little bit of comparison
+
+920
+00:15:17,269 --> 00:15:17,279
+want to give a little bit of comparison
+ 
+
+921
+00:15:17,279 --> 00:15:19,509
+want to give a little bit of comparison
+with this car so we have the Mercedes G
+
+922
+00:15:19,509 --> 00:15:19,519
+with this car so we have the Mercedes G
+ 
+
+923
+00:15:19,519 --> 00:15:22,069
+with this car so we have the Mercedes G
+Wagon This is shaped like a brick with a
+
+924
+00:15:22,069 --> 00:15:22,079
+Wagon This is shaped like a brick with a
+ 
+
+925
+00:15:22,079 --> 00:15:24,949
+Wagon This is shaped like a brick with a
+sloped hood. Will it work? It doesn't
+
+926
+00:15:24,949 --> 00:15:24,959
+sloped hood. Will it work? It doesn't
+ 
+
+927
+00:15:24,959 --> 00:15:26,310
+sloped hood. Will it work? It doesn't
+seem to be having a problem with it,
+
+928
+00:15:26,310 --> 00:15:26,320
+seem to be having a problem with it,
+ 
+
+929
+00:15:26,320 --> 00:15:27,670
+seem to be having a problem with it,
+honestly. Look what's happening at the
+
+930
+00:15:27,670 --> 00:15:27,680
+honestly. Look what's happening at the
+ 
+
+931
+00:15:27,680 --> 00:15:29,509
+honestly. Look what's happening at the
+very rear of the vehicle. The air is
+
+932
+00:15:29,509 --> 00:15:29,519
+very rear of the vehicle. The air is
+ 
+
+933
+00:15:29,519 --> 00:15:30,790
+very rear of the vehicle. The air is
+kind of gathering there, and that's
+
+934
+00:15:30,790 --> 00:15:30,800
+kind of gathering there, and that's
+ 
+
+935
+00:15:30,800 --> 00:15:32,550
+kind of gathering there, and that's
+creating what's called dirty air, which
+
+936
+00:15:32,550 --> 00:15:32,560
+creating what's called dirty air, which
+ 
+
+937
+00:15:32,560 --> 00:15:33,590
+creating what's called dirty air, which
+is basically where the air gets
+
+938
+00:15:33,590 --> 00:15:33,600
+is basically where the air gets
+ 
+
+939
+00:15:33,600 --> 00:15:35,350
+is basically where the air gets
+disrupted and moves around all funky
+
+940
+00:15:35,350 --> 00:15:35,360
+disrupted and moves around all funky
+ 
+
+941
+00:15:35,360 --> 00:15:36,550
+disrupted and moves around all funky
+kind of like this. It's like creating
+
+942
+00:15:36,550 --> 00:15:36,560
+kind of like this. It's like creating
+ 
+
+943
+00:15:36,560 --> 00:15:37,910
+kind of like this. It's like creating
+like little wavy patterns, and
+
+944
+00:15:37,910 --> 00:15:37,920
+like little wavy patterns, and
+ 
+
+945
+00:15:37,920 --> 00:15:39,430
+like little wavy patterns, and
+apparently that's a lot harder to drive
+
+946
+00:15:39,430 --> 00:15:39,440
+apparently that's a lot harder to drive
+ 
+
+947
+00:15:39,440 --> 00:15:40,629
+apparently that's a lot harder to drive
+through. I think this one might just
+
+948
+00:15:40,629 --> 00:15:40,639
+through. I think this one might just
+ 
+
+949
+00:15:40,639 --> 00:15:43,110
+through. I think this one might just
+blow away back into the jet. Let's see.
+
+950
+00:15:43,110 --> 00:15:43,120
+blow away back into the jet. Let's see.
+ 
+
+951
+00:15:43,120 --> 00:15:45,430
+blow away back into the jet. Let's see.
+Wa! 225. That's like the heaviest one so
+
+952
+00:15:45,430 --> 00:15:45,440
+Wa! 225. That's like the heaviest one so
+ 
+
+953
+00:15:45,440 --> 00:15:51,590
+Wa! 225. That's like the heaviest one so
+far. Here we go. 230.
+
+954
+00:15:51,590 --> 00:15:51,600
+
+ 
+
+955
+00:15:51,600 --> 00:15:56,820
+
+Not bad. Whoa, that's over 110
+
+956
+00:15:56,820 --> 00:15:56,830
+Not bad. Whoa, that's over 110
+ 
+
+957
+00:15:56,830 --> 00:15:59,550
+Not bad. Whoa, that's over 110
+[Music]
+
+958
+00:15:59,550 --> 00:15:59,560
+[Music]
+ 
+
+959
+00:15:59,560 --> 00:16:02,949
+[Music]
+points. Oh, it's gone. I think that was
+
+960
+00:16:02,949 --> 00:16:02,959
+points. Oh, it's gone. I think that was
+ 
+
+961
+00:16:02,959 --> 00:16:04,710
+points. Oh, it's gone. I think that was
+the best performing one still. Here we
+
+962
+00:16:04,710 --> 00:16:04,720
+the best performing one still. Here we
+ 
+
+963
+00:16:04,720 --> 00:16:07,870
+the best performing one still. Here we
+have an interesting one. This is the
+
+964
+00:16:07,870 --> 00:16:07,880
+have an interesting one. This is the
+ 
+
+965
+00:16:07,880 --> 00:16:09,829
+have an interesting one. This is the
+Batmobile. I think the Batmobile is
+
+966
+00:16:09,829 --> 00:16:09,839
+Batmobile. I think the Batmobile is
+ 
+
+967
+00:16:09,839 --> 00:16:11,030
+Batmobile. I think the Batmobile is
+going to go pretty well cuz it's
+
+968
+00:16:11,030 --> 00:16:11,040
+going to go pretty well cuz it's
+ 
+
+969
+00:16:11,040 --> 00:16:13,590
+going to go pretty well cuz it's
+designed to go fast to stop grime. Let's
+
+970
+00:16:13,590 --> 00:16:13,600
+designed to go fast to stop grime. Let's
+ 
+
+971
+00:16:13,600 --> 00:16:16,389
+designed to go fast to stop grime. Let's
+start with the acceleration test. Ooh,
+
+972
+00:16:16,389 --> 00:16:16,399
+start with the acceleration test. Ooh,
+ 
+
+973
+00:16:16,399 --> 00:16:18,230
+start with the acceleration test. Ooh,
+there we go.
+
+974
+00:16:18,230 --> 00:16:18,240
+there we go.
+ 
+
+975
+00:16:18,240 --> 00:16:19,910
+there we go.
+Wow, this is kind of weird. I'm not
+
+976
+00:16:19,910 --> 00:16:19,920
+Wow, this is kind of weird. I'm not
+ 
+
+977
+00:16:19,920 --> 00:16:21,350
+Wow, this is kind of weird. I'm not
+sure. This one just looks a lot
+
+978
+00:16:21,350 --> 00:16:21,360
+sure. This one just looks a lot
+ 
+
+979
+00:16:21,360 --> 00:16:23,189
+sure. This one just looks a lot
+different than the others. It's like the
+
+980
+00:16:23,189 --> 00:16:23,199
+different than the others. It's like the
+ 
+
+981
+00:16:23,199 --> 00:16:24,870
+different than the others. It's like the
+air is flowing around it quite a bit
+
+982
+00:16:24,870 --> 00:16:24,880
+air is flowing around it quite a bit
+ 
+
+983
+00:16:24,880 --> 00:16:26,389
+air is flowing around it quite a bit
+differently, which is strange. I can see
+
+984
+00:16:26,389 --> 00:16:26,399
+differently, which is strange. I can see
+ 
+
+985
+00:16:26,399 --> 00:16:28,230
+differently, which is strange. I can see
+that the back two wings are cutting
+
+986
+00:16:28,230 --> 00:16:28,240
+that the back two wings are cutting
+ 
+
+987
+00:16:28,240 --> 00:16:29,749
+that the back two wings are cutting
+through the fog, which is kind of cool,
+
+988
+00:16:29,749 --> 00:16:29,759
+through the fog, which is kind of cool,
+ 
+
+989
+00:16:29,759 --> 00:16:32,470
+through the fog, which is kind of cool,
+but not too
+
+990
+00:16:32,470 --> 00:16:32,480
+but not too
+ 
+
+991
+00:16:32,480 --> 00:16:33,480
+but not too
+[Music]
+
+992
+00:16:33,480 --> 00:16:33,490
+[Music]
+ 
+
+993
+00:16:33,490 --> 00:16:34,829
+[Music]
+[Applause]
+
+994
+00:16:34,829 --> 00:16:34,839
+[Applause]
+ 
+
+995
+00:16:34,839 --> 00:16:39,150
+[Applause]
+impressed.
+
+996
+00:16:39,150 --> 00:16:39,160
+
+ 
+
+997
+00:16:39,160 --> 00:16:41,350
+
+Wa! We're actually getting quite a bit
+
+998
+00:16:41,350 --> 00:16:41,360
+Wa! We're actually getting quite a bit
+ 
+
+999
+00:16:41,360 --> 00:16:42,629
+Wa! We're actually getting quite a bit
+of downforce on this one. So, the
+
+1000
+00:16:42,629 --> 00:16:42,639
+of downforce on this one. So, the
+ 
+
+1001
+00:16:42,639 --> 00:16:44,550
+of downforce on this one. So, the
+Batmobile definitely passes the lift
+
+1002
+00:16:44,550 --> 00:16:44,560
+Batmobile definitely passes the lift
+ 
+
+1003
+00:16:44,560 --> 00:16:46,389
+Batmobile definitely passes the lift
+test. I'd give it 6 out of 10. That's
+
+1004
+00:16:46,389 --> 00:16:46,399
+test. I'd give it 6 out of 10. That's
+ 
+
+1005
+00:16:46,399 --> 00:16:47,590
+test. I'd give it 6 out of 10. That's
+pretty cool.
+
+1006
+00:16:47,590 --> 00:16:47,600
+pretty cool.
+ 
+
+1007
+00:16:47,600 --> 00:16:49,269
+pretty cool.
+Next up, we have the large Formula 1
+
+1008
+00:16:49,269 --> 00:16:49,279
+Next up, we have the large Formula 1
+ 
+
+1009
+00:16:49,279 --> 00:16:51,910
+Next up, we have the large Formula 1
+car, McLaren Senna. This one I'm excited
+
+1010
+00:16:51,910 --> 00:16:51,920
+car, McLaren Senna. This one I'm excited
+ 
+
+1011
+00:16:51,920 --> 00:16:54,870
+car, McLaren Senna. This one I'm excited
+for. Fill her up with our fog. And
+
+1012
+00:16:54,870 --> 00:16:54,880
+for. Fill her up with our fog. And
+ 
+
+1013
+00:16:54,880 --> 00:17:00,110
+for. Fill her up with our fog. And
+three, two, one,
+
+1014
+00:17:00,110 --> 00:17:00,120
+
+ 
+
+1015
+00:17:00,120 --> 00:17:02,790
+
+accelerate. That was so cool. Already,
+
+1016
+00:17:02,790 --> 00:17:02,800
+accelerate. That was so cool. Already,
+ 
+
+1017
+00:17:02,800 --> 00:17:04,390
+accelerate. That was so cool. Already,
+I'm going to say this one is a 10 out of
+
+1018
+00:17:04,390 --> 00:17:04,400
+I'm going to say this one is a 10 out of
+ 
+
+1019
+00:17:04,400 --> 00:17:05,829
+I'm going to say this one is a 10 out of
+10. You can really tell. It's weird.
+
+1020
+00:17:05,829 --> 00:17:05,839
+10. You can really tell. It's weird.
+ 
+
+1021
+00:17:05,839 --> 00:17:07,270
+10. You can really tell. It's weird.
+It's like a visual that you can just
+
+1022
+00:17:07,270 --> 00:17:07,280
+It's like a visual that you can just
+ 
+
+1023
+00:17:07,280 --> 00:17:08,870
+It's like a visual that you can just
+tell it's cutting through the air better
+
+1024
+00:17:08,870 --> 00:17:08,880
+tell it's cutting through the air better
+ 
+
+1025
+00:17:08,880 --> 00:17:10,390
+tell it's cutting through the air better
+than other cars. You can see the front
+
+1026
+00:17:10,390 --> 00:17:10,400
+than other cars. You can see the front
+ 
+
+1027
+00:17:10,400 --> 00:17:11,909
+than other cars. You can see the front
+wing on this one is really designed
+
+1028
+00:17:11,909 --> 00:17:11,919
+wing on this one is really designed
+ 
+
+1029
+00:17:11,919 --> 00:17:13,590
+wing on this one is really designed
+well, cuz it is cutting through the air
+
+1030
+00:17:13,590 --> 00:17:13,600
+well, cuz it is cutting through the air
+ 
+
+1031
+00:17:13,600 --> 00:17:17,390
+well, cuz it is cutting through the air
+quite nicely. Straight across
+
+1032
+00:17:17,390 --> 00:17:17,400
+quite nicely. Straight across
+ 
+
+1033
+00:17:17,400 --> 00:17:20,189
+quite nicely. Straight across
+480
+
+1034
+00:17:20,189 --> 00:17:20,199
+480
+ 
+
+1035
+00:17:20,199 --> 00:17:22,829
+480
+5.
+
+1036
+00:17:22,829 --> 00:17:22,839
+5.
+ 
+
+1037
+00:17:22,839 --> 00:17:29,630
+5.
+Whoa. All right, that's
+
+1038
+00:17:29,630 --> 00:17:29,640
+
+ 
+
+1039
+00:17:29,640 --> 00:17:32,070
+
+120. I find it really cool that even if
+
+1040
+00:17:32,070 --> 00:17:32,080
+120. I find it really cool that even if
+ 
+
+1041
+00:17:32,080 --> 00:17:34,070
+120. I find it really cool that even if
+I blow it right underneath the car, it's
+
+1042
+00:17:34,070 --> 00:17:34,080
+I blow it right underneath the car, it's
+ 
+
+1043
+00:17:34,080 --> 00:17:35,830
+I blow it right underneath the car, it's
+still designed so well that it doesn't
+
+1044
+00:17:35,830 --> 00:17:35,840
+still designed so well that it doesn't
+ 
+
+1045
+00:17:35,840 --> 00:17:37,669
+still designed so well that it doesn't
+achieve lift. I definitely give this car
+
+1046
+00:17:37,669 --> 00:17:37,679
+achieve lift. I definitely give this car
+ 
+
+1047
+00:17:37,679 --> 00:17:39,590
+achieve lift. I definitely give this car
+a 10 out of 10. So, it turns out LEGO
+
+1048
+00:17:39,590 --> 00:17:39,600
+a 10 out of 10. So, it turns out LEGO
+ 
+
+1049
+00:17:39,600 --> 00:17:41,110
+a 10 out of 10. So, it turns out LEGO
+does design their cars to be somewhat
+
+1050
+00:17:41,110 --> 00:17:41,120
+does design their cars to be somewhat
+ 
+
+1051
+00:17:41,120 --> 00:17:42,789
+does design their cars to be somewhat
+aerodynamic. They all seem to utilize
+
+1052
+00:17:42,789 --> 00:17:42,799
+aerodynamic. They all seem to utilize
+ 
+
+1053
+00:17:42,799 --> 00:17:44,549
+aerodynamic. They all seem to utilize
+different common shapes like triangles
+
+1054
+00:17:44,549 --> 00:17:44,559
+different common shapes like triangles
+ 
+
+1055
+00:17:44,559 --> 00:17:46,150
+different common shapes like triangles
+and wedges combined together in
+
+1056
+00:17:46,150 --> 00:17:46,160
+and wedges combined together in
+ 
+
+1057
+00:17:46,160 --> 00:17:47,669
+and wedges combined together in
+different angles to make them fast and
+
+1058
+00:17:47,669 --> 00:17:47,679
+different angles to make them fast and
+ 
+
+1059
+00:17:47,679 --> 00:17:49,750
+different angles to make them fast and
+reduce the drag on the vehicles. So, I'm
+
+1060
+00:17:49,750 --> 00:17:49,760
+reduce the drag on the vehicles. So, I'm
+ 
+
+1061
+00:17:49,760 --> 00:17:50,950
+reduce the drag on the vehicles. So, I'm
+going to take those individual shapes
+
+1062
+00:17:50,950 --> 00:17:50,960
+going to take those individual shapes
+ 
+
+1063
+00:17:50,960 --> 00:17:52,710
+going to take those individual shapes
+and see if we can turn those into cars
+
+1064
+00:17:52,710 --> 00:17:52,720
+and see if we can turn those into cars
+ 
+
+1065
+00:17:52,720 --> 00:17:54,390
+and see if we can turn those into cars
+themselves just to see which ones will
+
+1066
+00:17:54,390 --> 00:17:54,400
+themselves just to see which ones will
+ 
+
+1067
+00:17:54,400 --> 00:17:55,990
+themselves just to see which ones will
+perform the best. For this first custom
+
+1068
+00:17:55,990 --> 00:17:56,000
+perform the best. For this first custom
+ 
+
+1069
+00:17:56,000 --> 00:17:57,990
+perform the best. For this first custom
+car, let's just build a triangle and add
+
+1070
+00:17:57,990 --> 00:17:58,000
+car, let's just build a triangle and add
+ 
+
+1071
+00:17:58,000 --> 00:17:59,590
+car, let's just build a triangle and add
+some wheels to it. This is like the
+
+1072
+00:17:59,590 --> 00:17:59,600
+some wheels to it. This is like the
+ 
+
+1073
+00:17:59,600 --> 00:18:01,430
+some wheels to it. This is like the
+cheese wedge of cars. Then, what if we
+
+1074
+00:18:01,430 --> 00:18:01,440
+cheese wedge of cars. Then, what if we
+ 
+
+1075
+00:18:01,440 --> 00:18:03,350
+cheese wedge of cars. Then, what if we
+did like a tube shaped car? So, it's got
+
+1076
+00:18:03,350 --> 00:18:03,360
+did like a tube shaped car? So, it's got
+ 
+
+1077
+00:18:03,360 --> 00:18:04,710
+did like a tube shaped car? So, it's got
+a big hole in the middle for all the air
+
+1078
+00:18:04,710 --> 00:18:04,720
+a big hole in the middle for all the air
+ 
+
+1079
+00:18:04,720 --> 00:18:06,470
+a big hole in the middle for all the air
+to pass through, but it's shaped like a
+
+1080
+00:18:06,470 --> 00:18:06,480
+to pass through, but it's shaped like a
+ 
+
+1081
+00:18:06,480 --> 00:18:08,789
+to pass through, but it's shaped like a
+circle and it actually can hold a
+
+1082
+00:18:08,789 --> 00:18:08,799
+circle and it actually can hold a
+ 
+
+1083
+00:18:08,799 --> 00:18:10,630
+circle and it actually can hold a
+minifigure on the inside. I also want to
+
+1084
+00:18:10,630 --> 00:18:10,640
+minifigure on the inside. I also want to
+ 
+
+1085
+00:18:10,640 --> 00:18:12,230
+minifigure on the inside. I also want to
+try building a teardrop. So, sort of
+
+1086
+00:18:12,230 --> 00:18:12,240
+try building a teardrop. So, sort of
+ 
+
+1087
+00:18:12,240 --> 00:18:15,029
+try building a teardrop. So, sort of
+like an air foil on an airplane. It
+
+1088
+00:18:15,029 --> 00:18:15,039
+like an air foil on an airplane. It
+ 
+
+1089
+00:18:15,039 --> 00:18:17,830
+like an air foil on an airplane. It
+looks like the boat from Spongebob.
+
+1090
+00:18:17,830 --> 00:18:17,840
+looks like the boat from Spongebob.
+ 
+
+1091
+00:18:17,840 --> 00:18:19,430
+looks like the boat from Spongebob.
+We could also do one that's like just a
+
+1092
+00:18:19,430 --> 00:18:19,440
+We could also do one that's like just a
+ 
+
+1093
+00:18:19,440 --> 00:18:21,510
+We could also do one that's like just a
+circle but like horizontal. So, the air
+
+1094
+00:18:21,510 --> 00:18:21,520
+circle but like horizontal. So, the air
+ 
+
+1095
+00:18:21,520 --> 00:18:23,029
+circle but like horizontal. So, the air
+will kind of flow around the sides.
+
+1096
+00:18:23,029 --> 00:18:23,039
+will kind of flow around the sides.
+ 
+
+1097
+00:18:23,039 --> 00:18:24,710
+will kind of flow around the sides.
+Look, it's like a little drift car. What
+
+1098
+00:18:24,710 --> 00:18:24,720
+Look, it's like a little drift car. What
+ 
+
+1099
+00:18:24,720 --> 00:18:26,950
+Look, it's like a little drift car. What
+if we built up a rocket car? That might
+
+1100
+00:18:26,950 --> 00:18:26,960
+if we built up a rocket car? That might
+ 
+
+1101
+00:18:26,960 --> 00:18:29,390
+if we built up a rocket car? That might
+be pretty
+
+1102
+00:18:29,390 --> 00:18:29,400
+
+ 
+
+1103
+00:18:29,400 --> 00:18:31,270
+
+cool. All right, there we have our
+
+1104
+00:18:31,270 --> 00:18:31,280
+cool. All right, there we have our
+ 
+
+1105
+00:18:31,280 --> 00:18:33,270
+cool. All right, there we have our
+rocket. Let's see how aerodynamic it is.
+
+1106
+00:18:33,270 --> 00:18:33,280
+rocket. Let's see how aerodynamic it is.
+ 
+
+1107
+00:18:33,280 --> 00:18:34,549
+rocket. Let's see how aerodynamic it is.
+I'm interested to see how this one's
+
+1108
+00:18:34,549 --> 00:18:34,559
+I'm interested to see how this one's
+ 
+
+1109
+00:18:34,559 --> 00:18:36,830
+I'm interested to see how this one's
+going to react to the
+
+1110
+00:18:36,830 --> 00:18:36,840
+going to react to the
+ 
+
+1111
+00:18:36,840 --> 00:18:38,950
+going to react to the
+fog. Seems to be working pretty well.
+
+1112
+00:18:38,950 --> 00:18:38,960
+fog. Seems to be working pretty well.
+ 
+
+1113
+00:18:38,960 --> 00:18:40,070
+fog. Seems to be working pretty well.
+Well, a lot of the air is just going
+
+1114
+00:18:40,070 --> 00:18:40,080
+Well, a lot of the air is just going
+ 
+
+1115
+00:18:40,080 --> 00:18:41,430
+Well, a lot of the air is just going
+right underneath, right? But yeah,
+
+1116
+00:18:41,430 --> 00:18:41,440
+right underneath, right? But yeah,
+ 
+
+1117
+00:18:41,440 --> 00:18:42,950
+right underneath, right? But yeah,
+that's definitely an aerodynamic shape
+
+1118
+00:18:42,950 --> 00:18:42,960
+that's definitely an aerodynamic shape
+ 
+
+1119
+00:18:42,960 --> 00:18:44,870
+that's definitely an aerodynamic shape
+for sure. However, I don't know how fast
+
+1120
+00:18:44,870 --> 00:18:44,880
+for sure. However, I don't know how fast
+ 
+
+1121
+00:18:44,880 --> 00:18:46,230
+for sure. However, I don't know how fast
+this is going to be because it's adding
+
+1122
+00:18:46,230 --> 00:18:46,240
+this is going to be because it's adding
+ 
+
+1123
+00:18:46,240 --> 00:18:47,830
+this is going to be because it's adding
+a lot of downforce because of such a
+
+1124
+00:18:47,830 --> 00:18:47,840
+a lot of downforce because of such a
+ 
+
+1125
+00:18:47,840 --> 00:18:51,190
+a lot of downforce because of such a
+steep angle. Started off slow. Wow, it's
+
+1126
+00:18:51,190 --> 00:18:51,200
+steep angle. Started off slow. Wow, it's
+ 
+
+1127
+00:18:51,200 --> 00:18:54,190
+steep angle. Started off slow. Wow, it's
+already
+
+1128
+00:18:54,190 --> 00:18:54,200
+
+ 
+
+1129
+00:18:54,200 --> 00:18:56,710
+
+up. About 60 70 points, that one
+
+1130
+00:18:56,710 --> 00:18:56,720
+up. About 60 70 points, that one
+ 
+
+1131
+00:18:56,720 --> 00:18:58,230
+up. About 60 70 points, that one
+definitely passes the lift test. So, for
+
+1132
+00:18:58,230 --> 00:18:58,240
+definitely passes the lift test. So, for
+ 
+
+1133
+00:18:58,240 --> 00:19:00,150
+definitely passes the lift test. So, for
+aerodynamics, I'd give this one a 10 out
+
+1134
+00:19:00,150 --> 00:19:00,160
+aerodynamics, I'd give this one a 10 out
+ 
+
+1135
+00:19:00,160 --> 00:19:01,590
+aerodynamics, I'd give this one a 10 out
+of 10. Still though, you're driving
+
+1136
+00:19:01,590 --> 00:19:01,600
+of 10. Still though, you're driving
+ 
+
+1137
+00:19:01,600 --> 00:19:02,950
+of 10. Still though, you're driving
+around a triangle. I don't think it's
+
+1138
+00:19:02,950 --> 00:19:02,960
+around a triangle. I don't think it's
+ 
+
+1139
+00:19:02,960 --> 00:19:04,950
+around a triangle. I don't think it's
+the best car design. Here we have our
+
+1140
+00:19:04,950 --> 00:19:04,960
+the best car design. Here we have our
+ 
+
+1141
+00:19:04,960 --> 00:19:06,630
+the best car design. Here we have our
+air foil car. As you can see, it's
+
+1142
+00:19:06,630 --> 00:19:06,640
+air foil car. As you can see, it's
+ 
+
+1143
+00:19:06,640 --> 00:19:08,310
+air foil car. As you can see, it's
+completely symmetrical with the top and
+
+1144
+00:19:08,310 --> 00:19:08,320
+completely symmetrical with the top and
+ 
+
+1145
+00:19:08,320 --> 00:19:09,990
+completely symmetrical with the top and
+bottom being the same. And this is based
+
+1146
+00:19:09,990 --> 00:19:10,000
+bottom being the same. And this is based
+ 
+
+1147
+00:19:10,000 --> 00:19:11,830
+bottom being the same. And this is based
+off an aircraft's air foil, which
+
+1148
+00:19:11,830 --> 00:19:11,840
+off an aircraft's air foil, which
+ 
+
+1149
+00:19:11,840 --> 00:19:13,590
+off an aircraft's air foil, which
+essentially is just a cross-section of
+
+1150
+00:19:13,590 --> 00:19:13,600
+essentially is just a cross-section of
+ 
+
+1151
+00:19:13,600 --> 00:19:15,190
+essentially is just a cross-section of
+the wing. It's pretty big. It might just
+
+1152
+00:19:15,190 --> 00:19:15,200
+the wing. It's pretty big. It might just
+ 
+
+1153
+00:19:15,200 --> 00:19:17,230
+the wing. It's pretty big. It might just
+blow away.
+
+1154
+00:19:17,230 --> 00:19:17,240
+blow away.
+ 
+
+1155
+00:19:17,240 --> 00:19:19,909
+blow away.
+Accelerate. Oh, yeah. I mean, it looks
+
+1156
+00:19:19,909 --> 00:19:19,919
+Accelerate. Oh, yeah. I mean, it looks
+ 
+
+1157
+00:19:19,919 --> 00:19:21,990
+Accelerate. Oh, yeah. I mean, it looks
+just like an air foil. It's doing what
+
+1158
+00:19:21,990 --> 00:19:22,000
+just like an air foil. It's doing what
+ 
+
+1159
+00:19:22,000 --> 00:19:23,750
+just like an air foil. It's doing what
+it's supposed to be doing. I feel like
+
+1160
+00:19:23,750 --> 00:19:23,760
+it's supposed to be doing. I feel like
+ 
+
+1161
+00:19:23,760 --> 00:19:25,270
+it's supposed to be doing. I feel like
+this one just wouldn't work very well as
+
+1162
+00:19:25,270 --> 00:19:25,280
+this one just wouldn't work very well as
+ 
+
+1163
+00:19:25,280 --> 00:19:26,870
+this one just wouldn't work very well as
+a car, honestly. The air is definitely
+
+1164
+00:19:26,870 --> 00:19:26,880
+a car, honestly. The air is definitely
+ 
+
+1165
+00:19:26,880 --> 00:19:28,710
+a car, honestly. The air is definitely
+flowing around it for sure, but if you
+
+1166
+00:19:28,710 --> 00:19:28,720
+flowing around it for sure, but if you
+ 
+
+1167
+00:19:28,720 --> 00:19:30,150
+flowing around it for sure, but if you
+just have a little wind gust, the car
+
+1168
+00:19:30,150 --> 00:19:30,160
+just have a little wind gust, the car
+ 
+
+1169
+00:19:30,160 --> 00:19:31,590
+just have a little wind gust, the car
+will just flip over. Let's do the lip
+
+1170
+00:19:31,590 --> 00:19:31,600
+will just flip over. Let's do the lip
+ 
+
+1171
+00:19:31,600 --> 00:19:32,950
+will just flip over. Let's do the lip
+test, though, and see if that's actually
+
+1172
+00:19:32,950 --> 00:19:32,960
+test, though, and see if that's actually
+ 
+
+1173
+00:19:32,960 --> 00:19:35,630
+test, though, and see if that's actually
+accurate.
+
+1174
+00:19:35,630 --> 00:19:35,640
+accurate.
+ 
+
+1175
+00:19:35,640 --> 00:19:39,590
+accurate.
+Uhoh. That's not good.
+
+1176
+00:19:39,590 --> 00:19:39,600
+Uhoh. That's not good.
+ 
+
+1177
+00:19:39,600 --> 00:19:41,350
+Uhoh. That's not good.
+That one's a fail, too. Unfortunately,
+
+1178
+00:19:41,350 --> 00:19:41,360
+That one's a fail, too. Unfortunately,
+ 
+
+1179
+00:19:41,360 --> 00:19:42,950
+That one's a fail, too. Unfortunately,
+don't design your car like an air foil.
+
+1180
+00:19:42,950 --> 00:19:42,960
+don't design your car like an air foil.
+ 
+
+1181
+00:19:42,960 --> 00:19:44,470
+don't design your car like an air foil.
+You don't want it to fly. That seems
+
+1182
+00:19:44,470 --> 00:19:44,480
+You don't want it to fly. That seems
+ 
+
+1183
+00:19:44,480 --> 00:19:45,510
+You don't want it to fly. That seems
+kind of obvious. We probably didn't have
+
+1184
+00:19:45,510 --> 00:19:45,520
+kind of obvious. We probably didn't have
+ 
+
+1185
+00:19:45,520 --> 00:19:47,270
+kind of obvious. We probably didn't have
+to test that. I'd give the air foil a 3
+
+1186
+00:19:47,270 --> 00:19:47,280
+to test that. I'd give the air foil a 3
+ 
+
+1187
+00:19:47,280 --> 00:19:48,789
+to test that. I'd give the air foil a 3
+out of 10. Here we have our rocket car,
+
+1188
+00:19:48,789 --> 00:19:48,799
+out of 10. Here we have our rocket car,
+ 
+
+1189
+00:19:48,799 --> 00:19:50,310
+out of 10. Here we have our rocket car,
+which sort of made sense as an idea, but
+
+1190
+00:19:50,310 --> 00:19:50,320
+which sort of made sense as an idea, but
+ 
+
+1191
+00:19:50,320 --> 00:19:52,390
+which sort of made sense as an idea, but
+not for aerodynamics because there's a
+
+1192
+00:19:52,390 --> 00:19:52,400
+not for aerodynamics because there's a
+ 
+
+1193
+00:19:52,400 --> 00:19:55,549
+not for aerodynamics because there's a
+rocket engine on the back. And
+
+1194
+00:19:55,549 --> 00:19:55,559
+rocket engine on the back. And
+ 
+
+1195
+00:19:55,559 --> 00:19:58,230
+rocket engine on the back. And
+accelerate. Ooh, I can see it going
+
+1196
+00:19:58,230 --> 00:19:58,240
+accelerate. Ooh, I can see it going
+ 
+
+1197
+00:19:58,240 --> 00:19:59,430
+accelerate. Ooh, I can see it going
+around the top and the bottom of the
+
+1198
+00:19:59,430 --> 00:19:59,440
+around the top and the bottom of the
+ 
+
+1199
+00:19:59,440 --> 00:20:00,630
+around the top and the bottom of the
+rocket. So, I think it's working pretty
+
+1200
+00:20:00,630 --> 00:20:00,640
+rocket. So, I think it's working pretty
+ 
+
+1201
+00:20:00,640 --> 00:20:02,789
+rocket. So, I think it's working pretty
+well. However, again with the symmetry,
+
+1202
+00:20:02,789 --> 00:20:02,799
+well. However, again with the symmetry,
+ 
+
+1203
+00:20:02,799 --> 00:20:04,870
+well. However, again with the symmetry,
+that's not the most ideal thing if
+
+1204
+00:20:04,870 --> 00:20:04,880
+that's not the most ideal thing if
+ 
+
+1205
+00:20:04,880 --> 00:20:06,390
+that's not the most ideal thing if
+you're going for speed. This isn't an
+
+1206
+00:20:06,390 --> 00:20:06,400
+you're going for speed. This isn't an
+ 
+
+1207
+00:20:06,400 --> 00:20:07,830
+you're going for speed. This isn't an
+aircraft. You want to actually have
+
+1208
+00:20:07,830 --> 00:20:07,840
+aircraft. You want to actually have
+ 
+
+1209
+00:20:07,840 --> 00:20:10,510
+aircraft. You want to actually have
+traction on the
+
+1210
+00:20:10,510 --> 00:20:10,520
+traction on the
+ 
+
+1211
+00:20:10,520 --> 00:20:12,870
+traction on the
+ground. I give the rocket car a 5 out of
+
+1212
+00:20:12,870 --> 00:20:12,880
+ground. I give the rocket car a 5 out of
+ 
+
+1213
+00:20:12,880 --> 00:20:14,549
+ground. I give the rocket car a 5 out of
+10. This here is probably my favorite
+
+1214
+00:20:14,549 --> 00:20:14,559
+10. This here is probably my favorite
+ 
+
+1215
+00:20:14,559 --> 00:20:16,630
+10. This here is probably my favorite
+car I've designed, the tube-shaped car.
+
+1216
+00:20:16,630 --> 00:20:16,640
+car I've designed, the tube-shaped car.
+ 
+
+1217
+00:20:16,640 --> 00:20:18,390
+car I've designed, the tube-shaped car.
+The idea with this one is the air will
+
+1218
+00:20:18,390 --> 00:20:18,400
+The idea with this one is the air will
+ 
+
+1219
+00:20:18,400 --> 00:20:20,230
+The idea with this one is the air will
+just go straight through. Bound to be a
+
+1220
+00:20:20,230 --> 00:20:20,240
+just go straight through. Bound to be a
+ 
+
+1221
+00:20:20,240 --> 00:20:21,909
+just go straight through. Bound to be a
+very windy ride. Speed of that air is
+
+1222
+00:20:21,909 --> 00:20:21,919
+very windy ride. Speed of that air is
+ 
+
+1223
+00:20:21,919 --> 00:20:24,510
+very windy ride. Speed of that air is
+going to be blasting at the guy's face.
+
+1224
+00:20:24,510 --> 00:20:24,520
+going to be blasting at the guy's face.
+ 
+
+1225
+00:20:24,520 --> 00:20:28,149
+going to be blasting at the guy's face.
+So, take a huff. Whoa, that's sick. Look
+
+1226
+00:20:28,149 --> 00:20:28,159
+So, take a huff. Whoa, that's sick. Look
+ 
+
+1227
+00:20:28,159 --> 00:20:29,270
+So, take a huff. Whoa, that's sick. Look
+at that. It's just flowing right
+
+1228
+00:20:29,270 --> 00:20:29,280
+at that. It's just flowing right
+ 
+
+1229
+00:20:29,280 --> 00:20:31,350
+at that. It's just flowing right
+through. But again, if you have just the
+
+1230
+00:20:31,350 --> 00:20:31,360
+through. But again, if you have just the
+ 
+
+1231
+00:20:31,360 --> 00:20:32,710
+through. But again, if you have just the
+wrong angle of air, it could actually
+
+1232
+00:20:32,710 --> 00:20:32,720
+wrong angle of air, it could actually
+ 
+
+1233
+00:20:32,720 --> 00:20:34,789
+wrong angle of air, it could actually
+lift up the top of that tube and you'd
+
+1234
+00:20:34,789 --> 00:20:34,799
+lift up the top of that tube and you'd
+ 
+
+1235
+00:20:34,799 --> 00:20:37,630
+lift up the top of that tube and you'd
+go
+
+1236
+00:20:37,630 --> 00:20:37,640
+
+ 
+
+1237
+00:20:37,640 --> 00:20:41,510
+
+flying. Oh, that's not good. Oh, no. Oh,
+
+1238
+00:20:41,510 --> 00:20:41,520
+flying. Oh, that's not good. Oh, no. Oh,
+ 
+
+1239
+00:20:41,520 --> 00:20:42,960
+flying. Oh, that's not good. Oh, no. Oh,
+that's terrible.
+
+1240
+00:20:42,960 --> 00:20:42,970
+that's terrible.
+ 
+
+1241
+00:20:42,970 --> 00:20:44,870
+that's terrible.
+[Music]
+
+1242
+00:20:44,870 --> 00:20:44,880
+[Music]
+ 
+
+1243
+00:20:44,880 --> 00:20:47,029
+[Music]
+Yeah, it's gone. If you were in a car
+
+1244
+00:20:47,029 --> 00:20:47,039
+Yeah, it's gone. If you were in a car
+ 
+
+1245
+00:20:47,039 --> 00:20:48,549
+Yeah, it's gone. If you were in a car
+driving like this and then you flipped
+
+1246
+00:20:48,549 --> 00:20:48,559
+driving like this and then you flipped
+ 
+
+1247
+00:20:48,559 --> 00:20:50,070
+driving like this and then you flipped
+over, that's like a double whammy. So,
+
+1248
+00:20:50,070 --> 00:20:50,080
+over, that's like a double whammy. So,
+ 
+
+1249
+00:20:50,080 --> 00:20:51,830
+over, that's like a double whammy. So,
+the tube car is a fail. I'm going to
+
+1250
+00:20:51,830 --> 00:20:51,840
+the tube car is a fail. I'm going to
+ 
+
+1251
+00:20:51,840 --> 00:20:54,710
+the tube car is a fail. I'm going to
+call this one like the Spongebob car.
+
+1252
+00:20:54,710 --> 00:20:54,720
+call this one like the Spongebob car.
+ 
+
+1253
+00:20:54,720 --> 00:20:56,230
+call this one like the Spongebob car.
+The idea for this is that the air would
+
+1254
+00:20:56,230 --> 00:20:56,240
+The idea for this is that the air would
+ 
+
+1255
+00:20:56,240 --> 00:20:57,830
+The idea for this is that the air would
+just go right around the sides and kind
+
+1256
+00:20:57,830 --> 00:20:57,840
+just go right around the sides and kind
+ 
+
+1257
+00:20:57,840 --> 00:20:59,590
+just go right around the sides and kind
+of bounce off, but it's also perfectly
+
+1258
+00:20:59,590 --> 00:20:59,600
+of bounce off, but it's also perfectly
+ 
+
+1259
+00:20:59,600 --> 00:21:02,070
+of bounce off, but it's also perfectly
+flat, unlike a regular saucer. I like to
+
+1260
+00:21:02,070 --> 00:21:02,080
+flat, unlike a regular saucer. I like to
+ 
+
+1261
+00:21:02,080 --> 00:21:04,070
+flat, unlike a regular saucer. I like to
+fill it up first and then take off cuz
+
+1262
+00:21:04,070 --> 00:21:04,080
+fill it up first and then take off cuz
+ 
+
+1263
+00:21:04,080 --> 00:21:06,310
+fill it up first and then take off cuz
+it just looks sick. It looks like the
+
+1264
+00:21:06,310 --> 00:21:06,320
+it just looks sick. It looks like the
+ 
+
+1265
+00:21:06,320 --> 00:21:07,990
+it just looks sick. It looks like the
+car is moving cuz the atmosphere stays
+
+1266
+00:21:07,990 --> 00:21:08,000
+car is moving cuz the atmosphere stays
+ 
+
+1267
+00:21:08,000 --> 00:21:09,430
+car is moving cuz the atmosphere stays
+in the same place, but okay. Yeah. So,
+
+1268
+00:21:09,430 --> 00:21:09,440
+in the same place, but okay. Yeah. So,
+ 
+
+1269
+00:21:09,440 --> 00:21:10,549
+in the same place, but okay. Yeah. So,
+for this one, it's definitely going
+
+1270
+00:21:10,549 --> 00:21:10,559
+for this one, it's definitely going
+ 
+
+1271
+00:21:10,559 --> 00:21:12,230
+for this one, it's definitely going
+around the edges. It's also catching a
+
+1272
+00:21:12,230 --> 00:21:12,240
+around the edges. It's also catching a
+ 
+
+1273
+00:21:12,240 --> 00:21:13,510
+around the edges. It's also catching a
+lot of it underneath. I think it's
+
+1274
+00:21:13,510 --> 00:21:13,520
+lot of it underneath. I think it's
+ 
+
+1275
+00:21:13,520 --> 00:21:15,430
+lot of it underneath. I think it's
+actually coming up through the cabin.
+
+1276
+00:21:15,430 --> 00:21:15,440
+actually coming up through the cabin.
+ 
+
+1277
+00:21:15,440 --> 00:21:17,029
+actually coming up through the cabin.
+The windscreen's also not bad. That's a
+
+1278
+00:21:17,029 --> 00:21:17,039
+The windscreen's also not bad. That's a
+ 
+
+1279
+00:21:17,039 --> 00:21:18,470
+The windscreen's also not bad. That's a
+very aerodynamic windscreen. I'd give
+
+1280
+00:21:18,470 --> 00:21:18,480
+very aerodynamic windscreen. I'd give
+ 
+
+1281
+00:21:18,480 --> 00:21:19,750
+very aerodynamic windscreen. I'd give
+this one probably the lowest of the
+
+1282
+00:21:19,750 --> 00:21:19,760
+this one probably the lowest of the
+ 
+
+1283
+00:21:19,760 --> 00:21:21,510
+this one probably the lowest of the
+video. Three out of 10. Let's see the
+
+1284
+00:21:21,510 --> 00:21:21,520
+video. Three out of 10. Let's see the
+ 
+
+1285
+00:21:21,520 --> 00:21:22,990
+video. Three out of 10. Let's see the
+lift test here.
+
+1286
+00:21:22,990 --> 00:21:23,000
+lift test here.
+ 
+
+1287
+00:21:23,000 --> 00:21:25,470
+lift test here.
+139
+
+1288
+00:21:25,470 --> 00:21:25,480
+139
+ 
+
+1289
+00:21:25,480 --> 00:21:31,789
+139
+146
+
+1290
+00:21:31,789 --> 00:21:31,799
+
+ 
+
+1291
+00:21:31,799 --> 00:21:33,789
+
+150
+
+1292
+00:21:33,789 --> 00:21:33,799
+150
+ 
+
+1293
+00:21:33,799 --> 00:21:36,710
+150
+O. Well, on that note, now we know what
+
+1294
+00:21:36,710 --> 00:21:36,720
+O. Well, on that note, now we know what
+ 
+
+1295
+00:21:36,720 --> 00:21:38,870
+O. Well, on that note, now we know what
+shapes not to use for Lego cars. Huge
+
+1296
+00:21:38,870 --> 00:21:38,880
+shapes not to use for Lego cars. Huge
+ 
+
+1297
+00:21:38,880 --> 00:21:39,990
+shapes not to use for Lego cars. Huge
+thanks for watching, guys. Check out one
+
+1298
+00:21:39,990 --> 00:21:40,000
+thanks for watching, guys. Check out one
+ 
+
+1299
+00:21:40,000 --> 00:21:41,350
+thanks for watching, guys. Check out one
+of these two videos. This one is where
+
+1300
+00:21:41,350 --> 00:21:41,360
+of these two videos. This one is where
+ 
+
+1301
+00:21:41,360 --> 00:21:43,350
+of these two videos. This one is where
+we crash tested Lego cars, and this one
+
+1302
+00:21:43,350 --> 00:21:43,360
+we crash tested Lego cars, and this one
+ 
+
+1303
+00:21:43,360 --> 00:21:44,789
+we crash tested Lego cars, and this one
+YouTube recommends just for you. I'll
+
+1304
+00:21:44,789 --> 00:21:44,799
+YouTube recommends just for you. I'll
+ 
+
+1305
+00:21:44,799 --> 00:21:48,159
+YouTube recommends just for you. I'll
+talk to you in the next one. See you.
+

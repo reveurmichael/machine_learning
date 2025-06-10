@@ -1,0 +1,95 @@
+1
+00:00:00,120 --> 00:00:02,550
+
+if you shoot a gun with a smart bullet
+
+2
+00:00:02,550 --> 00:00:02,560
+if you shoot a gun with a smart bullet
+ 
+
+3
+00:00:02,560 --> 00:00:05,749
+if you shoot a gun with a smart bullet
+inside it can actually change direction
+
+4
+00:00:05,749 --> 00:00:05,759
+inside it can actually change direction
+ 
+
+5
+00:00:05,759 --> 00:00:08,350
+inside it can actually change direction
+after being fired it works because of
+
+6
+00:00:08,350 --> 00:00:08,360
+after being fired it works because of
+ 
+
+7
+00:00:08,360 --> 00:00:11,190
+after being fired it works because of
+tiny sensors on the inside that gather
+
+8
+00:00:11,190 --> 00:00:11,200
+tiny sensors on the inside that gather
+ 
+
+9
+00:00:11,200 --> 00:00:13,549
+tiny sensors on the inside that gather
+data about the bullet's surroundings
+
+10
+00:00:13,549 --> 00:00:13,559
+data about the bullet's surroundings
+ 
+
+11
+00:00:13,559 --> 00:00:16,269
+data about the bullet's surroundings
+once the target is identified the sensor
+
+12
+00:00:16,269 --> 00:00:16,279
+once the target is identified the sensor
+ 
+
+13
+00:00:16,279 --> 00:00:19,429
+once the target is identified the sensor
+rapidly sends information to Tiny fins
+
+14
+00:00:19,429 --> 00:00:19,439
+rapidly sends information to Tiny fins
+ 
+
+15
+00:00:19,439 --> 00:00:22,349
+rapidly sends information to Tiny fins
+on the body of the bullet and these fins
+
+16
+00:00:22,349 --> 00:00:22,359
+on the body of the bullet and these fins
+ 
+
+17
+00:00:22,359 --> 00:00:25,269
+on the body of the bullet and these fins
+adjust changing the flight path midair
+
+18
+00:00:25,269 --> 00:00:25,279
+adjust changing the flight path midair
+ 
+
+19
+00:00:25,279 --> 00:00:28,760
+adjust changing the flight path midair
+to hit the target
+

@@ -319,41 +319,42 @@ def preprocess_json_string(json_str):
     return ''.join(result)
 
 def validate_json_format(data):
-    """Validate that data contains the expected format for the game.
+    """Validate the format of extracted JSON data.
     
     Args:
-        data: Parsed JSON data
+        data: JSON data to validate
         
     Returns:
-        Tuple of (is_valid, message) where:
-            is_valid: Boolean indicating if the data is valid
-            message: Error message if not valid, None otherwise
+        Tuple of (is_valid, error_message)
     """
     if not isinstance(data, dict):
-        print(f"JSON validation error: Data is not a dictionary, it's {type(data)}")
         return False, "Data is not a dictionary"
     
     if "moves" not in data:
-        print(f"JSON validation error: Missing 'moves' key in {data.keys()}")
-        return False, "Missing 'moves' key"
+        return False, "Data does not contain 'moves' key"
     
-    if not isinstance(data["moves"], list):
-        print(f"JSON validation error: Moves is not a list, it's {type(data['moves'])}")
-        return False, "Moves is not a list"
+    moves = data["moves"]
+    if not isinstance(moves, list):
+        return False, "'moves' is not a list"
     
-    # Validate moves
-    valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
-    for i, move in enumerate(data["moves"]):
-        if not isinstance(move, str):
-            print(f"JSON validation error: Move {i} is not a string, it's {type(move)}")
-            return False, f"Move {i} is not a string"
-        
-        move_upper = move.upper()
-        if move_upper not in valid_moves:
-            print(f"JSON validation error: Invalid move: '{move}' (upper: '{move_upper}'), valid moves are {valid_moves}")
-            return False, f"Invalid move: {move}"
+    # Convert all moves to uppercase for case insensitivity
+    valid_directions = ["UP", "DOWN", "LEFT", "RIGHT"]
+    for i, move in enumerate(moves):
+        if isinstance(move, str):
+            # Convert to uppercase
+            moves[i] = move.upper()
+        else:
+            return False, f"Move '{move}' is not a string"
     
-    return True, None
+    # Validate each move is a valid direction
+    for move in moves:
+        if move not in valid_directions:
+            return False, f"Invalid move direction: '{move}'"
+    
+    # Update data with uppercase moves
+    data["moves"] = moves
+    
+    return True, ""
 
 def extract_json_from_code_block(response):
     """Extract JSON data from a code block in the response.

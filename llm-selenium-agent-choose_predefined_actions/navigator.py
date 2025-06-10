@@ -10,7 +10,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 from typing import Dict, Any, List, Optional
 from colorama import Fore, Back, Style, init
-import pyfiglet
 
 from selenium_driver import SeleniumDriver
 from llm_client import LLMClient
@@ -22,6 +21,38 @@ from config import (
 
 # Initialize colorama
 init(autoreset=True)
+
+
+# Colored output helper functions
+def print_message(message):
+    """Print informational message in cyan."""
+    print(f"{message}")
+
+
+def print_info(message):
+    """Print informational message in cyan."""
+    print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
+
+
+def print_success(message):
+    """Print success message in green."""
+    print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+
+
+def print_important(message):
+    """Print success message in green."""
+    print(f"{Fore.MAGENTA}{message}{Style.RESET_ALL}")
+
+
+def print_warning(message):
+    """Print warning message in yellow."""
+    print(f"{Fore.YELLOW}{message}{Style.RESET_ALL}")
+
+
+def print_error(message):
+    """Print error message in red."""
+    print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -88,11 +119,10 @@ class QuotesNavigator:
         Returns:
             The user's input rule
         """
-        print(Fore.CYAN + "\n" + "=" * 50)
-        title = pyfiglet.figlet_format("User Input", font="small")
-        print(Fore.MAGENTA + title)
-        print(Fore.CYAN + "=" * 50)
-        print(Fore.YELLOW + "Enter your new rule (this will be treated as HIGHEST PRIORITY command):")
+        print_info("\n" + "=" * 50)
+        print_important("USER INPUT")
+        print_info("=" * 50)
+        print_warning("Enter your new rule (this will be treated as HIGHEST PRIORITY command):")
         
         user_input = input(Fore.GREEN + "> " + Style.RESET_ALL)
         
@@ -216,11 +246,10 @@ class QuotesNavigator:
         action = action_data["action"]
         
         # Print reason before action execution
-        print(Fore.CYAN + f"Reason: {action_data['reason']}")
+        print_info(f"Reason: {action_data['reason']}")
         
-        # Format action as ASCII art
-        action_banner = pyfiglet.figlet_format(f"Action: {action}", font="small")
-        print(Fore.GREEN + action_banner)
+        # Print action
+        print_success("ACTION: " + action)
         
         # Update last action
         self.last_action = action
@@ -235,7 +264,7 @@ class QuotesNavigator:
         elif action == "VISIT_AUTHOR_PAGE":
             author = action_data["details"]
             if author.lower() == "none" or not author:
-                print(Fore.RED + "No specific author specified. Cannot visit author page.")
+                print_error("No specific author specified. Cannot visit author page.")
                 return True
             
             return self.selenium_driver.visit_author_page(author)
@@ -243,40 +272,39 @@ class QuotesNavigator:
         elif action == "FILTER_BY_TAG":
             tag = action_data["details"]
             if tag.lower() == "none" or not tag:
-                print(Fore.RED + "No specific tag specified. Cannot filter by tag.")
+                print_error("No specific tag specified. Cannot filter by tag.")
                 return True
             
             return self.selenium_driver.filter_by_tag(tag)
         
         elif action == "LOGIN":
             if self.selenium_driver.logged_in:
-                print(Fore.YELLOW + "Already logged in.")
+                print_warning("Already logged in.")
                 return True
             
             # Add special highlighting for login
-            print(Fore.YELLOW + Back.BLUE + "=" * 50)
-            login_banner = pyfiglet.figlet_format("LOGIN", font="slant")
-            print(Fore.YELLOW + Back.BLUE + login_banner)
-            print(Fore.YELLOW + Back.BLUE + "=" * 50)
+            print_warning("=" * 50)
+            print_important("LOGIN")
+            print_warning("=" * 50)
             
             login_success = self.selenium_driver.login()
             
             # Report login result
             if login_success:
-                print(Fore.GREEN + "LOGIN SUCCESSFUL!")
+                print_success("LOGIN SUCCESSFUL!")
             else:
-                print(Fore.RED + "LOGIN FAILED!")
+                print_error("LOGIN FAILED!")
             
             return login_success
         
         elif action == "LOGOUT":
             if not self.selenium_driver.logged_in:
-                print(Fore.YELLOW + "Not currently logged in.")
+                print_warning("Not currently logged in.")
                 return False
             
             return self.selenium_driver.logout_from_site()
         else:
-            print(Fore.RED + f"Unknown action: {action}")
+            print_error(f"Unknown action: {action}")
             return False
     
     def run(self, max_actions: int = DEFAULT_MAX_ACTIONS) -> None:
@@ -285,12 +313,11 @@ class QuotesNavigator:
         Args:
             max_actions: Maximum number of actions to take
         """
-        # Create fancy title
-        title = pyfiglet.figlet_format("LLM Web Navigator", font="slant")
-        print(Fore.MAGENTA + title)
-        print(Fore.CYAN + "=" * 60)
-        print(Fore.YELLOW + f"Starting LLM-guided website navigation using {self.provider}")
-        print(Fore.CYAN + "=" * 60 + "\n")
+        # Create title
+        print_important("LLM WEB NAVIGATOR")
+        print_info("=" * 60)
+        print_warning(f"Starting LLM-guided website navigation using {self.provider}")
+        print_info("=" * 60 + "\n")
         
         try:
             # Start the navigation session
@@ -306,20 +333,20 @@ class QuotesNavigator:
             while action_count < max_actions:
                 # Display progress
                 progress = f"Action {action_count + 1}/{max_actions}"
-                print(Fore.CYAN + "\n" + "=" * 60)
-                print(Fore.YELLOW + Style.BRIGHT + progress.center(60))
-                print(Fore.CYAN + "=" * 60)
+                print_info("\n" + "=" * 60)
+                print_warning(Style.BRIGHT + progress.center(60))
+                print_info("=" * 60)
                 
                 # After every two actions, get new rule from user
                 if action_count > 0 and action_count % 2 == 0:
                     self.user_rule = self.get_user_rule()
-                    print(Fore.YELLOW + f"New user rule: {self.user_rule}")
+                    print_warning(f"New user rule: {self.user_rule}")
                 
                 # Get guidance from LLM
                 guidance = self.consult_llm(action_count + 1, max_actions)
                 
                 # Execute the suggested action
-                print(Fore.YELLOW + f"LLM suggests: {guidance['action']}")
+                print_warning(f"LLM suggests: {guidance['action']}")
                 
                 success = self.execute_action(guidance)
                 
@@ -331,18 +358,17 @@ class QuotesNavigator:
                 
                 # Check if we should stop
                 if not success:
-                    print(Fore.RED + "Stopping navigation process as recommended by LLM or due to action failure.")
+                    print_error("Stopping navigation process as recommended by LLM or due to action failure.")
                     break
             
             # Navigation complete
-            completion_banner = pyfiglet.figlet_format("Done!", font="big")
-            print(Fore.GREEN + completion_banner)
-            print(Fore.YELLOW + f"Executed {action_count} actions")
+            print_success("DONE!")
+            print_warning(f"Executed {action_count} actions")
             
         except KeyboardInterrupt:
-            print(Fore.RED + "\nNavigation interrupted by user.")
+            print_error("\nNavigation interrupted by user.")
         except Exception as e:
-            print(Fore.RED + f"\nError during navigation: {e}")
+            print_error(f"\nError during navigation: {e}")
         finally:
             # Always clean up
             self.stop()

@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-06 00:29:06
+SECONDARY LLM Response Time: 2025-06-06 00:29:15
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (6, 9)
+Apple Position: (6, 4)
+Body Cells: [(5, 9), (5, 8), (6, 8), (7, 8), (7, 7), (6, 7)]
+Timestamp: 2025-06-06 00:29:15
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["right", "right"],
+  "reasoning": "The snake starts at (6,9) and the apple is at (6,4). The initial moves should be right to avoid collision and continue towards the apple."
+}
+```

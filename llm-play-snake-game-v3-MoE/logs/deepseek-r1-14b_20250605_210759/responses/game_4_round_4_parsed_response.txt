@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-05 22:03:59
+SECONDARY LLM Response Time: 2025-06-05 22:04:04
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (1, 8)
+Apple Position: (7, 8)
+Body Cells: [(1, 7), (1, 6), (1, 5)]
+Timestamp: 2025-06-05 22:04:04
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+"moves": ["RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+"reasoning": "The snake moves directly to the right six times to reach the apple at (7,8) without colliding with its body or grid boundaries. Each move is safe as the body follows and does not obstruct the path."
+}
+```

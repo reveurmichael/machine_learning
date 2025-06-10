@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-06 00:09:16
+SECONDARY LLM Response Time: 2025-06-06 00:09:22
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (6, 9)
+Apple Position: (8, 9)
+Body Cells: [(6, 8), (6, 7), (6, 6), (6, 5), (6, 4), (7, 4), (8, 4), (9, 4), (9, 5)]
+Timestamp: 2025-06-06 00:09:22
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["right", "right"],
+  "reasoning": "The snake needs to make two consecutive right moves to reach the apple at (8,9) from its starting position at (6,9). This path avoids collisions and ensures there's a next move after eating the apple."
+}
+```

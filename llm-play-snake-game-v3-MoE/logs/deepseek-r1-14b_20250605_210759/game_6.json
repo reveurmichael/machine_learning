@@ -1,0 +1,696 @@
+{
+  "score": 2,
+  "steps": 30,
+  "snake_length": 3,
+  "game_over": true,
+  "game_end_reason": "WALL",
+  "round_count": 11,
+  "time_stats": {
+    "start_time": "2025-06-05 22:48:48",
+    "end_time": "2025-06-05 23:14:14",
+    "total_duration_seconds": 1526.2354454994202,
+    "llm_communication_time": 1526.1849918365479,
+    "game_movement_time": 0.0428919792175293,
+    "waiting_time": 3.814697265625e-05,
+    "other_time": 0.007523536682128906,
+    "llm_communication_percent": 99.99669424117877,
+    "game_movement_percent": 0.002810312088086385,
+    "waiting_percent": 2.4994159825561783e-06,
+    "other_percent": 0.0004929473171596423
+  },
+  "llm_info": {
+    "primary_provider": "ollama",
+    "primary_model": "deepseek-r1:14b",
+    "parser_provider": "ollama",
+    "parser_model": "gemma2:9b"
+  },
+  "prompt_response_stats": {
+    "avg_primary_response_time": 132.74596773494375,
+    "min_primary_response_time": 97.4447648525238,
+    "max_primary_response_time": 199.231999874115,
+    "avg_secondary_response_time": 5.987765658985484,
+    "min_secondary_response_time": 5.491189241409302,
+    "max_secondary_response_time": 6.940215826034546
+  },
+  "token_stats": {
+    "primary": {
+      "total_tokens": 77040,
+      "total_prompt_tokens": 22533,
+      "total_completion_tokens": 54507,
+      "avg_total_tokens": 7003.636363636364,
+      "avg_prompt_tokens": 2048.4545454545455,
+      "avg_completion_tokens": 4955.181818181818,
+      "request_count": 11
+    },
+    "secondary": {
+      "total_tokens": 45861,
+      "total_prompt_tokens": 45056,
+      "total_completion_tokens": 805,
+      "avg_total_tokens": 4169.181818181818,
+      "avg_prompt_tokens": 4096.0,
+      "avg_completion_tokens": 73.18181818181819,
+      "request_count": 11
+    }
+  },
+  "step_stats": {
+    "valid_steps": 30,
+    "empty_steps": 0,
+    "error_steps": 0,
+    "invalid_reversals": 1,
+    "max_consecutive_empty_moves_reached": 0
+  },
+  "error_stats": {
+    "total_errors_from_primary_llm": 0,
+    "total_errors_from_secondary_llm": 0,
+    "error_rate_from_primary_llm": 0.0,
+    "error_rate_from_secondary_llm": 0.0
+  },
+  "json_parsing_stats": {
+    "total_extraction_attempts": 33,
+    "successful_extractions": 11,
+    "success_rate": 33.33333333333333,
+    "failed_extractions": 22,
+    "failure_rate": 66.66666666666666,
+    "json_decode_errors": 11,
+    "format_validation_errors": 0,
+    "code_block_extraction_errors": 0,
+    "text_extraction_errors": 0,
+    "pattern_extraction_success": 0
+  },
+  "metadata": {
+    "game_number": 1,
+    "timestamp": "2025-06-05 22:48:48",
+    "last_move": "RIGHT",
+    "round_count": 11,
+    "max_empty_moves_allowed": 3,
+    "max_consecutive_errors_allowed": 20,
+    "parser_usage_count": 11
+  },
+  "primary_token_stats": [
+    {
+      "prompt_tokens": 2028,
+      "completion_tokens": 4139,
+      "total_tokens": 6167
+    },
+    {
+      "prompt_tokens": 2032,
+      "completion_tokens": 4331,
+      "total_tokens": 6363
+    },
+    {
+      "prompt_tokens": 2037,
+      "completion_tokens": 4093,
+      "total_tokens": 6130
+    },
+    {
+      "prompt_tokens": 2042,
+      "completion_tokens": 6631,
+      "total_tokens": 8673
+    },
+    {
+      "prompt_tokens": 2042,
+      "completion_tokens": 3722,
+      "total_tokens": 5764
+    },
+    {
+      "prompt_tokens": 2047,
+      "completion_tokens": 5089,
+      "total_tokens": 7136
+    },
+    {
+      "prompt_tokens": 2052,
+      "completion_tokens": 7496,
+      "total_tokens": 9548
+    },
+    {
+      "prompt_tokens": 2057,
+      "completion_tokens": 3612,
+      "total_tokens": 5669
+    },
+    {
+      "prompt_tokens": 2062,
+      "completion_tokens": 5502,
+      "total_tokens": 7564
+    },
+    {
+      "prompt_tokens": 2067,
+      "completion_tokens": 3897,
+      "total_tokens": 5964
+    },
+    {
+      "prompt_tokens": 2067,
+      "completion_tokens": 5995,
+      "total_tokens": 8062
+    }
+  ],
+  "secondary_token_stats": [
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 72,
+      "total_tokens": 4168
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 80,
+      "total_tokens": 4176
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 72,
+      "total_tokens": 4168
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 103,
+      "total_tokens": 4199
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 49,
+      "total_tokens": 4145
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 65,
+      "total_tokens": 4161
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 125,
+      "total_tokens": 4221
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 61,
+      "total_tokens": 4157
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 51,
+      "total_tokens": 4147
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 46,
+      "total_tokens": 4142
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 81,
+      "total_tokens": 4177
+    }
+  ],
+  "detailed_history": {
+    "apple_positions": [
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 8,
+        "y": 1
+      },
+      {
+        "x": 9,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 9,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 7,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ],
+    "moves": [
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "LEFT",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "DOWN",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "RIGHT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "left",
+      "left",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "UP"
+    ],
+    "rounds_data": {
+      "round_1": {
+        "apple_position": [
+          3,
+          2
+        ],
+        "moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "LEFT",
+          "LEFT"
+        ],
+        "primary_response_times": [
+          111.36809992790222
+        ],
+        "secondary_response_times": [
+          5.972931146621704
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2028,
+            "completion_tokens": 4139,
+            "total_tokens": 6167
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 72,
+            "total_tokens": 4168
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_2": {
+        "apple_position": [
+          8,
+          1
+        ],
+        "moves": [
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          116.41569519042969
+        ],
+        "secondary_response_times": [
+          6.1280295848846436
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2032,
+            "completion_tokens": 4331,
+            "total_tokens": 6363
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 80,
+            "total_tokens": 4176
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_3": {
+        "apple_position": [
+          9,
+          6
+        ],
+        "moves": [
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          110.10650706291199
+        ],
+        "secondary_response_times": [
+          5.9582884311676025
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2037,
+            "completion_tokens": 4093,
+            "total_tokens": 6130
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 72,
+            "total_tokens": 4168
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_4": {
+        "apple_position": [
+          2,
+          4
+        ],
+        "moves": [
+          "LEFT",
+          "DOWN",
+          "LEFT",
+          "DOWN",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          176.88334560394287
+        ],
+        "secondary_response_times": [
+          6.527831315994263
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2042,
+            "completion_tokens": 6631,
+            "total_tokens": 8673
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 103,
+            "total_tokens": 4199
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_5": {
+        "apple_position": [
+          2,
+          4
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          100.51178503036499
+        ],
+        "secondary_response_times": [
+          5.533872842788696
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2042,
+            "completion_tokens": 3722,
+            "total_tokens": 5764
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 49,
+            "total_tokens": 4145
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_6": {
+        "apple_position": [
+          0,
+          3
+        ],
+        "moves": [
+          "LEFT",
+          "DOWN",
+          "LEFT"
+        ],
+        "primary_response_times": [
+          136.3711199760437
+        ],
+        "secondary_response_times": [
+          5.834326982498169
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2047,
+            "completion_tokens": 5089,
+            "total_tokens": 7136
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 65,
+            "total_tokens": 4161
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_7": {
+        "apple_position": [
+          9,
+          3
+        ],
+        "moves": [
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "RIGHT",
+          "UP",
+          "RIGHT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          199.231999874115
+        ],
+        "secondary_response_times": [
+          6.940215826034546
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2052,
+            "completion_tokens": 7496,
+            "total_tokens": 9548
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 125,
+            "total_tokens": 4221
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_8": {
+        "apple_position": [
+          6,
+          4
+        ],
+        "moves": [
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT"
+        ],
+        "primary_response_times": [
+          97.4447648525238
+        ],
+        "secondary_response_times": [
+          5.767260313034058
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2057,
+            "completion_tokens": 3612,
+            "total_tokens": 5669
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 61,
+            "total_tokens": 4157
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_9": {
+        "apple_position": [
+          7,
+          2
+        ],
+        "moves": [
+          "DOWN",
+          "RIGHT",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          146.91669487953186
+        ],
+        "secondary_response_times": [
+          5.578104734420776
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2062,
+            "completion_tokens": 5502,
+            "total_tokens": 7564
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 51,
+            "total_tokens": 4147
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_10": {
+        "apple_position": [
+          3,
+          6
+        ],
+        "moves": [
+          "left",
+          "left"
+        ],
+        "primary_response_times": [
+          104.9822723865509
+        ],
+        "secondary_response_times": [
+          5.491189241409302
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2067,
+            "completion_tokens": 3897,
+            "total_tokens": 5964
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 46,
+            "total_tokens": 4142
+          }
+        ],
+        "invalid_reversals": []
+      },
+      "round_11": {
+        "apple_position": [
+          3,
+          6
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          159.9733603000641
+        ],
+        "secondary_response_times": [
+          6.133371829986572
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2067,
+            "completion_tokens": 5995,
+            "total_tokens": 8062
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 81,
+            "total_tokens": 4177
+          }
+        ],
+        "invalid_reversals": []
+      }
+    }
+  }
+}

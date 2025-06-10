@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-05 21:43:22
+SECONDARY LLM Response Time: 2025-06-05 21:43:28
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (6, 1)
+Apple Position: (1, 7)
+Body Cells: [(6, 2), (5, 2)]
+Timestamp: 2025-06-05 21:43:28
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT", "UP", "LEFT"],
+  "reasoning": "Moving RIGHT first allows the snake to position itself away from its body and towards a path that leads upwards towards the apple. Subsequently, moving UP and then LEFT helps navigate closer to the target without colliding with the snake's own body."
+}
+```

@@ -1,0 +1,22 @@
+SECONDARY LLM Request Time: 2025-06-05 23:22:14
+SECONDARY LLM Response Time: 2025-06-05 23:22:20
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (6, 0)
+Apple Position: (6, 0)
+Body Cells: [(6, 1), (6, 2), (6, 3)]
+Timestamp: 2025-06-05 23:22:20
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["LEFT"],
+  "reasoning": "Moving LEFT to (5,0) is safe and avoids collision with body segments."
+}
+``` 
+
+
+
+

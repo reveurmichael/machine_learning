@@ -1,0 +1,30 @@
+SECONDARY LLM Request Time: 2025-06-05 21:38:35
+SECONDARY LLM Response Time: 2025-06-05 21:38:42
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (0, 5)
+Apple Position: (6, 0)
+Body Cells: [(1, 5), (2, 5), (2, 4), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3), (7, 3), (8, 3), (8, 4)]
+Timestamp: 2025-06-05 21:38:42
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": [
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN"
+  ],
+  "reasoning": "The shortest path is to move right six times and then down five times." 
+}
+```

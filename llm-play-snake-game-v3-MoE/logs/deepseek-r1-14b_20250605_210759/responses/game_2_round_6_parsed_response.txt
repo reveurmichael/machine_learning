@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-05 21:49:26
+SECONDARY LLM Response Time: 2025-06-05 21:49:31
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma2:9b
+Head Position: (4, 7)
+Apple Position: (4, 3)
+Body Cells: [(3, 7), (2, 7), (1, 7), (1, 6)]
+Timestamp: 2025-06-05 21:49:31
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The shortest path to the apple is four consecutive DOWN moves." 
+}
+```

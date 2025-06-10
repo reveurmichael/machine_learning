@@ -319,39 +319,39 @@ def preprocess_json_string(json_str):
     return ''.join(result)
 
 def validate_json_format(data):
-    """Validate that data contains the expected format for the game.
+    """Validate that the JSON data has the expected format.
     
     Args:
-        data: Parsed JSON data
+        data: JSON data to validate
         
     Returns:
-        Tuple of (is_valid, message) where:
-            is_valid: Boolean indicating if the data is valid
-            message: Error message if not valid, None otherwise
+        (is_valid, error_message) tuple. If is_valid is False, error_message
+        contains a description of the error.
     """
     if not isinstance(data, dict):
-        print(f"JSON validation error: Data is not a dictionary, it's {type(data)}")
-        return False, "Data is not a dictionary"
-    
-    if "moves" not in data:
-        print(f"JSON validation error: Missing 'moves' key in {data.keys()}")
-        return False, "Missing 'moves' key"
-    
-    if not isinstance(data["moves"], list):
-        print(f"JSON validation error: Moves is not a list, it's {type(data['moves'])}")
-        return False, "Moves is not a list"
-    
-    # Validate moves
-    valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
-    for i, move in enumerate(data["moves"]):
-        if not isinstance(move, str):
-            print(f"JSON validation error: Move {i} is not a string, it's {type(move)}")
-            return False, f"Move {i} is not a string"
+        return False, "JSON data is not a dictionary"
         
+    if "moves" not in data:
+        return False, "JSON data does not contain a 'moves' key"
+        
+    if not isinstance(data["moves"], list):
+        return False, "The 'moves' field is not a list"
+        
+    # Validate all moves are valid directions
+    valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
+    
+    for move in data["moves"]:
+        if not isinstance(move, str):
+            return False, f"Move is not a string: {move}"
+        
+        # Convert move to uppercase for case-insensitive validation
         move_upper = move.upper()
         if move_upper not in valid_moves:
             print(f"JSON validation error: Invalid move: '{move}' (upper: '{move_upper}'), valid moves are {valid_moves}")
             return False, f"Invalid move: {move}"
+    
+    # Standardize all moves to uppercase
+    data["moves"] = [move.upper() for move in data["moves"]]
     
     return True, None
 
@@ -619,8 +619,13 @@ def extract_moves_pattern(json_str):
         moves_array = moves_array_match.group(1)
         # Extract valid move strings
         move_matches = re.findall(r'["\']([^"\']+)["\']', moves_array)
-        valid_moves = [move.upper() for move in move_matches 
-                      if move.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        
+        # Convert all moves to uppercase for case-insensitive validation
+        valid_moves = []
+        for move in move_matches:
+            move_upper = move.upper()
+            if move_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                valid_moves.append(move_upper)
     
         if valid_moves:
             json_error_stats["pattern_extraction_success"] += 1
@@ -646,9 +651,12 @@ def extract_moves_from_arrays(response):
         # Extract quoted strings
         quoted_items = re.findall(r'["\']([^"\']+)["\']', array_str)
         
-        # Check if these are valid moves
-        valid_moves = [item.upper() for item in quoted_items 
-                      if item.upper() in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        # Convert all items to uppercase for case-insensitive validation
+        valid_moves = []
+        for item in quoted_items:
+            item_upper = item.upper()
+            if item_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                valid_moves.append(item_upper)
         
         if valid_moves and len(valid_moves) > 0:
             return {"moves": valid_moves}

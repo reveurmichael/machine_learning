@@ -323,6 +323,7 @@ def validate_json_format(data):
     
     Args:
         data: JSON data to validate
+        data: JSON data to validate
         
     Returns:
         (is_valid, error_message) tuple. If is_valid is False, error_message

@@ -222,6 +222,10 @@ class GameController:
                 game_active: Boolean indicating if the game is still active
                 apple_eaten: Boolean indicating if an apple was eaten on this move
         """
+        # Standardize direction key to uppercase to handle case insensitivity
+        if isinstance(direction_key, str):
+            direction_key = direction_key.upper()
+            
         # Get direction vector
         if direction_key not in DIRECTIONS:
             print(f"Invalid direction: {direction_key}, defaulting to RIGHT")

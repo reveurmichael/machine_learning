@@ -323,89 +323,24 @@ class ReplayEngine(GameController):
         if isinstance(direction_key, str):
             direction_key = direction_key.upper()
             
-        # Get direction vector
-        if direction_key not in DIRECTIONS:
-            print(f"Invalid direction: {direction_key}, using RIGHT")
-            direction_key = "RIGHT"
+        # Use the parent class's make_move method to ensure consistent behavior
+        # This will handle direction validation, reversal prevention, and game state updates
+        game_active, apple_eaten = super().make_move(direction_key)
         
-        direction = DIRECTIONS[direction_key]
-        self.current_direction = direction
-        
-        # Calculate new head position
-        head_x, head_y = self.head_position
-        new_head = np.array([head_x + direction[0], head_y + direction[1]])
-        
-        # Debug information
-        print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
-        
-        # Check if the new head position will eat an apple
-        is_eating_apple = np.array_equal(new_head, self.apple_position)
-        
-        # Use the shared collision detection function from utils.game_manager_utils
-        wall_collision, body_collision = check_collision(new_head, self.snake_positions, self.grid_size, is_eating_apple)
-        
-        if wall_collision:
-            print(f"Game over: Snake hit wall at position {new_head}")
-            return False
-        
-        if body_collision:
-            print(f"Game over: Snake hit itself at position {new_head}")
-            return False
-        
-        # Prepare new snake positions
-        new_snake_positions = np.copy(self.snake_positions)
-        new_snake_positions = np.vstack((new_snake_positions, new_head))
-        
-        # Check for apple
-        apple_eaten = is_eating_apple
-        
-        if not apple_eaten:
-            # Remove tail if no apple eaten
-            new_snake_positions = new_snake_positions[1:]
-        else:
-            # Apple eaten - update score and apple position
-            self.score += 1
-            print(f"Apple eaten! Score: {self.score}")
+        # If apple was eaten, we need to manually advance to the next apple position from our log
+        # since replay uses predefined apple positions from the game history
+        if apple_eaten and self.apple_index + 1 < len(self.apple_positions):
+            self.apple_index += 1
+            next_apple = self.apple_positions[self.apple_index]
             
-            # Move to next apple position if available
-            if self.apple_index + 1 < len(self.apple_positions):
-                self.apple_index += 1
-                next_apple = self.apple_positions[self.apple_index]
-                
-                if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
-                    # Set apple position
-                    success = self.set_apple_position([next_apple['x'], next_apple['y']])
-                    if not success:
-                        # Use predetermined alternative position
-                        alt_pos = self._place_apple_away_from_snake()
-                        self.apple_position = alt_pos
-                elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
-                    # Set apple position
-                    success = self.set_apple_position(next_apple)
-                    if not success:
-                        # Use predetermined alternative position
-                        alt_pos = self._place_apple_away_from_snake()
-                        self.apple_position = alt_pos
-                else:
-                    # Use predetermined position
-                    alt_pos = self._place_apple_away_from_snake()
-                    self.apple_position = alt_pos
-            else:
-                # No more predefined apple positions
-                alt_pos = self._place_apple_away_from_snake()
-                self.apple_position = alt_pos
+            if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
+                # Set apple position from dictionary format
+                self.set_apple_position([next_apple['x'], next_apple['y']])
+            elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
+                # Set apple position from array format
+                self.set_apple_position(next_apple)
         
-        # Update snake state
-        self.snake_positions = new_snake_positions
-        self.head_position = self.snake_positions[-1]
-        
-        # Update game board
-        self._update_board()
-        
-        # Update step counter
-        self.steps += 1
-        
-        return True
+        return game_active
     
     def handle_events(self):
         """Handle pygame events."""

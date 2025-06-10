@@ -40,8 +40,8 @@ OUTPUT_FOLDER_EN_WITH_FONT_SIZE = (
     "./output_llm_en_with_font_size"  # English-only with font size
 )
 LLM_RESPONSES_FOLDER = "./responses_llm"
-IP_OLLAMA_WIN = "58.199.170.73"
-IP_OLLAMA_LINUX = "58.199.168.220"
+IP_OLLAMA_WIN = "127.0.0.1"
+IP_OLLAMA_LINUX = "127.0.0.1"
 IP_OLLAMA = IP_OLLAMA_WIN
 PORT_OLLAMA = "11434"
 LLM_MODEL = "gemma3:12b-it-qat"

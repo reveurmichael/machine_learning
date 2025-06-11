@@ -462,18 +462,6 @@ class ReplayEngine(GameController):
         self.apple_position = position
         return True
     
-    def _place_apple_away_from_snake(self):
-        """Place the apple at a fixed distance from the snake's head.
-        
-        Returns:
-            Array [x, y] with apple position
-        """
-        # Place apple at a fixed offset from head position
-        return np.array([
-            (self.head_position[0] + 5) % self.grid_size,
-            (self.head_position[1] + 5) % self.grid_size
-        ])
-
     @classmethod
     def find_log_directories(cls, root_dir="logs", max_depth=4):
         """Find valid log directories for replay.

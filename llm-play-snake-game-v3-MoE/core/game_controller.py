@@ -236,14 +236,13 @@ class GameController:
         # Don't allow reversing direction directly
         if (self.current_direction is not None and 
             np.array_equal(np.array(direction), -np.array(self.current_direction))):
-            print(f"Tried to reverse direction: {direction_key}. Using current direction instead.")
+            print(f"Tried to reverse direction: {direction_key}. No move will be made.")
             
             # Record this as an invalid reversal
             self.game_state.record_invalid_reversal(direction_key, self._get_current_direction_key())
             
-            # Use current direction instead
-            direction = self.current_direction
-            direction_key = self._get_current_direction_key()
+            # Return immediately, effectively making no move
+            return True, False
         
         # Update current direction
         self.current_direction = direction

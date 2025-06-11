@@ -165,9 +165,8 @@ class GameData:
         if "moves" not in self.current_round_data:
             self.current_round_data["moves"] = []
             
-        # Avoid duplicate entries in current round data
-        if not self.current_round_data["moves"] or self.current_round_data["moves"][-1] != move:
-            self.current_round_data["moves"].append(move)
+        # Always append moves to ensure all steps are recorded
+        self.current_round_data["moves"].append(move)
         
         # Update round data for the current round
         round_data = self._get_or_create_round_data(self.round_count)
@@ -176,9 +175,8 @@ class GameData:
         if "moves" not in round_data:
             round_data["moves"] = []
             
-        # Avoid duplicate entries in round data
-        if not round_data["moves"] or round_data["moves"][-1] != move:
-            round_data["moves"].append(move)
+        # Always append moves to ensure all steps are recorded
+        round_data["moves"].append(move)
         
         # Note: Apple eaten handling moved to top of function
         # Note: Round count is ONLY incremented in one place:

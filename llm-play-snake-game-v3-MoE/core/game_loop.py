@@ -46,12 +46,8 @@ def run_game_loop(game_manager):
                         # Initialize apple_eaten for use in this block
                         apple_eaten = False
                         
-                        # Check if maximum steps limit has been reached
-                        if check_max_steps(game_manager.game, game_manager.args.max_steps):
-                            game_manager.game_active = False
-                            game_manager.game.game_state.record_game_end("MAX_STEPS")
                         # Execute the move if valid and game is still active
-                        elif next_move and game_manager.game_active:
+                        if next_move and game_manager.game_active:
                             # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
@@ -59,6 +55,11 @@ def run_game_loop(game_manager):
                             if game_manager.use_gui:
                                 time.sleep(3)
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            
+                            # Check if maximum steps limit has been reached AFTER the move
+                            if check_max_steps(game_manager.game, game_manager.args.max_steps):
+                                game_manager.game_active = False
+                                game_manager.game.game_state.record_game_end("MAX_STEPS")
                             
                             # Update UI to show the new state after move
                             game_manager.game.draw()
@@ -111,19 +112,19 @@ def run_game_loop(game_manager):
                             # No need to add to game_state.moves here as that will be done in make_move
                             game_manager.current_game_moves.append(next_move)
                             
-                            # Check max steps limit
+                            # Update UI before executing the move
+                            game_manager.game.draw()
+                            
+                            # Execute the move immediately
+                            game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            
+                            # Check max steps limit AFTER the move
                             if check_max_steps(game_manager.game, game_manager.args.max_steps):
                                 game_manager.game_active = False
                                 game_manager.game.game_state.record_game_end("MAX_STEPS")
-                            else:
-                                # Update UI before executing the move
-                                game_manager.game.draw()
-                                
-                                # Execute the move immediately
-                                game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
-                                
-                                # Update UI after the move
-                                game_manager.game.draw()
+                            
+                            # Update UI after the move
+                            game_manager.game.draw()
                             
                             # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_errors = 0

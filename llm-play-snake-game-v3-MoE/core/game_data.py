@@ -146,16 +146,20 @@ class GameData:
         if isinstance(move, str):
             move = move.upper()
             
-        # Skip duplicate move entries
-        if self.moves and self.moves[-1] == move:
-            return
-            
-        # Update global game state
-        self.last_move = move
-        self.moves.append(move)
+        # Always update critical game state values regardless of duplicate moves
         self.steps += 1
         self.valid_steps += 1
         self.consecutive_empty_moves = 0  # Reset on valid move
+        
+        # Always update score if an apple was eaten
+        if apple_eaten:
+            self.score += 1
+            # Snake length is now calculated through the property getter
+            
+        
+        # Update global game state
+        self.last_move = move
+        self.moves.append(move)
         
         # Update current round data
         if "moves" not in self.current_round_data:
@@ -176,13 +180,11 @@ class GameData:
         if not round_data["moves"] or round_data["moves"][-1] != move:
             round_data["moves"].append(move)
         
-        if apple_eaten:
-            self.score += 1
-            # Snake length is now calculated through the property getter
-            # Note: Round count is ONLY incremented in one place:
-            # 1. llm/communication_utils.py after getting a valid move from the LLM
-            # It is NOT incremented when an apple is eaten during planned moves
-        
+        # Note: Apple eaten handling moved to top of function
+        # Note: Round count is ONLY incremented in one place:
+        # 1. llm/communication_utils.py after getting a valid move from the LLM
+        # It is NOT incremented when an apple is eaten during planned moves
+    
     def record_apple_position(self, position):
         """Record an apple position.
         

@@ -74,7 +74,8 @@ class GameController:
         self.apple_positions_history = []
         self.apple_positions_history.append(self.apple_position.copy())
 
-        # Record the new apple position in game state
+        # Reset game state tracker
+        self.game_state.reset()
         self.game_state.record_apple_position(self.apple_position)
 
         # Update the board

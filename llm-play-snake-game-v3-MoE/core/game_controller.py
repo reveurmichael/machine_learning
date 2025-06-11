@@ -277,6 +277,9 @@ class GameController:
             self.game_state.record_game_end("SELF")
             return False, False  # Game over, no apple eaten
 
+        # Check if the snake eats an apple
+        apple_eaten = is_eating_apple_at_new_head
+
         # No collision, proceed with move
         # Create a copy of current snake positions to modify
         new_snake_positions = np.copy(self.snake_positions)
@@ -284,24 +287,12 @@ class GameController:
         # Add new head to snake positions (at the end)
         new_snake_positions = np.vstack((new_snake_positions, new_head))
 
-        # Check if the snake eats an apple
-        apple_eaten = is_eating_apple_at_new_head
-
         if not apple_eaten:
             # Remove tail (first element) if no apple eaten
             new_snake_positions = new_snake_positions[1:]
         else:
-            # Record move in game state first - this increments the score
-            self.game_state.record_move(direction_key, apple_eaten)
-
-            # Now the score has been incremented, we can display it correctly
-            apples_emoji = "🍎" * self.game_state.score
-            print(f"🚀 Apple eaten! Score: {self.game_state.score} {apples_emoji}")
-
-            # Generate new apple
+            # Generate new apple and add to history when an apple is eaten
             self.apple_position = self._generate_apple()
-
-            # Add to history
             self.apple_positions_history.append(self.apple_position.copy())
 
         # Update snake positions and head
@@ -311,9 +302,13 @@ class GameController:
         # Update the board
         self._update_board()
 
-        # Record move in game state - only if not already recorded for apple eaten
-        if not apple_eaten:
-            self.game_state.record_move(direction_key, apple_eaten)
+        # Record move in game state - this handles incrementing the score if an apple was eaten
+        self.game_state.record_move(direction_key, apple_eaten)
+
+        # Display message if apple was eaten (after score has been updated)
+        if apple_eaten:
+            apples_emoji = "🍎" * self.game_state.score
+            print(f"🚀 Apple eaten! Score: {self.game_state.score} {apples_emoji}")
 
         # Draw if GUI is available
         if self.use_gui and self.gui:

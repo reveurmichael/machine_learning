@@ -20,59 +20,50 @@ class GameData:
     
     def reset(self):
         """Reset all tracking data to initial state."""
-        # Game metadata
-        self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.game_number = 0
+        # Import config at reset time to avoid circular imports
+        from config import MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
         
-        # Game stats
+        # Game state
+        self.game_number = 0
+        self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.apple_positions = []
         self.score = 0
         self.steps = 0
         self.empty_steps = 0
         self.error_steps = 0
-        self.invalid_reversals = 0  # Counter for invalid reversals
+        self.last_move = None
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
-        
-        # Snake length is now a property (see below), not a regular attribute
-        
-        # Game state
         self.game_over = False
-        # Removed win attribute as it's redundant in Snake (there is no win, only game over)
-        
-        # Other tracking data
-        self.start_time = time.time()
-        self.end_time = None
-        self.rounds_data = {}
-        # Initialize round_count to 1 to make round numbering more intuitive (1, 2, 3, ...)
-        self.round_count = 1
-        self.current_round_data = {
-            "apple_position": None,
-            "moves": [],
-            "primary_response_times": [],
-            "secondary_response_times": [],
-            "primary_token_stats": [],
-            "secondary_token_stats": [],
-            "invalid_reversals": []
-        }
-        self.apple_positions = []
         self.game_end_reason = None
-        self.last_move = None
-        self.last_action_time = None
+        self.round_count = 1  # Start at 1 for first round
+        self.round_data = []  # Track LLM outputs for each round
+        
+        # Rounds data structure
+        self.rounds_data = {}
+        self.current_round_data = {}
+        
+        # Game history data
+        self.snake_positions = []
+        self.apple_position = None
         
         # Time tracking
-        self.llm_communication_time = 0  # Total time spent communicating with LLMs
+        self.start_time = time.time()
+        self.end_time = None
+        self.llm_communication_time = 0   # Total time spent communicating with LLMs
         self.game_movement_time = 0      # Time spent in actual game movement
         self.waiting_time = 0            # Time spent waiting (pauses, etc.)
         self.last_action_time = self.start_time  # For tracking time between actions
         
         # Basic game stats
-        self.max_empty_moves_allowed = 3
+        self.max_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES
         
         # Game history
         self.moves = []
         
         # Step statistics
         self.valid_steps = 0
+        self.invalid_reversals = 0
         
         # Response times
         self.primary_response_times = []
@@ -671,7 +662,7 @@ class GameData:
             "valid_steps": self.valid_steps,
             "empty_steps": self.empty_steps, 
             "error_steps": self.error_steps,
-            "invalid_reversals": self.invalid_reversals,  # Just include the count, not the details
+            "invalid_reversals": self.invalid_reversals,  # Include the count of invalid reversals
             "max_consecutive_empty_moves_reached": self.max_consecutive_empty_moves_reached
         }
     

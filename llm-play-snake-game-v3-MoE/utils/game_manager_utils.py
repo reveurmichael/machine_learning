@@ -9,6 +9,9 @@ import traceback
 import pygame
 import numpy as np
 from colorama import Fore
+import json
+from datetime import datetime
+from utils.json_utils import NumPyJSONEncoder
 
 def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=False):
     """Check if a position collides with walls or snake body.
@@ -192,41 +195,72 @@ def process_game_over(game, game_state_info):
             token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
             token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
     
-    # Set a reason if not already set by the game engine
-    if not game.game_state.game_end_reason:
-        if game.last_collision_type == 'empty_moves':
-            game.game_state.record_game_end("MAX_EMPTY_MOVES_REACHED")
-        elif game.last_collision_type == 'max_steps':
-            game.game_state.record_game_end("MAX_STEPS_REACHED")
-        elif game.last_collision_type == 'wall':
-            game.game_state.record_game_end("WALL")
-        elif game.last_collision_type == 'self':
-            game.game_state.record_game_end("SELF")
-        elif game.last_collision_type == 'error':
-            game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
-        else:
-            game.game_state.record_game_end("UNKNOWN")
+    # Save individual game JSON file
+    game_data = {
+        "game_number": game_count,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "score": game.score,
+        "steps": game.steps,
+        "game_over": True,
+        "game_end_reason": game.game_state.game_end_reason if hasattr(game.game_state, "game_end_reason") else "UNKNOWN",
+        "moves": current_game_moves,
+        "max_empty_moves_allowed": args.max_empty_moves_allowed, # Use CLI arg value instead of hardcoded value
+        "snake_length": game.get_snake_length(),
+        "round_count": round_count,
+        "last_move": game.game_state.last_move if hasattr(game.game_state, "last_move") else None,
+    }
     
-    # Import file naming utilities
-    from utils.file_utils import get_game_json_filename, join_log_path
+    # Add step stats from game state
+    if hasattr(game.game_state, "get_step_stats"):
+        game_data["step_stats"] = game.game_state.get_step_stats()
     
-    # Save game summary
-    json_filename = get_game_json_filename(game_count)
-    json_path = join_log_path(log_dir, json_filename)
-    parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
-    game.game_state.save_game_summary(
-        json_path,
-        args.provider, 
-        args.model or f"default_{args.provider}",
-        parser_provider,
-        args.parser_model if parser_provider else None,
-        args.max_consecutive_errors_allowed
+    # Add JSON parsing stats from game state
+    if hasattr(game.game_state, "get_json_parsing_stats"):
+        game_data["json_parsing_stats"] = game.game_state.get_json_parsing_stats()
+    
+    # Update step_stats with the game's current valid_steps count for summary.json
+    step_stats = {
+        "valid_steps": valid_steps,
+        "empty_steps": game_state_info.get("empty_steps", 0),
+        "error_steps": game_state_info.get("error_steps", 0),
+        "invalid_reversals": invalid_reversals
+    }
+    
+    # Save session stats with the updated valid_steps
+    save_session_stats(
+        log_dir,
+        game_count=game_count,
+        total_score=total_score,
+        total_steps=total_steps,
+        step_stats=step_stats,
+        parser_usage_count=game_state_info.get("parser_usage_count", 0),
+        time_stats=time_stats,
+        token_stats=token_stats,
+        max_empty_moves_allowed=args.max_empty_moves_allowed,
+        max_consecutive_errors_allowed=args.max_consecutive_errors_allowed
     )
     
-    # Keep the round_count from the game that just ended
-    # It will be reset to 1 in GameController.reset() when the next game starts
-    # This ensures round_count in game_N.json matches the prompts/responses folder
+    # Generate detailed game JSON file
+    if hasattr(game, "game_state") and hasattr(game.game_state, "to_json"):
+        detailed_game_data = game.game_state.to_json()
+        
+        # Merge in the basic game data we already have
+        for key, value in game_data.items():
+            detailed_game_data[key] = value
+            
+        # Save the detailed game JSON file
+        from utils.file_utils import get_game_json_filename, join_log_path
+        game_filename = get_game_json_filename(game_count)
+        game_file = join_log_path(log_dir, game_filename)
+        
+        try:
+            with open(game_file, 'w', encoding='utf-8') as f:
+                json.dump(detailed_game_data, f, indent=2, cls=NumPyJSONEncoder)
+            print(Fore.GREEN + f"💾 Saved data for round {round_count} with {len(current_game_moves)} moves")
+        except Exception as e:
+            print(Fore.RED + f"Error saving game file: {e}")
     
+    # Return the updated statistics
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def handle_error(game, error_info):
@@ -390,6 +424,7 @@ def report_final_statistics(stats_info):
     """
     from utils.json_utils import get_json_error_stats, save_session_stats
     import os
+    import json
     
     # Extract statistics
     log_dir = stats_info["log_dir"]
@@ -422,12 +457,6 @@ def report_final_statistics(stats_info):
         
         # Get step stats - these are the stats that matter for each individual game
         step_stats = game_state.get_step_stats()
-        
-        # Add the invalid_reversals from the current game state to our total
-        # This ensures we're counting invalid_reversals from all games correctly
-        invalid_reversals = stats_info.get("invalid_reversals", 0)
-        if 'invalid_reversals' in step_stats:
-            invalid_reversals = step_stats['invalid_reversals']
     
     # Get token stats specifically from the game manager if available
     if "token_stats" in stats_info:
@@ -436,27 +465,34 @@ def report_final_statistics(stats_info):
     # Get time stats specifically from the game manager if available
     if "time_stats" in stats_info:
         time_stats = stats_info["time_stats"]
-        
-    # Calculate invalid_reversals from all game files if they exist
-    # This ensures our summary has the correct total across all games
+    
+    # Calculate total valid steps and invalid_reversals from all game files
+    # This ensures our summary has correct totals across all games
     try:
+        total_valid_steps = 0
         total_invalid_reversals = 0
+        
         for game_num in range(1, game_count + 1):
             from utils.file_utils import get_game_json_filename, join_log_path
             game_filename = get_game_json_filename(game_num)
             game_file = join_log_path(log_dir, game_filename)
+            
             if os.path.exists(game_file):
-                import json
                 with open(game_file, 'r', encoding='utf-8') as f:
                     game_data = json.load(f)
-                    if 'step_stats' in game_data and 'invalid_reversals' in game_data['step_stats']:
-                        total_invalid_reversals += game_data['step_stats']['invalid_reversals']
+                    
+                    if 'step_stats' in game_data:
+                        step_stats = game_data['step_stats']
+                        if 'valid_steps' in step_stats:
+                            total_valid_steps += step_stats['valid_steps']
+                        if 'invalid_reversals' in step_stats:
+                            total_invalid_reversals += step_stats['invalid_reversals']
         
-        # Use the calculated total if it's greater than our current count
-        if total_invalid_reversals > invalid_reversals:
-            invalid_reversals = total_invalid_reversals
+        # Use the calculated totals
+        valid_steps = total_valid_steps
+        invalid_reversals = total_invalid_reversals
     except Exception as e:
-        print(f"Warning: Could not read game files to calculate invalid_reversals: {e}")
+        print(f"Warning: Could not read game files to calculate step statistics: {e}")
     
     # Save session statistics to summary file
     json_error_stats = get_json_error_stats()
@@ -478,29 +514,52 @@ def report_final_statistics(stats_info):
         token_stats=token_stats
     )
     
+    # Print final statistics
     print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
     print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
     print(Fore.GREEN + f"🏁 Final Score: {total_score}")
     print(Fore.GREEN + f"👣 Total Steps: {total_steps}")
-    print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
     
-    if game_count > 0:
-        print(Fore.GREEN + f"📊 Average Score: {total_score/game_count:.2f}")
+    # Print parser usage if applicable
+    if parser_usage_count > 0:
+        print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
     
-    if total_steps > 0:
-        print(Fore.GREEN + f"📈 Apples per Step: {total_score/total_steps:.4f}")
-        
+    # Calculate and print average score
+    avg_score = total_score / game_count if game_count > 0 else 0
+    print(Fore.GREEN + f"📊 Average Score: {avg_score:.2f}")
+    
+    # Calculate and print apples per step
+    apples_per_step = total_score / total_steps if total_steps > 0 else 0
+    print(Fore.GREEN + f"📈 Apples per Step: {apples_per_step:.4f}")
+    
+    # Print step statistics
     print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
     print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
+    
+    # Print move limits
     print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves_allowed}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     
-    if json_error_stats['total_extraction_attempts'] > 0:
-        print(Fore.GREEN + f"📈 JSON Extraction Attempts: {json_error_stats['total_extraction_attempts']}")
-        success_rate = (json_error_stats['successful_extractions'] / json_error_stats['total_extraction_attempts']) * 100
-        print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
+    # Calculate and print JSON extraction statistics
+    if parser_usage_count > 0:
+        total_extractions = json_error_stats["total_extraction_attempts"]
+        successful_extractions = json_error_stats["successful_extractions"]
+        
+        # Ensure totals match the parser_usage_count (which is the ground truth)
+        if successful_extractions != parser_usage_count:
+            successful_extractions = parser_usage_count
+            
+        print(Fore.GREEN + f"📈 JSON Extraction Attempts: {total_extractions}")
+        
+        if total_extractions > 0:
+            success_rate = (successful_extractions / total_extractions) * 100
+            print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
+    
+    # End message based on max games reached
+    if game_count >= stats_info.get("max_games", float('inf')):
+        print(Fore.GREEN + f"🏁 Reached maximum games ({game_count}). Session complete.")
 
 def initialize_game_manager(game_manager):
     """Initialize the game manager with necessary setup.

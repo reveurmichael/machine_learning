@@ -291,9 +291,12 @@ class GameController:
             # Remove tail (first element) if no apple eaten
             new_snake_positions = new_snake_positions[1:]
         else:
-            # Apple eaten - no need to increment score here as record_move will handle it
-            apples_emoji = "🍎" * (self.game_state.score + 1)  # +1 because score will be incremented in record_move
-            print(f"Apple eaten! Score: {self.game_state.score + 1} {apples_emoji}")
+            # Record move in game state first - this increments the score
+            self.game_state.record_move(direction_key, apple_eaten)
+            
+            # Now the score has been incremented, we can display it correctly
+            apples_emoji = "🍎" * self.game_state.score
+            print(f"Apple eaten! Score: {self.game_state.score} {apples_emoji}")
             
             # Generate new apple
             self.apple_position = self._generate_apple()
@@ -308,8 +311,9 @@ class GameController:
         # Update the board
         self._update_board()
         
-        # Record move in game state - this also increments steps and score (if apple eaten)
-        self.game_state.record_move(direction_key, apple_eaten)
+        # Record move in game state - only if not already recorded for apple eaten
+        if not apple_eaten:
+            self.game_state.record_move(direction_key, apple_eaten)
         
         # Draw if GUI is available
         if self.use_gui and self.gui:

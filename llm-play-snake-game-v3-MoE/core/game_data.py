@@ -33,8 +33,7 @@ class GameData:
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
         
-        # Snake starts with length 1, will grow as apples are eaten
-        self.snake_length = 1
+        # Snake length is now a property (see below), not a regular attribute
         
         # Game state
         self.game_over = False
@@ -179,7 +178,7 @@ class GameData:
         
         if apple_eaten:
             self.score += 1
-            self.snake_length = self.score + 1  # Snake length is always score + initial length (1)
+            # Snake length is now calculated through the property getter
             # Note: Round count is ONLY incremented in one place:
             # 1. llm/communication_utils.py after getting a valid move from the LLM
             # It is NOT incremented when an apple is eaten during planned moves
@@ -827,15 +826,14 @@ class GameData:
         Returns:
             Dictionary with game summary
         """
-        # Ensure snake_length is always correct based on score
-        self.snake_length = self.score + 1
+        # Snake length is now calculated through the property getter
         
         # Create the base summary
         summary = {
             # Core game data
             "score": self.score,
             "steps": self.steps,
-            "snake_length": self.snake_length,
+            "snake_length": self.snake_length,  # Using the property
             "game_over": self.game_over,
             "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
             "round_count": self.round_count,  # Add round_count at the top level
@@ -1357,3 +1355,12 @@ class GameData:
         # ONLY use LLM response times as the source of truth
         # This directly corresponds to the number of prompt/response files
         return len(self.primary_response_times) if self.primary_response_times else 0 
+
+    @property
+    def snake_length(self):
+        """Calculate the snake length based on score.
+        
+        Returns:
+            The current length of the snake (score + initial length of 1)
+        """
+        return self.score + 1 

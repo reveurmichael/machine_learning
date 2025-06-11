@@ -1,0 +1,88 @@
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (3, 7)
+Apple Position: (4, 7)
+Body Cells: [(3, 6), (3, 5), (3, 4), (4, 4)]
+Timestamp: 2025-06-11 19:53:30
+
+
+========== SECONDARY LLM PROMPT ==========
+
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Okay, I'm trying to figure out how the snake can move from (3,7) to eat the apple at (4,7). The current direction is "UP", and the body cells are [(3,6), (3,5), (3,4), (4,4)]. So the head is at (3,7), and the body behind it is a straight line down to (3,4), then the tail moves to (4,4).
+
+First, I need to make sure that the snake doesn't reverse direction immediately. Since the current direction is "UP", the next move can't be "DOWN". So possible directions are "LEFT", "RIGHT", or stay "UP".
+
+Looking at the target apple at (4,7), which is one cell to the right of the head. That suggests that moving "RIGHT" would directly get the snake to the apple.
+
+But I need to check if that's safe. Let's simulate the move:
+
+1. New head position: (3+1,7) = (4,7). That's exactly where the apple is.
+2. Check for collisions: The new head is at (4,7). Now, looking at the body cells before moving. The current body starts with (3,6), then (3,5), etc. So none of these are at (4,7) except maybe after movement.
+
+Wait, but according to the rules, when checking collisions, we consider the state before any body shifts. So in this case, the new head is being checked against the current body positions. The body cells are [(3,6), (3,5), (3,4), (4,4)]. None of these are at (4,7), so no collision there.
+
+Next, since it's an apple move, we grow the snake without removing the tail. So after moving right, the new head is (4,7). The body will now have the old head added to the front: [(3,7)] + current body. But wait, the current body is [(3,6), (3,5), (3,4), (4,4)], so adding (3,7) in front makes it [(3,7), (3,6), (3,5), (3,4), (4,4)]. Then, since we ate the apple, we don't remove the tail. So the body becomes longer by one.
+
+Now, after this move, the new head is at (4,7). The next step would be to ensure that there's a legal move possible, as per the rules. But for now, eating the apple seems safe because the collision checks passed and we didn't reverse direction.
+
+So, moving "RIGHT" is valid and leads directly to the apple without any issues.
+</think>
+
+```json
+{
+  "moves": ["RIGHT"],
+  "reasoning": "Moving RIGHT from (3,7) to (4,7) safely reaches the apple. The new head position does not collide with body segments or grid boundaries."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at (3, 7) and whose body cells are in list format [(3, 6), (3, 5), (3, 4), (4, 4)], to eat (or at least get close to) the apple at (4, 7). It's possible that RESPONSE_1 cannot determine a complete safe path to the apple and gives just one or several initial moves.
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT". Note that directions are uppercase. You might see "U", "D", "L", "R" in the text for representing moves, you should convert them to "UP" (for "U"), "DOWN" (for "D"), "LEFT" (for "L"), "RIGHT" (for "R"); you might see "North", "South", "West", "East" in the text for representing moves, you should convert them to "UP" (for "North"), "DOWN" (for "South"), "LEFT" (for "West"), "RIGHT" (for "East").
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or no safe initial moves can be performed, or if you are not sure about the text's meaning on path and move planning, return your answer in JSON format: { "moves": [], "reasoning": "NO_PATH_OR_SAFE_INITIAL_MOVES_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" } in JSON format.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if FINAL_OUTPUT_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform (e.g. leading to the apple, or one or several initial safe moves), you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
+- Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

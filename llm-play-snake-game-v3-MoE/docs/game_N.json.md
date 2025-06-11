@@ -3,6 +3,10 @@
 What is the game_N.json file , what's the detailed schema? Is its entries ordered? What is toward the top and toward the bottom of the json file? What's the relationship between the entries?
 
 
+As a fundamental rule, the schema of our `game_N.json` and `summary.json` files is now fixed and should never be modified. You can, on the contrary, modify the code to change how those values are calculated.
+
+
+
 ## Answer
 
 # Understanding the game_N.json File Structure

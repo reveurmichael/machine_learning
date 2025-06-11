@@ -307,8 +307,8 @@ class GameController:
 
         # Display message if apple was eaten (after score has been updated)
         if apple_eaten:
-            apples_emoji = "🍎" * self.game_state.score
-            print(f"🚀 Apple eaten! Score: {self.game_state.score} {apples_emoji}")
+            apples_emoji = "🍎" * self.score
+            print(f"🚀 Apple eaten! Score: {self.score} {apples_emoji}")
 
         # Draw if GUI is available
         if self.use_gui and self.gui:

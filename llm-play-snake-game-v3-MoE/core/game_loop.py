@@ -78,10 +78,9 @@ def run_game_loop(game_manager):
                             # Handle the case where no valid move was found
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
                             
-                            # Update stats for empty move
-                            game_manager.game.steps += 1
-                            game_manager.total_steps += 1
+                            # Update stats for empty move - let record_empty_move handle the step counting
                             game_manager.game.game_state.record_empty_move()
+                            game_manager.total_steps += 1  # Still need to increment total_steps at manager level
                             
                             # Record for analysis
                             game_manager.current_game_moves.append("EMPTY")

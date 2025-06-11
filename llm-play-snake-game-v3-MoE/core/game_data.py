@@ -1328,19 +1328,19 @@ class GameData:
         return self.rounds_data[round_key]
     
     def _calculate_expected_round_count(self):
-        """Calculate the expected round count based on game activity.
+        """Calculate the expected round count based on LLM interactions only.
         
         Returns:
-            The expected round count
+            The expected round count based on LLM interactions
         """
-        expected_rounds_from_moves = len(self.moves) if self.moves else 0
+        # Base expected rounds only on LLM interactions and apple positions, not on moves
+        # This prevents huge round counts when there are many duplicate moves
         expected_rounds_from_apples = len(self.apple_positions) if self.apple_positions is not None and len(self.apple_positions) > 0 else 0
         expected_rounds_from_responses = len(self.primary_response_times) if self.primary_response_times else 0
         
         # The round_count should be at least the maximum of these values
-        return max(expected_rounds_from_moves, 
+        return max(expected_rounds_from_responses,
                   expected_rounds_from_apples,
-                  expected_rounds_from_responses,
                   self.round_count) 
     
     def _calculate_actual_round_count(self):

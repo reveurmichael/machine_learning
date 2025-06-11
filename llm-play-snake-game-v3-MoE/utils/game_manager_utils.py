@@ -205,7 +205,7 @@ def process_game_over(game, game_state_info):
         "game_end_reason": game.game_state.game_end_reason if hasattr(game.game_state, "game_end_reason") else "UNKNOWN",
         "moves": current_game_moves,
         "max_empty_moves_allowed": args.max_empty_moves_allowed, # Use CLI arg value instead of hardcoded value
-        "snake_length": game.get_snake_length(),
+        "snake_length": game.snake_length,
         "round_count": round_count,
         "last_move": game.game_state.last_move if hasattr(game.game_state, "last_move") else None,
     }

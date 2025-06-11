@@ -165,7 +165,7 @@ class GameData:
         if "moves" not in self.current_round_data:
             self.current_round_data["moves"] = []
             
-        # Always append moves to ensure all steps are recorded
+        # Always record every move to ensure step counts match exactly with move history
         self.current_round_data["moves"].append(move)
         
         # Update round data for the current round
@@ -175,7 +175,7 @@ class GameData:
         if "moves" not in round_data:
             round_data["moves"] = []
             
-        # Always append moves to ensure all steps are recorded
+        # Always record every move without filtering duplicates
         round_data["moves"].append(move)
         
         # Note: Apple eaten handling moved to top of function

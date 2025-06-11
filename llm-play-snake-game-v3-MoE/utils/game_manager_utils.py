@@ -138,6 +138,12 @@ def process_game_over(game, game_state_info):
     # This ensures we're keeping track of invalid_reversals across all games
     invalid_reversals += game.game_state.invalid_reversals
     
+    # Update empty_steps counter - add current game's to the running total
+    empty_steps += game.game_state.empty_steps
+    
+    # Update error_steps counter - add current game's to the running total
+    error_steps += game.game_state.error_steps
+    
     # Print game stats
     move_str = ", ".join(current_game_moves)
     print(Fore.BLUE + f"Game {game_count} Stats:")

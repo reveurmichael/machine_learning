@@ -50,7 +50,12 @@ def get_json_error_stats():
     return json_error_stats
 
 def reset_json_error_stats():
-    """Reset all JSON error statistics to zero."""
+    """Reset all JSON error statistics to zero.
+    This is called once at the beginning of a new session (either a fresh run
+    or a continuation) so that error statistics do not leak across separate
+    sessions.  It MUST NOT be invoked after the first game starts, otherwise
+    per-game numbers would diverge from the session totals.
+    """
     for key in json_error_stats:
         json_error_stats[key] = 0
 
@@ -191,53 +196,53 @@ def save_session_stats(log_dir, **kwargs):
         elif key == "game_scores":
             summary["game_statistics"]["scores"] = value
         elif key == "empty_steps":
-            summary["step_stats"]["empty_steps"] = value
+            summary["step_stats"]["empty_steps"] = value  # Already accumulated in process_game_over
         elif key == "error_steps":
-            summary["step_stats"]["error_steps"] = value
+            summary["step_stats"]["error_steps"] = value  # Already accumulated in process_game_over
         elif key == "valid_steps":
-            summary["step_stats"]["valid_steps"] = value
+            summary["step_stats"]["valid_steps"] = value  # Already accumulated in process_game_over
         elif key == "invalid_reversals":
-            summary["step_stats"]["invalid_reversals"] = value
+            summary["step_stats"]["invalid_reversals"] = value  # Already accumulated in process_game_over
         elif key == "time_stats":
             # Handle time statistics if provided
             if value and isinstance(value, dict):
                 if "llm_communication_time" in value:
-                    summary["time_statistics"]["total_llm_communication_time"] = value["llm_communication_time"]
+                    summary["time_statistics"]["total_llm_communication_time"] = value["llm_communication_time"]  # Already accumulated in process_game_over
                 if "game_movement_time" in value:
-                    summary["time_statistics"]["total_game_movement_time"] = value["game_movement_time"]
+                    summary["time_statistics"]["total_game_movement_time"] = value["game_movement_time"]  # Already accumulated in process_game_over
                 if "waiting_time" in value:
-                    summary["time_statistics"]["total_waiting_time"] = value["waiting_time"]
+                    summary["time_statistics"]["total_waiting_time"] = value["waiting_time"]  # Already accumulated in process_game_over
         elif key == "token_stats":
             # Handle token statistics if provided
             if value and isinstance(value, dict):
                 if "primary" in value and isinstance(value["primary"], dict):
                     primary = value["primary"]
                     if "total_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]
+                        summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]  # Already accumulated in process_game_over
                     if "total_prompt_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]
+                        summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]  # Already accumulated in process_game_over
                     if "total_completion_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]
+                        summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]  # Already accumulated in process_game_over
                 
                 if "secondary" in value and isinstance(value["secondary"], dict):
                     secondary = value["secondary"]
                     if "total_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]
+                        summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]  # Already accumulated in process_game_over
                     if "total_prompt_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]
+                        summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]  # Already accumulated in process_game_over
                     if "total_completion_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]
+                        summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]  # Already accumulated in process_game_over
         elif key == "step_stats":
             # Handle step statistics if provided as a complete dictionary
             if value and isinstance(value, dict):
                 if "empty_steps" in value:
-                    summary["step_stats"]["empty_steps"] = value["empty_steps"]
+                    summary["step_stats"]["empty_steps"] = value["empty_steps"]  # Already accumulated in process_game_over
                 if "error_steps" in value:
-                    summary["step_stats"]["error_steps"] = value["error_steps"]
+                    summary["step_stats"]["error_steps"] = value["error_steps"]  # Already accumulated in process_game_over
                 if "valid_steps" in value:
-                    summary["step_stats"]["valid_steps"] = value["valid_steps"]
+                    summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
                 if "invalid_reversals" in value:
-                    summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]
+                    summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
         elif key == "parser_usage_count":
             if "metadata" not in summary:
                 summary["metadata"] = {}

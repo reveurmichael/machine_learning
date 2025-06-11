@@ -25,7 +25,7 @@ def parse_arguments():
                       help='LLM provider to use for secondary LLM. Default: "none" (single LLM mode). Set to same as --provider for dual LLM mode.')
     parser.add_argument('--parser-model', type=str, default=None,
                       help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
-    parser.add_argument('--max-games', type=int, default=6,
+    parser.add_argument('--max-games', type=int, default=2,
                       help='Maximum number of games to play')
     parser.add_argument('--move-pause', type=float, default=PAUSE_BETWEEN_MOVES_SECONDS,
                       help=f'Pause between moves in seconds (default: {PAUSE_BETWEEN_MOVES_SECONDS})')

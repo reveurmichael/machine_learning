@@ -81,8 +81,8 @@ def run_game_loop(game_manager):
                             # Let record_empty_move handle the steps counter - it increments steps internally
                             game_manager.game.game_state.record_empty_move()
                             
-                            # Update total_steps at manager level to match the game state
-                            game_manager.total_steps = game_manager.game.game_state.steps
+                            # Update empty_steps counter at manager level for live stats (optional)
+                            game_manager.empty_steps = game_manager.game.game_state.empty_steps
                             
                             # Record for analysis
                             game_manager.current_game_moves.append("EMPTY")

@@ -33,6 +33,9 @@ class GameData:
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
         
+        # Snake starts with length 1, will grow as apples are eaten
+        self.snake_length = 1
+        
         # Game state
         self.game_over = False
         # Removed win attribute as it's redundant in Snake (there is no win, only game over)
@@ -64,7 +67,6 @@ class GameData:
         self.last_action_time = self.start_time  # For tracking time between actions
         
         # Basic game stats
-        self.snake_length = 1
         self.max_empty_moves_allowed = 3
         
         # Game history
@@ -177,7 +179,7 @@ class GameData:
         
         if apple_eaten:
             self.score += 1
-            self.snake_length += 1
+            self.snake_length = self.score + 1  # Snake length is always score + initial length (1)
             # Note: Round count is ONLY incremented in one place:
             # 1. llm/communication_utils.py after getting a valid move from the LLM
             # It is NOT incremented when an apple is eaten during planned moves
@@ -825,6 +827,9 @@ class GameData:
         Returns:
             Dictionary with game summary
         """
+        # Ensure snake_length is always correct based on score
+        self.snake_length = self.score + 1
+        
         # Create the base summary
         summary = {
             # Core game data

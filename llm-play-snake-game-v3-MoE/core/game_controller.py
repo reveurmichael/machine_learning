@@ -32,8 +32,6 @@ class GameController:
         
         self.apple_position = self._generate_apple()
         self.current_direction = None
-        self.steps = 0
-        self.score = 0
         self.last_collision_type = None  # Tracks collision type: wall, self
         
         # Board entity codes
@@ -70,8 +68,6 @@ class GameController:
         self.head_position = self.snake_positions[-1]
         self.apple_position = self._generate_apple()
         self.current_direction = None
-        self.steps = 0
-        self.score = 0
         self.last_collision_type = None
         
         # Reset apple history
@@ -295,10 +291,9 @@ class GameController:
             # Remove tail (first element) if no apple eaten
             new_snake_positions = new_snake_positions[1:]
         else:
-            # Apple eaten, increment score
-            self.score += 1
-            apples_emoji = "🍎" * self.score
-            print(f"Apple eaten! Score: {self.score} {apples_emoji}")
+            # Apple eaten - no need to increment score here as record_move will handle it
+            apples_emoji = "🍎" * (self.game_state.score + 1)  # +1 because score will be incremented in record_move
+            print(f"Apple eaten! Score: {self.game_state.score + 1} {apples_emoji}")
             
             # Generate new apple
             self.apple_position = self._generate_apple()
@@ -313,11 +308,8 @@ class GameController:
         # Update the board
         self._update_board()
         
-        # Record move in game state
+        # Record move in game state - this also increments steps and score (if apple eaten)
         self.game_state.record_move(direction_key, apple_eaten)
-        
-        # Increment step counter
-        self.steps += 1
         
         # Draw if GUI is available
         if self.use_gui and self.gui:
@@ -351,4 +343,14 @@ class GameController:
             if np.array_equal(self.current_direction, vector):
                 return key
                 
-        return "UNKNOWN" 
+        return "UNKNOWN"
+    
+    @property
+    def score(self):
+        """Get the current score from the game state."""
+        return self.game_state.score
+        
+    @property
+    def steps(self):
+        """Get the current steps from the game state."""
+        return self.game_state.steps 

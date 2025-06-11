@@ -226,7 +226,8 @@ def run_game_loop(game_manager):
                         except Exception as e:
                             print(Fore.YELLOW + f"⚠️ Warning: Could not update configuration in summary.json: {e}")
                         
-                        # Reset game state and counters
+                        # Reset game state and counters, but preserve the score
+                        # Only reset the game positions and movement-related variables
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
                         game_manager.consecutive_errors = 0

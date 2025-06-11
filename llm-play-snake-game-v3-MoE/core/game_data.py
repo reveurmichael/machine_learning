@@ -141,6 +141,10 @@ class GameData:
             move: The direction moved ("UP", "DOWN", "LEFT", "RIGHT")
             apple_eaten: Whether an apple was eaten on this move
         """
+        # Standardize move to uppercase for consistency
+        if isinstance(move, str):
+            move = move.upper()
+            
         # Skip duplicate move entries
         if self.moves and self.moves[-1] == move:
             return
@@ -1157,8 +1161,11 @@ class GameData:
             moves: List of moves returned by the LLM (["UP", "DOWN", "LEFT", "RIGHT", ...])
         """
         if moves and isinstance(moves, list):
+            # Standardize all moves to uppercase for consistency
+            standardized_moves = [move.upper() if isinstance(move, str) else move for move in moves]
+            
             # Store the entire array of planned moves for the current round
-            self.current_round_data["moves"] = moves.copy() 
+            self.current_round_data["moves"] = standardized_moves.copy() 
             
             # Also store directly in the rounds_data for the current round
             round_data = self._get_or_create_round_data(self.round_count)
@@ -1167,7 +1174,7 @@ class GameData:
             round_data["moves"] = []
             
             # Update moves in the round data with a deep copy
-            round_data["moves"] = moves.copy()
+            round_data["moves"] = standardized_moves.copy()
             
             # Important: We don't add these to self.moves yet - they'll be added
             # individually as they're executed by record_move

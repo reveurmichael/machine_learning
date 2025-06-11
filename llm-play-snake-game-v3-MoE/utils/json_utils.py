@@ -341,7 +341,7 @@ def validate_json_format(data):
     # Validate all moves are valid directions
     valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
     
-    for move in data["moves"]:
+    for i, move in enumerate(data["moves"]):
         if not isinstance(move, str):
             return False, f"Move is not a string: {move}"
         
@@ -350,9 +350,9 @@ def validate_json_format(data):
         if move_upper not in valid_moves:
             print(f"JSON validation error: Invalid move: '{move}' (upper: '{move_upper}'), valid moves are {valid_moves}")
             return False, f"Invalid move: {move}"
-    
-    # Standardize all moves to uppercase
-    data["moves"] = [move.upper() for move in data["moves"]]
+        
+        # Ensure all moves are in uppercase format
+        data["moves"][i] = move_upper
     
     return True, None
 
@@ -558,49 +558,43 @@ def extract_json_from_text(response):
         response: LLM response text
         
     Returns:
-        Extracted JSON data as a dictionary, or None if not found/invalid
+        Dictionary with moves key or None if extraction failed
     """
-    try:
-        # Direct JSON parsing for clean responses
-        try:
-            data = json.loads(response)
-            if isinstance(data, dict) and "moves" in data:
-                return data
-        except json.JSONDecodeError:
-            # Continue to alternative extraction methods
-            pass
-        except Exception as e:
-            print(f"Error during direct JSON parsing: {e}")
-            
-        # Match JSON patterns with quoted or unquoted keys
-        json_match = re.search(r'\{[\s\S]*?["\']moves["\']?\s*:\s*\[[\s\S]*?\][\s\S]*?\}', response, re.DOTALL)
+    # Special case pattern matching for moves array
+    moves_pattern = r'"moves"\s*:\s*\[(.*?)\]'
+    match = re.search(moves_pattern, response, re.DOTALL)
+    
+    if match:
+        moves_content = match.group(1)
         
-        # More permissive pattern for unquoted keys
-        if not json_match:
-            json_match = re.search(r'\{\s*moves\s*:[\s\S]*?\}', response, re.DOTALL)
-            
-        if not json_match:
-            # No JSON structure found
-            json_error_stats["text_extraction_errors"] += 1
-            return None
-            
-        json_str = json_match.group(0)
-        # Preprocess to standardize format
-        json_str = preprocess_json_string(json_str)
+        # Extract quoted strings
+        moves = re.findall(r'["\']([^"\']+)["\']', moves_content)
         
-        # Parse the preprocessed JSON
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            json_error_stats["text_extraction_errors"] += 1
-            print(f"JSON parsing error: {e}")
+        if moves:
+            # Convert all moves to uppercase
+            standardized_moves = [move.upper() for move in moves]
             
-            # Extract moves using pattern matching
-            return extract_moves_pattern(json_str)
+            # Filter to only valid moves
+            valid_moves = [move for move in standardized_moves if move in ["UP", "DOWN", "LEFT", "RIGHT"]]
             
-    except Exception as e:
-        print(f"JSON extraction error: {e}")
-        return None
+            if valid_moves:
+                print(f"Extracted moves from text: {valid_moves}")
+                return {"moves": valid_moves}
+    
+    # Try extracting moves pattern
+    moves = extract_moves_pattern(response)
+    if moves:
+        # Convert all moves to uppercase
+        standardized_moves = [move.upper() for move in moves]
+        
+        # Filter to only valid moves
+        valid_moves = [move for move in standardized_moves if move in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        
+        if valid_moves:
+            print(f"Extracted moves using pattern matching: {valid_moves}")
+            return {"moves": valid_moves}
+    
+    return None
 
 def extract_moves_pattern(json_str):
     """Extract moves from a JSON string using pattern matching.
@@ -657,7 +651,7 @@ def extract_moves_from_arrays(response):
         for item in quoted_items:
             item_upper = item.upper()
             if item_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                valid_moves.append(item_upper)
+                valid_moves.append(item_upper)  # Store in uppercase format
         
         if valid_moves and len(valid_moves) > 0:
             return {"moves": valid_moves}

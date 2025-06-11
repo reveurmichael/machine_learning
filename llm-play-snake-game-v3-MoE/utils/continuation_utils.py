@@ -69,41 +69,49 @@ def read_existing_game_data(log_dir, start_game_number):
             total_steps += get_game_steps(game_file_path)
             game_scores.append(get_game_score(game_file_path))
             
-            # Track step types if available
-            if 'step_stats' in game_data:
-                step_stats = game_data.get('step_stats', {})
-                empty_steps += step_stats.get('empty_steps', 0)
-                error_steps += step_stats.get('error_steps', 0)
-                valid_steps += step_stats.get('valid_steps', 0)
-                invalid_reversals += step_stats.get('invalid_reversals', 0)
-            
-            # Track parser usage
-            parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
-            
-            # Extract time statistics
-            if 'time_stats' in game_data:
-                game_time_stats = game_data.get('time_stats', {})
-                time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
-                time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
-                time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
-            
-            # Extract token statistics
-            if 'token_stats' in game_data:
-                game_token_stats = game_data.get('token_stats', {})
+            # Load the game data
+            try:
+                with open(game_file_path, 'r', encoding='utf-8') as f:
+                    game_data = json.load(f)
+                    
+                # Track step types if available
+                if 'step_stats' in game_data:
+                    step_stats = game_data.get('step_stats', {})
+                    empty_steps += step_stats.get('empty_steps', 0)
+                    error_steps += step_stats.get('error_steps', 0)
+                    valid_steps += step_stats.get('valid_steps', 0)
+                    invalid_reversals += step_stats.get('invalid_reversals', 0)
                 
-                # Primary LLM token stats
-                if 'primary' in game_token_stats:
-                    primary = game_token_stats.get('primary', {})
-                    token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
-                    token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
-                    token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                # Track parser usage
+                parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
                 
-                # Secondary LLM token stats
-                if 'secondary' in game_token_stats:
-                    secondary = game_token_stats.get('secondary', {})
-                    token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
-                    token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
-                    token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
+                # Extract time statistics
+                if 'time_stats' in game_data:
+                    game_time_stats = game_data.get('time_stats', {})
+                    time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
+                    time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
+                    time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
+                
+                # Extract token statistics
+                if 'token_stats' in game_data:
+                    game_token_stats = game_data.get('token_stats', {})
+                    
+                    # Primary LLM token stats
+                    if 'primary' in game_token_stats:
+                        primary = game_token_stats.get('primary', {})
+                        token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
+                        token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
+                        token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
+                    
+                    # Secondary LLM token stats
+                    if 'secondary' in game_token_stats:
+                        secondary = game_token_stats.get('secondary', {})
+                        token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
+                        token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
+                        token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
+            except Exception as e:
+                print(Fore.YELLOW + f"⚠️ Warning: Could not load game data from {game_file_path}: {e}")
+                corrupted_games.append(game_num)
         else:
             missing_games.append(game_num)
     

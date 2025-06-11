@@ -130,7 +130,6 @@ def run_game_loop(game_manager):
                             
                             # Request new plan if apple was eaten AND no more planned moves
                             if apple_eaten:
-                                print(Fore.GREEN + "🍎 Apple eaten!")
                                 # Do NOT increment round_count when an apple is eaten
                                 # Rounds should only be incremented when we get a new plan from the LLM
                                 

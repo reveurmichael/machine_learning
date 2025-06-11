@@ -297,7 +297,7 @@ class GameController:
         else:
             # Apple eaten, increment score
             self.score += 1
-            print(f"Apple eaten! Score: {self.score}")
+            print(f"Apple eaten! Score: {self.score} {'🍎' * self.score}")
             
             # Generate new apple
             self.apple_position = self._generate_apple()

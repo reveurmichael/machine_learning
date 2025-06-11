@@ -143,8 +143,6 @@ def setup_llm_clients(game_manager):
         success = game_manager.llm_client.set_secondary_llm(game_manager.parser_provider, game_manager.parser_model)
 
         if success:
-            print(Fore.GREEN + f"Secondary LLM configured: {game_manager.parser_provider}/{game_manager.parser_model}")
-
             # Create a separate client for health check
             parser_client = game_manager.create_llm_client(game_manager.parser_provider, game_manager.parser_model)
 

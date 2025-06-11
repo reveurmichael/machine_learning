@@ -352,4 +352,9 @@ class GameController:
     @property
     def steps(self):
         """Get the current steps from the game state."""
-        return self.game_state.steps 
+        return self.game_state.steps
+
+    @property
+    def snake_length(self):
+        """Return the current length of the snake (number of segments)."""
+        return len(self.snake_positions) 

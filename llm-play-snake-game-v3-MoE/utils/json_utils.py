@@ -183,10 +183,43 @@ def save_session_stats(log_dir, **kwargs):
             "invalid_reversals": 0
         }
     
+    # If we're updating json_parsing_stats, aggregate data from individual game files
+    if "json_error_stats" in kwargs or "parser_usage_count" in kwargs:
+        game_count = kwargs.get("game_count", summary["game_statistics"].get("total_games", 0))
+        
+        # Initialize json_parsing_stats with zeros if not present
+        if "json_parsing_stats" not in summary:
+            summary["json_parsing_stats"] = {
+                "total_extraction_attempts": 0,
+                "successful_extractions": 0,
+                "failed_extractions": 0,
+                "json_decode_errors": 0,
+                "text_extraction_errors": 0,
+                "pattern_extraction_success": 0,
+                "format_validation_errors": 0
+            }
+        
+        # For parser_usage_count (successful extractions during the run), use the value passed in
+        if "parser_usage_count" in kwargs:
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["parser_usage_count"] = kwargs["parser_usage_count"]
+            # Set successful_extractions in json_parsing_stats to match parser_usage_count
+            summary["json_parsing_stats"]["successful_extractions"] = kwargs["parser_usage_count"]
+            
+            # If we have json_error_stats, use them for the rest of the fields
+            if "json_error_stats" in kwargs:
+                json_error_stats = kwargs["json_error_stats"]
+                # Keep only the error fields, but use parser_usage_count for successful_extractions
+                for key in json_error_stats:
+                    if key != "successful_extractions":
+                        summary["json_parsing_stats"][key] = json_error_stats[key]
+    
     # Apply new statistics values to the appropriate sections
     for key, value in kwargs.items():
         if key == "json_error_stats":
-            summary["json_parsing_stats"] = value
+            # Already handled above
+            pass
         elif key == "game_count":
             summary["game_statistics"]["total_games"] = value
         elif key == "total_score":
@@ -244,9 +277,8 @@ def save_session_stats(log_dir, **kwargs):
                 if "invalid_reversals" in value:
                     summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
         elif key == "parser_usage_count":
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["parser_usage_count"] = value
+            # Already handled above
+            pass
         elif key == "max_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}

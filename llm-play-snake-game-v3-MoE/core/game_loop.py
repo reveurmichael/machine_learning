@@ -106,7 +106,6 @@ def run_game_loop(game_manager):
                         next_move = game_manager.game.get_next_planned_move()
                         
                         if next_move:
-                            print(Fore.CYAN + f"🐍 Executing planned move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
                             
                             # Record move for logging (but game_state.record_move will be called in make_move)
                             # No need to add to game_state.moves here as that will be done in make_move

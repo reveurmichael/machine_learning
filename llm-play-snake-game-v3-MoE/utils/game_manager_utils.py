@@ -217,7 +217,6 @@ def process_game_over(game, game_state_info):
         game_count=game_count,
         total_score=total_score,
         total_steps=total_steps,
-        parser_usage_count=game_state_info.get("parser_usage_count", 0),
         game_scores=game_scores,
         empty_steps=empty_steps,
         error_steps=error_steps,
@@ -442,7 +441,6 @@ def report_final_statistics(stats_info):
     game_count = stats_info["game_count"]
     total_score = stats_info["total_score"]
     total_steps = stats_info["total_steps"]
-    parser_usage_count = stats_info["parser_usage_count"]
     game_scores = stats_info["game_scores"]
     empty_steps = stats_info["empty_steps"]
     error_steps = stats_info["error_steps"]
@@ -483,7 +481,6 @@ def report_final_statistics(stats_info):
         game_count=game_count, 
         total_score=total_score, 
         total_steps=total_steps, 
-        parser_usage_count=parser_usage_count, 
         game_scores=game_scores, 
         empty_steps=empty_steps, 
         error_steps=error_steps,
@@ -498,10 +495,6 @@ def report_final_statistics(stats_info):
     print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
     print(Fore.GREEN + f"🏁 Final Score: {total_score}")
     print(Fore.GREEN + f"👣 Total Steps: {total_steps}")
-    
-    # Print parser usage if applicable
-    if parser_usage_count > 0:
-        print(Fore.GREEN + f"🔄 Secondary LLM was used {parser_usage_count} times")
     
     # Calculate and print average score
     avg_score = total_score / game_count if game_count > 0 else 0

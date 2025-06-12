@@ -221,11 +221,6 @@ def save_session_stats(log_dir, **kwargs):
                     summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
                 if "invalid_reversals" in value:
                     summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
-        elif key == "parser_usage_count":
-            # Save parser usage count in metadata (simple scalar)
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["parser_usage_count"] = value
         elif key == "max_consecutive_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}

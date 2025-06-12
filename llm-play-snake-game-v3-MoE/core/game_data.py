@@ -851,8 +851,7 @@ class GameData:
                 "last_move": self.last_move,
                 "round_count": self.round_count,  # Keep it here for backward compatibility
                 "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
-                "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
-                "parser_usage_count": self.parser_usage_count
+                "max_consecutive_errors_allowed": max_consecutive_errors_allowed
             },
             
             # Raw token stats data (for detailed analysis)

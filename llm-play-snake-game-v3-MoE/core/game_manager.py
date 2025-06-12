@@ -167,7 +167,6 @@ class GameManager:
             "game_count": self.game_count,
             "total_score": self.total_score,
             "total_steps": self.total_steps,
-            "parser_usage_count": self.parser_usage_count,
             "game_scores": self.game_scores,
             "empty_steps": self.empty_steps,
             "error_steps": self.error_steps,

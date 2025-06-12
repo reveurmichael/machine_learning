@@ -221,6 +221,20 @@ class GameData:
         self.invalid_reversals += 1
         self.steps += 1  # Increment steps for invalid reversals
         
+        # ------------------------------------------------------------------
+        # Keep the invariant: len(self.moves) == self.steps
+        # Treat the blocked reversal as a distinctive pseudo-move so that
+        # replay and statistics stay consistent.  We use the sentinel string
+        # "INVALID_REVERSAL" – consumers can ignore or colour-code it.
+        # ------------------------------------------------------------------
+
+        self.moves.append("INVALID_REVERSAL")
+
+        # Also make sure the current round's executed-moves list stays aligned
+        if "moves" not in self.current_round_data:
+            self.current_round_data["moves"] = []
+        self.current_round_data["moves"].append("INVALID_REVERSAL")
+        
         # Add to the current round data if we're tracking a round
         if self.current_round_data:
             if "invalid_reversals" not in self.current_round_data:

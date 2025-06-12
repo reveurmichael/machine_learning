@@ -322,6 +322,19 @@ class ReplayEngine(GameController):
         if isinstance(direction_key, str):
             direction_key = direction_key.upper()
             
+        # ------------------------------------------------------------------
+        # Sentinel moves that represent a time-tick without actual movement
+        # (e.g. blocked reversals or intentionally empty moves).  We simply
+        # advance the replay pointer and keep the game alive without calling
+        # make_move(), so the snake stays in place exactly as it did in the
+        # original run.
+        # ------------------------------------------------------------------
+        if direction_key in ("INVALID_REVERSAL", "EMPTY"):
+            # Optionally bump internal step counter so on-screen stats match
+            # the original game (comment out if not needed):
+            # self.game_state.steps += 1
+            return True  # Game is still active, no apple eaten
+        
         # Use the parent class's make_move method to ensure consistent behavior
         # This will handle direction validation, reversal prevention, and game state updates
         game_active, apple_eaten = super().make_move(direction_key)

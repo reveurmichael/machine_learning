@@ -177,7 +177,3 @@ def initialize_game_state(game_manager):
     # Set up the game
     game_manager.setup_game()
     
-    # Display configuration info
-    print(Fore.GREEN + f"⏱️ Pause between moves: {game_manager.get_pause_between_moves()} seconds")
-    print(Fore.GREEN + f"⏱️ Maximum steps per game: {game_manager.args.max_steps}")
-    print(Fore.GREEN + f"📊 Running games: {game_manager.args.max_games}") 

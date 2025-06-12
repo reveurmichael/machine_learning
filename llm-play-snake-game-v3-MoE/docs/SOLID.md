@@ -1,7 +1,7 @@
 ## Question
 
 
-How in this project the SOLID principles have been respected? Write a long long long answer in ./docs/SOLID.md
+How in this project the SOLID principles of OOP Object Oriented Programming have been respected? Write a long long long answer in ./docs/SOLID.md
 
 Without restricting yourself, maybe you can focus on the following aspects:
 

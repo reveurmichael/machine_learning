@@ -1,16 +1,7 @@
-seems the --max-steps option is not being respected.
 
-Maybe it's the step calculation that's wrong.
-
-the --max-games is not being respected, neither.
+check the logs in   , its game_N.json and summary.json and the console output to see if everything is great. What else code should we modify? just answer the question, no need to modify the code.
 
 
 
 
-I just removed # Skip duplicate move entries
-if self.moves and self.moves[-1] == move:
-    return   in game_data.py . Also, self.game_state.reset() is now back in geme_controller.py 
-
-
-The step count is not right.
 

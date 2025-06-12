@@ -122,7 +122,7 @@ These sections provide insights into the quality of the LLM's gameplay and respo
   "timestamp": "2025-06-11 15:40:02",
   "last_move": "UP",
   "round_count": 9,
-  "max_empty_moves_allowed": 3,
+  "max_consecutive_empty_moves_allowed": 3,
   "max_consecutive_errors_allowed": 20,
   "parser_usage_count": 9
 }

@@ -24,7 +24,7 @@ class GameData:
     def reset(self):
         """Reset all tracking data to initial state."""
         # Import config at reset time to avoid circular imports
-        from config import MAX_CONSECUTIVE_EMPTY_MOVES, MAX_CONSECUTIVE_ERRORS_ALLOWED
+        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_ERRORS_ALLOWED
         
         # Game state
         self.game_number = 0
@@ -59,7 +59,7 @@ class GameData:
         self.other_time = 0              # Defensive initialization for other time
         
         # Basic game stats
-        self.max_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES
+        self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
         
         # Game history
         self.moves = []
@@ -560,8 +560,8 @@ class GameData:
             summary_data: Dictionary containing data from summary.json
         """
         # Import settings from summary.json
-        if 'max_empty_moves_allowed' in summary_data:
-            self.max_empty_moves_allowed = summary_data['max_empty_moves_allowed']
+        if 'max_consecutive_empty_moves_allowed' in summary_data:
+            self.max_consecutive_empty_moves_allowed = summary_data['max_consecutive_empty_moves_allowed']
         
         # Import step statistics if available
         if 'step_stats' in summary_data:
@@ -853,7 +853,7 @@ class GameData:
                 "timestamp": self.timestamp,
                 "last_move": self.last_move,
                 "round_count": self.round_count,  # Keep it here for backward compatibility
-                "max_empty_moves_allowed": self.max_empty_moves_allowed,
+                "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
                 "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
                 "parser_usage_count": self.parser_usage_count
             },

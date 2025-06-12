@@ -95,11 +95,11 @@ def run_game_loop(game_manager):
                             # Track consecutive empty moves
                             # Only increment this counter for actual empty moves, not for LLM errors
                             game_manager.consecutive_empty_steps += 1
-                            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves_allowed}")
+                            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
                             
                             # End game if too many consecutive empty moves
-                            if game_manager.consecutive_empty_steps >= game_manager.args.max_empty_moves_allowed:
-                                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves_allowed}). Game over.")
+                            if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
+                                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over.")
                                 game_manager.game_active = False
                                 game_manager.game.last_collision_type = 'empty_moves'
                                 game_manager.game.game_state.record_game_end("MAX_EMPTY_MOVES_REACHED")
@@ -347,7 +347,7 @@ def run_game_loop(game_manager):
             "game_scores": game_manager.game_scores,
             "empty_steps": game_manager.empty_steps,
             "error_steps": game_manager.error_steps,
-            "max_empty_moves_allowed": game_manager.args.max_empty_moves_allowed,
+            "max_consecutive_empty_moves_allowed": game_manager.args.max_consecutive_empty_moves_allowed,
             "max_consecutive_errors_allowed": game_manager.args.max_consecutive_errors_allowed
         }
         

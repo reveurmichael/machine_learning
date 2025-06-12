@@ -90,7 +90,7 @@ def generate_game_summary_json(game_data):
             - parser_model: Name of the parser model (optional)
             - parser_provider: Provider of the parser model (optional)
             - json_error_stats: Statistics about JSON parsing errors (optional)
-            - max_empty_moves_allowed: Maximum number of empty moves allowed (optional)
+            - max_consecutive_empty_moves_allowed: Maximum number of empty moves allowed (optional)
             - apple_positions: List of apple positions (optional)
             - avg_response_time: Average response time in seconds (optional)
             - avg_secondary_response_time: Average secondary response time in seconds (optional)
@@ -107,7 +107,7 @@ def generate_game_summary_json(game_data):
         "steps": game_data.get("steps"),
         "last_move": game_data.get("next_move"),
         "game_end_reason": game_data.get("collision_type"),
-        "max_empty_moves_allowed": game_data.get("max_empty_moves_allowed"),
+        "max_consecutive_empty_moves_allowed": game_data.get("max_consecutive_empty_moves_allowed"),
         "max_consecutive_errors_allowed": game_data.get("max_consecutive_errors_allowed"),
         "snake_length": game_data.get("snake_length"),
         "round_count": game_data.get("round_count")

@@ -286,10 +286,10 @@ def save_session_stats(log_dir, **kwargs):
         elif key == "parser_usage_count":
             # Already handled above
             pass
-        elif key == "max_empty_moves_allowed":
+        elif key == "max_consecutive_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}
-            summary["metadata"]["max_empty_moves_allowed"] = value
+            summary["metadata"]["max_consecutive_empty_moves_allowed"] = value
         elif key == "max_consecutive_errors_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}

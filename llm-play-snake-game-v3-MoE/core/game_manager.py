@@ -176,7 +176,7 @@ class GameManager:
             "error_steps": self.error_steps,
             "valid_steps": valid_steps,
             "invalid_reversals": invalid_reversals,
-            "max_empty_moves_allowed": self.args.max_empty_moves_allowed,
+            "max_consecutive_empty_moves_allowed": self.args.max_consecutive_empty_moves_allowed,
             "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed,
             "game": self.game,
             "time_stats": self.time_stats,

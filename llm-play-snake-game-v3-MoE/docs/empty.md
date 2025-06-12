@@ -29,3 +29,175 @@ Together they turn the `moves` timeline into a self-explanatory audit trail:
 That one-line classification is enough to build quick stats, spot pathological
 games, or jump straight to the rounds that need debugging—all without crawling
 through raw prompts and responses.
+
+
+
+
+
+
+
+
+
+
+Search files...
+
+Ran tool
+Read file: core/game_data.py
+
+Ran tool
+
+Read file: llm/communication_utils.py
+
+Read file: core/game_data.py
+
+Ran tool
+
+Ran tool
+
+Read file: core/game_data.py
+
+Read file: core/game_manager.py
+
+Ran tool
+
+Ran tool
+Read file: core/game_logic.py
+
+Read file: core/game_controller.py
+
+Ran tool
+Read file: core/game_data.py
+
+Ran tool
+
+Ran tool
+
+Read file: core/game_data.py
+
+Ran tool
+Read file: utils/game_manager_utils.py
+
+Ran tool
+Read file: utils/initialization_utils.py
+
+Read file: utils/initialization_utils.py
+
+Read file: utils/initialization_utils.py
+
+Ran tool
+
+Read file: replay/replay_engine.py
+
+Ran tool
+
+Read file: core/game_data.py
+
+Read file: core/game_loop.py
+
+Ran tool
+
+Ran tool
+
+To make the “EMPTY” concept first-class (and keep it perfectly in-sync with the two safety limits you expose on the CLI) you only have to touch three spots in the codebase.
+
+────────────────────────────────────────────────────────────────────────
+1.  core/game_data.py  – centralise how an EMPTY tick is recorded
+────────────────────────────────────────────────────────────────────────
+Replace the current minimalist `record_empty_move()` with a version that
+also drops the sentinel into every move list – exactly the way we already
+treat `INVALID_REVERSAL`.
+
+```203:220:core/game_data.py
+    def record_empty_move(self):
+        """Record an empty move (the snake stays in place)."""
+        self.empty_steps += 1
+        self.steps += 1
+        self.consecutive_empty_moves += 1
+        self.max_consecutive_empty_moves_reached = max(
+            self.max_consecutive_empty_moves_reached,
+            self.consecutive_empty_moves
+        )
+
+        # ------------------------------------------------------------------
+        # Keep the invariant:  len(self.moves)  ==  self.steps
+        # Add the sentinel so re-play & statistics know this was an ‘idle’ tick
+        # ------------------------------------------------------------------
+        self.moves.append("EMPTY")
+        self.last_move = "EMPTY"
+
+        # Track it inside the current round as well
+        if "moves" not in self.current_round_data:
+            self.current_round_data["moves"] = []
+        self.current_round_data["moves"].append("EMPTY")
+```
+
+────────────────────────────────────────────────────────────────────────
+2.  core/game_loop.py  – stop double-inserting the sentinel
+────────────────────────────────────────────────────────────────────────
+After the change above, the manual append is no longer needed (it would
+create duplicates).  Delete the highlighted line.
+
+```86:98:core/game_loop.py
+        # Record for analysis
+        game_manager.current_game_moves.append("EMPTY")
+        # ... existing code ...
+-       game_manager.game.game_state.moves.append("EMPTY")
+        # Track consecutive empty moves
+```
+
+(Keeping the `current_game_moves.append("EMPTY")` line is fine – it is
+just a debug list that never touches the JSON files.)
+
+────────────────────────────────────────────────────────────────────────
+3.  core/game_manager.py  (+ one follow-up in GameController.reset)  
+   propagate the user’s  --max-empty-moves-allowed  value
+────────────────────────────────────────────────────────────────────────
+Immediately after the game object is created, inject the CLI limit into
+`GameData`, and store it so it survives future resets.
+
+```109:118:core/game_manager.py
+    def setup_game(self):
+        """Set up the game logic and GUI."""
+        # Initialize game logic
+        self.game = GameLogic(use_gui=self.use_gui)
+
+        # Propagate the CLI limit into the GameData object
+        self.game.game_state.max_empty_moves_allowed = self.args.max_empty_moves_allowed
+        # Remember it so every future reset restores the same limit
+        self.game.game_state.max_empty_moves_allowed_override = self.args.max_empty_moves_allowed
+```
+
+Then make sure resets keep that override:
+
+```117:131:core/game_controller.py
+        # Reset game state tracker
+        self.game_state.reset()
+
+        # Re-apply custom move limits (if the GameManager set them)
+        if hasattr(self.game_state, "max_empty_moves_allowed_override"):
+            self.game_state.max_empty_moves_allowed = (
+                self.game_state.max_empty_moves_allowed_override
+            )
+
+        self.game_state.record_apple_position(self.apple_position)
+```
+
+(If you prefer, you can do the same for
+`--max-consecutive-errors-allowed`; the mechanism is identical.)
+
+────────────────────────────────────────────────────────────────────────
+What you gain
+─────────────
+• “EMPTY” now shows up in  
+  – the global `detailed_history["moves"]` list, **and**  
+  – each round’s `"moves"` array.  
+  Both stay perfectly aligned with the `steps` counter.
+
+• The per-game JSON now reports the **real** `max_empty_moves_allowed`
+  value that the run used (no longer the hard-coded default).
+
+• No more risk of duplicate “EMPTY” entries in the logs.
+
+These three edits make the EMPTY sentinel a first-class citizen,
+completely consistent with `--max-empty-moves-allowed` as well as with
+the existing error-limit logic.

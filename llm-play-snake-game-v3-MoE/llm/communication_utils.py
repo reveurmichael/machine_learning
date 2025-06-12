@@ -350,7 +350,7 @@ def get_llm_response(game_manager):
             else:
                 print(f"❌ No valid next move found in parser output moves: {parser_output['moves']}")
                 game_manager.consecutive_empty_steps += 1
-                print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves_allowed}")
+                print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
         else:
             # Log detailed information about what's missing
             if not parser_output:
@@ -362,7 +362,7 @@ def get_llm_response(game_manager):
             
             # No valid moves found
             game_manager.consecutive_empty_steps += 1
-            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_empty_moves_allowed}")
+            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
 
         # End tracking LLM communication time
         game_manager.game.game_state.record_llm_communication_end()
@@ -371,8 +371,8 @@ def get_llm_response(game_manager):
         game_manager.game.game_state.sync_round_data()
 
         # Check if we've reached the max consecutive empty moves
-        if game_manager.consecutive_empty_steps >= game_manager.args.max_empty_moves_allowed:
-            print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_empty_moves_allowed}). Game over.")
+        if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
+            print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over.")
             game_manager.game.game_state.record_game_end("EMPTY_MOVES")
             return next_move, False
 

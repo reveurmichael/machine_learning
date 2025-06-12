@@ -133,7 +133,7 @@ def process_game_over(game, game_state_info):
         elif collision_type == "self":
             print(Fore.RED + "❌ Game over: Snake hit itself!")
         elif collision_type == "empty_moves":
-            print(Fore.RED + f"❌ Game over: Too many empty moves ({args.max_empty_moves_allowed})!")
+            print(Fore.RED + f"❌ Game over: Too many empty moves ({args.max_consecutive_empty_moves_allowed})!")
     
     # Update counters for next game
     game_count += 1
@@ -225,7 +225,7 @@ def process_game_over(game, game_state_info):
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
         token_stats=token_stats,
-        max_empty_moves_allowed=args.max_empty_moves_allowed,
+        max_consecutive_empty_moves_allowed=args.max_consecutive_empty_moves_allowed,
         max_consecutive_errors_allowed=args.max_consecutive_errors_allowed
     )
     
@@ -448,7 +448,7 @@ def report_final_statistics(stats_info):
     error_steps = stats_info["error_steps"]
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
-    max_empty_moves_allowed = stats_info["max_empty_moves_allowed"]
+    max_consecutive_empty_moves_allowed = stats_info["max_consecutive_empty_moves_allowed"]
     max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
     
     # Get time and token statistics from the game instance if available
@@ -536,7 +536,7 @@ def report_final_statistics(stats_info):
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         json_error_stats=json_error_stats,
-        max_empty_moves_allowed=max_empty_moves_allowed,
+        max_consecutive_empty_moves_allowed=max_consecutive_empty_moves_allowed,
         max_consecutive_errors_allowed=max_consecutive_errors_allowed,
         time_stats=time_stats,
         token_stats=token_stats
@@ -567,7 +567,7 @@ def report_final_statistics(stats_info):
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
     
     # Print move limits
-    print(Fore.GREEN + f"📈 Max Empty Moves: {max_empty_moves_allowed}")
+    print(Fore.GREEN + f"📈 Max Empty Moves: {max_consecutive_empty_moves_allowed}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     
     # Calculate and print JSON extraction statistics

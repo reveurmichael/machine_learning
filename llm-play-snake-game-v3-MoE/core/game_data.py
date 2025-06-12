@@ -76,6 +76,21 @@ class GameData:
         self.primary_token_stats = []
         self.secondary_token_stats = []
         
+        # Running totals and averages for token usage
+        self.primary_total_tokens = 0
+        self.primary_total_prompt_tokens = 0
+        self.primary_total_completion_tokens = 0
+        self.primary_avg_total_tokens = 0
+        self.primary_avg_prompt_tokens = 0
+        self.primary_avg_completion_tokens = 0
+        
+        self.secondary_total_tokens = 0
+        self.secondary_total_prompt_tokens = 0
+        self.secondary_total_completion_tokens = 0
+        self.secondary_avg_total_tokens = 0
+        self.secondary_avg_prompt_tokens = 0
+        self.secondary_avg_completion_tokens = 0
+        
         # LLM error statistics
         self.primary_llm_errors = 0
         self.secondary_llm_errors = 0

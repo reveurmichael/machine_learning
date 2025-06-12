@@ -421,11 +421,12 @@ class GameData:
             "total_tokens": total_tokens
         }
         
-        # Add to the global list
-        self.primary_token_stats.append(token_stats)
-        
-        # Also store in current_round_data for the round
-        self.current_round_data.setdefault("primary_token_stats", []).append(token_stats)
+        # Store in current_round_data: keep only the latest entry for this round
+        primary_list = self.current_round_data.setdefault("primary_token_stats", [])
+        if primary_list:
+            primary_list[0] = token_stats  # replace existing
+        else:
+            primary_list.append(token_stats)
         
         # Update running totals
         self.primary_total_tokens += total_tokens
@@ -456,11 +457,12 @@ class GameData:
             "total_tokens": total_tokens
         }
         
-        # Add to the global list
-        self.secondary_token_stats.append(token_stats)
-        
-        # Also store in current_round_data for the round
-        self.current_round_data.setdefault("secondary_token_stats", []).append(token_stats)
+        # Store in current_round_data: keep only the latest entry for this round
+        secondary_list = self.current_round_data.setdefault("secondary_token_stats", [])
+        if secondary_list:
+            secondary_list[0] = token_stats  # replace existing
+        else:
+            secondary_list.append(token_stats)
         
         # Update running totals
         self.secondary_total_tokens += total_tokens

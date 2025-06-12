@@ -348,163 +348,116 @@ class GameData:
                 print(f"💾 Saved data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
     
     def record_primary_response_time(self, duration):
-        """Record a primary LLM response time.
+        """Record the time taken for a primary LLM response.
         
         Args:
-            duration: Response time in seconds
+            duration: The duration in seconds
         """
-        # Always add to the global tracking list
+        # Add to the global list
         self.primary_response_times.append(duration)
         
-        # Initialize empty lists if they don't exist
-        if "primary_response_times" not in self.current_round_data:
-            self.current_round_data["primary_response_times"] = []
+        # Also store in current_round_data for the round
+        self.current_round_data.setdefault("primary_response_times", []).append(duration)
         
-        # Only add to current round data if this exact time isn't already recorded
-        if duration not in self.current_round_data["primary_response_times"]:
-            self.current_round_data["primary_response_times"].append(duration)
+        # Get primary response stats
+        primary_times = self.primary_response_times
         
-        self.primary_llm_requests += 1
-        
-        # Also store directly in the rounds_data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Ensure the response_times list exists but clear it first
-        if "primary_response_times" not in round_data:
-            round_data["primary_response_times"] = []
-        else:
-            # Clear existing response times - each round should only have its own times
-            round_data["primary_response_times"] = []
-        
-        # Add the new time
-        round_data["primary_response_times"].append(duration)
+        # Update prompt_response_stats for reporting
+        if primary_times:
+            self.avg_primary_response_time = sum(primary_times) / len(primary_times)
+            self.min_primary_response_time = min(primary_times)
+            self.max_primary_response_time = max(primary_times)
     
     def record_secondary_response_time(self, duration):
-        """Record a secondary LLM response time.
+        """Record the time taken for a secondary LLM response.
         
         Args:
-            duration: Response time in seconds
+            duration: The duration in seconds
         """
-        # Always add to the global tracking list (even if it's the default value)
-        # This ensures accurate representation of secondary LLM usage
+        # Add to the global list
         self.secondary_response_times.append(duration)
         
-        # Initialize empty lists if they don't exist
-        if "secondary_response_times" not in self.current_round_data:
-            self.current_round_data["secondary_response_times"] = []
+        # Also store in current_round_data for the round
+        self.current_round_data.setdefault("secondary_response_times", []).append(duration)
         
-        # Only add to current round data if this exact time isn't already recorded
-        if duration not in self.current_round_data["secondary_response_times"]:
-            self.current_round_data["secondary_response_times"].append(duration)
+        # Get secondary response stats
+        secondary_times = self.secondary_response_times
         
-        # Only increment counters if this appears to be an actual usage (non-zero)
-        # rather than a default placeholder
-        if duration > 0:
-            self.secondary_llm_requests += 1
-            self.parser_usage_count += 1
-        
-        # Also store directly in the rounds_data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Ensure the response_times list exists but clear it first
-        if "secondary_response_times" not in round_data:
-            round_data["secondary_response_times"] = []
-        else:
-            # Clear existing response times - each round should only have its own times
-            round_data["secondary_response_times"] = []
-        
-        # Add the new time
-        round_data["secondary_response_times"].append(duration)
+        # Update prompt_response_stats for reporting
+        if secondary_times:
+            self.avg_secondary_response_time = sum(secondary_times) / len(secondary_times)
+            self.min_secondary_response_time = min(secondary_times)
+            self.max_secondary_response_time = max(secondary_times)
     
     def record_primary_token_stats(self, prompt_tokens, completion_tokens):
-        """Record token usage statistics for the primary LLM.
+        """Record token usage for the primary LLM.
         
         Args:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
-        # Skip recording if both values are None (placeholder values)
-        if prompt_tokens is None and completion_tokens is None:
-            return
-            
+        # Calculate total tokens
+        total_tokens = prompt_tokens + completion_tokens
+        
+        # Create token stats dict
         token_stats = {
-            "prompt_tokens": prompt_tokens or 0,
-            "completion_tokens": completion_tokens or 0,
-            "total_tokens": (prompt_tokens or 0) + (completion_tokens or 0)
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens
         }
         
-        # Always add to the global tracking list
+        # Add to the global list
         self.primary_token_stats.append(token_stats)
         
-        # Initialize empty lists if they don't exist
-        if "primary_token_stats" not in self.current_round_data:
-            self.current_round_data["primary_token_stats"] = []
-        else:
-            # Clear existing token stats to prevent duplication
-            self.current_round_data["primary_token_stats"] = []
+        # Also store in current_round_data for the round
+        self.current_round_data.setdefault("primary_token_stats", []).append(token_stats)
         
-        # Add the new token stats to the round data
-        self.current_round_data["primary_token_stats"].append(token_stats)
+        # Update running totals
+        self.primary_total_tokens += total_tokens
+        self.primary_total_prompt_tokens += prompt_tokens
+        self.primary_total_completion_tokens += completion_tokens
         
-        # Also store directly in the rounds_data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Ensure the token_stats list exists but clear it first
-        if "primary_token_stats" not in round_data:
-            round_data["primary_token_stats"] = []
-        else:
-            # Clear existing token stats - each round should only have its own stats
-            round_data["primary_token_stats"] = []
-        
-        # Add the new token stats
-        round_data["primary_token_stats"].append(token_stats)
+        # Update averages
+        request_count = len(self.primary_token_stats)
+        if request_count > 0:
+            self.primary_avg_total_tokens = self.primary_total_tokens / request_count
+            self.primary_avg_prompt_tokens = self.primary_total_prompt_tokens / request_count
+            self.primary_avg_completion_tokens = self.primary_total_completion_tokens / request_count
     
     def record_secondary_token_stats(self, prompt_tokens, completion_tokens):
-        """Record token usage statistics for the secondary LLM.
+        """Record token usage for the secondary LLM.
         
         Args:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
-        # Skip recording if both values are None (placeholder values)
-        if prompt_tokens is None and completion_tokens is None:
-            return
-            
-        # Skip default values (keep for backward compatibility but can be removed later)
-        if prompt_tokens == 800 and completion_tokens == 50 and not self.secondary_token_stats:
-            return
-            
+        # Calculate total tokens
+        total_tokens = prompt_tokens + completion_tokens
+        
+        # Create token stats dict
         token_stats = {
-            "prompt_tokens": prompt_tokens or 0,
-            "completion_tokens": completion_tokens or 0,
-            "total_tokens": (prompt_tokens or 0) + (completion_tokens or 0)
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens
         }
         
-        # Always add to the global tracking list
+        # Add to the global list
         self.secondary_token_stats.append(token_stats)
         
-        # Initialize empty lists if they don't exist
-        if "secondary_token_stats" not in self.current_round_data:
-            self.current_round_data["secondary_token_stats"] = []
-        else:
-            # Clear existing token stats to prevent duplication
-            self.current_round_data["secondary_token_stats"] = []
+        # Also store in current_round_data for the round
+        self.current_round_data.setdefault("secondary_token_stats", []).append(token_stats)
         
-        # Add the new token stats
-        self.current_round_data["secondary_token_stats"].append(token_stats)
+        # Update running totals
+        self.secondary_total_tokens += total_tokens
+        self.secondary_total_prompt_tokens += prompt_tokens
+        self.secondary_total_completion_tokens += completion_tokens
         
-        # Also store directly in the rounds_data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Ensure the token_stats list exists but clear it first
-        if "secondary_token_stats" not in round_data:
-            round_data["secondary_token_stats"] = []
-        else:
-            # Clear existing token stats - each round should only have its own stats
-            round_data["secondary_token_stats"] = []
-        
-        # Add the new token stats
-        round_data["secondary_token_stats"].append(token_stats)
+        # Update averages
+        request_count = len(self.secondary_token_stats)
+        if request_count > 0:
+            self.secondary_avg_total_tokens = self.secondary_total_tokens / request_count
+            self.secondary_avg_prompt_tokens = self.secondary_total_prompt_tokens / request_count
+            self.secondary_avg_completion_tokens = self.secondary_total_completion_tokens / request_count
     
     def record_json_extraction_attempt(self, success, error_type=None):
         """Record an attempt to extract JSON from LLM response.
@@ -827,11 +780,11 @@ class GameData:
         """
         # Snake length is now calculated through the property getter
         
-        # Create planned_moves_stats for debugging
-        planned_moves_stats = {}
-        for round_key, round_data in self.rounds_data.items():
-            if "planned_moves" in round_data:
-                planned_moves_stats[round_key] = len(round_data["planned_moves"])
+        # Create planned_moves_stats for debugging - recalculate safely
+        planned_moves_stats = {
+            rk: len(rd.get("planned_moves", []))
+            for rk, rd in self.rounds_data.items()
+        }
         
         # Create the base summary
         summary = {
@@ -878,10 +831,10 @@ class GameData:
             "secondary_token_stats": self.secondary_token_stats,
             
             # Detailed game history (at bottom)
-            # Use self.moves directly instead of collecting from rounds_data
+            # Use self.moves directly for the authoritative move list
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self.moves,  # Use the authoritative move list (guarantees len(moves) == steps)
+                "moves": self.moves.copy(),  # Flat list for replay, use copy to avoid mutation
                 "rounds_data": self._get_ordered_rounds_data()
             }
         }
@@ -894,6 +847,15 @@ class GameData:
                 "continuation_timestamps": self.continuation_timestamps,
                 "continuation_metadata": self.continuation_metadata
             }
+        
+        # Sanity check - validate that the global moves list length matches steps
+        assert len(summary["detailed_history"]["moves"]) == summary["steps"], \
+            f"Moves length ({len(summary['detailed_history']['moves'])}) doesn't match steps ({summary['steps']})"
+        
+        # Additional validation - each round's moves should be a subset of the global moves
+        for rk, rd in summary["detailed_history"]["rounds_data"].items():
+            assert len(rd.get("moves", [])) <= summary["steps"], \
+                f"Round {rk} moves ({len(rd.get('moves', []))}) exceed total steps ({summary['steps']})"
         
         return summary
     
@@ -1038,11 +1000,6 @@ class GameData:
         if actual_round_count != self.round_count:
             print(f"🔄 Setting round_count to {actual_round_count} based strictly on LLM communication count")
             self.round_count = actual_round_count
-            
-        # Verify the steps vs moves invariant
-        if self.steps != len(self.moves):
-            print(Fore.YELLOW + f"⚠️  Steps ({self.steps}) != moves ({len(self.moves)}). This indicates a potential issue.")
-            # raise AssertionError(f"Steps ({self.steps}) != moves ({len(self.moves)})") # Uncomment in test mode
         
         # CRITICAL: Only include rounds that correspond to actual LLM communications
         # This ensures that the number of rounds in the JSON exactly matches the number
@@ -1060,100 +1017,17 @@ class GameData:
         # Replace the original rounds_data with our clean version
         self.rounds_data = clean_rounds_data
         
-        # Collect reference values for empty arrays
-        reference_values = {
-            "primary_response_times": None,
-            "secondary_response_times": None,
-            "primary_token_stats": None,
-            "secondary_token_stats": None
-        }
-        
-        # First, find reference values from existing rounds data
-        for round_key, round_data in self.rounds_data.items():
-            for key in reference_values.keys():
-                if (reference_values[key] is None and 
-                    key in round_data and 
-                    round_data[key] and 
-                    len(round_data[key]) > 0):
-                    reference_values[key] = round_data[key]
-        
-        # If we couldn't find values from rounds, use the global tracking lists
-        if reference_values["primary_response_times"] is None and self.primary_response_times:
-            reference_values["primary_response_times"] = self.primary_response_times[-1:]
-        
-        if reference_values["secondary_response_times"] is None and self.secondary_response_times:
-            reference_values["secondary_response_times"] = self.secondary_response_times[-1:]
-        
-        if reference_values["primary_token_stats"] is None and self.primary_token_stats:
-            reference_values["primary_token_stats"] = self.primary_token_stats[-1:]
-        
-        if reference_values["secondary_token_stats"] is None and self.secondary_token_stats:
-            reference_values["secondary_token_stats"] = self.secondary_token_stats[-1:]
-        
-        # If we still don't have values, create default values
-        if reference_values["primary_response_times"] is None:
-            reference_values["primary_response_times"] = [1.5]  # Default response time
-        
-        if reference_values["secondary_response_times"] is None:
-            # Only add default secondary response times if a parser provider is configured
-            if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none":
-                reference_values["secondary_response_times"] = [0.8]  # Default response time
-            else:
-                reference_values["secondary_response_times"] = []  # Empty list when no parser is used
-        
-        if reference_values["primary_token_stats"] is None:
-            reference_values["primary_token_stats"] = [{"prompt_tokens": 2000, "completion_tokens": 100, "total_tokens": 2100}]
-        
-        if reference_values["secondary_token_stats"] is None:
-            # Only add default secondary token stats if a parser provider is configured
-            if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none":
-                reference_values["secondary_token_stats"] = [{"prompt_tokens": 800, "completion_tokens": 50, "total_tokens": 850}]
-            else:
-                reference_values["secondary_token_stats"] = []  # Empty list when no parser is used
-        
-        # Process the existing round data (which now contains only valid rounds)
-        for round_key, round_data in self.rounds_data.items():
-            # Only include rounds that have some meaningful data
-            if (round_data.get("moves") or 
-                round_data.get("apple_position") is not None or
-                round_data.get("primary_response_times") or
-                round_data.get("secondary_response_times")):
-                
-                # Make a copy of the round data to avoid modifying the original
-                processed_round = round_data.copy()
-                
-                # Get the current apple position for this round
-                apple_pos = processed_round.get("apple_position")
-                
-                # Ensure apple_position is never null
-                apple_pos_is_empty = (apple_pos is None or 
-                                     (isinstance(apple_pos, (list, tuple, np.ndarray)) and len(apple_pos) == 0))
-                
-                if apple_pos_is_empty:
-                    # First try to use an apple from apple_positions
-                    if self.apple_positions and len(self.apple_positions) > 0:
-                        # Use the most recent apple position
-                        latest_apple = self.apple_positions[-1]
-                        if isinstance(latest_apple, dict):
-                            processed_round["apple_position"] = [latest_apple["x"], latest_apple["y"]]
-                        elif isinstance(latest_apple, (list, tuple)):
-                            processed_round["apple_position"] = list(latest_apple)
-                        elif isinstance(latest_apple, np.ndarray):
-                            processed_round["apple_position"] = latest_apple.tolist()
-                    else:
-                        # If all else fails, use a default position
-                        processed_round["apple_position"] = [5, 5]  # Default position
-                
-                # Ensure all required arrays exist and are non-empty
-                for key, value in reference_values.items():
-                    if key not in processed_round or not processed_round[key] or len(processed_round[key]) == 0:
-                        processed_round[key] = value.copy() if isinstance(value, list) else [value]
-                
-                # Save the processed round data
-                self.rounds_data[round_key] = processed_round
+        # Get ordered rounds data for the JSON
+        ordered_rounds_data = self._get_ordered_rounds_data()
         
         # Generate and save the summary
         summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
+        
+        # Validate the summary before saving
+        from utils.json_utils import validate_game_summary
+        is_valid, error_message = validate_game_summary(summary)
+        if not is_valid:
+            print(f"⚠️ Warning: Game summary validation failed: {error_message}")
         
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
@@ -1258,9 +1132,11 @@ class GameData:
                             round_data[key] = unique_reversals
                         elif key == "moves":
                             # Special handling for moves to prevent duplicates
-                            # Only update if the current_round_data contains new moves
-                            if len(value) > len(round_data.get(key, [])):
-                                round_data[key] = value.copy()
+                            # Use append-only delta to preserve proper order
+                            existing = round_data.get(key, [])
+                            if len(value) > len(existing):
+                                # Copy ONLY the new slice
+                                round_data[key] = existing + value[len(existing):]
                                 changes_made = True
                         else:
                             # For other lists, check if there are actual changes

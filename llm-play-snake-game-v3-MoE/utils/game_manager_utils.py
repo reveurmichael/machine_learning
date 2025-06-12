@@ -211,22 +211,18 @@ def process_game_over(game, game_state_info):
             if secondary_stats.get("total_completion_tokens") is not None:
                 token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
     
-    # Update step_stats with the game's current valid_steps count for summary.json
-    step_stats = {
-        "valid_steps": valid_steps,
-        "empty_steps": empty_steps,
-        "error_steps": error_steps,
-        "invalid_reversals": invalid_reversals
-    }
-    
-    # Save session stats with the updated valid_steps
+    # Update session stats
     save_session_stats(
         log_dir,
         game_count=game_count,
         total_score=total_score,
         total_steps=total_steps,
-        step_stats=step_stats,
         parser_usage_count=game_state_info.get("parser_usage_count", 0),
+        game_scores=game_scores,
+        empty_steps=empty_steps,
+        error_steps=error_steps,
+        valid_steps=valid_steps,
+        invalid_reversals=invalid_reversals,
         time_stats=time_stats,
         token_stats=token_stats,
         max_empty_moves_allowed=args.max_empty_moves_allowed,
@@ -236,28 +232,35 @@ def process_game_over(game, game_state_info):
     # Save individual game JSON file using the canonical writer
     from utils.file_utils import get_game_json_filename, join_log_path
 
-    game_filename = get_game_json_filename(game_count)
-    game_file = join_log_path(log_dir, game_filename)
+    game_file = join_log_path(
+        log_dir,
+        get_game_json_filename(game_count)
+    )
 
-    parser_provider = (args.parser_provider
-                     if args.parser_provider and args.parser_provider.lower() != "none"
-                     else None)
+    parser_provider = (
+        args.parser_provider
+        if args.parser_provider
+           and args.parser_provider.lower() != "none"
+        else None
+    )
 
-    # Make sure the game_state carries the correct game number
+    # tag the state with the right game number
     game.game_state.game_number = game_count
 
     game.game_state.save_game_summary(
         game_file,
-        args.provider,            # single source of truth
+        args.provider,        # SINGLE SOURCE-OF-TRUTH
         args.model,
         parser_provider,
         args.parser_model if parser_provider else None,
         args.max_consecutive_errors_allowed
     )
 
-    print(Fore.GREEN +
+    print(
+        Fore.GREEN +
         f"💾 Saved data for game {game_count} "
-        f"(rounds: {round_count}, moves: {len(current_game_moves)})")
+        f"(rounds: {round_count}, moves: {len(current_game_moves)})"
+    )
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
 

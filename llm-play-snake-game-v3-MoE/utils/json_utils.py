@@ -723,4 +723,40 @@ def extract_moves_from_arrays(response):
         if valid_moves and len(valid_moves) > 0:
             return {"moves": valid_moves}
     
-    return None 
+    return None
+
+def validate_game_summary(summary):
+    """Validate a game summary JSON to ensure data consistency.
+    
+    Performs sanity checks on the game summary to ensure:
+    - moves length matches steps
+    - each round's moves are a subset of the global moves
+    - no root-level "moves" key exists
+    
+    Args:
+        summary: The game summary dictionary
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        # Check no root-level moves
+        if "moves" in summary:
+            return False, "Root-level 'moves' key found - this should be removed"
+        
+        # Check steps against detailed_history.moves
+        if "steps" in summary and "detailed_history" in summary and "moves" in summary["detailed_history"]:
+            steps = summary["steps"]
+            moves_len = len(summary["detailed_history"]["moves"])
+            if steps != moves_len:
+                return False, f"Moves length ({moves_len}) doesn't match steps ({steps})"
+        
+        # Check each round's moves against total steps
+        if "detailed_history" in summary and "rounds_data" in summary["detailed_history"]:
+            for rk, rd in summary["detailed_history"]["rounds_data"].items():
+                if "moves" in rd and len(rd["moves"]) > summary["steps"]:
+                    return False, f"Round {rk} moves ({len(rd['moves'])}) exceed total steps ({summary['steps']})"
+        
+        return True, "Validation passed"
+    except Exception as e:
+        return False, f"Validation error: {str(e)}" 

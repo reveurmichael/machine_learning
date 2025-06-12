@@ -210,6 +210,7 @@ class GameData:
             current_direction: The current direction of the snake
         """
         self.invalid_reversals += 1
+        self.steps += 1  # Increment steps for invalid reversals
         
         # Add to the current round data if we're tracking a round
         if self.current_round_data:
@@ -832,6 +833,12 @@ class GameData:
         """
         # Snake length is now calculated through the property getter
         
+        # Create planned_moves_stats for debugging
+        planned_moves_stats = {}
+        for round_key, round_data in self.rounds_data.items():
+            if "planned_moves" in round_data:
+                planned_moves_stats[round_key] = len(round_data["planned_moves"])
+        
         # Create the base summary
         summary = {
             # Core game data
@@ -859,6 +866,7 @@ class GameData:
             "step_stats": self.get_step_stats(),
             "error_stats": self.get_error_stats(),
             "json_parsing_stats": self.get_json_parsing_stats(),
+            "planned_moves_stats": planned_moves_stats,  # Add planned_moves_stats
             
             # Metadata
             "metadata": {
@@ -1175,6 +1183,9 @@ class GameData:
             # but DON'T update the current_round_data["moves"] to avoid duplication
             # The moves will be added individually as they're executed by record_move
             
+            # Add to current_round_data (used for the current round)
+            self.current_round_data["planned_moves"] = standardized_moves.copy()
+            
             # Store directly in the rounds_data for reference only
             round_data = self._get_or_create_round_data(self.round_count)
             
@@ -1199,6 +1210,7 @@ class GameData:
             self.rounds_data[round_key] = {
                 "apple_position": None,
                 "moves": [],
+                "planned_moves": [],
                 "primary_response_times": [],
                 "secondary_response_times": [],
                 "primary_token_stats": [],
@@ -1207,6 +1219,9 @@ class GameData:
             }
             
         round_data = self.rounds_data[round_key]
+        
+        # Track if any changes were made
+        changes_made = False
         
         # Copy all data from current_round_data to round_data
         for key, value in self.current_round_data.items():
@@ -1242,24 +1257,35 @@ class GameData:
                                 if rev_key not in seen_keys:
                                     seen_keys.add(rev_key)
                                     unique_reversals.append(reversal)
+                                    changes_made = True
                             
                             # Set the deduplicated list back to round_data
                             round_data[key] = unique_reversals
                         else:
-                            # For other lists, just copy the entire list
-                            round_data[key] = value.copy()
+                            # For other lists, check if there are actual changes
+                            if key not in round_data or round_data[key] != value:
+                                # For other lists, just copy the entire list
+                                round_data[key] = value.copy()
+                                changes_made = True
                     else:  # numpy array
+                        # For numpy arrays, always assume changes (difficult to compare efficiently)
                         round_data[key] = value.copy()
+                        changes_made = True
             # Handle dictionaries
             elif isinstance(value, dict):
                 if value:  # Only copy non-empty dicts
-                    round_data[key] = value.copy()
+                    if key not in round_data or round_data[key] != value:
+                        round_data[key] = value.copy()
+                        changes_made = True
             # Handle other types (strings, numbers, etc.)
             else:
-                round_data[key] = value
+                if key not in round_data or round_data[key] != value:
+                    round_data[key] = value
+                    changes_made = True
                 
-        # Log the sync operation with the correct round number
-        print(f"🔄 Synchronized data for round {self.round_count}")
+        # Log the sync operation only if changes were made
+        if changes_made:
+            print(f"🔄 Synchronized data for round {self.round_count}")
     
     def _get_or_create_round_data(self, round_num):
         """Get existing round data or create new round data for the specified round number.
@@ -1277,6 +1303,7 @@ class GameData:
             self.rounds_data[round_key] = {
                 "apple_position": None,
                 "moves": [],
+                "planned_moves": [],
                 "primary_response_times": [],
                 "secondary_response_times": [],
                 "primary_token_stats": [],

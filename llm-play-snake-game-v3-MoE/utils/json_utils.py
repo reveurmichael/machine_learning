@@ -469,7 +469,7 @@ def extract_json_from_code_block(response):
     
     return None
 
-def extract_valid_json(text, game_state=None):
+def extract_valid_json(text, game_state=None, attempt_id=0):
     """Extract valid JSON data from text.
     
     Attempts multiple extraction strategies:
@@ -481,6 +481,7 @@ def extract_valid_json(text, game_state=None):
     Args:
         text: Text that may contain JSON
         game_state: Optional GameData instance to record parsing stats
+        attempt_id: Attempt number (0 for first attempt, incremented for retries)
         
     Returns:
         Parsed JSON data or None if no valid JSON found
@@ -498,7 +499,9 @@ def extract_valid_json(text, game_state=None):
             # Validate the moves format
             is_valid, error_msg = validate_json_format(data)
             if not is_valid:
-                print(f"JSON format validation error: {error_msg}")
+                # Only print error message on first attempt
+                if attempt_id == 0:
+                    print(f"JSON format validation error: {error_msg}")
                 json_error_stats["format_validation_errors"] += 1
                 if game_state is not None:
                     game_state.record_json_extraction_attempt(success=False, error_type="format")
@@ -515,9 +518,13 @@ def extract_valid_json(text, game_state=None):
                 
             return data
         else:
-            print(f"JSON missing 'moves' key or not a dict. Keys: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
+            # Only print error message on first attempt
+            if attempt_id == 0:
+                print(f"JSON missing 'moves' key or not a dict. Keys: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
     except json.JSONDecodeError as e:
-        print(f"JSON decode error: {e}")
+        # Only print error message on first attempt
+        if attempt_id == 0:
+            print(f"JSON decode error: {e}")
         json_error_stats["json_decode_errors"] += 1
         
         # Record error type in game_state if provided
@@ -530,7 +537,9 @@ def extract_valid_json(text, game_state=None):
         # Validate the moves format
         is_valid, error_msg = validate_json_format(json_data)
         if not is_valid:
-            print(f"JSON format validation error (code block): {error_msg}")
+            # Only print error message on first attempt
+            if attempt_id == 0:
+                print(f"JSON format validation error (code block): {error_msg}")
             json_error_stats["format_validation_errors"] += 1
             if game_state is not None:
                 game_state.record_json_extraction_attempt(success=False, error_type="validation")
@@ -557,7 +566,9 @@ def extract_valid_json(text, game_state=None):
         # Validate the moves format
         is_valid, error_msg = validate_json_format(json_data)
         if not is_valid:
-            print(f"JSON format validation error (text): {error_msg}")
+            # Only print error message on first attempt
+            if attempt_id == 0:
+                print(f"JSON format validation error (text): {error_msg}")
             json_error_stats["format_validation_errors"] += 1
             if game_state is not None:
                 game_state.record_json_extraction_attempt(success=False, error_type="format")
@@ -580,7 +591,9 @@ def extract_valid_json(text, game_state=None):
         # Validate the moves format
         is_valid, error_msg = validate_json_format(json_data)
         if not is_valid:
-            print(f"JSON format validation error (arrays): {error_msg}")
+            # Only print error message on first attempt
+            if attempt_id == 0:
+                print(f"JSON format validation error (arrays): {error_msg}")
             json_error_stats["format_validation_errors"] += 1
             if game_state is not None:
                 game_state.record_json_extraction_attempt(success=False, error_type="format")
@@ -598,7 +611,9 @@ def extract_valid_json(text, game_state=None):
         return json_data
             
     json_error_stats["failed_extractions"] += 1
-    print("❌ Failed to extract any valid moves from the response")
+    # Only print error message on first attempt
+    if attempt_id == 0:
+        print("❌ Failed to extract any valid moves from the response")
     
     # No valid JSON found
     return None

@@ -6,6 +6,19 @@ primary and secondary LLM outputs in the Snake game context.
 
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
 
+def _count_attempt(game_state, success=False, error=None):
+    """Record a JSON extraction attempt.
+    
+    Helper function to track all JSON extraction attempts, including failures.
+    
+    Args:
+        game_state: GameData instance to track statistics
+        success: Whether the extraction was successful
+        error: Type of error if unsuccessful (decode, validation, etc.)
+    """
+    if game_state is not None:
+        game_state.record_json_extraction_attempt(success, error)
+
 def parse_and_format(llm_client, llm_response, parser_options=None):
     """Parse an LLM response and format it for use by the game.
     
@@ -28,18 +41,24 @@ def parse_and_format(llm_client, llm_response, parser_options=None):
         game_state = None
         if parser_options and 'game_state' in parser_options:
             game_state = parser_options['game_state']
+        
+        # Record attempt at the start of parsing
+        _count_attempt(game_state)
             
         # Parse JSON directly from response
-        parsed_data = extract_valid_json(llm_response, game_state)
+        parsed_data = extract_valid_json(llm_response, game_state, attempt_id=0)
         
         if parsed_data and "moves" in parsed_data:
-            # Return data if it includes a 'moves' field
+            # Record success and return data if it includes a 'moves' field
+            _count_attempt(game_state, success=True)
             return parsed_data
         
         # No valid data found
+        _count_attempt(game_state, error="format")
         return None
     except Exception as e:
         print(f"Error parsing LLM response: {e}")
+        _count_attempt(game_state, error="exception")
         return None
 
 def parse_llm_response(response, processed_response_func, game_instance):
@@ -71,7 +90,7 @@ def parse_llm_response(response, processed_response_func, game_instance):
             print("Attempting to extract JSON from LLM response...")
             
             # Try to extract JSON from the response
-            json_data = extract_valid_json(response, game_instance.game_state)
+            json_data = extract_valid_json(response, game_instance.game_state, attempt_id=0)
             
             # If we couldn't extract JSON, try looking for code blocks
             if not json_data:

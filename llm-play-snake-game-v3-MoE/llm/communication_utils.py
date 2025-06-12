@@ -379,15 +379,15 @@ def get_llm_response(game_manager):
         return next_move, True
 
     except Exception as e:
-        # End tracking LLM communication time even if there was an error
-        game_manager.game.game_state.record_llm_communication_end()
-        
-        # Record that there was an error in the LLM response
+        # Record that there was an error in the LLM response BEFORE ending communication time
         game_manager.game.game_state.record_error_move()
         game_manager.error_steps += 1
         
-        # Ensure round data is synchronized
+        # Ensure round data is synchronized BEFORE ending communication time
         game_manager.game.game_state.sync_round_data()
+        
+        # End tracking LLM communication time even if there was an error
+        game_manager.game.game_state.record_llm_communication_end()
         
         # Increment consecutive errors but DO NOT increment consecutive empty steps
         game_manager.consecutive_errors += 1

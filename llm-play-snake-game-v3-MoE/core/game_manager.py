@@ -206,6 +206,13 @@ class GameManager:
         Args:
             reason: Optional reason for incrementing the round (for logging)
         """
+        # Skip if we're still awaiting a plan (prevents duplicate increment)
+        if self.awaiting_plan:
+            return
+            
+        # Store old round count to check if it actually changed
+        old_round_count = self.round_count
+        
         # Increment round counter
         self.round_count += 1
         
@@ -216,9 +223,11 @@ class GameManager:
             # Ensure game state data is synchronized
             self.game.game_state.sync_round_data()
         
-        # Log the round increment with reason if provided
-        reason_text = f" ({reason})" if reason else ""
-        print(Fore.BLUE + f"📊 Advanced to round {self.round_count}{reason_text}")
+        # Only print the banner if the round count actually changed
+        if self.round_count != old_round_count:
+            # Log the round increment with reason if provided
+            reason_text = f" ({reason})" if reason else ""
+            print(Fore.BLUE + f"📊 Advanced to round {self.round_count}{reason_text}")
     
     def continue_from_session(self, log_dir, start_game_number):
         """Continue from a previous game session.

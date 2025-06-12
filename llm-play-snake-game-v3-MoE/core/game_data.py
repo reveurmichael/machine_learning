@@ -796,9 +796,10 @@ class GameData:
         # Snake length is now calculated through the property getter
         
         # Create planned_moves_stats for debugging - recalculate safely
+        ordered_rounds = self._get_ordered_rounds_data()
         planned_moves_stats = {
             rk: len(rd.get("planned_moves", []))
-            for rk, rd in self.rounds_data.items()
+            for rk, rd in ordered_rounds.items()
         }
         
         # Create the base summary

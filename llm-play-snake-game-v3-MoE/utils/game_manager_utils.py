@@ -13,6 +13,11 @@ import json
 from datetime import datetime
 from utils.json_utils import NumPyJSONEncoder
 
+def _safe_add(target: dict, key: str, delta):
+    """Add delta to target[key] only if delta is truthy (skips None / 0)."""
+    if delta:
+        target[key] = target.get(key, 0) + delta
+
 def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=False):
     """Check if a position collides with walls or snake body.
     
@@ -158,15 +163,14 @@ def process_game_over(game, game_state_info):
     if hasattr(game.game_state, "get_time_stats"):
         game_time_stats = game.game_state.get_time_stats()
         
-        # Add to accumulated time stats
-        if "llm_communication_time" in game_time_stats:
-            time_stats["llm_communication_time"] = time_stats.get("llm_communication_time", 0) + game_time_stats["llm_communication_time"]
-            
-        if "game_movement_time" in game_time_stats:
-            time_stats["game_movement_time"] = time_stats.get("game_movement_time", 0) + game_time_stats["game_movement_time"]
-            
-        if "waiting_time" in game_time_stats:
-            time_stats["waiting_time"] = time_stats.get("waiting_time", 0) + game_time_stats["waiting_time"]
+        # ── aggregate time statistics ────────────────────────────────
+        if game_time_stats:
+            _safe_add(time_stats, "llm_communication_time",
+                      game_time_stats.get("llm_communication_time"))
+            _safe_add(time_stats, "game_movement_time",
+                      game_time_stats.get("game_movement_time"))
+            _safe_add(time_stats, "waiting_time",
+                      game_time_stats.get("waiting_time"))
     
     # Update token statistics
     if hasattr(game.game_state, "get_token_stats"):

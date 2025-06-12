@@ -150,6 +150,11 @@ def save_session_stats(log_dir, **kwargs):
         print(f"Error reading summary.json: {e}")
         return
     
+    def _safe_set(target: dict, key: str, val):
+        """Overwrite only with a real, non-zero value."""
+        if val:
+            target[key] = val
+    
     # Ensure all required sections exist
     if "game_statistics" not in summary:
         summary["game_statistics"] = {
@@ -236,12 +241,13 @@ def save_session_stats(log_dir, **kwargs):
         elif key == "time_stats":
             # Handle time statistics if provided
             if value and isinstance(value, dict):
-                if "llm_communication_time" in value:
-                    summary["time_statistics"]["total_llm_communication_time"] = value["llm_communication_time"]  # Already accumulated in process_game_over
-                if "game_movement_time" in value:
-                    summary["time_statistics"]["total_game_movement_time"] = value["game_movement_time"]  # Already accumulated in process_game_over
-                if "waiting_time" in value:
-                    summary["time_statistics"]["total_waiting_time"] = value["waiting_time"]  # Already accumulated in process_game_over
+                ts = value
+                _safe_set(summary["time_statistics"], "total_llm_communication_time",
+                          ts.get("llm_communication_time"))
+                _safe_set(summary["time_statistics"], "total_game_movement_time",
+                          ts.get("game_movement_time"))
+                _safe_set(summary["time_statistics"], "total_waiting_time",
+                          ts.get("waiting_time"))
         elif key == "token_stats":
             # Handle token statistics if provided
             if value and isinstance(value, dict):

@@ -111,6 +111,8 @@ def run_game_loop(game_manager):
                         # Skip executing planned moves if we're waiting for a new plan
                         if game_manager.awaiting_plan:
                             # Still waiting for LLM - nothing to execute this tick
+                            # Close the movement-timer that was opened at the top of this loop
+                            game_manager.game.game_state.record_game_movement_end()
                             continue
                         
                         # Execute the next move from previously planned moves

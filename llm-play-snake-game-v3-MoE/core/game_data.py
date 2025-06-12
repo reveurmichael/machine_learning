@@ -10,6 +10,7 @@ import numpy as np
 from utils.json_utils import NumPyJSONEncoder
 import os
 import re
+from colorama import Fore
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
@@ -910,23 +911,6 @@ class GameData:
         # which is the single source of truth for executed moves
         # This list matches 'steps' exactly as both are incremented together in record_move()
         return self.moves.copy()
-        
-        # The old implementation which caused duplication is commented out below:
-        """
-        all_moves = []
-        
-        # Get an ordered list of round keys
-        round_keys = sorted(self.rounds_data.keys(), 
-                           key=lambda k: int(k.split('_')[1]))
-        
-        # Collect moves from each round
-        for round_key in round_keys:
-            round_data = self.rounds_data[round_key]
-            if "moves" in round_data and round_data["moves"]:
-                all_moves.extend(round_data["moves"])
-                
-        return all_moves
-        """
     
     def _get_ordered_rounds_data(self):
         """Get an ordered version of rounds_data with keys sorted numerically.
@@ -1054,6 +1038,11 @@ class GameData:
         if actual_round_count != self.round_count:
             print(f"🔄 Setting round_count to {actual_round_count} based strictly on LLM communication count")
             self.round_count = actual_round_count
+            
+        # Verify the steps vs moves invariant
+        if self.steps != len(self.moves):
+            print(Fore.YELLOW + f"⚠️  Steps ({self.steps}) != moves ({len(self.moves)}). This indicates a potential issue.")
+            # raise AssertionError(f"Steps ({self.steps}) != moves ({len(self.moves)})") # Uncomment in test mode
         
         # CRITICAL: Only include rounds that correspond to actual LLM communications
         # This ensures that the number of rounds in the JSON exactly matches the number
@@ -1168,6 +1157,10 @@ class GameData:
         
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
+            
+        # Only print this message if debug mode is enabled, to avoid duplicate messages with record_game_end
+        if os.getenv("SNAKE_DEBUG"):
+            print(f"💾 Saved data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
             
         return filepath
     

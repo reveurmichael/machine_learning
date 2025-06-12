@@ -280,7 +280,7 @@ class GameManager:
                 
                 # Check if we've reached the max games
                 if self.game_count >= self.args.max_games:
-                    print(Fore.GREEN + f"🏁 Reached maximum games ({self.args.max_games}). Session complete.")
+                    # We only need the break; final banner will be printed in report_final_statistics()
                     break
             
         finally:

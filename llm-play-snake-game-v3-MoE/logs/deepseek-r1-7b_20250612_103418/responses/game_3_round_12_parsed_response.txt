@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-12 11:19:27
+SECONDARY LLM Response Time: 2025-06-12 11:19:31
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (9, 3)
+Apple Position: (8, 8)
+Body Cells: [(8, 3), (8, 4), (8, 5), (8, 6), (7, 6)]
+Timestamp: 2025-06-12 11:19:31
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "RIGHT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Move up 5 times to (9,8), then right to (8,8), then down three times to reach apple. Assumes no other obstacles and only the snake's body is considered an obstacle."
+}
+```

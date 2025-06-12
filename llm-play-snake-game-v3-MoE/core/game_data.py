@@ -16,6 +16,8 @@ class GameData:
     
     def __init__(self):
         """Initialize the game data tracking."""
+        # Initialize last_action_time as None to prevent timing issues
+        self.last_action_time = None
         self.reset()
     
     def reset(self):
@@ -53,7 +55,6 @@ class GameData:
         self.llm_communication_time = 0   # Total time spent communicating with LLMs
         self.game_movement_time = 0      # Time spent in actual game movement
         self.waiting_time = 0            # Time spent waiting (pauses, etc.)
-        self.last_action_time = self.start_time  # For tracking time between actions
         self.other_time = 0              # Defensive initialization for other time
         
         # Basic game stats
@@ -255,33 +256,36 @@ class GameData:
     
     def record_llm_communication_start(self):
         """Mark the start of communication with an LLM."""
-        self.last_action_time = time.time()
+        self.last_action_time = time.perf_counter()
         
     def record_llm_communication_end(self):
         """Record time spent communicating with an LLM."""
-        current_time = time.time()
-        self.llm_communication_time += (current_time - self.last_action_time)
-        self.last_action_time = current_time
+        if self.last_action_time is not None:
+            current_time = time.perf_counter()
+            self.llm_communication_time += (current_time - self.last_action_time)
+            self.last_action_time = None
         
     def record_game_movement_start(self):
         """Mark the start of game movement."""
-        self.last_action_time = time.time()
+        self.last_action_time = time.perf_counter()
         
     def record_game_movement_end(self):
         """Record time spent on game movement."""
-        current_time = time.time()
-        self.game_movement_time += (current_time - self.last_action_time)
-        self.last_action_time = current_time
+        if self.last_action_time is not None:
+            current_time = time.perf_counter()
+            self.game_movement_time += (current_time - self.last_action_time)
+            self.last_action_time = None
         
     def record_waiting_start(self):
         """Mark the start of waiting time."""
-        self.last_action_time = time.time()
+        self.last_action_time = time.perf_counter()
         
     def record_waiting_end(self):
         """Record time spent waiting."""
-        current_time = time.time()
-        self.waiting_time += (current_time - self.last_action_time)
-        self.last_action_time = current_time
+        if self.last_action_time is not None:
+            current_time = time.perf_counter()
+            self.waiting_time += (current_time - self.last_action_time)
+            self.last_action_time = None
     
     def record_game_end(self, reason):
         """Record the end of a game.
@@ -424,10 +428,14 @@ class GameData:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
+        # Skip recording if both values are None (placeholder values)
+        if prompt_tokens is None and completion_tokens is None:
+            return
+            
         token_stats = {
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-            "total_tokens": prompt_tokens + completion_tokens
+            "prompt_tokens": prompt_tokens or 0,
+            "completion_tokens": completion_tokens or 0,
+            "total_tokens": (prompt_tokens or 0) + (completion_tokens or 0)
         }
         
         # Always add to the global tracking list
@@ -463,14 +471,18 @@ class GameData:
             prompt_tokens: Number of tokens in the prompt
             completion_tokens: Number of tokens in the completion
         """
-        # Skip default values
+        # Skip recording if both values are None (placeholder values)
+        if prompt_tokens is None and completion_tokens is None:
+            return
+            
+        # Skip default values (keep for backward compatibility but can be removed later)
         if prompt_tokens == 800 and completion_tokens == 50 and not self.secondary_token_stats:
             return
             
         token_stats = {
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-            "total_tokens": prompt_tokens + completion_tokens
+            "prompt_tokens": prompt_tokens or 0,
+            "completion_tokens": completion_tokens or 0,
+            "total_tokens": (prompt_tokens or 0) + (completion_tokens or 0)
         }
         
         # Always add to the global tracking list

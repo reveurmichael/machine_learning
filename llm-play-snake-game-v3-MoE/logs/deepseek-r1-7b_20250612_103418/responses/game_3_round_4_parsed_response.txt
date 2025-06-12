@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-12 11:04:29
+SECONDARY LLM Response Time: 2025-06-12 11:04:33
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (1, 5)
+Apple Position: (8, 5)
+Body Cells: [(1, 6)]
+Timestamp: 2025-06-12 11:04:33
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake starts at (1, 5) and the apple is at (8, 5). The most direct path is to move down four times to reach the same row as the apple."
+}
+```

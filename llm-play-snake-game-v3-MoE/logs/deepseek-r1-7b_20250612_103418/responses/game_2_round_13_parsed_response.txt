@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-12 10:58:53
+SECONDARY LLM Response Time: 2025-06-12 10:58:57
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (7, 1)
+Apple Position: (1, 9)
+Body Cells: [(7, 2), (6, 2), (5, 2), (4, 2), (4, 3), (5, 3)]
+Timestamp: 2025-06-12 10:58:57
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP"],
+  "reasoning": "The snake starts by moving left twice to decrease its x-coordinate. Then it tries to move up, attempting to progress towards the target without colliding with its own body segments."
+}
+```

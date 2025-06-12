@@ -247,21 +247,25 @@ def save_session_stats(log_dir, **kwargs):
             if value and isinstance(value, dict):
                 if "primary" in value and isinstance(value["primary"], dict):
                     primary = value["primary"]
-                    if "total_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]  # Already accumulated in process_game_over
-                    if "total_prompt_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]  # Already accumulated in process_game_over
-                    if "total_completion_tokens" in primary:
-                        summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]  # Already accumulated in process_game_over
+                    
+                    # Only add token stats if they're not None
+                    if "total_tokens" in primary and primary["total_tokens"] is not None:
+                        summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]
+                    if "total_prompt_tokens" in primary and primary["total_prompt_tokens"] is not None:
+                        summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]
+                    if "total_completion_tokens" in primary and primary["total_completion_tokens"] is not None:
+                        summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]
                 
                 if "secondary" in value and isinstance(value["secondary"], dict):
                     secondary = value["secondary"]
-                    if "total_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]  # Already accumulated in process_game_over
-                    if "total_prompt_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]  # Already accumulated in process_game_over
-                    if "total_completion_tokens" in secondary:
-                        summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]  # Already accumulated in process_game_over
+                    
+                    # Only add token stats if they're not None
+                    if "total_tokens" in secondary and secondary["total_tokens"] is not None:
+                        summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]
+                    if "total_prompt_tokens" in secondary and secondary["total_prompt_tokens"] is not None:
+                        summary["token_usage_stats"]["secondary_llm"]["total_prompt_tokens"] = secondary["total_prompt_tokens"]
+                    if "total_completion_tokens" in secondary and secondary["total_completion_tokens"] is not None:
+                        summary["token_usage_stats"]["secondary_llm"]["total_completion_tokens"] = secondary["total_completion_tokens"]
         elif key == "step_stats":
             # Handle step statistics if provided as a complete dictionary
             if value and isinstance(value, dict):

@@ -33,6 +33,25 @@ class LLMClient:
         # Initialize primary provider
         self._provider_instance = create_provider(self.provider)
 
+    def _extract_usage(self, raw_usage: dict) -> dict:
+        """
+        Return {'prompt_tokens': int|None, 'completion_tokens': int|None,
+                'total_tokens': int|None} with NO default values.
+                
+        Args:
+            raw_usage: The raw usage dictionary from the LLM provider
+            
+        Returns:
+            Normalized usage dictionary with no default values
+        """
+        if not raw_usage:
+            return {"prompt_tokens": None, "completion_tokens": None, "total_tokens": None}
+        return {
+            "prompt_tokens": raw_usage.get("prompt_tokens"),
+            "completion_tokens": raw_usage.get("completion_tokens"),
+            "total_tokens": raw_usage.get("total_tokens")
+        }
+
     def set_secondary_llm(self, provider: str, model: str):
         """Set the secondary LLM (parser) details.
         
@@ -129,9 +148,9 @@ class LLMClient:
             # Call the provider's generate_response method
             response, token_count = self._provider_instance.generate_response(prompt, **kwargs)
 
-            # Store token usage information
+            # Store token usage information using the helper to avoid default values
             if token_count:
-                self.last_token_count = token_count
+                self.last_token_count = self._extract_usage(token_count)
 
             # Print brief response preview for debugging
             preview = response[:100] + "..." if len(response) > 100 else response

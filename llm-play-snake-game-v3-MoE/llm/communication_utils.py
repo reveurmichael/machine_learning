@@ -156,8 +156,9 @@ def get_llm_response(game_manager):
 
         # Record token usage if available
         if hasattr(game_manager.llm_client, 'last_token_count') and game_manager.llm_client.last_token_count:
-            prompt_tokens = game_manager.llm_client.last_token_count.get('prompt_tokens', 0)
-            completion_tokens = game_manager.llm_client.last_token_count.get('completion_tokens', 0)
+            stats = game_manager.llm_client.last_token_count
+            prompt_tokens = stats.get("prompt_tokens")
+            completion_tokens = stats.get("completion_tokens")
             game_manager.game.game_state.record_primary_token_stats(prompt_tokens, completion_tokens)
 
         # Record response time
@@ -228,8 +229,9 @@ def get_llm_response(game_manager):
 
             # Record secondary token usage if available
             if hasattr(game_manager.llm_client, 'last_token_count') and game_manager.llm_client.last_token_count:
-                prompt_tokens = game_manager.llm_client.last_token_count.get('prompt_tokens', 0)
-                completion_tokens = game_manager.llm_client.last_token_count.get('completion_tokens', 0)
+                stats = game_manager.llm_client.last_token_count
+                prompt_tokens = stats.get("prompt_tokens")
+                completion_tokens = stats.get("completion_tokens")
                 game_manager.game.game_state.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
             # Check if we got a valid secondary response

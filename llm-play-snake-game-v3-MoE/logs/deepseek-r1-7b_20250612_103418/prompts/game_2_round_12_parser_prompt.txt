@@ -1,0 +1,119 @@
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (7, 2)
+Apple Position: (7, 1)
+Body Cells: [(6, 2), (5, 2), (4, 2), (4, 3), (5, 3)]
+Timestamp: 2025-06-12 10:57:21
+
+
+========== SECONDARY LLM PROMPT ==========
+
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, I'm trying to solve this classic Snake game problem where the snake is at position (7,2) facing RIGHT. The apple is located at (7,1). The body segments are [(6,2), (5,2), (4,2), (4,3), (5,3)]. 
+
+First, I need to figure out a safe path for the head to reach the apple without colliding with the body or walls. Since the snake is currently facing RIGHT and can't reverse on the first move, my initial direction should be LEFT because moving RIGHT would take it directly towards the apple but in the opposite direction.
+
+Calculating the distance: The head is at (7,2) and the apple at (7,1). So, moving LEFT once will bring the head to (6,2), which is adjacent. But I need to check if that cell is free of body segments or future positions.
+
+Looking at the body list, (6,2) is actually the first element after the head. Wait no, the body starts from behind: [(4,2), (5,2), etc.] Hmm, in the initial setup, the body cells exclude the head and go from the cell immediately behind to the tail. So the snake's body includes positions starting at (6,2). Therefore, moving LEFT would take the head into (6,2), which is already occupied by a body segment.
+
+That means I can't move LEFT because it would result in a collision with the tail's current position. Therefore, my first move has to be something else. Maybe DOWN? Let's see where that takes us.
+
+Moving DOWN from (7,2) leads to (7,1), which is exactly where the apple is. But before moving, I need to check for collisions. The new head at (7,1) should not collide with any body segments except possibly when it eats the apple. Looking at the body cells: [(6,2), (5,2), (4,2), (4,3), (5,3)]. None of these are near (7,1). The tail is moving if it's eating the apple, but in this case, since we're about to eat the apple, do I need to check for collisions with where the tail will be after moving?
+
+Wait, according to the rules, when you move into a cell that the tail will vacate (if the snake isn't growing), is that allowed? Since eating the apple causes growth, the tail remains in its current position. So, if we're about to eat the apple at (7,1), our new head would be there, and since it's an apple, the body grows by one without moving the tail.
+
+So checking collisions: The new head is (7,1). Are any of the existing body cells adjacent except for where the tail will move? Since we're about to grow, the tail doesn't move. Therefore, (7,1) isn't occupied by a body cell before movement. So moving DOWN towards the apple seems safe.
+
+But I need to ensure that after this move, there's at least one legal move next turn to avoid trapping. Moving DOWN into (7,1), which is the apple, then in the next step, if we try to move again, we can't reverse direction because of rule 2. So the snake has to make a safe move.
+
+Wait, after eating the apple, the head is at (7,1). The body was [(6,2), (5,2), etc.], and since it's growing by one, the new full S would be [ (7,1) followed by all previous body cells ]. So when moving again next step, I can't reverse direction because that would require a previous move not being allowed.
+
+But for now, let me confirm if moving DOWN is safe. The head at (7,2) moves to (7,1), which is the apple's position. Since it's an apple, we grow by one. Our body becomes [ (7,1), (6,2), (5,2), etc. ]. Wait no: according to rule 3c, if new_head == apple, we do not remove the tail. So in this case, the old tail was at (4,3). After moving, the new head is inserted before the current body, and since it's eating an apple, the tail doesn't get removed. Therefore, our body becomes [(7,1), (6,2), (5,2), (4,2), (4,3), (5,3)].
+
+Now checking if any of these new positions cause a collision: The new head is at (7,1). Are there any adjacent cells occupied? The next cell to the DOWN would be (7,0) which is beyond grid bounds. To LEFT it's (6,1), which isn't part of the body yet because body starts at (6,2). So moving DOWN seems safe.
+
+Thus, I can safely move DOWN as the first step towards the apple without immediate collision issues.
+</think>
+
+To solve this problem, we need to navigate a snake from its current position `(7,2)` facing RIGHT toward an apple located at `(7,1)`. The snake's body occupies several cells which must be avoided during movement. The key is to plan a path that safely moves the head towards the apple while respecting all game rules and avoiding self-collisions.
+
+### Approach
+
+1. **Identify Movement Constraints**: 
+   - The snake cannot reverse direction immediately, so after facing RIGHT, it can move LEFT, UP, or DOWN but not RIGHT again on its first move.
+   - The snake must avoid moving into cells occupied by its own body segments (except when growing upon eating an apple).
+   - After eating the apple, there should be at least one valid subsequent move to prevent getting trapped.
+
+2. **Determine Initial Directions**:
+   - Given the head is at `(7,2)` facing RIGHT and needs to reach `(7,1)`, moving DOWN directly seems optimal as it's adjacent.
+   - Moving LEFT would take the snake into a body cell `(6,2)`, which is occupied, so this direction is invalid.
+
+3. **Check for Collisions**:
+   - Moving DOWN from `(7,2)` to `(7,1)` (the apple's position) doesn't cause an immediate collision because the current head isn't at that cell.
+   - After moving, since it's an apple-eating move, the snake grows without losing its tail, so no body segment overlaps with the new head.
+
+4. **Plan Subsequent Moves**:
+   - Ensure there is a valid next move to prevent trapping. After moving DOWN towards the apple, possible moves should avoid immediate reversal and self-collisions.
+
+### Solution Code
+
+```json
+{
+  "moves": ["DOWN"],
+  "reasoning": "Moving downward safely leads the snake from (7,2) to (7,1), the apple's position, without colliding with body cells. After eating the apple, there will be at least one legal move next turn."
+}
+```
+
+This solution provides a safe initial move toward the apple while considering movement constraints and self-collisions.
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at (7, 2) and whose body cells are in list format [(6, 2), (5, 2), (4, 2), (4, 3), (5, 3)], to eat (or at least get close to) the apple at (7, 1). It's possible that RESPONSE_1 cannot determine a complete safe path to the apple and gives just one or several initial moves.
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT". Note that directions are uppercase. You might see "U", "D", "L", "R" in the text for representing moves, you should convert them to "UP" (for "U"), "DOWN" (for "D"), "LEFT" (for "L"), "RIGHT" (for "R"); you might see "North", "South", "West", "East" in the text for representing moves, you should convert them to "UP" (for "North"), "DOWN" (for "South"), "LEFT" (for "West"), "RIGHT" (for "East").
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or no safe initial moves can be performed, or if you are not sure about the text's meaning on path and move planning, return your answer in JSON format: { "moves": [], "reasoning": "NO_PATH_OR_SAFE_INITIAL_MOVES_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" } in JSON format.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if FINAL_OUTPUT_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform (e.g. leading to the apple, or one or several initial safe moves), you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
+- Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -1,0 +1,1710 @@
+{
+  "score": 5,
+  "steps": 57,
+  "snake_length": 6,
+  "game_over": true,
+  "game_end_reason": "WALL",
+  "round_count": 13,
+  "time_stats": {
+    "start_time": "2025-06-12 10:58:57",
+    "end_time": "2025-06-12 11:19:31",
+    "total_duration_seconds": 1234.2310540676117,
+    "llm_communication_time": 1234.1767916679382,
+    "game_movement_time": 0.034245967864990234,
+    "waiting_time": 0.0,
+    "other_time": 0.02001643180847168,
+    "llm_communication_percent": 99.99560354607068,
+    "game_movement_percent": 0.0027746804580979396,
+    "waiting_percent": 0.0,
+    "other_percent": 0.0016217734712235794
+  },
+  "llm_info": {
+    "primary_provider": null,
+    "primary_model": null,
+    "parser_provider": null,
+    "parser_model": null
+  },
+  "prompt_response_stats": {
+    "avg_primary_response_time": 98.91925048828125,
+    "min_primary_response_time": 13.10265564918518,
+    "max_primary_response_time": 191.7741038799286,
+    "avg_secondary_response_time": 3.9155584971110025,
+    "min_secondary_response_time": 2.2585861682891846,
+    "max_secondary_response_time": 4.531795263290405
+  },
+  "token_stats": {
+    "primary": {
+      "total_tokens": 109448,
+      "total_prompt_tokens": 24456,
+      "total_completion_tokens": 84992,
+      "avg_total_tokens": 9120.666666666666,
+      "avg_prompt_tokens": 2038.0,
+      "avg_completion_tokens": 7082.666666666667,
+      "request_count": 12
+    },
+    "secondary": {
+      "total_tokens": 47746,
+      "total_prompt_tokens": 46908,
+      "total_completion_tokens": 838,
+      "avg_total_tokens": 3978.8333333333335,
+      "avg_prompt_tokens": 3909.0,
+      "avg_completion_tokens": 69.83333333333333,
+      "request_count": 12
+    }
+  },
+  "step_stats": {
+    "valid_steps": 57,
+    "empty_steps": 0,
+    "error_steps": 0,
+    "invalid_reversals": 11,
+    "max_consecutive_empty_moves_reached": 0
+  },
+  "error_stats": {
+    "total_errors_from_primary_llm": 0,
+    "total_errors_from_secondary_llm": 0,
+    "error_rate_from_primary_llm": 0.0,
+    "error_rate_from_secondary_llm": 0.0
+  },
+  "json_parsing_stats": {
+    "total_extraction_attempts": 36,
+    "successful_extractions": 12,
+    "success_rate": 33.33333333333333,
+    "failed_extractions": 24,
+    "failure_rate": 66.66666666666666,
+    "json_decode_errors": 12,
+    "format_validation_errors": 0,
+    "code_block_extraction_errors": 0,
+    "text_extraction_errors": 0,
+    "pattern_extraction_success": 0
+  },
+  "metadata": {
+    "game_number": 3,
+    "timestamp": "2025-06-12 10:58:57",
+    "last_move": "UP",
+    "round_count": 13,
+    "max_empty_moves_allowed": 20,
+    "max_consecutive_errors_allowed": 5,
+    "parser_usage_count": 12
+  },
+  "primary_token_stats": [
+    {
+      "prompt_tokens": 2028,
+      "completion_tokens": 5363,
+      "total_tokens": 7391
+    },
+    {
+      "prompt_tokens": 2028,
+      "completion_tokens": 921,
+      "total_tokens": 2949
+    },
+    {
+      "prompt_tokens": 2032,
+      "completion_tokens": 7383,
+      "total_tokens": 9415
+    },
+    {
+      "prompt_tokens": 2032,
+      "completion_tokens": 9328,
+      "total_tokens": 11360
+    },
+    {
+      "prompt_tokens": 2032,
+      "completion_tokens": 6465,
+      "total_tokens": 8497
+    },
+    {
+      "prompt_tokens": 2037,
+      "completion_tokens": 6131,
+      "total_tokens": 8168
+    },
+    {
+      "prompt_tokens": 2037,
+      "completion_tokens": 13152,
+      "total_tokens": 15189
+    },
+    {
+      "prompt_tokens": 2042,
+      "completion_tokens": 13752,
+      "total_tokens": 15794
+    },
+    {
+      "prompt_tokens": 2042,
+      "completion_tokens": 4322,
+      "total_tokens": 6364
+    },
+    {
+      "prompt_tokens": 2047,
+      "completion_tokens": 7266,
+      "total_tokens": 9313
+    },
+    {
+      "prompt_tokens": 2047,
+      "completion_tokens": 4199,
+      "total_tokens": 6246
+    },
+    {
+      "prompt_tokens": 2052,
+      "completion_tokens": 6710,
+      "total_tokens": 8762
+    }
+  ],
+  "secondary_token_stats": [
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 76,
+      "total_tokens": 4172
+    },
+    {
+      "prompt_tokens": 1852,
+      "completion_tokens": 51,
+      "total_tokens": 1903
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 87,
+      "total_tokens": 4183
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 73,
+      "total_tokens": 4169
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 77,
+      "total_tokens": 4173
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 56,
+      "total_tokens": 4152
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 73,
+      "total_tokens": 4169
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 72,
+      "total_tokens": 4168
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 71,
+      "total_tokens": 4167
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 68,
+      "total_tokens": 4164
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 42,
+      "total_tokens": 4138
+    },
+    {
+      "prompt_tokens": 4096,
+      "completion_tokens": 92,
+      "total_tokens": 4188
+    }
+  ],
+  "detailed_history": {
+    "apple_positions": [
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 8,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 8
+      },
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 9,
+        "y": 3
+      },
+      {
+        "x": 8,
+        "y": 8
+      }
+    ],
+    "moves": [
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "LEFT",
+      "DOWN",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "UP",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "RIGHT",
+      "DOWN",
+      "DOWN",
+      "DOWN",
+      "RIGHT",
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "UP"
+    ],
+    "rounds_data": {
+      "round_1": {
+        "apple_position": [
+          0,
+          7
+        ],
+        "moves": [],
+        "primary_response_times": [
+          74.92665982246399
+        ],
+        "secondary_response_times": [
+          4.158236980438232
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2028,
+            "completion_tokens": 5363,
+            "total_tokens": 7391
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 76,
+            "total_tokens": 4172
+          }
+        ],
+        "invalid_reversals": [],
+        "planned_moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP"
+        ]
+      },
+      "round_2": {
+        "apple_position": [
+          0,
+          7
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          13.10265564918518
+        ],
+        "secondary_response_times": [
+          2.2585861682891846
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2028,
+            "completion_tokens": 921,
+            "total_tokens": 2949
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 1852,
+            "completion_tokens": 51,
+            "total_tokens": 1903
+          }
+        ],
+        "invalid_reversals": [],
+        "planned_moves": [
+          "LEFT"
+        ]
+      },
+      "round_3": {
+        "apple_position": [
+          8,
+          5
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT"
+        ],
+        "primary_response_times": [
+          103.05143070220947
+        ],
+        "secondary_response_times": [
+          4.419132471084595
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2032,
+            "completion_tokens": 7383,
+            "total_tokens": 9415
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 87,
+            "total_tokens": 4183
+          }
+        ],
+        "invalid_reversals": [],
+        "planned_moves": [
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "RIGHT",
+          "DOWN"
+        ]
+      },
+      "round_4": {
+        "apple_position": [
+          8,
+          5
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          130.1718189716339
+        ],
+        "secondary_response_times": [
+          4.1085450649261475
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2032,
+            "completion_tokens": 9328,
+            "total_tokens": 11360
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 73,
+            "total_tokens": 4169
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          }
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ]
+      },
+      "round_5": {
+        "apple_position": [
+          8,
+          5
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          90.23750019073486
+        ],
+        "secondary_response_times": [
+          4.186926603317261
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2032,
+            "completion_tokens": 6465,
+            "total_tokens": 8497
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 77,
+            "total_tokens": 4173
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          }
+        ],
+        "planned_moves": [
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ]
+      },
+      "round_6": {
+        "apple_position": [
+          1,
+          8
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          85.67182540893555
+        ],
+        "secondary_response_times": [
+          3.6993682384490967
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2037,
+            "completion_tokens": 6131,
+            "total_tokens": 8168
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 56,
+            "total_tokens": 4152
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          }
+        ],
+        "planned_moves": [
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP"
+        ]
+      },
+      "round_7": {
+        "apple_position": [
+          1,
+          8
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          183.47618126869202
+        ],
+        "secondary_response_times": [
+          4.140436410903931
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2037,
+            "completion_tokens": 13152,
+            "total_tokens": 15189
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 73,
+            "total_tokens": 4169
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          }
+        ],
+        "planned_moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT"
+        ]
+      },
+      "round_8": {
+        "apple_position": [
+          4,
+          6
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT"
+        ],
+        "primary_response_times": [
+          191.7741038799286
+        ],
+        "secondary_response_times": [
+          4.104586839675903
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2042,
+            "completion_tokens": 13752,
+            "total_tokens": 15794
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 72,
+            "total_tokens": 4168
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ],
+        "planned_moves": [
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ]
+      },
+      "round_9": {
+        "apple_position": [
+          4,
+          6
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          60.36306881904602
+        ],
+        "secondary_response_times": [
+          4.03300929069519
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2042,
+            "completion_tokens": 4322,
+            "total_tokens": 6364
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 71,
+            "total_tokens": 4167
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ],
+        "planned_moves": [
+          "RIGHT",
+          "UP"
+        ]
+      },
+      "round_10": {
+        "apple_position": [
+          9,
+          3
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "UP"
+        ],
+        "primary_response_times": [
+          101.97827100753784
+        ],
+        "secondary_response_times": [
+          3.9775984287261963
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2047,
+            "completion_tokens": 7266,
+            "total_tokens": 9313
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 68,
+            "total_tokens": 4164
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ],
+        "planned_moves": [
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ]
+      },
+      "round_11": {
+        "apple_position": [
+          9,
+          3
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          58.643963098526
+        ],
+        "secondary_response_times": [
+          3.3684802055358887
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2047,
+            "completion_tokens": 4199,
+            "total_tokens": 6246
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 42,
+            "total_tokens": 4138
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ],
+        "planned_moves": [
+          "RIGHT"
+        ]
+      },
+      "round_12": {
+        "apple_position": [
+          8,
+          8
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          93.63352704048157
+        ],
+        "secondary_response_times": [
+          4.531795263290405
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2052,
+            "completion_tokens": 6710,
+            "total_tokens": 8762
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 92,
+            "total_tokens": 4188
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ],
+        "planned_moves": [
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ]
+      },
+      "round_13": {
+        "apple_position": [
+          8,
+          8
+        ],
+        "moves": [
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "LEFT",
+          "DOWN",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "UP",
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "UP",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "RIGHT",
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "RIGHT",
+          "UP",
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          74.92665982246399,
+          13.10265564918518,
+          103.05143070220947,
+          130.1718189716339,
+          90.23750019073486,
+          85.67182540893555,
+          183.47618126869202,
+          191.7741038799286,
+          60.36306881904602,
+          101.97827100753784,
+          58.643963098526,
+          93.63352704048157
+        ],
+        "secondary_response_times": [
+          4.158236980438232,
+          2.2585861682891846,
+          4.419132471084595,
+          4.1085450649261475,
+          4.186926603317261,
+          3.6993682384490967,
+          4.140436410903931,
+          4.104586839675903,
+          4.03300929069519,
+          3.9775984287261963,
+          3.3684802055358887,
+          4.531795263290405
+        ],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2052,
+            "completion_tokens": 6710,
+            "total_tokens": 8762
+          }
+        ],
+        "secondary_token_stats": [
+          {
+            "prompt_tokens": 4096,
+            "completion_tokens": 92,
+            "total_tokens": 4188
+          }
+        ],
+        "invalid_reversals": [
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 7
+          },
+          {
+            "attempted_move": "RIGHT",
+            "current_direction": "LEFT",
+            "step": 35
+          }
+        ]
+      }
+    }
+  },
+  "game_number": 3,
+  "timestamp": "2025-06-12 11:19:31",
+  "moves": [
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "LEFT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "UP",
+    "UP",
+    "UP",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "LEFT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "UP",
+    "UP",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "RIGHT",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "RIGHT",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT",
+    "DOWN",
+    "DOWN",
+    "DOWN",
+    "UP",
+    "UP",
+    "UP",
+    "UP",
+    "RIGHT"
+  ],
+  "max_empty_moves_allowed": 20,
+  "last_move": "UP"
+}

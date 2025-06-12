@@ -190,16 +190,22 @@ def process_game_over(game, game_state_info):
         # Add primary LLM token stats
         if "primary" in game_token_stats:
             primary_stats = game_token_stats["primary"]
-            token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_stats.get("total_tokens", 0)
-            token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_stats.get("total_prompt_tokens", 0)
-            token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_stats.get("total_completion_tokens", 0)
+            if primary_stats.get("total_tokens") is not None:
+                token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_stats.get("total_tokens", 0)
+            if primary_stats.get("total_prompt_tokens") is not None:
+                token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_stats.get("total_prompt_tokens", 0)
+            if primary_stats.get("total_completion_tokens") is not None:
+                token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_stats.get("total_completion_tokens", 0)
             
         # Add secondary LLM token stats
         if "secondary" in game_token_stats:
             secondary_stats = game_token_stats["secondary"]
-            token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_stats.get("total_tokens", 0)
-            token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
-            token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
+            if secondary_stats.get("total_tokens") is not None:
+                token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_stats.get("total_tokens", 0)
+            if secondary_stats.get("total_prompt_tokens") is not None:
+                token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
+            if secondary_stats.get("total_completion_tokens") is not None:
+                token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
     
     # Save individual game JSON file
     game_data = {

@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-12 10:45:20
+SECONDARY LLM Response Time: 2025-06-12 10:45:22
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (2, 4)
+Apple Position: (3, 4)
+Body Cells: [(2, 5), (2, 6)]
+Timestamp: 2025-06-12 10:45:22
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT"],
+  "reasoning": "Moving right from (2,4) reaches the apple at (3,4). The body segments do not block this path."
+}
+```

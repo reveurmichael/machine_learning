@@ -136,8 +136,6 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         log_dir: Path to the log directory to continue from
         start_game_number: The game number to start from
     """
-    from utils.json_utils import reset_json_error_stats
-    
     # Verify log directory exists and is valid
     if not os.path.isdir(log_dir):
         print(Fore.RED + f"❌ Log directory does not exist: {log_dir}")
@@ -186,9 +184,6 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     # Create directories if they don't exist
     os.makedirs(game_manager.prompts_dir, exist_ok=True)
     os.makedirs(game_manager.responses_dir, exist_ok=True)
-    
-    # Reset JSON error statistics
-    reset_json_error_stats()
     
     # Load and validate the previous game number
     if start_game_number < 1:

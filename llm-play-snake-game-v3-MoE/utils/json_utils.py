@@ -10,22 +10,6 @@ import os
 import numpy as np
 from datetime import datetime
 
-# ---- 1. single source of truth --------------------------------------------
-JSON_STATS_KEYS = [
-    "total_extraction_attempts",
-    "successful_extractions",
-    "failed_extractions",
-    "json_decode_errors",
-    "text_extraction_errors",
-    "pattern_extraction_success",
-    "format_validation_errors",
-    "code_block_extraction_errors",          # ← NEW key
-]
-# ---------------------------------------------------------------------------
-
-# Global tracking of JSON parsing statistics
-json_error_stats = {k: 0 for k in JSON_STATS_KEYS}
-
 class NumPyJSONEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles NumPy types."""
     
@@ -45,24 +29,6 @@ class NumPyJSONEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
-
-def get_json_error_stats():
-    """Get the current JSON error statistics.
-    
-    Returns:
-        Dictionary with error statistics
-    """
-    return json_error_stats
-
-def reset_json_error_stats():
-    """Reset all JSON error statistics to zero.
-    This is called once at the beginning of a new session (either a fresh run
-    or a continuation) so that error statistics do not leak across separate
-    sessions.  It MUST NOT be invoked after the first game starts, otherwise
-    per-game numbers would diverge from the session totals.
-    """
-    for k in JSON_STATS_KEYS:
-        json_error_stats[k] = 0
 
 def save_experiment_info_json(args, directory):
     """Save experiment configuration information to a JSON file.
@@ -117,7 +83,6 @@ def save_experiment_info_json(args, directory):
             "valid_steps": 0,
             "invalid_reversals": 0
         },
-        "json_parsing_stats": {k: 0 for k in JSON_STATS_KEYS}
     }
     
     # Create directory if it doesn't exist
@@ -193,36 +158,9 @@ def save_session_stats(log_dir, **kwargs):
             "invalid_reversals": 0
         }
     
-    # If we're updating json_parsing_stats, aggregate data from individual game files
-    if "json_error_stats" in kwargs or "parser_usage_count" in kwargs:
-        game_count = kwargs.get("game_count", summary["game_statistics"].get("total_games", 0))
-        
-        # Initialize json_parsing_stats with zeros if not present
-        if "json_parsing_stats" not in summary:
-            summary["json_parsing_stats"] = {k: 0 for k in JSON_STATS_KEYS}
-        
-        # For parser_usage_count (successful extractions during the run), use the value passed in
-        if "parser_usage_count" in kwargs:
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["parser_usage_count"] = kwargs["parser_usage_count"]
-            # Set successful_extractions in json_parsing_stats to match parser_usage_count
-            summary["json_parsing_stats"]["successful_extractions"] = kwargs["parser_usage_count"]
-            
-            # If we have json_error_stats, use them for the rest of the fields
-            if "json_error_stats" in kwargs:
-                json_error_stats = kwargs["json_error_stats"]
-                # Keep only the error fields, but use parser_usage_count for successful_extractions
-                for key in json_error_stats:
-                    if key != "successful_extractions":
-                        summary["json_parsing_stats"][key] = json_error_stats[key]
-    
     # Apply new statistics values to the appropriate sections
     for key, value in kwargs.items():
-        if key == "json_error_stats":
-            # Already handled above
-            pass
-        elif key == "game_count":
+        if key == "game_count":
             summary["game_statistics"]["total_games"] = value
         elif key == "total_score":
             summary["game_statistics"]["total_score"] = value
@@ -284,8 +222,10 @@ def save_session_stats(log_dir, **kwargs):
                 if "invalid_reversals" in value:
                     summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
         elif key == "parser_usage_count":
-            # Already handled above
-            pass
+            # Save parser usage count in metadata (simple scalar)
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["parser_usage_count"] = value
         elif key == "max_consecutive_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}
@@ -441,7 +381,7 @@ def extract_json_from_code_block(response):
     
     # If we get here, we couldn't extract valid JSON from any code block
     if len(code_block_matches) > 0:
-        json_error_stats["code_block_extraction_errors"] += 1
+        pass
 
     # If the normal extraction fails, try a more aggressive pattern matching approach
     # This handles cases where the LLM includes formatting characters around JSON
@@ -486,12 +426,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
     Returns:
         Parsed JSON data or None if no valid JSON found
     """
-    json_error_stats["total_extraction_attempts"] += 1
-    
-    # Initialize tracking in game_state if provided
-    if game_state is not None:
-        game_state.record_json_extraction_attempt(success=False)
-    
     try:
         # First try to parse the entire text as JSON
         data = json.loads(text)
@@ -502,13 +436,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
                 # Only print error message on first attempt
                 if attempt_id == 0:
                     print(f"JSON format validation error: {error_msg}")
-                json_error_stats["format_validation_errors"] += 1
-                if game_state is not None:
-                    game_state.record_json_extraction_attempt(success=False, error_type="format")
                 return None
                 
-            json_error_stats["successful_extractions"] += 1
-            
             # Print detailed info about the moves
             print(f"✅ Successfully extracted moves: {data['moves']}")
             
@@ -525,11 +454,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
         # Only print error message on first attempt
         if attempt_id == 0:
             print(f"JSON decode error: {e}")
-        json_error_stats["json_decode_errors"] += 1
-        
-        # Record error type in game_state if provided
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=False, error_type="decode")
     
     # Try extracting from code block
     json_data = extract_json_from_code_block(text)
@@ -540,13 +464,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             # Only print error message on first attempt
             if attempt_id == 0:
                 print(f"JSON format validation error (code block): {error_msg}")
-            json_error_stats["format_validation_errors"] += 1
-            if game_state is not None:
-                game_state.record_json_extraction_attempt(success=False, error_type="validation")
             return None
             
-        json_error_stats["successful_extractions"] += 1
-        
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from code block: {json_data['moves']}")
         
@@ -556,8 +475,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             
         return json_data
     else:
-        # If code blocks were present but none yielded valid JSON, count an error
-        if json_error_stats.get("code_block_extraction_errors", 0) > 0 and game_state is not None:
+        # If code blocks were present but none yielded valid JSON, record in game_state
+        if game_state is not None:
             game_state.record_json_extraction_attempt(success=False, error_type="code_block")
     
     # Try extracting from regular text
@@ -569,13 +488,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             # Only print error message on first attempt
             if attempt_id == 0:
                 print(f"JSON format validation error (text): {error_msg}")
-            json_error_stats["format_validation_errors"] += 1
-            if game_state is not None:
-                game_state.record_json_extraction_attempt(success=False, error_type="format")
             return None
             
-        json_error_stats["successful_extractions"] += 1
-        
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from text: {json_data['moves']}")
         
@@ -594,13 +508,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             # Only print error message on first attempt
             if attempt_id == 0:
                 print(f"JSON format validation error (arrays): {error_msg}")
-            json_error_stats["format_validation_errors"] += 1
-            if game_state is not None:
-                game_state.record_json_extraction_attempt(success=False, error_type="format")
             return None
             
-        json_error_stats["successful_extractions"] += 1
-        
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from arrays: {json_data['moves']}")
         
@@ -610,11 +519,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             
         return json_data
             
-    json_error_stats["failed_extractions"] += 1
-    # Only print error message on first attempt
-    if attempt_id == 0:
-        print("❌ Failed to extract any valid moves from the response")
-    
     # No valid JSON found
     return None
 
@@ -690,7 +594,6 @@ def extract_moves_pattern(json_str):
                 valid_moves.append(move_upper)
     
         if valid_moves:
-            json_error_stats["pattern_extraction_success"] += 1
             return {"moves": valid_moves}
         return None
     except Exception as e:

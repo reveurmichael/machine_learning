@@ -14,7 +14,7 @@ from llm.client import LLMClient
 from config import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
-from utils.json_utils import get_json_error_stats, save_session_stats
+from utils.json_utils import save_session_stats
 from utils.continuation_utils import continue_from_directory, setup_continuation_session, handle_continuation_game_state, setup_llm_clients
 from utils.game_manager_utils import (
     report_final_statistics,
@@ -149,11 +149,8 @@ class GameManager:
         if self.game_count == 0:
             return
             
-        # Update experiment info JSON
-        save_session_stats(
-            self.log_dir,
-            json_error_stats=get_json_error_stats()
-        )
+        # Update summary.json metadata at session end (no JSON-parser stats anymore)
+        save_session_stats(self.log_dir)
         
         # Initialize step statistics for valid steps and invalid reversals
         valid_steps = 0

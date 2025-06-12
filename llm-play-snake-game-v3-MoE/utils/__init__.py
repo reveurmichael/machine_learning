@@ -12,8 +12,6 @@ from colorama import Fore
 
 # JSON processing utilities
 from .json_utils import (
-    get_json_error_stats,
-    reset_json_error_stats,
     extract_valid_json,
     preprocess_json_string,
     validate_json_format,
@@ -58,8 +56,6 @@ from .text_utils import (
 # Public API for the utils package
 __all__ = [
     # JSON processing
-    'get_json_error_stats',
-    'reset_json_error_stats',
     'extract_valid_json',
     'preprocess_json_string',
     'validate_json_format',

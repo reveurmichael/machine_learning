@@ -433,7 +433,7 @@ def report_final_statistics(stats_info):
         - valid_steps: Total valid steps across all games (optional)
         - invalid_reversals: Total invalid reversals across all games (optional)
     """
-    from utils.json_utils import get_json_error_stats, save_session_stats, JSON_STATS_KEYS
+    from utils.json_utils import save_session_stats
     import os
     import json
     
@@ -477,52 +477,6 @@ def report_final_statistics(stats_info):
     if "time_stats" in stats_info:
         time_stats = stats_info["time_stats"]
     
-    # Calculate total valid steps and invalid_reversals from all game files
-    # This ensures our summary has correct totals across all games
-    try:
-        total_valid_steps = 0
-        total_invalid_reversals = 0
-        
-        # Aggregate JSON parsing statistics from all game files
-        aggregated_json_stats = {k: 0 for k in JSON_STATS_KEYS}
-        
-        for game_num in range(1, game_count + 1):
-            from utils.file_utils import get_game_json_filename, join_log_path
-            game_filename = get_game_json_filename(game_num)
-            game_file = join_log_path(log_dir, game_filename)
-            
-            if os.path.exists(game_file):
-                with open(game_file, 'r', encoding='utf-8') as f:
-                    game_data = json.load(f)
-                    
-                    if 'step_stats' in game_data:
-                        step_stats = game_data['step_stats']
-                        if 'valid_steps' in step_stats:
-                            total_valid_steps += step_stats['valid_steps']
-                        if 'invalid_reversals' in step_stats:
-                            total_invalid_reversals += step_stats['invalid_reversals']
-                    
-                    # Aggregate JSON parsing statistics
-                    if 'json_parsing_stats' in game_data:
-                        json_stats = game_data['json_parsing_stats']
-                        for key in JSON_STATS_KEYS:
-                            aggregated_json_stats[key] += json_stats.get(key, 0)
-        
-        # Use the calculated totals
-        valid_steps = total_valid_steps
-        invalid_reversals = total_invalid_reversals
-        
-        # Update json_error_stats with aggregated values instead of using runtime values
-        json_error_stats = aggregated_json_stats
-        
-        # Ensure totals match the parser_usage_count (which is the ground truth)
-        if parser_usage_count > 0:
-            json_error_stats["successful_extractions"] = parser_usage_count
-            
-    except Exception as e:
-        print(f"Warning: Could not read game files to calculate statistics: {e}")
-        json_error_stats = get_json_error_stats()
-    
     # Save session statistics to summary file
     save_session_stats(
         log_dir, 
@@ -535,9 +489,6 @@ def report_final_statistics(stats_info):
         error_steps=error_steps,
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
-        json_error_stats=json_error_stats,
-        max_consecutive_empty_moves_allowed=max_consecutive_empty_moves_allowed,
-        max_consecutive_errors_allowed=max_consecutive_errors_allowed,
         time_stats=time_stats,
         token_stats=token_stats
     )
@@ -570,21 +521,6 @@ def report_final_statistics(stats_info):
     print(Fore.GREEN + f"📈 Max Empty Moves: {max_consecutive_empty_moves_allowed}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
     
-    # Calculate and print JSON extraction statistics
-    if parser_usage_count > 0:
-        total_extractions = json_error_stats["total_extraction_attempts"]
-        successful_extractions = json_error_stats["successful_extractions"]
-        
-        # Ensure totals match the parser_usage_count (which is the ground truth)
-        if successful_extractions != parser_usage_count:
-            successful_extractions = parser_usage_count
-            
-        print(Fore.GREEN + f"📈 JSON Extraction Attempts: {total_extractions}")
-        
-        if total_extractions > 0:
-            success_rate = (successful_extractions / total_extractions) * 100
-            print(Fore.GREEN + f"📈 JSON Extraction Success Rate: {success_rate:.2f}%")
-    
     # End message based on max games reached
     if game_count >= stats_info.get("max_games", float('inf')):
         print(Fore.GREEN + f"🏁 Reached maximum games ({game_count}). Session complete.")
@@ -598,13 +534,10 @@ def initialize_game_manager(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    from utils.json_utils import reset_json_error_stats, save_experiment_info_json
+    from utils.json_utils import save_experiment_info_json
     from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
     import os
     import time
-
-    # Initialize statistics tracking
-    reset_json_error_stats()
 
     # Set up the LLM clients (primary and optional secondary)
     setup_llm_clients(game_manager)

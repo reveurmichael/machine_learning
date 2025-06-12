@@ -756,28 +756,6 @@ class GameData:
             "error_rate_from_secondary_llm": secondary_error_rate
         }
     
-    def get_json_parsing_stats(self):
-        """Calculate JSON parsing statistics.
-        
-        Returns:
-            Dictionary of JSON parsing statistics
-        """
-        success_rate = self.successful_extractions / max(1, self.total_extraction_attempts) * 100
-        failure_rate = self.failed_extractions / max(1, self.total_extraction_attempts) * 100
-        
-        return {
-            "total_extraction_attempts": self.total_extraction_attempts,
-            "successful_extractions": self.successful_extractions,
-            "success_rate": success_rate,
-            "failed_extractions": self.failed_extractions,
-            "failure_rate": failure_rate,
-            "json_decode_errors": self.json_decode_errors,
-            "format_validation_errors": self.format_validation_errors,
-            "code_block_extraction_errors": self.code_block_extraction_errors,
-            "text_extraction_errors": self.text_extraction_errors,
-            "pattern_extraction_success": self.pattern_extraction_success
-        }
-    
     def get_time_stats(self):
         """Calculate time-related statistics.
         
@@ -862,7 +840,8 @@ class GameData:
             "token_stats": self.get_token_stats(),
             "step_stats": self.get_step_stats(),
             "error_stats": self.get_error_stats(),
-            "json_parsing_stats": self.get_json_parsing_stats(),
+            
+            # Planned moves stats
             "planned_moves_stats": planned_moves_stats,  # Add planned_moves_stats
             
             # Metadata

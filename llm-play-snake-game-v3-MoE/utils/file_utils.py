@@ -134,10 +134,6 @@ def extract_game_stats(log_folder):
             stats['steps_per_apple'] = game_stats.get('steps_per_apple', 0.0)
             stats['apples_per_step'] = game_stats.get('apples_per_step', 0.0)
             
-            # Extract JSON success rate
-            json_stats = info_data.get('json_parsing_stats', {})
-            stats['json_success_rate'] = json_stats.get('success_rate', 0.0)
-            
             # Extract response time statistics if available
             if 'response_time_stats' in info_data:
                 stats['response_time_stats'] = info_data.get('response_time_stats', {})

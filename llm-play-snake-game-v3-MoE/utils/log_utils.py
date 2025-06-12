@@ -89,7 +89,6 @@ def generate_game_summary_json(game_data):
             - primary_provider: Provider of the primary model (optional)
             - parser_model: Name of the parser model (optional)
             - parser_provider: Provider of the parser model (optional)
-            - json_error_stats: Statistics about JSON parsing errors (optional)
             - max_consecutive_empty_moves_allowed: Maximum number of empty moves allowed (optional)
             - apple_positions: List of apple positions (optional)
             - avg_response_time: Average response time in seconds (optional)
@@ -128,10 +127,6 @@ def generate_game_summary_json(game_data):
     
     if game_data.get("parser_usage_count", 0) > 0:
         summary["parser_usage_count"] = game_data["parser_usage_count"]
-    
-    # Add JSON error statistics if available
-    if game_data.get("json_error_stats"):
-        summary["json_parsing_stats"] = game_data["json_error_stats"]
     
     # Add apple positions if available
     if game_data.get("apple_positions"):

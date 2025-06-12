@@ -1,0 +1,19 @@
+SECONDARY LLM Request Time: 2025-06-12 12:42:23
+SECONDARY LLM Response Time: 2025-06-12 12:42:30
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (2, 3)
+Apple Position: (7, 4)
+Body Cells: [(2, 2), (2, 1), (2, 0), (1, 0)]
+Attempt: 1
+Timestamp: 2025-06-12 12:42:30
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "Move up to avoid immediate left or right collisions. Then move right seven times to reach the apple at (7,4)."
+}
+```

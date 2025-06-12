@@ -1,0 +1,19 @@
+SECONDARY LLM Request Time: 2025-06-12 13:04:36
+SECONDARY LLM Response Time: 2025-06-12 13:04:44
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (4, 5)
+Apple Position: (0, 6)
+Body Cells: [(4, 4), (4, 3), (4, 2), (4, 1), (4, 0)]
+Attempt: 1
+Timestamp: 2025-06-12 13:04:44
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "UP"],
+  "reasoning": "The snake can safely move left four times to reach (0,5) and then up once to eat the apple at (0,6)."
+}
+```

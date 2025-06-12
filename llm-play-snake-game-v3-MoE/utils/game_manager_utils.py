@@ -248,6 +248,9 @@ def process_game_over(game, game_state_info):
     
     # Generate detailed game JSON file
     if hasattr(game, "game_state") and hasattr(game.game_state, "to_json"):
+        # Set the correct game number in the game state
+        game.game_state.game_number = game_count
+        
         detailed_game_data = game.game_state.to_json()
         
         # Merge in the basic game data we already have
@@ -407,6 +410,10 @@ def handle_error(game, error_info):
         json_filename = get_game_json_filename(game_count)
         json_path = join_log_path(log_dir, json_filename)
         parser_provider = args.parser_provider if args.parser_provider and args.parser_provider.lower() != "none" else None
+        
+        # Set the correct game number in the game state
+        game.game_state.game_number = game_count
+        
         game.game_state.save_game_summary(
             json_path,
             args.provider, 
@@ -484,6 +491,17 @@ def report_final_statistics(stats_info):
         total_valid_steps = 0
         total_invalid_reversals = 0
         
+        # Aggregate JSON parsing statistics from all game files
+        aggregated_json_stats = {
+            "total_extraction_attempts": 0,
+            "successful_extractions": 0,
+            "failed_extractions": 0,
+            "json_decode_errors": 0,
+            "text_extraction_errors": 0,
+            "pattern_extraction_success": 0,
+            "format_validation_errors": 0
+        }
+        
         for game_num in range(1, game_count + 1):
             from utils.file_utils import get_game_json_filename, join_log_path
             game_filename = get_game_json_filename(game_num)
@@ -499,15 +517,30 @@ def report_final_statistics(stats_info):
                             total_valid_steps += step_stats['valid_steps']
                         if 'invalid_reversals' in step_stats:
                             total_invalid_reversals += step_stats['invalid_reversals']
+                    
+                    # Aggregate JSON parsing statistics
+                    if 'json_parsing_stats' in game_data:
+                        json_stats = game_data['json_parsing_stats']
+                        for key in aggregated_json_stats:
+                            if key in json_stats:
+                                aggregated_json_stats[key] += json_stats[key]
         
         # Use the calculated totals
         valid_steps = total_valid_steps
         invalid_reversals = total_invalid_reversals
+        
+        # Update json_error_stats with aggregated values instead of using runtime values
+        json_error_stats = aggregated_json_stats
+        
+        # Ensure totals match the parser_usage_count (which is the ground truth)
+        if parser_usage_count > 0:
+            json_error_stats["successful_extractions"] = parser_usage_count
+            
     except Exception as e:
-        print(f"Warning: Could not read game files to calculate step statistics: {e}")
+        print(f"Warning: Could not read game files to calculate statistics: {e}")
+        json_error_stats = get_json_error_stats()
     
     # Save session statistics to summary file
-    json_error_stats = get_json_error_stats()
     save_session_stats(
         log_dir, 
         game_count=game_count, 

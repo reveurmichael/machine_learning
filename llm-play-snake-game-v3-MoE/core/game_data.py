@@ -47,13 +47,14 @@ class GameData:
         self.snake_positions = []
         self.apple_position = None
         
-        # Time tracking
+        # Time tracking - initialize with defensive defaults
         self.start_time = time.time()
         self.end_time = None
         self.llm_communication_time = 0   # Total time spent communicating with LLMs
         self.game_movement_time = 0      # Time spent in actual game movement
         self.waiting_time = 0            # Time spent waiting (pauses, etc.)
         self.last_action_time = self.start_time  # For tracking time between actions
+        self.other_time = 0              # Defensive initialization for other time
         
         # Basic game stats
         self.max_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES
@@ -787,8 +788,8 @@ class GameData:
         waiting_percent = (self.waiting_time / divisor * 100)
         
         # Calculate other time (time not accounted for in the other categories)
-        other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
-        other_percent = (other_time / divisor * 100)
+        self.other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
+        other_percent = (self.other_time / divisor * 100)
         
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
@@ -797,7 +798,7 @@ class GameData:
             "llm_communication_time": self.llm_communication_time,
             "game_movement_time": self.game_movement_time,
             "waiting_time": self.waiting_time,
-            "other_time": other_time,
+            "other_time": self.other_time,
             "llm_communication_percent": llm_percent,
             "game_movement_percent": movement_percent,
             "waiting_percent": waiting_percent,
@@ -1158,17 +1159,15 @@ class GameData:
             # Standardize all moves to uppercase for consistency
             standardized_moves = [move.upper() if isinstance(move, str) else move for move in moves]
             
-            # Store the entire array of planned moves for the current round
-            self.current_round_data["moves"] = standardized_moves.copy() 
+            # Store the planned moves for the current round
+            # but DON'T update the current_round_data["moves"] to avoid duplication
+            # The moves will be added individually as they're executed by record_move
             
-            # Also store directly in the rounds_data for the current round
+            # Store directly in the rounds_data for reference only
             round_data = self._get_or_create_round_data(self.round_count)
             
-            # Reset any existing moves to prevent duplication
-            round_data["moves"] = []
-            
-            # Update moves in the round data with a deep copy
-            round_data["moves"] = standardized_moves.copy()
+            # Store the planned moves in a separate field to avoid duplication
+            round_data["planned_moves"] = standardized_moves.copy()
             
             # Important: We don't add these to self.moves yet - they'll be added
             # individually as they're executed by record_move
@@ -1355,3 +1354,18 @@ class GameData:
             The current length of the snake (score + initial length of 1)
         """
         return self.score + 1 
+
+    def to_json(self, primary_provider=None, primary_model=None, parser_provider=None, parser_model=None, max_consecutive_errors_allowed=5):
+        """Wrapper method for generate_game_summary to ensure compatibility with process_game_over.
+        
+        Args:
+            primary_provider: The provider of the primary LLM
+            primary_model: The model of the primary LLM
+            parser_provider: The provider of the parser LLM
+            parser_model: The model of the parser LLM
+            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
+            
+        Returns:
+            Dictionary with game summary
+        """
+        return self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed) 

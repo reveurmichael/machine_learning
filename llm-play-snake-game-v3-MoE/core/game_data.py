@@ -1317,3 +1317,24 @@ class GameData:
             Dictionary with game summary
         """
         return self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed) 
+
+    def _flush_current_round(self):
+        """Persist the buffered data of the active round and reset the buffer.
+
+        Must be invoked BEFORE round_count is incremented, otherwise the data
+        would end up under the wrong round key.
+        """
+        # First, make sure any pending deltas are pushed to rounds_data
+        if self.current_round_data:
+            self.sync_round_data()
+
+        # Start a pristine buffer for the next round
+        self.current_round_data = {
+            "apple_position": None,
+            "moves": [],
+            "primary_response_times": [],
+            "secondary_response_times": [],
+            "primary_token_stats": [],
+            "secondary_token_stats": [],
+            "invalid_reversals": []
+        } 

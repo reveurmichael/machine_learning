@@ -212,17 +212,27 @@ class GameManager:
             
         # Store old round count to check if it actually changed
         old_round_count = self.round_count
-        
-        # Increment round counter - moved AFTER the awaiting_plan check
-        # to ensure we only increment after all planned moves from the previous round
-        # have been executed
+
+        # -----------------------------------------------------------------
+        # Persist and reset the outgoing round BEFORE we bump the counter
+        # This guarantees moves from round N never leak into round N+1.
+        # -----------------------------------------------------------------
+        if self.game and hasattr(self.game, "game_state"):
+            try:
+                self.game.game_state._flush_current_round()
+            except Exception as e:
+                print(Fore.YELLOW + f"⚠️  Could not flush round data: {e}")
+
+        # Increment round counter – must happen AFTER the flush
+        # so that new moves land in a fresh buffer
         self.round_count += 1
         
         # Sync with game state
         if self.game and hasattr(self.game, "game_state"):
             self.game.game_state.round_count = self.round_count
-            
-            # Ensure game state data is synchronized
+
+            # The new (empty) buffer is already in place; still call sync to
+            # guarantee any external fields (apple_position, etc.) stay aligned
             self.game.game_state.sync_round_data()
         
         # Only print the banner if the round count actually changed

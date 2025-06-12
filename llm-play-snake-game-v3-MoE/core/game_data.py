@@ -465,6 +465,9 @@ class GameData:
             self.primary_avg_total_tokens = self.primary_total_tokens / request_count
             self.primary_avg_prompt_tokens = self.primary_total_prompt_tokens / request_count
             self.primary_avg_completion_tokens = self.primary_total_completion_tokens / request_count
+        
+        # Add to global history for game-level aggregation
+        self.primary_token_stats.append(token_stats)
     
     def record_secondary_token_stats(self, prompt_tokens, completion_tokens):
         """Record token usage for the secondary LLM.
@@ -501,6 +504,9 @@ class GameData:
             self.secondary_avg_total_tokens = self.secondary_total_tokens / request_count
             self.secondary_avg_prompt_tokens = self.secondary_total_prompt_tokens / request_count
             self.secondary_avg_completion_tokens = self.secondary_total_completion_tokens / request_count
+        
+        # Add to global history for game-level aggregation
+        self.secondary_token_stats.append(token_stats)
     
     def record_json_extraction_attempt(self, success, error_type=None):
         """Record an attempt to extract JSON from LLM response.

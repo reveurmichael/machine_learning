@@ -1,0 +1,1 @@
+I really love the idea of having EMPTY in the game_N.json file because it makes things to be so obvious. 

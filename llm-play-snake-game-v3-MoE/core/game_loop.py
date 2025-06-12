@@ -173,10 +173,12 @@ def run_game_loop(game_manager):
                             "time_stats": game_manager.time_stats,
                             "token_stats": game_manager.token_stats,
                             "valid_steps": getattr(game_manager, "valid_steps", 0),
-                            "invalid_reversals": getattr(game_manager, "invalid_reversals", 0)
+                            "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
+                            "empty_steps": getattr(game_manager, "empty_steps", 0),
+                            "error_steps": getattr(game_manager, "error_steps", 0)
                         }
                         
-                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals = process_game_over(
+                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.error_steps = process_game_over(
                             game_manager.game,
                             game_state_info
                         )
@@ -256,10 +258,12 @@ def run_game_loop(game_manager):
                         "time_stats": game_manager.time_stats,
                         "token_stats": game_manager.token_stats,
                         "valid_steps": getattr(game_manager, "valid_steps", 0),
-                        "invalid_reversals": getattr(game_manager, "invalid_reversals", 0)
+                        "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
+                        "empty_steps": getattr(game_manager, "empty_steps", 0),
+                        "error_steps": getattr(game_manager, "error_steps", 0)
                     }
                     
-                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals = handle_error(
+                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.error_steps = handle_error(
                         game_manager.game,
                         error_info
                     )

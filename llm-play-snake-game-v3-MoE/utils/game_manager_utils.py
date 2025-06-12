@@ -98,7 +98,7 @@ def process_game_over(game, game_state_info):
         game_state_info: Dictionary with game state info
         
     Returns:
-        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals)
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
     """
     from utils.json_utils import save_session_stats
     import os
@@ -117,6 +117,8 @@ def process_game_over(game, game_state_info):
     token_stats = game_state_info.get("token_stats", {})
     valid_steps = game_state_info.get("valid_steps", 0)
     invalid_reversals = game_state_info.get("invalid_reversals", 0)
+    empty_steps = game_state_info.get("empty_steps", 0)
+    error_steps = game_state_info.get("error_steps", 0)
     
     # Print game over message with reason
     if hasattr(game, "last_collision_type"):
@@ -141,10 +143,8 @@ def process_game_over(game, game_state_info):
     # This ensures we're keeping track of invalid_reversals across all games
     invalid_reversals += game.game_state.invalid_reversals
     
-    # Update empty_steps counter - add current game's to the running total
+    # Update empty_steps and error_steps counters - add current game's to the running total
     empty_steps += game.game_state.empty_steps
-    
-    # Update error_steps counter - add current game's to the running total
     error_steps += game.game_state.error_steps
     
     # Print game stats
@@ -227,8 +227,8 @@ def process_game_over(game, game_state_info):
     # Update step_stats with the game's current valid_steps count for summary.json
     step_stats = {
         "valid_steps": valid_steps,
-        "empty_steps": game_state_info.get("empty_steps", 0),
-        "error_steps": game_state_info.get("error_steps", 0),
+        "empty_steps": empty_steps,
+        "error_steps": error_steps,
         "invalid_reversals": invalid_reversals
     }
     
@@ -267,7 +267,7 @@ def process_game_over(game, game_state_info):
             print(Fore.RED + f"Error saving game file: {e}")
     
     # Return the updated statistics
-    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals
+    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
 
 def handle_error(game, error_info):
     """Handle errors during gameplay.
@@ -291,7 +291,7 @@ def handle_error(game, error_info):
             
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, round_count, 
-                 parser_usage_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals)
+                 parser_usage_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
     """
     import traceback
     
@@ -317,6 +317,8 @@ def handle_error(game, error_info):
     # Get valid steps and invalid reversals
     valid_steps = error_info.get("valid_steps", 0)
     invalid_reversals = error_info.get("invalid_reversals", 0)
+    empty_steps = error_info.get("empty_steps", 0)
+    error_steps = error_info.get("error_steps", 0)
     
     # Get the error details
     error = error_info["error"]
@@ -338,6 +340,10 @@ def handle_error(game, error_info):
     if hasattr(game, "game_state"):
         valid_steps += game.game_state.valid_steps
         invalid_reversals += game.game_state.invalid_reversals
+        
+        # Also update empty_steps and error_steps
+        empty_steps += game.game_state.empty_steps
+        error_steps += game.game_state.error_steps
     
     # Check if we should end the game
     if consecutive_errors >= args.max_consecutive_errors_allowed:
@@ -410,7 +416,7 @@ def handle_error(game, error_info):
             args.max_consecutive_errors_allowed
         )
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
 
 def report_final_statistics(stats_info):
     """Report final statistics for the experiment.

@@ -7,6 +7,7 @@ import numpy as np
 from config import GRID_SIZE, DIRECTIONS
 from core.game_data import GameData
 from utils.game_manager_utils import check_collision
+from utils.direction_utils import normalize_direction
 
 class GameController:
     """Base class for the Snake game controller."""
@@ -121,6 +122,7 @@ class GameController:
         last_direction = current_direction if current_direction else (self.current_direction or moves[0])
 
         for move in moves:
+            move = normalize_direction(move)
             # Skip if this move would be a reversal of the last direction
             if ((last_direction == "UP" and move == "DOWN") or
                 (last_direction == "DOWN" and move == "UP") or

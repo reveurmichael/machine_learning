@@ -5,6 +5,7 @@ primary and secondary LLM outputs in the Snake game context.
 """
 
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
+from utils.direction_utils import normalize_directions
 
 def _count_attempt(game_state, success=False, error=None):
     """Record a JSON extraction attempt.
@@ -50,6 +51,7 @@ def parse_and_format(llm_client, llm_response, parser_options=None):
         
         if parsed_data and "moves" in parsed_data:
             # Record success and return data if it includes a 'moves' field
+            parsed_data["moves"] = normalize_directions(parsed_data["moves"])
             _count_attempt(game_state, success=True)
             return parsed_data
         

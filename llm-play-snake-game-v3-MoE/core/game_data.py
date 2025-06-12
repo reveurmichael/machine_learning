@@ -11,6 +11,7 @@ from utils.json_utils import NumPyJSONEncoder
 import os
 import re
 from colorama import Fore
+from utils.direction_utils import normalize_direction
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
@@ -151,10 +152,9 @@ class GameData:
             move: The direction moved ("UP", "DOWN", "LEFT", "RIGHT")
             apple_eaten: Whether an apple was eaten on this move
         """
-        # Standardize move to uppercase for consistency
-        if isinstance(move, str):
-            move = move.upper()
-            
+        # Canonical case/whitespace handling in one place
+        move = normalize_direction(move)
+        
         # Always update critical game state values regardless of duplicate moves
         self.steps += 1
         self.valid_steps += 1
@@ -210,6 +210,18 @@ class GameData:
             self.max_consecutive_empty_moves_reached, 
             self.consecutive_empty_moves
         )
+        
+        # ------------------------------------------------------------------
+        # Keep the invariant: len(self.moves) == self.steps
+        # Represent a no-op tick with the sentinel string "EMPTY" so that
+        # replays/analytics can distinguish it from real moves.
+        # ------------------------------------------------------------------
+        self.moves.append("EMPTY")
+
+        # Ensure the current round's executed-moves list stays aligned
+        if "moves" not in self.current_round_data:
+            self.current_round_data["moves"] = []
+        self.current_round_data["moves"].append("EMPTY")
     
     def record_invalid_reversal(self, attempted_move, current_direction):
         """Record an invalid reversal move.
@@ -1077,8 +1089,9 @@ class GameData:
             moves: List of moves returned by the LLM (["UP", "DOWN", "LEFT", "RIGHT", ...])
         """
         if moves and isinstance(moves, list):
-            # Standardize all moves to uppercase for consistency
-            standardized_moves = [move.upper() if isinstance(move, str) else move for move in moves]
+            # Canonical case/whitespace handling in one place
+            from utils.direction_utils import normalize_directions
+            standardized_moves = normalize_directions(moves)
             
             # Store the planned moves for the current round
             # but DON'T update the current_round_data["moves"] to avoid duplication

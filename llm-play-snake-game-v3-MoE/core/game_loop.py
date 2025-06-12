@@ -88,9 +88,8 @@ def run_game_loop(game_manager):
                             # Update empty_steps counter at manager level for live stats (optional)
                             game_manager.empty_steps = game_manager.game.game_state.empty_steps
                             
-                            # Record for analysis
+                            # Record for analysis (game_state already appends "EMPTY")
                             game_manager.current_game_moves.append("EMPTY")
-                            game_manager.game.game_state.moves.append("EMPTY")
                             
                             # Track consecutive empty moves
                             # Only increment this counter for actual empty moves, not for LLM errors

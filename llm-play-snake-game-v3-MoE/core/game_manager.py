@@ -73,6 +73,7 @@ class GameManager:
         self.game = None
         self.game_active = True
         self.need_new_plan = True
+        self.awaiting_plan = False     # Whether we're currently waiting for a new plan from the LLM
         self.running = True
         
         # Track moves for this game

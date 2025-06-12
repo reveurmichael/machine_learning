@@ -321,6 +321,9 @@ def get_llm_response(game_manager):
         if parser_output and "moves" in parser_output and parser_output["moves"]:
             print(f"✅ Parser output contains moves: {parser_output['moves']}")
             
+            # We have valid moves, so we're no longer waiting for a plan
+            game_manager.awaiting_plan = False
+            
             # Record the move
             game_manager.current_game_moves.extend(parser_output["moves"])
             

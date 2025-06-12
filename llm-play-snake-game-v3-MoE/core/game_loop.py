@@ -37,9 +37,13 @@ def run_game_loop(game_manager):
                     
                     # Check if we need a new plan from the LLM
                     if game_manager.need_new_plan:
+                        # Mark that we're waiting for a plan to prevent re-execution of moves
+                        game_manager.awaiting_plan = True
                         # Get next move from LLM
                         next_move, game_manager.game_active = get_llm_response(game_manager)
                         
+                        # We now have a response, so we're no longer waiting
+                        game_manager.awaiting_plan = False
                         # Set flag to avoid requesting another plan until needed
                         game_manager.need_new_plan = False
                         
@@ -104,6 +108,11 @@ def run_game_loop(game_manager):
                         game_manager.game.game_state.record_game_movement_end()
                         
                     else:
+                        # Skip executing planned moves if we're waiting for a new plan
+                        if game_manager.awaiting_plan:
+                            # Still waiting for LLM - nothing to execute this tick
+                            continue
+                        
                         # Execute the next move from previously planned moves
                         next_move = game_manager.game.get_next_planned_move()
                         

@@ -134,7 +134,7 @@ class LLMClient:
                 self.last_token_count = token_count
 
             # Print brief response preview for debugging
-            preview = response[:300] + "..." if len(response) > 300 else response
+            preview = response[:100] + "..." if len(response) > 100 else response
             print(Fore.CYAN + f"Response preview: {preview}")
 
             # Print token usage if available

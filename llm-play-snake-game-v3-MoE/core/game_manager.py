@@ -213,7 +213,9 @@ class GameManager:
         # Store old round count to check if it actually changed
         old_round_count = self.round_count
         
-        # Increment round counter
+        # Increment round counter - moved AFTER the awaiting_plan check
+        # to ensure we only increment after all planned moves from the previous round
+        # have been executed
         self.round_count += 1
         
         # Sync with game state

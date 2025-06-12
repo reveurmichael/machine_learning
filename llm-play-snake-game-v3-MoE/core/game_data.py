@@ -161,15 +161,8 @@ class GameData:
         # Always record every move to ensure step counts match exactly with move history
         self.current_round_data["moves"].append(move)
         
-        # Update round data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Ensure the move is recorded in rounds_data
-        if "moves" not in round_data:
-            round_data["moves"] = []
-            
-        # Always record every move without filtering duplicates
-        round_data["moves"].append(move)
+        # Note: We no longer directly append to round_data["moves"] here
+        # The sync_round_data() method will handle updating rounds_data with the latest moves
         
         # Note: Apple eaten handling moved to top of function
         # Note: Round count is ONLY incremented in one place:
@@ -887,7 +880,7 @@ class GameData:
             # Create an ordered version of rounds_data
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self._collect_all_moves_from_rounds(),  # Use our new helper method
+                "moves": self.moves.copy(),  # Use self.moves directly instead of _collect_all_moves_from_rounds()
                 "rounds_data": self._get_ordered_rounds_data()
             }
         }
@@ -912,6 +905,14 @@ class GameData:
         Returns:
             List of all moves across all rounds
         """
+        # This method is now obsolete and will be removed
+        # We now use self.moves directly in generate_game_summary
+        # which is the single source of truth for executed moves
+        # This list matches 'steps' exactly as both are incremented together in record_move()
+        return self.moves.copy()
+        
+        # The old implementation which caused duplication is commented out below:
+        """
         all_moves = []
         
         # Get an ordered list of round keys
@@ -925,6 +926,7 @@ class GameData:
                 all_moves.extend(round_data["moves"])
                 
         return all_moves
+        """
     
     def _get_ordered_rounds_data(self):
         """Get an ordered version of rounds_data with keys sorted numerically.
@@ -1261,6 +1263,12 @@ class GameData:
                             
                             # Set the deduplicated list back to round_data
                             round_data[key] = unique_reversals
+                        elif key == "moves":
+                            # Special handling for moves to prevent duplication
+                            # Only update if the current list is longer (contains new moves)
+                            if len(value) > len(round_data.get(key, [])):
+                                round_data[key] = value.copy()
+                                changes_made = True
                         else:
                             # For other lists, check if there are actual changes
                             if key not in round_data or round_data[key] != value:

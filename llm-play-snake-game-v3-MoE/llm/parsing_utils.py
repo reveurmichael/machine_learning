@@ -42,18 +42,23 @@ def parse_and_format(llm_client, llm_response, parser_options=None):
         if parser_options and 'game_state' in parser_options:
             game_state = parser_options['game_state']
         
-        # Parse JSON directly from response (extract_valid_json tracks attempts internally)
+        # Record attempt at the start of parsing
+        _count_attempt(game_state)
+            
+        # Parse JSON directly from response
         parsed_data = extract_valid_json(llm_response, game_state, attempt_id=0)
         
         if parsed_data and "moves" in parsed_data:
-            return parsed_data  # Success already recorded in extract_valid_json
+            # Record success and return data if it includes a 'moves' field
+            _count_attempt(game_state, success=True)
+            return parsed_data
         
-        # No valid data found (failure already recorded)
+        # No valid data found
+        _count_attempt(game_state, error="format")
         return None
     except Exception as e:
         print(f"Error parsing LLM response: {e}")
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=False, error="exception")
+        _count_attempt(game_state, error="exception")
         return None
 
 def parse_llm_response(response, processed_response_func, game_instance):

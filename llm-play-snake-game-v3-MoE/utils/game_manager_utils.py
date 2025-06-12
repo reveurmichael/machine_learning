@@ -211,29 +211,6 @@ def process_game_over(game, game_state_info):
             if secondary_stats.get("total_completion_tokens") is not None:
                 token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
     
-    # Save individual game JSON file
-    game_data = {
-        "game_number": game_count,
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "score": game.score,
-        "steps": game.steps,
-        "game_over": True,
-        "game_end_reason": game.game_state.game_end_reason if hasattr(game.game_state, "game_end_reason") else "UNKNOWN",
-        "moves": current_game_moves,
-        "max_empty_moves_allowed": args.max_empty_moves_allowed, # Use CLI arg value instead of hardcoded value
-        "snake_length": game.snake_length,
-        "round_count": round_count,
-        "last_move": game.game_state.last_move if hasattr(game.game_state, "last_move") else None,
-    }
-    
-    # Add step stats from game state
-    if hasattr(game.game_state, "get_step_stats"):
-        game_data["step_stats"] = game.game_state.get_step_stats()
-    
-    # Add JSON parsing stats from game state
-    if hasattr(game.game_state, "get_json_parsing_stats"):
-        game_data["json_parsing_stats"] = game.game_state.get_json_parsing_stats()
-    
     # Update step_stats with the game's current valid_steps count for summary.json
     step_stats = {
         "valid_steps": valid_steps,
@@ -256,30 +233,32 @@ def process_game_over(game, game_state_info):
         max_consecutive_errors_allowed=args.max_consecutive_errors_allowed
     )
     
-    # Generate detailed game JSON file
-    if hasattr(game, "game_state") and hasattr(game.game_state, "to_json"):
-        # Set the correct game number in the game state
-        game.game_state.game_number = game_count
-        
-        detailed_game_data = game.game_state.to_json()
-        
-        # Merge in the basic game data we already have
-        for key, value in game_data.items():
-            detailed_game_data[key] = value
-            
-        # Save the detailed game JSON file
-        from utils.file_utils import get_game_json_filename, join_log_path
-        game_filename = get_game_json_filename(game_count)
-        game_file = join_log_path(log_dir, game_filename)
-        
-        try:
-            with open(game_file, 'w', encoding='utf-8') as f:
-                json.dump(detailed_game_data, f, indent=2, cls=NumPyJSONEncoder)
-            print(Fore.GREEN + f"💾 Saved data for round {round_count} with {len(current_game_moves)} moves")
-        except Exception as e:
-            print(Fore.RED + f"Error saving game file: {e}")
+    # Save individual game JSON file using the canonical writer
+    from utils.file_utils import get_game_json_filename, join_log_path
+
+    game_filename = get_game_json_filename(game_count)
+    game_file = join_log_path(log_dir, game_filename)
+
+    parser_provider = (args.parser_provider
+                     if args.parser_provider and args.parser_provider.lower() != "none"
+                     else None)
+
+    # Make sure the game_state carries the correct game number
+    game.game_state.game_number = game_count
+
+    game.game_state.save_game_summary(
+        game_file,
+        args.provider,            # single source of truth
+        args.model,
+        parser_provider,
+        args.parser_model if parser_provider else None,
+        args.max_consecutive_errors_allowed
+    )
+
+    print(Fore.GREEN +
+        f"💾 Saved data for game {game_count} "
+        f"(rounds: {round_count}, moves: {len(current_game_moves)})")
     
-    # Return the updated statistics
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
 
 def handle_error(game, error_info):

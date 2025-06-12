@@ -159,11 +159,11 @@ class GameData:
         if "moves" not in self.current_round_data:
             self.current_round_data["moves"] = []
             
-        # Always record every move to ensure step counts match exactly with move history
+        # Only add the move to current_round_data, not directly to rounds_data
+        # This prevents duplication as sync_round_data will handle copying to rounds_data
         self.current_round_data["moves"].append(move)
         
-        # Note: We no longer directly append to round_data["moves"] here
-        # The sync_round_data() method will handle updating rounds_data with the latest moves
+        # Note: We removed the direct append to round_data["moves"] to prevent duplication
         
         # Note: Apple eaten handling moved to top of function
         # Note: Round count is ONLY incremented in one place:
@@ -878,10 +878,10 @@ class GameData:
             "secondary_token_stats": self.secondary_token_stats,
             
             # Detailed game history (at bottom)
-            # Create an ordered version of rounds_data
+            # Use self.moves directly instead of collecting from rounds_data
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self.moves.copy(),  # Use self.moves directly instead of _collect_all_moves_from_rounds()
+                "moves": self.moves,  # Use the authoritative move list (guarantees len(moves) == steps)
                 "rounds_data": self._get_ordered_rounds_data()
             }
         }
@@ -1257,8 +1257,8 @@ class GameData:
                             # Set the deduplicated list back to round_data
                             round_data[key] = unique_reversals
                         elif key == "moves":
-                            # Special handling for moves to prevent duplication
-                            # Only update if the current list is longer (contains new moves)
+                            # Special handling for moves to prevent duplicates
+                            # Only update if the current_round_data contains new moves
                             if len(value) > len(round_data.get(key, [])):
                                 round_data[key] = value.copy()
                                 changes_made = True

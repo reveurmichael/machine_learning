@@ -10,16 +10,21 @@ import os
 import numpy as np
 from datetime import datetime
 
+# ---- 1. single source of truth --------------------------------------------
+JSON_STATS_KEYS = [
+    "total_extraction_attempts",
+    "successful_extractions",
+    "failed_extractions",
+    "json_decode_errors",
+    "text_extraction_errors",
+    "pattern_extraction_success",
+    "format_validation_errors",
+    "code_block_extraction_errors",          # ← NEW key
+]
+# ---------------------------------------------------------------------------
+
 # Global tracking of JSON parsing statistics
-json_error_stats = {
-    "total_extraction_attempts": 0,
-    "successful_extractions": 0,
-    "failed_extractions": 0,
-    "json_decode_errors": 0,
-    "text_extraction_errors": 0,
-    "pattern_extraction_success": 0,
-    "format_validation_errors": 0
-}
+json_error_stats = {k: 0 for k in JSON_STATS_KEYS}
 
 class NumPyJSONEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles NumPy types."""
@@ -56,8 +61,8 @@ def reset_json_error_stats():
     sessions.  It MUST NOT be invoked after the first game starts, otherwise
     per-game numbers would diverge from the session totals.
     """
-    for key in json_error_stats:
-        json_error_stats[key] = 0
+    for k in JSON_STATS_KEYS:
+        json_error_stats[k] = 0
 
 def save_experiment_info_json(args, directory):
     """Save experiment configuration information to a JSON file.
@@ -112,7 +117,7 @@ def save_experiment_info_json(args, directory):
             "valid_steps": 0,
             "invalid_reversals": 0
         },
-        "json_parsing_stats": json_error_stats.copy()
+        "json_parsing_stats": {k: 0 for k in JSON_STATS_KEYS}
     }
     
     # Create directory if it doesn't exist
@@ -189,15 +194,7 @@ def save_session_stats(log_dir, **kwargs):
         
         # Initialize json_parsing_stats with zeros if not present
         if "json_parsing_stats" not in summary:
-            summary["json_parsing_stats"] = {
-                "total_extraction_attempts": 0,
-                "successful_extractions": 0,
-                "failed_extractions": 0,
-                "json_decode_errors": 0,
-                "text_extraction_errors": 0,
-                "pattern_extraction_success": 0,
-                "format_validation_errors": 0
-            }
+            summary["json_parsing_stats"] = {k: 0 for k in JSON_STATS_KEYS}
         
         # For parser_usage_count (successful extractions during the run), use the value passed in
         if "parser_usage_count" in kwargs:
@@ -432,6 +429,10 @@ def extract_json_from_code_block(response):
         except Exception as e:
             print(f"❌ Error during code block extraction for block {i+1}: {e}")
     
+    # If we get here, we couldn't extract valid JSON from any code block
+    if len(code_block_matches) > 0:
+        json_error_stats["code_block_extraction_errors"] += 1
+
     # If the normal extraction fails, try a more aggressive pattern matching approach
     # This handles cases where the LLM includes formatting characters around JSON
     try:
@@ -522,7 +523,7 @@ def extract_valid_json(text, game_state=None):
             print(f"JSON format validation error (code block): {error_msg}")
             json_error_stats["format_validation_errors"] += 1
             if game_state is not None:
-                game_state.record_json_extraction_attempt(success=False, error_type="format")
+                game_state.record_json_extraction_attempt(success=False, error_type="validation")
             return None
             
         json_error_stats["successful_extractions"] += 1
@@ -535,7 +536,11 @@ def extract_valid_json(text, game_state=None):
             game_state.record_json_extraction_attempt(success=True)
             
         return json_data
-        
+    else:
+        # If code blocks were present but none yielded valid JSON, count an error
+        if json_error_stats.get("code_block_extraction_errors", 0) > 0 and game_state is not None:
+            game_state.record_json_extraction_attempt(success=False, error_type="code_block")
+    
     # Try extracting from regular text
     json_data = extract_json_from_text(text)
     if json_data:

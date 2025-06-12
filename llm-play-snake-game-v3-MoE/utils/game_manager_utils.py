@@ -441,7 +441,7 @@ def report_final_statistics(stats_info):
         - valid_steps: Total valid steps across all games (optional)
         - invalid_reversals: Total invalid reversals across all games (optional)
     """
-    from utils.json_utils import get_json_error_stats, save_session_stats
+    from utils.json_utils import get_json_error_stats, save_session_stats, JSON_STATS_KEYS
     import os
     import json
     
@@ -492,15 +492,7 @@ def report_final_statistics(stats_info):
         total_invalid_reversals = 0
         
         # Aggregate JSON parsing statistics from all game files
-        aggregated_json_stats = {
-            "total_extraction_attempts": 0,
-            "successful_extractions": 0,
-            "failed_extractions": 0,
-            "json_decode_errors": 0,
-            "text_extraction_errors": 0,
-            "pattern_extraction_success": 0,
-            "format_validation_errors": 0
-        }
+        aggregated_json_stats = {k: 0 for k in JSON_STATS_KEYS}
         
         for game_num in range(1, game_count + 1):
             from utils.file_utils import get_game_json_filename, join_log_path
@@ -521,9 +513,8 @@ def report_final_statistics(stats_info):
                     # Aggregate JSON parsing statistics
                     if 'json_parsing_stats' in game_data:
                         json_stats = game_data['json_parsing_stats']
-                        for key in aggregated_json_stats:
-                            if key in json_stats:
-                                aggregated_json_stats[key] += json_stats[key]
+                        for key in JSON_STATS_KEYS:
+                            aggregated_json_stats[key] += json_stats.get(key, 0)
         
         # Use the calculated totals
         valid_steps = total_valid_steps

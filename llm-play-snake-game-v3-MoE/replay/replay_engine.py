@@ -114,7 +114,7 @@ class ReplayEngine(GameController):
                 game_data = json.load(f)
             
             # Get basic game information
-            self.score = game_data.get('score', 0)
+            loaded_score = game_data.get('score', 0)
             self.game_end_reason = game_data.get('game_end_reason', None)
             
             # Extract game data from detailed_history
@@ -155,7 +155,6 @@ class ReplayEngine(GameController):
             self.move_index = 0
             self.apple_index = 0
             self.moves_made = []
-            self.steps = 0
             
             # Get round information from metadata
             round_count = game_data.get('metadata', {}).get('round_count', 0)
@@ -180,7 +179,7 @@ class ReplayEngine(GameController):
             # Store game data
             self.game_stats = game_data
             
-            print(f"Game {game_number}: Score: {self.score}, Steps: {len(self.moves)}, End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
+            print(f"Game {game_number}: Score: {loaded_score}, Steps: {len(self.moves)}, End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
             
             # Initialize game state
             print("Initializing game state...")

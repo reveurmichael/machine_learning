@@ -141,8 +141,7 @@ class GameData:
             "primary_response_times": [],
             "secondary_response_times": [],
             "primary_token_stats": [],
-            "secondary_token_stats": [],
-            "invalid_reversals": []  # Ensure this starts as an empty list for each round
+            "secondary_token_stats": []
         }
     
     def record_move(self, move, apple_eaten=False):
@@ -246,44 +245,6 @@ class GameData:
         if "moves" not in self.current_round_data:
             self.current_round_data["moves"] = []
         self.current_round_data["moves"].append("INVALID_REVERSAL")
-        
-        # Add to the current round data if we're tracking a round
-        if self.current_round_data:
-            if "invalid_reversals" not in self.current_round_data:
-                self.current_round_data["invalid_reversals"] = []
-            
-            # Create a new invalid reversal record
-            invalid_reversal = {
-                "attempted_move": attempted_move,
-                "current_direction": current_direction,
-                "step": self.steps
-            }
-            
-            # Check if this exact invalid reversal is already recorded for this step
-            # to prevent duplicates
-            duplicate_exists = False
-            for existing_reversal in self.current_round_data["invalid_reversals"]:
-                if (existing_reversal["attempted_move"] == attempted_move and
-                    existing_reversal["current_direction"] == current_direction and
-                    existing_reversal["step"] == self.steps):
-                    duplicate_exists = True
-                    break
-                
-            # Only add if it's not a duplicate
-            if not duplicate_exists:
-                # Add to current round data
-                self.current_round_data["invalid_reversals"].append(invalid_reversal)
-                
-                # Get or create the round data for the current round
-                round_data = self._get_or_create_round_data(self.round_count)
-                
-                # Ensure invalid_reversals exists in round data
-                if "invalid_reversals" not in round_data:
-                    round_data["invalid_reversals"] = []
-                    
-                # Add only this specific invalid reversal to the round data
-                # instead of copying the entire list to prevent duplicates
-                round_data["invalid_reversals"].append(invalid_reversal)
     
     def record_error_move(self):
         """Record an error move (error in LLM response)."""
@@ -370,8 +331,7 @@ class GameData:
                         "primary_response_times": [],
                         "secondary_response_times": [],
                         "primary_token_stats": [],
-                        "secondary_token_stats": [],
-                        "invalid_reversals": []
+                        "secondary_token_stats": []
                     }
                 
                 # Save the round data by copying the current round data
@@ -636,8 +596,7 @@ class GameData:
                 "primary_response_times": [],
                 "secondary_response_times": [],
                 "primary_token_stats": [],
-                "secondary_token_stats": [],
-                "invalid_reversals": []
+                "secondary_token_stats": []
             }
         
         # Update round data
@@ -1113,8 +1072,7 @@ class GameData:
                 "primary_response_times": [],
                 "secondary_response_times": [],
                 "primary_token_stats": [],
-                "secondary_token_stats": [],
-                "invalid_reversals": []  # Initialize with empty list
+                "secondary_token_stats": []
             }
             
         round_data = self.rounds_data[round_key]
@@ -1133,34 +1091,7 @@ class GameData:
                 if len(value) > 0:  # Only copy non-empty arrays
                     # Create a deep copy to prevent future modifications from affecting this data
                     if isinstance(value, (list, tuple)):
-                        if key == "invalid_reversals":
-                            # Special handling for invalid_reversals to prevent duplicates
-                            # Store as a completely new list instead of merging
-                            existing_reversals = round_data.get(key, [])
-                            
-                            # Create a list of unique invalid reversals by comparing fields
-                            unique_reversals = []
-                            seen_keys = set()
-                            
-                            # Process existing reversals first
-                            for reversal in existing_reversals:
-                                # Create a key based on the reversal's properties
-                                rev_key = f"{reversal.get('attempted_move')}:{reversal.get('current_direction')}:{reversal.get('step')}"
-                                if rev_key not in seen_keys:
-                                    seen_keys.add(rev_key)
-                                    unique_reversals.append(reversal)
-                            
-                            # Then add new reversals from current_round_data if not already present
-                            for reversal in value:
-                                rev_key = f"{reversal.get('attempted_move')}:{reversal.get('current_direction')}:{reversal.get('step')}"
-                                if rev_key not in seen_keys:
-                                    seen_keys.add(rev_key)
-                                    unique_reversals.append(reversal)
-                                    changes_made = True
-                            
-                            # Set the deduplicated list back to round_data
-                            round_data[key] = unique_reversals
-                        elif key == "moves":
+                        if key == "moves":
                             # Special handling for moves to prevent duplicates
                             # Use append-only delta to preserve proper order
                             existing = round_data.get(key, [])
@@ -1214,8 +1145,7 @@ class GameData:
                 "primary_response_times": [],
                 "secondary_response_times": [],
                 "primary_token_stats": [],
-                "secondary_token_stats": [],
-                "invalid_reversals": []  # Initialize an empty list for each round's invalid reversals
+                "secondary_token_stats": []
             }
             
             # If we have an apple position for this round, add it
@@ -1333,6 +1263,5 @@ class GameData:
             "primary_response_times": [],
             "secondary_response_times": [],
             "primary_token_stats": [],
-            "secondary_token_stats": [],
-            "invalid_reversals": []
+            "secondary_token_stats": []
         } 

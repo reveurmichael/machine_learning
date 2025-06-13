@@ -114,6 +114,11 @@ def main():
             print(Fore.YELLOW + "For help, use: python main.py --help")
             sys.exit(1)
             
+        # Default assumption: environment is fine.  We may overwrite this
+        # in the new-session branch below; the variable must always exist so
+        # later checks don't raise an UnboundLocalError.
+        primary_env_ok = True
+
         # Check if we're continuing from a previous session
         if args.continue_with_game_in_dir:
             # Continue from existing directory

@@ -125,9 +125,6 @@ def generate_game_summary_json(game_data):
     if game_data.get("parser_provider"):
         summary["parser_provider"] = game_data["parser_provider"]
     
-    if game_data.get("parser_usage_count", 0) > 0:
-        summary["parser_usage_count"] = game_data["parser_usage_count"]
-    
     # Add apple positions if available
     if game_data.get("apple_positions"):
         summary["apple_positions"] = game_data["apple_positions"]

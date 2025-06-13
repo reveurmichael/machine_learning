@@ -19,10 +19,6 @@ We’re much closer—most of the per-game numbers in the two new log files are 
 
 
 
-4. Small casing / sentinel issues  
-   • One move in Game 2’s `moves` list is literally `"INVALID_REVERSAL"`; everywhere else you store the reversal separately in `invalid_reversals`.  Either drop that string from the move log or normalise it to keep the list pure.  
-   • No more lowercase `"right"` occurrences—good!
-
 
 remove the entry :  game_N.json -> detaailed_history -> rounds_data -> round_N -> invalid_reversals  . Remove the entry from the summary.json as well. But keep the invalid_reversal related stats (counting, or maybe percentage if it's present)
 

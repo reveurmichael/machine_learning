@@ -145,9 +145,7 @@ def get_experiment_options(stats_df):
         'secondary_llms': sorted(secondary_llms)
     }
 
-def filter_experiments(stats_df, selected_providers=None, selected_models=None, 
-                       selected_primary_llms=None, selected_secondary_llms=None,
-                       selected_primary_providers=None, selected_primary_models=None,
+def filter_experiments(stats_df, selected_primary_providers=None, selected_primary_models=None,
                        selected_secondary_providers=None, selected_secondary_models=None):
     """Filter experiments based on selected criteria.
     
@@ -155,10 +153,6 @@ def filter_experiments(stats_df, selected_providers=None, selected_models=None,
     
     Args:
         stats_df: DataFrame with experiment statistics
-        selected_providers: List of selected providers (legacy)
-        selected_models: List of selected models (legacy)
-        selected_primary_llms: List of selected primary LLMs (legacy)
-        selected_secondary_llms: List of selected secondary LLMs (legacy)
         selected_primary_providers: List of selected primary providers
         selected_primary_models: List of selected primary models
         selected_secondary_providers: List of selected secondary providers
@@ -169,20 +163,6 @@ def filter_experiments(stats_df, selected_providers=None, selected_models=None,
     """
     filtered_df = stats_df.copy()
     
-    # Legacy filtering (kept for backward compatibility)
-    if selected_providers and len(selected_providers) > 0:
-        filtered_df = filtered_df[filtered_df['providers'].apply(lambda x: any(p in x for p in selected_providers))]
-    
-    if selected_models and len(selected_models) > 0:
-        filtered_df = filtered_df[filtered_df['models'].apply(lambda x: any(m in x for m in selected_models))]
-    
-    if selected_primary_llms and len(selected_primary_llms) > 0:
-        filtered_df = filtered_df[filtered_df['primary_llm'].isin(selected_primary_llms)]
-    
-    if selected_secondary_llms and len(selected_secondary_llms) > 0:
-        filtered_df = filtered_df[filtered_df['secondary_llm'].isin(selected_secondary_llms)]
-    
-    # New granular filtering
     if selected_primary_providers and len(selected_primary_providers) > 0:
         filtered_df = filtered_df[filtered_df['primary_provider'].isin(selected_primary_providers)]
     

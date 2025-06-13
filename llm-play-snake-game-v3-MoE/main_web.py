@@ -11,17 +11,20 @@ Usage (same CLI as main.py plus host/port):
     python main_web.py --max-games 5 --no-gui --host 0.0.0.0 --port 8000
 """
 
+# Ensure pygame does not attempt to open an X11 window — must be done before pygame import
+import os
+os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+
 import argparse
 import threading
 import time
-import os
 import sys
 from flask import Flask, render_template, jsonify, request
 
-# Local imports from the project
+# Local imports from the project (after dummy driver is set)
 from core.game_manager import GameManager
 from main import parse_arguments  # Re-use the full CLI from main.py
-from config import COLORS, GRID_SIZE, PAUSE_BETWEEN_MOVES_SECONDS
+from config import COLORS, GRID_SIZE
 
 # ---------------------------------------------------------------------------
 # Flask setup (identical static/template folders to replay_web)
@@ -61,6 +64,7 @@ def build_state_dict(gm: GameManager):
         'game_active': gm.game_active,
         'planned_moves': game.planned_moves,
         'llm_response': getattr(game, 'processed_response', ''),
+        'move_pause': gm.get_pause_between_moves(),
     }
 
 # ---------------------------------------------------------------------------
@@ -122,8 +126,8 @@ def main():
     host = final_args.host
     port = final_args.port
 
-    # Force no-GUI for browser mode
-    final_args.no_gui = True
+    # Keep GUI logic enabled for correct timing, but SDL dummy driver prevents a real window
+    final_args.no_gui = False
     
 
     # Start GameManager in background thread

@@ -107,10 +107,7 @@ class GameData:
         self.code_block_extraction_errors = 0
         self.text_extraction_errors = 0
         self.pattern_extraction_success = 0
-        
-        # Parser usage
-        self.parser_usage_count = 0
-    
+
     def start_new_round(self, apple_position):
         """Start a new round of moves.
         

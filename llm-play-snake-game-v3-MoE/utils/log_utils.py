@@ -81,7 +81,6 @@ def generate_game_summary_json(game_data):
             - score: Final score
             - steps: Number of steps
             - next_move: Last move made
-            - parser_usage_count: Number of times the parser was used
             - snake_length: Final length of the snake
             - collision_type: Type of collision that ended the game
             - round_count: Number of rounds

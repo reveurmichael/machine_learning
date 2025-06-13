@@ -17,14 +17,13 @@ def read_game_data(log_dir, game_count):
         game_count: The number of games to read
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count)
+        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps)
     """
     # Initialize counters
     total_score = 0
     total_steps = 0
     empty_steps = 0
     error_steps = 0
-    parser_usage_count = 0
     game_scores = []
     missing_games = []
     corrupted_games = []
@@ -53,9 +52,6 @@ def read_game_data(log_dir, game_count):
                         step_stats = game_data.get('step_stats', {})
                         empty_steps += step_stats.get('empty_steps', 0)
                         error_steps += step_stats.get('error_steps', 0)
-                    
-                    # Track parser usage
-                    parser_usage_count += game_data.get('parser_usage_count', 0)
             except json.JSONDecodeError as e:
                 corrupted_games.append(game_num)
                 print(Fore.YELLOW + f"⚠️ Warning: Game file {game_file_path} is corrupted: {e}")
@@ -76,7 +72,7 @@ def read_game_data(log_dir, game_count):
     successful_games = game_count - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count
+    return total_score, total_steps, game_scores, empty_steps, error_steps
 
 def setup_log_directories(game_manager):
     """Set up log directories for storing game data.

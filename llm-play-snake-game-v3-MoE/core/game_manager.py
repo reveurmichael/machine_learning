@@ -46,7 +46,6 @@ class GameManager:
         self.consecutive_empty_steps = 0
         self.consecutive_errors = 0
         self.game_scores = []
-        self.parser_usage_count = 0
         self.previous_parser_usage = 0
         
         # Time and token statistics

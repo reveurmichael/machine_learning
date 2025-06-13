@@ -63,15 +63,18 @@ def read_existing_game_data(log_dir, start_game_number):
         game_file_path = join_log_path(log_dir, game_filename)
         
         if os.path.exists(game_file_path):
-            total_score += get_game_score(game_file_path)
-            total_steps += get_game_steps(game_file_path)
-            game_scores.append(get_game_score(game_file_path))
-            
-            # Load the game data
             try:
                 with open(game_file_path, 'r', encoding='utf-8') as f:
                     game_data = json.load(f)
-                    
+
+                # Cache-once: score & steps
+                score = game_data.get('score', 0)
+                steps = game_data.get('steps', 0)
+
+                total_score += score
+                total_steps += steps
+                game_scores.append(score)
+                
                 # Track step types if available
                 if 'step_stats' in game_data:
                     step_stats = game_data.get('step_stats', {})
@@ -142,35 +145,11 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
     
-    # Load the original experiment's summary to preserve configuration
-    try:
-        with open(summary_path, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
-            
-        # Update the summary with continuation info if it doesn't exist
-        if 'continuation_info' not in summary_data:
-            summary_data['continuation_info'] = {
-                'is_continuation': True,
-                'continuation_count': 1,
-                'continuation_timestamps': [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
-                'original_timestamp': summary_data.get('timestamp')
-            }
-        else:
-            # Update existing continuation info
-            continuation_info = summary_data['continuation_info']
-            continuation_info['continuation_count'] = continuation_info.get('continuation_count', 0) + 1
-            if 'continuation_timestamps' not in continuation_info:
-                continuation_info['continuation_timestamps'] = []
-            continuation_info['continuation_timestamps'].append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            
-        # Save the updated summary
-        with open(summary_path, 'w', encoding='utf-8') as f:
-            json.dump(summary_data, f, indent=2)
-            
-        print(Fore.GREEN + "📝 Updated continuation info in summary.json")
-    except Exception as e:
-        print(Fore.YELLOW + f"⚠️ Warning: Could not update continuation info in summary.json: {e}")
-        
+    # We no longer mutate summary.json here; all summary editing is performed
+    # once (and only once) inside *continue_from_directory* to avoid competing
+    # writes.  Here we simply verify the file exists so that later helpers can
+    # rely on its presence.
+    
     # Set the log directory
     game_manager.log_dir = log_dir
     game_manager.prompts_dir = os.path.join(log_dir, "prompts")
@@ -364,9 +343,28 @@ def continue_from_directory(game_manager_class, args):
             if 'continue_with_game_in_dir' in summary_data['configuration']:
                 del summary_data['configuration']['continue_with_game_in_dir']
             
-            # Save the updated configuration
+            # ------------------------------------------------------------------
+            # Add / update continuation_info exactly once (single-writer principle)
+            # ------------------------------------------------------------------
+            cont_info = summary_data.get('continuation_info', {
+                'is_continuation': True,
+                'continuation_count': 0,
+                'continuation_timestamps': [],
+                'original_timestamp': summary_data.get('timestamp')
+            })
+
+            cont_info['continuation_count'] = cont_info.get('continuation_count', 0) + 1
+            cont_info.setdefault('continuation_timestamps', []).append(
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+
+            # Write back the possibly new section
+            summary_data['continuation_info'] = cont_info
+
+            # Save the fully-updated summary once, after all edits
             with open(summary_path, 'w', encoding='utf-8') as f:
                 json.dump(summary_data, f, indent=2)
+            print(Fore.GREEN + "📝 Updated continuation info in summary.json")
             
             # Log the applied configuration
             print(Fore.GREEN + f"🤖 Primary LLM: {args.provider}" + (f" ({args.model})" if args.model else ""))
@@ -417,38 +415,4 @@ def continue_from_directory(game_manager_class, args):
         traceback.print_exc()
         sys.exit(1)
         
-    return game_manager
-
-def get_game_score(game_file_path):
-    """Extract the score from a game file.
-    
-    Args:
-        game_file_path: Path to the game JSON file
-        
-    Returns:
-        Score value from the game file or 0 if not found
-    """
-    try:
-        with open(game_file_path, 'r', encoding='utf-8') as f:
-            game_data = json.load(f)
-        return game_data.get('score', 0)
-    except Exception as e:
-        print(f"Warning: Could not read score from {game_file_path}: {e}")
-        return 0
-
-def get_game_steps(game_file_path):
-    """Extract the step count from a game file.
-    
-    Args:
-        game_file_path: Path to the game JSON file
-        
-    Returns:
-        Step count from the game file or 0 if not found
-    """
-    try:
-        with open(game_file_path, 'r', encoding='utf-8') as f:
-            game_data = json.load(f)
-        return game_data.get('steps', 0)
-    except Exception as e:
-        print(f"Warning: Could not read steps from {game_file_path}: {e}")
-        return 0 
+    return game_manager 

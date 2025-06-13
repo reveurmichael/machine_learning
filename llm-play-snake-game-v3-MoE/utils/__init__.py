@@ -27,7 +27,6 @@ from .json_utils import (
 # File and storage management
 from .file_utils import (
     find_log_folders,
-    extract_game_stats,
     extract_game_summary,
     get_next_game_number,
     clean_prompt_files,
@@ -39,7 +38,6 @@ from .initialization_utils import (
     setup_llm_clients,
     setup_log_directories,
     initialize_game_state,
-    read_game_data
 )
 
 # Game mechanics
@@ -69,7 +67,6 @@ __all__ = [
     
     # File management
     'find_log_folders',
-    'extract_game_stats',
     'extract_game_summary',
     'get_next_game_number',
     'clean_prompt_files',
@@ -79,7 +76,6 @@ __all__ = [
     'setup_llm_clients',
     'setup_log_directories',
     'initialize_game_state',
-    'read_game_data',
     
     # Game mechanics
     'calculate_move_differences',

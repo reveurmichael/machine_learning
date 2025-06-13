@@ -157,6 +157,8 @@ def process_game_over(game, game_state_info):
     print(Fore.BLUE + f"Game {game_count} Stats:")
     print(Fore.BLUE + f"- Score: {game.score}")
     print(Fore.BLUE + f"- Steps: {game.steps}")
+    print(Fore.BLUE + f"- Valid Steps: {game.game_state.valid_steps}")
+    print(Fore.BLUE + f"- Invalid Reversals: {game.game_state.invalid_reversals}")
     print(Fore.BLUE + f"- Moves: {move_str}")
     
     # Update time statistics

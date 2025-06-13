@@ -266,6 +266,12 @@ class GameController:
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
             self.last_collision_type = 'wall'
+
+            # Record the fatal move so it is visible in logs, stats and replay
+            # We treat it as a normal (non–apple-eating) step that immediately
+            # causes the game end.
+            self.game_state.record_move(direction_key, apple_eaten=False)
+
             # Note: We do NOT increment round_count when a collision occurs
             # This ensures round numbers in game_N.json match the prompts/responses folders
             self.game_state.record_game_end("WALL")
@@ -274,6 +280,10 @@ class GameController:
         if body_collision:
             print(f"Game over! Snake hit itself moving {direction_key}")
             self.last_collision_type = 'self'
+
+            # Record the fatal move for visibility and analytics
+            self.game_state.record_move(direction_key, apple_eaten=False)
+
             # Note: We do NOT increment round_count when a collision occurs
             # This ensures round numbers in game_N.json match the prompts/responses folders
             self.game_state.record_game_end("SELF")

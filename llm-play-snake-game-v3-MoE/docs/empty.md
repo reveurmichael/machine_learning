@@ -201,3 +201,22 @@ What you gain
 These three edits make the EMPTY sentinel a first-class citizen,
 completely consistent with `--max-empty-moves-allowed` as well as with
 the existing error-limit logic.
+
+
+
+Behavior for “EMPTY” mirrors the one we just discussed for “SOMETHING_IS_WRONG.”
+
+1. Where EMPTY appears  
+   • In every executed-moves array (`detailed_history.moves`, `rounds_data.round_k.moves`) whenever the engine logs a no-move tick.  
+   • Counted in each game’s `step_stats.empty_steps` and rolled up into `summary.json → step_stats.empty_steps`.
+
+2. Where EMPTY does *not* appear  
+   • `planned_moves` – those lists reflect the LLM’s intended directions; the LLM never “plans” an empty tick, so we keep the sentinel out to preserve that semantic meaning.
+
+3. Invariants & validations  
+   • All assertions (steps-vs-moves length, step-type totals, etc.) use executed-moves arrays, so every EMPTY tick is fully accounted for in counts.  
+   • Because `planned_moves` is not part of any arithmetic check, its omission of EMPTY cannot cause a mismatch.
+
+So:  
+• EMPTY is present in executed moves and counted in stats.  
+• EMPTY is absent from `planned_moves` by design, and that is perfectly safe for all current integrity checks.

@@ -21,6 +21,12 @@ let updateInterval = null;
 let retryCount = 0;
 const MAX_RETRIES = 10;
 
+// Prevent overlapping fetches
+let isFetching = false;
+
+// Track last rendered step to skip unnecessary draws
+let lastRenderedStep = -1;
+
 // On load
 document.addEventListener('DOMContentLoaded', init);
 
@@ -32,10 +38,13 @@ function init() {
 }
 
 function startPolling() {
-    updateInterval = setInterval(fetchGameState, 100);
+    // Faster polling but with overlap guard – roughly 20 fps max depending on network
+    updateInterval = setInterval(fetchGameState, 20);
 }
 
 async function fetchGameState() {
+    if (isFetching) return; // Skip if previous request still in flight
+    isFetching = true;
     try {
         const data = await sendApiRequest('/api/state');
 
@@ -61,9 +70,16 @@ async function fetchGameState() {
         }
 
         updateUI();
-        drawGame();
+
+        // Only redraw if new step arrived
+        if (gameState.steps !== lastRenderedStep) {
+            drawGame();
+            lastRenderedStep = gameState.steps;
+        }
     } catch (e) {
         handleError(e.message);
+    } finally {
+        isFetching = false;
     }
 }
 

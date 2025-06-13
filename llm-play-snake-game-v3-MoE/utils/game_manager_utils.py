@@ -417,7 +417,7 @@ def handle_error(game, error_info):
             args.max_consecutive_something_is_wrong_allowed
         )
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
 
 def report_final_statistics(stats_info):
     """Report final statistics for the experiment.

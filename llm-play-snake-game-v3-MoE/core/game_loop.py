@@ -334,23 +334,7 @@ def run_game_loop(game_manager):
                 pygame.time.delay(game_manager.time_delay)
                 game_manager.clock.tick(game_manager.time_tick)
         
-        # Report final statistics at end of session
-        from utils.game_manager_utils import report_final_statistics
-        
-        stats_info = {
-            "log_dir": game_manager.log_dir,
-            "game_count": game_manager.game_count,
-            "total_score": game_manager.total_score,
-            "total_steps": game_manager.total_steps,
-            "parser_usage_count": game_manager.parser_usage_count,
-            "game_scores": game_manager.game_scores,
-            "empty_steps": game_manager.empty_steps,
-            "error_steps": game_manager.error_steps,
-            "max_consecutive_empty_moves_allowed": game_manager.args.max_consecutive_empty_moves_allowed,
-            "max_consecutive_errors_allowed": game_manager.args.max_consecutive_errors_allowed
-        }
-        
-        report_final_statistics(stats_info)
+        # Final statistics are now reported once, from GameManager.report_final_statistics().
         
     except Exception as e:
         print(Fore.RED + f"Fatal error: {e}")

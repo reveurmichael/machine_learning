@@ -18,14 +18,14 @@ def read_existing_game_data(log_dir, start_game_number):
         start_game_number: The game number to start from
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, 
+        Tuple of (total_score, total_steps, game_scores, empty_steps, something_is_wrong_steps, parser_usage_count, 
                  time_stats, token_stats, valid_steps, invalid_reversals)
     """
     # Initialize counters
     total_score = 0
     total_steps = 0
     empty_steps = 0
-    error_steps = 0
+    something_is_wrong_steps = 0
     valid_steps = 0
     invalid_reversals = 0
     parser_usage_count = 0
@@ -78,7 +78,7 @@ def read_existing_game_data(log_dir, start_game_number):
                 if 'step_stats' in game_data:
                     step_stats = game_data.get('step_stats', {})
                     empty_steps += step_stats.get('empty_steps', 0)
-                    error_steps += step_stats.get('error_steps', 0)
+                    something_is_wrong_steps += step_stats.get('something_is_wrong_steps', 0)
                     valid_steps += step_stats.get('valid_steps', 0)
                     invalid_reversals += step_stats.get('invalid_reversals', 0)
                 
@@ -126,7 +126,7 @@ def read_existing_game_data(log_dir, start_game_number):
     successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats, valid_steps, invalid_reversals
+    return total_score, total_steps, game_scores, empty_steps, something_is_wrong_steps, parser_usage_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
@@ -229,7 +229,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
      game_manager.total_steps, 
      game_manager.game_scores, 
      game_manager.empty_steps, 
-     game_manager.error_steps, 
+     game_manager.something_is_wrong_steps, 
      game_manager.parser_usage_count,
      game_manager.time_stats,
      game_manager.token_stats,
@@ -357,7 +357,7 @@ def continue_from_directory(game_manager_class, args):
             args.move_pause = original_config.get('move_pause', args.move_pause)
             args.max_steps = original_config.get('max_steps', args.max_steps)
             args.max_consecutive_empty_moves_allowed = original_config.get('max_consecutive_empty_moves_allowed', args.max_consecutive_empty_moves_allowed)
-            args.max_consecutive_errors_allowed = original_config.get('max_consecutive_errors_allowed', args.max_consecutive_errors_allowed)
+            args.max_consecutive_something_is_wrong_allowed = original_config.get('max_consecutive_something_is_wrong_allowed', args.max_consecutive_something_is_wrong_allowed)
             
             # Preserve the original GUI setting
             args.no_gui = original_config.get('no_gui', args.no_gui)
@@ -385,7 +385,7 @@ def continue_from_directory(game_manager_class, args):
             print(Fore.GREEN + f"⏱️ Move pause: {args.move_pause} seconds")
             print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_consecutive_empty_moves_allowed}")
-            print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_errors_allowed}")
+            print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_something_is_wrong_allowed}")
             print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
             print(Fore.GREEN + f"🎲 Max games: {args.max_games}")
     except Exception as e:

@@ -25,7 +25,7 @@ PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between
 # Game configuration
 GRID_SIZE = 10
 MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 20  # Maximum consecutive empty moves before game over
-MAX_CONSECUTIVE_ERRORS_ALLOWED = 20  # Maximum consecutive errors allowed before game over
+MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 20  # Maximum consecutive errors allowed before game over
 
 DIRECTIONS = {
     "UP": (0, 1),  # No change in x, increase y (move up)
@@ -195,7 +195,7 @@ The main objective of RESPONSE_1 is to generate a list of safe moves that leads 
 - If after reading RESPONSE_1, according to your understanding, no valid path exists or no safe initial moves can be performed, or if you are not sure about the text's meaning on path and move planning, return your answer in JSON format: { "moves": [], "reasoning": "NO_PATH_OR_SAFE_INITIAL_MOVES_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
 
 ## WHAT YOU SHOULD DO:
-- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "ERROR" } in JSON format.
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "SOMETHING_IS_WRONG" } in JSON format.
 - Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
 - Third, if FINAL_OUTPUT_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform (e.g. leading to the apple, or one or several initial safe moves), you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
 - Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.

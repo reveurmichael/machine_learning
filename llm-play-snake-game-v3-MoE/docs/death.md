@@ -26,7 +26,7 @@ Based on my analysis, I can confirm that all game modes share a consistent death
      - "SELF" - Snake hit itself
      - "MAX_STEPS_REACHED" - Maximum steps reached
      - "MAX_EMPTY_MOVES_REACHED" - Too many consecutive empty moves
-     - "MAX_CONSECUTIVE_ERRORS_REACHED" - Too many consecutive LLM errors
+     - "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED" - Too many consecutive LLM errors
 
 ### Consistency Across Modes
 

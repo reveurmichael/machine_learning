@@ -116,7 +116,7 @@ The snake game will terminate under any of the following conditions:
 4. Three consecutive empty moves occur without ERROR
    - Empty moves are checked immediately when detected
    - An empty move occurs when the LLM returns `{"moves":[], "reasoning":"..."}`
-   - If the reasoning contains "ERROR", the consecutive count is reset
+   - If the reasoning contains "SOMETHING_IS_WRONG", the consecutive count is reset
 5. A game error occurs
    - The system will catch errors, log them, and continue to the next game
    - Error information is saved in the game summary
@@ -131,7 +131,7 @@ After game termination (for any reason), the system will automatically start the
 - **Analysis Dashboard**: Includes tools for preliminary result analysis and experiment parameter adjustment
 - **Rapid Prototyping**: Supports quick testing with minimal parameters:
   ```
-  python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-errors-allowed 0
+  python main.py --provider ollama --model mistral:7b --parser-provider ollama --parser-model mistral:7b --max-games 1 --no-gui --sleep-before-launching 1 --max-steps 3 --max-consecutive-something-is-wrong-allowed 0
   ```
 
 ## What's Missing for a Complete Research Project

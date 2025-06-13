@@ -96,7 +96,7 @@ These sections track performance metrics like response times and token usage, wh
 "step_stats": {
   "valid_steps": 15,
   "empty_steps": 0,
-  "error_steps": 0,
+  "something_is_wrong_steps": 0,
   "invalid_reversals": 0,
   "max_consecutive_empty_moves_reached": 0
 },
@@ -123,7 +123,7 @@ These sections provide insights into the quality of the LLM's gameplay and respo
   "last_move": "UP",
   "round_count": 9,
   "max_consecutive_empty_moves_allowed": 3,
-  "max_consecutive_errors_allowed": 20,
+  "max_consecutive_something_is_wrong_allowed": 20,
 }
 ```
 

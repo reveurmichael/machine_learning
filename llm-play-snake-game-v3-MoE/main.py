@@ -7,7 +7,7 @@ import sys
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_ERRORS_ALLOWED
+from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 
@@ -35,8 +35,8 @@ def parse_arguments():
                       help='Maximum steps a snake can take in a single game (default: 400)')
     parser.add_argument('--max-consecutive-empty-moves-allowed', type=int, default=MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
                       help=f'Maximum consecutive empty moves before game over (default: {MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED})')
-    parser.add_argument('--max-consecutive-errors-allowed', type=int, default=MAX_CONSECUTIVE_ERRORS_ALLOWED,
-                      help=f'Maximum consecutive errors allowed before game over (default: {MAX_CONSECUTIVE_ERRORS_ALLOWED})')
+    parser.add_argument('--max-consecutive-something-is-wrong-allowed', type=int, default=MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
+                      help=f'Maximum consecutive errors allowed before game over (default: {MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED})')
     parser.add_argument('--no-gui', action='store_true',
                       help='Run without GUI (text-only mode)')
     parser.add_argument('--log-dir', type=str, default=None,
@@ -91,7 +91,7 @@ def parse_arguments():
             '--move-pause', 
             '--max-steps', 
             '--max-consecutive-empty-moves-allowed', 
-            '--max-consecutive-errors-allowed',
+            '--max-consecutive-something-is-wrong-allowed',
             '--log-dir'
         ]
         

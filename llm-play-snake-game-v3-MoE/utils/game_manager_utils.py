@@ -103,7 +103,7 @@ def process_game_over(game, game_state_info):
         game_state_info: Dictionary with game state info
         
     Returns:
-        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps)
     """
     from utils.json_utils import save_session_stats
     import os
@@ -123,7 +123,7 @@ def process_game_over(game, game_state_info):
     valid_steps = game_state_info.get("valid_steps", 0)
     invalid_reversals = game_state_info.get("invalid_reversals", 0)
     empty_steps = game_state_info.get("empty_steps", 0)
-    error_steps = game_state_info.get("error_steps", 0)
+    something_is_wrong_steps = game_state_info.get("something_is_wrong_steps", 0)
     
     # Print game over message with reason
     if hasattr(game, "last_collision_type"):
@@ -148,9 +148,9 @@ def process_game_over(game, game_state_info):
     # This ensures we're keeping track of invalid_reversals across all games
     invalid_reversals += game.game_state.invalid_reversals
     
-    # Update empty_steps and error_steps counters - add current game's to the running total
+    # Update empty_steps and something_is_wrong_steps counters - add current game's to the running total
     empty_steps += game.game_state.empty_steps
-    error_steps += game.game_state.error_steps
+    something_is_wrong_steps += game.game_state.something_is_wrong_steps
     
     # Print game stats
     move_str = ", ".join(current_game_moves)
@@ -219,13 +219,13 @@ def process_game_over(game, game_state_info):
         total_steps=total_steps,
         game_scores=game_scores,
         empty_steps=empty_steps,
-        error_steps=error_steps,
+        something_is_wrong_steps=something_is_wrong_steps,
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
         token_stats=token_stats,
         max_consecutive_empty_moves_allowed=args.max_consecutive_empty_moves_allowed,
-        max_consecutive_errors_allowed=args.max_consecutive_errors_allowed
+        max_consecutive_something_is_wrong_allowed=args.max_consecutive_something_is_wrong_allowed
     )
     
     # Use the actual number of rounds that contain data to avoid the
@@ -257,7 +257,7 @@ def process_game_over(game, game_state_info):
         args.model,
         parser_provider,
         args.parser_model if parser_provider else None,
-        args.max_consecutive_errors_allowed
+        args.max_consecutive_something_is_wrong_allowed
     )
 
     print(
@@ -266,7 +266,7 @@ def process_game_over(game, game_state_info):
         f"(rounds: {round_count}, moves: {len(current_game_moves)})"
     )
     
-    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
+    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
 
 def handle_error(game, error_info):
     """Handle errors during gameplay.
@@ -283,19 +283,19 @@ def handle_error(game, error_info):
             - args: Command line arguments
             - log_dir: Directory for logs
             - current_game_moves: List of moves made in the current game
-            - consecutive_errors: Count of consecutive errors
+            - consecutive_something_is_wrong: Count of consecutive errors
             - error: The exception that occurred
             - valid_steps: Total valid steps across all games (optional)
             - invalid_reversals: Total invalid reversals across all games (optional)
             
     Returns:
         Tuple of (game_active, game_count, total_score, total_steps, game_scores, round_count, 
-                 parser_usage_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
+                 parser_usage_count, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps)
     """
     import traceback
     
     args = error_info["args"]
-    consecutive_errors = error_info["consecutive_errors"]
+    consecutive_something_is_wrong = error_info["consecutive_something_is_wrong"]
     log_dir = error_info["log_dir"]
     parser_usage_count = error_info.get("parser_usage_count", 0)
     previous_parser_usage = error_info.get("previous_parser_usage", 0)
@@ -317,7 +317,7 @@ def handle_error(game, error_info):
     valid_steps = error_info.get("valid_steps", 0)
     invalid_reversals = error_info.get("invalid_reversals", 0)
     empty_steps = error_info.get("empty_steps", 0)
-    error_steps = error_info.get("error_steps", 0)
+    something_is_wrong_steps = error_info.get("something_is_wrong_steps", 0)
     
     # Get the error details
     error = error_info["error"]
@@ -328,29 +328,29 @@ def handle_error(game, error_info):
     print(Fore.RED + traceback_str)
     
     # Record the error
-    if hasattr(game.game_state, "record_error_move"):
-        game.game_state.record_error_move()
+    if hasattr(game.game_state, "record_something_is_wrong_move"):
+        game.game_state.record_something_is_wrong_move()
     
     # Increment consecutive errors
-    consecutive_errors += 1
-    print(Fore.RED + f"⚠️ Consecutive errors: {consecutive_errors}/{args.max_consecutive_errors_allowed}")
+    consecutive_something_is_wrong += 1
+    print(Fore.RED + f"⚠️ Consecutive errors: {consecutive_something_is_wrong}/{args.max_consecutive_something_is_wrong_allowed}")
     
     # Update valid steps and invalid reversals from the game state
     if hasattr(game, "game_state"):
         valid_steps += game.game_state.valid_steps
         invalid_reversals += game.game_state.invalid_reversals
         
-        # Also update empty_steps and error_steps
+        # Also update empty_steps and something_is_wrong_steps
         empty_steps += game.game_state.empty_steps
-        error_steps += game.game_state.error_steps
+        something_is_wrong_steps += game.game_state.something_is_wrong_steps
     
     # Check if we should end the game
-    if consecutive_errors >= args.max_consecutive_errors_allowed:
-        print(Fore.RED + f"❌ Maximum consecutive errors reached ({args.max_consecutive_errors_allowed}). Game over.")
+    if consecutive_something_is_wrong >= args.max_consecutive_something_is_wrong_allowed:
+        print(Fore.RED + f"❌ Maximum consecutive errors reached ({args.max_consecutive_something_is_wrong_allowed}). Game over.")
         game_active = False
         
         # Set the game end reason
-        game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
+        game.game_state.record_game_end("MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED")
         
         # Add score to game scores
         game_scores.append(game.score)
@@ -416,10 +416,10 @@ def handle_error(game, error_info):
             args.model or f"default_{args.provider}",
             parser_provider,
             args.parser_model if parser_provider else None,
-            args.max_consecutive_errors_allowed
+            args.max_consecutive_something_is_wrong_allowed
         )
     
-    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps
+    return game_active, game_count, total_score, total_steps, game_scores, round_count, previous_parser_usage, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
 
 def report_final_statistics(stats_info):
     """Report final statistics for the experiment.
@@ -433,7 +433,7 @@ def report_final_statistics(stats_info):
         - parser_usage_count: Number of times the parser was used
         - game_scores: List of scores for each game
         - empty_steps: Total empty steps across all games
-        - error_steps: Total error steps across all games
+        - something_is_wrong_steps: Total something_is_wrong steps across all games
         - valid_steps: Total valid steps across all games (optional)
         - invalid_reversals: Total invalid reversals across all games (optional)
     """
@@ -448,11 +448,11 @@ def report_final_statistics(stats_info):
     total_steps = stats_info["total_steps"]
     game_scores = stats_info["game_scores"]
     empty_steps = stats_info["empty_steps"]
-    error_steps = stats_info["error_steps"]
+    something_is_wrong_steps = stats_info["something_is_wrong_steps"]
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
     max_consecutive_empty_moves_allowed = stats_info["max_consecutive_empty_moves_allowed"]
-    max_consecutive_errors_allowed = stats_info.get("max_consecutive_errors_allowed", 5)
+    max_consecutive_something_is_wrong_allowed = stats_info.get("max_consecutive_something_is_wrong_allowed", 5)
     
     # Get time and token statistics from the game instance if available
     time_stats = {}
@@ -488,7 +488,7 @@ def report_final_statistics(stats_info):
         total_steps=total_steps, 
         game_scores=game_scores, 
         empty_steps=empty_steps, 
-        error_steps=error_steps,
+        something_is_wrong_steps=something_is_wrong_steps,
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
@@ -511,13 +511,13 @@ def report_final_statistics(stats_info):
     
     # Print step statistics
     print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
-    print(Fore.GREEN + f"📈 Error Steps: {error_steps}")
+    print(Fore.GREEN + f"📈 SOMETHING_IS_WRONG steps: {something_is_wrong_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
     
     # Print move limits
     print(Fore.GREEN + f"📈 Max Empty Moves: {max_consecutive_empty_moves_allowed}")
-    print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_errors_allowed}")
+    print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_something_is_wrong_allowed}")
     
     # End message based on max games reached
     if game_count >= stats_info.get("max_games", float('inf')):

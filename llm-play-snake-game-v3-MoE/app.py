@@ -223,7 +223,7 @@ def display_experiment_overview(log_folders):
             step_stats = summary_data.get("step_stats", {})
             valid_steps = step_stats.get("valid_steps", 0)
             empty_steps = step_stats.get("empty_steps", 0)
-            error_steps = step_stats.get("error_steps", 0)
+            something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
             invalid_reversals = step_stats.get("invalid_reversals", 0)
             
             # JSON parsing statistics
@@ -251,7 +251,7 @@ def display_experiment_overview(log_folders):
                 "Total Steps": total_steps,
                 "Valid Steps": valid_steps,
                 "Empty Steps": empty_steps,
-                "Error Steps": error_steps,
+                "SOMETHING_IS_WRONG steps": something_is_wrong_steps,
                 "Invalid Reversals": invalid_reversals,
                 "JSON Success Rate": json_success_rate,
                 "Is Continuation": is_continuation,
@@ -349,7 +349,7 @@ def display_experiment_overview(log_folders):
                 "Total Steps": st.column_config.NumberColumn("Total Steps", format="%d"),
                 "Valid Steps": st.column_config.NumberColumn("Valid Steps", format="%d"),
                 "Empty Steps": st.column_config.NumberColumn("Empty Steps", format="%d"),
-                "Error Steps": st.column_config.NumberColumn("Error Steps", format="%d"),
+                "SOMETHING_IS_WRONG steps": st.column_config.NumberColumn("SOMETHING_IS_WRONG steps", format="%d"),
                 "Invalid Reversals": st.column_config.NumberColumn("Invalid Reversals", format="%d"),
                 "JSON Success Rate": st.column_config.NumberColumn("JSON Success Rate", format="%.1f%%"),
                 "Is Continuation": st.column_config.CheckboxColumn("Continuation?"),
@@ -508,7 +508,7 @@ def display_experiment_details(folder_path):
             total_game_steps = data.get("steps", 0)
             valid_game_steps = step_stats.get("valid_steps", 0)
             empty_game_steps = step_stats.get("empty_steps", 0)
-            error_game_steps = step_stats.get("error_steps", 0)
+            error_game_steps = step_stats.get("something_is_wrong_steps", 0)
             
             # Calculate step percentages
             valid_pct = (valid_game_steps / total_game_steps * 100) if total_game_steps > 0 else 0
@@ -522,7 +522,7 @@ def display_experiment_details(folder_path):
             formatted_end_reason = game_end_reason
             if game_end_reason == "MAX_EMPTY_MOVES_REACHED":
                 formatted_end_reason = "EMPTY MOVES"
-            elif game_end_reason == "MAX_CONSECUTIVE_ERRORS_REACHED":
+            elif game_end_reason == "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED":
                 formatted_end_reason = "LLM ERRORS"
             elif game_end_reason == "MAX_STEPS_REACHED":
                 formatted_end_reason = "MAX STEPS"
@@ -535,7 +535,7 @@ def display_experiment_details(folder_path):
                 "Valid %": f"{valid_pct:.1f}%",
                 "Empty Steps": empty_game_steps,
                 "Empty %": f"{empty_pct:.1f}%",
-                "Error Steps": error_game_steps,
+                "SOMETHING_IS_WRONG steps": error_game_steps,
                 "Error %": f"{error_pct:.1f}%",
                 "End Reason": formatted_end_reason,
                 "Rounds": data.get("round_count", 0)
@@ -553,7 +553,7 @@ def display_experiment_details(folder_path):
                 "Valid %": st.column_config.TextColumn("Valid %"),
                 "Empty Steps": st.column_config.NumberColumn("Empty Steps", format="%d"),
                 "Empty %": st.column_config.TextColumn("Empty %"),
-                "Error Steps": st.column_config.NumberColumn("Error Steps", format="%d"),
+                "SOMETHING_IS_WRONG steps": st.column_config.NumberColumn("SOMETHING_IS_WRONG steps", format="%d"),
                 "Error %": st.column_config.TextColumn("Error %"),
                 "End Reason": st.column_config.TextColumn("End Reason"),
                 "Rounds": st.column_config.NumberColumn("Rounds", format="%d")

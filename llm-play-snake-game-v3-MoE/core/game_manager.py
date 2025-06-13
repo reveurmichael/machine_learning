@@ -40,11 +40,11 @@ class GameManager:
         self.total_score = 0
         self.total_steps = 0
         self.empty_steps = 0
-        self.error_steps = 0
+        self.something_is_wrong_steps = 0
         self.valid_steps = 0
         self.invalid_reversals = 0
         self.consecutive_empty_steps = 0
-        self.consecutive_errors = 0
+        self.consecutive_something_is_wrong = 0
         self.game_scores = []
         self.parser_usage_count = 0
         self.previous_parser_usage = 0
@@ -169,11 +169,11 @@ class GameManager:
             "total_steps": self.total_steps,
             "game_scores": self.game_scores,
             "empty_steps": self.empty_steps,
-            "error_steps": self.error_steps,
+            "something_is_wrong_steps": self.something_is_wrong_steps,
             "valid_steps": valid_steps,
             "invalid_reversals": invalid_reversals,
             "max_consecutive_empty_moves_allowed": self.args.max_consecutive_empty_moves_allowed,
-            "max_consecutive_errors_allowed": self.args.max_consecutive_errors_allowed,
+            "max_consecutive_something_is_wrong_allowed": self.args.max_consecutive_something_is_wrong_allowed,
             "game": self.game,
             "time_stats": self.time_stats,
             "token_stats": self.token_stats

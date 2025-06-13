@@ -79,7 +79,7 @@ def save_experiment_info_json(args, directory):
         },
         "step_stats": {
             "empty_steps": 0,
-            "error_steps": 0,
+            "something_is_wrong_steps": 0,
             "valid_steps": 0,
             # "invalid_reversals" removed – kept only as in-memory counter
         },
@@ -153,7 +153,7 @@ def save_session_stats(log_dir, **kwargs):
     if "step_stats" not in summary:
         summary["step_stats"] = {
             "empty_steps": 0,
-            "error_steps": 0,
+            "something_is_wrong_steps": 0,
             "valid_steps": 0,
             # "invalid_reversals" removed – kept only as in-memory counter
         }
@@ -170,8 +170,8 @@ def save_session_stats(log_dir, **kwargs):
             summary["game_statistics"]["scores"] = value
         elif key == "empty_steps":
             summary["step_stats"]["empty_steps"] = value  # Already accumulated in process_game_over
-        elif key == "error_steps":
-            summary["step_stats"]["error_steps"] = value  # Already accumulated in process_game_over
+        elif key == "something_is_wrong_steps":
+            summary["step_stats"]["something_is_wrong_steps"] = value  # Already accumulated in process_game_over
         elif key == "valid_steps":
             summary["step_stats"]["valid_steps"] = value  # Already accumulated in process_game_over
         elif key == "time_stats":
@@ -213,18 +213,18 @@ def save_session_stats(log_dir, **kwargs):
             if value and isinstance(value, dict):
                 if "empty_steps" in value:
                     summary["step_stats"]["empty_steps"] = value["empty_steps"]  # Already accumulated in process_game_over
-                if "error_steps" in value:
-                    summary["step_stats"]["error_steps"] = value["error_steps"]  # Already accumulated in process_game_over
+                if "something_is_wrong_steps" in value:
+                    summary["step_stats"]["something_is_wrong_steps"] = value["something_is_wrong_steps"]  # Already accumulated in process_game_over
                 if "valid_steps" in value:
                     summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
         elif key == "max_consecutive_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}
             summary["metadata"]["max_consecutive_empty_moves_allowed"] = value
-        elif key == "max_consecutive_errors_allowed":
+        elif key == "max_consecutive_something_is_wrong_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}
-            summary["metadata"]["max_consecutive_errors_allowed"] = value
+            summary["metadata"]["max_consecutive_something_is_wrong_allowed"] = value
         else:
             # For any other fields, add them at the top level
             summary[key] = value

@@ -69,7 +69,7 @@ def run_game_loop(game_manager):
                             game_manager.game.draw()
                             
                             # Reset error tracking on successful move, but NOT empty move tracking
-                            game_manager.consecutive_errors = 0
+                            game_manager.consecutive_something_is_wrong = 0
                             
                             # Standard pause between moves for gameplay rhythm
                             game_manager.game.game_state.record_waiting_start()
@@ -138,7 +138,7 @@ def run_game_loop(game_manager):
                             game_manager.game.draw()
                             
                             # Reset error tracking on successful move, but NOT empty move tracking
-                            game_manager.consecutive_errors = 0
+                            game_manager.consecutive_something_is_wrong = 0
                             
                             # Request new plan if apple was eaten AND no more planned moves
                             if apple_eaten:
@@ -185,10 +185,10 @@ def run_game_loop(game_manager):
                             "valid_steps": getattr(game_manager, "valid_steps", 0),
                             "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
                             "empty_steps": getattr(game_manager, "empty_steps", 0),
-                            "error_steps": getattr(game_manager, "error_steps", 0)
+                            "something_is_wrong_steps": getattr(game_manager, "something_is_wrong_steps", 0)
                         }
                         
-                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.error_steps = process_game_over(
+                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.something_is_wrong_steps = process_game_over(
                             game_manager.game,
                             game_state_info
                         )
@@ -202,7 +202,7 @@ def run_game_loop(game_manager):
                             parser_usage_count=game_manager.parser_usage_count,
                             game_scores=game_manager.game_scores,
                             empty_steps=game_manager.empty_steps,
-                            error_steps=game_manager.error_steps,
+                            something_is_wrong_steps=game_manager.something_is_wrong_steps,
                             valid_steps=game_manager.valid_steps,
                             invalid_reversals=game_manager.invalid_reversals,
                             time_stats=game_manager.time_stats,
@@ -244,7 +244,7 @@ def run_game_loop(game_manager):
                         # Only reset the game positions and movement-related variables
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
-                        game_manager.consecutive_errors = 0
+                        game_manager.consecutive_something_is_wrong = 0
                     
                     # Ensure UI is updated
                     game_manager.game.draw()
@@ -264,16 +264,16 @@ def run_game_loop(game_manager):
                         "args": game_manager.args,
                         "current_game_moves": game_manager.current_game_moves,
                         "error": e,
-                        "consecutive_errors": game_manager.consecutive_errors,
+                        "consecutive_something_is_wrong": game_manager.consecutive_something_is_wrong,
                         "time_stats": game_manager.time_stats,
                         "token_stats": game_manager.token_stats,
                         "valid_steps": getattr(game_manager, "valid_steps", 0),
                         "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
                         "empty_steps": getattr(game_manager, "empty_steps", 0),
-                        "error_steps": getattr(game_manager, "error_steps", 0)
+                        "something_is_wrong_steps": getattr(game_manager, "something_is_wrong_steps", 0)
                     }
                     
-                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_errors, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.error_steps = handle_error(
+                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_something_is_wrong, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.something_is_wrong_steps = handle_error(
                         game_manager.game,
                         error_info
                     )
@@ -287,7 +287,7 @@ def run_game_loop(game_manager):
                         parser_usage_count=game_manager.parser_usage_count,
                         game_scores=game_manager.game_scores,
                         empty_steps=game_manager.empty_steps,
-                        error_steps=game_manager.error_steps,
+                        something_is_wrong_steps=game_manager.something_is_wrong_steps,
                         valid_steps=game_manager.valid_steps,
                         invalid_reversals=game_manager.invalid_reversals,
                         time_stats=game_manager.time_stats,
@@ -326,7 +326,7 @@ def run_game_loop(game_manager):
                         game_manager.game_active = True
                         game_manager.need_new_plan = True
                         game_manager.current_game_moves = []
-                        game_manager.consecutive_errors = 0
+                        game_manager.consecutive_something_is_wrong = 0
                         print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
             
             # Control frame rate only in GUI mode

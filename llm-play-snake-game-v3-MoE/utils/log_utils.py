@@ -107,7 +107,7 @@ def generate_game_summary_json(game_data):
         "last_move": game_data.get("next_move"),
         "game_end_reason": game_data.get("collision_type"),
         "max_consecutive_empty_moves_allowed": game_data.get("max_consecutive_empty_moves_allowed"),
-        "max_consecutive_errors_allowed": game_data.get("max_consecutive_errors_allowed"),
+        "max_consecutive_something_is_wrong_allowed": game_data.get("max_consecutive_something_is_wrong_allowed"),
         "snake_length": game_data.get("snake_length"),
         "round_count": game_data.get("round_count")
     }

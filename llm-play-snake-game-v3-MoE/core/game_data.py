@@ -25,7 +25,7 @@ class GameData:
     def reset(self):
         """Reset all tracking data to initial state."""
         # Import config at reset time to avoid circular imports
-        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_ERRORS_ALLOWED
+        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
         
         # Game state
         self.game_number = 0
@@ -34,7 +34,7 @@ class GameData:
         self.score = 0
         self.steps = 0
         self.empty_steps = 0
-        self.error_steps = 0
+        self.something_is_wrong_steps = 0
         self.last_move = None
         self.consecutive_empty_moves = 0
         self.max_consecutive_empty_moves_reached = 0
@@ -246,9 +246,9 @@ class GameData:
             self.current_round_data["moves"] = []
         self.current_round_data["moves"].append("INVALID_REVERSAL")
     
-    def record_error_move(self):
+    def record_something_is_wrong_move(self):
         """Record an error move (error in LLM response)."""
-        self.error_steps += 1
+        self.something_is_wrong_steps += 1
         self.steps += 1
     
     def record_llm_communication_start(self):
@@ -289,7 +289,7 @@ class GameData:
         
         Args:
             reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS_REACHED", 
-                   "MAX_EMPTY_MOVES_REACHED", "MAX_CONSECUTIVE_ERRORS_REACHED")
+                   "MAX_EMPTY_MOVES_REACHED", "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED")
         """
         # Standardize reason naming to ensure consistency
         if reason == "MAX_STEPS":
@@ -297,7 +297,7 @@ class GameData:
         elif reason == "EMPTY_MOVES":
             reason = "MAX_EMPTY_MOVES_REACHED"
         elif reason == "ERROR_THRESHOLD":
-            reason = "MAX_CONSECUTIVE_ERRORS_REACHED"
+            reason = "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED"
         
         self.game_end_reason = reason
         self.game_over = True
@@ -544,7 +544,7 @@ class GameData:
         # Import step statistics if available
         if 'step_stats' in summary_data:
             step_stats = summary_data['step_stats']
-            # Don't overwrite empty_steps and error_steps as they're already tracked from game files
+            # Don't overwrite empty_steps and something_is_wrong_steps as they're already tracked from game files
             # But import valid_steps and invalid_reversals
             self.valid_steps = step_stats.get('valid_steps', 0)
             self.invalid_reversals = step_stats.get('invalid_reversals', 0)
@@ -630,7 +630,7 @@ class GameData:
         return {
             "valid_steps": self.valid_steps,
             "empty_steps": self.empty_steps, 
-            "error_steps": self.error_steps,
+            "something_is_wrong_steps": self.something_is_wrong_steps,
             "invalid_reversals": self.invalid_reversals,  # Include the count of invalid reversals
             "max_consecutive_empty_moves_reached": self.max_consecutive_empty_moves_reached
         }
@@ -751,7 +751,7 @@ class GameData:
             "other_percent": other_percent
         }
     
-    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
+    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed=5):
         """Generate a summary of the game.
         
         Args:
@@ -759,7 +759,7 @@ class GameData:
             primary_model: The model of the primary LLM
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
-            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
+            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
             
         Returns:
             Dictionary with game summary
@@ -810,7 +810,7 @@ class GameData:
                 "last_move": self.last_move,
                 "round_count": self.round_count,  # Keep it here for backward compatibility
                 "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
-                "max_consecutive_errors_allowed": max_consecutive_errors_allowed,
+                "max_consecutive_something_is_wrong_allowed": max_consecutive_something_is_wrong_allowed,
                 "parser_usage_count": self.parser_usage_count
             },
             
@@ -959,7 +959,7 @@ class GameData:
         for round_num in range(1, self.round_count + 1):  # Include the current round
             self._get_or_create_round_data(round_num)
     
-    def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed=5):
+    def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed=5):
         """Save the game summary to a JSON file.
         
         Ensures that all rounds data is properly included in the JSON, matching the number of
@@ -971,7 +971,7 @@ class GameData:
             primary_model: The model of the primary LLM
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
-            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
+            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
             
         Returns:
             Path to the saved file
@@ -1009,7 +1009,7 @@ class GameData:
         ordered_rounds_data = self._get_ordered_rounds_data()
         
         # Generate and save the summary
-        summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed)
+        summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed)
         
         # Validate the summary before saving
         from utils.json_utils import validate_game_summary
@@ -1231,7 +1231,7 @@ class GameData:
         """
         return self.score + 1 
 
-    def to_json(self, primary_provider=None, primary_model=None, parser_provider=None, parser_model=None, max_consecutive_errors_allowed=5):
+    def to_json(self, primary_provider=None, primary_model=None, parser_provider=None, parser_model=None, max_consecutive_something_is_wrong_allowed=5):
         """Wrapper method for generate_game_summary to ensure compatibility with process_game_over.
         
         Args:
@@ -1239,12 +1239,12 @@ class GameData:
             primary_model: The model of the primary LLM
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
-            max_consecutive_errors_allowed: Maximum consecutive errors allowed before game over
+            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
             
         Returns:
             Dictionary with game summary
         """
-        return self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_errors_allowed) 
+        return self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed) 
 
     def _flush_current_round(self):
         """Persist the buffered data of the active round and reset the buffer.

@@ -122,7 +122,7 @@ class GameLogic(GameController):
             self.planned_moves = []
             
             # Update game state to record error
-            self.game_state.record_error_move()
+            self.game_state.record_something_is_wrong_move()
             
             return None
     

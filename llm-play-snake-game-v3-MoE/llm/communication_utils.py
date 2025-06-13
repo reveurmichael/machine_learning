@@ -380,8 +380,8 @@ def get_llm_response(game_manager):
 
     except Exception as e:
         # Record that there was an error in the LLM response BEFORE ending communication time
-        game_manager.game.game_state.record_error_move()
-        game_manager.error_steps += 1
+        game_manager.game.game_state.record_something_is_wrong_move()
+        game_manager.something_is_wrong_steps += 1
         
         # Ensure round data is synchronized BEFORE ending communication time
         game_manager.game.game_state.sync_round_data()
@@ -390,14 +390,14 @@ def get_llm_response(game_manager):
         game_manager.game.game_state.record_llm_communication_end()
         
         # Increment consecutive errors but DO NOT increment consecutive empty steps
-        game_manager.consecutive_errors += 1
+        game_manager.consecutive_something_is_wrong += 1
         print(Fore.RED + f"❌ Error getting response from LLM: {e}")
-        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {game_manager.consecutive_errors}/{game_manager.args.max_consecutive_errors_allowed}")
+        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {game_manager.consecutive_something_is_wrong}/{game_manager.args.max_consecutive_something_is_wrong_allowed}")
         
         # End game if maximum consecutive errors reached
-        if game_manager.consecutive_errors >= game_manager.args.max_consecutive_errors_allowed:
-            print(Fore.RED + f"❌ Maximum consecutive LLM errors reached ({game_manager.args.max_consecutive_errors_allowed}). Game over.")
-            game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_ERRORS_REACHED")
+        if game_manager.consecutive_something_is_wrong >= game_manager.args.max_consecutive_something_is_wrong_allowed:
+            print(Fore.RED + f"❌ Maximum consecutive LLM errors reached ({game_manager.args.max_consecutive_something_is_wrong_allowed}). Game over.")
+            game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED")
             return None, False
         
         traceback.print_exc()

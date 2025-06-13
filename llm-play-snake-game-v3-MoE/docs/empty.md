@@ -183,7 +183,7 @@ Then make sure resets keep that override:
 ```
 
 (If you prefer, you can do the same for
-`--max-consecutive-errors-allowed`; the mechanism is identical.)
+`--max-consecutive-something-is-wrong-allowed`; the mechanism is identical.)
 
 ────────────────────────────────────────────────────────────────────────
 What you gain

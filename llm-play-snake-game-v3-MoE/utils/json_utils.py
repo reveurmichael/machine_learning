@@ -81,7 +81,7 @@ def save_experiment_info_json(args, directory):
             "empty_steps": 0,
             "something_is_wrong_steps": 0,
             "valid_steps": 0,
-            # "invalid_reversals" removed – kept only as in-memory counter
+            "invalid_reversals": 0  # Aggregated count across all games
         },
     }
     
@@ -155,7 +155,7 @@ def save_session_stats(log_dir, **kwargs):
             "empty_steps": 0,
             "something_is_wrong_steps": 0,
             "valid_steps": 0,
-            # "invalid_reversals" removed – kept only as in-memory counter
+            "invalid_reversals": 0  # Aggregated count across all games
         }
     
     # Apply new statistics values to the appropriate sections
@@ -174,6 +174,8 @@ def save_session_stats(log_dir, **kwargs):
             summary["step_stats"]["something_is_wrong_steps"] = value  # Already accumulated in process_game_over
         elif key == "valid_steps":
             summary["step_stats"]["valid_steps"] = value  # Already accumulated in process_game_over
+        elif key == "invalid_reversals":
+            summary["step_stats"]["invalid_reversals"] = value
         elif key == "time_stats":
             # Handle time statistics if provided
             if value and isinstance(value, dict):
@@ -217,6 +219,8 @@ def save_session_stats(log_dir, **kwargs):
                     summary["step_stats"]["something_is_wrong_steps"] = value["something_is_wrong_steps"]  # Already accumulated in process_game_over
                 if "valid_steps" in value:
                     summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
+                if "invalid_reversals" in value:
+                    summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
         elif key == "max_consecutive_empty_moves_allowed":
             if "metadata" not in summary:
                 summary["metadata"] = {}

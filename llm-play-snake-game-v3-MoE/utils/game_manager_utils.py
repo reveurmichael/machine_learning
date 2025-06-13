@@ -228,6 +228,11 @@ def process_game_over(game, game_state_info):
         max_consecutive_errors_allowed=args.max_consecutive_errors_allowed
     )
     
+    # Use the actual number of rounds that contain data to avoid the
+    # off-by-one "phantom round" that appeared after a wall/self collision.
+    if hasattr(game, "game_state") and hasattr(game.game_state, "_calculate_actual_round_count"):
+        round_count = game.game_state._calculate_actual_round_count()
+
     # Save individual game JSON file using the canonical writer
     from utils.file_utils import get_game_json_filename, join_log_path
 

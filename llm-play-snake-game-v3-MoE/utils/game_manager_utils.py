@@ -577,7 +577,8 @@ def process_events(game_manager):
         game_manager: The GameManager instance
     """
     
-    if not game_manager.use_gui:
+    # Skip if GUI disabled or pygame has already been quit
+    if not game_manager.use_gui or not pygame.get_init():
         return
         
     for event in pygame.event.get():

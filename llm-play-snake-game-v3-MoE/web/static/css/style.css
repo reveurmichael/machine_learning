@@ -69,14 +69,17 @@ body {
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    justify-content: center;
+    margin: 0 auto;
 }
 
+/* Leaner board wrapper: shrink-wrap around the canvas, minimal padding */
 .game-board {
-    flex: 1;
+    flex: 0 0 auto;               /* take only the space it needs */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 10px;
+    padding: 20px;                 /* small breathing room */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -239,4 +242,31 @@ button:disabled {
     .game-sidebar {
         width: 100%;
     }
+}
+
+/* Live LLM mode – text wrapping for long content */
+.planned-moves {
+    font-family: monospace;
+    white-space: normal;
+    overflow-wrap: anywhere; /* break long strings */
+    word-wrap: break-word;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.llm-response {
+    font-family: monospace;
+    white-space: pre-wrap; /* preserve line breaks but allow wrap */
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Card styling for moves & LLM response (same as stats-section) */
+.moves-section, .llm-response-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px;
 }

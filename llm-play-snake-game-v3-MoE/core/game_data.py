@@ -107,9 +107,6 @@ class GameData:
         self.code_block_extraction_errors = 0
         self.text_extraction_errors = 0
         self.pattern_extraction_success = 0
-        
-        # Parser usage
-        self.parser_usage_count = 0
     
     def start_new_round(self, apple_position):
         """Start a new round of moves.
@@ -811,7 +808,6 @@ class GameData:
                 "round_count": self.round_count,  # Keep it here for backward compatibility
                 "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
                 "max_consecutive_something_is_wrong_allowed": max_consecutive_something_is_wrong_allowed,
-                "parser_usage_count": self.parser_usage_count
             },
             
             # Raw token stats data (for detailed analysis)

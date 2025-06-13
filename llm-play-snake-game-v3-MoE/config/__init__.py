@@ -1,0 +1,7 @@
+"""Config package – provides constants and prompt templates.
+
+This file re-exports all names from submodules so existing imports like
+`from config import COLORS, GRID_SIZE` continue to work unchanged.
+"""
+from .constants import *  # noqa: F401,F403
+from .templates import *  # noqa: F401,F403 

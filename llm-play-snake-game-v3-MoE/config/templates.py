@@ -1,39 +1,4 @@
-# COLORS
-COLORS = {
-    'SNAKE_HEAD': (255, 140, 0),    # Bright orange for snake head
-    'SNAKE_BODY': (209, 204, 192),  # Light gray for snake body
-    'APPLE': (192, 57, 43),         # Red for apple
-    'BACKGROUND': (44, 44, 84),     # Dark blue background
-    'GRID': (87, 96, 111),          # Grid lines
-    'TEXT': (255, 255, 255),        # White text
-    'ERROR': (231, 76, 60),         # Red for error messages
-    'BLACK': (0, 0, 0),             # Black
-    'WHITE': (255, 255, 255),       # White
-    'GREY': (189, 195, 199),        # Light grey
-    'APP_BG': (240, 240, 240)       # App background
-}
-
-# GUI
-WINDOW_WIDTH = 800       # Width of the application window
-WINDOW_HEIGHT = 600      # Height of the application window
-TIME_DELAY = 40          # General delay time for the game loop
-TIME_TICK = 280          # Tick rate for the game
-
-# Pause times (in seconds)
-PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between 
-
-# Game configuration
-GRID_SIZE = 10
-MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 20  # Maximum consecutive empty moves before game over
-MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 20  # Maximum consecutive errors allowed before game over
-
-DIRECTIONS = {
-    "UP": (0, 1),  # No change in x, increase y (move up)
-    "RIGHT": (1, 0),  # Increase x, no change in y (move right)
-    "DOWN": (0, -1),  # No change in x, decrease y (move down)
-    "LEFT": (-1, 0),  # Decrease x, no change in y (move left)
-}
-
+# Prompt templates extracted from former config.py
 
 PROMPT_TEMPLATE_TEXT_PRIMARY_LLM = """
 You are an AI agent controlling a snake in the classic Snake game on a 10x10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
@@ -202,3 +167,8 @@ The main objective of RESPONSE_1 is to generate a list of safe moves that leads 
 
 Return ONLY the JSON object without any additional text.
 """
+
+__all__ = [
+    'PROMPT_TEMPLATE_TEXT_PRIMARY_LLM',
+    'PROMPT_TEMPLATE_TEXT_SECONDARY_LLM',
+] 

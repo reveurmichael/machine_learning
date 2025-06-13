@@ -124,6 +124,11 @@ def main():
             # Continue from existing directory
             print(Fore.GREEN + f"🔄 Continuing from existing session: {args.continue_with_game_in_dir}")
             GameManager.continue_from_directory(args)
+            # Exit early so we don't start a brand-new session after the continuation run finishes.
+            # Without this return the code below would create a second GameManager instance which,
+            # in continuation mode, is *not* fully initialised (``args.is_continuation`` is set),
+            # leading to an endless idle loop and the process appearing to "not exit".
+            return
         else:
             # Check environment setup for new session
             primary_env_ok = check_env_setup(args.provider)

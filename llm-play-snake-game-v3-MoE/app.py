@@ -10,7 +10,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import subprocess
-import dashboard.tabs as tabs
 from streamlit.errors import StreamlitAPIException
 
 # Import utilities
@@ -76,31 +75,38 @@ def main():
     
     # --------------------------- Overview ---------------------------
     with tab_overview:
-        tabs.render_overview_tab(log_folders)
+        from dashboard.tab_overview import render_overview_tab
+        render_overview_tab(log_folders)
     
     # ---------------------- Main Mode (PyGame) ---------------------
     with tab_main_pg:
-        tabs.render_main_pygame_tab()
+        from dashboard.tab_main import render_main_pygame_tab
+        render_main_pygame_tab()
     
     # ----------------------- Main Mode (Web) -----------------------
     with tab_main_web:
-        tabs.render_main_web_tab()
+        from dashboard.tab_main import render_main_web_tab
+        render_main_web_tab()
     
     # --------------------- Replay Mode (PyGame) --------------------
     with tab_replay_pg:
-        tabs.render_replay_pygame_tab(log_folders)
+        from dashboard.tab_replay import render_replay_pygame_tab
+        render_replay_pygame_tab(log_folders)
     
     # ---------------------- Replay Mode (Web) ----------------------
     with tab_replay_web:
-        tabs.render_replay_web_tab(log_folders)
+        from dashboard.tab_replay import render_replay_web_tab
+        render_replay_web_tab(log_folders)
     
     # ------------------- Continue Mode (PyGame) --------------------
     with tab_continue_pg:
-        tabs.render_continue_pygame_tab(log_folders)
+        from dashboard.tab_continue import render_continue_pygame_tab
+        render_continue_pygame_tab(log_folders)
     
     # -------------------- Continue Mode (Web) ----------------------
     with tab_continue_web:
-        tabs.render_continue_web_tab(log_folders)
+        from dashboard.tab_continue import render_continue_web_tab
+        render_continue_web_tab(log_folders)
 
 
 

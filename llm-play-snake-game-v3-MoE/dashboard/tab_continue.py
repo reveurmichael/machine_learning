@@ -1,0 +1,79 @@
+"""
+Dashboard – Continue Mode tabs (PyGame / Web)
+
+Launch continuation sessions with extended CLI arguments.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import streamlit as st
+from utils.file_utils import get_folder_display_name
+
+# Helper for building cmd (reuse from tab_main)
+
+def _append_arg(cmd: list[str], flag: str, value):
+    if value is None:
+        return
+    if isinstance(value, bool):
+        if value:
+            cmd.append(flag)
+        return
+    cmd.extend([flag, str(value)])
+
+
+def render_continue_pygame_tab(log_folders):
+    st.markdown("### Continue Game Session (PyGame)")
+    if not log_folders:
+        st.warning("No experiment logs found.")
+        return
+
+    exp = st.selectbox(
+        "Experiment", options=log_folders, format_func=get_folder_display_name, key="cont_pg_exp", label_visibility="collapsed")
+    max_games = st.number_input("Max Games", 1, 100, 2, 1, key="cont_pg_max_games")
+    sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_pg_sleep")
+    no_gui = st.checkbox("Disable GUI", value=False, key="cont_pg_no_gui")
+
+    if st.button("Start Continuation (PyGame)", key="start_cont_pg"):
+        cmd = [
+            "python", "main.py", "--continue-with-game-in-dir", exp, "--max-games", str(max_games)
+        ]
+        if sleep_before > 0:
+            _append_arg(cmd, "--sleep-before-launching", sleep_before)
+        if no_gui:
+            cmd.append("--no-gui")
+        subprocess.Popen(cmd)
+        st.success("Continuation started in background.")
+
+
+def render_continue_web_tab(log_folders):
+    st.markdown("### Continue Game Session (Web)")
+    if not log_folders:
+        st.warning("No experiment logs found.")
+        return
+
+    exp = st.selectbox(
+        "Experiment", options=log_folders, format_func=get_folder_display_name, key="cont_web_exp", label_visibility="collapsed")
+    max_games = st.number_input("Max Games", 1, 100, 2, 1, key="cont_web_max_games")
+    sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_web_sleep")
+
+    colh, colp = st.columns(2)
+    with colh:
+        host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="cont_web_host")
+    with colp:
+        port = st.number_input("Port", 1024, 65535, 8000, key="cont_web_port")
+
+    no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
+
+    if st.button("Start Continuation (Web)", key="start_cont_web"):
+        cmd = [
+            "python", "main_web.py", "--continue-with-game-in-dir", exp, "--max-games", str(max_games),
+            "--host", host, "--port", str(port)
+        ]
+        if sleep_before > 0:
+            _append_arg(cmd, "--sleep-before-launching", sleep_before)
+        if no_gui:
+            cmd.append("--no-gui")
+        subprocess.Popen(cmd)
+        url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
+        st.success(f"Continuation (web) started – open {url} to watch.") 

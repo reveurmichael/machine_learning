@@ -718,22 +718,37 @@ class GameData:
         Returns:
             Dictionary of time statistics
         """
-        # Calculate total game duration
-        if self.end_time is None:
-            self.end_time = time.time()  # If game isn't over yet, use current time
-        
-        total_duration = self.end_time - self.start_time
-        
-        # Calculate percentages based on active time
-        divisor = max(0.001, total_duration)  # Avoid division by zero
-        llm_percent = (self.llm_communication_time / divisor * 100)
-        movement_percent = (self.game_movement_time / divisor * 100)
-        waiting_percent = (self.waiting_time / divisor * 100)
-        
-        # Calculate other time (time not accounted for in the other categories)
-        self.other_time = total_duration - (self.llm_communication_time + self.game_movement_time + self.waiting_time)
-        other_percent = (self.other_time / divisor * 100)
-        
+        # ------------------------------------------------------------------
+        # Establish a SINGLE source-of-truth for the game duration.
+        # We first compute the naive wall-clock duration, but if the sum of
+        # the tracked buckets would exceed it (possible when timers overlap
+        # very slightly due to clock granularity), we fall back to the sum.
+        # This guarantees:
+        #   • llm_communication_percent ≤ 100
+        #   • Percentages together sum to ≈ 100 (subject to rounding)
+        #   • "other_time" is never negative.
+        # ------------------------------------------------------------------
+
+        wall_clock_duration = self.end_time - self.start_time
+        tracked_total = (
+            self.llm_communication_time +
+            self.game_movement_time +
+            self.waiting_time
+        )
+
+        total_duration = max(wall_clock_duration, tracked_total)
+
+        # Derive the residual "other" bucket from the authoritative duration
+        self.other_time = max(0.0, total_duration - tracked_total)
+
+        # Guard against division by zero
+        divisor = max(0.001, total_duration)
+
+        llm_percent      = (self.llm_communication_time / divisor) * 100
+        movement_percent = (self.game_movement_time       / divisor) * 100
+        waiting_percent  = (self.waiting_time            / divisor) * 100
+        other_percent    = (self.other_time              / divisor) * 100
+
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": datetime.fromtimestamp(self.end_time).strftime("%Y-%m-%d %H:%M:%S"),

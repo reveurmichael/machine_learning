@@ -154,14 +154,14 @@ class GameManager:
         # Update summary.json metadata at session end (no JSON-parser stats anymore)
         save_session_stats(self.log_dir)
         
-        # Initialize step statistics for valid steps and invalid reversals
-        valid_steps = 0
-        invalid_reversals = 0
-        
-        # Get step statistics from the game state if available
-        if self.game and hasattr(self.game, "game_state"):
-            valid_steps = self.game.game_state.valid_steps
-            invalid_reversals = self.game.game_state.invalid_reversals
+        # ------------------------------------------------------------------
+        # Use the counters that have been **aggregated across games**
+        # throughout the session (updated in process_game_over / handle_error).
+        # Previously this method overwrote them with the last game's values,
+        # which zero-ed the numbers in summary.json and the console banner.
+        # ------------------------------------------------------------------
+        valid_steps = self.valid_steps
+        invalid_reversals = self.invalid_reversals
         
         # Create stats dictionary
         stats_info = {

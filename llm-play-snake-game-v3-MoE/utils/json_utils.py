@@ -348,16 +348,10 @@ def extract_json_from_code_block(response):
     # Covers: ```json, ```javascript, ```js, and plain ```
     code_block_matches = re.findall(r'```(?:json|javascript|js)?\s*([\s\S]*?)```', response, re.DOTALL)
     
-    print(f"Found {len(code_block_matches)} code blocks in response")
-    
     for i, code_block in enumerate(code_block_matches):
         try:
             # Preprocess the code block
             processed_block = preprocess_json_string(code_block)
-            
-            # Print first part of processed block for debugging
-            preview = processed_block[:100] + "..." if len(processed_block) > 100 else processed_block
-            print(f"Processing code block {i+1}: {preview}")
             
             # Try to parse the JSON
             data = json.loads(processed_block)

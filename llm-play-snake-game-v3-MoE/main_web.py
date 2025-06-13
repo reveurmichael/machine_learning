@@ -60,6 +60,7 @@ def build_state_dict(gm: GameManager):
         'running': gm.running,
         'game_active': gm.game_active,
         'planned_moves': game.planned_moves,
+        'llm_response': getattr(game, 'processed_response', ''),
     }
 
 # ---------------------------------------------------------------------------
@@ -79,7 +80,7 @@ def manager_thread_fn(gm: GameManager):
 
 @app.route('/')
 def index():
-    return render_template('replay.html')  # Re-use existing simple canvas template
+    return render_template('main.html')  # New live template
 
 @app.route('/api/state')
 def api_state():

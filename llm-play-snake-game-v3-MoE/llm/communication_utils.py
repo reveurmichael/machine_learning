@@ -317,13 +317,7 @@ def get_llm_response(game_manager):
             # We have valid moves, so we're no longer waiting for a plan
             game_manager.awaiting_plan = False
             
-            # Increment round BEFORE we attach the freshly received plan so that
-            #   – round N's executed moves stay in round N,
-            #   – round N+1 now holds the new plan and its forthcoming moves.
-            # This prevents the one-round offset currently visible in JSON logs.
-            game_manager.increment_round("new LLM plan")
-
-            # Record the plan under the *current* round (just incremented)
+            # Record the plan under the *current* round
             game_manager.current_game_moves.extend(parser_output["moves"])
 
             # Store the full array of moves for the current round

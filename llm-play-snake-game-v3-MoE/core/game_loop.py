@@ -147,6 +147,8 @@ def run_game_loop(game_manager):
                                 
                                 # Only request new plan if there are no more planned moves
                                 if not game_manager.game.planned_moves:
+                                    # Round ends simultaneously with an apple, finish it before asking for a new plan
+                                    game_manager.finish_round()
                                     print(Fore.YELLOW + "No more planned moves, requesting new plan.")
                                     game_manager.need_new_plan = True
                                 else:
@@ -163,7 +165,11 @@ def run_game_loop(game_manager):
                                 time.sleep(pause_time)
                             game_manager.game.game_state.record_waiting_end()
                         else:
-                            # No more planned moves in the current round, we need a new plan
+                            # The round is finished – flush current round and bump the counter **before**
+                            # we request the next LLM plan. This keeps prompts/responses, JSON logs and
+                            # console banners on the very same round number (single source of truth).
+                            game_manager.finish_round()
+
                             game_manager.need_new_plan = True
                             print("🔄 No more planned moves in the current round, requesting new plan.")
                     

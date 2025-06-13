@@ -298,3 +298,20 @@ class GameManager:
             
             # Report final statistics
             self.report_final_statistics() 
+
+    # ---------------------------------------------------------
+    # Public helper: marks the current round as finished and
+    # bumps the counter.  Use this *instead of* calling
+    # increment_round() from the game loop so that all
+    # bookkeeping stays inside GameManager.
+    # ---------------------------------------------------------
+    def finish_round(self, reason: str = "round completed"):
+        """Flush buffered round-data and advance to the next round.
+
+        This is a thin wrapper around ``increment_round`` whose only goal
+        is to give the game loop a semantically clear call-site.  It lets us
+        move all round-count bookkeeping out of *core/game_loop.py* while
+        still re-using the robust logic already living in
+        ``increment_round``.
+        """
+        self.increment_round(reason) 

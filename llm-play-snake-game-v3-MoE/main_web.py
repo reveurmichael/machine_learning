@@ -124,6 +124,7 @@ def main():
 
     # Force no-GUI for browser mode
     final_args.no_gui = True
+    
 
     # Start GameManager in background thread
     global manager, manager_thread

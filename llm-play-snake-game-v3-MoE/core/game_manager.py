@@ -95,6 +95,7 @@ class GameManager:
         
         # GUI settings
         self.use_gui = not args.no_gui
+        
     
     def create_llm_client(self, provider, model=None):
         """Create an LLM client with the specified provider and model.
@@ -124,10 +125,12 @@ class GameManager:
         Returns:
             Float representing pause time in seconds, 0 if no GUI is enabled
         """
-        # Skip pause in no-gui mode
+        
+        # Skip pause in standard no-gui batch mode
         if not self.use_gui:
             return 0.0
-        
+
+        # GUI mode (pygame or web gui) – use configured pause
         return self.args.move_pause
     
     def initialize(self):

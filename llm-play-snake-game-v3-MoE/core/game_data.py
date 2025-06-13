@@ -1003,19 +1003,57 @@ class GameData:
             print(f"🔄 Setting round_count to {actual_round_count} based strictly on LLM communication count")
             self.round_count = actual_round_count
         
-        # CRITICAL: Only include rounds that correspond to actual LLM communications
-        # This ensures that the number of rounds in the JSON exactly matches the number
-        # of prompt/response file pairs
-        valid_keys = set()
-        for i in range(1, self.round_count + 1):
-            valid_keys.add(f"round_{i}")
-        
-        # Create a clean copy of rounds_data with ONLY the valid rounds
-        clean_rounds_data = {}
-        for key in valid_keys:
-            if key in self.rounds_data:
-                clean_rounds_data[key] = self.rounds_data[key]
-        
+        # ── Consolidate data from any "orphan" rounds (those created after the final
+        #    LLM interaction) into the last legitimate round so that the fine-grained
+        #    move history stays in sync with the global `moves` list.  These extra
+        #    rounds can be produced when the snake keeps executing the tail of a
+        #    planned-move list after the final apple (or right before a collision).
+
+        original_round_keys = list(self.rounds_data.keys())
+        if original_round_keys:
+            # e.g. ["round_1", "round_2", "round_3"]
+            # Any index > actual_round_count is an orphan.
+            last_valid_key = f"round_{self.round_count}"
+
+            # Ensure the last valid round exists; create an empty shell if needed.
+            if last_valid_key not in self.rounds_data:
+                self._get_or_create_round_data(self.round_count)
+
+            for key in original_round_keys:
+                round_idx = int(key.split("_")[1])
+                if round_idx <= self.round_count:
+                    continue  # keep as-is
+
+                # Move its content (currently only MOTION data) into the last valid round
+                orphan_data = self.rounds_data.get(key, {})
+                if not orphan_data:
+                    continue
+
+                target_round = self.rounds_data[last_valid_key]
+
+                # Merge MOVES — avoid duplicates and keep order.
+                orphan_moves = orphan_data.get("moves", [])
+                if orphan_moves:
+                    existing_moves = target_round.get("moves", [])
+                    target_round["moves"] = existing_moves + orphan_moves
+
+                # No other fields (response times, token stats) should exist in an orphan
+                # round, but copy them defensively if present and not already set.
+                for misc_key in ["primary_response_times", "secondary_response_times",
+                                 "primary_token_stats", "secondary_token_stats",
+                                 "planned_moves", "apple_position"]:
+                    if misc_key in orphan_data and orphan_data[misc_key]:
+                        if misc_key not in target_round or not target_round[misc_key]:
+                            target_round[misc_key] = orphan_data[misc_key]
+
+                # After merging, drop the orphan round
+                self.rounds_data.pop(key, None)
+
+        # ── Now build the canonical list of valid rounds (1 … round_count) ────────────
+        valid_keys = {f"round_{i}" for i in range(1, self.round_count + 1)}
+
+        clean_rounds_data = {k: v for k, v in self.rounds_data.items() if k in valid_keys}
+
         # Replace the original rounds_data with our clean version
         self.rounds_data = clean_rounds_data
         

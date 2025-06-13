@@ -26,11 +26,11 @@ from .json_utils import (
 
 # File and storage management
 from .file_utils import (
-    find_log_folders,
     extract_game_summary,
     get_next_game_number,
     clean_prompt_files,
-    save_to_file
+    save_to_file,
+    find_valid_log_folders
 )
 
 # Initialization and setup
@@ -66,11 +66,11 @@ __all__ = [
     'merge_nested_dicts',
     
     # File management
-    'find_log_folders',
     'extract_game_summary',
     'get_next_game_number',
     'clean_prompt_files',
     'save_to_file',
+    'find_valid_log_folders',
     
     # Initialization and setup
     'setup_llm_clients',

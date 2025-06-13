@@ -74,7 +74,7 @@ def read_existing_game_data(log_dir, start_game_number):
                 total_score += score
                 total_steps += steps
                 game_scores.append(score)
-                
+                    
                 # Track step types if available
                 if 'step_stats' in game_data:
                     step_stats = game_data.get('step_stats', {})
@@ -149,7 +149,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     # once (and only once) inside *continue_from_directory* to avoid competing
     # writes.  Here we simply verify the file exists so that later helpers can
     # rely on its presence.
-    
+        
     # Set the log directory
     game_manager.log_dir = log_dir
     game_manager.prompts_dir = os.path.join(log_dir, "prompts")
@@ -247,7 +247,7 @@ def handle_continuation_game_state(game_manager):
     
     # Set up the game
     game_manager.setup_game()
-
+    
     # We'll record the continuation exactly once, AFTER we attempt to load
     # the previous summary – this prevents the duplicate-timestamp artefact
     # that occurred when we recorded before *and* after reading summary.json.
@@ -257,7 +257,7 @@ def handle_continuation_game_state(game_manager):
         summary_path = os.path.join(game_manager.log_dir, "summary.json")
         with open(summary_path, 'r', encoding='utf-8') as f:
             summary_data = json.load(f)
-
+            
         # Bring over tunables & counters from the previous session
         game_manager.game.game_state.synchronize_with_summary_json(summary_data)
     except Exception as e:
@@ -415,4 +415,4 @@ def continue_from_directory(game_manager_class, args):
         traceback.print_exc()
         sys.exit(1)
         
-    return game_manager 
+    return game_manager

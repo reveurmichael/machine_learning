@@ -8,7 +8,6 @@ from replay.replay_utils import (
     run_replay,
     check_game_summary_for_moves,
     extract_apple_positions,
-    find_valid_log_folders
 )
 
 __all__ = [
@@ -16,7 +15,6 @@ __all__ = [
     'run_replay',
     'check_game_summary_for_moves',
     'extract_apple_positions',
-    'find_valid_log_folders'
 ]
 
  

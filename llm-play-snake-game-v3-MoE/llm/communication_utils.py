@@ -319,7 +319,7 @@ def get_llm_response(game_manager):
             
             # Record the plan under the *current* round
             game_manager.current_game_moves.extend(parser_output["moves"])
-
+            
             # Store the full array of moves for the current round
             game_manager.game.game_state.record_planned_moves(parser_output["moves"])
 

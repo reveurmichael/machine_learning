@@ -13,7 +13,7 @@ from config import TIME_DELAY, TIME_TICK, DIRECTIONS
 import numpy as np
 import traceback
 from utils.game_manager_utils import check_collision
-from utils.file_utils import get_game_json_filename, join_log_path
+from utils.file_utils import get_game_json_filename, join_log_path, find_valid_log_folders
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games."""
@@ -474,51 +474,3 @@ class ReplayEngine(GameController):
         self.apple_position = position
         return True
     
-    @classmethod
-    def find_log_directories(cls, root_dir="logs", max_depth=4):
-        """Find valid log directories for replay.
-        
-        Args:
-            root_dir: Root directory to start search from
-            max_depth: Maximum directory depth to search
-            
-        Returns:
-            List of valid log directory paths
-        """
-        from replay.replay_utils import find_valid_log_folders
-        return find_valid_log_folders(root_dir, max_depth)
-        
-    @classmethod
-    def is_valid_log_directory(cls, directory):
-        """Check if a directory is a valid log directory.
-        
-        A valid log directory must have:
-        - A summary.json file
-        - At least one game_*.json file
-        - A prompts directory
-        - A responses directory
-        
-        Args:
-            directory: Directory path to check
-            
-        Returns:
-            Boolean indicating if the directory is a valid log directory
-        """
-        if not os.path.isdir(directory):
-            return False
-            
-        # Check for required files and directories
-        has_summary = os.path.exists(os.path.join(directory, "summary.json"))
-        
-        # Check for at least one game_*.json file
-        has_game_files = False
-        for filename in os.listdir(directory):
-            if filename.startswith("game_") and filename.endswith(".json"):
-                has_game_files = True
-                break
-                
-        # Check for required directories
-        has_prompts_dir = os.path.isdir(os.path.join(directory, "prompts"))
-        has_responses_dir = os.path.isdir(os.path.join(directory, "responses"))
-        
-        return has_summary and has_game_files and has_prompts_dir and has_responses_dir 

@@ -30,7 +30,7 @@ def run_game_loop(game_manager):
             # Process player input and system events
             process_events(game_manager)
             
-            if game_manager.game_active:
+            if game_manager.game_active and game_manager.game is not None:
                 try:
                     # Start tracking game movement time for analytics
                     game_manager.game.game_state.record_game_movement_start()

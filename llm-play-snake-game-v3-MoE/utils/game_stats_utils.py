@@ -6,6 +6,7 @@ Handles game statistics processing and visualization for analysis.
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 
 def create_game_dataframe(game_data):
@@ -34,66 +35,33 @@ def create_game_dataframe(game_data):
     return pd.DataFrame(game_list)
 
 def get_experiment_options(stats_df):
-    """Extract experiment options for filtering.
-    
-    This function is used by the Streamlit analytics dashboard when run separately.
-    
-    Args:
-        stats_df: DataFrame with experiment statistics
-        
-    Returns:
-        Dictionary with options for providers, models, primary and secondary LLMs
+    """Return unique provider/model options for Streamlit filter widgets.
+
+    Handles NaN/None values gracefully and avoids cross-type sorting issues.
     """
-    # Use sets to avoid duplicates
-    all_providers = set()
-    all_models = set()
-    
-    # Specific provider and model sets
-    primary_providers = set()
-    primary_models = set()
-    secondary_providers = set()
-    secondary_models = set()
-    
-    # Extract separate primary and secondary options
-    for _, row in stats_df.iterrows():
-        # Add primary provider and model
-        if row.get('primary_provider') is not None:
-            primary_providers.add(row['primary_provider'])
-            all_providers.add(row['primary_provider'])
-        
-        if row.get('primary_model_name') is not None:
-            primary_models.add(row['primary_model_name'])
-            all_models.add(row['primary_model_name'])
-        
-        # Add secondary provider and model if not None
-        if row.get('secondary_provider') is not None:
-            secondary_providers.add(row['secondary_provider'])
-            all_providers.add(row['secondary_provider'])
-        
-        if row.get('secondary_model_name') is not None:
-            secondary_models.add(row['secondary_model_name'])
-            all_models.add(row['secondary_model_name'])
-    
-    # Get unique full LLM strings (these are already strings)
-    primary_llms = set(stats_df['primary_llm'].dropna().unique())
-    secondary_llms = set(stats_df['secondary_llm'].dropna().unique())
-    
-    # Remove "None" from secondary providers and models
-    if "None" in secondary_providers:
-        secondary_providers.remove("None")
-    
-    if "None" in secondary_models:
-        secondary_models.remove("None")
-    
+    def _clean_unique(series):
+        if series is None:
+            return []
+        # Convert to strings, drop NaN/None and duplicates
+        cleaned = (
+            series.dropna()
+            .astype(str)
+            .loc[lambda s: s.str.lower() != "none"]
+            .unique()
+        )
+        return sorted(cleaned.tolist())
+
+    primary_providers = _clean_unique(stats_df.get("primary_provider"))
+    primary_models = _clean_unique(stats_df.get("primary_model_name"))
+    secondary_providers = _clean_unique(stats_df.get("secondary_provider"))
+    secondary_models = _clean_unique(stats_df.get("secondary_model_name"))
+
+
     return {
-        'providers': sorted(all_providers),
-        'models': sorted(all_models),
-        'primary_providers': sorted(primary_providers),
-        'primary_models': sorted(primary_models),
-        'secondary_providers': sorted(secondary_providers),
-        'secondary_models': sorted(secondary_models),
-        'primary_llms': sorted(primary_llms),
-        'secondary_llms': sorted(secondary_llms)
+        "primary_providers": primary_providers,
+        "primary_models": primary_models,
+        "secondary_providers": secondary_providers,
+        "secondary_models": secondary_models,
     }
 
 def filter_experiments(stats_df, selected_primary_providers=None, selected_primary_models=None,

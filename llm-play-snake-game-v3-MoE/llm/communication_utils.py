@@ -317,9 +317,15 @@ def get_llm_response(game_manager):
             # We have valid moves, so we're no longer waiting for a plan
             game_manager.awaiting_plan = False
             
-            # Record the move
+            # Increment round BEFORE we attach the freshly received plan so that
+            #   – round N's executed moves stay in round N,
+            #   – round N+1 now holds the new plan and its forthcoming moves.
+            # This prevents the one-round offset currently visible in JSON logs.
+            game_manager.increment_round("new LLM plan")
+
+            # Record the plan under the *current* round (just incremented)
             game_manager.current_game_moves.extend(parser_output["moves"])
-            
+
             # Store the full array of moves for the current round
             game_manager.game.game_state.record_planned_moves(parser_output["moves"])
 
@@ -335,13 +341,6 @@ def get_llm_response(game_manager):
                 # For UI display, also log the planned moves
                 if len(parser_output["moves"]) > 1:
                     print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'][1:])}")
-                
-                # Increment round_count after getting a plan from the LLM
-                game_manager.increment_round("new LLM plan")
-            else:
-                print(f"❌ No valid next move found in parser output moves: {parser_output['moves']}")
-                game_manager.consecutive_empty_steps += 1
-                print(Fore.YELLOW + f"⚠️ No valid move extracted. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
         else:
             # Log detailed information about what's missing
             if not parser_output:

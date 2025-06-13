@@ -152,8 +152,10 @@ def process_game_over(game, game_state_info):
     empty_steps += game.game_state.empty_steps
     something_is_wrong_steps += game.game_state.something_is_wrong_steps
     
-    # Print game stats
-    move_str = ", ".join(current_game_moves)
+    # Print game stats using the EXECUTED moves that are stored on the GameData
+    # instance to avoid counting duplicate/un-executed planned moves.
+    executed_moves = game.game_state.moves  # authoritative list
+    move_str = ", ".join(executed_moves)
     print(Fore.BLUE + f"Game {game_count} Stats:")
     print(Fore.BLUE + f"- Score: {game.score}")
     print(Fore.BLUE + f"- Steps: {game.steps}")
@@ -265,7 +267,7 @@ def process_game_over(game, game_state_info):
     print(
         Fore.GREEN +
         f"💾 Saved data for game {game_count} "
-        f"(rounds: {round_count}, moves: {len(current_game_moves)})"
+        f"(rounds: {round_count}, moves: {len(executed_moves)})"
     )
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps

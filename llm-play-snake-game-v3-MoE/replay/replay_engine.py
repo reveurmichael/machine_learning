@@ -329,7 +329,7 @@ class ReplayEngine(GameController):
         # make_move(), so the snake stays in place exactly as it did in the
         # original run.
         # ------------------------------------------------------------------
-        if direction_key in ("INVALID_REVERSAL", "EMPTY"):
+        if direction_key in ("INVALID_REVERSAL", "EMPTY", "SOMETHING_IS_WRONG"):
             # Optionally bump internal step counter so on-screen stats match
             # the original game (comment out if not needed):
             # self.game_state.steps += 1

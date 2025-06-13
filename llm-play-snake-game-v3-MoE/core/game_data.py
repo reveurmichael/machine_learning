@@ -729,7 +729,10 @@ class GameData:
         #   • "other_time" is never negative.
         # ------------------------------------------------------------------
 
-        wall_clock_duration = self.end_time - self.start_time
+        # end_time may still be None if the game crashed before record_game_end()
+        effective_end_time = self.end_time or time.time()
+
+        wall_clock_duration = effective_end_time - self.start_time
         tracked_total = (
             self.llm_communication_time +
             self.game_movement_time +
@@ -751,7 +754,7 @@ class GameData:
 
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
-            "end_time": datetime.fromtimestamp(self.end_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": datetime.fromtimestamp(effective_end_time).strftime("%Y-%m-%d %H:%M:%S"),
             "total_duration_seconds": total_duration,
             "llm_communication_time": self.llm_communication_time,
             "game_movement_time": self.game_movement_time,

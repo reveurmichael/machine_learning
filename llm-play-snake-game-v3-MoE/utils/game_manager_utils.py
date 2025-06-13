@@ -284,13 +284,16 @@ def handle_error(game, error_info):
             - invalid_reversals: Total invalid reversals across all games (optional)
             
     Returns:
-        Tuple of (game_active, game_count, total_score, total_steps, game_scores, round_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
+        Tuple of (game_active, game_count, total_score, total_steps, game_scores, round_count, 
+                 parser_usage_count, consecutive_errors, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, error_steps)
     """
     import traceback
     
     args = error_info["args"]
     consecutive_errors = error_info["consecutive_errors"]
     log_dir = error_info["log_dir"]
+    parser_usage_count = error_info.get("parser_usage_count", 0)
+    previous_parser_usage = error_info.get("previous_parser_usage", 0)
     
     # Extract values from input dictionary
     game_active = error_info["game_active"]
@@ -422,6 +425,7 @@ def report_final_statistics(stats_info):
         - game_count: Number of games played
         - total_score: Total score across all games
         - total_steps: Total number of steps taken
+        - parser_usage_count: Number of times the parser was used
         - game_scores: List of scores for each game
         - empty_steps: Total empty steps across all games
         - error_steps: Total error steps across all games

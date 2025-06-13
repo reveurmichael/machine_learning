@@ -18,7 +18,8 @@ def read_existing_game_data(log_dir, start_game_number):
         start_game_number: The game number to start from
         
     Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, time_stats, token_stats, valid_steps, invalid_reversals)
+        Tuple of (total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, 
+                 time_stats, token_stats, valid_steps, invalid_reversals)
     """
     # Initialize counters
     total_score = 0
@@ -27,6 +28,7 @@ def read_existing_game_data(log_dir, start_game_number):
     error_steps = 0
     valid_steps = 0
     invalid_reversals = 0
+    parser_usage_count = 0
     game_scores = []
     missing_games = []
     corrupted_games = []
@@ -80,6 +82,9 @@ def read_existing_game_data(log_dir, start_game_number):
                     valid_steps += step_stats.get('valid_steps', 0)
                     invalid_reversals += step_stats.get('invalid_reversals', 0)
                 
+                # Track parser usage
+                parser_usage_count += game_data.get('metadata', {}).get('parser_usage_count', 0)
+                
                 # Extract time statistics
                 if 'time_stats' in game_data:
                     game_time_stats = game_data.get('time_stats', {})
@@ -121,7 +126,7 @@ def read_existing_game_data(log_dir, start_game_number):
     successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
     print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
     
-    return total_score, total_steps, game_scores, empty_steps, error_steps, time_stats, token_stats, valid_steps, invalid_reversals
+    return total_score, total_steps, game_scores, empty_steps, error_steps, parser_usage_count, time_stats, token_stats, valid_steps, invalid_reversals
 
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
@@ -225,6 +230,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
      game_manager.game_scores, 
      game_manager.empty_steps, 
      game_manager.error_steps, 
+     game_manager.parser_usage_count,
      game_manager.time_stats,
      game_manager.token_stats,
      game_manager.valid_steps,

@@ -190,6 +190,9 @@ def get_llm_response(game_manager):
         parser_output = None
         if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != "none":
             # DUAL LLM MODE: Using a secondary LLM for parsing
+            # Track the previous parser usage count to detect if it gets used
+            game_manager.previous_parser_usage = game_manager.game.game_state.parser_usage_count
+
             # Get parser input
             parser_input = extract_state_for_parser(game_manager)
 
@@ -298,6 +301,11 @@ def get_llm_response(game_manager):
                 # Store the secondary LLM response for display in the UI
                 from utils.text_utils import process_response_for_display
                 game_manager.game.processed_response = process_response_for_display(secondary_response)
+
+                # Track parser usage statistics
+                if game_manager.game.game_state.parser_usage_count > game_manager.previous_parser_usage:
+                    game_manager.parser_usage_count += 1
+                    print(Fore.GREEN + f"🔍 Using parsed output (Parser usage: {game_manager.parser_usage_count})")
         else:
             # SINGLE LLM MODE: Direct extraction from primary LLM
             parser_output = parse_and_format(

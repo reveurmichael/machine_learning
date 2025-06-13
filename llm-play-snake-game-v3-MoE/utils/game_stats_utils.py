@@ -7,55 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-def create_display_dataframe(stats_df):
-    """Create a user-friendly display DataFrame for the UI.
-    
-    This function is used by the Streamlit analytics dashboard when run separately.
-    
-    Args:
-        stats_df: DataFrame with raw game statistics
-        
-    Returns:
-        DataFrame formatted for display
-    """
-    # Select relevant columns
-    display_df = stats_df[['folder', 'total_score', 'total_steps', 'mean_score', 'max_score', 
-                          'primary_llm', 'secondary_llm', 'avg_response_time', 
-                          'avg_secondary_response_time', 'steps_per_apple', 'json_success_rate']].copy()
-    
-    # Rename columns for better display
-    display_df.columns = ['Folder', 'Total Score', 'Total Steps', 'Mean Score', 'Max Score', 
-                          'Primary LLM', 'Secondary LLM', 'Avg Response Time (s)', 
-                          'Avg Secondary Response Time (s)', 'Steps Per Apple', 'JSON Success Rate (%)']
-    
-    # Format display values
-    display_df['Folder'] = display_df['Folder'].apply(lambda x: os.path.basename(x))
-    display_df['Avg Response Time (s)'] = display_df['Avg Response Time (s)'].apply(lambda x: f"{x:.2f}")
-    display_df['Avg Secondary Response Time (s)'] = display_df['Avg Secondary Response Time (s)'].apply(lambda x: f"{x:.2f}")
-    display_df['Steps Per Apple'] = display_df['Steps Per Apple'].apply(lambda x: f"{x:.2f}")
-    display_df['JSON Success Rate (%)'] = display_df['JSON Success Rate (%)'].apply(lambda x: f"{x:.2f}")
-    
-    return display_df
-
-def create_game_performance_chart(game_df):
-    """Create a matplotlib figure showing game performance.
-    
-    This function is used by the Streamlit analytics dashboard when run separately.
-    
-    Args:
-        game_df: DataFrame with game data
-        
-    Returns:
-        Matplotlib figure object
-    """
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.bar(game_df['Game #'], game_df['Score'], color='skyblue')
-    ax.set_xlabel('Game Number')
-    ax.set_ylabel('Score')
-    ax.set_title('Score by Game')
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    
-    return fig
 
 def create_game_dataframe(game_data):
     """Create a DataFrame from game data dictionary.

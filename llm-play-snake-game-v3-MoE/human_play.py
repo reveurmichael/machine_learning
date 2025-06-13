@@ -18,14 +18,12 @@ class HumanGameGUI(GameGUI):
         super().__init__()
         self.init_display("Snake Game - Human Player")
     
-    def draw_game_info(self, score, steps, planned_moves=None, llm_response=None):
-        """Draw game information for human player mode.
+    def draw_game_info(self, score: int, steps: int):
+        """Draw basic score/step information for human-controlled games.
         
         Args:
             score: Current game score
-            steps: Current step count
-            planned_moves: Optional parameter (unused in human mode)
-            llm_response: Optional parameter (unused in human mode)
+            steps: Number of steps taken so far
         """
         # Clear info panel
         self.clear_info_panel()

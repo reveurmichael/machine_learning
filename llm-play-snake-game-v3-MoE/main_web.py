@@ -101,6 +101,7 @@ def manager_thread_fn(gm: GameManager, args):
                         "max_steps",
                         "max_consecutive_empty_moves_allowed",
                         "max_consecutive_something_is_wrong_allowed",
+                        "max_consecutive_invalid_reversals_allowed",
                         "no_gui",
                     ):
                         if k in original_cfg:

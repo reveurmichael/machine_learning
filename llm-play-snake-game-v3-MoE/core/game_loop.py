@@ -58,10 +58,43 @@ def run_game_loop(game_manager):
                             # Execute the move 3 second after displaying the LLM response
                             if game_manager.use_gui:
                                 time.sleep(3)
+                            # --------------------------------------------------------------
+                            # Track invalid reversals – detect before/after make_move()
+                            # --------------------------------------------------------------
+                            prev_invalid_rev = game_manager.game.game_state.invalid_reversals
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+
+                            # If the counter increased the move was blocked as a reversal
+                            if game_manager.game.game_state.invalid_reversals > prev_invalid_rev:
+                                game_manager.consecutive_invalid_reversals += 1
+                                print(
+                                    Fore.YELLOW +
+                                    f"⚠️ Invalid reversal detected. "
+                                    f"Consecutive invalid reversals: {game_manager.consecutive_invalid_reversals}/"
+                                    f"{game_manager.args.max_consecutive_invalid_reversals_allowed}"
+                                )
+                            else:
+                                # Reset counter on any successful (non-reversal) step
+                                game_manager.consecutive_invalid_reversals = 0
+
+                            # Abort game on threshold breach
+                            if (
+                                game_manager.consecutive_invalid_reversals >=
+                                game_manager.args.max_consecutive_invalid_reversals_allowed
+                            ):
+                                print(
+                                    Fore.RED +
+                                    f"❌ Maximum consecutive invalid reversals reached "
+                                    f"({game_manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
+                                )
+                                game_manager.game_active = False
+                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
+                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
                             
-                            # Check if maximum steps limit has been reached AFTER the move
-                            if check_max_steps(game_manager.game, game_manager.args.max_steps):
+                            # ------------------------------------------------------------------
+                            # Check max steps AFTER handling invalid reversals
+                            # ------------------------------------------------------------------
+                            if game_manager.game_active and check_max_steps(game_manager.game, game_manager.args.max_steps):
                                 game_manager.game_active = False
                                 game_manager.game.game_state.record_game_end("MAX_STEPS")
                             
@@ -100,8 +133,8 @@ def run_game_loop(game_manager):
                             if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
                                 print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over.")
                                 game_manager.game_active = False
-                                game_manager.game.last_collision_type = 'empty_moves'
-                                game_manager.game.game_state.record_game_end("MAX_EMPTY_MOVES_REACHED")
+                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
+                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
                         
                         # End movement time tracking
                         game_manager.game.game_state.record_game_movement_end()
@@ -126,11 +159,40 @@ def run_game_loop(game_manager):
                             # Update UI before executing the move
                             game_manager.game.draw()
                             
-                            # Execute the move immediately
+                            # --------------------------------------------------------------
+                            # Track invalid reversals (planned-moves branch)
+                            # --------------------------------------------------------------
+                            prev_invalid_rev = game_manager.game.game_state.invalid_reversals
                             game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+
+                            if game_manager.game.game_state.invalid_reversals > prev_invalid_rev:
+                                game_manager.consecutive_invalid_reversals += 1
+                                print(
+                                    Fore.YELLOW +
+                                    f"⚠️ Invalid reversal detected. "
+                                    f"Consecutive invalid reversals: {game_manager.consecutive_invalid_reversals}/"
+                                    f"{game_manager.args.max_consecutive_invalid_reversals_allowed}"
+                                )
+                            else:
+                                game_manager.consecutive_invalid_reversals = 0
+
+                            if (
+                                game_manager.consecutive_invalid_reversals >=
+                                game_manager.args.max_consecutive_invalid_reversals_allowed
+                            ):
+                                print(
+                                    Fore.RED +
+                                    f"❌ Maximum consecutive invalid reversals reached "
+                                    f"({game_manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
+                                )
+                                game_manager.game_active = False
+                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
+                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
                             
-                            # Check max steps limit AFTER the move
-                            if check_max_steps(game_manager.game, game_manager.args.max_steps):
+                            # ------------------------------------------------------------------
+                            # Check max steps AFTER handling invalid reversals (planned branch)
+                            # ------------------------------------------------------------------
+                            if game_manager.game_active and check_max_steps(game_manager.game, game_manager.args.max_steps):
                                 game_manager.game_active = False
                                 game_manager.game.game_state.record_game_end("MAX_STEPS")
                             
@@ -250,6 +312,7 @@ def run_game_loop(game_manager):
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
                         game_manager.consecutive_something_is_wrong = 0
+                        game_manager.consecutive_invalid_reversals = 0
                     
                     # Ensure UI is updated
                     game_manager.game.draw()
@@ -329,6 +392,7 @@ def run_game_loop(game_manager):
                         game_manager.need_new_plan = True
                         game_manager.current_game_moves = []
                         game_manager.consecutive_something_is_wrong = 0
+                        game_manager.consecutive_invalid_reversals = 0
                         print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
             
             # Control frame rate only in GUI mode

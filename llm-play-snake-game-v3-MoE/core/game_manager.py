@@ -45,6 +45,8 @@ class GameManager:
         self.invalid_reversals = 0
         self.consecutive_empty_steps = 0
         self.consecutive_something_is_wrong = 0
+        # Track consecutive invalid reversal attempts that are blocked
+        self.consecutive_invalid_reversals = 0
         self.game_scores = []
         self.previous_parser_usage = 0
         
@@ -176,6 +178,7 @@ class GameManager:
             "invalid_reversals": invalid_reversals,
             "max_consecutive_empty_moves_allowed": self.args.max_consecutive_empty_moves_allowed,
             "max_consecutive_something_is_wrong_allowed": self.args.max_consecutive_something_is_wrong_allowed,
+            "max_consecutive_invalid_reversals_allowed": self.args.max_consecutive_invalid_reversals_allowed,
             "game": self.game,
             "time_stats": self.time_stats,
             "token_stats": self.token_stats

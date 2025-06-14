@@ -5,7 +5,7 @@ Provides specialized GUI functionality for replay mode.
 
 import pygame
 from gui.base import BaseGUI
-from config import COLORS
+from config import COLORS, END_REASON_MAP
 import numpy as np
 
 class ReplayGUI(BaseGUI):
@@ -212,14 +212,7 @@ class ReplayGUI(BaseGUI):
 
         # Add game end reason if available
         if game_end_reason:
-            end_reason_map = {
-                "WALL": "Hit Wall",
-                "SELF": "Hit Self",
-                "MAX_STEPS": "Max Steps",
-                "EMPTY_MOVES": "Empty Moves",
-                "ERROR": "LLM Error"
-            }
-            end_reason_text = end_reason_map.get(game_end_reason, game_end_reason)
+            end_reason_text = END_REASON_MAP.get(game_end_reason, game_end_reason)
             reason_text = font.render(f"- End Reason: {end_reason_text}", True, COLORS['BLACK'])
             self.screen.blit(reason_text, (self.height + 30, y_offset))
             y_offset += 30

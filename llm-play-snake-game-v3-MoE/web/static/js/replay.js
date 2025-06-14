@@ -7,15 +7,6 @@ let COLORS = {
     GRID: '#34495e',          // Grid lines
 };
 
-// End reason mapping
-const END_REASON_MAP = {
-    "WALL": "Hit Wall",
-    "SELF": "Hit Self",
-    "MAX_STEPS": "Max Steps",
-    "EMPTY_MOVES": "Empty Moves",
-    "ERROR": "LLM Error"
-};
-
 // DOM elements
 const loadingMessage = document.getElementById('loading-message');
 const gameContainer = document.getElementById('game-container');

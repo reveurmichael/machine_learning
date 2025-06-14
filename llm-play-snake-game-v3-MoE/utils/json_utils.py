@@ -229,6 +229,10 @@ def save_session_stats(log_dir, **kwargs):
             if "metadata" not in summary:
                 summary["metadata"] = {}
             summary["metadata"]["max_consecutive_something_is_wrong_allowed"] = value
+        elif key == "max_consecutive_invalid_reversals_allowed":
+            if "metadata" not in summary:
+                summary["metadata"] = {}
+            summary["metadata"]["max_consecutive_invalid_reversals_allowed"] = value
         else:
             # For any other fields, add them at the top level
             summary[key] = value

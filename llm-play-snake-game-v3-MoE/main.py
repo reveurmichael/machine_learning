@@ -7,7 +7,7 @@ import sys
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
+from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 
@@ -31,12 +31,18 @@ def parse_arguments():
                       help=f'Pause between moves in seconds (default: {PAUSE_BETWEEN_MOVES_SECONDS})')
     parser.add_argument('--sleep-before-launching', type=int, default=0,
                       help='Time to sleep (in minutes) before launching the program')
-    parser.add_argument('--max-steps', type=int, default=400,
-                      help='Maximum steps a snake can take in a single game (default: 400)')
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=MAX_STEPS_ALLOWED,
+        help=f"Maximum steps a snake can take in a single game (default: {MAX_STEPS_ALLOWED})",
+    )
     parser.add_argument('--max-consecutive-empty-moves-allowed', type=int, default=MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
                       help=f'Maximum consecutive empty moves before game over (default: {MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED})')
     parser.add_argument('--max-consecutive-something-is-wrong-allowed', type=int, default=MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
                       help=f'Maximum consecutive errors allowed before game over (default: {MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED})')
+    parser.add_argument('--max-consecutive-invalid-reversals-allowed', type=int, default=MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+                      help=f'Maximum consecutive invalid reversals allowed before game over (default: {MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED})')
     parser.add_argument('--no-gui', action='store_true',
                       help='Run without GUI (text-only mode)')
     parser.add_argument('--log-dir', type=str, default=None,
@@ -46,7 +52,7 @@ def parse_arguments():
 
     # Parse the arguments
     args = parser.parse_args()
-    
+
     # Set default model names based on provider at the earliest stage
     # This ensures model names are consistently set before any checks or logging
     if args.provider:
@@ -58,13 +64,13 @@ def parse_arguments():
                 args.model = 'mistral-medium-latest'
             elif args.provider.lower() == 'deepseek':
                 args.model = 'deepseek-chat'
-    
+
     # Set parser provider and model if not specified
     if args.parser_provider is None:
         # Default to 'none' instead of using primary provider
         # This makes single-LLM mode the default
         args.parser_provider = 'none'
-    
+
     # Set default model for parser LLM if not specified but parser is enabled
     if args.parser_provider and args.parser_provider.lower() != 'none' and args.parser_model is None:
         if args.parser_provider.lower() == 'hunyuan':
@@ -76,12 +82,12 @@ def parse_arguments():
         # If no specific default, use the same as primary model
         elif args.model:
             args.parser_model = args.model
-    
+
     # Validate continue mode restrictions
     if args.continue_with_game_in_dir:
         # Get all command line arguments
         raw_args = ' '.join(sys.argv[1:])
-        
+
         # List of arguments not allowed with continue mode
         restricted_args = [
             '--provider', 
@@ -92,14 +98,15 @@ def parse_arguments():
             '--max-steps', 
             '--max-consecutive-empty-moves-allowed', 
             '--max-consecutive-something-is-wrong-allowed',
+            '--max-consecutive-invalid-reversals-allowed',
             '--log-dir'
         ]
-        
+
         # Check for any restricted arguments
         for arg in restricted_args:
             if arg in raw_args:
                 raise ValueError(f"Cannot use {arg} with --continue-with-game-in-dir. "
-                                 f"Only --max-games, --no-gui, and --sleep-before-launching are allowed.")
+                                 f"Only --max-games, --no-gui, and --sleep-before-launching are allowed in continuation mode.")
     return args
 
 def main():

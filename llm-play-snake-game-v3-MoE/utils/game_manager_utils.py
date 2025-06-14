@@ -126,7 +126,7 @@ def process_game_over(game, game_state_info):
             print(Fore.RED + "❌ Game over: Snake hit the wall!")
         elif collision_type == "self":
             print(Fore.RED + "❌ Game over: Snake hit itself!")
-        elif collision_type == "empty_moves":
+        elif collision_type == "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED":
             print(Fore.RED + f"❌ Game over: Too many empty moves ({args.max_consecutive_empty_moves_allowed})!")
     
     # Update counters for next game
@@ -223,7 +223,8 @@ def process_game_over(game, game_state_info):
         time_stats=time_stats,
         token_stats=token_stats,
         max_consecutive_empty_moves_allowed=args.max_consecutive_empty_moves_allowed,
-        max_consecutive_something_is_wrong_allowed=args.max_consecutive_something_is_wrong_allowed
+        max_consecutive_something_is_wrong_allowed=args.max_consecutive_something_is_wrong_allowed,
+        max_consecutive_invalid_reversals_allowed=args.max_consecutive_invalid_reversals_allowed,
     )
     
     # Use the actual number of rounds that contain data to avoid the
@@ -255,7 +256,9 @@ def process_game_over(game, game_state_info):
         args.model,
         parser_provider,
         args.parser_model if parser_provider else None,
-        args.max_consecutive_something_is_wrong_allowed
+        args.max_consecutive_something_is_wrong_allowed,
+        args.max_consecutive_empty_moves_allowed,
+        args.max_consecutive_invalid_reversals_allowed
     )
 
     print(
@@ -411,7 +414,9 @@ def handle_error(game, error_info):
             args.model or f"default_{args.provider}", # TODO
             parser_provider,
             args.parser_model if parser_provider else None,
-            args.max_consecutive_something_is_wrong_allowed
+            args.max_consecutive_something_is_wrong_allowed,
+            args.max_consecutive_empty_moves_allowed,
+            args.max_consecutive_invalid_reversals_allowed
         )
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
@@ -446,6 +451,7 @@ def report_final_statistics(stats_info):
     invalid_reversals = stats_info.get("invalid_reversals", 0)
     max_consecutive_empty_moves_allowed = stats_info["max_consecutive_empty_moves_allowed"]
     max_consecutive_something_is_wrong_allowed = stats_info.get("max_consecutive_something_is_wrong_allowed", 5)
+    max_consecutive_invalid_reversals_allowed = stats_info.get("max_consecutive_invalid_reversals_allowed", 20)
     
     # Get time and token statistics from the game instance if available
     time_stats = {}
@@ -511,6 +517,7 @@ def report_final_statistics(stats_info):
     # Print move limits
     print(Fore.GREEN + f"📈 Max Empty Moves: {max_consecutive_empty_moves_allowed}")
     print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_something_is_wrong_allowed}")
+    print(Fore.GREEN + f"🚫 Max Consecutive Invalid Reversals Allowed: {max_consecutive_invalid_reversals_allowed}")
     
     # End message based on max games reached
     if game_count >= stats_info.get("max_games", float('inf')):
@@ -585,6 +592,7 @@ def process_events(game_manager):
                 game_manager.game_active = True
                 game_manager.need_new_plan = True
                 game_manager.consecutive_empty_steps = 0  # Reset on game reset
+                game_manager.consecutive_invalid_reversals = 0  # Reset counter
                 game_manager.current_game_moves = []  # Reset moves for new game
                 print(Fore.GREEN + "🔄 Game reset") 
 

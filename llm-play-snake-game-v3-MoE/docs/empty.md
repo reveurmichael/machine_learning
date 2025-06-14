@@ -112,10 +112,10 @@ treat `INVALID_REVERSAL`.
         """Record an empty move (the snake stays in place)."""
         self.empty_steps += 1
         self.steps += 1
-        self.consecutive_empty_moves += 1
-        self.max_consecutive_empty_moves_reached = max(
-            self.max_consecutive_empty_moves_reached,
-            self.consecutive_empty_moves
+        self.consecutive_empty_moves_count += 1
+        self.consecutive_empty_moves_count = max(
+            self.consecutive_empty_moves_count,
+            self.consecutive_empty_moves_count
         )
 
         # ------------------------------------------------------------------

@@ -357,7 +357,7 @@ def get_llm_response(game_manager):
         # Check if we've reached the max consecutive empty moves
         if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
             print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over.")
-            game_manager.game.game_state.record_game_end("EMPTY_MOVES")
+            game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
             return next_move, False
 
         return next_move, True

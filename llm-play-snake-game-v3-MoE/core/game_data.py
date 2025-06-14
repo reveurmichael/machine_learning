@@ -25,7 +25,7 @@ class GameData:
     def reset(self):
         """Reset all tracking data to initial state."""
         # Import config at reset time to avoid circular imports
-        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
+        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
         
         # Game state
         self.game_number = 0
@@ -36,8 +36,6 @@ class GameData:
         self.empty_steps = 0
         self.something_is_wrong_steps = 0
         self.last_move = None
-        self.consecutive_empty_moves = 0
-        self.max_consecutive_empty_moves_reached = 0
         self.game_over = False
         self.game_end_reason = None
         self.round_count = 1  # Start at 1 for first round
@@ -59,15 +57,20 @@ class GameData:
         self.waiting_time = 0            # Time spent waiting (pauses, etc.)
         self.other_time = 0              # Defensive initialization for other time
         
-        # Basic game stats
-        self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
-        
         # Game history
         self.moves = []
+        
+        # Limit configuration (copied from config for new sessions; may be overwritten in continuation mode)
+        self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
+        self.max_consecutive_something_is_wrong_allowed = MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
+        self.max_consecutive_invalid_reversals_allowed = MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
         
         # Step statistics
         self.valid_steps = 0
         self.invalid_reversals = 0
+        self.consecutive_empty_moves_count = 0
+        self.consecutive_something_is_wrong_count = 0
+        self.consecutive_invalid_reversals_count = 0
         
         # Response times
         self.primary_response_times = []
@@ -145,7 +148,8 @@ class GameData:
         # Always update critical game state values regardless of duplicate moves
         self.steps += 1
         self.valid_steps += 1
-        self.consecutive_empty_moves = 0  # Reset on valid move
+        self.consecutive_empty_moves_count = 0  # Reset on valid move
+        self.consecutive_invalid_reversals_count = 0  # Reset on valid move
         
         # Always update score if an apple was eaten
         if apple_eaten:
@@ -192,11 +196,7 @@ class GameData:
         """Record an empty move (no valid direction)."""
         self.empty_steps += 1
         self.steps += 1
-        self.consecutive_empty_moves += 1
-        self.max_consecutive_empty_moves_reached = max(
-            self.max_consecutive_empty_moves_reached, 
-            self.consecutive_empty_moves
-        )
+
         
         # ------------------------------------------------------------------
         # Keep the invariant: len(self.moves) == self.steps
@@ -219,6 +219,7 @@ class GameData:
         """
         self.invalid_reversals += 1
         self.steps += 1  # Increment steps for invalid reversals
+        self.consecutive_invalid_reversals_count += 1
         
         # ------------------------------------------------------------------
         # Keep the invariant: len(self.moves) == self.steps
@@ -238,6 +239,18 @@ class GameData:
         """Record an error move (error in LLM response)."""
         self.something_is_wrong_steps += 1
         self.steps += 1
+
+        # ------------------------------------------------------------------
+        # Represent this no-op tick with the sentinel string
+        # "SOMETHING_IS_WRONG" so that analytics and replays can distinguish
+        # it from EMPTY or normal moves.
+        # ------------------------------------------------------------------
+        self.moves.append("SOMETHING_IS_WRONG")
+
+        # Keep the current round's executed-moves list aligned
+        if "moves" not in self.current_round_data:
+            self.current_round_data["moves"] = []
+        self.current_round_data["moves"].append("SOMETHING_IS_WRONG")
     
     def record_llm_communication_start(self):
         """Mark the start of communication with an LLM."""
@@ -282,8 +295,8 @@ class GameData:
         # Standardize reason naming to ensure consistency
         if reason == "MAX_STEPS":
             reason = "MAX_STEPS_REACHED"
-        elif reason == "EMPTY_MOVES":
-            reason = "MAX_EMPTY_MOVES_REACHED"
+        elif reason in ("EMPTY_MOVES", "MAX_EMPTY_MOVES_REACHED"):
+            reason = "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED"
         elif reason == "ERROR_THRESHOLD":
             reason = "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED"
         
@@ -505,6 +518,9 @@ class GameData:
         if 'max_consecutive_empty_moves_allowed' in summary_data:
             self.max_consecutive_empty_moves_allowed = summary_data['max_consecutive_empty_moves_allowed']
         
+        if 'max_consecutive_invalid_reversals_allowed' in summary_data:
+            self.max_consecutive_invalid_reversals_allowed = summary_data['max_consecutive_invalid_reversals_allowed']
+        
         # Import step statistics if available
         if 'step_stats' in summary_data:
             step_stats = summary_data['step_stats']
@@ -584,7 +600,6 @@ class GameData:
             "empty_steps": self.empty_steps, 
             "something_is_wrong_steps": self.something_is_wrong_steps,
             "invalid_reversals": self.invalid_reversals,  # Include the count of invalid reversals
-            "max_consecutive_empty_moves_reached": self.max_consecutive_empty_moves_reached
         }
     
     def get_prompt_response_stats(self):
@@ -721,7 +736,16 @@ class GameData:
             "other_percent": other_percent
         }
     
-    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed=5):
+    def generate_game_summary(
+        self,
+        primary_provider,
+        primary_model,
+        parser_provider,
+        parser_model,
+        max_consecutive_something_is_wrong_allowed=5,
+        max_consecutive_empty_moves_allowed=None,
+        max_consecutive_invalid_reversals_allowed=None,
+    ):
         """Generate a summary of the game.
         
         Args:
@@ -730,6 +754,8 @@ class GameData:
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
             max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
+            max_consecutive_empty_moves_allowed: Maximum consecutive empty moves allowed before game over
+            max_consecutive_invalid_reversals_allowed: Maximum consecutive invalid reversals allowed before game over
             
         Returns:
             Dictionary with game summary
@@ -779,8 +805,17 @@ class GameData:
                 "timestamp": self.timestamp,
                 "last_move": self.last_move,
                 "round_count": self.round_count,  
-                "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
+                "max_consecutive_empty_moves_allowed": (
+                    max_consecutive_empty_moves_allowed
+                    if max_consecutive_empty_moves_allowed is not None
+                    else self.max_consecutive_empty_moves_allowed
+                ),
                 "max_consecutive_something_is_wrong_allowed": max_consecutive_something_is_wrong_allowed,
+                "max_consecutive_invalid_reversals_allowed": (
+                    max_consecutive_invalid_reversals_allowed
+                    if max_consecutive_invalid_reversals_allowed is not None
+                    else self.max_consecutive_invalid_reversals_allowed
+                ),
             },
             
             # Raw token stats data (for detailed analysis)
@@ -904,7 +939,17 @@ class GameData:
         for round_num in range(1, self.round_count + 1):  # Include the current round
             self._get_or_create_round_data(round_num)
     
-    def save_game_summary(self, filepath, primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed=5):
+    def save_game_summary(
+        self,
+        filepath,
+        primary_provider,
+        primary_model,
+        parser_provider,
+        parser_model,
+        max_consecutive_something_is_wrong_allowed=5,
+        max_consecutive_empty_moves_allowed=None,
+        max_consecutive_invalid_reversals_allowed=None,
+    ):
         """Save the game summary to a JSON file.
         
         Ensures that all rounds data is properly included in the JSON, matching the number of
@@ -917,6 +962,8 @@ class GameData:
             parser_provider: The provider of the parser LLM
             parser_model: The model of the parser LLM
             max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
+            max_consecutive_empty_moves_allowed: Maximum consecutive empty moves allowed before game over
+            max_consecutive_invalid_reversals_allowed: Maximum consecutive invalid reversals allowed before game over
             
         Returns:
             Path to the saved file
@@ -992,7 +1039,15 @@ class GameData:
         ordered_rounds_data = self._get_ordered_rounds_data()
         
         # Generate and save the summary
-        summary = self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed)
+        summary = self.generate_game_summary(
+            primary_provider,
+            primary_model,
+            parser_provider,
+            parser_model,
+            max_consecutive_something_is_wrong_allowed,
+            max_consecutive_empty_moves_allowed,
+            max_consecutive_invalid_reversals_allowed,
+        )
         
         # Validate the summary before saving
         from utils.json_utils import validate_game_summary

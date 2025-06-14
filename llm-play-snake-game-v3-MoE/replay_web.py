@@ -12,7 +12,7 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS
+from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS, END_REASON_MAP
 from replay.replay_engine import ReplayEngine
 from utils.network_utils import find_free_port
 
@@ -23,15 +23,6 @@ app = Flask(__name__, static_folder='web/static', template_folder='web/templates
 replay_engine = None
 replay_thread = None
 running = True
-
-# End reason mapping - using the same mapping as in gui/replay_gui.py
-END_REASON_MAP = {
-    "WALL": "Hit Wall",
-    "SELF": "Hit Self",
-    "MAX_STEPS": "Max Steps",
-    "EMPTY_MOVES": "Empty Moves",
-    "ERROR": "LLM Error"
-}
 
 logging.getLogger('werkzeug').setLevel(logging.WARNING)
 

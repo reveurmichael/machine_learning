@@ -256,6 +256,7 @@ button:disabled {
 
 .llm-response {
     font-family: monospace;
+    font-size: 10px;
     white-space: pre-wrap; /* preserve line breaks but allow wrap */
     overflow-wrap: anywhere;
     word-wrap: break-word;

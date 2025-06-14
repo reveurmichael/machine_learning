@@ -120,8 +120,7 @@ function updateUI() {
     
     // Update end reason if available
     if (gameState.game_end_reason) {
-        const reason = END_REASON_MAP[gameState.game_end_reason] || gameState.game_end_reason;
-        endReasonElement.textContent = reason;
+        endReasonElement.textContent = gameState.game_end_reason;
         endReasonContainer.style.display = 'block';
     } else {
         endReasonContainer.style.display = 'none';

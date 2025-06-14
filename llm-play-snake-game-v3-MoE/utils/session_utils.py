@@ -136,7 +136,7 @@ def continue_game_web(log_folder: str, max_games: int, host: str, port: int):
             f"Continuation (web) started for '{get_folder_display_name(log_folder)}' at http://{host}:{port}."
         )
     except Exception as exc:
-        st.error(f"Error starting web continuation: {exc}")
+        st.error(f"Error starting web continuation: {exc}") 
 
 
 # ---------------------------------------------------------------------------

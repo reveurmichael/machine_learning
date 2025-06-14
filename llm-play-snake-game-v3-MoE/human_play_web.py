@@ -10,7 +10,7 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import COLORS
+from config import COLORS, END_REASON_MAP
 from core.game_controller import GameController
 from utils.network_utils import find_free_port
 
@@ -55,7 +55,7 @@ class WebGameController(GameController):
             'score': self.score,
             'steps': self.steps,
             'game_over': self.game_over,
-            'game_end_reason': self.game_end_reason,
+            'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
             'grid_size': self.grid_size,
             'colors': {
                 'snake_head': COLORS['SNAKE_HEAD'],

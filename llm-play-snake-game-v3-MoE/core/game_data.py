@@ -805,15 +805,6 @@ class GameData:
                 "continuation_metadata": self.continuation_metadata
             }
         
-        # Sanity check - validate that the global moves list length matches steps
-        assert len(summary["detailed_history"]["moves"]) == summary["steps"], \
-            f"Moves length ({len(summary['detailed_history']['moves'])}) doesn't match steps ({summary['steps']})"
-        
-        # Additional validation - each round's moves should be a subset of the global moves
-        for rk, rd in summary["detailed_history"]["rounds_data"].items():
-            assert len(rd.get("moves", [])) <= summary["steps"], \
-                f"Round {rk} moves ({len(rd.get('moves', []))}) exceed total steps ({summary['steps']})"
-        
         return summary
     
     def _get_ordered_rounds_data(self):

@@ -81,10 +81,40 @@ def manager_thread_fn(gm: GameManager, args):
         cont_dir = getattr(args, "continue_with_game_in_dir", None)
         if cont_dir:
             try:
-                gm2 = GameManager.continue_from_directory(args)
-                # Update global reference so /api/state can access the running game
-                global manager
-                manager = gm2
+                # ------------------------------------------------------
+                # Load experiment configuration from summary.json to
+                # overwrite CLI defaults so the resumed session uses the
+                # original provider/model and limits.
+                # ------------------------------------------------------
+                import json, os
+                summary_path = os.path.join(cont_dir, "summary.json")
+                if os.path.exists(summary_path):
+                    with open(summary_path, "r", encoding="utf-8") as f:
+                        summary = json.load(f)
+                    original_cfg = summary.get("configuration", {})
+                    for k in (
+                        "provider",
+                        "model",
+                        "parser_provider",
+                        "parser_model",
+                        "move_pause",
+                        "max_steps",
+                        "max_consecutive_empty_moves_allowed",
+                        "max_consecutive_something_is_wrong_allowed",
+                        "no_gui",
+                    ):
+                        if k in original_cfg:
+                            setattr(gm.args, k, original_cfg[k])
+
+                # Determine next game
+                from utils.file_utils import get_next_game_number
+                next_game = get_next_game_number(cont_dir)
+
+                # Flag continuation
+                gm.args.is_continuation = True
+
+                # Run continuation
+                gm.continue_from_session(cont_dir, next_game)
             except Exception as e:
                 print(f"[main_web] Continuation session crashed: {e}")
                 return

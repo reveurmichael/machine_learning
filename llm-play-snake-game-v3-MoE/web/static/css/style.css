@@ -171,7 +171,7 @@ button:disabled {
 
 .progress-bar {
     height: 100%;
-    background-color: #d9c356;
+    background-color: #FF8C00; /* Bright orange for progress bar, same as COLORS.SNAKE_HEAD */
     width: 0%;
 }
 

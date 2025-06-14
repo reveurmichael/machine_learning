@@ -16,11 +16,8 @@ let COLORS = {
 const END_REASON_MAP = {
     "WALL": "Hit Wall",
     "SELF": "Hit Self",
-    "MAX_STEPS": "Max Steps",
     "MAX_STEPS_REACHED": "Max Steps Reached",
-    "EMPTY_MOVES": "Empty Moves",
-    "MAX_EMPTY_MOVES_REACHED": "Max Consecutive Empty Moves Reached",
-    "ERROR": "LLM Error",
+    "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED": "Max Consecutive Empty Moves Reached",
     "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED": "Max Consecutive Something Is Wrong Reached",
     "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED": "Max Consecutive Invalid Reversals Reached"
 };

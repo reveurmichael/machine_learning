@@ -54,9 +54,6 @@ def display_experiment_overview(log_folders: List[str]):
             secondary_provider = parser_provider
             secondary_model_name = config.get("parser_model", "default")
 
-        providers = [primary_provider] + ([secondary_provider] if secondary_provider else [])
-        models = [primary_model_name] + ([secondary_model_name] if secondary_model_name else [])
-
         # Game statistics
         game_stats = summary_data.get("game_statistics", {})
         total_games = game_stats.get("total_games", 0)
@@ -71,14 +68,6 @@ def display_experiment_overview(log_folders: List[str]):
         empty_steps = step_stats.get("empty_steps", 0)
         something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
         invalid_reversals = step_stats.get("invalid_reversals", 0)
-
-        # JSON parsing statistics
-        json_stats = summary_data.get("json_parsing_stats", {})
-        total_extractions = json_stats.get("total_extraction_attempts", 0)
-        successful_extractions = json_stats.get("successful_extractions", 0)
-        json_success_rate = (
-            successful_extractions / total_extractions * 100 if total_extractions > 0 else 0
-        )
 
         # Continuation info
         continuation_info = summary_data.get("continuation_info", {})
@@ -99,11 +88,8 @@ def display_experiment_overview(log_folders: List[str]):
                 "Total Steps": total_steps,
                 "Valid Steps": valid_steps,
                 "Empty Steps": empty_steps,
-                "SOMETHING_IS_WRONG steps": something_is_wrong_steps,
+                "SWRONG Steps": something_is_wrong_steps,
                 "Invalid Reversals": invalid_reversals,
-                "JSON Success Rate": json_success_rate,
-                "providers": providers,
-                "models": models,
                 "Is Continuation": is_continuation,
                 "Continuation Count": continuation_count,
                 "primary_provider": primary_provider,
@@ -146,11 +132,11 @@ def display_experiment_overview(log_folders: List[str]):
     # Display table (strip helper cols)
     display_df = filtered_df.drop(
         columns=[
-            "providers",
-            "models",
-            "primary_llm",
-            "secondary_llm",
             "Folder",
+            "primary_provider",
+            "primary_model_name",
+            "secondary_provider",
+            "secondary_model_name",
         ],
         errors="ignore",
     )
@@ -178,39 +164,90 @@ def display_experiment_details(folder_path: str):
         max_score = max(scores)
         col_hist, col_cfg = st.columns([3, 1])
         with col_cfg:
-            bins = st.slider("Bins", 5, 30, min(10, max_score) if max_score else 10)
+            bins = st.slider("Bins", 5, 40, 20, key="score_bins")
         with col_hist:
-            fig_scores = px.histogram(x=scores, nbins=bins, labels={"x": "Score"})
+            fig_scores = px.histogram(
+                x=scores,
+                nbins=bins,
+                labels={"x": "Score"},
+                color_discrete_sequence=["seagreen"],
+            )
             st.plotly_chart(fig_scores, use_container_width=True)
 
     # ---------- LLM response-time histogram ----------
     st.markdown("## Primary LLM Response Time Distribution")
-    resp_times: List[float] = []
+
+    primary_resp_times: List[float] = []
+    secondary_resp_times: List[float] = []
+
     for g in games_data.values():
         rounds = g.get("rounds_data", {})
         if isinstance(rounds, dict):
             for rd in rounds.values():
-                resp_times.extend(t for t in rd.get("primary_response_times", []) if t > 0)
-        if not resp_times:  # fallbacks
-            pstats = g.get("prompt_response_stats", {})
-            resp_times.extend(
-                pstats.get(k, 0)
-                for k in (
-                    "min_primary_response_time",
-                    "avg_primary_response_time",
-                    "max_primary_response_time",
+                # Collect primary times
+                primary_resp_times.extend(
+                    [t for t in rd.get("primary_response_times", []) if t > 0]
                 )
-                if pstats.get(k, 0) > 0
+                # Collect secondary times (if present)
+                secondary_resp_times.extend(
+                    [t for t in rd.get("secondary_response_times", []) if t > 0]
+                )
+
+        # If no *rounds_data* recorded (older logs) fall back to prompt_response_stats
+        if not rounds:
+            pstats = g.get("prompt_response_stats", {})
+            primary_resp_times.extend(
+                [
+                    pstats.get(k, 0)
+                    for k in (
+                        "min_primary_response_time",
+                        "avg_primary_response_time",
+                        "max_primary_response_time",
+                    )
+                    if pstats.get(k, 0) > 0
+                ]
             )
-    if resp_times:
+            secondary_resp_times.extend(
+                [
+                    pstats.get(k, 0)
+                    for k in (
+                        "min_secondary_response_time",
+                        "avg_secondary_response_time",
+                        "max_secondary_response_time",
+                    )
+                    if pstats.get(k, 0) > 0
+                ]
+            )
+
+    # ---------------- Primary chart ----------------
+    if primary_resp_times:
         col_hist, col_cfg = st.columns([3, 1])
         with col_cfg:
-            bins_t = st.slider("Bins", 5, 30, 10, key="time_bins")
+            bins_t_primary = st.slider("Bins (Primary)", 5, 40, 20, key="time_bins_primary")
         with col_hist:
-            fig_times = px.histogram(x=resp_times, nbins=bins_t, labels={"x": "Response Time (s)"})
-            st.plotly_chart(fig_times, use_container_width=True)
+            fig_times_primary = px.histogram(
+                x=primary_resp_times,
+                nbins=bins_t_primary,
+                labels={"x": "Primary Response Time (s)"},
+            )
+            st.plotly_chart(fig_times_primary, use_container_width=True)
     else:
-        st.info("No LLM response time data available for this experiment.")
+        st.info("No Primary LLM response time data available for this experiment.")
+
+    # ---------------- Secondary chart (optional) ----------------
+    if secondary_resp_times:
+        st.markdown("## Secondary LLM Response Time Distribution")
+        col_hist_s, col_cfg_s = st.columns([3, 1])
+        with col_cfg_s:
+            bins_t_secondary = st.slider("Bins (Secondary)", 5, 40, 20, key="time_bins_secondary")
+        with col_hist_s:
+            fig_times_secondary = px.histogram(
+                x=secondary_resp_times,
+                nbins=bins_t_secondary,
+                labels={"x": "Secondary Response Time (s)"},
+                color_discrete_sequence=["indianred"],
+            )
+            st.plotly_chart(fig_times_secondary, use_container_width=True)
 
     # ---------- Game details table ----------
     st.markdown("## Game Details")
@@ -218,18 +255,29 @@ def display_experiment_details(folder_path: str):
     for num, g in sorted(games_data.items()):
         step_stats = g.get("step_stats", {})
         total_steps = g.get("steps", 0)
+
         valid_steps = step_stats.get("valid_steps", 0)
         empty_steps = step_stats.get("empty_steps", 0)
-        error_steps = step_stats.get("something_is_wrong_steps", 0)
+        something_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
+        invalid_rev_steps = step_stats.get("invalid_reversals", 0)
+
+        # Use the sum of all recorded categories as denominator to avoid >100% artefacts
+        denom = valid_steps + empty_steps + something_wrong_steps + invalid_rev_steps
+        denom = denom if denom > 0 else 1  # prevent ZeroDivision
 
         rows.append(
             {
                 "Game": num,
                 "Score": g.get("score", 0),
-                "Steps": total_steps,
-                "Valid %": f"{(valid_steps / total_steps * 100) if total_steps else 0:.1f}%",
-                "Empty %": f"{(empty_steps / total_steps * 100) if total_steps else 0:.1f}%",
-                "Error %": f"{(error_steps / total_steps * 100) if total_steps else 0:.1f}%",
+                "Steps (total)": total_steps,
+                "Valid": valid_steps,
+                "Valid %": f"{valid_steps / denom * 100:.1f}%",
+                "EMPTY": empty_steps,
+                "EMPTY %": f"{empty_steps / denom * 100:.1f}%",
+                "SWRONG": something_wrong_steps,
+                "SWRONG %": f"{something_wrong_steps / denom * 100:.1f}%",
+                "Invalid Rev": invalid_rev_steps,
+                "Invalid Rev %": f"{invalid_rev_steps / denom * 100:.1f}%",
                 "End Reason": g.get("game_end_reason", "Unknown"),
                 "Rounds": g.get("round_count", 0),
             }

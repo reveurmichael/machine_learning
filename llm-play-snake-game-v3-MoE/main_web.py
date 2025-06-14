@@ -19,7 +19,10 @@ import argparse
 import threading
 import time
 import sys
+import logging
 from flask import Flask, render_template, jsonify, request
+from utils.network_utils import find_free_port
+logging.getLogger('werkzeug').setLevel(logging.WARNING)  # Suppress per-request logs
 
 # Local imports from the project (after dummy driver is set)
 from core.game_manager import GameManager
@@ -113,30 +116,57 @@ def api_control():
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description='Web live Snake game session.')
-    # Let parse_arguments supply the main game args
-    args, unknown = parser.parse_known_args([])  # placeholder to create object
-    # Re-parse with full set
-    full_args = parse_arguments()
-    parser.add_argument('--host', type=str, default='127.0.0.1', help='Host IP')
-    parser.add_argument('--port', type=int, default=5000, help='Port number')
-    # Parse again to include host/port extras
-    final_args = parser.parse_args(namespace=full_args)
+    """Entry point for the web live mode.
 
-    host = final_args.host
-    port = final_args.port
+    We need to recognise --host/--port *before* calling `parse_arguments()` from
+    main.py, otherwise that function will raise an "unrecognised arguments"
+    error.  The strategy is:
 
-    # Keep GUI logic enabled for correct timing, but SDL dummy driver prevents a real window
-    final_args.no_gui = False
-    
+    1.  Parse --host/--port with a lightweight ArgumentParser using
+        `parse_known_args()` so we can keep the remaining CLI untouched.
+    2.  Temporarily patch `sys.argv` to exclude those two flags and delegate
+        the rest of the CLI to `parse_arguments()` (which contains the full
+        game-related options).
+    3.  Restore `sys.argv` afterwards and start the GameManager / Flask app.
+    """
 
-    # Start GameManager in background thread
+    # ------------------------------------------------------------------
+    # Step 1 – extract host / port, leave the rest intact
+    # ------------------------------------------------------------------
+    host_port_parser = argparse.ArgumentParser(add_help=False)
+    host_port_parser.add_argument('--host', type=str, default='127.0.0.1', help='Host IP')
+    host_port_parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port number')
+
+    host_port_args, remaining_argv = host_port_parser.parse_known_args()
+
+    # ------------------------------------------------------------------
+    # Step 2 – delegate remaining args to the main CLI parser
+    # ------------------------------------------------------------------
+    argv_backup = sys.argv.copy()
+    # Preserve argv[0] (script name) + remaining CLI parts
+    sys.argv = [sys.argv[0]] + remaining_argv
+    try:
+        game_args = parse_arguments()
+    finally:
+        # Restore original argv regardless of success
+        sys.argv = argv_backup
+
+    # Ensure GUI timing code runs (SDL dummy driver prevents a real window)
+    game_args.no_gui = False
+
+    # ------------------------------------------------------------------
+    # Step 3 – launch GameManager in a background thread
+    # ------------------------------------------------------------------
     global manager, manager_thread
-    manager = GameManager(final_args)
+    manager = GameManager(game_args)
     manager_thread = threading.Thread(target=manager_thread_fn, args=(manager,), daemon=True)
     manager_thread.start()
 
-    # Launch flask app (blocking)
+    # ------------------------------------------------------------------
+    # Step 4 – start the Flask app (blocking)
+    # ------------------------------------------------------------------
+    host = host_port_args.host
+    port = host_port_args.port
     print(f"🔌 Serving live game at http://{host}:{port}")
     app.run(host=host, port=port, threaded=True, use_reloader=False)
 

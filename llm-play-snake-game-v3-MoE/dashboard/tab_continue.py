@@ -9,6 +9,7 @@ from __future__ import annotations
 import subprocess
 import streamlit as st
 from utils.file_utils import get_folder_display_name
+from utils.network_utils import find_free_port
 
 # Helper for building cmd (reuse from tab_main)
 
@@ -90,7 +91,8 @@ def render_continue_web_tab(log_folders):
     with colh:
         host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="cont_web_host")
     with colp:
-        port = st.number_input("Port", 1024, 65535, 8000, key="cont_web_port")
+        default_port = find_free_port(8000)
+        port = st.number_input("Port", 1024, 65535, default_port, key="cont_web_port")
 
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
 

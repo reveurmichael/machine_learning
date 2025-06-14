@@ -67,6 +67,9 @@ from .continuation_utils import (
     continue_from_directory,
 )
 
+# Network helpers
+from .network_utils import find_free_port
+
 # Public API for the utils package
 __all__ = [
     # JSON processing
@@ -112,4 +115,7 @@ __all__ = [
     'setup_continuation_session',
     'handle_continuation_game_state',
     'continue_from_directory',
+
+    # Network helpers
+    'find_free_port',
 ]

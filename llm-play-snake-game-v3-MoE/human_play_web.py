@@ -8,9 +8,11 @@ import argparse
 import threading
 import time
 from flask import Flask, render_template, request, jsonify
+import logging
 
 from config import COLORS
 from core.game_controller import GameController
+from utils.network_utils import find_free_port
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -19,6 +21,8 @@ app = Flask(__name__, static_folder='web/static', template_folder='web/templates
 game_controller = None
 game_thread = None
 running = True
+
+logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
 class WebGameController(GameController):
     """Extended game controller for web-based human play.
@@ -160,7 +164,7 @@ def main():
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Web-based human play mode for Snake game.')
-    parser.add_argument('--port', type=int, default=5000, help='Port to run the web server on')
+    parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port to run the web server on')
     parser.add_argument('--host', type=str, default='127.0.0.1', help='Host to run the web server on')
     args = parser.parse_args()
     

@@ -10,9 +10,11 @@ import argparse
 import threading
 import time
 from flask import Flask, render_template, request, jsonify
+import logging
 
 from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS
 from replay.replay_engine import ReplayEngine
+from utils.network_utils import find_free_port
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -30,6 +32,8 @@ END_REASON_MAP = {
     "EMPTY_MOVES": "Empty Moves",
     "ERROR": "LLM Error"
 }
+
+logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
 class WebReplayEngine(ReplayEngine):
     """Extended replay engine for web-based replay.
@@ -205,7 +209,7 @@ def main():
     global replay_thread
     
     # Parse command line arguments - reusing the same arguments from replay.py
-    parser = argparse.ArgumentParser(description='Web-based replay for Snake game sessions.')
+    parser = argparse.ArgumentParser(description='Snake Game Web Replay')
     parser.add_argument('log_dir', type=str, nargs='?', help='Directory containing game logs')
     parser.add_argument('--log-dir', type=str, dest='log_dir_opt', help='Directory containing game logs (alternative to positional argument)')
     parser.add_argument('--game', type=int, default=None, 
@@ -218,7 +222,7 @@ def main():
     )
     parser.add_argument('--auto-advance', action='store_true', help='Automatically advance to next game')
     parser.add_argument('--start-paused', action='store_true', help='Start replay in paused state')
-    parser.add_argument('--port', type=int, default=5000, help='Port to run the web server on')
+    parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port to run the web server on')
     parser.add_argument('--host', type=str, default='127.0.0.1', help='Host to run the web server on')
     args = parser.parse_args()
 

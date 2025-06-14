@@ -233,6 +233,31 @@ def save_session_stats(log_dir, **kwargs):
             # For any other fields, add them at the top level
             summary[key] = value
     
+    # After merging totals, compute average token usage per game if total_games > 0
+    total_games = summary["game_statistics"].get("total_games", 0)
+    if total_games:
+        # Primary averages
+        prim = summary["token_usage_stats"].get("primary_llm", {})
+        if prim:
+            prim["avg_tokens"] = prim.get("total_tokens", 0) / total_games
+            prim["avg_prompt_tokens"] = prim.get("total_prompt_tokens", 0) / total_games
+            prim["avg_completion_tokens"] = prim.get("total_completion_tokens", 0) / total_games
+
+        # Secondary averages
+        sec = summary["token_usage_stats"].get("secondary_llm", {})
+        if sec:
+            sec["avg_tokens"] = sec.get("total_tokens", 0) / total_games if sec.get("total_tokens") is not None else None
+            sec["avg_prompt_tokens"] = sec.get("total_prompt_tokens", 0) / total_games if sec.get("total_prompt_tokens") is not None else None
+            sec["avg_completion_tokens"] = sec.get("total_completion_tokens", 0) / total_games if sec.get("total_completion_tokens") is not None else None
+
+        # Average response times (seconds)
+        ts = summary.get("time_statistics", {})
+        if ts:
+            if ts.get("total_llm_communication_time") is not None:
+                ts["avg_primary_response_time"] = ts.get("total_llm_communication_time", 0) / total_games
+            if ts.get("total_secondary_llm_communication_time") is not None:
+                ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / total_games
+    
     # Save the summary file
     try:
         with open(summary_path, "w", encoding='utf-8') as f:

@@ -12,6 +12,8 @@ import streamlit as st
 import importlib
 import pathlib
 
+from utils.network_utils import find_free_port
+
 # ---------------------------------------------------------------------------
 # Helper – build command list from optional args
 # ---------------------------------------------------------------------------
@@ -114,7 +116,8 @@ def render_main_web_tab():
     with colh:
         host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="main_web_host")
     with colp:
-        port = st.number_input("Port", 1024, 65535, 8000, key="main_web_port")
+        default_port = find_free_port(8000)
+        port = st.number_input("Port", 1024, 65535, default_port, key="main_web_port")
 
     no_gui = st.checkbox("Disable GUI (headless)", value=False, key="main_web_no_gui")
 
@@ -146,4 +149,4 @@ AVAILABLE_PROVIDERS = sorted({p.stem.replace("_provider", "") for p in _PROVIDER
 DEFAULT_PROVIDER = "ollama"
 DEFAULT_MODEL = "deepseek-r1:14b"
 DEFAULT_PARSER_PROVIDER = "ollama"
-DEFAULT_PARSER_MODEL = "gemma2:9b" 
+DEFAULT_PARSER_MODEL = "gemma3:12b-it-qat"

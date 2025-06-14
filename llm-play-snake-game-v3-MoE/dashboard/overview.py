@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-import os
 from typing import List, Dict, Any
 
 import pandas as pd
@@ -69,6 +67,23 @@ def display_experiment_overview(log_folders: List[str]):
         something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
         invalid_reversals = step_stats.get("invalid_reversals", 0)
 
+        # Time statistics / token usage stats
+        time_stats = summary_data.get("time_statistics", {})
+        total_llm_comm_time = time_stats.get("total_llm_communication_time", 0)
+
+        token_stats = summary_data.get("token_usage_stats", {})
+        primary_tokens = token_stats.get("primary_llm", {}).get("total_tokens", 0)
+        secondary_tokens = token_stats.get("secondary_llm", {}).get("total_tokens", 0)
+
+        # Average response times direct from summary (primary); secondary left None
+        ts_stats = summary_data.get("time_statistics", {})
+        avg_primary_resp = ts_stats.get("avg_primary_response_time")
+        avg_secondary_resp = ts_stats.get("avg_secondary_response_time")
+
+        # Token averages
+        avg_primary_tokens = summary_data.get("token_usage_stats", {}).get("primary_llm", {}).get("avg_completion_tokens")
+        avg_secondary_tokens = summary_data.get("token_usage_stats", {}).get("secondary_llm", {}).get("avg_completion_tokens") if secondary_provider else None
+
         # Continuation info
         continuation_info = summary_data.get("continuation_info", {})
         is_continuation = continuation_info.get("is_continuation", False)
@@ -90,7 +105,10 @@ def display_experiment_overview(log_folders: List[str]):
                 "Empty Steps": empty_steps,
                 "SWRONG Steps": something_is_wrong_steps,
                 "Invalid Reversals": invalid_reversals,
-                "Is Continuation": is_continuation,
+                "Avg Primary Resp (s)": round(avg_primary_resp, 2) if avg_primary_resp is not None else None,
+                "Avg Primary Tokens": int(avg_primary_tokens),
+                "Avg Secondary Resp (s)": round(avg_secondary_resp, 2) if avg_secondary_resp is not None else None,
+                "Avg Secondary Tokens": int(avg_secondary_tokens) if secondary_provider else None,
                 "Continuation Count": continuation_count,
                 "primary_provider": primary_provider,
                 "primary_model_name": primary_model_name,
@@ -161,7 +179,6 @@ def display_experiment_details(folder_path: str):
     st.markdown("## Game Scores Distribution")
     scores = [g.get("score", 0) for g in games_data.values()]
     if scores:
-        max_score = max(scores)
         col_hist, col_cfg = st.columns([3, 1])
         with col_cfg:
             bins = st.slider("Bins", 5, 40, 20, key="score_bins")

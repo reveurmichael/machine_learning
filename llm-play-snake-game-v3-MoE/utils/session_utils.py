@@ -14,6 +14,8 @@ __all__ = [
     "run_main_web",
     "continue_game",
     "continue_game_web",
+    "run_human_play",
+    "run_human_play_web",
 ]
 
 
@@ -101,4 +103,36 @@ def continue_game_web(log_folder: str, max_games: int, host: str, port: int):
             f"Continuation (web) started for '{get_folder_display_name(log_folder)}' at http://{host}:{port}."
         )
     except Exception as exc:
-        st.error(f"Error starting web continuation: {exc}") 
+        st.error(f"Error starting web continuation: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Human Play launchers
+# ---------------------------------------------------------------------------
+
+
+def run_human_play():
+    """Launch PyGame human play mode in background."""
+    try:
+        subprocess.Popen(["python", "human_play.py"])
+        st.info("PyGame Human Play started in a new window.")
+    except Exception as exc:
+        st.error(f"Error starting human play: {exc}")
+
+
+def run_human_play_web(host: str, port: int):
+    """Launch web human play mode on specified host/port."""
+    try:
+        cmd = [
+            "python",
+            "human_play_web.py",
+            "--host",
+            host,
+            "--port",
+            str(port),
+        ]
+        subprocess.Popen(cmd)
+        url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
+        st.info(f"Web Human Play started – open {url} in your browser.")
+    except Exception as exc:
+        st.error(f"Error starting web human play: {exc}") 

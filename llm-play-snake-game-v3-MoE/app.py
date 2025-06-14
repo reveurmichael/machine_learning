@@ -36,6 +36,8 @@ class App:
         # ------------------------------------------------------------------
         (
             tab_overview,
+            tab_human_pg,
+            tab_human_web,
             tab_main_pg,
             tab_main_web,
             tab_replay_pg,
@@ -45,6 +47,8 @@ class App:
         ) = st.tabs(
             [
                 "Overview",
+                "Human Play (PyGame)",
+                "Human Play (Web)",
                 "Main Mode (PyGame)",
                 "Main Mode (Web)",
                 "Replay Mode (PyGame)",
@@ -59,6 +63,23 @@ class App:
             from dashboard.tab_overview import render_overview_tab
 
             render_overview_tab(log_folders)
+
+        # ---------------------- Human Play (PyGame) -----------------------
+        with tab_human_pg:
+            from utils.session_utils import run_human_play
+            st.markdown("### 🎮 Play Snake – PyGame Window")
+            if st.button("Start PyGame Human Play", key="btn_hp_pygame"):
+                run_human_play()
+
+        # ----------------------- Human Play (Web) ------------------------
+        with tab_human_web:
+            from utils.session_utils import run_human_play_web
+            from utils.network_utils import find_free_port
+            st.markdown("### 🌐 Play Snake in Browser")
+            host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="hp_web_host")
+            port = st.number_input("Port", 1024, 65535, find_free_port(8000), key="hp_web_port")
+            if st.button("Start Web Human Play", key="btn_hp_web"):
+                run_human_play_web(host, port)
 
         # ---------------------- Main Mode (PyGame) ---------------------
         with tab_main_pg:

@@ -7,7 +7,7 @@ import numpy as np
 from config import GRID_SIZE, DIRECTIONS
 from core.game_data import GameData
 from utils.game_manager_utils import check_collision
-from utils.direction_utils import normalize_direction
+from utils.moves_utils import normalize_direction
 
 class GameController:
     """Base class for the Snake game controller."""

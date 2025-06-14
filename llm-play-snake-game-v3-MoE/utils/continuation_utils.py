@@ -10,122 +10,6 @@ import traceback
 from colorama import Fore
 from datetime import datetime
 
-def read_existing_game_data(log_dir, start_game_number):
-    """Read existing game data from game files.
-    
-    Args:
-        log_dir: Path to the log directory
-        start_game_number: The game number to start from
-        
-    Returns:
-        Tuple of (total_score, total_steps, game_scores, empty_steps, something_is_wrong_steps, time_stats, token_stats, valid_steps, invalid_reversals)
-    """
-    # Initialize counters
-    total_score = 0
-    total_steps = 0
-    empty_steps = 0
-    something_is_wrong_steps = 0
-    valid_steps = 0
-    invalid_reversals = 0
-    game_scores = []
-    missing_games = []
-    corrupted_games = []
-    
-    # Initialize time and token statistics
-    time_stats = {
-        "llm_communication_time": 0,
-        "game_movement_time": 0,
-        "waiting_time": 0
-    }
-    
-    token_stats = {
-        "primary": {
-            "total_tokens": 0,
-            "total_prompt_tokens": 0,
-            "total_completion_tokens": 0
-        },
-        "secondary": {
-            "total_tokens": 0,
-            "total_prompt_tokens": 0,
-            "total_completion_tokens": 0
-        }
-    }
-    
-    print(Fore.GREEN + f"🔍 Reading data from existing {start_game_number-1} games...")
-    
-    # Get the previous game number
-    for game_num in range(1, start_game_number):
-        # Import centralized file naming utilities
-        from utils.file_utils import get_game_json_filename, join_log_path
-        
-        # Get the game file path using utility functions
-        game_filename = get_game_json_filename(game_num)
-        game_file_path = join_log_path(log_dir, game_filename)
-        
-        if os.path.exists(game_file_path):
-            try:
-                with open(game_file_path, 'r', encoding='utf-8') as f:
-                    game_data = json.load(f)
-
-                # Cache-once: score & steps
-                score = game_data.get('score', 0)
-                steps = game_data.get('steps', 0)
-
-                total_score += score
-                total_steps += steps
-                game_scores.append(score)
-                    
-                # Track step types if available
-                if 'step_stats' in game_data:
-                    step_stats = game_data.get('step_stats', {})
-                    empty_steps += step_stats.get('empty_steps', 0)
-                    something_is_wrong_steps += step_stats.get('something_is_wrong_steps', 0)
-                    valid_steps += step_stats.get('valid_steps', 0)
-                    invalid_reversals += step_stats.get('invalid_reversals', 0)
-                
-                # Extract time statistics
-                if 'time_stats' in game_data:
-                    game_time_stats = game_data.get('time_stats', {})
-                    time_stats["llm_communication_time"] += game_time_stats.get("llm_communication_time", 0)
-                    time_stats["game_movement_time"] += game_time_stats.get("game_movement_time", 0)
-                    time_stats["waiting_time"] += game_time_stats.get("waiting_time", 0)
-                
-                # Extract token statistics
-                if 'token_stats' in game_data:
-                    game_token_stats = game_data.get('token_stats', {})
-                    
-                    # Primary LLM token stats
-                    if 'primary' in game_token_stats:
-                        primary = game_token_stats.get('primary', {})
-                        token_stats["primary"]["total_tokens"] += primary.get("total_tokens", 0)
-                        token_stats["primary"]["total_prompt_tokens"] += primary.get("total_prompt_tokens", 0)
-                        token_stats["primary"]["total_completion_tokens"] += primary.get("total_completion_tokens", 0)
-                    
-                    # Secondary LLM token stats
-                    if 'secondary' in game_token_stats:
-                        secondary = game_token_stats.get('secondary', {})
-                        token_stats["secondary"]["total_tokens"] += secondary.get("total_tokens", 0)
-                        token_stats["secondary"]["total_prompt_tokens"] += secondary.get("total_prompt_tokens", 0)
-                        token_stats["secondary"]["total_completion_tokens"] += secondary.get("total_completion_tokens", 0)
-            except Exception as e:
-                print(Fore.YELLOW + f"⚠️ Warning: Could not load game data from {game_file_path}: {e}")
-                corrupted_games.append(game_num)
-        else:
-            missing_games.append(game_num)
-    
-    # Report any issues with game files
-    if missing_games:
-        print(Fore.YELLOW + f"⚠️ Warning: {len(missing_games)} game files missing: {missing_games}")
-        
-    if corrupted_games:
-        print(Fore.YELLOW + f"⚠️ Warning: {len(corrupted_games)} game files corrupted: {corrupted_games}")
-        
-    # Successfully loaded games
-    successful_games = start_game_number - 1 - len(missing_games) - len(corrupted_games)
-    print(Fore.GREEN + f"✅ Successfully loaded {successful_games} game files")
-    
-    return total_score, total_steps, game_scores, empty_steps, something_is_wrong_steps, time_stats, token_stats, valid_steps, invalid_reversals
-
 def setup_continuation_session(game_manager, log_dir, start_game_number):
     """Set up a game session for continuation.
     
@@ -176,38 +60,48 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         print(f"Error: Cannot find previous game file: {game_file_path}")
         return None
     
-    # Initialize time_stats and token_stats attributes if they don't exist
-    if not hasattr(game_manager, 'time_stats'):
-        game_manager.time_stats = {
+    # Load aggregated statistics from *summary.json* 
+    from utils.file_utils import load_summary_data
+
+    summary = load_summary_data(log_dir) or {}
+
+    game_stats = summary.get("game_statistics", {})
+    game_manager.total_score = game_stats.get("total_score", 0)
+    game_manager.total_steps = game_stats.get("total_steps", 0)
+    game_manager.game_scores = game_stats.get("scores", [])
+
+    step_stats = summary.get("step_stats", {})
+    game_manager.empty_steps = step_stats.get("empty_steps", 0)
+    game_manager.something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
+    game_manager.valid_steps = step_stats.get("valid_steps", 0)
+    game_manager.invalid_reversals = step_stats.get("invalid_reversals", 0)
+
+    # Time statistics (fall back to zeroed dict if missing)
+    game_manager.time_stats = summary.get(
+        "time_statistics",
+        {
             "llm_communication_time": 0,
             "game_movement_time": 0,
-            "waiting_time": 0
-        }
-    
-    if not hasattr(game_manager, 'token_stats'):
-        game_manager.token_stats = {
-            "primary": {
-                "total_tokens": 0,
-                "total_prompt_tokens": 0,
-                "total_completion_tokens": 0
-            },
-            "secondary": {
-                "total_tokens": 0,
-                "total_prompt_tokens": 0,
-                "total_completion_tokens": 0
-            }
-        }
-    
-    # Load statistics from existing games
-    (game_manager.total_score, 
-     game_manager.total_steps, 
-     game_manager.game_scores, 
-     game_manager.empty_steps, 
-     game_manager.something_is_wrong_steps, 
-     game_manager.time_stats,
-     game_manager.token_stats,
-     game_manager.valid_steps,
-     game_manager.invalid_reversals) = read_existing_game_data(log_dir, start_game_number)
+            "waiting_time": 0,
+        },
+    )
+
+    # Token statistics – normalize to expected *primary/secondary* keys
+    token_usage = summary.get("token_usage_stats", {})
+    primary = token_usage.get("primary_llm", {})
+    secondary = token_usage.get("secondary_llm", {})
+    game_manager.token_stats = {
+        "primary": {
+            "total_tokens": primary.get("total_tokens", 0),
+            "total_prompt_tokens": primary.get("total_prompt_tokens", 0),
+            "total_completion_tokens": primary.get("total_completion_tokens", 0),
+        },
+        "secondary": {
+            "total_tokens": secondary.get("total_tokens", 0),
+            "total_prompt_tokens": secondary.get("total_prompt_tokens", 0),
+            "total_completion_tokens": secondary.get("total_completion_tokens", 0),
+        },
+    }
     
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1

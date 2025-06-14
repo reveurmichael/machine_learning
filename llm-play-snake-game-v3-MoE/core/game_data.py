@@ -11,7 +11,7 @@ from utils.json_utils import NumPyJSONEncoder
 import os
 import re
 from colorama import Fore
-from utils.direction_utils import normalize_direction
+from utils.moves_utils import normalize_direction, normalize_directions
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
@@ -1086,7 +1086,7 @@ class GameData:
         """
         if moves and isinstance(moves, list):
             # Canonical case/whitespace handling in one place
-            from utils.direction_utils import normalize_directions
+            from utils.moves_utils import normalize_directions
             standardized_moves = normalize_directions(moves)
             
             # Store the planned moves for the current round

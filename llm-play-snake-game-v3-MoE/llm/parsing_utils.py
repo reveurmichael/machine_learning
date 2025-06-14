@@ -5,7 +5,7 @@ primary and secondary LLM outputs in the Snake game context.
 """
 
 from utils.json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays
-from utils.direction_utils import normalize_directions
+from utils.moves_utils import normalize_directions
 
 def _count_attempt(game_state, success=False, error=None):
     """Record a JSON extraction attempt.

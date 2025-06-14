@@ -7,8 +7,6 @@ This package provides all essential functions and systems for the game, includin
 - Move calculation and game mechanics
 """
 
-import sys
-from colorama import Fore
 
 # JSON processing utilities
 from .json_utils import (
@@ -30,7 +28,13 @@ from .file_utils import (
     get_next_game_number,
     clean_prompt_files,
     save_to_file,
-    find_valid_log_folders
+    find_valid_log_folders,
+    get_game_json_filename,
+    get_prompt_filename,
+    join_log_path,
+    load_summary_data,
+    load_game_data,
+    get_folder_display_name,
 )
 
 # Initialization and setup
@@ -40,15 +44,27 @@ from .initialization_utils import (
     initialize_game_state,
 )
 
-# Game mechanics
+# Game mechanics – split across two modules
+from .moves_utils import (
+    normalize_direction,
+    normalize_directions,
+    calculate_move_differences,
+)
+
 from .game_manager_utils import (
-    calculate_move_differences, 
-    format_body_cells_str
+    format_body_cells_str,
 )
 
 # Text processing
 from .text_utils import (
     process_response_for_display
+)
+
+# Continuation helpers
+from .continuation_utils import (
+    setup_continuation_session,
+    handle_continuation_game_state,
+    continue_from_directory,
 )
 
 # Public API for the utils package
@@ -71,6 +87,12 @@ __all__ = [
     'clean_prompt_files',
     'save_to_file',
     'find_valid_log_folders',
+    'get_game_json_filename',
+    'get_prompt_filename',
+    'join_log_path',
+    'load_summary_data',
+    'load_game_data',
+    'get_folder_display_name',
     
     # Initialization and setup
     'setup_llm_clients',
@@ -78,9 +100,16 @@ __all__ = [
     'initialize_game_state',
     
     # Game mechanics
+    'normalize_direction',
+    'normalize_directions',
     'calculate_move_differences',
     'format_body_cells_str',
     
     # Text processing
-    'process_response_for_display'
+    'process_response_for_display',
+
+    # Continuation helpers
+    'setup_continuation_session',
+    'handle_continuation_game_state',
+    'continue_from_directory',
 ]

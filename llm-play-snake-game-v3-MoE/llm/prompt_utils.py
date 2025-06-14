@@ -5,7 +5,8 @@ in the Snake game architecture.
 """
 
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
-from utils.game_manager_utils import calculate_move_differences, format_body_cells_str
+from utils.moves_utils import calculate_move_differences
+from utils.game_manager_utils import format_body_cells_str
 
 def prepare_snake_prompt(head_position, body_positions, apple_position, current_direction):
     """Prepare a prompt for the primary LLM to determine the next snake move.

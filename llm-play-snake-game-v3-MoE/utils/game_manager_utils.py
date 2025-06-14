@@ -4,14 +4,9 @@ Core functionality for the Snake game manager, handling game states, error proce
 statistics reporting, and initialization functions.
 """
 
-import os
-import traceback
 import pygame
 import numpy as np
 from colorama import Fore
-import json
-from datetime import datetime
-from utils.json_utils import NumPyJSONEncoder
 
 def _safe_add(target: dict, key: str, delta):
     """Add delta to target[key] only if delta is truthy (skips None / 0)."""
@@ -110,7 +105,6 @@ def process_game_over(game, game_state_info):
     
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
-    current_game_moves = game_state_info["current_game_moves"]
     
     # Extract or initialize counters
     game_count = game_state_info["game_count"]
@@ -309,7 +303,6 @@ def handle_error(game, error_info):
     total_steps = error_info["total_steps"]
     game_scores = error_info["game_scores"].copy()
     round_count = error_info["round_count"]
-    current_game_moves = error_info["current_game_moves"]
     
     # Get current time and token stats
     time_stats = error_info.get("time_stats", {})
@@ -440,7 +433,6 @@ def report_final_statistics(stats_info):
     """
     from utils.json_utils import save_session_stats
     import os
-    import json
     
     # Extract statistics
     log_dir = stats_info["log_dir"]
@@ -595,40 +587,6 @@ def process_events(game_manager):
                 game_manager.consecutive_empty_steps = 0  # Reset on game reset
                 game_manager.current_game_moves = []  # Reset moves for new game
                 print(Fore.GREEN + "🔄 Game reset") 
-
-
-def calculate_move_differences(head_pos, apple_pos):
-    """Calculate the expected move differences based on head and apple positions.
-
-    Args:
-        head_pos: Position of the snake's head as [x, y]
-        apple_pos: Position of the apple as [x, y]
-
-    Returns:
-        String describing the expected move differences with actual numbers
-    """
-    head_x, head_y = head_pos
-    apple_x, apple_y = apple_pos
-
-    # Calculate horizontal differences
-    x_diff_text = ""
-    if head_x <= apple_x:
-        x_diff = apple_x - head_x
-        x_diff_text = f"#RIGHT - #LEFT = {x_diff} (= {apple_x} - {head_x})"
-    else:
-        x_diff = head_x - apple_x
-        x_diff_text = f"#LEFT - #RIGHT = {x_diff} (= {head_x} - {apple_x})"
-
-    # Calculate vertical differences
-    y_diff_text = ""
-    if head_y <= apple_y:
-        y_diff = apple_y - head_y
-        y_diff_text = f"#UP - #DOWN = {y_diff} (= {apple_y} - {head_y})"
-    else:
-        y_diff = head_y - apple_y
-        y_diff_text = f"#DOWN - #UP = {y_diff} (= {head_y} - {apple_y})"
-
-    return f"{x_diff_text}, and {y_diff_text}"
 
 
 def format_body_cells_str(body_positions):

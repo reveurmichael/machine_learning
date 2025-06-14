@@ -226,9 +226,6 @@ def join_log_path(log_dir, filename):
     """
     return os.path.join(log_dir, filename)
 
-# ---------------------------------------------------------------------------
-# Additional helpers reused by the Streamlit dashboard
-# ---------------------------------------------------------------------------
 
 def get_folder_display_name(path: str) -> str:
     """Return basename of a log folder (used by dashboard)."""
@@ -259,9 +256,6 @@ def load_game_data(folder_path: str):
                 continue
     return games
 
-# ---------------------------------------------------------------------------
-# Discovery helpers
-# ---------------------------------------------------------------------------
 
 def find_valid_log_folders(root_dir: str = "logs", max_depth: int = 4):
     """Return experiment folders that contain the expected artefacts.

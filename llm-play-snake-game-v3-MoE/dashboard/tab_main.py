@@ -12,7 +12,8 @@ import streamlit as st
 import importlib
 import pathlib
 
-from utils.network_utils import find_free_port
+from utils.network_utils import find_free_port, random_free_port
+from utils.session_utils import run_main_web
 
 # ---------------------------------------------------------------------------
 # Helper – build command list from optional args
@@ -116,25 +117,13 @@ def render_main_web_tab():
     with colh:
         host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="main_web_host")
     with colp:
-        default_port = find_free_port(8000)
+        default_port = random_free_port(8000, 9000)
         port = st.number_input("Port", 1024, 65535, default_port, key="main_web_port")
 
     no_gui = st.checkbox("Disable GUI (headless)", value=False, key="main_web_no_gui")
 
     if st.button("Start Main Session (Web)", key="start_main_web"):
-        cmd: list[str] = ["python", "main_web.py", "--max-games", str(max_games), "--host", host, "--port", str(port)]
-        _append_arg(cmd, "--provider", provider.strip() or None)
-        _append_arg(cmd, "--model", model.strip() or None)
-        _append_arg(cmd, "--parser-provider", None if parser_provider == "None" else parser_provider.strip() or None)
-        _append_arg(cmd, "--parser-model", None if parser_provider == "None" else parser_model.strip() or None)
-        if max_steps > 0:
-            _append_arg(cmd, "--max-steps", max_steps)
-        if sleep_before > 0:
-            _append_arg(cmd, "--sleep-before-launching", sleep_before)
-        if no_gui:
-            cmd.append("--no-gui")
-
-        subprocess.Popen(cmd)
+        run_main_web(max_games, host, port)
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.success(f"Web session started – open {url} in your browser.")
 

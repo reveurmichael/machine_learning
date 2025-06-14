@@ -74,10 +74,10 @@ class App:
         # ----------------------- Human Play (Web) ------------------------
         with tab_human_web:
             from utils.session_utils import run_human_play_web
-            from utils.network_utils import find_free_port
+            from utils.network_utils import random_free_port
             st.markdown("### 🌐 Play Snake in Browser")
             host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="hp_web_host")
-            port = st.number_input("Port", 1024, 65535, find_free_port(8000), key="hp_web_port")
+            port = st.number_input("Port", 1024, 65535, random_free_port(8000, 9000), key="hp_web_port")
             if st.button("Start Web Human Play", key="btn_hp_web"):
                 run_human_play_web(host, port)
 

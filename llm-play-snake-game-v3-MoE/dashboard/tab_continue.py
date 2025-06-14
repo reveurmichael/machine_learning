@@ -9,7 +9,8 @@ from __future__ import annotations
 import subprocess
 import streamlit as st
 from utils.file_utils import get_folder_display_name
-from utils.network_utils import find_free_port
+from utils.network_utils import random_free_port
+from utils.session_utils import continue_game_web
 
 # Helper for building cmd (reuse from tab_main)
 
@@ -91,20 +92,12 @@ def render_continue_web_tab(log_folders):
     with colh:
         host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="cont_web_host")
     with colp:
-        default_port = find_free_port(8000)
+        default_port = random_free_port(8000, 9000)
         port = st.number_input("Port", 1024, 65535, default_port, key="cont_web_port")
 
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
 
     if st.button("Start Continuation (Web)", key="start_cont_web"):
-        cmd = [
-            "python", "main_web.py", "--continue-with-game-in-dir", exp, "--max-games", str(max_games),
-            "--host", host, "--port", str(port)
-        ]
-        if sleep_before > 0:
-            _append_arg(cmd, "--sleep-before-launching", sleep_before)
-        if no_gui:
-            cmd.append("--no-gui")
-        subprocess.Popen(cmd)
+        continue_game_web(exp, max_games, host, port)
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.success(f"Continuation (web) started – open {url} to watch.") 

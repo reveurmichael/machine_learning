@@ -7,6 +7,7 @@ import subprocess
 import streamlit as st
 
 from utils.file_utils import get_folder_display_name
+from utils.network_utils import find_free_port, ensure_free_port
 
 __all__ = [
     "run_replay",
@@ -30,6 +31,7 @@ def run_replay(log_folder: str, game_num: int):
 
 def run_web_replay(log_folder: str, game_num: int, host: str, port: int):
     try:
+        port = ensure_free_port(port)
         cmd = [
             "python",
             "replay_web.py",
@@ -68,6 +70,7 @@ def continue_game(log_folder: str, max_games: int, no_gui: bool):
 
 def run_main_web(max_games: int, host: str, port: int):
     try:
+        port = ensure_free_port(port)
         cmd = [
             "python",
             "main_web.py",
@@ -86,6 +89,7 @@ def run_main_web(max_games: int, host: str, port: int):
 
 def continue_game_web(log_folder: str, max_games: int, host: str, port: int):
     try:
+        port = ensure_free_port(port)
         cmd = [
             "python",
             "main_web.py",
@@ -123,6 +127,7 @@ def run_human_play():
 def run_human_play_web(host: str, port: int):
     """Launch web human play mode on specified host/port."""
     try:
+        port = ensure_free_port(port)
         cmd = [
             "python",
             "human_play_web.py",

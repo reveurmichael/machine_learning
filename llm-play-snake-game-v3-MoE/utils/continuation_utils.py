@@ -221,6 +221,7 @@ def continue_from_directory(game_manager_class, args):
             args.max_steps = original_config.get('max_steps', args.max_steps)
             args.max_consecutive_empty_moves_allowed = original_config.get('max_consecutive_empty_moves_allowed', args.max_consecutive_empty_moves_allowed)
             args.max_consecutive_something_is_wrong_allowed = original_config.get('max_consecutive_something_is_wrong_allowed', args.max_consecutive_something_is_wrong_allowed)
+            args.max_consecutive_invalid_reversals_allowed = original_config.get('max_consecutive_invalid_reversals_allowed', args.max_consecutive_invalid_reversals_allowed)
             
             # Preserve the original GUI setting
             args.no_gui = original_config.get('no_gui', args.no_gui)
@@ -268,6 +269,7 @@ def continue_from_directory(game_manager_class, args):
             print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_consecutive_empty_moves_allowed}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_something_is_wrong_allowed}")
+            print(Fore.GREEN + f"⏱️ Max invalid reversals: {args.max_consecutive_invalid_reversals_allowed}")
             print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
             print(Fore.GREEN + f"🎲 Max games: {args.max_games}")
     except Exception as e:

@@ -69,18 +69,47 @@ def continue_game(log_folder: str, max_games: int, no_gui: bool):
 
 
 def run_main_web(max_games: int, host: str, port: int):
+    """Launch main_web.py with full CLI options.
+
+    The Streamlit tab already stored all user inputs in session_state.  To
+    keep the tab code minimal, we harvest those values here and construct the
+    command accordingly.  That way we don't need to touch the UI when new
+    arguments are added.
+    """
     try:
         port = ensure_free_port(port)
-        cmd = [
-            "python",
-            "main_web.py",
-            "--max-games",
-            str(max_games),
-            "--host",
-            host,
-            "--port",
-            str(port),
+
+        cmd: list[str] = [
+            "python", "main_web.py", "--max-games", str(max_games), "--host", host, "--port", str(port)
         ]
+
+        # --------------------------------------------------------------
+        # Optional CLI parameters harvested from session_state
+        # --------------------------------------------------------------
+        ss = st.session_state
+
+        _append_arg(cmd, "--provider", ss.get("main_web_provider"))
+        _append_arg(cmd, "--model", ss.get("main_web_model"))
+
+        parser_provider = ss.get("main_web_parser_provider")
+        parser_model = ss.get("main_web_parser_model")
+        if parser_provider and parser_provider != "None":
+            _append_arg(cmd, "--parser-provider", parser_provider)
+            _append_arg(cmd, "--parser-model", parser_model)
+
+        max_steps = ss.get("main_web_max_steps")
+        if max_steps and int(max_steps) > 0:
+            _append_arg(cmd, "--max-steps", max_steps)
+
+        sleep_before = ss.get("main_web_sleep")
+        if sleep_before and float(sleep_before) > 0:
+            _append_arg(cmd, "--sleep-before-launching", sleep_before)
+
+        no_gui = ss.get("main_web_no_gui")
+        if no_gui:
+            cmd.append("--no-gui")
+
+        # --------------------------------------------------------------
         subprocess.Popen(cmd)
         st.info(f"Web main session started at http://{host}:{port}.")
     except Exception as exc:
@@ -140,4 +169,22 @@ def run_human_play_web(host: str, port: int):
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.info(f"Web Human Play started – open {url} in your browser.")
     except Exception as exc:
-        st.error(f"Error starting web human play: {exc}") 
+        st.error(f"Error starting web human play: {exc}")
+
+
+# Reuse helper to append args consistently
+def _append_arg(cmd: list[str], flag: str, value):
+    """Append flag/value to cmd if value provided.
+
+    Mirrors the logic used in dashboard.tab_main / tab_continue so that we
+    don't duplicate option-building code all over the place.  Boolean flags
+    are appended without a value when *value* is truthy; everything else is
+    appended as two separate list items.
+    """
+    if value is None:
+        return
+    if isinstance(value, bool):
+        if value:
+            cmd.append(flag)
+        return
+    cmd.extend([flag, str(value)]) 

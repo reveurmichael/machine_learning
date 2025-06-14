@@ -265,18 +265,6 @@ def save_session_stats(log_dir, **kwargs):
     except Exception as e:
         print(f"Error writing summary.json: {e}")
 
-def merge_nested_dicts(target, source):
-    """Recursively merge two dictionaries, including nested dictionaries.
-    
-    Args:
-        target: Target dictionary to merge into
-        source: Source dictionary with values to merge
-    """
-    for key, value in source.items():
-        if key in target and isinstance(target[key], dict) and isinstance(value, dict):
-            merge_nested_dicts(target[key], value)
-        else:
-            target[key] = value
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to fix common formatting issues.
@@ -455,10 +443,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             # Print detailed info about the moves
             print(f"✅ Successfully extracted moves: {data['moves']}")
             
-            # Record success in game_state if provided
-            if game_state is not None:
-                game_state.record_json_extraction_attempt(success=True)
-                
             return data
         else:
             # Only print error message on first attempt
@@ -483,16 +467,8 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from code block: {json_data['moves']}")
         
-        # Record success in game_state if provided
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=True)
-            
         return json_data
-    else:
-        # If code blocks were present but none yielded valid JSON, record in game_state
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=False, error_type="code_block")
-    
+
     # Try extracting from regular text
     json_data = extract_json_from_text(text)
     if json_data:
@@ -507,10 +483,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from text: {json_data['moves']}")
         
-        # Record success in game_state if provided
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=True)
-            
         return json_data
             
     # As a last resort, try to extract move arrays directly
@@ -526,11 +498,6 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
             
         # Print detailed info about the moves
         print(f"✅ Successfully extracted moves from arrays: {json_data['moves']}")
-        
-        # Record success in game_state if provided
-        if game_state is not None:
-            game_state.record_json_extraction_attempt(success=True)
-            
         return json_data
             
     # No valid JSON found
@@ -648,7 +615,6 @@ def validate_game_summary(summary):
     Performs sanity checks on the game summary to ensure:
     - moves length matches steps
     - each round's moves are a subset of the global moves
-    - no root-level "moves" key exists
     
     Args:
         summary: The game summary dictionary
@@ -657,10 +623,6 @@ def validate_game_summary(summary):
         Tuple of (is_valid, error_message)
     """
     try:
-        # Check no root-level moves
-        if "moves" in summary:
-            return False, "Root-level 'moves' key found - this should be removed"
-        
         # Check steps against detailed_history.moves
         if "steps" in summary and "detailed_history" in summary and "moves" in summary["detailed_history"]:
             steps = summary["steps"]

@@ -19,7 +19,6 @@ from .json_utils import (
     extract_moves_from_arrays,
     save_experiment_info_json,
     save_session_stats,
-    merge_nested_dicts
 )
 
 # File and storage management
@@ -82,7 +81,6 @@ __all__ = [
     'extract_moves_from_arrays',
     'save_experiment_info_json',
     'save_session_stats',
-    'merge_nested_dicts',
     
     # File management
     'extract_game_summary',

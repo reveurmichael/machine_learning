@@ -148,24 +148,4 @@ class BaseGUI:
                         return 
     
     def draw_game_info(self, game_info):
-        """Draw game information overlay.
-        
-        Args:
-            game_info: Dictionary containing game information:
-                - score: Current score
-                - steps: Current step count
-                - planned_moves: List of planned moves
-                - llm_response: LLM response text
-                - secondary_llm: Name of secondary LLM (optional)
-                - paused: Whether the game is paused (optional)
-        """
-        if not self.screen:
-            return
-        
-        # Get values from the dictionary
-        score = game_info.get('score', 0)
-        steps = game_info.get('steps', 0)
-        planned_moves = game_info.get('planned_moves', [])
-        llm_response = game_info.get('llm_response', '')
-        secondary_llm = game_info.get('secondary_llm', None)
-        paused = game_info.get('paused', False) 
+        pass

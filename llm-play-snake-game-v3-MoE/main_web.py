@@ -74,10 +74,22 @@ def build_state_dict(gm: GameManager):
 # Background thread target
 # ---------------------------------------------------------------------------
 
-def manager_thread_fn(gm: GameManager):
-    """Run the GameManager until completes. We set use_gui=False so it is headless."""
+def manager_thread_fn(gm: GameManager, args):
+    """Background worker for running the game (new or continuation)."""
     try:
-        gm.run()
+        # Continuation mode – resume from previous directory
+        cont_dir = getattr(args, "continue_with_game_in_dir", None)
+        if cont_dir:
+            try:
+                gm2 = GameManager.continue_from_directory(args)
+                # Update global reference so /api/state can access the running game
+                global manager
+                manager = gm2
+            except Exception as e:
+                print(f"[main_web] Continuation session crashed: {e}")
+                return
+        else:
+            gm.run()
     except Exception as e:
         print(f"[main_web] GameManager thread crashed: {e}")
 
@@ -155,11 +167,11 @@ def main():
     game_args.no_gui = False
 
     # ------------------------------------------------------------------
-    # Step 3 – launch GameManager in a background thread
+    # Step 3 – create GameManager (handle continuation vs new session)
     # ------------------------------------------------------------------
     global manager, manager_thread
     manager = GameManager(game_args)
-    manager_thread = threading.Thread(target=manager_thread_fn, args=(manager,), daemon=True)
+    manager_thread = threading.Thread(target=manager_thread_fn, args=(manager, game_args), daemon=True)
     manager_thread.start()
 
     # ------------------------------------------------------------------

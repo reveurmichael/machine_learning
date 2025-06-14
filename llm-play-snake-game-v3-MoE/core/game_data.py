@@ -98,15 +98,6 @@ class GameData:
         self.primary_llm_requests = 0
         self.secondary_llm_requests = 0
         
-        # JSON parsing statistics
-        self.total_extraction_attempts = 0
-        self.successful_extractions = 0
-        self.failed_extractions = 0
-        self.json_decode_errors = 0
-        self.format_validation_errors = 0
-        self.code_block_extraction_errors = 0
-        self.text_extraction_errors = 0
-        self.pattern_extraction_success = 0
     
     def start_new_round(self, apple_position):
         """Start a new round of moves.
@@ -465,30 +456,6 @@ class GameData:
         # Add to global history for game-level aggregation
         self.secondary_token_stats.append(token_stats)
     
-    def record_json_extraction_attempt(self, success, error_type=None):
-        """Record an attempt to extract JSON from LLM response.
-        
-        Args:
-            success: Whether the extraction was successful
-            error_type: Type of error if unsuccessful (decode, validation, etc.)
-        """
-        self.total_extraction_attempts += 1
-        
-        if success:
-            self.successful_extractions += 1
-        else:
-            self.failed_extractions += 1
-            
-            # Record specific error type if provided
-            if error_type == "decode":
-                self.json_decode_errors += 1
-            elif error_type == "validation":
-                self.format_validation_errors += 1
-            elif error_type == "code_block":
-                self.code_block_extraction_errors += 1
-            elif error_type == "text":
-                self.text_extraction_errors += 1
-    
     def record_continuation(self, previous_session_data=None):
         """Record that this game is a continuation of a previous session.
         
@@ -545,18 +512,6 @@ class GameData:
             # But import valid_steps and invalid_reversals
             self.valid_steps = step_stats.get('valid_steps', 0)
             self.invalid_reversals = step_stats.get('invalid_reversals', 0)
-        
-        # Import JSON parsing stats if available
-        if 'json_parsing_stats' in summary_data:
-            json_stats = summary_data['json_parsing_stats']
-            self.total_extraction_attempts = json_stats.get('total_extraction_attempts', 0)
-            self.successful_extractions = json_stats.get('successful_extractions', 0)
-            self.failed_extractions = json_stats.get('failed_extractions', 0)
-            self.json_decode_errors = json_stats.get('json_decode_errors', 0)
-            self.format_validation_errors = json_stats.get('format_validation_errors', 0)
-            self.code_block_extraction_errors = json_stats.get('code_block_extraction_errors', 0)
-            self.text_extraction_errors = json_stats.get('text_extraction_errors', 0)
-            self.pattern_extraction_success = json_stats.get('pattern_extraction_success', 0)
         
         # Initialize continuation attributes if needed
         if not hasattr(self, 'is_continuation'):
@@ -823,7 +778,7 @@ class GameData:
                 "game_number": self.game_number,
                 "timestamp": self.timestamp,
                 "last_move": self.last_move,
-                "round_count": self.round_count,  # Keep it here for backward compatibility
+                "round_count": self.round_count,  
                 "max_consecutive_empty_moves_allowed": self.max_consecutive_empty_moves_allowed,
                 "max_consecutive_something_is_wrong_allowed": max_consecutive_something_is_wrong_allowed,
             },
@@ -860,21 +815,6 @@ class GameData:
                 f"Round {rk} moves ({len(rd.get('moves', []))}) exceed total steps ({summary['steps']})"
         
         return summary
-    
-    def _collect_all_moves_from_rounds(self):
-        """Collect all moves from all rounds to create a complete move history.
-        
-        This ensures that the moves list in detailed_history contains all moves
-        from all rounds, not just individual moves recorded during execution.
-        
-        Returns:
-            List of all moves across all rounds
-        """
-        # This method is now obsolete and will be removed
-        # We now use self.moves directly in generate_game_summary
-        # which is the single source of truth for executed moves
-        # This list matches 'steps' exactly as both are incremented together in record_move()
-        return self.moves.copy()
     
     def _get_ordered_rounds_data(self):
         """Get an ordered version of rounds_data with keys sorted numerically.

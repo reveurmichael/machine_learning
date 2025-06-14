@@ -29,9 +29,24 @@ def render_continue_pygame_tab(log_folders):
         return
 
     exp = st.selectbox(
-        "Experiment", options=log_folders, format_func=get_folder_display_name, key="cont_pg_exp", label_visibility="collapsed")
-    max_games = st.number_input("Max Games", 1, 100, 2, 1, key="cont_pg_max_games")
-    sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_pg_sleep")
+        "Experiment",
+        options=log_folders,
+        format_func=get_folder_display_name,
+        key="cont_pg_exp",
+        label_visibility="collapsed",
+    )
+
+    # ── side-by-side inputs ───────────────────────────────────────────
+    col1, col2 = st.columns(2)
+    with col1:
+        max_games = st.number_input(
+            "Max Games", 1, 100, 2, 1, key="cont_pg_max_games"
+        )
+    with col2:
+        sleep_before = st.number_input(
+            "Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_pg_sleep"
+        )
+
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_pg_no_gui")
 
     if st.button("Start Continuation (PyGame)", key="start_cont_pg"):
@@ -53,9 +68,23 @@ def render_continue_web_tab(log_folders):
         return
 
     exp = st.selectbox(
-        "Experiment", options=log_folders, format_func=get_folder_display_name, key="cont_web_exp", label_visibility="collapsed")
-    max_games = st.number_input("Max Games", 1, 100, 2, 1, key="cont_web_max_games")
-    sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_web_sleep")
+        "Experiment",
+        options=log_folders,
+        format_func=get_folder_display_name,
+        key="cont_web_exp",
+        label_visibility="collapsed",
+    )
+
+    # ── side-by-side inputs ───────────────────────────────────────────
+    col1, col2 = st.columns(2)
+    with col1:
+        max_games = st.number_input(
+            "Max Games", 1, 100, 2, 1, key="cont_web_max_games"
+        )
+    with col2:
+        sleep_before = st.number_input(
+            "Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_web_sleep"
+        )
 
     colh, colp = st.columns(2)
     with colh:

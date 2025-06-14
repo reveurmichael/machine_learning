@@ -27,7 +27,7 @@ logging.getLogger('werkzeug').setLevel(logging.WARNING)  # Suppress per-request 
 # Local imports from the project (after dummy driver is set)
 from core.game_manager import GameManager
 from main import parse_arguments  # Re-use the full CLI from main.py
-from config import COLORS, GRID_SIZE
+from config import COLORS, GRID_SIZE, END_REASON_MAP
 
 # ---------------------------------------------------------------------------
 # Flask setup (identical static/template folders to replay_web)
@@ -47,6 +47,10 @@ def build_state_dict(gm: GameManager):
     # Convert numpy arrays to plain lists for JSON
     snake = game.snake_positions.tolist() if hasattr(game.snake_positions, 'tolist') else game.snake_positions
     apple = game.apple_position.tolist() if hasattr(game.apple_position, 'tolist') else game.apple_position
+
+    end_reason_readable = None
+    if game.game_end_reason:
+        end_reason_readable = END_REASON_MAP.get(game.game_end_reason, game.game_end_reason)
 
     return {
         'snake_positions': snake,
@@ -68,6 +72,7 @@ def build_state_dict(gm: GameManager):
         'planned_moves': game.planned_moves,
         'llm_response': getattr(game, 'processed_response', ''),
         'move_pause': gm.get_pause_between_moves(),
+        'game_end_reason': end_reason_readable,
     }
 
 # ---------------------------------------------------------------------------

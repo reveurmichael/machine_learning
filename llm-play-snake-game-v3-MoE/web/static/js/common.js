@@ -12,16 +12,6 @@ let COLORS = {
     GRID: '#34495e',          // Grid lines
 };
 
-// End reason mapping
-const END_REASON_MAP = {
-    "WALL": "Hit Wall",
-    "SELF": "Hit Self",
-    "MAX_STEPS_REACHED": "Max Steps Reached",
-    "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED": "Max Consecutive Empty Moves Reached",
-    "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED": "Max Consecutive Something Is Wrong Reached",
-    "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED": "Max Consecutive Invalid Reversals Reached"
-};
-
 /**
  * Converts RGB array to hex color string
  * @param {Array} rgbArray - Array of RGB values [r, g, b]

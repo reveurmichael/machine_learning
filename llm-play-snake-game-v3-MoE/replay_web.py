@@ -67,7 +67,7 @@ class WebReplayEngine(ReplayEngine):
             'paused': self.paused,
             'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
             'move_pause': self.pause_between_moves,
-            'game_end_reason': self.game_end_reason,
+            'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
             'grid_size': self.grid_size,
             'colors': {
                 'snake_head': COLORS['SNAKE_HEAD'],

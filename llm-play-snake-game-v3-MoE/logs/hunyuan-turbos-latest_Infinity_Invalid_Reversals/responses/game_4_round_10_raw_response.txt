@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 13:15:35
+PRIMARY LLM Response Time: 2025-06-14 13:15:40
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (3, 2)
+Apple Position: (6, 9)
+Body Cells: [(3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8)]
+Timestamp: 2025-06-14 13:15:40
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "UP", "UP", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "The snake needs to move right 3 times to align with the apple's x-coordinate, then up 7 times to reach the apple's y-coordinate. This path avoids the snake's body and stays within bounds."
+}
+```

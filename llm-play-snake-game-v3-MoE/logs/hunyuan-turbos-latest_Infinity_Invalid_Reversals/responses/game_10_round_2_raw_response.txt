@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-14 13:49:57
+PRIMARY LLM Response Time: 2025-06-14 13:50:00
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (1, 8)
+Apple Position: (1, 9)
+Body Cells: [(2, 8)]
+Timestamp: 2025-06-14 13:50:00
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["UP"],
+"reasoning": "The apple is directly above the head at (1,9), and the current direction is 'LEFT'. The first move cannot reverse direction, so 'UP' is the safest and only valid option to move towards the apple without colliding with the body or walls."
+}

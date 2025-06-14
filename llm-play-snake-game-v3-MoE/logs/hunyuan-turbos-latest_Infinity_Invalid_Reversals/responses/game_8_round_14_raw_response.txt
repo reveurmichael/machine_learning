@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 13:32:37
+PRIMARY LLM Response Time: 2025-06-14 13:32:41
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (7, 6)
+Apple Position: (6, 1)
+Body Cells: [(6, 6), (5, 6), (5, 7), (5, 8), (5, 9), (6, 9), (7, 9), (8, 9)]
+Timestamp: 2025-06-14 13:32:41
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is to the left and below the head. The snake must first move left to reduce the x-coordinate gap, then move down to reduce the y-coordinate gap. This path avoids the snake's body and ensures no immediate collisions."
+}
+```

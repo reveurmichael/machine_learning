@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 13:33:34
+PRIMARY LLM Response Time: 2025-06-14 13:33:38
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (1, 6)
+Apple Position: (3, 6)
+Body Cells: [(1, 7), (1, 8), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (6, 8), (6, 7)]
+Timestamp: 2025-06-14 13:33:38
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["RIGHT", "RIGHT"],
+  "reasoning": "The apple is two steps to the right from the head's current position. Moving right twice will reach the apple without colliding with the snake's body, as the body is positioned vertically above and to the right of the head."
+}
+```

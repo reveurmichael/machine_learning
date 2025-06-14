@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 14:52:21
+PRIMARY LLM Response Time: 2025-06-14 14:52:25
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (8, 7)
+Apple Position: (6, 8)
+Body Cells: [(8, 6), (8, 5), (8, 4), (8, 3), (8, 2)]
+Timestamp: 2025-06-14 14:52:25
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP"],
+  "reasoning": "The snake needs to move left twice to reduce the x-coordinate from 8 to 6 and up once to increase the y-coordinate from 7 to 8. The initial direction is 'UP', so the first move cannot be 'DOWN'. Moving left twice and then up avoids collisions with the body and reaches the apple safely."
+}
+```

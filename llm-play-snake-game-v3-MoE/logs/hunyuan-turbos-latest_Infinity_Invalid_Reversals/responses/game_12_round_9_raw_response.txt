@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 14:32:31
+PRIMARY LLM Response Time: 2025-06-14 14:32:35
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (9, 9)
+Apple Position: (3, 9)
+Body Cells: [(9, 8), (8, 8), (7, 8), (6, 8)]
+Timestamp: 2025-06-14 14:32:35
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "The apple is directly to the left of the head. The snake can move left six times to reach the apple without colliding with its body, as the body is vertically aligned and does not block the path."
+}
+```

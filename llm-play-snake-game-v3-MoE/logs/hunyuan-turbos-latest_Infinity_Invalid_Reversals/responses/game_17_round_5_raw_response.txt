@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 14:56:25
+PRIMARY LLM Response Time: 2025-06-14 14:56:29
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (6, 8)
+Apple Position: (7, 6)
+Body Cells: [(5, 8), (4, 8), (4, 7)]
+Timestamp: 2025-06-14 14:56:29
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["UP", "UP", "RIGHT"],
+  "reasoning": "The snake needs to move up twice to reduce the y-coordinate from 8 to 6, then move right once to increase the x-coordinate from 6 to 7. This path avoids the body segments and ensures no collisions."
+}
+```

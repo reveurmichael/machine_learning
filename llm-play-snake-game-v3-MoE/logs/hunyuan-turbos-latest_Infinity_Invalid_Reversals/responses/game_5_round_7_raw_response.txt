@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-14 13:21:23
+PRIMARY LLM Response Time: 2025-06-14 13:21:25
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (4, 0)
+Apple Position: (4, 2)
+Body Cells: [(5, 0), (6, 0), (6, 1), (6, 2), (6, 3)]
+Timestamp: 2025-06-14 13:21:25
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["UP", "UP"],
+"reasoning": "The apple is directly above the head at (4,2). The snake can move up twice to reach the apple without colliding with its body or the walls."
+}

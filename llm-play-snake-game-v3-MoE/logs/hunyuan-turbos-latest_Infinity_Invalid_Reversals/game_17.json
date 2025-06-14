@@ -1,0 +1,300 @@
+{
+  "score": 3,
+  "steps": 18,
+  "snake_length": 4,
+  "game_over": true,
+  "game_end_reason": "WALL",
+  "round_count": 5,
+  "time_stats": {
+    "start_time": "2025-06-14 14:55:42",
+    "end_time": "2025-06-14 14:56:33",
+    "total_duration_seconds": 50.2522668838501,
+    "llm_communication_time": 17.186800751136616,
+    "game_movement_time": 0.053483331110328436,
+    "waiting_time": 18.130878208205104,
+    "other_time": 14.88110459339805,
+    "llm_communication_percent": 34.20104567792155,
+    "game_movement_percent": 0.10642968850329959,
+    "waiting_percent": 36.079722035448995,
+    "other_percent": 29.61280259812615
+  },
+  "llm_info": {
+    "primary_provider": "hunyuan",
+    "primary_model": "hunyuan-turbos-latest",
+    "parser_provider": null,
+    "parser_model": null
+  },
+  "prompt_response_stats": {
+    "avg_primary_response_time": 3.432243585586548,
+    "min_primary_response_time": 2.524815082550049,
+    "max_primary_response_time": 3.8389511108398438,
+    "avg_secondary_response_time": 0,
+    "min_secondary_response_time": 0,
+    "max_secondary_response_time": 0
+  },
+  "token_stats": {
+    "primary": {
+      "total_tokens": 10695,
+      "total_prompt_tokens": 10366,
+      "total_completion_tokens": 329,
+      "avg_total_tokens": 2139.0,
+      "avg_prompt_tokens": 2073.2,
+      "avg_completion_tokens": 65.8,
+      "request_count": 5
+    },
+    "secondary": {
+      "total_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_completion_tokens": 0,
+      "avg_total_tokens": 0,
+      "avg_prompt_tokens": 0,
+      "avg_completion_tokens": 0,
+      "request_count": 0
+    }
+  },
+  "step_stats": {
+    "valid_steps": 18,
+    "empty_steps": 0,
+    "something_is_wrong_steps": 0,
+    "invalid_reversals": 0,
+    "max_consecutive_empty_moves_reached": 0
+  },
+  "error_stats": {
+    "total_errors_from_primary_llm": 0,
+    "total_errors_from_secondary_llm": 0,
+    "error_rate_from_primary_llm": 0.0,
+    "error_rate_from_secondary_llm": 0.0
+  },
+  "planned_moves_stats": {
+    "round_1": 2,
+    "round_2": 6,
+    "round_3": 2,
+    "round_4": 6,
+    "round_5": 3
+  },
+  "metadata": {
+    "game_number": 17,
+    "timestamp": "2025-06-14 14:55:42",
+    "last_move": "UP",
+    "round_count": 5,
+    "max_consecutive_empty_moves_allowed": 20,
+    "max_consecutive_something_is_wrong_allowed": 20
+  },
+  "primary_token_stats": [
+    {
+      "prompt_tokens": 2067,
+      "completion_tokens": 43,
+      "total_tokens": 2110
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 70,
+      "total_tokens": 2141
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 74,
+      "total_tokens": 2145
+    },
+    {
+      "prompt_tokens": 2076,
+      "completion_tokens": 71,
+      "total_tokens": 2147
+    },
+    {
+      "prompt_tokens": 2081,
+      "completion_tokens": 71,
+      "total_tokens": 2152
+    }
+  ],
+  "secondary_token_stats": [],
+  "detailed_history": {
+    "apple_positions": [
+      {
+        "x": 7,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 6,
+        "y": 8
+      },
+      {
+        "x": 7,
+        "y": 6
+      }
+    ],
+    "moves": [
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "LEFT",
+      "DOWN",
+      "LEFT",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP",
+      "RIGHT",
+      "RIGHT",
+      "UP",
+      "UP"
+    ],
+    "rounds_data": {
+      "round_1": {
+        "apple_position": [
+          2,
+          6
+        ],
+        "moves": [
+          "RIGHT",
+          "RIGHT"
+        ],
+        "planned_moves": [
+          "RIGHT",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          2.524815082550049
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2067,
+            "completion_tokens": 43,
+            "total_tokens": 2110
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_2": {
+        "apple_position": [
+          2,
+          6
+        ],
+        "moves": [
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "DOWN"
+        ],
+        "planned_moves": [
+          "UP",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "LEFT",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.490339994430542
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 70,
+            "total_tokens": 2141
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_3": {
+        "apple_position": [
+          6,
+          8
+        ],
+        "moves": [
+          "LEFT",
+          "UP"
+        ],
+        "planned_moves": [
+          "LEFT",
+          "UP"
+        ],
+        "primary_response_times": [
+          3.8389511108398438
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 74,
+            "total_tokens": 2145
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_4": {
+        "apple_position": [
+          7,
+          6
+        ],
+        "moves": [
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "RIGHT",
+          "RIGHT"
+        ],
+        "planned_moves": [
+          "RIGHT",
+          "RIGHT",
+          "UP",
+          "UP",
+          "RIGHT",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          3.469456911087036
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2076,
+            "completion_tokens": 71,
+            "total_tokens": 2147
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_5": {
+        "apple_position": [
+          7,
+          6
+        ],
+        "moves": [
+          "UP",
+          "UP"
+        ],
+        "planned_moves": [
+          "UP",
+          "UP",
+          "RIGHT"
+        ],
+        "primary_response_times": [
+          3.8376548290252686
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2081,
+            "completion_tokens": 71,
+            "total_tokens": 2152
+          }
+        ],
+        "secondary_token_stats": []
+      }
+    }
+  }
+}

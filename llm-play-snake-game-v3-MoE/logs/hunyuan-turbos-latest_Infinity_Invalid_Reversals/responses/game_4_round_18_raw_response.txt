@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 13:19:26
+PRIMARY LLM Response Time: 2025-06-14 13:19:30
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (6, 8)
+Apple Position: (6, 2)
+Body Cells: [(5, 8), (4, 8), (3, 8), (2, 8), (2, 7), (2, 6), (2, 5), (2, 4), (2, 3), (3, 3), (4, 3)]
+Timestamp: 2025-06-14 13:19:30
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The apple is directly below the head, so moving 'DOWN' six times will reach it. The body is long but does not block the path downward, ensuring no collisions."
+}
+```

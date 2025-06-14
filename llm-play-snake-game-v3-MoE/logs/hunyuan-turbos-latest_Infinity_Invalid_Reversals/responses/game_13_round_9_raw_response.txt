@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 14:36:05
+PRIMARY LLM Response Time: 2025-06-14 14:36:10
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (3, 0)
+Apple Position: (1, 6)
+Body Cells: [(2, 0), (1, 0), (0, 0), (0, 1), (0, 2), (0, 3)]
+Timestamp: 2025-06-14 14:36:10
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["UP", "UP", "UP", "UP", "UP", "LEFT", "LEFT", "UP"],
+  "reasoning": "The snake needs to move up to reduce the vertical distance to the apple while avoiding its body. After moving up, it can then move left to align with the apple's x-coordinate. The path avoids collisions with the snake's body and ensures there's space to grow after eating the apple."
+}
+```

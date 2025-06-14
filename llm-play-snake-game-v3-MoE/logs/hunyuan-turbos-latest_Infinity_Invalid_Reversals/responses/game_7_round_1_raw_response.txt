@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-14 13:27:22
+PRIMARY LLM Response Time: 2025-06-14 13:27:25
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (5, 5)
+Apple Position: (4, 1)
+Body Cells: []
+Timestamp: 2025-06-14 13:27:25
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["LEFT", "LEFT", "DOWN", "DOWN", "DOWN", "DOWN"],
+"reasoning": "The apple is to the left and below the head. The snake starts with no body, so it can move directly toward the apple. The path avoids collisions and ensures there's space to grow after eating the apple."
+}

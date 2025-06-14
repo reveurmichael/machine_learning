@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 14:31:52
+PRIMARY LLM Response Time: 2025-06-14 14:31:58
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (7, 2)
+Apple Position: (3, 9)
+Body Cells: [(7, 3), (7, 4), (6, 4), (5, 4)]
+Timestamp: 2025-06-14 14:31:58
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT", "RIGHT"],
+  "reasoning": "The snake needs to move left to decrease its x-coordinate and up to increase its y-coordinate to reach the apple. The initial moves avoid the body and stay within bounds, with a detour to the right after moving up to avoid the body segments."
+}
+```

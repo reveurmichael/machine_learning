@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-14 13:21:30
+PRIMARY LLM Response Time: 2025-06-14 13:21:35
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (4, 2)
+Apple Position: (0, 3)
+Body Cells: [(4, 1), (4, 0), (5, 0), (6, 0), (6, 1), (6, 2)]
+Timestamp: 2025-06-14 13:21:35
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["LEFT", "UP", "LEFT", "UP"],
+  "reasoning": "The snake needs to move left 4 times and up 1 time to reach the apple. The first move 'LEFT' is safe as it doesn't collide with the body or walls, and subsequent moves follow a safe path avoiding the body."
+}
+```

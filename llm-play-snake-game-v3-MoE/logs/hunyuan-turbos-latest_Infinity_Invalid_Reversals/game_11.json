@@ -1,0 +1,4097 @@
+{
+  "score": 1,
+  "steps": 400,
+  "snake_length": 2,
+  "game_over": true,
+  "game_end_reason": "MAX_STEPS_REACHED",
+  "round_count": 100,
+  "time_stats": {
+    "start_time": "2025-06-14 14:11:25",
+    "end_time": "2025-06-14 14:29:24",
+    "total_duration_seconds": 1079.1216247081757,
+    "llm_communication_time": 353.46228267019615,
+    "game_movement_time": 0.9848240830469877,
+    "waiting_time": 402.9707762962207,
+    "other_time": 321.7037416587118,
+    "llm_communication_percent": 32.75462881820964,
+    "game_movement_percent": 0.09126163914223398,
+    "waiting_percent": 37.34247994568686,
+    "other_percent": 29.81162959696127
+  },
+  "llm_info": {
+    "primary_provider": "hunyuan",
+    "primary_model": "hunyuan-turbos-latest",
+    "parser_provider": null,
+    "parser_model": null
+  },
+  "prompt_response_stats": {
+    "avg_primary_response_time": 3.5296450018882752,
+    "min_primary_response_time": 2.250145673751831,
+    "max_primary_response_time": 27.906935930252075,
+    "avg_secondary_response_time": 0,
+    "min_secondary_response_time": 0,
+    "max_secondary_response_time": 0
+  },
+  "token_stats": {
+    "primary": {
+      "total_tokens": 213222,
+      "total_prompt_tokens": 207096,
+      "total_completion_tokens": 6126,
+      "avg_total_tokens": 2132.22,
+      "avg_prompt_tokens": 2070.96,
+      "avg_completion_tokens": 61.26,
+      "request_count": 100
+    },
+    "secondary": {
+      "total_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_completion_tokens": 0,
+      "avg_total_tokens": 0,
+      "avg_prompt_tokens": 0,
+      "avg_completion_tokens": 0,
+      "request_count": 0
+    }
+  },
+  "step_stats": {
+    "valid_steps": 4,
+    "empty_steps": 0,
+    "something_is_wrong_steps": 0,
+    "invalid_reversals": 396,
+    "max_consecutive_empty_moves_reached": 0
+  },
+  "error_stats": {
+    "total_errors_from_primary_llm": 0,
+    "total_errors_from_secondary_llm": 0,
+    "error_rate_from_primary_llm": 0.0,
+    "error_rate_from_secondary_llm": 0.0
+  },
+  "planned_moves_stats": {
+    "round_1": 4,
+    "round_2": 4,
+    "round_3": 4,
+    "round_4": 4,
+    "round_5": 4,
+    "round_6": 4,
+    "round_7": 4,
+    "round_8": 4,
+    "round_9": 4,
+    "round_10": 4,
+    "round_11": 4,
+    "round_12": 4,
+    "round_13": 4,
+    "round_14": 4,
+    "round_15": 4,
+    "round_16": 4,
+    "round_17": 4,
+    "round_18": 4,
+    "round_19": 4,
+    "round_20": 4,
+    "round_21": 4,
+    "round_22": 4,
+    "round_23": 4,
+    "round_24": 4,
+    "round_25": 4,
+    "round_26": 4,
+    "round_27": 4,
+    "round_28": 4,
+    "round_29": 4,
+    "round_30": 4,
+    "round_31": 4,
+    "round_32": 4,
+    "round_33": 4,
+    "round_34": 4,
+    "round_35": 4,
+    "round_36": 4,
+    "round_37": 4,
+    "round_38": 4,
+    "round_39": 4,
+    "round_40": 4,
+    "round_41": 4,
+    "round_42": 4,
+    "round_43": 4,
+    "round_44": 4,
+    "round_45": 4,
+    "round_46": 4,
+    "round_47": 4,
+    "round_48": 4,
+    "round_49": 4,
+    "round_50": 4,
+    "round_51": 4,
+    "round_52": 4,
+    "round_53": 4,
+    "round_54": 4,
+    "round_55": 4,
+    "round_56": 4,
+    "round_57": 4,
+    "round_58": 4,
+    "round_59": 4,
+    "round_60": 4,
+    "round_61": 4,
+    "round_62": 4,
+    "round_63": 4,
+    "round_64": 4,
+    "round_65": 4,
+    "round_66": 4,
+    "round_67": 4,
+    "round_68": 4,
+    "round_69": 4,
+    "round_70": 4,
+    "round_71": 4,
+    "round_72": 4,
+    "round_73": 4,
+    "round_74": 4,
+    "round_75": 4,
+    "round_76": 4,
+    "round_77": 4,
+    "round_78": 4,
+    "round_79": 4,
+    "round_80": 4,
+    "round_81": 4,
+    "round_82": 4,
+    "round_83": 4,
+    "round_84": 4,
+    "round_85": 4,
+    "round_86": 4,
+    "round_87": 4,
+    "round_88": 4,
+    "round_89": 4,
+    "round_90": 4,
+    "round_91": 4,
+    "round_92": 4,
+    "round_93": 4,
+    "round_94": 4,
+    "round_95": 4,
+    "round_96": 4,
+    "round_97": 4,
+    "round_98": 4,
+    "round_99": 4,
+    "round_100": 4
+  },
+  "metadata": {
+    "game_number": 11,
+    "timestamp": "2025-06-14 14:11:25",
+    "last_move": "UP",
+    "round_count": 100,
+    "max_consecutive_empty_moves_allowed": 20,
+    "max_consecutive_something_is_wrong_allowed": 20
+  },
+  "primary_token_stats": [
+    {
+      "prompt_tokens": 2067,
+      "completion_tokens": 69,
+      "total_tokens": 2136
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 635,
+      "total_tokens": 2706
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 75,
+      "total_tokens": 2146
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 52,
+      "total_tokens": 2123
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 67,
+      "total_tokens": 2138
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 47,
+      "total_tokens": 2118
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 49,
+      "total_tokens": 2120
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 65,
+      "total_tokens": 2136
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 52,
+      "total_tokens": 2123
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 54,
+      "total_tokens": 2125
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 47,
+      "total_tokens": 2118
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 67,
+      "total_tokens": 2138
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 54,
+      "total_tokens": 2125
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 68,
+      "total_tokens": 2139
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 77,
+      "total_tokens": 2148
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 54,
+      "total_tokens": 2125
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 52,
+      "total_tokens": 2123
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 54,
+      "total_tokens": 2125
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 72,
+      "total_tokens": 2143
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 53,
+      "total_tokens": 2124
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 47,
+      "total_tokens": 2118
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 49,
+      "total_tokens": 2120
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 53,
+      "total_tokens": 2124
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 69,
+      "total_tokens": 2140
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 86,
+      "total_tokens": 2157
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 77,
+      "total_tokens": 2148
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 74,
+      "total_tokens": 2145
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 76,
+      "total_tokens": 2147
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 47,
+      "total_tokens": 2118
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 53,
+      "total_tokens": 2124
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 49,
+      "total_tokens": 2120
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 57,
+      "total_tokens": 2128
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 49,
+      "total_tokens": 2120
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 57,
+      "total_tokens": 2128
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 53,
+      "total_tokens": 2124
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 57,
+      "total_tokens": 2128
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 70,
+      "total_tokens": 2141
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 74,
+      "total_tokens": 2145
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 57,
+      "total_tokens": 2128
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 48,
+      "total_tokens": 2119
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 51,
+      "total_tokens": 2122
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 78,
+      "total_tokens": 2149
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 50,
+      "total_tokens": 2121
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 56,
+      "total_tokens": 2127
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 57,
+      "total_tokens": 2128
+    },
+    {
+      "prompt_tokens": 2071,
+      "completion_tokens": 55,
+      "total_tokens": 2126
+    }
+  ],
+  "secondary_token_stats": [],
+  "detailed_history": {
+    "apple_positions": [
+      {
+        "x": 5,
+        "y": 9
+      },
+      {
+        "x": 5,
+        "y": 5
+      }
+    ],
+    "moves": [
+      "UP",
+      "UP",
+      "UP",
+      "UP",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL",
+      "INVALID_REVERSAL"
+    ],
+    "rounds_data": {
+      "round_1": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "planned_moves": [
+          "UP",
+          "UP",
+          "UP",
+          "UP"
+        ],
+        "primary_response_times": [
+          2.8500490188598633
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2067,
+            "completion_tokens": 69,
+            "total_tokens": 2136
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_2": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6743900775909424
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_3": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          5.430509090423584
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_4": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          27.906935930252075
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 635,
+            "total_tokens": 2706
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_5": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.041711330413818
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 75,
+            "total_tokens": 2146
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_6": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.066643238067627
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_7": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.222581148147583
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 52,
+            "total_tokens": 2123
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_8": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0889461040496826
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_9": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.778897762298584
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_10": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.4228460788726807
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_11": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.8829360008239746
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_12": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.241879940032959
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 67,
+            "total_tokens": 2138
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_13": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.4951119422912598
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_14": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.949743986129761
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_15": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6236701011657715
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_16": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6793911457061768
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_17": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.487150192260742
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 47,
+            "total_tokens": 2118
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_18": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.05668306350708
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_19": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.217487096786499
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 49,
+            "total_tokens": 2120
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_20": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          6.813299179077148
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 65,
+            "total_tokens": 2136
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_21": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.250145673751831
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_22": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.80876898765564
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 52,
+            "total_tokens": 2123
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_23": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.8721609115600586
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 54,
+            "total_tokens": 2125
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_24": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.3910837173461914
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_25": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.6023130416870117
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_26": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.5902562141418457
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_27": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.553225040435791
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_28": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.027836322784424
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_29": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0473227500915527
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_30": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.4819648265838623
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 47,
+            "total_tokens": 2118
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_31": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.061534881591797
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 67,
+            "total_tokens": 2138
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_32": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9249637126922607
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 54,
+            "total_tokens": 2125
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_33": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.522810935974121
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 68,
+            "total_tokens": 2139
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_34": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.360883951187134
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_35": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.058767080307007
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_36": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.093085765838623
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_37": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.5234220027923584
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 77,
+            "total_tokens": 2148
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_38": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.198024034500122
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_39": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.62371826171875
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_40": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.808681964874268
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 54,
+            "total_tokens": 2125
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_41": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.819768190383911
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 52,
+            "total_tokens": 2123
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_42": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.25091290473938
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_43": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.27717399597168
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 54,
+            "total_tokens": 2125
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_44": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.4082300662994385
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 72,
+            "total_tokens": 2143
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_45": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.2312819957733154
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 53,
+            "total_tokens": 2124
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_46": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6038641929626465
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 47,
+            "total_tokens": 2118
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_47": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9158718585968018
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 49,
+            "total_tokens": 2120
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_48": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.560286045074463
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_49": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0624420642852783
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_50": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.167332649230957
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 53,
+            "total_tokens": 2124
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_51": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.2733917236328125
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 69,
+            "total_tokens": 2140
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_52": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.3464319705963135
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_53": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0911407470703125
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_54": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.724034070968628
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_55": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.269656181335449
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_56": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.7138819694519043
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 86,
+            "total_tokens": 2157
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_57": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.40787410736084
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 77,
+            "total_tokens": 2148
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_58": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.9351069927215576
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_59": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.2759008407592773
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 74,
+            "total_tokens": 2145
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_60": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9862921237945557
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_61": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.7969908714294434
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 76,
+            "total_tokens": 2147
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_62": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.5111348628997803
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_63": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.486166000366211
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_64": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.621920824050903
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 47,
+            "total_tokens": 2118
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_65": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.8712289333343506
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_66": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9995222091674805
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_67": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.8375191688537598
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_68": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6422808170318604
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_69": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.634174108505249
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 53,
+            "total_tokens": 2124
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_70": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.567410945892334
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_71": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.096477746963501
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_72": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          6.489993095397949
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_73": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6314780712127686
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 49,
+            "total_tokens": 2120
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_74": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.5502381324768066
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_75": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.762028932571411
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 57,
+            "total_tokens": 2128
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_76": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.5086207389831543
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 49,
+            "total_tokens": 2120
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_77": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.9387152194976807
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_78": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.7481629848480225
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 57,
+            "total_tokens": 2128
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_79": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.6996240615844727
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_80": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9742422103881836
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_81": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.1381161212921143
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 53,
+            "total_tokens": 2124
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_82": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.047124147415161
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_83": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.7968010902404785
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_84": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0568740367889404
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_85": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.106908082962036
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_86": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.730199098587036
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 57,
+            "total_tokens": 2128
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_87": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.982646942138672
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_88": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.580076217651367
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 70,
+            "total_tokens": 2141
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_89": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.540540933609009
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_90": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.799196004867554
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 74,
+            "total_tokens": 2145
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_91": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          3.0910918712615967
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_92": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.835041046142578
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 57,
+            "total_tokens": 2128
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_93": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.674731969833374
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 48,
+            "total_tokens": 2119
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_94": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9101409912109375
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_95": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.530189037322998
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 51,
+            "total_tokens": 2122
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_96": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          4.853240966796875
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 78,
+            "total_tokens": 2149
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_97": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.7966678142547607
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 50,
+            "total_tokens": 2121
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_98": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.54616379737854
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 56,
+            "total_tokens": 2127
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_99": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.9938058853149414
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 57,
+            "total_tokens": 2128
+          }
+        ],
+        "secondary_token_stats": []
+      },
+      "round_100": {
+        "apple_position": [
+          5,
+          5
+        ],
+        "moves": [
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL",
+          "INVALID_REVERSAL"
+        ],
+        "planned_moves": [
+          "DOWN",
+          "DOWN",
+          "DOWN",
+          "DOWN"
+        ],
+        "primary_response_times": [
+          2.5343070030212402
+        ],
+        "secondary_response_times": [],
+        "primary_token_stats": [
+          {
+            "prompt_tokens": 2071,
+            "completion_tokens": 55,
+            "total_tokens": 2126
+          }
+        ],
+        "secondary_token_stats": []
+      }
+    }
+  }
+}

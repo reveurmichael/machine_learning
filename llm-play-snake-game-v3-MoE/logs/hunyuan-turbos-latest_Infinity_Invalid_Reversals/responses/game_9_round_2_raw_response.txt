@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-14 13:36:31
+PRIMARY LLM Response Time: 2025-06-14 13:36:34
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-turbos-latest
+Head Position: (4, 4)
+Apple Position: (2, 3)
+Body Cells: [(4, 5)]
+Timestamp: 2025-06-14 13:36:34
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["LEFT", "LEFT", "DOWN"],
+"reasoning": "The apple is to the left and slightly above the head. Moving left twice aligns the head with the apple's x-coordinate, then moving down reaches the apple without colliding with the body."
+}

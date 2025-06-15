@@ -13,7 +13,33 @@ Task 1 和 Task 2 任选一个。
 
 做一个类似的，俄罗斯方块游戏。Tetris Game。使用如下的方法玩游戏。
 
+### Task 3
+
+Trap the cat.
+
 ## 方法与比较
+
+
+### 启发式 + 机器学习
+
+通过 heuristic 生成各种好的步骤、数据。然后机器学习来进行分类或者回归学习。
+
+| 比较维度                  | Sokoban（推箱子）             | Tetris（俄罗斯方块）            | Snake（贪吃蛇）            |
+| --------------------- | ------------------------ | ------------------------ | --------------------- |
+| **启发式设计难度**           | ⭐⭐⭐⭐ 高（避免死局、路径规划复杂）      | ⭐⭐ 中（局部贪婪策略如“消最多行”相对容易）  | ⭐⭐ 中（避墙 + 吃最近食物较易设计）  |
+| **数据生成的自动化程度**        | ⭐⭐⭐ 较难（依赖强规划器，如 BFS/A\*） | ⭐⭐⭐⭐ 高（轻松生成局部最优数据）       | ⭐⭐⭐⭐ 高（可批量生成状态-动作对）   |
+| **数据标签清晰性**           | ⭐⭐⭐⭐ 清晰（动作唯一性强）          | ⭐⭐ 一般（动作选择可多样）           | ⭐⭐⭐ 清晰（吃/不吃，转向或直行）    |
+| **监督学习适配性**           | ⭐⭐⭐ 适配性中等（状态编码复杂）        | ⭐⭐⭐⭐ 高（特征简单，如堆叠形状 + 当前块） | ⭐⭐⭐⭐ 高（可直接用CNN或MLP建模） |
+| **适合分类还是回归建模**        | 分类（动作：上下左右），可配合路径评分回归    | 分类（左、右、旋转、掉落），可预测预期得分    | 分类（转向动作）+ 回归（食物距离）    |
+| **泛化能力**              | ⭐⭐ 一般（关卡依赖强）             | ⭐⭐⭐⭐ 较强（堆叠模式泛化好）         | ⭐⭐⭐ 一般（局部策略泛化，但路径规划差） |
+| **可作为 RL warm-start** | ✅ 是（提供初始策略指导）            | ✅ 是（可用于初始化行为策略）          | ✅ 是（提供导航策略或避障经验）      |
+| **是否适合教学入门**          | ⚠️ 难度略高（需讲解状态空间编码）       | ✅ 是（规则清晰，适合讲局部最优策略学习）    | ✅ 是（结构简单，适合入门教学和调试）   |
+
+
+🚀 拓展：也可以配合 LLM
+你甚至可以让 LLM 来生成启发式策略样本，再训练另一个小模型去模仿它。这种思路被称为：
+- Distillation of LLM policy
+- LLM-as-teacher
 
 ### 强化学习
 
@@ -133,4 +159,81 @@ This is a self-evolving LLM agent, which demonstrates prompt evolution and adapt
 ### Chain-of-Thought Navigation
 Use Ollama/DeepSeek to generate step-by-step reasoning behind move decisions. Compare CoT reasoning vs. direct policy predictions and evaluate which leads to more consistent success.
 
+### LLM-as-teacher, Distillation of LLM policy	
+
+不一定非要人手写 heuristic，也可以让大语言模型（LLM）来扮演“老师”，生成这些示例策略数据。
+
+大语言模型（如 GPT-4、Mistral、Claude）担任“教师”角色，生成状态下应该采取的动作（策略样本）。
+
+把 LLM 生成的策略（动作决策）作为“软标签”，让一个更小的模型（如 MLP、CNN、小型 Transformer）去模仿，称为“策略蒸馏”。
+
+### Heuristics 生成的数据来 引导/Distillation/fine tune LLM models
+
+绝对可以！而且这其实是**近年来非常有效的训练范式之一**，可以总结为：
+
+> ✅ **用 heuristic 策略生成高质量数据，引导、蒸馏（Distillation）、或微调（Fine-tune）LLM，使其具备领域智能或策略能力。**
+
+---
+
+### 🎯 为什么用 heuristic 来指导 LLM 是合理的？
+
+| 原因                      | 描述                                   |
+| ----------------------- | ------------------------------------ |
+| ✅ Heuristic 是结构化、稳定、可控的 | 它能提供大量正确、高质量的动作样本，避免 LLM“胡说”。        |
+| ✅ LLM 对状态-动作的理解可以迁移泛化   | 微调后，LLM 可能在新状态上生成更优的动作，甚至推理式动作。      |
+| ✅ 比人类标注更省成本             | 自动生成的策略数据可以成千上万条，比人工标注便宜得多。          |
+| ✅ 可持续增强                 | 可以不断迭代地用更好的 heuristic 生成更优的数据集来提升模型。 |
+
+---
+
+## 🧠 三种常见做法对比：
+
+| 方法                         | 描述                                                  |
+| -------------------------- | --------------------------------------------------- |
+| **Fine-tuning**            | 用 heuristic 生成的 `(状态, 文本动作)` 数据微调 LLM，让它学会“如何表述动作”。 |
+| **Distillation**           | 用 heuristic 决策替代人类专家，用来训练 LLM 模仿决策风格。               |
+| **Reinforcement Learning** | 用 heuristic reward 指导 LLM 在 RL 环境中强化训练（比如 RLAIF）。   |
+
+---
+
+### ✅ 示例：Snake Game 中 distill heuristic into LLM
+
+假设你有如下 heuristic 策略：
+
+> “蛇应该优先靠近食物，但不能撞墙。”
+
+你可以自动生成状态和动作：
+
+```json
+{
+  "state": {
+    "snake_head": [5, 5],
+    "food": [7, 5],
+    "walls": [[5,6]]
+  },
+  "action": "move down"
+}
+```
+
+然后构造成 Prompt → Response 的微调样本：
+
+```
+Prompt: 当前蛇头在(5,5)，食物在(7,5)，墙在(5,6)。请问下一步动作？
+Response: 向下移动（move down），这样可以接近食物并避免碰墙。
+```
+
+成千上万个这样的数据可以：
+
+* 微调一个 LLM 变得更“聪明”；
+* 或蒸馏为一个轻量版 ChatModel for Snake。
+
+---
+
+### ✅ 更进一步的组合：
+
+| 技术名词                              | 说明                                                |
+| --------------------------------- | ------------------------------------------------- |
+| **Self-Instruct with Heuristics** | 用启发式生成大量 instruction-style 数据，像训练 Alpaca 一样训练小模型。 |
+| **Reward Tuning via Heuristic**   | 用启发式 reward（如离食物远就惩罚）来训练 LLM 用于强化学习（见 Eureka）。    |
+| **Curriculum Distillation**       | 从简单状态逐步生成难度更高状态，用 heuristic 指导模型训练路径。             |
 

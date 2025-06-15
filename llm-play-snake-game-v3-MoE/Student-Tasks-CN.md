@@ -129,3 +129,8 @@ Before: “Avoid walls.”
 After: “Avoid wall collisions near corners.”
 
 This is a self-evolving LLM agent, which demonstrates prompt evolution and adaptation.
+
+### Chain-of-Thought Navigation
+Use Ollama/DeepSeek to generate step-by-step reasoning behind move decisions. Compare CoT reasoning vs. direct policy predictions and evaluate which leads to more consistent success.
+
+

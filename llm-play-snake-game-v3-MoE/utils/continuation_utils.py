@@ -81,8 +81,6 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         "time_statistics",
         {
             "llm_communication_time": 0,
-            "game_movement_time": 0,
-            "waiting_time": 0,
         },
     )
 

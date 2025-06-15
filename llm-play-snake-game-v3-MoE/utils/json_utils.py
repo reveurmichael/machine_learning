@@ -62,8 +62,8 @@ def save_experiment_info_json(args, directory):
         },
         "time_statistics": {
             "total_llm_communication_time": 0,
-            "total_game_movement_time": 0,
-            "total_waiting_time": 0
+            "total_primary_llm_communication_time": 0,
+            "total_secondary_llm_communication_time": 0,
         },
         "token_usage_stats": {
             "primary_llm": {
@@ -132,8 +132,8 @@ def save_session_stats(log_dir, **kwargs):
     if "time_statistics" not in summary:
         summary["time_statistics"] = {
             "total_llm_communication_time": 0,
-            "total_game_movement_time": 0,
-            "total_waiting_time": 0
+            "total_primary_llm_communication_time": 0,
+            "total_secondary_llm_communication_time": 0,
         }
     
     if "token_usage_stats" not in summary:
@@ -182,10 +182,10 @@ def save_session_stats(log_dir, **kwargs):
                 ts = value
                 _safe_set(summary["time_statistics"], "total_llm_communication_time",
                           ts.get("llm_communication_time"))
-                _safe_set(summary["time_statistics"], "total_game_movement_time",
-                          ts.get("game_movement_time"))
-                _safe_set(summary["time_statistics"], "total_waiting_time",
-                          ts.get("waiting_time"))
+                _safe_set(summary["time_statistics"], "total_primary_llm_communication_time",
+                          ts.get("primary_llm_communication_time"))
+                _safe_set(summary["time_statistics"], "total_secondary_llm_communication_time",
+                          ts.get("secondary_llm_communication_time"))
         elif key == "token_stats":
             # Handle token statistics if provided
             if value and isinstance(value, dict):

@@ -53,9 +53,6 @@ class GameData:
         self.start_time = time.time()
         self.end_time = None
         self.llm_communication_time = 0   # Total time spent communicating with LLMs
-        self.game_movement_time = 0      # Time spent in actual game movement
-        self.waiting_time = 0            # Time spent waiting (pauses, etc.)
-        self.other_time = 0              # Defensive initialization for other time
         
         # Game history
         self.moves = []
@@ -263,28 +260,6 @@ class GameData:
             self.llm_communication_time += (current_time - self.last_action_time)
             self.last_action_time = None
         
-    def record_game_movement_start(self):
-        """Mark the start of game movement."""
-        self.last_action_time = time.perf_counter()
-        
-    def record_game_movement_end(self):
-        """Record time spent on game movement."""
-        if self.last_action_time is not None:
-            current_time = time.perf_counter()
-            self.game_movement_time += (current_time - self.last_action_time)
-            self.last_action_time = None
-        
-    def record_waiting_start(self):
-        """Mark the start of waiting time."""
-        self.last_action_time = time.perf_counter()
-        
-    def record_waiting_end(self):
-        """Record time spent waiting."""
-        if self.last_action_time is not None:
-            current_time = time.perf_counter()
-            self.waiting_time += (current_time - self.last_action_time)
-            self.last_action_time = None
-    
     def record_game_end(self, reason):
         """Record the end of a game.
         
@@ -683,57 +658,17 @@ class GameData:
         }
     
     def get_time_stats(self):
-        """Calculate time-related statistics.
-        
-        Returns:
-            Dictionary of time statistics
-        """
-        # ------------------------------------------------------------------
-        # Establish a SINGLE source-of-truth for the game duration.
-        # We first compute the naive wall-clock duration, but if the sum of
-        # the tracked buckets would exceed it (possible when timers overlap
-        # very slightly due to clock granularity), we fall back to the sum.
-        # This guarantees:
-        #   • llm_communication_percent ≤ 100
-        #   • Percentages together sum to ≈ 100 (subject to rounding)
-        #   • "other_time" is never negative.
-        # ------------------------------------------------------------------
-
+        """Return the minimal time-statistics block required by the JSON schema."""
         # end_time may still be None if the game crashed before record_game_end()
         effective_end_time = self.end_time or time.time()
 
-        wall_clock_duration = effective_end_time - self.start_time
-        tracked_total = (
-            self.llm_communication_time +
-            self.game_movement_time +
-            self.waiting_time
-        )
-
-        total_duration = max(wall_clock_duration, tracked_total)
-
-        # Derive the residual "other" bucket from the authoritative duration
-        self.other_time = max(0.0, total_duration - tracked_total)
-
-        # Guard against division by zero
-        divisor = max(0.001, total_duration)
-
-        llm_percent      = (self.llm_communication_time / divisor) * 100
-        movement_percent = (self.game_movement_time       / divisor) * 100
-        waiting_percent  = (self.waiting_time            / divisor) * 100
-        other_percent    = (self.other_time              / divisor) * 100
+        total_duration = effective_end_time - self.start_time
 
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": datetime.fromtimestamp(effective_end_time).strftime("%Y-%m-%d %H:%M:%S"),
             "total_duration_seconds": total_duration,
             "llm_communication_time": self.llm_communication_time,
-            "game_movement_time": self.game_movement_time,
-            "waiting_time": self.waiting_time,
-            "other_time": self.other_time,
-            "llm_communication_percent": llm_percent,
-            "game_movement_percent": movement_percent,
-            "waiting_percent": waiting_percent,
-            "other_percent": other_percent
         }
     
     def generate_game_summary(
@@ -769,6 +704,15 @@ class GameData:
             for rk, rd in ordered_rounds.items()
         }
         
+        # Simplify the time statistics that will be persisted to JSON
+        time_stats_full = self.get_time_stats()
+        time_stats = {
+            "start_time": time_stats_full.get("start_time"),
+            "end_time": time_stats_full.get("end_time"),
+            "total_duration_seconds": time_stats_full.get("total_duration_seconds"),
+            "llm_communication_time": time_stats_full.get("llm_communication_time"),
+        }
+        
         # Create the base summary
         summary = {
             # Core game data
@@ -779,8 +723,8 @@ class GameData:
             "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
             "round_count": self.round_count,  # Add round_count at the top level
             
-            # Time statistics
-            "time_stats": self.get_time_stats(),
+            # Time statistics (simplified)
+            "time_stats": time_stats,
             
             # Provider and model info
             "llm_info": {

@@ -165,10 +165,14 @@ def process_game_over(game, game_state_info):
         if game_time_stats:
             _safe_add(time_stats, "llm_communication_time",
                       game_time_stats.get("llm_communication_time"))
-            _safe_add(time_stats, "game_movement_time",
-                      game_time_stats.get("game_movement_time"))
-            _safe_add(time_stats, "waiting_time",
-                      game_time_stats.get("waiting_time"))
+            # game_movement_time / waiting_time were removed from the schema → no aggregation needed
+            
+            # Also keep track of primary vs. secondary LLM communication time
+            primary_time = sum(getattr(game.game_state, "primary_response_times", []))
+            secondary_time = sum(getattr(game.game_state, "secondary_response_times", []))
+            
+            _safe_add(time_stats, "primary_llm_communication_time", primary_time)
+            _safe_add(time_stats, "secondary_llm_communication_time", secondary_time)
     
     # Update token statistics
     if hasattr(game.game_state, "get_token_stats"):
@@ -362,8 +366,6 @@ def handle_error(game, error_info):
         game_time_stats = game.game_state.get_time_stats()
         if time_stats and game_time_stats:
             time_stats["llm_communication_time"] = time_stats.get("llm_communication_time", 0) + game_time_stats.get("llm_communication_time", 0)
-            time_stats["game_movement_time"] = time_stats.get("game_movement_time", 0) + game_time_stats.get("game_movement_time", 0)
-            time_stats["waiting_time"] = time_stats.get("waiting_time", 0) + game_time_stats.get("waiting_time", 0)
         
         # Update token statistics
         game_token_stats = game.game_state.get_token_stats()

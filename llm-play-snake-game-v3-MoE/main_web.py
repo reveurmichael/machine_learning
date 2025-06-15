@@ -49,8 +49,9 @@ def build_state_dict(gm: GameManager):
     apple = game.apple_position.tolist() if hasattr(game.apple_position, 'tolist') else game.apple_position
 
     end_reason_readable = None
-    if game.game_end_reason:
-        end_reason_readable = END_REASON_MAP.get(game.game_end_reason, game.game_end_reason)
+    reason_code = getattr(game.game_state, "game_end_reason", None)
+    if reason_code:
+        end_reason_readable = END_REASON_MAP.get(reason_code, reason_code)
 
     return {
         'snake_positions': snake,

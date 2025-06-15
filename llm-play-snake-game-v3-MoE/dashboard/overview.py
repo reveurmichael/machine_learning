@@ -198,43 +198,18 @@ def display_experiment_details(folder_path: str):
     secondary_resp_times: List[float] = []
 
     for g in games_data.values():
-        rounds = g.get("rounds_data", {})
-        if isinstance(rounds, dict):
-            for rd in rounds.values():
-                # Collect primary times
-                primary_resp_times.extend(
-                    [t for t in rd.get("primary_response_times", []) if t > 0]
-                )
-                # Collect secondary times (if present)
-                secondary_resp_times.extend(
-                    [t for t in rd.get("secondary_response_times", []) if t > 0]
-                )
 
-        # If no *rounds_data* recorded (older logs) fall back to prompt_response_stats
-        if not rounds:
-            pstats = g.get("prompt_response_stats", {})
-            primary_resp_times.extend(
-                [
-                    pstats.get(k, 0)
-                    for k in (
-                        "min_primary_response_time",
-                        "avg_primary_response_time",
-                        "max_primary_response_time",
-                    )
-                    if pstats.get(k, 0) > 0
-                ]
-            )
-            secondary_resp_times.extend(
-                [
-                    pstats.get(k, 0)
-                    for k in (
-                        "min_secondary_response_time",
-                        "avg_secondary_response_time",
-                        "max_secondary_response_time",
-                    )
-                    if pstats.get(k, 0) > 0
-                ]
-            )
+
+        # --- Also inspect *prompt_response_stats* for per-game timings ---
+        pstats = g.get("prompt_response_stats", {})
+        if pstats:
+            # Modern log format: full list of per-round timings
+            primary_resp_times.extend([
+                t for t in pstats.get("primary_response_times", []) if t > 0
+            ])
+            secondary_resp_times.extend([
+                t for t in pstats.get("secondary_response_times", []) if t > 0
+            ])
 
     # ---------------- Primary chart ----------------
     if primary_resp_times:

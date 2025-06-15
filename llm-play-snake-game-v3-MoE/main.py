@@ -20,30 +20,35 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="LLM-guided Snake game")
     parser.add_argument(
         "--provider",
+        "--p1",
         type=str,
         default="hunyuan",
         help="LLM provider to use for primary LLM (hunyuan, ollama, deepseek, or mistral)",
     )
     parser.add_argument(
         "--model",
+        "--m1",
         type=str,
         default=None,
         help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"',
     )
     parser.add_argument(
         "--parser-provider",
+        "--p2",
         type=str,
         default=None,
         help='LLM provider to use for secondary LLM. Default: "none" (single LLM mode). Set to same as --provider for dual LLM mode.',
     )
     parser.add_argument(
         "--parser-model",
+        "--m2",
         type=str,
         default=None,
         help="Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)",
     )
     parser.add_argument(
         "--max-games",
+        "-g",
         type=int,
         default=MAX_GAMES_ALLOWED,
         help=f"Maximum number of games to play (default: {MAX_GAMES_ALLOWED})",
@@ -144,8 +149,11 @@ def parse_arguments():
         # List of arguments not allowed with continue mode
         restricted_args = [
             "--provider",
+            "--p1",
             "--model",
+            "--m1",
             "--parser-provider",
+            "--p2",
             "--parser-model",
             "--move-pause",
             "--max-steps",

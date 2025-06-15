@@ -101,6 +101,10 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
         },
     }
     
+    # ---------------- Round tracking -------------------------------
+    game_manager.round_counts = game_stats.get("round_counts", [])
+    game_manager.total_rounds = game_stats.get("total_rounds", sum(game_manager.round_counts))
+    
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1
 

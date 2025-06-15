@@ -38,10 +38,16 @@ AVAILABLE_PROVIDERS = sorted(
     }
 )
 
-DEFAULT_PROVIDER = "ollama"
-DEFAULT_MODEL = "deepseek-r1:14b"
-DEFAULT_PARSER_PROVIDER = "ollama"
-DEFAULT_PARSER_MODEL = "gemma3:12b-it-qat"
+DEFAULT_PROVIDER = "ollama"  # for Streamlit page only, not for main.py args default
+DEFAULT_MODEL = (
+    "deepseek-r1:14b"  # for Streamlit page only, not for main.py args default
+)
+DEFAULT_PARSER_PROVIDER = (
+    "ollama"  # for Streamlit page only, not for main.py args default
+)
+DEFAULT_PARSER_MODEL = (
+    "gemma3:12b-it-qat"  # for Streamlit page only, not for main.py args default
+)
 
 DIRECTIONS = {
     "UP": (0, 1),

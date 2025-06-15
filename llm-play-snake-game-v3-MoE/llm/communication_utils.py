@@ -320,8 +320,8 @@ def get_llm_response(game_manager):
             # Record the plan under the *current* round
             game_manager.current_game_moves.extend(parser_output["moves"])
             
-            # Store the full array of moves for the current round
-            game_manager.game.game_state.record_planned_moves(parser_output["moves"])
+            # Store the full array of moves for the current round via RoundManager
+            game_manager.game.game_state.round_manager.record_planned_moves(parser_output["moves"])
 
             # Set the next move
             next_move = parser_output["moves"][0] if parser_output["moves"] else None
@@ -352,7 +352,7 @@ def get_llm_response(game_manager):
         game_manager.game.game_state.record_llm_communication_end()
         
         # Ensure round data is synchronized before returning
-        game_manager.game.game_state.sync_round_data()
+        game_manager.game.game_state.round_manager.sync_round_data()
 
         # Check if we've reached the max consecutive empty moves
         if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
@@ -368,7 +368,7 @@ def get_llm_response(game_manager):
         game_manager.something_is_wrong_steps += 1
         
         # Ensure round data is synchronized BEFORE ending communication time
-        game_manager.game.game_state.sync_round_data()
+        game_manager.game.game_state.round_manager.sync_round_data()
         
         # End tracking LLM communication time even if there was an error
         game_manager.game.game_state.record_llm_communication_end()

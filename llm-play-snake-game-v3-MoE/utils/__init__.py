@@ -69,51 +69,63 @@ from .continuation_utils import (
 # Network helpers
 from .network_utils import find_free_port
 
+from .session_utils import (
+    run_replay,
+    run_web_replay,
+    run_main_web,
+    continue_game,
+    continue_game_web,
+    run_human_play,
+    run_human_play_web,
+)
+
 # Public API for the utils package
 __all__ = [
     # JSON processing
-    'extract_valid_json',
-    'preprocess_json_string',
-    'validate_json_format',
-    'extract_json_from_code_block',
-    'extract_json_from_text',
-    'extract_moves_pattern',
-    'extract_moves_from_arrays',
-    'save_experiment_info_json',
-    'save_session_stats',
-    
+    "extract_valid_json",
+    "preprocess_json_string",
+    "validate_json_format",
+    "extract_json_from_code_block",
+    "extract_json_from_text",
+    "extract_moves_pattern",
+    "extract_moves_from_arrays",
+    "save_experiment_info_json",
+    "save_session_stats",
     # File management
-    'extract_game_summary',
-    'get_next_game_number',
-    'clean_prompt_files',
-    'save_to_file',
-    'find_valid_log_folders',
-    'get_game_json_filename',
-    'get_prompt_filename',
-    'join_log_path',
-    'load_summary_data',
-    'load_game_data',
-    'get_folder_display_name',
-    
+    "extract_game_summary",
+    "get_next_game_number",
+    "clean_prompt_files",
+    "save_to_file",
+    "find_valid_log_folders",
+    "get_game_json_filename",
+    "get_prompt_filename",
+    "join_log_path",
+    "load_summary_data",
+    "load_game_data",
+    "get_folder_display_name",
     # Initialization and setup
-    'setup_llm_clients',
-    'setup_log_directories',
-    'initialize_game_state',
-    
+    "setup_llm_clients",
+    "setup_log_directories",
+    "initialize_game_state",
     # Game mechanics
-    'normalize_direction',
-    'normalize_directions',
-    'calculate_move_differences',
-    'format_body_cells_str',
-    
+    "normalize_direction",
+    "normalize_directions",
+    "calculate_move_differences",
+    "format_body_cells_str",
     # Text processing
-    'process_response_for_display',
-
+    "process_response_for_display",
     # Continuation helpers
-    'setup_continuation_session',
-    'handle_continuation_game_state',
-    'continue_from_directory',
-
+    "setup_continuation_session",
+    "handle_continuation_game_state",
+    "continue_from_directory",
     # Network helpers
-    'find_free_port',
+    "find_free_port",
+    # Session utils
+    "run_replay",
+    "run_web_replay",
+    "run_main_web",
+    "continue_game",
+    "continue_game_web",
+    "run_human_play",
+    "run_human_play_web",
 ]

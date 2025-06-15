@@ -220,7 +220,11 @@ class GameManager:
         # -----------------------------------------------------------------
         if self.game and hasattr(self.game, "game_state"):
             try:
-                self.game.game_state._flush_current_round()
+                gs = self.game.game_state
+                gs.round_manager.flush_buffer()
+                # start a new empty buffer tied to the current round number
+                from core.game_stats import RoundBuffer
+                gs.round_manager.round_buffer = RoundBuffer(number=gs.round_manager.round_count)
             except Exception as e:
                 print(Fore.YELLOW + f"⚠️  Could not flush round data: {e}")
 
@@ -228,13 +232,19 @@ class GameManager:
         # so that new moves land in a fresh buffer
         self.round_count += 1
         
+        # Keep the nested RoundManager in sync
+        if self.game and hasattr(self.game, "game_state"):
+            rm = self.game.game_state.round_manager
+            rm.round_count = self.round_count
+            if rm.round_buffer:
+                rm.round_buffer.number = self.round_count
+            
+            # Keep the flat attribute too (some serializers read it)
+            gs.round_count = self.round_count
+        
         # Sync with game state
         if self.game and hasattr(self.game, "game_state"):
-            self.game.game_state.round_count = self.round_count
-
-            # The new (empty) buffer is already in place; still call sync to
-            # guarantee any external fields (apple_position, etc.) stay aligned
-            self.game.game_state.sync_round_data()
+            self.game.game_state.round_manager.sync_round_data()
         
         # Only print the banner if the round count actually changed
         if self.round_count != old_round_count:

@@ -1,0 +1,84 @@
+from core.game_stats import RoundBuffer
+
+class RoundManager:
+    """Manages game rounds and their data."""
+    def __init__(self):
+        self.round_count = 1
+        self.rounds_data = {}
+        self.round_buffer = RoundBuffer(number=1)
+
+    def start_new_round(self, apple_position):
+        """Start a new round of moves."""
+        self.flush_buffer()
+        self.round_count += 1
+        self.round_buffer = RoundBuffer(number=self.round_count)
+        self.round_buffer.set_apple(list(apple_position) if apple_position else None)
+
+    def record_apple_position(self, position):
+        """Record an apple position."""
+        x, y = position
+        self.round_buffer.set_apple([x, y])
+        round_data = self._get_or_create_round_data(self.round_count)
+        round_data["apple_position"] = [x, y]
+
+    def record_llm_output(self, llm_output, is_primary):
+        """Records the raw output from an LLM for the current round."""
+        self.round_buffer.add_llm_output(llm_output, is_primary)
+        round_data = self._get_or_create_round_data(self.round_count)
+        key = "primary_llm_output" if is_primary else "secondary_llm_output"
+        round_data.setdefault(key, []).append(llm_output)
+
+    def record_parsed_llm_response(self, response, is_primary):
+        """Records the parsed response from an LLM for the current round."""
+        self.round_buffer.add_parsed_response(response, is_primary)
+        round_data = self._get_or_create_round_data(self.round_count)
+        key = "primary_parsed_response" if is_primary else "secondary_parsed_response"
+        round_data[key] = response
+
+    def record_planned_moves(self, moves):
+        """Record planned moves for the current round."""
+        self.round_buffer.add_moves(moves)
+
+    def sync_round_data(self):
+        """Synchronize the in-progress round buffer with the persistent `rounds_data` mapping."""
+        if not self.round_buffer:
+            return
+
+        current_round_dict = self._get_or_create_round_data(self.round_buffer.number)
+        current_round_dict.update({
+            "round": self.round_buffer.number,
+            "apple_position": self.round_buffer.apple_position,
+            "primary_llm_output": self.round_buffer.primary_llm_output,
+            "primary_parsed_response": self.round_buffer.primary_parsed_response,
+            "secondary_llm_output": self.round_buffer.secondary_llm_output,
+            "secondary_parsed_response": self.round_buffer.secondary_parsed_response,
+        })
+        current_round_dict.setdefault("planned_moves", []).extend(self.round_buffer.planned_moves)
+        
+        # Merge executed moves from the current buffer into the persistent mapping
+        executed_moves_in_dict = set(current_round_dict.setdefault("moves", []))
+        for move in self.round_buffer.moves:
+            if move not in executed_moves_in_dict:
+                current_round_dict["moves"].append(move)
+                executed_moves_in_dict.add(move)
+
+    def flush_buffer(self):
+        """Flushes the round buffer."""
+        if self.round_buffer and not self.round_buffer.is_empty():
+            self.sync_round_data()
+            self.round_buffer = None
+
+    def _get_or_create_round_data(self, round_num):
+        """Get or create round data dictionary."""
+        return self.rounds_data.setdefault(round_num, {"round": round_num})
+
+    @property
+    def current_round_data(self):
+        """Returns the data for the current round."""
+        return self._get_or_create_round_data(self.round_count)
+    
+    def get_ordered_rounds_data(self):
+        """Returns the rounds_data dictionary with keys sorted numerically."""
+        sorted_keys = sorted(self.rounds_data.keys())
+        return {key: self.rounds_data[key] for key in sorted_keys}
+    

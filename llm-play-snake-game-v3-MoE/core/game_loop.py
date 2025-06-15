@@ -32,8 +32,7 @@ def run_game_loop(game_manager):
             
             if game_manager.game_active and game_manager.game is not None:
                 try:
-                    # Start tracking game movement time for analytics
-                    game_manager.game.game_state.record_game_movement_start()
+                    # (Timer removed – we no longer track per-move wall-clock sections)
                     
                     # Check if we need a new plan from the LLM
                     if game_manager.need_new_plan:
@@ -104,13 +103,8 @@ def run_game_loop(game_manager):
                             # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_something_is_wrong = 0
                             
-                            # Standard pause between moves for gameplay rhythm
-                            game_manager.game.game_state.record_waiting_start()
-                            # Only sleep if there's a non-zero pause time
-                            pause_time = game_manager.get_pause_between_moves()
-                            if pause_time > 0 and game_manager.use_gui:
-                                time.sleep(pause_time)
-                            game_manager.game.game_state.record_waiting_end()
+                            # timer removed
+                            
                         else:
                             # Handle the case where no valid move was found
                             print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
@@ -136,15 +130,14 @@ def run_game_loop(game_manager):
                                 game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
                                 game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
                         
-                        # End movement time tracking
-                        game_manager.game.game_state.record_game_movement_end()
+                        # timer removed
                         
                     else:
                         # Skip executing planned moves if we're waiting for a new plan
                         if game_manager.awaiting_plan:
                             # Still waiting for LLM - nothing to execute this tick
                             # Close the movement-timer that was opened at the top of this loop
-                            game_manager.game.game_state.record_game_movement_end()
+                            # timer removed
                             continue
                         
                         # Execute the next move from previously planned moves
@@ -216,16 +209,8 @@ def run_game_loop(game_manager):
                                 else:
                                     print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
                             
-                            # End movement time tracking
-                            game_manager.game.game_state.record_game_movement_end()
+                            # timer removed
                             
-                            # Standard pause between moves
-                            game_manager.game.game_state.record_waiting_start()
-                            # Only sleep if there's a non-zero pause time
-                            pause_time = game_manager.get_pause_between_moves()
-                            if pause_time > 0:
-                                time.sleep(pause_time)
-                            game_manager.game.game_state.record_waiting_end()
                         else:
                             # The round is finished – flush current round and bump the counter **before**
                             # we request the next LLM plan. This keeps prompts/responses, JSON logs and

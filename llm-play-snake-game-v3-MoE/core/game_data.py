@@ -1,1249 +1,371 @@
-"""
-Game data tracking and statistics management for the Snake game.
-Provides centralized collection and reporting of game statistics.
-"""
-
-import json
 import time
+import json
 from datetime import datetime
 import numpy as np
 from utils.json_utils import NumPyJSONEncoder
 import os
-import re
-from colorama import Fore
-from utils.moves_utils import normalize_direction, normalize_directions
+# (no direct terminal color output in this module)
+from utils.moves_utils import normalize_direction
+from core.game_stats import GameStatistics
+from core.game_rounds import RoundManager
 
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
     
     def __init__(self):
         """Initialize the game data tracking."""
-        # Initialize last_action_time as None to prevent timing issues
-        self.last_action_time = None
+        self.stats = GameStatistics()
+        self.round_manager = RoundManager()
         self.reset()
     
     def reset(self):
         """Reset all tracking data to initial state."""
-        # Import config at reset time to avoid circular imports
         from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
         
-        # Game state
         self.game_number = 0
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.apple_positions = []
         self.score = 0
         self.steps = 0
-        self.empty_steps = 0
-        self.something_is_wrong_steps = 0
         self.last_move = None
         self.game_over = False
         self.game_end_reason = None
-        self.round_count = 1  # Start at 1 for first round
-        self.round_data = []  # Track LLM outputs for each round
-        
-        # Rounds data structure
-        self.rounds_data = {}
-        self.current_round_data = {}
-        
-        # Game history data
         self.snake_positions = []
         self.apple_position = None
-        
-        # Time tracking - initialize with defensive defaults
-        self.start_time = time.time()
-        self.end_time = None
-        self.llm_communication_time = 0   # Total time spent communicating with LLMs
-        
-        # Game history
         self.moves = []
         
-        # Limit configuration (copied from config for new sessions; may be overwritten in continuation mode)
         self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
         self.max_consecutive_something_is_wrong_allowed = MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
         self.max_consecutive_invalid_reversals_allowed = MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
         
-        # Step statistics
-        self.valid_steps = 0
-        self.invalid_reversals = 0
+        self.stats = GameStatistics()
+        self.round_manager = RoundManager()
+        
         self.consecutive_empty_moves_count = 0
         self.consecutive_something_is_wrong_count = 0
         self.consecutive_invalid_reversals_count = 0
-        
-        # Response times
-        self.primary_response_times = []
-        self.secondary_response_times = []
-        
-        # Token statistics - Simplified to just track totals
-        self.primary_token_stats = []
-        self.secondary_token_stats = []
-        
-        # Running totals and averages for token usage
-        self.primary_total_tokens = 0
-        self.primary_total_prompt_tokens = 0
-        self.primary_total_completion_tokens = 0
-        self.primary_avg_total_tokens = 0
-        self.primary_avg_prompt_tokens = 0
-        self.primary_avg_completion_tokens = 0
-        
-        self.secondary_total_tokens = 0
-        self.secondary_total_prompt_tokens = 0
-        self.secondary_total_completion_tokens = 0
-        self.secondary_avg_total_tokens = 0
-        self.secondary_avg_prompt_tokens = 0
-        self.secondary_avg_completion_tokens = 0
-        
-        # LLM error statistics
-        self.primary_llm_errors = 0
-        self.secondary_llm_errors = 0
-        self.primary_llm_requests = 0
-        self.secondary_llm_requests = 0
-        
     
     def start_new_round(self, apple_position):
-        """Start a new round of moves.
-        
-        Args:
-            apple_position: The position of the apple as [x, y]
-        """
-        # Always save the current round data to rounds_data, even if it's empty
-        # This ensures we don't lose any data during transitions
-        if self.current_round_data:
-            # Use the current round_count (will be incremented later in communication_utils.py)
-            round_key = f"round_{self.round_count}"
-            
-            # Make a deep copy of the current round data to store in rounds_data
-            # This prevents changes to current_round_data from affecting the saved data
-            self.rounds_data[round_key] = self.current_round_data.copy()
-            
-            # Log that we saved round data
-            print(f"💾 Saved data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
-        
-        # IMPORTANT: We DO NOT increment round_count here anymore
-        # Round count is ONLY incremented in llm/communication_utils.py after getting a valid move from the LLM
-        # This ensures rounds in JSON files match the prompt/response file counts
-        
-        # Reset current round data
-        self.current_round_data = {
-            "apple_position": apple_position,
-            "moves": [],
-            "primary_response_times": [],
-            "secondary_response_times": [],
-            "primary_token_stats": [],
-            "secondary_token_stats": []
-        }
+        """Start a new round of moves."""
+        self.round_manager.start_new_round(apple_position)
     
     def record_move(self, move, apple_eaten=False):
-        """Record a move and update relevant statistics.
-        
-        Args:
-            move: The direction moved ("UP", "DOWN", "LEFT", "RIGHT")
-            apple_eaten: Whether an apple was eaten on this move
-        """
-        # Canonical case/whitespace handling in one place
+        """Record a move and update relevant statistics."""
         move = normalize_direction(move)
-        
-        # Always update critical game state values regardless of duplicate moves
         self.steps += 1
-        self.valid_steps += 1
-        self.consecutive_empty_moves_count = 0  # Reset on valid move
-        self.consecutive_invalid_reversals_count = 0  # Reset on valid move
+        self.stats.step_stats.valid += 1
+        self.consecutive_empty_moves_count = 0
+        self.consecutive_invalid_reversals_count = 0
         
-        # Always update score if an apple was eaten
         if apple_eaten:
             self.score += 1
-            # Snake length is now calculated through the property getter
             
-        
-        # Update global game state
         self.last_move = move
         self.moves.append(move)
-        
-        # Update current round data
-        if "moves" not in self.current_round_data:
-            self.current_round_data["moves"] = []
-            
-        # Only add the move to current_round_data, not directly to rounds_data
-        # This prevents duplication as sync_round_data will handle copying to rounds_data
-        self.current_round_data["moves"].append(move)
-        
-        # Note: We removed the direct append to round_data["moves"] to prevent duplication
-        
-        # Note: Apple eaten handling moved to top of function
-        # Note: Round count is ONLY incremented in one place:
-        # 1. llm/communication_utils.py after getting a valid move from the LLM
-        # It is NOT incremented when an apple is eaten during planned moves
+        self.round_manager.round_buffer.add_move(move)
     
     def record_apple_position(self, position):
-        """Record an apple position.
-        
-        Args:
-            position: The position of the apple as [x, y]
-        """
+        """Record an apple position."""
         x, y = position
         self.apple_positions.append({"x": x, "y": y})
-        self.current_round_data["apple_position"] = [x, y]
-        
-        # Also store directly in the rounds_data for the current round
-        round_data = self._get_or_create_round_data(self.round_count)
-        
-        # Update apple position in the round data
-        round_data["apple_position"] = [x, y]
+        self.round_manager.record_apple_position(position)
     
     def record_empty_move(self):
-        """Record an empty move (no valid direction)."""
-        self.empty_steps += 1
+        """Record an empty move."""
+        self.stats.step_stats.empty += 1
         self.steps += 1
-
-        
-        # ------------------------------------------------------------------
-        # Keep the invariant: len(self.moves) == self.steps
-        # Represent a no-op tick with the sentinel string "EMPTY" so that
-        # replays/analytics can distinguish it from real moves.
-        # ------------------------------------------------------------------
         self.moves.append("EMPTY")
-
-        # Ensure the current round's executed-moves list stays aligned
-        if "moves" not in self.current_round_data:
-            self.current_round_data["moves"] = []
-        self.current_round_data["moves"].append("EMPTY")
+        self.round_manager.round_buffer.add_move("EMPTY")
     
     def record_invalid_reversal(self, attempted_move, current_direction):
-        """Record an invalid reversal move.
-        
-        Args:
-            attempted_move: The direction that was attempted ("UP", "DOWN", etc.)
-            current_direction: The current direction of the snake
-        """
-        self.invalid_reversals += 1
-        self.steps += 1  # Increment steps for invalid reversals
+        """Record an invalid reversal move."""
+        self.stats.step_stats.invalid_reversals += 1
+        self.steps += 1
         self.consecutive_invalid_reversals_count += 1
-        
-        # ------------------------------------------------------------------
-        # Keep the invariant: len(self.moves) == self.steps
-        # Treat the blocked reversal as a distinctive pseudo-move so that
-        # replay and statistics stay consistent.  We use the sentinel string
-        # "INVALID_REVERSAL" – consumers can ignore or colour-code it.
-        # ------------------------------------------------------------------
-
         self.moves.append("INVALID_REVERSAL")
-
-        # Also make sure the current round's executed-moves list stays aligned
-        if "moves" not in self.current_round_data:
-            self.current_round_data["moves"] = []
-        self.current_round_data["moves"].append("INVALID_REVERSAL")
+        self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
     
     def record_something_is_wrong_move(self):
-        """Record an error move (error in LLM response)."""
-        self.something_is_wrong_steps += 1
+        """Record an error move."""
+        self.stats.step_stats.something_wrong += 1
         self.steps += 1
-
-        # ------------------------------------------------------------------
-        # Represent this no-op tick with the sentinel string
-        # "SOMETHING_IS_WRONG" so that analytics and replays can distinguish
-        # it from EMPTY or normal moves.
-        # ------------------------------------------------------------------
         self.moves.append("SOMETHING_IS_WRONG")
-
-        # Keep the current round's executed-moves list aligned
-        if "moves" not in self.current_round_data:
-            self.current_round_data["moves"] = []
-        self.current_round_data["moves"].append("SOMETHING_IS_WRONG")
+        self.round_manager.round_buffer.add_move("SOMETHING_IS_WRONG")
     
-    def record_llm_communication_start(self):
-        """Mark the start of communication with an LLM."""
-        self.last_action_time = time.perf_counter()
-        
-    def record_llm_communication_end(self):
-        """Record time spent communicating with an LLM."""
-        if self.last_action_time is not None:
-            current_time = time.perf_counter()
-            self.llm_communication_time += (current_time - self.last_action_time)
-            self.last_action_time = None
-        
     def record_game_end(self, reason):
-        """Record the end of a game.
-        
-        Args:
-            reason: The reason the game ended ("WALL", "SELF", "MAX_STEPS_REACHED", 
-                   "MAX_EMPTY_MOVES_REACHED", "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED")
-        """
-        # Standardize reason naming to ensure consistency
-        if reason == "MAX_STEPS":
-            reason = "MAX_STEPS_REACHED"
-        elif reason in ("EMPTY_MOVES", "MAX_EMPTY_MOVES_REACHED"):
-            reason = "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED"
-        elif reason == "ERROR_THRESHOLD":
-            reason = "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED"
-        
-        self.game_end_reason = reason
+        """Record the end of a game."""
+        if not self.game_over:
+            self.stats.time_stats.record_end_time()
         self.game_over = True
-        self.game_number += 1
-        self.end_time = time.time()
-        
-        # IMPORTANT: We do NOT increment round_count here
-        # Round count is ONLY incremented in llm/communication_utils.py after getting a valid move from the LLM
-        # This ensures rounds in JSON files match the prompt/response file counts
-        
-        # Save current round data without incrementing round count
-        # This ensures we capture the final state without creating an extra round at game end
-        if self.current_round_data:
-            # Process the current round data
-            print(f"Processing {self.round_count} rounds with data")
-            
-            # Only save if there's meaningful data to save
-            if (self.current_round_data.get("moves") or 
-                self.current_round_data.get("apple_position") is not None or
-                self.current_round_data.get("primary_response_times") or
-                self.current_round_data.get("secondary_response_times")):
-                
-                # Get round key for the current round
-                round_key = f"round_{self.round_count}"
-                
-                # Initialize round data if it doesn't exist
-                if round_key not in self.rounds_data:
-                    self.rounds_data[round_key] = {
-                        "apple_position": None,
-                        "moves": [],
-                        "primary_response_times": [],
-                        "secondary_response_times": [],
-                        "primary_token_stats": [],
-                        "secondary_token_stats": []
-                    }
-                
-                # Save the round data by copying the current round data
-                for key, value in self.current_round_data.items():
-                    if value is not None:
-                        # Make a deep copy to prevent future modifications from affecting saved data
-                        if isinstance(value, list):
-                            self.rounds_data[round_key][key] = value.copy()
-                        elif isinstance(value, dict):
-                            self.rounds_data[round_key][key] = value.copy()
-                        else:
-                            self.rounds_data[round_key][key] = value
-                
-                # Log that we saved the final round data
-                print(f"💾 Saved data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
-    
-    def record_primary_response_time(self, duration):
-        """Record the time taken for a primary LLM response.
-        
-        Args:
-            duration: The duration in seconds
-        """
-        # Add to the global list
-        self.primary_response_times.append(duration)
-        
-        # Also store in current_round_data for the round
-        self.current_round_data.setdefault("primary_response_times", []).append(duration)
-        
-        # Get primary response stats
-        primary_times = self.primary_response_times
-        
-        # Update prompt_response_stats for reporting
-        if primary_times:
-            self.avg_primary_response_time = sum(primary_times) / len(primary_times)
-            self.min_primary_response_time = min(primary_times)
-            self.max_primary_response_time = max(primary_times)
-    
-    def record_secondary_response_time(self, duration):
-        """Record the time taken for a secondary LLM response.
-        
-        Args:
-            duration: The duration in seconds
-        """
-        # Add to the global list
-        self.secondary_response_times.append(duration)
-        
-        # Also store in current_round_data for the round
-        self.current_round_data.setdefault("secondary_response_times", []).append(duration)
-        
-        # Get secondary response stats
-        secondary_times = self.secondary_response_times
-        
-        # Update prompt_response_stats for reporting
-        if secondary_times:
-            self.avg_secondary_response_time = sum(secondary_times) / len(secondary_times)
-            self.min_secondary_response_time = min(secondary_times)
-            self.max_secondary_response_time = max(secondary_times)
-    
-    def record_primary_token_stats(self, prompt_tokens, completion_tokens):
-        """Record token usage for the primary LLM.
-        
-        Args:
-            prompt_tokens: Number of tokens in the prompt
-            completion_tokens: Number of tokens in the completion
-        """
-        # Calculate total tokens
-        total_tokens = prompt_tokens + completion_tokens
-        
-        # Create token stats dict
-        token_stats = {
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-            "total_tokens": total_tokens
-        }
-        
-        # Store in current_round_data: keep only the latest entry for this round
-        primary_list = self.current_round_data.setdefault("primary_token_stats", [])
-        if primary_list:
-            primary_list[0] = token_stats  # replace existing
-        else:
-            primary_list.append(token_stats)
-        
-        # Update running totals
-        self.primary_total_tokens += total_tokens
-        self.primary_total_prompt_tokens += prompt_tokens
-        self.primary_total_completion_tokens += completion_tokens
-        
-        # Update averages
-        request_count = len(self.primary_token_stats)
-        if request_count > 0:
-            self.primary_avg_total_tokens = self.primary_total_tokens / request_count
-            self.primary_avg_prompt_tokens = self.primary_total_prompt_tokens / request_count
-            self.primary_avg_completion_tokens = self.primary_total_completion_tokens / request_count
-        
-        # Add to global history for game-level aggregation
-        self.primary_token_stats.append(token_stats)
-    
-    def record_secondary_token_stats(self, prompt_tokens, completion_tokens):
-        """Record token usage for the secondary LLM.
-        
-        Args:
-            prompt_tokens: Number of tokens in the prompt
-            completion_tokens: Number of tokens in the completion
-        """
-        # Calculate total tokens
-        total_tokens = prompt_tokens + completion_tokens
-        
-        # Create token stats dict
-        token_stats = {
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-            "total_tokens": total_tokens
-        }
-        
-        # Store in current_round_data: keep only the latest entry for this round
-        secondary_list = self.current_round_data.setdefault("secondary_token_stats", [])
-        if secondary_list:
-            secondary_list[0] = token_stats  # replace existing
-        else:
-            secondary_list.append(token_stats)
-        
-        # Update running totals
-        self.secondary_total_tokens += total_tokens
-        self.secondary_total_prompt_tokens += prompt_tokens
-        self.secondary_total_completion_tokens += completion_tokens
-        
-        # Update averages
-        request_count = len(self.secondary_token_stats)
-        if request_count > 0:
-            self.secondary_avg_total_tokens = self.secondary_total_tokens / request_count
-            self.secondary_avg_prompt_tokens = self.secondary_total_prompt_tokens / request_count
-            self.secondary_avg_completion_tokens = self.secondary_total_completion_tokens / request_count
-        
-        # Add to global history for game-level aggregation
-        self.secondary_token_stats.append(token_stats)
-    
-    def record_continuation(self, previous_session_data=None):
-        """Record that this game is a continuation of a previous session.
-        
-        Args:
-            previous_session_data: Optional dictionary containing data from the previous session
-        """
-        # Initialize continuation tracking attributes if they don't exist
-        if not hasattr(self, 'is_continuation'):
-            self.is_continuation = True
-            self.continuation_count = 1
-            self.continuation_timestamps = []
-            self.continuation_metadata = []
-        else:
-            self.continuation_count += 1
-        
-        # Record continuation timestamp
-        continuation_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.continuation_timestamps.append(continuation_timestamp)
-        
-        # Store metadata about this continuation
-        continuation_meta = {
-            "timestamp": continuation_timestamp,
-            "continuation_number": self.continuation_count
-        }
-        
-        # Add previous session data if provided
-        if previous_session_data:
-            # Extract game statistics from summary.json
-            if 'game_count' in previous_session_data:
-                continuation_meta['previous_session'] = {
-                    'total_games': previous_session_data.get('game_count', 0),
-                    'total_score': previous_session_data.get('total_score', 0),
-                    'total_steps': previous_session_data.get('total_steps', 0),
-                    'scores': previous_session_data.get('game_scores', [])
-                }
-        
-        # Add this continuation's metadata
-        self.continuation_metadata.append(continuation_meta)
-    
-    def synchronize_with_summary_json(self, summary_data):
-        """Synchronize game state with data from summary.json.
-        
-        Args:
-            summary_data: Dictionary containing data from summary.json
-        """
-        # Import settings from summary.json
-        if 'max_consecutive_empty_moves_allowed' in summary_data:
-            self.max_consecutive_empty_moves_allowed = summary_data['max_consecutive_empty_moves_allowed']
-        
-        if 'max_consecutive_invalid_reversals_allowed' in summary_data:
-            self.max_consecutive_invalid_reversals_allowed = summary_data['max_consecutive_invalid_reversals_allowed']
-        
-        # Import step statistics if available
-        if 'step_stats' in summary_data:
-            step_stats = summary_data['step_stats']
-            # Don't overwrite empty_steps and something_is_wrong_steps as they're already tracked from game files
-            # But import valid_steps and invalid_reversals
-            self.valid_steps = step_stats.get('valid_steps', 0)
-            self.invalid_reversals = step_stats.get('invalid_reversals', 0)
-        
-        # Initialize continuation attributes if needed
-        if not hasattr(self, 'is_continuation'):
-            self.is_continuation = False
-            self.continuation_count = 0
-            self.continuation_timestamps = []
-            self.continuation_metadata = []
-    
-    def record_round_data(self, round_data):
-        """Record data for a game round.
-        
-        Args:
-            round_data: Dictionary containing round data:
-                - round_number: Round number
-                - apple_position: Position of the apple as [x, y]
-                - moves: List of moves made in this round
-                - primary_response_time: Time taken to get primary LLM response (optional)
-                - secondary_response_time: Time taken to get secondary LLM response (optional)
-                - primary_tokens: Dictionary with primary token stats (optional)
-                - secondary_tokens: Dictionary with secondary token stats (optional)
-        """
-        round_number = round_data.get('round_number')
-        apple_position = round_data.get('apple_position')
-        moves = round_data.get('moves', [])
-        
-        # Format the round key
-        round_key = f"round_{round_number}"
-        
-        # Initialize round data if not exists
-        if round_key not in self.rounds_data:
-            self.rounds_data[round_key] = {
-                "apple_position": None,
-                "moves": [],
-                "primary_response_times": [],
-                "secondary_response_times": [],
-                "primary_token_stats": [],
-                "secondary_token_stats": []
-            }
-        
-        # Update round data
-        self.rounds_data[round_key]["apple_position"] = apple_position
-        
-        # Update moves - store the full array of moves from the LLM
-        if moves:
-            # Store the entire array of moves from the LLM
-            self.rounds_data[round_key]["moves"] = moves
-        
-        # Update response times if provided
-        if 'primary_response_time' in round_data and round_data['primary_response_time'] is not None:
-            self.rounds_data[round_key]["primary_response_times"].append(round_data['primary_response_time'])
-        
-        if 'secondary_response_time' in round_data and round_data['secondary_response_time'] is not None:
-            self.rounds_data[round_key]["secondary_response_times"].append(round_data['secondary_response_time'])
-        
-        # Update token stats if provided
-        if 'primary_tokens' in round_data and round_data['primary_tokens'] is not None:
-            self.rounds_data[round_key]["primary_token_stats"].append(round_data['primary_tokens'])
-        
-        if 'secondary_tokens' in round_data and round_data['secondary_tokens'] is not None:
-            self.rounds_data[round_key]["secondary_token_stats"].append(round_data['secondary_tokens'])
-    
-    def get_step_stats(self):
-        """Get the statistics for game steps.
-        
-        Returns:
-            Dictionary with step statistics
-        """
-        return {
-            "valid_steps": self.valid_steps,
-            "empty_steps": self.empty_steps, 
-            "something_is_wrong_steps": self.something_is_wrong_steps,
-            "invalid_reversals": self.invalid_reversals,  # Include the count of invalid reversals
-        }
+        self.game_end_reason = reason
+
+    def record_llm_output(self, llm_output, is_primary):
+        """Records the raw output from an LLM."""
+        self.round_manager.record_llm_output(llm_output, is_primary)
+
+    def record_parsed_llm_response(self, response, is_primary):
+        """Records the parsed response from an LLM."""
+        self.round_manager.record_parsed_llm_response(response, is_primary)
     
     def get_prompt_response_stats(self):
-        """Calculate prompt response statistics.
-        
-        Returns:
-            Dictionary of prompt response statistics
-        """
-        # Primary LLM stats
-        primary_times = self.primary_response_times
-        avg_primary = np.mean(primary_times) if primary_times else 0
-        min_primary = np.min(primary_times) if primary_times else 0
-        max_primary = np.max(primary_times) if primary_times else 0
-        
-        # Secondary LLM stats
-        secondary_times = self.secondary_response_times
-        avg_secondary = np.mean(secondary_times) if secondary_times else 0
-        min_secondary = np.min(secondary_times) if secondary_times else 0
-        max_secondary = np.max(secondary_times) if secondary_times else 0
-        
+        """Returns a dictionary with prompt and response time statistics."""
+        primary_times = self.stats.primary_response_times
+        secondary_times = self.stats.secondary_response_times
         return {
-            "avg_primary_response_time": avg_primary,
-            "min_primary_response_time": min_primary,
-            "max_primary_response_time": max_primary,
-            "avg_secondary_response_time": avg_secondary,
-            "min_secondary_response_time": min_secondary,
-            "max_secondary_response_time": max_secondary
+            "primary_response_times": primary_times,
+            "secondary_response_times": secondary_times,
+            "avg_primary_response_time": float(np.mean(primary_times)) if primary_times else 0.0,
+            "avg_secondary_response_time": float(np.mean(secondary_times)) if secondary_times else 0.0,
         }
     
     def get_token_stats(self):
-        """Calculate token statistics.
-        
-        Returns:
-            Dictionary of token statistics
-        """
-        # Calculate primary LLM token stats
-        primary_prompt = [stat["prompt_tokens"] for stat in self.primary_token_stats]
-        primary_completion = [stat["completion_tokens"] for stat in self.primary_token_stats]
-        primary_total = [stat["total_tokens"] for stat in self.primary_token_stats]
-        
-        # Calculate secondary LLM token stats
-        secondary_prompt = [stat["prompt_tokens"] for stat in self.secondary_token_stats]
-        secondary_completion = [stat["completion_tokens"] for stat in self.secondary_token_stats]
-        secondary_total = [stat["total_tokens"] for stat in self.secondary_token_stats]
-        
+        """Returns a dictionary with token usage statistics."""
         return {
-            "primary": {
-                "total_tokens": sum(primary_total) if primary_total else 0,
-                "total_prompt_tokens": sum(primary_prompt) if primary_prompt else 0,
-                "total_completion_tokens": sum(primary_completion) if primary_completion else 0,
-                "avg_total_tokens": np.mean(primary_total) if primary_total else 0,
-                "avg_prompt_tokens": np.mean(primary_prompt) if primary_prompt else 0,
-                "avg_completion_tokens": np.mean(primary_completion) if primary_completion else 0,
-                "request_count": len(primary_total)
-            },
-            "secondary": {
-                "total_tokens": sum(secondary_total) if secondary_total else 0,
-                "total_prompt_tokens": sum(secondary_prompt) if secondary_prompt else 0,
-                "total_completion_tokens": sum(secondary_completion) if secondary_completion else 0,
-                "avg_total_tokens": np.mean(secondary_total) if secondary_total else 0,
-                "avg_prompt_tokens": np.mean(secondary_prompt) if secondary_prompt else 0,
-                "avg_completion_tokens": np.mean(secondary_completion) if secondary_completion else 0,
-                "request_count": len(secondary_total)
-            }
+            "primary_total_tokens": self.stats.primary_total_tokens,
+            "primary_avg_total_tokens": self.stats.primary_avg_total_tokens,
+            "primary_total_prompt_tokens": self.stats.primary_total_prompt_tokens,
+            "primary_avg_prompt_tokens": self.stats.primary_avg_prompt_tokens,
+            "primary_total_completion_tokens": self.stats.primary_total_completion_tokens,
+            "primary_avg_completion_tokens": self.stats.primary_avg_completion_tokens,
+            "secondary_total_tokens": self.stats.secondary_total_tokens,
+            "secondary_avg_total_tokens": self.stats.secondary_avg_total_tokens,
+            "secondary_total_prompt_tokens": self.stats.secondary_total_prompt_tokens,
+            "secondary_avg_prompt_tokens": self.stats.secondary_avg_prompt_tokens,
+            "secondary_total_completion_tokens": self.stats.secondary_total_completion_tokens,
+            "secondary_avg_completion_tokens": self.stats.secondary_avg_completion_tokens,
         }
     
     def get_error_stats(self):
-        """Calculate error statistics.
-        
-        Returns:
-            Dictionary of error statistics
-        """
-        primary_error_rate = self.primary_llm_errors / max(1, self.primary_llm_requests) * 100
-        secondary_error_rate = self.secondary_llm_errors / max(1, self.secondary_llm_requests) * 100
-        
+        """Returns a dictionary with LLM error statistics."""
         return {
-            "total_errors_from_primary_llm": self.primary_llm_errors,
-            "total_errors_from_secondary_llm": self.secondary_llm_errors,
-            "error_rate_from_primary_llm": primary_error_rate,
-            "error_rate_from_secondary_llm": secondary_error_rate
+            "primary_llm_errors": self.stats.primary_llm_errors,
+            "secondary_llm_errors": self.stats.secondary_llm_errors,
+            "primary_error_rate": self.stats.primary_llm_errors / self.stats.primary_llm_requests if self.stats.primary_llm_requests > 0 else 0,
+            "secondary_error_rate": self.stats.secondary_llm_errors / self.stats.secondary_llm_requests if self.stats.secondary_llm_requests > 0 else 0,
         }
-    
-    def get_time_stats(self):
-        """Return the minimal time-statistics block required by the JSON schema."""
-        # end_time may still be None if the game crashed before record_game_end()
-        effective_end_time = self.end_time or time.time()
 
-        total_duration = effective_end_time - self.start_time
+    def generate_game_summary(self, primary_provider, primary_model, parser_provider, parser_model, **kwargs):
+        """Create a JSON-serialisable dictionary that fully captures a completed game.
 
-        return {
-            "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
-            "end_time": datetime.fromtimestamp(effective_end_time).strftime("%Y-%m-%d %H:%M:%S"),
-            "total_duration_seconds": total_duration,
-            "llm_communication_time": self.llm_communication_time,
-        }
-    
-    def generate_game_summary(
-        self,
-        primary_provider,
-        primary_model,
-        parser_provider,
-        parser_model,
-        max_consecutive_something_is_wrong_allowed=5,
-        max_consecutive_empty_moves_allowed=None,
-        max_consecutive_invalid_reversals_allowed=None,
-    ):
-        """Generate a summary of the game.
-        
-        Args:
-            primary_provider: The provider of the primary LLM
-            primary_model: The model of the primary LLM
-            parser_provider: The provider of the parser LLM
-            parser_model: The model of the parser LLM
-            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
-            max_consecutive_empty_moves_allowed: Maximum consecutive empty moves allowed before game over
-            max_consecutive_invalid_reversals_allowed: Maximum consecutive invalid reversals allowed before game over
-            
-        Returns:
-            Dictionary with game summary
+        The returned structure still caters for the replay modules by including a
+        `detailed_history` block composed of flat arrays alongside per-round
+        data.  This keeps downstream visualisation unchanged while allowing the
+        core implementation to evolve independently.
         """
-        # Snake length is now calculated through the property getter
-        
-        # Create planned_moves_stats for debugging - recalculate safely
-        ordered_rounds = self._get_ordered_rounds_data()
-        planned_moves_stats = {
-            rk: len(rd.get("planned_moves", []))
-            for rk, rd in ordered_rounds.items()
-        }
-        
-        # Simplify the time statistics that will be persisted to JSON
-        time_stats_full = self.get_time_stats()
-        time_stats = {
-            "start_time": time_stats_full.get("start_time"),
-            "end_time": time_stats_full.get("end_time"),
-            "total_duration_seconds": time_stats_full.get("total_duration_seconds"),
-            "llm_communication_time": time_stats_full.get("llm_communication_time"),
-        }
-        
-        # Create the base summary
-        summary = {
-            # Core game data
+        summary: dict = {
+            # High-level outcome ------------------------------------------------
             "score": self.score,
             "steps": self.steps,
-            "snake_length": self.snake_length,  # Using the property
+            "snake_length": self.snake_length,
             "game_over": self.game_over,
-            "game_end_reason": getattr(self, 'game_end_reason', "UNKNOWN"),
-            "round_count": self.round_count,  # Add round_count at the top level
-            
-            # Time statistics (simplified)
-            "time_stats": time_stats,
-            
-            # Provider and model info
+            "game_end_reason": self.game_end_reason,
+            "round_count": self.round_manager.round_count,
+
+            # Timings / stats ---------------------------------------------------
+            "time_stats": self.stats.time_stats.summary(),
+            "prompt_response_stats": self.get_prompt_response_stats(),
+            "token_stats": self.get_token_stats(),
+            "step_stats": self.stats.step_stats.asdict(),
+            "error_stats": self.get_error_stats(),
+
+            # LLM configuration -------------------------------------------------
             "llm_info": {
                 "primary_provider": primary_provider,
                 "primary_model": primary_model,
-                "parser_provider": parser_provider if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none" else None,
-                "parser_model": parser_model if parser_provider and hasattr(parser_provider, 'lower') and parser_provider.lower() != "none" else None
+                "parser_provider": parser_provider,
+                "parser_model": parser_model,
             },
-            
-            # Important statistics
-            "prompt_response_stats": self.get_prompt_response_stats(),
-            "token_stats": self.get_token_stats(),
-            "step_stats": self.get_step_stats(),
-            "error_stats": self.get_error_stats(),
-            
-            # Planned moves stats
-            "planned_moves_stats": planned_moves_stats,  # Add planned_moves_stats
-            
-            # Metadata
+
+            # Misc metadata ----------------------------------------------------
             "metadata": {
-                "game_number": self.game_number,
                 "timestamp": self.timestamp,
-                "last_move": self.last_move,
-                "round_count": self.round_count,  
-                "max_consecutive_empty_moves_allowed": (
-                    max_consecutive_empty_moves_allowed
-                    if max_consecutive_empty_moves_allowed is not None
-                    else self.max_consecutive_empty_moves_allowed
-                ),
-                "max_consecutive_something_is_wrong_allowed": max_consecutive_something_is_wrong_allowed,
-                "max_consecutive_invalid_reversals_allowed": (
-                    max_consecutive_invalid_reversals_allowed
-                    if max_consecutive_invalid_reversals_allowed is not None
-                    else self.max_consecutive_invalid_reversals_allowed
-                ),
+                "game_number": self.game_number,
+                "round_count": self.round_manager.round_count,
+                # Copy through any extra metadata the caller supplies.
+                **kwargs.get("metadata", {}),
             },
-            
-            # Raw token stats data (for detailed analysis)
-            "primary_token_stats": self.primary_token_stats,
-            "secondary_token_stats": self.secondary_token_stats,
-            
-            # Detailed game history (at bottom)
-            # Use self.moves directly for the authoritative move list
+
+            # Full replay data --------------------------------------------------
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self.moves.copy(),  # Flat list for replay, use copy to avoid mutation
-                "rounds_data": self._get_ordered_rounds_data()
-            }
-        }
-        
-        # Add continuation data if this is a continuation
-        if hasattr(self, 'is_continuation') and self.is_continuation:
-            summary["continuation_info"] = {
-                "is_continuation": True,
-                "continuation_count": self.continuation_count,
-                "continuation_timestamps": self.continuation_timestamps,
-                "continuation_metadata": self.continuation_metadata
+                "moves": self.moves,
+                "rounds_data": self.round_manager.get_ordered_rounds_data(),
+            },
             }
         
         return summary
     
-    def _get_ordered_rounds_data(self):
-        """Get an ordered version of rounds_data with keys sorted numerically.
+    def save_game_summary(self, filepath, **kwargs):
+        """Save the game summary to a file."""
+        summary_dict = self.generate_game_summary(**kwargs)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w") as f:
+            json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
         
-        Returns:
-            Ordered dictionary with rounds_data sorted by round number
-        """
-        # Extract round numbers from keys
-        round_keys = list(self.rounds_data.keys())
-        
-        # Log information about round data for debugging
-        print(f"Processing {len(round_keys)} rounds with data")
-        
-        # Sort the keys numerically (extract the number from 'round_X')
-        sorted_keys = sorted(round_keys, key=lambda k: int(k.split('_')[1]))
-        
-        # Create new ordered dictionary
-        ordered_rounds_data = {}
-        for key in sorted_keys:
-            ordered_rounds_data[key] = self.rounds_data[key]
-            
-        return ordered_rounds_data
-    
-    def load_game_data(self, game_controller=None):
-        """Load game data directly from the game controller instance or ensure all rounds are present.
-        
-        This method ensures that all rounds up to round_count are properly represented in the
-        rounds_data dictionary, preserving all LLM interactions.
-        
-        Args:
-            game_controller: GameController or GameLogic instance (optional)
-        """
-        # Calculate expected round count based on game activity
-        calculated_round_count = self._calculate_expected_round_count() + 1  # +1 for current round
-        
-        # Update the round_count to match the actual game state
-        self.round_count = calculated_round_count
-        
-        # If we already have the expected number of rounds, no need to do anything
-        if self.rounds_data and len(self.rounds_data) >= self.round_count:
-            return
-            
-        # No game controller provided or reconstructing from existing data
-        if not game_controller:
-            # Create placeholder entries for all rounds up to round_count
-            for round_num in range(1, self.round_count + 1):  # Include the current round
-                self._get_or_create_round_data(round_num)
-            return
-            
-        # Clear existing rounds_data to ensure clean state only if we're reconstructing everything
-        if len(self.rounds_data) == 0:
-            self.rounds_data = {}
-        
-        # The rest of the implementation remains for backward compatibility
-        # Create round data for each apple position we have
-        for i, apple_pos in enumerate(self.apple_positions):
-            round_num = i + 1  # Convert to 1-based index for round numbering
-            round_key = f'round_{round_num}'
-            
-            # Skip if we already have data for this round
-            if round_key in self.rounds_data:
-                continue
-            
-            # Get the moves for this round
-            moves = []
-            if i < len(self.moves):
-                moves = [self.moves[i]]
-            
-            # Create round data with the apple position and move
-            round_data = {
-                "apple_position": [apple_pos["x"], apple_pos["y"]],
-                "moves": moves,
-                "primary_response_times": [],
-                "secondary_response_times": [],
-                "primary_token_stats": [],
-                "secondary_token_stats": []
-            }
-            
-            # Add token stats and response times if available
-            if i < len(self.primary_response_times):
-                round_data["primary_response_times"] = [self.primary_response_times[i]]
-            
-            if i < len(self.primary_token_stats):
-                round_data["primary_token_stats"] = [self.primary_token_stats[i]]
-            
-            if i < len(self.secondary_response_times):
-                round_data["secondary_response_times"] = [self.secondary_response_times[i]]
-            
-            if i < len(self.secondary_token_stats):
-                round_data["secondary_token_stats"] = [self.secondary_token_stats[i]]
-            
-            # Save the round data
-            self.rounds_data[round_key] = round_data
-        
-        # Ensure we have entries for all rounds up to round_count
-        for round_num in range(1, self.round_count + 1):  # Include the current round
-            self._get_or_create_round_data(round_num)
-    
-    def save_game_summary(
-        self,
-        filepath,
-        primary_provider,
-        primary_model,
-        parser_provider,
-        parser_model,
-        max_consecutive_something_is_wrong_allowed=5,
-        max_consecutive_empty_moves_allowed=None,
-        max_consecutive_invalid_reversals_allowed=None,
-    ):
-        """Save the game summary to a JSON file.
-        
-        Ensures that all rounds data is properly included in the JSON, matching the number of
-        rounds in the prompt/response files.
-        
-        Args:
-            filepath: Path to save the JSON file
-            primary_provider: The provider of the primary LLM
-            primary_model: The model of the primary LLM
-            parser_provider: The provider of the parser LLM
-            parser_model: The model of the parser LLM
-            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
-            max_consecutive_empty_moves_allowed: Maximum consecutive empty moves allowed before game over
-            max_consecutive_invalid_reversals_allowed: Maximum consecutive invalid reversals allowed before game over
-            
-        Returns:
-            Path to the saved file
-        """
-        # Get the game number from the filepath
-        match = re.search(r'game_(\d+)\.json', os.path.basename(filepath))
-        if match:
-            game_number = int(match.group(1))
-        
-        # Calculate the actual round_count based ONLY on LLM communications
-        actual_round_count = self._calculate_actual_round_count()
-        
-        # Update round_count if it doesn't match LLM communication count
-        if actual_round_count != self.round_count:
-            print(f"🔄 Setting round_count to {actual_round_count} based strictly on LLM communication count")
-            self.round_count = actual_round_count
-        
-        # ── Consolidate data from any "orphan" rounds (those created after the final
-        #    LLM interaction) into the last legitimate round so that the fine-grained
-        #    move history stays in sync with the global `moves` list.  These extra
-        #    rounds can be produced when the snake keeps executing the tail of a
-        #    planned-move list after the final apple (or right before a collision).
+        # A secondary *_detailed.json file is still created for analytic
+        # tooling that relied on it.  The format remains unchanged.
+        detailed_filepath = filepath.replace(".json", "_detailed.json")
+        self.save_detailed_history(detailed_filepath)
+        return summary_dict
 
-        original_round_keys = list(self.rounds_data.keys())
-        if original_round_keys:
-            # e.g. ["round_1", "round_2", "round_3"]
-            # Any index > actual_round_count is an orphan.
-            last_valid_key = f"round_{self.round_count}"
-
-            # Ensure the last valid round exists; create an empty shell if needed.
-            if last_valid_key not in self.rounds_data:
-                self._get_or_create_round_data(self.round_count)
-
-            for key in original_round_keys:
-                round_idx = int(key.split("_")[1])
-                if round_idx <= self.round_count:
-                    continue  # keep as-is
-
-                # Move its content (currently only MOTION data) into the last valid round
-                orphan_data = self.rounds_data.get(key, {})
-                if not orphan_data:
-                    continue
-
-                target_round = self.rounds_data[last_valid_key]
-
-                # Merge MOVES — avoid duplicates and keep order.
-                orphan_moves = orphan_data.get("moves", [])
-                if orphan_moves:
-                    existing_moves = target_round.get("moves", [])
-                    target_round["moves"] = existing_moves + orphan_moves
-
-                # No other fields (response times, token stats) should exist in an orphan
-                # round, but copy them defensively if present and not already set.
-                for misc_key in ["primary_response_times", "secondary_response_times",
-                                 "primary_token_stats", "secondary_token_stats",
-                                 "planned_moves", "apple_position"]:
-                    if misc_key in orphan_data and orphan_data[misc_key]:
-                        if misc_key not in target_round or not target_round[misc_key]:
-                            target_round[misc_key] = orphan_data[misc_key]
-
-                # After merging, drop the orphan round
-                self.rounds_data.pop(key, None)
-
-        # ── Now build the canonical list of valid rounds (1 … round_count) ────────────
-        valid_keys = {f"round_{i}" for i in range(1, self.round_count + 1)}
-
-        clean_rounds_data = {k: v for k, v in self.rounds_data.items() if k in valid_keys}
-
-        # Replace the original rounds_data with our clean version
-        self.rounds_data = clean_rounds_data
-        
-        # Get ordered rounds data for the JSON
-        ordered_rounds_data = self._get_ordered_rounds_data()
-        
-        # Generate and save the summary
-        summary = self.generate_game_summary(
-            primary_provider,
-            primary_model,
-            parser_provider,
-            parser_model,
-            max_consecutive_something_is_wrong_allowed,
-            max_consecutive_empty_moves_allowed,
-            max_consecutive_invalid_reversals_allowed,
-        )
-        
-        # Validate the summary before saving
-        from utils.json_utils import validate_game_summary
-        is_valid, error_message = validate_game_summary(summary)
-        if not is_valid:
-            print(f"⚠️ Warning: Game summary validation failed: {error_message}")
-        
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(summary, f, indent=2, cls=NumPyJSONEncoder)
-            
-        # Only print this message if debug mode is enabled, to avoid duplicate messages with record_game_end
-        if os.getenv("SNAKE_DEBUG"):
-            print(f"💾 Saved data for round {self.round_count} with {len(self.current_round_data.get('moves', []))} moves")
-            
-        return filepath
-    
-    def record_planned_moves(self, moves):
-        """Record the full array of moves planned by the LLM for the current round.
-        
-        Args:
-            moves: List of moves returned by the LLM (["UP", "DOWN", "LEFT", "RIGHT", ...])
-        """
-        if moves and isinstance(moves, list):
-            # Canonical case/whitespace handling in one place
-            from utils.moves_utils import normalize_directions
-            standardized_moves = normalize_directions(moves)
-            
-            # Store the planned moves for the current round
-            # but DON'T update the current_round_data["moves"] to avoid duplication
-            # The moves will be added individually as they're executed by record_move
-            
-            # Add to current_round_data (used for the current round)
-            self.current_round_data["planned_moves"] = standardized_moves.copy()
-            
-            # Store directly in the rounds_data for reference only
-            round_data = self._get_or_create_round_data(self.round_count)
-            
-            # Store the planned moves in a separate field to avoid duplication
-            round_data["planned_moves"] = standardized_moves.copy()
-            
-            # Important: We don't add these to self.moves yet - they'll be added
-            # individually as they're executed by record_move
-    
-    def sync_round_data(self):
-        """Synchronize the current round data with rounds_data.
-        
-        This ensures that the current round's data is properly saved to rounds_data
-        before continuing with game operations.
-        """
-        if not self.current_round_data:
-            return
-            
-        # Get or create round data for current round
-        round_key = f"round_{self.round_count}"
-        if round_key not in self.rounds_data:
-            self.rounds_data[round_key] = {
-                "apple_position": None,
-                "moves": [],
-                "planned_moves": [],
-                "primary_response_times": [],
-                "secondary_response_times": [],
-                "primary_token_stats": [],
-                "secondary_token_stats": []
-            }
-            
-        round_data = self.rounds_data[round_key]
-        
-        # Track if any changes were made
-        changes_made = False
-        
-        # Copy all data from current_round_data to round_data
-        for key, value in self.current_round_data.items():
-            # Skip None values
-            if value is None:
-                continue
-                
-            # Handle array-like objects (lists, numpy arrays)
-            if isinstance(value, (list, tuple, np.ndarray)):
-                if len(value) > 0:  # Only copy non-empty arrays
-                    # Create a deep copy to prevent future modifications from affecting this data
-                    if isinstance(value, (list, tuple)):
-                        if key == "moves":
-                            # Special handling for moves to prevent duplicates
-                            # Use append-only delta to preserve proper order
-                            existing = round_data.get(key, [])
-                            if len(value) > len(existing):
-                                # Copy ONLY the new slice
-                                round_data[key] = existing + value[len(existing):]
-                                changes_made = True
-                        else:
-                            # For other lists, check if there are actual changes
-                            if key not in round_data or round_data[key] != value:
-                                # For other lists, just copy the entire list
-                                round_data[key] = value.copy()
-                                changes_made = True
-                    else:  # numpy array
-                        # For numpy arrays, always assume changes (difficult to compare efficiently)
-                        round_data[key] = value.copy()
-                        changes_made = True
-            # Handle dictionaries
-            elif isinstance(value, dict):
-                if value:  # Only copy non-empty dicts
-                    if key not in round_data or round_data[key] != value:
-                        round_data[key] = value.copy()
-                        changes_made = True
-            # Handle other types (strings, numbers, etc.)
-            else:
-                if key not in round_data or round_data[key] != value:
-                    round_data[key] = value
-                    changes_made = True
-                
-        # Log the sync operation only if changes were made
-        if changes_made:
-            print(f"🔄 Synchronized data for round {self.round_count}")
-    
-    def _get_or_create_round_data(self, round_num):
-        """Get existing round data or create new round data for the specified round number.
-        
-        Args:
-            round_num: The round number
-            
-        Returns:
-            Dictionary containing the round data
-        """
-        round_key = f"round_{round_num}"
-        
-        # Create the round entry if it doesn't exist
-        if round_key not in self.rounds_data:
-            self.rounds_data[round_key] = {
-                "apple_position": None,
-                "moves": [],
-                "planned_moves": [],
-                "primary_response_times": [],
-                "secondary_response_times": [],
-                "primary_token_stats": [],
-                "secondary_token_stats": []
-            }
-            
-            # If we have an apple position for this round, add it
-            if (self.apple_positions is not None and 
-                len(self.apple_positions) > 0):
-                
-                # Use the latest apple position available
-                apple_index = min(round_num - 1, len(self.apple_positions) - 1)
-                
-                # Handle numpy array specifically
-                if isinstance(self.apple_positions, np.ndarray):
-                    if apple_index < len(self.apple_positions) and len(self.apple_positions[0]) >= 2:
-                        x, y = self.apple_positions[0][0], self.apple_positions[0][1]
-                        self.rounds_data[round_key]["apple_position"] = [x, y]
-                # Handle list of dictionaries
-                elif isinstance(self.apple_positions[apple_index], dict):
-                    apple_pos = self.apple_positions[apple_index]
-                    self.rounds_data[round_key]["apple_position"] = [apple_pos["x"], apple_pos["y"]]
-                # Handle list of lists or tuples
-                elif isinstance(self.apple_positions[apple_index], (list, tuple)):
-                    x, y = self.apple_positions[apple_index]
-                    self.rounds_data[round_key]["apple_position"] = [x, y]
-                
-        # Get the current apple position for this round
-        apple_pos = self.rounds_data[round_key].get("apple_position")
-        
-        # Ensure we always have a valid apple position
-        apple_pos_is_empty = (apple_pos is None or 
-                             (isinstance(apple_pos, (list, tuple, np.ndarray)) and len(apple_pos) == 0))
-        
-        if apple_pos_is_empty:
-            # First try to use an apple from apple_positions
-            if self.apple_positions and len(self.apple_positions) > 0:
-                # Use the most recent apple position as a fallback
-                latest_apple = self.apple_positions[-1]
-                if isinstance(latest_apple, dict):
-                    self.rounds_data[round_key]["apple_position"] = [latest_apple["x"], latest_apple["y"]]
-                elif isinstance(latest_apple, (list, tuple)):
-                    self.rounds_data[round_key]["apple_position"] = list(latest_apple)
-                elif isinstance(latest_apple, np.ndarray):
-                    self.rounds_data[round_key]["apple_position"] = latest_apple.tolist()
-            else:
-                # If all else fails, use a default position
-                self.rounds_data[round_key]["apple_position"] = [5, 5]  # Default position
-                
-        return self.rounds_data[round_key]
-    
-    def _calculate_expected_round_count(self):
-        """Calculate the expected round count based on LLM interactions only.
-        
-        Returns:
-            The expected round count based on LLM interactions
-        """
-        # Base expected rounds only on LLM interactions and apple positions, not on moves
-        # This prevents huge round counts when there are many duplicate moves
-        expected_rounds_from_apples = len(self.apple_positions) if self.apple_positions is not None and len(self.apple_positions) > 0 else 0
-        expected_rounds_from_responses = len(self.primary_response_times) if self.primary_response_times else 0
-        
-        # The round_count should be at least the maximum of these values
-        return max(expected_rounds_from_responses,
-                  expected_rounds_from_apples,
-                  self.round_count) 
-    
-    def _calculate_actual_round_count(self):
-        """Calculate the actual round count based on LLM communications only.
-        
-        This method ensures round count is strictly based on the number of 
-        LLM interactions (send/receive), corresponding to prompt/response files.
-        
-        Returns:
-            The count of LLM interactions
-        """
-        # ONLY use LLM response times as the source of truth
-        # This directly corresponds to the number of prompt/response files
-        return len(self.primary_response_times) if self.primary_response_times else 0 
+    def save_detailed_history(self, filepath):
+        """Saves the detailed round-by-round history to a file."""
+        self.round_manager.flush_buffer()
+        history_data = {
+            "game_number": self.game_number,
+            "timestamp": self.timestamp,
+            "score": self.score,
+            "steps": self.steps,
+            "game_end_reason": self.game_end_reason,
+            "time_stats": self.stats.time_stats.summary(),
+            "step_stats": self.stats.step_stats.asdict(),
+            "token_stats": self.get_token_stats(),
+            "error_stats": self.get_error_stats(),
+            "prompt_response_stats": self.get_prompt_response_stats(),
+                "apple_positions": self.apple_positions,
+            "snake_positions": self.snake_positions,
+            "moves": self.moves,
+            "rounds_data": self.round_manager.get_ordered_rounds_data()
+        }
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w") as f:
+            json.dump(history_data, f, cls=NumPyJSONEncoder, indent=4)
 
     @property
     def snake_length(self):
-        """Calculate the snake length based on score.
-        
-        Returns:
-            The current length of the snake (score + initial length of 1)
-        """
-        return self.score + 1 
+        """Returns the length of the snake."""
+        return len(self.snake_positions)
 
-    def to_json(self, primary_provider=None, primary_model=None, parser_provider=None, parser_model=None, max_consecutive_something_is_wrong_allowed=5):
-        """Wrapper method for generate_game_summary to ensure compatibility with process_game_over.
-        
-        Args:
-            primary_provider: The provider of the primary LLM
-            primary_model: The model of the primary LLM
-            parser_provider: The provider of the parser LLM
-            parser_model: The model of the parser LLM
-            max_consecutive_something_is_wrong_allowed: Maximum consecutive errors allowed before game over
+    # ------------------------------------------------------------------
+    # Delegating wrappers for GameStatistics
+    # ------------------------------------------------------------------
+
+    def record_llm_communication_start(self):
+        """Proxy to GameStatistics."""
+        self.stats.record_llm_communication_start()
+
+    def record_llm_communication_end(self):
+        """Proxy to GameStatistics."""
+        self.stats.record_llm_communication_end()
+
+    def record_primary_response_time(self, duration: float):
+        self.stats.record_primary_response_time(duration)
+
+    def record_secondary_response_time(self, duration: float):
+        self.stats.record_secondary_response_time(duration)
+
+    def record_primary_token_stats(self, prompt_tokens: int, completion_tokens: int):
+        self.stats.record_primary_token_stats(prompt_tokens, completion_tokens)
+
+    def record_secondary_token_stats(self, prompt_tokens: int, completion_tokens: int):
+        self.stats.record_secondary_token_stats(prompt_tokens, completion_tokens)
+
+    def record_primary_llm_error(self):
+        self.stats.primary_llm_errors += 1
+
+    def record_secondary_llm_error(self):
+        self.stats.secondary_llm_errors += 1
+
+    # ------------------------------------------------------------------
+    # Continuation-mode helpers (needed by utils/continuation_utils.py)
+    # ------------------------------------------------------------------
+
+    def record_continuation(self, previous_session_data: dict | None = None):
+        """Mark this run as a continuation of a previous experiment.
+
+        The old monolithic version just kept some metadata lists; we
+        reproduce the same fields so that code reading summary.json later
+        still finds them.
+        """
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Lazily create the attributes the first time we are called.
+        if not hasattr(self, "is_continuation"):
+            self.is_continuation = True
+            self.continuation_count = 1
+            self.continuation_timestamps = [timestamp]
+            self.continuation_metadata = []
+        else:
+            self.continuation_count += 1
+            self.continuation_timestamps.append(timestamp)
+
+        meta = {
+            "timestamp": timestamp,
+            "continuation_number": self.continuation_count,
+        }
+
+        # If the caller passes a summary-dict from the previous run, keep
+        # the compact stats block that the old code recorded.
+        if previous_session_data and "game_count" in previous_session_data:
+            meta["previous_session"] = {
+                "total_games": previous_session_data.get("game_count", 0),
+                "total_score": previous_session_data.get("total_score", 0),
+                "total_steps": previous_session_data.get("total_steps", 0),
+                "scores": previous_session_data.get("game_scores", []),
+            }
+
+        self.continuation_metadata.append(meta)
+
+    def synchronize_with_summary_json(self, summary_data: dict):
+        """Pull tunable limits and step counters from an existing summary.json.
+
+        Only the handful of fields that `utils.continuation_utils` relies on
+        are copied; everything else remains unchanged.
+        """
+        if not summary_data:
+            return
             
-        Returns:
-            Dictionary with game summary
-        """
-        return self.generate_game_summary(primary_provider, primary_model, parser_provider, parser_model, max_consecutive_something_is_wrong_allowed) 
+        # copy limit settings so the new session respects the old rules
+        self.max_consecutive_empty_moves_allowed = summary_data.get(
+            "max_consecutive_empty_moves_allowed",
+            self.max_consecutive_empty_moves_allowed,
+        )
+        self.max_consecutive_invalid_reversals_allowed = summary_data.get(
+            "max_consecutive_invalid_reversals_allowed",
+            self.max_consecutive_invalid_reversals_allowed,
+        )
 
-    def _flush_current_round(self):
-        """Persist the buffered data of the active round and reset the buffer.
+        # step counters
+        step_stats = summary_data.get("step_stats", {})
+        self.stats.step_stats.valid = step_stats.get("valid_steps", self.stats.step_stats.valid)
+        self.stats.step_stats.invalid_reversals = step_stats.get(
+            "invalid_reversals", self.stats.step_stats.invalid_reversals
+        ) 
 
-        Must be invoked BEFORE round_count is incremented, otherwise the data
-        would end up under the wrong round key.
-        """
-        # First, make sure any pending deltas are pushed to rounds_data
-        if self.current_round_data:
-            self.sync_round_data()
+    # --- Quick accessors required by utils/game_manager_utils ----------
 
-        # Start a pristine buffer for the next round
-        self.current_round_data = {
-            "apple_position": None,
-            "moves": [],
-            "primary_response_times": [],
-            "secondary_response_times": [],
-            "primary_token_stats": [],
-            "secondary_token_stats": []
-        } 
+    @property
+    def valid_steps(self) -> int:
+        return self.stats.step_stats.valid
+
+    @property
+    def invalid_reversals(self) -> int:
+        return self.stats.step_stats.invalid_reversals
+
+    @property
+    def empty_steps(self) -> int:
+        return self.stats.step_stats.empty
+
+    @property
+    def something_is_wrong_steps(self) -> int:
+        return self.stats.step_stats.something_wrong
+
+    # ------------------------------------------------------------------
+    # Time statistics view (used by game_manager_utils)
+    # ------------------------------------------------------------------
+
+    def get_time_stats(self) -> dict:
+        """Return wall-clock timings needed for session aggregation."""
+        # No longer track movement/waiting breakdowns – just return the
+        # coarse timing summary.
+        return self.stats.time_stats.summary()
+
+    # ------------------------------------------------------------------
+    # Misc helpers expected by utils.game_manager_utils
+    # ------------------------------------------------------------------
+
+    def _calculate_actual_round_count(self) -> int:
+        """Return the number of rounds that actually hold data."""
+        return len([r for r in self.round_manager.rounds_data.values() if r])
+
+  

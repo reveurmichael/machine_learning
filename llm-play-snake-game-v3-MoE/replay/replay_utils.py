@@ -5,28 +5,9 @@ Enables visualization of past gameplay and integration with analytics tools.
 """
 
 import os
-import subprocess
 import json
 from pathlib import Path
 from utils.file_utils import get_game_json_filename, join_log_path
-
-def run_replay(log_dir, game_number=None, move_pause=1.0):
-    """Run a replay of a specific game.
-    
-    Args:
-        log_dir: Directory containing game logs
-        game_number: Specific game number to replay
-        move_pause: Pause between moves in seconds
-        
-    Returns:
-        Process return code
-    """
-    cmd = ["python", "replay.py", "--log-dir", log_dir, "--move-pause", str(move_pause)]
-    
-    if game_number is not None:
-        cmd.extend(["--game", str(game_number)])
-    
-    return subprocess.call(cmd)
 
 def check_game_summary_for_moves(log_dir, game_number):
     """Check if a game summary file contains moves.

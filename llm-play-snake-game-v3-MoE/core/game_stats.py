@@ -9,8 +9,6 @@ __all__ = [
     "TimeStats",
     "TokenStats",
     "RoundData",
-    "DetailedHistory",
-    "GameSummary",
     "GameStatistics",
 ]
 
@@ -97,60 +95,6 @@ class RoundData:
         }
 
 
-@dataclass
-class DetailedHistory:
-    """Flat arrays plus per-round breakdown for full replay capability."""
-
-    apple_positions: List[dict] = field(default_factory=list)  # [{"x": .., "y": ..}, ...]
-    moves: List[str] = field(default_factory=list)             # global ordered move list
-    rounds_data: Dict[str, RoundData] = field(default_factory=dict)  # key: "round_N"
-
-    def asdict(self) -> dict:
-        return {
-            "apple_positions": self.apple_positions,
-            "moves": self.moves,
-            "rounds_data": {k: v.asdict() for k, v in self.rounds_data.items()},
-        }
-
-
-@dataclass
-class GameSummary:
-    """Top-level summary structure for a completed game."""
-
-    score: int
-    steps: int
-    snake_length: int
-    game_over: bool
-    game_end_reason: str
-    round_count: int
-    time_stats: dict
-    llm_info: dict
-    prompt_response_stats: dict
-    token_stats: dict
-    step_stats: dict
-    error_stats: dict
-    metadata: dict
-    detailed_history: DetailedHistory
-
-    def to_json(self) -> dict:
-        """Return a fully serialisable representation."""
-        return {
-            "score": self.score,
-            "steps": self.steps,
-            "snake_length": self.snake_length,
-            "game_over": self.game_over,
-            "game_end_reason": self.game_end_reason,
-            "round_count": self.round_count,
-            "time_stats": self.time_stats,
-            "llm_info": self.llm_info,
-            "prompt_response_stats": self.prompt_response_stats,
-            "token_stats": self.token_stats,
-            "step_stats": self.step_stats,
-            "error_stats": self.error_stats,
-            "metadata": self.metadata,
-            "detailed_history": self.detailed_history.asdict(),
-        }
-
 
 @dataclass
 class StepStats:
@@ -167,27 +111,6 @@ class StepStats:
             "empty_steps": self.empty,
             "something_is_wrong_steps": self.something_wrong,
             "invalid_reversals": self.invalid_reversals,
-        }
-
-
-@dataclass
-class ErrorStats:
-    """Aggregate error counters and rates."""
-
-    primary_errors: int = 0
-    secondary_errors: int = 0
-    primary_requests: int = 0
-    secondary_requests: int = 0
-
-    def asdict(self) -> dict:
-        def _rate(err: int, req: int) -> float:
-            return (err / req * 100) if req else 0
-
-        return {
-            "total_errors_from_primary_llm": self.primary_errors,
-            "total_errors_from_secondary_llm": self.secondary_errors,
-            "error_rate_from_primary_llm": _rate(self.primary_errors, self.primary_requests),
-            "error_rate_from_secondary_llm": _rate(self.secondary_errors, self.secondary_requests),
         }
 
 

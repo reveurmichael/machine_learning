@@ -6,27 +6,22 @@ positions.  Keeping them here avoids scattering small movement helpers
 across unrelated files (text_utils, game_manager_utils, etc.).
 """
 
-from typing import Iterable, List, Union
+from typing import List
 
 # ------------------------------------------------------------
 # Canonicalising direction tokens
 # ------------------------------------------------------------
 
-DIRECTION_STR = Union[str, int, float]
-
-
-def normalize_direction(move: DIRECTION_STR):
+def normalize_direction(move: str):
     """Return a canonical representation of a single direction token.
 
     * Non-string values are returned unchanged (defensive pass-through).
     * Strings are upper-cased and stripped so that "right\n" → "RIGHT".
     """
-    if isinstance(move, str):
-        return move.strip().upper()
-    return move
+    return move.strip().upper()
 
 
-def normalize_directions(moves: Iterable[DIRECTION_STR]) -> List[DIRECTION_STR]:
+def normalize_directions(moves: List[str]) -> List[str]:
     """Vectorised wrapper around *normalize_direction*."""
     return [normalize_direction(m) for m in moves]
 
@@ -56,9 +51,9 @@ def is_reverse(dir_a: str, dir_b: str) -> bool:
     )
 
 
-# ------------------------------------------------------------
+# ------------------------------------------
 # Simple positional analytics (used in prompt engineering)
-# ------------------------------------------------------------
+# ------------------------------------------
 
 def calculate_move_differences(head_pos, apple_pos):
     """Return a human-readable diff between *head_pos* and *apple_pos*.

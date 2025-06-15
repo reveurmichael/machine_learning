@@ -1,10 +1,8 @@
-import time
 import json
 from datetime import datetime
 import numpy as np
 from utils.json_utils import NumPyJSONEncoder
 import os
-# (no direct terminal color output in this module)
 from utils.moves_utils import normalize_direction
 from core.game_stats import GameStatistics
 from core.game_rounds import RoundManager

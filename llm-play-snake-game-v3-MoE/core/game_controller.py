@@ -6,6 +6,7 @@ Provides core game logic that can run with or without a GUI.
 from typing import List, Tuple
 
 import numpy as np
+from numpy.typing import NDArray
 from config import GRID_SIZE, DIRECTIONS
 from core.game_data import GameData
 from utils.game_manager_utils import check_collision
@@ -14,15 +15,13 @@ from utils.moves_utils import normalize_direction, is_reverse
 class GameController:
     """Base class for the Snake game controller."""
 
-    def __init__(self, grid_size=GRID_SIZE, use_gui=True):
+    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True):
         """Initialize the game controller.
         
         Args:
             grid_size: Size of the game grid
             use_gui: Whether to use GUI for display
         """
-        if not isinstance(grid_size, int) or grid_size <= 0:
-            raise ValueError(f"grid_size must be a positive integer, got {grid_size}")
 
         # Game state variables
         self.grid_size = grid_size
@@ -73,7 +72,7 @@ class GameController:
         self.gui = gui_instance
         self.use_gui = (gui_instance is not None)
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset the game to the initial state."""
         # Reset game state
         self.snake_positions = np.array([[self.grid_size//2, self.grid_size//2]])
@@ -106,13 +105,13 @@ class GameController:
         # Sync initial snake body into GameData so snake_length starts correct
         self.game_state.snake_positions = self.snake_positions.tolist()
 
-    def draw(self):
+    def draw(self) -> None:
         """Draw the current game state if GUI is available."""
         if self.use_gui and self.gui:
             # Specific drawing handled by the GUI implementation
             pass
 
-    def _update_board(self):
+    def _update_board(self) -> None:
         """Update the game board with current snake and apple positions."""
         # Clear the board
         self.board.fill(self.board_info["empty"])
@@ -125,7 +124,11 @@ class GameController:
         x, y = self.apple_position
         self.board[y, x] = self.board_info["apple"]
 
-    def filter_invalid_reversals(self, moves: List[str], current_direction: str | None = None) -> List[str]:
+    def filter_invalid_reversals(
+        self,
+        moves: List[str],
+        current_direction: str = None,
+    ) -> List[str]:
         """Filter out invalid reversal moves from a sequence.
         
         Args:
@@ -160,7 +163,7 @@ class GameController:
 
         return filtered_moves
 
-    def _generate_apple(self):
+    def _generate_apple(self) -> NDArray[np.int_]:
         """Generate a new apple at a random empty position.
         
         Returns:
@@ -183,7 +186,7 @@ class GameController:
 
                 return position
 
-    def set_apple_position(self, position):
+    def set_apple_position(self, position: List[int]) -> bool:
         """Set the apple position manually.
         
         Args:
@@ -227,7 +230,7 @@ class GameController:
             print(f"Error setting apple position: {e}")
             return False
 
-    def make_move(self, direction_key):
+    def make_move(self, direction_key: str) -> Tuple[bool, bool]:
         """Execute a move in the specified direction.
         
         Args:
@@ -252,7 +255,7 @@ class GameController:
         # Don't allow reversing direction directly
         if (
             self.current_direction is not None and
-            _is_reverse(direction_key, self._get_current_direction_key())
+            is_reverse(direction_key, self._get_current_direction_key())
         ):
             print(f"Tried to reverse direction: {direction_key}. No move will be made.")
 
@@ -352,7 +355,7 @@ class GameController:
 
         return True, apple_eaten  # Game continues, with or without apple eaten
 
-    def _check_collision(self, position, is_eating_apple_flag):
+    def _check_collision(self, position: NDArray[np.int_], is_eating_apple_flag: bool) -> Tuple[bool, bool]:
         """Check if a position collides with the walls or snake body.
         
         Args:
@@ -364,7 +367,7 @@ class GameController:
         """
         return check_collision(position, self.snake_positions, self.grid_size, is_eating_apple_flag)
 
-    def _get_current_direction_key(self):
+    def _get_current_direction_key(self) -> str:
         """Get the current direction as a key string.
         
         Returns:
@@ -381,16 +384,16 @@ class GameController:
         return "UNKNOWN"
 
     @property
-    def score(self):
+    def score(self) -> int:
         """Get the current score from the game state."""
         return self.game_state.score
 
     @property
-    def steps(self):
+    def steps(self) -> int:
         """Get the current steps from the game state."""
         return self.game_state.steps
 
     @property
-    def snake_length(self):
+    def snake_length(self) -> int:
         """Return the current length of the snake (number of segments)."""
         return len(self.snake_positions) 

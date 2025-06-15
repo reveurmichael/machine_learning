@@ -54,9 +54,16 @@ def run_game_loop(game_manager):
                             # Update UI to show LLM response and planned moves
                             game_manager.game.draw()
                             
-                            # Execute the move 3 second after displaying the LLM response
+                            # Execute the move 3 seconds after displaying the LLM response (preview delay)
                             if game_manager.use_gui:
                                 time.sleep(3)
+                            
+                            # After preview, remove the first move from the on-screen list so it reflects
+                            # the *remaining* plan.  We keep it during the preview so the player can see the
+                            # full plan sent by the LLM.
+                            if game_manager.game.planned_moves:
+                                game_manager.game.planned_moves.pop(0)
+                            
                             # --------------------------------------------------------------
                             # Track invalid reversals – detect before/after make_move()
                             # --------------------------------------------------------------
@@ -99,6 +106,15 @@ def run_game_loop(game_manager):
                             
                             # Update UI to show the new state after move
                             game_manager.game.draw()
+                            
+                            # --------------------------------------------------
+                            # Respect --move-pause between *executed* moves in
+                            # any GUI mode (Pygame or Flask).  No delay when
+                            # running with --no-gui.
+                            # --------------------------------------------------
+                            pause = game_manager.get_pause_between_moves()
+                            if pause > 0:
+                                time.sleep(pause)
                             
                             # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_something_is_wrong = 0
@@ -192,6 +208,11 @@ def run_game_loop(game_manager):
                             # Update UI after the move
                             game_manager.game.draw()
                             
+                            # GUI-only delay between sequential moves
+                            pause = game_manager.get_pause_between_moves()
+                            if pause > 0:
+                                time.sleep(pause)
+                            
                             # Reset error tracking on successful move, but NOT empty move tracking
                             game_manager.consecutive_something_is_wrong = 0
                             
@@ -210,6 +231,9 @@ def run_game_loop(game_manager):
                                     print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
                             
                             # timer removed
+                            
+                            # No need to pop here – planned_moves list is managed by
+                            # get_next_planned_move() in this branch.
                             
                         else:
                             # The round is finished – flush current round and bump the counter **before**

@@ -323,9 +323,11 @@ def get_llm_response(game_manager):
             # Store the full array of moves for the current round via RoundManager
             game_manager.game.game_state.round_manager.record_planned_moves(parser_output["moves"])
 
-            # Set the next move
+            # Set next move but keep the full plan for UI preview – we'll
+            # pop it only after executing the move so the first draw shows
+            # the complete plan.
             next_move = parser_output["moves"][0] if parser_output["moves"] else None
-            game_manager.game.planned_moves = parser_output["moves"][1:] if len(parser_output["moves"]) > 1 else []
+            game_manager.game.planned_moves = list(parser_output["moves"])  # full copy
 
             # If we got a valid move, reset the consecutive empty steps counter
             if next_move:
@@ -334,7 +336,7 @@ def get_llm_response(game_manager):
                 
                 # For UI display, also log the planned moves
                 if len(parser_output["moves"]) > 1:
-                    print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'][1:])}")
+                    print(Fore.CYAN + f"📝 Planned moves: {', '.join(parser_output['moves'])}")
         else:
             # Log detailed information about what's missing
             if not parser_output:

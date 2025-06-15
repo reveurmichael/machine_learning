@@ -9,8 +9,7 @@ from __future__ import annotations
 import subprocess
 import streamlit as st
 
-from config.constants import MAX_GAMES_ALLOWED as DEF_MAX_GAMES
-
+from config.constants import MAX_GAMES_ALLOWED 
 from utils.file_utils import get_folder_display_name
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
@@ -41,11 +40,10 @@ def render_continue_pygame_tab(log_folders):
         label_visibility="collapsed",
     )
 
-    # ── side-by-side inputs ───────────────────────────────────────────
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, DEF_MAX_GAMES, 1, key="cont_pg_max_games"
+            "Max Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="cont_pg_max_games"
         )
     with col2:
         sleep_before = st.number_input(
@@ -84,7 +82,7 @@ def render_continue_web_tab(log_folders):
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, DEF_MAX_GAMES, 1, key="cont_web_max_games"
+            "Max Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="cont_web_max_games"
         )
     with col2:
         sleep_before = st.number_input(

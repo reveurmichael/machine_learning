@@ -15,17 +15,17 @@ from utils.session_utils import run_main_web
 
 # Default safety-limit values
 from config.constants import (
-    MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED as DEF_MAX_EMPTY,
-    MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED as DEF_MAX_SIW,
-    MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED as DEF_MAX_INV_REV,
-    MAX_GAMES_ALLOWED as DEF_MAX_GAMES,
-    MAX_STEPS_ALLOWED as DEF_MAX_STEPS,
+    MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
+    MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
+    MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+    MAX_GAMES_ALLOWED,
+    MAX_STEPS_ALLOWED,
     AVAILABLE_PROVIDERS,
     DEFAULT_PROVIDER,
     DEFAULT_MODEL,
     DEFAULT_PARSER_PROVIDER,
     DEFAULT_PARSER_MODEL,
-    PAUSE_BETWEEN_MOVES_SECONDS as DEF_MOVE_PAUSE,
+    PAUSE_BETWEEN_MOVES_SECONDS,
 )
 
 # ---------------------------------------------------------------------------
@@ -68,15 +68,15 @@ def render_main_pygame_tab():
     # ----- Core limits / timings -----
     col_core1, col_core2 = st.columns(2)
     with col_core1:
-        max_games = st.number_input("Maximum Games", 1, 100, DEF_MAX_GAMES, 1, key="main_pg_max_games")
+        max_games = st.number_input("Maximum Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="main_pg_max_games")
     with col_core2:
-        max_steps = st.number_input("Max Steps", 10, 1000, DEF_MAX_STEPS, 10, key="main_pg_max_steps")
+        max_steps = st.number_input("Max Steps", 10, 1000, MAX_STEPS_ALLOWED, 10, key="main_pg_max_steps")
 
     col_time1, col_time2 = st.columns(2)
     with col_time1:
         sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_pg_sleep")
     with col_time2:
-        move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, DEF_MOVE_PAUSE, 0.1, key="main_pg_move_pause")
+        move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_pg_move_pause")
 
     # New safety limits
     col_lim1, col_lim2, col_lim3 = st.columns(3)
@@ -85,7 +85,7 @@ def render_main_pygame_tab():
             "Max Consecutive Empty Moves",
             0,
             50,
-            DEF_MAX_EMPTY,
+            MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
             1,
             key="main_pg_max_empty_moves",
         )
@@ -94,7 +94,7 @@ def render_main_pygame_tab():
             "Max Consecutive Something-Is-Wrong",
             0,
             50,
-            DEF_MAX_SIW,
+            MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
             1,
             key="main_pg_max_siw",
         )
@@ -103,7 +103,7 @@ def render_main_pygame_tab():
             "Max Consecutive Invalid Reversals",
             0,
             50,
-            DEF_MAX_INV_REV,
+            MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
             1,
             key="main_pg_max_invalid_rev",
         )
@@ -169,24 +169,24 @@ def render_main_web_tab():
     # Core limits / timings (session_state-only)
     col_core1, col_core2 = st.columns(2)
     with col_core1:
-        st.number_input("Maximum Games", 1, 100, DEF_MAX_GAMES, 1, key="main_web_max_games")
+        st.number_input("Maximum Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="main_web_max_games")
     with col_core2:
-        st.number_input("Max Steps", 10, 1000, DEF_MAX_STEPS, 10, key="main_web_max_steps")
+        st.number_input("Max Steps", 10, 1000, MAX_STEPS_ALLOWED, 10, key="main_web_max_steps")
 
     col_time1, col_time2 = st.columns(2)
     with col_time1:
         st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_web_sleep")
     with col_time2:
-        st.number_input("Move Pause (seconds)", 0.0, 10.0, DEF_MOVE_PAUSE, 0.1, key="main_web_move_pause")
+        st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_web_move_pause")
 
     # Safety limits (web)
     col_lim1, col_lim2, col_lim3 = st.columns(3)
     with col_lim1:
-        st.number_input("Max Consecutive Empty Moves", 0, 50, DEF_MAX_EMPTY, 1, key="main_web_max_empty_moves")
+        st.number_input("Max Consecutive Empty Moves", 0, 50, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, 1, key="main_web_max_empty_moves")
     with col_lim2:
-        st.number_input("Max Consecutive Something-Is-Wrong", 0, 50, DEF_MAX_SIW, 1, key="main_web_max_siw")
+        st.number_input("Max Consecutive Something-Is-Wrong", 0, 50, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, 1, key="main_web_max_siw")
     with col_lim3:
-        st.number_input("Max Consecutive Invalid Reversals", 0, 50, DEF_MAX_INV_REV, 1, key="main_web_max_invalid_rev")
+        st.number_input("Max Consecutive Invalid Reversals", 0, 50, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, 1, key="main_web_max_invalid_rev")
 
     # Server details
     colh, colp = st.columns(2)
@@ -199,7 +199,7 @@ def render_main_web_tab():
     no_gui = st.checkbox("Disable GUI (headless)", value=False, key="main_web_no_gui")
 
     if st.button("Start Main Session (Web)", key="start_main_web"):
-        selected_max_games = int(st.session_state.get("main_web_max_games", DEF_MAX_GAMES))
+        selected_max_games = int(st.session_state.get("main_web_max_games", MAX_GAMES_ALLOWED))
         run_main_web(selected_max_games, host, port)
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.success(f"Web session started – open {url} in your browser.")

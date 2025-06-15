@@ -9,6 +9,7 @@ from utils.moves_utils import normalize_direction
 from core.game_stats import GameStatistics
 from core.game_rounds import RoundManager
 
+
 class GameData:
     """Tracks and manages statistics for Snake game sessions."""
 
@@ -20,7 +21,11 @@ class GameData:
 
     def reset(self) -> None:
         """Reset all tracking data to initial state."""
-        from config import MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
+        from config import (
+            MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
+            MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
+            MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+        )
 
         self.game_number = 0
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -35,8 +40,12 @@ class GameData:
         self.moves = []
 
         self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
-        self.max_consecutive_something_is_wrong_allowed = MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
-        self.max_consecutive_invalid_reversals_allowed = MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
+        self.max_consecutive_something_is_wrong_allowed = (
+            MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
+        )
+        self.max_consecutive_invalid_reversals_allowed = (
+            MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
+        )
 
         self.stats = GameStatistics()
         self.round_manager = RoundManager()
@@ -77,7 +86,9 @@ class GameData:
         self.moves.append("EMPTY")
         self.round_manager.round_buffer.add_move("EMPTY")
 
-    def record_invalid_reversal(self, attempted_move: str, current_direction: str) -> None:
+    def record_invalid_reversal(
+        self, attempted_move: str, current_direction: str
+    ) -> None:
         """Record an invalid reversal move."""
         self.stats.step_stats.invalid_reversals += 1
         self.steps += 1
@@ -114,8 +125,12 @@ class GameData:
         return {
             "primary_response_times": primary_times,
             "secondary_response_times": secondary_times,
-            "avg_primary_response_time": float(np.mean(primary_times)) if primary_times else 0.0,
-            "avg_secondary_response_time": float(np.mean(secondary_times)) if secondary_times else 0.0,
+            "avg_primary_response_time": (
+                float(np.mean(primary_times)) if primary_times else 0.0
+            ),
+            "avg_secondary_response_time": (
+                float(np.mean(secondary_times)) if secondary_times else 0.0
+            ),
         }
 
     def get_token_stats(self) -> Dict[str, Any]:
@@ -140,8 +155,16 @@ class GameData:
         return {
             "primary_llm_errors": self.stats.primary_llm_errors,
             "secondary_llm_errors": self.stats.secondary_llm_errors,
-            "primary_error_rate": self.stats.primary_llm_errors / self.stats.primary_llm_requests if self.stats.primary_llm_requests > 0 else 0,
-            "secondary_error_rate": self.stats.secondary_llm_errors / self.stats.secondary_llm_requests if self.stats.secondary_llm_requests > 0 else 0,
+            "primary_error_rate": (
+                self.stats.primary_llm_errors / self.stats.primary_llm_requests
+                if self.stats.primary_llm_requests > 0
+                else 0
+            ),
+            "secondary_error_rate": (
+                self.stats.secondary_llm_errors / self.stats.secondary_llm_requests
+                if self.stats.secondary_llm_requests > 0
+                else 0
+            ),
         }
 
     def generate_game_summary(
@@ -167,7 +190,6 @@ class GameData:
             "game_over": self.game_over,
             "game_end_reason": self.game_end_reason,
             "round_count": self.round_manager.round_count,
-            
             # LLM configuration -------------------------------------------------
             "llm_info": {
                 "primary_provider": primary_provider,
@@ -175,7 +197,6 @@ class GameData:
                 "parser_provider": parser_provider,
                 "parser_model": parser_model,
             },
-            
             # Timings / stats ---------------------------------------------------
             "time_stats": self.stats.time_stats.summary(),
             "prompt_response_stats": self.get_prompt_response_stats(),
@@ -236,10 +257,14 @@ class GameData:
     def record_secondary_response_time(self, duration: float) -> None:
         self.stats.record_secondary_response_time(duration)
 
-    def record_primary_token_stats(self, prompt_tokens: int, completion_tokens: int) -> None:
+    def record_primary_token_stats(
+        self, prompt_tokens: int, completion_tokens: int
+    ) -> None:
         self.stats.record_primary_token_stats(prompt_tokens, completion_tokens)
 
-    def record_secondary_token_stats(self, prompt_tokens: int, completion_tokens: int) -> None:
+    def record_secondary_token_stats(
+        self, prompt_tokens: int, completion_tokens: int
+    ) -> None:
         self.stats.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
     def record_primary_llm_error(self) -> None:
@@ -309,10 +334,12 @@ class GameData:
 
         # step counters
         step_stats = summary_data.get("step_stats", {})
-        self.stats.step_stats.valid = step_stats.get("valid_steps", self.stats.step_stats.valid)
+        self.stats.step_stats.valid = step_stats.get(
+            "valid_steps", self.stats.step_stats.valid
+        )
         self.stats.step_stats.invalid_reversals = step_stats.get(
             "invalid_reversals", self.stats.step_stats.invalid_reversals
-        ) 
+        )
 
     # --- Quick accessors required by utils/game_manager_utils ----
 

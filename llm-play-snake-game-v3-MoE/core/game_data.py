@@ -197,6 +197,11 @@ class GameData:
     
     def save_game_summary(self, filepath, **kwargs):
         """Save the game summary to a file."""
+        # Ensure any in-progress round data (typically the last one at game
+        # over) is persisted before we serialise.  Without this, the final
+        # round's `moves` array may be empty in game_N.json.
+        self.round_manager.flush_buffer()
+
         summary_dict = self.generate_game_summary(**kwargs)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, "w") as f:

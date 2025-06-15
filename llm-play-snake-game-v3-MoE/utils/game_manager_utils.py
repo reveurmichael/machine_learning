@@ -230,9 +230,6 @@ def process_game_over(game, game_state_info):
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
         token_stats=token_stats,
-        max_consecutive_empty_moves_allowed=args.max_consecutive_empty_moves_allowed,
-        max_consecutive_something_is_wrong_allowed=args.max_consecutive_something_is_wrong_allowed,
-        max_consecutive_invalid_reversals_allowed=args.max_consecutive_invalid_reversals_allowed,
     )
     
     # Use the actual number of rounds that contain data to avoid the
@@ -302,9 +299,6 @@ def report_final_statistics(stats_info):
     something_is_wrong_steps = stats_info["something_is_wrong_steps"]
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
-    max_consecutive_empty_moves_allowed = stats_info["max_consecutive_empty_moves_allowed"]
-    max_consecutive_something_is_wrong_allowed = stats_info.get("max_consecutive_something_is_wrong_allowed", 5)
-    max_consecutive_invalid_reversals_allowed = stats_info.get("max_consecutive_invalid_reversals_allowed", 20)
     
     # Get time and token statistics from the game instance if available
     time_stats = {}
@@ -363,11 +357,6 @@ def report_final_statistics(stats_info):
     print(Fore.GREEN + f"📈 SOMETHING_IS_WRONG steps: {something_is_wrong_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
-    
-    # Print move limits
-    print(Fore.GREEN + f"📈 Max Empty Moves: {max_consecutive_empty_moves_allowed}")
-    print(Fore.GREEN + f"📈 Max Consecutive Errors: {max_consecutive_something_is_wrong_allowed}")
-    print(Fore.GREEN + f"🚫 Max Consecutive Invalid Reversals Allowed: {max_consecutive_invalid_reversals_allowed}")
     
     # End message based on max games reached
     if game_count >= stats_info.get("max_games", float('inf')):

@@ -36,8 +36,15 @@ class RoundManager:
         round_data[key] = response
 
     def record_planned_moves(self, moves):
-        """Record planned moves for the current round."""
-        self.round_buffer.add_moves(moves)
+        """Store the latest plan, replacing any previous entries for this round.
+
+        The LLM may resend the *same* plan multiple times while we are still
+        executing it (e.g. due to retries).  Overwriting avoids exponential
+        duplication of the list observed in JSON outputs.
+        """
+        if moves:
+            # Reset to the fresh plan instead of extending
+            self.round_buffer.planned_moves = list(moves)
 
     def sync_round_data(self):
         """Synchronize the in-progress round buffer with the persistent `rounds_data` mapping."""
@@ -53,7 +60,10 @@ class RoundManager:
             "secondary_llm_output": self.round_buffer.secondary_llm_output,
             "secondary_parsed_response": self.round_buffer.secondary_parsed_response,
         })
-        current_round_dict.setdefault("planned_moves", []).extend(self.round_buffer.planned_moves)
+        # Planned moves should reflect the *latest* plan only.  Overwrite
+        # instead of extending so repeated syncs during the same round don't
+        # duplicate identical plans.
+        current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)
         
         # Append executed moves in order, preserving duplicates to faithfully
         # mirror the actual gameplay sequence.  This is essential for accurate

@@ -59,6 +59,9 @@ class GameController:
         # Initialize the board
         self._update_board()
 
+        # Sync initial snake body into GameData so snake_length starts correct
+        self.game_state.snake_positions = self.snake_positions.tolist()
+
     def set_gui(self, gui_instance):
         """Set the GUI instance to use for display.
         
@@ -97,6 +100,9 @@ class GameController:
 
         # Reset apple history and seed with the initial apple
         self.apple_positions_history = [self.apple_position.copy()]
+
+        # Sync initial snake body into GameData so snake_length starts correct
+        self.game_state.snake_positions = self.snake_positions.tolist()
 
     def draw(self):
         """Draw the current game state if GUI is available."""
@@ -337,6 +343,10 @@ class GameController:
         # Draw if GUI is available
         if self.use_gui and self.gui:
             self.draw()
+
+        # Keep the GameData replica in sync for accurate snake_length in
+        # summaries and replays.
+        self.game_state.snake_positions = self.snake_positions.tolist()
 
         return True, apple_eaten  # Game continues, with or without apple eaten
 

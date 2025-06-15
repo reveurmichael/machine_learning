@@ -330,10 +330,15 @@ class ReplayEngine(GameController):
         # original run.
         # ------------------------------------------------------------------
         if direction_key in ("INVALID_REVERSAL", "EMPTY", "SOMETHING_IS_WRONG"):
-            # Optionally bump internal step counter so on-screen stats match
-            # the original game (comment out if not needed):
-            # self.game_state.steps += 1
-            return True  # Game is still active, no apple eaten
+            # Mirror step accounting from the original run so that stats align.
+            if direction_key == "INVALID_REVERSAL":
+                # Use current direction context where possible
+                self.game_state.record_invalid_reversal(direction_key, self._get_current_direction_key())
+            elif direction_key == "EMPTY":
+                self.game_state.record_empty_move()
+            elif direction_key == "SOMETHING_IS_WRONG":
+                self.game_state.record_something_is_wrong_move()
+            return True  # Game continues, snake doesn't move
         
         # Use the parent class's make_move method to ensure consistent behavior
         # This will handle direction validation, reversal prevention, and game state updates

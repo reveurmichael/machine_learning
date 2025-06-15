@@ -201,35 +201,7 @@ class GameData:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, "w") as f:
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
-        
-        # A secondary *_detailed.json file is still created for analytic
-        # tooling that relied on it.  The format remains unchanged.
-        detailed_filepath = filepath.replace(".json", "_detailed.json")
-        self.save_detailed_history(detailed_filepath)
         return summary_dict
-
-    def save_detailed_history(self, filepath):
-        """Saves the detailed round-by-round history to a file."""
-        self.round_manager.flush_buffer()
-        history_data = {
-            "game_number": self.game_number,
-            "timestamp": self.timestamp,
-            "score": self.score,
-            "steps": self.steps,
-            "game_end_reason": self.game_end_reason,
-            "time_stats": self.stats.time_stats.summary(),
-            "step_stats": self.stats.step_stats.asdict(),
-            "token_stats": self.get_token_stats(),
-            "error_stats": self.get_error_stats(),
-            "prompt_response_stats": self.get_prompt_response_stats(),
-                "apple_positions": self.apple_positions,
-            "snake_positions": self.snake_positions,
-            "moves": self.moves,
-            "rounds_data": self.round_manager.get_ordered_rounds_data()
-        }
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, "w") as f:
-            json.dump(history_data, f, cls=NumPyJSONEncoder, indent=4)
 
     @property
     def snake_length(self):

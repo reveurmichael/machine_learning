@@ -58,6 +58,9 @@ class GameManager:
         self.consecutive_invalid_reversals = 0
         self.game_scores = []
         self.previous_parser_usage = 0
+        # ---------- Round tracking ----------
+        self.round_counts: List[int] = []  # list of rounds per completed game
+        self.total_rounds: int = 0  # aggregate across session
 
         # Time and token statistics
         self.time_stats = {
@@ -189,6 +192,8 @@ class GameManager:
             "game": self.game,
             "time_stats": self.time_stats,
             "token_stats": self.token_stats,
+            "round_counts": self.round_counts,
+            "total_rounds": self.total_rounds,
         }
 
         # Report statistics to console and save to files

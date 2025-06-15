@@ -58,7 +58,9 @@ def save_experiment_info_json(args, directory):
             "total_games": 0,
             "total_score": 0,
             "total_steps": 0,
-            "scores": []
+            "scores": [],
+            "total_rounds": 0,
+            "round_counts": [],
         },
         "time_statistics": {
             "total_llm_communication_time": 0,
@@ -104,38 +106,40 @@ def save_session_stats(log_dir, **kwargs):
     """
     # Read existing summary file
     summary_path = os.path.join(log_dir, "summary.json")
-    
+
     if not os.path.exists(summary_path):
         return
-    
+
     try:
         with open(summary_path, "r", encoding='utf-8') as f:
             summary = json.load(f)
     except Exception as e:
         print(f"Error reading summary.json: {e}")
         return
-    
+
     def _safe_set(target: dict, key: str, val):
         """Overwrite only with a real, non-zero value."""
         if val:
             target[key] = val
-    
+
     # Ensure all required sections exist
     if "game_statistics" not in summary:
         summary["game_statistics"] = {
             "total_games": 0,
+            "total_rounds": 0,
             "total_score": 0,
             "total_steps": 0,
-            "scores": []
+            "scores": [],
+            "round_counts": [],
         }
-    
+
     if "time_statistics" not in summary:
         summary["time_statistics"] = {
             "total_llm_communication_time": 0,
             "total_primary_llm_communication_time": 0,
             "total_secondary_llm_communication_time": 0,
         }
-    
+
     if "token_usage_stats" not in summary:
         summary["token_usage_stats"] = {
             "primary_llm": {
@@ -149,7 +153,7 @@ def save_session_stats(log_dir, **kwargs):
                 "total_completion_tokens": 0
             }
         }
-    
+
     if "step_stats" not in summary:
         summary["step_stats"] = {
             "empty_steps": 0,
@@ -157,7 +161,7 @@ def save_session_stats(log_dir, **kwargs):
             "valid_steps": 0,
             "invalid_reversals": 0  # Aggregated count across all games
         }
-    
+
     # Apply new statistics values to the appropriate sections
     for key, value in kwargs.items():
         if key == "game_count":
@@ -191,7 +195,7 @@ def save_session_stats(log_dir, **kwargs):
             if value and isinstance(value, dict):
                 if "primary" in value and isinstance(value["primary"], dict):
                     primary = value["primary"]
-                    
+
                     # Only add token stats if they're not None
                     if "total_tokens" in primary and primary["total_tokens"] is not None:
                         summary["token_usage_stats"]["primary_llm"]["total_tokens"] = primary["total_tokens"]
@@ -199,10 +203,10 @@ def save_session_stats(log_dir, **kwargs):
                         summary["token_usage_stats"]["primary_llm"]["total_prompt_tokens"] = primary["total_prompt_tokens"]
                     if "total_completion_tokens" in primary and primary["total_completion_tokens"] is not None:
                         summary["token_usage_stats"]["primary_llm"]["total_completion_tokens"] = primary["total_completion_tokens"]
-                
+
                 if "secondary" in value and isinstance(value["secondary"], dict):
                     secondary = value["secondary"]
-                    
+
                     # Only add token stats if they're not None
                     if "total_tokens" in secondary and secondary["total_tokens"] is not None:
                         summary["token_usage_stats"]["secondary_llm"]["total_tokens"] = secondary["total_tokens"]
@@ -221,35 +225,51 @@ def save_session_stats(log_dir, **kwargs):
                     summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
                 if "invalid_reversals" in value:
                     summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
+        elif key == "round_counts":
+            summary["game_statistics"]["round_counts"] = value
+        elif key == "total_rounds":
+            summary["game_statistics"]["total_rounds"] = value
         else:
             # For any other fields, add them at the top level
             summary[key] = value
-    
-    # After merging totals, compute average token usage per game if total_games > 0
+
+    # After merging totals, compute averages – scaled **per round** when available
     total_games = summary["game_statistics"].get("total_games", 0)
-    if total_games:
-        # Primary averages
-        prim = summary["token_usage_stats"].get("primary_llm", {})
-        if prim:
-            prim["avg_tokens"] = prim.get("total_tokens", 0) / total_games
-            prim["avg_prompt_tokens"] = prim.get("total_prompt_tokens", 0) / total_games
-            prim["avg_completion_tokens"] = prim.get("total_completion_tokens", 0) / total_games
+    total_rounds = summary["game_statistics"].get("total_rounds", 0)
 
-        # Secondary averages
-        sec = summary["token_usage_stats"].get("secondary_llm", {})
-        if sec:
-            sec["avg_tokens"] = sec.get("total_tokens", 0) / total_games if sec.get("total_tokens") is not None else None
-            sec["avg_prompt_tokens"] = sec.get("total_prompt_tokens", 0) / total_games if sec.get("total_prompt_tokens") is not None else None
-            sec["avg_completion_tokens"] = sec.get("total_completion_tokens", 0) / total_games if sec.get("total_completion_tokens") is not None else None
+    # Prefer per-round denominator; fall back to per-game if round data missing
 
-        # Average response times (seconds)
-        ts = summary.get("time_statistics", {})
-        if ts and total_games:
-            if ts.get("total_primary_llm_communication_time") is not None:
-                ts["avg_primary_response_time"] = ts.get("total_primary_llm_communication_time", 0) / total_games
-            if ts.get("total_secondary_llm_communication_time") is not None:
-                ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / total_games
-    
+    prim = summary["token_usage_stats"].get("primary_llm", {})
+    if prim:
+        prim["avg_tokens"] = prim.get("total_tokens", 0) / total_rounds
+        prim["avg_prompt_tokens"] = (
+            prim.get("total_prompt_tokens", 0) / total_rounds
+        )
+        prim["avg_completion_tokens"] = (
+            prim.get("total_completion_tokens", 0) / total_rounds
+        )
+
+    sec = summary["token_usage_stats"].get("secondary_llm", {})
+    if sec:
+        # Only compute if stats available (non-None)
+        sec_total = sec.get("total_tokens")
+        if sec_total is not None:
+            sec["avg_tokens"] = sec_total / total_rounds
+        sec_prompt = sec.get("total_prompt_tokens")
+        if sec_prompt is not None:
+            sec["avg_prompt_tokens"] = sec_prompt / total_rounds
+        sec_comp = sec.get("total_completion_tokens")
+        if sec_comp is not None:
+            sec["avg_completion_tokens"] = sec_comp / total_rounds
+
+    # Average response times (seconds) – per round if available
+    ts = summary.get("time_statistics", {})
+
+    if ts.get("total_primary_llm_communication_time") is not None:
+        ts["avg_primary_response_time"] = ts.get("total_primary_llm_communication_time", 0) / total_rounds
+    if ts.get("total_secondary_llm_communication_time") is not None:
+        ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / total_rounds
+
     # Save the summary file
     try:
         with open(summary_path, "w", encoding='utf-8') as f:

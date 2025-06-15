@@ -112,6 +112,8 @@ def process_game_over(game, game_state_info):
     total_steps = game_state_info["total_steps"]
     game_scores = game_state_info["game_scores"]
     round_count = game_state_info["round_count"]
+    # List of per-game round counts collected so far (mutated in-place)
+    round_counts = game_state_info.get("round_counts", [])
     time_stats = game_state_info.get("time_stats", {})
     token_stats = game_state_info.get("token_stats", {})
     valid_steps = game_state_info.get("valid_steps", 0)
@@ -217,25 +219,14 @@ def process_game_over(game, game_state_info):
         if secondary_completion is not None:
             token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_completion
     
-    # Update session stats
-    save_session_stats(
-        log_dir,
-        game_count=game_count,
-        total_score=total_score,
-        total_steps=total_steps,
-        game_scores=game_scores,
-        empty_steps=empty_steps,
-        something_is_wrong_steps=something_is_wrong_steps,
-        valid_steps=valid_steps,
-        invalid_reversals=invalid_reversals,
-        time_stats=time_stats,
-        token_stats=token_stats,
-    )
-    
     # Use the actual number of rounds that contain data to avoid the
     # off-by-one "phantom round" that appeared after a wall/self collision.
     if hasattr(game, "game_state") and hasattr(game.game_state, "_calculate_actual_round_count"):
         round_count = game.game_state._calculate_actual_round_count()
+
+    # ── aggregate round counts ──────────────────────────────────────────
+    round_counts.append(round_count)
+    total_rounds = sum(round_counts)
 
     # Save individual game JSON file using the canonical writer
     from utils.file_utils import get_game_json_filename, join_log_path
@@ -267,6 +258,23 @@ def process_game_over(game, game_state_info):
         Fore.GREEN +
         f"💾 Saved data for game {game_count} "
         f"(rounds: {round_count}, moves: {len(executed_moves)})"
+    )
+    
+    # Update session stats (now includes round-level aggregates)
+    save_session_stats(
+        log_dir,
+        game_count=game_count,
+        total_score=total_score,
+        total_steps=total_steps,
+        game_scores=game_scores,
+        empty_steps=empty_steps,
+        something_is_wrong_steps=something_is_wrong_steps,
+        valid_steps=valid_steps,
+        invalid_reversals=invalid_reversals,
+        time_stats=time_stats,
+        token_stats=token_stats,
+        round_counts=round_counts,
+        total_rounds=total_rounds,
     )
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
@@ -323,6 +331,10 @@ def report_final_statistics(stats_info):
     if "time_stats" in stats_info:
         time_stats = stats_info["time_stats"]
     
+    # Get round counts and total rounds
+    round_counts = stats_info.get("round_counts", [])
+    total_rounds = stats_info.get("total_rounds", 0)
+    
     # Save session statistics to summary file
     save_session_stats(
         log_dir, 
@@ -335,7 +347,9 @@ def report_final_statistics(stats_info):
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
-        token_stats=token_stats
+        token_stats=token_stats,
+        round_counts=round_counts,
+        total_rounds=total_rounds,
     )
     
     # Print final statistics

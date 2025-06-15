@@ -162,6 +162,7 @@ def run_game_loop(game_manager):
                             "total_steps": game_manager.total_steps,
                             "game_scores": game_manager.game_scores,
                             "round_count": game_manager.round_count,
+                            "round_counts": game_manager.round_counts,
                             "args": game_manager.args,
                             "log_dir": game_manager.log_dir,
                             "current_game_moves": game_manager.current_game_moves,
@@ -179,20 +180,7 @@ def run_game_loop(game_manager):
                             game_state_info
                         )
                         
-                        # Make sure to update session stats after processing game over
-                        save_session_stats(
-                            game_manager.log_dir,
-                            game_count=game_manager.game_count,
-                            total_score=game_manager.total_score,
-                            total_steps=game_manager.total_steps,
-                            game_scores=game_manager.game_scores,
-                            empty_steps=game_manager.empty_steps,
-                            something_is_wrong_steps=game_manager.something_is_wrong_steps,
-                            valid_steps=game_manager.valid_steps,
-                            invalid_reversals=game_manager.invalid_reversals,
-                            time_stats=game_manager.time_stats,
-                            token_stats=game_manager.token_stats
-                        )
+                        # Session statistics are now updated within process_game_over()
                         
                         # Reset for next game
                         game_manager.need_new_plan = True
@@ -230,6 +218,9 @@ def run_game_loop(game_manager):
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
                         game_manager.consecutive_something_is_wrong = 0
+                        
+                        # Update total_rounds
+                        game_manager.total_rounds = sum(game_manager.round_counts)
                     
                     # Ensure UI is updated
                     game_manager.game.draw()

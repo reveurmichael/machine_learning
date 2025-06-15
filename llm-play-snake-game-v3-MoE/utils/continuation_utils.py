@@ -76,13 +76,13 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     game_manager.valid_steps = step_stats.get("valid_steps", 0)
     game_manager.invalid_reversals = step_stats.get("invalid_reversals", 0)
 
-    # Time statistics (fall back to zeroed dict if missing)
-    game_manager.time_stats = summary.get(
-        "time_statistics",
-        {
-            "llm_communication_time": 0,
-        },
-    )
+    # Time statistics (guarantee all expected keys exist)
+    ts = summary.get("time_statistics", {})
+    game_manager.time_stats = {
+        "llm_communication_time": ts.get("total_llm_communication_time", 0),
+        "primary_llm_communication_time": ts.get("total_primary_llm_communication_time", 0),
+        "secondary_llm_communication_time": ts.get("total_secondary_llm_communication_time", 0),
+    }
 
     # Token statistics – normalize to expected *primary/secondary* keys
     token_usage = summary.get("token_usage_stats", {})

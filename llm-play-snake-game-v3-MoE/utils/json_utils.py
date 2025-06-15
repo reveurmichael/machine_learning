@@ -256,9 +256,9 @@ def save_session_stats(log_dir, **kwargs):
 
         # Average response times (seconds)
         ts = summary.get("time_statistics", {})
-        if ts:
-            if ts.get("total_llm_communication_time") is not None:
-                ts["avg_primary_response_time"] = ts.get("total_llm_communication_time", 0) / total_games
+        if ts and total_games:
+            if ts.get("total_primary_llm_communication_time") is not None:
+                ts["avg_primary_response_time"] = ts.get("total_primary_llm_communication_time", 0) / total_games
             if ts.get("total_secondary_llm_communication_time") is not None:
                 ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / total_games
     

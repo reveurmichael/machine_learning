@@ -193,25 +193,29 @@ def process_game_over(game, game_state_info):
                 "total_completion_tokens": 0
             }
         
-        # Add primary LLM token stats
-        if "primary" in game_token_stats:
-            primary_stats = game_token_stats["primary"]
-            if primary_stats.get("total_tokens") is not None:
-                token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_stats.get("total_tokens", 0)
-            if primary_stats.get("total_prompt_tokens") is not None:
-                token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_stats.get("total_prompt_tokens", 0)
-            if primary_stats.get("total_completion_tokens") is not None:
-                token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_stats.get("total_completion_tokens", 0)
-            
-        # Add secondary LLM token stats
-        if "secondary" in game_token_stats:
-            secondary_stats = game_token_stats["secondary"]
-            if secondary_stats.get("total_tokens") is not None:
-                token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_stats.get("total_tokens", 0)
-            if secondary_stats.get("total_prompt_tokens") is not None:
-                token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_stats.get("total_prompt_tokens", 0)
-            if secondary_stats.get("total_completion_tokens") is not None:
-                token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_stats.get("total_completion_tokens", 0)
+        # Add primary LLM token stats (flat-key schema)
+        primary_total = game_token_stats.get("primary_total_tokens")
+        primary_prompt = game_token_stats.get("primary_total_prompt_tokens")
+        primary_completion = game_token_stats.get("primary_total_completion_tokens")
+
+        if primary_total is not None:
+            token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_total
+        if primary_prompt is not None:
+            token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_prompt
+        if primary_completion is not None:
+            token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_completion
+
+        # Add secondary LLM token stats (flat-key schema)
+        secondary_total = game_token_stats.get("secondary_total_tokens")
+        secondary_prompt = game_token_stats.get("secondary_total_prompt_tokens")
+        secondary_completion = game_token_stats.get("secondary_total_completion_tokens")
+
+        if secondary_total is not None:
+            token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_total
+        if secondary_prompt is not None:
+            token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_prompt
+        if secondary_completion is not None:
+            token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_completion
     
     # Update session stats
     save_session_stats(

@@ -351,6 +351,20 @@ class GameData:
         return self.stats.step_stats.something_wrong
 
     # ------------------------------------------------------------------
+    # Convenience accessors for session-level aggregation
+    # ------------------------------------------------------------------
+
+    @property
+    def primary_response_times(self) -> list[float]:
+        """List of response-time durations (seconds) from the primary LLM."""
+        return self.stats.primary_response_times
+
+    @property
+    def secondary_response_times(self) -> list[float]:
+        """List of response-time durations (seconds) from the secondary LLM."""
+        return self.stats.secondary_response_times
+
+    # ------------------------------------------------------------------
     # Time statistics view (used by game_manager_utils)
     # ------------------------------------------------------------------
 

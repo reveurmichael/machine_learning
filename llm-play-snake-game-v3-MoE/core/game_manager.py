@@ -53,8 +53,8 @@ class GameManager:
         # Time and token statistics
         self.time_stats = {
             "llm_communication_time": 0,
-            "game_movement_time": 0,
-            "waiting_time": 0
+            "primary_llm_communication_time": 0,
+            "secondary_llm_communication_time": 0,
         }
         
         self.token_stats = {

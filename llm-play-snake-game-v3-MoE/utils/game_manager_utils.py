@@ -411,7 +411,7 @@ def handle_error(game, error_info):
         game.game_state.save_game_summary(
             json_path,
             args.provider, 
-            args.model or f"default_{args.provider}", # TODO
+            args.model,
             parser_provider,
             args.parser_model if parser_provider else None,
             args.max_consecutive_something_is_wrong_allowed,

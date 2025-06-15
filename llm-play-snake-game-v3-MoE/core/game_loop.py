@@ -9,7 +9,7 @@ import pygame
 import os
 import json
 from colorama import Fore
-from utils.game_manager_utils import check_max_steps, process_game_over, handle_error, process_events
+from utils.game_manager_utils import check_max_steps, process_game_over, process_events
 from utils.json_utils import save_session_stats
 from llm.communication_utils import get_llm_response
 
@@ -303,83 +303,7 @@ def run_game_loop(game_manager):
                     game_manager.game.draw()
                     
                 except Exception as e:
-                    # Handle errors during gameplay
-                    error_info = {
-                        "game_active": game_manager.game_active,
-                        "game_count": game_manager.game_count,
-                        "total_score": game_manager.total_score,
-                        "total_steps": game_manager.total_steps,
-                        "game_scores": game_manager.game_scores,
-                        "round_count": game_manager.round_count,
-                        "log_dir": game_manager.log_dir,
-                        "args": game_manager.args,
-                        "current_game_moves": game_manager.current_game_moves,
-                        "error": e,
-                        "consecutive_something_is_wrong": game_manager.consecutive_something_is_wrong,
-                        "time_stats": game_manager.time_stats,
-                        "token_stats": game_manager.token_stats,
-                        "valid_steps": getattr(game_manager, "valid_steps", 0),
-                        "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
-                        "empty_steps": getattr(game_manager, "empty_steps", 0),
-                        "something_is_wrong_steps": getattr(game_manager, "something_is_wrong_steps", 0)
-                    }
-                    
-                    game_manager.game_active, game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.previous_parser_usage, game_manager.consecutive_something_is_wrong, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.something_is_wrong_steps = handle_error(
-                        game_manager.game,
-                        error_info
-                    )
-                    
-                    # Make sure to update session stats after handling errors
-                    save_session_stats(
-                        game_manager.log_dir,
-                        game_count=game_manager.game_count,
-                        total_score=game_manager.total_score,
-                        total_steps=game_manager.total_steps,
-                        game_scores=game_manager.game_scores,
-                        empty_steps=game_manager.empty_steps,
-                        something_is_wrong_steps=game_manager.something_is_wrong_steps,
-                        valid_steps=game_manager.valid_steps,
-                        invalid_reversals=game_manager.invalid_reversals,
-                        time_stats=game_manager.time_stats,
-                        token_stats=game_manager.token_stats
-                    )
-                    
-                    # Prepare for next game if not at limit
-                    if game_manager.game_count < game_manager.args.max_games and not game_manager.game_active:
-                        # Only use pygame.time.delay if GUI is active
-                        if game_manager.use_gui:
-                            pygame.time.delay(1000)  # Brief pause for user visibility
-                            
-                        # Update summary.json with the latest configuration
-                        summary_path = os.path.join(game_manager.log_dir, "summary.json")
-                        try:
-                            if os.path.exists(summary_path):
-                                with open(summary_path, 'r', encoding='utf-8') as f:
-                                    summary_data = json.load(f)
-                                
-                                # Update max_games in configuration
-                                if 'configuration' in summary_data:
-                                    summary_data['configuration']['max_games'] = game_manager.args.max_games
-                                    summary_data['configuration']['no_gui'] = game_manager.args.no_gui
-                                    
-                                    # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
-                                    if 'continue_with_game_in_dir' in summary_data['configuration']:
-                                        del summary_data['configuration']['continue_with_game_in_dir']
-                                
-                                # Save the updated configuration
-                                with open(summary_path, 'w', encoding='utf-8') as f:
-                                    json.dump(summary_data, f, indent=2)
-                        except Exception as e:
-                            print(Fore.YELLOW + f"⚠️ Warning: Could not update configuration in summary.json: {e}")
-                                
-                        game_manager.game.reset()
-                        game_manager.game_active = True
-                        game_manager.need_new_plan = True
-                        game_manager.current_game_moves = []
-                        game_manager.consecutive_something_is_wrong = 0
-                        game_manager.consecutive_invalid_reversals = 0
-                        print(Fore.GREEN + f"🔄 Starting game {game_manager.game_count + 1}/{game_manager.args.max_games}")
-            
+                    pass
             # Control frame rate only in GUI mode
             if game_manager.use_gui:
                 pygame.time.delay(game_manager.time_delay)

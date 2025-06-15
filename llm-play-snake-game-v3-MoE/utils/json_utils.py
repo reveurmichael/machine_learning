@@ -221,18 +221,6 @@ def save_session_stats(log_dir, **kwargs):
                     summary["step_stats"]["valid_steps"] = value["valid_steps"]  # Already accumulated in process_game_over
                 if "invalid_reversals" in value:
                     summary["step_stats"]["invalid_reversals"] = value["invalid_reversals"]  # Already accumulated in process_game_over
-        elif key == "max_consecutive_empty_moves_allowed":
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["max_consecutive_empty_moves_allowed"] = value
-        elif key == "max_consecutive_something_is_wrong_allowed":
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["max_consecutive_something_is_wrong_allowed"] = value
-        elif key == "max_consecutive_invalid_reversals_allowed":
-            if "metadata" not in summary:
-                summary["metadata"] = {}
-            summary["metadata"]["max_consecutive_invalid_reversals_allowed"] = value
         else:
             # For any other fields, add them at the top level
             summary[key] = value

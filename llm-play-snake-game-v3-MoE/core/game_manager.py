@@ -158,7 +158,7 @@ class GameManager:
         
         # ------------------------------------------------------------------
         # Use the counters that have been **aggregated across games**
-        # throughout the session (updated in process_game_over / handle_error).
+        # throughout the session (updated in process_game_over).
         # Previously this method overwrote them with the last game's values,
         # which zero-ed the numbers in summary.json and the console banner.
         # ------------------------------------------------------------------

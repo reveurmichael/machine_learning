@@ -55,12 +55,10 @@ class RoundManager:
         })
         current_round_dict.setdefault("planned_moves", []).extend(self.round_buffer.planned_moves)
         
-        # Merge executed moves from the current buffer into the persistent mapping
-        executed_moves_in_dict = set(current_round_dict.setdefault("moves", []))
-        for move in self.round_buffer.moves:
-            if move not in executed_moves_in_dict:
-                current_round_dict["moves"].append(move)
-                executed_moves_in_dict.add(move)
+        # Append executed moves in order, preserving duplicates to faithfully
+        # mirror the actual gameplay sequence.  This is essential for accurate
+        # replays and per-round step counts.
+        current_round_dict.setdefault("moves", []).extend(self.round_buffer.moves)
 
     def flush_buffer(self):
         """Flushes the round buffer."""

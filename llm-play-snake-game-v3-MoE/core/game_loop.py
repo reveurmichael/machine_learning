@@ -12,6 +12,7 @@ from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, process_events
 from utils.json_utils import save_session_stats
 from llm.communication_utils import get_llm_response
+from typing import Tuple
 
 def run_game_loop(game_manager):
     """Run the main game loop.
@@ -64,62 +65,22 @@ def run_game_loop(game_manager):
                             if game_manager.game.planned_moves:
                                 game_manager.game.planned_moves.pop(0)
                             
-                            # --------------------------------------------------------------
-                            # Track invalid reversals – detect before/after make_move()
-                            # --------------------------------------------------------------
-                            prev_invalid_rev = game_manager.game.game_state.invalid_reversals
-                            game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            # Execute the move and all associated bookkeeping in one place
+                            game_manager.game_active, apple_eaten = _execute_move(game_manager, next_move)
 
-                            # If the counter increased the move was blocked as a reversal
-                            if game_manager.game.game_state.invalid_reversals > prev_invalid_rev:
-                                game_manager.consecutive_invalid_reversals += 1
-                                print(
-                                    Fore.YELLOW +
-                                    f"⚠️ Invalid reversal detected. "
-                                    f"Consecutive invalid reversals: {game_manager.consecutive_invalid_reversals}/"
-                                    f"{game_manager.args.max_consecutive_invalid_reversals_allowed}"
-                                )
-                            else:
-                                # Reset counter on any successful (non-reversal) step
-                                game_manager.consecutive_invalid_reversals = 0
-
-                            # Abort game on threshold breach
-                            if (
-                                game_manager.consecutive_invalid_reversals >=
-                                game_manager.args.max_consecutive_invalid_reversals_allowed
-                            ):
-                                print(
-                                    Fore.RED +
-                                    f"❌ Maximum consecutive invalid reversals reached "
-                                    f"({game_manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
-                                )
-                                game_manager.game_active = False
-                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
-                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
-                            
-                            # ------------------------------------------------------------------
-                            # Check max steps AFTER handling invalid reversals
-                            # ------------------------------------------------------------------
-                            if game_manager.game_active and check_max_steps(game_manager.game, game_manager.args.max_steps):
-                                game_manager.game_active = False
-                                game_manager.game.game_state.record_game_end("MAX_STEPS")
-                            
-                            # Update UI to show the new state after move
-                            game_manager.game.draw()
-                            
-                            # --------------------------------------------------
-                            # Respect --move-pause between *executed* moves in
-                            # any GUI mode (Pygame or Flask).  No delay when
-                            # running with --no-gui.
-                            # --------------------------------------------------
-                            pause = game_manager.get_pause_between_moves()
-                            if pause > 0:
-                                time.sleep(pause)
-                            
-                            # Reset error tracking on successful move, but NOT empty move tracking
-                            game_manager.consecutive_something_is_wrong = 0
-                            
-                            # timer removed
+                            # Request new plan if apple was eaten AND no more planned moves
+                            if apple_eaten:
+                                # Do NOT increment round_count when an apple is eaten
+                                # Rounds should only be incremented when we get a new plan from the LLM
+                                
+                                # Only request new plan if there are no more planned moves
+                                if not game_manager.game.planned_moves:
+                                    # Round ends simultaneously with an apple, finish it before asking for a new plan
+                                    game_manager.finish_round()
+                                    print(Fore.YELLOW + "No more planned moves, requesting new plan.")
+                                    game_manager.need_new_plan = True
+                                else:
+                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
                             
                         else:
                             # Handle the case where no valid move was found
@@ -146,8 +107,6 @@ def run_game_loop(game_manager):
                                 game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
                                 game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
                         
-                        # timer removed
-                        
                     else:
                         # Skip executing planned moves if we're waiting for a new plan
                         if game_manager.awaiting_plan:
@@ -168,54 +127,9 @@ def run_game_loop(game_manager):
                             # Update UI before executing the move
                             game_manager.game.draw()
                             
-                            # --------------------------------------------------------------
-                            # Track invalid reversals (planned-moves branch)
-                            # --------------------------------------------------------------
-                            prev_invalid_rev = game_manager.game.game_state.invalid_reversals
-                            game_manager.game_active, apple_eaten = game_manager.game.make_move(next_move)
+                            # Execute and bookkeeping via shared helper
+                            game_manager.game_active, apple_eaten = _execute_move(game_manager, next_move)
 
-                            if game_manager.game.game_state.invalid_reversals > prev_invalid_rev:
-                                game_manager.consecutive_invalid_reversals += 1
-                                print(
-                                    Fore.YELLOW +
-                                    f"⚠️ Invalid reversal detected. "
-                                    f"Consecutive invalid reversals: {game_manager.consecutive_invalid_reversals}/"
-                                    f"{game_manager.args.max_consecutive_invalid_reversals_allowed}"
-                                )
-                            else:
-                                game_manager.consecutive_invalid_reversals = 0
-
-                            if (
-                                game_manager.consecutive_invalid_reversals >=
-                                game_manager.args.max_consecutive_invalid_reversals_allowed
-                            ):
-                                print(
-                                    Fore.RED +
-                                    f"❌ Maximum consecutive invalid reversals reached "
-                                    f"({game_manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
-                                )
-                                game_manager.game_active = False
-                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
-                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
-                            
-                            # ------------------------------------------------------------------
-                            # Check max steps AFTER handling invalid reversals (planned branch)
-                            # ------------------------------------------------------------------
-                            if game_manager.game_active and check_max_steps(game_manager.game, game_manager.args.max_steps):
-                                game_manager.game_active = False
-                                game_manager.game.game_state.record_game_end("MAX_STEPS")
-                            
-                            # Update UI after the move
-                            game_manager.game.draw()
-                            
-                            # GUI-only delay between sequential moves
-                            pause = game_manager.get_pause_between_moves()
-                            if pause > 0:
-                                time.sleep(pause)
-                            
-                            # Reset error tracking on successful move, but NOT empty move tracking
-                            game_manager.consecutive_something_is_wrong = 0
-                            
                             # Request new plan if apple was eaten AND no more planned moves
                             if apple_eaten:
                                 # Do NOT increment round_count when an apple is eaten
@@ -229,11 +143,6 @@ def run_game_loop(game_manager):
                                     game_manager.need_new_plan = True
                                 else:
                                     print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
-                            
-                            # timer removed
-                            
-                            # No need to pop here – planned_moves list is managed by
-                            # get_next_planned_move() in this branch.
                             
                         else:
                             # The round is finished – flush current round and bump the counter **before**
@@ -321,7 +230,6 @@ def run_game_loop(game_manager):
                         game_manager.game.reset()
                         game_manager.consecutive_empty_steps = 0
                         game_manager.consecutive_something_is_wrong = 0
-                        game_manager.consecutive_invalid_reversals = 0
                     
                     # Ensure UI is updated
                     game_manager.game.draw()
@@ -340,4 +248,75 @@ def run_game_loop(game_manager):
         traceback.print_exc()
     finally:
         # Ensure pygame is properly shut down
-        pygame.quit() 
+        pygame.quit()
+
+# ---------------------------------------------------------------------------
+# Internal utilities (module-private)
+# ---------------------------------------------------------------------------
+
+def _execute_move(manager, direction: str) -> Tuple[bool, bool]:
+    """Run *one* snake move and handle all common bookkeeping.
+
+    This wraps the repeated code that appears in both the *new-plan* branch
+    (first move after an LLM response) and the *planned-moves* branch.  It
+    purposefully contains **no** game-flow decisions so it can be called from
+    either place without altering behaviour.
+
+    Args:
+        manager: GameManager instance (passed explicitly for clarity).
+        direction: The direction key to execute ("UP", "DOWN", etc.).
+
+    Returns:
+        Tuple(bool game_active, bool apple_eaten) – same as GameController.
+    """
+
+    # Keep a before-snapshot of invalid-reversal counter so we can detect
+    # whether the upcoming make_move() call was blocked.
+    prev_invalid_rev = manager.game.game_state.invalid_reversals
+
+    game_active, apple_eaten = manager.game.make_move(direction)
+
+    # ---------------- Invalid reversal tracking -----------------
+    if manager.game.game_state.invalid_reversals > prev_invalid_rev:
+        manager.consecutive_invalid_reversals += 1
+        print(
+            Fore.YELLOW +
+            f"⚠️ Invalid reversal detected. Consecutive invalid reversals: "
+            f"{manager.consecutive_invalid_reversals}/"
+            f"{manager.args.max_consecutive_invalid_reversals_allowed}"
+        )
+    else:
+        manager.consecutive_invalid_reversals = 0
+
+    # Game-over due to invalid-reversal threshold
+    if (
+        manager.consecutive_invalid_reversals >=
+        manager.args.max_consecutive_invalid_reversals_allowed
+    ):
+        print(
+            Fore.RED +
+            f"❌ Maximum consecutive invalid reversals reached "
+            f"({manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
+        )
+        game_active = False
+        manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
+        manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
+
+    # ---------------- Max-step check ---------------------------------------
+    if game_active and check_max_steps(manager.game, manager.args.max_steps):
+        game_active = False
+        manager.game.game_state.record_game_end("MAX_STEPS")
+
+    # ---------------- UI refresh & per-move pause --------------------------
+    manager.game.draw()
+    pause = manager.get_pause_between_moves()
+    if pause > 0:
+        time.sleep(pause)
+
+    # Any successful move (even if blocked by invalid reversal) resets the
+    # "something is wrong" counter.
+    manager.consecutive_something_is_wrong = 0
+
+    # Return the possibly-updated game_active flag plus apple status.
+    manager.game_active = game_active  # maintain historic side-effect
+    return game_active, apple_eaten 

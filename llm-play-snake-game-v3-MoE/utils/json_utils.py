@@ -42,24 +42,24 @@ def save_experiment_info_json(args, directory):
     """
     # Convert args to dict
     args_dict = vars(args)
-    
+
     # Clean up configuration - set parser info to null if it's 'none'
     config_dict = args_dict.copy()
     if 'parser_provider' in config_dict and (not config_dict['parser_provider'] or config_dict['parser_provider'].lower() == 'none'):
         # In single LLM mode, set parser fields to null instead of removing them
         config_dict['parser_provider'] = None
         config_dict['parser_model'] = None
-    
+
     # Create experiment info
     experiment_info = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "configuration": config_dict,
         "game_statistics": {
             "total_games": 0,
+            "total_rounds": 0,
             "total_score": 0,
             "total_steps": 0,
             "scores": [],
-            "total_rounds": 0,
             "round_counts": [],
         },
         "time_statistics": {
@@ -71,30 +71,30 @@ def save_experiment_info_json(args, directory):
             "primary_llm": {
                 "total_tokens": 0,
                 "total_prompt_tokens": 0,
-                "total_completion_tokens": 0
+                "total_completion_tokens": 0,
             },
             "secondary_llm": {
                 "total_tokens": 0,
                 "total_prompt_tokens": 0,
-                "total_completion_tokens": 0
-            }
+                "total_completion_tokens": 0,
+            },
         },
         "step_stats": {
             "empty_steps": 0,
             "something_is_wrong_steps": 0,
             "valid_steps": 0,
-            "invalid_reversals": 0  # Aggregated count across all games
+            "invalid_reversals": 0,  # Aggregated count across all games
         },
     }
-    
+
     # Create directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
-    
+
     # Save to file
     file_path = os.path.join(directory, "summary.json")
     with open(file_path, "w", encoding='utf-8') as f:
         json.dump(experiment_info, f, indent=2, cls=NumPyJSONEncoder)
-    
+
     return experiment_info
 
 def save_session_stats(log_dir, **kwargs):
@@ -615,34 +615,3 @@ def extract_moves_from_arrays(response):
             return {"moves": valid_moves}
     
     return None
-
-def validate_game_summary(summary):
-    """Validate a game summary JSON to ensure data consistency.
-    
-    Performs sanity checks on the game summary to ensure:
-    - moves length matches steps
-    - each round's moves are a subset of the global moves
-    
-    Args:
-        summary: The game summary dictionary
-        
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
-    try:
-        # Check steps against detailed_history.moves
-        if "steps" in summary and "detailed_history" in summary and "moves" in summary["detailed_history"]:
-            steps = summary["steps"]
-            moves_len = len(summary["detailed_history"]["moves"])
-            if steps != moves_len:
-                return False, f"Moves length ({moves_len}) doesn't match steps ({steps})"
-        
-        # Check each round's moves against total steps
-        if "detailed_history" in summary and "rounds_data" in summary["detailed_history"]:
-            for rk, rd in summary["detailed_history"]["rounds_data"].items():
-                if "moves" in rd and len(rd["moves"]) > summary["steps"]:
-                    return False, f"Round {rk} moves ({len(rd['moves'])}) exceed total steps ({summary['steps']})"
-        
-        return True, "Validation passed"
-    except Exception as e:
-        return False, f"Validation error: {str(e)}" 

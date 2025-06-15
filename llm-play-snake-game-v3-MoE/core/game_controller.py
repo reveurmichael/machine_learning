@@ -395,5 +395,11 @@ class GameController:
 
     @property
     def snake_length(self) -> int:
-        """Return the current length of the snake (number of segments)."""
-        return len(self.snake_positions) 
+        """Current snake length.
+
+        Single-source-of-truth: defer to the `GameData` tracker so that **all**
+        components calculate the length the same way.  This avoids the subtle
+        risk of future discrepancies if one piece updates the body array and
+        the other is forgotten.
+        """
+        return self.game_state.snake_length 

@@ -1,6 +1,6 @@
-# Core game and UI constants (extracted from former config.py)
+import pathlib
 
-# -------------------------------- Colors ---------------------------------
+
 COLORS = {
     'SNAKE_HEAD': (255, 140, 0),    # Bright orange for snake head
     'SNAKE_BODY': (209, 204, 192),  # Light gray for snake body
@@ -15,22 +15,33 @@ COLORS = {
     'APP_BG': (240, 240, 240)       # App background
 }
 
-# ------------------------------ GUI tuning -------------------------------
 WINDOW_WIDTH = 800      # Width of the application window
 WINDOW_HEIGHT = 600     # Height of the application window
 TIME_DELAY = 40         # General delay time for the game loop
 TIME_TICK = 280         # Tick rate for the game
 
-# Pause times (in seconds)
 PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between moves
 
-# ----------------------------- Game rules --------------------------------
 GRID_SIZE = 10
-
+MAX_GAMES_ALLOWED = 2
 MAX_STEPS_ALLOWED = 400
 MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 20
 MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 20
 MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 20
+
+
+AVAILABLE_PROVIDERS = sorted(
+    {
+        p.stem.replace("_provider", "")
+        for p in pathlib.Path("llm/providers").glob("*_provider.py")
+        if p.stem != "base_provider"
+    }
+)
+
+DEFAULT_PROVIDER = "ollama"
+DEFAULT_MODEL = "deepseek-r1:14b"
+DEFAULT_PARSER_PROVIDER = "ollama"
+DEFAULT_PARSER_MODEL = "gemma3:12b-it-qat"
 
 DIRECTIONS = {
     "UP": (0, 1),
@@ -57,10 +68,13 @@ __all__ = [
     'WINDOW_WIDTH', 'WINDOW_HEIGHT', 'TIME_DELAY', 'TIME_TICK',
     'PAUSE_BETWEEN_MOVES_SECONDS',
     'GRID_SIZE',
+    'MAX_GAMES_ALLOWED',
     'MAX_STEPS_ALLOWED',
     'MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED',
     'MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED',
     'MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED',
     'DIRECTIONS',
+    'AVAILABLE_PROVIDERS',
+    'DEFAULT_PROVIDER', 'DEFAULT_MODEL', 'DEFAULT_PARSER_PROVIDER', 'DEFAULT_PARSER_MODEL',
     'END_REASON_MAP',
 ] 

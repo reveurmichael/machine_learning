@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import subprocess
 import streamlit as st
+
+from config.constants import MAX_GAMES_ALLOWED as DEF_MAX_GAMES
+
 from utils.file_utils import get_folder_display_name
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
@@ -42,11 +45,11 @@ def render_continue_pygame_tab(log_folders):
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, 2, 1, key="cont_pg_max_games"
+            "Max Games", 1, 100, DEF_MAX_GAMES, 1, key="cont_pg_max_games"
         )
     with col2:
         sleep_before = st.number_input(
-            "Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_pg_sleep"
+            "Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="cont_pg_sleep"
         )
 
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_pg_no_gui")
@@ -81,11 +84,11 @@ def render_continue_web_tab(log_folders):
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, 2, 1, key="cont_web_max_games"
+            "Max Games", 1, 100, DEF_MAX_GAMES, 1, key="cont_web_max_games"
         )
     with col2:
         sleep_before = st.number_input(
-            "Sleep Before Launch (minutes)", 0.0, 60.0, 0.0, 0.5, key="cont_web_sleep"
+            "Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="cont_web_sleep"
         )
 
     colh, colp = st.columns(2)
@@ -98,6 +101,6 @@ def render_continue_web_tab(log_folders):
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
 
     if st.button("Start Continuation (Web)", key="start_cont_web"):
-        continue_game_web(exp, max_games, host, port)
+        continue_game_web(exp, max_games, host, port, sleep_before)
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.success(f"Continuation (web) started – open {url} to watch.") 

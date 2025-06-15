@@ -7,7 +7,7 @@ import sys
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
+from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, MAX_GAMES_ALLOWED
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 
@@ -25,8 +25,8 @@ def parse_arguments():
                       help='LLM provider to use for secondary LLM. Default: "none" (single LLM mode). Set to same as --provider for dual LLM mode.')
     parser.add_argument('--parser-model', type=str, default=None,
                       help='Model name to use for secondary LLM (if not specified, uses the default for the secondary provider)')
-    parser.add_argument('--max-games', type=int, default=2,
-                      help='Maximum number of games to play')
+    parser.add_argument('--max-games', type=int, default=MAX_GAMES_ALLOWED,
+                      help=f'Maximum number of games to play (default: {MAX_GAMES_ALLOWED})')
     parser.add_argument('--move-pause', type=float, default=PAUSE_BETWEEN_MOVES_SECONDS,
                       help=f'Pause between moves in seconds (default: {PAUSE_BETWEEN_MOVES_SECONDS})')
     parser.add_argument('--sleep-before-launching', type=int, default=0,

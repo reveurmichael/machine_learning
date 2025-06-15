@@ -105,9 +105,26 @@ def run_main_web(max_games: int, host: str, port: int):
         if sleep_before and float(sleep_before) > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
 
+        move_pause = ss.get("main_web_move_pause")
+        if move_pause is not None and float(move_pause) >= 0:
+            _append_arg(cmd, "--move-pause", move_pause)
+
         no_gui = ss.get("main_web_no_gui")
         if no_gui:
             cmd.append("--no-gui")
+
+        # New safety limits – include only when >0
+        max_empty = ss.get("main_web_max_empty_moves")
+        if max_empty and int(max_empty) > 0:
+            _append_arg(cmd, "--max-consecutive-empty-moves-allowed", max_empty)
+
+        max_siw = ss.get("main_web_max_siw")
+        if max_siw and int(max_siw) > 0:
+            _append_arg(cmd, "--max-consecutive-something-is-wrong-allowed", max_siw)
+
+        max_inv_rev = ss.get("main_web_max_invalid_rev")
+        if max_inv_rev and int(max_inv_rev) > 0:
+            _append_arg(cmd, "--max-consecutive-invalid-reversals-allowed", max_inv_rev)
 
         # --------------------------------------------------------------
         subprocess.Popen(cmd)
@@ -116,7 +133,7 @@ def run_main_web(max_games: int, host: str, port: int):
         st.error(f"Error launching web main session: {exc}")
 
 
-def continue_game_web(log_folder: str, max_games: int, host: str, port: int):
+def continue_game_web(log_folder: str, max_games: int, host: str, port: int, sleep_before: float = 0.0):
     try:
         port = ensure_free_port(port)
         cmd = [
@@ -131,12 +148,14 @@ def continue_game_web(log_folder: str, max_games: int, host: str, port: int):
             "--port",
             str(port),
         ]
+        if sleep_before and float(sleep_before) > 0:
+            _append_arg(cmd, "--sleep-before-launching", sleep_before)
         subprocess.Popen(cmd)
         st.info(
             f"Continuation (web) started for '{get_folder_display_name(log_folder)}' at http://{host}:{port}."
         )
     except Exception as exc:
-        st.error(f"Error starting web continuation: {exc}") 
+        st.error(f"Error starting web continuation: {exc}")
 
 
 # ---------------------------------------------------------------------------

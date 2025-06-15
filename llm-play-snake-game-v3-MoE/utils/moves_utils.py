@@ -32,6 +32,31 @@ def normalize_directions(moves: Iterable[DIRECTION_STR]) -> List[DIRECTION_STR]:
 
 
 # ------------------------------------------------------------
+# Direction relationship helpers
+# ------------------------------------------------------------
+
+
+def is_reverse(dir_a: str, dir_b: str) -> bool:
+    """Return *True* if *dir_a* is the exact opposite of *dir_b* (e.g. UP vs DOWN).
+
+    This helper is intentionally private (prefixed with an underscore) because it
+    encodes a very specific rule used by the game logic.  External callers
+    should rely on higher-level APIs unless they really need this low-level
+    check.
+    """
+
+    dir_a = dir_a.upper()
+    dir_b = dir_b.upper()
+
+    return (
+        (dir_a == "UP" and dir_b == "DOWN") or
+        (dir_a == "DOWN" and dir_b == "UP") or
+        (dir_a == "LEFT" and dir_b == "RIGHT") or
+        (dir_a == "RIGHT" and dir_b == "LEFT")
+    )
+
+
+# ------------------------------------------------------------
 # Simple positional analytics (used in prompt engineering)
 # ------------------------------------------------------------
 

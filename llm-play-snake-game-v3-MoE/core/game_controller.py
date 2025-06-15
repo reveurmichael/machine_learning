@@ -3,11 +3,13 @@ Game controller for the Snake game.
 Provides core game logic that can run with or without a GUI.
 """
 
+from typing import List, Tuple
+
 import numpy as np
 from config import GRID_SIZE, DIRECTIONS
 from core.game_data import GameData
 from utils.game_manager_utils import check_collision
-from utils.moves_utils import normalize_direction
+from utils.moves_utils import normalize_direction, is_reverse
 
 class GameController:
     """Base class for the Snake game controller."""
@@ -123,7 +125,7 @@ class GameController:
         x, y = self.apple_position
         self.board[y, x] = self.board_info["apple"]
 
-    def filter_invalid_reversals(self, moves, current_direction=None):
+    def filter_invalid_reversals(self, moves: List[str], current_direction: str | None = None) -> List[str]:
         """Filter out invalid reversal moves from a sequence.
         
         Args:
@@ -136,23 +138,21 @@ class GameController:
         if not moves or len(moves) <= 1:
             return moves
 
-        filtered_moves = []
-        last_direction = current_direction if current_direction else (self.current_direction or moves[0])
+        filtered_moves: List[str] = []
+        last_direction = current_direction or self._get_current_direction_key() or moves[0]
 
         for move in moves:
             move = normalize_direction(move)
-            # Skip if this move would be a reversal of the last direction
-            if ((last_direction == "UP" and move == "DOWN") or
-                (last_direction == "DOWN" and move == "UP") or
-                (last_direction == "LEFT" and move == "RIGHT") or
-                (last_direction == "RIGHT" and move == "LEFT")):
+
+            if is_reverse(move, last_direction):
                 print(f"Filtering out invalid reversal move: {move} after {last_direction}")
-                # Record invalid reversal in game state
-                if hasattr(self, 'game_state'):
+                # Record invalid reversal in game state when available
+                if hasattr(self, "game_state"):
                     self.game_state.record_invalid_reversal(move, last_direction)
-            else:
-                filtered_moves.append(move)
-                last_direction = move
+                continue
+
+            filtered_moves.append(move)
+            last_direction = move
 
         # If all moves were filtered out, return empty list
         if not filtered_moves:
@@ -250,8 +250,10 @@ class GameController:
         direction = DIRECTIONS[direction_key]
 
         # Don't allow reversing direction directly
-        if (self.current_direction is not None and 
-            np.array_equal(np.array(direction), -np.array(self.current_direction))):
+        if (
+            self.current_direction is not None and
+            _is_reverse(direction_key, self._get_current_direction_key())
+        ):
             print(f"Tried to reverse direction: {direction_key}. No move will be made.")
 
             # Record this as an invalid reversal

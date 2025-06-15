@@ -260,13 +260,15 @@ def process_game_over(game, game_state_info):
 
     game.game_state.save_game_summary(
         game_file,
-        args.provider,        # SINGLE SOURCE-OF-TRUTH
-        args.model,
-        parser_provider,
-        args.parser_model if parser_provider else None,
-        args.max_consecutive_something_is_wrong_allowed,
-        args.max_consecutive_empty_moves_allowed,
-        args.max_consecutive_invalid_reversals_allowed
+        primary_provider=args.provider,
+        primary_model=args.model,
+        parser_provider=parser_provider,
+        parser_model=args.parser_model if parser_provider else None,
+        metadata={
+            "max_consecutive_something_is_wrong_allowed": args.max_consecutive_something_is_wrong_allowed,
+            "max_consecutive_empty_moves_allowed": args.max_consecutive_empty_moves_allowed,
+            "max_consecutive_invalid_reversals_allowed": args.max_consecutive_invalid_reversals_allowed,
+        },
     )
 
     print(
@@ -416,13 +418,15 @@ def handle_error(game, error_info):
         
         game.game_state.save_game_summary(
             json_path,
-            args.provider, 
-            args.model,
-            parser_provider,
-            args.parser_model if parser_provider else None,
-            args.max_consecutive_something_is_wrong_allowed,
-            args.max_consecutive_empty_moves_allowed,
-            args.max_consecutive_invalid_reversals_allowed
+            primary_provider=args.provider,
+            primary_model=args.model,
+            parser_provider=parser_provider,
+            parser_model=args.parser_model if parser_provider else None,
+            metadata={
+                "max_consecutive_something_is_wrong_allowed": args.max_consecutive_something_is_wrong_allowed,
+                "max_consecutive_empty_moves_allowed": args.max_consecutive_empty_moves_allowed,
+                "max_consecutive_invalid_reversals_allowed": args.max_consecutive_invalid_reversals_allowed,
+            },
         )
     
     return game_active, game_count, total_score, total_steps, game_scores, round_count, consecutive_something_is_wrong, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
@@ -473,9 +477,6 @@ def report_final_statistics(stats_info):
         
         # Get token stats
         token_stats = game_state.get_token_stats()
-        
-        # Get step stats - these are the stats that matter for each individual game
-        step_stats = game_state.get_step_stats()
     
     # Get token stats specifically from the game manager if available
     if "token_stats" in stats_info:

@@ -31,9 +31,19 @@ class GameController:
         # Game state tracker for statistics
         self.game_state = GameData()
 
+        # Reset game state tracker FIRST to ensure round manager is ready
+        self.game_state.reset()
+
+        # Generate the very first apple now that the game state is ready.  This
+        # ensures that `self.apple_position` exists before the first render.
         self.apple_position = self._generate_apple()
+
+        # Runtime trackers
         self.current_direction = None
-        self.last_collision_type = None  # Tracks collision type: wall, self
+        self.last_collision_type = None
+
+        # Track the apple history starting with the first apple
+        self.apple_positions_history = [self.apple_position.copy()]
 
         # Board entity codes
         self.board_info = {
@@ -41,10 +51,6 @@ class GameController:
             "snake": 1,
             "apple": 2
         }
-
-        # Track apple positions history
-        self.apple_positions_history = []
-        self.apple_positions_history.append(self.apple_position.copy())
 
         # GUI settings
         self.use_gui = use_gui
@@ -67,17 +73,16 @@ class GameController:
         # Reset game state
         self.snake_positions = np.array([[self.grid_size//2, self.grid_size//2]])
         self.head_position = self.snake_positions[-1]
-        self.apple_position = self._generate_apple()
-        self.current_direction = None
-        self.last_collision_type = None
-
-        # Reset apple history
-        self.apple_positions_history = []
-        self.apple_positions_history.append(self.apple_position.copy())
 
         # Reset game state tracker
         self.game_state.reset()
-        self.game_state.record_apple_position(self.apple_position)
+
+        # Generate the initial apple AFTER the game state has been reset so that
+        # record_apple_position() works correctly (round_buffer is not None).
+        self.apple_position = self._generate_apple()
+
+        # Note: _generate_apple() already records the apple position in the
+        # game_state, so we avoid double-recording here.
 
         # Update the board
         self._update_board()
@@ -85,6 +90,13 @@ class GameController:
         # Draw if GUI is available
         if self.use_gui and self.gui:
             self.draw()
+
+        # Clear runtime direction/collision trackers for the new game
+        self.current_direction = None
+        self.last_collision_type = None
+
+        # Reset apple history and seed with the initial apple
+        self.apple_positions_history = [self.apple_position.copy()]
 
     def draw(self):
         """Draw the current game state if GUI is available."""

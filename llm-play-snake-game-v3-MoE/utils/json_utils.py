@@ -236,39 +236,34 @@ def save_session_stats(log_dir, **kwargs):
     # After merging totals, compute averages – scaled **per round** when available
     total_games = summary["game_statistics"].get("total_games", 0)
     total_rounds = summary["game_statistics"].get("total_rounds", 0)
+    denom = max(total_rounds, 0.00001)
 
-    # Prefer per-round denominator; fall back to per-game if round data missing
-
+    # ---------------- Token averages ----------------
     prim = summary["token_usage_stats"].get("primary_llm", {})
     if prim:
-        prim["avg_tokens"] = prim.get("total_tokens", 0) / total_rounds
-        prim["avg_prompt_tokens"] = (
-            prim.get("total_prompt_tokens", 0) / total_rounds
-        )
-        prim["avg_completion_tokens"] = (
-            prim.get("total_completion_tokens", 0) / total_rounds
-        )
+        prim["avg_tokens"] = prim.get("total_tokens", 0) / denom
+        prim["avg_prompt_tokens"] = prim.get("total_prompt_tokens", 0) / denom
+        prim["avg_completion_tokens"] = prim.get("total_completion_tokens", 0) / denom
 
     sec = summary["token_usage_stats"].get("secondary_llm", {})
     if sec:
-        # Only compute if stats available (non-None)
         sec_total = sec.get("total_tokens")
         if sec_total is not None:
-            sec["avg_tokens"] = sec_total / total_rounds
+            sec["avg_tokens"] = sec_total / denom
         sec_prompt = sec.get("total_prompt_tokens")
         if sec_prompt is not None:
-            sec["avg_prompt_tokens"] = sec_prompt / total_rounds
+            sec["avg_prompt_tokens"] = sec_prompt / denom
         sec_comp = sec.get("total_completion_tokens")
         if sec_comp is not None:
-            sec["avg_completion_tokens"] = sec_comp / total_rounds
+            sec["avg_completion_tokens"] = sec_comp / denom
 
-    # Average response times (seconds) – per round if available
+    # ---------------- Response-time averages ----------------
     ts = summary.get("time_statistics", {})
-
-    if ts.get("total_primary_llm_communication_time") is not None:
-        ts["avg_primary_response_time"] = ts.get("total_primary_llm_communication_time", 0) / total_rounds
-    if ts.get("total_secondary_llm_communication_time") is not None:
-        ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / total_rounds
+    if ts:
+        if ts.get("total_primary_llm_communication_time") is not None:
+            ts["avg_primary_response_time"] = ts.get("total_primary_llm_communication_time", 0) / denom
+        if ts.get("total_secondary_llm_communication_time") is not None:
+            ts["avg_secondary_response_time"] = ts.get("total_secondary_llm_communication_time", 0) / denom
 
     # Save the summary file
     try:

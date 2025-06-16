@@ -31,7 +31,7 @@ class TimeStats:
     # -------------------------------------------
     # JSON-ready view
     # -------------------------------------------
-    def summary(self) -> dict:
+    def asdict(self) -> dict:
         end = self.end_time or time.time()
         return {
             "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),

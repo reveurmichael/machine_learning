@@ -181,7 +181,7 @@ class GameData:
                 "parser_model": parser_model,
             },
             # Timings / stats -----------------------------------------
-            "time_stats": self.stats.time_stats.summary(),
+            "time_stats": self.stats.time_stats.asdict(),
             "prompt_response_stats": self.get_prompt_response_stats(),
             "token_stats": self.get_token_stats(),
             "step_stats": self.stats.step_stats.asdict(),
@@ -309,7 +309,7 @@ class GameData:
         """Return wall-clock timings needed for session aggregation."""
         # No longer track movement/waiting breakdowns – just return the
         # coarse timing summary.
-        return self.stats.time_stats.summary()
+        return self.stats.time_stats.asdict()
 
     # -------------------------------
     # Misc helpers expected by utils.game_manager_utils

@@ -6,7 +6,6 @@ in the Snake game architecture.
 
 from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
 from utils.moves_utils import calculate_move_differences
-from utils.game_manager_utils import format_body_cells_str
 
 def prepare_snake_prompt(head_position, body_positions, apple_position, current_direction):
     """Prepare a prompt for the primary LLM to determine the next snake move.
@@ -67,7 +66,7 @@ def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells
     """
     # Use string replacement for the prompt template
     parser_prompt = PROMPT_TEMPLATE_TEXT_SECONDARY_LLM.replace("TEXT_TO_BE_REPLACED_FIRST_LLM_RESPONSE", llm_response)
-    
+
     # Replace head and apple position placeholders if provided
     if head_pos:
         parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
@@ -75,5 +74,23 @@ def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells
         parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
     if body_cells:
         parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_BODY_CELLS", body_cells)
-        
+
     return parser_prompt
+
+def format_body_cells_str(body_positions):
+    """Format the snake body cells as a string representation.
+
+    Args:
+        body_positions: List of [x, y] coordinates of the snake segments
+
+    Returns:
+        String representation of body cells in format: "[(x1,y1), (x2,y2), ...]"
+    """
+    body_cells = []
+
+    # Format each position as a tuple string
+    for x, y in body_positions:
+        body_cells.append(f"({x},{y})")
+
+    return "[" + ", ".join(body_cells) + "]"
+

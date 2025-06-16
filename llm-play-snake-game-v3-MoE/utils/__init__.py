@@ -48,9 +48,7 @@ from .moves_utils import (
     calculate_move_differences,
 )
 
-from .game_manager_utils import (
-    format_body_cells_str,
-)
+from .game_manager_utils import check_collision
 
 # Text processing
 from .text_utils import (
@@ -92,6 +90,8 @@ __all__ = [
     "extract_json_from_text",
     "extract_moves_pattern",
     "extract_moves_from_arrays",
+    # Game manager utils
+    "check_collision",
     # Game stats utils
     "save_experiment_info_json",
     "save_session_stats",
@@ -115,7 +115,6 @@ __all__ = [
     "normalize_direction",
     "normalize_directions",
     "calculate_move_differences",
-    "format_body_cells_str",
     # Text processing
     "process_response_for_display",
     # Continuation helpers

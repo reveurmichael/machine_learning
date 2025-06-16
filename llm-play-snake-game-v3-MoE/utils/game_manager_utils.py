@@ -448,20 +448,3 @@ def process_events(game_manager):
                 game_manager.current_game_moves = []  # Reset moves for new game
                 print(Fore.GREEN + "🔄 Game reset") 
 
-
-def format_body_cells_str(body_positions):
-    """Format the snake body cells as a string representation.
-
-    Args:
-        body_positions: List of [x, y] coordinates of the snake segments
-
-    Returns:
-        String representation of body cells in format: "[(x1,y1), (x2,y2), ...]"
-    """
-    body_cells = []
-
-    # Format each position as a tuple string
-    for x, y in body_positions:
-        body_cells.append(f"({x},{y})")
-
-    return "[" + ", ".join(body_cells) + "]"

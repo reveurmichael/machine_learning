@@ -6,54 +6,81 @@ Handles replaying of previously recorded games.
 import os
 import json
 import time
+import traceback
+from typing import Any, Dict, List, Optional, Tuple
+
 import pygame
-from pygame.locals import *
+from pygame.locals import *  # noqa: F403 – Pygame constants
+import numpy as np
+
 from core.game_controller import GameController
 from config import TIME_DELAY, TIME_TICK
-import numpy as np
-import traceback
 from utils.file_utils import get_game_json_filename, join_log_path
 
 class ReplayEngine(GameController):
-    """Engine for replaying recorded Snake games."""
+    """Engine for replaying recorded Snake games.
+
+    This class consumes the *game_N.json* artefacts produced by the main
+    Snake-LLM run and replays them either with a PyGame GUI or in headless
+    mode, faithfully reproducing the original sequence of moves, apple
+    spawns, timing, and statistics.
+    """
     
-    def __init__(self, log_dir, move_pause=1.0, auto_advance=False, use_gui=True):
-        """Initialize the replay engine.
-        
-        Args:
-            log_dir: Directory containing game logs
-            move_pause: Time in seconds to pause between moves
-            auto_advance: Whether to automatically advance through games
-            use_gui: Whether to use GUI for display
+    # ------------------------------------------------------------------
+    # Construction / initialisation
+    # ------------------------------------------------------------------
+
+    def __init__(
+        self,
+        log_dir: str,
+        move_pause: float = 1.0,
+        auto_advance: bool = False,
+        use_gui: bool = True,
+    ) -> None:
+        """Create a `ReplayEngine`.
+
+        Parameters
+        ----------
+        log_dir
+            Directory that contains *summary.json* and *game_*.json files.
+        move_pause
+            Seconds to pause between two moves (≃ playback speed).
+        auto_advance
+            When *True*, automatically jump to the next game once the current
+            replay finishes.
+        use_gui
+            Whether to use the graphical interface (`pygame`).  Setting it to
+            *False* keeps all computations but skips rendering – useful for
+            batch validations.
         """
         super().__init__(use_gui=use_gui)
         
         # Initialize replay parameters
-        self.log_dir = log_dir
-        self.pause_between_moves = move_pause
-        self.auto_advance = auto_advance
+        self.log_dir: str = log_dir
+        self.pause_between_moves: float = move_pause
+        self.auto_advance: bool = auto_advance
         
         # Game state specific to replay
-        self.game_number = 1
-        self.apple_positions = []
-        self.apple_index = 0
-        self.moves = []
-        self.move_index = 0
-        self.moves_made = []
-        self.game_stats = {}
-        self.last_move_time = time.time()
-        self.running = True
-        self.paused = False
+        self.game_number: int = 1
+        self.apple_positions: List[List[int]] = []
+        self.apple_index: int = 0
+        self.moves: List[str] = []  # usually str, but keep Any for safety
+        self.move_index: int = 0
+        self.moves_made: List[str] = []
+        self.game_stats: Dict[str, Any] = {}
+        self.last_move_time: float = time.time()
+        self.running: bool = True
+        self.paused: bool = False
         
         # Game statistics from the log file
-        self.game_end_reason = None
-        self.primary_llm = None
-        self.secondary_llm = None
-        self.game_timestamp = None
-        self.llm_response = None
-        self.planned_moves = []
+        self.game_end_reason: Optional[str] = None
+        self.primary_llm: Optional[str] = None
+        self.secondary_llm: Optional[str] = None
+        self.game_timestamp: Optional[str] = None
+        self.llm_response: Optional[str] = None
+        self.planned_moves: List[str] = []
     
-    def set_gui(self, gui_instance):
+    def set_gui(self, gui_instance: Any) -> None:
         """Set the GUI instance to use for display.
         
         Args:
@@ -64,7 +91,7 @@ class ReplayEngine(GameController):
         if hasattr(gui_instance, 'set_paused'):
             gui_instance.set_paused(self.paused)
     
-    def draw(self):
+    def draw(self) -> None:
         """Draw the current game state."""
         if self.use_gui and self.gui:
             # Create replay data dictionary
@@ -89,7 +116,7 @@ class ReplayEngine(GameController):
             # Draw the replay view
             self.gui.draw(replay_data)
             
-    def load_game_data(self, game_number):
+    def load_game_data(self, game_number: int) -> Optional[Dict[str, Any]]:
         """Load game data for a specific game number.
         
         Args:
@@ -240,7 +267,7 @@ class ReplayEngine(GameController):
             traceback.print_exc()
             return None
     
-    def update(self):
+    def update(self) -> None:
         """Update game state for each frame."""
         if self.paused:
             return
@@ -301,14 +328,14 @@ class ReplayEngine(GameController):
                 if self.auto_advance:
                     self.load_next_game()
                     
-    def load_next_game(self):
+    def load_next_game(self) -> None:
         """Load the next game in sequence."""
         self.game_number += 1
         if not self.load_game_data(self.game_number):
             print("No more games to load. Replay complete.")
             self.running = False
     
-    def execute_replay_move(self, direction_key):
+    def execute_replay_move(self, direction_key: str) -> bool:
         """Execute a move in the specified direction for replay.
         
         Args:
@@ -358,7 +385,7 @@ class ReplayEngine(GameController):
         
         return game_active
     
-    def handle_events(self):
+    def handle_events(self) -> None:
         """Handle pygame events."""
         redraw_needed = False
         
@@ -412,7 +439,7 @@ class ReplayEngine(GameController):
         if redraw_needed and self.use_gui and self.gui:
             self.draw()
     
-    def run(self):
+    def run(self) -> None:
         """Run the replay loop."""
         # Initialize pygame if not already done
         if not pygame.get_init():
@@ -447,7 +474,7 @@ class ReplayEngine(GameController):
         # Clean up
         pygame.quit() 
     
-    def set_apple_position(self, position):
+    def set_apple_position(self, position: Any) -> bool:
         """Set the apple position, avoiding snake body.
         
         Args:

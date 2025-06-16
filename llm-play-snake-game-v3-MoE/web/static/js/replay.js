@@ -48,7 +48,7 @@ function setupEventListeners() {
 }
 
 function startPolling() {
-    updateInterval = setInterval(fetchGameState, 100);
+    updateInterval = setInterval(fetchGameState, 20);
 }
 
 async function fetchGameState() {

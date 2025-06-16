@@ -46,8 +46,8 @@ function setupEventListeners() {
 }
 
 function startPolling() {
-    // Poll for game state every 100ms
-    updateInterval = setInterval(fetchGameState, 100);
+    // Poll for game state every 20ms
+    updateInterval = setInterval(fetchGameState, 20);
 }
 
 async function fetchGameState() {

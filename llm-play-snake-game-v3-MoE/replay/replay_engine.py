@@ -473,35 +473,4 @@ class ReplayEngine(GameController):
         
         # Clean up
         pygame.quit() 
-    
-    def set_apple_position(self, position: Any) -> bool:
-        """Set the apple position, avoiding snake body.
-        
-        Args:
-            position: The desired position as [x, y]
-            
-        Returns:
-            Boolean indicating success
-        """
-        if not isinstance(position, (list, tuple, np.ndarray)) or len(position) != 2:
-            return False
-            
-        # Convert to numpy array if needed
-        if not isinstance(position, np.ndarray):
-            position = np.array(position)
-            
-        # Check that position is within bounds
-        if (position[0] < 0 or position[0] >= self.grid_size or 
-            position[1] < 0 or position[1] >= self.grid_size):
-            return False
-        
-        # Check if position is on snake
-        for segment in self.snake_positions:
-            if np.array_equal(position, segment):
-                # Position is invalid
-                return False
-                
-        # Position is valid
-        self.apple_position = position
-        return True
-    
+  

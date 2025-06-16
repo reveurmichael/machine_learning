@@ -124,23 +124,8 @@ def handle_continuation_game_state(game_manager):
     # Set up the game
     game_manager.setup_game()
     
-    # We'll record the continuation exactly once, AFTER we attempt to load
-    # the previous summary – this prevents the duplicate-timestamp artefact
-    # that occurred when we recorded before *and* after reading summary.json.
-
-    summary_data = None
-    try:
-        summary_path = os.path.join(game_manager.log_dir, "summary.json")
-        with open(summary_path, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
-            
-        # Bring over tunables & counters from the previous session
-        game_manager.game.game_state.synchronize_with_summary_json(summary_data)
-    except Exception as e:
-        print(Fore.YELLOW + f"⚠️ Warning: Could not load continuation info from summary.json: {e}")
-
-    # Record the continuation exactly once (with or without previous data)
-    game_manager.game.game_state.record_continuation(summary_data)
+    # Record the continuation exactly once
+    game_manager.game.game_state.record_continuation()
 
     prev_count = game_manager.game.game_state.continuation_count
     print(Fore.GREEN + f"📝 Marked session as continuation ({prev_count})")

@@ -277,7 +277,7 @@ class GameData:
     # Continuation-mode helpers (needed by utils/continuation_utils.py)
     # -------------------------------
 
-    def record_continuation(self, previous_session_data: Optional[dict] = None) -> None:
+    def record_continuation(self) -> None:
         """Mark this run as a continuation of a previous experiment.
 
         The old monolithic version just kept some metadata lists; we
@@ -301,47 +301,11 @@ class GameData:
             "continuation_number": self.continuation_count,
         }
 
-        # If the caller passes a summary-dict from the previous run, keep
-        # the compact stats block that the old code recorded.
-        if previous_session_data and "game_count" in previous_session_data:
-            meta["previous_session"] = {
-                "total_games": previous_session_data.get("game_count", 0),
-                "total_score": previous_session_data.get("total_score", 0),
-                "total_steps": previous_session_data.get("total_steps", 0),
-                "scores": previous_session_data.get("game_scores", []),
-            }
-
         self.continuation_metadata.append(meta)
 
-    def synchronize_with_summary_json(self, summary_data: Dict[str, Any]):
-        """Pull tunable limits and step counters from an existing summary.json.
-
-        Only the handful of fields that `utils.continuation_utils` relies on
-        are copied; everything else remains unchanged.
-        """
-        if not summary_data:
-            return
-
-        # copy limit settings so the new session respects the old rules
-        self.max_consecutive_empty_moves_allowed = summary_data.get(
-            "max_consecutive_empty_moves_allowed",
-            self.max_consecutive_empty_moves_allowed,
-        )
-        self.max_consecutive_invalid_reversals_allowed = summary_data.get(
-            "max_consecutive_invalid_reversals_allowed",
-            self.max_consecutive_invalid_reversals_allowed,
-        )
-
-        # step counters
-        step_stats = summary_data.get("step_stats", {})
-        self.stats.step_stats.valid = step_stats.get(
-            "valid_steps", self.stats.step_stats.valid
-        )
-        self.stats.step_stats.invalid_reversals = step_stats.get(
-            "invalid_reversals", self.stats.step_stats.invalid_reversals
-        )
-
-    # --- Quick accessors required by utils/game_manager_utils ----
+    # -------------------------------
+    # Quick accessors required by utils/game_manager_utils
+    # -------------------------------
 
     @property
     def valid_steps(self) -> int:

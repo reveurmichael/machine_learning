@@ -13,6 +13,7 @@ const scoreElement   = document.getElementById('score');
 const stepsElement   = document.getElementById('steps');
 const plannedMovesEl = document.getElementById('planned-moves');
 const llmResponseEl  = document.getElementById('llm-response');
+const finishedIndicator = document.getElementById('finished-indicator');
 
 // Game state
 let gameState = null;
@@ -100,6 +101,11 @@ function updateUI() {
     // Basic info
     scoreElement.textContent = gameState.score;
     stepsElement.textContent = gameState.steps;
+
+    // Session finished flag
+    if (finishedIndicator) {
+        finishedIndicator.style.display = gameState.running ? 'none' : 'block';
+    }
 
     // Planned moves list – show commas separated, default empty
     if (Array.isArray(gameState.planned_moves)) {

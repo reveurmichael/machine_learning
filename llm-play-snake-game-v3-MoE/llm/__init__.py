@@ -11,14 +11,12 @@ from llm.client import LLMClient
 from llm.prompt_utils import (
     prepare_snake_prompt,
     create_parser_prompt,
-    format_raw_llm_response
 )
 
 # Import and re-export parsing-related functions
 from llm.parsing_utils import (
     parse_and_format,
     parse_llm_response,
-    handle_llm_response
 )
 
 # Import and re-export communication-related functions
@@ -38,12 +36,10 @@ __all__ = [
     # Prompt utilities
     'prepare_snake_prompt',
     'create_parser_prompt',
-    'format_raw_llm_response',
     
     # Parsing utilities
     'parse_and_format',
     'parse_llm_response',
-    'handle_llm_response',
     
     # Communication utilities
     'check_llm_health',

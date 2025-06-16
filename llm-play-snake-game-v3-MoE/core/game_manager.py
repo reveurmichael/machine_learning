@@ -20,7 +20,6 @@ from utils.continuation_utils import (
     continue_from_directory,
     handle_continuation_game_state,
     setup_continuation_session,
-    setup_llm_clients,
 )
 from utils.game_manager_utils import (
     initialize_game_manager,
@@ -280,10 +279,11 @@ class GameManager:
         # Set up continuation session
         setup_continuation_session(self, log_dir, start_game_number)
 
-        # Set up LLM clients with the configuration from the original experiment
+        # Create LLM clients using original configuration (needed before game loop)
+        from utils.initialization_utils import setup_llm_clients
         setup_llm_clients(self)
 
-        # Handle game state for continuation
+        # Handle game state for continuation (sets up board, counters, etc.)
         handle_continuation_game_state(self)
 
         # Run the game loop

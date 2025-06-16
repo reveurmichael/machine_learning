@@ -235,7 +235,6 @@ def get_llm_response(game_manager):
                 print(Fore.YELLOW + "⚠️ Secondary LLM returned an error or no response. Falling back to primary LLM.")
                 # Fall back to using the primary LLM response
                 parser_output = parse_and_format(
-                    game_manager.llm_client,
                     response,
                     {'game_state': game_manager.game.game_state}
                 )
@@ -273,7 +272,6 @@ def get_llm_response(game_manager):
 
                 # Process the secondary LLM response
                 parser_output = parse_and_format(
-                    game_manager.llm_client,
                     secondary_response,
                     {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
                 )
@@ -300,7 +298,6 @@ def get_llm_response(game_manager):
         else:
             # SINGLE LLM MODE: Direct extraction from primary LLM
             parser_output = parse_and_format(
-                game_manager.llm_client,
                 response,
                 {'game_state': game_manager.game.game_state}
             )

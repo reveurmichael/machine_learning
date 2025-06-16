@@ -8,14 +8,13 @@ from utils.json_utils import extract_valid_json, extract_json_from_code_block, e
 from utils.moves_utils import normalize_directions
 
 
-def parse_and_format(llm_client, llm_response, parser_options=None):
+def parse_and_format(llm_response, parser_options=None):
     """Parse an LLM response and format it for use by the game.
     
     Core parsing function that extracts structured move data from LLM responses.
     Works with both primary and secondary LLM responses.
     
     Args:
-        llm_client: LLM client used to generate the response
         llm_response: Raw response from the LLM
         parser_options: Dictionary containing optional parsing parameters:
             - game_state: GameData instance to track statistics
@@ -156,21 +155,3 @@ def parse_llm_response(response, processed_response_func, game_instance):
         game_instance.game_state.record_something_is_wrong_move()
 
         return None
-
-def handle_llm_response(llm_client, response, parser_input=None, game_state=None):
-    """Handle a response from an LLM, extracting and processing moves.
-    
-    Args:
-        llm_client: LLM client used to generate the response
-        response: Raw response from the LLM
-        parser_input: Optional tuple of (head_pos, apple_pos, body_cells) for parsing
-        game_state: Optional GameData instance to track statistics
-        
-    Returns:
-        Parsed JSON data with moves, or None if parsing failed
-    """
-    # Unpack parser input if provided
-    head_pos, apple_pos, body_cells = parser_input if parser_input else (None, None, None)
-    
-    # Parse and format the response
-    return parse_and_format(llm_client, response, {'game_state': game_state, 'head_pos': head_pos, 'apple_pos': apple_pos, 'body_cells': body_cells}) 

@@ -77,36 +77,3 @@ def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells
         parser_prompt = parser_prompt.replace("TEXT_TO_BE_REPLACED_BODY_CELLS", body_cells)
         
     return parser_prompt
-
-def format_raw_llm_response(response, request_time, response_time, model_name=None, provider=None):
-    """Format the raw LLM response with metadata for saving to a file.
-    
-    Args:
-        response: The raw response from the LLM
-        request_time: Timestamp when the request was sent
-        response_time: Duration of the response in seconds
-        model_name: Name of the model used (optional)
-        provider: Name of the provider used (optional)
-        
-    Returns:
-        Formatted response with metadata
-    """
-    # Format the metadata section
-    metadata = [
-        f"Time: {request_time}",
-        f"Response time: {response_time:.2f} seconds",
-    ]
-    
-    if model_name:
-        metadata.append(f"Model: {model_name}")
-    
-    if provider:
-        metadata.append(f"Provider: {provider}")
-    
-    # Format the full response
-    formatted_response = "=== METADATA ===\n"
-    formatted_response += "\n".join(metadata)
-    formatted_response += "\n\n=== RESPONSE ===\n"
-    formatted_response += response
-    
-    return formatted_response 

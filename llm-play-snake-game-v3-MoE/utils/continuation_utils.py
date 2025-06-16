@@ -108,26 +108,6 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1
 
-def setup_llm_clients(game_manager):
-    """Set up the LLM clients for continuation.
-    
-    Args:
-        game_manager: The GameManager instance
-    """
-    from utils.initialization_utils import setup_llm_clients as common_setup_llm_clients
-    
-    # Print configuration being used
-    print(Fore.GREEN + "🔄 Setting up LLM clients for continuation mode")
-    print(Fore.GREEN + f"🤖 Using Primary LLM: {game_manager.args.provider}" + 
-          (f" ({game_manager.args.model})" if game_manager.args.model else ""))
-    
-    if game_manager.args.parser_provider and game_manager.args.parser_provider.lower() != 'none':
-        print(Fore.GREEN + f"🤖 Using Parser LLM: {game_manager.args.parser_provider}" + 
-              (f" ({game_manager.args.parser_model})" if game_manager.args.parser_model else ""))
-    
-    # Use the common utility function to set up LLM clients
-    common_setup_llm_clients(game_manager)
-
 def handle_continuation_game_state(game_manager):
     """Handle game state for continuation mode.
     
@@ -304,6 +284,10 @@ def continue_from_directory(game_manager_class, args):
     
     # Set the is_continuation flag explicitly
     args.is_continuation = True
+    
+    # Set up LLM clients with the configuration from the original experiment
+    from utils.initialization_utils import setup_llm_clients
+    setup_llm_clients(game_manager)
     
     # Continue from the session
     try:

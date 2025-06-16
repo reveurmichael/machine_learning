@@ -8,7 +8,7 @@ from utils.json_utils import extract_valid_json, extract_json_from_code_block, e
 from utils.moves_utils import normalize_directions
 
 
-def parse_and_format(llm_response, parser_options=None):
+def parse_and_format(llm_response):
     """Parse an LLM response and format it for use by the game.
     
     Core parsing function that extracts structured move data from LLM responses.
@@ -16,22 +16,13 @@ def parse_and_format(llm_response, parser_options=None):
     
     Args:
         llm_response: Raw response from the LLM
-        parser_options: Dictionary containing optional parsing parameters:
-            - game_state: GameData instance to track statistics
-            - head_pos: Current head position [x, y]
-            - apple_pos: Current apple position [x, y]
-            - body_cells: List of body cell positions [[x1, y1], [x2, y2], ...]
         
     Returns:
         Dictionary with parsed data or None if parsing failed
     """
     try:
-        game_state = None
-        if parser_options and 'game_state' in parser_options:
-            game_state = parser_options['game_state']
-        
         # Parse JSON directly from response
-        parsed_data = extract_valid_json(llm_response, game_state, attempt_id=0)
+        parsed_data = extract_valid_json(llm_response, attempt_id=0)
         
         if parsed_data and "moves" in parsed_data:
             # Record success and return data if it includes a 'moves' field
@@ -71,7 +62,7 @@ def parse_llm_response(response, processed_response_func, game_instance):
             print("Attempting to extract JSON from LLM response...")
 
             # Try to extract JSON from the response
-            json_data = extract_valid_json(response, game_instance.game_state, attempt_id=0)
+            json_data = extract_valid_json(response, attempt_id=0)
 
             # If we couldn't extract JSON, try looking for code blocks
             if not json_data:

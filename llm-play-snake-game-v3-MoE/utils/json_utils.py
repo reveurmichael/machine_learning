@@ -4,10 +4,14 @@ Comprehensive utilities for JSON parsing, validation, and extraction from LLM re
 with special handling for common formatting variations and error conditions.
 """
 
+from __future__ import annotations
+
 import json
 import re
+from typing import Any, Dict, List, Optional, Tuple
+from config.constants import VALID_MOVES
 
-def preprocess_json_string(json_str):
+def preprocess_json_string(json_str: str) -> str:
     """Preprocess a JSON string to fix common formatting issues.
     
     Args:
@@ -51,11 +55,10 @@ def preprocess_json_string(json_str):
     
     return ''.join(result)
 
-def validate_json_format(data):
+def validate_json_format(data: Any) -> Tuple[bool, Optional[str]]:
     """Validate that the JSON data has the expected format.
     
     Args:
-        data: JSON data to validate
         data: JSON data to validate
         
     Returns:
@@ -72,7 +75,7 @@ def validate_json_format(data):
         return False, "The 'moves' field is not a list"
         
     # Validate all moves are valid directions
-    valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
+    valid_moves = VALID_MOVES
     
     for i, move in enumerate(data["moves"]):
         if not isinstance(move, str):
@@ -89,7 +92,7 @@ def validate_json_format(data):
     
     return True, None
 
-def extract_json_from_code_block(response):
+def extract_json_from_code_block(response: str) -> Optional[Dict[str, Any]]:
     """Extract JSON data from a code block in the response.
     
     Args:
@@ -141,7 +144,7 @@ def extract_json_from_code_block(response):
             valid_moves = []
             for move in move_matches:
                 move_upper = move.upper()
-                if move_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                if move_upper in VALID_MOVES:
                     valid_moves.append(move_upper)
             
             if valid_moves:
@@ -152,7 +155,10 @@ def extract_json_from_code_block(response):
     
     return None
 
-def extract_valid_json(text, game_state=None, attempt_id=0):
+def extract_valid_json(
+    text: str,
+    attempt_id: int = 0,
+) -> Optional[Dict[str, Any]]:
     """Extract valid JSON data from text.
     
     Attempts multiple extraction strategies:
@@ -244,7 +250,7 @@ def extract_valid_json(text, game_state=None, attempt_id=0):
     # No valid JSON found
     return None
 
-def extract_json_from_text(response):
+def extract_json_from_text(response: str) -> Optional[Dict[str, List[str]]]:
     """Extract JSON data from text response.
     
     Args:
@@ -268,7 +274,7 @@ def extract_json_from_text(response):
             standardized_moves = [move.upper() for move in moves]
             
             # Filter to only valid moves
-            valid_moves = [move for move in standardized_moves if move in ["UP", "DOWN", "LEFT", "RIGHT"]]
+            valid_moves = [move for move in standardized_moves if move in VALID_MOVES]
             
             if valid_moves:
                 print(f"Extracted moves from text: {valid_moves}")
@@ -281,7 +287,7 @@ def extract_json_from_text(response):
         standardized_moves = [move.upper() for move in moves]
         
         # Filter to only valid moves
-        valid_moves = [move for move in standardized_moves if move in ["UP", "DOWN", "LEFT", "RIGHT"]]
+        valid_moves = [move for move in standardized_moves if move in VALID_MOVES]
         
         if valid_moves:
             print(f"Extracted moves using pattern matching: {valid_moves}")
@@ -289,7 +295,7 @@ def extract_json_from_text(response):
     
     return None
 
-def extract_moves_pattern(json_str):
+def extract_moves_pattern(json_str: str) -> Optional[Dict[str, List[str]]]:
     """Extract moves from a JSON string using pattern matching.
     
     Args:
@@ -312,7 +318,7 @@ def extract_moves_pattern(json_str):
         valid_moves = []
         for move in move_matches:
             move_upper = move.upper()
-            if move_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            if move_upper in VALID_MOVES:
                 valid_moves.append(move_upper)
     
         if valid_moves:
@@ -322,7 +328,7 @@ def extract_moves_pattern(json_str):
         print(f"Move extraction error: {e}")
         return None
 
-def extract_moves_from_arrays(response):
+def extract_moves_from_arrays(response: str) -> Optional[Dict[str, List[str]]]:
     """Extract moves from arrays in the response.
     
     Args:
@@ -342,7 +348,7 @@ def extract_moves_from_arrays(response):
         valid_moves = []
         for item in quoted_items:
             item_upper = item.upper()
-            if item_upper in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            if item_upper in VALID_MOVES:
                 valid_moves.append(item_upper)  # Store in uppercase format
         
         if valid_moves and len(valid_moves) > 0:

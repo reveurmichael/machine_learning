@@ -234,10 +234,7 @@ def get_llm_response(game_manager):
             if secondary_response is None or "ERROR" in secondary_response:
                 print(Fore.YELLOW + "⚠️ Secondary LLM returned an error or no response. Falling back to primary LLM.")
                 # Fall back to using the primary LLM response
-                parser_output = parse_and_format(
-                    response,
-                    {'game_state': game_manager.game.game_state}
-                )
+                parser_output = parse_and_format(response)
                 
                 # Use the primary LLM response for display
                 from utils.text_utils import process_response_for_display
@@ -271,10 +268,7 @@ def get_llm_response(game_manager):
                 print(Fore.GREEN + f"📝 Parsed response saved to {parsed_path}")
 
                 # Process the secondary LLM response
-                parser_output = parse_and_format(
-                    secondary_response,
-                    {'game_state': game_manager.game.game_state, 'head_pos': parser_input[0], 'apple_pos': parser_input[1], 'body_cells': parser_input[2]}
-                )
+                parser_output = parse_and_format(secondary_response)
                 
                 # If we couldn't extract a valid parser output, try another approach to find code blocks
                 if not parser_output:
@@ -297,10 +291,7 @@ def get_llm_response(game_manager):
                 game_manager.game.processed_response = process_response_for_display(secondary_response)
         else:
             # SINGLE LLM MODE: Direct extraction from primary LLM
-            parser_output = parse_and_format(
-                response,
-                {'game_state': game_manager.game.game_state}
-            )
+            parser_output = parse_and_format(response)
             
             # Store the primary LLM response for display in the UI
             from utils.text_utils import process_response_for_display

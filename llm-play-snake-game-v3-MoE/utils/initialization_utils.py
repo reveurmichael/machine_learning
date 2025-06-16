@@ -4,7 +4,6 @@ Handles initial setup, game configuration, and data loading.
 """
 
 import os
-import json
 from colorama import Fore
 from llm.communication_utils import check_llm_health
 import sys

@@ -17,7 +17,6 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
 import argparse
 import threading
-import time
 import sys
 import logging
 from flask import Flask, render_template, jsonify, request
@@ -92,7 +91,8 @@ def manager_thread_fn(gm: GameManager, args):
                 # overwrite CLI defaults so the resumed session uses the
                 # original provider/model and limits.
                 # ------------------------------------------------------
-                import json, os
+                import json
+                import os
                 summary_path = os.path.join(cont_dir, "summary.json")
                 if os.path.exists(summary_path):
                     with open(summary_path, "r", encoding="utf-8") as f:

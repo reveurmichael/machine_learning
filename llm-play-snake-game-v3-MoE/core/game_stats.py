@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 import time
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 __all__ = [
     "TimeStats",

@@ -11,7 +11,7 @@ import re
 import json
 from datetime import datetime
 from colorama import Fore
-from utils.file_utils import save_to_file, get_prompt_filename, join_log_path
+from utils.file_utils import save_to_file, get_prompt_filename
 from llm.prompt_utils import create_parser_prompt
 from llm.parsing_utils import parse_and_format
 

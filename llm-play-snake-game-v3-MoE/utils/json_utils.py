@@ -6,9 +6,6 @@ with special handling for common formatting variations and error conditions.
 
 import json
 import re
-import os
-import numpy as np
-from datetime import datetime
 
 def preprocess_json_string(json_str):
     """Preprocess a JSON string to fix common formatting issues.

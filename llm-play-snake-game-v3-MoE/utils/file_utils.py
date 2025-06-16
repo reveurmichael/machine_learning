@@ -7,7 +7,6 @@ session management in the Snake game environment.
 import os
 import glob
 import json
-from pathlib import Path
 
 def extract_game_summary(summary_file):
     """Extract game summary from a summary file.

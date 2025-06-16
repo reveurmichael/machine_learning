@@ -224,7 +224,7 @@ def run_game_loop(game_manager):
                     # Ensure UI is updated
                     game_manager.game.draw()
                     
-                except Exception as e:
+                except Exception:
                     pass
             # Control frame rate only in GUI mode
             if game_manager.use_gui:

@@ -9,11 +9,10 @@ import time
 import pygame
 from pygame.locals import *
 from core.game_controller import GameController
-from config import TIME_DELAY, TIME_TICK, DIRECTIONS
+from config import TIME_DELAY, TIME_TICK
 import numpy as np
 import traceback
-from utils.game_manager_utils import check_collision
-from utils.file_utils import get_game_json_filename, join_log_path, find_valid_log_folders
+from utils.file_utils import get_game_json_filename, join_log_path
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games."""

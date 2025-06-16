@@ -7,7 +7,7 @@ import subprocess
 import streamlit as st
 
 from utils.file_utils import get_folder_display_name
-from utils.network_utils import find_free_port, ensure_free_port
+from utils.network_utils import ensure_free_port
 
 __all__ = [
     "run_replay",

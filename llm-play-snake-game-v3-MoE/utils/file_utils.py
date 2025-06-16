@@ -242,7 +242,12 @@ def load_summary_data(folder_path: str):
 
 
 def load_game_data(folder_path: str):
-    """Return dict {game_number: game_json} for each *game_*.json* in folder."""
+    """
+    1. Scans the whole folder.
+    2. Loads every game_*.json file into a dict {number: dict}.
+    3. Does no validation or per-game initialisation.
+    4. Return dict {game_number: game_json} for each *game_*.json* in folder.
+    """
     games = {}
     for file in os.listdir(folder_path):
         if file.startswith("game_") and file.endswith(".json"):

@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import subprocess
 import streamlit as st
+import json
 
 from config.constants import MAX_GAMES_ALLOWED 
-from utils.file_utils import get_folder_display_name
+from utils.file_utils import get_folder_display_name, load_summary_data
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
 
@@ -32,13 +33,30 @@ def render_continue_pygame_tab(log_folders):
         st.warning("No experiment logs found.")
         return
 
-    exp = st.selectbox(
-        "Experiment",
-        options=log_folders,
-        format_func=get_folder_display_name,
-        key="cont_pg_exp",
-        label_visibility="collapsed",
-    )
+    col_exp, col_info = st.columns(2)
+
+    with col_exp:
+        exp = st.selectbox(
+            "Experiment",
+            options=log_folders,
+            format_func=get_folder_display_name,
+            key="cont_pg_exp",
+            label_visibility="collapsed",
+        )
+
+    with col_info:
+        if exp:
+            summary_data = load_summary_data(exp)
+            if summary_data:
+                total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
+                st.info(f"Games completed so far: {total_games_finished}")
+            else:
+                st.warning("Could not load summary.json for the selected experiment.")
+
+    # optional expander under full width
+    if exp and summary_data:
+        with st.expander("Show summary.json"):
+            st.code(json.dumps(summary_data, indent=2), language="json")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -70,15 +88,31 @@ def render_continue_web_tab(log_folders):
         st.warning("No experiment logs found.")
         return
 
-    exp = st.selectbox(
-        "Experiment",
-        options=log_folders,
-        format_func=get_folder_display_name,
-        key="cont_web_exp",
-        label_visibility="collapsed",
-    )
+    # ── Horizontal row: Selectbox + Info/Warning ─────────────────────
+    col_exp_w, col_info_w = st.columns([2, 1])
 
-    # ── side-by-side inputs ───────────────────────────────────────────
+    with col_exp_w:
+        exp = st.selectbox(
+            "Experiment",
+            options=log_folders,
+            format_func=get_folder_display_name,
+            key="cont_web_exp",
+            label_visibility="collapsed",
+        )
+
+    with col_info_w:
+        if exp:
+            summary_data = load_summary_data(exp)
+            if summary_data:
+                total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
+                st.info(f"Games completed so far: {total_games_finished}")
+            else:
+                st.warning("Could not load summary.json for the selected experiment.")
+
+    if exp and summary_data:
+        with st.expander("Show summary.json"):
+            st.code(json.dumps(summary_data, indent=2), language="json")
+
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
@@ -93,7 +127,7 @@ def render_continue_web_tab(log_folders):
     with colh:
         host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="cont_web_host")
     with colp:
-        default_port = random_free_port(8000, 9000)
+        default_port = random_free_port()
         port = st.number_input("Port", 1024, 65535, default_port, key="cont_web_port")
 
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")

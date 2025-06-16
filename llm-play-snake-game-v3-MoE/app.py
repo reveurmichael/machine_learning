@@ -7,6 +7,20 @@ A Streamlit app for analyzing, replaying, and continuing recorded Snake game ses
 import streamlit as st
 from streamlit.errors import StreamlitAPIException
 from utils.file_utils import find_valid_log_folders
+from dashboard.tab_overview import render_overview_tab
+from dashboard.tab_human_play import (
+    render_human_pygame_tab,
+    render_human_web_tab,
+)
+from dashboard.tab_main import render_main_pygame_tab, render_main_web_tab
+from dashboard.tab_replay import (
+    render_replay_pygame_tab,
+    render_replay_web_tab,
+)
+from dashboard.tab_continue import (
+    render_continue_pygame_tab,
+    render_continue_web_tab,
+)
 
 
 class App:
@@ -30,10 +44,6 @@ class App:
 
         log_folders = find_valid_log_folders("logs")
 
-        # ------------------------------------------------------------------
-        # Tabs: Overview ▸ Main (PyGame) ▸ Main (Web) ▸ Replay (PyGame)
-        #       ▸ Replay (Web) ▸ Continue (PyGame) ▸ Continue (Web)
-        # ------------------------------------------------------------------
         (
             tab_overview,
             tab_human_pg,
@@ -58,62 +68,40 @@ class App:
             ]
         )
 
-        # --------------------------- Overview ---------------------------
+        # ------------------ Overview ------------------
         with tab_overview:
-            from dashboard.tab_overview import render_overview_tab
-
             render_overview_tab(log_folders)
 
-        # ---------------------- Human Play (PyGame) -----------------------
+        # ------------- Human Play (PyGame) --------------
         with tab_human_pg:
-            from utils.session_utils import run_human_play
-            st.markdown("### 🎮 Play Snake – PyGame Window")
-            if st.button("Start PyGame Human Play", key="btn_hp_pygame"):
-                run_human_play()
+            render_human_pygame_tab()
 
-        # ----------------------- Human Play (Web) ------------------------
+        # -------------- Human Play (Web) ---------------
         with tab_human_web:
-            from utils.session_utils import run_human_play_web
-            from utils.network_utils import random_free_port
-            st.markdown("### 🌐 Play Snake in Browser")
-            host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="hp_web_host")
-            port = st.number_input("Port", 1024, 65535, random_free_port(8000, 9000), key="hp_web_port")
-            if st.button("Start Web Human Play", key="btn_hp_web"):
-                run_human_play_web(host, port)
+            render_human_web_tab()
 
-        # ---------------------- Main Mode (PyGame) ---------------------
+        # ------------- Main Mode (PyGame) ------------
         with tab_main_pg:
-            from dashboard.tab_main import render_main_pygame_tab
-
             render_main_pygame_tab()
 
-        # ----------------------- Main Mode (Web) -----------------------
+        # -------------- Main Mode (Web) --------------
         with tab_main_web:
-            from dashboard.tab_main import render_main_web_tab
-
             render_main_web_tab()
 
-        # --------------------- Replay Mode (PyGame) --------------------
+        # ------------ Replay Mode (PyGame) -----------
         with tab_replay_pg:
-            from dashboard.tab_replay import render_replay_pygame_tab
-
             render_replay_pygame_tab(log_folders)
 
-        # ---------------------- Replay Mode (Web) ----------------------
+        # ------------- Replay Mode (Web) -------------
         with tab_replay_web:
-            from dashboard.tab_replay import render_replay_web_tab
-
             render_replay_web_tab(log_folders)
 
-        # ------------------- Continue Mode (PyGame) --------------------
+        # ---------- Continue Mode (PyGame) -----------
         with tab_continue_pg:
-            from dashboard.tab_continue import render_continue_pygame_tab
-
             render_continue_pygame_tab(log_folders)
 
-        # -------------------- Continue Mode (Web) ----------------------
+        # ----------- Continue Mode (Web) -------------
         with tab_continue_web:
-            from dashboard.tab_continue import render_continue_web_tab
             render_continue_web_tab(log_folders)
 
 

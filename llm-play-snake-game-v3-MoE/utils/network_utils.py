@@ -42,7 +42,7 @@ def ensure_free_port(port: int) -> int:
         return port
     return find_free_port(max(port + 1, 1024))
 
-def random_free_port(min_port: int = 1024, max_port: int = 65535) -> int:
+def random_free_port(min_port: int = 8000, max_port: int = 9000) -> int:
     """Return a random free port within the given range.
 
     This is useful for UI defaults where multiple widgets each need a

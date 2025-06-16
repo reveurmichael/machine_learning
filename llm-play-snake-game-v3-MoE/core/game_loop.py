@@ -240,9 +240,9 @@ def run_game_loop(game_manager):
         # Ensure pygame is properly shut down
         pygame.quit()
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Internal utilities (module-private)
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def _execute_move(manager, direction: str) -> Tuple[bool, bool]:
     """Run *one* snake move and handle all common bookkeeping.

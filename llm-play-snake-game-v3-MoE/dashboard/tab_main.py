@@ -28,9 +28,9 @@ from config.constants import (
     PAUSE_BETWEEN_MOVES_SECONDS,
 )
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Helper – build command list from optional args
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def _append_arg(cmd: list[str], flag: str, value):
     """Append *flag value* to *cmd* if *value* is truthy (non-None / non-empty)."""
@@ -44,9 +44,9 @@ def _append_arg(cmd: list[str], flag: str, value):
     cmd.extend([flag, str(value)])
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Main Mode – PyGame
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def render_main_pygame_tab():
     st.markdown("### Start New Game Session (PyGame)")
@@ -135,9 +135,9 @@ def render_main_pygame_tab():
         st.success("Main PyGame session launched – check your terminal/window.")
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Main Mode – Web
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def render_main_web_tab():
     st.markdown("### Start New Game Session (Web)")

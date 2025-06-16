@@ -8,9 +8,9 @@ across unrelated files (text_utils, game_manager_utils, etc.).
 
 from typing import List
 
-# ------------------------------------------------------------
+# --------------------------------------------------
 # Canonicalising direction tokens
-# ------------------------------------------------------------
+# --------------------------------------------------
 
 def normalize_direction(move: str):
     """Return a canonical representation of a single direction token.
@@ -26,9 +26,9 @@ def normalize_directions(moves: List[str]) -> List[str]:
     return [normalize_direction(m) for m in moves]
 
 
-# ------------------------------------------------------------
+# --------------------------------------------------
 # Direction relationship helpers
-# ------------------------------------------------------------
+# --------------------------------------------------
 
 
 def is_reverse(dir_a: str, dir_b: str) -> bool:

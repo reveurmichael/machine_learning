@@ -28,18 +28,18 @@ from core.game_manager import GameManager
 from main import parse_arguments  # Re-use the full CLI from main.py
 from config import COLORS, GRID_SIZE, END_REASON_MAP
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Flask setup (identical static/template folders to replay_web)
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
 
 # Global objects filled after thread starts
 manager = None            # type: GameManager | None
 manager_thread = None
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Helper: translate live game state into a front-end friendly dict
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def build_state_dict(gm: GameManager):
     game = gm.game
@@ -75,9 +75,9 @@ def build_state_dict(gm: GameManager):
         'game_end_reason': end_reason_readable,
     }
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Background thread target
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def manager_thread_fn(gm: GameManager, args):
     """Background worker for running the game (new or continuation)."""
@@ -86,11 +86,11 @@ def manager_thread_fn(gm: GameManager, args):
         cont_dir = getattr(args, "continue_with_game_in_dir", None)
         if cont_dir:
             try:
-                # ------------------------------------------------------
+                # ------------------------------------
                 # Load experiment configuration from summary.json to
                 # overwrite CLI defaults so the resumed session uses the
                 # original provider/model and limits.
-                # ------------------------------------------------------
+                # -------------------------------------
                 import json
                 import os
                 summary_path = os.path.join(cont_dir, "summary.json")
@@ -130,9 +130,9 @@ def manager_thread_fn(gm: GameManager, args):
     except Exception as e:
         print(f"[main_web] GameManager thread crashed: {e}")
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Flask routes
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 @app.route('/')
 def index():
@@ -160,9 +160,9 @@ def api_control():
         return jsonify({'status': 'unpause-not-supported'})
     return jsonify({'status': 'error', 'msg': 'unknown command'})
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Entry-point
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 def main():
     """Entry point for the web live mode.
@@ -179,18 +179,18 @@ def main():
     3.  Restore `sys.argv` afterwards and start the GameManager / Flask app.
     """
 
-    # ------------------------------------------------------------------
+    # -------------------------------
     # Step 1 – extract host / port, leave the rest intact
-    # ------------------------------------------------------------------
+    # -------------------------------
     host_port_parser = argparse.ArgumentParser(add_help=False)
     host_port_parser.add_argument('--host', type=str, default='127.0.0.1', help='Host IP')
     host_port_parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port number')
 
     host_port_args, remaining_argv = host_port_parser.parse_known_args()
 
-    # ------------------------------------------------------------------
+    # -------------------------------
     # Step 2 – delegate remaining args to the main CLI parser
-    # ------------------------------------------------------------------
+    # -------------------------------
     argv_backup = sys.argv.copy()
     # Preserve argv[0] (script name) + remaining CLI parts
     sys.argv = [sys.argv[0]] + remaining_argv
@@ -203,17 +203,17 @@ def main():
     # Ensure GUI timing code runs (SDL dummy driver prevents a real window)
     game_args.no_gui = False
 
-    # ------------------------------------------------------------------
+    # -------------------------------
     # Step 3 – create GameManager (handle continuation vs new session)
-    # ------------------------------------------------------------------
+    # -------------------------------
     global manager, manager_thread
     manager = GameManager(game_args)
     manager_thread = threading.Thread(target=manager_thread_fn, args=(manager, game_args), daemon=True)
     manager_thread.start()
 
-    # ------------------------------------------------------------------
+    # -------------------------------
     # Step 4 – start the Flask app (blocking)
-    # ------------------------------------------------------------------
+    # -------------------------------
     host = host_port_args.host
     port = host_port_args.port
     print(f"🔌 Serving live game at http://{host}:{port}")

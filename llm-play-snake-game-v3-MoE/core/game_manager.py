@@ -168,12 +168,12 @@ class GameManager:
         # Update summary.json metadata at session end (no JSON-parser stats anymore)
         save_session_stats(self.log_dir)
 
-        # ------------------------------------------------------------------
+        # -------------------------------
         # Use the counters that have been **aggregated across games**
         # throughout the session (updated in process_game_over).
         # Previously this method overwrote them with the last game's values,
         # which zero-ed the numbers in summary.json and the console banner.
-        # ------------------------------------------------------------------
+        # -------------------------------
         valid_steps = self.valid_steps
         invalid_reversals = self.invalid_reversals
 
@@ -229,10 +229,10 @@ class GameManager:
         # Store old round count to check if it actually changed
         old_round_count = self.round_count
 
-        # ------------------------------------------------------------
+        # --------------------------------------------------
         # Persist and reset the outgoing round BEFORE we bump the counter
         # This guarantees moves from round N never leak into round N+1.
-        # ------------------------------------------------------------
+        # --------------------------------------------------
         if self.game and hasattr(self.game, "game_state"):
             try:
                 gs = self.game.game_state
@@ -334,12 +334,12 @@ class GameManager:
             # Report final statistics
             self.report_final_statistics()
 
-    # ---------------------------------------------------------
+    # -----------------------------------------------
     # Public helper: marks the current round as finished and
     # bumps the counter.  Use this *instead of* calling
     # increment_round() from the game loop so that all
     # bookkeeping stays inside GameManager.
-    # ---------------------------------------------------------
+    # -----------------------------------------------
     def finish_round(self, reason: str = "round completed") -> None:
         """Flush buffered round-data and advance to the next round.
 

@@ -26,9 +26,9 @@ class ReplayEngine(GameController):
     spawns, timing, and statistics.
     """
     
-    # ------------------------------------------------------------------
+    # -------------------------------
     # Construction / initialisation
-    # ------------------------------------------------------------------
+    # -------------------------------
 
     def __init__(
         self,
@@ -348,13 +348,13 @@ class ReplayEngine(GameController):
         if isinstance(direction_key, str):
             direction_key = direction_key.upper()
             
-        # ------------------------------------------------------------------
+        # -------------------------------
         # Sentinel moves that represent a time-tick without actual movement
         # (e.g. blocked reversals or intentionally empty moves).  We simply
         # advance the replay pointer and keep the game alive without calling
         # make_move(), so the snake stays in place exactly as it did in the
         # original run.
-        # ------------------------------------------------------------------
+        # -------------------------------
         if direction_key in ("INVALID_REVERSAL", "EMPTY", "SOMETHING_IS_WRONG"):
             # Mirror step accounting from the original run so that stats align.
             if direction_key == "INVALID_REVERSAL":

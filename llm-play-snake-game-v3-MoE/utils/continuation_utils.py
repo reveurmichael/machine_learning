@@ -220,9 +220,9 @@ def continue_from_directory(game_manager_class, args):
             if 'continue_with_game_in_dir' in summary_data['configuration']:
                 del summary_data['configuration']['continue_with_game_in_dir']
             
-            # ------------------------------------------------------------------
+            # -------------------------------
             # Add / update continuation_info exactly once (single-writer principle)
-            # ------------------------------------------------------------------
+            # -------------------------------
             cont_info = summary_data.get('continuation_info', {
                 'is_continuation': True,
                 'continuation_count': 0,

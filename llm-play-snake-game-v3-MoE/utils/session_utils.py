@@ -83,9 +83,9 @@ def run_main_web(max_games: int, host: str, port: int):
             "python", "main_web.py", "--max-games", str(max_games), "--host", host, "--port", str(port)
         ]
 
-        # --------------------------------------------------------------
+        # ---------------------------
         # Optional CLI parameters harvested from session_state
-        # --------------------------------------------------------------
+        # ---------------------------
         ss = st.session_state
 
         _append_arg(cmd, "--provider", ss.get("main_web_provider"))
@@ -126,7 +126,7 @@ def run_main_web(max_games: int, host: str, port: int):
         if max_inv_rev and int(max_inv_rev) > 0:
             _append_arg(cmd, "--max-consecutive-invalid-reversals-allowed", max_inv_rev)
 
-        # --------------------------------------------------------------
+        # ---------------------------
         subprocess.Popen(cmd)
         st.info(f"Web main session started at http://{host}:{port}.")
     except Exception as exc:
@@ -158,9 +158,9 @@ def continue_game_web(log_folder: str, max_games: int, host: str, port: int, sle
         st.error(f"Error starting web continuation: {exc}")
 
 
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 # Human Play launchers
-# ---------------------------------------------------------------------------
+# ----------------------------------------
 
 
 def run_human_play():

@@ -87,9 +87,8 @@ def render_continue_web_tab(log_folders):
     if not log_folders:
         st.warning("No experiment logs found.")
         return
-
-    # ── Horizontal row: Selectbox + Info/Warning ─────────────────────
-    col_exp_w, col_info_w = st.columns([2, 1])
+    
+    col_exp_w, col_info_w = st.columns(2)
 
     with col_exp_w:
         exp = st.selectbox(

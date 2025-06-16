@@ -18,14 +18,14 @@ __all__ = [
 
 def render_human_pygame_tab() -> None:
     """Render the *Human Play (PyGame)* tab contents."""
-    st.markdown("### 🎮 Play Snake – PyGame Window")
+    st.markdown("### Play Snake – PyGame Window")
     if st.button("Start PyGame Human Play", key="btn_hp_pygame"):
         run_human_play()
 
 
 def render_human_web_tab() -> None:
     """Render the *Human Play (Web)* tab contents."""
-    st.markdown("### 🌐 Play Snake in Browser")
+    st.markdown("### Play Snake in Browser")
 
     col1, col2 = st.columns(2)
     with col1:

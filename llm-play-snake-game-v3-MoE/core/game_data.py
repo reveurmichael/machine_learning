@@ -97,7 +97,7 @@ class GameData:
         self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
 
     def record_something_is_wrong_move(self) -> None:
-        """Record an error move."""
+        """Record an something is wrong move."""
         self.stats.step_stats.something_wrong += 1
         self.steps += 1
         self.moves.append("SOMETHING_IS_WRONG")
@@ -150,23 +150,6 @@ class GameData:
             "secondary_avg_completion_tokens": self.stats.secondary_avg_completion_tokens,
         }
 
-    def get_error_stats(self) -> Dict[str, Any]:
-        """Returns a dictionary with LLM error statistics."""
-        return {
-            "primary_llm_errors": self.stats.primary_llm_errors,
-            "secondary_llm_errors": self.stats.secondary_llm_errors,
-            "primary_error_rate": (
-                self.stats.primary_llm_errors / self.stats.primary_llm_requests
-                if self.stats.primary_llm_requests > 0
-                else 0
-            ),
-            "secondary_error_rate": (
-                self.stats.secondary_llm_errors / self.stats.secondary_llm_requests
-                if self.stats.secondary_llm_requests > 0
-                else 0
-            ),
-        }
-
     def generate_game_summary(
         self,
         primary_provider: str,
@@ -202,7 +185,6 @@ class GameData:
             "prompt_response_stats": self.get_prompt_response_stats(),
             "token_stats": self.get_token_stats(),
             "step_stats": self.stats.step_stats.asdict(),
-            "error_stats": self.get_error_stats(),
             # Misc metadata ------------------------------------------
             "metadata": {
                 "timestamp": self.timestamp,
@@ -267,23 +249,13 @@ class GameData:
     ) -> None:
         self.stats.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
-    def record_primary_llm_error(self) -> None:
-        self.stats.primary_llm_errors += 1
-
-    def record_secondary_llm_error(self) -> None:
-        self.stats.secondary_llm_errors += 1
 
     # -------------------------------
     # Continuation-mode helpers (needed by utils/continuation_utils.py)
     # -------------------------------
 
     def record_continuation(self) -> None:
-        """Mark this run as a continuation of a previous experiment.
-
-        The old monolithic version just kept some metadata lists; we
-        reproduce the same fields so that code reading summary.json later
-        still finds them.
-        """
+        """Mark this run as a continuation of a previous experiment."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Lazily create the attributes the first time we are called.
@@ -291,17 +263,9 @@ class GameData:
             self.is_continuation = True
             self.continuation_count = 1
             self.continuation_timestamps = [timestamp]
-            self.continuation_metadata = []
         else:
             self.continuation_count += 1
             self.continuation_timestamps.append(timestamp)
-
-        meta = {
-            "timestamp": timestamp,
-            "continuation_number": self.continuation_count,
-        }
-
-        self.continuation_metadata.append(meta)
 
     # -------------------------------
     # Quick accessors required by utils/game_manager_utils

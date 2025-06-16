@@ -217,8 +217,6 @@ class GameStatistics:
     secondary_avg_prompt_tokens: float = 0
     secondary_avg_completion_tokens: float = 0
 
-    primary_llm_errors: int = 0
-    secondary_llm_errors: int = 0
     primary_llm_requests: int = 0
     secondary_llm_requests: int = 0
 

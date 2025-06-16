@@ -1,11 +1,4 @@
-// Constants - colors will be overridden by values from the server
-let COLORS = {
-    SNAKE_HEAD: '#3498db',    // Blue for snake head
-    SNAKE_BODY: '#2980b9',    // Darker blue for snake body
-    APPLE: '#e74c3c',         // Red for apple
-    BACKGROUND: '#2c3e50',    // Dark background
-    GRID: '#34495e',          // Grid lines
-};
+// COLORS is defined in common.js; no need to redeclare here.
 
 // DOM elements
 const loadingMessage = document.getElementById('loading-message');

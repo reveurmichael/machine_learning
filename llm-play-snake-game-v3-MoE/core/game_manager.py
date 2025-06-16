@@ -198,6 +198,10 @@ class GameManager:
         # Report statistics to console and save to files
         report_final_statistics(stats_info)
 
+        # Mark manager as no longer running so front-end can display
+        # the "Session Finished" banner.  (Used by main_web / JS.)
+        self.running = False
+
     def increment_round(self, reason: str = "") -> None:
         """Increment the round counter and synchronize with game state.
 

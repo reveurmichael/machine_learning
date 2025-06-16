@@ -15,18 +15,16 @@ def process_response_for_display(response):
     Returns:
         Processed version of the response for display, with code blocks 
         and reasoning formatted for readability
-    """
-    processed = response
-    
+    """    
     # Extract and format code blocks
-    processed = format_code_blocks(processed)
-    
+    response = format_code_blocks(response)
+
     # Limit to a reasonable display length
     max_display_length = 2000
-    if len(processed) > max_display_length:
-        processed = processed[:max_display_length] + "...[truncated]"
-    
-    return processed
+    if len(response) > max_display_length:
+        response = response[:max_display_length] + "...[truncated]"
+
+    return response
 
 def format_code_blocks(text):
     """Format code blocks in text for better display.

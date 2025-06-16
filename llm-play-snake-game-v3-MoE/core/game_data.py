@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from utils.json_utils import NumPyJSONEncoder
+from utils.game_stats_utils import NumPyJSONEncoder
 from utils.moves_utils import normalize_direction
 from core.game_stats import GameStatistics
 from core.game_rounds import RoundManager

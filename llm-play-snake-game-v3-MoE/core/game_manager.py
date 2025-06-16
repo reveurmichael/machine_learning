@@ -15,7 +15,7 @@ from llm.client import LLMClient
 from config import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
-from utils.json_utils import save_session_stats
+from utils.game_stats_utils import save_session_stats
 from utils.continuation_utils import (
     continue_from_directory,
     handle_continuation_game_state,

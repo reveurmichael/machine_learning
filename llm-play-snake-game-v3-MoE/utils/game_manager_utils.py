@@ -100,8 +100,7 @@ def process_game_over(game, game_state_info):
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps)
     """
-    from utils.json_utils import save_session_stats
-    import os
+    from utils.game_stats_utils import save_session_stats
     
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
@@ -294,7 +293,7 @@ def report_final_statistics(stats_info):
         - valid_steps: Total valid steps across all games (optional)
         - invalid_reversals: Total invalid reversals across all games (optional)
     """
-    from utils.json_utils import save_session_stats
+    from utils.game_stats_utils import save_session_stats
     import os
     
     # Extract statistics
@@ -385,7 +384,7 @@ def initialize_game_manager(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    from utils.json_utils import save_experiment_info_json
+    from utils.game_stats_utils import save_experiment_info_json
     from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
     import os
     import time

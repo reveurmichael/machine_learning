@@ -17,8 +17,6 @@ from .json_utils import (
     extract_json_from_text,
     extract_moves_pattern,
     extract_moves_from_arrays,
-    save_experiment_info_json,
-    save_session_stats,
 )
 
 # File and storage management
@@ -79,6 +77,11 @@ from .session_utils import (
     run_human_play_web,
 )
 
+from .game_stats_utils import (
+    save_experiment_info_json,
+    save_session_stats,
+)
+
 # Public API for the utils package
 __all__ = [
     # JSON processing
@@ -89,6 +92,7 @@ __all__ = [
     "extract_json_from_text",
     "extract_moves_pattern",
     "extract_moves_from_arrays",
+    # Game stats utils
     "save_experiment_info_json",
     "save_session_stats",
     # File management

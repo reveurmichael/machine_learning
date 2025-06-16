@@ -10,7 +10,6 @@ import os
 import json
 from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, process_events
-from utils.json_utils import save_session_stats
 from llm.communication_utils import get_llm_response
 from typing import Tuple
 

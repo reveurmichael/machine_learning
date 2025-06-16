@@ -179,7 +179,8 @@ class ReplayEngine(GameController):
                 return None
 
             if not self.apple_positions:
-                print("Warning: No apple positions found in game data")
+                print("Error: No apple positions found in game data")
+                return None
 
             # Reset game state indices
             self.move_index = 0
@@ -220,20 +221,7 @@ class ReplayEngine(GameController):
             self.head_position = self.snake_positions[-1]
 
             # Set initial apple position
-            if self.apple_positions:
-                first_apple = self.apple_positions[0]
-
-                if isinstance(first_apple, (list, np.ndarray)) and len(first_apple) == 2:
-                    # Set initial apple position
-                    success = self.set_apple_position(first_apple)
-                    if not success:
-                        # Use default position if invalid
-                        self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
-                else:
-                    # Default position
-                    self.apple_position = np.array([self.grid_size // 2, self.grid_size // 2])
-
-                print(f"Set initial apple position: {self.apple_position}")
+            self.set_apple_position(self.apple_positions[0])
 
             # Update game board
             self._update_board()
@@ -311,15 +299,6 @@ class ReplayEngine(GameController):
                         pygame.time.delay(1000)  # Pause before next game
                         self.load_next_game()
 
-                # Check if we've finished all moves
-                elif self.move_index >= len(self.moves):
-                    print(f"Replay complete for game {self.game_number}. Score: {self.score}, Steps: {self.steps}")
-
-                    # Advance to next game if auto-advance is enabled
-                    if self.auto_advance:
-                        pygame.time.delay(1000)  # Pause before next game
-                        self.load_next_game()
-
                 # Update the display
                 if self.use_gui and self.gui:
                     self.draw()
@@ -327,10 +306,6 @@ class ReplayEngine(GameController):
             except Exception as e:
                 print(f"Error during replay: {e}")
                 traceback.print_exc()
-
-                # Try to continue with next game if auto-advance is enabled
-                if self.auto_advance:
-                    self.load_next_game()
 
     def load_next_game(self) -> None:
         """Load the next game in sequence."""
@@ -348,10 +323,6 @@ class ReplayEngine(GameController):
         Returns:
             Boolean indicating if the game is still active
         """
-        # Standardize direction key to uppercase to handle case insensitivity
-        if isinstance(direction_key, str):
-            direction_key = direction_key.upper()
-
         # -------------------------------
         # Sentinel moves that represent a time-tick without actual movement
         # (e.g. blocked reversals or intentionally empty moves).  We simply
@@ -379,13 +350,7 @@ class ReplayEngine(GameController):
         if apple_eaten and self.apple_index + 1 < len(self.apple_positions):
             self.apple_index += 1
             next_apple = self.apple_positions[self.apple_index]
-
-            if isinstance(next_apple, dict) and 'x' in next_apple and 'y' in next_apple:
-                # Set apple position from dictionary format
-                self.set_apple_position([next_apple['x'], next_apple['y']])
-            elif isinstance(next_apple, (list, np.ndarray)) and len(next_apple) == 2:
-                # Set apple position from array format
-                self.set_apple_position(next_apple)
+            self.set_apple_position(next_apple)
 
         return game_active
 

@@ -16,9 +16,12 @@ def render_replay_pygame_tab(log_folders):
         st.warning("No experiment logs found.")
         return
     col_exp, col_game = st.columns(2)
+    # Sort experiments alphabetically
+    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+
     with col_exp:
         exp = st.selectbox(
-            "Experiment", options=log_folders, format_func=get_folder_display_name, key="replay_exp_pg",
+            "Experiment", options=sorted_folders, format_func=get_folder_display_name, key="replay_exp_pg",
             label_visibility="collapsed"
         )
     games = load_game_data(exp)
@@ -47,9 +50,12 @@ def render_replay_web_tab(log_folders):
         st.warning("No experiment logs found.")
         return
     col_exp, col_game = st.columns(2)
+    # Sort experiments alphabetically (reuse sorted folders)
+    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+
     with col_exp:
         exp = st.selectbox(
-            "Experiment", options=log_folders, format_func=get_folder_display_name, key="replay_exp_web",
+            "Experiment", options=sorted_folders, format_func=get_folder_display_name, key="replay_exp_web",
             label_visibility="collapsed"
         )
     games = load_game_data(exp)

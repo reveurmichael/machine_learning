@@ -35,10 +35,13 @@ def render_continue_pygame_tab(log_folders):
 
     col_exp, col_info = st.columns(2)
 
+    # Sort experiments alphabetically
+    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+
     with col_exp:
         exp = st.selectbox(
             "Experiment",
-            options=log_folders,
+            options=sorted_folders,
             format_func=get_folder_display_name,
             key="cont_pg_exp",
             label_visibility="collapsed",
@@ -90,10 +93,13 @@ def render_continue_web_tab(log_folders):
     
     col_exp_w, col_info_w = st.columns(2)
 
+    # Sort experiments alphabetically
+    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+
     with col_exp_w:
         exp = st.selectbox(
             "Experiment",
-            options=log_folders,
+            options=sorted_folders,
             format_func=get_folder_display_name,
             key="cont_web_exp",
             label_visibility="collapsed",

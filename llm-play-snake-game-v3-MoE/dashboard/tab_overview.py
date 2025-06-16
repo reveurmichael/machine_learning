@@ -23,9 +23,14 @@ def render_overview_tab(log_folders):
     overview_df = display_experiment_overview(log_folders)
     if overview_df is not None and not overview_df.empty:
         st.markdown("### Experiment Details")
+        # Sort experiments alphabetically for easier navigation
+        exp_options = sorted(
+            overview_df["Folder"].tolist(), key=get_folder_display_name
+        )
+
         selected_exp = st.selectbox(
             "Select Experiment",
-            options=overview_df["Folder"].tolist(),
+            options=exp_options,
             format_func=get_folder_display_name,
             index=0,
             key="overview_exp_select",

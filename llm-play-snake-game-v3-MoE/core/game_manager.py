@@ -210,49 +210,32 @@ class GameManager:
         if self.awaiting_plan:
             return
 
-        # Store old round count to check if it actually changed
-        old_round_count = self.round_count
-
         # --------------------------------------------------
-        # Persist and reset the outgoing round BEFORE we bump the counter
-        # This guarantees moves from round N never leak into round N+1.
+        # Delegate all round bookkeeping to RoundManager so the logic –
+        # including buffer flushes and apple seeding – lives in one place.
         # --------------------------------------------------
         if self.game and hasattr(self.game, "game_state"):
-            try:
-                gs = self.game.game_state
-                gs.round_manager.flush_buffer()
-                # start a new empty buffer tied to the current round number
-                from core.game_stats import RoundBuffer
+            gs = self.game.game_state
 
-                gs.round_manager.round_buffer = RoundBuffer(
-                    number=gs.round_manager.round_count
+            # Prepare current apple (list-form for JSON friendliness)
+            current_apple = None
+            if hasattr(self.game, "apple_position") and self.game.apple_position is not None:
+                current_apple = (
+                    self.game.apple_position.tolist()
+                    if hasattr(self.game.apple_position, "tolist")
+                    else list(self.game.apple_position)
                 )
-            except Exception as e:
-                print(Fore.YELLOW + f"⚠️  Could not flush round data: {e}")
 
-        # Increment round counter – must happen AFTER the flush
-        # so that new moves land in a fresh buffer
-        self.round_count += 1
+            # RoundManager will flush previous data, bump the counter and
+            # create/seed a fresh RoundBuffer.
+            gs.round_manager.start_new_round(current_apple)
 
-        # Keep the nested RoundManager in sync
-        if self.game and hasattr(self.game, "game_state"):
-            rm = self.game.game_state.round_manager
-            rm.round_count = self.round_count
-            if rm.round_buffer:
-                rm.round_buffer.number = self.round_count
+            # Keep manager-level counter in sync with the authoritative value.
+            self.round_count = gs.round_manager.round_count
 
-            # Keep the flat attribute too (some serializers read it)
-            gs.round_count = self.round_count
+            # Ensure any observers (web front-ends, etc.) see up-to-date state.
+            gs.round_manager.sync_round_data()
 
-        # Sync with game state
-        if self.game and hasattr(self.game, "game_state"):
-            self.game.game_state.round_manager.sync_round_data()
-
-        # Only print the banner if the round count actually changed
-        if self.round_count != old_round_count:
-            # Log the round increment with reason if provided
-            reason_text = f" ({reason})" if reason else ""
-            print(Fore.BLUE + f"📊 Advanced to round {self.round_count}{reason_text}")
 
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Continue from a previous game session.

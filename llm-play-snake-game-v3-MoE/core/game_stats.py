@@ -135,19 +135,10 @@ class RoundBuffer:
     def set_apple(self, pos: list[int]) -> None:
         self.apple_position = pos
 
-    def add_parsed_response(self, response: str | dict, is_primary: bool = True) -> None:
-        """Store the parsed response for this round (keeps latest)."""
-        if is_primary:
-            self.primary_parsed_response = response
-        else:
-            self.secondary_parsed_response = response
-
     # Helper used by RoundManager.flush_buffer()
     def is_empty(self) -> bool:
         """Return True if nothing noteworthy has been recorded yet."""
-        return not (self.moves or 
-                    self.primary_parsed_response or self.secondary_parsed_response or
-                    self.planned_moves)
+        return not (self.moves or self.planned_moves)
 
 @dataclass
 class GameStatistics:

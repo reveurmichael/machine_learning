@@ -10,10 +10,9 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import END_REASON_MAP
 from core.game_controller import GameController
 from utils.network_utils import find_free_port
-from utils.web_utils import build_state_dict, to_list
+from utils.web_utils import build_state_dict, translate_end_reason
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -50,14 +49,14 @@ class WebGameController(GameController):
             Dictionary with current game state
         """
         return build_state_dict(
-            to_list(self.snake_positions),
-            to_list(self.apple_position),
+            self.snake_positions,
+            self.apple_position,
             self.score,
             self.steps,
             self.grid_size,
             extra={
                 'game_over': self.game_over,
-                'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
+                'game_end_reason': translate_end_reason(self.game_end_reason),
             },
         )
     

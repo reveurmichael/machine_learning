@@ -262,10 +262,18 @@ button:disabled {
 @media (max-width: 900px) {
     .game-container {
         flex-direction: column;
+        align-items: center;     /* center children instead of left-align */
     }
     
     .game-sidebar {
         width: 100%;
+        max-width: 420px;        /* don't exceed reasonable width */
+        margin: 0 auto;          /* horizontally center */
+    }
+
+    /* Ensure the board shrinks gracefully and centers */
+    .game-board {
+        max-width: 100%;
     }
 }
 

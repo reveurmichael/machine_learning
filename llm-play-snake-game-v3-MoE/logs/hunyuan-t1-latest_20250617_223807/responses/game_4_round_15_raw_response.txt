@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 02:28:57
+PRIMARY LLM Response Time: 2025-06-18 02:29:33
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-t1-latest
+Head Position: (4, 5)
+Apple Position: (5, 6)
+Body Cells: [(4, 4), (4, 3), (4, 2), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (4, 9), (5, 9), (6, 9)]
+Timestamp: 2025-06-18 02:29:33
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["UP", "RIGHT"],
+"reasoning": "The snake starts at (4,5) with direction UP. Moving UP to (4,6) avoids body collisions. Next, moving RIGHT to (5,6) reaches the apple. Both moves are valid (no direction reversal, no collisions), and after eating, the snake has space to move next turn."
+}

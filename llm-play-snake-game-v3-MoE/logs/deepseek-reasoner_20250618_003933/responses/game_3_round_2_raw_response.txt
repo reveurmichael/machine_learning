@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 07:31:14
+PRIMARY LLM Response Time: 2025-06-18 07:34:46
+PRIMARY LLM Provider: deepseek
+PRIMARY LLM Model: deepseek-reasoner
+Head Position: (7, 1)
+Apple Position: (4, 6)
+Body Cells: [(7, 2)]
+Timestamp: 2025-06-18 07:34:46
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["LEFT", "LEFT", "LEFT", "UP", "UP", "UP", "UP", "UP"],
+  "reasoning": "Moved left three times to decrease x from 7 to 4, aligning with the apple, then up five times to increase y from 1 to 6, reaching the apple safely with no self-collisions or wall hits, and ensuring a legal move exists after eating by having multiple exit directions."
+}

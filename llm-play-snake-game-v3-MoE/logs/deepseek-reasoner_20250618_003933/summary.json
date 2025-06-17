@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-06-18 00:39:33",
+  "configuration": {
+    "provider": "deepseek",
+    "model": "deepseek-reasoner",
+    "parser_provider": null,
+    "parser_model": null,
+    "max_games": 20,
+    "move_pause": 5.0,
+    "sleep_before_launching": 120.0,
+    "max_steps": 800,
+    "max_consecutive_empty_moves_allowed": 10,
+    "max_consecutive_something_is_wrong_allowed": 10,
+    "max_consecutive_invalid_reversals_allowed": 10,
+    "no_gui": false,
+    "log_dir": null,
+    "continue_with_game_in_dir": null
+  },
+  "game_statistics": {
+    "total_games": 2,
+    "total_rounds": 74,
+    "total_score": 45,
+    "total_steps": 318,
+    "scores": [
+      20,
+      25
+    ],
+    "round_counts": [
+      32,
+      42
+    ]
+  },
+  "time_statistics": {
+    "total_llm_communication_time": 18551.639914497733,
+    "total_primary_llm_communication_time": 18551.169374465942,
+    "total_secondary_llm_communication_time": 0,
+    "avg_primary_response_time": 250.69147803332353,
+    "avg_secondary_response_time": 0.0
+  },
+  "token_usage_stats": {
+    "primary_llm": {
+      "total_tokens": 693889,
+      "total_prompt_tokens": 159892,
+      "total_completion_tokens": 533997,
+      "avg_tokens": 9376.878378378378,
+      "avg_prompt_tokens": 2160.7027027027025,
+      "avg_completion_tokens": 7216.175675675676
+    },
+    "secondary_llm": {
+      "total_tokens": 0,
+      "total_prompt_tokens": 0,
+      "total_completion_tokens": 0,
+      "avg_tokens": 0.0,
+      "avg_prompt_tokens": 0.0,
+      "avg_completion_tokens": 0.0
+    }
+  },
+  "step_stats": {
+    "empty_steps": 34,
+    "something_is_wrong_steps": 0,
+    "valid_steps": 289,
+    "invalid_reversals": 0
+  }
+}

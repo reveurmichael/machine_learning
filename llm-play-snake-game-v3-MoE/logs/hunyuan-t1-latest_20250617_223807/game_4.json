@@ -1,0 +1,733 @@
+{
+    "score": 16,
+    "steps": 124,
+    "snake_length": 17,
+    "game_over": true,
+    "game_end_reason": "SELF",
+    "round_count": 19,
+    "llm_info": {
+        "primary_provider": "hunyuan",
+        "primary_model": "hunyuan-t1-latest",
+        "parser_provider": null,
+        "parser_model": null
+    },
+    "time_stats": {
+        "start_time": "2025-06-18 01:55:49",
+        "end_time": "2025-06-18 02:45:07",
+        "total_duration_seconds": 2957.6897015571594,
+        "llm_communication_time": 1390.9837255021557
+    },
+    "prompt_response_stats": {
+        "primary_response_times": [
+            33.0077121257782,
+            48.58242464065552,
+            70.18961477279663,
+            35.353854179382324,
+            65.57737231254578,
+            30.493165254592896,
+            88.24230527877808,
+            84.52928614616394,
+            78.05726981163025,
+            99.75772714614868,
+            69.32852721214294,
+            86.68176937103271,
+            77.73150873184204,
+            43.86091208457947,
+            35.986382246017456,
+            73.51238632202148,
+            125.50515103340149,
+            125.49983191490173,
+            118.96544146537781
+        ],
+        "secondary_response_times": [],
+        "avg_primary_response_time": 73.20329694998891,
+        "avg_secondary_response_time": 0.0
+    },
+    "token_stats": {
+        "primary_total_tokens": 146812,
+        "primary_avg_total_tokens": 7726.9473684210525,
+        "primary_total_prompt_tokens": 56487,
+        "primary_avg_prompt_tokens": 2973.0,
+        "primary_total_completion_tokens": 90325,
+        "primary_avg_completion_tokens": 4753.9473684210525,
+        "secondary_total_tokens": 0,
+        "secondary_avg_total_tokens": 0,
+        "secondary_total_prompt_tokens": 0,
+        "secondary_avg_prompt_tokens": 0,
+        "secondary_total_completion_tokens": 0,
+        "secondary_avg_completion_tokens": 0
+    },
+    "step_stats": {
+        "valid_steps": 122,
+        "empty_steps": 2,
+        "something_is_wrong_steps": 0,
+        "invalid_reversals": 0
+    },
+    "metadata": {
+        "timestamp": "2025-06-18 01:55:49",
+        "game_number": 4,
+        "round_count": 19
+    },
+    "detailed_history": {
+        "apple_positions": [
+            {
+                "x": 8,
+                "y": 3
+            },
+            {
+                "x": 6,
+                "y": 6
+            },
+            {
+                "x": 9,
+                "y": 6
+            },
+            {
+                "x": 9,
+                "y": 1
+            },
+            {
+                "x": 3,
+                "y": 4
+            },
+            {
+                "x": 8,
+                "y": 4
+            },
+            {
+                "x": 1,
+                "y": 2
+            },
+            {
+                "x": 9,
+                "y": 5
+            },
+            {
+                "x": 7,
+                "y": 3
+            },
+            {
+                "x": 1,
+                "y": 6
+            },
+            {
+                "x": 5,
+                "y": 1
+            },
+            {
+                "x": 8,
+                "y": 9
+            },
+            {
+                "x": 3,
+                "y": 2
+            },
+            {
+                "x": 4,
+                "y": 5
+            },
+            {
+                "x": 5,
+                "y": 6
+            },
+            {
+                "x": 9,
+                "y": 0
+            },
+            {
+                "x": 3,
+                "y": 9
+            }
+        ],
+        "moves": [
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "LEFT",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "DOWN",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "EMPTY",
+            "EMPTY",
+            "LEFT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP"
+        ],
+        "rounds_data": {
+            "1": {
+                "round": 1,
+                "apple_position": [
+                    6,
+                    6
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "2": {
+                "round": 2,
+                "apple_position": [
+                    9,
+                    6
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "LEFT"
+                ],
+                "moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "LEFT"
+                ]
+            },
+            "3": {
+                "round": 3,
+                "apple_position": [
+                    9,
+                    1
+                ],
+                "planned_moves": [
+                    "UP",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "UP",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "RIGHT"
+                ]
+            },
+            "4": {
+                "round": 4,
+                "apple_position": [
+                    3,
+                    4
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "5": {
+                "round": 5,
+                "apple_position": [
+                    8,
+                    4
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "6": {
+                "round": 6,
+                "apple_position": [
+                    1,
+                    2
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT"
+                ]
+            },
+            "7": {
+                "round": 7,
+                "apple_position": [
+                    9,
+                    5
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN"
+                ]
+            },
+            "8": {
+                "round": 8,
+                "apple_position": [
+                    7,
+                    3
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "9": {
+                "round": 9,
+                "apple_position": [
+                    1,
+                    6
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN"
+                ]
+            },
+            "10": {
+                "round": 10,
+                "apple_position": [
+                    5,
+                    1
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "11": {
+                "round": 11,
+                "apple_position": [
+                    8,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "12": {
+                "round": 12,
+                "apple_position": [
+                    3,
+                    2
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "13": {
+                "round": 13,
+                "apple_position": [
+                    4,
+                    5
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "14": {
+                "round": 14,
+                "apple_position": [
+                    5,
+                    6
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "15": {
+                "round": 15,
+                "apple_position": [
+                    9,
+                    0
+                ],
+                "planned_moves": [
+                    "UP",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "UP",
+                    "RIGHT"
+                ]
+            },
+            "16": {
+                "round": 16,
+                "apple_position": [
+                    3,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "17": {
+                "round": 17,
+                "apple_position": [
+                    3,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "18": {
+                "round": 18,
+                "apple_position": [
+                    3,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "19": {
+                "round": 19,
+                "apple_position": [
+                    3,
+                    9
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT"
+                ],
+                "moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            }
+        }
+    }
+}

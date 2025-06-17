@@ -85,27 +85,37 @@ class ReplayEngine(GameController):
         if hasattr(gui_instance, 'set_paused'):
             gui_instance.set_paused(self.paused)
 
+    def _build_state_base(self) -> dict:
+        """Return a dict with the *core* replay state common to GUI & web.
+
+        The conversion of numpy arrays → lists for JSON, colour maps, etc. is
+        left to the caller (GUI can consume numpy directly, web needs lists).
+        """
+
+        return {
+            'snake_positions': self.snake_positions,
+            'apple_position': self.apple_position,
+            'game_number': self.game_number,
+            'score': self.score,
+            'steps': self.steps,
+            'move_index': self.move_index,
+            'total_moves': len(self.moves),
+            'planned_moves': getattr(self, 'planned_moves', []),
+            'llm_response': getattr(self, 'llm_response', None),
+            'primary_llm': self.primary_llm,
+            'secondary_llm': self.secondary_llm,
+            'paused': self.paused,
+            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
+            'timestamp': self.game_timestamp,
+            'game_end_reason': self.game_end_reason,
+        }
+
     def draw(self) -> None:
         """Draw the current game state."""
         if self.use_gui and self.gui:
-            # Create replay data dictionary
-            replay_data = {
-                'snake_positions': self.snake_positions,
-                'apple_position': self.apple_position,
-                'game_number': self.game_number,
-                'score': self.score,
-                'steps': self.steps,
-                'move_index': self.move_index,
-                'total_moves': len(self.moves),
-                'planned_moves': self.planned_moves,
-                'llm_response': self.llm_response,
-                'primary_llm': self.primary_llm,
-                'secondary_llm': self.secondary_llm,
-                'paused': self.paused,
-                'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
-                'timestamp': self.game_timestamp,
-                'game_end_reason': self.game_end_reason
-            }
+            # Build replay data dictionary (base state + GUI-specific extras)
+            replay_data = self._build_state_base()
+            # No additional fields for the Pygame GUI right now.
 
             # Draw the replay view
             self.gui.draw(replay_data)

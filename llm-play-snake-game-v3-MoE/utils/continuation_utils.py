@@ -114,17 +114,12 @@ def handle_continuation_game_state(game_manager):
     Args:
         game_manager: The GameManager instance
     """
-    import pygame
-    
-    # Initialize pygame if using GUI
-    if game_manager.use_gui:
-        pygame.init()
-        pygame.font.init()
-    
-    # Set up the game
-    game_manager.setup_game()
-    
-    # Record the continuation exactly once
+    # Initialise pygame & game state via shared helper to avoid duplication
+    from utils.initialization_utils import initialize_game_state
+
+    initialize_game_state(game_manager)
+
+    # Mark this run as a continuation so stats & dashboard reflect it.
     game_manager.game.game_state.record_continuation()
 
     prev_count = game_manager.game.game_state.continuation_count

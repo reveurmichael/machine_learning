@@ -12,7 +12,7 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS, END_REASON_MAP
+from config import COLORS, END_REASON_MAP
 from replay.replay_engine import ReplayEngine
 from utils.network_utils import find_free_port
 from replay import parse_arguments  # Re-use the full CLI from replay.py
@@ -50,23 +50,17 @@ class WebReplayEngine(ReplayEngine):
         Returns:
             Dictionary with current game state
         """
-        # Convert numpy arrays to lists for JSON serialization
-        snake_positions = self.snake_positions.tolist() if hasattr(self.snake_positions, 'tolist') else self.snake_positions
-        apple_position = self.apple_position.tolist() if hasattr(self.apple_position, 'tolist') else self.apple_position
-        
-        # Create state object with game information
-        return {
-            'snake_positions': snake_positions,
-            'apple_position': apple_position,
-            'game_number': self.game_number,
-            'score': self.score,
-            'steps': self.steps,
-            'move_index': self.move_index,
-            'total_moves': len(self.moves),
-            'primary_llm': self.primary_llm,
-            'secondary_llm': self.secondary_llm,
-            'paused': self.paused,
-            'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
+        # Start with the shared base state (numpy arrays, etc.)
+        state = self._build_state_base()
+
+        # Convert numpy arrays to lists for JSON serialisation
+        if hasattr(state['snake_positions'], 'tolist'):
+            state['snake_positions'] = state['snake_positions'].tolist()
+        if hasattr(state['apple_position'], 'tolist'):
+            state['apple_position'] = state['apple_position'].tolist()
+
+        # Web-specific enrichments
+        state.update({
             'move_pause': self.pause_between_moves,
             'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
             'grid_size': self.grid_size,
@@ -76,8 +70,10 @@ class WebReplayEngine(ReplayEngine):
                 'apple': COLORS['APPLE'],
                 'background': COLORS['BACKGROUND'],
                 'grid': COLORS['GRID'],
-            }
-        }
+            },
+        })
+
+        return state
     
     def run_web(self):
         """Run the replay engine for web interface.

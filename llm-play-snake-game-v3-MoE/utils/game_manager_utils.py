@@ -395,20 +395,8 @@ def initialize_game_manager(game_manager):
         time.sleep(minutes * 60)
         print(Fore.GREEN + "⏰ Waking up and starting the program...")
 
-    # Set up session directories
-    if game_manager.args.log_dir:
-        # Use provided log directory
-        game_manager.log_dir = game_manager.args.log_dir
-        game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
-        game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
-
-        # Create directories if they don't exist
-        os.makedirs(game_manager.log_dir, exist_ok=True)
-        os.makedirs(game_manager.prompts_dir, exist_ok=True)
-        os.makedirs(game_manager.responses_dir, exist_ok=True)
-    else:
-        # Create new session directory
-        setup_log_directories(game_manager)
+    # Set up session directories (handles both provided and auto-generated cases)
+    setup_log_directories(game_manager)
 
     # Save experiment information
     model_info_path = save_experiment_info_json(game_manager.args, game_manager.log_dir)

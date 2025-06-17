@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, List
 
 import pygame
 from colorama import Fore
+from collections import defaultdict
 
 # Core game components
 from core.game_logic import GameLogic
@@ -61,25 +62,9 @@ class GameManager:
         self.round_counts: List[int] = []  # list of rounds per completed game
         self.total_rounds: int = 0  # aggregate across session
 
-        # Time and token statistics
-        self.time_stats = {
-            "llm_communication_time": 0,
-            "primary_llm_communication_time": 0,
-            "secondary_llm_communication_time": 0,
-        }
-
-        self.token_stats = {
-            "primary": {
-                "total_tokens": 0,
-                "total_prompt_tokens": 0,
-                "total_completion_tokens": 0,
-            },
-            "secondary": {
-                "total_tokens": 0,
-                "total_prompt_tokens": 0,
-                "total_completion_tokens": 0,
-            },
-        }
+        # Time and token statistics (auto-zeroing via defaultdict)
+        self.time_stats = _make_time_stats()
+        self.token_stats = _make_token_stats()
 
         # Game state
         self.game = None
@@ -350,3 +335,20 @@ class GameManager:
         ``increment_round``.
         """
         self.increment_round(reason)
+
+# ------------------------------------------------------------------
+# Utility factories for auto-initialised stats dictionaries
+# ------------------------------------------------------------------
+
+
+def _make_time_stats() -> defaultdict[str, int]:
+    """Return a defaultdict that auto-zeros missing time fields."""
+    return defaultdict(int)
+
+
+def _make_token_stats() -> dict[str, defaultdict[str, int]]:
+    """Return nested defaultdicts for primary/secondary token counters."""
+    return {
+        "primary": defaultdict(int),
+        "secondary": defaultdict(int),
+    }

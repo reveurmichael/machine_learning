@@ -247,8 +247,8 @@ class GameController:
 
         # Get direction vector
         if direction_key not in DIRECTIONS:
-            print(f"Invalid direction: {direction_key}, defaulting to RIGHT")
-            direction_key = "RIGHT"
+            print(f"Error: Invalid direction: {direction_key}")
+            return False, False
 
         direction = DIRECTIONS[direction_key]
 

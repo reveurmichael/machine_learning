@@ -15,6 +15,7 @@ import logging
 from config import PAUSE_BETWEEN_MOVES_SECONDS, COLORS, END_REASON_MAP
 from replay.replay_engine import ReplayEngine
 from utils.network_utils import find_free_port
+from replay import parse_arguments  # Re-use the full CLI from replay.py
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -196,33 +197,43 @@ def control():
     return jsonify({'status': 'error', 'message': 'Unknown command'})
 
 def main():
-    """Main function to run the web replay."""
+    """Main function to run the web replay.
+
+    Follows the same two-step CLI parsing pattern used by ``main_web.py`` to
+    keep ``replay_web.py`` free from argument-list duplication while still
+    supporting additional web-specific flags (``--host`` / ``--port``).
+    """
+
     global replay_thread
-    
-    # Parse command line arguments - reusing the same arguments from replay.py
-    parser = argparse.ArgumentParser(description='Snake Game Web Replay')
-    parser.add_argument('log_dir', type=str, nargs='?', help='Directory containing game logs')
-    parser.add_argument('--log-dir', type=str, dest='log_dir_opt', help='Directory containing game logs (alternative to positional argument)')
-    parser.add_argument('--game', type=int, default=None, 
-                      help='Specific game number (1-indexed) within the session to replay. If not specified, starts with game 1.')
-    parser.add_argument(
-        "--move-pause",
-        type=float,
-        default=PAUSE_BETWEEN_MOVES_SECONDS,
-        help=f"Pause between moves in seconds (default: {PAUSE_BETWEEN_MOVES_SECONDS})",
-    )
-    parser.add_argument('--auto-advance', action='store_true', help='Automatically advance to next game')
-    parser.add_argument('--start-paused', action='store_true', help='Start replay in paused state')
-    parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port to run the web server on')
-    parser.add_argument('--host', type=str, default='127.0.0.1', help='Host to run the web server on')
-    args = parser.parse_args()
+
+    # -------------------------------------------
+    # Step 1 – extract host / port first so we can pass the remaining CLI
+    #          arguments to the shared replay parser without causing unknown
+    #          option errors.
+    # -------------------------------------------
+    host_port_parser = argparse.ArgumentParser(add_help=False)
+    host_port_parser.add_argument('--host', type=str, default='127.0.0.1', help='Host IP')
+    host_port_parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port number')
+
+    host_port_args, remaining_argv = host_port_parser.parse_known_args()
+
+    # -------------------------------------------
+    # Step 2 – delegate the remaining arguments (log-dir, etc.) to the common
+    #          replay CLI defined in ``replay.py``.
+    # -------------------------------------------
+    argv_backup = sys.argv.copy()
+    sys.argv = [sys.argv[0]] + remaining_argv
+    try:
+        args = parse_arguments()
+    finally:
+        sys.argv = argv_backup
 
     # Use either positional argument or --log-dir option
     log_dir = args.log_dir_opt if args.log_dir_opt else args.log_dir
     
     if not log_dir:
         print("Error: Log directory must be specified either as a positional argument or using --log-dir")
-        parser.print_help()
+        host_port_parser.print_help()
         sys.exit(1)
 
     # Check if log directory exists
@@ -251,7 +262,9 @@ def main():
         replay_engine.paused = False
     
     # Start Flask app
-    print(f"\n🐍 Snake Game Web Replay starting at http://{args.host}:{args.port}")
+    host = host_port_args.host
+    port = host_port_args.port
+    print(f"\n🐍 Snake Game Web Replay starting at http://{host}:{port}")
     print("\nOpen the link in your browser to view the replay.")
     print("\nControls:")
     print("  • Play/Pause: Space bar or button")
@@ -261,7 +274,7 @@ def main():
     print("  • Exit: Ctrl+C in terminal\n")
     
     # Run Flask app
-    app.run(host=args.host, port=args.port, debug=False, threaded=True)
+    app.run(host=host, port=port, debug=False, threaded=True)
 
 if __name__ == "__main__":
     main() 

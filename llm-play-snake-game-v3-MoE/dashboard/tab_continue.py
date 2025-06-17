@@ -47,6 +47,9 @@ def render_continue_pygame_tab(log_folders):
             label_visibility="collapsed",
         )
 
+    # Track how many games have been played so far (used as default for Max Games)
+    total_games_finished: int = 0
+
     with col_info:
         if exp:
             summary_data = load_summary_data(exp)
@@ -61,10 +64,16 @@ def render_continue_pygame_tab(log_folders):
         with st.expander("Show summary.json"):
             st.code(json.dumps(summary_data, indent=2), language="json")
 
+
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="cont_pg_max_games"
+            "Max Games",
+            min_value=1,
+            max_value=1000000000000,
+            value=total_games_finished,
+            step=1,
+            key="cont_pg_max_games",
         )
     with col2:
         sleep_before = st.number_input(
@@ -105,6 +114,9 @@ def render_continue_web_tab(log_folders):
             label_visibility="collapsed",
         )
 
+    # Track how many games have been played so far (used as default for Max Games)
+    total_games_finished: int = 0
+
     with col_info_w:
         if exp:
             summary_data = load_summary_data(exp)
@@ -118,10 +130,19 @@ def render_continue_web_tab(log_folders):
         with st.expander("Show summary.json"):
             st.code(json.dumps(summary_data, indent=2), language="json")
 
+    # Determine sensible defaults / bounds for Max Games widget.
+    default_max_games = total_games_finished or MAX_GAMES_ALLOWED
+    upper_limit = max(100, default_max_games)
+
     col1, col2 = st.columns(2)
     with col1:
         max_games = st.number_input(
-            "Max Games", 1, 100, MAX_GAMES_ALLOWED, 1, key="cont_web_max_games"
+            "Max Games",
+            min_value=1,
+            max_value=upper_limit,
+            value=default_max_games,
+            step=1,
+            key="cont_web_max_games",
         )
     with col2:
         sleep_before = st.number_input(

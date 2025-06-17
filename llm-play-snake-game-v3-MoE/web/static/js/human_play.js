@@ -21,6 +21,7 @@ let pixelSize = 0;
 let updateInterval = null;
 let retryCount = 0;
 const MAX_RETRIES = 10;
+let isFetching = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', init);
@@ -46,11 +47,16 @@ function setupEventListeners() {
 }
 
 function startPolling() {
-    // Poll for game state every 20ms
-    updateInterval = setInterval(fetchGameState, 20);
+    // Poll for game state every 100 ms – fast enough for gameplay but less
+    // likely to overwhelm the browser if the backend is slow or offline.
+    updateInterval = setInterval(fetchGameState, 100);
 }
 
 async function fetchGameState() {
+    if (isFetching) {
+        return; // skip if a previous request is still in flight
+    }
+    isFetching = true;
     try {
         const data = await sendApiRequest('/api/state');
         
@@ -102,6 +108,8 @@ async function fetchGameState() {
             clearInterval(updateInterval);
             return;
         }
+    } finally {
+        isFetching = false; // release lock regardless of success/failure
     }
 }
 

@@ -32,22 +32,6 @@ MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 20
 
 VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
 
-AVAILABLE_PROVIDERS = list_providers()
-
-DEFAULT_PROVIDER = "ollama"  # for Streamlit page only, not for main.py args default
-DEFAULT_MODEL = (
-    "deepseek-r1:14b"  # for Streamlit page only, not for main.py args default
-)
-DEFAULT_PARSER_PROVIDER = (
-    "ollama"  # for Streamlit page only, not for main.py args default
-)
-DEFAULT_PARSER_MODEL = (
-    "gemma3:12b-it-qat"  # for Streamlit page only, not for main.py args default
-)
-
-TEMPERATURE = 0.2
-MAX_TOKENS = 8192
-
 DIRECTIONS = {
     "UP": (0, 1),
     "RIGHT": (1, 0),
@@ -55,9 +39,40 @@ DIRECTIONS = {
     "LEFT": (-1, 0),
 }
 
-# -------------------------- End-reason mapping ---------------------------
-# Single source of truth for user-facing explanations of why a game ended
-# (kept in sync with GameData.record_game_end() and front-end displays).
+
+AVAILABLE_PROVIDERS = list_providers()
+
+
+# -------------------------------
+# Default values - for Streamlit page only,
+# *NOT* for main.py args default
+# -------------------------------
+
+DEFAULT_PROVIDER = "ollama"  # for Streamlit page only
+DEFAULT_MODEL = (
+    "deepseek-r1:14b"  # for Streamlit page only args default
+)
+DEFAULT_PARSER_PROVIDER = (
+    "ollama"  # for Streamlit page only
+)
+DEFAULT_PARSER_MODEL = (
+    "gemma3:12b-it-qat"  # for Streamlit page only
+)
+
+
+# -------------------------------
+# LLM parameters (use in ./llm/providers/*.py)
+# -------------------------------
+
+TEMPERATURE = 0.2
+MAX_TOKENS = 8192
+
+
+# -------------------------------
+# End-reason mapping
+# Single source of truth for user-facing explanations of why a game ended.
+# Kept in sync with GameData.record_game_end() and front-end displays.
+# -------------------------------
 
 END_REASON_MAP = {
     "WALL": "Hit Wall",

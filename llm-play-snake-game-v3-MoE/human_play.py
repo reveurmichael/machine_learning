@@ -18,15 +18,20 @@ class HumanGameGUI(GameGUI):
         super().__init__()
         self.init_display("Snake Game - Human Player")
     
-    def draw_game_info(self, score: int, steps: int):
+    def draw_game_info(self, game_info: dict):
         """Draw basic score/step information for human-controlled games.
         
         Args:
-            score: Current game score
-            steps: Number of steps taken so far
+            game_info: Dictionary containing game statistics. Expected keys:
+                - score: Current game score
+                - steps: Number of steps taken so far
         """
         # Clear info panel
         self.clear_info_panel()
+        
+        # Extract statistics
+        score = game_info.get("score", 0)
+        steps = game_info.get("steps", 0)
         
         # Draw score and steps
         title_font = pygame.font.SysFont('arial', 22, bold=True)
@@ -163,7 +168,7 @@ def main():
         
         # Draw the game state
         gui.draw_board(game.board, game.board_info, game.head_position)
-        gui.draw_game_info(score=game.score, steps=game.steps)
+        gui.draw_game_info({"score": game.score, "steps": game.steps})
         
         # Control game speed
         clock.tick(TIME_TICK)

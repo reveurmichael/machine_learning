@@ -10,9 +10,10 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import COLORS, END_REASON_MAP
+from config import END_REASON_MAP
 from core.game_controller import GameController
 from utils.network_utils import find_free_port
+from utils.web_utils import build_state_dict, to_list
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -48,25 +49,17 @@ class WebGameController(GameController):
         Returns:
             Dictionary with current game state
         """
-        # Create state object with all needed information from game controller
-        state = {
-            'snake_positions': self.snake_positions.tolist() if hasattr(self.snake_positions, 'tolist') else self.snake_positions,
-            'apple_position': self.apple_position.tolist() if hasattr(self.apple_position, 'tolist') else self.apple_position,
-            'score': self.score,
-            'steps': self.steps,
-            'game_over': self.game_over,
-            'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
-            'grid_size': self.grid_size,
-            'colors': {
-                'snake_head': COLORS['SNAKE_HEAD'],
-                'snake_body': COLORS['SNAKE_BODY'],
-                'apple': COLORS['APPLE'],
-                'background': COLORS['BACKGROUND'],
-                'grid': COLORS['GRID'],
-            }
-        }
-        
-        return state
+        return build_state_dict(
+            to_list(self.snake_positions),
+            to_list(self.apple_position),
+            self.score,
+            self.steps,
+            self.grid_size,
+            extra={
+                'game_over': self.game_over,
+                'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
+            },
+        )
     
     def make_move(self, direction_key):
         """Override the make_move method to track game over state.
@@ -97,13 +90,9 @@ class WebGameController(GameController):
         self.game_end_reason = None
 
 def game_thread_function():
-    """Function to keep the game thread alive.
-    This is mostly a placeholder as the web version is event-driven by API calls.
-    """
-    global game_controller, running
-    
+    """Background no-op loop to keep daemon thread alive."""
+
     while running:
-        # Just keep the thread alive
         time.sleep(0.1)
 
 # Define routes
@@ -115,18 +104,16 @@ def index():
 @app.route('/api/state')
 def get_state():
     """API endpoint to get the current game state."""
-    global game_controller
-    
+
     if game_controller is None:
         return jsonify({'error': 'Game controller not initialized'})
-    
+
     return jsonify(game_controller.get_current_state())
 
 @app.route('/api/move', methods=['POST'])
 def make_move():
     """API endpoint for making a move."""
-    global game_controller
-    
+
     if game_controller is None:
         return jsonify({'error': 'Game controller not initialized'})
     
@@ -149,8 +136,7 @@ def make_move():
 @app.route('/api/reset', methods=['POST'])
 def reset_game():
     """API endpoint to reset the game."""
-    global game_controller
-    
+
     if game_controller is None:
         return jsonify({'error': 'Game controller not initialized'})
     

@@ -368,11 +368,7 @@ class GameController:
         return check_collision(position, self.snake_positions, self.grid_size, is_eating_apple_flag)
 
     def _get_current_direction_key(self) -> str:
-        """Get the current direction as a key string.
-        
-        Returns:
-            String direction key ("UP", "DOWN", "LEFT", "RIGHT")
-        """
+        """Return current direction as UP/DOWN/LEFT/RIGHT or empty string."""
         if self.current_direction is None:
             return "NONE"
 
@@ -382,6 +378,13 @@ class GameController:
                 return key
 
         return "UNKNOWN"
+
+    # Public wrapper for external modules – avoids accessing the protected
+    # helper directly and silences static-analysis warnings.
+    def get_current_direction_key(self) -> str:
+        """Public accessor for the snake's current direction key."""
+
+        return self._get_current_direction_key()
 
     @property
     def score(self) -> int:

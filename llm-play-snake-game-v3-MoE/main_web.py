@@ -26,7 +26,8 @@ logging.getLogger('werkzeug').setLevel(logging.WARNING)  # Suppress per-request 
 # Local imports from the project (after dummy driver is set)
 from core.game_manager import GameManager
 from main import parse_arguments  # Re-use the full CLI from main.py
-from config import COLORS, GRID_SIZE, END_REASON_MAP
+from config import GRID_SIZE
+from utils.web_utils import build_color_map, translate_end_reason
 
 # ----------------------------------------
 # Flask setup (identical static/template folders to replay_web)
@@ -47,10 +48,8 @@ def build_state_dict(gm: GameManager):
     snake = game.snake_positions.tolist() if hasattr(game.snake_positions, 'tolist') else game.snake_positions
     apple = game.apple_position.tolist() if hasattr(game.apple_position, 'tolist') else game.apple_position
 
-    end_reason_readable = None
     reason_code = getattr(game.game_state, "game_end_reason", None)
-    if reason_code:
-        end_reason_readable = END_REASON_MAP.get(reason_code, reason_code)
+    end_reason_readable = translate_end_reason(reason_code)
 
     return {
         'snake_positions': snake,
@@ -60,13 +59,7 @@ def build_state_dict(gm: GameManager):
         'game_number': gm.game_count + 1,
         'round_count': gm.round_count,
         'grid_size': GRID_SIZE,
-        'colors': {
-            'snake_head': COLORS['SNAKE_HEAD'],
-            'snake_body': COLORS['SNAKE_BODY'],
-            'apple': COLORS['APPLE'],
-            'background': COLORS['BACKGROUND'],
-            'grid': COLORS['GRID'],
-        },
+        'colors': build_color_map(),
         'running': gm.running,
         'game_active': gm.game_active,
         'planned_moves': game.planned_moves,
@@ -140,7 +133,6 @@ def index():
 
 @app.route('/api/state')
 def api_state():
-    global manager
     if manager is None or manager.game is None:
         return jsonify({'error': 'game not started'})
     return jsonify(build_state_dict(manager))
@@ -148,7 +140,6 @@ def api_state():
 @app.route('/api/control', methods=['POST'])
 def api_control():
     """Minimal play/pause toggle. Accept {"command": "pause"|"play"}."""
-    global manager
     if manager is None:
         return jsonify({'status': 'error', 'msg': 'no manager'})
     cmd = request.json.get('command') if request.is_json else None

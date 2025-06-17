@@ -95,12 +95,7 @@ def parse_llm_response(response, processed_response_func, game_instance):
                     print(f"First move: {moves[0]}, Planned moves: {moves[1:] if len(moves) > 1 else []}")
 
                     # Get the current direction to check for reversals
-                    current_direction = None
-                    if hasattr(game_instance, 'get_current_direction_key'):
-                        current_direction = game_instance.get_current_direction_key()
-                    elif game_instance.current_direction is not None:
-                        # Get direction using current_direction attribute
-                        current_direction = game_instance._get_current_direction_key()
+                    current_direction = game_instance.get_current_direction_key() if hasattr(game_instance, 'get_current_direction_key') else None
 
                     # Filter out any invalid reversals in the planned moves
                     filtered_moves = game_instance.filter_invalid_reversals(moves[1:], current_direction)

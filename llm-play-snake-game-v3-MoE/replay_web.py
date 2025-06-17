@@ -12,10 +12,10 @@ import time
 from flask import Flask, render_template, request, jsonify
 import logging
 
-from config import COLORS, END_REASON_MAP
 from replay.replay_engine import ReplayEngine
 from utils.network_utils import find_free_port
 from replay import parse_arguments  # Re-use the full CLI from replay.py
+from utils.web_utils import build_color_map, translate_end_reason, to_list
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
@@ -54,23 +54,15 @@ class WebReplayEngine(ReplayEngine):
         state = self._build_state_base()
 
         # Convert numpy arrays to lists for JSON serialisation
-        if hasattr(state['snake_positions'], 'tolist'):
-            state['snake_positions'] = state['snake_positions'].tolist()
-        if hasattr(state['apple_position'], 'tolist'):
-            state['apple_position'] = state['apple_position'].tolist()
+        state['snake_positions'] = to_list(state['snake_positions'])
+        state['apple_position'] = to_list(state['apple_position'])
 
         # Web-specific enrichments
         state.update({
             'move_pause': self.pause_between_moves,
-            'game_end_reason': END_REASON_MAP.get(self.game_end_reason, self.game_end_reason) if self.game_end_reason else None,
+            'game_end_reason': translate_end_reason(self.game_end_reason),
             'grid_size': self.grid_size,
-            'colors': {
-                'snake_head': COLORS['SNAKE_HEAD'],
-                'snake_body': COLORS['SNAKE_BODY'],
-                'apple': COLORS['APPLE'],
-                'background': COLORS['BACKGROUND'],
-                'grid': COLORS['GRID'],
-            },
+            'colors': build_color_map(),
         })
 
         return state

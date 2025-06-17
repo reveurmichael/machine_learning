@@ -10,6 +10,8 @@ from colorama import Fore, init as init_colorama
 from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, MAX_GAMES_ALLOWED
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
+from config.constants import AVAILABLE_PROVIDERS
+from llm.client import LLMClient
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
@@ -18,19 +20,32 @@ init_colorama(autoreset=True)
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="LLM-guided Snake game")
+    provider_help = (
+        "LLM provider to use for primary LLM. Available: " + ", ".join(AVAILABLE_PROVIDERS)
+    )
     parser.add_argument(
         "--provider",
         "--p1",
         type=str,
         default="hunyuan",
-        help="LLM provider to use for primary LLM (hunyuan, ollama, deepseek, or mistral)",
+        help=provider_help,
     )
+    examples: list[str] = []
+    for _prov in AVAILABLE_PROVIDERS:
+        _models = LLMClient.get_available_models(_prov)
+        if _models:
+            examples.append(f"{_prov}: {', '.join(_models[:2])}{'…' if len(_models) > 2 else ''}")
+
+    model_help = (
+        "Model name to use for primary LLM. Examples – " + "; ".join(examples)
+    )
+
     parser.add_argument(
         "--model",
         "--m1",
         type=str,
         default=None,
-        help='Model name to use for primary LLM. For Ollama: check first what\'s available on the server. For DeepSeek: "deepseek-chat" or "deepseek-reasoner". For Mistral: "mistral-medium-latest" (default) or "mistral-large-latest"',
+        help=model_help,
     )
     parser.add_argument(
         "--parser-provider",

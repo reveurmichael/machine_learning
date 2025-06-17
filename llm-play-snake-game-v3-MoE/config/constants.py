@@ -1,4 +1,4 @@
-import pathlib
+from llm.providers import list_providers
 
 
 COLORS = {
@@ -32,13 +32,7 @@ MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 20
 
 VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
 
-AVAILABLE_PROVIDERS = sorted(
-    {
-        p.stem.replace("_provider", "")
-        for p in pathlib.Path("llm/providers").glob("*_provider.py")
-        if p.stem != "base_provider"
-    }
-)
+AVAILABLE_PROVIDERS = list_providers()
 
 DEFAULT_PROVIDER = "ollama"  # for Streamlit page only, not for main.py args default
 DEFAULT_MODEL = (

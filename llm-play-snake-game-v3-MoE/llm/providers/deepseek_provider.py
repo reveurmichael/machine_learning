@@ -12,7 +12,12 @@ from .base_provider import BaseProvider
 
 
 class DeepseekProvider(BaseProvider):
-    """Provider implementation for Deepseek LLM service."""
+    """Provider implementation for DeepSeek LLM service."""
+    
+    available_models: list[str] = sorted([
+        "deepseek-chat",
+        "deepseek-reasoner",
+    ])
     
     def get_default_model(self) -> str:
         """Get the default model for Deepseek.
@@ -21,22 +26,6 @@ class DeepseekProvider(BaseProvider):
             The name of the default model
         """
         return "deepseek-chat"
-    
-    def validate_model(self, model: str) -> str:
-        """Validate the model name for Deepseek.
-        
-        Args:
-            model: The model name to validate
-            
-        Returns:
-            The validated model name
-        """
-        # Validate model selection
-        valid_models = ["deepseek-chat", "deepseek-reasoner"]
-        if model not in valid_models:
-            print(f"Warning: Unknown Deepseek model '{model}', using deepseek-chat instead")
-            return "deepseek-chat"
-        return model
     
     def generate_response(self, prompt: str, model: Optional[str] = None, **kwargs) -> Tuple[str, Optional[Dict[str, int]]]:
         """Generate a response from Deepseek LLM.
@@ -64,8 +53,6 @@ class DeepseekProvider(BaseProvider):
 
             # Extract parameters
             model = model or self.get_default_model()
-            # Validate model selection
-            model = self.validate_model(model)
 
             temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
             max_tokens = kwargs.get("max_tokens", 8192)

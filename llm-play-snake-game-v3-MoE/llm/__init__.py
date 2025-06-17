@@ -1,51 +1,52 @@
+"""Top-level LLM package initialisation.
+
+This file deliberately keeps imports minimal to avoid circular-import
+issues (e.g. `config` → `llm` → `config`). Down-stream modules should
+import the helpers they need directly (`from llm.prompt_utils import …`).
+Only the most-commonly used APIs are re-exported here.
 """
-LLM integration module for the Snake game.
-Provides a unified interface to language model functionality including communication,
-prompt generation, response parsing, and provider-specific implementations.
-"""
 
-# Export client and core functionality
-from llm.client import LLMClient
+from importlib import import_module
 
-# Import and re-export prompt-related functions
-from llm.prompt_utils import (
-    prepare_snake_prompt,
-    create_parser_prompt,
+# Core runtime client
+from llm.client import LLMClient  # noqa: F401  (public API)
+
+# Lightweight pass-throughs from provider registry
+from llm.providers import (  # noqa: F401
+    create_provider,
+    list_providers,
+    get_available_models,
 )
 
-# Import and re-export parsing-related functions
-from llm.parsing_utils import (
-    parse_and_format,
-    parse_llm_response,
-)
 
-# Import and re-export communication-related functions
-from llm.communication_utils import (
-    extract_state_for_parser,
-    get_llm_response,
-    check_llm_health
-)
+def __getattr__(name):  # pragma: no cover – lazy imports
+    """Lazy import heavy sub-modules on first access to break cycles."""
 
-from llm.setup_utils import check_env_setup
+    mapping = {
+        # prompt utilities
+        "prepare_snake_prompt": "llm.prompt_utils",
+        "create_parser_prompt": "llm.prompt_utils",
+        # parsing utilities
+        "parse_and_format": "llm.parsing_utils",
+        "parse_llm_response": "llm.parsing_utils",
+        # communication helpers
+        "extract_state_for_parser": "llm.communication_utils",
+        "get_llm_response": "llm.communication_utils",
+        "check_llm_health": "llm.communication_utils",
+        # setup helper
+        "check_env_setup": "llm.setup_utils",
+    }
 
-# Define the public API
+    if name in mapping:
+        module = import_module(mapping[name])
+        return getattr(module, name)
+    raise AttributeError(f"module 'llm' has no attribute '{name}'")
+
+
+# Public API (only statically available names)
 __all__ = [
-    # Client
-    'LLMClient',
-    
-    # Prompt utilities
-    'prepare_snake_prompt',
-    'create_parser_prompt',
-    
-    # Parsing utilities
-    'parse_and_format',
-    'parse_llm_response',
-    
-    # Communication utilities
-    'check_llm_health',
-    'extract_state_for_parser',
-    'get_llm_response',
-    
-    # Setup utilities
-    'check_env_setup'
+    "LLMClient",
+    "create_provider",
+    "list_providers",
+    "get_available_models",
 ] 

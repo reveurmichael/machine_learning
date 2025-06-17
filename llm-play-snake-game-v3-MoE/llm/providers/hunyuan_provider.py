@@ -14,6 +14,11 @@ from .base_provider import BaseProvider
 class HunyuanProvider(BaseProvider):
     """Provider implementation for Tencent Hunyuan LLM service."""
     
+    available_models: list[str] = sorted([
+        "hunyuan-turbos-latest",
+        "hunyuan-standard-latest",
+    ])
+    
     def get_default_model(self) -> str:
         """Get the default model for Hunyuan.
         

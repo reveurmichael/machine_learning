@@ -382,7 +382,6 @@ def initialize_game_manager(game_manager):
     """
     from utils.game_stats_utils import save_experiment_info_json
     from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
-    import os
     import time
 
     # Set up the LLM clients (primary and optional secondary)

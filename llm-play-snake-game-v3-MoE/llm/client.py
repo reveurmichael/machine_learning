@@ -5,7 +5,7 @@ LLM client module for handling communication with different LLM providers.
 import traceback
 
 from dotenv import load_dotenv
-from llm.providers import create_provider
+from llm.providers import create_provider, get_provider_cls
 from colorama import Fore, init as init_colorama
 
 # Load environment variables from .env file
@@ -71,9 +71,12 @@ class LLMClient:
         # Initialize secondary provider
         try:
             provider = provider.lower()
+            temp_instance = create_provider(provider)
+            validated_model = temp_instance.validate_model(model)
+
             self.secondary_provider = provider
-            self.secondary_model = model
-            print(Fore.GREEN + f"Secondary LLM configured: {provider}/{model}")
+            self.secondary_model = validated_model
+            print(Fore.GREEN + f"Secondary LLM configured: {provider}/{validated_model}")
             return True
         except ValueError as e:
             print(Fore.YELLOW + f"Warning: {e}")
@@ -129,21 +132,24 @@ class LLMClient:
         print(Fore.BLUE + f"Generating response using provider: {self.provider}")
 
         try:
-            # Ensure we have the correct provider instance
-            if hasattr(self, '_provider_instance') and self._provider_instance is not None:
-                # If provider changed (e.g., from secondary LLM), recreate the provider instance
-                if self._provider_instance.__class__.__name__.lower().replace('provider', '') != self.provider:
-                    self._provider_instance = create_provider(self.provider)
-            else:
+            # Ensure we have the correct provider instance (lazy re-create on provider change)
+            if (
+                not hasattr(self, "_provider_instance")
+                or self._provider_instance is None
+                or self._provider_instance.__class__ is not get_provider_cls(self.provider)
+            ):
                 self._provider_instance = create_provider(self.provider)
 
             # Extract model parameter if provided, otherwise use the instance model
-            model = kwargs.pop('model', None) or self.model
+            requested_model = kwargs.pop('model', None) or self.model
 
-            # Add model to kwargs if not None
-            if model:
-                kwargs['model'] = model
-                print(f"Using model: {model}")
+            # Validate model (raises ValueError on unsupported names)
+            if requested_model:
+                validated_model = get_provider_cls(self.provider).validate_model(requested_model)
+                kwargs['model'] = validated_model
+                # Keep self.model in sync
+                self.model = validated_model
+                print(f"Using model: {validated_model}")
 
             # Call the provider's generate_response method
             response, token_count = self._provider_instance.generate_response(prompt, **kwargs)
@@ -165,4 +171,22 @@ class LLMClient:
         except Exception as e:
             print(Fore.RED + f"Error generating response: {e}")
             traceback.print_exc()
-            return f"ERROR LLMCLIENT: {e}" 
+            return f"ERROR LLMCLIENT: {e}"
+
+    # ------------------------------------------------------------
+    # Static helper – retrieve the list of models exposed by a provider.
+    # ------------------------------------------------------------
+
+    @staticmethod
+    def get_available_models(provider: str) -> list[str]:
+        """Return a list of model identifiers for *provider*.
+
+        Falls back to the provider's default model if no explicit list is
+        defined so the dashboard always has at least one entry.
+        """
+
+        try:
+            cls = get_provider_cls(provider.lower())
+            return cls.get_available_models()
+        except Exception:
+            return [] 

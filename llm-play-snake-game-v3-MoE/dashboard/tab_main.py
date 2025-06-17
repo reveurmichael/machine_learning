@@ -12,6 +12,7 @@ import streamlit as st
 
 from utils.network_utils import random_free_port
 from utils.session_utils import run_main_web
+from llm.client import LLMClient
 
 # Default safety-limit values
 from config.constants import (
@@ -54,16 +55,50 @@ def render_main_pygame_tab():
     # ----- Provider / model -----
     col1, col2 = st.columns(2)
     with col1:
-        provider = st.selectbox("Provider", AVAILABLE_PROVIDERS, index=AVAILABLE_PROVIDERS.index(DEFAULT_PROVIDER) if DEFAULT_PROVIDER in AVAILABLE_PROVIDERS else 0, key="main_pg_provider")
+        provider = st.selectbox(
+            "Provider",
+            AVAILABLE_PROVIDERS,
+            index=AVAILABLE_PROVIDERS.index(DEFAULT_PROVIDER)
+            if DEFAULT_PROVIDER in AVAILABLE_PROVIDERS
+            else 0,
+            key="main_pg_provider",
+        )
     with col2:
-        model = st.text_input("Model", value=DEFAULT_MODEL, key="main_pg_model")
+        provider_models = LLMClient.get_available_models(provider) or [DEFAULT_MODEL]
+        model = st.selectbox(
+            "Model",
+            provider_models,
+            index=0,
+            key="main_pg_model",
+        )
 
     # ----- Parser LLM -----
     colp1, colp2 = st.columns(2)
     with colp1:
-        parser_provider = st.selectbox("Parser Provider", ["None"] + AVAILABLE_PROVIDERS, index=AVAILABLE_PROVIDERS.index(DEFAULT_PARSER_PROVIDER)+1 if DEFAULT_PARSER_PROVIDER in AVAILABLE_PROVIDERS else 0, key="main_pg_parser_provider")
+        parser_provider = st.selectbox(
+            "Parser Provider",
+            ["None"] + AVAILABLE_PROVIDERS,
+            index=AVAILABLE_PROVIDERS.index(DEFAULT_PARSER_PROVIDER) + 1
+            if DEFAULT_PARSER_PROVIDER in AVAILABLE_PROVIDERS
+            else 0,
+            key="main_pg_parser_provider",
+        )
     with colp2:
-        parser_model = st.text_input("Parser Model", value=DEFAULT_PARSER_MODEL, key="main_pg_parser_model")
+        if parser_provider == "None":
+            parser_model = st.selectbox(
+                "Parser Model",
+                ["None"],
+                index=0,
+                key="main_pg_parser_model",
+            )
+        else:
+            p_models = LLMClient.get_available_models(parser_provider) or [DEFAULT_PARSER_MODEL]
+            parser_model = st.selectbox(
+                "Parser Model",
+                p_models,
+                index=0,
+                key="main_pg_parser_model",
+            )
 
     # ----- Core limits / timings -----
     col_core1, col_core2 = st.columns(2)
@@ -145,26 +180,50 @@ def render_main_web_tab():
     # ----- Provider / model -----
     col1, col2 = st.columns(2)
     with col1:
-        st.selectbox(
+        provider_w = st.selectbox(
             "Provider",
             AVAILABLE_PROVIDERS,
-            index=AVAILABLE_PROVIDERS.index(DEFAULT_PROVIDER) if DEFAULT_PROVIDER in AVAILABLE_PROVIDERS else 0,
+            index=AVAILABLE_PROVIDERS.index(DEFAULT_PROVIDER)
+            if DEFAULT_PROVIDER in AVAILABLE_PROVIDERS
+            else 0,
             key="main_web_provider",
         )
     with col2:
-        st.text_input("Model", value=DEFAULT_MODEL, key="main_web_model")
+        provider_w_models = LLMClient.get_available_models(provider_w) or [DEFAULT_MODEL]
+        st.selectbox(
+            "Model",
+            provider_w_models,
+            index=0,
+            key="main_web_model",
+        )
 
     # Parser widgets
     colp1, colp2 = st.columns(2)
     with colp1:
-        st.selectbox(
+        parser_provider_w = st.selectbox(
             "Parser Provider",
             ["None"] + AVAILABLE_PROVIDERS,
-            index=AVAILABLE_PROVIDERS.index(DEFAULT_PARSER_PROVIDER) + 1 if DEFAULT_PARSER_PROVIDER in AVAILABLE_PROVIDERS else 0,
+            index=AVAILABLE_PROVIDERS.index(DEFAULT_PARSER_PROVIDER) + 1
+            if DEFAULT_PARSER_PROVIDER in AVAILABLE_PROVIDERS
+            else 0,
             key="main_web_parser_provider",
         )
     with colp2:
-        st.text_input("Parser Model", value=DEFAULT_PARSER_MODEL, key="main_web_parser_model")
+        if parser_provider_w == "None":
+            st.selectbox(
+                "Parser Model",
+                ["None"],
+                index=0,
+                key="main_web_parser_model",
+            )
+        else:
+            pp_models = LLMClient.get_available_models(parser_provider_w) or [DEFAULT_PARSER_MODEL]
+            st.selectbox(
+                "Parser Model",
+                pp_models,
+                index=0,
+                key="main_web_parser_model",
+            )
 
     # Core limits / timings (session_state-only)
     col_core1, col_core2 = st.columns(2)

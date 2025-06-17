@@ -14,6 +14,11 @@ from .base_provider import BaseProvider
 class MistralProvider(BaseProvider):
     """Provider implementation for Mistral LLM service."""
     
+    available_models: list[str] = sorted([
+        "mistral-medium-latest",
+        "mistral-large-latest",
+    ])
+    
     def get_default_model(self) -> str:
         """Get the default model for Mistral.
         
@@ -21,26 +26,6 @@ class MistralProvider(BaseProvider):
             The name of the default model
         """
         return "mistral-medium-latest"
-    
-    def validate_model(self, model: str) -> str:
-        """Validate the model name for Mistral.
-        
-        Args:
-            model: The model name to validate
-            
-        Returns:
-            The validated model name
-        """
-        valid_models = [
-            "mistral-tiny",
-            "mistral-small-latest",
-            "mistral-medium-latest",
-            "mistral-large-latest",
-        ]
-        if model not in valid_models:
-            print(f"Warning: Unknown Mistral model '{model}', using mistral-medium-latest instead")
-            return "mistral-medium-latest"
-        return model
     
     def generate_response(self, prompt: str, model: Optional[str] = None, **kwargs) -> Tuple[str, Optional[Dict[str, int]]]:
         """Generate a response from Mistral LLM.

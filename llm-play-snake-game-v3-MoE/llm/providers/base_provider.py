@@ -10,6 +10,12 @@ from typing import Dict, Tuple, Optional
 class BaseProvider(ABC):
     """Base class for all LLM provider implementations."""
     
+    # Concrete subclasses should populate this list with the *visible* model
+    # identifiers they support.  The dashboard UI pulls from it to populate
+    # the model select-box.  Leave empty if you don't want to expose any
+    # predefined options – the default model will still be shown.
+    available_models: list[str] = []
+    
     @abstractmethod
     def generate_response(self, prompt: str, model: Optional[str] = None, **kwargs) -> Tuple[str, Optional[Dict[str, int]]]:
         """Generate a response from the LLM.
@@ -37,17 +43,24 @@ class BaseProvider(ABC):
         """
         pass
     
-    @abstractmethod
-    def validate_model(self, model: str) -> str:
-        """Validate and potentially correct the model name.
-        
-        Args:
-            model: The model name to validate
-            
-        Returns:
-            The validated (and potentially corrected) model name
+    @classmethod
+    def validate_model(cls, model: str) -> str:  # noqa: D401 – simple validation
+        """Return *model* if supported; raise ValueError otherwise.
+
+        Concrete providers may override for more complex rules.  If
+        ``available_models`` is empty we accept any input (open set).
         """
-        pass
+
+        if not cls.available_models:
+            return model
+
+        if model in cls.available_models:
+            return model
+
+        raise ValueError(
+            f"Unsupported model '{model}' for provider {cls.__name__.replace('Provider','').lower()}. "
+            f"Supported models: {', '.join(cls.available_models)}"
+        )
 
     def handle_error(self, error: Exception) -> Tuple[str, None]:
         """Standard error handling for all providers.
@@ -63,3 +76,13 @@ class BaseProvider(ABC):
         print(f"Error generating response: {error}")
         traceback.print_exc()
         return error_message, None 
+
+    # ------------------------------------------------------------
+    # Optional helper – concrete providers may override but a simple default
+    # implementation based on the class attribute is provided for convenience.
+    # ------------------------------------------------------------
+
+    @classmethod
+    def get_available_models(cls) -> list[str]:  # noqa: D401 – simple accessor
+        """Return a list of supported model identifiers for this provider."""
+        return cls.available_models or [cls.get_default_model(cls)] 

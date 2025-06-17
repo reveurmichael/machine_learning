@@ -6,7 +6,7 @@ statistics reporting, and initialization functions.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
 import pygame
 import numpy as np

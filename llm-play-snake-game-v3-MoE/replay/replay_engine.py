@@ -7,7 +7,7 @@ import os
 import json
 import time
 import traceback
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import pygame
 from pygame.locals import *  # noqa: F403 – Pygame constants

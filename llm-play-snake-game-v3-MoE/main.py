@@ -77,9 +77,9 @@ def parse_arguments():
     parser.add_argument(
         "--sleep-before-launching",
         "-s",
-        type=int,
-        default=0,
-        help="Time to sleep (in minutes) before launching the program",
+        type=float,
+        default=0.0,
+        help="Time to sleep (in minutes; fractions allowed) before launching the program",
     )
     parser.add_argument(
         "--max-steps",

@@ -16,7 +16,7 @@ class HunyuanProvider(BaseProvider):
     
     available_models: list[str] = sorted([
         "hunyuan-turbos-latest",
-        "hunyuan-standard-latest",
+        "hunyuan-t1-latest",
     ])
     
     def get_default_model(self) -> str:
@@ -26,18 +26,6 @@ class HunyuanProvider(BaseProvider):
             The name of the default model
         """
         return "hunyuan-turbos-latest"
-    
-    def validate_model(self, model: str) -> str:
-        """Validate the model name for Hunyuan.
-        
-        Args:
-            model: The model name to validate
-            
-        Returns:
-            The validated model name
-        """
-        # Currently, Hunyuan has limited models, but we don't validate here
-        return model
     
     def generate_response(self, prompt: str, model: Optional[str] = None, **kwargs) -> Tuple[str, Optional[Dict[str, int]]]:
         """Generate a response from Hunyuan.

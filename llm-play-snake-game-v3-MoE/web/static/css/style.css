@@ -13,7 +13,8 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    width: 95%;          /* stretch on large monitors but keep a small margin */
+    max-width: 1600px;   /* still cap extreme ultra-wide for readability */
     margin: 0 auto;
     padding: 20px;
 }
@@ -84,11 +85,16 @@ body {
     align-items: flex-start;
     justify-content: center;
     margin: 0 auto;
+    flex-wrap: wrap;          /* allow sidebar to fall below on narrow windows */
+    max-width: 100%;
+    overflow-x: auto;            /* prevent clipping on ultra-wide canvases */
 }
 
 /* Leaner board wrapper: shrink-wrap around the canvas, minimal padding */
 .game-board {
-    flex: 0 0 auto;               /* take only the space it needs */
+    flex: 1 1 auto;               /* grow/shrink with viewport */
+    min-width: 400px;             /* keep playable even on small screens */
+    max-width: 900px;             /* don't stretch endlessly */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -96,19 +102,25 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;                 /* allow board to shrink within flex item */
+    overflow: hidden;            /* prevent canvas leaking over padding */
 }
 
 #game-canvas {
     display: block;
-    margin: 0;
+    margin: 0 auto;              /* center in the board */
     background-color: #2c2c54;
+    max-width: 100%;             /* never wider than its parent */
+    height: auto;
 }
 
 .game-sidebar {
-    width: 350px;
+    flex: 0 0 320px;      /* fixed-ish width sidebar */
+    max-width: 350px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    word-wrap: break-word;        /* prevent overflow */
 }
 
 .stats-section, .controls-section, .llm-info-section, .progress-section, .instructions-section {
@@ -268,13 +280,11 @@ button:disabled {
 }
 
 .llm-response {
-    font-family: monospace;
-    font-size: 10px;
-    white-space: pre-wrap; /* preserve line breaks but allow wrap */
-    overflow-wrap: anywhere;
-    word-wrap: break-word;
+    white-space: pre-wrap; /* preserve line breaks */
     max-height: 300px;
     overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 /* Card styling for moves & LLM response (same as stats-section) */

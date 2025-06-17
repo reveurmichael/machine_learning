@@ -113,7 +113,7 @@ body {
 }
 
 .game-sidebar {
-    flex: 0 0 320px;      /* fixed-ish width sidebar */
+    flex: 0 0 420px;      /* fixed-ish width sidebar */
     max-width: 350px;
     display: flex;
     flex-direction: column;
@@ -134,6 +134,18 @@ h2 {
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
     color: #3498db;
+    display: flex;                /* keep title and counter on same line */
+    flex-wrap: nowrap;            /* prevent wrapping */
+    align-items: center;          /* vertical centering */
+    justify-content: space-between;
+}
+
+/* Progress value now lives inside the heading */
+.progress-section h2 span#progress {
+    font-weight: 600;
+    font-size: 16px;
+    color: #3498db;
+    margin-left: auto;           /* push it to the far right just in case */
 }
 
 .stats-grid {
@@ -194,14 +206,8 @@ button:disabled {
 
 .progress-bar {
     height: 100%;
-    background-color: #FF8C00; /* Bright orange for progress bar, same as COLORS.SNAKE_HEAD */
+    background-color: #FF8C00; /* same as COLORS.SNAKE_HEAD */
     width: 0%;
-}
-
-.progress-text {
-    text-align: center;
-    font-size: 14px;
-    color: #7f8c8d;
 }
 
 #end-reason-container {

@@ -21,18 +21,18 @@ class OllamaProvider(BaseProvider):
             "deepseek-r1:14b",
             "deepseek-r1:32b",
             "deepseek-r1:7b",
-            "deepseek-r1:8b"
+            "deepseek-r1:8b",
             "devstral:24b",
             "gemma2:27b",
             "gemma2:9b",
-            "gemma3:12b-it",
+            "gemma3:12b-it-qat",
             "gemma3:12b",
             "gemma3:27b-it-qat",
             "gemma3:27b",
             "gemma3:4b-it-qat",
             "llama3.1:latest",
             "mistral:7b",
-            "qwen3:8b", 
+            "qwen3:8b"
         ]
     )
 

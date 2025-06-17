@@ -65,10 +65,14 @@ def render_main_pygame_tab():
         )
     with col2:
         provider_models = LLMClient.get_available_models(provider) or [DEFAULT_MODEL]
+        model_default_idx = (
+            provider_models.index(DEFAULT_MODEL)
+            if DEFAULT_MODEL in provider_models else 0
+        )
         model = st.selectbox(
             "Model",
             provider_models,
-            index=0,
+            index=model_default_idx,
             key="main_pg_model",
         )
 
@@ -93,10 +97,11 @@ def render_main_pygame_tab():
             )
         else:
             p_models = LLMClient.get_available_models(parser_provider) or [DEFAULT_PARSER_MODEL]
+            p_idx = p_models.index(DEFAULT_PARSER_MODEL) if DEFAULT_PARSER_MODEL in p_models else 0
             parser_model = st.selectbox(
                 "Parser Model",
                 p_models,
-                index=0,
+                index=p_idx,
                 key="main_pg_parser_model",
             )
 
@@ -193,7 +198,7 @@ def render_main_web_tab():
         st.selectbox(
             "Model",
             provider_w_models,
-            index=0,
+            index=provider_w_models.index(DEFAULT_MODEL) if DEFAULT_MODEL in provider_w_models else 0,
             key="main_web_model",
         )
 
@@ -221,7 +226,7 @@ def render_main_web_tab():
             st.selectbox(
                 "Parser Model",
                 pp_models,
-                index=0,
+                index=pp_models.index(DEFAULT_PARSER_MODEL) if DEFAULT_PARSER_MODEL in pp_models else 0,
                 key="main_web_parser_model",
             )
 

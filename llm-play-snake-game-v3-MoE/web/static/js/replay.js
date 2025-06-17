@@ -30,6 +30,7 @@ let pixelSize = 0;
 let updateInterval = null;
 let retryCount = 0;
 const MAX_RETRIES = 10;
+let isFetching = false;
 
 // Initialize
 function init() {
@@ -48,10 +49,13 @@ function setupEventListeners() {
 }
 
 function startPolling() {
-    updateInterval = setInterval(fetchGameState, 20);
+    // Poll every 100 ms; avoid overlapping requests.
+    updateInterval = setInterval(fetchGameState, 100);
 }
 
 async function fetchGameState() {
+    if (isFetching) return;
+    isFetching = true;
     try {
         const response = await fetch('/api/state');
         const data = await response.json();
@@ -103,6 +107,8 @@ async function fetchGameState() {
             clearInterval(updateInterval);
             return;
         }
+    } finally {
+        isFetching = false;
     }
 }
 

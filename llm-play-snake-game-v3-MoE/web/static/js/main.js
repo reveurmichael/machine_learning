@@ -39,8 +39,8 @@ function init() {
 }
 
 function startPolling() {
-    // Faster polling but with overlap guard – roughly 20 fps max depending on network
-    updateInterval = setInterval(fetchGameState, 20);
+    // Poll every 100 ms; overlap guard (`isFetching`) already present
+    updateInterval = setInterval(fetchGameState, 100);
 }
 
 async function fetchGameState() {

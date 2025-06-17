@@ -24,13 +24,6 @@ class RoundManager:
         round_data = self._get_or_create_round_data(self.round_count)
         round_data["apple_position"] = [x, y]
 
-    def record_llm_output(self, llm_output: str, is_primary: bool) -> None:
-        """Records the raw output from an LLM for the current round."""
-        self.round_buffer.add_llm_output(llm_output, is_primary)
-        round_data = self._get_or_create_round_data(self.round_count)
-        key = "primary_llm_output" if is_primary else "secondary_llm_output"
-        round_data.setdefault(key, []).append(llm_output)
-
     def record_parsed_llm_response(self, response, is_primary: bool) -> None:
         """Records the parsed response from an LLM for the current round."""
         self.round_buffer.add_parsed_response(response, is_primary)
@@ -58,9 +51,7 @@ class RoundManager:
         current_round_dict.update({
             "round": self.round_buffer.number,
             "apple_position": self.round_buffer.apple_position,
-            "primary_llm_output": self.round_buffer.primary_llm_output,
             "primary_parsed_response": self.round_buffer.primary_parsed_response,
-            "secondary_llm_output": self.round_buffer.secondary_llm_output,
             "secondary_parsed_response": self.round_buffer.secondary_parsed_response,
         })
         # Planned moves should reflect the *latest* plan only.  Overwrite

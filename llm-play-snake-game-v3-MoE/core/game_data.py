@@ -99,10 +99,6 @@ class GameData:
         self.game_over = True
         self.game_end_reason = reason
 
-    def record_llm_output(self, llm_output: str, is_primary: bool) -> None:
-        """Records the raw output from an LLM."""
-        self.round_manager.record_llm_output(llm_output, is_primary)
-
     def record_parsed_llm_response(self, response: Any, is_primary: bool) -> None:
         """Records the parsed response from an LLM."""
         self.round_manager.record_parsed_llm_response(response, is_primary)

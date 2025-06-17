@@ -52,6 +52,10 @@ def get_experiment_options(stats_df):
     secondary_providers = _clean_unique(stats_df.get("secondary_provider"))
     secondary_models = _clean_unique(stats_df.get("secondary_model_name"))
 
+    # Always include explicit 'None' entry so dashboard filters can target
+    # single-LLM experiments even when the raw data contains only NaN.
+    if "None" not in secondary_providers:
+        secondary_providers.insert(0, "None")
 
     return {
         "primary_providers": primary_providers,
@@ -84,15 +88,30 @@ def filter_experiments(stats_df, selected_primary_providers=None, selected_prima
     if selected_primary_models and len(selected_primary_models) > 0:
         filtered_df = filtered_df[filtered_df['primary_model_name'].isin(selected_primary_models)]
 
+    # --------------- Secondary provider filter ----------------
     if selected_secondary_providers and len(selected_secondary_providers) > 0:
-        # Need to handle None values for secondary provider
-        has_provider_mask = filtered_df['secondary_provider'].isin(selected_secondary_providers)
-        filtered_df = filtered_df[has_provider_mask]
+        # Special-case "None": rows where secondary_provider is NaN/None
+        providers_no_none = [p for p in selected_secondary_providers if p != "None"]
 
+        mask = False
+        if providers_no_none:
+            mask = filtered_df["secondary_provider"].isin(providers_no_none)
+        if "None" in selected_secondary_providers:
+            mask = mask | filtered_df["secondary_provider"].isna()
+
+        filtered_df = filtered_df[mask]
+
+    # --------------- Secondary model filter -------------------
     if selected_secondary_models and len(selected_secondary_models) > 0:
-        # Need to handle None values for secondary model
-        has_model_mask = filtered_df['secondary_model_name'].isin(selected_secondary_models)
-        filtered_df = filtered_df[has_model_mask]
+        models_no_none = [m for m in selected_secondary_models if m != "None"]
+
+        mask_m = False
+        if models_no_none:
+            mask_m = filtered_df["secondary_model_name"].isin(models_no_none)
+        if "None" in selected_secondary_models:
+            mask_m = mask_m | filtered_df["secondary_model_name"].isna()
+
+        filtered_df = filtered_df[mask_m]
 
     return filtered_df 
 
@@ -358,7 +377,6 @@ def save_session_stats(log_dir, **kwargs):
             summary[key] = value
 
     # After merging totals, compute averages – scaled **per round** when available
-    total_games = summary["game_statistics"].get("total_games", 0)
     total_rounds = summary["game_statistics"].get("total_rounds", 0)
     denom = max(total_rounds, 0.00001)
 

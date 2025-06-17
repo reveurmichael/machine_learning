@@ -95,7 +95,6 @@ class RoundData:
         }
 
 
-
 @dataclass
 class StepStats:
     """Track various move-type counts within a game."""
@@ -126,8 +125,6 @@ class RoundBuffer:
     secondary_times: List[float] = field(default_factory=list)
 
     # Raw LLM outputs and parsed responses captured during the round
-    primary_llm_output: List[str] = field(default_factory=list)
-    secondary_llm_output: List[str] = field(default_factory=list)
     primary_parsed_response: str | None = None
     secondary_parsed_response: str | None = None
 
@@ -137,13 +134,6 @@ class RoundBuffer:
 
     def set_apple(self, pos: list[int]) -> None:
         self.apple_position = pos
-
-    def add_llm_output(self, text: str, is_primary: bool = True) -> None:
-        """Store raw LLM output for this round."""
-        if is_primary:
-            self.primary_llm_output.append(text)
-        else:
-            self.secondary_llm_output.append(text)
 
     def add_parsed_response(self, response: str | dict, is_primary: bool = True) -> None:
         """Store the parsed response for this round (keeps latest)."""
@@ -155,7 +145,7 @@ class RoundBuffer:
     # Helper used by RoundManager.flush_buffer()
     def is_empty(self) -> bool:
         """Return True if nothing noteworthy has been recorded yet."""
-        return not (self.moves or self.primary_llm_output or self.secondary_llm_output or
+        return not (self.moves or 
                     self.primary_parsed_response or self.secondary_parsed_response or
                     self.planned_moves)
 

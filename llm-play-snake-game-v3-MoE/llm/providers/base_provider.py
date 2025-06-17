@@ -77,11 +77,6 @@ class BaseProvider(ABC):
         traceback.print_exc()
         return error_message, None 
 
-    # ------------------------------------------------------------
-    # Optional helper – concrete providers may override but a simple default
-    # implementation based on the class attribute is provided for convenience.
-    # ------------------------------------------------------------
-
     @classmethod
     def get_available_models(cls) -> list[str]:  # noqa: D401 – simple accessor
         """Return a list of supported model identifiers for this provider."""

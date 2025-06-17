@@ -1,5 +1,3 @@
-# Prompt templates extracted from former config.py
-
 PROMPT_TEMPLATE_TEXT_PRIMARY_LLM = """
 You are an AI agent controlling a snake in the classic Snake game on a 10x10 grid. Coordinates range from (0,0) at the **bottom-left** to (9,9) at the **top-right**.
 

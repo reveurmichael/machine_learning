@@ -8,7 +8,7 @@ import traceback
 from typing import Dict, Tuple, Optional
 from openai import OpenAI
 
-from config.constants import TEMPERATURE, MAX_TOKENS
+from config.llm_constants import TEMPERATURE, MAX_TOKENS
 
 from .base_provider import BaseProvider
 

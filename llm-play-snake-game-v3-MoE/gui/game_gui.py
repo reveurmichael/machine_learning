@@ -5,7 +5,7 @@ Provides specialized GUI functionality for the main game.
 
 import pygame
 from gui.base import BaseGUI
-from config import COLORS
+from config.ui_constants import COLORS
 
 class GameGUI(BaseGUI):
     """GUI class for the main game display."""

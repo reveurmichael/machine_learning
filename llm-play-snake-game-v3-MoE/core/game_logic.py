@@ -10,7 +10,7 @@ from core.game_controller import GameController
 from llm.prompt_utils import prepare_snake_prompt
 from llm.parsing_utils import parse_llm_response
 from utils.text_utils import process_response_for_display
-from config import GRID_SIZE
+from config.ui_constants import GRID_SIZE
 
 class GameLogic(GameController):
     """Snake game with LLM agent integration."""

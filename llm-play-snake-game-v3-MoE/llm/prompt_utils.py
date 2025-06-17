@@ -4,7 +4,10 @@ Functions for creating and formatting prompts for primary and secondary LLMs
 in the Snake game architecture.
 """
 
-from config import PROMPT_TEMPLATE_TEXT_PRIMARY_LLM, PROMPT_TEMPLATE_TEXT_SECONDARY_LLM
+from config.prompt_templates import (
+    PROMPT_TEMPLATE_TEXT_PRIMARY_LLM,
+    PROMPT_TEMPLATE_TEXT_SECONDARY_LLM,
+)
 from utils.moves_utils import calculate_move_differences
 
 def prepare_snake_prompt(head_position, body_positions, apple_position, current_direction):

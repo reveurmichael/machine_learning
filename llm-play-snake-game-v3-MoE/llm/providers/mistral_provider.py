@@ -8,7 +8,7 @@ import traceback
 from typing import Dict, Tuple, Optional
 from mistralai import Mistral
 
-from config.constants import TEMPERATURE, MAX_TOKENS
+from config.llm_constants import TEMPERATURE, MAX_TOKENS
 
 from .base_provider import BaseProvider
 
@@ -93,4 +93,3 @@ class MistralProvider(BaseProvider):
             print(f"Error generating response from Mistral: {e}")
             traceback.print_exc()
             return f"ERROR LLMCLIENT: {e}", None 
-        

@@ -7,7 +7,8 @@ from typing import List, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
-from config import GRID_SIZE, DIRECTIONS
+from config.ui_constants import GRID_SIZE
+from config.game_constants import DIRECTIONS
 from core.game_data import GameData
 from utils.game_manager_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
@@ -69,7 +70,7 @@ class GameController:
         The controller itself remains *UI-agnostic* – all drawing is
         delegated to the injected object which must expose the expected
         ``draw_*`` methods.
-
+        
         Args:
             gui_instance: Any object implementing the game-GUI interface.
         """
@@ -156,8 +157,10 @@ class GameController:
                 # Record invalid reversal in game state when available
                 if hasattr(self, "game_state"):
                     self.game_state.record_invalid_reversal()
+                # Skip this move – continue with next
                 continue
 
+            # Valid move → keep and update last_direction reference
             filtered_moves.append(move)
             last_direction = move
 

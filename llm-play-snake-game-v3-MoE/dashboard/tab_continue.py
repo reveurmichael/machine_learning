@@ -10,7 +10,7 @@ import subprocess
 import streamlit as st
 import json
 
-from config.constants import MAX_GAMES_ALLOWED
+from config.game_constants import MAX_GAMES_ALLOWED
 from utils.file_utils import (
     get_folder_display_name,
     load_summary_data,

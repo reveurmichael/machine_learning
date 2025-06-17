@@ -12,21 +12,22 @@ import streamlit as st
 
 from utils.network_utils import random_free_port
 from utils.session_utils import run_main_web
-from llm.client import LLMClient
+from llm.providers import get_available_models
 
-# Default safety-limit values
-from config.constants import (
+from config.game_constants import (
     MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
     MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
     MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
     MAX_GAMES_ALLOWED,
     MAX_STEPS_ALLOWED,
     AVAILABLE_PROVIDERS,
+    PAUSE_BETWEEN_MOVES_SECONDS,
+)
+from config.ui_constants import (
     DEFAULT_PROVIDER,
     DEFAULT_MODEL,
     DEFAULT_PARSER_PROVIDER,
     DEFAULT_PARSER_MODEL,
-    PAUSE_BETWEEN_MOVES_SECONDS,
 )
 
 # ----------------------------------------
@@ -64,7 +65,7 @@ def render_main_pygame_tab():
             key="main_pg_provider",
         )
     with col2:
-        provider_models = LLMClient.get_available_models(provider) or [DEFAULT_MODEL]
+        provider_models = get_available_models(provider) or [DEFAULT_MODEL]
         model_default_idx = (
             provider_models.index(DEFAULT_MODEL)
             if DEFAULT_MODEL in provider_models else 0
@@ -96,7 +97,7 @@ def render_main_pygame_tab():
                 key="main_pg_parser_model",
             )
         else:
-            p_models = LLMClient.get_available_models(parser_provider) or [DEFAULT_PARSER_MODEL]
+            p_models = get_available_models(parser_provider) or [DEFAULT_PARSER_MODEL]
             p_idx = p_models.index(DEFAULT_PARSER_MODEL) if DEFAULT_PARSER_MODEL in p_models else 0
             parser_model = st.selectbox(
                 "Parser Model",
@@ -194,7 +195,7 @@ def render_main_web_tab():
             key="main_web_provider",
         )
     with col2:
-        provider_w_models = LLMClient.get_available_models(provider_w) or [DEFAULT_MODEL]
+        provider_w_models = get_available_models(provider_w) or [DEFAULT_MODEL]
         st.selectbox(
             "Model",
             provider_w_models,
@@ -222,7 +223,7 @@ def render_main_web_tab():
                 key="main_web_parser_model",
             )
         else:
-            pp_models = LLMClient.get_available_models(parser_provider_w) or [DEFAULT_PARSER_MODEL]
+            pp_models = get_available_models(parser_provider_w) or [DEFAULT_PARSER_MODEL]
             st.selectbox(
                 "Parser Model",
                 pp_models,

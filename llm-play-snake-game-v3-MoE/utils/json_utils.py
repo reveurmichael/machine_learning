@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import re
 from typing import Any, Dict, List, Optional, Tuple
-from config.constants import VALID_MOVES
+from config.game_constants import VALID_MOVES
 
 def preprocess_json_string(json_str: str) -> str:
     """Preprocess a JSON string to fix common formatting issues.

@@ -8,7 +8,7 @@ import sys
 from pygame.locals import *
 from gui.game_gui import GameGUI
 from core.game_controller import GameController
-from config import TIME_TICK, COLORS
+from config.ui_constants import TIME_TICK, COLORS
 
 class HumanGameGUI(GameGUI):
     """GUI class for the human-played Snake game."""

@@ -13,7 +13,7 @@ from core.game_logic import GameLogic
 from core.game_loop import run_game_loop
 from gui.game_gui import GameGUI
 from llm.client import LLMClient
-from config import TIME_DELAY, TIME_TICK
+from config.ui_constants import TIME_DELAY, TIME_TICK
 
 # Utils imports - organized by functionality
 from utils.game_stats_utils import save_session_stats
@@ -34,15 +34,15 @@ if TYPE_CHECKING:  # avoid heavy imports for runtime
 
 class GameManager:
     """Run one or many LLM-driven Snake games and collect aggregate stats."""
-
+    
     def __init__(self, args: "argparse.Namespace") -> None:
         """Initialize the game manager.
-
+        
         Args:
             args: Command line arguments
         """
         self.args = args
-
+        
         # Game counters and statistics
         self.game_count = 0
         self.round_count = 1  # Start at 1 for intuitive round numbering
@@ -60,11 +60,11 @@ class GameManager:
         # ---------- Round tracking ----------
         self.round_counts: List[int] = []  # list of rounds per completed game
         self.total_rounds: int = 0  # aggregate across session
-
+        
         # Time and token statistics (auto-zeroing via defaultdict)
         self.time_stats = _make_time_stats()
         self.token_stats = _make_token_stats()
-
+        
         # Game state
         self.game = None
         self.game_active = True
@@ -73,85 +73,85 @@ class GameManager:
             False  # Whether we're currently waiting for a new plan from the LLM
         )
         self.running = True
-
+        
         # Track moves for this game
         self.current_game_moves = []
-
+        
         # Pygame and timing
         self.clock = pygame.time.Clock()
         self.time_delay = TIME_DELAY
         self.time_tick = TIME_TICK
-
+        
         # LLM clients
         self.llm_client = None
         self.parser_provider = None
         self.parser_model = None
-
+        
         # Logging directories
         self.log_dir = None
         self.prompts_dir = None
         self.responses_dir = None
-
+        
         # GUI settings
         self.use_gui = not args.no_gui
-
+        
     def create_llm_client(self, provider: str, model: str | None = None) -> LLMClient:
         """Create an LLM client with the specified provider and model.
-
+        
         Args:
             provider: LLM provider name
             model: Model name (optional)
-
+            
         Returns:
             LLMClient instance
         """
         return LLMClient(provider=provider, model=model)
-
+    
     def setup_game(self):
         """Set up the game logic and GUI."""
         # Initialize game logic
         self.game = GameLogic(use_gui=self.use_gui)
-
+        
         # Set up the GUI if enabled
         if self.use_gui:
             gui = GameGUI()
             self.game.set_gui(gui)
-
+    
     def get_pause_between_moves(self) -> float:
         """Get the pause time between moves.
-
+        
         Returns:
             Float representing pause time in seconds, 0 if no GUI is enabled
         """
-
+        
         # Skip pause in standard no-gui batch mode
         if not self.use_gui:
             return 0.0
 
         # GUI mode (pygame or web gui) – use configured pause
         return self.args.move_pause
-
+    
     def initialize(self) -> None:
         """Initialize the game, LLM clients, and logging directories."""
         initialize_game_manager(self)
-
+    
     def process_events(self) -> None:
         """Process pygame events."""
         process_events(self)
-
+    
     def run_game_loop(self) -> None:
         """Run the main game loop."""
         run_game_loop(self)
-
+    
     def report_final_statistics(self) -> None:
         """Report final statistics at the end of the game session."""
         # Only report if games were played
         if self.game_count == 0:
             return
-
+            
         # Update summary.json metadata at session end (no JSON-parser stats anymore)
         save_session_stats(self.log_dir)
-
+        
         # -------------------------------
         # Use the counters that have been **aggregated across games**
         # throughout the session (updated in process_game_over).
@@ -160,7 +160,7 @@ class GameManager:
         # -------------------------------
         valid_steps = self.valid_steps
         invalid_reversals = self.invalid_reversals
-
+        
         # Create stats dictionary
         stats_info = {
             "log_dir": self.log_dir,
@@ -178,38 +178,38 @@ class GameManager:
             "round_counts": self.round_counts,
             "total_rounds": self.total_rounds,
         }
-
+        
         # Report statistics to console and save to files
         report_final_statistics(stats_info)
-
+    
         # Mark manager as no longer running so front-end can display
         # the "Session Finished" banner.  (Used by main_web / JS.)
         self.running = False
 
     def increment_round(self, reason: str = "") -> None:
         """Increment the round counter and synchronize with game state.
-
+        
         This centralized method ensures consistent round counting across the codebase.
         It properly increments round_count and synchronizes the count between
         the game manager and game state for accurate replay functionality.
-
+        
         IMPORTANT: Rounds should ONLY be incremented when:
         1. We get a new plan from the LLM
-
+        
         Rounds should NOT be incremented when:
         1. An apple is eaten during planned moves
         2. A game ends
-
+        
         This ensures the number of rounds in game_N.json matches the
         number of prompts/responses in the logs directory.
-
+        
         Args:
             reason: Optional reason for incrementing the round (for logging)
         """
         # Skip if we're still awaiting a plan (prevents duplicate increment)
         if self.awaiting_plan:
             return
-
+            
         # --------------------------------------------------
         # Delegate all round bookkeeping to RoundManager so the logic –
         # including buffer flushes and apple seeding – lives in one place.
@@ -225,48 +225,48 @@ class GameManager:
 
         # Keep our counter in sync with the single source of truth.
         self.round_count = gs.round_manager.round_count
-
+            
         # Make the freshly created buffer visible to any listeners (web).
         gs.round_manager.sync_round_data()
-
+        
         # Inform the console once per actual advance (useful for long runs).
         print(Fore.BLUE + f"📊 Advanced to round {self.round_count} {f'({reason})' if reason else ''}")
-
+    
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Continue from a previous game session.
-
+        
         Args:
             log_dir: Directory containing the previous session logs
             start_game_number: Game number to start from
         """
         print(Fore.GREEN + f"🔄 Continuing experiment from directory: {log_dir}")
         print(Fore.GREEN + f"🔄 Starting from game number: {start_game_number}")
-
+        
         # Set up continuation session
         setup_continuation_session(self, log_dir, start_game_number)
-
+        
         # Create LLM clients using original configuration (needed before game loop)
         from utils.initialization_utils import setup_llm_clients
         setup_llm_clients(self)
-
+        
         # Handle game state for continuation (sets up board, counters, etc.)
         handle_continuation_game_state(self)
-
+        
         # Run the game loop
         self.run()
-
+        
     @classmethod
     def continue_from_directory(cls, args: "argparse.Namespace") -> "GameManager":
         """Factory method to create a GameManager instance for continuation.
-
+        
         Args:
             args: Command line arguments with continue_with_game_in_dir set
-
+            
         Returns:
             GameManager instance configured for continuation
         """
         return continue_from_directory(cls, args)
-
+    
     def run(self) -> None:
         """Initialize and run the game session."""
         try:
@@ -277,24 +277,24 @@ class GameManager:
             ):
                 # Initialize the game and LLM clients
                 self.initialize()
-
+            
             # Run games until we reach max_games
             while self.game_count < self.args.max_games and self.running:
                 # Run the game loop
                 self.run_game_loop()
-
+                
                 # Check if we've reached the max games
                 if self.game_count >= self.args.max_games:
                     # We only need the break; final banner will be printed in report_final_statistics()
                     break
-
+            
         finally:
             # Final cleanup
             if self.use_gui and pygame.get_init():
                 pygame.quit()
-
+            
             # Report final statistics
-            self.report_final_statistics()
+            self.report_final_statistics() 
 
     # -----------------------------------------------
     # Public helper: marks the current round as finished and
@@ -311,7 +311,7 @@ class GameManager:
         still re-using the robust logic already living in
         ``increment_round``.
         """
-        self.increment_round(reason)
+        self.increment_round(reason) 
 
 # ------------------------------------------------------------------
 # Utility factories for auto-initialised stats dictionaries

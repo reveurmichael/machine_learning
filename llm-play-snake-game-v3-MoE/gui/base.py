@@ -4,7 +4,7 @@ Provides common setup and drawing functionality.
 """
 
 import pygame
-from config import (
+from config.ui_constants import (
     COLORS, WINDOW_WIDTH, WINDOW_HEIGHT, GRID_SIZE
 )
 

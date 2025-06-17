@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from config.constants import COLORS, END_REASON_MAP
+from config.game_constants import END_REASON_MAP
+from config.ui_constants import COLORS
 
 __all__ = [
     "build_color_map",

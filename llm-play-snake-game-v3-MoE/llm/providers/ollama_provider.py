@@ -8,7 +8,7 @@ import json
 import requests
 from typing import Dict, Tuple, Optional
 
-from config.constants import TEMPERATURE
+from config.llm_constants import TEMPERATURE
 
 from .base_provider import BaseProvider
 

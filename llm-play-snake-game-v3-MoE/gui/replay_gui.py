@@ -5,7 +5,8 @@ Provides specialized GUI functionality for replay mode.
 
 import pygame
 from gui.base import BaseGUI
-from config import COLORS, END_REASON_MAP
+from config.ui_constants import COLORS
+from config.game_constants import END_REASON_MAP
 import numpy as np
 
 class ReplayGUI(BaseGUI):

@@ -12,7 +12,7 @@ from pygame.locals import *  # noqa: F403 – Pygame constants
 import numpy as np
 
 from core.game_controller import GameController
-from config import TIME_DELAY, TIME_TICK
+from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from utils.file_utils import get_total_games
 

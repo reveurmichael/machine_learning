@@ -172,21 +172,3 @@ class LLMClient:
             print(Fore.RED + f"Error generating response: {e}")
             traceback.print_exc()
             return f"ERROR LLMCLIENT: {e}"
-
-    # ------------------------------------------------------------
-    # Static helper – retrieve the list of models exposed by a provider.
-    # ------------------------------------------------------------
-
-    @staticmethod
-    def get_available_models(provider: str) -> list[str]:
-        """Return a list of model identifiers for *provider*.
-
-        Falls back to the provider's default model if no explicit list is
-        defined so the dashboard always has at least one entry.
-        """
-
-        try:
-            cls = get_provider_cls(provider.lower())
-            return cls.get_available_models()
-        except Exception:
-            return [] 

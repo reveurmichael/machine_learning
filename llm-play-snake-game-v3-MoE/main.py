@@ -7,11 +7,10 @@ import sys
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, MAX_GAMES_ALLOWED
+from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, MAX_GAMES_ALLOWED, AVAILABLE_PROVIDERS
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
-from config.constants import AVAILABLE_PROVIDERS
-from llm.client import LLMClient
+from llm.providers import get_available_models
 
 # Initialize colorama for colored terminal output
 init_colorama(autoreset=True)
@@ -32,7 +31,7 @@ def parse_arguments():
     )
     examples: list[str] = []
     for _prov in AVAILABLE_PROVIDERS:
-        _models = LLMClient.get_available_models(_prov)
+        _models = get_available_models(_prov)
         if _models:
             examples.append(f"{_prov}: {', '.join(_models[:2])}{'…' if len(_models) > 2 else ''}")
 

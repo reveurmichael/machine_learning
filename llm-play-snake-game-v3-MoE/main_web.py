@@ -26,7 +26,7 @@ logging.getLogger('werkzeug').setLevel(logging.WARNING)  # Suppress per-request 
 # Local imports from the project (after dummy driver is set)
 from core.game_manager import GameManager
 from main import parse_arguments  # Re-use the full CLI from main.py
-from config import GRID_SIZE
+from config.ui_constants import GRID_SIZE
 from utils.web_utils import build_color_map, translate_end_reason
 
 # ----------------------------------------

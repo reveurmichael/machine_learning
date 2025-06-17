@@ -57,8 +57,8 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     
     # If the previous game's file doesn't exist, can't continue
     if not os.path.exists(game_file_path):
-        print(f"Error: Cannot find previous game file: {game_file_path}")
-        return None
+        print(Fore.RED + f"❌ Cannot find previous game file: {game_file_path}")
+        sys.exit(1)
     
     # Load aggregated statistics from *summary.json* 
     from utils.file_utils import load_summary_data

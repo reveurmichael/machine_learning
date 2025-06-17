@@ -6,239 +6,194 @@ Handles the main game execution logic and LLM interactions.
 import time
 import traceback
 import pygame
-import os
-import json
 from colorama import Fore
 from utils.game_manager_utils import check_max_steps, process_game_over, process_events
 from llm.communication_utils import get_llm_response
 from typing import Tuple
 
 def run_game_loop(game_manager):
-    """Run the main game loop.
-    
-    Executes the core game logic including:
-    - Processing user input events
-    - Getting moves from the LLM
-    - Executing moves with appropriate timing
-    - Handling game state transitions
-    
+    """Main orchestrator that keeps the frame/GUI timing tidy and delegates
+    all decision making to :func:`_process_active_game` so this function stays
+    small and readable.
+
     Args:
-        game_manager: The GameManager instance controlling the game session
+        game_manager: The active :class:`core.game_manager.GameManager`.
     """
+
     try:
         while game_manager.running and game_manager.game_count < game_manager.args.max_games:
-            # Process player input and system events
+            # Handle user / window events first
             process_events(game_manager)
-            
+
+            # Advance the actual game logic (LLM, moves, game-over handling …)
             if game_manager.game_active and game_manager.game is not None:
-                try:
-                    # (Timer removed – we no longer track per-move wall-clock sections)
-                    
-                    # Check if we need a new plan from the LLM
-                    if game_manager.need_new_plan:
-                        # Mark that we're waiting for a plan to prevent re-execution of moves
-                        game_manager.awaiting_plan = True
-                        # Get next move from LLM
-                        next_move, game_manager.game_active = get_llm_response(game_manager)
-                        
-                        # We now have a response, so we're no longer waiting
-                        game_manager.awaiting_plan = False
-                        # Set flag to avoid requesting another plan until needed
-                        game_manager.need_new_plan = False
-                        
-                        # Initialize apple_eaten for use in this block
-                        apple_eaten = False
-                        
-                        # Execute the move if valid and game is still active
-                        if next_move and game_manager.game_active:
-                            # Update UI to show LLM response and planned moves
-                            game_manager.game.draw()
-                            
-                            # Execute the move 3 seconds after displaying the LLM response (preview delay)
-                            if game_manager.use_gui:
-                                time.sleep(3)
-                            
-                            # After preview, remove the first move from the on-screen list so it reflects
-                            # the *remaining* plan.  We keep it during the preview so the player can see the
-                            # full plan sent by the LLM.
-                            if game_manager.game.planned_moves:
-                                game_manager.game.planned_moves.pop(0)
-                            
-                            # Execute the move and all associated bookkeeping in one place
-                            game_manager.game_active, apple_eaten = _execute_move(game_manager, next_move)
+                _process_active_game(game_manager)
 
-                            # Request new plan if apple was eaten AND no more planned moves
-                            if apple_eaten:
-                                # Do NOT increment round_count when an apple is eaten
-                                # Rounds should only be incremented when we get a new plan from the LLM
-                                
-                                # Only request new plan if there are no more planned moves
-                                if not game_manager.game.planned_moves:
-                                    # Round ends simultaneously with an apple, finish it before asking for a new plan
-                                    game_manager.finish_round()
-                                    print(Fore.YELLOW + "No more planned moves, requesting new plan.")
-                                    game_manager.need_new_plan = True
-                                else:
-                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
-                            
-                        else:
-                            # Handle the case where no valid move was found
-                            print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
-                            
-                            # Let record_empty_move handle the steps counter - it increments steps internally
-                            game_manager.game.game_state.record_empty_move()
-                            
-                            # Update empty_steps counter at manager level for live stats (optional)
-                            game_manager.empty_steps = game_manager.game.game_state.empty_steps
-                            
-                            # Record for analysis (game_state already appends "EMPTY")
-                            game_manager.current_game_moves.append("EMPTY")
-                            
-                            # Track consecutive empty moves
-                            # Only increment this counter for actual empty moves, not for LLM errors
-                            game_manager.consecutive_empty_steps += 1
-                            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
-                            
-                            # End game if too many consecutive empty moves
-                            if game_manager.consecutive_empty_steps >= game_manager.args.max_consecutive_empty_moves_allowed:
-                                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over.")
-                                game_manager.game_active = False
-                                game_manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
-                                game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
-                        
-                    else:
-                        # Skip executing planned moves if we're waiting for a new plan
-                        if game_manager.awaiting_plan:
-                            # Still waiting for LLM - nothing to execute this tick
-                            # Close the movement-timer that was opened at the top of this loop
-                            # timer removed
-                            continue
-                        
-                        # Execute the next move from previously planned moves
-                        next_move = game_manager.game.get_next_planned_move()
-                        
-                        if next_move:
-                            
-                            # Record move for logging (but game_state.record_move will be called in make_move)
-                            # No need to add to game_state.moves here as that will be done in make_move
-                            game_manager.current_game_moves.append(next_move)
-                            
-                            # Update UI before executing the move
-                            game_manager.game.draw()
-                            
-                            # Execute and bookkeeping via shared helper
-                            game_manager.game_active, apple_eaten = _execute_move(game_manager, next_move)
-
-                            # Request new plan if apple was eaten AND no more planned moves
-                            if apple_eaten:
-                                # Do NOT increment round_count when an apple is eaten
-                                # Rounds should only be incremented when we get a new plan from the LLM
-                                
-                                # Only request new plan if there are no more planned moves
-                                if not game_manager.game.planned_moves:
-                                    # Round ends simultaneously with an apple, finish it before asking for a new plan
-                                    game_manager.finish_round()
-                                    print(Fore.YELLOW + "No more planned moves, requesting new plan.")
-                                    game_manager.need_new_plan = True
-                                else:
-                                    print(Fore.CYAN + f"Continuing with {len(game_manager.game.planned_moves)} remaining planned moves for this round.")
-                            
-                        else:
-                            # The round is finished – flush current round and bump the counter **before**
-                            # we request the next LLM plan. This keeps prompts/responses, JSON logs and
-                            # console banners on the very same round number (single source of truth).
-                            game_manager.finish_round()
-
-                            game_manager.need_new_plan = True
-                            print("🔄 No more planned moves in the current round, requesting new plan.")
-                    
-                    # Handle game over state
-                    if not game_manager.game_active:
-                        game_state_info = {
-                            "game_active": game_manager.game_active,
-                            "game_count": game_manager.game_count,
-                            "total_score": game_manager.total_score,
-                            "total_steps": game_manager.total_steps,
-                            "game_scores": game_manager.game_scores,
-                            "round_count": game_manager.round_count,
-                            "round_counts": game_manager.round_counts,
-                            "args": game_manager.args,
-                            "log_dir": game_manager.log_dir,
-                            "current_game_moves": game_manager.current_game_moves,
-                            "next_move": next_move,
-                            "time_stats": game_manager.time_stats,
-                            "token_stats": game_manager.token_stats,
-                            "valid_steps": getattr(game_manager, "valid_steps", 0),
-                            "invalid_reversals": getattr(game_manager, "invalid_reversals", 0),
-                            "empty_steps": getattr(game_manager, "empty_steps", 0),
-                            "something_is_wrong_steps": getattr(game_manager, "something_is_wrong_steps", 0)
-                        }
-                        
-                        game_manager.game_count, game_manager.total_score, game_manager.total_steps, game_manager.game_scores, game_manager.round_count, game_manager.time_stats, game_manager.token_stats, game_manager.valid_steps, game_manager.invalid_reversals, game_manager.empty_steps, game_manager.something_is_wrong_steps = process_game_over(
-                            game_manager.game,
-                            game_state_info
-                        )
-                        
-                        # Session statistics are now updated within process_game_over()
-                        
-                        # Reset for next game
-                        game_manager.need_new_plan = True
-                        game_manager.game_active = True
-                        game_manager.current_game_moves = []
-                        
-                        # Reset round_count to 1 for the new game
-                        # This ensures proper round counting for each game
-                        game_manager.round_count = 1
-                        
-                        # Update summary.json with the latest configuration
-                        summary_path = os.path.join(game_manager.log_dir, "summary.json")
-                        try:
-                            if os.path.exists(summary_path):
-                                with open(summary_path, 'r', encoding='utf-8') as f:
-                                    summary_data = json.load(f)
-                                
-                                # Update max_games in configuration
-                                if 'configuration' in summary_data:
-                                    summary_data['configuration']['max_games'] = game_manager.args.max_games
-                                    summary_data['configuration']['no_gui'] = game_manager.args.no_gui
-                                    
-                                    # Remove the continue_with_game_in_dir entry since it's confusing in the configuration
-                                    if 'continue_with_game_in_dir' in summary_data['configuration']:
-                                        del summary_data['configuration']['continue_with_game_in_dir']
-                                
-                                # Save the updated configuration
-                                with open(summary_path, 'w', encoding='utf-8') as f:
-                                    json.dump(summary_data, f, indent=2)
-                        except Exception as e:
-                            print(Fore.YELLOW + f"⚠️ Warning: Could not update configuration in summary.json: {e}")
-                        
-                        # Reset game state and counters, but preserve the score
-                        # Only reset the game positions and movement-related variables
-                        game_manager.game.reset()
-                        game_manager.consecutive_empty_steps = 0
-                        game_manager.consecutive_something_is_wrong = 0
-                        
-                        # Update total_rounds
-                        game_manager.total_rounds = sum(game_manager.round_counts)
-                    
-                    # Ensure UI is updated
-                    game_manager.game.draw()
-                    
-                except Exception:
-                    pass
-            # Control frame rate only in GUI mode
+            # GUI timing / FPS – only when a window is displayed
             if game_manager.use_gui:
                 pygame.time.delay(game_manager.time_delay)
                 game_manager.clock.tick(game_manager.time_tick)
-        
-        # Final statistics are now reported once, from GameManager.report_final_statistics().
-        
-    except Exception as e:
-        print(Fore.RED + f"Fatal error: {e}")
+
+        # Session-level statistics banner printed from GameManager.
+
+    except Exception as exc:
+        print(Fore.RED + f"Fatal error: {exc}")
         traceback.print_exc()
     finally:
-        # Ensure pygame is properly shut down
         pygame.quit()
+
+
+# ------------------------------------------------------------------
+# Heavy-lifting helpers (private to this module) – keep run_game_loop short
+# ------------------------------------------------------------------
+
+
+def _process_active_game(mgr):
+    """One tick of active gameplay – plan management, move execution, game-over."""
+
+    # ------------------------------------------------------------------
+    # 1. Need a fresh LLM plan?
+    # ------------------------------------------------------------------
+    if mgr.need_new_plan:
+        _request_and_execute_first_move(mgr)
+    else:
+        _execute_next_planned_move(mgr)
+
+    # ------------------------------------------------------------------
+    # 2. Post-move book-keeping – game over, UI refresh, etc.
+    # ------------------------------------------------------------------
+    if not mgr.game_active:
+        _handle_game_over(mgr)
+
+    # Always refresh the GUI after handling a tick
+    mgr.game.draw()
+
+
+def _request_and_execute_first_move(mgr):
+    """Ask the LLM for a new plan and execute its first move if possible."""
+
+    mgr.awaiting_plan = True
+    next_move, mgr.game_active = get_llm_response(mgr)
+    mgr.awaiting_plan = False
+    mgr.need_new_plan = False
+
+    if not next_move or not mgr.game_active:
+        _handle_no_move(mgr)
+        return
+
+    # Optional preview delay so humans can read the LLM answer
+    mgr.game.draw()
+    if mgr.use_gui:
+        time.sleep(3)
+
+    if mgr.game.planned_moves:
+        mgr.game.planned_moves.pop(0)
+
+    game_active, apple_eaten = _execute_move(mgr, next_move)
+
+    if apple_eaten:
+        _post_apple_logic(mgr)
+
+
+def _execute_next_planned_move(mgr):
+    """Pop the next pre-computed move off the queue and run it."""
+
+    if mgr.awaiting_plan:
+        return  # still waiting for LLM – nothing to do
+
+    next_move = mgr.game.get_next_planned_move()
+    if not next_move:
+        # Round finished – flush & ask for a new plan next tick
+        mgr.finish_round()
+        mgr.need_new_plan = True
+        print("🔄 No more planned moves in the current round, requesting new plan.")
+        return
+
+    mgr.current_game_moves.append(next_move)
+    mgr.game.draw()
+    game_active, apple_eaten = _execute_move(mgr, next_move)
+
+    if apple_eaten:
+        _post_apple_logic(mgr)
+
+
+def _post_apple_logic(mgr):
+    """Common branch after an apple was eaten – decide if we need a new plan."""
+
+    if mgr.game.planned_moves:
+        print(Fore.CYAN + f"Continuing with {len(mgr.game.planned_moves)} remaining planned moves for this round.")
+    else:
+        mgr.finish_round()
+        print(Fore.YELLOW + "No more planned moves, requesting new plan.")
+        mgr.need_new_plan = True
+
+
+def _handle_no_move(mgr):
+    """Fallback when LLM returned no valid move."""
+
+    print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
+
+    mgr.game.game_state.record_empty_move()
+    mgr.empty_steps = mgr.game.game_state.empty_steps
+    mgr.current_game_moves.append("EMPTY")
+
+    mgr.consecutive_empty_steps += 1
+    print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {mgr.consecutive_empty_steps}/{mgr.args.max_consecutive_empty_moves_allowed}")
+
+    if mgr.consecutive_empty_steps >= mgr.args.max_consecutive_empty_moves_allowed:
+        print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({mgr.args.max_consecutive_empty_moves_allowed}). Game over.")
+        mgr.game_active = False
+        mgr.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
+        mgr.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
+
+
+def _handle_game_over(mgr):
+    """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
+
+    game_state_info = {
+        "game_active": mgr.game_active,
+        "game_count": mgr.game_count,
+        "total_score": mgr.total_score,
+        "total_steps": mgr.total_steps,
+        "game_scores": mgr.game_scores,
+        "round_count": mgr.round_count,
+        "round_counts": mgr.round_counts,
+        "args": mgr.args,
+        "log_dir": mgr.log_dir,
+        "current_game_moves": mgr.current_game_moves,
+        "next_move": None,
+        "time_stats": mgr.time_stats,
+        "token_stats": mgr.token_stats,
+        "valid_steps": getattr(mgr, "valid_steps", 0),
+        "invalid_reversals": getattr(mgr, "invalid_reversals", 0),
+        "empty_steps": getattr(mgr, "empty_steps", 0),
+        "something_is_wrong_steps": getattr(mgr, "something_is_wrong_steps", 0),
+    }
+
+    (
+        mgr.game_count,
+        mgr.total_score,
+        mgr.total_steps,
+        mgr.game_scores,
+        mgr.round_count,
+        mgr.time_stats,
+        mgr.token_stats,
+        mgr.valid_steps,
+        mgr.invalid_reversals,
+        mgr.empty_steps,
+        mgr.something_is_wrong_steps,
+    ) = process_game_over(mgr.game, game_state_info)
+
+    # Reset per-game flags/counters for the upcoming game
+    mgr.need_new_plan = True
+    mgr.game_active = True
+    mgr.current_game_moves = []
+    mgr.round_count = 1
+    mgr.game.reset()
+    mgr.consecutive_empty_steps = 0
+    mgr.consecutive_something_is_wrong = 0
+    mgr.total_rounds = sum(mgr.round_counts)
+
 
 # ----------------------------------------
 # Internal utilities (module-private)

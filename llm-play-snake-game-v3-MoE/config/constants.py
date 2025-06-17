@@ -2,25 +2,25 @@ from llm.providers import list_providers
 
 
 COLORS = {
-    'SNAKE_HEAD': (255, 140, 0),    # Bright orange for snake head
-    'SNAKE_BODY': (209, 204, 192),  # Light gray for snake body
-    'APPLE': (192, 57, 43),         # Red for apple
-    'BACKGROUND': (44, 44, 84),     # Dark blue background
-    'GRID': (87, 96, 111),          # Grid lines
-    'TEXT': (255, 255, 255),        # White text
-    'ERROR': (231, 76, 60),         # Red for error messages
-    'BLACK': (0, 0, 0),             # Black
-    'WHITE': (255, 255, 255),       # White
-    'GREY': (189, 195, 199),        # Light grey
-    'APP_BG': (240, 240, 240)       # App background
+    "SNAKE_HEAD": (255, 140, 0),  # Bright orange for snake head
+    "SNAKE_BODY": (209, 204, 192),  # Light gray for snake body
+    "APPLE": (192, 57, 43),  # Red for apple
+    "BACKGROUND": (44, 44, 84),  # Dark blue background
+    "GRID": (87, 96, 111),  # Grid lines
+    "TEXT": (255, 255, 255),  # White text
+    "ERROR": (231, 76, 60),  # Red for error messages
+    "BLACK": (0, 0, 0),  # Black
+    "WHITE": (255, 255, 255),  # White
+    "GREY": (189, 195, 199),  # Light grey
+    "APP_BG": (240, 240, 240),  # App background
 }
 
-WINDOW_WIDTH = 800      # Width of the application window
-WINDOW_HEIGHT = 600     # Height of the application window
-TIME_DELAY = 40         # General delay time for the game loop
-TIME_TICK = 280         # Tick rate for the game
+WINDOW_WIDTH = 800  # Width of the application window
+WINDOW_HEIGHT = 600  # Height of the application window
+TIME_DELAY = 40  # General delay time for the game loop
+TIME_TICK = 280  # Tick rate for the game
 
-PAUSE_BETWEEN_MOVES_SECONDS = 1.0   # Pause time between moves
+PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves
 
 GRID_SIZE = 10
 MAX_GAMES_ALLOWED = 2
@@ -49,15 +49,9 @@ AVAILABLE_PROVIDERS = list_providers()
 # -------------------------------
 
 DEFAULT_PROVIDER = "ollama"  # for Streamlit page only
-DEFAULT_MODEL = (
-    "deepseek-r1:14b"  # for Streamlit page only args default
-)
-DEFAULT_PARSER_PROVIDER = (
-    "ollama"  # for Streamlit page only
-)
-DEFAULT_PARSER_MODEL = (
-    "gemma3:12b-it-qat"  # for Streamlit page only
-)
+DEFAULT_MODEL = "deepseek-r1:14b"  # for Streamlit page only args default
+DEFAULT_PARSER_PROVIDER = "ollama"  # for Streamlit page only
+DEFAULT_PARSER_MODEL = "gemma3:12b-it-qat"  # for Streamlit page only
 
 
 # -------------------------------
@@ -84,20 +78,26 @@ END_REASON_MAP = {
 }
 
 __all__ = [
-    'COLORS',
-    'WINDOW_WIDTH', 'WINDOW_HEIGHT', 'TIME_DELAY', 'TIME_TICK',
-    'PAUSE_BETWEEN_MOVES_SECONDS',
-    'GRID_SIZE',
-    'MAX_GAMES_ALLOWED',
-    'MAX_STEPS_ALLOWED',
-    'MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED',
-    'MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED',
-    'MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED',
-    'VALID_MOVES',
-    'DIRECTIONS',
-    'AVAILABLE_PROVIDERS',
-    'DEFAULT_PROVIDER', 'DEFAULT_MODEL', 'DEFAULT_PARSER_PROVIDER', 'DEFAULT_PARSER_MODEL',
-    'TEMPERATURE', 
-    'MAX_TOKENS',
-    'END_REASON_MAP',
-] 
+    "COLORS",
+    "WINDOW_WIDTH",
+    "WINDOW_HEIGHT",
+    "TIME_DELAY",
+    "TIME_TICK",
+    "PAUSE_BETWEEN_MOVES_SECONDS",
+    "GRID_SIZE",
+    "MAX_GAMES_ALLOWED",
+    "MAX_STEPS_ALLOWED",
+    "MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED",
+    "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED",
+    "MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED",
+    "VALID_MOVES",
+    "DIRECTIONS",
+    "AVAILABLE_PROVIDERS",
+    "DEFAULT_PROVIDER",
+    "DEFAULT_MODEL",
+    "DEFAULT_PARSER_PROVIDER",
+    "DEFAULT_PARSER_MODEL",
+    "TEMPERATURE",
+    "MAX_TOKENS",
+    "END_REASON_MAP",
+]

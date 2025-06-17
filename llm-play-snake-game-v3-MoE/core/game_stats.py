@@ -124,8 +124,6 @@ class RoundBuffer:
     planned_moves: List[str] = field(default_factory=list)
     primary_times: List[float] = field(default_factory=list)
     secondary_times: List[float] = field(default_factory=list)
-    primary_tokens: List[TokenStats] = field(default_factory=list)
-    secondary_tokens: List[TokenStats] = field(default_factory=list)
 
     # Raw LLM outputs and parsed responses captured during the round
     primary_llm_output: List[str] = field(default_factory=list)
@@ -154,39 +152,12 @@ class RoundBuffer:
         else:
             self.secondary_parsed_response = response
 
-    def add_moves(self, moves: list[str]):
-        """Append a list of planned moves (string directions)."""
-        if moves:
-            self.planned_moves.extend(moves)
-
     # Helper used by RoundManager.flush_buffer()
     def is_empty(self) -> bool:
         """Return True if nothing noteworthy has been recorded yet."""
         return not (self.moves or self.primary_llm_output or self.secondary_llm_output or
                     self.primary_parsed_response or self.secondary_parsed_response or
                     self.planned_moves)
-
-    def flush(self) -> RoundData:
-        """Return an immutable RoundData and clear internal lists."""
-        rd = RoundData(
-            apple_position=self.apple_position,
-            moves=self.moves.copy(),
-            planned_moves=self.planned_moves.copy(),
-            primary_response_times=self.primary_times.copy(),
-            secondary_response_times=self.secondary_times.copy(),
-            primary_token_stats=[t.asdict() for t in self.primary_tokens],
-            secondary_token_stats=[t.asdict() for t in self.secondary_tokens],
-        )
-        # reset for reuse (optional)
-        self.moves.clear()
-        self.planned_moves.clear()
-        self.primary_times.clear()
-        self.secondary_times.clear()
-        self.primary_tokens.clear()
-        self.secondary_tokens.clear()
-        self.apple_position = None
-        return rd
-
 
 @dataclass
 class GameStatistics:
@@ -195,11 +166,11 @@ class GameStatistics:
     time_stats: TimeStats = field(default_factory=lambda: TimeStats(start_time=time.time()))
     step_stats: StepStats = field(default_factory=StepStats)
 
-    # Response times -------------------------------------------
+    # Response times 
     primary_response_times: list[float] = field(default_factory=list)
     secondary_response_times: list[float] = field(default_factory=list)
 
-    # Token stats ----------------------------------------------
+    # Token stats
     primary_token_stats: list[TokenStats] = field(default_factory=list)
     secondary_token_stats: list[TokenStats] = field(default_factory=list)
 

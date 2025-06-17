@@ -3,7 +3,6 @@ Utility module for game statistics and visualization.
 Handles game statistics processing and visualization for analysis.
 """
 
-import pandas as pd
 import os
 import numpy as np
 import json
@@ -30,31 +29,6 @@ class NumPyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
-
-def create_game_dataframe(game_data):
-    """Create a DataFrame from game data dictionary.
-    
-    This function is used by the Streamlit analytics dashboard when run separately.
-    
-    Args:
-        game_data: Dictionary containing game data
-        
-    Returns:
-        DataFrame with game information
-    """
-    game_list = []
-    for game_num, data in game_data.items():
-        game_list.append({
-            'Game #': game_num,
-            'Score': data.get('score', 0),
-            'Steps': data.get('steps', 0),
-            'End Reason': data.get('game_end_reason', 'Unknown'),
-            'Has Apple Positions': data.get('has_apple_positions', False),
-            'Has Moves': data.get('has_moves', False),
-            'Move Count': data.get('move_count', 0)
-        })
-    
-    return pd.DataFrame(game_list)
 
 def get_experiment_options(stats_df):
     """Return unique provider/model options for Streamlit filter widgets.

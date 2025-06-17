@@ -38,10 +38,6 @@ def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=F
     if len(snake_positions) == 0:
         return wall_collision, False
     
-    # Get current snake structure for clarity
-    current_tail = snake_positions[0]  # First position is tail
-    current_head = snake_positions[-1] # Last position is head
-    
     if is_eating_apple_flag:
         # CASE: Eating an apple - tail will NOT move
         # Check collision with all segments EXCEPT the current head

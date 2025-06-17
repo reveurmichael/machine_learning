@@ -57,7 +57,6 @@ class GameManager:
         # Track consecutive invalid reversal attempts that are blocked
         self.consecutive_invalid_reversals = 0
         self.game_scores = []
-        self.previous_parser_usage = 0
         # ---------- Round tracking ----------
         self.round_counts: List[int] = []  # list of rounds per completed game
         self.total_rounds: int = 0  # aggregate across session

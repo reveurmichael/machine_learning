@@ -151,7 +151,7 @@ class GameController:
                 print(f"Filtering out invalid reversal move: {move} after {last_direction}")
                 # Record invalid reversal in game state when available
                 if hasattr(self, "game_state"):
-                    self.game_state.record_invalid_reversal(move, last_direction)
+                    self.game_state.record_invalid_reversal()
                 continue
 
             filtered_moves.append(move)
@@ -260,7 +260,7 @@ class GameController:
             print(f"Tried to reverse direction: {direction_key}. No move will be made.")
 
             # Record this as an invalid reversal
-            self.game_state.record_invalid_reversal(direction_key, self._get_current_direction_key())
+            self.game_state.record_invalid_reversal()
 
             # Return immediately, effectively making no move
             return True, False

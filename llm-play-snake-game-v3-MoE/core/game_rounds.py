@@ -83,11 +83,6 @@ class RoundManager:
         """Get or create round data dictionary."""
         return self.rounds_data.setdefault(round_num, {"round": round_num})
 
-    @property
-    def current_round_data(self) -> dict:
-        """Returns the data for the current round."""
-        return self._get_or_create_round_data(self.round_count)
-    
     def get_ordered_rounds_data(self) -> Dict[int, dict]:
         """Returns the rounds_data dictionary with keys sorted numerically."""
         sorted_keys = sorted(self.rounds_data.keys())

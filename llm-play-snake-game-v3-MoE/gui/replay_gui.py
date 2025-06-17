@@ -11,20 +11,14 @@ import numpy as np
 class ReplayGUI(BaseGUI):
     """GUI class for replay display."""
 
-    def __init__(self, gui_config=None):
-        """Initialize the replay GUI.
-        
-        Args:
-            gui_config: Optional dictionary with GUI configuration (not used)
-        """
-        # Call parent's init without passing gui_config
+    def __init__(self):
+        """Initialize the replay GUI. """
         super().__init__()
         
         # Initialize replay-specific attributes
         self.move_history = []
         self.planned_moves = []
         self.paused = False
-        self.speed = 1.0  # Used by the ReplayEngine to control playback speed
         self.primary_llm = "Unknown/Unknown"
         self.secondary_llm = "Unknown/Unknown"
         self.llm_response = ""
@@ -52,7 +46,6 @@ class ReplayGUI(BaseGUI):
                 - primary_llm: Name of primary LLM
                 - secondary_llm: Name of secondary LLM
                 - paused: Whether the replay is paused
-                - speed: Replay speed
                 - timestamp: Timestamp of the game
                 - game_end_reason: Reason the game ended (optional)
         """
@@ -67,12 +60,10 @@ class ReplayGUI(BaseGUI):
         steps = replay_data.get('steps', 0)
         move_index = replay_data.get('move_index', 0)
         total_moves = replay_data.get('total_moves', 0)
-        planned_moves = replay_data.get('planned_moves', [])
         llm_response = replay_data.get('llm_response', '')
         primary_llm = replay_data.get('primary_llm', 'Unknown')
         secondary_llm = replay_data.get('secondary_llm', 'Unknown')
         paused = replay_data.get('paused', False)
-        speed = replay_data.get('speed', 1.0)  # Retrieved but not currently used directly in drawing - for future speed indicator
         timestamp = replay_data.get('timestamp', 'Unknown')
         game_end_reason = replay_data.get('game_end_reason', None)
 

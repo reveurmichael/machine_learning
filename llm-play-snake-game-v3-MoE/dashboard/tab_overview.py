@@ -88,14 +88,6 @@ def display_experiment_overview(log_folders: List[str]):
         something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
         invalid_reversals = step_stats.get("invalid_reversals", 0)
 
-        # Time statistics / token usage stats
-        time_stats = summary_data.get("time_stats", {})
-        total_llm_comm_time = time_stats.get("total_llm_communication_time", 0)
-
-        token_stats = summary_data.get("token_usage_stats", {})
-        primary_tokens = token_stats.get("primary_llm", {}).get("total_tokens", 0)
-        secondary_tokens = token_stats.get("secondary_llm", {}).get("total_tokens", 0)
-
         # Average response times direct from summary (primary); secondary left None
         ts_stats = summary_data.get("time_stats", {})
         avg_primary_resp = ts_stats.get("avg_primary_response_time")

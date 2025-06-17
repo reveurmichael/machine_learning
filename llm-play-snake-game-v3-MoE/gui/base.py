@@ -16,7 +16,6 @@ class BaseGUI:
         self.width = WINDOW_WIDTH
         self.width_plus = 200
         self.height = WINDOW_HEIGHT
-        self.info_panel = self.width - self.height  # Used for layout calculations in derived classes
         self.grid_size = GRID_SIZE
         self.pixel = self.height // self.grid_size
         

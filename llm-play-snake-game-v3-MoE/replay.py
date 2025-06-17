@@ -10,7 +10,7 @@ import pygame
 from pygame.locals import *
 
 from config import PAUSE_BETWEEN_MOVES_SECONDS, TIME_DELAY, TIME_TICK
-from replay.replay_engine import ReplayEngine
+from replay import ReplayEngine
 from gui.replay_gui import ReplayGUI
 
 def main():

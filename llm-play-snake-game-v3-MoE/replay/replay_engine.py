@@ -3,8 +3,6 @@ Replay engine for the Snake game.
 Handles replaying of previously recorded games.
 """
 
-import os
-import json
 import time
 import traceback
 from typing import Any, Dict, List, Optional
@@ -15,7 +13,7 @@ import numpy as np
 
 from core.game_controller import GameController
 from config import TIME_DELAY, TIME_TICK
-from utils.file_utils import get_game_json_filename, join_log_path
+from replay.replay_utils import load_game_json, parse_game_data
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games.
@@ -25,10 +23,6 @@ class ReplayEngine(GameController):
     mode, faithfully reproducing the original sequence of moves, apple
     spawns, timing, and statistics.
     """
-
-    # -------------------------------
-    # Construction / initialisation
-    # -------------------------------
 
     def __init__(
         self,
@@ -64,7 +58,7 @@ class ReplayEngine(GameController):
         self.game_number: int = 1
         self.apple_positions: List[List[int]] = []
         self.apple_index: int = 0
-        self.moves: List[str] = []  # usually str, but keep Any for safety
+        self.moves: List[str] = []  
         self.move_index: int = 0
         self.moves_made: List[str] = []
         self.game_stats: Dict[str, Any] = {}
@@ -129,86 +123,36 @@ class ReplayEngine(GameController):
         Returns:
             Game data dictionary or None if loading failed
         """
-        # Build the path to the game data file using the utility functions
-        game_filename = get_game_json_filename(game_number)
-        game_file = join_log_path(self.log_dir, game_filename)
+        # Retrieve JSON dict with helper (keeps I/O concerns out of this file)
+        game_file, game_data = load_game_json(self.log_dir, game_number)
 
-        # Check if the file exists
-        if not os.path.exists(game_file):
-            print(f"Game {game_number} data not found")
+        if game_data is None:
             return None
 
         try:
             print(f"Loading game data from {game_file}")
-            with open(game_file, 'r', encoding='utf-8') as f:
-                game_data = json.load(f)
+            parsed = parse_game_data(game_data)
+            if parsed is None:
+                return None
 
-            # Get basic game information
+            # Unpack parsed fields 
+            self.apple_positions = parsed["apple_positions"]
+            self.moves = parsed["moves"]
+            self.planned_moves = parsed["planned_moves"]
+            self.game_end_reason = parsed["game_end_reason"]
+            self.primary_llm = parsed["primary_llm"]
+            self.secondary_llm = parsed["secondary_llm"]
+            self.game_timestamp = parsed["timestamp"]
+
             loaded_score = game_data.get('score', 0)
-            self.game_end_reason = game_data.get('game_end_reason', None)
 
-            # Extract game data from detailed_history
-            if 'detailed_history' not in game_data:
-                print("Error: No detailed_history in game data")
-                return None
-
-            detailed_history = game_data['detailed_history']
-
-            # ----- Simplified Data Loading Strategy -----
-            # Instead of complex loading and fallback mechanisms, we'll use a simple strategy:
-            # 1. Always use apple_positions from detailed_history for apples
-            # 2. Always use moves from detailed_history for moves
-            # This respects the fixed schema while being simple and reliable
-
-            # Get apple positions - always use the top-level array
-            self.apple_positions = []
-            raw_apple_positions = detailed_history.get('apple_positions', [])
-
-            for pos in raw_apple_positions:
-                if isinstance(pos, dict) and 'x' in pos and 'y' in pos:
-                    self.apple_positions.append([pos['x'], pos['y']])
-                elif isinstance(pos, (list, np.ndarray)) and len(pos) == 2:
-                    self.apple_positions.append(pos)
-
-            # Get moves - always use the top-level array
-            self.moves = detailed_history.get('moves', [])
-
-            # Simple validation check
-            if not self.moves:
-                print("Error: No moves found in game data")
-                return None
-
-            if not self.apple_positions:
-                print("Error: No apple positions found in game data")
-                return None
-
-            # Reset game state indices
+            # Reset counters 
             self.move_index = 0
             self.apple_index = 0
             self.moves_made = []
 
-            # Get round information from metadata
-            round_count = game_data.get('metadata', {}).get('round_count', 0)
-            print(f"Game has {round_count} rounds")
-
-            # Get LLM information
-            if 'llm_info' in game_data:
-                llm_info = game_data['llm_info']
-                self.primary_llm = f"{llm_info.get('primary_provider', 'Unknown')}/{llm_info.get('primary_model', 'Unknown')}"
-
-                if llm_info.get('parser_provider') and llm_info.get('parser_provider').lower() != 'none':
-                    self.secondary_llm = f"{llm_info.get('parser_provider', 'None')}/{llm_info.get('parser_model', 'None')}"
-                else:
-                    self.secondary_llm = "None/None"
-            else:
-                self.primary_llm = "Unknown/Unknown"
-                self.secondary_llm = "None/None"
-
-            # Get timestamp
-            self.game_timestamp = game_data.get('metadata', {}).get('timestamp', "Unknown")
-
-            # Store game data
-            self.game_stats = game_data
+            # Store raw game dict for reference
+            self.game_stats = parsed["raw"]
 
             print(f"Game {game_number}: Score: {loaded_score}, Steps: {len(self.moves)}, End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
 
@@ -231,25 +175,7 @@ class ReplayEngine(GameController):
                 self.gui.move_history = []
 
             # Get LLM response if available
-            self.llm_response = detailed_history.get('llm_response', "No LLM response data available for this game.")
-
-            # Get planned moves
-            # If rounds_data is available, try to extract planned moves from the first round
-            self.planned_moves = []
-            if 'rounds_data' in detailed_history and detailed_history['rounds_data']:
-                try:
-                    # Get the first round's data
-                    first_round_key = sorted(detailed_history['rounds_data'].keys(), 
-                                           key=lambda k: int(k.split('_')[1]))[0]
-                    first_round = detailed_history['rounds_data'][first_round_key]
-
-                    # Extract planned moves if available
-                    if 'moves' in first_round and isinstance(first_round['moves'], list) and len(first_round['moves']) > 1:
-                        # The first move is already used, so get the rest as planned moves
-                        self.planned_moves = first_round['moves'][1:] if len(first_round['moves']) > 1 else []
-                except Exception:
-                    # If anything goes wrong, just leave planned_moves empty
-                    pass
+            self.llm_response = parsed.get('llm_response', "No LLM response data available for this game.")
 
             print(f"Game {game_number} loaded successfully")
             return game_data
@@ -333,8 +259,7 @@ class ReplayEngine(GameController):
         if direction_key in ("INVALID_REVERSAL", "EMPTY", "SOMETHING_IS_WRONG"):
             # Mirror step accounting from the original run so that stats align.
             if direction_key == "INVALID_REVERSAL":
-                # Use current direction context where possible
-                self.game_state.record_invalid_reversal(direction_key, self._get_current_direction_key())
+                self.game_state.record_invalid_reversal()
             elif direction_key == "EMPTY":
                 self.game_state.record_empty_move()
             elif direction_key == "SOMETHING_IS_WRONG":

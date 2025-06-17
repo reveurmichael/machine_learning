@@ -32,7 +32,6 @@ class GameData:
         self.apple_positions = []
         self.score = 0
         self.steps = 0
-        self.last_move = None
         self.game_over = False
         self.game_end_reason = None
         self.snake_positions = []
@@ -50,10 +49,6 @@ class GameData:
         self.stats = GameStatistics()
         self.round_manager = RoundManager()
 
-        self.consecutive_empty_moves_count = 0
-        self.consecutive_something_is_wrong_count = 0
-        self.consecutive_invalid_reversals_count = 0
-
     def start_new_round(self, apple_position) -> None:
         """Start a new round of moves."""
         self.round_manager.start_new_round(apple_position)
@@ -63,13 +58,10 @@ class GameData:
         move = normalize_direction(move)
         self.steps += 1
         self.stats.step_stats.valid += 1
-        self.consecutive_empty_moves_count = 0
-        self.consecutive_invalid_reversals_count = 0
 
         if apple_eaten:
             self.score += 1
 
-        self.last_move = move
         self.moves.append(move)
         self.round_manager.round_buffer.add_move(move)
 
@@ -86,13 +78,10 @@ class GameData:
         self.moves.append("EMPTY")
         self.round_manager.round_buffer.add_move("EMPTY")
 
-    def record_invalid_reversal(
-        self, attempted_move: str, current_direction: str
-    ) -> None:
+    def record_invalid_reversal(self) -> None:
         """Record an invalid reversal move."""
         self.stats.step_stats.invalid_reversals += 1
         self.steps += 1
-        self.consecutive_invalid_reversals_count += 1
         self.moves.append("INVALID_REVERSAL")
         self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
 

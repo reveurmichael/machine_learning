@@ -1,4 +1,12 @@
-from typing import Dict, List
+from __future__ import annotations
+
+from typing import Dict, List, Sequence, Optional
+
+try:
+    import numpy as np
+    NDArray = np.ndarray  # type: ignore[attr-defined]
+except ModuleNotFoundError:  # Safeguard for docs or constrained envs
+    NDArray = object
 
 from core.game_stats import RoundBuffer
 
@@ -10,19 +18,35 @@ class RoundManager:
         self.rounds_data: Dict[int, dict] = {}
         self.round_buffer: RoundBuffer = RoundBuffer(number=1)
 
-    def start_new_round(self, apple_position) -> None:
-        """Start a new round of moves."""
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def start_new_round(self, apple_position: Optional[Sequence[int] | NDArray]) -> None:
+        """Flush the current buffer, bump the counter and initialise a
+        fresh :class:`RoundBuffer` seeded with the given *apple_position*.
+
+        This is now the **single** entry-point for beginning a new round
+        which means callers (GameManager, tests, etc.) never need to deal
+        with the implementation details (flush, counter, seeding).
+        """
+        # Persist pending data before flipping the page
         self.flush_buffer()
+
+        # Create new buffer
         self.round_count += 1
         self.round_buffer = RoundBuffer(number=self.round_count)
-        self.round_buffer.set_apple(list(apple_position) if apple_position else None)
 
-    def record_apple_position(self, position) -> None:
-        """Record an apple position."""
-        x, y = position
-        self.round_buffer.set_apple([x, y])
+        # Seed with the current apple so JSON never ends up with nulls
+        self.round_buffer.set_apple(self._to_list_or_none(apple_position))
+
+    def record_apple_position(self, position: Sequence[int] | NDArray) -> None:
+        """Record a freshly spawned apple position."""
+        pos_list = self._to_list_or_none(position)
+        self.round_buffer.set_apple(pos_list)
+
         round_data = self._get_or_create_round_data(self.round_count)
-        round_data["apple_position"] = [x, y]
+        round_data["apple_position"] = pos_list
 
     def record_planned_moves(self, moves: List[str]) -> None:
         """Store the latest plan, replacing any previous entries for this round.
@@ -69,4 +93,23 @@ class RoundManager:
         """Returns the rounds_data dictionary with keys sorted numerically."""
         sorted_keys = sorted(self.rounds_data.keys())
         return {key: self.rounds_data[key] for key in sorted_keys}
+
+    # ------------------------------------------------------------------
+    # Internals
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _to_list_or_none(pos: Optional[Sequence[int] | NDArray]) -> Optional[list[int]]:
+        """Return *pos* as a plain Python list or ``None``.
+
+        Accepts native lists/tuples as well as NumPy arrays to spare callers
+        from handling that conversion in every call-site.
+        """
+        if pos is None:
+            return None
+        # NumPy array – convert
+        if hasattr(pos, "tolist"):
+            return pos.tolist()  # type: ignore[return-value]
+        # Fallback – assume Sequence[int]
+        return list(pos)  # type: ignore[arg-type]
     

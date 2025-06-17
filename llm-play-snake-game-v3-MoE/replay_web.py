@@ -92,7 +92,7 @@ def replay_thread_function(log_dir, move_pause, auto_advance):
         move_pause: Time in seconds to pause between moves
         auto_advance: Whether to automatically advance through games
     """
-    global replay_engine, running
+    global replay_engine
     
     # Initialize replay engine
     replay_engine = WebReplayEngine(

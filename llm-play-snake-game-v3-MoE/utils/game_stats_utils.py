@@ -12,22 +12,22 @@ from datetime import datetime
 class NumPyJSONEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles NumPy types."""
 
-    def default(self, obj):
+    def default(self, o):
         """Handle NumPy types for JSON serialization.
 
         Args:
-            obj: Object to serialize
+            o: Object to serialize
 
         Returns:
             JSON-serializable version of the object
         """
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return json.JSONEncoder.default(self, o)
 
 
 def get_experiment_options(stats_df):

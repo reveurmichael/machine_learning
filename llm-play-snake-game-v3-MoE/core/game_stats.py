@@ -124,10 +124,6 @@ class RoundBuffer:
     primary_times: List[float] = field(default_factory=list)
     secondary_times: List[float] = field(default_factory=list)
 
-    # Raw LLM outputs and parsed responses captured during the round
-    primary_parsed_response: str | None = None
-    secondary_parsed_response: str | None = None
-
     # ------------- convenience helpers ------------------
     def add_move(self, move: str) -> None:
         self.moves.append(move)

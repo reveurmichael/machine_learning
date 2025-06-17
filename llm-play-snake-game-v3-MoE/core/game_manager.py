@@ -214,28 +214,23 @@ class GameManager:
         # Delegate all round bookkeeping to RoundManager so the logic –
         # including buffer flushes and apple seeding – lives in one place.
         # --------------------------------------------------
-        if self.game and hasattr(self.game, "game_state"):
-            gs = self.game.game_state
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
 
-            # Prepare current apple (list-form for JSON friendliness)
-            current_apple = None
-            if hasattr(self.game, "apple_position") and self.game.apple_position is not None:
-                current_apple = (
-                    self.game.apple_position.tolist()
-                    if hasattr(self.game.apple_position, "tolist")
-                    else list(self.game.apple_position)
-                )
+        gs = self.game.game_state
 
-            # RoundManager will flush previous data, bump the counter and
-            # create/seed a fresh RoundBuffer.
-            gs.round_manager.start_new_round(current_apple)
+        # Let RoundManager take care of flushing & seeding.  It handles NumPy
+        # vs list conversion internally so we can pass the raw value.
+        gs.round_manager.start_new_round(getattr(self.game, "apple_position", None))
 
-            # Keep manager-level counter in sync with the authoritative value.
-            self.round_count = gs.round_manager.round_count
+        # Keep our counter in sync with the single source of truth.
+        self.round_count = gs.round_manager.round_count
 
-            # Ensure any observers (web front-ends, etc.) see up-to-date state.
-            gs.round_manager.sync_round_data()
+        # Make the freshly created buffer visible to any listeners (web).
+        gs.round_manager.sync_round_data()
 
+        # Inform the console once per actual advance (useful for long runs).
+        print(Fore.BLUE + f"📊 Advanced to round {self.round_count} {f'({reason})' if reason else ''}")
 
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Continue from a previous game session.

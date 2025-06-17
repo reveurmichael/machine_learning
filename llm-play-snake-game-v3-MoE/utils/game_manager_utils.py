@@ -216,8 +216,8 @@ def process_game_over(game, game_state_info):
     
     # Use the actual number of rounds that contain data to avoid the
     # off-by-one "phantom round" that appeared after a wall/self collision.
-    if hasattr(game, "game_state") and hasattr(game.game_state, "_calculate_actual_round_count"):
-        round_count = game.game_state._calculate_actual_round_count()
+    if hasattr(game, "game_state") and hasattr(game.game_state, "get_round_count"):
+        round_count = game.game_state.get_round_count()
 
     # ── aggregate round counts ──────────────────────────────────────────
     round_counts.append(round_count)

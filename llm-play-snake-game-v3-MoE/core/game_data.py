@@ -303,3 +303,17 @@ class GameData:
     def _calculate_actual_round_count(self) -> int:
         """Return the number of rounds that actually hold data."""
         return len([r for r in self.round_manager.rounds_data.values() if r])
+
+    # ------------------------------------------------------------------
+    # Public wrapper – prefer this over direct access to the underscore
+    # helper so external modules avoid pylint W0212.
+    # ------------------------------------------------------------------
+
+    def get_round_count(self) -> int:
+        """Return the number of rounds that actually contain gameplay data.
+
+        This simply delegates to the internal computation method but offers a
+        public, linter-friendly API for callers such as
+        ``utils.game_manager_utils``.
+        """
+        return self._calculate_actual_round_count()

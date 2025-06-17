@@ -4,16 +4,25 @@ Core functionality for the Snake game manager, handling game states, error proce
 statistics reporting, and initialization functions.
 """
 
+from __future__ import annotations
+
+from typing import Any, Dict, List, Tuple
+
 import pygame
 import numpy as np
 from colorama import Fore
 
-def _safe_add(target: dict, key: str, delta):
-    """Add delta to target[key] only if delta is truthy (skips None / 0)."""
+def _safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
+    """Accumulate *delta* onto ``target[key]`` when *delta* is truthy."""
     if delta:
         target[key] = target.get(key, 0) + delta
 
-def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=False):
+def check_collision(
+    position: np.ndarray | list[int],
+    snake_positions: np.ndarray,
+    grid_size: int,
+    is_eating_apple_flag: bool = False,
+) -> Tuple[bool, bool]:
     """Check if a position collides with walls or snake body.
     
     Args:
@@ -65,7 +74,7 @@ def check_collision(position, snake_positions, grid_size, is_eating_apple_flag=F
         
     return wall_collision, body_collision
 
-def check_max_steps(game, max_steps):
+def check_max_steps(game, max_steps: int) -> bool:
     """Check if the game has reached the maximum number of steps.
     
     Args:
@@ -81,7 +90,7 @@ def check_max_steps(game, max_steps):
         return True
     return False
 
-def process_game_over(game, game_state_info):
+def process_game_over(game, game_state_info: Dict[str, Any]):
     """Process game over state.
     
     Handles the game over state including:
@@ -274,7 +283,7 @@ def process_game_over(game, game_state_info):
     
     return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
 
-def report_final_statistics(stats_info):
+def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """Report final statistics for the experiment.
     
     Args:
@@ -371,7 +380,7 @@ def report_final_statistics(stats_info):
     if game_count >= stats_info.get("max_games", float('inf')):
         print(Fore.GREEN + f"🏁 Reached maximum games ({game_count}). Session complete.")
 
-def initialize_game_manager(game_manager):
+def initialize_game_manager(game_manager) -> None:
     """Initialize the game manager with necessary setup.
     
     Sets up the LLM clients (primary and optional secondary),
@@ -404,7 +413,7 @@ def initialize_game_manager(game_manager):
     # Initialize game state
     initialize_game_state(game_manager)
 
-def process_events(game_manager):
+def process_events(game_manager) -> None:
     """Process pygame events.
     
     Args:

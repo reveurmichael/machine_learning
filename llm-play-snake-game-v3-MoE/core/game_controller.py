@@ -63,14 +63,18 @@ class GameController:
         # Sync initial snake body into GameData so snake_length starts correct
         self.game_state.snake_positions = self.snake_positions.tolist()
 
-    def set_gui(self, gui_instance):
-        """Set the GUI instance to use for display.
-        
+    def set_gui(self, gui_instance) -> None:
+        """Attach a GUI implementation (pygame, web-proxy, etc.).
+
+        The controller itself remains *UI-agnostic* – all drawing is
+        delegated to the injected object which must expose the expected
+        ``draw_*`` methods.
+
         Args:
-            gui_instance: Instance of a GUI class
+            gui_instance: Any object implementing the game-GUI interface.
         """
         self.gui = gui_instance
-        self.use_gui = (gui_instance is not None)
+        self.use_gui = gui_instance is not None
 
     def reset(self) -> None:
         """Reset the game to the initial state."""
@@ -126,9 +130,9 @@ class GameController:
 
     def filter_invalid_reversals(
         self,
-        moves: List[str],
-        current_direction: str = None,
-    ) -> List[str]:
+        moves: list[str],
+        current_direction: str | None = None,
+    ) -> list[str]:
         """Filter out invalid reversal moves from a sequence.
         
         Args:
@@ -141,7 +145,7 @@ class GameController:
         if not moves or len(moves) <= 1:
             return moves
 
-        filtered_moves: List[str] = []
+        filtered_moves: list[str] = []
         last_direction = current_direction or self._get_current_direction_key() or moves[0]
 
         for move in moves:

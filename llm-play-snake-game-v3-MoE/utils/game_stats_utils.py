@@ -3,10 +3,14 @@ Utility module for game statistics and visualization.
 Handles game statistics processing and visualization for analysis.
 """
 
+from __future__ import annotations
+
 import os
-import numpy as np
 import json
 from datetime import datetime
+from typing import Any, Dict, List, Sequence
+
+import numpy as np
 
 
 class NumPyJSONEncoder(json.JSONEncoder):
@@ -30,10 +34,12 @@ class NumPyJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def get_experiment_options(stats_df):
-    """Return unique provider/model options for Streamlit filter widgets.
+def get_experiment_options(stats_df) -> Dict[str, List[str]]:
+    """Return unique provider / model values for Streamlit dropdowns.
 
-    Handles NaN/None values gracefully and avoids cross-type sorting issues.
+    The helper converts the relevant *stats_df* columns into **sorted**
+    lists of unique strings, stripping NaNs and handling literal "None"
+    entries so the front-end can use simple ``st.selectbox`` widgets.
     """
     def _clean_unique(series):
         if series is None:
@@ -64,21 +70,18 @@ def get_experiment_options(stats_df):
         "secondary_models": secondary_models,
     }
 
-def filter_experiments(stats_df, selected_primary_providers=None, selected_primary_models=None,
-                       selected_secondary_providers=None, selected_secondary_models=None):
-    """Filter experiments based on selected criteria.
-    
-    This function is used by the Streamlit analytics dashboard when run separately.
-    
-    Args:
-        stats_df: DataFrame with experiment statistics
-        selected_primary_providers: List of selected primary providers
-        selected_primary_models: List of selected primary models
-        selected_secondary_providers: List of selected secondary providers
-        selected_secondary_models: List of selected secondary models
-        
-    Returns:
-        Filtered DataFrame
+def filter_experiments(
+    stats_df,
+    selected_primary_providers: Sequence[str] | None = None,
+    selected_primary_models: Sequence[str] | None = None,
+    selected_secondary_providers: Sequence[str] | None = None,
+    selected_secondary_models: Sequence[str] | None = None,
+):  # -> "pd.DataFrame"  (kept loose to avoid hard pandas import)
+    """Return *stats_df* filtered by the Streamlit-selected criteria.
+
+    The function stays pandas-agnostic at type level to avoid importing the
+    heavy dependency in runtime-light contexts; callers still pass a
+    DataFrame and receive a sliced view back.
     """
     filtered_df = stats_df.copy()
 
@@ -116,7 +119,7 @@ def filter_experiments(stats_df, selected_primary_providers=None, selected_prima
     return filtered_df 
 
 
-def save_experiment_info_json(args, directory):
+def save_experiment_info_json(args, directory: str) -> Dict[str, Any]:
     """Save experiment configuration information to a JSON file.
 
     Args:
@@ -187,13 +190,8 @@ def save_experiment_info_json(args, directory):
     return experiment_info
 
 
-def save_session_stats(log_dir, **kwargs):
-    """Save session statistics to the summary JSON file.
-
-    Args:
-        log_dir: Directory containing the summary.json file
-        **kwargs: Statistics fields to save
-    """
+def save_session_stats(log_dir: str, **kwargs: Any) -> None:
+    """Merge incremental *kwargs* into ``summary.json`` inside *log_dir*."""
     # Read existing summary file
     summary_path = os.path.join(log_dir, "summary.json")
 
@@ -207,8 +205,8 @@ def save_session_stats(log_dir, **kwargs):
         print(f"Error reading summary.json: {e}")
         return
 
-    def _safe_set(target: dict, key: str, val):
-        """Overwrite only with a real, non-zero value."""
+    def _safe_set(target: Dict[str, Any], key: str, val: Any) -> None:
+        """Helper: assign *val* to *target[key]* when *val* is truthy."""
         if val:
             target[key] = val
 

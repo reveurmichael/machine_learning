@@ -45,6 +45,9 @@ DEFAULT_PARSER_MODEL = (
     "gemma3:12b-it-qat"  # for Streamlit page only, not for main.py args default
 )
 
+TEMPERATURE = 0.2
+MAX_TOKENS = 8192
+
 DIRECTIONS = {
     "UP": (0, 1),
     "RIGHT": (1, 0),
@@ -79,5 +82,7 @@ __all__ = [
     'DIRECTIONS',
     'AVAILABLE_PROVIDERS',
     'DEFAULT_PROVIDER', 'DEFAULT_MODEL', 'DEFAULT_PARSER_PROVIDER', 'DEFAULT_PARSER_MODEL',
+    'TEMPERATURE', 
+    'MAX_TOKENS',
     'END_REASON_MAP',
 ] 

@@ -8,6 +8,8 @@ import traceback
 from typing import Dict, Tuple, Optional
 from openai import OpenAI
 
+from config.constants import TEMPERATURE, MAX_TOKENS
+
 from .base_provider import BaseProvider
 
 
@@ -55,8 +57,8 @@ class HunyuanProvider(BaseProvider):
             messages = [{"role": "user", "content": prompt}]
 
             # Extract parameters - use the provided model (should be set already)
-            temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
-            max_tokens = kwargs.get("max_tokens", 8192)
+            temperature = kwargs.get("temperature", TEMPERATURE)
+            max_tokens = kwargs.get("max_tokens", MAX_TOKENS)
             enable_enhancement = kwargs.get("enable_enhancement", True)
 
             print(f"Making API call to Hunyuan with model: {model}, temperature: {temperature}")

@@ -8,6 +8,8 @@ import traceback
 from typing import Dict, Tuple, Optional
 from mistralai import Mistral
 
+from config.constants import TEMPERATURE, MAX_TOKENS
+
 from .base_provider import BaseProvider
 
 
@@ -50,8 +52,8 @@ class MistralProvider(BaseProvider):
             # Validate model selection
             model = self.validate_model(model)
 
-            temperature = kwargs.get("temperature", 0.2)  # Lower temperature for more deterministic responses
-            max_tokens = kwargs.get("max_tokens", 8192)
+            temperature = kwargs.get("temperature", TEMPERATURE)
+            max_tokens = kwargs.get("max_tokens", MAX_TOKENS)
 
             print(f"Using Mistral model: {model}")
 

@@ -8,6 +8,8 @@ import json
 import requests
 from typing import Dict, Tuple, Optional
 
+from config.constants import TEMPERATURE
+
 from .base_provider import BaseProvider
 
 
@@ -66,7 +68,7 @@ class OllamaProvider(BaseProvider):
             # Get server from kwargs or use the default
             server = kwargs.get("server", self.server)
             # Extract parameters
-            temperature = kwargs.get("temperature", 0.2)
+            temperature = kwargs.get("temperature", TEMPERATURE)
 
             # Set default model if none provided
             model = model or self.get_default_model()

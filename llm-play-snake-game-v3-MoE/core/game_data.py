@@ -201,7 +201,7 @@ class GameData:
 
         summary_dict = self.generate_game_summary(**kwargs)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
         return summary_dict
 

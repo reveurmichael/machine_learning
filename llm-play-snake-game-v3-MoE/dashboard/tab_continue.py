@@ -10,8 +10,12 @@ import subprocess
 import streamlit as st
 import json
 
-from config.constants import MAX_GAMES_ALLOWED 
-from utils.file_utils import get_folder_display_name, load_summary_data
+from config.constants import MAX_GAMES_ALLOWED
+from utils.file_utils import (
+    get_folder_display_name,
+    load_summary_data,
+    get_total_games,
+)
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
 
@@ -47,17 +51,16 @@ def render_continue_pygame_tab(log_folders):
             label_visibility="collapsed",
         )
 
-    # Track how many games have been played so far (used as default for Max Games)
+    # Determine number of games already completed (summary.json preferred,
+    # fallback to counting game_*.json files)
     total_games_finished: int = 0
 
     with col_info:
         if exp:
+            total_games_finished = get_total_games(exp)
+            st.info(f"Games completed so far: {total_games_finished}")
+            # Still load full summary if users want to inspect it
             summary_data = load_summary_data(exp)
-            if summary_data:
-                total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
-                st.info(f"Games completed so far: {total_games_finished}")
-            else:
-                st.warning("Could not load summary.json for the selected experiment.")
 
     # optional expander under full width
     if exp and summary_data:
@@ -114,17 +117,14 @@ def render_continue_web_tab(log_folders):
             label_visibility="collapsed",
         )
 
-    # Track how many games have been played so far (used as default for Max Games)
+    # Determine number of games already completed
     total_games_finished: int = 0
 
     with col_info_w:
         if exp:
+            total_games_finished = get_total_games(exp)
+            st.info(f"Games completed so far: {total_games_finished}")
             summary_data = load_summary_data(exp)
-            if summary_data:
-                total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
-                st.info(f"Games completed so far: {total_games_finished}")
-            else:
-                st.warning("Could not load summary.json for the selected experiment.")
 
     if exp and summary_data:
         with st.expander("Show summary.json"):

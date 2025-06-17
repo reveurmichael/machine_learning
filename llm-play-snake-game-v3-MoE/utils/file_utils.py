@@ -295,3 +295,42 @@ def find_valid_log_folders(root_dir: str = "logs", max_depth: int = 4):
             valid_folders.append(dirpath)
 
     return valid_folders 
+
+
+
+def get_total_games(log_dir: str) -> int:
+    """Return the total number of games present in *log_dir*.
+
+    The function first tries to read *summary.json* (preferred – cheap and
+    reflects the *authoritative* number recorded at runtime).  If the file is
+    missing or malformed it falls back to counting the existing *game_*.json*
+    artefacts on disk.
+
+    Parameters
+    ----------
+    log_dir
+        Path to a directory that contains *summary.json* and/or the per-game
+        JSON files.
+
+    Returns
+    -------
+    int
+        The total number of games recorded. Guarantees to return at least 1
+        so consumer code can safely divide by the value without having to
+        handle *0* special-cases.
+    """
+
+    summary_file = os.path.join(log_dir, "summary.json")
+    if os.path.isfile(summary_file):
+        try:
+            with open(summary_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            total = int(data.get("game_statistics", {}).get("total_games", 0))
+            if total > 0:
+                return total
+        except Exception:
+            pass  # fall back to disk scan below
+
+    # Disk fallback – count *game_*.json* files
+    game_files = glob.glob(os.path.join(log_dir, "game_*.json"))
+    return max(1, len(game_files)) 

@@ -14,6 +14,7 @@ import numpy as np
 from core.game_controller import GameController
 from config import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
+from utils.file_utils import get_total_games
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games.
@@ -73,6 +74,7 @@ class ReplayEngine(GameController):
         self.game_timestamp: Optional[str] = None
         self.llm_response: Optional[str] = None
         self.planned_moves: List[str] = []
+        self.total_games: int = get_total_games(log_dir)
 
     def set_gui(self, gui_instance: Any) -> None:
         """Set the GUI instance to use for display.
@@ -108,6 +110,7 @@ class ReplayEngine(GameController):
             'speed': 1.0 / self.pause_between_moves if self.pause_between_moves > 0 else 1.0,
             'timestamp': self.game_timestamp,
             'game_end_reason': self.game_end_reason,
+            'total_games': self.total_games,
         }
 
     def draw(self) -> None:

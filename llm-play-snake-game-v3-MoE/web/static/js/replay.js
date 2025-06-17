@@ -177,67 +177,34 @@ function drawGame() {
     // Calculate pixel size to ensure a perfect fit
     pixelSize = Math.floor(maxSize / gridSize);
     
-    // Set canvas dimensions to exactly fit the grid (no extra margins)
-    canvas.width = pixelSize * gridSize;
+    // Canvas sizing
+    canvas.width  = pixelSize * gridSize;
     canvas.height = pixelSize * gridSize;
-    
-    // Clear canvas
+
+    // Clear background
     ctx.fillStyle = COLORS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw grid lines
-    drawGrid(gridSize, pixelSize);
-    
-    // Draw snake
-    if (gameState.snake_positions && gameState.snake_positions.length > 0) {
-        // Draw body first
+
+    // Grid
+    drawGrid(ctx, gridSize, pixelSize);
+
+    // Snake
+    if (Array.isArray(gameState.snake_positions) && gameState.snake_positions.length) {
+        // Body
         for (let i = 0; i < gameState.snake_positions.length - 1; i++) {
-            const [x, y] = gameState.snake_positions[i];
-            drawRect(x, y, COLORS.SNAKE_BODY);
+            const [x, yGame] = gameState.snake_positions[i];
+            drawRect(ctx, x, (gridSize - 1) - yGame, COLORS.SNAKE_BODY, pixelSize);
         }
-        
-        // Draw head
-        const head = gameState.snake_positions[gameState.snake_positions.length - 1];
-        drawRect(head[0], head[1], COLORS.SNAKE_HEAD);
+        // Head
+        const [hx, hyGame] = gameState.snake_positions[gameState.snake_positions.length - 1];
+        drawRect(ctx, hx, (gridSize - 1) - hyGame, COLORS.SNAKE_HEAD, pixelSize);
     }
-    
-    // Draw apple
-    if (gameState.apple_position && gameState.apple_position.length === 2) {
-        const [x, y] = gameState.apple_position;
-        drawRect(x, y, COLORS.APPLE);
-    }
-}
 
-function drawGrid(gridSize, pixelSize) {
-    ctx.strokeStyle = COLORS.GRID;
-    ctx.lineWidth = 0.5;
-    
-    // Draw vertical lines
-    for (let i = 0; i <= gridSize; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * pixelSize, 0);
-        ctx.lineTo(i * pixelSize, gridSize * pixelSize);
-        ctx.stroke();
+    // Apple
+    if (Array.isArray(gameState.apple_position) && gameState.apple_position.length === 2) {
+        const [ax, ayGame] = gameState.apple_position;
+        drawRect(ctx, ax, (gridSize - 1) - ayGame, COLORS.APPLE, pixelSize);
     }
-    
-    // Draw horizontal lines
-    for (let i = 0; i <= gridSize; i++) {
-        ctx.beginPath();
-        ctx.moveTo(0, i * pixelSize);
-        ctx.lineTo(gridSize * pixelSize, i * pixelSize);
-        ctx.stroke();
-    }
-}
-
-function drawRect(x, y, color) {
-    ctx.fillStyle = color;
-    
-    ctx.fillRect(
-        x * pixelSize + 1,
-        (gameState.grid_size - 1 - y) * pixelSize + 1,
-        pixelSize - 2,
-        pixelSize - 2
-    );
 }
 
 function togglePlayPause() {

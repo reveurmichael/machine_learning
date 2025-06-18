@@ -140,6 +140,12 @@ def _handle_no_move(mgr):
     mgr.consecutive_empty_steps += 1
     print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {mgr.consecutive_empty_steps}/{mgr.args.max_consecutive_empty_moves_allowed}")
 
+    # An EMPTY step naturally breaks a sequence of invalid reversals, so make
+    # sure to reset that counter here.  Otherwise a pattern like
+    # INVALID_REVERSAL → EMPTY → INVALID_REVERSAL would incorrectly be
+    # counted as two *consecutive* invalid reversals.
+    mgr.consecutive_invalid_reversals = 0
+
     if mgr.consecutive_empty_steps >= mgr.args.max_consecutive_empty_moves_allowed:
         print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({mgr.args.max_consecutive_empty_moves_allowed}). Game over.")
         mgr.game_active = False
@@ -261,6 +267,13 @@ def _execute_move(manager, direction: str) -> Tuple[bool, bool]:
     # Any successful move (even if blocked by invalid reversal) resets the
     # "something is wrong" counter.
     manager.consecutive_something_is_wrong = 0
+
+    # Reset consecutive *empty* move counter when we successfully execute a
+    # non-EMPTY move.  Without this, the counter accumulated across unrelated
+    # moves and could prematurely trigger the game-over condition even when
+    # empty moves were not consecutive.
+    if direction != "EMPTY":
+        manager.consecutive_empty_steps = 0
 
     # Return the possibly-updated game_active flag plus apple status.
     manager.game_active = game_active  # maintain historic side-effect

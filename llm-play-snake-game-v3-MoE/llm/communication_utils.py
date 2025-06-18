@@ -332,11 +332,7 @@ def get_llm_response(game_manager):
             elif "moves" not in parser_output:
                 print(f"❌ 'moves' key missing from parser output. Keys: {parser_output.keys()}")
             elif not parser_output["moves"]:
-                print("❌ Empty moves list in parser output")
-            
-            # No valid moves found
-            game_manager.consecutive_empty_steps += 1
-            print(Fore.YELLOW + f"⚠️ No valid moves found. Empty steps: {game_manager.consecutive_empty_steps}/{game_manager.args.max_consecutive_empty_moves_allowed}")
+                print(Fore.YELLOW + "⚠️ No valid moves found. Delegating EMPTY-step handling to game loop.")
 
         # End tracking LLM communication time
         game_manager.game.game_state.record_llm_communication_end()

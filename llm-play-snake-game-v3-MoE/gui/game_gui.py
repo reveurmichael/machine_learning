@@ -1,27 +1,44 @@
-"""
-Game GUI components for the Snake game.
-Provides specialized GUI functionality for the main game.
-"""
+"""PyGame renderer for the live LLM-controlled Snake game."""
+
+from __future__ import annotations
+
+from typing import Any, Mapping, Sequence
 
 import pygame
-from gui.base import BaseGUI
+
+from gui.base_gui import BaseGUI
 from config.ui_constants import COLORS
 
+
 class GameGUI(BaseGUI):
-    """GUI class for the main game display."""
-    
-    def __init__(self):
+    """Simple PyGame GUI used by the *interactive* game loop."""
+
+    def __init__(self) -> None:
         """Initialize the game GUI."""
         super().__init__()
         self.init_display("LLM Snake Agent")
-    
-    def draw_board(self, board, board_info, head_position=None):
-        """Draw the game board with snake and apple.
-        
-        Args:
-            board: 2D array representing the game board
-            board_info: Dictionary with board entity information
-            head_position: Position of the snake's head as [x, y]
+
+    # --------------------------------------
+    # Drawing helpers
+    # --------------------------------------
+
+    def draw_board(
+        self,
+        board: Sequence[Sequence[int]],
+        board_info: Mapping[str, int],
+        head_position: Sequence[int] | None = None,
+    ) -> None:
+        """Render the full board (snake, apple, grid).
+
+        Parameters
+        ----------
+        board
+            2-D array (NumPy or nested lists) with integer entity codes.
+        board_info
+            Mapping that contains the numeric codes for "snake" and "apple".
+        head_position
+            The *logical* head coordinate \[x, y] (Cartesian).  Used to colour
+            the head differently from the body.
         """
         # Clear the game area
         self.clear_game_area()
@@ -44,7 +61,7 @@ class GameGUI(BaseGUI):
         # Update display for this region
         pygame.display.update((0, 0, self.height, self.height))
     
-    def draw_snake_segment(self, x, y, is_head=False):
+    def draw_snake_segment(self, x: int, y: int, is_head: bool = False) -> None:
         """Draw a single snake segment.
         
         Args:
@@ -62,7 +79,7 @@ class GameGUI(BaseGUI):
         color = COLORS['SNAKE_HEAD'] if is_head else COLORS['SNAKE_BODY']
         pygame.draw.rect(self.screen, color, rect)
     
-    def draw_game_info(self, game_info):
+    def draw_game_info(self, game_info: dict[str, Any]) -> None:
         """Draw game information and LLM response.
         
         Args:

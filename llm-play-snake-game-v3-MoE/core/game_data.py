@@ -25,6 +25,7 @@ class GameData:
             MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
             MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
             MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+            MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
         )
         
         self.game_number = 0
@@ -44,6 +45,10 @@ class GameData:
         )
         self.max_consecutive_invalid_reversals_allowed = (
             MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED
+        )
+        # Dedicated safeguard for repeated NO_PATH_FOUND responses
+        self.max_consecutive_no_path_found_allowed = (
+            MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED
         )
         
         self.stats = GameStatistics()
@@ -72,7 +77,13 @@ class GameData:
         self.round_manager.record_apple_position(position)
     
     def record_empty_move(self) -> None:
-        """Record an empty move."""
+        """Record an *EMPTY* sentinel.
+
+        EMPTY represents a tick where the snake stayed in place because **no
+        valid move was produced at all**.  It is *not* used for NO_PATH_FOUND
+        or parser/LLM failures – those have their own dedicated sentinel move
+        names so statistics stay strictly independent.
+        """
         self.stats.step_stats.empty += 1
         self.steps += 1
         self.moves.append("EMPTY")
@@ -86,7 +97,12 @@ class GameData:
         self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
     
     def record_something_is_wrong_move(self) -> None:
-        """Record an something is wrong move."""
+        """Record a *SOMETHING_IS_WRONG* sentinel.
+
+        Indicates a parser/LLM failure (e.g. JSON could not be extracted).
+        Logged independently so that EMPTY and NO_PATH_FOUND statistics are
+        unaffected by error handling.
+        """
         self.stats.step_stats.something_wrong += 1
         self.steps += 1
         self.moves.append("SOMETHING_IS_WRONG")
@@ -165,12 +181,12 @@ class GameData:
                 "parser_provider": parser_provider,
                 "parser_model": parser_model,
             },
-            # Timings / stats -----------------------------------------
+            # Timings / stats -------------------------------
             "time_stats": self.stats.time_stats.asdict(),
             "prompt_response_stats": self.get_prompt_response_stats(),
             "token_stats": self.get_token_stats(),
             "step_stats": self.stats.step_stats.asdict(),
-            # Misc metadata ------------------------------------------
+            # Misc metadata --------------------------------
             "metadata": {
                 "timestamp": self.timestamp,
                 "game_number": self.game_number,
@@ -304,10 +320,10 @@ class GameData:
         """Return the number of rounds that actually hold data."""
         return len([r for r in self.round_manager.rounds_data.values() if r])
 
-    # ------------------------------------------------------------------
+    # --------------------------------
     # Public wrapper – prefer this over direct access to the underscore
     # helper so external modules avoid pylint W0212.
-    # ------------------------------------------------------------------
+    # --------------------------------
 
     def get_round_count(self) -> int:
         """Return the number of rounds that actually contain gameplay data.
@@ -317,4 +333,16 @@ class GameData:
         ``utils.game_manager_utils``.
         """
         return self._calculate_actual_round_count()
+
+    def record_no_path_found_move(self) -> None:
+        """Record a *NO_PATH_FOUND* sentinel.
+
+        This marks a tick where the LLM explicitly stated that **no safe path
+        exists**.  It is logged separately from EMPTY so the two counters do
+        not interfere with each other.
+        """
+        self.stats.step_stats.no_path_found += 1
+        self.steps += 1
+        self.moves.append("NO_PATH_FOUND")
+        self.round_manager.round_buffer.add_move("NO_PATH_FOUND")
   

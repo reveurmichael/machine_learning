@@ -12,13 +12,13 @@ __all__ = [
     'parse_game_data',
 ]
 
-# ------------------------------------------------------------------
+# --------------------------------
 # Make the CLI parser from the *script* version (top-level replay.py)
 # available when users import the *package* ``replay``.
 #
 # This avoids duplicating the full argument-definition block while
 # eliminating the ImportError hit by ``replay_web.py``.
-# ------------------------------------------------------------------
+# --------------------------------
 
 import importlib.util as _importlib_util
 import pathlib as _pathlib

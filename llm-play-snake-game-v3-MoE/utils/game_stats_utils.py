@@ -176,6 +176,7 @@ def save_experiment_info_json(args, directory: str) -> Dict[str, Any]:
             "something_is_wrong_steps": 0,
             "valid_steps": 0,
             "invalid_reversals": 0,  # Aggregated count across all games
+            "no_path_found_steps": 0,
         },
     }
 
@@ -248,6 +249,7 @@ def save_session_stats(log_dir: str, **kwargs: Any) -> None:
             "something_is_wrong_steps": 0,
             "valid_steps": 0,
             "invalid_reversals": 0,  # Aggregated count across all games
+            "no_path_found_steps": 0,
         }
 
     # Apply new statistics values to the appropriate sections
@@ -274,6 +276,8 @@ def save_session_stats(log_dir: str, **kwargs: Any) -> None:
             ] = value  # Already accumulated in process_game_over
         elif key == "invalid_reversals":
             summary["step_stats"]["invalid_reversals"] = value
+        elif key == "no_path_found_steps":
+            summary["step_stats"]["no_path_found_steps"] = value
         elif key == "time_stats":
             # Handle time statistics if provided
             if value and isinstance(value, dict):
@@ -366,6 +370,10 @@ def save_session_stats(log_dir: str, **kwargs: Any) -> None:
                     summary["step_stats"]["invalid_reversals"] = value[
                         "invalid_reversals"
                     ]  # Already accumulated in process_game_over
+                if "no_path_found_steps" in value:
+                    summary["step_stats"]["no_path_found_steps"] = value[
+                        "no_path_found_steps"
+                    ]
         elif key == "round_counts":
             summary["game_statistics"]["round_counts"] = value
         elif key == "total_rounds":

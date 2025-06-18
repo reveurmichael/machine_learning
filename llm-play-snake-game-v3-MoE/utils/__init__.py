@@ -46,13 +46,15 @@ from .moves_utils import (
     normalize_direction,
     normalize_directions,
     calculate_move_differences,
+    is_reverse,
 )
 
 from .game_manager_utils import check_collision
 
 # Text processing
 from .text_utils import (
-    process_response_for_display
+    process_response_for_display,
+    format_code_blocks,
 )
 
 # Continuation helpers
@@ -63,7 +65,12 @@ from .continuation_utils import (
 )
 
 # Network helpers
-from .network_utils import find_free_port
+from .network_utils import (
+    find_free_port,
+    is_port_free,
+    ensure_free_port,
+    random_free_port,
+)
 
 from .session_utils import (
     run_replay,
@@ -73,6 +80,7 @@ from .session_utils import (
     continue_game_web,
     run_human_play,
     run_human_play_web,
+    __all__ as _session_all,
 )
 
 from .game_stats_utils import (
@@ -115,20 +123,19 @@ __all__ = [
     "normalize_direction",
     "normalize_directions",
     "calculate_move_differences",
+    "is_reverse",
     # Text processing
     "process_response_for_display",
+    "format_code_blocks",
     # Continuation helpers
     "setup_continuation_session",
     "handle_continuation_game_state",
     "continue_from_directory",
     # Network helpers
     "find_free_port",
-    # Session utils
-    "run_replay",
-    "run_web_replay",
-    "run_main_web",
-    "continue_game",
-    "continue_game_web",
-    "run_human_play",
-    "run_human_play_web",
+    "is_port_free",
+    "ensure_free_port",
+    "random_free_port",
+    # Session utils – imported dynamically to avoid duplicate code
+    *_session_all,
 ]

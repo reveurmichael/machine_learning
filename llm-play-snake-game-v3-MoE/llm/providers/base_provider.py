@@ -34,8 +34,9 @@ class BaseProvider(ABC):
         """
         pass
     
+    @classmethod
     @abstractmethod
-    def get_default_model(self) -> str:
+    def get_default_model(cls) -> str:
         """Get the default model for this provider.
         
         Returns:
@@ -80,4 +81,4 @@ class BaseProvider(ABC):
     @classmethod
     def get_available_models(cls) -> list[str]:  # noqa: D401 – simple accessor
         """Return a list of supported model identifiers for this provider."""
-        return cls.available_models or [cls.get_default_model(cls)] 
+        return cls.available_models or [cls.get_default_model()] 

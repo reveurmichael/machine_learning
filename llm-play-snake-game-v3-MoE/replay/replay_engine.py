@@ -15,6 +15,7 @@ from core.game_controller import GameController
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from utils.file_utils import get_total_games
+from config.game_constants import SENTINEL_MOVES, END_REASON_MAP
 
 class ReplayEngine(GameController):
     """Engine for replaying recorded Snake games.
@@ -152,7 +153,8 @@ class ReplayEngine(GameController):
             self.apple_positions = parsed["apple_positions"]
             self.moves = parsed["moves"]
             self.planned_moves = parsed["planned_moves"]
-            self.game_end_reason = parsed["game_end_reason"]
+            raw_reason = parsed["game_end_reason"]
+            self.game_end_reason = END_REASON_MAP.get(raw_reason, raw_reason)
             self.primary_llm = parsed["primary_llm"]
             self.secondary_llm = parsed["secondary_llm"]
             self.game_timestamp = parsed["timestamp"]
@@ -167,7 +169,10 @@ class ReplayEngine(GameController):
             # Store raw game dict for reference
             self.game_stats = parsed["raw"]
 
-            print(f"Game {game_number}: Score: {loaded_score}, Steps: {len(self.moves)}, End reason: {self.game_end_reason}, LLM: {self.primary_llm}")
+            print(
+                f"Game {game_number}: Score: {loaded_score}, Steps: {len(self.moves)}, "
+                f"End reason: {self.game_end_reason}, LLM: {self.primary_llm}"
+            )
 
             # Initialize game state
             print("Initializing game state...")
@@ -269,7 +274,7 @@ class ReplayEngine(GameController):
         # make_move(), so the snake stays in place exactly as it did in the
         # original run.
         # -------------------------------
-        if direction_key in ("INVALID_REVERSAL", "EMPTY", "SOMETHING_IS_WRONG"):
+        if direction_key in SENTINEL_MOVES:
             # Mirror step accounting from the original run so that stats align.
             if direction_key == "INVALID_REVERSAL":
                 self.game_state.record_invalid_reversal()
@@ -277,6 +282,11 @@ class ReplayEngine(GameController):
                 self.game_state.record_empty_move()
             elif direction_key == "SOMETHING_IS_WRONG":
                 self.game_state.record_something_is_wrong_move()
+            elif direction_key == "NO_PATH_FOUND":
+                # Dedicated counter for NO_PATH_FOUND sentinels – treat like
+                # a pause step so the replay timeline matches the original
+                # session.
+                self.game_state.record_no_path_found_move()
             return True  # Game continues, snake doesn't move
 
         # Use the parent class's make_move method to ensure consistent behavior

@@ -40,13 +40,16 @@ def translate_end_reason(code: Optional[str]) -> Optional[str]:
     return END_REASON_MAP.get(code, code)
 
 
-# ------------------------------------------------------------------
+# --------------------------------
 # Convenience helpers for state construction
-# ------------------------------------------------------------------
+# --------------------------------
 
 
-def to_list(obj):  # noqa: D401 – tiny utility
-    """Return ``obj.tolist()`` if it exists, else ``obj`` unchanged."""
+def to_list(obj) -> list | object:  # noqa: D401 – tiny utility
+    """Return ``obj.tolist()`` when available, otherwise the original ``obj``.
+
+    Useful for serialising NumPy arrays into JSON-friendly Python lists.
+    """
 
     return obj.tolist() if hasattr(obj, "tolist") else obj
 

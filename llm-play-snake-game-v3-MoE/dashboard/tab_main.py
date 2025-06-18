@@ -1,27 +1,33 @@
-"""
-Dashboard – Main Mode tabs (PyGame / Web)
+"""Streamlit sub-module: renders *Main* and *Main-Web* tabs.
 
-Provides UI widgets to launch *main.py* or *main_web.py* with the full set of
-CLI arguments requested by the user.
+The functions here only **compose UI components** and build CLI command lists;
+they never mutate global state or perform heavy computation.  This keeps the
+dashboard responsive and side-effect free outside the explicit *Start* button
+callbacks.
 """
 
 from __future__ import annotations
 
 import subprocess
+from typing import List
+
 import streamlit as st
 
 from utils.network_utils import random_free_port
 from utils.session_utils import run_main_web
 from llm.providers import get_available_models
+from config.network_constants import HOST_CHOICES
 
 from config.game_constants import (
     MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
     MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
     MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+    MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
     MAX_GAMES_ALLOWED,
     MAX_STEPS_ALLOWED,
     AVAILABLE_PROVIDERS,
     PAUSE_BETWEEN_MOVES_SECONDS,
+    SLEEP_AFTER_EMPTY_STEP,
 )
 from config.ui_constants import (
     DEFAULT_PROVIDER,
@@ -34,15 +40,20 @@ from config.ui_constants import (
 # Helper – build command list from optional args
 # ----------------------------------------
 
-def _append_arg(cmd: list[str], flag: str, value):
-    """Append *flag value* to *cmd* if *value* is truthy (non-None / non-empty)."""
+def _append_arg(cmd: List[str], flag: str, value) -> None:
+    """Append *flag* (and maybe *value*) to *cmd* in place.
+
+    • Booleans append only the flag when *True* (common for `--no-gui`).
+    • Any other truthy value appends flag **and** str(value).
+    • ``None`` / falsy values are ignored.
+    """
+
     if value is None:
         return
     if isinstance(value, bool):
-        if value:  # only flag on boolean
+        if value:
             cmd.append(flag)
         return
-    # Non-boolean – append flag + value as two separate list items
     cmd.extend([flag, str(value)])
 
 
@@ -50,10 +61,10 @@ def _append_arg(cmd: list[str], flag: str, value):
 # Main Mode – PyGame
 # ----------------------------------------
 
-def render_main_pygame_tab():
+def render_main_pygame_tab() -> None:
     st.markdown("### Start New Game Session (PyGame)")
 
-    # ----- Provider / model -----
+    # ----- Primary LLM Provider / Model -----
     col1, col2 = st.columns(2)
     with col1:
         provider = st.selectbox(
@@ -77,7 +88,7 @@ def render_main_pygame_tab():
             key="main_pg_model",
         )
 
-    # ----- Parser LLM -----
+    # ----- Secondary LLM Provider / Model -----
     colp1, colp2 = st.columns(2)
     with colp1:
         parser_provider = st.selectbox(
@@ -113,14 +124,16 @@ def render_main_pygame_tab():
     with col_core2:
         max_steps = st.number_input("Max Steps", 10, 1000, MAX_STEPS_ALLOWED, 10, key="main_pg_max_steps")
 
-    col_time1, col_time2 = st.columns(2)
+    col_time1, col_time2, col_time3 = st.columns(3)
     with col_time1:
         sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_pg_sleep")
     with col_time2:
         move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_pg_move_pause")
+    with col_time3:
+        sleep_after_empty = st.number_input("Sleep After EMPTY (minutes)", 0.0, 1000.0, SLEEP_AFTER_EMPTY_STEP, 0.5, key="main_pg_sleep_after_empty")
 
     # New safety limits
-    col_lim1, col_lim2, col_lim3 = st.columns(3)
+    col_lim1, col_lim2, col_lim3, col_lim4 = st.columns(4)
     with col_lim1:
         max_empty_moves = st.number_input(
             "Max Consecutive Empty Moves",
@@ -148,6 +161,15 @@ def render_main_pygame_tab():
             1,
             key="main_pg_max_invalid_rev",
         )
+    with col_lim4:
+        max_no_path = st.number_input(
+            "Max Consecutive NO_PATH_FOUND",
+            0,
+            50,
+            MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
+            1,
+            key="main_pg_max_no_path",
+        )
 
     no_gui = st.checkbox("Disable GUI", value=False, key="main_pg_no_gui")
 
@@ -163,12 +185,16 @@ def render_main_pygame_tab():
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
         if move_pause >= 0:
             _append_arg(cmd, "--move-pause", move_pause)
+        if sleep_after_empty > 0:
+            _append_arg(cmd, "--sleep-after-empty-step", sleep_after_empty)
         if max_empty_moves > 0:
             _append_arg(cmd, "--max-consecutive-empty-moves-allowed", max_empty_moves)
         if max_siw > 0:
             _append_arg(cmd, "--max-consecutive-something-is-wrong-allowed", max_siw)
         if max_invalid_rev > 0:
             _append_arg(cmd, "--max-consecutive-invalid-reversals-allowed", max_invalid_rev)
+        if max_no_path > 0:
+            _append_arg(cmd, "--max-consecutive-no-path-found-allowed", max_no_path)
         if no_gui:
             cmd.append("--no-gui")
 
@@ -180,7 +206,7 @@ def render_main_pygame_tab():
 # Main Mode – Web
 # ----------------------------------------
 
-def render_main_web_tab():
+def render_main_web_tab() -> None:
     st.markdown("### Start New Game Session (Web)")
 
     # ----- Provider / model -----
@@ -238,30 +264,36 @@ def render_main_web_tab():
     with col_core2:
         st.number_input("Max Steps", 10, 1000, MAX_STEPS_ALLOWED, 10, key="main_web_max_steps")
 
-    col_time1, col_time2 = st.columns(2)
+    col_time1, col_time2, col_time3 = st.columns(3)
     with col_time1:
-        st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_web_sleep")
+        sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_web_sleep")
     with col_time2:
-        st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_web_move_pause")
+        move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_web_move_pause")
+    with col_time3:
+        sleep_after_empty = st.number_input("Sleep After EMPTY (minutes)", 0.0, 1000.0, SLEEP_AFTER_EMPTY_STEP, 0.5, key="main_web_sleep_after_empty")
 
     # Safety limits (web)
-    col_lim1, col_lim2, col_lim3 = st.columns(3)
+    col_lim1, col_lim2, col_lim3, col_lim4 = st.columns(4)
     with col_lim1:
         st.number_input("Max Consecutive Empty Moves", 0, 50, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, 1, key="main_web_max_empty_moves")
     with col_lim2:
         st.number_input("Max Consecutive Something-Is-Wrong", 0, 50, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, 1, key="main_web_max_siw")
     with col_lim3:
         st.number_input("Max Consecutive Invalid Reversals", 0, 50, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, 1, key="main_web_max_invalid_rev")
+    with col_lim4:
+        st.number_input("Max Consecutive NO_PATH_FOUND", 0, 50, MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED, 1, key="main_web_max_no_path")
 
     # Server details
     colh, colp = st.columns(2)
     with colh:
-        host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="main_web_host")
+        host = st.selectbox("Host", HOST_CHOICES, index=0, key="main_web_host")
     with colp:
         default_port = random_free_port(8000, 9000)
         port = st.number_input("Port", 1024, 65535, default_port, key="main_web_port")
 
-    no_gui = st.checkbox("Disable GUI (headless)", value=False, key="main_web_no_gui")
+    # Headless option – runs with --no-gui so move pauses are skipped, useful for
+    # speed-oriented batch runs.  Replay mode ignores this flag.
+    no_gui = st.checkbox("Run headless (skip GUI & move pauses)", value=False, key="main_web_no_gui")
 
     if st.button("Start Main Session (Web)", key="start_main_web"):
         selected_max_games = int(st.session_state.get("main_web_max_games", MAX_GAMES_ALLOWED))

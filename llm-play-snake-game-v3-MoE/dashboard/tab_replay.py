@@ -1,16 +1,21 @@
-"""
-Dashboard – Replay Mode tabs
+"""Streamlit sub-module: *Replay* tab (PyGame & Web variants).
+
+Provides widgets for selecting an experiment + game number and launching
+`replay.py` / `replay_web.py` in a background subprocess.  Only UI/command
+composition – no heavy logic.
 """
 from __future__ import annotations
 
 import streamlit as st
 import json
+from typing import Sequence
 from utils.file_utils import get_folder_display_name, load_game_data
 from utils.session_utils import run_replay, run_web_replay
 from utils.network_utils import random_free_port
+from config.network_constants import HOST_CHOICES
 
 
-def render_replay_pygame_tab(log_folders):
+def render_replay_pygame_tab(log_folders: Sequence[str]) -> None:
     st.markdown("### Replay Game (PyGame)")
     if not log_folders:
         st.warning("No experiment logs found.")
@@ -44,7 +49,7 @@ def render_replay_pygame_tab(log_folders):
         run_replay(exp, game_num)
 
 
-def render_replay_web_tab(log_folders):
+def render_replay_web_tab(log_folders: Sequence[str]) -> None:
     st.markdown("### Replay Game (Web)")
     if not log_folders:
         st.warning("No experiment logs found.")
@@ -73,7 +78,7 @@ def render_replay_web_tab(log_folders):
     with col1:
         host = st.selectbox(
             "Host",
-            ["localhost", "0.0.0.0", "127.0.0.1"],
+            HOST_CHOICES,
             index=0,
             key="replay_web_host",
         )

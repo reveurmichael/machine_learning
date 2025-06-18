@@ -137,11 +137,11 @@ def control():
         replay_engine.paused = True
         return jsonify({'status': 'paused'})
     
-    elif command == 'play':
+    if command == 'play':
         replay_engine.paused = False
         return jsonify({'status': 'playing'})
     
-    elif command == 'next_game':
+    if command == 'next_game':
         # Try to load next game - same logic as in replay.py
         replay_engine.game_number += 1
         if not replay_engine.load_game_data(replay_engine.game_number):
@@ -149,7 +149,7 @@ def control():
             return jsonify({'status': 'error', 'message': 'No next game'})
         return jsonify({'status': 'ok'})
     
-    elif command == 'prev_game':
+    if command == 'prev_game':
         # Try to load previous game - same logic as in replay.py
         if replay_engine.game_number > 1:
             replay_engine.game_number -= 1
@@ -157,12 +157,12 @@ def control():
             return jsonify({'status': 'ok'})
         return jsonify({'status': 'error', 'message': 'Already at first game'})
     
-    elif command == 'restart_game':
+    if command == 'restart_game':
         # Restart current game - same logic as in replay.py
         replay_engine.load_game_data(replay_engine.game_number)
         return jsonify({'status': 'ok'})
     
-    elif command == 'speed_up':  # Note: 'speed_up' decreases move pause time
+    if command == 'speed_up':  # Note: 'speed_up' decreases move pause time
         # Decrease move pause time by 0.1s (minimum 0.1s)
         replay_engine.pause_between_moves = max(0.1, replay_engine.pause_between_moves - 0.1)
         # Return both the move pause time and its multiplier
@@ -172,7 +172,7 @@ def control():
             'speed': 1.0 / replay_engine.pause_between_moves
         })
     
-    elif command == 'speed_down':  # Note: 'speed_down' increases move pause time
+    if command == 'speed_down':  # Note: 'speed_down' increases move pause time
         # Increase move pause time by 0.1s
         replay_engine.pause_between_moves += 0.1
         # Return both the move pause time and its multiplier
@@ -194,21 +194,21 @@ def main():
 
     global replay_thread
 
-    # -------------------------------------------
+    # ---------------------------------
     # Step 1 – extract host / port first so we can pass the remaining CLI
     #          arguments to the shared replay parser without causing unknown
     #          option errors.
-    # -------------------------------------------
+    # ---------------------------------
     host_port_parser = argparse.ArgumentParser(add_help=False)
     host_port_parser.add_argument('--host', type=str, default='127.0.0.1', help='Host IP')
     host_port_parser.add_argument('--port', type=int, default=find_free_port(8000), help='Port number')
 
     host_port_args, remaining_argv = host_port_parser.parse_known_args()
 
-    # -------------------------------------------
+    # ---------------------------------
     # Step 2 – delegate the remaining arguments (log-dir, etc.) to the common
     #          replay CLI defined in ``replay.py``.
-    # -------------------------------------------
+    # ---------------------------------
     argv_backup = sys.argv.copy()
     sys.argv = [sys.argv[0]] + remaining_argv
     try:

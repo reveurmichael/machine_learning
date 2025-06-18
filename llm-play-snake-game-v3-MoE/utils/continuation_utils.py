@@ -3,6 +3,15 @@ Utility module for continuation functionality in Snake game.
 Handles reading existing game data and continuing sessions.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import argparse
+# Import GameManager only for type checking to avoid heavy runtime dependency
+if TYPE_CHECKING:
+    from core.game_manager import GameManager
+
 import os
 import sys
 import json
@@ -10,7 +19,11 @@ import traceback
 from colorama import Fore
 from datetime import datetime
 
-def setup_continuation_session(game_manager, log_dir, start_game_number):
+def setup_continuation_session(
+    game_manager: "GameManager",
+    log_dir: str,
+    start_game_number: int,
+) -> None:
     """Set up a game session for continuation.
     
     Args:
@@ -75,6 +88,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     game_manager.something_is_wrong_steps = step_stats.get("something_is_wrong_steps", 0)
     game_manager.valid_steps = step_stats.get("valid_steps", 0)
     game_manager.invalid_reversals = step_stats.get("invalid_reversals", 0)
+    game_manager.no_path_found_steps = step_stats.get("no_path_found_steps", 0)
 
     # Time statistics (guarantee all expected keys exist)
     ts = summary.get("time_statistics", {})
@@ -108,7 +122,7 @@ def setup_continuation_session(game_manager, log_dir, start_game_number):
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1
 
-def handle_continuation_game_state(game_manager):
+def handle_continuation_game_state(game_manager: "GameManager") -> None:
     """Handle game state for continuation mode.
     
     Args:
@@ -127,9 +141,14 @@ def handle_continuation_game_state(game_manager):
     
     print(Fore.GREEN + f"⏱️ Pause between moves: {game_manager.get_pause_between_moves()} seconds")
     print(Fore.GREEN + f"⏱️ Maximum steps per game: {game_manager.args.max_steps}")
-    print(Fore.GREEN + f"📊 Continuing from game {game_manager.game_count + 1}, with {game_manager.total_score} total score so far")
+    print(
+        Fore.GREEN
+        + f"📊 Continuing from game {game_manager.game_count + 1}, with {game_manager.total_score} total score so far"
+    )
 
-def continue_from_directory(game_manager_class, args):
+def continue_from_directory(
+    game_manager_class: "type[GameManager]", args: argparse.Namespace
+) -> "GameManager":
     """Factory method to create a GameManager instance for continuation.
     
     Args:
@@ -184,6 +203,8 @@ def continue_from_directory(game_manager_class, args):
             args.max_consecutive_empty_moves_allowed = original_config.get('max_consecutive_empty_moves_allowed', args.max_consecutive_empty_moves_allowed)
             args.max_consecutive_something_is_wrong_allowed = original_config.get('max_consecutive_something_is_wrong_allowed', args.max_consecutive_something_is_wrong_allowed)
             args.max_consecutive_invalid_reversals_allowed = original_config.get('max_consecutive_invalid_reversals_allowed', args.max_consecutive_invalid_reversals_allowed)
+            args.max_consecutive_no_path_found_allowed = original_config.get('max_consecutive_no_path_found_allowed', args.max_consecutive_no_path_found_allowed)
+            args.sleep_after_empty_step = original_config.get('sleep_after_empty_step', args.sleep_after_empty_step)
             
             # Preserve the original GUI setting
             args.no_gui = original_config.get('no_gui', args.no_gui)
@@ -232,6 +253,8 @@ def continue_from_directory(game_manager_class, args):
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_consecutive_empty_moves_allowed}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_something_is_wrong_allowed}")
             print(Fore.GREEN + f"⏱️ Max invalid reversals: {args.max_consecutive_invalid_reversals_allowed}")
+            print(Fore.GREEN + f"⏱️ Max no-path-found: {args.max_consecutive_no_path_found_allowed}")
+            print(Fore.GREEN + f"⏱️ Sleep after EMPTY: {args.sleep_after_empty_step}s (skipped on NO_PATH_FOUND)")
             print(Fore.GREEN + f"🎮 GUI enabled: {not args.no_gui}")
             print(Fore.GREEN + f"🎲 Max games: {args.max_games}")
     except Exception as e:

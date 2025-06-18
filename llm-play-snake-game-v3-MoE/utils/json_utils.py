@@ -8,8 +8,28 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Final
 from config.game_constants import VALID_MOVES
+
+# --------------------------------
+# Public API export list – makes *from utils.json_utils import * safe.
+# --------------------------------
+
+__all__ = [
+    "preprocess_json_string",
+    "validate_json_format",
+    "extract_json_from_code_block",
+    "extract_valid_json",
+    "extract_json_from_text",
+    "extract_moves_pattern",
+    "extract_moves_from_arrays",
+]
+
+# Pre-compiled regex reused in multiple calls
+
+_CODE_BLOCK_RE: Final[re.Pattern[str]] = re.compile(
+    r"```(?:json|javascript|js)?\s*([\s\S]*?)```", re.DOTALL,
+)
 
 def preprocess_json_string(json_str: str) -> str:
     """Preprocess a JSON string to fix common formatting issues.
@@ -103,7 +123,7 @@ def extract_json_from_code_block(response: str) -> Optional[Dict[str, Any]]:
     """
     # Match JSON code blocks with comprehensive language identifier patterns
     # Covers: ```json, ```javascript, ```js, and plain ```
-    code_block_matches = re.findall(r'```(?:json|javascript|js)?\s*([\s\S]*?)```', response, re.DOTALL)
+    code_block_matches = _CODE_BLOCK_RE.findall(response)
     
     for i, code_block in enumerate(code_block_matches):
         try:
@@ -117,8 +137,7 @@ def extract_json_from_code_block(response: str) -> Optional[Dict[str, Any]]:
             if isinstance(data, dict) and "moves" in data:
                 print(f"✅ Valid JSON found in code block {i+1}")
                 return data
-            else:
-                print(f"❌ Code block {i+1} does not contain a 'moves' key")
+            print(f"❌ Code block {i+1} does not contain a 'moves' key")
         except json.JSONDecodeError as e:
             print(f"❌ JSON decode error in code block {i+1}: {e}")
             continue
@@ -194,7 +213,10 @@ def extract_valid_json(
         else:
             # Only print error message on first attempt
             if attempt_id == 0:
-                print(f"JSON missing 'moves' key or not a dict. Keys: {data.keys() if isinstance(data, dict) else 'Not a dict'}")
+                print(
+                    "JSON missing 'moves' key or not a dict. Keys: "
+                    f"{data.keys() if isinstance(data, dict) else 'Not a dict'}"
+                )
     except json.JSONDecodeError as e:
         # Only print error message on first attempt
         if attempt_id == 0:

@@ -7,7 +7,17 @@ import sys
 import argparse
 import pygame
 from colorama import Fore, init as init_colorama
-from config import PAUSE_BETWEEN_MOVES_SECONDS, MAX_STEPS_ALLOWED, MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED, MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED, MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED, MAX_GAMES_ALLOWED, AVAILABLE_PROVIDERS
+from config import (
+    PAUSE_BETWEEN_MOVES_SECONDS,
+    MAX_STEPS_ALLOWED,
+    MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
+    MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED,
+    MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
+    MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
+    MAX_GAMES_ALLOWED,
+    AVAILABLE_PROVIDERS,
+    SLEEP_AFTER_EMPTY_STEP,
+)
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 from llm.providers import get_available_models
@@ -105,6 +115,18 @@ def parse_arguments():
         help=f"Maximum consecutive invalid reversals allowed before game over (default: {MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED})",
     )
     parser.add_argument(
+        "--max-consecutive-no-path-found-allowed",
+        type=int,
+        default=MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
+        help=f"Maximum consecutive NO_PATH_FOUND results allowed before game over (default: {MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED})",
+    )
+    parser.add_argument(
+        "--sleep-after-empty-step",
+        type=float,
+        default=SLEEP_AFTER_EMPTY_STEP,
+        help=f"If >0, sleep this many minutes after every EMPTY move (skipped when the tick is a NO_PATH_FOUND or SOMETHING_IS_WRONG sentinel). Default: {SLEEP_AFTER_EMPTY_STEP}",
+    )
+    parser.add_argument(
         "--no-gui", "-n", action="store_true", help="Run without GUI (text-only mode)"
     )
     parser.add_argument(
@@ -174,6 +196,8 @@ def parse_arguments():
             "--max-consecutive-empty-moves-allowed",
             "--max-consecutive-something-is-wrong-allowed",
             "--max-consecutive-invalid-reversals-allowed",
+            "--max-consecutive-no-path-found-allowed",
+            "--sleep-after-empty-step",
             "--log-dir",
         ]
 
@@ -214,9 +238,12 @@ def main():
             # in continuation mode, is *not* fully initialised (``args.is_continuation`` is set),
             # leading to an endless idle loop and the process appearing to "not exit".
             return
-        else:
-            # Check environment setup for new session
-            primary_env_ok = check_env_setup(args.provider)
+
+        # --------------------------------
+        # New session (not continuation) – perform environment checks
+        # --------------------------------
+
+        primary_env_ok = check_env_setup(args.provider)
         
         # Check secondary LLM environment if specified
         if args.parser_provider and args.parser_provider.lower() != 'none':

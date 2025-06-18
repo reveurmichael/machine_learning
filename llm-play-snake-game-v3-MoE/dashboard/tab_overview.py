@@ -3,7 +3,7 @@ Dashboard – Overview tab renderer.
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Sequence, Optional
 
 import pandas as pd
 import plotly.express as px
@@ -15,9 +15,16 @@ from utils.file_utils import (
     load_game_data,
 )
 from utils.game_stats_utils import filter_experiments, get_experiment_options
+from llm.providers import get_default_model
 
 
-def render_overview_tab(log_folders):
+def render_overview_tab(log_folders: Sequence[str]) -> None:
+    """Top-level renderer wired into *dashboard.tab_main*.
+
+    It orchestrates the overview table + details panel but returns nothing –
+    all UI effects are side-effects on *streamlit*.
+    """
+
     st.markdown("### Experiment Overview")
     st.markdown("View statistics and detailed information about all experiments.")
     overview_df = display_experiment_overview(log_folders)
@@ -38,7 +45,7 @@ def render_overview_tab(log_folders):
         display_experiment_details(selected_exp) 
 
 
-def display_experiment_overview(log_folders: List[str]):
+def display_experiment_overview(log_folders: Sequence[str]) -> Optional[pd.DataFrame]:
     """Render the experiment overview table & filters, return filtered DataFrame."""
     if not log_folders:
         st.warning("No experiment logs found.")
@@ -55,23 +62,21 @@ def display_experiment_overview(log_folders: List[str]):
         timestamp = summary_data.get("timestamp", "Unknown")
         config = summary_data.get("configuration", {})
 
-        primary_model = (
-            f"{config.get('provider', 'Unknown')}/{config.get('model', 'default')}"
-        )
+        primary_provider = config.get("provider", "Unknown")
+        primary_model_name = config.get("model") or get_default_model(primary_provider)
+        primary_model = f"{primary_provider}/{primary_model_name}"
+
+        # Store provider/model separately for later filtering
+
         secondary_model = "None"
 
-        # Providers / models for filtering
-        primary_provider = config.get("provider", "Unknown")
-        primary_model_name = config.get("model", "default")
         parser_provider = config.get("parser_provider")
         secondary_provider = None
         secondary_model_name = None
         if parser_provider and str(parser_provider).lower() != "none":
-            secondary_model = (
-                f"{parser_provider}/{config.get('parser_model', 'default')}"
-            )
+            secondary_model_name = config.get("parser_model") or get_default_model(parser_provider)
+            secondary_model = f"{parser_provider}/{secondary_model_name}"
             secondary_provider = parser_provider
-            secondary_model_name = config.get("parser_model", "default")
 
         # Game statistics
         game_stats = summary_data.get("game_statistics", {})
@@ -201,7 +206,7 @@ def display_experiment_overview(log_folders: List[str]):
     return filtered_df
 
 
-def display_experiment_details(folder_path: str):
+def display_experiment_details(folder_path: str) -> None:
     """Render charts & table for a single experiment."""
 
     summary_data = load_summary_data(folder_path)

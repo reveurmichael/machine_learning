@@ -118,10 +118,10 @@ treat `INVALID_REVERSAL`.
             self.consecutive_empty_moves_count
         )
 
-        # ------------------------------------------------------------------
+        # --------------------------------
         # Keep the invariant:  len(self.moves)  ==  self.steps
         # Add the sentinel so re-play & statistics know this was an ‘idle’ tick
-        # ------------------------------------------------------------------
+        # --------------------------------
         self.moves.append("EMPTY")
         self.last_move = "EMPTY"
 

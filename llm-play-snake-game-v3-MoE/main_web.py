@@ -101,6 +101,8 @@ def manager_thread_fn(gm: GameManager, args):
                         "max_consecutive_empty_moves_allowed",
                         "max_consecutive_something_is_wrong_allowed",
                         "max_consecutive_invalid_reversals_allowed",
+                        "max_consecutive_no_path_found_allowed",
+                        "sleep_after_empty_step",
                         "no_gui",
                     ):
                         if k in original_cfg:
@@ -191,8 +193,7 @@ def main():
         # Restore original argv regardless of success
         sys.argv = argv_backup
 
-    # Ensure GUI timing code runs (SDL dummy driver prevents a real window)
-    game_args.no_gui = False
+    # Keep user-specified --no-gui flag intact so move-pause becomes 0 in headless batch runs.
 
     # -------------------------------
     # Step 3 – create GameManager (handle continuation vs new session)

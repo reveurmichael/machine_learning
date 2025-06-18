@@ -1,22 +1,21 @@
-No, having “SOMETHING_IS_WRONG” absent from `planned_moves` is by design and does not break any of the accounting / validation logic:
+## Question
 
-1. What the checks use  
-   • Game-level or round-level **executed-moves** arrays (`detailed_history.moves` and `rounds_data.*.moves`) are the source of truth for:
-     – `steps` count in the game root.  
-     – `empty_steps`, `something_is_wrong_steps`, `invalid_reversals`, etc.  
-     – JSON-sanity function `validate_game_summary()` (it compares those executed-moves lists with `steps`).  
-   • `planned_moves` is treated as auxiliary metadata: “what the LLM said it intended to do when it first answered.”  Nothing in the stats logic or validator sums or cross-checks that list.
+Will planned_moves record those NO_PATH_FOUND EMPTY SOMETHING_IS_WRONG sentitals?
 
-2. Why the sentinel should stay out of `planned_moves`  
-   • `planned_moves` reflects the LLM’s original plan, which naturally never contains sentinel strings—the sentinels are injected later by the engine to mark runtime events (empty tick, invalid reversal, explicit error).  
-   • Mixing them into `planned_moves` would corrupt any downstream analysis of LLM quality (e.g., “how often did the LLM plan an immediate reversal?”).
 
-3. Impact on counts / assertions  
-   • All step counts and integrity assertions rely only on executed-moves lists, where the sentinel **is** present.  
-   • Therefore every “+=1” to `steps` has a matching item in `detailed_history.moves`, keeping invariants intact.  
-   • Planned-moves length has no bearing on those invariants, so leaving the sentinel out cannot cause a mismatch.
+## Answer
 
-4. Replay safety  
-   • Replayer ignores `planned_moves` and drives the game from the executed-moves array, where the sentinel is present and handled (we added it to the non-moving set).
 
-So no additional change is required; the data model remains internally consistent while keeping `planned_moves` semantically clean.
+No.  
+The list `game.planned_moves` is strictly meant for “real” moves that the snake could still execute (UP / DOWN / LEFT / RIGHT). Sentinel placeholders are handled elsewhere:
+
+• When a NO_PATH_FOUND, EMPTY or SOMETHING_IS_WRONG condition is detected the game loop calls  
+  `record_no_path_found_move()`, `record_empty_move()` or `record_something_is_wrong_move()` on `GameData`.  
+  Those helpers append the sentinel to the permanent `moves` history (and update the step counters) but never touch `planned_moves`.
+
+• In `llm.parsing_utils.parse_llm_response()` the very first thing we do is  
+  `game_instance.planned_moves = []` – clearing any leftovers before we *refill* the list with the directions extracted from the LLM JSON response. If parsing fails and a SOMETHING_IS_WRONG sentinel is logged, the planned-move buffer therefore remains empty.
+
+• The NO_PATH_FOUND branch in `core/game_loop._handle_no_path_found()` (and the EMPTY branch in `_handle_no_move()`) likewise updates statistics and `current_game_moves` without touching the plan queue.
+
+So the queue the GUI shows under “Planned moves” will never contain sentinel strings; only legal movement directions appear there.

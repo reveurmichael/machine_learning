@@ -1,7 +1,8 @@
-"""
-Dashboard – Continue Mode tabs (PyGame / Web)
+"""Streamlit sub-module: *Continue* tab (PyGame & Web variants).
 
-Launch continuation sessions with extended CLI arguments.
+Widgets here gather user input and spawn `main.py` / `main_web.py` with
+`--continue-with-game-in-dir`.  No heavy computation is performed so the UI
+remains snappy.
 """
 
 from __future__ import annotations
@@ -9,15 +10,22 @@ from __future__ import annotations
 import subprocess
 import streamlit as st
 import json
+from typing import List, Sequence
 
 from config.game_constants import MAX_GAMES_ALLOWED 
 from utils.file_utils import get_folder_display_name, load_summary_data
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
+from config.network_constants import HOST_CHOICES
 
 # Helper for building cmd (reuse from tab_main)
 
-def _append_arg(cmd: list[str], flag: str, value):
+def _append_arg(cmd: List[str], flag: str, value) -> None:
+    """Append *flag* and optionally *value* to *cmd*.
+
+    Mirrors the logic used in `tab_main` so the two tabs stay in sync.
+    """
+
     if value is None:
         return
     if isinstance(value, bool):
@@ -27,7 +35,7 @@ def _append_arg(cmd: list[str], flag: str, value):
     cmd.extend([flag, str(value)])
 
 
-def render_continue_pygame_tab(log_folders):
+def render_continue_pygame_tab(log_folders: Sequence[str]) -> None:
     st.markdown("### Continue Game Session (PyGame)")
     if not log_folders:
         st.warning("No experiment logs found.")
@@ -94,7 +102,7 @@ def render_continue_pygame_tab(log_folders):
         st.success("Continuation started in background.")
 
 
-def render_continue_web_tab(log_folders):
+def render_continue_web_tab(log_folders: Sequence[str]) -> None:
     st.markdown("### Continue Game Session (Web)")
     if not log_folders:
         st.warning("No experiment logs found.")
@@ -151,7 +159,7 @@ def render_continue_web_tab(log_folders):
 
     colh, colp = st.columns(2)
     with colh:
-        host = st.selectbox("Host", ["localhost", "0.0.0.0", "127.0.0.1"], index=0, key="cont_web_host")
+        host = st.selectbox("Host", HOST_CHOICES, index=0, key="cont_web_host")
     with colp:
         default_port = random_free_port()
         port = st.number_input("Port", 1024, 65535, default_port, key="cont_web_port")
@@ -159,6 +167,6 @@ def render_continue_web_tab(log_folders):
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
 
     if st.button("Start Continuation (Web)", key="start_cont_web"):
-        continue_game_web(exp, max_games, host, port, sleep_before)
+        continue_game_web(exp, max_games, host, port, sleep_before, no_gui)
         url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
         st.success(f"Continuation (web) started – open {url} to watch.") 

@@ -1,12 +1,28 @@
-"""
-Utility module for text processing.
-Handles formatting and processing of text responses from LLMs.
+"""Small text-processing helpers used by dashboards and logging.
+
+The functions here intentionally avoid any heavy NLP libraries so they remain
+cheap to import.  They focus on lightweight formatting tasks only.
 """
 
-import re
+from __future__ import annotations
+
 import json
+import re
+from typing import Final
 
-def process_response_for_display(response):
+__all__ = [
+    "process_response_for_display",
+    "format_code_blocks",
+]
+
+# Pre-compiled regex – reused for every call so we don't recompile thousands of
+# times when streaming logs in a long experiment.
+
+_CODE_BLOCK_RE: Final[re.Pattern[str]] = re.compile(
+    r"```(?:json)?(.*?)```", re.DOTALL,
+)
+
+def process_response_for_display(response: str) -> str:
     """Process an LLM response for display in the UI.
     
     Args:
@@ -20,13 +36,13 @@ def process_response_for_display(response):
     response = format_code_blocks(response)
 
     # Limit to a reasonable display length
-    max_display_length = 2000
+    max_display_length: int = 2_000
     if len(response) > max_display_length:
-        response = response[:max_display_length] + "...[truncated]"
+        response = f"{response[:max_display_length]}...[truncated]"
 
     return response
 
-def format_code_blocks(text):
+def format_code_blocks(text: str) -> str:
     """Format code blocks in text for better display.
     
     Args:
@@ -35,11 +51,8 @@ def format_code_blocks(text):
     Returns:
         Text with formatted code blocks
     """
-    # Look for code blocks with triple backticks
-    code_block_pattern = r'```(?:json)?(.*?)```'
-    
-    # Function to process each match
-    def process_code_block(match):
+    # Helper applied to every regex match
+    def _process(match: re.Match[str]) -> str:
         code_content = match.group(1).strip()
         
         # Try to parse as JSON for better formatting
@@ -56,7 +69,5 @@ def format_code_blocks(text):
         # Return original code block if no special formatting applied
         return f"```\n{code_content}\n```"
     
-    # Replace code blocks with formatted versions
-    formatted_text = re.sub(code_block_pattern, process_code_block, text, flags=re.DOTALL)
-    
-    return formatted_text 
+    # Substitute using the pre-compiled regex for performance
+    return _CODE_BLOCK_RE.sub(_process, text)

@@ -7,3 +7,4 @@ from .game_constants import *  # noqa: F401,F403
 from .llm_constants import *  # noqa: F401,F403
 from .prompt_templates import *  # noqa: F401,F403
 from .ui_constants import *  # noqa: F401,F403
+from .network_constants import *  # noqa: F401,F403

@@ -11,12 +11,23 @@ import re
 import json
 from datetime import datetime
 from colorama import Fore
+from typing import Tuple, TYPE_CHECKING
 from utils.file_utils import save_to_file, get_prompt_filename
 from llm.prompt_utils import create_parser_prompt
 from llm.parsing_utils import parse_and_format
+from llm.providers import get_default_model
+from llm.client import LLMClient
 
+if TYPE_CHECKING:
+    from core.game_manager import GameManager
 
-def check_llm_health(llm_client, max_retries=2, retry_delay=2):
+__all__ = [
+    "check_llm_health",
+    "extract_state_for_parser",
+    "get_llm_response",
+]
+
+def check_llm_health(llm_client: LLMClient, max_retries: int = 2, retry_delay: int = 2) -> Tuple[bool, str]:
     """Check if the LLM is accessible and responding by sending a simple test query.
 
     Args:
@@ -74,7 +85,7 @@ def check_llm_health(llm_client, max_retries=2, retry_delay=2):
     )
 
 
-def extract_state_for_parser(game_manager):
+def extract_state_for_parser(game_manager: "GameManager") -> Tuple[str, str, str]:
     """Extract state information for the parser.
     
     Args:
@@ -95,7 +106,7 @@ def extract_state_for_parser(game_manager):
     
     return head_pos, apple_pos, body_cells_str
 
-def get_llm_response(game_manager):
+def get_llm_response(game_manager: "GameManager"):
     """Get a response from the LLM system based on the current game state.
     
     This function handles both single-LLM and dual-LLM configurations:
@@ -129,7 +140,7 @@ def get_llm_response(game_manager):
 
     prompt_metadata = {
         "PRIMARY LLM Provider": game_manager.args.provider,
-        "PRIMARY LLM Model": game_manager.args.model or "default",
+        "PRIMARY LLM Model": game_manager.args.model or get_default_model(game_manager.args.provider),
         "Head Position": parser_input[0],
         "Apple Position": parser_input[1],
         "Body Cells": parser_input[2],
@@ -178,7 +189,7 @@ def get_llm_response(game_manager):
             "PRIMARY LLM Request Time": request_time,
             "PRIMARY LLM Response Time": response_time,
             "PRIMARY LLM Provider": game_manager.args.provider,
-            "PRIMARY LLM Model": game_manager.args.model or "default",
+            "PRIMARY LLM Model": game_manager.args.model or get_default_model(game_manager.args.provider),
             "Head Position": parser_input[0],
             "Apple Position": parser_input[1],
             "Body Cells": parser_input[2],
@@ -204,7 +215,7 @@ def get_llm_response(game_manager):
 
             parser_prompt_metadata = {
                 "SECONDARY LLM Provider": game_manager.args.parser_provider,
-                "SECONDARY LLM Model": game_manager.args.parser_model or "default",
+                "SECONDARY LLM Model": game_manager.args.parser_model or get_default_model(game_manager.args.parser_provider),
                 "Head Position": parser_input[0],
                 "Apple Position": parser_input[1],
                 "Body Cells": parser_input[2],
@@ -254,7 +265,10 @@ def get_llm_response(game_manager):
                     "SECONDARY LLM Request Time": parser_request_time,
                     "SECONDARY LLM Response Time": parser_response_time,
                     "SECONDARY LLM Provider": game_manager.args.parser_provider,
-                    "SECONDARY LLM Model": game_manager.args.parser_model if game_manager.args.parser_provider else None,
+                    "SECONDARY LLM Model": (
+                        game_manager.args.parser_model
+                        or (get_default_model(game_manager.args.parser_provider) if game_manager.args.parser_provider else None)
+                    ),
                     "Head Position": parser_input[0],
                     "Apple Position": parser_input[1],
                     "Body Cells": parser_input[2]
@@ -296,6 +310,39 @@ def get_llm_response(game_manager):
             # Store the primary LLM response for display in the UI
             from utils.text_utils import process_response_for_display
             game_manager.game.processed_response = process_response_for_display(response)
+
+        # ----------------
+        # Detect explicit "NO_PATH_FOUND" reasoning when *no* moves were
+        # produced.  Case-insensitive match, tolerant of extra whitespace.
+        # ----------------
+
+        if parser_output and not parser_output.get("moves"):
+            reason_text = str(parser_output.get("reasoning", "")).upper()
+            if "NO_PATH_FOUND" in reason_text:
+                game_manager.consecutive_no_path_found += 1
+                streak = game_manager.consecutive_no_path_found
+                limit_np = game_manager.args.max_consecutive_no_path_found_allowed
+                print(
+                    Fore.YELLOW +
+                    f"⚠️ NO_PATH_FOUND from LLM. Consecutive: {streak}/{limit_np}"
+                )
+
+                # Mark flag so the game loop logs the sentinel move & handles any
+                # special sleep logic.
+                game_manager.last_no_path_found = True
+
+                # If threshold reached – immediate game over
+                if streak >= limit_np:
+                    print(
+                        Fore.RED +
+                        f"❌ Maximum consecutive NO_PATH_FOUND reached ({limit_np}). Game over."
+                    )
+                    game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED")
+                    return None, False
+            else:
+                # Any response *other* than NO_PATH_FOUND resets the streak & flag
+                game_manager.consecutive_no_path_found = 0
+                game_manager.last_no_path_found = False
 
         # Extract the next move
         next_move = None
@@ -349,9 +396,30 @@ def get_llm_response(game_manager):
         return next_move, True
 
     except Exception as e:
+        # -----------------------------
+        # SOMETHING_IS_WRONG sentinel handling (exception path)
+        # -----------------------------
+        # Any exception that bubbles up to this point means the LLM replied but
+        # we could not parse *any* usable move set – usually malformed / empty
+        # JSON or a truncated answer.  We treat this differently from the EMPTY
+        # sentinel: EMPTY means *successfully parsed* but zero moves; this block
+        # means *parsing failed outright*.  Maintaining a dedicated
+        # consecutive-error counter lets the user decide how tolerant the system
+        # should be towards repeated parsing failures without conflating them
+        # with EMPTY back-off logic.
+        #
+        # Workflow:
+        # 1. Mark skip_empty_this_tick so the game loop doesn't add another
+        #    EMPTY sentinel.
+        # 2. Append explicit SOMETHING_IS_WRONG move to the current move list
+        #    for full traceability in logs & replays.
+        # 3. Increment consecutive_something_is_wrong and optionally end the
+        #    game when it exceeds the CLI limit.
         # Record that there was an error in the LLM response BEFORE ending communication time
-        game_manager.game.game_state.record_something_is_wrong_move()
-        game_manager.something_is_wrong_steps += 1
+        # Prevent duplicate EMPTY record later in game loop
+        game_manager.skip_empty_this_tick = True
+        # Append sentinel move so replay shows the issue explicitly
+        game_manager.current_game_moves.append("SOMETHING_IS_WRONG")
         
         # Ensure round data is synchronized BEFORE ending communication time
         game_manager.game.game_state.round_manager.sync_round_data()
@@ -359,7 +427,10 @@ def get_llm_response(game_manager):
         # End tracking LLM communication time even if there was an error
         game_manager.game.game_state.record_llm_communication_end()
         
-        # Increment consecutive errors but DO NOT increment consecutive empty steps
+        # Increment consecutive errors – and because this tick is *not* an
+        # EMPTY move, reset the empty-move streak so the threshold represents
+        # truly consecutive EMPTY ticks only.
+        game_manager.consecutive_empty_steps = 0
         game_manager.consecutive_something_is_wrong += 1
         print(Fore.RED + f"❌ Error getting response from LLM: {e}")
         print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {game_manager.consecutive_something_is_wrong}/{game_manager.args.max_consecutive_something_is_wrong_allowed}")

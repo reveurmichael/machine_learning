@@ -123,7 +123,11 @@ function updateUI() {
     if (!gameState) return;
     
     // Update game info
-    gameNumber.textContent = gameState.game_number;
+    if (gameState.total_games && gameState.total_games > 0) {
+        gameNumber.textContent = `${gameState.game_number}/${gameState.total_games}`;
+    } else {
+        gameNumber.textContent = gameState.game_number;
+    }
     scoreElement.textContent = gameState.score;
     
     // Update document title

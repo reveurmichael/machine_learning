@@ -1,19 +1,21 @@
+"""Environment-validation helper for provider API keys / Ollama host.
+
+The function is deliberately lightweight so that *main.py* can fail fast before
+importing heavy client libraries.
 """
-Setup utilities for LLM configuration in the Snake game.
-Handles environment validation for LLM providers.
-"""
+
+from __future__ import annotations
 
 import os
 from colorama import Fore
 
-def check_env_setup(provider):
-    """Check if the environment is properly set up for the selected provider.
-    
-    Args:
-        provider: The selected LLM provider
-        
-    Returns:
-        Boolean indicating if the setup is likely to work
+__all__ = ["check_env_setup"]
+
+def check_env_setup(provider: str) -> bool:
+    """Return *True* if the minimal environment variables for *provider* exist.
+
+    We intentionally avoid importing the real client SDKs here – this check
+    only looks for the **presence** of expected variables, not their validity.
     """
     # Skip for ollama as it can work without env variables
     if provider.lower() == 'ollama':
@@ -25,7 +27,8 @@ def check_env_setup(provider):
         return True
         
     # Check for .env file
-    env_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    env_file = os.path.join(project_root, ".env")
     if not os.path.exists(env_file):
         print(Fore.RED + f"❌ No .env file found at {env_file}")
         print(Fore.YELLOW + "Please create a .env file with your API keys. Example:")

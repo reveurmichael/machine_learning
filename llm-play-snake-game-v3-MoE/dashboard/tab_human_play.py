@@ -9,6 +9,7 @@ import streamlit as st
 
 from utils.session_utils import run_human_play, run_human_play_web
 from utils.network_utils import random_free_port
+from config.network_constants import HOST_CHOICES
 
 __all__ = [
     "render_human_pygame_tab",
@@ -31,7 +32,7 @@ def render_human_web_tab() -> None:
     with col1:
         host = st.selectbox(
             "Host",
-            ["localhost", "0.0.0.0", "127.0.0.1"],
+            HOST_CHOICES,
             index=0,
             key="hp_web_host",
         )

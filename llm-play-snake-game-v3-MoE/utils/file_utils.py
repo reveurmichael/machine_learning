@@ -4,11 +4,15 @@ Comprehensive functions for handling game logs, statistics extraction, and
 session management in the Snake game environment.
 """
 
+from __future__ import annotations
+
 import os
 import glob
 import json
+from pathlib import Path
+from typing import Any, Dict, Union, Optional
 
-def extract_game_summary(summary_file):
+def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
     """Extract game summary from a summary file.
     
     Args:
@@ -20,12 +24,12 @@ def extract_game_summary(summary_file):
     summary = {}
     
     try:
-        if not os.path.exists(summary_file):
+        summary_path = Path(summary_file)
+        if not summary_path.exists():
             return summary
             
-        with open(summary_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            
+        data = json.loads(summary_path.read_text(encoding="utf-8"))
+        
         # Extract basic stats
         summary['date'] = data.get('date', 'Unknown')
         summary['game_count'] = data.get('game_count', 0)
@@ -75,7 +79,7 @@ def extract_game_summary(summary_file):
         
     return summary
 
-def get_next_game_number(log_dir):
+def get_next_game_number(log_dir: Union[str, Path]) -> int:
     """Determine the next game number to start from.
     
     Args:
@@ -85,7 +89,7 @@ def get_next_game_number(log_dir):
         The next game number to use
     """
     # Check for existing game files
-    game_files = glob.glob(os.path.join(log_dir, "game_*.json"))
+    game_files = glob.glob(os.path.join(str(log_dir), "game_*.json"))
     
     if not game_files:
         return 1  # Start from game 1 if no games exist
@@ -105,31 +109,34 @@ def get_next_game_number(log_dir):
         
     return max(game_numbers) + 1
 
-def clean_prompt_files(log_dir, start_game):
+def clean_prompt_files(log_dir: Union[str, Path], start_game: int) -> None:
     """Clean prompt and response files for games >= start_game.
     
     Args:
         log_dir: The log directory
         start_game: The starting game number
     """
-    prompts_dir = os.path.join(log_dir, "prompts")
-    responses_dir = os.path.join(log_dir, "responses")
+    prompts_dir = Path(log_dir) / "prompts"
+    responses_dir = Path(log_dir) / "responses"
     
     # Clean prompt files
     if os.path.exists(prompts_dir):
         for file in os.listdir(prompts_dir):
-            if (file.startswith(f"game_{start_game}_") or 
-                any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
-                os.remove(os.path.join(prompts_dir, file))
+            if file.startswith(f"game_{start_game}_"):
+                (prompts_dir / file).unlink(missing_ok=True)
     
     # Clean response files
     if os.path.exists(responses_dir):
         for file in os.listdir(responses_dir):
-            if (file.startswith(f"game_{start_game}_") or 
-                any(file.startswith(f"game_{i}_") for i in range(start_game, 100))):
-                os.remove(os.path.join(responses_dir, file))
+            if file.startswith(f"game_{start_game}_"):
+                (responses_dir / file).unlink(missing_ok=True)
 
-def save_to_file(content, directory, filename, metadata=None):
+def save_to_file(
+    content: str,
+    directory: Union[str, Path],
+    filename: str,
+    metadata: Optional[Dict[str, Any]] = None,
+) -> str:
     """Save content to a file in the specified directory.
     
     Args:
@@ -141,11 +148,10 @@ def save_to_file(content, directory, filename, metadata=None):
     Returns:
         The path to the saved file
     """
-    # Create the directory if it doesn't exist
-    os.makedirs(directory, exist_ok=True)
-    
-    # Create the full path
-    file_path = os.path.join(directory, filename)
+    path_dir = Path(directory)
+    path_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = path_dir / filename
     
     # If metadata is provided, format it for inclusion
     formatted_content = ""
@@ -180,12 +186,11 @@ def save_to_file(content, directory, filename, metadata=None):
     formatted_content += content
     
     # Write the content to the file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(formatted_content)
+    file_path.write_text(formatted_content, encoding="utf-8")
     
-    return file_path
+    return str(file_path)
 
-def get_game_json_filename(game_number):
+def get_game_json_filename(game_number: int) -> str:
     """Get the standardized filename for a game's JSON summary file.
     
     Args:
@@ -196,7 +201,11 @@ def get_game_json_filename(game_number):
     """
     return f"game_{game_number}.json"
 
-def get_prompt_filename(game_number, round_number, file_type="prompt"):
+def get_prompt_filename(
+    game_number: int,
+    round_number: int,
+    file_type: str = "prompt",
+) -> str:
     """Get the standardized filename for a prompt or response file.
     
     Args:
@@ -213,30 +222,21 @@ def get_prompt_filename(game_number, round_number, file_type="prompt"):
         
     return f"game_{game_number}_round_{round_number}_{file_type}.txt"
 
-def join_log_path(log_dir, filename):
-    """Join the log directory with a filename.
-    
-    Args:
-        log_dir: The log directory path
-        filename: The filename to join
-        
-    Returns:
-        String with the full path
-    """
-    return os.path.join(log_dir, filename)
+def join_log_path(log_dir: Union[str, Path], filename: str) -> str:
+    """Return an absolute path inside *log_dir* for *filename*."""
+    return str(Path(log_dir) / filename)
 
 
-def get_folder_display_name(path: str) -> str:
+def get_folder_display_name(path: Union[str, Path]) -> str:
     """Return basename of a log folder (used by dashboard)."""
     return os.path.basename(path)
 
 
-def load_summary_data(folder_path: str):
+def load_summary_data(folder_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
     """Load *summary.json* from *folder_path* and return dict or None."""
-    summary_path = os.path.join(folder_path, "summary.json")
+    summary_path = Path(folder_path) / "summary.json"
     try:
-        with open(summary_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        return json.loads(summary_path.read_text(encoding="utf-8"))
     except Exception:
         return None
 

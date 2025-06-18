@@ -44,7 +44,8 @@ class OllamaProvider(BaseProvider):
         # Default host is set from environment or default to localhost
         self.server = os.environ.get("OLLAMA_HOST", "localhost")
 
-    def get_default_model(self) -> str:
+    @classmethod
+    def get_default_model(cls) -> str:
         """Get the default model for Ollama.
         
         Returns:

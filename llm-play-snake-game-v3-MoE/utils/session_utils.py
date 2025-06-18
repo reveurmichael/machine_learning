@@ -109,6 +109,11 @@ def run_main_web(max_games: int, host: str, port: int):
         if move_pause is not None and float(move_pause) >= 0:
             _append_arg(cmd, "--move-pause", move_pause)
 
+        # Back-off after EMPTY sentinel (minutes)
+        sleep_after_empty = ss.get("main_web_sleep_after_empty")
+        if sleep_after_empty and float(sleep_after_empty) > 0:
+            _append_arg(cmd, "--sleep-after-empty-step", sleep_after_empty)
+
         no_gui = ss.get("main_web_no_gui")
         if no_gui:
             cmd.append("--no-gui")
@@ -126,6 +131,10 @@ def run_main_web(max_games: int, host: str, port: int):
         if max_inv_rev and int(max_inv_rev) > 0:
             _append_arg(cmd, "--max-consecutive-invalid-reversals-allowed", max_inv_rev)
 
+        max_no_path = ss.get("main_web_max_no_path")
+        if max_no_path and int(max_no_path) > 0:
+            _append_arg(cmd, "--max-consecutive-no-path-found-allowed", max_no_path)
+
         # ---------------------------
         subprocess.Popen(cmd)
         st.info(f"Web main session started at http://{host}:{port}.")
@@ -133,7 +142,14 @@ def run_main_web(max_games: int, host: str, port: int):
         st.error(f"Error launching web main session: {exc}")
 
 
-def continue_game_web(log_folder: str, max_games: int, host: str, port: int, sleep_before: float = 0.0):
+def continue_game_web(
+    log_folder: str,
+    max_games: int,
+    host: str,
+    port: int,
+    sleep_before: float = 0.0,
+    no_gui: bool = False,
+):
     try:
         port = ensure_free_port(port)
         cmd = [
@@ -150,6 +166,8 @@ def continue_game_web(log_folder: str, max_games: int, host: str, port: int, sle
         ]
         if sleep_before and float(sleep_before) > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
+        if no_gui:
+            cmd.append("--no-gui")
         subprocess.Popen(cmd)
         st.info(
             f"Continuation (web) started for '{get_folder_display_name(log_folder)}' at http://{host}:{port}."

@@ -6,11 +6,17 @@ statistics reporting, and initialization functions.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, TYPE_CHECKING
 
 import pygame
 import numpy as np
 from colorama import Fore
+
+from config.game_constants import END_REASON_MAP
+
+if TYPE_CHECKING:  # Imports needed only for static analysis / get_type_hints
+    from core.game_logic import GameLogic
+    from core.game_manager import GameManager
 
 def _safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
     """Accumulate *delta* onto ``target[key]`` when *delta* is truthy."""
@@ -85,12 +91,13 @@ def check_max_steps(game, max_steps: int) -> bool:
         Boolean indicating if max steps has been reached
     """
     if game.steps >= max_steps:
-        print(Fore.RED + f"❌ Game over! Maximum steps ({max_steps}) reached.")
-        game.last_collision_type = 'max_steps'
+        game.last_collision_type = "MAX_STEPS_REACHED"
+        human_msg = END_REASON_MAP.get("MAX_STEPS_REACHED", "Max Steps Reached")
+        print(Fore.RED + f"❌ Game over: {human_msg} ({max_steps}).")
         return True
     return False
 
-def process_game_over(game, game_state_info: Dict[str, Any]):
+def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     """Process game over state.
     
     Handles the game over state including:
@@ -103,7 +110,7 @@ def process_game_over(game, game_state_info: Dict[str, Any]):
         game_state_info: Dictionary with game state info
         
     Returns:
-        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps)
+        Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps, no_path_found_steps)
     """
     from utils.game_stats_utils import save_session_stats
     
@@ -124,16 +131,16 @@ def process_game_over(game, game_state_info: Dict[str, Any]):
     invalid_reversals = game_state_info.get("invalid_reversals", 0)
     empty_steps = game_state_info.get("empty_steps", 0)
     something_is_wrong_steps = game_state_info.get("something_is_wrong_steps", 0)
+    no_path_found_steps = game_state_info.get("no_path_found_steps", 0)
     
     # Print game over message with reason
     if hasattr(game, "last_collision_type"):
         collision_type = game.last_collision_type
-        if collision_type == "wall":
-            print(Fore.RED + "❌ Game over: Snake hit the wall!")
-        elif collision_type == "self":
-            print(Fore.RED + "❌ Game over: Snake hit itself!")
-        elif collision_type == "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED":
-            print(Fore.RED + f"❌ Game over: Too many empty moves ({args.max_consecutive_empty_moves_allowed})!")
+
+        # Fallback-safe lookup: default to the raw key when not mapped.
+        reason_readable = END_REASON_MAP.get(collision_type, collision_type)
+
+        print(Fore.RED + f"❌ Game over: {reason_readable}!")
     
     # Update counters for next game
     game_count += 1
@@ -148,9 +155,12 @@ def process_game_over(game, game_state_info: Dict[str, Any]):
     # This ensures we're keeping track of invalid_reversals across all games
     invalid_reversals += game.game_state.invalid_reversals
     
-    # Update empty_steps and something_is_wrong_steps counters - add current game's to the running total
+    # Update empty_steps, something_is_wrong_steps and no_path_found_steps counters - add current game's to the running total
     empty_steps += game.game_state.empty_steps
     something_is_wrong_steps += game.game_state.something_is_wrong_steps
+    # no_path_found is tracked in StepStats
+    if hasattr(game.game_state.stats.step_stats, "no_path_found"):
+        no_path_found_steps += game.game_state.stats.step_stats.no_path_found
     
     # Print game stats using the EXECUTED moves that are stored on the GameData
     # instance to avoid counting duplicate/un-executed planned moves.
@@ -273,6 +283,7 @@ def process_game_over(game, game_state_info: Dict[str, Any]):
         game_scores=game_scores,
         empty_steps=empty_steps,
         something_is_wrong_steps=something_is_wrong_steps,
+        no_path_found_steps=no_path_found_steps,
         valid_steps=valid_steps,
         invalid_reversals=invalid_reversals,
         time_stats=time_stats,
@@ -281,7 +292,20 @@ def process_game_over(game, game_state_info: Dict[str, Any]):
         total_rounds=total_rounds,
     )
     
-    return game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps
+    return (
+        game_count,
+        total_score,
+        total_steps,
+        game_scores,
+        round_count,
+        time_stats,
+        token_stats,
+        valid_steps,
+        invalid_reversals,
+        empty_steps,
+        something_is_wrong_steps,
+        no_path_found_steps,
+    )
 
 def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """Report final statistics for the experiment.
@@ -294,9 +318,10 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
         - total_steps: Total number of steps taken
         - game_scores: List of scores for each game
         - empty_steps: Total empty steps across all games
-        - something_is_wrong_steps: Total something_is_wrong steps across all games
+        - something_is_wrong_steps: Total SOMETHING_IS_WRONG steps across all games
         - valid_steps: Total valid steps across all games (optional)
         - invalid_reversals: Total invalid reversals across all games (optional)
+        - no_path_found_steps: Total NO_PATH_FOUND steps across all games (optional)
     """
     from utils.game_stats_utils import save_session_stats
     import os
@@ -311,6 +336,7 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     something_is_wrong_steps = stats_info["something_is_wrong_steps"]
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
+    no_path_found_steps = stats_info.get("no_path_found_steps", 0)
     
     # Get time and token statistics from the game instance if available
     time_stats = {}
@@ -354,6 +380,7 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
         token_stats=token_stats,
         round_counts=round_counts,
         total_rounds=total_rounds,
+        no_path_found_steps=no_path_found_steps,
     )
     
     # Print final statistics
@@ -371,8 +398,9 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     print(Fore.GREEN + f"📈 Apples per Step: {apples_per_step:.4f}")
     
     # Print step statistics
-    print(Fore.GREEN + f"📈 Empty Steps: {empty_steps}")
+    print(Fore.GREEN + f"📈 Empty Moves: {empty_steps}")
     print(Fore.GREEN + f"📈 SOMETHING_IS_WRONG steps: {something_is_wrong_steps}")
+    print(Fore.GREEN + f"📈 NO_PATH_FOUND steps: {no_path_found_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
     
@@ -380,7 +408,7 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     if game_count >= stats_info.get("max_games", float('inf')):
         print(Fore.GREEN + f"🏁 Reached maximum games ({game_count}). Session complete.")
 
-def initialize_game_manager(game_manager) -> None:
+def initialize_game_manager(game_manager: "GameManager") -> None:
     """Initialize the game manager with necessary setup.
     
     Sets up the LLM clients (primary and optional secondary),
@@ -390,18 +418,13 @@ def initialize_game_manager(game_manager) -> None:
         game_manager: The GameManager instance
     """
     from utils.game_stats_utils import save_experiment_info_json
-    from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state
-    import time
+    from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state, enforce_launch_sleep
 
     # Set up the LLM clients (primary and optional secondary)
     setup_llm_clients(game_manager)
 
     # Handle sleep before launching if specified
-    if game_manager.args.sleep_before_launching > 0:
-        minutes = game_manager.args.sleep_before_launching
-        print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{'s' if minutes > 1 else ''} before launching...")
-        time.sleep(minutes * 60)
-        print(Fore.GREEN + "⏰ Waking up and starting the program...")
+    enforce_launch_sleep(game_manager.args)
 
     # Set up session directories (handles both provided and auto-generated cases)
     setup_log_directories(game_manager)
@@ -413,7 +436,7 @@ def initialize_game_manager(game_manager) -> None:
     # Initialize game state
     initialize_game_state(game_manager)
 
-def process_events(game_manager) -> None:
+def process_events(game_manager: "GameManager") -> None:
     """Process pygame events.
     
     Args:

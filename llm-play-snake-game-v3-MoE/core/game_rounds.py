@@ -18,9 +18,9 @@ class RoundManager:
         self.rounds_data: Dict[int, dict] = {}
         self.round_buffer: RoundBuffer = RoundBuffer(number=1)
 
-    # ------------------------------------------------------------------
+    # --------------------------------
     # Public API
-    # ------------------------------------------------------------------
+    # --------------------------------
 
     def start_new_round(self, apple_position: Optional[Sequence[int] | NDArray]) -> None:
         """Flush the current buffer, bump the counter and initialise a
@@ -94,9 +94,9 @@ class RoundManager:
         sorted_keys = sorted(self.rounds_data.keys())
         return {key: self.rounds_data[key] for key in sorted_keys}
 
-    # ------------------------------------------------------------------
+    # --------------------------------
     # Internals
-    # ------------------------------------------------------------------
+    # --------------------------------
 
     @staticmethod
     def _to_list_or_none(pos: Optional[Sequence[int] | NDArray]) -> Optional[list[int]]:

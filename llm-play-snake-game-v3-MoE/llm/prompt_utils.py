@@ -1,8 +1,14 @@
 """
-Prompt generation system for language models.
-Functions for creating and formatting prompts for primary and secondary LLMs 
-in the Snake game architecture.
+Prompt generation helpers for the LLM-driven Snake game.
+
+This module constructs the *primary* LLM prompt that contains the current
+board state and a *secondary* parser prompt that instructs a second model to
+extract structured move information.
 """
+
+from __future__ import annotations
+
+from typing import List, Sequence
 
 from config.prompt_templates import (
     PROMPT_TEMPLATE_TEXT_PRIMARY_LLM,
@@ -10,7 +16,12 @@ from config.prompt_templates import (
 )
 from utils.moves_utils import calculate_move_differences
 
-def prepare_snake_prompt(head_position, body_positions, apple_position, current_direction):
+def prepare_snake_prompt(
+    head_position: Sequence[int],
+    body_positions: List[Sequence[int]],
+    apple_position: Sequence[int],
+    current_direction: str | None,
+) -> str:
     """Prepare a prompt for the primary LLM to determine the next snake move.
     
     Constructs a structured prompt with game state information including
@@ -52,7 +63,12 @@ def prepare_snake_prompt(head_position, body_positions, apple_position, current_
     
     return prompt
 
-def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells=None):
+def create_parser_prompt(
+    llm_response: str,
+    head_pos: str | None = None,
+    apple_pos: str | None = None,
+    body_cells: str | None = None,
+) -> str:
     """Create a prompt for the secondary LLM to parse the output of the primary LLM.
     
     Takes the raw response from the primary LLM and creates a prompt for the 
@@ -80,7 +96,7 @@ def create_parser_prompt(llm_response, head_pos=None, apple_pos=None, body_cells
 
     return parser_prompt
 
-def format_body_cells_str(body_positions):
+def format_body_cells_str(body_positions: List[Sequence[int]]) -> str:
     """Format the snake body cells as a string representation.
 
     Args:

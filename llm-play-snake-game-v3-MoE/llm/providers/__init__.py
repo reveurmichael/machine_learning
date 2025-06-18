@@ -14,9 +14,9 @@ from .mistral_provider import MistralProvider
 from .hunyuan_provider import HunyuanProvider
 from .deepseek_provider import DeepseekProvider
 
-# ------------------------------------------------------------
+# --------------------------
 # Provider registry – SINGLE SOURCE OF TRUTH
-# ------------------------------------------------------------
+# --------------------------
 
 _PROVIDER_REGISTRY = {
     "ollama": OllamaProvider,
@@ -26,9 +26,9 @@ _PROVIDER_REGISTRY = {
 }
 
 
-# ------------------------------------------------------------
+# --------------------------
 # Helper API
-# ------------------------------------------------------------
+# --------------------------
 
 
 def get_provider_cls(name: str) -> type[BaseProvider]:
@@ -60,6 +60,32 @@ def get_available_models(name: str) -> list[str]:
     return cls.get_available_models()
 
 
+# --------------------------
+# Convenience: obtain the provider's default model
+# --------------------------
+
+
+def get_default_model(name: str) -> str:
+    """Return the provider's *canonical* default model.
+
+    Falls back to the opaque string "default" when the provider implementation
+    does not supply an explicit default (should not happen in practice).
+    """
+
+    try:
+        provider_cls = get_provider_cls(name)
+        # Some providers implement get_default_model as an *instance* method,
+        # others may have it as @classmethod.  We therefore accept either
+        # style by first trying the class itself, then an instance.
+
+        if hasattr(provider_cls, "get_default_model"):
+            return provider_cls.get_default_model()  # type: ignore[misc]
+    except Exception:
+        pass  # Fall-through to generic default
+
+    return "default"
+
+
 __all__ = [
     "BaseProvider",
     "OllamaProvider",
@@ -71,4 +97,5 @@ __all__ = [
     "get_provider_cls",
     "list_providers",
     "get_available_models",
+    "get_default_model",
 ] 

@@ -8,10 +8,27 @@ PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves
 
 MAX_GAMES_ALLOWED = 2
 MAX_STEPS_ALLOWED = 400
-MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 5
-MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 5
+MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 3
+MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 3
 MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 10
+MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # consecutive NO_PATH_FOUND responses before game over
 
+# Optional pause after *any* EMPTY tick (irrespective of reason).  Separate
+# control previously tied to NO_PATH_FOUND.
+SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
+
+
+# --------------------------------
+# Sentinel move names recorded in game logs.  Keep this single source of truth
+# so replay, analytics, and any future tooling can reference the same list.
+# --------------------------------
+
+SENTINEL_MOVES = (
+    "INVALID_REVERSAL",  # blocked reversal attempt
+    "EMPTY",             # LLM produced no move
+    "SOMETHING_IS_WRONG",  # parsing / LLM error
+    "NO_PATH_FOUND",     # LLM explicitly stated no safe path
+)
 
 VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
 
@@ -36,4 +53,5 @@ END_REASON_MAP = {
     "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED": "Max Consecutive Empty Moves Reached",
     "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED": "Max Consecutive Something Is Wrong Reached",
     "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED": "Max Consecutive Invalid Reversals Reached",
+    "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED": "Max Consecutive No Path Found Reached",
 }

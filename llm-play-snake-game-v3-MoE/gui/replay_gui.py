@@ -1,18 +1,19 @@
-"""
-Replay GUI components for the Snake game.
-Provides specialized GUI functionality for replay mode.
-"""
+"""PyGame GUI for the *replay* viewer of recorded Snake games."""
 
-import pygame
-from gui.base import BaseGUI
-from config.ui_constants import COLORS
-from config.game_constants import END_REASON_MAP
+from __future__ import annotations
+
+from typing import Any, Mapping, Sequence
+
 import numpy as np
+import pygame
+
+from config.ui_constants import COLORS
+from gui.base_gui import BaseGUI
 
 class ReplayGUI(BaseGUI):
-    """GUI class for replay display."""
+    """PyGame-based overlay used by the offline *replay* mode."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the replay GUI. """
         super().__init__()
         
@@ -30,7 +31,7 @@ class ReplayGUI(BaseGUI):
         # Initialize display with custom caption
         self.init_display("Snake Game Replay")
 
-    def draw(self, replay_data):
+    def draw(self, replay_data: Mapping[str, Any]) -> None:
         """Draw the replay view.
         
         Args:
@@ -113,7 +114,7 @@ class ReplayGUI(BaseGUI):
         # Update display
         pygame.display.flip()
 
-    def draw_snake_for_replay(self, snake_positions):
+    def draw_snake_for_replay(self, snake_positions: Sequence[Sequence[int]]) -> None:
         """Draw the snake for replay mode, ensuring the head is correctly identified.
         
         Args:
@@ -142,7 +143,7 @@ class ReplayGUI(BaseGUI):
             else:
                 pygame.draw.rect(self.screen, COLORS['SNAKE_BODY'], rect)
 
-    def set_paused(self, paused):
+    def set_paused(self, paused: bool) -> None:
         """Set the paused state of the replay.
         
         Args:
@@ -150,9 +151,21 @@ class ReplayGUI(BaseGUI):
         """
         self.paused = paused
 
-    def draw_replay_info(self, game_number, score, steps, move_index, total_moves, current_direction,
-                        game_end_reason=None, primary_llm=None, secondary_llm=None, game_timestamp=None,
-                        paused=False, llm_response=None):
+    def draw_replay_info(
+        self,
+        game_number: int,
+        score: int,
+        steps: int,
+        move_index: int,
+        total_moves: int,
+        current_direction: str,
+        game_end_reason: str | None = None,
+        primary_llm: str | None = None,
+        secondary_llm: str | None = None,
+        game_timestamp: str | None = None,
+        paused: bool = False,
+        llm_response: str | None = None,
+    ) -> None:
         """Draw replay information panel.
         
         Args:
@@ -204,7 +217,7 @@ class ReplayGUI(BaseGUI):
 
         # Add game end reason if available
         if game_end_reason:
-            end_reason_text = END_REASON_MAP.get(game_end_reason, game_end_reason)
+            end_reason_text = game_end_reason
             reason_text = font.render(f"- End Reason: {end_reason_text}", True, COLORS['BLACK'])
             self.screen.blit(reason_text, (self.height + 30, y_offset))
             y_offset += 30

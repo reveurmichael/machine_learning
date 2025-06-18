@@ -21,7 +21,8 @@ class DeepseekProvider(BaseProvider):
         "deepseek-reasoner",
     ])
     
-    def get_default_model(self) -> str:
+    @classmethod
+    def get_default_model(cls) -> str:
         """Get the default model for Deepseek.
         
         Returns:

@@ -21,7 +21,8 @@ class MistralProvider(BaseProvider):
         "mistral-large-latest",
     ])
     
-    def get_default_model(self) -> str:
+    @classmethod
+    def get_default_model(cls) -> str:
         """Get the default model for Mistral.
         
         Returns:

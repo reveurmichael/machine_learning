@@ -56,6 +56,7 @@ class GameManager:
         self.consecutive_something_is_wrong = 0
         # Track consecutive invalid reversal attempts that are blocked
         self.consecutive_invalid_reversals = 0
+        self.consecutive_no_path_found = 0
         self.game_scores = []
         # ---------- Round tracking ----------
         self.round_counts: List[int] = []  # list of rounds per completed game
@@ -94,6 +95,15 @@ class GameManager:
         
         # GUI settings
         self.use_gui = not args.no_gui
+        
+        # Whether the last LLM reply resulted in NO_PATH_FOUND
+        self.last_no_path_found = False
+        # Guard to avoid double-recording EMPTY after an exception already
+        # appended a sentinel in communication_utils.
+        self.skip_empty_this_tick = False
+        
+        # Tracks total NO_PATH_FOUND sentinel occurrences across games
+        self.no_path_found_steps = 0
         
     def create_llm_client(self, provider: str, model: str | None = None) -> LLMClient:
         """Create an LLM client with the specified provider and model.
@@ -177,6 +187,8 @@ class GameManager:
             "token_stats": self.token_stats,
             "round_counts": self.round_counts,
             "total_rounds": self.total_rounds,
+            "max_games": self.args.max_games,
+            "no_path_found_steps": self.no_path_found_steps,
         }
         
         # Report statistics to console and save to files
@@ -210,10 +222,10 @@ class GameManager:
         if self.awaiting_plan:
             return
             
-        # --------------------------------------------------
+        # ----------------
         # Delegate all round bookkeeping to RoundManager so the logic –
         # including buffer flushes and apple seeding – lives in one place.
-        # --------------------------------------------------
+        # ----------------
         if not self.game or not hasattr(self.game, "game_state"):
             return
 
@@ -242,12 +254,18 @@ class GameManager:
         print(Fore.GREEN + f"🔄 Continuing experiment from directory: {log_dir}")
         print(Fore.GREEN + f"🔄 Starting from game number: {start_game_number}")
         
-        # Set up continuation session
+        # Set up continuation session (prepares log dirs & stats)
         setup_continuation_session(self, log_dir, start_game_number)
         
-        # Create LLM clients using original configuration (needed before game loop)
-        from utils.initialization_utils import setup_llm_clients
-        setup_llm_clients(self)
+        # Create LLM clients using original configuration (needed before game loop).
+        # The helper performs a health-check, so we **sleep only after** it
+        # succeeds to avoid wasting time when credentials are wrong.
+        from utils.initialization_utils import setup_llm_clients, enforce_launch_sleep
+
+        setup_llm_clients(self)  # includes health check
+
+        # Start-delay – shared helper keeps behaviour in sync
+        enforce_launch_sleep(self.args)
         
         # Handle game state for continuation (sets up board, counters, etc.)
         handle_continuation_game_state(self)
@@ -296,12 +314,12 @@ class GameManager:
             # Report final statistics
             self.report_final_statistics() 
 
-    # -----------------------------------------------
+    # -------------------------------
     # Public helper: marks the current round as finished and
     # bumps the counter.  Use this *instead of* calling
     # increment_round() from the game loop so that all
     # bookkeeping stays inside GameManager.
-    # -----------------------------------------------
+    # -------------------------------
     def finish_round(self, reason: str = "round completed") -> None:
         """Flush buffered round-data and advance to the next round.
 
@@ -313,9 +331,9 @@ class GameManager:
         """
         self.increment_round(reason) 
 
-# ------------------------------------------------------------------
+# --------------------------------
 # Utility factories for auto-initialised stats dictionaries
-# ------------------------------------------------------------------
+# --------------------------------
 
 
 def _make_time_stats() -> defaultdict[str, int]:

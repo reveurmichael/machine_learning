@@ -1,14 +1,28 @@
 """
 Initialization utilities for the Snake game.
-Handles initial setup, game configuration, and data loading.
+Centralised helpers for directory setup, LLM client configuration and initial
+pygame/game-state preparation.
 """
 
-import os
-from colorama import Fore
-from llm.communication_utils import check_llm_health
-import sys
+from __future__ import annotations
 
-def setup_log_directories(game_manager):
+import os
+import sys
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+from colorama import Fore
+
+from llm.communication_utils import check_llm_health
+
+# ----------------------------------
+# Typing-only imports – avoid heavy dependencies at runtime
+# ----------------------------------
+
+if TYPE_CHECKING:
+    from core.game_manager import GameManager
+
+def setup_log_directories(game_manager: "GameManager") -> None:
     """Set up log directories for storing game data.
     
     Args:
@@ -19,7 +33,6 @@ def setup_log_directories(game_manager):
         game_manager.log_dir = game_manager.args.log_dir
     else:
         # Create timestamped log directory with model name
-        from datetime import datetime
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Get model name for directory
@@ -44,7 +57,7 @@ def setup_log_directories(game_manager):
     
     print(Fore.GREEN + f"📁 Session directory created: {game_manager.log_dir}")
 
-def setup_llm_clients(game_manager):
+def setup_llm_clients(game_manager: "GameManager") -> None:
     """Set up the LLM clients for the game.
     
     Args:
@@ -91,7 +104,7 @@ def setup_llm_clients(game_manager):
         game_manager.args.parser_model = None
         print(Fore.GREEN + "🤖 Using single LLM mode (no secondary parser LLM)")
 
-def initialize_game_state(game_manager):
+def initialize_game_state(game_manager: "GameManager") -> None:
     """Initialize the game state.
     
     Args:
@@ -106,4 +119,26 @@ def initialize_game_state(game_manager):
     
     # Set up the game
     game_manager.setup_game()
+    
+# ---------------------------------------------------------------------------
+# Start-delay helper – shared by new and continuation sessions
+# ---------------------------------------------------------------------------
+
+def enforce_launch_sleep(args) -> None:  # type: ignore[valid-type]
+    """Apply the ``--sleep-before-launching`` delay (in minutes) if set.
+
+    This helper is reused by fresh *and* continuation sessions so the behaviour
+    resides in a single place.  The delay is inserted **only after** the LLM
+    health-check passes to avoid wasting time when credentials or network
+    connectivity are wrong.
+    """
+
+    minutes: float = getattr(args, "sleep_before_launching", 0)
+    if minutes and minutes > 0:
+        from time import sleep
+
+        plural = "s" if minutes != 1 else ""
+        print(Fore.YELLOW + f"💤 Sleeping for {minutes} minute{plural} before launching…")
+        sleep(minutes * 60)
+        print(Fore.GREEN + "⏰ Waking up and starting the program…")
     

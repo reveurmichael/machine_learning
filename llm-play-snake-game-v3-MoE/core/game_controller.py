@@ -3,7 +3,9 @@ Game controller for the Snake game.
 Provides core game logic that can run with or without a GUI.
 """
 
-from typing import List, Tuple
+from __future__ import annotations
+
+from typing import List, Tuple, TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
@@ -13,10 +15,17 @@ from core.game_data import GameData
 from utils.game_manager_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
 
+# ----------------------------------
+# Typing helpers – avoid heavy GUI imports at runtime
+# ----------------------------------
+
+if TYPE_CHECKING:
+    from gui.base_gui import BaseGUI
+
 class GameController:
     """Base class for the Snake game controller."""
 
-    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True):
+    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
         """Initialize the game controller.
         
         Args:
@@ -64,7 +73,7 @@ class GameController:
         # Sync initial snake body into GameData so snake_length starts correct
         self.game_state.snake_positions = self.snake_positions.tolist()
 
-    def set_gui(self, gui_instance) -> None:
+    def set_gui(self, gui_instance: "BaseGUI") -> None:
         """Attach a GUI implementation (pygame, web-proxy, etc.).
 
         The controller itself remains *UI-agnostic* – all drawing is
@@ -295,7 +304,7 @@ class GameController:
 
         if wall_collision:
             print(f"Game over! Snake hit wall moving {direction_key}")
-            self.last_collision_type = 'wall'
+            self.last_collision_type = 'WALL'
 
             # Record the fatal move so it is visible in logs, stats and replay
             # We treat it as a normal (non–apple-eating) step that immediately
@@ -309,7 +318,7 @@ class GameController:
 
         if body_collision:
             print(f"Game over! Snake hit itself moving {direction_key}")
-            self.last_collision_type = 'self'
+            self.last_collision_type = 'SELF'
 
             # Record the fatal move for visibility and analytics
             self.game_state.record_move(direction_key, apple_eaten=False)

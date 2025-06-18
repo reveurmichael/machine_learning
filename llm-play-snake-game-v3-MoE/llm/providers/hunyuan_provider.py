@@ -21,7 +21,8 @@ class HunyuanProvider(BaseProvider):
         "hunyuan-t1-latest",
     ])
     
-    def get_default_model(self) -> str:
+    @classmethod
+    def get_default_model(cls) -> str:
         """Get the default model for Hunyuan.
         
         Returns:

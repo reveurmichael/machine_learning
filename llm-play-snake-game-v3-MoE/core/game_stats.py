@@ -10,6 +10,7 @@ __all__ = [
     "TokenStats",
     "RoundData",
     "GameStatistics",
+    "StepStats",
 ]
 
 
@@ -21,16 +22,16 @@ class TimeStats:
     llm_communication_time: float = 0.0
     end_time: float | None = None
 
-    # -------------------------------------------
+    # ---------------------------------
     # Mutation helpers
-    # -------------------------------------------
+    # ---------------------------------
     def add_llm_comm(self, delta: float) -> None:
         """Accumulate LLM communication seconds."""
         self.llm_communication_time += delta
 
-    # -------------------------------------------
+    # ---------------------------------
     # JSON-ready view
-    # -------------------------------------------
+    # ---------------------------------
     def asdict(self) -> dict:
         end = self.end_time or time.time()
         return {
@@ -40,9 +41,9 @@ class TimeStats:
             "llm_communication_time": self.llm_communication_time,
         }
 
-    # -------------------------------------------
+    # ---------------------------------
     # Simple setter used by GameData.record_game_end
-    # -------------------------------------------
+    # ---------------------------------
     def record_end_time(self) -> None:
         self.end_time = time.time()
 
@@ -103,6 +104,7 @@ class StepStats:
     empty: int = 0
     something_wrong: int = 0
     invalid_reversals: int = 0
+    no_path_found: int = 0
 
     def asdict(self) -> dict:  # keep JSON-friendly structure
         return {
@@ -110,6 +112,7 @@ class StepStats:
             "empty_steps": self.empty,
             "something_is_wrong_steps": self.something_wrong,
             "invalid_reversals": self.invalid_reversals,
+            "no_path_found_steps": self.no_path_found,
         }
 
 

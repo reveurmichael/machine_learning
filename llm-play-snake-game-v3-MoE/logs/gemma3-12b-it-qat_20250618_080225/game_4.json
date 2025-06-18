@@ -1,0 +1,96 @@
+{
+    "score": 0,
+    "steps": 5,
+    "snake_length": 1,
+    "game_over": true,
+    "game_end_reason": "WALL",
+    "round_count": 1,
+    "llm_info": {
+        "primary_provider": "ollama",
+        "primary_model": "gemma3:12b-it-qat",
+        "parser_provider": null,
+        "parser_model": null
+    },
+    "time_stats": {
+        "start_time": "2025-06-18 08:21:12",
+        "end_time": "2025-06-18 08:22:06",
+        "total_duration_seconds": 53.96697735786438,
+        "llm_communication_time": 53.962890500202775
+    },
+    "prompt_response_stats": {
+        "primary_response_times": [
+            53.95396590232849
+        ],
+        "secondary_response_times": [],
+        "avg_primary_response_time": 53.95396590232849,
+        "avg_secondary_response_time": 0.0
+    },
+    "token_stats": {
+        "primary_total_tokens": 2247,
+        "primary_avg_total_tokens": 2247.0,
+        "primary_total_prompt_tokens": 2167,
+        "primary_avg_prompt_tokens": 2167.0,
+        "primary_total_completion_tokens": 80,
+        "primary_avg_completion_tokens": 80.0,
+        "secondary_total_tokens": 0,
+        "secondary_avg_total_tokens": 0,
+        "secondary_total_prompt_tokens": 0,
+        "secondary_avg_prompt_tokens": 0,
+        "secondary_total_completion_tokens": 0,
+        "secondary_avg_completion_tokens": 0
+    },
+    "step_stats": {
+        "valid_steps": 5,
+        "empty_steps": 0,
+        "something_is_wrong_steps": 0,
+        "invalid_reversals": 0
+    },
+    "metadata": {
+        "timestamp": "2025-06-18 08:21:12",
+        "game_number": 4,
+        "round_count": 1
+    },
+    "detailed_history": {
+        "apple_positions": [
+            {
+                "x": 0,
+                "y": 9
+            }
+        ],
+        "moves": [
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP"
+        ],
+        "rounds_data": {
+            "1": {
+                "round": 1,
+                "apple_position": [
+                    0,
+                    9
+                ],
+                "planned_moves": [
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            }
+        }
+    }
+}

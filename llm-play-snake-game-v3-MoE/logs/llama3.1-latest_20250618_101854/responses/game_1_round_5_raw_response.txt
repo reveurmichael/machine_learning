@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 10:20:06
+PRIMARY LLM Response Time: 2025-06-18 10:20:10
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: llama3.1:latest
+Head Position: (8, 5)
+Apple Position: (6, 9)
+Body Cells: []
+Timestamp: 2025-06-18 10:20:10
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["RIGHT", "UP", "UP", "LEFT", "UP"],
+"reasoning": "The snake must move right to clear space for turning up. Then, it turns up and moves two cells up while ensuring a safe distance from body segments."
+}

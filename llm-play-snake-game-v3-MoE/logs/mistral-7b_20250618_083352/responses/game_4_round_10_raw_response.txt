@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 08:54:34
+PRIMARY LLM Response Time: 2025-06-18 08:55:09
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: mistral:7b
+Head Position: (7, 4)
+Apple Position: (3, 2)
+Body Cells: [(8, 4), (9, 4)]
+Timestamp: 2025-06-18 08:55:09
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ {
+     "moves": ["LEFT", "UP", "UP", "UP"],
+     "reasoning": "The shortest safe path from (7,4) to (3,2) involves moving left once to reach an unoccupied cell and then up four times while avoiding the body cells. The snake will pass the apple without collision."
+   }

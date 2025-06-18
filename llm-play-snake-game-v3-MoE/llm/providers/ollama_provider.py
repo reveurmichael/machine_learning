@@ -33,6 +33,7 @@ class OllamaProvider(BaseProvider):
             "gemma3:27b",
             "gemma3:4b-it-qat",
             "llama3.1:latest",
+            "magistral:24b",
             "mistral:7b",
             "qwen3:8b"
         ]

@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 08:34:43
+PRIMARY LLM Response Time: 2025-06-18 08:35:15
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: devstral:24b
+Head Position: (3, 3)
+Apple Position: (3, 4)
+Body Cells: []
+Timestamp: 2025-06-18 08:35:15
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["RIGHT"],
+  "reasoning": "The apple is directly to the right of the head at (3,4). Since we are currently moving LEFT, we must continue with a safe move. The RIGHT direction is safe as it doesn't reverse our current direction and there's no collision."
+}

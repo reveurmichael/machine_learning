@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 08:59:10
+PRIMARY LLM Response Time: 2025-06-18 08:59:36
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: devstral:24b
+Head Position: (3, 2)
+Apple Position: (3, 1)
+Body Cells: [(3, 3), (3, 4), (4, 4), (4, 5), (4, 6), (4, 7)]
+Timestamp: 2025-06-18 08:59:36
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["UP", "LEFT"],
+  "reasoning": "Move UP to (3,3), then LEFT to (2,3) to get closer to apple at (3,1)"
+}

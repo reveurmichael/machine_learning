@@ -1,0 +1,172 @@
+{
+    "score": 2,
+    "steps": 12,
+    "snake_length": 3,
+    "game_over": true,
+    "game_end_reason": "WALL",
+    "round_count": 5,
+    "llm_info": {
+        "primary_provider": "ollama",
+        "primary_model": "devstral:24b",
+        "parser_provider": null,
+        "parser_model": null
+    },
+    "time_stats": {
+        "start_time": "2025-06-18 08:42:41",
+        "end_time": "2025-06-18 08:45:00",
+        "total_duration_seconds": 138.64731645584106,
+        "llm_communication_time": 138.6360442005098
+    },
+    "prompt_response_stats": {
+        "primary_response_times": [
+            23.181230306625366,
+            27.36096692085266,
+            27.113630771636963,
+            30.017067909240723,
+            30.936112880706787
+        ],
+        "secondary_response_times": [],
+        "avg_primary_response_time": 27.7218017578125,
+        "avg_secondary_response_time": 0.0
+    },
+    "token_stats": {
+        "primary_total_tokens": 17253,
+        "primary_avg_total_tokens": 3450.6,
+        "primary_total_prompt_tokens": 17003,
+        "primary_avg_prompt_tokens": 3400.6,
+        "primary_total_completion_tokens": 250,
+        "primary_avg_completion_tokens": 50.0,
+        "secondary_total_tokens": 0,
+        "secondary_avg_total_tokens": 0,
+        "secondary_total_prompt_tokens": 0,
+        "secondary_avg_prompt_tokens": 0,
+        "secondary_total_completion_tokens": 0,
+        "secondary_avg_completion_tokens": 0
+    },
+    "step_stats": {
+        "valid_steps": 11,
+        "empty_steps": 1,
+        "something_is_wrong_steps": 0,
+        "invalid_reversals": 0
+    },
+    "metadata": {
+        "timestamp": "2025-06-18 08:42:41",
+        "game_number": 4,
+        "round_count": 5
+    },
+    "detailed_history": {
+        "apple_positions": [
+            {
+                "x": 3,
+                "y": 6
+            },
+            {
+                "x": 0,
+                "y": 3
+            },
+            {
+                "x": 6,
+                "y": 1
+            }
+        ],
+        "moves": [
+            "LEFT",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "DOWN",
+            "EMPTY",
+            "DOWN",
+            "LEFT"
+        ],
+        "rounds_data": {
+            "1": {
+                "round": 1,
+                "apple_position": [
+                    3,
+                    6
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "UP"
+                ],
+                "moves": [
+                    "LEFT",
+                    "UP"
+                ]
+            },
+            "2": {
+                "round": 2,
+                "apple_position": [
+                    0,
+                    3
+                ],
+                "planned_moves": [
+                    "LEFT"
+                ],
+                "moves": [
+                    "LEFT"
+                ]
+            },
+            "3": {
+                "round": 3,
+                "apple_position": [
+                    6,
+                    1
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "DOWN"
+                ]
+            },
+            "4": {
+                "round": 4,
+                "apple_position": [
+                    6,
+                    1
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "5": {
+                "round": 5,
+                "apple_position": [
+                    6,
+                    1
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "DOWN",
+                    "LEFT"
+                ]
+            }
+        }
+    }
+}

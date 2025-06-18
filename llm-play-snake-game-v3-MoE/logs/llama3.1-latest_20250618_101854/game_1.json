@@ -1,0 +1,426 @@
+{
+    "score": 0,
+    "steps": 40,
+    "snake_length": 1,
+    "game_over": true,
+    "game_end_reason": "WALL",
+    "round_count": 19,
+    "llm_info": {
+        "primary_provider": "ollama",
+        "primary_model": "llama3.1:latest",
+        "parser_provider": "ollama",
+        "parser_model": "gemma3:12b-it-qat"
+    },
+    "time_stats": {
+        "start_time": "2025-06-18 10:18:54",
+        "end_time": "2025-06-18 12:29:36",
+        "total_duration_seconds": 7841.564287662506,
+        "llm_communication_time": 7841.5186363002285
+    },
+    "prompt_response_stats": {
+        "primary_response_times": [
+            3.939249038696289,
+            4.075987339019775,
+            4.061275482177734,
+            4.349574327468872,
+            4.3149049282073975,
+            4.104100942611694,
+            4.149101495742798,
+            5.392444849014282,
+            18.7209951877594,
+            600.0150504112244,
+            600.0466403961182,
+            13.992798805236816,
+            18.92536687850952,
+            600.0282008647919,
+            4.9896399974823,
+            12.16798996925354,
+            11.596518993377686,
+            11.7000093460083,
+            12.644465446472168
+        ],
+        "secondary_response_times": [
+            11.701762437820435,
+            13.348408460617065,
+            13.312516450881958,
+            16.41130232810974,
+            15.093175888061523,
+            13.366854667663574,
+            45.418405055999756,
+            600.0331239700317,
+            600.0194034576416,
+            21.808648109436035,
+            46.21664237976074,
+            600.0274903774261,
+            600.0269107818604,
+            305.1121881008148,
+            600.0147058963776,
+            600.0286948680878,
+            600.0266349315643,
+            600.024822473526,
+            600.0189788341522
+        ],
+        "avg_primary_response_time": 102.06391129995647,
+        "avg_secondary_response_time": 310.6321404984123
+    },
+    "token_stats": {
+        "primary_total_tokens": 33158,
+        "primary_avg_total_tokens": 2072.375,
+        "primary_total_prompt_tokens": 32496,
+        "primary_avg_prompt_tokens": 2031.0,
+        "primary_total_completion_tokens": 662,
+        "primary_avg_completion_tokens": 41.375,
+        "secondary_total_tokens": 9966,
+        "secondary_avg_total_tokens": 996.6,
+        "secondary_total_prompt_tokens": 9432,
+        "secondary_avg_prompt_tokens": 943.2,
+        "secondary_total_completion_tokens": 534,
+        "secondary_avg_completion_tokens": 53.4
+    },
+    "step_stats": {
+        "valid_steps": 30,
+        "empty_steps": 3,
+        "something_is_wrong_steps": 0,
+        "invalid_reversals": 7
+    },
+    "metadata": {
+        "timestamp": "2025-06-18 10:18:54",
+        "game_number": 1,
+        "round_count": 19
+    },
+    "detailed_history": {
+        "apple_positions": [
+            {
+                "x": 6,
+                "y": 9
+            }
+        ],
+        "moves": [
+            "DOWN",
+            "RIGHT",
+            "DOWN",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "INVALID_REVERSAL",
+            "RIGHT",
+            "UP",
+            "LEFT",
+            "INVALID_REVERSAL",
+            "UP",
+            "UP",
+            "LEFT",
+            "UP",
+            "INVALID_REVERSAL",
+            "RIGHT",
+            "DOWN",
+            "LEFT",
+            "UP",
+            "INVALID_REVERSAL",
+            "LEFT",
+            "INVALID_REVERSAL",
+            "EMPTY",
+            "EMPTY",
+            "INVALID_REVERSAL",
+            "INVALID_REVERSAL",
+            "DOWN",
+            "EMPTY",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "DOWN",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "DOWN",
+            "RIGHT"
+        ],
+        "rounds_data": {
+            "1": {
+                "round": 1,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "DOWN",
+                    "RIGHT"
+                ]
+            },
+            "2": {
+                "round": 2,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "DOWN",
+                    "RIGHT"
+                ]
+            },
+            "3": {
+                "round": 3,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "UP"
+                ]
+            },
+            "4": {
+                "round": 4,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "RIGHT",
+                    "UP",
+                    "LEFT"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL",
+                    "RIGHT",
+                    "UP",
+                    "LEFT"
+                ]
+            },
+            "5": {
+                "round": 5,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "UP"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "UP"
+                ]
+            },
+            "6": {
+                "round": 6,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL",
+                    "RIGHT"
+                ]
+            },
+            "7": {
+                "round": 7,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "LEFT",
+                    "UP"
+                ],
+                "moves": [
+                    "DOWN",
+                    "LEFT",
+                    "UP"
+                ]
+            },
+            "8": {
+                "round": 8,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "LEFT"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL",
+                    "LEFT"
+                ]
+            },
+            "9": {
+                "round": 9,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL"
+                ]
+            },
+            "10": {
+                "round": 10,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "11": {
+                "round": 11,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "12": {
+                "round": 12,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL"
+                ]
+            },
+            "13": {
+                "round": 13,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "INVALID_REVERSAL",
+                    "DOWN"
+                ]
+            },
+            "14": {
+                "round": 14,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "15": {
+                "round": 15,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "16": {
+                "round": 16,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN"
+                ]
+            },
+            "17": {
+                "round": 17,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "DOWN"
+                ]
+            },
+            "18": {
+                "round": 18,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "DOWN"
+                ]
+            },
+            "19": {
+                "round": 19,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "RIGHT",
+                    "DOWN",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "DOWN",
+                    "RIGHT",
+                    "DOWN",
+                    "RIGHT"
+                ]
+            }
+        }
+    }
+}

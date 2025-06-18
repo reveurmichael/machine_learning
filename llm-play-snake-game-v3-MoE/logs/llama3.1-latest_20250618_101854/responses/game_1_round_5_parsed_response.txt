@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-18 10:20:10
+SECONDARY LLM Response Time: 2025-06-18 10:20:25
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (8, 5)
+Apple Position: (6, 9)
+Body Cells: []
+Timestamp: 2025-06-18 10:20:25
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT", "UP", "UP", "LEFT", "UP"],
+  "reasoning": "The snake must move right to clear space for turning up. Then, it turns up and moves two cells up while ensuring a safe distance from body segments."
+}
+```

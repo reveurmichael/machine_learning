@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 12:09:11
+PRIMARY LLM Response Time: 2025-06-18 12:09:23
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: llama3.1:latest
+Head Position: (7, 3)
+Apple Position: (6, 9)
+Body Cells: []
+Timestamp: 2025-06-18 12:09:23
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+"moves": ["RIGHT", "DOWN"],
+"reasoning": "We move right to avoid collision with body segment, then down to approach apple while avoiding wall."
+}

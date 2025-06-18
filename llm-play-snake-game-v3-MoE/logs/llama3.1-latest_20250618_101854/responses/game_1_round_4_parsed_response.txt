@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-18 10:19:49
+SECONDARY LLM Response Time: 2025-06-18 10:20:06
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (8, 4)
+Apple Position: (6, 9)
+Body Cells: []
+Timestamp: 2025-06-18 10:20:06
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["DOWN", "RIGHT", "UP", "LEFT"],
+  "reasoning": "A safe path is planned to reach the apple at (6,9) from the initial position of the head at (8,4), avoiding collisions and respecting all rules."
+}
+```

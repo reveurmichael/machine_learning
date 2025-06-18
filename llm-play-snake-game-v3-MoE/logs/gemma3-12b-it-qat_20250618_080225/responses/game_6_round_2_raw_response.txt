@@ -1,0 +1,18 @@
+PRIMARY LLM Request Time: 2025-06-18 08:28:49
+PRIMARY LLM Response Time: 2025-06-18 08:29:30
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: gemma3:12b-it-qat
+Head Position: (8, 5)
+Apple Position: (8, 8)
+Body Cells: []
+Timestamp: 2025-06-18 08:29:30
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+```json
+{
+  "moves": ["DOWN", "DOWN", "DOWN", "RIGHT"],
+  "reasoning": "Moving down three times will bring the head closer to the apple without colliding with the body. Then move right to reach the apple."
+}
+```

@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-16 06:07:30
+SECONDARY LLM Response Time: 2025-06-16 06:07:41
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (5, 5)
+Apple Position: (4, 8)
+Body Cells: []
+Timestamp: 2025-06-16 06:07:41
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["LEFT", "LEFT", "UP", "UP", "UP", "RIGHT"],
+  "reasoning": "Move LEFT twice to reduce the x-coordinate to 3. Then move UP three times to reach a y-coordinate of 8. Finally, move RIGHT once to reach (4, 8)."
+}
+```

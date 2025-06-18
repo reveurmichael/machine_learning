@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-16 05:56:55
+SECONDARY LLM Response Time: 2025-06-16 05:57:04
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (1, 5)
+Apple Position: (5, 8)
+Body Cells: [(1, 4), (1, 3), (1, 2), (1, 1)]
+Timestamp: 2025-06-16 05:57:04
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["UP"],
+  "reasoning": "Moving UP first is safe and doesn't cause collision with the body or tail."
+}
+```

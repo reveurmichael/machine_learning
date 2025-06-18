@@ -123,11 +123,7 @@ function updateUI() {
     if (!gameState) return;
     
     // Update game info
-    if (typeof gameState.total_games !== 'undefined') {
-        gameNumber.textContent = `${gameState.game_number}/${gameState.total_games}`;
-    } else {
     gameNumber.textContent = gameState.game_number;
-    }
     scoreElement.textContent = gameState.score;
     
     // Update document title
@@ -184,14 +180,14 @@ function drawGame() {
     // Canvas sizing
     canvas.width  = pixelSize * gridSize;
     canvas.height = pixelSize * gridSize;
-    
+
     // Clear background
     ctx.fillStyle = COLORS.BACKGROUND;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Grid
     drawGrid(ctx, gridSize, pixelSize);
-    
+
     // Snake
     if (Array.isArray(gameState.snake_positions) && gameState.snake_positions.length) {
         // Body
@@ -203,7 +199,7 @@ function drawGame() {
         const [hx, hyGame] = gameState.snake_positions[gameState.snake_positions.length - 1];
         drawRect(ctx, hx, (gridSize - 1) - hyGame, COLORS.SNAKE_HEAD, pixelSize);
     }
-    
+
     // Apple
     if (Array.isArray(gameState.apple_position) && gameState.apple_position.length === 2) {
         const [ax, ayGame] = gameState.apple_position;

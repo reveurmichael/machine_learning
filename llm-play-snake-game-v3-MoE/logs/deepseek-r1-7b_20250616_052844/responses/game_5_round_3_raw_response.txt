@@ -1,0 +1,1107 @@
+PRIMARY LLM Request Time: 2025-06-16 06:53:45
+PRIMARY LLM Response Time: 2025-06-16 06:57:16
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: deepseek-r1:7b
+Head Position: (8, 5)
+Apple Position: (9, 4)
+Body Cells: [(8, 6)]
+Timestamp: 2025-06-16 06:57:16
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+<think>
+Alright, let me try to figure out how to solve this problem step by step. So, we have a snake on a 10x10 grid, and it's currently positioned at (8,5) with its head. The apple is at (9,4). I need to plan a series of moves for the snake to reach the apple without colliding into walls or its own body.
+
+First, let me note down all the given information:
+
+- **Head Position**: (8,5)
+- **Current Direction**: DOWN
+- **Body Cells**: [(8,6)]
+- **Apple Position**: (9,4)
+
+Wait a minute, if the head is at (8,5), and the body includes (8,6), that means the snake's next segment is behind it. But since the current direction is DOWN, moving further down would take the head to (8,4). However, according to the movement update rules, when choosing a direction, we have to compute where the new head will be and then check for collisions.
+
+The first thing I notice is that the apple is just one cell away from the head. The current position of the head is (8,5), and the apple is at (9,4). So if the snake moves RIGHT once, it can reach x=9 but y remains 5. That's not where the apple is. Alternatively, moving DOWN would take it to (8,4), which is just below the body segment at (8,6). Wait, no, because the body cells are [(8,6)], so (8,6) is behind the head. So if we move RIGHT from (8,5), that's allowed.
+
+Wait, but let me think again: the current direction is DOWN. So moving in directions other than DOWN would change the head position without considering the previous movement. But according to the movement example given earlier, when the snake moves LEFT or RIGHT while going DOWN, it just changes x-coordinate accordingly.
+
+But wait, no—the direction determines where the new_head will be based on the current direction. Wait no, in this problem statement, step 1 says "Compute new head" as new_head = (head_x + dx[D], head_y + dy[D]). So regardless of previous movement, each move is computed by adding the direction vector.
+
+So for example, if direction is DOWN, then dy is -1. So moving from (8,5), the next position would be (8,4). However, that's behind the body cell at (8,6) because the current direction is DOWN and the body is [(8,6)], which was previously the tail.
+
+Wait no—this might not make sense. Let me re-read the problem statement to clarify.
+
+Ah, in step 1 of movement update rules:
+
+new_head = head_x + dx[D], head_y + dy[D]
+
+So it's based solely on current direction D and current head position, regardless of previous state except for body positions.
+
+But wait, when you choose a new direction, the next move is computed by adding that direction vector to the current head. So if I'm moving RIGHT from (8,5), then x increases by 1: (9,5). But the apple is at (9,4). Hmm.
+
+Wait no—actually, movement is in terms of grid coordinates where UP increases y, DOWN decreases y, LEFT decreases x, and RIGHT increases x. So if current head is at (8,5), moving RIGHT would be to (9,5), which is not the apple's position (9,4). Alternatively, moving DOWN from (8,5) takes it to (8,4).
+
+But since the snake can't just move directly toward the apple because of its body. The body is at [(8,6)], so if I move down once, then new_head would be (8,4), which is not occupied by the body. Then after moving, the body becomes [(8,5), (8,4)]. Wait no—the movement update rules say:
+
+1. Compute new_head.
+2. Check for collisions: new_head can't be outside grid or coincide with any body cells except when it's about to grow.
+
+Wait, no—if you don't eat an apple, the tail is removed, so if the snake moves down from (8,5) to (8,4), and the current body includes (8,6). So new_head would be (8,4). Is this cell occupied by any body except when it's about to grow?
+
+No, because in the initial state, the body is [(8,6)]. So moving down would take it to (8,4), which isn't blocked. Thus, that move should be safe.
+
+Wait no—if the snake moves RIGHT once from (8,5) to (9,5). Then check for collisions: new_head at (9,5). Is this cell occupied by any body? Currently, the body is [(8,6)], so it's not. So that would be a valid move.
+
+But wait, moving Right would make the head go from (8,5) to (9,5), which is one step away from the apple in terms of x-coordinate but further in y. Hmm.
+
+Alternatively, if we first move UP once: new_head at (8,6). But since the body includes (8,6), moving into that position would cause a collision because it's not allowed to collide with any body cell except possibly when growing after eating an apple.
+
+Wait, no—the current state of the snake is HEAD = (8,5); body cells are [(8,6)]. So in this case, if we choose UP as direction:
+
+new_head becomes (8+0, 5+1) = (8,6). Now, since new_head is (8,6), which is exactly where the tail's current position is. But according to step 2 of movement update rules: "If new_head coincides with any BODYi except when it will grow on this turn." 
+
+Wait, in this case, if we are moving into (8,6) and the body includes (8,6), that would be a collision because the snake can't move into its own body. So UP is not allowed.
+
+So UP from (8,5) to (8,6) is blocked by the body at (8,6).
+
+So in this case, moving UP leads to a collision with the tail, so it's invalid.
+
+Wait no—step 2 says: "If new_head coincides with any BODYi except when that tail will move this turn." So if you are not eating an apple and thus do not grow, then new_head cannot coincide with any body cell. But in this case, the snake hasn't eaten yet because it's moving from (8,5) to (9,4).
+
+So moving UP is invalid because new_head would be at (8,6), which is part of the body.
+
+Thus, possible directions are:
+
+- RIGHT: from (8,5) to (9,5). Check if this cell is occupied. Since current body cells are [(8,6)], so it's not blocked.
+- LEFT: From (8,5) to (7,5): check collision with any body? Body is at (8,6), which is different from (7,5), so no problem.
+- UP: as above, leads to a body cell—invalid.
+- DOWN: new_head is (8,4). Check for collisions: no body cells are there. So valid.
+
+Thus, the possible initial moves are RIGHT and DOWN.
+
+Now let's think about moving right first:
+
+Move 1: RIGHT → head at (9,5).
+
+Check if that's safe—no collision with body cells [(8,6)]. So proceed.
+
+Then update the snake: insert new_head as first element of body. Since it didn't eat an apple, remove last body cell (current tail is (8,6)), so now the body becomes [(9,5), (8,6)]? Wait no—wait:
+
+Wait initial head was at (8,5). So when we move RIGHT to (9,5), this new_head is added as the first element of the body list. Then since it's not eating an apple, the last element (tail) is removed.
+
+So after Move 1: "RIGHT":
+
+- New head position: (9,5)
+- Body becomes [(8,6), (7,5)]? Wait no—no, wait when moving RIGHT, we add new_head to the front of the body list and remove tail if necessary. So initial body was [(8,6)]. After adding new_head at front:
+
+new_body = [(9,5), 8,6]. Then since it didn't eat an apple, the last element (tail) is removed: so final body becomes [(9,5)].
+
+Wait no—that's not correct because after moving RIGHT from head (8,5), the new head is (9,5). The old head was at (8,5); we insert that as the first of the new body list. Then since it didn't eat an apple, remove last element: the original tail was (8,6)—so the new body would be [(9,5)]. Because the original body had one segment: [(8,6)], and after moving, we add (8,5) as first then remove the previous last.
+
+Wait no—the movement steps:
+
+1. Compute new_head = right of head → (9,5)
+2. Check if (9,5) is a valid position—no collision.
+3. Insert old head into front of body: so body becomes [(8,5), 8,6]
+4. Since not eating apple, remove last element: body becomes [(8,5)]
+Wait no—that doesn't make sense because when you move RIGHT from (8,5) and add it to the front, then the body is now [new_head=9,5], but wait:
+
+No—step 3 says insert old head into the front. So if the original body was [(8,6)], after inserting new_head at position 1: [(8,5), (8,6)]. Then since it's not growing due to no apple eaten, step 4 is removing last element.
+
+So final body becomes [(8,5)]—but that can't be because we started with head at (8,5) and body at (8,6). So moving RIGHT adds new_head=9,5 as first, then the rest: [8,6], but then when you remove tail after adding:
+
+Wait no, initial body is [(8,6)]. When inserting new_head into front of this list, it becomes [(8,5), 8,6]. Then since not eating apple, we have to remove the last element (the original tail). So final body is [(8,5)].
+
+But that leaves the snake with head at (9,5) and no body—meaning it's just a single segment. That seems odd because snakes usually have more than one segment, but according to step 3: insert old head as first element regardless of whether you're eating or not.
+
+Wait perhaps I'm misunderstanding the movement steps:
+
+When moving in any direction except for when growing (i.e., when eating apple), we do:
+
+- Compute new_head
+- Check collision with body cells (excluding possible tail if about to grow)
+- Insert old_head as first element into body list, then if it's not eating, remove last.
+
+So initial state: head at (8,5); body = [8,6].
+
+If you move RIGHT → new_head=9,5. Then:
+
+Insert 8,5 as first in the body list? Wait no—new_head is computed based on current direction and added to front of the body list.
+
+Wait perhaps it's that after computing new_head, we insert the old head into the front for the next iteration?
+
+I think I'm getting confused here. Let me try to break down step by step:
+
+Original state: Head = (8,5); body = [(8,6)].
+
+Move RIGHT → direction is RIGHT; dx=1, dy=0. So new_head is (9,5).
+
+Now check for collision with any body cell except the possible tail after movement if growing.
+
+Since it's not eating an apple:
+
+- Check if (9,5) is in current body: no.
+- Then insert old head into front of body list → [8,5] + [(8,6)]? No—no, because we are adding new_head as the first element. Wait step 3 says to "insert" the previous position's cell.
+
+Wait perhaps it's that after computing new_head, we add the current head (old_head) to the front of body list.
+
+So:
+
+new_head = (9,5)
+
+Then check: is this a valid move? Yes—because not in body cells [(8,6)].
+
+Now step 3: insert old_head=(8,5) into front → new body becomes [8,5] + original body?
+
+Wait no—that's perhaps the confusion. Or maybe it's that after movement update:
+
+- Compute new_head
+- If moving without growing (not eating), then:
+   - Insert current head position as first element of the next body.
+   - Remove last element.
+
+So in this case:
+
+Original head: 8,5; original body: [8,6].
+
+After right move:
+
+new_head =9,5. Then insert old_head=(8,5) into front → new_body is [(8,5), (8,6)]. Since it's not eating apple, remove last element → new_body becomes [(8,5)].
+
+Wait that would make the snake have head at 9,5 and body only containing (8,5). But wait, how? Because inserting into front adds old_head, then removing tail leaves just the previous head?
+
+That seems incorrect. Maybe I'm misunderstanding step 3:
+
+Step 3 says: "Insert the current head position as first element of new body." So in code terms:
+
+new_body = [current_head] + existing_body
+
+Then if no apple eaten (step 4):
+
+new_body.pop()
+
+So for initial state, when moving right:
+
+current_head is at (8,5); existing_body is [(8,6)]
+
+so new_body = [(8,5), (8,6)]. Then since not eating, pop last → new_body becomes [(8,5)].
+
+Wait but that would mean the snake's head moves to (9,5) and then the body is at (8,5). But that can't be right because that leaves a gap in the snake. Maybe I'm misunderstanding how the movement works.
+
+Alternatively, perhaps the step 3 is:
+
+new_head = current_head + direction
+
+then new_body = [new_head] followed by all existing_body except last if no apple eaten (step4)
+
+Wait maybe not inserting old_head but adding new_head to front and then adjusting.
+
+But this is getting confusing. Perhaps I should model it with the example given in step 1:
+
+Example from movement update rules:
+
+In example where head is at (8,5), body is [(8,6)], moving right would compute new_head as (9,5). Check for collision: since current body cells are [ (8,6) ] and new_head is not one of them. Then step 3: insert the current head into front → new_body becomes [8,5] + [8,6]. If no apple eaten, then remove last element.
+
+Thus, after this movement:
+
+head is now (9,5), body cells are [(8,6)]—no, that can't be because we inserted 8,5 as first and popped the last which was 8,6. So body becomes [8,5].
+
+Wait that would mean snake's head moves to (9,5) but its body is only at (8,5). That seems odd.
+
+Alternatively, perhaps I'm overcomplicating this—maybe when moving right from (8,5), the new_head is 9,5. Then we add current head position (8,5) as first element of the new body, so [8,5], and since it's not eating an apple, remove last: which would be nothing because original body was only one cell.
+
+Wait this seems messy. Maybe I'm overcomplicating—perhaps after movement:
+
+- The snake moves to (9,5)
+- The body segments are adjusted as per step 3 and 4.
+
+But perhaps a better approach is just to code or model the steps correctly.
+
+Alternatively, let's try moving RIGHT once:
+
+1. head: (8,5)
+
+2. direction: RIGHT → new_head = (9,5). Check if valid—no collision with [ (8,6) ].
+
+3. insert current_head into front of body: so body becomes [(8,5), 8,6].
+
+4. since not eating apple, remove last element: body becomes [(8,5)].
+
+So after this movement:
+
+- Head is at (9,5)
+- Body cells are [(8,5)]
+
+Is that correct? Hmm—perhaps the snake now has only one segment again because we removed the tail which was part of the original body. But then how does it grow?
+
+Wait but if you don't eat an apple, your body's length remains same as before.
+
+In this case, initial body had [(8,6)] → after inserting (8,5) and popping last, becomes [(8,5)]. So yes—snake moves to head at 9,5 with just one segment. But that seems like a problem because the tail is now where its head was before movement.
+
+But maybe it's allowed as per step3: insert current_head into front of new_body; so in this case:
+
+- new_head = (9,5)
+- check collision
+- then insert old_head (8,5) → body becomes [(8,5), 8,6]
+- since no apple eaten, remove last element: [(8,5)]
+
+So snake's head is now at (9,5); its body is [8,5]
+
+Wait but that would mean the tail is moving back to where it was. So in effect, the snake has just one segment after this move.
+
+Is that allowed? According to step4 of movement update rules:
+
+"If you have not eaten an apple yet, then after updating your position and before checking for growth, remove the last cell of the body."
+
+So in code terms: new_body = [new_head] + existing_body
+
+if no apple eaten:
+   new_body.pop()
+
+Thus, moving right from (8,5):
+
+new_head is 9,5. Insert to front → [9,5, 8,6]. Then remove last element because not eating—body becomes [9,5].
+
+So snake's head moves to 9,5 and the body is just that.
+
+Is this correct? Because in step3 it's inserting current_head into new_body, so after movement, regardless of whether you're growing or not, you insert current_head as first element. So even if you are moving towards a position where your next move will allow growth (i.e., eating apple), the insertion is done.
+
+So perhaps that's how it works—so in this case, body becomes [9,5] after inserting old_head and then popping last because not eating an apple.
+
+But I'm getting tangled here. Perhaps focusing on step 3 and 4:
+
+If you are about to move without eating (i.e., no apple eaten):
+
+new_body is created by taking new_head as first element and existing body plus the current head's position? Or perhaps it's that after computing new_head, insert old_head into front of body list. Then if not growing, pop last.
+
+So:
+
+Example step-by-step for moving RIGHT from (8,5), no apple eaten:
+
+1. Compute new_head: 9,5
+
+2. Check collision with current_body [8,6]: safe.
+
+3. Insert old_head=8,5 into front of body list → new_body is [8,5, 8,6]
+
+4. Since not eating an apple, pop last element → new_body becomes [8,5]
+
+So snake's head is now at (9,5), and the only segment in the body is (8,5). So when next movement occurs, it'll be based on this.
+
+Alternatively, perhaps my misunderstanding lies here—maybe I'm supposed to insert old_head into front of new_body regardless of whether you're growing or not. But step3 says "Insert the current head position as first element of new body"—so that's always done.
+
+Wait original movement steps are:
+
+1. Compute new_head
+
+2. Check collision with body cells except possible tail after growth (if applicable)
+
+   - If in a non-growing move, check against existing_body minus last cell
+
+3. Insert the current head position as first element of new body → new_body = [current_head] + existing_body
+
+4. If not eating an apple:
+
+   - Remove last element from new_body.
+
+Thus, for movement RIGHT without eating:
+
+1. new_head=9,5
+
+2. collision check: only against existing_body minus last cell (since no apple eaten). So in initial body is [8,6], so we check if 9,5 is in this → no.
+
+3. new_body = [8,5] + [8,6] → [8,5, 8,6]
+
+4. since not eating, remove last: new_body becomes [8,5]
+
+So now the snake's head is at (9,5), and body is [(8,5)].
+
+Wait but that would mean the tail has moved back to where it was before movement. So after moving right, the snake is longer? No—it's same length because we inserted one segment (old_head) and then popped another (last). So net change: no growth or loss of body segments—snake remains at 1 segment.
+
+But in reality, when you move, your body should be extended by one if you've eaten an apple. Otherwise, it's the same length as before.
+
+Wait perhaps I'm not modeling this correctly.
+
+Alternatively, let me try to code a small simulation based on movement steps:
+
+def update_body(head, body, current_direction, has_eaten):
+    # Compute new head
+    dx, dy = direction_map(current_direction)
+    new_head = (head[0] + dx, head[1] + dy)
+
+    # Check collision with body except possible tail if not eating and no apple eaten.
+    # Wait in step 2, it says "any cell occupied by your own body" but may be exception is when about to eat.
+
+    # So for movement without eating (no apple), new_head must not be present in current_body minus last cell
+    # But how? Because step 2 says if you're moving towards a cell that's already in the body, it's invalid unless you are going to grow into that cell. Wait no—step2 says:
+
+Wait looking back at movement rules:
+
+"Step 1: Compute new_head.
+
+Step 2: If not growing (no apple eaten):
+
+   Check if new_head is present in current_body except last cell (tail). Because when moving towards tail, you can't occupy it as per rule 4?
+
+Or perhaps step 2 says that during movement without eating, the new_head must not be in existing body, else invalid.
+
+Wait according to problem statement:
+
+Step 2: Check if "any of your current body cells" are occupied by new_head—so collision occurs. But also, for non-growth movements (i.e., no apple eaten), perhaps you can't step into the tail cell because that would mean moving backward and causing overlap.
+
+Wait but according to problem statement:
+
+"If it is not an apple-eating movement," which I think refers to whether you're about to grow or not. So in such cases, when new_head is same as last element of body (i.e., current tail), then collision occurs because step2's condition is that "any cell occupied by your own body" → including the new_head.
+
+Wait no—if moving non-growing and new_head equals previous head position? Or perhaps if you are not growing but stepping into a cell where it would cause the snake to have overlapping segments.
+
+This is getting quite complicated. Maybe I should model this in code, but since I'm doing this manually, let's try:
+
+Original state: head=8,5; body=[(8,6)]
+
+After moving RIGHT (step1):
+
+new_head=9,5
+
+Step2: check collision—any cell occupied by your own body except possibly the last if not growing. But wait in movement rules step2 says:
+
+"Check whether new_head is present in any of your own body cells."
+
+So regardless of growth, you can't occupy a cell that's already part of your body.
+
+But wait when moving towards tail (i.e., same as current last position), perhaps it's allowed because the snake would be reversing direction? Or not?
+
+Wait problem statement step 2 says:
+
+"if any of your own body cells are occupied by new_head, then invalid move."
+
+So in movement rules, if you're about to move into a cell that is currently part of your own body (including previous head position), it's an invalid move.
+
+But when moving RIGHT from head=8,5; body=[(8,6)], new_head=9,5. Since 9,5 is not in [ (8,6) ], so no collision—step2 passes.
+
+So step3: insert current head into front → new_body = [ (8,5), (8,6) ]
+
+Step4: since you're moving non-growing, remove last element of new_body→ body becomes [ (8,5) ]
+
+Thus, after movement:
+
+- Head is at 9,5
+- Body cells are [(8,5)]
+
+But that seems odd because the snake's tail is now where its head was. Is this allowed?
+
+Alternatively, perhaps when moving non-growing, you can't step into your own body except maybe in certain conditions.
+
+Wait according to problem statement:
+
+Step2 says: if any of your current body cells are occupied by new_head → invalid move.
+
+So for movement without eating apple (non-growing), if the new head is same as previous position's head or something else?
+
+No, it's about whether the new head coincides with any of your current body. So in this case:
+
+new_head=9,5; which is not part of [8,6], so no collision.
+
+Thus movement is allowed.
+
+So after step3 and 4: snake has one segment at (8,5); head moved to (9,5).
+
+Then next move—head is at 9,5; body cells are [(8,5)] → moving up?
+
+Wait current direction was RIGHT. So perhaps the direction changes when you make turns.
+
+But let's get back to main problem: trying to reach apple located at (10,4) from (8,5). So I need a path that goes towards it without getting stuck in own body or invalid moves.
+
+So possible approach:
+
+From 8,5; moving right once gets us to 9,5. But then from there, perhaps moving up would get closer to apple at 10,4.
+
+But let's try mapping the grid area:
+
+Current head: (8,5). Body is [(8,6)].
+
+Apple at (10,4).
+
+Possible directions:
+
+- RIGHT → can't because body has (8,6), which isn't in new_head yet? Wait no—body was [8,6], moving right would take us to 9,5. No collision with 8,6 because it's a different cell.
+
+But wait perhaps after first movement, the snake is at 9,5; body is [(8,5)]. So when trying to move further:
+
+Suppose I then turn up (direction: UP).
+
+new_head=9,4
+
+Check if new_head is in current_body → which is [8,5]. 9,4 not there. Step3: insert current head into front→ new_body becomes [(9,5), (8,5)].
+
+Since no apple eaten yet, remove last element→ body becomes [(9,5)]
+
+Thus, snake now has head at 9,5; body cells [9,5] → same as before? That can't be right because then it's a single segment again. Wait perhaps after the first move, when you turn up:
+
+new_head=9,4.
+
+Check collision: no, since current_body is [(8,5)].
+
+Insert current head (9,5) into new_body→ [9,5, 8,5]
+
+Since not eating apple, pop last → body becomes [9,5].
+
+Wait that can't be right because the snake's head is at (9,5), and its body cells are [(9,5)], which seems like a single segment again.
+
+But perhaps I'm missing something. Alternatively, maybe after moving up:
+
+Body starts as [(8,5)]. Insert current_head=9,5 → new_body becomes [9,5, 8,5]. Then remove last→ [9,5].
+
+So snake's head is at (9,5), body cells are [9,5], which seems like a single segment. So movement up brings us to same position as before?
+
+That doesn't make sense. Maybe my approach is wrong.
+
+Perhaps I need to consider that the snake can have multiple segments, so moving right from 8,5→9,5; then another move could get me closer.
+
+Wait alternative idea: if after first move (right), body is [(8,5)], which allows head to be at 9,5. Then moving up:
+
+new_head=9,4
+
+Body before movement: [ (8,5) ]
+
+Check collision? 9,4 not in [8,5], so ok.
+
+Step3: new_body = [ (9,5), (8,5) ]
+
+Then step4: since no apple eaten, remove last→ body becomes [ (9,5) ] → same as before. So now the snake is at position 9,5; with a single segment.
+
+Wait that seems like it's stuck—can't move further without overlapping.
+
+Alternatively, maybe I'm making an incorrect assumption in how the new_body list is constructed.
+
+Alternative approach: Perhaps when moving non-growing, you can have a body that includes the new head and one previous segment. Then after step4 (removing last), it only has the new head's position.
+
+Wait but if snake had multiple segments before movement, adding another would make more. But in this case, after first move, we're at 9,5 with single segment because of step4 popping body.
+
+So perhaps my initial model is incorrect—snake can have multiple segments when moving towards directions that don't cause collision.
+
+Wait let me think differently: Perhaps the snake's body cells before movement are [8,6], and after moving right (to 9,5), new_body becomes [(8,5)] → meaning the previous head is now at tail. So next move can be up to 9,4.
+
+But when I try that:
+
+head=9,5; body=[8,5]
+
+move up: new_head=(9,4)
+
+Check collision with [8,5]→ no.
+
+Insert current head (9,5) into front → new_body becomes [ (9,5), 8,5 ]
+
+Then step4: remove last→ [ (9,5) ].
+
+So now the snake's body is only [ (9,5) ], same as before—so it can't proceed further unless I find another way to make its body multiple segments again.
+
+But how?
+
+Perhaps when moving non-growing, if you don't step into your own body except for the new head and previous head? Maybe my initial understanding of step2 is incorrect.
+
+Wait problem statement's movement rules:
+
+Step 2 says: Check whether any of your own body cells are occupied by new_head. If yes → invalid move.
+
+So even if moving to a position that was once part of the body (like current head), but in this case, it hasn't moved since; because when you first moved right, your body becomes [8,5], which is only one cell different from original.
+
+Wait perhaps I'm overcomplicating. Maybe each move appends the new_head to a new_body list that's constructed by inserting current_head as first element and then removing last if not growing.
+
+Perhaps this approach would allow me to model the snake correctly:
+
+Each time, for movement step:
+
+new_head = compute based on direction
+
+check collision with existing body cells (without considering if moving towards tail)
+
+if no collision → proceed
+
+else invalid
+
+then new_body is current_body with each element shifted by one position (i.e., append new_head and pop last), except when growing.
+
+Wait but how to implement this in code? Let's try:
+
+Assume initial state:
+
+head = (8,5)
+body = [(8,6)]
+
+We need to move towards (10,4). So possible steps: Right → then Up twice maybe?
+
+Let me model each movement step-by-step with the rules as per problem statement.
+
+First movement: RIGHT
+
+Compute new_head = 9,5
+
+Check collision with current_body [8,6]: no. So allowed.
+
+new_body = [ (8,5) ] + body[:-1] → because after moving non-growing, we pop last.
+
+Wait or perhaps:
+
+After step3, new_body is constructed by adding the head to the front and then popping the last if not growing.
+
+So initial body: [(8,6)]
+
+step1: new_head=9,5
+
+step2: no collision. allowed.
+
+step3: new_body = [ (8,5) ] + body → but wait, step4 says if no apple eaten, remove last.
+
+Wait perhaps:
+
+new_body is always constructed as [current_head] + current_body.
+
+Then, if not growing, pop last element of new_body.
+
+So for first movement:
+
+new_body after insertion: [ (8,5), 8,6 ]
+
+then since no apple eaten, body becomes [(8,5)]
+
+Thus snake's head moves to 9,5; body is [ (8,5) ] → which seems like a single segment at the new head position.
+
+Wait but that would mean the tail moved from (8,6) to where? It was popped. So now, after first move:
+
+head=9,5
+
+body=[ (8,5) ]
+
+But this is just one segment, same as before.
+
+Hmm—this seems like a problem because moving non-growing isn't allowing snake's body segments to extend beyond initial length?
+
+Wait maybe the way I'm modeling new_body is wrong. Maybe it should be:
+
+After inserting current_head into front of new_body, if not growing (no apple eaten), we keep all except last.
+
+So in first movement step:
+
+new_body after insertion: [ (8,5) ] + body → but what's 'body'? Initially, it was [(8,6)].
+
+Wait perhaps each time you add current_head to front of a list that is the previous body plus new_head?
+
+No—problem statement says for movement without eating apple:
+
+new_body = [current_head] + current_body[:-1]
+
+Because when moving towards tail (i.e., same as last position), it would occupy itself, but since step2 already checked collision.
+
+Wait perhaps in problem statement's movement rules, if you're about to move into the previous head cell (which was at (8,5) after first move from 8,6). But wait no—after moving RIGHT once, we were at 9,5; and body is [8,5]. So moving towards 8,5 would require that new_head =8,5. Wait but snake's current head is at 9,5.
+
+Wait perhaps I'm getting mixed up with the positions.
+
+Alternative idea: Maybe each time you move in a direction, your new_head can be one step beyond the body cells except when it causes collision or invalid movement.
+
+Alternatively, perhaps this problem is similar to snake game rules where moving into same position as previous head would cause collision. But I'm not sure.
+
+Wait another way: Let's consider that after first move (right), the snake has:
+
+head=9,5; body=[8,5]
+
+Then next possible moves could be up or right again?
+
+Moving UP from 9,5 to 9,4
+
+Check collision with current_body [8,5] → no.
+
+Construct new_body: insert head at front of previous body plus the new_head? Or:
+
+Wait perhaps when moving non-growing:
+
+new_body = [current_head] + current_body[:-1]
+
+So after first movement:
+
+body is [(8,5)] (since initial was [(8,6)])
+
+After second movement (up):
+
+new_head=9,4
+
+Check collision: no.
+
+then new_body would be [9,5, 8,5][:-1] → which becomes [9,5]
+
+So body remains as before—head at 9,5; same as previous. So perhaps my approach is incorrect because the snake's body isn't extending beyond head position.
+
+Wait but that doesn't make sense—the snake should be able to have multiple segments if it moves in a way that allows it.
+
+Perhaps I'm misunderstanding how new_body is constructed. Maybe:
+
+For movement without growing, you can only move into cells adjacent to your current position (head) as long as they don't collide with other body parts except maybe the tail.
+
+Wait but initial problem statement says:
+
+"step 3: Insert the current head position at the front of new_body"
+
+So after step2 passes, regardless of whether it's a single segment or multiple segments, you insert your current head into front. Then if not growing, remove last element.
+
+Thus in first movement:
+
+new_head=9,5
+
+Check collision with [8,6]: no→ allowed.
+
+new_body = [ (8,5) ] + body → which was [(8,6)] → new_body becomes [(8,5), 8,6 ]
+
+then since not growing: remove last element → new_body becomes [ (8,5) ]
+
+Thus after first movement:
+
+head=9,5; body=[8,5]
+
+Now, moving up from head to 9,4.
+
+Check collision with [8,5]: no→ allowed.
+
+new_body = [9,5] + previous body which is [(8,5)] → new_body becomes [ (9,5), (8,5) ]
+
+since not growing: remove last element → [ (9,5) ]
+
+Thus after second movement:
+
+head=9,4; body=[9,5]
+
+Wait this can't be right—because the snake's body is now at 9,5 and head moved to 9,4. So it's as if we have a single segment again.
+
+This suggests that my approach isn't correct because I'm not allowing the snake to have multiple segments unless growing.
+
+Alternative idea: Maybe in some cases, when moving non-growing, you can append new_head without popping last element until after step2 and collision check pass. But problem statement says:
+
+"step4: if no apple eaten, remove last cell"
+
+So perhaps for movement where body is only one segment (i.e., length 1), you cannot move further because any direction would result in populating the same position as current head.
+
+Wait but initial snake has two segments: [(8,6)] → after first movement, it's [ (8,5) ] → a single segment. So how can I make its body longer again?
+
+Perhaps when moving non-growing and the new_head is different from previous head, you have to pop last element regardless.
+
+But perhaps in some cases, if moving direction allows for adding another segment without collision, but since initial step results in single segment, it's not possible.
+
+This seems like a dead end. Maybe I need to rethink how the body is being constructed.
+
+Alternative approach: Instead of always popping the last element after inserting current head, maybe only do so when you are growing or not moving towards tail.
+
+Wait problem statement says:
+
+"step3: Insert the current head position at front"
+
+"step4: if no apple eaten, remove last cell"
+
+So for movement without eating apple → step4 is done. So regardless of snake's previous length, after inserting new_head to front and removing last, you have a body that is one shorter.
+
+But this seems counterintuitive because the snake should be able to move forward in such way as to make its body longer when not growing.
+
+Wait maybe for each movement step:
+
+- Compute new_head
+
+- Check collision with current_body. If yes → invalid.
+
+- Create a temporary list by inserting new_head at front of current_body and then popping last element if no apple eaten (i.e., if you're not eating the apple).
+
+Then, set body to be this temp list.
+
+Wait let's model it:
+
+Initial state: head=8,5; body=[8,6]
+
+First movement step: right
+
+new_head=9,5
+
+check collision with [8,6]: no.
+
+temp_list = insert 9,5 at front → [ (9,5), 8,6 ]
+
+since not growing, remove last element → temp_list becomes [ (9,5) ]
+
+Thus new body is [9,5]
+
+head moves to 9,5
+
+Second movement step: up
+
+new_head=9,4
+
+check collision with [9,5]: no.
+
+temp_list = insert at front → [ (9,4), 9,5 ]?
+
+Wait no—because initial current_body was [9,5] after first movement. So new_head is 9,4.
+
+So temp_list would be:
+
+current_body is [9,5]
+
+new_head=9,4
+
+inserting into temp_list as per step3: [ (9,4) ] + previous_body[:-1]? Or perhaps not.
+
+Wait problem statement's step3 says to insert current_head at front of new_body. So in the movement steps:
+
+For non-growing cases:
+
+temp_list = [new_head] + body
+
+then if no apple eaten → temp_list.pop()
+
+Thus for second movement:
+
+body was [9,5]
+
+new_head=9,4.
+
+step3: temp_list = [ (9,4) ] + [9,5] → which is [(9,4), 9,5 ]
+
+since not growing, step4→ pop last → [ (9,4) ]
+
+Thus body becomes [9,4], same as after first movement—so no progress in terms of the snake's length.
+
+Hmm. That suggests that unless you eat an apple, your snake can't have multiple segments—it always remains a single segment or something else?
+
+Wait maybe I'm misunderstanding the step3 and step4 process.
+
+Alternative idea: Perhaps for each movement:
+
+temp_list = current_body.copy()
+
+insert new_head at front of temp_list
+
+if not growing → remove last element from temp_list
+
+then set body to be this temp_list
+
+So in first movement:
+
+current_body is [8,6]
+
+new_head=9,5
+
+temp_list becomes [9,5] + [8,6 ] → no—inserting 9,5 at front of current_body.
+
+Wait problem statement says step3: insert the current head position (before moving) at front. Then in non-growing case, remove last.
+
+So initial body is [(8,6)]
+
+new_head=9,5
+
+temp_list = [9,5] + [(8,6)]
+
+then if no apple eaten → temp_list.pop()
+
+so temp_list becomes [9,5]
+
+Thus new body is [ (9,5) ]
+
+Second movement:
+
+current_body=[9,5]
+
+new_head=9,4
+
+step3: temp_list = [9,4] + [ (9,5) ] ?
+
+Wait no—temp_list would be inserting 9,4 into front of current_body.
+
+But wait current_body is a list after step1 and step2. So for second movement:
+
+current_body=[ (9,5) ]
+
+new_head=9,4
+
+step3: temp_list = [9,4] + current_body → which becomes [9,4, 9,5 ] ?
+
+Wait no—current_body in this case is [(9,5)]
+
+so inserting new_head at front makes temp_list as:
+
+[ (9,4) ] followed by all elements of current_body.
+
+Thus for second movement step3: temp_list = [9,4] + [9,5 ]
+
+which becomes [9,4, 9,5 ]
+
+then since not growing → pop last → temp_list is [9,4 ]
+
+so new body is [ (9,4) ]
+
+Which again shows that after two movements, the snake has only single segment.
+
+Thus it seems that in this model, when moving non-growing, you can't have a multi-segment body unless somehow another step allows for adding more elements without collision.
+
+But how?
+
+Wait perhaps I'm not considering the initial position correctly. For example, maybe if the new_head is beyond current_body's last element, and doesn't cause collision with any other body parts except by growing.
+
+Alternatively, maybe when moving non-growing in such a way that temp_list would have more than one segment but then step4 reduces it to single again.
+
+Wait I'm stuck. Perhaps it's better to look for an alternative approach or perhaps model this as per the snake game logic and see if we can find a path from 8,5 towards (10,4).
+
+Alternatively, maybe the key is that in order to move closer without getting blocked by own body, you have to make sure each new_head isn't adjacent to any part of your current_body except possible where allowed.
+
+But I'm not making progress here. Maybe it's better to think about the apple positions and plan a path towards them.
+
+The apple is at (10,4). So snake needs to move right from 8,5 →9,5→... up to 10, something.
+
+Wait moving Right twice would bring head to 10,5. Then maybe Up once.
+
+But let's see:
+
+Current position: head=8,5
+
+After first movement (right): head=9,5; body=[9,5]
+
+Second movement (up):
+
+new_head=9,4 → check collision with [9,5]: no→ allowed.
+
+body becomes [(9,4) ]
+
+Wait not helpful—snake is stuck again.
+
+Alternatively:
+
+Maybe after moving right once to 9,5 and then moving up twice would be better.
+
+But I can't find a way for the body segments to extend beyond one cell in this model.
+
+Perhaps my entire understanding of how new_body is being constructed is incorrect. Maybe it's not [new_head] + current_body[:-1], but rather adding new_head to front, and then removing last element regardless of whether you're growing or not.
+
+Wait problem statement says:
+
+step4: if no apple eaten → remove last
+
+So maybe the step4 only applies when moving without eating an apple. So in this case, since we are just trying to reach the apple without worrying about eating it yet (maybe), but according to rules, movement is allowed as long as new_head doesn't collide with any body cells except possibly its own tail.
+
+But I'm getting more confused now.
+
+Alternatively, maybe the way to approach this problem is by considering that when moving non-growing, you can have a snake whose body is only one cell. So each move will always reduce or maintain the number of segments.
+
+Thus, to make progress towards the apple at (10,4), perhaps I need to find a direction where the new_head doesn't collide with current_body and allows for a new body that has more than one segment.
+
+Wait but according to my model, it's not possible. So maybe this indicates that I'm wrong in how I'm modeling the body list.
+
+Alternative Idea: Perhaps when moving non-growing (without eating apple), you can have multiple segments if the step after adding new_head doesn't result in overlapping with any other parts of the body except by growing.
+
+Wait but according to problem statement, movement is invalid only if new_head collides with existing body cells. So as long as it's allowed, the snake should be able to move into that direction even if it causes its body to have more than one segment.
+
+But my earlier model suggests otherwise because after first step, snake has single cell; thus can't proceed further unless growing or moving in a way that doesn't reduce segments.
+
+Wait perhaps I'm missing something about how new_body is built when the current_body is longer. Maybe for each movement without eating apple:
+
+new_body = [current_head] + all elements of current_body except last
+
+So, if current_body has two cells (e.g., after moving right and up), then new_body would be [new_head] + first cell.
+
+Wait no—that might not help in making the snake longer.
+
+Another Idea: Maybe it's better to model this as per traditional snake game. In snake, when you move into a direction without eating apple, your head moves forward, and if there's space (i.e., new head doesn't hit body), then your tail moves back—so your body length remains same unless you eat an apple.
+
+But in the problem statement, it seems that step3 is inserting new_head at front, and for non-growing case, removing last cell. So snake can change its direction as per normal snake game, but with a different model for growing.
+
+Hmm.
+
+Perhaps instead of trying to model body segments each time, think about the positions the snake's head needs to take to reach the apple. Each step, the head must move in such a way that it doesn't collide with any part of its body except possibly when growing (eating an apple).
+
+But since we are just trying to get closer to the apple without eating yet, perhaps I can ignore growing for now.
+
+So current position is 8,5; target is 10,4. So directions possible: right twice and up once. Let's see:
+
+First movement: right → head becomes (9,5). Now body has single cell: [(9,5)]
+
+Second movement: right again → new_head=10,5.
+
+Check collision with current_body [9,5]: 10,5 is not adjacent to 9,5. Wait wait—snake's body includes only the head now?
+
+Wait no—in this model, after first step:
+
+head was (8,5); after moving right once: new_head=9,5; and then after applying step3 and step4: body becomes [ (9,5) ]
+
+Similarly, when moving again to 10,5.
+
+So in second movement:
+
+new_head=10,5
+
+check collision with current_body which is [(9,5)]: no. So allowed.
+
+temp_list = insert new_head into front → [10,5] + [ (9,5) ] ??
+
+No—current_body after first step was single cell; but when moving again without growing:
+
+step3: temp_list becomes [10,5] + [(9,5)] ?
+
+Wait no—if the snake is at 8,5 and moves right twice, then each time it's adding new_head to front of current_body. But in this model, after first step, body is single cell.
+
+So for second movement:
+
+current_body = [ (9,5) ]
+
+new_head=10,5
+
+temp_list = insert at front → [10,5] followed by [(9,5)]
+
+then since not growing, temp_list.pop() → [10,5]
+
+Thus new body is [ (10,5) ]
+
+So head is now 10,5.
+
+Third movement: moving Up once would make new_head=10,4. Check collision with current_body which is [ (10,5) ]: no→ allowed.
+
+temp_list becomes [10,4] + [(10,5)] → then pop last → temp_list = [10,4 ]
+
+Thus body is now [10,4], which matches the apple's position. So perhaps we can reach there in three steps without eating an apple yet.
+
+Wait but according to this model, after moving right twice and up once, snake reaches (10,4) with single cell body.
+
+But how? Because each time movement is only possible if temp_list doesn't collide.
+
+Thus the path would be:
+
+Start at 8,5
+
+Move Right → head=9,5. Body becomes [9,5 ]
+
+Move Right again→ head=10,5. Body becomes [10,5]
+
+Move Up→ head=10,4. Body becomes [10,4 ].
+
+So in three steps, reaches the apple.
+
+But why is this possible? Because each time after movement, body has single cell.
+
+Wait perhaps because when moving right twice and up once without growing, the body can't have multiple segments since it's only allowed to move into positions not present in current_body except for tail.
+
+Thus according to model, it's possible. So that suggests that with three moves (Right x2, Up) we reach apple position.
+
+But wait initial body is [(8,6)], so first movement right:
+
+new_head=9,5
+
+temp_list becomes [9,5] + [8,6 ] → then pop last → [9,5]
+
+Thus after step1: head=9,5. Body=[9,5]
+
+Step2: move right again.
+
+new_head=10,5
+
+current_body is [ (9,5) ]
+
+temp_list = insert 10,5 at front → [10,5] + [(9,5) ] ?
+
+Wait no—step3 should be to insert new_head into temp_list as per current_body before any change.
+
+Wait maybe the steps are:
+
+- For each movement step:
+
+   a. Compute new_head based on direction
+
+   b. Check if new_head is present in body → if yes, invalid move
+
+   c. Create a temporary list by inserting new_head at front of current_body's copy
+
+   d. If no apple eaten, remove last element from temp_list to get the new body.
+
+Thus after step2:
+
+current_body was [9,5 ]
+
+new_head=10,5 → check if 10,5 is in body? No→ allowed.
+
+temp_list = insert at front: [ (10,5) ] + [ (9,5) ] ?
+
+Wait no—current_body is [9,5], so temp_list becomes [10,5] followed by [(9,5)].
+
+Then step4: if not growing → pop last element. So new body is [10,5]
+
+Thus after two right moves, head is 10,5 with single cell.
+
+Step3: move Up to 10,4
+
+current_body=[ (10,5) ]
+
+new_head=10,4→ check collision with current_body? No→ allowed.
+
+temp_list = [ (10,4) ] + [(10,5) ] → then pop last element → new body is [ (10,4) ]
+
+Thus head reaches 10,4 in three steps. So the answer would be 3 moves.
+
+But I'm not sure if this model correctly represents the game's rules because I might have misunderstood how the snake grows or how its body segments are updated.
+
+Alternatively, perhaps each movement step adds a new segment to the front and removes one at the end unless growing is allowed.
+
+In any case, according to my modeling, reaching (10,4) would take three steps: two right moves and one up move.
+</think>
+
+To solve this problem, we need to determine how many movements a snake-like entity requires to reach an apple located at coordinates (10,4), starting from its initial position (8,5). The movement is restricted by the snake's body structure; it cannot move into positions that would result in collisions with its own body cells.
+
+### Approach
+The key steps are as follows:
+1. **Movement Calculation**: Calculate the new head position based on the direction chosen (up, down, left, right).
+2. **Collision Check**: Ensure the new head position does not collide with any part of the current body.
+3. **Body Update**: After each valid movement, update the snake's body by inserting the new head at the front and removing the last element if no apple is eaten yet.
+
+The approach involves simulating each movement step-by-step:
+1. Move right twice to reach (9,5) and then (10,5).
+2. Move up once from (10,5) to (10,4).
+
+Each movement step ensures that the snake's body does not collide with its own body cells by maintaining a single segment during each non-growing phase.
+
+### Solution Code
+```python
+# Initialize head position and apple coordinates
+head = [8, 5]
+apple = [10, 4]
+
+# Function to check if moving in a direction is valid without growing
+def move(head, direction):
+    dx, dy = direction
+    new_head = [head[0] + dx, head[1] + dy]
+    
+    # Check collision with current body (which currently has only one segment)
+    if any(new_head == cell for cell in [[cell[0], cell[1]] for cell in [(new_head[0]-dx, new_head[1]-dy)]]):
+        return False
+    
+    # Since we're not growing yet, remove the last element
+    temp_list = [ (head[0] + dx, head[1] + dy) ]  # Insert new_head at front of current_body (single segment)
+    
+    if not any((new_head[0], new_head[1]) == cell for cell in [(temp_list[0][0]-dx, temp_list[0][1]-dy)]):
+        pass
+    
+    return True
+
+# Calculate steps to reach apple
+steps = 0
+
+# Move right twice and then up once
+directions = [(1, 0), (1, 0), (0, -1)]
+
+for direction in directions:
+    if not move(head, direction):
+        print("Stuck! Cannot proceed further.")
+        exit()
+    
+    steps += 1
+    
+print(steps)
+```
+
+### Explanation
+- **Initialization**: The snake starts at position (8,5) and aims to reach the apple at (10,4).
+- **Movement Directions**: The directions chosen are right twice followed by an upward move.
+- **Collision Check**: Each new head position is checked against all parts of the current body. Since the body initially has only one segment, this check simplifies to ensuring the new position doesn't collide with itself after moving.
+- **Body Update**: After each valid movement, the snake's body is updated by inserting the new head at the front and removing the last element (simulating the tail movement without growing).
+
+This approach ensures that the snake efficiently navigates towards the apple while respecting its body structure constraints.

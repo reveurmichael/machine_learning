@@ -1,0 +1,18 @@
+SECONDARY LLM Request Time: 2025-06-16 05:42:17
+SECONDARY LLM Response Time: 2025-06-16 05:42:27
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (5, 3)
+Apple Position: (7, 6)
+Body Cells: [(5, 2), (5, 1), (5, 0)]
+Timestamp: 2025-06-16 05:42:27
+
+
+========== SECONDARY LLM RESPONSE ==========
+
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "RIGHT", "UP", "UP", "UP"],
+  "reasoning": "The snake starts at (5,3). To reach (7,6), it needs to move 2 steps to the right and 3 steps up. The moves are RIGHT, RIGHT, RIGHT, UP, UP, UP."
+}
+```

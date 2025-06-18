@@ -1,0 +1,598 @@
+PRIMARY LLM Request Time: 2025-06-16 06:37:48
+PRIMARY LLM Response Time: 2025-06-16 06:41:02
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: deepseek-r1:7b
+Head Position: (5, 5)
+Apple Position: (0, 6)
+Body Cells: [(5, 4), (5, 3), (4, 3)]
+Timestamp: 2025-06-16 06:41:02
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+<think>
+Okay, so I'm trying to help figure out how to get the snake from position (5,5) to eat the apple at (0,6). Let me see what I know.
+
+First, the snake's current head is at (5,5), direction is UP. The body cells are [(5,4), (5,3)], which means the next segment after the head is (5,4), then (5,3) as the tail. So the snake looks like this:
+
+Head: (5,5)
+Body1: (5,4)
+Body2: (5,3)
+
+So right now, moving UP would take the head to (5,6). But wait, I need to check if that's safe.
+
+The apple is at (0,6), which is all the way to the left. The snake needs to move towards it without colliding with its own body or getting stuck.
+
+Hmm, but moving directly from (5,5) UP to (5,6) might not be possible because the tail is at (5,3). So if I move UP next time, after the head moves, I need to make sure there's space. But maybe first trying to see what directions are allowed.
+
+The current direction is UP, but according to movement rules, we can't reverse immediately on the first move. Wait, no—the initial direction is UP, which was set by the input. So the first move cannot be DOWN if the current direction is UP? Or does it mean that after a direction, you can't do its opposite next turn?
+
+Wait, looking back at the rules: "Cannot reverse". If current direction is "UP", you may not choose "DOWN" next; similarly for LEFT and RIGHT. So from UP, we cannot move DOWN next turn.
+
+So first move options are LEFT, RIGHT, or NONE (no movement? But that wouldn't make sense to stay in place).
+
+Wait no—if the current direction is UP, but what's allowed for the next move? The "Cannot reverse" rule says you can't choose the opposite direction. So from UP, cannot choose DOWN.
+
+So possible first moves are LEFT, RIGHT, or NONE (but moving nowhere seems like a bad idea because we need to get closer). Wait, but if current direction is UP and the next move is NONE, does that mean stop? But then the body would remain in place, which might not help. So maybe it's better to change directions.
+
+But let me try planning step by step.
+
+Current position: head at (5,5), direction UP.
+
+First move options:
+
+1. LEFT: new_head becomes (4,5). Is that a valid move? Let's check collisions. The body is at (5,4) and (5,3), so moving LEFT doesn't interfere with the current body except for the tail.
+
+Wait, but after moving LEFT, the head would be at (4,5), then the body becomes [(4,5), (5,5)]—no, wait. Wait no: the new head is added to the front of the BODY list, which was previously [ (5,5), (5,4), (5,3) ]? No, wait—the initial snake's body is given as [ (5,4), (5,3) ]. So the full S is [head (5,5), followed by (5,4), then (5,3)].
+
+So when we move LEFT:
+
+new_head = (4,5).
+
+Then we add this to the front of the body list: new body starts with (4,5). Then each existing body cell becomes shifted back. So after moving, the body would be [ (4,5), (5,5) ].
+
+Wait, no—the initial body is [(5,4), (5,3)]. So S before movement is:
+
+S = [ (5,5), (5,4), (5,3) ]
+
+After moving LEFT to (4,5):
+
+Insert head at front: new S becomes [ (4,5), (5,5), (5,4), (5,3) ].
+
+Then since the direction is UP and apple isn't eaten yet, we check for collision. The new_head (4,5) isn't in the body except if the tail moves—but wait, no: the movement rules say that in a normal move without eating apple, the tail is removed from the end of the body list.
+
+Wait, let me re-examine:
+
+- If not eating apple, after adding new head to front and shifting bodies, remove last element (tail).
+
+So moving LEFT would result in S = [ (4,5), (5,5), (5,4) ] because we add 4,5 as head, then existing body is [ (5,5), (5,4), (5,3) ], but after adding new_head at front and removing last element, it's [ (4,5), (5,5), (5,4) ].
+
+Is this safe? Let me check for collision:
+
+- new_head (4,5): is it in the existing body before shift?
+
+The existing body was [(5,4), (5,3)], and after adding new head and removing tail, the current S becomes [ (4,5), (5,5), (5,4) ].
+
+But when checking for collision during movement:
+
+Before any changes, the snake is at [(5,5), (5,4), (5,3)]. The new_head is (4,5). So before body shifts, check if (4,5) collides with any body cell except the tail's current position. Tail's current position is (5,3).
+
+So (4,5) isn't in [ (5,5), (5,4), (5,3) ].
+
+Then proceed to add new_head and remove tail:
+
+New S becomes [(4,5), (5,5), (5,4)], which doesn't cause any collision because the new head is only adjacent to the previous head (5,5).
+
+So moving LEFT seems safe. But wait—after moving left, how does the body look? Let me make sure.
+
+Wait no—if the initial S before movement was [(5,5), (5,4), (5,3)], then when we add new_head (4,5) to front and remove tail (5,3), the new S becomes [ (4,5), (5,5), (5,4) ].
+
+Now, each segment in the body must be adjacent:
+
+- 4,5 is adjacent to 5,5.
+- 5,5 is adjacent to 5,4.
+
+Yes, that's fine. So no collision occurs.
+
+So moving LEFT seems safe.
+
+But wait—what about after this move? The snake's head would be at (4,5), and body cells at (5,5) and (5,4). Next step might require another left or something else.
+
+Alternatively, maybe moving UP first isn't possible because it's the current direction. Wait no—the initial direction is UP, but that doesn't restrict us from making other moves—except we can't reverse direction next turn.
+
+Wait, actually, the movement update rule says:
+
+"Movement Example (Eating Apple): Suppose S = [HEAD (5,5), BODY1 (5,4), BODY2 (5,3)] and apple is at (6,5). Current direction is "RIGHT". Choose "RIGHT": new_head becomes (6,5). Check collisions: no. Then update body by inserting head at front and removing tail if not eating.
+
+So the direction itself doesn't restrict next moves except for reversing—only from the current move's direction can you not choose its opposite next turn.
+
+Wait, looking back:
+
+"2. Cannot reverse": If current direction is "UP", cannot choose "DOWN" next; similarly for LEFT and RIGHT. So initial movement options are: can we choose any direction except DOWN?
+
+But the initial direction was UP—so first move cannot be DOWN? Or does it mean that from the current state, you can't immediately reverse your previous direction.
+
+Wait, let me re-read:
+
+"2. Cannot reverse": If current direction is "UP", you may not choose "DOWN" next; similarly for LEFT and RIGHT. So if we're moving UP now, our next move cannot be DOWN.
+
+But does that apply to all future moves? Or only the immediate next?
+
+I think it's for each individual move: from UP, can't do DOWN in the next step; but after that, you can choose any direction except opposite of current.
+
+Wait, maybe I'm overcomplicating. Let me try making a plan.
+
+The snake is at (5,5) facing UP. The apple is at (0,6). We need to get closer without colliding with body or getting stuck.
+
+Option 1: Move towards the left as much as possible since we're on x=5 and target is x=0—so moving LEFT would take us further away in terms of x but same y. Alternatively, maybe move DOWN because y needs to decrease from 5 to 6? Wait no—the apple is at (0,6), which has a higher y than the head's current position.
+
+Wait, wait: the snake's current position is (5,5). The apple is at (0,6), so x decreases by 5 and y increases by 1. So direction-wise, we need to go left (to reduce x) and up (to increase y).
+
+But since we're facing UP, maybe it's better to make a U-turn? But the rules don't allow immediate reversal.
+
+Wait, let me think step by step.
+
+First move options: LEFT, RIGHT, or NONE. Wait, but can we even choose NONE?
+
+If I choose NONE as the first move, that would mean not moving at all. Then in the movement:
+
+new_head = (5,5) (same as current). So then inserting into front of body and shifting.
+
+But this will cause a loop? Because if no movement is done, each step doesn't change anything—it's an infinite loop unless something else changes.
+
+So it's better to choose a direction that allows progress towards the apple.
+
+Let me try moving LEFT first. As I did before—head moves to (4,5). Then the body becomes [ (4,5), (5,5), (5,4) ].
+
+Then next move: let's see what options we have.
+
+Now facing left from previous step? Or do directions change based on movement?
+
+Wait no—the direction is a setting that dictates how much to move towards or away. So if current direction is UP, moving LEFT would be moving westward—so the snake moves in both x and y as per its heading.
+
+But now after moving LEFT, where are we facing? Hmm—maybe not changing direction unless necessary.
+
+Wait no—the initial movement was according to the given direction (UP), but subsequent movements can change directions except for the reverse rule.
+
+So since current direction is UP, next move cannot be DOWN. So first step options: LEFT or RIGHT?
+
+Wait, perhaps moving UP again isn't possible because it's the same as current? Or does direction remain unless changed.
+
+No—wait, according to movement rules:
+
+- The movement is dictated by the current direction.
+But you can change direction each time, except that you cannot reverse (i.e., from UP, next move cannot be DOWN; from LEFT, cannot move RIGHT next).
+
+So in our case, initial direction is UP. Next move options are: LEFT or RIGHT—because if I choose UP again, it's not reversing.
+
+Wait no—if the current direction was UP, moving UP again doesn't reverse—it just continues going UP. So perhaps we can change direction to LEFT from there without violating rules?
+
+Wait maybe this is getting too complicated. Let me think of another approach.
+
+Alternative plan: since the apple is at (0,6), which is quite far left and a bit up compared to current position, I need to move both left and up.
+
+So perhaps first moving LEFT as much as possible until reaching x=0? But in y direction—need to increase from 5 to 6. So step by step:
+
+Move LEFT: (4,5). Then maybe UP again if allowed.
+
+Wait but the initial direction was UP; next move cannot be DOWN. If I keep moving UP, it's same as before.
+
+But that would cause the head to go upwards beyond current body—let me check for each movement.
+
+Alternatively, perhaps a better approach is to have the snake turn left and move towards the apple while also moving up.
+
+Wait, but let's think in terms of steps:
+
+Current position: (5,5) facing UP. Body cells at (5,4), (5,3).
+
+Move LEFT once—head moves to (4,5). New body is [ (4,5), (5,5), (5,4) ].
+
+Now next move options:
+
+- Can't choose DOWN because current direction was UP.
+- So can choose LEFT or RIGHT.
+
+If we move LEFT again: head becomes (3,5); then new body after movement would be [ (3,5), (4,5), (5,5) ]—but is this safe?
+
+Wait no, because when moving left from position (4,5):
+
+- New_head = (3,5)
+- Insert into front: S becomes [ (3,5), (4,5), (5,5), (5,4) ]
+But then the body shifts and tail is removed. So new S would be [ (3,5), (4,5), (5,5) ]
+
+Wait no—initially before movement:
+
+S = [ (4,5), (5,5), (5,4) ].
+
+After moving LEFT to 3,5: insert into front → [3,5], then existing body is [5,5] and [5,4]. So after adding new_head and removing tail if not eating apple:
+
+Wait no—when moving normally (not eating apple):
+
+New S would be [new_head, ...body].
+
+So in this case, when we move to 3,5:
+
+Insert at front: [3,5], then the rest are shifted. Since body was [(4,5), (5,5), (5,4)].
+
+Wait no—if original snake is [head (5,5)], followed by [5,4] and [5,3]. After moving to 4,5:
+
+S becomes [ (4,5), (5,5), (5,4) ].
+
+So when we move LEFT again from there—new_head would be (3,5).
+
+Insert into front: S is now [ (3,5), (4,5), (5,5), (5,4) ]. But the body only has three cells because after inserting new_head and shifting. Wait no—if initial was 3 segments:
+
+Original snake length is head + body = 1 + 2 = 3.
+
+After moving, add new_head: S becomes [new_head] + current_body → but then remove last element if not eating apple.
+
+Wait no—the movement update says:
+
+- Insert new_head at front.
+- Then, check for collision with any body cell except the tail's position before shifting (since the tail will move).
+- If safe, proceed to shift all body cells by adding new_head and removing tail.
+
+So after moving left once, S becomes [4,5], 5,5, 5,4].
+
+Now when we attempt another LEFT:
+
+new_head = (3,5). Insert at front: [3,5], then the rest are current_body shifted forward. But since in movement step, you remove tail after shifting.
+
+Wait, but each time you move, the body shifts one cell to the left and adds new_head as first element, and removes last element unless it's an eating move.
+
+So for a normal move (not eating), S becomes [new_head] + rest of current_body except last.
+
+In our case:
+
+After first LEFT: S is [4,5], 5,5, 5,4].
+
+Now moving left again to 3,5:
+
+Insert at front → new S would be [3,5], (4,5), (5,5), (5,4) ].
+
+But wait—the original body before movement was [4,5], then after adding new_head and removing tail: ?
+
+Wait no—wait the current snake is 3 cells:
+
+[head=4,5; body1=5,5; body2=5,4].
+
+After moving LEFT to 3,5:
+
+Insert at front → new_head = (3,5).
+
+Then shift all body elements except remove last.
+
+So new S becomes [ (3,5), (4,5), (5,5) ] because we added new_head and then took the first two of the previous three.
+
+Is that correct?
+
+Wait yes—because before movement, it's 3 cells: H=4,5; B1=5,5; B2=5,4. After adding new head at front (3,5), you have four positions but remove tail to get back to length 3? Or does the shift mean just moving along.
+
+Wait no—the movement update says:
+
+- Insert new_head into position of S.
+- Remove each segment and add them as a list in order: [S0] = [new_head], then for each s_i, move to front. Then if not eating apple, remove last element.
+
+No—probably it's that the new head is added at the beginning of the body array, and then all elements are shifted left except removing the last one (tail).
+
+So with S being [(5,5), (5,4), (5,3)], moving LEFT:
+
+new_head = (4,5). Insert to front: [ (4,5), (5,5), (5,4), (5,3) ].
+
+But since the snake's body can't exceed its length—wait no—the movement after adding new_head and removing tail would result in S becoming [(4,5), (5,5), (5,4)] because you add 4,5 to front and then shift right by one position.
+
+Wait that doesn't seem right. Maybe it's simpler: the body is a list where each move shifts all segments forward except the last, which becomes the tail.
+
+So when moving:
+
+- new_head = current head + direction (adjusted for movement)
+- Then insert new_head at front of body.
+- Shift all other elements to the left and remove last if not eating apple.
+
+Yes. So in code terms: S_new = [new_head] + old_S[0:-1]
+
+So initial S is [(5,5), (5,4), (5,3)] → new head moves to 4,5:
+
+S_new = [ (4,5) ] + [(5,5), (5,4)].
+
+Wait no—old_S[:-1] would be the first two elements: [ (5,5), (5,4) ]
+
+So S becomes [ (4,5), (5,5), (5,4) ]
+
+Which is correct. So moving left again from 4,5 to 3,5:
+
+new_head = (3,5)
+
+S_new = [ (3,5) ] + [(4,5), (5,5)] → S becomes [ (3,5), (4,5), (5,5) ]
+
+Is this safe? Let's check for collisions.
+
+When moving to 3,5:
+
+Check if new_head is in current_body except the last element. The body after movement would be [(4,5), (5,5), (5,4)] before shifting.
+
+Wait no—the original S was [4,5, 5,5, 5,4]. So when moving to 3,5:
+
+Check if new_head is in current_body[0:-1], which are [ (4,5), (5,5) ].
+
+Is (3,5) present? No. Then remove last element—current_body was [(4,5), (5,5), (5,4)]. After moving, S_new becomes [3,5] + [4,5, 5,5].
+
+Wait this is getting confusing. Maybe the key point is that each time you move in a certain direction, your body shifts forward, and the tail is removed.
+
+So let's think of it as the snake has a fixed number of cells—head followed by segments until tail. Each movement step:
+
+- Move head according to current direction.
+- Insert at front.
+- Then remove last element (tail) unless eating apple.
+
+So moving left twice would have us in position 3,5 with body [(4,5), (5,5)] and not yet removed any tails except the initial one. Wait no—the first move caused S to be [4,5], then [5,5], etc.
+
+This is getting too complex without code—maybe a better approach is to plan each step carefully:
+
+Current position after moving LEFT once: head at 4,5; body is [(5,5), (5,4)].
+
+Next move options: can't choose DOWN. So choose LEFT again for progress towards x=0.
+
+Move left again:
+
+new_head = (3,5)
+
+Insert into front → [3,5], then S becomes previous_body[1:] + new_head? Or no—wait the movement is to insert new_head and remove last element.
+
+So current S before moving: [(4,5), (5,5), (5,4)].
+
+After moving left:
+
+new_head = 3,5 → inserted at front. So [3,5] followed by [(4,5), (5,5), (5,4)]. But then we have to remove the last element if not eating apple.
+
+So S becomes [3,5], (4,5), (5,5). Because original body was [4,5, 5,5, 5,4]? Wait no—if initial after first move is [(4,5), (5,5), (5,4)], moving again would insert new_head at front and remove last.
+
+Wait this seems incorrect. Maybe the proper way to handle it is:
+
+At any step, S = [head] + body.
+
+When you move in a direction, head moves, then S becomes [new_head] + old_S[0:-1].
+
+So initial after first LEFT: S was [(4,5), (5,5), (5,4)].
+
+Now moving left again:
+
+new_head = 3,5 → insert into front. Then remove last element of previous S to make new S.
+
+Wait no—wait if you have old_S as [h1, b1, b2], then after adding h_new and removing last:
+
+S becomes [h_new] + [b1, b2].
+
+So initial S is [4,5; 5,5; 5,4]
+
+Moving left: new_head=3,5 → inserted at front. Then remove the last element (5,4), so S becomes [3,5], (5,5), (5,4). Wait no—that's what it was after first move.
+
+Wait perhaps each movement step only shifts and adds a new head without removing anything until eating apple.
+
+Alternatively, maybe I'm overcomplicating. Let me instead think about the path to the apple.
+
+Apple is at (0,6).
+
+Current position: (5,5). Body is [(5,4), (5,3)].
+
+So need to move left a total of 5 steps (from x=5 to x=0) and up one step from y=5 to y=6.
+
+But since the snake has body, we can't make diagonal moves. So must move in such a way that each movement doesn't cause collision with existing body except for the tail.
+
+So plan:
+
+1. Move LEFT until at (0,5). Then turn UP once to reach apple at (0,6).
+
+Let's see if this is possible without collision.
+
+But moving from 5→4→3→2→1→0 in x-direction while y remains same—will that cause body overlap?
+
+Wait let's simulate each step:
+
+Current position: head=5,5; body=[(5,4), (5,3)].
+
+Move LEFT once → head becomes 4,5. S is [ (4,5), (5,5), (5,4) ].
+
+Check for collision when moving to 4,5—no overlap with current body except before shifting? Or after?
+
+Wait according to movement rules:
+
+- Check if new_head is in the existing S's body cells except the last one. If not, proceed; else, can't move.
+
+So when you insert new_head at front and then shift all others except remove tail, so collision check is done on the original S before any shifting except removing the last cell only for eating apple.
+
+Wait no—the rules say: "Check whether the new head position is in the snake's body (excluding its own tail)."
+
+So when moving to 4,5, we check if it's present in current_body = [(5,5), (5,4)] except tail. Since S was originally [5,5; 5,4; 5,3], but during movement, the new_head is checked against all body parts except the last one.
+
+Wait no—the exact rule says: "Check whether the new head position is in the snake's body (excluding its own tail)."
+
+So when moving to a new head, check if that position exists anywhere else in S except the last element. If it does, collision; can't move.
+
+In our case:
+
+After first LEFT movement—head moves to 4,5. Check if 4,5 is present elsewhere (excluding last cell which was 5,3). The body before shift is [5,5;5,4]. So no conflict.
+
+Thus allowed.
+
+Next step: moving left again.
+
+New_head=3,5. Check if it's in current_body (excluding tail).
+
+Current_body for this move would be after first movement—S is [(4,5), (5,5), (5,4)]. But when checking new_head before shifting:
+
+Is 3,5 present in [ (4,5), (5,5) ]? No. So can move.
+
+Proceed: head becomes 3,5; S becomes [3,5, 4,5, 5,5].
+
+Wait no—original after first movement is [(4,5), (5,5), (5,4)]. After moving left to 3,5:
+
+new_head=3,5.
+
+Check if it's in current_body[0:-1] = [4,5;5,5]. No. So move allowed.
+
+Insert new_head and shift: S becomes [3,5], followed by [(5,5), (5,4)], but since we are not eating apple, remove last element → S is now [3,5, 4,5].
+
+Wait no—wait when moving normally, after inserting new_head, you have:
+
+[ new_head ] + old_S.
+
+But then if not eating, you remove the last element. So in this case:
+
+old_S was [(5,5), (5,4); ?
+
+Wait sorry for confusion earlier.
+
+Each time movement is done without eating apple: S becomes [new_head] + old_S[:-1]
+
+So after moving to 3,5 from position where S was [(4,5), (5,5), (5,4)]:
+
+S_new = [3,5] + [(4,5), (5,5)] → since we remove last element.
+
+Wait no—old_S is the current body before movement. So moving to new_head and then adding to front, then removing tail if not eating apple.
+
+So initial S was [head=4,5; B1=5,5; B2=5,4].
+
+After inserting new_head=3,5:
+
+S becomes [3,5; 4,5; 5,5]. Wait no—because you have to remove the last element of old_S.
+
+Wait maybe I'm not getting this correctly. Let's simplify: The movement process is:
+
+1. Determine new_head based on current direction.
+2. Insert it at the front of S → [new_head] + S
+3. If not eating apple, then set S = [new_head] + S[:-1]
+
+So for each step:
+
+- Insert new_head and remove last if necessary.
+
+Thus in our case after moving to 4,5 from position (5,5):
+
+Initial S: [(5,5); (5,4); (5,3)]
+
+After inserting new_head=4,5 → [4,5; 5,5; 5,4; 5,3]
+
+Then remove last element because not eating apple → S becomes [4,5; 5,5; 5,4].
+
+So now moving left again to 3,5:
+
+Insert at front: [3,5; 4,5; 5,5; 5,4] → then remove last (5,4). So new S is [3,5; 4,5; 5,5].
+
+Check for collisions when moving from 4,5 to 3,5:
+
+The previous body was [5,5;5,4], so no conflict.
+
+So allowed. Now head is at 3,5.
+
+Move left again: new_head=2,5.
+
+Insert front → [2,5; 3,5; 4,5; 5,5] → remove last (5,5). So S becomes [2,5; 3,5; 4,5].
+
+Check if 2,5 is present in previous body except tail: yes? The previous body before movement was [3,5;4,5], so no.
+
+Wait the initial after first two moves was:
+
+Move1 (left): head=4,5 → S becomes [(4,5);(5,5);(5,4)].
+Move2 (left again): new_head=3,5. Insert into front → [3,5; 4,5; 5,5; 5,4]. Then remove last element: [3,5;4,5;5,5].
+
+Now moving to left from 3,5:
+
+new_head=2,5.
+
+Insert at front: [2,5] + S (which is [3,5;4,5;5,5]) → becomes [2,5;3,5;4,5;5,5]. Then remove last element because not eating apple. So new S is [2,5;3,5;4,5].
+
+Now check if 2,5 exists in the current body before moving (which was [3,5;4,5]).
+
+No. So allowed.
+
+Continue:
+
+Move left to 1,5: insert at front → [1,5;2,5;3,5;4,5] → remove last → S = [1,5;2,5;3,5].
+
+Check if 1,5 in previous body? No. Allowed.
+
+Next move left to 0,5:
+
+Insert new_head=0,5 at front: S becomes [0,5;1,5;2,5;3,5] → remove last element (3,5). So S is now [0,5;1,5;2,5].
+
+Check if 0,5 exists in previous body except tail.
+
+Previous body before moving was [1,5;2,5], so no. Thus allowed.
+
+Now head is at (0,5); body is [(1,5), (2,5)].
+
+Next move: turn UP once to reach (0,6). Since the apple is here.
+
+Check if new_head=0,6 exists in current_body except tail? Current_body before movement is [1,5; 2,5]. So no. Thus allowed.
+
+So now head is at (0,6), which is the apple's position. So this works without collision.
+
+Therefore, plan:
+
+Move left five times until x=0 while y remains same, then move up once to reach the apple.
+</think>
+
+To solve this problem, we need to navigate a snake from its starting position to the location of an apple on a grid. The snake can only move in straight lines (left or right) and cannot overlap with its own body except for when it eats the apple.
+
+### Approach
+1. **Initial Setup**: The snake starts at position (5, 5) with its body extending from (5, 4) to (5, 3). This means the snake's head is at (5, 5), and it has two trailing segments.
+2. **Movement Strategy**: 
+   - First, move left five times until the head reaches column 0. Each left move shifts the entire body one step to the right, keeping the tail at its current position except when the apple is eaten.
+   - Once the snake's head is at (0, 5), make a single upward move to reach (0, 6), where the apple is located.
+
+3. **Collision Avoidance**: Each movement check ensures that the new head position does not overlap with any part of the snake's body except for its tail when moving towards the apple.
+
+### Solution Code
+```python
+def can_move(snake, direction):
+    # Calculate new head position based on current direction
+    x, y = snake[0]
+    if direction == 'left':
+        new_head = (x - 1, y)
+    elif direction == 'right':
+        new_head = (x + 1, y)
+    else:  # assuming directions are only left and right for this problem
+        return False
+    
+    # Check if the new head is in the snake's body excluding the tail
+    for i, pos in enumerate(snake[1:-1]):
+        if pos == new_head:
+            return False
+    return True
+
+def move_snake(snake):
+    directions = ['left', 'right']
+    
+    target_y = 6
+    current_x = 5
+    
+    # Move left to reach x=0
+    for _ in range(5):
+        if not can_move(snake, 'left'):
+            break
+        snake.insert(0, (snake[0][0] - 1, snake[0][1]))
+    else:
+        pass  # Successfully moved all the way left
+    
+    # Now move up once to reach target position
+    if can_move(snake, 'up') and not any(pos == (0, target_y) for pos in snake):
+        snake.insert(0, (snake[0][0], snake[0][1] + 1))
+    
+    return True
+
+# Initial snake state: head at (5,5), body segments at (5,4), (5,3)
+initial_snake = [(5,5), (5,4), (5,3)]
+
+if move_snake(initial_snake):
+    print("Snake reached the apple!")
+else:
+    print("Failed to reach the apple.")
+```
+
+### Explanation
+- **Direction Handling**: The snake can only move left or right. Each move updates the head's position and shifts the body accordingly.
+- **Collision Check**: Before each movement, we ensure that the new head position does not collide with any part of the snake except for when it moves towards eating the apple.
+- **Path to Apple**: By moving left first until reaching column 0 and then moving up once, we efficiently navigate the snake to the target without overlapping its body.
+
+This approach ensures that the snake reaches the apple without getting stuck due to self-collision.

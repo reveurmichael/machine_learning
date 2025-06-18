@@ -1,0 +1,13 @@
+PRIMARY LLM Request Time: 2025-06-16 05:47:05
+PRIMARY LLM Response Time: 2025-06-16 05:47:30
+PRIMARY LLM Provider: ollama
+PRIMARY LLM Model: deepseek-r1:7b
+Head Position: (3, 3)
+Apple Position: (3, 2)
+Body Cells: []
+Timestamp: 2025-06-16 05:47:30
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+ERROR: No response field in JSON

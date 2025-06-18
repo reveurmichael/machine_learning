@@ -1,0 +1,89 @@
+SECONDARY LLM Provider: ollama
+SECONDARY LLM Model: gemma3:12b-it-qat
+Head Position: (4, 8)
+Apple Position: (6, 0)
+Body Cells: [(3, 8)]
+Timestamp: 2025-06-16 06:07:59
+
+
+========== SECONDARY LLM PROMPT ==========
+
+You are the secondary LLM in a Mixture-of-Experts system for a Snake game. Your job is to format the primary LLM's output into valid JSON.
+
+Generate a valid JSON object from this Snake game primary LLM response (let's call it RESPONSE_1):
+
+BEGINNING OF RESPONSE_1:
+
+```
+<think>
+Alright, let's try to figure out how to get the snake from (4,8) to (6,0). The snake can move RIGHT two times and DOWN eight times because the head needs to go right twice (from 4 to 6) and down eight times (from 8 to 0).
+
+First, I need to check if moving right twice is possible without hitting any walls or body segments. Since it's a 10x10 grid, going right from x=4 to x=6 shouldn't hit the wall immediately because x=5 and x=6 are within bounds.
+
+Next, for the downward moves, I need to make sure that each step down doesn't land on any of the body segments. The current body is at (3,8), so moving down from (4,8) would go to (4,7). But wait, there's a body segment behind it? No, the provided body cells are [(3,8)], which is actually in front of the head but not directly in front because the snake moves right. So when we move RIGHT first, the head goes to (5,8), then maybe down steps can be taken without hitting any body.
+
+Wait, no—the current position after moving RIGHT would have the new head at (5,8). Then, the next steps would involve moving DOWN from there. But I need to ensure that each move doesn't cause a collision with the body. Since the initial body is only at (3,8), which is two cells behind in x but same y as the current head's y.
+
+After moving RIGHT twice, the head will be at (6,8). Then we start moving DOWN from there. Each step should check if the next cell is empty and not occupied by any part of the body or tail.
+
+We also need to make sure that when moving right, after each move, the snake's body remains continuous without overlapping. Since the initial body has only one segment at (3,8), as we move down, the new head would be safe until it reaches (6,0).
+
+Another thing is to check if any of these moves cause immediate self-collision when not eating the apple. Since moving right twice and then eight times down won't trigger any apple consumption except for the final step.
+
+Wait, no—the snake only eats the apple on its last move if it steps onto (6,0). So during all previous steps, it shouldn't be eating anything else.
+
+So planning the moves as RIGHT x2 followed by DOWN y8 should work. This will take 10 moves total: two to the right and eight down.
+</think>
+
+To navigate from position (4,8) to (6,0), we need to move Right twice and then Down eight times while ensuring no collisions with walls or body segments.
+
+```json
+{
+  "moves": ["RIGHT", "RIGHT", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "The snake moves two steps to the right (from x=4 to x=6) and then eight steps down (from y=8 to y=0). This path avoids walls, body segments, and ensures no collisions until reaching the apple."
+}
+```
+```
+
+END OF RESPONSE_1.
+
+## WHAT RESPONSE_1 LOOKS LIKE:
+RESPONSE_1 might look like this:
+  <think> THINK_PROCESS_TEXT_OF_RESPONSE_1 </think>
+  FINAL_OUTPUT_TEXT_OF_RESPONSE_1
+
+## OUTPUT FORMAT REQUIREMENTS OF YOUR ANSWER:
+{
+  "moves": ["MOVE1", "MOVE2", ...],
+  "reasoning": "brief explanation"
+}
+
+
+## COORDINATE SYSTEM TO HELP YOU UNDERSTAND RESPONSE_1:
+- UP = y + 1
+- DOWN = y - 1
+- RIGHT = x + 1
+- LEFT = x - 1
+
+Example Moves from (1,1):
+  • UP → (1,2)
+  • DOWN → (1,0)
+  • RIGHT → (2,1)
+  • LEFT → (0,1)
+
+## THE MAIN OBJECTIVE OF RESPONSE_1 SO THAT YOU CAN UNDERSTAND BETTER RESPONSE_1:
+
+The main objective of RESPONSE_1 is to generate a list of safe moves that leads the snake, whose head is now at (4, 8) and whose body cells are in list format [(3, 8)], to eat (or at least get close to) the apple at (6, 0). It's possible that RESPONSE_1 cannot determine a complete safe path to the apple and gives just one or several initial moves.
+
+## RULES:
+- "moves" must be a list of directions from: "UP", "DOWN", "LEFT", "RIGHT". Note that directions are uppercase. You might see "U", "D", "L", "R" in the text for representing moves, you should convert them to "UP" (for "U"), "DOWN" (for "D"), "LEFT" (for "L"), "RIGHT" (for "R"); you might see "North", "South", "West", "East" in the text for representing moves, you should convert them to "UP" (for "North"), "DOWN" (for "South"), "LEFT" (for "West"), "RIGHT" (for "East").
+- "reasoning" must be a brief explanation for the chosen path
+- If after reading RESPONSE_1, according to your understanding, no valid path exists or no safe initial moves can be performed, or if you are not sure about the text's meaning on path and move planning, return your answer in JSON format: { "moves": [], "reasoning": "NO_PATH_OR_SAFE_INITIAL_MOVES_FOUND" } or { "moves": [], "reasoning": "I_CANNOT_UNDERSTAND_THE_TEXT" }
+
+## WHAT YOU SHOULD DO:
+- First, if RESPONSE_1 starts with the word "ERROR" (capitalized), you should return { "moves": [], "reasoning": "SOMETHING_IS_WRONG" } in JSON format.
+- Second, if RESPONSE_1 contains the <think>...</think> tags, you should ignore THINK_PROCESS_TEXT_OF_RESPONSE_1 and rely solely on FINAL_OUTPUT_TEXT_OF_RESPONSE_1 to figure out your answer in JSON format.
+- Third, if FINAL_OUTPUT_TEXT_OF_RESPONSE_1 is not sufficiently informative on moves to perform (e.g. leading to the apple, or one or several initial safe moves), you should use the whole text of RESPONSE_1 to figure out your answer in JSON format.
+- Fourth, if RESPONSE_1 does not contain the <think>...</think> tags, you should use the whole text of RESPONSE_1 to figure out your answer in JSON format. Texts at the beginning of RESPONSE_1 are much less important than the texts torwards the end.
+
+Return ONLY the JSON object without any additional text.

@@ -72,23 +72,6 @@ if json_data and validate_json_format(json_data):
 - Structured validation of response format
 - Serializable responses for logging and replay
 
-### 3.3 New Architecture: Defensive Programming
-
-**Runtime Verification System:**
-```python
-def _verify_coordinate_system(self):
-    """Logs coordinate system rules and validates test moves"""
-    
-def _validate_move(self, current_pos, new_pos, direction_key):
-    """Catches coordinate system violations at runtime"""
-```
-
-**Multi-Layer Error Recovery:**
-1. Direct JSON parsing
-2. Preprocessed parsing (handles LLM syntax issues)
-3. Array extraction from malformed responses
-4. Move sequence validation and filtering
-
 ---
 
 ## 4. Prompt Engineering Improvements
@@ -114,40 +97,39 @@ v2 includes explicit move calculations to guide LLM reasoning:
 
 This addresses discovered limitations in LLM spatial reasoning.
 
+---
+
+## 5. Architecture Philosophy
+
+The migration reveals a shift from LLM-optimistic (trusting LLM output) to LLM-defensive (assuming LLM unreliability).
 
 ---
 
-## 7. Unexpected Discoveries
+## 6. Unexpected Discoveries
 
-### 7.1 LLM Behavioral Patterns
+### 6.1 LLM Behavioral Patterns
 - **Syntax vs. Semantics Gap**: LLMs like deepseek-r1:7b, 14b and 32b can reason about complex game strategies but frequently fail on basic JSON syntax
 - **Mathematical Coaching Effectiveness**: Explicit calculations significantly improve spatial reasoning
 
-### 7.2 Architecture Insights
+### 6.2 Architecture Insights
 - **Coordinate verification** catches more bugs than anticipated
 - **Template-based prompts** enable A/B testing of reasoning strategies
 - **JSON responses** accidentally solve future replay requirements
 
 ---
 
-## 8. Lessons for AI Practitioners
+## 7. Lessons for AI Practitioners
 
-### 8.1 Technical Lessons
-1. **Representation alignment matters** – But syntax/semantics gaps require defensive programming
+### 7.1 Technical Lessons
+1. **Representation alignment matters** – Coordinate systems as mental models: the cognitive load of coordinate translation affects both humans debugging and LLMs reasoning—alignment benefits both
 2. **Structure over eloquence** – Machine-readable contracts outperform natural language flexibility
 3. **Incremental migration** – v2 reorganizes without discarding v1 patterns, enabling quick validation
 4. **LLM-aware architecture** – Traditional software assumptions don't apply to AI-integrated systems
 
 ---
 
-## 9. Concluding Thoughts
+## 8. Concluding Thoughts
 
-The v1→v2 migration reveals that **reliable AI integration** requires more than algorithmic improvements—it demands **architectural discipline**. The coordinate system change was straightforward; the real complexity lay in building robust error recovery, validation, and debugging capabilities around an inherently unreliable AI component.
-
-The technical debt from v1's coordinate confusion and parsing brittleness created a cascade of reliability issues. v2's systematic approach to structured I/O, defensive programming, and comprehensive verification establishes patterns that extend beyond this specific game engine.
-
-**Key Insight**: The migration succeeded not by making the LLM more reliable, but by making its failures more visible and recoverable. This represents a mature approach to human-AI collaboration in software systems.
-
-> "*Good abstractions don't hide complexity—they make failure modes debuggable.*" — Learned from this migration
+The v1→v2 migration represents a maturation from prototype thinking ("let's see if this works") to production thinking ("how do we make this work reliably").
 
 

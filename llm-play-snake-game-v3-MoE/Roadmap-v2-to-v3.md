@@ -18,13 +18,13 @@ The transition from v2 to v3 was a significant architectural refactor, touching 
 
 | Topic                 | v2: The Prototype                               | v3: The Platform                                                              |
 |-----------------------|-------------------------------------------------|-------------------------------------------------------------------------------|
-| **Project Layout**    | ~6 core Python files in a flat directory        | 8 domain-driven packages (`core/`, `gui/`, `llm/`, `utils/`, `dashboard/`, etc.) |
-| **Architecture**      | Monolithic (`snake_game.py` ≈ 600 LOC)          | Multi-layered (SOLID, OOP, Design Patterns)                                   |
+| **Project Layout**    | 6 core Python files in a flat directory        | 7 domain-driven packages (`core/`, `gui/`, `llm/`, `utils/`, `dashboard/`, etc.) |
+| **Architecture**      | Monolithic (`snake_game.py` = 585 LOC)          | Multi-layered (SOLID, OOP, Design Patterns)                                   |
 | **LLM Abstraction**   | Hard-coded, single-provider logic               | Provider registry with optional dual-LLM fallback support                       |
 | **Configuration**     | Single `config.py` with global constants        | Hierarchical `config/` package with dedicated modules for constants           |
 | **Logging**           | Scattered `print()` statements & `.txt` files   | Structured `game_N.json` logs that capture token usage and basic timing metrics |
 | **Observability**     | Manual log-scrolling                            | Structured JSON logs plus a replay engine and a Streamlit dashboard for monitoring sessions |
-| **GUI**               | Pygame-only, tightly coupled to game logic      | Decoupled `gui/` and `dashboard/` layers supporting both Pygame and Web (HTML/JS) |
+| **GUI**               | Pygame-only, tightly coupled to game logic      | Decoupled `gui/`, `dashboard/`, and `web/` layers supporting Pygame desktop, Streamlit configuration, and Flask web interfaces (live gameplay, human play, replay) |
 | **Testability**       | GUI-bound, effectively untestable               | Headless-capable core (`GameController.make_move()`) designed to enable unit testing |
 | **Error Handling**    | Silent failures (e.g., empty LLM response)      | Explicit error sentinels (`EMPTY`, `INVALID_REVERSAL`) with retry logic       |
 | **Extensibility**     | High-friction; new features required deep edits   | Lower-friction; new providers/features can be added mostly by extension (minor registry edit) |
@@ -42,7 +42,7 @@ A successful project attracts new questions. The limitations of v2 made answerin
 *This part provides a frank and detailed analysis of the specific technical shortcomings of the v2 codebase that motivated a substantial refactor.*
 
 ### 5. Architectural Analysis of the v2 Monolith (`snake_game.py`)
-The centerpiece of v2 was `snake_game.py`, a 586-line file containing a single class, `SnakeGame`. This class was a monolith: it directly handled game state (snake position, apple position), game rules (collision detection), statistics (score, steps), rendering logic (calling Pygame drawing functions), and LLM response parsing. This concentration of responsibility was the root cause of most subsequent pain points.
+The centerpiece of v2 was `snake_game.py`, a 585-line file containing a single class, `SnakeGame`. This class was a monolith: it directly handled game state (snake position, apple position), game rules (collision detection), statistics (score, steps), rendering logic (calling Pygame drawing functions), and LLM response parsing. This concentration of responsibility was the root cause of most subsequent pain points.
 
 ### 6. Pain Point 1: The Circular Dependency Trap
 Because `SnakeGame` handled rendering, it needed to import `gui.py`. The `gui.py` file had optional conditional imports of `snake_game.py` for standalone testing. While this created some coupling, it was managed through conditional imports rather than direct circular dependencies.
@@ -69,7 +69,7 @@ The most significant long-term problem was the difficulty of adding new features
 Minimize mixed responsibilities. Game logic should not know about GUI rendering. LLM provider logic should not know about game rules. This principle guides the v3 package structure and addresses the v2 monolith issues.
 
 ### 12. Guiding Principle 2: The Pure Core, Impure Shell Model
-Wherever possible, core logic is designed to minimize side effects. While the core contains some I/O operations (like print statements for debugging), the goal is to push most I/O operations (file writing, network calls, GUI updates) to the outermost layers of the application (the "shell"). This makes the core logic more testable and predictable.
+Wherever possible, core logic is designed to minimize side effects. While the core contains numerous I/O operations (like print statements for debugging and user feedback), the goal is to push most I/O operations (file writing, network calls, GUI updates) to the outermost layers of the application (the "shell"). This makes the core logic more testable and predictable.
 
 ### 13. Guiding Principle 3: Configuration as Code (CaC)
 All tunable parameters—from `GRID_SIZE` to LLM model names—should reside in dedicated, version-controlled configuration files, not be hard-coded in application logic. This makes the system transparent and easy to tune.
@@ -92,16 +92,17 @@ V3 organizes code into packages based on their domain responsibility. A quick `t
 - `llm/`: All LLM-related code: provider abstractions, clients, prompts.
 - `gui/`: The Pygame desktop GUI.
 - `dashboard/`: The Streamlit web GUI.
-- `replay/`: The game replay engine.
+- `replay/`: The game replay engine (both CLI and web-based).
 - `utils/`: Shared helper functions (file I/O, networking, etc.).
 - `config/`: All configuration constants and templates.
+- `web/`: Directory containing Flask-based web templates and static files.
 - `logs/`: The output directory for all game data.
 
 ### 17. Deep Dive: `core/game_controller.py` - The Pure Rules Engine
-This file defines the `GameController` class. It is the lowest-level component, responsible primarily for the fundamental rules of Snake: moving the snake (`make_move`), detecting collisions, and placing apples. It has minimal dependencies on LLMs or GUIs, making it well-suited for headless operation. The class maintains game state including snake positions, apple positions, and score tracking.
+This file defines the `GameController` class. It is the lowest-level component, responsible primarily for the fundamental rules of Snake: moving the snake (`make_move`), detecting collisions, and placing apples. It has minimal dependencies on LLMs or GUIs, making it well-suited for headless operation. The class maintains substantial game state including snake positions, apple positions, score tracking, and board representation.
 
-### 18. Deep Dive: `core/game_data.py` - The Immutable Ledger
-This file defines the `GameData` class, a container for all statistics and historical data for a single game. It tracks every move, every apple position, and every timestamp. Its key method, `generate_game_summary()`, serializes the entire game state into a structured dictionary, which becomes the `game_N.json` log. It acts as the "memory" of a game.
+### 18. Deep Dive: `core/game_data.py` - The Game Statistics Tracker
+This file defines the `GameData` class, a mutable container for all statistics and historical data for a single game. It tracks every move, every apple position, and every timestamp. Its key method, `generate_game_summary()`, serializes the entire game state into a structured dictionary, which becomes the `game_N.json` log. It acts as the "memory" of a game.
 
 ### 19. Deep Dive: `core/game_logic.py` - The AI-Rules Bridge
 The `GameLogic` class inherits from `GameController` and adds the layer of AI-specific logic. It knows how to take the current game state, format it into a prompt using `llm/prompt_utils.py`, and parse the LLM's response using `llm/parsing_utils.py`. It bridges the rules engine with the artificial intelligence components.
@@ -119,7 +120,7 @@ This keeps the main loop more readable by delegating complex logic to other modu
 ### 21. Deep Dive: `core/game_manager.py` - The Session Orchestrator
 The `GameManager` class is the top-level orchestrator. It manages multi-game sessions, initializes all components (LLM clients, log directories), tracks aggregate statistics across games, and handles the overall application lifecycle, including graceful shutdown. It coordinates the entire application.
 
-### 22. Deep Dive: `core/game_stats.py` - The Language of Metrics
+### 22. Deep Dive: `core/game_stats.py` - Game Metrics
 This file provides the data structures for game metrics. It defines typed dataclasses for `StepStats`, `TimeStats`, and `TokenStats`. By centralizing these definitions, it ensures that metrics are collected and named consistently across the entire application, preventing bugs from typos or mismatched data types.
 
 ### 23. Deep Dive: `core/game_rounds.py` - Understanding Agent Planning Cycles
@@ -135,25 +136,40 @@ This file implements the Factory Method and Registry patterns. It maintains a di
 Each file like `deepseek_provider.py`, `ollama_provider.py`, etc., provides a concrete implementation of the `BaseProvider` interface. It handles the specific API calls, authentication, and error handling for that particular LLM service. Adding a new LLM requires creating a new provider file, implementing the required methods, and registering it in the provider registry.
 
 ### 27. Deep Dive: `llm/client.py` - The Central Gateway to LLMs
-The `LLMClient` class acts as the single point of contact for any part of the application that needs to communicate with a language model. It holds an instance of a concrete provider and exposes a simple `generate_response()` method. It also contains the logic for the dual-LLM fallback mechanism.
+The `LLMClient` class acts as the single point of contact for any part of the application that needs to communicate with a language model. It holds an instance of a concrete provider and exposes a simple `generate_response()` method. It also contains the logic for the dual-LLM parsing system with fallback to single-LLM parsing.
 
 ### 28. Deep Dive: `llm/communication_utils.py` - Orchestrating an LLM Call
 This module's `get_llm_response()` function handles the communication between the game state and the LLM. It takes the `GameManager`, formats the prompt, sends it to the `LLMClient`, saves the prompt and response to files, and initiates the parsing process. It coordinates a complete LLM interaction workflow.
 
-### 29. Deep Dive: `llm/prompt_utils.py` - The Art of Prompt Generation
+### 29. Deep Dive: `llm/prompt_utils.py` - Prompt Generation
 This utility centralizes the logic for creating the prompts sent to the LLM. `prepare_snake_prompt` takes the game state (head, body, apple positions) and formats it into the text representation the model expects using template substitution. Centralizing this prevents prompt inconsistencies.
 
 ### 30. Deep Dive: `llm/parsing_utils.py` - Response Parsing
 This utility handles parsing the LLM's (often unstructured) text output into a clean list of move strings (e.g., `["UP", "RIGHT", "RIGHT"]`). It contains logic to handle JSON formatting errors and other inconsistencies, isolating this parsing operation from the core game logic.
 
-### 31. Deep Dive: `gui/base_gui.py` - The GUI Contract (Interface Segregation)
-Following the Interface Segregation Principle, `BaseGUI` defines a minimal interface for a visual display, with methods like `draw_board()` and `draw_game_info()`. The `GameController` depends only on this abstraction, not on any specific graphics library like Pygame.
+### 31. Deep Dive: `gui/base_gui.py` - The GUI Base Class
+`BaseGUI` provides a base class with common functionality for GUI implementations, including helper methods for display setup, drawing, and text rendering. The `GameController` uses optional GUI dependency injection, allowing it to work with any GUI implementation or run headless without GUI dependencies.
 
 ### 32. Deep Dive: `gui/game_gui.py` - The Pygame Desktop Experience
-`GameGUI` inherits from `BaseGUI` and provides the concrete implementation using the Pygame library. This is the traditional, low-latency desktop GUI for local play. It translates the abstract `draw_board` calls into specific `pygame.draw.rect` commands.
+`GameGUI` inherits from `BaseGUI` and provides the concrete implementation using the Pygame library. This is the traditional, low-latency desktop GUI for local play. It implements game-specific drawing methods like `draw_board` using specific `pygame.draw.rect` commands.
 
 ### 33. Deep Dive: `dashboard/` - The Streamlit Web Experience
 The files in the `dashboard/` package use the Streamlit library to create a rich, interactive web application. This dashboard allows users to configure and launch game sessions, monitor progress in real-time, and view results—all from a web browser, making the platform accessible to non-technical users.
+
+### 33a. Deep Dive: `web/` - Flask-Based Interactive Web Interfaces
+V3 provides three distinct Flask-based web applications that complement the Streamlit dashboard:
+
+**Live LLM Mode (`main_web.py`)**: A real-time web interface for watching LLM-controlled gameplay. The interface displays the game board, current score, planned moves, and LLM responses as the game progresses, accessible via any web browser.
+
+**Human Play Mode (`human_play_web.py`)**: A web-based version of the Snake game for human players. It uses the same core game logic but provides browser-based controls (arrow keys/WASD) and real-time visual feedback through HTML5 Canvas.
+
+**Web Replay (`replay_web.py`)**: A browser-based replay system that can reconstruct and visualize any previously recorded game session. It provides playback controls, speed adjustment, game navigation, and displays the same metadata as the desktop replay system.
+
+### 33b. Deep Dive: `utils/web_utils.py` - Shared Web Infrastructure
+This module centralizes common functionality needed by all Flask applications, including color mapping for consistent visual appearance, game state serialization for JSON APIs, and utility functions for converting NumPy arrays to web-friendly formats.
+
+### 33c. Deep Dive: `utils/network_utils.py` - Network Port Management
+Provides utilities for finding available network ports, ensuring that multiple web services can run simultaneously without conflicts. Includes smart defaults and fallback mechanisms for port selection.
 
 ### 34. Deep Dive: `replay/replay_engine.py` - Debugging Support
 This file contains the logic for the replay engine. The replay script can be run from the command line, taking a `game_N.json` file as input. It then reconstructs the game visually using Pygame, move by move, including displaying the planned moves and other metadata for each step. This provides detailed observability for debugging.
@@ -174,7 +190,7 @@ V3 elevates configuration from a single file to a dedicated package. Files like 
 *This part provides an explicit, educational breakdown of how classic software engineering principles were applied in the v3 codebase, with direct references to the relevant files.*
 
 ### 38. SOLID Principle in Focus: Single-Responsibility in `core`
-A class should have only one reason to change. This is exemplified by the split between `GameController` (rules), `GameData` (statistics), and `GameGUI` (rendering). A change to the scoring algorithm only affects `GameData`, while a change to the color of the snake only affects `GameGUI`.
+A class should have only one reason to change. This is exemplified by the split between `GameController` (core rules), `GameData` (statistics), and `GameLogic` (AI integration). A change to the scoring algorithm only affects `GameData`, while a change to LLM prompt formatting only affects `GameLogic`.
 
 ### 39. SOLID Principle in Focus: Open/Closed in `llm/providers`
 Software entities should be open for extension, but closed for modification. The LLM provider system demonstrates this: one can add a new provider for "Claude" by creating a `claude_provider.py` file and registering it in `__init__.py`, without ever touching the existing, working provider code or the `LLMClient`.
@@ -183,10 +199,10 @@ Software entities should be open for extension, but closed for modification. The
 Subtypes must be substitutable for their base types. Because all LLM providers like `DeepseekProvider` and `OllamaProvider` implement the `BaseProvider` interface, the `LLMClient` can use any of them via a `BaseProvider` type hint, ensuring that calling `generate_response()` will work consistently.
 
 ### 41. SOLID Principle in Focus: Interface Segregation in `gui`
-No client should be forced to depend on methods it does not use. The `BaseGUI` provides a minimal interface (`draw_board`, `draw_game_info`, etc.) needed by the `GameController`. The controller remains completely ignorant of the hundreds of other methods available in the full Pygame library, which are only used within the concrete `GameGUI` implementation.
+No client should be forced to depend on methods it does not use. The `GameController` uses optional GUI dependency injection with a minimal interface - it only calls a simple `draw()` method when a GUI is present. The controller remains completely ignorant of the hundreds of other methods available in the full Pygame library, which are only used within the concrete GUI implementations.
 
 ### 42. SOLID Principle in Focus: Dependency Inversion in `GameManager`
-High-level modules should not depend on low-level modules; both should depend on abstractions. The `GameManager` (high-level policy) depends on the abstract `BaseProvider`, not the concrete `DeepseekProvider` (low-level detail). This inversion allows the low-level details to be swapped out without affecting the high-level policy.
+High-level modules should not depend on low-level modules; both should depend on abstractions. The `GameManager` (high-level policy) depends on `LLMClient`, which in turn depends on the abstract `BaseProvider`, not concrete `DeepseekProvider` implementations (low-level details). This inversion allows the low-level provider details to be swapped out without affecting the high-level policy.
 
 ### 43. Design Pattern in Focus: The Factory/Registry for Providers
 The `create_provider()` function in `llm/providers/__init__.py` acts as a factory. It takes a string ("ollama") and returns a fully-formed `OllamaProvider` object. This abstracts the creation logic away from the client, which doesn't need to know how to construct each specific provider.
@@ -197,17 +213,18 @@ The ability to select an LLM provider or a GUI at runtime is a classic example o
 ### 45. Design Pattern in Focus: The Facade Pattern of `GameManager`
 The `GameManager` class serves as a Facade. It provides a simple, unified interface (`run()`) to a complex subsystem comprising the game loop, LLM clients, logging, statistics, and GUI management. A user of `GameManager` doesn't need to know about the intricate interactions between these components.
 
-### 46. Design Pattern in Focus: The Template Method in `BaseGUI`
-The `BaseGUI` class provides common functionality for GUI implementations. For example, it provides helper methods for clearing the screen and rendering text. Concrete subclasses like `GameGUI` can use these shared methods and implement additional game-specific drawing logic.
+### 46. Design Pattern in Focus: Utility Base Class in `BaseGUI`
+The `BaseGUI` class provides common functionality for GUI implementations. It offers utility methods like `clear_game_area()`, `draw_apple()`, and `render_text_area()` that concrete subclasses like `GameGUI` and `ReplayGUI` can use. This promotes code reuse and consistent GUI behavior across different implementations.
 
 ### 47. Advantages of v3 over v2
 - **Modularity**: Code is organized by domain (`core/`, `llm/`, `gui/`, etc.), making it easier to navigate and maintain.
 - **Extensibility**: New functionality—such as LLM providers or GUIs—can be added primarily by *extension* (aside from a small registry edit).
-- **Testability**: A modular, headless core makes it easier to add unit tests; no comprehensive test suite currently exists.
+- **Testability**: A modular, headless core makes it easier to add unit tests; no unit tests have been implemented yet.
 - **Observability**: Structured JSON logs plus a replay engine enable deterministic debugging and post-hoc analysis.
 - **Configuration Management**: All tunable parameters live in version-controlled modules under `config/`, eliminating magic numbers.
 - **Error Handling**: Explicit sentinels (`EMPTY`, `INVALID_REVERSAL`) and retry logic make failures transparent and recoverable.
-- **Multi-GUI Support**: The core powers a low-latency Pygame GUI for live gameplay and a Streamlit dashboard for configuration and monitoring (the dashboard does not render gameplay in real time).
+- **Multi-Platform Access**: The core supports desktop Pygame, Streamlit dashboard, and Flask web interfaces, enabling access from any device with a web browser.
+- **Comprehensive Replay System**: Both command-line and web-based replay capabilities provide flexible debugging and analysis options.
 
 ### 48. Guidelines for Migrating to a Modular Architecture
 1. **Carve Out a Modular Core** – Isolate domain rules to minimize I/O and reduce external dependencies beyond the standard library.
@@ -235,11 +252,11 @@ Thanks to the v3 architecture, adding a new provider requires a straightforward 
 2.  Implement the required `generate_response` and `get_default_model` methods, handling the specifics of the new provider's API.
 3.  Import the new class in `llm/providers/__init__.py`.
 4.  Add the new provider's name and class to the `_PROVIDER_REGISTRY` dictionary.
-5.  Optionally, add the provider's name to the list of `AVAILABLE_PROVIDERS` in `config/game_constants.py` to make it appear in the dashboard.
+5.  The provider will automatically appear in the dashboard since `AVAILABLE_PROVIDERS` dynamically pulls from the registry.
 Beyond updating `llm/providers/__init__.py`, no other parts of the codebase need to be touched.
 
 ### 52. The Road to v4: Potential Future Directions
-The v3 platform provides a foundation for future enhancements. The engineering base could enable research directions such as:
+The v3 platform provides a foundation for future enhancements. While significant additional development would be required, potential research directions include:
 - **Self-Play Fine-Tuning:** Use the JSON logs from successful games as a dataset to fine-tune a smaller, faster, open-source model, potentially creating a specialized Snake-playing model.
 - **RLHF Integration:** Add a "good move" / "bad move" button to the replay GUI to collect human feedback and experiment with reinforcement learning from human feedback (RLHF) to align the agent's strategy with human intuition.
 - **Dynamic Provider Selection:** Implement a router system that can dispatch requests to different LLM providers based on the complexity of the game state (e.g., use a fast model when the path is clear, and a more capable model when the snake is trapped).

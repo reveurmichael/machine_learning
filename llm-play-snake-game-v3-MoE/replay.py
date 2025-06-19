@@ -133,55 +133,6 @@ def main():
         # Initialize pygame timing
         pygame.time.delay(TIME_DELAY)
         pygame.time.Clock().tick(TIME_TICK)
-        
-        # Create enhanced event handler
-        def enhanced_handle_events():
-            """Event handler with keyboard controls for replay navigation."""
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    replay_engine.running = False
-                elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        replay_engine.running = False
-                    elif event.key == K_SPACE:
-                        replay_engine.paused = not replay_engine.paused
-                        # Update GUI paused state
-                        if replay_engine.use_gui and replay_engine.gui and hasattr(replay_engine.gui, 'set_paused'):
-                            replay_engine.gui.set_paused(replay_engine.paused)
-                        print("Replay " + ("paused" if replay_engine.paused else "resumed"))
-                    elif event.key == K_DOWN:
-                        # Speed up replay (decrease pause time)
-                        replay_engine.pause_between_moves = max(0.1, replay_engine.pause_between_moves - 0.1)
-                        print(f"Replay speed increased. Pause between moves: {replay_engine.pause_between_moves:.1f}s")
-                    elif event.key == K_UP:
-                        # Slow down replay (increase pause time)
-                        replay_engine.pause_between_moves += 0.1
-                        print(f"Replay speed decreased. Pause between moves: {replay_engine.pause_between_moves:.1f}s")
-                    elif event.key == K_LEFT:
-                        # Previous game
-                        if replay_engine.game_number > 1:
-                            replay_engine.game_number -= 1
-                            if replay_engine.load_game_data(replay_engine.game_number):
-                                print(f"Loaded previous game: {replay_engine.game_number}")
-                            else:
-                                replay_engine.game_number += 1
-                                print(f"Could not load previous game. Staying with game {replay_engine.game_number}")
-                        else:
-                            print("Already at first game")
-                    elif event.key == K_RIGHT or event.key == K_n:
-                        # Next game
-                        replay_engine.game_number += 1
-                        if not replay_engine.load_game_data(replay_engine.game_number):
-                            print(f"Could not load game {replay_engine.game_number}. Staying with current game.")
-                            replay_engine.game_number -= 1
-                    elif event.key == K_r:
-                        # Restart current game
-                        replay_engine.load_game_data(replay_engine.game_number)
-        
-        # Set the event handler
-        replay_engine.handle_events = enhanced_handle_events
-        
-        # Run the replay engine
         replay_engine.run()
     except Exception as e:
         print(f"Error during replay: {e}")

@@ -16,11 +16,10 @@ const playPauseButton = document.getElementById('play-pause');
 const prevGameButton = document.getElementById('prev-game');
 const nextGameButton = document.getElementById('next-game');
 const restartButton = document.getElementById('restart');
-// Note: These elements use 'speed' in their IDs but control move pause time
-// speed-up button actually decreases pause time, speed-down button increases pause time
-const movePauseDecreaseButton = document.getElementById('speed-up');      // Decreases pause time
-const movePauseIncreaseButton = document.getElementById('speed-down');    // Increases pause time
-const movePauseValueElement = document.getElementById('speed-value');     // Displays pause multiplier
+// Note: These elements control the *pause* between moves (lower pause = faster playback)
+const movePauseDecreaseButton = document.getElementById('speed-up');      // Decreases pause time (faster)
+const movePauseIncreaseButton = document.getElementById('speed-down');    // Increases pause time (slower)
+const movePauseValueElement = document.getElementById('speed-value');     // Displays pause in seconds
 const progressBar = document.getElementById('progress-bar');
 const pausedIndicator = document.getElementById('paused-indicator');
 
@@ -266,11 +265,11 @@ function handleKeyDown(event) {
             event.preventDefault();
             break;
         case 'ArrowUp':
-            sendCommand('speed_down'); // Up key - increase pause time
+            sendCommand('speed_up'); // Up key - speed up (decrease pause time)
             event.preventDefault(); // Prevent page scrolling
             break;
         case 'ArrowDown':
-            sendCommand('speed_up'); // Down key - decrease pause time
+            sendCommand('speed_down'); // Down key - slow down (increase pause time)
             event.preventDefault(); // Prevent page scrolling
             break;
     }

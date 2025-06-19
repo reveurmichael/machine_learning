@@ -49,9 +49,9 @@ DIRECTIONS = {
 END_REASON_MAP = {
     "WALL": "Hit Wall",
     "SELF": "Hit Self",
-    "MAX_STEPS_REACHED": "Max Steps Reached",
-    "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED": "Max Consecutive Empty Moves Reached",
-    "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED": "Max Consecutive Something Is Wrong Reached",
-    "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED": "Max Consecutive Invalid Reversals Reached",
-    "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED": "Max Consecutive No Path Found Reached",
+    "MAX_STEPS_REACHED": "Max Steps",
+    "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED": "Max Empty Moves",
+    "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED": "Max Something Is Wrong",
+    "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED": "Max Invalid Reversals",
+    "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED": "Max No Path Found",
 }

@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 05:00:54
+PRIMARY LLM Response Time: 2025-06-18 05:04:40
+PRIMARY LLM Provider: deepseek
+PRIMARY LLM Model: deepseek-reasoner
+Head Position: (9, 4)
+Apple Position: (3, 5)
+Body Cells: [(9, 5), (9, 6), (8, 6), (7, 6), (6, 6), (5, 6), (4, 6), (3, 6), (2, 6), (1, 6), (1, 5)]
+Timestamp: 2025-06-18 05:04:40
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["LEFT", "UP", "LEFT", "LEFT", "LEFT", "LEFT", "LEFT"],
+  "reasoning": "Moved LEFT first to avoid reverse direction and wall collision, then UP to align with apple's y-coordinate, then multiple LEFT moves directly to the apple at (3,5) while avoiding body segments."
+}

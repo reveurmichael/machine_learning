@@ -1,0 +1,12 @@
+PRIMARY LLM Request Time: 2025-06-18 03:59:14
+PRIMARY LLM Response Time: 2025-06-18 04:03:58
+PRIMARY LLM Provider: deepseek
+PRIMARY LLM Model: deepseek-reasoner
+Head Position: (1, 1)
+Apple Position: (1, 4)
+Body Cells: [(1, 2), (2, 2), (2, 3), (2, 4), (2, 5)]
+Timestamp: 2025-06-18 04:03:58
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+

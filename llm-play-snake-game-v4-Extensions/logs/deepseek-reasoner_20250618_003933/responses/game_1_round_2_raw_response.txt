@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 00:43:24
+PRIMARY LLM Response Time: 2025-06-18 00:45:51
+PRIMARY LLM Provider: deepseek
+PRIMARY LLM Model: deepseek-reasoner
+Head Position: (8, 9)
+Apple Position: (7, 6)
+Body Cells: [(8, 8)]
+Timestamp: 2025-06-18 00:45:51
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Moved LEFT first to avoid reversal from current UP direction and align x-coordinate with apple; then moved DOWN three times directly to apple, ensuring no collisions with body or walls."
+}

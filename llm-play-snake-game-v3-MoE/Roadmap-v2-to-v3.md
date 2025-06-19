@@ -23,8 +23,8 @@ The transition from v2 to v3 was a significant architectural refactor, touching 
 
 | Topic                 | v2: The Prototype                               | v3: The Platform                                                              |
 |-----------------------|-------------------------------------------------|-------------------------------------------------------------------------------|
-| **Project Layout**    | 6 core Python files in a flat directory        | 7 domain-driven packages (`core/`, `gui/`, `llm/`, `utils/`, `dashboard/`, etc.) |
-| **Architecture**      | Monolithic (`snake_game.py` = 585 LOC)          | Multi-layered (SOLID, OOP, Design Patterns)                                   |
+| **Project Layout**    | 6 core Python files in a flat directory        | 8 domain-driven packages (`core/`, `gui/`, `llm/`, `utils/`, `dashboard/`, `replay/`, `config/`, `web/`) |
+| **Architecture**      | Monolithic (`snake_game.py` ≈ 586 LOC)          | Multi-layered (SOLID, OOP, Design Patterns)                                   |
 | **LLM Abstraction**   | Hard-coded, single-provider logic               | Provider registry with optional dual-LLM fallback support                       |
 | **Configuration**     | Single `config.py` with global constants        | Hierarchical `config/` package with dedicated modules for constants           |
 | **Logging**           | Scattered `print()` statements & `.txt` files   | Structured `game_N.json` logs that capture token usage and basic timing metrics |

@@ -8,123 +8,146 @@
 
 ## 1. Executive Summary
 
-The transition from **v1** to **v2** rewires the snake-game/LLM agent around a *Cartesian, grid-native* mental model, replacing the *image-pixel* conventions of the first prototype.  
-This single (but far-reaching) shift unlocks a cascade of improvements:
+The transition from **v1** to **v2** centers on two fundamental changes: adopting a *Cartesian coordinate system* and enforcing *structured JSON I/O contracts* with the LLM. These changes address core reliability issues discovered in v1 and establish a foundation for more robust human-AI interaction.
 
-1. 🔄 **Bi-directional clarity** between code and prompt: every cell is addressed by `(x, y)` instead of `(row, col)`/pixel.  
-2. 🛡 **Robust I/O contract**: LLMs now speak JSON – deterministic for parsers, test-friendly for evaluation.  
-
-The document maps the *motivation*, *philosophy*, *design guidelines*, *challenges*, *solutions* and *lessons* that shaped v2 – so that future iterations start on firmer ground.
+**Primary Changes:**
+1. 🔄 **Coordinate System**: Switched from image-style `(row, col)` with y-down to mathematical `(x, y)` with y-up
+2. 🛡 **Structured I/O**: Replaced regex-based parsing with JSON-first response handling
 
 ---
 
-## 2. Motivation
+## 2. Motivation: Problems Discovered in v1
 
-| Pain-point in v1 | Impact | Goal in v2 |
-|------------------|--------|-------------|
-| Image-style grid `(row, col)` with **y-down** semantics | • Humans & LLMs intuitively think y-up → cognitive load<br>• Harder to check Manhattan distances<br>• Reversing y on every operation invites bugs | Adopt standard **Cartesian** `(x, y)` with **y-up**; unify math, prompt & rendering |
-| Free-form, numbered list of moves | • Parsing brittle (`parse_llm_response` full of regex) <br>• No automatic schema validation | Force **strict JSON**: `{ "moves": [..], "reasoning": "..." }` |
+| Issue | Manifestation | Impact |
+|-------|---------------|--------|
+| **Coordinate Confusion** | Image-style `(row, col)` with y-down semantics | • Mental model mismatch for humans and LLMs<br>• Frequent off-by-one errors<br>• Complex coordinate translation in every function |
+| **Parsing Brittleness** | Regex patterns like `(\d+)\.?\s+(UP\|DOWN\|LEFT\|RIGHT)` | • Silent failures on malformed LLM output<br>• Game state corruption from unparseable responses<br>• No validation of move sequences |
 
 ---
 
-## 3. High-Level Design Changes
+## 3. Technical Changes
 
-### 3.1 Coordinate System
+### 3.1 Coordinate System Transformation
 
-v1 (Image):
+**v1 Implementation:**
 ```python
-# v1 config
 DIRECTIONS = {
-    "UP":    (0, -1),  # negative y
+    "UP":    (0, -1),  # y decreases (image-style)
     "RIGHT": (1, 0),
-    "DOWN":  (0, 1),   # positive y
+    "DOWN":  (0, 1),   # y increases 
     "LEFT":  (-1, 0)
 }
 ```
 
-v2 (Cartesian):
+**v2 Implementation:**
 ```python
-# v2 config
 DIRECTIONS = {
-    "UP":    (0, 1),   # positive y
+    "UP":    (0, 1),   # y increases (Cartesian)
     "RIGHT": (1, 0),
-    "DOWN":  (0, -1),
+    "DOWN":  (0, -1),  # y decreases
     "LEFT":  (-1, 0)
 }
 ```
-Key decisions:
 
-1. Origin `(0,0)` is **bottom-left**, matching textbooks and most grid RL environments.
-2. Board storage (`self.board[y, x]`) remains row-major but helper methods convert automatically; `_verify_coordinate_system()` sanity-checks this at start-up.
-3. Movement math moves to `head_x + dx`, `head_y + dy` for legibility.
+**Key Decision:** Origin `(0,0)` moves to bottom-left, aligning with mathematical conventions and reducing cognitive load during debugging.
 
-### 3.2 Prompt Contract
+### 3.2 I/O Contract Evolution
 
-* **v1** – Free text → numbered list.  
-* **v2** – Strict JSON, with placeholders auto-filled by the engine:
-
-```jsonc
-{
-  "moves": ["UP", "RIGHT", "RIGHT", "UP"],
-  "reasoning": "Keeps safe distance from tail while closing Manhattan gap."
-}
+**v1 Approach:** Free-form numbered lists requiring complex regex parsing:
+```python
+# Multiple fallback patterns in parse_llm_response()
+numbered_list = re.findall(r'(\d+)\.?\s+(UP|DOWN|LEFT|RIGHT)', response)
+step_pattern = re.findall(r'Step\s+(\d+):\s+(UP|DOWN|LEFT|RIGHT)', response)
 ```
 
-Benefits:
+**v2 Approach:** JSON-first with graceful degradation:
+```python
+json_data = extract_valid_json(response)
+if json_data and validate_json_format(json_data):
+    self.planned_moves = json_data["moves"]
+```
 
-* Deserialisation is one line: `data = json.loads(response)` after cleaning.  
-* Unit tests can assert `validate_json_format(data) is True`.  
-* Other languages / dashboards can consume results without regex.
+**Benefits Realized:**
+- Single parsing code path for success cases
+- Structured validation of response format
+- Serializable responses for logging and replay
 
-### 3.3 Utility Module `json_utils.py`
+### 3.3 New Architecture: Defensive Programming
 
-Centralises:
+**Runtime Verification System:**
+```python
+def _verify_coordinate_system(self):
+    """Logs coordinate system rules and validates test moves"""
+    
+def _validate_move(self, current_pos, new_pos, direction_key):
+    """Catches coordinate system violations at runtime"""
+```
 
-* Extraction from raw text, fenced code blocks, or malformed LLM output.
-* Pre-processing (single-quotes → double, trailing commas, etc.).
-* Schema validation.
-
-This halves duplicate regex code across `snake_game.py` and `llm_client.py`.
-
-## 4. Development Philosophy
-
-3. **LLM friendliness** – The engine *speaks the LLM's language*: structured examples, consistent coordinate system, rich context yet bounded token usage.  
-
----
-
-## 5. Migration Guidelines (for contributors)
-
-1. **Keep prompts self-contained** – they should explain the entire game without requiring outside docs.  
-
----
-
-## 6. Key Challenges & Solutions
-
-| Challenge | Why It Hurt | v2 Solution |
-|-----------|-------------|-------------|
-| **Coordinate flip-flops** between UI, logic, prompt | Ghost bugs: snake visually at (5,1) but prompt says (1,5) | Single source of truth: Cartesian in logic, translation at UI draw only |
-| LLM sometimes returns stray prose before JSON | JSON decoder fails → game stuck | `extract_valid_json()` tolerates markdown, commentary blocks |
+**Multi-Layer Error Recovery:**
+1. Direct JSON parsing
+2. Preprocessed parsing (handles LLM syntax issues)
+3. Array extraction from malformed responses
+4. Move sequence validation and filtering
 
 ---
 
-## 8. Lessons for Programmers & AI Practitioners
+## 4. Prompt Engineering Improvements
 
-1. **Representation matters** – A well-chosen coordinate system simplifies both *human* and *machine* reasoning.  
-2. **LLM contracts should be machine-readable** – JSON > prose. Design for parse-ability first, eloquence second.  
-4. **Logs are lineage** – Keep every prompt/response; tomorrow's bug fix depends on yesterday's trace.  
-5. **Treat LLMs as unreliable agents** – Always validate and sanitise their output before acting.  
-6. **Incremental refactors beat rewrites** – v2 re-organises without throwing away v1; we can A/B quickly.  
-7. **Edge-case unit tests** guard coordinate changes – When semantics flip (y-up vs y-down) tests catch regressions instantly.
+### 4.1 Template-Based Dynamic Prompts
 
+**v1:** Static prompt with basic string formatting
+**v2:** Placeholder-based templates with runtime substitution:
+
+```python
+prompt = PROMPT_TEMPLATE_TEXT
+prompt = prompt.replace("TEXT_TO_BE_REPLACED_HEAD_POS", head_pos)
+prompt = prompt.replace("TEXT_TO_BE_REPLACED_APPLE_POS", apple_pos)
+```
+
+### 4.2 Mathematical Coaching
+
+v2 includes explicit move calculations to guide LLM reasoning:
+```
+"RIGHT moves minus LEFT moves should equal 3 (= 7 - 4)"
+"UP moves minus DOWN moves should equal 2 (= 6 - 4)"
+```
+
+This addresses discovered limitations in LLM spatial reasoning.
+
+
+---
+
+## 7. Unexpected Discoveries
+
+### 7.1 LLM Behavioral Patterns
+- **Syntax vs. Semantics Gap**: LLMs like deepseek-r1:7b, 14b and 32b can reason about complex game strategies but frequently fail on basic JSON syntax
+- **Mathematical Coaching Effectiveness**: Explicit calculations significantly improve spatial reasoning
+
+### 7.2 Architecture Insights
+- **Coordinate verification** catches more bugs than anticipated
+- **Template-based prompts** enable A/B testing of reasoning strategies
+- **JSON responses** accidentally solve future replay requirements
+
+---
+
+## 8. Lessons for AI Practitioners
+
+### 8.1 Technical Lessons
+1. **Representation alignment matters** – But syntax/semantics gaps require defensive programming
+2. **Structure over eloquence** – Machine-readable contracts outperform natural language flexibility
+3. **Incremental migration** – v2 reorganizes without discarding v1 patterns, enabling quick validation
+4. **LLM-aware architecture** – Traditional software assumptions don't apply to AI-integrated systems
 
 ---
 
 ## 9. Concluding Thoughts
 
-The journey from **v1** to **v2** underscores a universal engineering theme: *small abstractions drive big leverage*. By simply aligning the game's mental model (*Cartesian grid*) with the LLM's reasoning abilities and enforcing a strict *structured I/O contract*, we unlocked reliability, maintainability, and new research horizons – all with minimal churn to existing GUI/gameplay code.
+The v1→v2 migration reveals that **reliable AI integration** requires more than algorithmic improvements—it demands **architectural discipline**. The coordinate system change was straightforward; the real complexity lay in building robust error recovery, validation, and debugging capabilities around an inherently unreliable AI component.
 
-Keep these principles in mind as you branch into future versions; they will repay themselves in stability and developer happiness.
+The technical debt from v1's coordinate confusion and parsing brittleness created a cascade of reliability issues. v2's systematic approach to structured I/O, defensive programming, and comprehensive verification establishes patterns that extend beyond this specific game engine.
 
-> "*Abstraction is not about hiding the truth, it's about choosing which truth to optimise for."* – this roadmap is our compass.
+**Key Insight**: The migration succeeded not by making the LLM more reliable, but by making its failures more visible and recoverable. This represents a mature approach to human-AI collaboration in software systems.
+
+> "*Good abstractions don't hide complexity—they make failure modes debuggable.*" — Learned from this migration
 
 

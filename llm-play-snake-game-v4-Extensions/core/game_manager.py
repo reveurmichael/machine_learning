@@ -105,6 +105,7 @@ class BaseGameManager:
         self.game_active: bool = True
         self.need_new_plan: bool = True
         self.running: bool = True
+        self._first_plan: bool = True  # Track first planning cycle for round management
 
         # =================================================================
         # Visualization & timing (used by ALL tasks)
@@ -203,6 +204,44 @@ class BaseGameManager:
             print(Fore.BLUE + f"📊 Round {self.round_count} started ({reason})")
         else:
             print(Fore.BLUE + f"📊 Round {self.round_count} started")
+
+    def increment_round(self, reason: str = "") -> None:
+        """Increment the round counter and flush the current round data.
+        
+        This method is called to finish the current round and start a new one.
+        Generic across all tasks that use planning rounds.
+        
+        Args:
+            reason: Optional description of why the round is incrementing
+        """
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
+
+        # Prevent double-increment during certain conditions
+        if hasattr(self, "awaiting_plan") and self.awaiting_plan:
+            return
+
+        game_state = self.game.game_state
+        
+        # Flush current round data before incrementing
+        game_state.round_manager.flush_buffer()
+        
+        # Update session-level round tracking
+        self.round_counts.append(self.round_count)
+        
+        # Start new round with current apple position
+        apple_pos = getattr(self.game, "apple_position", None)
+        game_state.round_manager.start_new_round(apple_pos)
+        
+        # Sync public counter
+        self.round_count = game_state.round_manager.round_count
+        game_state.round_manager.sync_round_data()
+
+        # Console feedback for long experiments  
+        if reason:
+            print(Fore.BLUE + f"📊 Round {self.round_count} started ({reason})")
+        else:
+            print(Fore.BLUE + f"📊 Round {self.round_count} incremented")
 
     # =====================================================================
     # LOGGING INFRASTRUCTURE - Used by all tasks

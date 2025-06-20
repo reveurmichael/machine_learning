@@ -30,3 +30,5 @@ config.yml
 **/config.yml
 **/tmp-download/** 
 **/tmp-downloads/** 
+.cursor/*
+**/.cursor/*

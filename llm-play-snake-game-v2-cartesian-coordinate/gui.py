@@ -3,6 +3,8 @@ GUI module for the Snake game.
 Handles drawing the game board and text information.
 """
 
+# pylint: disable=cyclic-import, duplicate-code
+
 import pygame
 import sys
 from config import (

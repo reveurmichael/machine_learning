@@ -116,11 +116,15 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
     - In dual-LLM mode: Uses the primary LLM for strategy and the secondary LLM for parsing
     
     Args:
-        game_manager: The GameManager instance
-        round_id: The specific round number for which to log the response
-        
+        game_manager: The active :class:`core.game_manager.GameManager`.
+        round_id: Explicit round number used for filenames & metadata.  When
+            ``None`` (default) we fall back to ``game_manager.round_count`` to
+            preserve Task-0 behaviour.
+
     Returns:
-        Tuple of (next_move, game_active)
+        Tuple ``(next_move, game_active)`` where ``next_move`` is the first
+        direction from the newly generated plan (or ``None`` on error) and
+        ``game_active`` indicates whether the game should continue.
     """
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()

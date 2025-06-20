@@ -1,3 +1,4 @@
+# pylint: disable=cyclic-import, duplicate-code
 """
 Main Snake game module.
 Handles game logic, state management, and interaction with the LLM agent.
@@ -88,7 +89,8 @@ class SnakeGame:
         """Update the game state.
         Note: Currently, the state is fully updated after each move.
         """
-        pass
+        # No additional per-frame updates are required at this time.
+        return None
     
     def draw(self):
         """Draw the current game state."""
@@ -495,8 +497,8 @@ class SnakeGame:
         if self.planned_moves:
             next_move = self.planned_moves.pop(0)
             return next_move
-        else:
-            return None
+        # If there are no planned moves left, explicitly return None for clarity
+        return None
     
     def get_next_planned_move(self):
         """Get the next move from the planned sequence.
@@ -557,7 +559,6 @@ class SnakeGame:
         # If all moves were filtered out, return empty list
         if not filtered_moves:
             print("All moves were invalid reversals. Not moving.")
-            
         return filtered_moves
     
     def _process_response_for_display(self, response):

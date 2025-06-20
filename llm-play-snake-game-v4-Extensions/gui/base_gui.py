@@ -22,10 +22,10 @@ def register_panel(panel: "InfoPanel") -> None:  # noqa: D401 – simple registr
     if panel not in GLOBAL_PANELS:
         GLOBAL_PANELS.append(panel)
 
-# --------------------------
+# ---------------------
 # Optional plug-in interface so second-citizen tasks can inject HUD elements
 # without modifying the first-citizen GUI code.
-# --------------------------
+# ---------------------
 
 class InfoPanel(Protocol):
     """Small widget that draws additional info next to the board."""

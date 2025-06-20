@@ -62,9 +62,9 @@ def is_reverse(dir_a: str, dir_b: str) -> bool:
     )
 
 
-# --------------------------
+# ---------------------
 # Simple positional analytics (used in prompt engineering)
-# --------------------------
+# ---------------------
 
 def calculate_move_differences(head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
     """Return a human-readable diff between *head_pos* and *apple_pos*.

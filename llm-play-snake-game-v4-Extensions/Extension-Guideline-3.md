@@ -91,7 +91,7 @@ class HeuristicGameManager(BaseGameManager):
 
 # entry-point
 if __name__ == "__main__":
-    args = Namespace(max_games=100, move_pause=0.0, no_gui=True,
+    args = Namespace(max_games=100, pause_between_moves=0.0, no_gui=True,
                      max_consecutive_invalid_reversals_allowed=10,
                      max_consecutive_no_path_found_allowed=1,
                      max_steps=400)

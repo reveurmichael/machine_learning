@@ -43,9 +43,9 @@ def translate_end_reason(code: Optional[str]) -> Optional[str]:
     return END_REASON_MAP.get(code, code)
 
 
-# --------------------------
+# ---------------------
 # Convenience helpers for state construction
-# --------------------------
+# ---------------------
 
 # This function is NOT Task0 specific.
 def to_list(obj) -> list | object:  # noqa: D401 – tiny utility

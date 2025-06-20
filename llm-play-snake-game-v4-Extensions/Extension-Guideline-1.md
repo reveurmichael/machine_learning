@@ -66,7 +66,7 @@ self.no_path_found_steps
 self.game
 self.current_game_moves
 self.running
-self.args.move_pause
+self.args.pause_between_moves
 def get_pause_between_moves(self)
 self.game_active
 def setup_game(self):

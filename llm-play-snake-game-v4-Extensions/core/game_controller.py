@@ -19,16 +19,16 @@ from utils.collision_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
 from utils.board_utils import generate_random_apple, update_board_array
 
-# --------------------------
+# ---------------------
 # Typing helpers – avoid heavy GUI imports at runtime
-# --------------------------
+# ---------------------
 
 if TYPE_CHECKING:
     from gui.base_gui import BaseGUI
 
-# --------------------------
+# ---------------------
 # Generic controller – agnostic to the concrete GameData subclass.
-# --------------------------
+# ---------------------
 
 class BaseGameController:
     """Base class for the Snake game controller."""
@@ -479,9 +479,9 @@ class BaseGameController:
 
         return self.get_state_snapshot(), reward, done, info
 
-    # --------------------------
+    # ---------------------
     # Extension hooks (NOP by default) – subclasses override as needed.
-    # --------------------------
+    # ---------------------
 
     def _post_move(self, apple_eaten: bool) -> None:  # pragma: no cover
         """Hook called after every successful move.

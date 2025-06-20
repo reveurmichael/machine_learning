@@ -24,16 +24,16 @@ class TimeStats:
     llm_communication_time: float = 0.0
     end_time: float | None = None
 
-    # --------------------------
+    # ---------------------
     # Mutation helpers
-    # --------------------------
+    # ---------------------
     def add_llm_comm(self, delta: float) -> None:
         """Accumulate LLM communication seconds."""
         self.llm_communication_time += delta
 
-    # --------------------------
+    # ---------------------
     # JSON-ready view
-    # --------------------------
+    # ---------------------
     def asdict(self) -> dict:
         end = self.end_time or time.time()
         return {
@@ -43,9 +43,9 @@ class TimeStats:
             "llm_communication_time": self.llm_communication_time,
         }
 
-    # --------------------------
+    # ---------------------
     # Simple setter used by GameData.record_game_end
-    # --------------------------
+    # ---------------------
     def record_end_time(self) -> None:
         self.end_time = time.time()
 
@@ -70,9 +70,9 @@ class TokenStats:
         }
 
 
-# --------------------------
+# ---------------------
 # Base statistics – generic across all tasks (Task-0 … Task-5)
-# --------------------------
+# ---------------------
 
 @dataclass
 class BaseStepStats:
@@ -96,9 +96,9 @@ class BaseStepStats:
         }
 
 
-# --------------------------
+# ---------------------
 # LLM-enhanced statistics (Task-0 only – extends the base)
-# --------------------------
+# ---------------------
 
 @dataclass
 class StepStats(BaseStepStats):
@@ -118,9 +118,9 @@ class StepStats(BaseStepStats):
         return base
 
 
-# --------------------------
+# ---------------------
 # Base game-level statistics (generic for all tasks)
-# --------------------------
+# ---------------------
 
 @dataclass
 class BaseGameStatistics:
@@ -136,9 +136,9 @@ class BaseGameStatistics:
     )
     step_stats: BaseStepStats = field(default_factory=BaseStepStats)
 
-    # --------------------------
+    # ---------------------
     # Convenience helpers (generic – safe for any agent type)
-    # --------------------------
+    # ---------------------
     @property
     def valid_steps(self) -> int:
         return self.step_stats.valid
@@ -158,9 +158,9 @@ class BaseGameStatistics:
         }
 
 
-# --------------------------
+# ---------------------
 # Higher-level containers (still opt-in; not yet wired into GameData)
-# --------------------------
+# ---------------------
 
 @dataclass
 class RoundData:
@@ -243,9 +243,9 @@ class GameStatistics(BaseGameStatistics):
 
     last_action_time: float | None = None
 
-    # --------------------------
+    # ---------------------
     # Timers
-    # --------------------------
+    # ---------------------
     def record_llm_communication_start(self):
         self.last_action_time = time.perf_counter()
 
@@ -254,18 +254,18 @@ class GameStatistics(BaseGameStatistics):
             self.time_stats.add_llm_comm(time.perf_counter() - self.last_action_time)
             self.last_action_time = None
 
-    # --------------------------
+    # ---------------------
     # Response-time accumulators
-    # --------------------------
+    # ---------------------
     def record_primary_response_time(self, duration: float):
         self.primary_response_times.append(duration)
 
     def record_secondary_response_time(self, duration: float):
         self.secondary_response_times.append(duration)
 
-    # --------------------------
+    # ---------------------
     # Token-usage accumulators
-    # --------------------------
+    # ---------------------
     def _update_primary_averages(self):
         if self.primary_llm_requests:
             self.primary_avg_prompt_tokens = self.primary_total_prompt_tokens / self.primary_llm_requests

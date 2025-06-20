@@ -22,11 +22,11 @@ TIME_DELAY = 40  # General delay time for the game loop. This one is NOT Task0 s
 TIME_TICK = 280  # Tick rate for the game. This one is NOT Task0 specific.
 
 
-# --------------------------
+# ---------------------
 # Default values - for Streamlit page only,
 # *NOT* for main.py args default
 # Those values are Task0 specific.
-# --------------------------
+# ---------------------
 
 DEFAULT_PROVIDER = "ollama"  # for Streamlit page only
 DEFAULT_MODEL = "deepseek-r1:14b"  # for Streamlit page only args default

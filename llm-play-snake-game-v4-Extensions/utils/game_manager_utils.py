@@ -47,16 +47,16 @@ def check_max_steps(game, max_steps: int) -> bool:
     return False
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Generic – shared by all tasks (Task-0 … Task-5)
-# ---------------------------------------------------------------------------
+# ---------------------
 #
 # The implementation updates *manager* in-place so callers do not have to
 # deal with the returned tuple.  Historically the helper expected a dict-like
 # container which broke type safety and prevented re-use by non-LLM tasks.
 # It now relies on the generic :class:`BaseGameManager` interface and therefore
 # works for every future manager subclass without any LLM-specific baggage.
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def process_game_over(game: "BaseGameLogic", manager: "BaseGameManager") -> Tuple[int, int, int, list[int], int, dict, dict, int, int, int, int, int]:
     """Process game over state.
@@ -253,10 +253,10 @@ def process_game_over(game: "BaseGameLogic", manager: "BaseGameManager") -> Tupl
         total_rounds=total_rounds,
     )
 
-    # -------------------------------------------------------------------
+    # ---------------------
     # Flush the aggregated counters back to *manager* so the caller sees
     # the updated state without having to unpack the return value.
-    # -------------------------------------------------------------------
+    # ---------------------
     manager.game_count = game_count
     manager.total_score = total_score
     manager.total_steps = total_steps
@@ -287,13 +287,13 @@ def process_game_over(game: "BaseGameLogic", manager: "BaseGameManager") -> Tupl
     )
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Generic utility – reports aggregate statistics at session end. The helper
 # now operates purely on the dict *stats_info* passed by the caller and does
 # not make any assumptions about the underlying agent type.  LLM-related
 # metrics are included only when present making the function safe for future
 # tasks.
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """Report final statistics for the experiment.

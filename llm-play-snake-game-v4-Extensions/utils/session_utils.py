@@ -101,9 +101,9 @@ def run_main_web(max_games: int, host: str, port: int):
             str(port),
         ]
 
-        # --------------------------
+        # ---------------------
         # Optional CLI parameters harvested from session_state
-        # --------------------------
+        # ---------------------
         ss = st.session_state
 
         _append_arg(cmd, "--provider", ss.get("main_web_provider"))
@@ -123,9 +123,9 @@ def run_main_web(max_games: int, host: str, port: int):
         if sleep_before and float(sleep_before) > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
 
-        move_pause = ss.get("main_web_move_pause")
-        if move_pause is not None and float(move_pause) >= 0:
-            _append_arg(cmd, "--move-pause", move_pause)
+        pause_between_moves = ss.get("main_web_pause_between_moves")
+        if pause_between_moves is not None and float(pause_between_moves) >= 0:
+            _append_arg(cmd, "--move-pause", pause_between_moves)
 
         # Back-off after EMPTY sentinel (minutes)
         sleep_after_empty = ss.get("main_web_sleep_after_empty")
@@ -153,7 +153,7 @@ def run_main_web(max_games: int, host: str, port: int):
         if max_no_path and int(max_no_path) > 0:
             _append_arg(cmd, "--max-consecutive-no-path-found-allowed", max_no_path)
 
-        # --------------------------
+        # ---------------------
         subprocess.Popen(cmd)
         st.info(f"Web main session started at http://{host}:{port}.")
     except Exception as exc:
@@ -194,9 +194,9 @@ def continue_game_web(
         st.error(f"Error starting web continuation: {exc}")
 
 
-# --------------------------
+# ---------------------
 # Human Play launchers
-# --------------------------
+# ---------------------
 
 
 def run_human_play():

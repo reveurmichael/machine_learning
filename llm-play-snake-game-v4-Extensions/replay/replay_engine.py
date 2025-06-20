@@ -20,10 +20,10 @@ from replay.replay_data import ReplayData
 from utils.file_utils import get_total_games
 from config.game_constants import END_REASON_MAP, SENTINEL_MOVES
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Generic replay skeleton – future tasks can inherit from this base and plug
 # in their own data-loading logic while re-using the event loop helpers.
-# ---------------------------------------------------------------------------
+# ---------------------
 
 
 class BaseReplayEngine(BaseGameController):
@@ -35,24 +35,24 @@ class BaseReplayEngine(BaseGameController):
     *handle_events*, and *run* methods.
     """
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Construction & basic state
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def __init__(
         self,
         log_dir: str,
-        move_pause: float = 1.0,
+        pause_between_moves: float = 1.0,
         auto_advance: bool = False,
         use_gui: bool = True,
     ) -> None:  # noqa: D401 – simple init
         super().__init__(use_gui=use_gui)
 
         self.log_dir: str = log_dir
-        self.pause_between_moves: float = move_pause
+        self.pause_between_moves: float = pause_between_moves
         self.auto_advance: bool = auto_advance
 
-        # Replay-specific runtime state -------------------------------------------------
+        # Replay-specific runtime state ---------------------
         self.game_number: int = 1
         self.apple_positions: List[List[int]] = []
         self.apple_index: int = 0
@@ -62,19 +62,19 @@ class BaseReplayEngine(BaseGameController):
         self.planned_moves: List[str] = []
         self.game_stats: Dict[str, Any] = {}
 
-        # Timing helper so that the very first move respects *move_pause*.
+        # Timing helper so that the very first move respects *pause_between_moves*.
         self.last_move_time: float = time.time()
 
-        # Generic replay flags ----------------------------------------------------------
+        # Generic replay flags ---------------------
         self.running: bool = True
         self.paused: bool = False
 
         # Game-over meta-data – may stay *None* for subclasses that do not use them.
         self.game_end_reason: Optional[str] = None
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Abstract hooks – must be provided by concrete subclasses
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def load_game_data(self, game_number: int):  # pragma: no cover – interface only
         raise NotImplementedError
@@ -88,9 +88,9 @@ class BaseReplayEngine(BaseGameController):
     def run(self):  # pragma: no cover – interface only
         raise NotImplementedError
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Generic helpers that *can* be shared across replay implementations
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def set_gui(self, gui_instance):  # type: ignore[override]
         """Attach a GUI and keep its *paused* flag in sync."""
@@ -111,10 +111,10 @@ class BaseReplayEngine(BaseGameController):
         Keeps logic identical to the original GameController implementation so
         the replay matches exactly what happened during recording.
         """
-        # ---------------------------------------------------------------
+        # ---------------------
         # Handle *sentinel* pseudo-moves that encode timing or errors in
         # the original session but do *not* move the snake.
-        # ---------------------------------------------------------------
+        # ---------------------
         if direction_key in SENTINEL_MOVES:
             if direction_key == "INVALID_REVERSAL":
                 self.game_state.record_invalid_reversal()
@@ -164,9 +164,9 @@ class BaseReplayEngine(BaseGameController):
         }
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Concrete Task-0 implementation – identical behaviour to the *previous* code
-# ---------------------------------------------------------------------------
+# ---------------------
 
 
 class ReplayEngine(BaseReplayEngine, GameController):
@@ -175,30 +175,30 @@ class ReplayEngine(BaseReplayEngine, GameController):
     def __init__(
         self,
         log_dir: str,
-        move_pause: float = 1.0,
+        pause_between_moves: float = 1.0,
         auto_advance: bool = False,
         use_gui: bool = True,
     ) -> None:
-        super().__init__(log_dir=log_dir, move_pause=move_pause, auto_advance=auto_advance, use_gui=use_gui)
+        super().__init__(log_dir=log_dir, pause_between_moves=pause_between_moves, auto_advance=auto_advance, use_gui=use_gui)
 
-        # Task-0 meta-data -------------------------------------------------------------
+        # Task-0 meta-data ---------------------
         self.primary_llm: Optional[str] = None
         self.secondary_llm: Optional[str] = None
         self.game_timestamp: Optional[str] = None
         self.llm_response: Optional[str] = None
         self.total_games: int = get_total_games(log_dir)
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Drawing
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def draw(self) -> None:  # noqa: D401 – simple wrapper
         if self.use_gui and self.gui:
             self.gui.draw(self._build_state_base())
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Core update loop – verbatim from the historical Task-0 implementation
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def update(self) -> None:  # type: ignore[override]
         if self.paused:
@@ -213,14 +213,14 @@ class ReplayEngine(BaseReplayEngine, GameController):
                 next_move = self.moves[self.move_index]
                 print(f"Move {self.move_index + 1}/{len(self.moves)}: {next_move}")
 
-                # House-keeping --------------------------------------------------
+                # House-keeping ---------------------
                 self.move_index += 1
                 self.moves_made.append(next_move)
 
                 if self.planned_moves:
                     self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
 
-                # Execute and post-process -------------------------------------
+                # Execute and post-process ---------------------
                 game_continues = self.execute_replay_move(next_move)
                 self.last_move_time = current_time
 
@@ -242,9 +242,9 @@ class ReplayEngine(BaseReplayEngine, GameController):
                 print(f"Error during replay: {exc}")
                 traceback.print_exc()
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Data loading – parses the *game_N.json* structure produced by Task-0
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def load_game_data(self, game_number: int) -> Optional[Dict[str, Any]]:  # noqa: D401 – simple loader
         game_file, game_data = load_game_json(self.log_dir, game_number)
@@ -257,7 +257,7 @@ class ReplayEngine(BaseReplayEngine, GameController):
             if parsed is None:
                 return None
 
-            # Unpack parsed fields ------------------------------------------------------
+            # Unpack parsed fields ---------------------
             self.apple_positions = parsed.apple_positions
             self.moves = parsed.moves
             self.planned_moves = parsed.planned_moves
@@ -268,7 +268,7 @@ class ReplayEngine(BaseReplayEngine, GameController):
             self.game_timestamp = parsed.timestamp
             self.llm_response = parsed.llm_response or "No LLM response data available for this game."
 
-            # Reset runtime counters ----------------------------------------------------
+            # Reset runtime counters ---------------------
             self.move_index = 0
             self.apple_index = 0
             self.moves_made = []
@@ -280,7 +280,7 @@ class ReplayEngine(BaseReplayEngine, GameController):
                 f"End reason: {self.game_end_reason}, LLM: {self.primary_llm}"
             )
 
-            # Re-initialise board --------------------------------------------------------
+            # Re-initialise board ---------------------
             print("Initializing game state…")
             self.reset()
             self.snake_positions = np.array([[self.grid_size // 2, self.grid_size // 2]])
@@ -288,7 +288,7 @@ class ReplayEngine(BaseReplayEngine, GameController):
             self.set_apple_position(self.apple_positions[0])
             self._update_board()
 
-            # GUI book-keeping -----------------------------------------------------------
+            # GUI book-keeping ---------------------
             if self.use_gui and self.gui and hasattr(self.gui, "move_history"):
                 self.gui.move_history = []
 
@@ -300,9 +300,9 @@ class ReplayEngine(BaseReplayEngine, GameController):
             traceback.print_exc()
             return None
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Event handling & main loop – identical to the historical Task-0 code
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     def handle_events(self) -> None:  # noqa: D401 – event loop
         redraw_needed = False
@@ -372,9 +372,9 @@ class ReplayEngine(BaseReplayEngine, GameController):
 
         pygame.quit()
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Enrich the generic state with LLM-specific metadata for Task-0
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _build_state_base(self) -> Dict[str, Any]:  # type: ignore[override]
         base_state = super()._build_state_base()

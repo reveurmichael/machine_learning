@@ -11,9 +11,9 @@ import re
 from typing import Any, Dict, List, Optional, Tuple, Final
 from config.game_constants import VALID_MOVES
 
-# --------------------------
+# ---------------------
 # Public API export list – makes *from utils.json_utils import * safe.
-# --------------------------
+# ---------------------
 
 __all__ = [
     "preprocess_json_string",

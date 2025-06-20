@@ -84,9 +84,9 @@ def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = 9_000) ->
     return find_free_port(min_port)
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # WebSocket helpers (used by scripts/human_play_web.py)
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | None = None) -> tuple[str, int]:
     """Return a tuple *(host, port)* suitable for :pyfunc:`websockets.serve`.
@@ -107,7 +107,7 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
     host = _os.getenv("WS_HOST", default_host)
     port_env = _os.getenv("WS_PORT")
 
-    # 1. Determine the *candidate* port -----------------------------------
+    # 1. Determine the *candidate* port ---------------------
     if port_env is not None and port_env.isdigit():
         candidate = int(port_env)
     else:

@@ -5,20 +5,20 @@ Allows replaying of previously recorded games based on logged moves.
 This whole module is Task0 specific.
 """
 
-# --------------------------
+# ---------------------
 # Ensure execution directory & import paths are correct irrespective
 # of where the user launches the script from (matches main.py wrapper).
-# --------------------------
+# ---------------------
 
 import sys
 import pathlib
 _repo_root = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_repo_root))
 
-# ------------------------------------------------------------------
+# ---------------------
 # Guarantee that 'utils' package is importable even when the user launches
 # the script from inside the scripts/ directory.
-# ------------------------------------------------------------------
+# ---------------------
 
 
 # Standard lib additional
@@ -120,7 +120,7 @@ def main():
     # Initialize replay engine
     replay_engine = ReplayEngine(
         log_dir=log_dir,
-        move_pause=args.move_pause,
+        pause_between_moves=args.pause_between_moves,
         auto_advance=args.auto_advance,
     )
 

@@ -28,9 +28,9 @@ from llm.client import LLMClient
 if TYPE_CHECKING:  # pragma: no cover – avoid runtime import cycle
     from core.game_manager import GameManager
 
-# --------------------------
+# ---------------------
 # Public class
-# --------------------------
+# ---------------------
 
 class LLMSnakeAgent(SnakeAgent):
     """A pluggable agent that queries a large-language model for each move."""
@@ -138,9 +138,9 @@ class LLMSnakeAgent(SnakeAgent):
         return move
 
 
-# --------------------------
+# ---------------------
 # Fallback helpers – only used when the game object lacks parse_llm_response
-# --------------------------
+# ---------------------
 
 def _simple_parse(llm_response: str) -> str | None:
     """Very lightweight JSON extractor used *only* as a last-resort fallback.
@@ -166,7 +166,7 @@ def _simple_parse(llm_response: str) -> str | None:
     and keeping the test concise.
 
     Overlap with utils.json_utils
-    ----------------------------
+    ---------------------
     The robust JSON repair / validation logic lives in
     :pymod:`utils.json_utils`.  Re-using it here would pull heavy regular‐
     expression machinery into the tight loop of every *test* invocation where
@@ -180,7 +180,7 @@ def _simple_parse(llm_response: str) -> str | None:
     as an EMPTY move.
 
     Performance / maintenance cost
-    ------------------------------
+    ---------------------
     The function is ~10 LOC, uses only the standard library, and is executed
     **only** in the aforementioned edge cases, so it has negligible impact on
     runtime and maintenance.

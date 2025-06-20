@@ -17,18 +17,18 @@ from config.game_constants import PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS
 from utils.game_manager_utils import check_max_steps, process_game_over, process_events
 
 
-# --------------------------
+# ---------------------
 # Type-checking helpers (avoid heavyweight imports at runtime)
-# --------------------------
+# ---------------------
 
 if TYPE_CHECKING:  # pragma: no cover – imports only needed for static analysis
     from core.game_manager import BaseGameManager  # use narrow, LLM-agnostic base class
     from llm.communication_utils import get_llm_response  # noqa: F401
 
 
-# --------------------------
+# ---------------------
 # OOP refactor – GameLoop class encapsulates the helpers
-# --------------------------
+# ---------------------
 
 
 class BaseGameLoop:
@@ -54,7 +54,7 @@ class BaseGameLoop:
     def __init__(self, manager: "BaseGameManager") -> None:
         self.manager = manager
 
-    # ---- Public entry point ------------------------------------------------
+    # ---- Public entry point ---------------------
 
     def run(self) -> None:
         """Execute the session until the requested number of games completes."""
@@ -82,9 +82,9 @@ class BaseGameLoop:
         finally:
             pygame.quit()
 
-    # -----------------------------------------------------------------------
+    # ---------------------
     # Former top-level helpers – now instance methods (identical bodies)
-    # -----------------------------------------------------------------------
+    # ---------------------
 
     def _process_active_game(self) -> None:
         """One tick of live gameplay for *LLM / planned-move* sessions."""
@@ -140,13 +140,58 @@ class BaseGameLoop:
         return None
 
     def _handle_game_over(self) -> None:
-        """Delegate post-mortem aggregation to :pymod:`utils.game_manager_utils`."""
+        """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
 
         manager = self.manager
-        process_game_over(manager.game, manager)
-        manager.game_active = False
 
-        # Reset first-plan flag so the next game starts with round 1 again.
+        game_state_info = {
+            "game_active": manager.game_active,
+            "game_count": manager.game_count,
+            "total_score": manager.total_score,
+            "total_steps": manager.total_steps,
+            "game_scores": manager.game_scores,
+            "round_count": manager.round_count,
+            "round_counts": manager.round_counts,
+            "args": manager.args,
+            "log_dir": manager.log_dir,
+            "current_game_moves": manager.current_game_moves,
+            "next_move": None,
+            "time_stats": manager.time_stats,
+            "token_stats": manager.token_stats,
+            "valid_steps": getattr(manager, "valid_steps", 0),
+            "invalid_reversals": getattr(manager, "invalid_reversals", 0),
+            "empty_steps": getattr(manager, "empty_steps", 0),
+            "something_is_wrong_steps": getattr(manager, "something_is_wrong_steps", 0),
+            "no_path_found_steps": getattr(manager, "no_path_found_steps", 0),
+        }
+
+        (
+            manager.game_count,
+            manager.total_score,
+            manager.total_steps,
+            manager.game_scores,
+            manager.round_count,
+            manager.time_stats,
+            manager.token_stats,
+            manager.valid_steps,
+            manager.invalid_reversals,
+            manager.empty_steps,
+            manager.something_is_wrong_steps,
+            manager.no_path_found_steps,
+        ) = process_game_over(manager.game, game_state_info)
+
+        # Reset per-game flags/counters for the upcoming game
+        manager.need_new_plan = True
+        manager.game_active = True
+        manager.current_game_moves = []
+        manager.round_count = 1
+        manager.game.reset()
+        manager.consecutive_empty_steps = 0
+        manager.consecutive_something_is_wrong = 0
+        if hasattr(manager, "total_rounds"):
+            manager.total_rounds = sum(manager.round_counts)
+        
+        # Reset first-plan flag for the new game
         if hasattr(manager, "_first_plan"):
             manager._first_plan = True
 
@@ -168,7 +213,7 @@ class BaseGameLoop:
             self._handle_game_over()
         manager.game.draw()
 
-    # ---- Low-level helpers --------------------------------------------------
+    # ---- Low-level helpers ---------------------
 
     def _execute_move(self, direction: str) -> Tuple[bool, bool]:
         """Run *one* snake move and perform all shared bookkeeping."""
@@ -231,9 +276,9 @@ class BaseGameLoop:
         time.sleep(pause_min * 60)
 
 
-# --------------------------
+# ---------------------
 # Back-compat thin wrapper – keeps existing call-sites unchanged
-# --------------------------
+# ---------------------
 
 
 def run_game_loop(game_manager: "BaseGameManager") -> None:  # pragma: no cover
@@ -242,9 +287,9 @@ def run_game_loop(game_manager: "BaseGameManager") -> None:  # pragma: no cover
     GameLoop(game_manager).run()
 
 
-# --------------------------
+# ---------------------
 # Thin Task-0 subclass – inherits full behaviour
-# --------------------------
+# ---------------------
 
 
 class GameLoop(BaseGameLoop):
@@ -256,10 +301,10 @@ class GameLoop(BaseGameLoop):
     reuse :class:`BaseGameLoop` without the network dependency.
     """
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # LLM-specific overrides – these were abstract in the base so that
     # heuristic / RL loops don't inherit any provider coupling.
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _request_and_execute_first_move(self) -> None:  # noqa: D401
         """Ask the LLM for a fresh plan and play its first move.
@@ -270,9 +315,9 @@ class GameLoop(BaseGameLoop):
         """
 
         manager = self.manager
-        # -------------------------------------------------------------
+        # ---------------------
         # (1) Bump the **round counter** *before* querying the LLM.
-        #     -------------------------------------------------------
+        #     ---------------------
         #     A round *begins* the moment we ask for a new plan, not
         #     after the previous plan finishes.  This guarantees that
         #     every prompt/response pair carries the correct, newly
@@ -280,7 +325,7 @@ class GameLoop(BaseGameLoop):
         #
         #     We skip the very first call of a fresh game – the counter
         #     already starts at 1.  Subsequent invocations advance it.
-        # -------------------------------------------------------------
+        # ---------------------
         if getattr(manager, "_first_plan", False):
             manager._first_plan = False  # first round already #1
         else:
@@ -341,9 +386,9 @@ class GameLoop(BaseGameLoop):
         if apple_eaten:
             self._post_apple_logic()
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Sentinel-specific handlers
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _handle_no_move(self) -> None:  # noqa: D401
         """LLM returned *no* usable move ⇒ record EMPTY sentinel."""

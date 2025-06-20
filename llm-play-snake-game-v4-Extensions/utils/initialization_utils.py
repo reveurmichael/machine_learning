@@ -15,9 +15,9 @@ from colorama import Fore
 
 from llm.communication_utils import check_llm_health
 
-# --------------------------
+# ---------------------
 # Typing-only imports – avoid heavy dependencies at runtime
-# --------------------------
+# ---------------------
 
 if TYPE_CHECKING:
     from core.game_manager import GameManager
@@ -125,9 +125,9 @@ def initialize_game_state(game_manager: "BaseGameManager") -> None:
     # Set up the game
     game_manager.setup_game()
 
-# --------------------------
+# ---------------------
 # Start-delay helper – shared by new and continuation sessions
-# --------------------------
+# ---------------------
 
 def enforce_launch_sleep(args) -> None:  # type: ignore[valid-type]
     """Apply the ``--sleep-before-launching`` delay (in minutes) if set.

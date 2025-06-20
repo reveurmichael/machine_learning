@@ -40,9 +40,9 @@ from config.ui_constants import (
 # Lazily obtain provider list to avoid circular-import issues.
 AVAILABLE_PROVIDERS = list_available_providers()
 
-# --------------------------
+# ---------------------
 # Helper – build command list from optional args
-# --------------------------
+# ---------------------
 
 def _append_arg(cmd: List[str], flag: str, value) -> None:
     """Append *flag* (and maybe *value*) to *cmd* in place.
@@ -61,9 +61,9 @@ def _append_arg(cmd: List[str], flag: str, value) -> None:
     cmd.extend([flag, str(value)])
 
 
-# --------------------------
+# ---------------------
 # Main Mode – PyGame
-# --------------------------
+# ---------------------
 
 def render_main_pygame_tab() -> None:
     st.markdown("### Start New Game Session (PyGame)")
@@ -132,7 +132,7 @@ def render_main_pygame_tab() -> None:
     with col_time1:
         sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_pg_sleep")
     with col_time2:
-        move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_pg_move_pause")
+        pause_between_moves = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_pg_pause_between_moves")
     with col_time3:
         sleep_after_empty = st.number_input("Sleep After EMPTY (minutes)", 0.0, 1000.0, SLEEP_AFTER_EMPTY_STEP, 0.5, key="main_pg_sleep_after_empty")
 
@@ -187,8 +187,8 @@ def render_main_pygame_tab() -> None:
             _append_arg(cmd, "--max-steps", max_steps)
         if sleep_before > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
-        if move_pause >= 0:
-            _append_arg(cmd, "--move-pause", move_pause)
+        if pause_between_moves >= 0:
+            _append_arg(cmd, "--move-pause", pause_between_moves)
         if sleep_after_empty > 0:
             _append_arg(cmd, "--sleep-after-empty-step", sleep_after_empty)
         if max_empty_moves > 0:
@@ -206,9 +206,9 @@ def render_main_pygame_tab() -> None:
         st.success("Main PyGame session launched – check your terminal/window.")
 
 
-# --------------------------
+# ---------------------
 # Main Mode – Web
-# --------------------------
+# ---------------------
 
 def render_main_web_tab() -> None:
     st.markdown("### Start New Game Session (Web)")
@@ -272,7 +272,7 @@ def render_main_web_tab() -> None:
     with col_time1:
         sleep_before = st.number_input("Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="main_web_sleep")
     with col_time2:
-        move_pause = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_web_move_pause")
+        pause_between_moves = st.number_input("Move Pause (seconds)", 0.0, 10.0, PAUSE_BETWEEN_MOVES_SECONDS, 0.1, key="main_web_pause_between_moves")
     with col_time3:
         sleep_after_empty = st.number_input("Sleep After EMPTY (minutes)", 0.0, 1000.0, SLEEP_AFTER_EMPTY_STEP, 0.5, key="main_web_sleep_after_empty")
 

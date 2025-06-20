@@ -68,7 +68,7 @@ class BaseGameLogic(BaseGameController):
 
 # ------------------
 # Task-0 concrete implementation – plugs in GameData for LLM metrics.
-# ---------------------------------------------------------------------------
+# ---------------------
 
 # This class is Task0 specific.
 class GameLogic(BaseGameLogic):

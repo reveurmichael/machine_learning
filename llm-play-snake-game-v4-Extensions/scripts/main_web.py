@@ -11,9 +11,9 @@ This whole module is Task0 specific.
 
 from __future__ import annotations
 
-# ---------------------------------------------------------------
+# ---------------------
 # Guarantee repo root is on sys.path before importing project modules.
-# ---------------------------------------------------------------
+# ---------------------
 
 import sys
 import pathlib
@@ -26,9 +26,9 @@ from utils.path_utils import ensure_repo_root  # noqa: E402
 # Make sure the script runs from the repository root for consistent paths.
 ensure_repo_root()
 
-# --------------------------
+# ---------------------
 # Standard library imports (identical to original)
-# --------------------------
+# ---------------------
 import argparse
 import threading
 import logging
@@ -38,18 +38,18 @@ from utils.network_utils import find_free_port
 
 logging.getLogger("werkzeug").setLevel(logging.WARNING)  # Suppress per-request logs
 
-# --------------------------
+# ---------------------
 # Project-internal imports
-# --------------------------
+# ---------------------
 from core.game_manager import GameManager
 from scripts.main import parse_arguments  # Re-use full CLI from scripts/main.py
 from config.ui_constants import GRID_SIZE
 from utils.web_utils import build_color_map, translate_end_reason
 from llm.agent_llm import LLMSnakeAgent
 
-# --------------------------
+# ---------------------
 # Flask setup (static/template folders)
-# --------------------------
+# ---------------------
 _static_folder = str(_repo_root / "web" / "static")
 _template_folder = str(_repo_root / "web" / "templates")
 
@@ -59,9 +59,9 @@ app = Flask(__name__, static_folder=_static_folder, template_folder=_template_fo
 manager: GameManager | None = None
 manager_thread: threading.Thread | None = None
 
-# --------------------------
+# ---------------------
 # Helper: translate live game state into a front-end-friendly dict
-# --------------------------
+# ---------------------
 
 def build_state_dict(gm: GameManager):
     game = gm.game
@@ -84,13 +84,13 @@ def build_state_dict(gm: GameManager):
         "game_active": gm.game_active,
         "planned_moves": game.planned_moves,
         "llm_response": getattr(game, "processed_response", ""),
-        "move_pause": gm.get_pause_between_moves(),
+        "pause_between_moves": gm.get_pause_between_moves(),
         "game_end_reason": end_reason_readable,
     }
 
-# --------------------------
+# ---------------------
 # Background worker thread that runs GameManager
-# --------------------------
+# ---------------------
 
 def _manager_thread_fn(gm: GameManager, args):
     """Run new or continuation session in background thread."""
@@ -111,7 +111,7 @@ def _manager_thread_fn(gm: GameManager, args):
                         "model",
                         "parser_provider",
                         "parser_model",
-                        "move_pause",
+                        "pause_between_moves",
                         "max_steps",
                         "max_consecutive_empty_moves_allowed",
                         "max_consecutive_something_is_wrong_allowed",
@@ -136,9 +136,9 @@ def _manager_thread_fn(gm: GameManager, args):
     except Exception as exc:
         print(f"[main_web] GameManager thread crashed: {exc}")
 
-# --------------------------
+# ---------------------
 # Flask routes
-# --------------------------
+# ---------------------
 
 @app.route("/")
 def index():
@@ -162,9 +162,9 @@ def api_control():  # noqa: F401 – used via Flask routing
         return jsonify({"status": "unpause-not-supported"})
     return jsonify({"status": "error", "msg": "unknown command"})
 
-# --------------------------
+# ---------------------
 # Entry point
-# --------------------------
+# ---------------------
 
 def main():
     """CLI front-end identical to the legacy root `main_web.py`."""

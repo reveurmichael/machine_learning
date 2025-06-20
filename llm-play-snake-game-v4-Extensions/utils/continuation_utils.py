@@ -209,7 +209,7 @@ def continue_from_directory(
             args.parser_model = original_config.get('parser_model')
             
             # Copy other important configuration parameters
-            args.move_pause = original_config.get('move_pause', args.move_pause)
+            args.pause_between_moves = original_config.get('pause_between_moves', args.pause_between_moves)
             args.max_steps = original_config.get('max_steps', args.max_steps)
             args.max_consecutive_empty_moves_allowed = original_config.get('max_consecutive_empty_moves_allowed', args.max_consecutive_empty_moves_allowed)
             args.max_consecutive_something_is_wrong_allowed = original_config.get('max_consecutive_something_is_wrong_allowed', args.max_consecutive_something_is_wrong_allowed)
@@ -232,9 +232,9 @@ def continue_from_directory(
             if 'continue_with_game_in_dir' in summary_data['configuration']:
                 del summary_data['configuration']['continue_with_game_in_dir']
             
-            # --------------------------
+            # ---------------------
             # Add / update continuation_info exactly once (single-writer principle)
-            # --------------------------
+            # ---------------------
             cont_info = summary_data.get('continuation_info', {
                 'is_continuation': True,
                 'continuation_count': 0,
@@ -259,7 +259,7 @@ def continue_from_directory(
             print(Fore.GREEN + f"🤖 Primary LLM: {args.provider}" + (f" ({args.model})" if args.model else ""))
             if args.parser_provider and args.parser_provider.lower() != 'none':
                 print(Fore.GREEN + f"🤖 Parser LLM: {args.parser_provider}" + (f" ({args.parser_model})" if args.parser_model else ""))
-            print(Fore.GREEN + f"⏱️ Move pause: {args.move_pause} seconds")
+            print(Fore.GREEN + f"⏱️ Move pause: {args.pause_between_moves} seconds")
             print(Fore.GREEN + f"⏱️ Max steps: {args.max_steps}")
             print(Fore.GREEN + f"⏱️ Max empty moves: {args.max_consecutive_empty_moves_allowed}")
             print(Fore.GREEN + f"⏱️ Max consecutive errors: {args.max_consecutive_something_is_wrong_allowed}")

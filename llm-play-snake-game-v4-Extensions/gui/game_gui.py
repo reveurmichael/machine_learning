@@ -21,9 +21,9 @@ class GameGUI(BaseGUI):
         super().__init__()
         self.init_display("LLM Snake Agent")
 
-    # --------------------------
+    # ---------------------
     # Drawing helpers
-    # --------------------------
+    # ---------------------
 
     def draw_board(
         self,

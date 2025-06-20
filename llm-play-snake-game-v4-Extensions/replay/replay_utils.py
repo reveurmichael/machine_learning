@@ -62,7 +62,7 @@ def parse_game_data(game_data: Dict[str, Any]) -> Optional[ReplayData]:
         have already read the JSON from disk (see :func:`load_game_json`).
 
     What the function does
-    ----------------------
+    ---------------------
     1. Validates that the mandatory ``detailed_history`` block is present – if
        it is missing we consider the file corrupted and return *None* so the
        caller can skip the game gracefully.

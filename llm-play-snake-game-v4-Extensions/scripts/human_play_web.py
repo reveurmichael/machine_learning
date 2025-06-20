@@ -7,9 +7,9 @@ WebSocket dependency – plain HTTP keeps requirements minimal.
 
 from __future__ import annotations
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Path/bootstrap – same two-liner used across scripts/
-# ---------------------------------------------------------------------------
+# ---------------------
 import sys
 import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
@@ -19,9 +19,9 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from utils.path_utils import ensure_repo_root  # noqa: E402
 ensure_repo_root()
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Standard-library imports
-# ---------------------------------------------------------------------------
+# ---------------------
 import argparse
 import threading
 import time
@@ -30,16 +30,16 @@ from typing import Any, Dict
 
 from flask import Flask, render_template, request, jsonify
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Third-party – PyGame is still required for core logic (GameController)
-# ---------------------------------------------------------------------------
+# ---------------------
 from core.game_controller import GameController
 from utils.network_utils import find_free_port
 from utils.web_utils import build_state_dict, translate_end_reason
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Flask application setup
-# ---------------------------------------------------------------------------
+# ---------------------
 
 # Absolute paths so Flask/Jinja resolves templates regardless of cwd.
 _repo_root = pathlib.Path(__file__).resolve().parent.parent
@@ -50,16 +50,16 @@ app = Flask(__name__, static_folder=_static_folder, template_folder=_template_fo
 
 logging.getLogger("werkzeug").setLevel(logging.WARNING)  # Quiet logs
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Runtime globals – kept minimal & documented
-# ---------------------------------------------------------------------------
+# ---------------------
 _game_controller: GameController | None = None  # singleton per process
 _game_thread: threading.Thread | None = None    # keeps background loop alive
 _running: bool = True                           # stop-flag for thread
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Thin wrapper around GameController to expose web-friendly helpers
-# ---------------------------------------------------------------------------
+# ---------------------
 class WebGameController(GameController):
     """GameController adapted for the Flask web UI.
 
@@ -74,9 +74,9 @@ class WebGameController(GameController):
         self.game_over: bool = False
         self.game_end_reason: str | None = None
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # JSON helpers
-    # ------------------------------------------------------------------
+    # ---------------------
     def get_current_state(self) -> Dict[str, Any]:
         """Return lightweight state for AJAX polling."""
         return build_state_dict(
@@ -91,9 +91,9 @@ class WebGameController(GameController):
             },
         )
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Overrides – we need to track *game_over* & *reason*
-    # ------------------------------------------------------------------
+    # ---------------------
     def make_move(self, direction_key: str):  # noqa: D401 – keep signature
         active, apple_eaten = super().make_move(direction_key)
         if not active:
@@ -109,17 +109,17 @@ class WebGameController(GameController):
         self.game_over = False
         self.game_end_reason = None
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Background thread – keeps the interpreter alive so PyGame clock doesnt exit
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def _background_loop():
     while _running:
         time.sleep(0.1)
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Flask routes
-# ---------------------------------------------------------------------------
+# ---------------------
 
 @app.route("/")
 def index():
@@ -155,9 +155,9 @@ def api_reset():
     _game_controller.reset()
     return jsonify({"status": "ok"})
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # CLI / entry-point
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def main() -> None:  # noqa: D401 – simple wrapper
     """Run the Flask web server for human-play mode."""
@@ -169,7 +169,7 @@ def main() -> None:  # noqa: D401 – simple wrapper
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Bind address")
     args = parser.parse_args()
 
-    # ----- Initialise core game logic ----------------------------------
+    # ----- Initialise core game logic ---------------------
     _game_controller = WebGameController(grid_size=10)
 
     # Background heartbeat so PyGame time module doesn't complain.

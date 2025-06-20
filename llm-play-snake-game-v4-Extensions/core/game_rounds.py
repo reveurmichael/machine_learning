@@ -45,9 +45,9 @@ class BaseRoundManager:
         self.rounds_data: Dict[int, dict] = {}
         self.round_buffer: RoundBuffer = RoundBuffer(number=1)
 
-    # --------------------------
+    # ---------------------
     # Public API
-    # --------------------------
+    # ---------------------
 
     def start_new_round(self, apple_position: Optional[Sequence[int] | NDArray]) -> None:
         """Flush the current buffer, bump the counter and initialise a new round.
@@ -124,9 +124,9 @@ class BaseRoundManager:
         sorted_keys = sorted(self.rounds_data.keys())
         return {key: self.rounds_data[key] for key in sorted_keys}
 
-    # --------------------------
+    # ---------------------
     # Internals
-    # --------------------------
+    # ---------------------
 
     @staticmethod
     def _to_list_or_none(pos: Optional[Sequence[int] | NDArray]) -> Optional[list[int]]:
@@ -149,9 +149,9 @@ class RoundManager(BaseRoundManager):
     bookkeeping can be layered on later without affecting the generic base.
     """
 
-    # --------------------------
+    # ---------------------
     # LLM-specific helpers (optional)
-    # --------------------------
+    # ---------------------
     def record_parsed_llm_response(self, response: Any, is_primary: bool) -> None:  # noqa: D401 – simple proxy
         """Placeholder; extend with structured logging if needed."""
         # For now, we simply attach the raw response to the round buffer for

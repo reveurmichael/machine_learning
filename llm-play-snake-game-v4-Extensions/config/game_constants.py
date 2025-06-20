@@ -53,10 +53,10 @@ MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # Task-0: LLM admitted no path; heuri
 SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
 
 
-# --------------------------
+# ---------------------
 # Sentinel move names recorded in game logs.  Keep this single source of truth
 # so replay, analytics, and any future tooling can reference the same list.
-# --------------------------
+# ---------------------
 
 # This one is NOT Task0 specific. Indeed, we know that "EMPTY" and "SOMETHING_IS_WRONG" are ONLY used in Task0. And "INVALID_REVERSAL" and "NO_PATH_FOUND" are used in Task0, Task1, Task2, Task3, Task4, Task5. But this won't have any effect on the other tasks. So we just regard it as NOT Task0 specific, hence we regard it as generic.
 
@@ -79,13 +79,13 @@ DIRECTIONS = {
 }
 
 
-# --------------------------
+# ---------------------
 # End-reason mapping
 # Single source of truth for user-facing explanations of why a game ended.
 # Kept in sync with GameData.record_game_end() and front-end displays.
 # This one is NOT Task0 specific.
 # Indeed, we know that "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED" and "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED" are ONLY used in Task0. And "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED" and "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED" are used in all tasks (Task0, Task1, Task2, Task3, Task4, Task5). But this won't have any effect on the other tasks. So we just regard it as NOT Task0 specific, hence we regard it as generic.
-# --------------------------
+# ---------------------
 
 END_REASON_MAP = {
     "WALL": "Hit Wall",

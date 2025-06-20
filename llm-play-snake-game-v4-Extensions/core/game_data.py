@@ -81,9 +81,9 @@ class BaseGameData:
         # Apple history tracking (generic for all tasks)
         self.apple_positions_history = []
 
-        # --------------------------
+        # ---------------------
         # Statistics (generic) and round tracking
-        # --------------------------
+        # ---------------------
         # Generic per-game statistics container (LLM-agnostic)
         self.stats = BaseGameStatistics()
 
@@ -377,26 +377,26 @@ class GameData(BaseGameData):
         core implementation to evolve independently.
         """
         summary: dict = {
-            # High-level outcome --------------------------
+            # High-level outcome ---------------------
             "score": self.score,
             "steps": self.steps,
             "snake_length": self.snake_length,
             "game_over": self.game_over,
             "game_end_reason": self.game_end_reason,
             "round_count": self.round_manager.round_count,
-            # LLM configuration --------------------------
+            # LLM configuration ---------------------
             "llm_info": {
                 "primary_provider": primary_provider,
                 "primary_model": primary_model,
                 "parser_provider": parser_provider,
                 "parser_model": parser_model,
             },
-            # Timings / stats --------------------------
+            # Timings / stats ---------------------
             "time_stats": self.stats.time_stats.asdict(),
             "prompt_response_stats": self.get_prompt_response_stats(),
             "token_stats": self.get_token_stats(),
             "step_stats": self.stats.step_stats.asdict(),
-            # Misc metadata --------------------------
+            # Misc metadata ---------------------
             "metadata": {
                 "timestamp": self.timestamp,
                 "game_number": self.game_number,
@@ -404,7 +404,7 @@ class GameData(BaseGameData):
                 # Copy through any extra metadata the caller supplies.
                 **kwargs.get("metadata", {}),
             },
-            # Full replay data --------------------------
+            # Full replay data ---------------------
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
@@ -427,9 +427,9 @@ class GameData(BaseGameData):
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
         return summary_dict
 
-    # --------------------------
+    # ---------------------
     # Delegating wrappers for GameStatistics
-    # --------------------------
+    # ---------------------
 
     def record_llm_communication_start(self) -> None:
         """Proxy to GameStatistics."""
@@ -455,9 +455,9 @@ class GameData(BaseGameData):
     ) -> None:
         self.stats.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
-    # --------------------------
+    # ---------------------
     # Continuation-mode helpers (needed by utils/continuation_utils.py)
-    # --------------------------
+    # ---------------------
 
     def record_continuation(self) -> None:
         """Mark this run as a continuation of a previous experiment."""
@@ -472,9 +472,9 @@ class GameData(BaseGameData):
             self.continuation_count += 1
             self.continuation_timestamps.append(timestamp)
 
-    # --------------------------
+    # ---------------------
     # Quick accessors required by utils/game_manager_utils
-    # --------------------------
+    # ---------------------
 
     @property
     def valid_steps(self) -> int:
@@ -492,9 +492,9 @@ class GameData(BaseGameData):
     def something_is_wrong_steps(self) -> int:
         return self.stats.step_stats.something_wrong
 
-    # --------------------------
+    # ---------------------
     # Convenience accessors for session-level aggregation
-    # --------------------------
+    # ---------------------
 
     @property
     def primary_response_times(self) -> List[float]:
@@ -506,9 +506,9 @@ class GameData(BaseGameData):
         """List of response-time durations (seconds) from the secondary LLM."""
         return self.stats.secondary_response_times
 
-    # --------------------------
+    # ---------------------
     # Time statistics view (used by game_manager_utils)
-    # --------------------------
+    # ---------------------
 
     def get_time_stats(self) -> Dict[str, Any]:
         """Return wall-clock timings needed for session aggregation."""
@@ -516,18 +516,18 @@ class GameData(BaseGameData):
         # coarse timing summary.
         return self.stats.time_stats.asdict()
 
-    # --------------------------
+    # ---------------------
     # Misc helpers expected by utils.game_manager_utils
-    # --------------------------
+    # ---------------------
 
     def _calculate_actual_round_count(self) -> int:
         """Return the number of rounds that actually hold data."""
         return len([r for r in self.round_manager.rounds_data.values() if r])
 
-    # --------------------------
+    # ---------------------
     # Public wrapper – prefer this over direct access to the underscore
     # helper so external modules avoid pylint W0212.
-    # --------------------------
+    # ---------------------
 
     def get_round_count(self) -> int:
         """Return the number of rounds that actually contain gameplay data.

@@ -51,18 +51,18 @@ class WebReplayEngine(ReplayEngine):
     Reuses the core functionality from ReplayEngine but adapts it for web display.
     """
 
-    def __init__(self, log_dir, move_pause=1.0, auto_advance=False):
+    def __init__(self, log_dir, pause_between_moves=1.0, auto_advance=False):
         """Initialize the web replay engine.
 
         Args:
             log_dir: Directory containing game logs
-            move_pause: Time in seconds to pause between moves
+            pause_between_moves: Time in seconds to pause between moves
             auto_advance: Whether to automatically advance through games
         """
         # Initialize without GUI since we're using web interface
         super().__init__(
             log_dir=log_dir,
-            move_pause=move_pause,
+            pause_between_moves=pause_between_moves,
             auto_advance=auto_advance,
             use_gui=False,
         )
@@ -84,7 +84,7 @@ class WebReplayEngine(ReplayEngine):
         # Web-specific enrichments
         state.update(
             {
-                "move_pause": self.pause_between_moves,
+                "pause_between_moves": self.pause_between_moves,
                 "game_end_reason": translate_end_reason(self.game_end_reason),
                 "grid_size": self.grid_size,
                 "colors": build_color_map(),
@@ -111,19 +111,19 @@ class WebReplayEngine(ReplayEngine):
             time.sleep(0.1)
 
 
-def replay_thread_function(log_dir, move_pause, auto_advance):
+def replay_thread_function(log_dir, pause_between_moves, auto_advance):
     """Function to run the replay engine in a separate thread.
 
     Args:
         log_dir: Directory containing game logs
-        move_pause: Time in seconds to pause between moves
+        pause_between_moves: Time in seconds to pause between moves
         auto_advance: Whether to automatically advance through games
     """
     global replay_engine
 
     # Initialize replay engine
     replay_engine = WebReplayEngine(
-        log_dir=log_dir, move_pause=move_pause, auto_advance=auto_advance
+        log_dir=log_dir, pause_between_moves=pause_between_moves, auto_advance=auto_advance
     )
 
     # Run the replay engine
@@ -195,7 +195,7 @@ def control():  # noqa: F401 – used via Flask routing
         return jsonify(
             {
                 "status": "ok",
-                "move_pause": replay_engine.pause_between_moves,
+                "pause_between_moves": replay_engine.pause_between_moves,
                 "speed": 1.0 / replay_engine.pause_between_moves,
             }
         )
@@ -207,7 +207,7 @@ def control():  # noqa: F401 – used via Flask routing
         return jsonify(
             {
                 "status": "ok",
-                "move_pause": replay_engine.pause_between_moves,
+                "pause_between_moves": replay_engine.pause_between_moves,
                 "speed": 1.0 / replay_engine.pause_between_moves,
             }
         )
@@ -225,11 +225,11 @@ def main():
 
     global replay_thread
 
-    # --------------------------
+    # ---------------------
     # Step 1 – extract host / port first so we can pass the remaining CLI
     #          arguments to the shared replay parser without causing unknown
     #          option errors.
-    # --------------------------
+    # ---------------------
     host_port_parser = argparse.ArgumentParser(add_help=False)
     host_port_parser.add_argument(
         "--host", type=str, default="127.0.0.1", help="Host IP"
@@ -240,10 +240,10 @@ def main():
 
     host_port_args, remaining_argv = host_port_parser.parse_known_args()
 
-    # --------------------------
+    # ---------------------
     # Step 2 – delegate the remaining arguments (log-dir, etc.) to the common
     #          replay CLI defined in ``replay.py``.
-    # --------------------------
+    # ---------------------
     argv_backup = sys.argv.copy()
     sys.argv = [sys.argv[0]] + remaining_argv
     try:
@@ -269,7 +269,7 @@ def main():
     # Start replay engine in a separate thread
     replay_thread = threading.Thread(
         target=replay_thread_function,
-        args=(log_dir, args.move_pause, args.auto_advance),
+        args=(log_dir, args.pause_between_moves, args.auto_advance),
     )
     replay_thread.daemon = True
     replay_thread.start()

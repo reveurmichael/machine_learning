@@ -459,9 +459,9 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
         return next_move, True
 
     except Exception as e:
-        # --------------------------
+        # ---------------------
         # SOMETHING_IS_WRONG sentinel handling (exception path)
-        # --------------------------
+        # ---------------------
         # Any exception that bubbles up to this point means the LLM replied but
         # we could not parse *any* usable move set – usually malformed / empty
         # JSON or a truncated answer.  We treat this differently from the EMPTY

@@ -6,7 +6,7 @@
     "parser_provider": null,
     "parser_model": null,
     "max_games": 2,
-    "move_pause": 5.0,
+    "pause_between_moves": 5.0,
     "sleep_before_launching": 120.0,
     "max_steps": 800,
     "max_consecutive_empty_moves_allowed": 5,

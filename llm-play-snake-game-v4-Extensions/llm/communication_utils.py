@@ -416,11 +416,17 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
             # Store the full array of moves for the current round via RoundManager
             game_manager.game.game_state.round_manager.record_planned_moves(parser_output["moves"])
 
-            # Set next move but keep the full plan for UI preview – we'll
-            # pop it only after executing the move so the first draw shows
-            # the complete plan.
+            # Store the plan *excluding* the first element which we are about
+            # to execute immediately.  This guarantees that
+            # ``planned_moves`` will eventually reach length 0, allowing
+            # ``finish_round()`` to be triggered and the round counter to
+            # advance.  It also prevents a duplicate pop later in the game
+            # loop.
+
             next_move = parser_output["moves"][0] if parser_output["moves"] else None
-            game_manager.game.planned_moves = list(parser_output["moves"])  # full copy
+
+            # The remaining moves after the first
+            game_manager.game.planned_moves = list(parser_output["moves"][1:])
 
             # If we got a valid move, reset the consecutive empty steps counter
             if next_move:

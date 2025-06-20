@@ -295,9 +295,7 @@ class GameLoop(BaseGameLoop):
             import time as _t
             _t.sleep(3)
 
-        # Drop the first element from planned_moves because we execute it now.
-        if manager.game.planned_moves:
-            manager.game.planned_moves.pop(0)
+        # planned_moves already excludes the executed move – no further pop.
 
         _, apple_eaten = self._execute_move(next_move)
         if apple_eaten:

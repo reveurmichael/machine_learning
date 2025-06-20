@@ -119,9 +119,13 @@ class BaseReplayEngine(BaseGameController):
             if direction_key == "INVALID_REVERSAL":
                 self.game_state.record_invalid_reversal()
             elif direction_key == "EMPTY":
-                self.game_state.record_empty_move()
+                # LLM-specific sentinel – only call helper when the subclass implements it
+                if hasattr(self.game_state, "record_empty_move"):
+                    self.game_state.record_empty_move()  # type: ignore[attr-defined]
             elif direction_key == "SOMETHING_IS_WRONG":
-                self.game_state.record_something_is_wrong_move()
+                # LLM-specific sentinel – guard for non-LLM tasks
+                if hasattr(self.game_state, "record_something_is_wrong_move"):
+                    self.game_state.record_something_is_wrong_move()  # type: ignore[attr-defined]
             elif direction_key == "NO_PATH_FOUND":
                 self.game_state.record_no_path_found_move()
             return True  # Game continues, snake stays put

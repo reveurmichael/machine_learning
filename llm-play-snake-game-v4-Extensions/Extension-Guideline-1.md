@@ -26,14 +26,6 @@ def continue_from_directory
 llm_response
 
 
-## Base Class that is already OK (mostly OK, but maybe not perfect)
-
-class BaseReplayEngine(GameController)
-class BaseGameManager
-class BaseGameController
-class BaseGameLogic(GameController)
-class BaseGameData (except one minor thing: it s self.stats = GameStatistics should later on become self.stats = BaseGameStatistics)
-
 ## Attributes and functions that should be in BaseClassBlabla
 On the contrary, in BaseClassBlabla, we should have attributes and functions that are generic and can be used by all tasks. For example, such attributes and functions (or properties, or methods) should be in BaseClassBlabla:
 self.round_counts
@@ -95,7 +87,10 @@ We are preparing really hard to be able to deliver as is said in project-structu
 
 ## Now what you should do:
 
-Make sure things within the folder "core" are really well refactored, sometimes we have a lot of inter-class dependances. double check.
+Make sure things within the folder "replay" are really well refactored, sometimes we have a lot of inter-class dependances. double check. If you don't think there is modification to be made, tell me how things are being generic now and how task1, task2, task3, task4, etc. (let's say heuristic) can use those generic stuffs (go into details.)
+
+
+
 
 
 

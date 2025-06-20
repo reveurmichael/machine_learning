@@ -111,8 +111,7 @@ class BaseGameLoop:
             return
         next_move = manager.game.get_next_planned_move()
         if not next_move:
-            # Plan queue exhausted – flush & bump round counter.
-            manager.finish_round()
+            # Plan queue exhausted – request a *new* plan on the next tick.
             manager.need_new_plan = True
             print("🔄 No more planned moves in the current round, requesting new plan.")
             return
@@ -127,9 +126,11 @@ class BaseGameLoop:
 
         manager = self.manager
         if manager.game.planned_moves:
-            print(Fore.CYAN + f"Continuing with {len(manager.game.planned_moves)} remaining planned moves for this round.")
+            print(
+                Fore.CYAN
+                + f"Continuing with {len(manager.game.planned_moves)} remaining planned moves for this round."
+            )
         else:
-            manager.finish_round()
             print(Fore.YELLOW + "No more planned moves, requesting new plan.")
             manager.need_new_plan = True
 
@@ -268,15 +269,34 @@ class GameLoop(BaseGameLoop):
         """
 
         manager = self.manager
-        # Preserve original timing: round counter is bumped *after* the plan
-        # finishes (see finish_round() call when the queue runs empty).  This
-        # matches the stable pre-refactor behaviour and avoids extra file
-        # naming logic here.
+        # -------------------------------------------------------------
+        # (1) Bump the **round counter** *before* querying the LLM.
+        #     -------------------------------------------------------
+        #     A round *begins* the moment we ask for a new plan, not
+        #     after the previous plan finishes.  This guarantees that
+        #     every prompt/response pair carries the correct, newly
+        #     incremented identifier.
+        #
+        #     We skip the very first call of a fresh game – the counter
+        #     already starts at 1.  Subsequent invocations advance it.
+        # -------------------------------------------------------------
+        if getattr(manager, "_first_plan", False):
+            manager._first_plan = False  # first round already #1
+        else:
+            manager.increment_round("new round start")
 
+        # Mark that we are waiting for the model only *after* the counter
+        # was advanced so the guard inside *increment_round* cannot block
+        # the bump.
         manager.awaiting_plan = True
+
         from llm.communication_utils import get_llm_response  # local import
 
-        next_move, manager.game_active = get_llm_response(manager, round_id=manager.round_count)  # type: ignore[arg-type]
+        next_move, manager.game_active = get_llm_response(
+            manager,
+            round_id=manager.round_count,
+        )  # type: ignore[arg-type]
+
         manager.awaiting_plan = False
         manager.need_new_plan = False
 
@@ -305,9 +325,10 @@ class GameLoop(BaseGameLoop):
             import time as _t
             _t.sleep(3)
 
-        # Drop the first element from planned_moves because we execute it now.
-        if manager.game.planned_moves:
-            manager.game.planned_moves.pop(0)
+        # The LLM parser now stores *only* moves **after** the first one, so
+        # we no longer need to remove the head element here.  Keeping the
+        # list intact ensures the round correctly terminates when the queue
+        # becomes empty.
 
         _, apple_eaten = self._execute_move(next_move)
         if apple_eaten:

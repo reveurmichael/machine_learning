@@ -99,8 +99,9 @@ def _manager_thread_fn(gm: GameManager, args):
         if cont_dir:
             try:
                 import json
+                import pathlib as _p
 
-                summary_path = Path(cont_dir) / "summary.json"
+                summary_path = _p.Path(cont_dir) / "summary.json"
                 if summary_path.exists():
                     with summary_path.open("r", encoding="utf-8") as f:
                         summary = json.load(f)
@@ -181,6 +182,13 @@ def main():
         game_args = parse_arguments()
     finally:
         sys.argv = argv_backup
+
+    # Always run the game loop in headless mode when executed from a
+    # background thread.  macOS crashes (`NSWindow must be on main thread`)
+    # if PyGame tries to open a window outside the main process.  Users who
+    # need the native GUI should run the *desktop* entry script instead.
+
+    game_args.no_gui = True
 
     global manager, manager_thread
     manager = GameManager(game_args)

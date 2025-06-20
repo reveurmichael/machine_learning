@@ -359,6 +359,35 @@ Therefore no mandatory action is needed for the GUI layer right now; it is SOLID
 
 ## Round, RoundManager, Rounds
 
+Round-handling is now fully generic and centralised:
+
+1. BaseRoundManager (unchanged)  
+   • Lives in `core/game_rounds.py`.  
+   • Provides the buffer, `start_new_round`, `record_planned_moves`, and a universal `sync_round_data()` helper.  
+   • Totally LLM-agnostic; other tasks may subclass to attach extra statistics.
+
+2. BaseGameManager (new logic added)  
+   • Gains `increment_round()` and `finish_round()`—identical for every task.  
+     – Flushes the current buffer and seeds the next round through `RoundManager.start_new_round(...)`.  
+     – Updates `round_count`, synchronises data for live dashboards, emits a console banner.  
+   • Safely checks for Task-0-only flags with `hasattr(...)` so Tasks 1-5 inherit untouched.  
+   • Import of `colorama.Fore` is local to the method, avoiding extra dependency cost if someone runs headless.
+
+3. GameManager (Task-0)  
+   • Its old, LLM-specific `increment_round` / `finish_round` duplicates have been removed; it now relies on the shared base implementation.  
+   • All call-sites (`GameLoop._execute_next_planned_move`, `_post_apple_logic`, etc.) keep working because method names didn’t change.
+
+4. Communication path  
+   • `llm/communication_utils.get_llm_response()` already records plans via `gs.round_manager.record_planned_moves(...)`.  
+   • Our earlier patch ensured `planned_moves` becomes empty at the right time, so `BaseGameLoop` calls `finish_round()` exactly once per prompt.
+
+What this means for future tasks
+---------------------------------
+• Task-1 (Heuristic), Task-2 (SL), … simply subclass `BaseGameManager`; they inherit round tracking automatically.  
+• They can choose to ignore rounds or to call `finish_round()` whenever their own planning phase ends—no additional bookkeeping needed.  
+• Because all round metadata lives in `RoundManager`, replay and analytics utilities can treat every task uniformly.
+
+No further changes are required—the round system is SOLID-compliant, open for extension, and closed for modification.
 
 
 ## 

@@ -131,6 +131,51 @@ class BaseGameManager:
         # GUI mode (pygame or web gui) – use configured pause
         return self.args.move_pause
 
+    # ------------------------------------------------------------------
+    # Generic *round* helpers – shared across all tasks (0-5)
+    # ------------------------------------------------------------------
+
+    def increment_round(self, reason: str = "") -> None:  # noqa: D401 – generic helper
+        """Flush current round buffer and start the next one.
+
+        The base implementation is completely LLM-agnostic; subclasses may
+        override to add extra logging but *should* call ``super()`` so that
+        :pyclass:`core.game_rounds.RoundManager` remains the single source of
+        truth for the round counter.
+        """
+
+        # Some Task-0 states (e.g. awaiting_plan) do not exist in every task.
+        if hasattr(self, "awaiting_plan") and getattr(self, "awaiting_plan"):
+            return  # avoid duplicate increments while still waiting for plan
+
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
+
+        gs = self.game.game_state  # type: ignore[attr-defined]
+
+        # Seed the upcoming round with the *current* apple so replays never
+        # contain null positions.  Works for all agent types.
+        apple_pos = getattr(self.game, "apple_position", None)
+        gs.round_manager.start_new_round(apple_pos)
+
+        # Keep the public counter in sync with RoundManager
+        self.round_count = gs.round_manager.round_count
+
+        # Persist buffer so dashboards / JS overlays see live data
+        gs.round_manager.sync_round_data()
+
+        # Console feedback is useful for long-running experiments; harmless
+        # for headless tasks.
+        if reason:
+            print(Fore.BLUE + f"📊 Advanced to round {self.round_count} ({reason})")
+        else:
+            print(Fore.BLUE + f"📊 Advanced to round {self.round_count}")
+
+    def finish_round(self, reason: str = "round completed") -> None:  # noqa: D401 – thin wrapper
+        """Public shortcut used by the game loop when a round ends."""
+
+        self.increment_round(reason)
+
 
 class GameManager(BaseGameManager):
     """Run one or many LLM-driven Snake games and collect aggregate stats."""
@@ -256,52 +301,6 @@ class GameManager(BaseGameManager):
         # the "Session Finished" banner.  (Used by main_web / JS.)
         self.running = False
 
-    def increment_round(self, reason: str = "") -> None:
-        """Increment the round counter and synchronize with game state.
-        
-        This centralized method ensures consistent round counting across the codebase.
-        It properly increments round_count and synchronizes the count between
-        the game manager and game state for accurate replay functionality.
-        
-        IMPORTANT: Rounds should ONLY be incremented when:
-        1. We get a new plan from the LLM
-        
-        Rounds should NOT be incremented when:
-        1. An apple is eaten during planned moves
-        2. A game ends
-        
-        This ensures the number of rounds in game_N.json matches the
-        number of prompts/responses in the logs directory.
-        
-        Args:
-            reason: Optional reason for incrementing the round (for logging)
-        """
-        # Skip if we're still awaiting a plan (prevents duplicate increment)
-        if self.awaiting_plan:
-            return
-            
-        # ----------------
-        # Delegate all round bookkeeping to RoundManager so the logic –
-        # including buffer flushes and apple seeding – lives in one place.
-        # ----------------
-        if not self.game or not hasattr(self.game, "game_state"):
-            return
-
-        gs = self.game.game_state
-
-        # Let RoundManager take care of flushing & seeding.  It handles NumPy
-        # vs list conversion internally so we can pass the raw value.
-        gs.round_manager.start_new_round(getattr(self.game, "apple_position", None))
-
-        # Keep our counter in sync with the single source of truth.
-        self.round_count = gs.round_manager.round_count
-            
-        # Make the freshly created buffer visible to any listeners (web).
-        gs.round_manager.sync_round_data()
-        
-        # Inform the console once per actual advance (useful for long runs).
-        print(Fore.BLUE + f"📊 Advanced to round {self.round_count} {f'({reason})' if reason else ''}")
-    
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Continue from a previous game session.
         
@@ -371,23 +370,6 @@ class GameManager(BaseGameManager):
             
             # Report final statistics
             self.report_final_statistics() 
-
-    # --------------------------
-    # Public helper: marks the current round as finished and
-    # bumps the counter.  Use this *instead of* calling
-    # increment_round() from the game loop so that all
-    # bookkeeping stays inside GameManager.
-    # --------------------------
-    def finish_round(self, reason: str = "round completed") -> None:
-        """Flush buffered round-data and advance to the next round.
-
-        This is a thin wrapper around ``increment_round`` whose only goal
-        is to give the game loop a semantically clear call-site.  It lets us
-        move all round-count bookkeeping out of *core/game_loop.py* while
-        still re-using the robust logic already living in
-        ``increment_round``.
-        """
-        self.increment_round(reason) 
 
 # --------------------------
 # Utility factories for auto-initialised stats dictionaries

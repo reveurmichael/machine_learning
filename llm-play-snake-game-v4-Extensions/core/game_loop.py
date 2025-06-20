@@ -13,8 +13,9 @@ from typing import TYPE_CHECKING, Tuple
 
 import pygame
 from colorama import Fore
-
+from config.game_constants import PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS
 from utils.game_manager_utils import check_max_steps, process_game_over, process_events
+
 
 # --------------------------
 # Type-checking helpers (avoid heavyweight imports at runtime)
@@ -319,11 +320,17 @@ class GameLoop(BaseGameLoop):
             self._handle_no_move()
             return
 
+        # IMPORTANT: NEVER REMOVE THE COMMENTS HERE.
         # Optional 3-second preview so humans can read the plan.
+        # IMPORTNAT: NEVER NEVER NEVER REMOVE THIS PART.
+        # IMPORTANT: preview delay of 3 seconds so humans can read the LLM answer
+        # For guarenteeing that the human can read the LLM answer before seeing the actual moves
+        # IMPORTANT: NEVER REMOVE THIS PART.
+        # IMPORTANT: NEVER REMOVE THE COMMENTS HERE.
         manager.game.draw()
         if manager.use_gui:
             import time as _t
-            _t.sleep(3)
+            _t.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
 
         # The LLM parser now stores *only* moves **after** the first one, so
         # we no longer need to remove the head element here.  Keeping the
@@ -393,4 +400,4 @@ class GameLoop(BaseGameLoop):
         manager.last_no_path_found = False
 
         # NO_PATH_FOUND does not affect EMPTY or reversal counters beyond the
-        # resets above – no further action. 
+        # resets above – no further action.

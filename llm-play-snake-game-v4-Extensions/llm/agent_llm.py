@@ -78,24 +78,39 @@ class LLMSnakeAgent(SnakeAgent):
     def get_move(self, game: Any) -> str | None:  # type: ignore[override]
         """Return the next direction proposed by the LLM.
 
-        The `game` object is expected to expose the same public surface as
-        ``core.game_logic.GameLogic`` – namely:
-            • ``get_state_representation()``
-            • ``parse_llm_response(str) -> str | None``
-        The second call mutates the game to set ``planned_moves`` and related
-        diagnostics exactly like the old code path, so UI elements continue to
-        work with *zero* changes.
+        The agent will first consume any existing planned moves. Only when
+        the plan is exhausted will it request a new plan from the LLM and
+        increment the round counter.
         """
 
+        # First, try to consume any existing planned moves
+        if hasattr(game, "planned_moves") and game.planned_moves:
+            if hasattr(game, "get_next_planned_move"):
+                return game.get_next_planned_move()
+            # Fallback for game objects without get_next_planned_move method
+            return game.planned_moves.pop(0)
+
+        # No planned moves available - need to request a new plan from LLM
         if self._manager is not None:
             from llm.communication_utils import get_llm_response  # local import
 
             game_manager = self._manager
 
+            # Increment the round counter *before* querying the LLM
+            # A round begins when we ask for a new plan
+            if getattr(game_manager, "_first_plan", False):
+                game_manager._first_plan = False  # first round is already #1
+            else:
+                game_manager.increment_round("new plan requested by agent")
+
             # Mark awaiting_plan to keep UI behaviour identical
             game_manager.awaiting_plan = True
-            move, game_active = get_llm_response(game_manager, round_id=game_manager.round_count)  # type: ignore[arg-type]
+            move, game_active = get_llm_response(
+                game_manager, round_id=game_manager.round_count
+            )  # type: ignore[arg-type]
             game_manager.awaiting_plan = False
+
+            # Update game manager state
             game_manager.need_new_plan = False
             game_manager.game_active = game_active
 

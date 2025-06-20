@@ -39,6 +39,8 @@ AVAILABLE_PROVIDERS: list[str] = []  # Task-0 specific – populated lazily
 
 PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves. This one is NOT Task0 specific.
 
+PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS = 3.0  # This one is NOT Task0 specific.
+
 MAX_GAMES_ALLOWED = 2 # This one is NOT Task0 specific.
 MAX_STEPS_ALLOWED = 400 # This one is NOT Task0 specific.
 MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 3   # Only relevant for Task-0 and distillation3fine-tune tracks. So this one is Task0 specific.

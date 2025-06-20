@@ -188,7 +188,7 @@ def render_main_pygame_tab() -> None:
         if sleep_before > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
         if pause_between_moves >= 0:
-            _append_arg(cmd, "--move-pause", pause_between_moves)
+            _append_arg(cmd, "--pause-between-moves", pause_between_moves)
         if sleep_after_empty > 0:
             _append_arg(cmd, "--sleep-after-empty-step", sleep_after_empty)
         if max_empty_moves > 0:

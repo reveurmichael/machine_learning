@@ -48,82 +48,36 @@ class BaseGUI:
         # Optional grid overlay (useful for RL visualisation, off by default)
         self.show_grid = False
         
-        # Custom plug-in panels (Drawn after the built-in info block)
-        # Instance-specific list gets **all** globally registered panels so that
-        # callers who used :func:`register_panel` need not touch the object.
-        self.extra_panels: List[InfoPanel] = list(GLOBAL_PANELS)
-        
-        # These will be initialized in derived classes
-        self.screen = None
-        self.font = None
-        self.small_font = None
     
-    def init_display(self, caption="Snake Game"):
-        """Initialize the pygame display.
-        
-        Args:
-            caption: Window caption text
-        """
-        # No early-return guard; multiple calls are safe as pygame merely resets caption
-        
-        # Initialize pygame if not already done
-        if not pygame.get_init():
-            pygame.init()
-            
-        if not pygame.font.get_init():
-            pygame.font.init()
-            
-        # Set up the screen
-        self.screen = pygame.display.set_mode((self.width + self.width_plus, self.height))
-        pygame.display.set_caption(caption)
-        
-        # Set up fonts
-        self.font = pygame.font.SysFont("arial", 18)
-        self.small_font = pygame.font.SysFont("arial", 12)
-        
-        # Calculate the width of the text panel
-        self.text_panel_width = self.width + self.width_plus - self.height - 40
-    
+
     def draw_apple(self, apple_position, flip_y=False):
-        """Draw the apple at the given position.
-        
-        Args:
-            apple_position: [x,y] position of the apple
-            flip_y: Whether y-coordinate is already flipped (for GameGUI compatibility)
-        """
+        """Draw the apple at the given position."""
         x, y = apple_position
-        
-        # Calculate display position
-        # If flip_y is True, y is already flipped in GameGUI, so use it directly
-        # Otherwise transform from Cartesian coordinates
         y_display = y if flip_y else (self.grid_size - 1 - y)
-            
-        # Draw rectangle for apple
+        padding = 2
+        apple_size = self.pixel - (2 * padding)
         rect = pygame.Rect(
-            x * self.pixel,
-            y_display * self.pixel,
-            self.pixel - 5,
-            self.pixel - 5
+            x * self.pixel + padding,
+            y_display * self.pixel + padding,
+            apple_size,
+            apple_size
         )
-        
-        pygame.draw.rect(self.screen, COLORS['APPLE'], rect)
-    
+        pygame.draw.rect(self.screen, COLORS["APPLE"], rect)
+
     def clear_game_area(self):
-        """Clear the game board area."""
-        # Draw background rectangle for game section without any padding
+        """Clear the game board area with properly aligned grid."""
         pygame.draw.rect(
             self.screen, 
-            COLORS['BACKGROUND'], 
+            COLORS["BACKGROUND"], 
             (0, 0, self.height, self.height)
         )
-        
-        # Optional grid overlay – cheap; only drawn when enabled.
-        if self.show_grid and self.pixel >= 4:  # avoid clutter on tiny scales
-            for x in range(0, self.height, self.pixel):
-                pygame.draw.line(self.screen, COLORS['GRID'], (x, 0), (x, self.height), 1)
-            for y in range(0, self.height, self.pixel):
-                pygame.draw.line(self.screen, COLORS['GRID'], (0, y), (self.height, y), 1)
-    
+        if self.show_grid and self.pixel >= 4:
+            for i in range(self.grid_size + 1):
+                x = i * self.pixel
+                pygame.draw.line(self.screen, COLORS["GRID"], (x, 0), (x, self.height), 1)
+            for i in range(self.grid_size + 1):
+                y = i * self.pixel
+                pygame.draw.line(self.screen, COLORS["GRID"], (0, y), (self.height, y), 1)
     def clear_info_panel(self):
         """Clear the information panel area."""
         # Draw background rectangle for info panel without separation line
@@ -204,6 +158,8 @@ class BaseGUI:
 
         self.grid_size = grid_size
         self.pixel = max(1, self.height // max(self.grid_size, 1))
+        
+        # Optional grid overlay (useful for RL visualisation, off by default)
 
     # ------------------
     # Utility: return RGB numpy array of the current screen (for videos)
@@ -318,11 +274,15 @@ class BaseGUI:
 
         y_display = y if flip_y else (self.grid_size - 1 - y)
 
+        # Calculate padding to center the square in the grid cell
+        padding = 2  # Small padding for visual separation
+        square_size = self.pixel - (2 * padding)
+
         rect = pygame.Rect(
-            x * self.pixel,
-            y_display * self.pixel,
-            self.pixel - 5,
-            self.pixel - 5,
+            x * self.pixel + padding,
+            y_display * self.pixel + padding,
+            square_size,
+            square_size,
         )
 
         pygame.draw.rect(self.screen, color, rect)

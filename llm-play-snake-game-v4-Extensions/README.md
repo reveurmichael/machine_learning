@@ -71,7 +71,7 @@ This project implements a Mixture-of-Experts inspired approach where two special
 - `--parser-provider`: LLM provider for the secondary LLM (defaults to primary provider if not specified). Use "none" to skip using a parser.
 - `--parser-model`: Model name for the secondary LLM
 - `--max-games`: Maximum number of games to play
-- `--move-pause`: Pause between sequential moves in seconds
+- `--pause-between-moves`: Pause between sequential moves in seconds
 - `--max-steps`: Maximum steps a snake can take in a single game (default: 400)
 - `--sleep-before-launching`: Time to sleep (in minutes) before launching the program
 - `--max-empty-moves`: Maximum consecutive empty moves before game over

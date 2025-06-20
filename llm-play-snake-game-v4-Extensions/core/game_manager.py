@@ -50,9 +50,9 @@ if TYPE_CHECKING:
     import argparse
 
 
-# =============================================================================
+# -------------------
 # BASE CLASS FOR ALL TASKS (1-5) - Pure Generic Implementation
-# =============================================================================
+# -------------------
 
 
 class BaseGameManager:
@@ -76,9 +76,9 @@ class BaseGameManager:
         """Initialize generic session state for any task type."""
         self.args = args
 
-        # =================================================================
+        # -------------------
         # Core session metrics (used by ALL tasks)
-        # =================================================================
+        # -------------------
         self.game_count: int = 0
         self.round_count: int = 1
         self.total_score: int = 0
@@ -98,20 +98,20 @@ class BaseGameManager:
         self.no_path_found_steps: int = 0
         self.last_no_path_found: bool = False
 
-        # =================================================================
+        # -------------------
         # Game state management (used by ALL tasks)
-        # =================================================================
+        # -------------------
         self.game: Optional[BaseGameLogic] = None
         self.game_active: bool = True
         self.need_new_plan: bool = True
         self.running: bool = True
         self._first_plan: bool = True  # Track first planning cycle for round management
 
-        # =================================================================
+        # -------------------
         # Visualization & timing (used by ALL tasks)
-        # =================================================================
+        # -------------------
         self.use_gui: bool = not getattr(args, "no_gui", False)
-        self.pause_between_moves: float = getattr(args, "move_pause", 0.0)
+        self.pause_between_moves: float = getattr(args, "pause_between_moves", 0.0)
         self.auto_advance: bool = getattr(args, "auto_advance", False)
 
         # Pygame timing setup (only when GUI is enabled)
@@ -124,14 +124,14 @@ class BaseGameManager:
             self.time_delay = 0
             self.time_tick = 0
 
-        # =================================================================
+        # -------------------
         # Logging infrastructure (used by ALL tasks)
-        # =================================================================
+        # -------------------
         self.log_dir: Optional[str] = None
 
-    # =====================================================================
+    # -------------------
     # CORE LIFECYCLE METHODS - All tasks implement these
-    # =====================================================================
+    # -------------------
 
     def initialize(self) -> None:
         """Initialize the task-specific components.
@@ -154,9 +154,9 @@ class BaseGameManager:
         """
         raise NotImplementedError("Subclasses must implement run()")
 
-    # =====================================================================
+    # -------------------
     # GENERIC GAME SETUP - Reusable across all tasks
-    # =====================================================================
+    # -------------------
 
     def setup_game(self) -> None:
         """Create game logic and optional GUI interface."""
@@ -168,7 +168,7 @@ class BaseGameManager:
             gui = GameGUI()
             self.game.set_gui(gui)
 
-    def get_move_pause(self) -> float:
+    def get_pause_between_moves(self) -> float:
         """Get pause duration between moves.
         
         Returns:
@@ -176,9 +176,10 @@ class BaseGameManager:
         """
         return self.pause_between_moves if self.use_gui else 0.0
 
-    # =====================================================================
+
+    # -------------------
     # ROUND MANAGEMENT - Generic for all planning-based tasks
-    # =====================================================================
+    # -------------------
 
     def start_new_round(self, reason: str = "") -> None:
         """Begin a new planning round.
@@ -243,9 +244,9 @@ class BaseGameManager:
         else:
             print(Fore.BLUE + f"📊 Round {self.round_count} incremented")
 
-    # =====================================================================
+    # -------------------
     # LOGGING INFRASTRUCTURE - Used by all tasks
-    # =====================================================================
+    # -------------------
 
     def setup_logging(self, base_dir: str, task_name: str) -> None:
         """Set up logging directory structure.
@@ -265,9 +266,9 @@ class BaseGameManager:
             save_session_stats(self.log_dir)
 
 
-# =============================================================================
+# -------------------
 # TASK-0 SPECIFIC CLASS - LLM Snake Game
-# =============================================================================
+# -------------------
 
 
 class LLMGameManager(BaseGameManager):
@@ -289,9 +290,9 @@ class LLMGameManager(BaseGameManager):
         """Initialize LLM-specific session."""
         super().__init__(args)
 
-        # =================================================================
+        # -------------------
         # LLM-specific counters and state
-        # =================================================================
+        # -------------------
         self.empty_steps: int = 0
         self.something_is_wrong_steps: int = 0
         self.consecutive_empty_steps: int = 0
@@ -299,18 +300,18 @@ class LLMGameManager(BaseGameManager):
         self.awaiting_plan: bool = False
         self.skip_empty_this_tick: bool = False
 
-        # =================================================================
+        # -------------------
         # LLM performance tracking
-        # =================================================================
+        # -------------------
         self.time_stats: defaultdict[str, int] = defaultdict(int)
         self.token_stats: dict[str, defaultdict[str, int]] = {
             "primary": defaultdict(int),
             "secondary": defaultdict(int),
         }
 
-        # =================================================================
+        # -------------------
         # LLM infrastructure
-        # =================================================================
+        # -------------------
         self.llm_client: Optional[LLMClient] = None
         self.parser_provider: Optional[str] = None
         self.parser_model: Optional[str] = None
@@ -392,9 +393,9 @@ class LLMGameManager(BaseGameManager):
         report_final_statistics(stats_info)
         self.running = False
 
-    # =================================================================
+    # -------------------
     # CONTINUATION SUPPORT - LLM-specific feature
-    # =================================================================
+    # -------------------
 
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Resume LLM session from previous checkpoint."""
@@ -418,9 +419,9 @@ class LLMGameManager(BaseGameManager):
         return continue_from_directory(cls, args)
 
 
-# =============================================================================
+# -------------------
 # CONVENIENCE ALIAS - Task-0 compatibility
-# =============================================================================
+# -------------------
 
 # For Task-0 scripts that expect "GameManager"
 GameManager = LLMGameManager

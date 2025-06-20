@@ -13,12 +13,12 @@ import sys
 import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-from utils.path_utils import ensure_repo_root
+from utils.path_utils import ensureREPO_ROOT
 
 # ------------------
 # Ensure current working directory == repository root
 # ------------------
-_repo_root = ensure_repo_root()
+REPO_ROOT = ensureREPO_ROOT()
 
 # ------------------
 # Replace wrapper delegation with the *actual* Task-0 implementation so the
@@ -58,8 +58,15 @@ init_colorama(autoreset=True)
 # CLI parsing (verbatim from original main.py)
 # ------------------
 
-def parse_arguments():
-    """Parse command-line arguments (same behaviour as legacy main.py)."""
+def get_parser() -> argparse.ArgumentParser:
+    """Creates and returns the argument parser for the main game CLI.
+
+    This function is separate from `parse_arguments` to allow other scripts
+    (e.g., main_web.py) to reuse the parser configuration.
+
+    Returns:
+        An argparse.ArgumentParser instance.
+    """
     parser = argparse.ArgumentParser(description="LLM-guided Snake game")
     provider_help = (
         "LLM provider to use for primary LLM. Available: " + ", ".join(AVAILABLE_PROVIDERS)
@@ -82,7 +89,7 @@ def parse_arguments():
 
     parser.add_argument("--max-games", "-g", type=int, default=MAX_GAMES_ALLOWED,
                         help=f"Maximum games to play (default {MAX_GAMES_ALLOWED})")
-    parser.add_argument("--move-pause", type=float, default=PAUSE_BETWEEN_MOVES_SECONDS,
+    parser.add_argument("--pause-between-moves", type=float, default=PAUSE_BETWEEN_MOVES_SECONDS,
                         help=f"Pause between moves in seconds (default {PAUSE_BETWEEN_MOVES_SECONDS})")
     parser.add_argument("--sleep-before-launching", "-s", type=float, default=0.0,
                         help="Time (minutes, fractions allowed) to sleep before launching")
@@ -111,27 +118,55 @@ def parse_arguments():
     parser.add_argument("--continue-with-game-in-dir", "-c", type=str, default=None,
                         help="Resume from existing experiment directory")
 
+    return parser
+
+
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = get_parser()
     args = parser.parse_args()
 
     # --- Post-processing defaults ---------------------
     if args.provider and args.model is None:
+        # Import here to get the actual default models from each provider
+        from llm.providers import get_default_model
+        
+        # First try hardcoded defaults for known providers
         default_models = {
             "hunyuan": "hunyuan-turbos-latest",
             "mistral": "mistral-medium-latest",
             "deepseek": "deepseek-chat",
+            "ollama": "deepseek-r1:7b",
         }
-        args.model = default_models.get(args.provider.lower(), args.model)
+        args.model = default_models.get(args.provider.lower())
+        
+        # If no hardcoded default found, use the provider's own default
+        if args.model is None:
+            try:
+                args.model = get_default_model(args.provider)
+            except Exception:
+                print(Fore.YELLOW + f"Warning: Could not get default model for provider {args.provider}")
 
     if args.parser_provider is None:
         args.parser_provider = "none"
 
     if args.parser_provider.lower() != "none" and args.parser_model is None:
+        # Import here to get the actual default models from each provider
+        from llm.providers import get_default_model
+        
+        # First try hardcoded defaults for known providers
         defaults_parser = {
             "hunyuan": "hunyuan-turbos-latest",
             "mistral": "mistral-medium-latest",
             "deepseek": "deepseek-chat",
+            "ollama": "deepseek-r1:7b",
         }
-        args.parser_model = defaults_parser.get(args.parser_provider.lower(), args.model)
+        args.parser_model = defaults_parser.get(args.parser_provider.lower())
+        
+        # If no hardcoded default found, use the provider's own default
+        if args.parser_model is None:
+            # If parser provider has no default, fall back to primary model
+            args.parser_model = args.model
 
     # --- Continuation mode checks ---------------------
     if args.continue_with_game_in_dir:
@@ -139,7 +174,7 @@ def parse_arguments():
         restricted = [
             "--provider", "--p1", "--model", "--m1",
             "--parser-provider", "--p2", "--parser-model",
-            "--move-pause", "--max-steps",
+            "--pause-between-moves", "--max-steps",
             "--max-consecutive-empty-moves-allowed",
             "--max-consecutive-something-is-wrong-allowed",
             "--max-consecutive-invalid-reversals-allowed",

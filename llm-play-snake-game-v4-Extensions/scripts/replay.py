@@ -12,8 +12,8 @@ This whole module is Task0 specific.
 
 import sys
 import pathlib
-_repo_root = pathlib.Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_repo_root))
+REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 
 # ---------------------
 # Guarantee that 'utils' package is importable even when the user launches
@@ -34,15 +34,16 @@ from replay import ReplayEngine
 from gui.replay_gui import ReplayGUI
 
 
-def parse_arguments():
-    """Parse command line arguments for the replay CLI.
+def get_parser() -> argparse.ArgumentParser:
+    """Creates and returns the argument parser for the replay CLI.
 
-    Exposes the same interface that was previously embedded inside ``main`` so
-    other modules (e.g. ``replay_web.py``) can import and reuse the exact same
-    parser without having to duplicate option definitions.  The behaviour and
-    defaults are **unchanged**.
+    This function is separate from `parse_arguments` to allow other scripts
+    (e.g., replay_web.py) to reuse the parser configuration without
+    immediately parsing arguments.
+
+    Returns:
+        An argparse.ArgumentParser instance.
     """
-
     parser = argparse.ArgumentParser(
         description="Replay a Snake game session with detailed visualization."
     )
@@ -72,7 +73,7 @@ def parse_arguments():
         ),
     )
     parser.add_argument(
-        "--move-pause",
+        "--pause-between-moves",
         type=float,
         default=PAUSE_BETWEEN_MOVES_SECONDS,
         help=(
@@ -90,6 +91,18 @@ def parse_arguments():
         help="Start replay in paused state",
     )
 
+    return parser
+
+
+def parse_arguments():
+    """Parse command line arguments for the replay CLI.
+
+    Exposes the same interface that was previously embedded inside ``main`` so
+    other modules (e.g. ``replay_web.py``) can import and reuse the exact same
+    parser without having to duplicate option definitions.  The behaviour and
+    defaults are **unchanged**.
+    """
+    parser = get_parser()
     return parser.parse_args()
 
 
@@ -103,13 +116,9 @@ def main():
     log_dir = args.log_dir_opt if args.log_dir_opt else args.log_dir
 
     if not log_dir:
-        # reconstruct the parser to show help (avoid holding a ref)
-        if "-h" not in sys.argv and "--help" not in sys.argv:
-            print(
-                "Error: Log directory must be specified either as a positional argument or using --log-dir"
-            )
         # Show full help text to guide the user
-        argparse.ArgumentParser(prog="replay.py").print_help()
+        parser = get_parser()
+        parser.print_help()
         sys.exit(1)
 
     # Check if log directory exists

@@ -16,7 +16,8 @@ from config.prompt_templates import (
     PROMPT_TEMPLATE_TEXT_PRIMARY_LLM,
     PROMPT_TEMPLATE_TEXT_SECONDARY_LLM,
 )
-from utils.moves_utils import calculate_move_differences
+from utils.moves_utils import get_relative_apple_direction_text
+
 
 def prepare_snake_prompt(
     head_position: Sequence[int],
@@ -53,7 +54,7 @@ def prepare_snake_prompt(
     apple_pos = f"({apple_x},{apple_y})"
     
     # Calculate the expected move differences using the utility function
-    move_differences = calculate_move_differences(head_position, apple_position)
+    move_differences = get_relative_apple_direction_text(head_position, apple_position)
     
     # Create a prompt from the template text using string replacements
     prompt = PROMPT_TEMPLATE_TEXT_PRIMARY_LLM
@@ -64,6 +65,7 @@ def prepare_snake_prompt(
     prompt = prompt.replace("TEXT_TO_BE_REPLACED_ON_THE_TOPIC_OF_MOVES_DIFFERENCE", move_differences)
     
     return prompt
+
 
 def create_parser_prompt(
     llm_response: str,
@@ -98,6 +100,7 @@ def create_parser_prompt(
 
     return parser_prompt
 
+
 def format_body_cells_str(body_positions: List[Sequence[int]]) -> str:
     """Format the snake body cells as a string representation.
 
@@ -113,4 +116,4 @@ def format_body_cells_str(body_positions: List[Sequence[int]]) -> str:
     for x, y in body_positions:
         body_cells.append(f"({x},{y})")
 
-    return "[" + ", ".join(body_cells) + "]"
+    return "[" + ", ".join(body_cells) + "]" 

@@ -125,7 +125,7 @@ def run_main_web(max_games: int, host: str, port: int):
 
         pause_between_moves = ss.get("main_web_pause_between_moves")
         if pause_between_moves is not None and float(pause_between_moves) >= 0:
-            _append_arg(cmd, "--move-pause", pause_between_moves)
+            _append_arg(cmd, "--pause-between-moves", pause_between_moves)
 
         # Back-off after EMPTY sentinel (minutes)
         sleep_after_empty = ss.get("main_web_sleep_after_empty")

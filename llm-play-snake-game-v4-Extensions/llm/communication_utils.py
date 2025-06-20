@@ -36,18 +36,19 @@ Consequences
   ``GameManager`` internals.
 """
 
+from __future__ import annotations
+
 import time
 import traceback
 import re
 import json
 from datetime import datetime
 from colorama import Fore
-from typing import Tuple, TYPE_CHECKING
-from utils.file_utils import save_to_file, get_prompt_filename
-from llm.prompt_utils import create_parser_prompt
-from llm.parsing_utils import parse_and_format
-from llm.providers import get_default_model
-from llm.client import LLMClient
+from typing import TYPE_CHECKING, Any, Dict
+
+from llm.log_utils import get_prompt_filename, save_llm_artefact
+from llm.parsing_utils import parse_llm_response
+from llm.prompt_utils import create_parser_prompt, prepare_snake_prompt
 
 if TYPE_CHECKING:
     from core.game_manager import GameManager

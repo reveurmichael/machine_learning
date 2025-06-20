@@ -18,6 +18,7 @@ from core.game_data import BaseGameData, GameData
 from utils.collision_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
 from utils.board_utils import generate_random_apple, update_board_array
+from colorama import Fore
 
 # ---------------------
 # Typing helpers – avoid heavy GUI imports at runtime
@@ -46,7 +47,7 @@ class BaseGameController:
 
         # Game state variables
         self.grid_size = grid_size
-        self.board = np.zeros((grid_size, grid_size))
+        self.board = np.zeros((grid_size, grid_size), dtype=np.int8)
         self.snake_positions = np.array([[grid_size//2, grid_size//2]])  # Start in middle
         self.head_position = self.snake_positions[-1]
 
@@ -384,29 +385,34 @@ class BaseGameController:
 
         return True, apple_eaten  # Game continues, with or without apple eaten
 
-    def _check_collision(self, position: NDArray[np.int_], is_eating_apple_flag: bool) -> Tuple[bool, bool]:
-        """Check if a position collides with the walls or snake body.
-        
+    def _check_collision(
+        self, head_position: NDArray[np.int_], is_eating_apple_flag: bool
+    ) -> Tuple[bool, bool]:
+        """Check for wall or body collision.
+
+        This method is now a wrapper around the stateless `check_collision`
+        utility function, passing the relevant parts of the game state.
+
         Args:
-            position: Position to check as [x, y]
-            is_eating_apple_flag: Boolean indicating if an apple is being eaten at 'position'
-            
+            head_position: The prospective new position of the snake's head.
+            is_eating_apple_flag: Flag indicating if the snake just ate.
+
         Returns:
-            Tuple of (wall_collision, body_collision) as booleans
+            A tuple of (wall_collision, body_collision).
         """
-        return check_collision(position, self.snake_positions, self.grid_size, is_eating_apple_flag)
+        return check_collision(
+            head_position=head_position,
+            snake_body=self.snake_positions,
+            grid_size=self.grid_size,
+            is_apple_eaten=is_eating_apple_flag,
+        )
 
     def _get_current_direction_key(self) -> str:
-        """Return current direction as UP/DOWN/LEFT/RIGHT or empty string."""
-        if self.current_direction is None:
-            return "NONE"
-
-        # Compare current direction with direction vectors to find the key
-        for key, vector in DIRECTIONS.items():
-            if np.array_equal(self.current_direction, vector):
+        """Return the current direction as a string key (e.g., 'UP')."""
+        for key, value in DIRECTIONS.items():
+            if np.array_equal(self.current_direction, value):
                 return key
-
-        return "UNKNOWN"
+        return "RIGHT"  # Fallback
 
     # Public wrapper for external modules – avoids accessing the protected
     # helper directly and silences static-analysis warnings.

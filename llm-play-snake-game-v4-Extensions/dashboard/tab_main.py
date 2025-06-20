@@ -37,9 +37,9 @@ from config.ui_constants import (
     DEFAULT_PARSER_MODEL,
 )
 
-# ----------------------------------------
+# --------------------------
 # Helper – build command list from optional args
-# ----------------------------------------
+# --------------------------
 
 def _append_arg(cmd: List[str], flag: str, value) -> None:
     """Append *flag* (and maybe *value*) to *cmd* in place.
@@ -58,9 +58,9 @@ def _append_arg(cmd: List[str], flag: str, value) -> None:
     cmd.extend([flag, str(value)])
 
 
-# ----------------------------------------
+# --------------------------
 # Main Mode – PyGame
-# ----------------------------------------
+# --------------------------
 
 def render_main_pygame_tab() -> None:
     st.markdown("### Start New Game Session (PyGame)")
@@ -203,9 +203,9 @@ def render_main_pygame_tab() -> None:
         st.success("Main PyGame session launched – check your terminal/window.")
 
 
-# ----------------------------------------
+# --------------------------
 # Main Mode – Web
-# ----------------------------------------
+# --------------------------
 
 def render_main_web_tab() -> None:
     st.markdown("### Start New Game Session (Web)")

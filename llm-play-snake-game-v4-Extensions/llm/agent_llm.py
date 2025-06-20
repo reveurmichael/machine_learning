@@ -4,6 +4,8 @@ This tiny wrapper lets the existing prompt / parsing pipeline live *entirely*
 inside the `llm` package so the rest of the codebase can treat it like any
 other agent.  There are **zero** imports from `llm` back into `core` – the
 dependency direction now flows one way.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 from __future__ import annotations
@@ -13,9 +15,9 @@ from typing import Any, Optional
 from core.game_agents import SnakeAgent
 from llm.client import LLMClient
 
-# ---------------------------
+# --------------------------
 # Public class
-# ---------------------------
+# --------------------------
 
 class LLMSnakeAgent(SnakeAgent):
     """A pluggable agent that queries a large-language model for each move."""
@@ -83,9 +85,9 @@ class LLMSnakeAgent(SnakeAgent):
         return move
 
 
-# ---------------------------
+# --------------------------
 # Fallback helpers – only used when the game object lacks parse_llm_response
-# ---------------------------
+# --------------------------
 
 def _simple_parse(llm_response: str) -> str | None:
     """Best-effort JSON ‹moves› extraction without full GameLogic context."""

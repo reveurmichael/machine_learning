@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Sequence, Optional
+from typing import Dict, List, Sequence, Optional, Any
 
 try:
     import numpy as np
@@ -10,21 +10,33 @@ except ModuleNotFoundError:  # Safeguard for docs or constrained envs
 
 from core.game_stats import RoundBuffer
 
-class RoundManager:
-    """Collect and persist per-round data throughout a game."""
+# Export names for easy import elsewhere
+__all__ = [
+    "BaseRoundManager",
+    "RoundManager",
+]
+
+
+class BaseRoundManager:
+    """Collect and persist per-round data throughout a game (task-agnostic).
+
+    The *round* concept groups a **plan** (sequence of intended moves) and the
+    actual moves executed until either a new plan arrives or the game ends.
+    This abstraction is useful for all agent types (heuristics, RL, etc.), not
+    just the LLM pipeline.
+    """
 
     def __init__(self) -> None:
         self.round_count: int = 1
         self.rounds_data: Dict[int, dict] = {}
         self.round_buffer: RoundBuffer = RoundBuffer(number=1)
 
-    # --------------------------------
+    # --------------------------
     # Public API
-    # --------------------------------
+    # --------------------------
 
     def start_new_round(self, apple_position: Optional[Sequence[int] | NDArray]) -> None:
-        """Flush the current buffer, bump the counter and initialise a
-        fresh :class:`RoundBuffer` seeded with the given *apple_position*.
+        """Flush the current buffer, bump the counter and initialise a new round.
 
         This is now the **single** entry-point for beginning a new round
         which means callers (GameManager, tests, etc.) never need to deal
@@ -60,7 +72,13 @@ class RoundManager:
             self.round_buffer.planned_moves = list(moves)
 
     def sync_round_data(self) -> None:
-        """Synchronize the in-progress round buffer with the persistent `rounds_data` mapping."""
+        """Synchronize the in-progress round buffer with the persistent mapping.
+
+        This keeps the JSON structure used by replays up-to-date after every
+        tick.  We purposefully mirror the **flat array** style (`moves` list)
+        adopted elsewhere so historical tooling (replay engine, dashboards)
+        remains fully compatible.
+        """
         if not self.round_buffer:
             return
 
@@ -69,21 +87,19 @@ class RoundManager:
             "round": self.round_buffer.number,
             "apple_position": self.round_buffer.apple_position,
         })
-        # Planned moves should reflect the *latest* plan only.  Overwrite
-        # instead of extending so repeated syncs during the same round don't
-        # duplicate identical plans.
         current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)
-        
-        # Append executed moves in order, preserving duplicates to faithfully
-        # mirror the actual gameplay sequence.  This is essential for accurate
-        # replays and per-round step counts.
         current_round_dict.setdefault("moves", []).extend(self.round_buffer.moves)
 
     def flush_buffer(self) -> None:
-        """Flushes the round buffer."""
+        """Flushes the round buffer.
+
+        The helper exists so callers never have to worry about whether the
+        current buffer holds data or not – they simply call *flush* and this
+        method takes care of the conditional write.
+        """
         if self.round_buffer and not self.round_buffer.is_empty():
             self.sync_round_data()
-            self.round_buffer = None
+            self.round_buffer = None  # type: ignore[assignment]
 
     def _get_or_create_round_data(self, round_num: int) -> dict:
         """Get or create round data dictionary."""
@@ -94,9 +110,9 @@ class RoundManager:
         sorted_keys = sorted(self.rounds_data.keys())
         return {key: self.rounds_data[key] for key in sorted_keys}
 
-    # --------------------------------
+    # --------------------------
     # Internals
-    # --------------------------------
+    # --------------------------
 
     @staticmethod
     def _to_list_or_none(pos: Optional[Sequence[int] | NDArray]) -> Optional[list[int]]:
@@ -107,9 +123,29 @@ class RoundManager:
         """
         if pos is None:
             return None
-        # NumPy array – convert
         if hasattr(pos, "tolist"):
             return pos.tolist()  # type: ignore[return-value]
-        # Fallback – assume Sequence[int]
         return list(pos)  # type: ignore[arg-type]
+
+
+class RoundManager(BaseRoundManager):
+    """LLM-enhanced round manager.
+
+    Currently it only adds a stub method expected by GameData; actual LLM
+    bookkeeping can be layered on later without affecting the generic base.
+    """
+
+    # --------------------------
+    # LLM-specific helpers (optional)
+    # --------------------------
+    def record_parsed_llm_response(self, response: Any, is_primary: bool) -> None:  # noqa: D401 – simple proxy
+        """Placeholder; extend with structured logging if needed."""
+        # For now, we simply attach the raw response to the round buffer for
+        # potential debug use.  Downstream analytics can ignore or utilise it.
+        if not hasattr(self, "round_buffer") or not self.round_buffer:
+            return
+
+        key = "primary_llm_responses" if is_primary else "secondary_llm_responses"
+        setattr(self.round_buffer, key, getattr(self.round_buffer, key, []))
+        getattr(self.round_buffer, key).append(response)
     

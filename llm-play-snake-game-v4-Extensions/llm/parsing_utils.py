@@ -3,6 +3,8 @@
 This module is intentionally self-contained so it can be unit-tested without
 booting the entire game stack.  All heavy JSON heuristics live here; higher
 layers only inspect its return value.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 from __future__ import annotations

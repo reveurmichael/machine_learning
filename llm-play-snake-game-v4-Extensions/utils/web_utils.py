@@ -3,6 +3,8 @@
 Keeps common mappings (colours, end-reason translations, …) in a single
 place so main_web.py, replay_web.py, human_play_web.py don't duplicate
 the same literals – silencing R0801 and easing future changes.
+
+This whole module is NOT Task0 specific.
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ __all__ = [
 ]
 
 
+# This function is NOT Task0 specific.
 def build_color_map() -> dict[str, tuple[int, int, int]]:
     """Return colour map expected by the front-end JS/HTML."""
 
@@ -31,7 +34,7 @@ def build_color_map() -> dict[str, tuple[int, int, int]]:
         "grid": COLORS["GRID"],
     }
 
-
+# This function is NOT Task0 specific.
 def translate_end_reason(code: Optional[str]) -> Optional[str]:
     """Human-readable game-end reason."""
 
@@ -40,11 +43,11 @@ def translate_end_reason(code: Optional[str]) -> Optional[str]:
     return END_REASON_MAP.get(code, code)
 
 
-# --------------------------------
+# --------------------------
 # Convenience helpers for state construction
-# --------------------------------
+# --------------------------
 
-
+# This function is NOT Task0 specific.
 def to_list(obj) -> list | object:  # noqa: D401 – tiny utility
     """Return ``obj.tolist()`` when available, otherwise the original ``obj``.
 
@@ -53,7 +56,7 @@ def to_list(obj) -> list | object:  # noqa: D401 – tiny utility
 
     return obj.tolist() if hasattr(obj, "tolist") else obj
 
-
+# This function is NOT Task0 specific.
 def build_state_dict(
     snake_positions,
     apple_position,

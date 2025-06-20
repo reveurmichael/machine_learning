@@ -13,9 +13,9 @@ from typing import Any, Dict, Optional, Tuple
 from utils.file_utils import get_game_json_filename, join_log_path
 
 # Internal models (kept in a separate file for cleaner imports)
-from replay.replay_data import ReplayDataLLM
+from replay.replay_data import ReplayData
 
-
+# This function is NOT Task0 specific.
 def load_game_json(log_dir: str, game_number: int) -> Tuple[str, Optional[Dict[str, Any]]]:
     """Return the path and decoded JSON dict for *game_number*.
 
@@ -48,7 +48,8 @@ def load_game_json(log_dir: str, game_number: int) -> Tuple[str, Optional[Dict[s
         return str(file_path), None
 
 
-def parse_game_data(game_data: Dict[str, Any]) -> Optional[ReplayDataLLM]:
+# This function is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
+def parse_game_data(game_data: Dict[str, Any]) -> Optional[ReplayData]:
     """Return a lightweight, replay-friendly view of a *game_N.json* blob.
 
     Parameters
@@ -120,7 +121,7 @@ def parse_game_data(game_data: Dict[str, Any]) -> Optional[ReplayDataLLM]:
     if llm_info.get("parser_provider") and str(llm_info.get("parser_provider")).lower() != "none":
         secondary_llm = f"{llm_info.get('parser_provider')}/{llm_info.get('parser_model')}"
 
-    return ReplayDataLLM(
+    return ReplayData(
         apple_positions=apples,
         moves=moves,
         planned_moves=planned,

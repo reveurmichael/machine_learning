@@ -1,6 +1,14 @@
 """
 Utility module for continuation functionality in Snake game.
 Handles reading existing game data and continuing sessions.
+
+This module is Task0 specific. So no need for BaseGameManager.
+
+
+IMPORTANT:
+- In fact, we will have continuation mode for only for Task0.
+- For Task1, Task2, Task3, Task4, Task5, we will NOT have continuation mode.
+
 """
 
 from __future__ import annotations
@@ -19,6 +27,7 @@ import traceback
 from colorama import Fore
 from datetime import datetime
 
+# This function is Task0 specific.
 def setup_continuation_session(
     game_manager: "GameManager",
     log_dir: str,
@@ -122,6 +131,7 @@ def setup_continuation_session(
     # Set game count to continue from the next game
     game_manager.game_count = start_game_number - 1
 
+# This function is Task0 specific.
 def handle_continuation_game_state(game_manager: "GameManager") -> None:
     """Handle game state for continuation mode.
     
@@ -146,6 +156,7 @@ def handle_continuation_game_state(game_manager: "GameManager") -> None:
         + f"📊 Continuing from game {game_manager.game_count + 1}, with {game_manager.total_score} total score so far"
     )
 
+# This function is Task0 specific.
 def continue_from_directory(
     game_manager_class: "type[GameManager]", args: argparse.Namespace
 ) -> "GameManager":
@@ -221,9 +232,9 @@ def continue_from_directory(
             if 'continue_with_game_in_dir' in summary_data['configuration']:
                 del summary_data['configuration']['continue_with_game_in_dir']
             
-            # -------------------------------
+            # --------------------------
             # Add / update continuation_info exactly once (single-writer principle)
-            # -------------------------------
+            # --------------------------
             cont_info = summary_data.get('continuation_info', {
                 'is_continuation': True,
                 'continuation_count': 0,

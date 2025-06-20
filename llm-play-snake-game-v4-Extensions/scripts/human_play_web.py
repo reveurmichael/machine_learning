@@ -1,5 +1,7 @@
 """Snake Game – Human Play Web mode (scripts version).
 
+This whole module is NOT Task0 specific. But no need to make it generic anyway.
+
 Run with:
     python scripts/human_play_web.py --host 0.0.0.0 --port 8000
 """
@@ -16,9 +18,9 @@ if Path.cwd() != _repo_root:
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
 
-# ---------------------------
+# --------------------------
 # Original implementation from root human_play_web.py starts here
-# ---------------------------
+# --------------------------
 
 import argparse
 import threading

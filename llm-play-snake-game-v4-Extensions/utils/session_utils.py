@@ -1,5 +1,8 @@
 """Utilities to launch replay / main sessions in background subprocesses.
-Used by the Streamlit dashboard."""
+Used by the Streamlit dashboard.
+
+This whole module is Task0 specific.
+"""
 
 from __future__ import annotations
 
@@ -98,9 +101,9 @@ def run_main_web(max_games: int, host: str, port: int):
             str(port),
         ]
 
-        # ---------------------------
+        # --------------------------
         # Optional CLI parameters harvested from session_state
-        # ---------------------------
+        # --------------------------
         ss = st.session_state
 
         _append_arg(cmd, "--provider", ss.get("main_web_provider"))
@@ -150,7 +153,7 @@ def run_main_web(max_games: int, host: str, port: int):
         if max_no_path and int(max_no_path) > 0:
             _append_arg(cmd, "--max-consecutive-no-path-found-allowed", max_no_path)
 
-        # ---------------------------
+        # --------------------------
         subprocess.Popen(cmd)
         st.info(f"Web main session started at http://{host}:{port}.")
     except Exception as exc:
@@ -191,9 +194,9 @@ def continue_game_web(
         st.error(f"Error starting web continuation: {exc}")
 
 
-# ----------------------------------------
+# --------------------------
 # Human Play launchers
-# ----------------------------------------
+# --------------------------
 
 
 def run_human_play():

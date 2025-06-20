@@ -18,6 +18,7 @@ __all__ = [
 ]
 
 
+# This function is NOT Task0 specific.
 def generate_random_apple(
     snake_positions: NDArray[np.int_],
     grid_size: int,
@@ -30,6 +31,7 @@ def generate_random_apple(
             return pos
 
 
+# This function is NOT Task0 specific.
 def update_board_array(
     board: NDArray[np.int_],
     snake_positions: NDArray[np.int_],

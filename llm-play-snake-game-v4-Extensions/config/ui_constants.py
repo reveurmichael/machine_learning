@@ -19,10 +19,10 @@ TIME_DELAY = 40  # General delay time for the game loop
 TIME_TICK = 280  # Tick rate for the game
 
 
-# -------------------------------
+# --------------------------
 # Default values - for Streamlit page only,
 # *NOT* for main.py args default
-# -------------------------------
+# --------------------------
 
 DEFAULT_PROVIDER = "ollama"  # for Streamlit page only
 DEFAULT_MODEL = "deepseek-r1:14b"  # for Streamlit page only args default

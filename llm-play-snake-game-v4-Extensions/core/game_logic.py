@@ -6,26 +6,26 @@ Extends the base game controller with LLM-specific functionality.
 import traceback
 from typing import List, Tuple, Dict
 
-from core.game_controller import GameController
+from core.game_controller import BaseGameController
 from llm.prompt_utils import prepare_snake_prompt
 from llm.parsing_utils import parse_llm_response
 from utils.text_utils import process_response_for_display
 from config.ui_constants import GRID_SIZE
 
 # ------------------
-# BaseGameLogic – generic, LLM-agnostic subclass of GameController
+# BaseGameLogic – generic, LLM-agnostic subclass of BaseGameController
 # ------------------
 
-class BaseGameLogic(GameController):
+class BaseGameLogic(BaseGameController):
     """Generic game-loop convenience layer reused by all tasks.
 
-    It extends :class:`GameController` by adding the *planning* helpers that
+    It extends :class:`BaseGameController` by adding the *planning* helpers that
     are useful for both classical algorithms (BFS, Hamiltonian) and LLM-based
     agents.  Anything LLM-specific (prompt construction, token stats, etc.) is
     left to the concrete Task-0 subclass.
     """
 
-    # pylint: disable=too-many-arguments – matches GameController signature
+    # pylint: disable=too-many-arguments – matches BaseGameController signature
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True):
         super().__init__(grid_size, use_gui)
 

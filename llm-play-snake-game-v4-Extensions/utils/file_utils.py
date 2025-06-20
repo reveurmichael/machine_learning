@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Union, Optional
 
+# This function is NOT Task0 specific. Or, at least, we should make it generic, in some way.
 def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
     """Extract game summary from a summary file.
     
@@ -22,14 +23,14 @@ def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
         Dictionary with game summary information
     """
     summary = {}
-    
+
     try:
         summary_path = Path(summary_file)
         if not summary_path.exists():
             return summary
-            
+
         data = json.loads(summary_path.read_text(encoding="utf-8"))
-        
+
         # Extract basic stats
         summary['date'] = data.get('date', 'Unknown')
         summary['game_count'] = data.get('game_count', 0)
@@ -37,18 +38,18 @@ def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
         summary['total_steps'] = data.get('total_steps', 0)
         summary['avg_score'] = summary['total_score'] / max(1, summary['game_count'])
         summary['avg_steps'] = summary['total_steps'] / max(1, summary['game_count'])
-        
+
         # Extract LLM information
         if 'primary_llm' in data:
             llm_info = data['primary_llm']
             summary['primary_provider'] = llm_info.get('provider', 'Unknown')
             summary['primary_model'] = llm_info.get('model', 'Unknown')
-            
+
         if 'secondary_llm' in data:
             llm_info = data['secondary_llm']
             summary['secondary_provider'] = llm_info.get('provider', 'None')
             summary['secondary_model'] = llm_info.get('model', 'None')
-            
+
         # Extract response time metrics
         if 'prompt_response_stats' in data:
             prompt_stats = data.get('prompt_response_stats', {})
@@ -58,7 +59,7 @@ def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
             summary['max_primary_response_time'] = prompt_stats.get('max_primary_response_time', 0)
             summary['min_secondary_response_time'] = prompt_stats.get('min_secondary_response_time', 0)
             summary['max_secondary_response_time'] = prompt_stats.get('max_secondary_response_time', 0)
-        
+
         # Extract performance metrics
         if 'efficiency_metrics' in data:
             eff_metrics = data.get('efficiency_metrics', {})
@@ -68,17 +69,18 @@ def extract_game_summary(summary_file: Union[str, Path]) -> Dict[str, Any]:
         elif 'performance_metrics' in data:
             perf_metrics = data.get('performance_metrics', {})
             summary['steps_per_apple'] = perf_metrics.get('steps_per_apple', 0)
-        
+
         # Extract token statistics
         if 'token_stats' in data:
             token_stats = data.get('token_stats', {})
             summary['token_stats'] = token_stats
-            
+
     except Exception as e:
         print(f"Error extracting summary: {e}")
-        
+
     return summary
 
+# This function is NOT Task0 specific.
 def get_next_game_number(log_dir: Union[str, Path]) -> int:
     """Determine the next game number to start from.
     
@@ -109,6 +111,7 @@ def get_next_game_number(log_dir: Union[str, Path]) -> int:
         
     return max(game_numbers) + 1
 
+# This function is Task0 specific.
 def clean_prompt_files(log_dir: Union[str, Path], start_game: int) -> None:
     """Clean prompt and response files for games >= start_game.
     
@@ -131,6 +134,7 @@ def clean_prompt_files(log_dir: Union[str, Path], start_game: int) -> None:
             if file.startswith(f"game_{start_game}_"):
                 (responses_dir / file).unlink(missing_ok=True)
 
+# This function is Task0 specific.
 def save_to_file(
     content: str,
     directory: Union[str, Path],
@@ -190,6 +194,8 @@ def save_to_file(
     
     return str(file_path)
 
+
+# This function is NOT Task0 specific.
 def get_game_json_filename(game_number: int) -> str:
     """Get the standardized filename for a game's JSON summary file.
     
@@ -201,6 +207,7 @@ def get_game_json_filename(game_number: int) -> str:
     """
     return f"game_{game_number}.json"
 
+# This function is Task0 specific.
 def get_prompt_filename(
     game_number: int,
     round_number: int,
@@ -222,16 +229,19 @@ def get_prompt_filename(
         
     return f"game_{game_number}_round_{round_number}_{file_type}.txt"
 
+# This function is NOT Task0 specific.
 def join_log_path(log_dir: Union[str, Path], filename: str) -> str:
     """Return an absolute path inside *log_dir* for *filename*."""
     return str(Path(log_dir) / filename)
 
 
+# This function is NOT Task0 specific.
 def get_folder_display_name(path: Union[str, Path]) -> str:
     """Return basename of a log folder (used by dashboard)."""
     return os.path.basename(path)
 
 
+# This function is NOT Task0 specific. Or, at least, we should make it generic, in some way.
 def load_summary_data(folder_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
     """Load *summary.json* from *folder_path* and return dict or None."""
     summary_path = Path(folder_path) / "summary.json"
@@ -241,6 +251,7 @@ def load_summary_data(folder_path: Union[str, Path]) -> Optional[Dict[str, Any]]
         return None
 
 
+# This function is NOT Task0 specific.
 def load_game_data(folder_path: str):
     """
     1. Scans the whole folder.
@@ -261,6 +272,7 @@ def load_game_data(folder_path: str):
     return games
 
 
+# This function is Task0 specific.
 def find_valid_log_folders(root_dir: str = "logs", max_depth: int = 4):
     """Return experiment folders that contain the expected artefacts.
 
@@ -297,7 +309,7 @@ def find_valid_log_folders(root_dir: str = "logs", max_depth: int = 4):
     return valid_folders 
 
 
-
+# This function is NOT Task0 specific.
 def get_total_games(log_dir: str) -> int:
     """Return the total number of games present in *log_dir*.
 

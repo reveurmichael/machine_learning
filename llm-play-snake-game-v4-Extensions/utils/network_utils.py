@@ -2,6 +2,8 @@
 
 All functions bind *locally* only; they never attempt to connect or listen,
 so they are safe to call in restricted environments (CI, Streamlit Cloud, …).
+
+This whole module is NOT Task0 specific.
 """
 
 from __future__ import annotations

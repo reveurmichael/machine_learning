@@ -4,6 +4,8 @@ Prompt generation helpers for the LLM-driven Snake game.
 This module constructs the *primary* LLM prompt that contains the current
 board state and a *secondary* parser prompt that instructs a second model to
 extract structured move information.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 from __future__ import annotations
@@ -112,4 +114,3 @@ def format_body_cells_str(body_positions: List[Sequence[int]]) -> str:
         body_cells.append(f"({x},{y})")
 
     return "[" + ", ".join(body_cells) + "]"
-

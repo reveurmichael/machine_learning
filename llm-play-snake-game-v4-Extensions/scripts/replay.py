@@ -1,12 +1,14 @@
 """
 Snake Game Replay Module.
 Allows replaying of previously recorded games based on logged moves.
+
+This whole module is Task0 specific.
 """
 
-# --------------------------------------------------------------
+# --------------------------
 # Ensure execution directory & import paths are correct irrespective
 # of where the user launches the script from (matches main.py wrapper).
-# --------------------------------------------------------------
+# --------------------------
 
 import os
 import sys

@@ -18,10 +18,10 @@ MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # Task-0: LLM admitted no path; heuri
 SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
 
 
-# --------------------------------
+# --------------------------
 # Sentinel move names recorded in game logs.  Keep this single source of truth
 # so replay, analytics, and any future tooling can reference the same list.
-# --------------------------------
+# --------------------------
 
 SENTINEL_MOVES = (
     "INVALID_REVERSAL",  # blocked reversal attempt
@@ -40,11 +40,11 @@ DIRECTIONS = {
 }
 
 
-# -------------------------------
+# --------------------------
 # End-reason mapping
 # Single source of truth for user-facing explanations of why a game ended.
 # Kept in sync with GameData.record_game_end() and front-end displays.
-# -------------------------------
+# --------------------------
 
 END_REASON_MAP = {
     "WALL": "Hit Wall",

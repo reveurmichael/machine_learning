@@ -2,12 +2,14 @@
 Snake Game Web Replay Module.
 Provides a web-based interface for replaying previously recorded games.
 Reuses existing replay engine, constants, and game logic from the pygame implementation.
+
+This whole module is Task0 specific.
 """
 
-# --------------------------------------------------------------
+# --------------------------
 # Ensure execution directory & import paths are correct irrespective
 # of where the user launches the script from.
-# --------------------------------------------------------------
+# --------------------------
 
 import os
 import sys
@@ -228,11 +230,11 @@ def main():
 
     global replay_thread
 
-    # ---------------------------------
+    # --------------------------
     # Step 1 – extract host / port first so we can pass the remaining CLI
     #          arguments to the shared replay parser without causing unknown
     #          option errors.
-    # ---------------------------------
+    # --------------------------
     host_port_parser = argparse.ArgumentParser(add_help=False)
     host_port_parser.add_argument(
         "--host", type=str, default="127.0.0.1", help="Host IP"
@@ -243,10 +245,10 @@ def main():
 
     host_port_args, remaining_argv = host_port_parser.parse_known_args()
 
-    # ---------------------------------
+    # --------------------------
     # Step 2 – delegate the remaining arguments (log-dir, etc.) to the common
     #          replay CLI defined in ``replay.py``.
-    # ---------------------------------
+    # --------------------------
     argv_backup = sys.argv.copy()
     sys.argv = [sys.argv[0]] + remaining_argv
     try:

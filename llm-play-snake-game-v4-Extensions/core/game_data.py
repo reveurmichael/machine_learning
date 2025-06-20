@@ -55,6 +55,31 @@ class BaseGameData:
         self.max_consecutive_no_path_found_allowed = (
             MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED
         )
+        
+        # Counter attributes for tracking consecutive moves (generic)
+        self.consecutive_invalid_reversals = 0
+        self.consecutive_no_path_found = 0
+        self.no_path_found_steps = 0
+        
+        # Game flow control (generic for all tasks)
+        self.need_new_plan = True
+        self.planned_moves = []
+        self.current_direction = None
+        self.last_collision_type = None
+        
+        # Move tracking (generic for all tasks)
+        self.move_index = 0
+        self.total_moves = 0
+        self.current_game_moves = []
+        
+        # Apple history tracking (generic for all tasks)
+        self.apple_positions_history = []
+
+        # --------------------------
+        # Round tracking (generic – used by Task-0 and optionally by Task-1…5)
+        # --------------------------
+        from core.game_rounds import RoundManager  # local import to avoid cycles
+        self.round_manager = RoundManager()
     
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
         """Record a move and update relevant statistics.
@@ -63,29 +88,96 @@ class BaseGameData:
         """
         move = normalize_direction(move)
         self.steps += 1
+        self.move_index += 1
+        self.total_moves += 1
         
         if apple_eaten:
             self.score += 1
             
         self.moves.append(move)
+        self.current_game_moves.append(move)
+        
+        # Reset consecutive counters on valid move
+        if move not in ["INVALID_REVERSAL", "NO_PATH_FOUND"]:
+            self.consecutive_invalid_reversals = 0
+            self.consecutive_no_path_found = 0
     
     def record_apple_position(self, position) -> None:
         """Record an apple position.
         
-        This method is generic and will be used by all tasks.
+        This method is generic and will be used by all tasks.  It also seeds
+        the current round so replay files always have an apple reference.
         """
         x, y = position
-        self.apple_positions.append({"x": x, "y": y})
+        apple_data = {"x": x, "y": y}
+        self.apple_positions.append(apple_data)
+        self.apple_positions_history.append(apple_data)
+        self.apple_position = position
+        
+        # Keep RoundManager in sync so replays & per-round stats work for
+        # every task that chooses to use rounds.
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.record_apple_position(position)
     
     def record_game_end(self, reason: str) -> None:
         """Record the end of a game."""
         self.game_over = True
         self.game_end_reason = reason
 
+    def record_invalid_reversal(self) -> None:
+        """Record an invalid reversal move (generic for all tasks)."""
+        self.steps += 1
+        self.move_index += 1
+        self.total_moves += 1
+        self.moves.append("INVALID_REVERSAL")
+        self.current_game_moves.append("INVALID_REVERSAL")
+        self.consecutive_invalid_reversals += 1
+        
+        # Call subclass hook
+        self._record_invalid_reversal_step()
+    
+    def record_no_path_found_move(self) -> None:
+        """Record a NO_PATH_FOUND move (generic for all tasks)."""
+        self.steps += 1
+        self.move_index += 1
+        self.total_moves += 1
+        self.no_path_found_steps += 1
+        self.moves.append("NO_PATH_FOUND")
+        self.current_game_moves.append("NO_PATH_FOUND")
+        self.consecutive_no_path_found += 1
+        
+        # Call subclass hook
+        self._record_no_path_found_step()
+
     @property
     def snake_length(self) -> int:
         """Returns the length of the snake."""
         return len(self.snake_positions)
+    
+    @property
+    def head_position(self):
+        """Returns the head position of the snake."""
+        return self.snake_positions[0] if self.snake_positions else None
+    
+    def get_basic_game_state(self) -> Dict[str, Any]:
+        """Get basic game state information (generic for all tasks)."""
+        return {
+            "game_number": self.game_number,
+            "score": self.score,
+            "steps": self.steps,
+            "snake_length": self.snake_length,
+            "head_position": self.head_position,
+            "apple_position": self.apple_position,
+            "game_over": self.game_over,
+            "game_end_reason": self.game_end_reason,
+        }
+    
+    def reset_game_data(self) -> None:
+        """Reset data for a new game (keeping session-level data)."""
+        game_num = self.game_number
+        self.reset()
+        self.game_number = game_num + 1
+        self.current_game_moves = []
     
     # Hook methods for subclasses to override
     def _record_valid_step(self) -> None:
@@ -99,6 +191,24 @@ class BaseGameData:
     def _record_step_end_time(self) -> None:
         """Hook for recording step timing - override in subclasses."""
         pass
+    
+    def _record_invalid_reversal_step(self) -> None:
+        """Hook for recording invalid reversal statistics - override in subclasses."""
+        pass
+    
+    def _record_no_path_found_step(self) -> None:
+        """Hook for recording no path found statistics - override in subclasses."""
+        pass
+
+    def start_new_round(self, apple_position=None) -> None:
+        """Public helper to advance to the next round (no-op if RoundManager absent).
+
+        Tasks that maintain the *round* concept (LLM policy, heuristic
+        agents with look-ahead plans, etc.) should call this whenever a new
+        top-level plan is generated.
+        """
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.start_new_round(apple_position)
 
 
 class GameData(BaseGameData):
@@ -108,9 +218,8 @@ class GameData(BaseGameData):
         """Initialize the LLM-specific game data tracking."""
         super().__init__()
         
-        # LLM-specific components
+        # LLM-specific components (RoundManager already initialised by base)
         self.stats = GameStatistics()
-        self.round_manager = RoundManager()
     
     def reset(self) -> None:
         """Reset all tracking data to initial state."""
@@ -125,9 +234,12 @@ class GameData(BaseGameData):
         self.max_consecutive_empty_moves_allowed = MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED
         self.max_consecutive_something_is_wrong_allowed = MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED
 
-        # Reset LLM-specific components
+        # Task-0-specific consecutive counters
+        self.consecutive_empty_steps = 0
+        self.consecutive_something_is_wrong = 0
+
+        # Reset LLM-specific components (RoundManager reset lives in base)
         self.stats = GameStatistics()
-        self.round_manager = RoundManager()
     
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
         """Record a move and update relevant statistics."""
@@ -137,6 +249,11 @@ class GameData(BaseGameData):
         # LLM-specific tracking
         self.stats.step_stats.valid += 1
         self.round_manager.round_buffer.add_move(normalize_direction(move))
+        
+        # Reset LLM-specific consecutive counters on valid move
+        if move not in ["EMPTY", "SOMETHING_IS_WRONG"]:
+            self.consecutive_empty_steps = 0
+            self.consecutive_something_is_wrong = 0
     
     def record_apple_position(self, position) -> None:
         """Record an apple position."""
@@ -160,14 +277,16 @@ class GameData(BaseGameData):
         """
         self.stats.step_stats.empty += 1
         self.steps += 1
+        self.move_index += 1
+        self.total_moves += 1
         self.moves.append("EMPTY")
+        self.current_game_moves.append("EMPTY")
         self.round_manager.round_buffer.add_move("EMPTY")
+        self.consecutive_empty_steps += 1
     
-    def record_invalid_reversal(self) -> None:
-        """Record an invalid reversal move."""
+    def _record_invalid_reversal_step(self) -> None:
+        """Hook implementation for recording invalid reversal statistics."""
         self.stats.step_stats.invalid_reversals += 1
-        self.steps += 1
-        self.moves.append("INVALID_REVERSAL")
         self.round_manager.round_buffer.add_move("INVALID_REVERSAL")
     
     def record_something_is_wrong_move(self) -> None:
@@ -179,19 +298,16 @@ class GameData(BaseGameData):
         """
         self.stats.step_stats.something_wrong += 1
         self.steps += 1
+        self.move_index += 1
+        self.total_moves += 1
         self.moves.append("SOMETHING_IS_WRONG")
+        self.current_game_moves.append("SOMETHING_IS_WRONG")
         self.round_manager.round_buffer.add_move("SOMETHING_IS_WRONG")
+        self.consecutive_something_is_wrong += 1
 
-    def record_no_path_found_move(self) -> None:
-        """Record a *NO_PATH_FOUND* sentinel.
-
-        This marks a tick where the LLM explicitly stated that **no safe path
-        exists**.  It is logged separately from EMPTY so the two counters do
-        not interfere with each other.
-        """
+    def _record_no_path_found_step(self) -> None:
+        """Hook implementation for recording no path found statistics."""
         self.stats.step_stats.no_path_found += 1
-        self.steps += 1
-        self.moves.append("NO_PATH_FOUND")
         self.round_manager.round_buffer.add_move("NO_PATH_FOUND")
 
     def record_game_end(self, reason: str) -> None:
@@ -252,26 +368,26 @@ class GameData(BaseGameData):
         core implementation to evolve independently.
         """
         summary: dict = {
-            # High-level outcome ----------------------------------------
+            # High-level outcome --------------------------
             "score": self.score,
             "steps": self.steps,
             "snake_length": self.snake_length,
             "game_over": self.game_over,
             "game_end_reason": self.game_end_reason,
             "round_count": self.round_manager.round_count,
-            # LLM configuration ---------------------------------------
+            # LLM configuration --------------------------
             "llm_info": {
                 "primary_provider": primary_provider,
                 "primary_model": primary_model,
                 "parser_provider": parser_provider,
                 "parser_model": parser_model,
             },
-            # Timings / stats -------------------------------
+            # Timings / stats --------------------------
             "time_stats": self.stats.time_stats.asdict(),
             "prompt_response_stats": self.get_prompt_response_stats(),
             "token_stats": self.get_token_stats(),
             "step_stats": self.stats.step_stats.asdict(),
-            # Misc metadata --------------------------------
+            # Misc metadata --------------------------
             "metadata": {
                 "timestamp": self.timestamp,
                 "game_number": self.game_number,
@@ -279,7 +395,7 @@ class GameData(BaseGameData):
                 # Copy through any extra metadata the caller supplies.
                 **kwargs.get("metadata", {}),
             },
-            # Full replay data ----------------------------------------
+            # Full replay data --------------------------
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
@@ -302,9 +418,9 @@ class GameData(BaseGameData):
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=4)
         return summary_dict
 
-    # -------------------------------
+    # --------------------------
     # Delegating wrappers for GameStatistics
-    # -------------------------------
+    # --------------------------
 
     def record_llm_communication_start(self) -> None:
         """Proxy to GameStatistics."""
@@ -330,9 +446,9 @@ class GameData(BaseGameData):
     ) -> None:
         self.stats.record_secondary_token_stats(prompt_tokens, completion_tokens)
 
-    # -------------------------------
+    # --------------------------
     # Continuation-mode helpers (needed by utils/continuation_utils.py)
-    # -------------------------------
+    # --------------------------
 
     def record_continuation(self) -> None:
         """Mark this run as a continuation of a previous experiment."""
@@ -347,9 +463,9 @@ class GameData(BaseGameData):
             self.continuation_count += 1
             self.continuation_timestamps.append(timestamp)
 
-    # -------------------------------
+    # --------------------------
     # Quick accessors required by utils/game_manager_utils
-    # -------------------------------
+    # --------------------------
 
     @property
     def valid_steps(self) -> int:
@@ -367,9 +483,9 @@ class GameData(BaseGameData):
     def something_is_wrong_steps(self) -> int:
         return self.stats.step_stats.something_wrong
 
-    # -------------------------------
+    # --------------------------
     # Convenience accessors for session-level aggregation
-    # -------------------------------
+    # --------------------------
 
     @property
     def primary_response_times(self) -> List[float]:
@@ -381,9 +497,9 @@ class GameData(BaseGameData):
         """List of response-time durations (seconds) from the secondary LLM."""
         return self.stats.secondary_response_times
 
-    # -------------------------------
+    # --------------------------
     # Time statistics view (used by game_manager_utils)
-    # -------------------------------
+    # --------------------------
 
     def get_time_stats(self) -> Dict[str, Any]:
         """Return wall-clock timings needed for session aggregation."""
@@ -391,18 +507,18 @@ class GameData(BaseGameData):
         # coarse timing summary.
         return self.stats.time_stats.asdict()
 
-    # -------------------------------
+    # --------------------------
     # Misc helpers expected by utils.game_manager_utils
-    # -------------------------------
+    # --------------------------
 
     def _calculate_actual_round_count(self) -> int:
         """Return the number of rounds that actually hold data."""
         return len([r for r in self.round_manager.rounds_data.values() if r])
 
-    # --------------------------------
+    # --------------------------
     # Public wrapper – prefer this over direct access to the underscore
     # helper so external modules avoid pylint W0212.
-    # --------------------------------
+    # --------------------------
 
     def get_round_count(self) -> int:
         """Return the number of rounds that actually contain gameplay data.

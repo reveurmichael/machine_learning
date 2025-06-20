@@ -188,7 +188,7 @@ is premature abstraction.
   Concrete implementations subclass these bases:
   
   | Concern                 | Base class → Task-0 subclass |
-  |-------------------------|-----------------------------|
+  |-------------------------|--------------------------|
   | Session orchestration   | `BaseGameManager` → `GameManager` |
   | Replay playback         | `BaseReplayEngine` → `ReplayEngine` |
   | GUI scaffolding         | `BaseGUI` → `GameGUI`, `ReplayGUI` |

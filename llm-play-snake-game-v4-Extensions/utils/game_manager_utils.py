@@ -16,6 +16,7 @@ from config.game_constants import END_REASON_MAP
 
 if TYPE_CHECKING:  # Imports needed only for static analysis / get_type_hints
     from core.game_logic import GameLogic
+    from core.game_manager import BaseGameManager
     from core.game_manager import GameManager
 
 def _safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
@@ -48,6 +49,8 @@ def check_max_steps(game, max_steps: int) -> bool:
         return True
     return False
 
+
+# This function is Task0 specific. So we will be using GameLogic here, instead of BaseGameLogic. # TODO: make it generic.
 def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     """Process game over state.
     
@@ -64,10 +67,10 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps, no_path_found_steps)
     """
     from utils.game_stats_utils import save_session_stats
-    
+
     args = game_state_info["args"]
     log_dir = game_state_info["log_dir"]
-    
+
     # Extract or initialize counters
     game_count = game_state_info["game_count"]
     total_score = game_state_info["total_score"]
@@ -83,7 +86,7 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     empty_steps = game_state_info.get("empty_steps", 0)
     something_is_wrong_steps = game_state_info.get("something_is_wrong_steps", 0)
     no_path_found_steps = game_state_info.get("no_path_found_steps", 0)
-    
+
     # Print game over message with reason
     if hasattr(game, "last_collision_type"):
         collision_type = game.last_collision_type
@@ -92,27 +95,27 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         reason_readable = END_REASON_MAP.get(collision_type, collision_type)
 
         print(Fore.RED + f"❌ Game over: {reason_readable}!")
-    
+
     # Update counters for next game
     game_count += 1
     total_score += game.score
     total_steps += game.steps
     game_scores.append(game.score)
-    
+
     # Increment valid_steps counter
     valid_steps += game.game_state.valid_steps
-    
+
     # Update invalid_reversals counter
     # This ensures we're keeping track of invalid_reversals across all games
     invalid_reversals += game.game_state.invalid_reversals
-    
+
     # Update empty_steps, something_is_wrong_steps and no_path_found_steps counters - add current game's to the running total
     empty_steps += game.game_state.empty_steps
     something_is_wrong_steps += game.game_state.something_is_wrong_steps
     # no_path_found is tracked in StepStats
     if hasattr(game.game_state.stats.step_stats, "no_path_found"):
         no_path_found_steps += game.game_state.stats.step_stats.no_path_found
-    
+
     # Print game stats using the EXECUTED moves that are stored on the GameData
     # instance to avoid counting duplicate/un-executed planned moves.
     executed_moves = game.game_state.moves  # authoritative list
@@ -123,28 +126,28 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     print(Fore.BLUE + f"- Valid Steps: {game.game_state.valid_steps}")
     print(Fore.BLUE + f"- Invalid Reversals: {game.game_state.invalid_reversals}")
     print(Fore.BLUE + f"- Moves: {move_str}")
-    
+
     # Update time statistics
     if hasattr(game.game_state, "get_time_stats"):
         game_time_stats = game.game_state.get_time_stats()
-        
+
         # ── aggregate time statistics ────────────────────────────────
         if game_time_stats:
             _safe_add(time_stats, "llm_communication_time",
                       game_time_stats.get("llm_communication_time"))
             # game_movement_time / waiting_time were removed from the schema → no aggregation needed
-            
+
             # Also keep track of primary vs. secondary LLM communication time
             primary_time = sum(getattr(game.game_state, "primary_response_times", []))
             secondary_time = sum(getattr(game.game_state, "secondary_response_times", []))
-            
+
             _safe_add(time_stats, "primary_llm_communication_time", primary_time)
             _safe_add(time_stats, "secondary_llm_communication_time", secondary_time)
-    
+
     # Update token statistics
     if hasattr(game.game_state, "get_token_stats"):
         game_token_stats = game.game_state.get_token_stats()
-        
+
         # Initialize token stats if not present
         if "primary" not in token_stats:
             token_stats["primary"] = {
@@ -152,14 +155,14 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
                 "total_prompt_tokens": 0,
                 "total_completion_tokens": 0
             }
-            
+
         if "secondary" not in token_stats:
             token_stats["secondary"] = {
                 "total_tokens": 0,
                 "total_prompt_tokens": 0,
                 "total_completion_tokens": 0
             }
-        
+
         # Add primary LLM token stats (flat-key schema)
         primary_total = game_token_stats.get("primary_total_tokens")
         primary_prompt = game_token_stats.get("primary_total_prompt_tokens")
@@ -183,7 +186,7 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
             token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_prompt
         if secondary_completion is not None:
             token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_completion
-    
+
     # Use the actual number of rounds that contain data to avoid the
     # off-by-one "phantom round" that appeared after a wall/self collision.
     if hasattr(game, "game_state") and hasattr(game.game_state, "get_round_count"):
@@ -224,7 +227,7 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         f"💾 Saved data for game {game_count} "
         f"(rounds: {round_count}, moves: {len(executed_moves)})"
     )
-    
+
     # Update session stats (now includes round-level aggregates)
     save_session_stats(
         log_dir,
@@ -242,7 +245,7 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         round_counts=round_counts,
         total_rounds=total_rounds,
     )
-    
+
     return (
         game_count,
         total_score,
@@ -258,6 +261,8 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         no_path_found_steps,
     )
 
+
+# This function is Task0 specific for this moment, but we should device a way to make it generic. # TODO: make it generic.
 def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """Report final statistics for the experiment.
     
@@ -276,7 +281,7 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """
     from utils.game_stats_utils import save_session_stats
     import os
-    
+
     # Extract statistics
     log_dir = stats_info["log_dir"]
     game_count = stats_info["game_count"]
@@ -288,34 +293,34 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     valid_steps = stats_info.get("valid_steps", 0)
     invalid_reversals = stats_info.get("invalid_reversals", 0)
     no_path_found_steps = stats_info.get("no_path_found_steps", 0)
-    
+
     # Get time and token statistics from the game instance if available
     time_stats = {}
     token_stats = {}
     game = stats_info.get("game")
-    
+
     # If we have access to the game instance, update our statistics from it
     if game and hasattr(game, "game_state"):
         game_state = game.game_state
-        
+
         # Get time stats
         time_stats = game_state.get_time_stats()
-        
+
         # Get token stats
         token_stats = game_state.get_token_stats()
-    
+
     # Get token stats specifically from the game manager if available
     if "token_stats" in stats_info:
         token_stats = stats_info["token_stats"]
-        
+
     # Get time stats specifically from the game manager if available
     if "time_stats" in stats_info:
         time_stats = stats_info["time_stats"]
-    
+
     # Get round counts and total rounds
     round_counts = stats_info.get("round_counts", [])
     total_rounds = stats_info.get("total_rounds", 0)
-    
+
     # Save session statistics to summary file
     save_session_stats(
         log_dir, 
@@ -333,32 +338,34 @@ def report_final_statistics(stats_info: Dict[str, Any]) -> None:
         total_rounds=total_rounds,
         no_path_found_steps=no_path_found_steps,
     )
-    
+
     # Print final statistics
     print(Fore.GREEN + f"👋 Game session complete. Played {game_count} games.")
     print(Fore.GREEN + f"💾 Logs saved to {os.path.abspath(log_dir)}")
     print(Fore.GREEN + f"🏁 Final Score: {total_score}")
     print(Fore.GREEN + f"👣 Total Steps: {total_steps}")
-    
+
     # Calculate and print average score
     avg_score = total_score / game_count if game_count > 0 else 0
     print(Fore.GREEN + f"📊 Average Score: {avg_score:.2f}")
-    
+
     # Calculate and print apples per step
     apples_per_step = total_score / total_steps if total_steps > 0 else 0
     print(Fore.GREEN + f"📈 Apples per Step: {apples_per_step:.4f}")
-    
+
     # Print step statistics
     print(Fore.GREEN + f"📈 Empty Moves: {empty_steps}")
     print(Fore.GREEN + f"📈 SOMETHING_IS_WRONG steps: {something_is_wrong_steps}")
     print(Fore.GREEN + f"📈 NO_PATH_FOUND steps: {no_path_found_steps}")
     print(Fore.GREEN + f"📈 Valid Steps: {valid_steps}")
     print(Fore.GREEN + f"📈 Invalid Reversals: {invalid_reversals}")
-    
+
     # End message based on max games reached
     if game_count >= stats_info.get("max_games", float('inf')):
         print(Fore.GREEN + f"🏁 Reached maximum games ({game_count}). Session complete.")
 
+
+# This function is Task0 specific. So we will be using GameManager here, instead of BaseGameManager.
 def initialize_game_manager(game_manager: "GameManager") -> None:
     """Initialize the game manager with necessary setup.
     
@@ -387,7 +394,9 @@ def initialize_game_manager(game_manager: "GameManager") -> None:
     # Initialize game state
     initialize_game_state(game_manager)
 
-def process_events(game_manager: "GameManager") -> None:
+
+# This function is NOT Task0 specific. So we will be using BaseGameManager here, instead of GameManager.
+def process_events(game_manager: "BaseGameManager") -> None:
     """Process pygame events.
     
     Args:
@@ -413,4 +422,3 @@ def process_events(game_manager: "GameManager") -> None:
                 game_manager.consecutive_invalid_reversals = 0  # Reset counter
                 game_manager.current_game_moves = []  # Reset moves for new game
                 print(Fore.GREEN + "🔄 Game reset") 
-

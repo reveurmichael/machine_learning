@@ -78,7 +78,7 @@ class BaseGameManager:
 
         self.need_new_plan = True
 
-        # ---- Per-session state flags --------------------------------
+        # ---- Per-session state flags --------------------------
         self.game: Optional["GameLogic"] = None  # set by subclasses
         self.game_active: bool = True
 
@@ -91,7 +91,7 @@ class BaseGameManager:
         # Main loop control flag
         self.running: bool = True
 
-    # ---- Hooks meant to be overridden ---------------------------------
+    # ---- Hooks meant to be overridden --------------------------
 
     def initialize(self) -> None:  # pragma: no cover – interface stub
         """Prepare the session (LLM clients, log dirs, etc.)."""
@@ -209,12 +209,12 @@ class GameManager(BaseGameManager):
         # Update summary.json metadata at session end (no JSON-parser stats anymore)
         save_session_stats(self.log_dir)
         
-        # -------------------------------
+        # --------------------------
         # Use the counters that have been **aggregated across games**
         # throughout the session (updated in process_game_over).
         # Previously this method overwrote them with the last game's values,
         # which zero-ed the numbers in summary.json and the console banner.
-        # -------------------------------
+        # --------------------------
         valid_steps = self.valid_steps
         invalid_reversals = self.invalid_reversals
         
@@ -361,12 +361,12 @@ class GameManager(BaseGameManager):
             # Report final statistics
             self.report_final_statistics() 
 
-    # -------------------------------
+    # --------------------------
     # Public helper: marks the current round as finished and
     # bumps the counter.  Use this *instead of* calling
     # increment_round() from the game loop so that all
     # bookkeeping stays inside GameManager.
-    # -------------------------------
+    # --------------------------
     def finish_round(self, reason: str = "round completed") -> None:
         """Flush buffered round-data and advance to the next round.
 
@@ -378,9 +378,9 @@ class GameManager(BaseGameManager):
         """
         self.increment_round(reason) 
 
-# --------------------------------
+# --------------------------
 # Utility factories for auto-initialised stats dictionaries
-# --------------------------------
+# --------------------------
 
 
 def _make_time_stats() -> defaultdict[str, int]:

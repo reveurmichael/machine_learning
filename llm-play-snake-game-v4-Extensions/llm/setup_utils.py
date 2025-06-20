@@ -2,6 +2,8 @@
 
 The function is deliberately lightweight so that *main.py* can fail fast before
 importing heavy client libraries.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 from __future__ import annotations

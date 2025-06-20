@@ -33,7 +33,7 @@ class NumPyJSONEncoder(json.JSONEncoder):
             return o.tolist()
         return json.JSONEncoder.default(self, o)
 
-
+# This function is Task0 specific.
 def get_experiment_options(stats_df) -> Dict[str, List[str]]:
     """Return unique provider / model values for Streamlit dropdowns.
 
@@ -70,6 +70,7 @@ def get_experiment_options(stats_df) -> Dict[str, List[str]]:
         "secondary_models": secondary_models,
     }
 
+# This function is Task0 specific.
 def filter_experiments(
     stats_df,
     selected_primary_providers: Sequence[str] | None = None,
@@ -119,6 +120,7 @@ def filter_experiments(
     return filtered_df 
 
 
+# This function is Task0 specific.
 def save_experiment_info_json(args, directory: str) -> Dict[str, Any]:
     """Save experiment configuration information to a JSON file.
 
@@ -190,7 +192,7 @@ def save_experiment_info_json(args, directory: str) -> Dict[str, Any]:
 
     return experiment_info
 
-
+# This function is Task0 specific.
 def save_session_stats(log_dir: str, **kwargs: Any) -> None:
     """Merge incremental *kwargs* into ``summary.json`` inside *log_dir*."""
     # Read existing summary file

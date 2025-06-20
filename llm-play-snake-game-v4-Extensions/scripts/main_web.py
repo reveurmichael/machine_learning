@@ -3,14 +3,16 @@
 Run a live LLM-controlled Snake session and expose JSON snapshots at
 `/api/state` for a lightweight Flask front-end.  This is a one-file move of
 ``main_web.py`` into the ``scripts`` package; functionality is unchanged.
+
+This whole module is Task0 specific.
 """
 
 from __future__ import annotations
 
-# ---------------------------
+# --------------------------
 # Ensure execution directory & import paths are correct irrespective of where
 # the user launches the script from.
-# ---------------------------
+# --------------------------
 import os
 import sys
 from pathlib import Path
@@ -24,9 +26,9 @@ if str(_repo_root) not in sys.path:
 # Prevent PyGame from opening an X11 window when we only need headless mode
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
-# ---------------------------
+# --------------------------
 # Standard library imports (identical to original)
-# ---------------------------
+# --------------------------
 import argparse
 import threading
 import logging
@@ -36,17 +38,17 @@ from utils.network_utils import find_free_port
 
 logging.getLogger("werkzeug").setLevel(logging.WARNING)  # Suppress per-request logs
 
-# ---------------------------
+# --------------------------
 # Project-internal imports
-# ---------------------------
+# --------------------------
 from core.game_manager import GameManager
 from scripts.main import parse_arguments  # Re-use full CLI from scripts/main.py
 from config.ui_constants import GRID_SIZE
 from utils.web_utils import build_color_map, translate_end_reason
 
-# ---------------------------
+# --------------------------
 # Flask setup (static/template folders)
-# ---------------------------
+# --------------------------
 _static_folder = str(_repo_root / "web" / "static")
 _template_folder = str(_repo_root / "web" / "templates")
 
@@ -56,9 +58,9 @@ app = Flask(__name__, static_folder=_static_folder, template_folder=_template_fo
 manager: GameManager | None = None
 manager_thread: threading.Thread | None = None
 
-# ---------------------------
+# --------------------------
 # Helper: translate live game state into a front-end-friendly dict
-# ---------------------------
+# --------------------------
 
 def build_state_dict(gm: GameManager):
     game = gm.game
@@ -85,9 +87,9 @@ def build_state_dict(gm: GameManager):
         "game_end_reason": end_reason_readable,
     }
 
-# ---------------------------
+# --------------------------
 # Background worker thread that runs GameManager
-# ---------------------------
+# --------------------------
 
 def _manager_thread_fn(gm: GameManager, args):
     """Run new or continuation session in background thread."""
@@ -132,9 +134,9 @@ def _manager_thread_fn(gm: GameManager, args):
     except Exception as exc:
         print(f"[main_web] GameManager thread crashed: {exc}")
 
-# ---------------------------
+# --------------------------
 # Flask routes
-# ---------------------------
+# --------------------------
 
 @app.route("/")
 def index():
@@ -158,9 +160,9 @@ def api_control():
         return jsonify({"status": "unpause-not-supported"})
     return jsonify({"status": "error", "msg": "unknown command"})
 
-# ---------------------------
+# --------------------------
 # Entry point
-# ---------------------------
+# --------------------------
 
 def main():
     """CLI front-end identical to the legacy root `main_web.py`."""

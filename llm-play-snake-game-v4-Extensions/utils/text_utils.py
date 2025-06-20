@@ -2,6 +2,8 @@
 
 The functions here intentionally avoid any heavy NLP libraries so they remain
 cheap to import.  They focus on lightweight formatting tasks only.
+
+This whole module is Task0 specific.
 """
 
 from __future__ import annotations

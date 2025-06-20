@@ -1,5 +1,7 @@
 """
 LLM client module for handling communication with different LLM providers.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 import traceback

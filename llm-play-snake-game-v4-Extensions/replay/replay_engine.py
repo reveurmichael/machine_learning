@@ -11,19 +11,19 @@ import pygame
 from pygame.locals import *  # noqa: F403 – Pygame constants
 import numpy as np
 
-from core.game_controller import GameController
+from core.game_controller import BaseGameController, GameController
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
-from replay.replay_data import ReplayDataLLM
+from replay.replay_data import ReplayData
 from utils.file_utils import get_total_games
 from config.game_constants import SENTINEL_MOVES, END_REASON_MAP
 
-# ---------------------------
+# --------------------------
 # BaseReplayEngine – generic replay skeleton ready for future extensions
-# ---------------------------
+# --------------------------
 
 
-class BaseReplayEngine(GameController):
+class BaseReplayEngine(BaseGameController):
     """Headless-capable board replay engine.
 
     The base class contains only the state and helpers that are independent of
@@ -176,13 +176,13 @@ class BaseReplayEngine(GameController):
         Returns:
             Boolean indicating if the game is still active
         """
-        # -------------------------------
+        # --------------------------
         # Sentinel moves that represent a time-tick without actual movement
         # (e.g. blocked reversals or intentionally empty moves).  We simply
         # advance the replay pointer and keep the game alive without calling
         # make_move(), so the snake stays in place exactly as it did in the
         # original run.
-        # -------------------------------
+        # --------------------------
         if direction_key in SENTINEL_MOVES:
             # Mirror step accounting from the original run so that stats align.
             if direction_key == "INVALID_REVERSAL":
@@ -243,12 +243,13 @@ class BaseReplayEngine(GameController):
             'total_games': getattr(self, 'total_games', None),
         }
 
-# ---------------------------
+
+# --------------------------
 # Concrete Task-0 replay implementation
-# ---------------------------
+# --------------------------
 
 
-class ReplayEngine(BaseReplayEngine):
+class ReplayEngine(BaseReplayEngine, GameController):
     """Engine for replaying recorded Snake games.
 
     This class consumes the *game_N.json* artefacts produced by the main
@@ -322,7 +323,7 @@ class ReplayEngine(BaseReplayEngine):
 
         try:
             print(f"Loading game data from {game_file}")
-            parsed: ReplayDataLLM | None = parse_game_data(game_data)
+            parsed: ReplayData | None = parse_game_data(game_data)
             if parsed is None:
                 return None
 

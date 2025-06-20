@@ -3,6 +3,8 @@ LLM communication system.
 Core functionality for interacting with language models in the Snake game,
 supporting both single-LLM and dual-LLM configurations for gameplay strategy
 and response parsing.
+
+As LLM is Task0 specific, this whole module is Task0 specific.
 """
 
 import time
@@ -396,9 +398,9 @@ def get_llm_response(game_manager: "GameManager"):
         return next_move, True
 
     except Exception as e:
-        # -----------------------------
+        # --------------------------
         # SOMETHING_IS_WRONG sentinel handling (exception path)
-        # -----------------------------
+        # --------------------------
         # Any exception that bubbles up to this point means the LLM replied but
         # we could not parse *any* usable move set – usually malformed / empty
         # JSON or a truncated answer.  We treat this differently from the EMPTY

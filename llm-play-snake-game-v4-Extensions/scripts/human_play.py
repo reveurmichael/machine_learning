@@ -5,6 +5,8 @@ Launch with:
 
 The script guarantees it runs from the repository root so that relative paths
 (e.g. logs/) behave consistently.
+
+This whole module is NOT Task0 specific. But no need to make it generic anyway. 
 """
 
 from __future__ import annotations
@@ -19,9 +21,9 @@ if Path.cwd() != _repo_root:
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
 
-# ---------------------------
+# --------------------------
 # Original implementation starts here (verbatim, minor tweaks for lint only)
-# ---------------------------
+# --------------------------
 
 import pygame
 from pygame.locals import (

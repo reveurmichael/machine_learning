@@ -14,6 +14,7 @@ from numpy.typing import NDArray
 __all__ = ["check_collision"]
 
 
+# This function is NOT Task0 specific.
 def check_collision(
     position: NDArray[np.int_] | list[int],
     snake_positions: NDArray[np.int_],

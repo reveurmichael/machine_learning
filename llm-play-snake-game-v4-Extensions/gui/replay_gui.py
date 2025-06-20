@@ -10,6 +10,9 @@ import pygame
 from config.ui_constants import COLORS
 from gui.base_gui import BaseGUI
 
+
+# This class is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
+
 class ReplayGUI(BaseGUI):
     """PyGame-based overlay used by the offline *replay* mode."""
 

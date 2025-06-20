@@ -5,6 +5,8 @@ learning, fine-tuning) will rely heavily on deterministic behaviour across
 `random`, `numpy`, and optional deep-learning back-ends.  Importing this module
 has **no side-effects**; call :func:`seed_everything` explicitly at program
 start-up.
+
+This whole module is NOT Task0 specific.
 """
 
 from __future__ import annotations

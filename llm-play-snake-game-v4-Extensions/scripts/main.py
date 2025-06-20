@@ -3,6 +3,8 @@
 It guarantees the working directory is the repository root so that relative
 paths (log folders, Flask template dirs, …) behave exactly like when the
 script is launched from the root.
+
+This whole module is Task0 specific.
 """
 
 from __future__ import annotations
@@ -88,7 +90,7 @@ def parse_arguments():
     parser.add_argument("--max-steps", type=int, default=MAX_STEPS_ALLOWED,
                         help=f"Max steps per game (default {MAX_STEPS_ALLOWED})")
 
-    # --- Safety limits --------------------------------------------------
+    # --- Safety limits --------------------------
     parser.add_argument("--max-consecutive-empty-moves-allowed", type=int,
                         default=MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
                         help=f"Max consecutive EMPTY ticks (default {MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED})")
@@ -112,7 +114,7 @@ def parse_arguments():
 
     args = parser.parse_args()
 
-    # --- Post-processing defaults ---------------------------------------
+    # --- Post-processing defaults --------------------------
     if args.provider and args.model is None:
         default_models = {
             "hunyuan": "hunyuan-turbos-latest",
@@ -132,7 +134,7 @@ def parse_arguments():
         }
         args.parser_model = defaults_parser.get(args.parser_provider.lower(), args.model)
 
-    # --- Continuation mode checks ---------------------------------------
+    # --- Continuation mode checks --------------------------
     if args.continue_with_game_in_dir:
         raw_args = " ".join(sys.argv[1:])
         restricted = [

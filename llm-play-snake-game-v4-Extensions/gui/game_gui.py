@@ -9,6 +9,7 @@ import pygame
 from gui.base_gui import BaseGUI
 from config.ui_constants import COLORS
 
+# This class is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
 
 class GameGUI(BaseGUI):
     """Simple PyGame GUI used by the *interactive* game loop."""
@@ -18,9 +19,9 @@ class GameGUI(BaseGUI):
         super().__init__()
         self.init_display("LLM Snake Agent")
 
-    # --------------------------------------
+    # --------------------------
     # Drawing helpers
-    # --------------------------------------
+    # --------------------------
 
     def draw_board(
         self,

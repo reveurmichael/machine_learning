@@ -4,6 +4,8 @@ Movement-centric helper functions for the Snake game.
 This module hosts stateless utilities that work with direction tokens or
 positions.  Keeping them here avoids scattering small movement helpers
 across unrelated files (text_utils, game_manager_utils, etc.).
+
+This whole module is NOT Task0 specific.
 """
 
 from __future__ import annotations
@@ -60,9 +62,9 @@ def is_reverse(dir_a: str, dir_b: str) -> bool:
     )
 
 
-# --------------------------------
+# --------------------------
 # Simple positional analytics (used in prompt engineering)
-# --------------------------------
+# --------------------------
 
 def calculate_move_differences(head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
     """Return a human-readable diff between *head_pos* and *apple_pos*.

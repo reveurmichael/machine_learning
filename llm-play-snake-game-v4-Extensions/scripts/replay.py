@@ -15,6 +15,9 @@ from utils.path_utils import ensure_repo_root
 
 _repo_root = ensure_repo_root()
 
+# Standard lib additional
+import os
+
 import argparse
 import pygame
 from pygame.locals import *

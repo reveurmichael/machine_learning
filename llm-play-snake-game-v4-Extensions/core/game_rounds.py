@@ -18,12 +18,26 @@ __all__ = [
 
 
 class BaseRoundManager:
-    """Collect and persist per-round data throughout a game (task-agnostic).
+    """Collect and persist **per-round** data – shared across *all* tasks (0-5).
 
-    The *round* concept groups a **plan** (sequence of intended moves) and the
-    actual moves executed until either a new plan arrives or the game ends.
-    This abstraction is useful for all agent types (heuristics, RL, etc.), not
-    just the LLM pipeline.
+    Why *rounds* are first-class:
+        • **Task-0** (LLM planning) – one LLM plan → one round.
+        • **Task-1** (heuristic) – one heuristic path-finder invocation → one round.
+        • **Task-2** (ML policy) – one greedy rollout / sub-episode → one round.
+        • **Task-3** (RL) – one curriculum "phase" → one round.
+        • **Task-4/5** (hybrid or meta-learning) – still benefit from grouping
+          a *plan* and its execution window.
+
+    Hence the abstraction is here to stay for every planned milestone; the
+    class sits in *core* and is intentionally **LLM-agnostic** so downstream
+    tasks can extend it with domain-specific fields without modifying the
+    shared logic.
+
+    A *round* groups:
+        1. A *plan* (ordered list of proposed moves).
+        2. The actual moves executed until either a new plan is requested or
+           the game ends.
+        3. Optional per-round statistics (time, tokens, rewards, …).
     """
 
     def __init__(self) -> None:

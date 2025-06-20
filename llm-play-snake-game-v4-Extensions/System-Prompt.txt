@@ -1,2 +1,14 @@
+## Ducumentation as first priority and first class citizen
+
 Documentation/docstring/comments are very important for me. Each time you do a refactoring, make sure you put back the comments and docstrings. Each time you modify and fix a bug, make sure you record that in related code comments and docstrings. 
+
+## IMPORTANT
+We are doing the code refactoring, so as to make things more generic and reusable. Keep the functionality of Task 0 (Task0, LLM playing snake game) unchanged.
+
+## VITAL
+Check project-structure-plan.md. That's our objective of the refactoring.
+
+## OOP, SOLID and DRY
+Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not polute the output data files of FUTURE_TASKS.
+
 

@@ -10,9 +10,6 @@ import traceback
 from typing import List, Tuple
 
 from core.game_controller import BaseGameController
-from llm.prompt_utils import prepare_snake_prompt
-from llm.parsing_utils import parse_llm_response
-from utils.text_utils import process_response_for_display
 from config.ui_constants import GRID_SIZE
 from core.game_data import GameData
 
@@ -149,7 +146,9 @@ class GameLogic(BaseGameLogic):
         # Get current direction as a string
         current_direction = self._get_current_direction_key() if self.current_direction is not None else "NONE"
         
-        # Use the utility function from llm_utils
+        # Import locally to avoid module-level LLM dependency
+        from llm.prompt_utils import prepare_snake_prompt  # local import
+
         return prepare_snake_prompt(
             head_position=self.head_position,
             body_positions=self.body,
@@ -168,13 +167,19 @@ class GameLogic(BaseGameLogic):
             or None if no valid moves were found
         """
         try:
+            # Import locally to avoid module-level LLM dependency
+            from llm.parsing_utils import parse_llm_response  # local import
+            from utils.text_utils import process_response_for_display  # local import
+
             return parse_llm_response(response, process_response_for_display, self)
         except Exception as e:
             print(f"Error parsing LLM response: {e}")
             traceback.print_exc()
             
-            # Store the raw response for display
-            self.processed_response = f"ERROR: Failed to parse LLM response\n\n{response[:200]}..."
+            # Store the raw response for display (first 200 chars)
+            self.processed_response = (
+                f"ERROR: Failed to parse LLM response\n\n{response[:200]}..."
+            )
             
             # Clear previous planned moves
             self.planned_moves = []

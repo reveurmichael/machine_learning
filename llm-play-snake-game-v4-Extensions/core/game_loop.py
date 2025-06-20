@@ -100,42 +100,8 @@ class BaseGameLoop:
         manager.game.draw()
 
     def _request_and_execute_first_move(self) -> None:
-        """Fetch a **new** plan from the agent (LLM) and run its first move."""
-
-        manager = self.manager
-        manager.awaiting_plan = True
-        from llm.communication_utils import get_llm_response  # local import
-
-        next_move, manager.game_active = get_llm_response(manager, round_id=manager.round_count)  # type: ignore[arg-type]
-        manager.awaiting_plan = False
-        manager.need_new_plan = False
-
-        if manager.last_no_path_found:
-            self._handle_no_path_found()
-            if not manager.game_active:
-                return
-
-        if not manager.game_active:
-            return
-
-        if not next_move:
-            if getattr(manager, "skip_empty_this_tick", False):
-                manager.skip_empty_this_tick = False
-                return
-            self._handle_no_move()
-            return
-
-        manager.game.draw()
-        if manager.use_gui:
-            time.sleep(3)
-
-        if manager.game.planned_moves:
-            manager.game.planned_moves.pop(0)
-
-        _, apple_eaten = self._execute_move(next_move)
-
-        if apple_eaten:
-            self._post_apple_logic()
+        """Subclasses (LLM, heuristic, RL…) must implement strategy-specific first-move logic."""
+        raise NotImplementedError
 
     def _execute_next_planned_move(self) -> None:
         """Grab the next pre-computed move from :pyattr:`GameLogic.planned_moves`."""
@@ -167,22 +133,8 @@ class BaseGameLoop:
             manager.need_new_plan = True
 
     def _handle_no_move(self) -> None:
-        """LLM returned *no* usable direction – log EMPTY and handle limits."""
-
-        manager = self.manager
-        print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
-        manager.game.game_state.record_empty_move()
-        manager.empty_steps = manager.game.game_state.empty_steps
-        manager.current_game_moves.append("EMPTY")
-        manager.consecutive_empty_steps += 1
-        manager.consecutive_something_is_wrong = 0
-        print(
-            Fore.YELLOW +
-            f"⚠️ No valid moves found. Empty moves: {manager.consecutive_empty_steps}/{manager.args.max_consecutive_empty_moves_allowed}"
-        )
-
-        # Optional sleep configured via --sleep-after-empty-step
-        self._apply_empty_move_delay()
+        """Stub – subclasses may implement their own *no-move* sentinel handling."""
+        return None
 
     def _handle_game_over(self) -> None:
         """Delegate post-mortem aggregation to :pymod:`utils.game_manager_utils`."""
@@ -259,15 +211,8 @@ class BaseGameLoop:
         return game_active, apple_eaten
 
     def _handle_no_path_found(self) -> None:
-        """Explicit sentinel when the agent admits *no path can be found*."""
-
-        manager = self.manager
-        print(Fore.YELLOW + "⚠️ LLM reported NO_PATH_FOUND. Snake stays in place.")
-        manager.game.game_state.record_no_path_found_move()
-        manager.current_game_moves.append("NO_PATH_FOUND")
-        manager.consecutive_something_is_wrong = 0
-        manager.consecutive_invalid_reversals = 0
-        manager.last_no_path_found = False
+        """Stub – subclasses may implement *NO_PATH_FOUND* sentinel handling."""
+        return None  # override in Task-0
 
     def _apply_empty_move_delay(self) -> None:
         manager = self.manager
@@ -296,7 +241,125 @@ def run_game_loop(game_manager: "BaseGameManager") -> None:  # pragma: no cover
 
 
 class GameLoop(BaseGameLoop):
-    """Task-0 loop – currently identical to :class:`BaseGameLoop`."""
+    """Task-0 implementation that *keeps* the LLM plumbing.
 
-    # No overrides yet; all logic lives in the base.
-    pass 
+    The base class is fully LLM-agnostic.  This subclass restores the
+    provider-specific helpers so behaviour remains 100 % identical for
+    Task-0 while paving the way for heuristic / RL variants that can
+    reuse :class:`BaseGameLoop` without the network dependency.
+    """
+
+    # ------------------------------------------------------------------
+    # LLM-specific overrides – these were abstract in the base so that
+    # heuristic / RL loops don't inherit any provider coupling.
+    # ------------------------------------------------------------------
+
+    def _request_and_execute_first_move(self) -> None:  # noqa: D401
+        """Ask the LLM for a fresh plan and play its first move.
+
+        Implements the behaviour previously baked into the procedural
+        `_request_and_execute_first_move` helper.  Nothing changed except
+        that the code now lives only in the Task-0 subclass.
+        """
+
+        manager = self.manager
+        manager.awaiting_plan = True
+        from llm.communication_utils import get_llm_response  # local import
+
+        next_move, manager.game_active = get_llm_response(manager, round_id=manager.round_count)  # type: ignore[arg-type]
+        manager.awaiting_plan = False
+        manager.need_new_plan = False
+
+        # Handle NO_PATH_FOUND sentinel recorded from the previous tick.
+        if manager.last_no_path_found:
+            self._handle_no_path_found()
+            if not manager.game_active:
+                return
+
+        # Early-out if the LLM call ended the game (e.g. max steps).
+        if not manager.game_active:
+            return
+
+        # Empty response → treat as EMPTY sentinel unless the communication
+        # utils already appended a sentinel (retry case).
+        if not next_move:
+            if getattr(manager, "skip_empty_this_tick", False):
+                manager.skip_empty_this_tick = False
+                return
+            self._handle_no_move()
+            return
+
+        # Optional 3-second preview so humans can read the plan.
+        manager.game.draw()
+        if manager.use_gui:
+            import time as _t
+            _t.sleep(3)
+
+        # Drop the first element from planned_moves because we execute it now.
+        if manager.game.planned_moves:
+            manager.game.planned_moves.pop(0)
+
+        _, apple_eaten = self._execute_move(next_move)
+        if apple_eaten:
+            self._post_apple_logic()
+
+    # ------------------------------------------------------------------
+    # Sentinel-specific handlers
+    # ------------------------------------------------------------------
+
+    def _handle_no_move(self) -> None:  # noqa: D401
+        """LLM returned *no* usable move ⇒ record EMPTY sentinel."""
+
+        manager = self.manager
+        from colorama import Fore
+
+        print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
+
+        # Record EMPTY sentinel in game state & analytics.
+        manager.game.game_state.record_empty_move()
+        manager.empty_steps = manager.game.game_state.empty_steps
+        manager.current_game_moves.append("EMPTY")
+
+        manager.consecutive_empty_steps += 1
+        manager.consecutive_something_is_wrong = 0  # break SOMETHING_IS_WRONG streak
+
+        print(
+            Fore.YELLOW +
+            f"⚠️ No valid moves found. Empty moves: {manager.consecutive_empty_steps}/{manager.args.max_consecutive_empty_moves_allowed}"
+        )
+
+        # EMPTY also breaks any chain of invalid reversals – reset counter.
+        manager.consecutive_invalid_reversals = 0
+
+        # Game-over condition: too many consecutive EMPTY moves.
+        if (
+            manager.consecutive_empty_steps >=
+            manager.args.max_consecutive_empty_moves_allowed
+        ):
+            print(
+                Fore.RED +
+                "❌ Maximum consecutive empty moves reached "
+                f"({manager.args.max_consecutive_empty_moves_allowed}). Game over."
+            )
+            manager.game_active = False
+            manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
+            manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
+
+        # Optional back-off sleep as configured via CLI.
+        self._apply_empty_move_delay()
+
+    def _handle_no_path_found(self) -> None:  # noqa: D401
+        """Log the NO_PATH_FOUND sentinel and reset related counters."""
+
+        manager = self.manager
+        from colorama import Fore
+
+        print(Fore.YELLOW + "⚠️ LLM reported NO_PATH_FOUND. Snake stays in place.")
+        manager.game.game_state.record_no_path_found_move()
+        manager.current_game_moves.append("NO_PATH_FOUND")
+        manager.consecutive_something_is_wrong = 0
+        manager.consecutive_invalid_reversals = 0
+        manager.last_no_path_found = False
+
+        # NO_PATH_FOUND does not affect EMPTY or reversal counters beyond the
+        # resets above – no further action. 

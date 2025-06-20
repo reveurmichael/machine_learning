@@ -7,6 +7,8 @@ Run a live LLM-controlled Snake session and expose JSON snapshots at
 This whole module is Task0 specific.
 """
 
+# pylint: disable=global-statement
+
 from __future__ import annotations
 
 # ---------------------------------------------------------------
@@ -14,17 +16,15 @@ from __future__ import annotations
 # ---------------------------------------------------------------
 
 import sys
-from pathlib import Path
-
-_repo_root = Path(__file__).resolve().parent.parent
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
+import pathlib
+_repo_root = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_repo_root))
 
 # Now safe to import helpers
-from utils.path_utils import ensure_repo_root, enable_headless_pygame  # noqa: E402
+from utils.path_utils import ensure_repo_root  # noqa: E402
 
+# Make sure the script runs from the repository root for consistent paths.
 ensure_repo_root()
-enable_headless_pygame()
 
 # --------------------------
 # Standard library imports (identical to original)

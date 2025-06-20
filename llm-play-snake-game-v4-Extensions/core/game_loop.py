@@ -31,11 +31,23 @@ if TYPE_CHECKING:  # pragma: no cover – imports only needed for static analysi
 
 
 class BaseGameLoop:
-    """Generic, LLM-agnostic game loop orchestration shared by all tasks.
+    """Orchestrate **one entire session** of Snake games.
 
-    The former module‐level functions are now instance methods for easier
-    extension in Tasks 1-5.  Behaviour is **identical**; the refactor merely
-    bundles the helpers under a cohesive object.
+    Key design goals (identical to the original functional version):
+
+    1. **Frame pacing / GUI timing** remain the responsibility of this layer
+        – the heavy-weight logic lives in private helpers so the public
+        :py:meth:`run` method stays readable.
+    2. **LLM-agnostic**: the base class *does not* import or reference any
+        network code directly.  Task-0 subclasses keep the HTTP / websocket
+        specifics so future heuristic / RL tasks can reuse the loop without
+        modification.
+    3. **Open/Closed Principle**: every significant step (_new-plan_,
+        _execute-move_, _apple-logic_, …) is factored into its own protected
+        method – subclasses may override just the bits they need.
+
+    The body below is a 1-to-1 transcription of the historical procedural
+    implementation – only wrapped in a class to facilitate subclassing.
     """
 
     def __init__(self, manager: "BaseGameManager") -> None:
@@ -74,7 +86,9 @@ class BaseGameLoop:
     # -----------------------------------------------------------------------
 
     def _process_active_game(self) -> None:
-        manager = self.manager
+        """One tick of live gameplay for *LLM / planned-move* sessions."""
+
+        manager = self.manager  # local alias keeps lines short
         if manager.need_new_plan:
             self._request_and_execute_first_move()
         else:
@@ -86,6 +100,8 @@ class BaseGameLoop:
         manager.game.draw()
 
     def _request_and_execute_first_move(self) -> None:
+        """Fetch a **new** plan from the agent (LLM) and run its first move."""
+
         manager = self.manager
         manager.awaiting_plan = True
         from llm.communication_utils import get_llm_response  # local import
@@ -122,6 +138,8 @@ class BaseGameLoop:
             self._post_apple_logic()
 
     def _execute_next_planned_move(self) -> None:
+        """Grab the next pre-computed move from :pyattr:`GameLogic.planned_moves`."""
+
         manager = self.manager
         if manager.awaiting_plan:
             return
@@ -138,6 +156,8 @@ class BaseGameLoop:
             self._post_apple_logic()
 
     def _post_apple_logic(self) -> None:
+        """Decide whether the current round continues after an apple was eaten."""
+
         manager = self.manager
         if manager.game.planned_moves:
             print(Fore.CYAN + f"Continuing with {len(manager.game.planned_moves)} remaining planned moves for this round.")
@@ -147,6 +167,8 @@ class BaseGameLoop:
             manager.need_new_plan = True
 
     def _handle_no_move(self) -> None:
+        """LLM returned *no* usable direction – log EMPTY and handle limits."""
+
         manager = self.manager
         print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
         manager.game.game_state.record_empty_move()
@@ -159,13 +181,20 @@ class BaseGameLoop:
             f"⚠️ No valid moves found. Empty moves: {manager.consecutive_empty_steps}/{manager.args.max_consecutive_empty_moves_allowed}"
         )
 
+        # Optional sleep configured via --sleep-after-empty-step
+        self._apply_empty_move_delay()
+
     def _handle_game_over(self) -> None:
+        """Delegate post-mortem aggregation to :pymod:`utils.game_manager_utils`."""
+
         manager = self.manager
         process_game_over(manager.game, manager)
         manager.game_active = False
 
     # Agent path – unchanged behaviour
     def _process_agent_game(self) -> None:
+        """Path for **non-LLM agents** (heuristic, RL, human, …)."""
+
         manager = self.manager
         move = manager.agent.get_move(manager.game)  # type: ignore[arg-type]
         if not move:
@@ -183,6 +212,8 @@ class BaseGameLoop:
     # ---- Low-level helpers --------------------------------------------------
 
     def _execute_move(self, direction: str) -> Tuple[bool, bool]:
+        """Run *one* snake move and perform all shared bookkeeping."""
+
         manager = self.manager
 
         prev_invalid_rev = manager.game.game_state.invalid_reversals
@@ -228,6 +259,8 @@ class BaseGameLoop:
         return game_active, apple_eaten
 
     def _handle_no_path_found(self) -> None:
+        """Explicit sentinel when the agent admits *no path can be found*."""
+
         manager = self.manager
         print(Fore.YELLOW + "⚠️ LLM reported NO_PATH_FOUND. Snake stays in place.")
         manager.game.game_state.record_no_path_found_move()

@@ -30,7 +30,7 @@ class BaseGameLogic(BaseGameController):
     left to the concrete Task-0 subclass.
     """
 
-    # pylint: disable=too-many-arguments – matches BaseGameController signature
+    # pylint: disable=too-many-arguments
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True):
         super().__init__(grid_size, use_gui)
 
@@ -61,21 +61,13 @@ class BaseGameLogic(BaseGameController):
         self.planned_moves = []
         return self.get_state_snapshot()
 
-    def get_state_snapshot(self):  # noqa: D401 – helper method
+    def get_state_snapshot(self):  # noqa: D401
         """Return a plain-Python snapshot of the current board.
 
         This neutral structure is intentionally NumPy-free so that second-
         citizen tasks (heuristics, RL, etc.) can depend on it without pulling
         the heavyweight scientific stack.
         """
-
-        return {
-            "board": [row.copy() for row in self.board],
-            "direction": self._get_current_direction_key() or "NONE",
-            "apple": tuple(self.apple_position),
-            "score": self.score,
-            "steps": self.steps,
-        }
 
 # ------------------
 # Task-0 concrete implementation – plugs in GameData for LLM metrics.

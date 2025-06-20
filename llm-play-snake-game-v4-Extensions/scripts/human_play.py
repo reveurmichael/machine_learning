@@ -13,27 +13,9 @@ This whole module is NOT Task0 specific. But no need to make it generic anyway.
 
 from __future__ import annotations
 
-import os
 import sys
-
-
-# --------------------------
-# Path-bootstrap – quick and dirty way to make sure parent modules are found
-# --------------------------
-# Add the project root directory to the Python path
-# This allows imports from sibling directories like 'core' or 'llm'
-# ---
-# Note: cleaner solutions exist (e.g. proper packaging), but this is simple
-# and effective for a standalone script.
-# --------------------------
-def _bootstrap_path():
-    """Add project root to `sys.path`."""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-
-_bootstrap_path()
+import pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 import pygame
 from pygame.locals import (

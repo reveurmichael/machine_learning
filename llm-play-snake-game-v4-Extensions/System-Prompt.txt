@@ -1,0 +1,2 @@
+Documentation/docstring/comments are very important for me. Each time you do a refactoring, make sure you put back the comments and docstrings. Each time you modify and fix a bug, make sure you record that in related code comments and docstrings. 
+

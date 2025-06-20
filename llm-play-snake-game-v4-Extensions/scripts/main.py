@@ -10,16 +10,15 @@ This whole module is Task0 specific.
 from __future__ import annotations
 
 import sys
+import pathlib
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
 from utils.path_utils import ensure_repo_root
 
 # ------------------
 # Ensure current working directory == repository root
 # ------------------
 _repo_root = ensure_repo_root()
-
-# Ensure repo root is on sys.path so we can import top-level modules
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
 
 # ------------------
 # Replace wrapper delegation with the *actual* Task-0 implementation so the

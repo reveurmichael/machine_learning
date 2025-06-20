@@ -272,7 +272,7 @@ class GameData(BaseGameData):
         # LLM-specific tracking
         self.round_manager.record_apple_position(position)
         
-    def start_new_round(self, apple_position) -> None:
+    def start_new_round(self, apple_position=None) -> None:
         """Start a new round of moves."""
         self.round_manager.start_new_round(apple_position)
     

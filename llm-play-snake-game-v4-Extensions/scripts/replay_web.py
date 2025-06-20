@@ -11,15 +11,11 @@ This whole module is Task0 specific.
 # of where the user launches the script from.
 # --------------------------
 
-import os
 import sys
-from pathlib import Path
+from utils.path_utils import ensure_repo_root, enable_headless_pygame
 
-_repo_root = Path(__file__).resolve().parent.parent
-if Path.cwd() != _repo_root:
-    os.chdir(_repo_root)
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
+_repo_root = ensure_repo_root()
+enable_headless_pygame()
 
 import argparse
 import threading
@@ -139,7 +135,7 @@ def index():
 
 
 @app.route("/api/state")
-def get_state():
+def get_state():  # noqa: F401 – used via Flask routing
     """API endpoint to get the current game state."""
     global replay_engine
 
@@ -150,7 +146,7 @@ def get_state():
 
 
 @app.route("/api/control", methods=["POST"])
-def control():
+def control():  # noqa: F401 – used via Flask routing
     """API endpoint to control the replay.
     Implements the same control functions as the keyboard handlers in the pygame version.
     """

@@ -1,21 +1,26 @@
 """
 Snake game implementation with LLM integration.
 Extends the base game controller with LLM-specific functionality.
+
+The class BaseGameLogic is NOT Task0 specific.
+The class GameLogic is Task0 specific.
 """
 
 import traceback
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 from core.game_controller import BaseGameController
 from llm.prompt_utils import prepare_snake_prompt
 from llm.parsing_utils import parse_llm_response
 from utils.text_utils import process_response_for_display
 from config.ui_constants import GRID_SIZE
+from core.game_data import GameData
 
 # ------------------
 # BaseGameLogic – generic, LLM-agnostic subclass of BaseGameController
 # ------------------
 
+# This class is NOT Task0 specific.
 class BaseGameLogic(BaseGameController):
     """Generic game-loop convenience layer reused by all tasks.
 
@@ -73,11 +78,14 @@ class BaseGameLogic(BaseGameController):
         }
 
 # ------------------
-# Task-0 concrete implementation (LLM agent)
-# ------------------
+# Task-0 concrete implementation – plugs in GameData for LLM metrics.
+# ---------------------------------------------------------------------------
 
+# This class is Task0 specific.
 class GameLogic(BaseGameLogic):
     """Snake game with LLM agent integration."""
+    
+    GAME_DATA_CLS = GameData  # type: ignore  # injected into BaseGameController
     
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True):
         """Initialize the snake game.

@@ -9,15 +9,13 @@ from __future__ import annotations
 from typing import Any, Dict, Tuple, TYPE_CHECKING
 
 import pygame
-import numpy as np
 from colorama import Fore
 
 from config.game_constants import END_REASON_MAP
 
-if TYPE_CHECKING:  # Imports needed only for static analysis / get_type_hints
-    from core.game_logic import GameLogic
-    from core.game_manager import BaseGameManager
-    from core.game_manager import GameManager
+if TYPE_CHECKING:  # Imports needed only for static analysis / type hints
+    from core.game_logic import BaseGameLogic  # pylint: disable=unused-import
+    from core.game_manager import BaseGameManager, GameManager
 
 def _safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
     """Accumulate *delta* onto ``target[key]`` when *delta* is truthy."""
@@ -30,7 +28,6 @@ def _safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
 # compatibility with existing imports (Task-0 scripts).
 # ------------------
 
-from utils.collision_utils import check_collision  # re-export
 
 def check_max_steps(game, max_steps: int) -> bool:
     """Check if the game has reached the maximum number of steps.
@@ -50,8 +47,18 @@ def check_max_steps(game, max_steps: int) -> bool:
     return False
 
 
-# This function is Task0 specific. So we will be using GameLogic here, instead of BaseGameLogic. # TODO: make it generic.
-def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
+# ---------------------------------------------------------------------------
+# Generic – shared by all tasks (Task-0 … Task-5)
+# ---------------------------------------------------------------------------
+#
+# The implementation updates *manager* in-place so callers do not have to
+# deal with the returned tuple.  Historically the helper expected a dict-like
+# container which broke type safety and prevented re-use by non-LLM tasks.
+# It now relies on the generic :class:`BaseGameManager` interface and therefore
+# works for every future manager subclass without any LLM-specific baggage.
+# ---------------------------------------------------------------------------
+
+def process_game_over(game: "BaseGameLogic", manager: "BaseGameManager") -> Tuple[int, int, int, list[int], int, dict, dict, int, int, int, int, int]:
     """Process game over state.
     
     Handles the game over state including:
@@ -61,31 +68,31 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     
     Args:
         game: The Game instance
-        game_state_info: Dictionary with game state info
+        manager: The GameManager instance
         
     Returns:
         Tuple of (game_count, total_score, total_steps, game_scores, round_count, time_stats, token_stats, valid_steps, invalid_reversals, empty_steps, something_is_wrong_steps, no_path_found_steps)
     """
     from utils.game_stats_utils import save_session_stats
 
-    args = game_state_info["args"]
-    log_dir = game_state_info["log_dir"]
+    args = manager.args
+    log_dir = manager.log_dir
 
-    # Extract or initialize counters
-    game_count = game_state_info["game_count"]
-    total_score = game_state_info["total_score"]
-    total_steps = game_state_info["total_steps"]
-    game_scores = game_state_info["game_scores"]
-    round_count = game_state_info["round_count"]
+    # Local copies (we will write back to *manager* at the end)
+    game_count = manager.game_count
+    total_score = manager.total_score
+    total_steps = manager.total_steps
+    game_scores = manager.game_scores
+    round_count = manager.round_count
     # List of per-game round counts collected so far (mutated in-place)
-    round_counts = game_state_info.get("round_counts", [])
-    time_stats = game_state_info.get("time_stats", {})
-    token_stats = game_state_info.get("token_stats", {})
-    valid_steps = game_state_info.get("valid_steps", 0)
-    invalid_reversals = game_state_info.get("invalid_reversals", 0)
-    empty_steps = game_state_info.get("empty_steps", 0)
-    something_is_wrong_steps = game_state_info.get("something_is_wrong_steps", 0)
-    no_path_found_steps = game_state_info.get("no_path_found_steps", 0)
+    round_counts = manager.round_counts
+    time_stats = manager.time_stats
+    token_stats = manager.token_stats
+    valid_steps = manager.valid_steps
+    invalid_reversals = manager.invalid_reversals
+    empty_steps = getattr(manager, "empty_steps", 0)
+    something_is_wrong_steps = getattr(manager, "something_is_wrong_steps", 0)
+    no_path_found_steps = getattr(manager, "no_path_found_steps", 0)
 
     # Print game over message with reason
     if hasattr(game, "last_collision_type"):
@@ -246,6 +253,24 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
         total_rounds=total_rounds,
     )
 
+    # -------------------------------------------------------------------
+    # Flush the aggregated counters back to *manager* so the caller sees
+    # the updated state without having to unpack the return value.
+    # -------------------------------------------------------------------
+    manager.game_count = game_count
+    manager.total_score = total_score
+    manager.total_steps = total_steps
+    manager.game_scores = game_scores
+    manager.round_counts = round_counts
+    manager.total_rounds = total_rounds  # noqa: F821 – defined earlier in file
+    manager.time_stats = time_stats
+    manager.token_stats = token_stats
+    manager.valid_steps = valid_steps
+    manager.invalid_reversals = invalid_reversals
+    manager.empty_steps = empty_steps
+    manager.something_is_wrong_steps = something_is_wrong_steps
+    manager.no_path_found_steps = no_path_found_steps
+
     return (
         game_count,
         total_score,
@@ -262,7 +287,14 @@ def process_game_over(game: "GameLogic", game_state_info: Dict[str, Any]):
     )
 
 
-# This function is Task0 specific for this moment, but we should device a way to make it generic. # TODO: make it generic.
+# ---------------------------------------------------------------------------
+# Generic utility – reports aggregate statistics at session end. The helper
+# now operates purely on the dict *stats_info* passed by the caller and does
+# not make any assumptions about the underlying agent type.  LLM-related
+# metrics are included only when present making the function safe for future
+# tasks.
+# ---------------------------------------------------------------------------
+
 def report_final_statistics(stats_info: Dict[str, Any]) -> None:
     """Report final statistics for the experiment.
     

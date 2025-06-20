@@ -11,7 +11,9 @@ from config.ui_constants import COLORS
 from gui.base_gui import BaseGUI
 
 
-# This class is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
+# Note: This replay GUI displays LLM response details and is therefore
+# Task-0 specific.  Future tasks can implement their own viewer subclassing
+# :class:`BaseGUI`.
 
 class ReplayGUI(BaseGUI):
     """PyGame-based overlay used by the offline *replay* mode."""

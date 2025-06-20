@@ -1,19 +1,32 @@
-"""LLM-powered policy that conforms to the core.game_agents.SnakeAgent protocol.
+"""Task-0 LLM agent (`LLMSnakeAgent`).
 
-This tiny wrapper lets the existing prompt / parsing pipeline live *entirely*
-inside the `llm` package so the rest of the codebase can treat it like any
-other agent.  There are **zero** imports from `llm` back into `core` – the
-dependency direction now flows one way.
+This module houses **all** heavy-weight communication with language models –
+prompt construction, dual-LLM parsing, disk logging, token/time statistics,
+continuation bookkeeping – and exposes it as a normal
+:pyclass:`core.game_agents.SnakeAgent` implementation.  Moving that logic out
+of *core* achieves two design goals:
 
-As LLM is Task0 specific, this whole module is Task0 specific.
+1. **Pluggability** – The game loop now talks to an *agent* instead of a
+   hard-coded helper.  Future heuristic / RL / curriculum tasks can supply
+   their own agents without touching the loop.
+
+2. **Unidirectional dependency graph** – Only the :pymod:`llm` package knows
+   about language-model providers.  Core gameplay code (`core.*`) remains
+   completely provider-agnostic.
+
+While the class is Task-0 specific for now, it sets the precedent for richer
+agents in Tasks 1–5 (e.g. `HeuristicSnakeAgent`, `RlSnakeAgent`).
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 from core.game_agents import SnakeAgent
 from llm.client import LLMClient
+
+if TYPE_CHECKING:  # pragma: no cover – avoid runtime import cycle
+    from core.game_manager import GameManager
 
 # --------------------------
 # Public class
@@ -24,6 +37,7 @@ class LLMSnakeAgent(SnakeAgent):
 
     def __init__(
         self,
+        manager: "GameManager | None" = None,
         provider: str = "hunyuan",
         model: Optional[str] = None,
         **generation_kwargs: Any,
@@ -32,6 +46,8 @@ class LLMSnakeAgent(SnakeAgent):
 
         Parameters
         ----------
+        manager:
+            Reference to the full GameManager.
         provider:
             Identifier understood by :class:`llm.client.LLMClient` (e.g.
             ``"openai"``, ``"deepseek"``).
@@ -43,7 +59,16 @@ class LLMSnakeAgent(SnakeAgent):
             :py:meth:`LLMClient.generate_response` (e.g. ``temperature``).
         """
 
-        self._client = LLMClient(provider=provider, model=model)
+        self._manager = manager
+
+        # Decide which LLMClient to use
+        if manager is not None and getattr(manager, "llm_client", None) is not None:
+            self._client = manager.llm_client  # type: ignore[attr-defined]
+        else:
+            self._client = LLMClient(provider=provider, model=model)
+            if manager is not None:
+                manager.llm_client = self._client  # share for consistency
+
         self._gen_kwargs = generation_kwargs
 
     # ------------------
@@ -62,6 +87,24 @@ class LLMSnakeAgent(SnakeAgent):
         work with *zero* changes.
         """
 
+        if self._manager is not None:
+            from llm.communication_utils import get_llm_response  # local import
+
+            mgr = self._manager
+
+            # Mark awaiting_plan to keep UI behaviour identical
+            mgr.awaiting_plan = True
+            move, game_active = get_llm_response(mgr)  # type: ignore[arg-type]
+            mgr.awaiting_plan = False
+            mgr.need_new_plan = False
+            mgr.game_active = game_active
+
+            return move
+
+        # ----------------
+        # Fallback standalone mode (no GameManager) – original lightweight path
+        # ----------------
+
         # Derive prompt from the current board state
         try:
             prompt: str = game.get_state_representation()  # type: ignore[attr-defined]
@@ -70,16 +113,11 @@ class LLMSnakeAgent(SnakeAgent):
                 "LLMSnakeAgent expects a game object with 'get_state_representation()'"
             ) from exc
 
-        # Call the LLM synchronously (network latency dominates anyway)
         response: str = self._client.generate_response(prompt, **self._gen_kwargs)
 
-        # Use the existing helper to translate raw text into a move &
-        # side-effect game state (planned moves, pretty reasoning, …)
         try:
             move = game.parse_llm_response(response)  # type: ignore[attr-defined]
         except AttributeError:
-            # Fallback if the game object does *not* embed the legacy parser.
-            # In that case we attempt a minimal parse inline.
             move = _simple_parse(response)
 
         return move
@@ -90,7 +128,48 @@ class LLMSnakeAgent(SnakeAgent):
 # --------------------------
 
 def _simple_parse(llm_response: str) -> str | None:
-    """Best-effort JSON ‹moves› extraction without full GameLogic context."""
+    """Very lightweight JSON extractor used *only* as a last-resort fallback.
+
+    Motivation
+    ----------
+    ``LLMSnakeAgent`` is usually instantiated **with** a
+    :class:`core.game_manager.GameManager`, in which case the heavy parsing
+    pipeline located in :pymod:`llm.communication_utils` runs and this helper
+    is never touched.
+
+    During *unit tests*, quick demos or in external notebooks developers often
+    want to call the agent in complete isolation:
+
+    >>> agent = LLMSnakeAgent()                # no GameManager passed
+    >>> move  = agent.get_move(minimal_game)  # minimal stub object
+
+    Such a stub usually provides *only* ``get_state_representation()`` and
+    not the full ``parse_llm_response()`` helper that Task-0ʼs
+    :class:`core.game_logic.GameLogic` implements.  When that method is
+    missing ``LLMSnakeAgent`` drops down to ``_simple_parse`` so that we still
+    obtain a **single** move instead of ``None`` – avoiding an EMPTY sentinel
+    and keeping the test concise.
+
+    Overlap with utils.json_utils
+    ----------------------------
+    The robust JSON repair / validation logic lives in
+    :pymod:`utils.json_utils`.  Re-using it here would pull heavy regular‐
+    expression machinery into the tight loop of every *test* invocation where
+    simplicity is preferred over full correctness.  Hence we deliberately
+    re-implement a *tiny* subset:
+
+    * Look for a JSON object or array at the top level.
+    * Return the very first string inside ``"moves"`` when present.
+
+    If anything fails we silently return ``None`` so the caller can treat it
+    as an EMPTY move.
+
+    Performance / maintenance cost
+    ------------------------------
+    The function is ~10 LOC, uses only the standard library, and is executed
+    **only** in the aforementioned edge cases, so it has negligible impact on
+    runtime and maintenance.
+    """
 
     from json import loads
 

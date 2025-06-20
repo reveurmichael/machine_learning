@@ -8,8 +8,8 @@ import pygame
 from colorama import Fore
 from collections import defaultdict
 
-# Core game components
-from core.game_logic import GameLogic
+# Core game components – generic vs Task-0
+from core.game_logic import BaseGameLogic, GameLogic
 from core.game_loop import run_game_loop
 from gui.game_gui import GameGUI
 from llm.client import LLMClient
@@ -79,7 +79,7 @@ class BaseGameManager:
         self.need_new_plan = True
 
         # ---- Per-session state flags --------------------------
-        self.game: Optional["GameLogic"] = None  # set by subclasses
+        self.game: Optional["BaseGameLogic"] = None  # set by subclasses
         self.game_active: bool = True
 
         # Move history for current game (purely cosmetic)
@@ -99,12 +99,20 @@ class BaseGameManager:
     def run(self) -> None:  # pragma: no cover – interface stub
         """Start the main event loop."""
 
-    def setup_game(self):
-        """Set up the game logic and GUI."""
-        # Initialize game logic
-        self.game = GameLogic(use_gui=self.use_gui)
+    # ------------------
+    # Factory helpers – subclasses override the *CLS* attributes to inject
+    # specialised components without rewriting the full methods.
+    # ------------------
 
-        # Set up the GUI if enabled
+    GAME_LOGIC_CLS = BaseGameLogic  # override in Task-0 and others
+
+    def setup_game(self):
+        """Initialise game logic and optional GUI."""
+
+        # Instantiate the chosen game-logic class (Base by default).
+        self.game = self.GAME_LOGIC_CLS(use_gui=self.use_gui)  # type: ignore[call-arg]
+
+        # Attach a GUI if the session runs with visual mode enabled.
         if self.use_gui:
             gui = GameGUI()
             self.game.set_gui(gui)
@@ -126,6 +134,9 @@ class BaseGameManager:
 
 class GameManager(BaseGameManager):
     """Run one or many LLM-driven Snake games and collect aggregate stats."""
+    
+    # Plug in Task-0 specific game logic.
+    GAME_LOGIC_CLS = GameLogic
     
     def __init__(self, args: "argparse.Namespace", agent: "SnakeAgent | None" = None) -> None:
         """Initialize the game manager.

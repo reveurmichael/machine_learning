@@ -1,20 +1,20 @@
 from llm.providers import list_providers
 
 
-AVAILABLE_PROVIDERS = list_providers()
+AVAILABLE_PROVIDERS = list_providers() # This one is Task0 specific.
 
 
-PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves
+PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves. This one is NOT Task0 specific.
 
-MAX_GAMES_ALLOWED = 2
-MAX_STEPS_ALLOWED = 400
-MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 3   # Only relevant for Task-0 and distillation3fine-tune tracks
-MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 3  # Parsing/LLM errors – Task-0 & distillation
-MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 10   # Applies to ALL tasks (heuristics/RL/SL/LLM)
-MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # Task-0: LLM admitted no path; heuristics/RL treat as done
+MAX_GAMES_ALLOWED = 2 # This one is NOT Task0 specific.
+MAX_STEPS_ALLOWED = 400 # This one is NOT Task0 specific.
+MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED = 3   # Only relevant for Task-0 and distillation3fine-tune tracks. So this one is Task0 specific.
+MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED = 3  # Parsing/LLM errors – Task-0 & distillation. So this one is Task0 specific.
+MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED = 10  # Applies to ALL tasks (heuristics/RL/SL/LLM). So this one is NOT Task0 specific.
+MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # Task-0: LLM admitted no path; heuristics/RL treat as done. So this one is NOT Task0 specific.
 
 # Optional pause after *any* EMPTY tick (irrespective of reason).  Separate
-# control previously tied to NO_PATH_FOUND.
+# control previously tied to NO_PATH_FOUND. So it's Task0 specific.
 SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
 
 
@@ -23,6 +23,8 @@ SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
 # so replay, analytics, and any future tooling can reference the same list.
 # --------------------------
 
+# This one is NOT Task0 specific. Indeed, we know that "EMPTY" and "SOMETHING_IS_WRONG" are ONLY used in Task0. And "INVALID_REVERSAL" and "NO_PATH_FOUND" are used in Task0, Task1, Task2, Task3, Task4, Task5. But this won't have any effect on the other tasks. So we just regard it as NOT Task0 specific, hence we regard it as generic.
+
 SENTINEL_MOVES = (
     "INVALID_REVERSAL",  # blocked reversal attempt
     "EMPTY",             # LLM produced no move
@@ -30,8 +32,10 @@ SENTINEL_MOVES = (
     "NO_PATH_FOUND",     # LLM explicitly stated no safe path
 )
 
+# This one is NOT Task0 specific.
 VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
 
+# This one is NOT Task0 specific.s
 DIRECTIONS = {
     "UP": (0, 1),
     "RIGHT": (1, 0),
@@ -44,6 +48,8 @@ DIRECTIONS = {
 # End-reason mapping
 # Single source of truth for user-facing explanations of why a game ended.
 # Kept in sync with GameData.record_game_end() and front-end displays.
+# This one is NOT Task0 specific.
+# Indeed, we know that "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED" and "MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED" are ONLY used in Task0. And "MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED" and "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED" are used in all tasks (Task0, Task1, Task2, Task3, Task4, Task5). But this won't have any effect on the other tasks. So we just regard it as NOT Task0 specific, hence we regard it as generic.
 # --------------------------
 
 END_REASON_MAP = {

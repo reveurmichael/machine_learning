@@ -9,7 +9,9 @@ import pygame
 from gui.base_gui import BaseGUI
 from config.ui_constants import COLORS
 
-# This class is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
+# Note: This GUI overlays LLM-specific HUD elements (planned moves, response
+# panel) and is therefore Task-0 specific.  Other tasks can subclass
+# :class:`BaseGUI` directly or supply their own renderer.
 
 class GameGUI(BaseGUI):
     """Simple PyGame GUI used by the *interactive* game loop."""
@@ -38,7 +40,7 @@ class GameGUI(BaseGUI):
         board_info
             Mapping that contains the numeric codes for "snake" and "apple".
         head_position
-            The *logical* head coordinate \[x, y] (Cartesian).  Used to colour
+            The *logical* head coordinate [x, y] (Cartesian).  Used to colour
             the head differently from the body.
         """
         # Clear the game area

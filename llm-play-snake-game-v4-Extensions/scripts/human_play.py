@@ -11,20 +11,6 @@ This whole module is NOT Task0 specific. But no need to make it generic anyway.
 
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-
-_repo_root = Path(__file__).resolve().parent.parent
-if Path.cwd() != _repo_root:
-    os.chdir(_repo_root)
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
-
-# --------------------------
-# Original implementation starts here (verbatim, minor tweaks for lint only)
-# --------------------------
-
 import pygame
 from pygame.locals import (
     QUIT,
@@ -40,6 +26,7 @@ from pygame.locals import (
 from gui.game_gui import GameGUI
 from core.game_controller import GameController
 from config.ui_constants import TIME_TICK, COLORS
+from utils.path_utils import ensure_repo_root
 
 
 class HumanGameGUI(GameGUI):
@@ -136,4 +123,5 @@ def main():
 
 
 if __name__ == "__main__":
+    _repo_root = ensure_repo_root()
     main() 

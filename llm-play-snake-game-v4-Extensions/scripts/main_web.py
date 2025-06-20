@@ -13,18 +13,13 @@ from __future__ import annotations
 # Ensure execution directory & import paths are correct irrespective of where
 # the user launches the script from.
 # --------------------------
-import os
 import sys
-from pathlib import Path
+from utils.path_utils import ensure_repo_root, enable_headless_pygame
 
-_repo_root = Path(__file__).resolve().parent.parent
-if Path.cwd() != _repo_root:
-    os.chdir(_repo_root)
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
+_repo_root = ensure_repo_root()
 
-# Prevent PyGame from opening an X11 window when we only need headless mode
-os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+# Headless PyGame for Flask mode
+enable_headless_pygame()
 
 # --------------------------
 # Standard library imports (identical to original)
@@ -45,6 +40,7 @@ from core.game_manager import GameManager
 from scripts.main import parse_arguments  # Re-use full CLI from scripts/main.py
 from config.ui_constants import GRID_SIZE
 from utils.web_utils import build_color_map, translate_end_reason
+from llm.agent_llm import LLMSnakeAgent
 
 # --------------------------
 # Flask setup (static/template folders)
@@ -143,13 +139,13 @@ def index():
     return render_template("main.html")
 
 @app.route("/api/state")
-def api_state():
+def api_state():  # noqa: F401 – used via Flask routing
     if manager is None or manager.game is None:
         return jsonify({"error": "game not started"})
     return jsonify(build_state_dict(manager))
 
 @app.route("/api/control", methods=["POST"])
-def api_control():
+def api_control():  # noqa: F401 – used via Flask routing
     if manager is None:
         return jsonify({"status": "error", "msg": "no manager"})
     cmd = request.json.get("command") if request.is_json else None
@@ -183,6 +179,10 @@ def main():
 
     global manager, manager_thread
     manager = GameManager(game_args)
+
+    # Inject Task-0 agent
+    manager.agent = LLMSnakeAgent(manager, provider=game_args.provider, model=game_args.model)
+
     manager_thread = threading.Thread(target=_manager_thread_fn, args=(manager, game_args), daemon=True)
     manager_thread.start()
 

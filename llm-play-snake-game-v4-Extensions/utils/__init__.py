@@ -49,8 +49,6 @@ from .moves_utils import (
     is_reverse,
 )
 
-from .game_manager_utils import check_collision
-
 # Text processing
 from .text_utils import (
     process_response_for_display,
@@ -102,7 +100,6 @@ __all__ = [
     "extract_moves_pattern",
     "extract_moves_from_arrays",
     # Game manager utils
-    "check_collision",
     # Game stats utils
     "save_experiment_info_json",
     "save_session_stats",
@@ -141,8 +138,6 @@ __all__ = [
     "random_free_port",
     # Session utils – imported dynamically to avoid duplicate code
     *_session_all,
-    # Logging helpers
-    "make_log_dir",
     # Reproducibility
     "seed_everything",
 ]

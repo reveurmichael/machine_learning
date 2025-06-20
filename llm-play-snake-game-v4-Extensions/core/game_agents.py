@@ -9,6 +9,8 @@ Placed in `core/game_agents.py` to follow the `game_*` naming convention that
 makes the first-citizen folder easy to grep and keeps a tidy namespace:
 
     from core.game_agents import SnakeAgent
+
+This whole module is NOT Task0 specific.
 """
 
 from typing import Protocol, Any, runtime_checkable

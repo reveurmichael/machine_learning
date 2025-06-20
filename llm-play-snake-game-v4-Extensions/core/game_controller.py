@@ -1,6 +1,9 @@
 """
 Game controller for the Snake game.
 Provides core game logic that can run with or without a GUI.
+
+The class BaseGameController is NOT Task0 specific.
+The class GameController is Task0 specific.
 """
 
 from __future__ import annotations
@@ -11,7 +14,7 @@ import numpy as np
 from numpy.typing import NDArray
 from config.ui_constants import GRID_SIZE
 from config.game_constants import DIRECTIONS
-from core.game_data import GameData
+from core.game_data import BaseGameData, GameData
 from utils.collision_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
 from utils.board_utils import generate_random_apple, update_board_array
@@ -23,8 +26,15 @@ from utils.board_utils import generate_random_apple, update_board_array
 if TYPE_CHECKING:
     from gui.base_gui import BaseGUI
 
+# --------------------------
+# Generic controller – agnostic to the concrete GameData subclass.
+# --------------------------
+
 class BaseGameController:
     """Base class for the Snake game controller."""
+
+    # Subclasses may override to inject their specialised data container.
+    GAME_DATA_CLS = BaseGameData
 
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
         """Initialize the game controller.
@@ -40,10 +50,14 @@ class BaseGameController:
         self.snake_positions = np.array([[grid_size//2, grid_size//2]])  # Start in middle
         self.head_position = self.snake_positions[-1]
 
-        # Game state tracker for statistics
-        self.game_state = GameData()
+        # Game state tracker for statistics – deferred to class attribute so
+        # specialisations (LLM, RL, etc.) can plug in their own rich data
+        # container without having to re-implement the whole constructor.
+        self.game_state = self.GAME_DATA_CLS()
 
-        # Reset game state tracker FIRST to ensure round manager is ready
+        # Ensure *reset()* on the freshly created tracker so round_manager and
+        # other internal structures are ready before the first apple is
+        # generated.
         self.game_state.reset()
 
         # Generate the very first apple now that the game state is ready.  This
@@ -490,7 +504,14 @@ class BaseGameController:
 
         return None
 
+# ------------------
+# Task-0 concrete controller (LLM-aware) – plugs in GameData.
+# ------------------
 
 class GameController(BaseGameController):
-    """Task-0 controller inheriting the full behaviour from BaseGameController."""
-    pass
+    """Task-0 controller uses the richer :class:`GameData` tracker."""
+
+    GAME_DATA_CLS = GameData
+
+    # No further overrides needed; the base class honours the custom data
+    # container type and all behaviour remains unchanged.

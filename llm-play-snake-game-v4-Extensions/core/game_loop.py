@@ -160,7 +160,6 @@ class BaseGameLoop:
         )
 
     def _handle_game_over(self) -> None:
-        from utils.game_manager_utils import process_game_over
         manager = self.manager
         process_game_over(manager.game, manager)
         manager.game_active = False
@@ -184,7 +183,6 @@ class BaseGameLoop:
     # ---- Low-level helpers --------------------------------------------------
 
     def _execute_move(self, direction: str) -> Tuple[bool, bool]:
-        from utils.game_manager_utils import check_max_steps
         manager = self.manager
 
         prev_invalid_rev = manager.game.game_state.invalid_reversals

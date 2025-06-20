@@ -1,3 +1,8 @@
+"""
+The class BaseGameData is NOT Task0 specific.
+The class GameData is Task0 specific.
+"""
+
 import json
 import os
 from datetime import datetime
@@ -6,7 +11,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from utils.game_stats_utils import NumPyJSONEncoder
 from utils.moves_utils import normalize_direction
-from core.game_stats import GameStatistics
+from core.game_stats import BaseGameStatistics, GameStatistics
 from core.game_rounds import RoundManager
 
 
@@ -15,6 +20,7 @@ from core.game_rounds import RoundManager
 # ------------------
 
 
+# This class is NOT Task0 specific.
 class BaseGameData:
     """Base class for game data tracking - generic for all task types.
     
@@ -76,9 +82,12 @@ class BaseGameData:
         self.apple_positions_history = []
 
         # --------------------------
-        # Round tracking (generic – used by Task-0 and optionally by Task-1…5)
+        # Statistics (generic) and round tracking
         # --------------------------
-        from core.game_rounds import RoundManager  # local import to avoid cycles
+        # Generic per-game statistics container (LLM-agnostic)
+        self.stats = BaseGameStatistics()
+
+        # Round tracking (optional but useful for all tasks)
         self.round_manager = RoundManager()
     
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
@@ -210,7 +219,7 @@ class BaseGameData:
         if hasattr(self, "round_manager") and self.round_manager:
             self.round_manager.start_new_round(apple_position)
 
-
+# This class is Task0 specific.
 class GameData(BaseGameData):
     """LLM-specific game data tracking for Task-0."""
     

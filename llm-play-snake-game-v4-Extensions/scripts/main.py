@@ -9,17 +9,13 @@ This whole module is Task0 specific.
 
 from __future__ import annotations
 
-import importlib
-import os
 import sys
-from pathlib import Path
+from utils.path_utils import ensure_repo_root
 
 # ------------------
 # Ensure current working directory == repository root
 # ------------------
-_repo_root = Path(__file__).resolve().parent.parent
-if Path.cwd() != _repo_root:
-    os.chdir(_repo_root)
+_repo_root = ensure_repo_root()
 
 # Ensure repo root is on sys.path so we can import top-level modules
 if str(_repo_root) not in sys.path:
@@ -50,6 +46,7 @@ from config import (
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 from llm.providers import get_available_models
+from llm.agent_llm import LLMSnakeAgent
 
 # Initialise colour output early (no-op if already called)
 init_colorama(autoreset=True)
@@ -184,6 +181,14 @@ def main():
             sys.exit(1)
 
         gm = GameManager(args)
+
+        # ------------------
+        # Inject the Task-0 LLM agent so the game loop switches to the
+        # *agent* pathway which now encapsulates all LLM communication.
+        # ------------------
+
+        gm.agent = LLMSnakeAgent(gm, provider=args.provider, model=args.model)
+
         gm.run()
     except KeyboardInterrupt:
         print("\nExiting…")

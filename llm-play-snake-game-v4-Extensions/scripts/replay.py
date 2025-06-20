@@ -10,15 +10,10 @@ This whole module is Task0 specific.
 # of where the user launches the script from (matches main.py wrapper).
 # --------------------------
 
-import os
 import sys
-from pathlib import Path
+from utils.path_utils import ensure_repo_root
 
-_repo_root = Path(__file__).resolve().parent.parent
-if Path.cwd() != _repo_root:
-    os.chdir(_repo_root)
-if str(_repo_root) not in sys.path:
-    sys.path.insert(0, str(_repo_root))
+_repo_root = ensure_repo_root()
 
 import argparse
 import pygame

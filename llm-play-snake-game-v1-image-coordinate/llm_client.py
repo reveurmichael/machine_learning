@@ -4,12 +4,9 @@ LLM client module for handling communication with different LLM providers.
 
 import os
 import json
-import time
 import requests
-from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 from openai import OpenAI
-import subprocess
 from mistralai import Mistral
 
 # Load environment variables from .env file

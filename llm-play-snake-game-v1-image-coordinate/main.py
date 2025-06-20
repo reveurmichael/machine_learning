@@ -180,7 +180,7 @@ def main():
                             
                             # If we've eaten an apple, request a new plan
                             if apple_eaten:
-                                print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
+                                print(Fore.GREEN + "🍎 Apple eaten! Requesting new plan.")
                                 need_new_plan = True
                             
                             # We don't increment game_round_count here as we're executing planned moves,

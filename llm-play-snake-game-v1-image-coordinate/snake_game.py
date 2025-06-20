@@ -265,9 +265,9 @@ class SnakeGame:
         # Add directional guidance
         board_str += "\nDirectional guide:\n"
         board_str += "- UP: Decreases row coordinate (moves toward row 0)\n"
-        board_str += "- DOWN: Increases row coordinate (moves toward row {0})\n".format(self.row - 1)
+        board_str += f"- DOWN: Increases row coordinate (moves toward row {self.row - 1})\n"
         board_str += "- LEFT: Decreases column coordinate (moves toward column 0)\n"
-        board_str += "- RIGHT: Increases column coordinate (moves toward column {0})\n".format(self.row - 1)
+        board_str += f"- RIGHT: Increases column coordinate (moves toward column {self.row - 1})\n"
         
         return board_str
     
@@ -339,10 +339,8 @@ class SnakeGame:
         
         # Get the next move from the sequence (or None if empty)
         if self.planned_moves:
-            next_move = self.planned_moves.pop(0)
-            return next_move
-        else:
-            return None
+            return self.planned_moves.pop(0)
+        return None
             
     def _process_response_for_display(self, response):
         """Process the LLM response for display purposes.
@@ -398,8 +396,7 @@ class SnakeGame:
     
     def update(self):
         """Update the game state."""
-        # Nothing to do for now, state is fully updated after each move
-        pass
+        # State is fully updated after each move; no additional logic required at present.
     
     def draw(self):
         """Draw the current game state."""

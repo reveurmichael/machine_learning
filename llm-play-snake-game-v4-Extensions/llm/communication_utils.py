@@ -1,10 +1,39 @@
 """
-LLM communication system.
-Core functionality for interacting with language models in the Snake game,
-supporting both single-LLM and dual-LLM configurations for gameplay strategy
-and response parsing.
+LLM communication sub-system (Task-0).
 
-As LLM is Task0 specific, this whole module is Task0 specific.
+This module is deliberately **narrow in scope**: given a *prompt* and some
+lightweight contextual *metadata*, talk to the primary and (optionally)
+secondary LLM, parse/format the answer, and hand back the next move plus a
+continuation flag.
+
+Historically the helper was *implicitly* tied to the game-flow concept of a
+"round" – it reached into :class:`core.game_manager.GameManager` and
+dereferenced ``round_count`` for log-file names and statistics.  That created
+a hidden dependency: any future task that calls this function had to own a
+``round_count`` attribute, even if its pacing scheme was *not* organised in
+rounds (e.g. heuristic agents, RL curriculum epochs).
+
+As part of the SOLID refactor the coupling was removed:
+
+*   **The caller now passes the round explicitely** via the ``round_id`` kwarg
+    of :func:`get_llm_response`.  If that argument is ``None`` we fall back to
+    ``manager.round_count`` to preserve 100-% backward compatibility for
+    Task-0.  All file names and metadata strings derive *solely* from the
+    value that enters the function – no more global reach-through.
+
+*   All other responsibilities (prompt construction, round management, timing
+    of when to call the LLM, etc.) stay in higher-level orchestration classes
+    such as :class:`core.game_loop.GameLoop` or the concrete
+    :class:`llm.agent_llm.LLMSnakeAgent`.
+
+Consequences
++------------
+• Task-0 (round-based planning) behaves exactly as before.
+• Future tasks can call the helper with any integer (``round_id=0`` for a
+  single-shot game, ``epoch`` for RL, etc.) or omit the argument entirely if
+  they *do* implement the legacy attribute.
+• Unit tests can inject a synthetic round number without mocking
+  ``GameManager`` internals.
 """
 
 import time
@@ -125,6 +154,24 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
         Tuple ``(next_move, game_active)`` where ``next_move`` is the first
         direction from the newly generated plan (or ``None`` on error) and
         ``game_active`` indicates whether the game should continue.
+
+    Notes
+    -----
+    • Passing the round number from the *caller* side restores the correct
+      dependency direction: the *game-flow* layer (loop or agent) decides
+      *when* the LLM should be invoked and what contextual identifiers are
+      relevant.  The communication helper only transmits bytes.
+
+    • Example call for Task-0 (round-based planning)::
+
+          next_move, cont = get_llm_response(manager, round_id=manager.round_count)
+
+      Example call for a hypothetical Task-2 that queries once per *game*::
+
+          next_move, cont = get_llm_response(manager, round_id=0)
+
+    • When the argument is omitted entirely older Task-0 code keeps working
+      because we internally fall back to the managerʼs attribute.
     """
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()

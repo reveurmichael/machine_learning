@@ -4,13 +4,11 @@ Handles game logic, state management, and interaction with the LLM agent.
 """
 
 import numpy as np
-import re
-import json
 import pygame
 from gui import DrawWindow
 from config import GRID_SIZE, DIRECTIONS, PROMPT_TEMPLATE_TEXT
 # Import JSON utility functions
-from json_utils import extract_valid_json, extract_json_from_code_block, extract_json_from_text, extract_moves_from_arrays, validate_json_format
+from json_utils import extract_valid_json, extract_moves_from_arrays, validate_json_format
 
 class SnakeGame:
     """Main class for the Snake game logic and rendering."""
@@ -318,13 +316,13 @@ class SnakeGame:
         
         print("\nCoordinate system rules:")
         print("  • Game uses [x, y] format for all coordinates")
-        print(f"  • Origin (0,0) is at the BOTTOM-LEFT of the grid")
-        print(f"  • First element affects x-axis (LEFT/RIGHT)")
-        print(f"  • Second element affects y-axis (UP/DOWN)")
+        print("  • Origin (0,0) is at the BOTTOM-LEFT of the grid")
+        print("  • First element affects x-axis (LEFT/RIGHT)")
+        print("  • Second element affects y-axis (UP/DOWN)")
         print(f"  • UP: y increases (moves toward y={self.grid_size-1})")
-        print(f"  • DOWN: y decreases (moves toward y=0)")
+        print("  • DOWN: y decreases (moves toward y=0)")
         print(f"  • RIGHT: x increases (moves toward x={self.grid_size-1})")
-        print(f"  • LEFT: x decreases (moves toward x=0)")
+        print("  • LEFT: x decreases (moves toward x=0)")
         
         # Verify with test moves
         print("\nTest moves from current position:")

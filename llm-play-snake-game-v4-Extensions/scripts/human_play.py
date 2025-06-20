@@ -84,24 +84,37 @@ class HumanGameGUI(GameGUI):
 
 
 def _handle_input(game: GameController, gui: HumanGameGUI) -> bool:
-    running = True
+    """Process user input and update the game state.
+
+    Returns ``False`` if the window should close, otherwise ``True``.
+    """
+
     for event in pygame.event.get():
         if event.type == QUIT:
             return False
+
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 return False
-            elif event.key == K_UP:
-                active, _ = game.make_move("UP"); gui.set_game_over(not active)
+
+            if event.key == K_UP:
+                active, _ = game.make_move("UP")
+                gui.set_game_over(not active)
             elif event.key == K_DOWN:
-                active, _ = game.make_move("DOWN"); gui.set_game_over(not active)
+                active, _ = game.make_move("DOWN")
+                gui.set_game_over(not active)
             elif event.key == K_LEFT:
-                active, _ = game.make_move("LEFT"); gui.set_game_over(not active)
+                active, _ = game.make_move("LEFT")
+                gui.set_game_over(not active)
             elif event.key == K_RIGHT:
-                active, _ = game.make_move("RIGHT"); gui.set_game_over(not active)
+                active, _ = game.make_move("RIGHT")
+                gui.set_game_over(not active)
             elif event.key == K_r:
-                game.reset(); gui.set_game_over(False)
-    return running
+                game.reset()
+                gui.set_game_over(False)
+
+    # Continue running by default
+    return True
 
 
 def main():

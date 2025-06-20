@@ -108,7 +108,7 @@ def extract_state_for_parser(game_manager: "GameManager") -> Tuple[str, str, str
     
     return head_pos, apple_pos, body_cells_str
 
-def get_llm_response(game_manager: "GameManager"):
+def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None):
     """Get a response from the LLM system based on the current game state.
     
     This function handles both single-LLM and dual-LLM configurations:
@@ -117,6 +117,7 @@ def get_llm_response(game_manager: "GameManager"):
     
     Args:
         game_manager: The GameManager instance
+        round_id: The specific round number for which to log the response
         
     Returns:
         Tuple of (next_move, game_active)
@@ -133,11 +134,15 @@ def get_llm_response(game_manager: "GameManager"):
     # Get parser input for metadata
     parser_input = extract_state_for_parser(game_manager)
 
+    # Determine which round number to embed in filenames / metadata.
+    # Fallback to the managerʼs attribute so old call-sites remain unchanged.
+    _round = round_id if round_id is not None else getattr(game_manager, "round_count", 0)
+
     # Log the prompt using centralized naming
     prompt_filename = get_prompt_filename(
-        game_number=game_manager.game_count+1,
-        round_number=game_manager.round_count,
-        file_type="prompt"
+        game_number=game_manager.game_count + 1,
+        round_number=_round,
+        file_type="prompt",
     )
 
     prompt_metadata = {
@@ -179,9 +184,9 @@ def get_llm_response(game_manager: "GameManager"):
 
         # Log the response using centralized naming
         response_filename = get_prompt_filename(
-            game_number=game_manager.game_count+1,
-            round_number=game_manager.round_count,
-            file_type="raw_response"
+            game_number=game_manager.game_count + 1,
+            round_number=_round,
+            file_type="raw_response",
         )
 
         # Get parser input to include in metadata
@@ -210,9 +215,9 @@ def get_llm_response(game_manager: "GameManager"):
 
             # Save the secondary LLM prompt using centralized naming
             parser_prompt_filename = get_prompt_filename(
-                game_number=game_manager.game_count+1,
-                round_number=game_manager.round_count,
-                file_type="parser_prompt"
+                game_number=game_manager.game_count + 1,
+                round_number=_round,
+                file_type="parser_prompt",
             )
 
             parser_prompt_metadata = {
@@ -258,9 +263,9 @@ def get_llm_response(game_manager: "GameManager"):
 
                 # Save the secondary LLM response using centralized naming
                 parsed_response_filename = get_prompt_filename(
-                    game_number=game_manager.game_count+1,
-                    round_number=game_manager.round_count,
-                    file_type="parsed_response"
+                    game_number=game_manager.game_count + 1,
+                    round_number=_round,
+                    file_type="parsed_response",
                 )
 
                 parsed_response_metadata = {
@@ -369,7 +374,10 @@ def get_llm_response(game_manager: "GameManager"):
             # If we got a valid move, reset the consecutive empty steps counter
             if next_move:
                 game_manager.consecutive_empty_steps = 0
-                print(Fore.GREEN + f"🐍 Next move: {next_move} (Game {game_manager.game_count+1}, Round {game_manager.round_count})")
+                print(
+                    Fore.GREEN
+                    + f"🐍 Next move: {next_move} (Game {game_manager.game_count + 1}, Round {_round})"
+                )
                 
                 # For UI display, also log the planned moves
                 if len(parser_output["moves"]) > 1:

@@ -90,7 +90,7 @@ class BaseGameLoop:
         manager.awaiting_plan = True
         from llm.communication_utils import get_llm_response  # local import
 
-        next_move, manager.game_active = get_llm_response(manager)  # type: ignore[arg-type]
+        next_move, manager.game_active = get_llm_response(manager, round_id=manager.round_count)  # type: ignore[arg-type]
         manager.awaiting_plan = False
         manager.need_new_plan = False
 

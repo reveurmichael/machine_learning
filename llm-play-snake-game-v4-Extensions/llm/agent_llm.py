@@ -38,7 +38,7 @@ class LLMSnakeAgent(SnakeAgent):
     def __init__(
         self,
         manager: "GameManager | None" = None,
-        provider: str = "hunyuan",
+        provider: str = "ollama",
         model: Optional[str] = None,
         **generation_kwargs: Any,
     ) -> None:
@@ -90,14 +90,14 @@ class LLMSnakeAgent(SnakeAgent):
         if self._manager is not None:
             from llm.communication_utils import get_llm_response  # local import
 
-            mgr = self._manager
+            game_manager = self._manager
 
             # Mark awaiting_plan to keep UI behaviour identical
-            mgr.awaiting_plan = True
-            move, game_active = get_llm_response(mgr)  # type: ignore[arg-type]
-            mgr.awaiting_plan = False
-            mgr.need_new_plan = False
-            mgr.game_active = game_active
+            game_manager.awaiting_plan = True
+            move, game_active = get_llm_response(game_manager, round_id=game_manager.round_count)  # type: ignore[arg-type]
+            game_manager.awaiting_plan = False
+            game_manager.need_new_plan = False
+            game_manager.game_active = game_active
 
             return move
 

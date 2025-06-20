@@ -241,7 +241,7 @@ def main():
                             
                             # If we've eaten an apple, request a new plan
                             if apple_eaten:
-                                print(Fore.GREEN + f"🍎 Apple eaten! Requesting new plan.")
+                                print(Fore.GREEN + "🍎 Apple eaten! Requesting new plan.")
                                 need_new_plan = True
                             
                             # Increment round count

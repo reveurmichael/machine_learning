@@ -1,0 +1,13 @@
+PRIMARY LLM Request Time: 2025-06-18 00:41:54
+PRIMARY LLM Response Time: 2025-06-18 00:43:12
+PRIMARY LLM Provider: hunyuan
+PRIMARY LLM Model: hunyuan-t1-latest
+Head Position: (0, 0)
+Apple Position: (2, 4)
+Body Cells: [(0, 1), (1, 1), (2, 1), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (2, 5), (2, 6), (1, 6), (0, 6), (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (6, 6), (6, 5), (6, 4), (6, 3), (6, 2), (6, 1), (6, 0), (7, 0)]
+Timestamp: 2025-06-18 00:43:12
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{"moves": [], "reasoning": "NO_PATH_FOUND"}

@@ -377,12 +377,20 @@ class GameLoop(BaseGameLoop):
             import time as _t
             _t.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
 
-        # The LLM parser now stores *only* moves **after** the first one, so
-        # we no longer need to remove the head element here.  Keeping the
-        # list intact ensures the round correctly terminates when the queue
-        # becomes empty.
-
+        # Execute the first move and remove it from planned_moves to prevent
+        # duplicate recording. The communication_utils sets planned_moves to
+        # the full list including the first move, so we need to remove it here.
+        #
+        # CRITICAL BUG FIX: This prevents the first move from being recorded
+        # twice in rounds_data - once here and once when _execute_next_planned_move
+        # processes the remaining planned_moves list.
+        
         _, apple_eaten = self._execute_move(next_move)
+        
+        # Remove the first move from planned_moves since we just executed it
+        if manager.game.planned_moves and manager.game.planned_moves[0] == next_move:
+            manager.game.planned_moves = manager.game.planned_moves[1:]
+        
         if apple_eaten:
             self._post_apple_logic()
 

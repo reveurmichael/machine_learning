@@ -111,6 +111,7 @@ class BaseGameLoop:
             return
         next_move = manager.game.get_next_planned_move()
         if not next_move:
+            # Plan queue exhausted – flush & bump round counter.
             manager.finish_round()
             manager.need_new_plan = True
             print("🔄 No more planned moves in the current round, requesting new plan.")
@@ -142,6 +143,10 @@ class BaseGameLoop:
         manager = self.manager
         process_game_over(manager.game, manager)
         manager.game_active = False
+
+        # Reset first-plan flag so the next game starts with round 1 again.
+        if hasattr(manager, "_first_plan"):
+            manager._first_plan = True
 
     # Agent path – unchanged behaviour
     def _process_agent_game(self) -> None:
@@ -263,6 +268,11 @@ class GameLoop(BaseGameLoop):
         """
 
         manager = self.manager
+        # Preserve original timing: round counter is bumped *after* the plan
+        # finishes (see finish_round() call when the queue runs empty).  This
+        # matches the stable pre-refactor behaviour and avoids extra file
+        # naming logic here.
+
         manager.awaiting_plan = True
         from llm.communication_utils import get_llm_response  # local import
 
@@ -295,7 +305,9 @@ class GameLoop(BaseGameLoop):
             import time as _t
             _t.sleep(3)
 
-        # planned_moves already excludes the executed move – no further pop.
+        # Drop the first element from planned_moves because we execute it now.
+        if manager.game.planned_moves:
+            manager.game.planned_moves.pop(0)
 
         _, apple_eaten = self._execute_move(next_move)
         if apple_eaten:

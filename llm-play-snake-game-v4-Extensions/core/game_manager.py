@@ -91,6 +91,12 @@ class BaseGameManager:
         # Main loop control flag
         self.running: bool = True
 
+        # First-plan flag used by GameLoop to decide whether to advance the
+        # round counter *before* requesting a fresh LLM plan.  It is reset
+        # every time a new game starts so round numbering always restarts at
+        # 1.
+        self._first_plan: bool = True
+
     # ---- Hooks meant to be overridden --------------------------
 
     def initialize(self) -> None:  # pragma: no cover – interface stub

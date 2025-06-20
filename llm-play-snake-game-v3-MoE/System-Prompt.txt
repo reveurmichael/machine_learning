@@ -1,0 +1,4 @@
+Do the code change for making type hint really good. I am using mypy and pyright. IMPORTANT: Do it without any functionality change. You can go with the most common, most urgent ones.
+
+
+

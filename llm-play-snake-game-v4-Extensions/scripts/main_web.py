@@ -9,16 +9,21 @@ This whole module is Task0 specific.
 
 from __future__ import annotations
 
-# --------------------------
-# Ensure execution directory & import paths are correct irrespective of where
-# the user launches the script from.
-# --------------------------
+# ---------------------------------------------------------------
+# Guarantee repo root is on sys.path before importing project modules.
+# ---------------------------------------------------------------
+
 import sys
-from utils.path_utils import ensure_repo_root, enable_headless_pygame
+from pathlib import Path
 
-_repo_root = ensure_repo_root()
+_repo_root = Path(__file__).resolve().parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
 
-# Headless PyGame for Flask mode
+# Now safe to import helpers
+from utils.path_utils import ensure_repo_root, enable_headless_pygame  # noqa: E402
+
+ensure_repo_root()
 enable_headless_pygame()
 
 # --------------------------

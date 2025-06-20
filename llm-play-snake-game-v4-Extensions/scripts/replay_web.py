@@ -6,15 +6,17 @@ Reuses existing replay engine, constants, and game logic from the pygame impleme
 This whole module is Task0 specific.
 """
 
-# --------------------------
-# Ensure execution directory & import paths are correct irrespective
-# of where the user launches the script from.
-# --------------------------
-
+# sys.path bootstrap so 'utils' is importable when launched from /scripts
 import sys
+from pathlib import Path
+
+_repo_root = Path(__file__).resolve().parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
 from utils.path_utils import ensure_repo_root, enable_headless_pygame
 
-_repo_root = ensure_repo_root()
+ensure_repo_root()
 enable_headless_pygame()
 
 import argparse

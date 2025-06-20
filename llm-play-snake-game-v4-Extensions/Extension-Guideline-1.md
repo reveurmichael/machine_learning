@@ -95,6 +95,7 @@ We are preparing really hard to be able to deliver as is said in project-structu
 
 ## Now what you should do:
 
-Go ahead now do things for ./core/game_stats.py . 
+Make sure things within the folder "core" are really well refactored, sometimes we have a lot of inter-class dependances. double check.
+
 
 

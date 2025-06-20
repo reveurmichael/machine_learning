@@ -1,7 +1,9 @@
-"""Human playable Snake game (moved to scripts/).
+"""Human playable Snake game.
 
 Launch with:
     python scripts/human_play.py
+
+This script allows a human to play the Snake game using the arrow keys.
 
 The script guarantees it runs from the repository root so that relative paths
 (e.g. logs/) behave consistently.
@@ -10,6 +12,28 @@ This whole module is NOT Task0 specific. But no need to make it generic anyway.
 """
 
 from __future__ import annotations
+
+import os
+import sys
+
+
+# --------------------------
+# Path-bootstrap – quick and dirty way to make sure parent modules are found
+# --------------------------
+# Add the project root directory to the Python path
+# This allows imports from sibling directories like 'core' or 'llm'
+# ---
+# Note: cleaner solutions exist (e.g. proper packaging), but this is simple
+# and effective for a standalone script.
+# --------------------------
+def _bootstrap_path():
+    """Add project root to `sys.path`."""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+_bootstrap_path()
 
 import pygame
 from pygame.locals import (
@@ -26,8 +50,9 @@ from pygame.locals import (
 from gui.game_gui import GameGUI
 from core.game_controller import GameController
 from config.ui_constants import TIME_TICK, COLORS
-from utils.path_utils import ensure_repo_root
 
+# pylint: disable=no-member  # init() is dynamically added
+pygame.init()
 
 class HumanGameGUI(GameGUI):
     """GUI class for human-controlled Snake."""
@@ -136,5 +161,4 @@ def main():
 
 
 if __name__ == "__main__":
-    _repo_root = ensure_repo_root()
     main() 

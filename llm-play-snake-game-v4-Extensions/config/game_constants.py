@@ -1,7 +1,40 @@
-from llm.providers import list_providers
+"""Game-wide constants shared across tasks.
+
+The list of AVAILABLE_PROVIDERS depends on importing :pymod:`llm.providers`
+which in turn triggers the initialisation of the *llm* package.  Importing it
+eagerly here caused a circular-import chain when other packages pulled in
+`config.game_constants` early during the boot-process (``llm.__init__`` →
+``llm.agent_llm`` → ``core.*`` → this module).
+
+To avoid that, we defer the import to **runtime** via a helper function so
+that modules that only need *static* constants (e.g. `DIRECTIONS`) do not pay
+the cost or risk of initialising the LLM sub-package.
+"""
 
 
-AVAILABLE_PROVIDERS = list_providers() # This one is Task0 specific.
+def list_available_providers() -> list[str]:  # noqa: D401 – tiny helper
+    """Return the provider list, importing lazily to dodge circular deps."""
+
+    try:
+        from llm.providers import list_providers  # local import
+
+        return list_providers()
+    except Exception:  # pragma: no cover – safe fallback
+        return []
+
+
+# Expose the list at module import *after* the helper so CLI scripts can still
+# treat it as a constant – but the lazy function avoids circular-import crash
+# because the *value* is only needed in CLI context (after all packages have
+# loaded).
+
+# The *dynamic* provider list is only required by CLI helpers and dashboards.
+# To avoid triggering the heavy LLM-provider import graph during early module
+# loading (and thus risking circular imports), we expose an **empty list** as
+# default.  User-facing code should call ``list_available_providers()`` when
+# it actually needs the data.
+
+AVAILABLE_PROVIDERS: list[str] = []  # Task-0 specific – populated lazily
 
 
 PAUSE_BETWEEN_MOVES_SECONDS = 1.0  # Pause time between moves. This one is NOT Task0 specific.

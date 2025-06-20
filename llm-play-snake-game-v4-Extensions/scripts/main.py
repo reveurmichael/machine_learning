@@ -40,9 +40,12 @@ from config import (
     MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED,
     MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
     MAX_GAMES_ALLOWED,
-    AVAILABLE_PROVIDERS,
     SLEEP_AFTER_EMPTY_STEP,
 )
+from config.game_constants import list_available_providers
+
+AVAILABLE_PROVIDERS = list_available_providers()
+
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 from llm.providers import get_available_models

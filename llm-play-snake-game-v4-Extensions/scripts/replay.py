@@ -11,9 +11,20 @@ This whole module is Task0 specific.
 # --------------------------
 
 import sys
-from utils.path_utils import ensure_repo_root
+from pathlib import Path
 
-_repo_root = ensure_repo_root()
+# ------------------------------------------------------------------
+# Guarantee that 'utils' package is importable even when the user launches
+# the script from inside the scripts/ directory.
+# ------------------------------------------------------------------
+
+_repo_root = Path(__file__).resolve().parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
+# Now we can safely import the helper which in turn ensures cwd == repo root.
+
+from utils.path_utils import ensure_repo_root  # noqa: E402 – after sys.path tweak
 
 # Standard lib additional
 import os

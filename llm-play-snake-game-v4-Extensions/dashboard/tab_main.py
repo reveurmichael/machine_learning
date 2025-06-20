@@ -26,7 +26,7 @@ from config.game_constants import (
     MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED,
     MAX_GAMES_ALLOWED,
     MAX_STEPS_ALLOWED,
-    AVAILABLE_PROVIDERS,
+    list_available_providers,
     PAUSE_BETWEEN_MOVES_SECONDS,
     SLEEP_AFTER_EMPTY_STEP,
 )
@@ -36,6 +36,9 @@ from config.ui_constants import (
     DEFAULT_PARSER_PROVIDER,
     DEFAULT_PARSER_MODEL,
 )
+
+# Lazily obtain provider list to avoid circular-import issues.
+AVAILABLE_PROVIDERS = list_available_providers()
 
 # --------------------------
 # Helper – build command list from optional args

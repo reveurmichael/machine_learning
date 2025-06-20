@@ -48,7 +48,9 @@ def load_game_json(log_dir: str, game_number: int) -> Tuple[str, Optional[Dict[s
         return str(file_path), None
 
 
-# This function is Task0 specific for this moment, but we should devise a way to make it generic. # TODO: make it generic.
+# NOTE: Currently Task-0 assumes a specific JSON schema; future tasks can
+#       extend this helper (or subclass `ReplayEngine`) to parse alternative
+#       layouts without changing the base logic.
 def parse_game_data(game_data: Dict[str, Any]) -> Optional[ReplayData]:
     """Return a lightweight, replay-friendly view of a *game_N.json* blob.
 

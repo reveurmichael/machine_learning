@@ -22,10 +22,11 @@ import threading
 import time
 from flask import Flask, render_template, request, jsonify
 import logging
+import os
 
 from replay.replay_engine import ReplayEngine
 from utils.network_utils import find_free_port
-from replay import parse_arguments  # Re-use the full CLI from replay.py
+from scripts.replay import parse_arguments  # Re-use CLI parser from replay.py
 from utils.web_utils import build_color_map, translate_end_reason, to_list
 
 # Build absolute paths for flask folders
@@ -137,8 +138,6 @@ def index():
 @app.route("/api/state")
 def get_state():  # noqa: F401 – used via Flask routing
     """API endpoint to get the current game state."""
-    global replay_engine
-
     if replay_engine is None:
         return jsonify({"error": "Replay engine not initialized"})
 
@@ -150,8 +149,6 @@ def control():  # noqa: F401 – used via Flask routing
     """API endpoint to control the replay.
     Implements the same control functions as the keyboard handlers in the pygame version.
     """
-    global replay_engine
-
     if replay_engine is None:
         return jsonify({"error": "Replay engine not initialized"})
 

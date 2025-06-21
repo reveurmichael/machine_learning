@@ -406,7 +406,7 @@ class BaseWebController(ABC):
         template_context = self.get_index_template_context()
         return self.view_renderer.render_template(
             self.get_index_template_name(),
-            template_context
+            **template_context  # FIX: Unpack context as keyword arguments
         )
     
     def get_index_template_name(self) -> str:

@@ -60,38 +60,53 @@ class BaseGUI:
         """
         import pygame  # deferred import to avoid hard dependency
         
-        pygame.init()
+        # Initialize pygame if not already done
+        if not pygame.get_init():
+            pygame.init()
+            
+        if not pygame.font.get_init():
+            pygame.font.init()
         
-        # Create the main display surface
+        # Create the main display surface with original layout
         self.screen = pygame.display.set_mode((self.width + self.width_plus, self.height))
         pygame.display.set_caption(title)
         
-        # Initialize fonts
-        self.font = pygame.font.Font(None, 36)
-        self.small_font = pygame.font.Font(None, 24)
+        # Initialize fonts to match original
+        self.font = pygame.font.SysFont("arial", 18)
+        self.small_font = pygame.font.SysFont("arial", 12)
         
         # Initialize clock for frame rate control
         self.clock = pygame.time.Clock()
         
-        # Calculate text panel width for info display
-        self.text_panel_width = self.width_plus - 40  # Leave some margin
+        # Calculate the width of the text panel (original calculation)
+        self.text_panel_width = self.width + self.width_plus - self.height - 40
         
         # Initialize extra panels list for plugins
         self.extra_panels = []
 
     def draw_apple(self, apple_position, flip_y=False):
-        """Draw the apple at the given position."""
+        """Draw the apple at the given position.
+        
+        Args:
+            apple_position: [x,y] position of the apple
+            flip_y: Whether y-coordinate is already flipped (for GameGUI compatibility)
+        """
         x, y = apple_position
+        
+        # Calculate display position
+        # If flip_y is True, y is already flipped in GameGUI, so use it directly
+        # Otherwise transform from Cartesian coordinates
         y_display = y if flip_y else (self.grid_size - 1 - y)
-        padding = 2
-        apple_size = self.pixel - (2 * padding)
+            
+        # Draw rectangle for apple (original size calculation)
         rect = pygame.Rect(
-            x * self.pixel + padding,
-            y_display * self.pixel + padding,
-            apple_size,
-            apple_size
+            x * self.pixel,
+            y_display * self.pixel,
+            self.pixel - 5,
+            self.pixel - 5
         )
-        pygame.draw.rect(self.screen, COLORS["APPLE"], rect)
+        
+        pygame.draw.rect(self.screen, COLORS['APPLE'], rect)
 
     def clear_game_area(self):
         """Clear the game board area with properly aligned grid."""
@@ -303,15 +318,12 @@ class BaseGUI:
 
         y_display = y if flip_y else (self.grid_size - 1 - y)
 
-        # Calculate padding to center the square in the grid cell
-        padding = 2  # Small padding for visual separation
-        square_size = self.pixel - (2 * padding)
-
+        # Use original size calculation to match original UI
         rect = pygame.Rect(
-            x * self.pixel + padding,
-            y_display * self.pixel + padding,
-            square_size,
-            square_size,
+            x * self.pixel,
+            y_display * self.pixel,
+            self.pixel - 5,
+            self.pixel - 5
         )
 
         pygame.draw.rect(self.screen, color, rect)

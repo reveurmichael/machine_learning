@@ -96,10 +96,6 @@ class SnakeGame:
         if len(self.snake_positions) == 0:
             return wall_collision, False
         
-        # Get current snake structure for clarity
-        current_tail = self.snake_positions[0]  # First position is tail
-        current_head = self.snake_positions[-1]  # Last position is head
-        
         if is_eating_apple_flag:
             # CASE: Eating an apple - tail will NOT move
             # Check collision with all segments EXCEPT the current head

@@ -4,13 +4,6 @@
 
 ---
 
-## 0. Starting Point
-
-* **Base repo:** [`SnakeQ`](https://github.com/hexontos/SnakeQ)  – we cherry-pick just enough to get a working Snake game with PyGame rendering.
-* **What we keep:** grid logic, simple GUI, event loop.
-* **What we drop:** Deep-Q-Network training, replay buffers, anything TensorFlow.
-
----
 
 ## 1. What We're Trying To Prove
 

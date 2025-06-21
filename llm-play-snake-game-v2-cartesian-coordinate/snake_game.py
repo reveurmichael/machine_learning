@@ -51,9 +51,6 @@ class SnakeGame:
         self.apple_position = self._generate_apple()
         self._update_board()
         
-        # Verify coordinate system
-        self._verify_coordinate_system()
-    
     #-----------------------
     # Game State Management
     #-----------------------
@@ -185,9 +182,6 @@ class SnakeGame:
         # Debug log
         print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
         
-        # Validate move follows coordinate system
-        self._validate_move(self.head_position, new_head, direction_key)
-        
         # Check if the new head position is where the apple is
         is_eating_apple_at_new_head = np.array_equal(new_head, self.apple_position)
         
@@ -249,10 +243,6 @@ class SnakeGame:
         if len(self.snake_positions) == 0:
             return wall_collision, False
         
-        # Get current snake structure for clarity
-        current_tail = self.snake_positions[0]  # First position is tail
-        current_head = self.snake_positions[-1] # Last position is head
-        
         if is_eating_apple_flag:
             # CASE: Eating an apple - tail will NOT move
             # Check collision with all segments EXCEPT the current head
@@ -298,77 +288,6 @@ class SnakeGame:
         print("Warning: Unknown direction vector, defaulting to RIGHT")
         return "RIGHT"
     
-    #-----------------------
-    # Coordinate System
-    #-----------------------
-    
-    def _verify_coordinate_system(self):
-        """Verify the coordinate system is consistent.
-        
-        Logs details of the coordinate system to ensure the game is set up correctly
-        according to our configuration.
-        """
-        print("\n==== COORDINATE SYSTEM VERIFICATION ====")
-        print(f"Grid size: {self.grid_size}x{self.grid_size}")
-        
-        print("\nDirection vectors (dx, dy):")
-        for dir_name, dir_vector in DIRECTIONS.items():
-            dx, dy = dir_vector
-            print(f"  {dir_name}: ({dx}, {dy}) - x changes by {dx}, y changes by {dy}")
-        
-        print("\nCoordinate system rules:")
-        print("  • Game uses [x, y] format for all coordinates")
-        print("  • Origin (0,0) is at the BOTTOM-LEFT of the grid")
-        print("  • First element affects x-axis (LEFT/RIGHT)")
-        print("  • Second element affects y-axis (UP/DOWN)")
-        print(f"  • UP: y increases (moves toward y={self.grid_size-1})")
-        print("  • DOWN: y decreases (moves toward y=0)")
-        print(f"  • RIGHT: x increases (moves toward x={self.grid_size-1})")
-        print("  • LEFT: x decreases (moves toward x=0)")
-        
-        # Verify with test moves
-        print("\nTest moves from current position:")
-        x, y = self.head_position
-        print(f"  Current head position [x,y]: [{x},{y}]")
-        
-        for dir_name, dir_vector in DIRECTIONS.items():
-            dx, dy = dir_vector
-            new_x = x + dx
-            new_y = y + dy
-            print(f"  {dir_name}: [{x},{y}] → [{new_x},{new_y}] (applying vector {dir_vector})")
-        
-        print("=========================================\n")
-    
-    def _validate_move(self, current_pos, new_pos, direction_key):
-        """Validate that a move follows the coordinate system rules.
-        
-        Args:
-            current_pos: Current position as [x, y]
-            new_pos: New position after move as [x, y]
-            direction_key: Direction key string (UP, DOWN, LEFT, RIGHT)
-            
-        Returns:
-            Boolean indicating if the move is valid according to coordinate system
-        """
-        valid = True
-        head_x, head_y = current_pos
-        new_x, new_y = new_pos
-        
-        # Validate the move follows our coordinate system rules
-        if direction_key == "UP" and new_y <= head_y:
-            print(f"Warning: UP move should increase y-coordinate but didn't: {head_y} → {new_y}")
-            valid = False
-        elif direction_key == "DOWN" and new_y >= head_y:
-            print(f"Warning: DOWN move should decrease y-coordinate but didn't: {head_y} → {new_y}")
-            valid = False
-        elif direction_key == "RIGHT" and new_x <= head_x:
-            print(f"Warning: RIGHT move should increase x-coordinate but didn't: {head_x} → {new_x}")
-            valid = False
-        elif direction_key == "LEFT" and new_x >= head_x:
-            print(f"Warning: LEFT move should decrease x-coordinate but didn't: {head_x} → {new_x}")
-            valid = False
-            
-        return valid
     
     #-----------------------
     # LLM Interaction

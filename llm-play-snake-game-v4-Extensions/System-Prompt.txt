@@ -41,3 +41,8 @@ We are refactoring with a future proof mindset, to make things look so fresh. So
 ## No pollution of code from Task 1-5 to the ROOT folder
 
 No pollution from extensions (Task 1-5) into the ROOT folder (for taks 0, but can be extended to other tasks as well in the folder "extensions"). Hence, such words like "heuristics", "reinforcement learning" should not be used in the ROOT folder. It can only be used in the folder "extensions".
+
+## No unncessary or unimplemented code/functions prepared for Task 1-5 in the ROOT folder but it's not used for Task-0
+
+Let the future tasks (Task 1-5) be the ones to implement the code/functions that they need. Overkill is not good. Over-preparation is not good.
+ 

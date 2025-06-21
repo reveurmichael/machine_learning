@@ -30,6 +30,7 @@ from colorama import Fore
 from config.game_constants import END_REASON_MAP
 from core.game_stats_manager import GameStatsManager
 from core.game_file_manager import FileManager
+from utils.singleton_utils import SingletonABCMeta
 
 if TYPE_CHECKING:
     from core.game_logic import GameLogic
@@ -39,47 +40,6 @@ __all__ = [
     "BaseGameManagerHelper",
     "GameManagerHelper",
 ]
-
-
-class SingletonABCMeta(ABCMeta):
-    """
-    Thread-safe Singleton metaclass that combines ABC and Singleton patterns.
-    
-    This metaclass implements the Singleton pattern using double-checked locking
-    while also supporting abstract base class functionality. This resolves the
-    metaclass conflict between ABC and Singleton patterns.
-    
-    Design Pattern: **Singleton Pattern + Abstract Base Class**
-    Purpose: Ensure only one instance of helper utilities exists while maintaining
-    abstract base class functionality for inheritance.
-    
-    Benefits:
-    - Thread safety through double-checked locking
-    - Memory efficiency (single instance)
-    - Abstract base class functionality
-    - Centralized utility function control
-    """
-    
-    _instances: Dict[type, Any] = {}
-    _lock: threading.Lock = threading.Lock()
-    
-    def __call__(cls, *args, **kwargs):
-        """
-        Thread-safe singleton instance creation with double-checked locking.
-        
-        The double-checked locking pattern ensures thread safety while
-        minimizing the performance overhead of synchronization.
-        """
-        # First check (without locking for performance)
-        if cls not in cls._instances:
-            # Acquire lock for thread safety
-            with cls._lock:
-                # Second check (with lock to prevent race conditions)
-                if cls not in cls._instances:
-                    instance = super().__call__(*args, **kwargs)
-                    cls._instances[cls] = instance
-        
-        return cls._instances[cls]
 
 
 class BaseGameManagerHelper(ABC, metaclass=SingletonABCMeta):

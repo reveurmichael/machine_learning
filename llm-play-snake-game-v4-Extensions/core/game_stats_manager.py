@@ -106,53 +106,13 @@ import threading
 
 import numpy as np
 from utils.path_utils import get_default_logs_root, get_summary_json_filename
+from utils.singleton_utils import SingletonABCMeta
 
 __all__ = [
     "BaseGameStatsManager",
     "GameStatsManager",
     "NumPyJSONEncoder",
 ]
-
-
-class SingletonABCMeta(ABCMeta):
-    """
-    Thread-safe Singleton metaclass that combines ABC and Singleton patterns.
-    
-    This metaclass implements the Singleton pattern using double-checked locking
-    while also supporting abstract base class functionality. This resolves the
-    metaclass conflict between ABC and Singleton patterns.
-    
-    Design Pattern: **Singleton Pattern + Abstract Base Class**
-    Purpose: Ensure only one instance of statistics manager exists while maintaining
-    abstract base class functionality for inheritance.
-    
-    Benefits:
-    - Thread safety through double-checked locking
-    - Memory efficiency (single instance)
-    - Abstract base class functionality
-    - Centralized statistics control
-    """
-    
-    _instances: Dict[type, Any] = {}
-    _lock: threading.Lock = threading.Lock()
-    
-    def __call__(cls, *args, **kwargs):
-        """
-        Thread-safe singleton instance creation with double-checked locking.
-        
-        The double-checked locking pattern ensures thread safety while
-        minimizing the performance overhead of synchronization.
-        """
-        # First check (without locking for performance)
-        if cls not in cls._instances:
-            # Acquire lock for thread safety
-            with cls._lock:
-                # Second check (with lock to prevent race conditions)
-                if cls not in cls._instances:
-                    instance = super().__call__(*args, **kwargs)
-                    cls._instances[cls] = instance
-        
-        return cls._instances[cls]
 
 
 class NumPyJSONEncoder(json.JSONEncoder):

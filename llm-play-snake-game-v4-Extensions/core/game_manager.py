@@ -156,6 +156,9 @@ class BaseGameManager:
         # Attach GUI if visual mode is requested
         if self.use_gui:
             gui = GameGUI()
+            # Ensure GUI pixel scaling matches the *actual* game grid size
+            if hasattr(self.game, "grid_size"):
+                gui.resize(self.game.grid_size)  # auto-adjust cell size & grid lines
             self.game.set_gui(gui)
 
     def get_pause_between_moves(self) -> float:

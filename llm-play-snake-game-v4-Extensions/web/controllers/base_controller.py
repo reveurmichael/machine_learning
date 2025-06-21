@@ -131,6 +131,23 @@ class RateLimitFilter(RequestFilter):
     def should_process(self, context: RequestContext) -> bool:
         """Check if client hasn't exceeded rate limit."""
         client_ip = context.client_ip
+        # ------------------------------------------------------------------
+        # Interactive-gameplay exemptions
+        # ------------------------------------------------------------------
+        #  1. CONTROL_POST – arrow-key spam can easily hit 500+ req/min.
+        #  2. STATE_GET    – the front-end polls every 100 ms (≈600 req/min)
+        #                     to animate the board; throttling these turns the
+        #                     game into a slideshow and also starves the
+        #                     control requests because browsers queue Ajax
+        #                     ops per-origin.
+        #
+        # Any future *streaming* implementation (WebSockets/EventSource) would
+        # drop STATE_GET altogether, but until then we simply exempt both
+        # interactive endpoints from server-side rate limiting.
+
+        if context.request_type in (RequestType.CONTROL_POST, RequestType.STATE_GET):
+            return True  # no rate limiting for fast interactive endpoints
+
         current_time = time.time()
         
         # Clean old entries
@@ -142,7 +159,7 @@ class RateLimitFilter(RequestFilter):
         else:
             self.request_history[client_ip] = []
         
-        # Check rate limit
+        # Check rate limit (non-interactive requests)
         if len(self.request_history[client_ip]) >= self.max_requests:
             logger.warning(f"Rate limit exceeded for {client_ip}")
             return False
@@ -152,7 +169,7 @@ class RateLimitFilter(RequestFilter):
         return True
 
 
-class BaseWebController(ABC):
+class BaseWebController(Observer, ABC):
     """
     Abstract base controller with common web functionality.
     
@@ -182,6 +199,7 @@ class BaseWebController(ABC):
             view_renderer: Handles response rendering and templating
             **kwargs: Additional configuration options
         """
+        super().__init__()
         self.model_manager = model_manager
         self.view_renderer = view_renderer
         self.request_filters: List[RequestFilter] = []
@@ -444,25 +462,12 @@ class BaseWebController(ABC):
         """
         logger.debug(f"Received game event: {event}")
     
-    def on_event(self, event: GameEvent):
-        """
-        Observer interface method for handling events.
-        
-        This method provides compatibility with the Observer interface.
-        """
-        self.handle_game_event(event)
-    
-    def get_observer_id(self) -> str:
-        """
-        Get unique identifier for this observer.
-        
-        Returns:
-            Observer identifier string
-        """
-        return f"{self.__class__.__name__}_{id(self)}"
+    def on_game_event(self, event: GameEvent) -> None:
+        """Receive game events; base controllers ignore by default."""
+        return None
     
     def get_performance_stats(self) -> Dict[str, Any]:
-        """Get controller performance statistics."""
+        """Get performance statistics."""
         return {
             "total_requests": self.request_count,
             "error_count": self.error_count,

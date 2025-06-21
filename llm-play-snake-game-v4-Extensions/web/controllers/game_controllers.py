@@ -41,8 +41,7 @@ class GameMode(Enum):
     """Enumeration of different game modes."""
     HUMAN_PLAY = "human_play"
     LLM_PLAY = "llm_play"
-    REPLAY = "replay"
-    DEMO = "demo"
+    REPLAY = "replay"  # Future experimental modes should live in extensions
 
 
 class GamePlayController(BaseWebController, ABC):

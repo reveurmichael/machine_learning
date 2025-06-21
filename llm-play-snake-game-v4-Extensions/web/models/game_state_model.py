@@ -40,9 +40,8 @@ logger = logging.getLogger(__name__)
 class GameMode(Enum):
     """Types of game modes supported."""
     LIVE_HUMAN = "live_human"
-    LIVE_LLM = "live_llm" 
-    REPLAY = "replay"
-    DEMO = "demo"
+    LIVE_LLM = "live_llm"
+    REPLAY = "replay"  # Additional modes (heuristic, RL…) will be defined in extensions
 
 
 @dataclass
@@ -162,7 +161,11 @@ class LiveGameStateProvider(StateProvider):
             snake_positions=self._get_snake_positions(),
             apple_position=self._get_apple_position(),
             grid_size=getattr(self.game_controller, 'grid_size', 10),
-            direction=getattr(self.game_controller, 'current_direction', None),
+            direction=(
+                self.game_controller.get_current_direction_key()
+                if hasattr(self.game_controller, 'get_current_direction_key')
+                else None
+            ),
             end_reason=getattr(self.game_controller, 'end_reason', None),
             metadata=self._get_metadata()
         )

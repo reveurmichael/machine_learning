@@ -23,7 +23,7 @@ import logging
 from .base_controller import RequestContext
 from .game_controllers import GamePlayController, GameMode
 from ..models import EventFactory
-from utils.web_utils import translate_end_reason
+from utils.web_utils import translate_end_reason, build_color_map
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +125,10 @@ class HumanGameController(GamePlayController):
                 "valid_directions": list(self.VALID_DIRECTIONS),
                 "last_moves": self.last_moves[-5:],  # Last 5 moves
                 "input_stats": self.input_stats.copy(),
-                "gameplay_tips": self._get_gameplay_tips(game_state)
+                "gameplay_tips": self._get_gameplay_tips(game_state),
+                
+                # Colour palette injected for single-source-of-truth UI theming
+                "colors": build_color_map(),
             }
             
             # Add performance metadata
@@ -216,20 +219,45 @@ class HumanGameController(GamePlayController):
         self.input_stats['last_input_time'] = current_time
         
         try:
-            # Get current state before move
-            old_state = self.model_manager.get_current_state()
-            
-            # Execute move through game controller
-            # Note: This would integrate with the actual game controller
-            # For now, we'll simulate the move execution
-            move_result = self._execute_move(direction, old_state)
-            
+            # ------------------------------------------------------------------
+            # Real integration with the *live* GameController
+            # ------------------------------------------------------------------
+            # Retrieve the active GameController from the state provider.
+            state_provider = getattr(self.model_manager, "state_provider", None)
+            game_controller = getattr(state_provider, "game_controller", None)
+
+            if game_controller is None:
+                raise RuntimeError("Live GameController not available in state provider")
+
+            # Preserve the old head position for the response payload (useful
+            # for front-end animations if ever required).
+            old_position = (
+                tuple(game_controller.head_position.tolist())
+                if hasattr(game_controller, "head_position") else (0, 0)
+            )
+
+            # Execute the move via the core game logic.
+            game_active, apple_eaten = game_controller.make_move(direction)
+
+            # After mutating the controller we can query its *fresh* state via
+            # the model – this guarantees we reflect whatever side-effects the
+            # controller recorded (score increment, steps, etc.).
+            new_state = self.model_manager.get_current_state()
+
+            score_after = new_state.score
+            score_before = score_after - (1 if apple_eaten else 0)
+
+            new_position = (
+                tuple(game_controller.head_position.tolist())
+                if hasattr(game_controller, "head_position") else (0, 0)
+            )
+
             # Update statistics
             self.input_stats['total_moves'] += 1
             self.last_moves.append({
                 "direction": direction,
                 "timestamp": current_time,
-                "successful": move_result["success"]
+                "successful": True
             })
             
             # Trim move history
@@ -237,34 +265,37 @@ class HumanGameController(GamePlayController):
                 self.last_moves = self.last_moves[-self.move_history_size:]
             
             # Generate move event
-            if move_result["success"]:
-                event = EventFactory.create_move_event(
-                    direction=direction,
-                    old_pos=move_result.get("old_position", (0, 0)),
-                    new_pos=move_result.get("new_position", (0, 0)),
-                    apple_eaten=move_result.get("apple_eaten", False),
-                    score_before=old_state.score,
-                    score_after=move_result.get("new_score", old_state.score),
-                    source="human_controller"
-                )
-                self.notify_observers(event)
+            event = EventFactory.create_move_event(
+                direction=direction,
+                old_pos=old_position,
+                new_pos=new_position,
+                apple_eaten=apple_eaten,
+                score_before=score_before,
+                score_after=score_after,
+                source="human_controller"
+            )
+            self.notify_observers(event)
             
             return {
-                "status": "success" if move_result["success"] else "error",
-                "message": move_result.get("message", "Move executed"),
-                "direction": direction,
-                "game_active": not move_result.get("game_over", False),
-                "apple_eaten": move_result.get("apple_eaten", False),
-                "score": move_result.get("new_score", old_state.score),
+                "status": "success" if game_active else "error",
+                "message": "Move executed successfully",
+                "old_position": old_position,
+                "new_position": new_position,
+                "apple_eaten": apple_eaten,
+                "new_score": score_after,
+                "game_active": game_active,
                 "input_stats": self.input_stats.copy()
             }
             
-        except Exception as e:
-            logger.error(f"Move execution failed: {e}")
-            self.input_stats['invalid_moves'] += 1
+        except Exception as exc:
+            # Any failure gets bubbled up so the caller can surface it to the
+            # UI.  We still return a structured error response rather than
+            # raising – keeps the REST contract consistent.
+            logger.error(f"GameController.make_move failed: {exc}")
             return {
                 "status": "error",
-                "message": f"Move execution failed: {str(e)}",
+                "message": f"Move execution failed: {exc}",
+                "game_over": False,
                 "input_stats": self.input_stats.copy()
             }
     
@@ -378,32 +409,6 @@ class HumanGameController(GamePlayController):
             logger.warning(f"Could not validate game state: {e}")
         
         return {"valid": True, "reason": None}
-    
-    def _execute_move(self, direction: str, current_state) -> Dict[str, Any]:
-        """
-        Execute move through game controller.
-        
-        Note: This is a simplified implementation. In a real system,
-        this would interface with the actual GameController.
-        
-        Args:
-            direction: Move direction
-            current_state: Current game state
-            
-        Returns:
-            Dictionary containing move execution result
-        """
-        # This would interface with the actual game controller
-        # For demonstration, we'll return a mock result
-        return {
-            "success": True,
-            "message": "Move executed successfully",
-            "old_position": current_state.snake_positions[0] if current_state.snake_positions else (0, 0),
-            "new_position": (5, 5),  # Mock new position
-            "apple_eaten": False,  # Mock apple eating
-            "new_score": current_state.score,
-            "game_over": False
-        }
     
     def _get_gameplay_tips(self, game_state) -> list:
         """

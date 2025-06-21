@@ -19,12 +19,14 @@ import pathlib
 import logging
 import argparse
 
-# Bootstrap repository root for consistent imports
+# ------------------------------------------------------------------
+# Ensure repository root is on sys.path **before** any local imports
+# ------------------------------------------------------------------
+
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from utils.path_utils import ensure_project_root
-ensure_project_root()
+from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
 # Import MVC components
 from web.factories import create_web_application
@@ -62,10 +64,10 @@ def create_argument_parser() -> argparse.ArgumentParser:
     )
     
     parser.add_argument(
-        "--grid-size", 
-        type=int, 
-        default=15,
-        help="Size of the game grid (default: 15)"
+        "--grid-size",
+        type=int,
+        default=DEFAULT_GRID_SIZE,
+        help=f"Size of the game grid (default: {DEFAULT_GRID_SIZE})"
     )
     
     parser.add_argument(

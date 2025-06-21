@@ -145,7 +145,7 @@ class ModelFactory:
         mode_mapping = {
             "human": GameMode.LIVE_HUMAN,
             "llm": GameMode.LIVE_LLM,
-            "demo": GameMode.DEMO
+            # Additional experimental modes will be registered by extensions
         }
         
         game_mode_enum = mode_mapping.get(game_mode, GameMode.LIVE_HUMAN)

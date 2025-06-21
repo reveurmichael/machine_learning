@@ -90,22 +90,27 @@ class BaseGameLoop:
 
     def _process_active_game(self) -> None:
         """One tick of live gameplay for *LLM / planned-move* sessions."""
+        manager = self.manager
 
-        manager = self.manager  # local alias keeps lines short
+        # If a new plan is needed, fetch it first. This method will set
+        # the manager's internal state (`planned_moves`).
         if manager.need_new_plan:
-            self._request_and_execute_first_move()
-        else:
-            self._execute_next_planned_move()
+            self._get_new_plan()
+
+        # Now, execute the next move from the queue, regardless of whether
+        # the plan is fresh or we're continuing an old one. This unifies
+        # the execution path and kills the "double-first-move" bug.
+        self._execute_next_planned_move()
 
         if not manager.game_active:
             self._handle_game_over()
 
         manager.game.draw()
 
-    def _request_and_execute_first_move(self) -> None:
-        """Subclasses (LLM, heuristic, RL…) must implement strategy-specific first-move logic."""
+    def _get_new_plan(self) -> None:
+        """Subclasses (LLM, heuristic, RL…) must implement their own plan-fetching logic."""
         raise NotImplementedError
-
+        
     def _execute_next_planned_move(self) -> None:
         """Grab the next pre-computed move from :pyattr:`GameLogic.planned_moves`."""
 
@@ -113,28 +118,54 @@ class BaseGameLoop:
         if manager.awaiting_plan:
             return
         next_move = manager.game.get_next_planned_move()
+        # ------------------------------------------------------------------
+        # 1. Duplicate-first-move bug (historical)
+        # ------------------------------------------------------------------
+        # In the legacy procedural loop the *first* element of every freshly
+        # downloaded plan was executed immediately **and** left inside the
+        # queue, so it was executed *again* one tick later – polluting the
+        # JSON output with duplicates.
+        #
+        # The refactor solves this by funnelling *all* moves – even the very
+        # first of a new plan – through **this** method.  When
+        # ``get_next_planned_move()`` returns a value we *remove* it from the
+        # queue and execute it exactly once.  No special-casing, no risk of
+        # the queue getting out of sync.
+        # ------------------------------------------------------------------
         if not next_move:
-            # Plan queue exhausted – request a *new* plan on the next tick.
+            # Plan queue exhausted → round finished.
+            print("🔄 No more planned moves in the current round — finishing round and requesting new plan.")
+
+            # Persist buffered data & advance the authoritative round counter.
+            manager.finish_round()
+
+            # Ask for a new plan on the next tick.
             manager.need_new_plan = True
-            print("🔄 No more planned moves in the current round, requesting new plan.")
             return
+            
+        # At this point ``next_move`` is guaranteed to be a **single** string
+        # representing a direction (UP/DOWN/LEFT/RIGHT).  It has been
+        # *destructively* removed from ``planned_moves`` by
+        # ``get_next_planned_move()`` so there is no possibility of re-use.
+        #
+        # Keeping an explicit copy in ``current_game_moves`` allows us to
+        # compute post-hoc statistics (valid vs. invalid, apples per step …)
+        # without touching the RoundManager's buffers.
+
         manager.current_game_moves.append(next_move)
         manager.game.draw()
         _, apple_eaten = self._execute_move(next_move)
         if apple_eaten:
             self._post_apple_logic()
-
+    
     def _post_apple_logic(self) -> None:
         """Decide whether the current round continues after an apple was eaten."""
-
+        # This logic remains sound. If the plan is empty after eating,
+        # we need a new one.
         manager = self.manager
-        if manager.game.planned_moves:
-            print(
-                Fore.CYAN
-                + f"Continuing with {len(manager.game.planned_moves)} remaining planned moves for this round."
-            )
-        else:
-            print(Fore.YELLOW + "No more planned moves, requesting new plan.")
+        if not manager.game.planned_moves:
+            print(Fore.YELLOW + "No more planned moves after apple – round completed. Requesting new plan.")
+            manager.finish_round()
             manager.need_new_plan = True
 
     def _handle_no_move(self) -> None:
@@ -143,7 +174,7 @@ class BaseGameLoop:
 
     def _handle_game_over(self) -> None:
         """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
-        return None 
+        return None
 
     # Agent path – unchanged behaviour
     def _process_agent_game(self) -> None:
@@ -172,21 +203,26 @@ class BaseGameLoop:
 
         prev_invalid_rev = manager.game.game_state.invalid_reversals
         game_active, apple_eaten = manager.game.make_move(direction)
-        
+
         # Check if an invalid reversal occurred
         if manager.game.game_state.invalid_reversals > prev_invalid_rev:
             # -------------------
             # Elegant Limits Management for Invalid Reversals
             # -------------------
             from core.game_state_adapter import create_game_state_adapter
-            game_state_adapter = create_game_state_adapter(manager, override_game_active=game_active)
-            
+
+            game_state_adapter = create_game_state_adapter(
+                manager, override_game_active=game_active
+            )
+
             # Use elegant limits manager to handle INVALID_REVERSAL
-            game_should_continue = manager.limits_manager.record_move("INVALID_REVERSAL", game_state_adapter)
-            
+            game_should_continue = manager.limits_manager.record_move(
+                "INVALID_REVERSAL", game_state_adapter
+            )
+
             if not game_should_continue:
                 game_active = False
-            
+
             # -------------------
             # Legacy Counter Updates (for backward compatibility)
             # -------------------
@@ -199,8 +235,11 @@ class BaseGameLoop:
         # -------------------
         if game_active:
             from core.game_state_adapter import create_game_state_adapter
+
             game_state_adapter = create_game_state_adapter(manager)
-            game_active = manager.limits_manager.check_step_limit(manager.game.steps, game_state_adapter)
+            game_active = manager.limits_manager.check_step_limit(
+                manager.game.steps, game_state_adapter
+            )
 
         manager.game.draw()
         pause = manager.get_pause_between_moves()
@@ -213,7 +252,10 @@ class BaseGameLoop:
         # For valid directional moves, use the limits manager to intelligently reset counters
         if direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
             from core.game_state_adapter import create_game_state_adapter
-            game_state_adapter = create_game_state_adapter(manager, override_game_active=True)
+
+            game_state_adapter = create_game_state_adapter(
+                manager, override_game_active=True
+            )
             manager.limits_manager.record_move(direction, game_state_adapter)
 
         # -------------------
@@ -234,7 +276,7 @@ class BaseGameLoop:
     def _apply_empty_move_delay(self) -> None:
         """
         Legacy method for applying empty move delay.
-        
+
         This functionality is now handled elegantly by the ConsecutiveLimitsManager,
         but we keep this method for backward compatibility with any code that might
         still call it directly.
@@ -244,146 +286,126 @@ class BaseGameLoop:
         if pause_min <= 0 or getattr(manager, "last_no_path_found", False):
             return
         plural = "s" if pause_min != 1 else ""
-        print(Fore.CYAN + f"⏸️ Legacy sleep: {pause_min} minute{plural} after EMPTY step...")
+        print(
+            Fore.CYAN
+            + f"⏸️ Legacy sleep: {pause_min} minute{plural} after EMPTY step..."
+        )
         time.sleep(pause_min * 60)
 
 
-
-# ---------------------
-# Thin Task-0 subclass – inherits full behaviour
-# Specific to Task-0
-# ---------------------
-
-
 class GameLoop(BaseGameLoop):
-    """Task-0 implementation that *keeps* the LLM plumbing.
-
-    The base class is fully LLM-agnostic.  This subclass restores the
-    provider-specific helpers so behaviour remains 100 % identical for
-    Task-0 while paving the way for heuristic / RL variants that can
-    reuse :class:`BaseGameLoop` without the network dependency.
-    """
+    """Task-0 (LLM) loop, which injects network-specific logic."""
 
     # ---------------------
-    # LLM-specific overrides – these were abstract in the base so that
-    # heuristic / RL loops don't inherit any provider coupling.
+    # **Override the main loop**
     # ---------------------
+    def run(self) -> None:  # noqa: D401
+        """Run the LLM-controlled game session.
 
-    def _request_and_execute_first_move(self) -> None:  # noqa: D401
-        """Ask the LLM for a fresh plan and play its first move.
+        The base implementation distinguishes between *agent* vs. *planned-move*
+        sessions by checking for the existence of ``manager.agent``.  Task-0,
+        however, **always** provides an :class:`llm.agent_llm.AgentLLM` instance
+        for compatibility, which would incorrectly funnel execution through the
+        *agent* branch and ultimately try to *pull* a move from the LLM on every
+        tick.
 
-        Implements the behaviour previously baked into the procedural
-        `_request_and_execute_first_move` helper.  Nothing changed except
-        that the code now lives only in the Task-0 subclass.
+        In the refactored architecture we only query the LLM **once per round**
+        to obtain a *plan* and then simply consume the pre-computed
+        ``planned_moves`` queue.  Therefore we bypass the *agent* branch
+        entirely and always delegate to :meth:`_process_active_game`.
         """
+        import pygame  # local import to avoid hard dependency for head-less tests
+
+        manager = self.manager  # local alias for brevity
+
+        try:
+            while manager.running and manager.game_count < manager.args.max_games:
+                # Keep the GUI responsive.
+                BaseGameManagerHelper.process_events(manager)
+
+                if manager.game_active and manager.game is not None:
+                    self._process_active_game()
+
+                if manager.use_gui:
+                    pygame.time.delay(manager.time_delay)
+                    manager.clock.tick(manager.time_tick)
+
+        except Exception as exc:  # pragma: no cover – final safety net
+            print(Fore.RED + f"Fatal error: {exc}")
+            traceback.print_exc()
+        finally:
+            pygame.quit()
+
+    # ---------------------
+    # Method Overrides
+    # ---------------------
+    def _get_new_plan(self) -> None:  # noqa: D401
+        """Ask the LLM for a *new* plan and store it in ``game.planned_moves``.
+
+        Design contract
+        ----------------
+        1.  **Round start = LLM request**  – We *must* bump the authoritative
+            round counter *before* sending the prompt so that filenames like
+            ``game_1_round_4_prompt.txt`` and the data injected into
+            ``RoundManager`` stay in perfect lock-step.
+
+        2.  **Plan lives in one place**  – `get_llm_response()` *only* populates
+            ``planned_moves``; it no longer returns the first element.  All
+            execution goes through :meth:`_execute_next_planned_move`, which
+            means *every* move (including the first) flows through a single
+            well-tested code path.
+        """
+        from llm.communication_utils import get_llm_response
 
         manager = self.manager
-        # ---------------------
-        # (1) Bump the **round counter** *before* querying the LLM.
-        #     ---------------------
-        #     A round *begins* the moment we ask for a new plan, not
-        #     after the previous plan finishes.  This guarantees that
-        #     every prompt/response pair carries the correct, newly
-        #     incremented identifier.
-        #
-        #     We skip the very first call of a fresh game – the counter
-        #     already starts at 1.  Subsequent invocations advance it.
-        # ---------------------
+        
+        # Increment the round counter *before* querying the LLM.
         if getattr(manager, "_first_plan", False):
-            manager._first_plan = False  # first round already #1
+            manager._first_plan = False
         else:
             manager.increment_round("new round start")
 
-        # Mark that we are waiting for the model only *after* the counter
-        # was advanced so the guard inside *increment_round* cannot block
-        # the bump.
         manager.awaiting_plan = True
-
-        from llm.communication_utils import get_llm_response  # local import
-
-        next_move, manager.game_active = get_llm_response(
-            manager,
-            round_id=manager.round_count,
-        )  # type: ignore[arg-type]
-
-        manager.awaiting_plan = False
-        manager.need_new_plan = False
-
-        # Handle NO_PATH_FOUND sentinel recorded from the previous tick.
-        if manager.last_no_path_found:
-            self._handle_no_path_found()
-            if not manager.game_active:
-                return
-
-        # Early-out if the LLM call ended the game (e.g. max steps).
-        if not manager.game_active:
-            return
-
-        # Empty response → treat as EMPTY sentinel unless the communication
-        # utils already appended a sentinel (retry case).
-        if not next_move:
-            if getattr(manager, "skip_empty_this_tick", False):
-                manager.skip_empty_this_tick = False
-                return
-            self._handle_no_move()
-            return
-
-        # IMPORTANT: NEVER REMOVE THE COMMENTS HERE.
-        # Optional 3-second preview so humans can read the plan.
-        # IMPORTNAT: NEVER NEVER NEVER REMOVE THIS PART.
-        # IMPORTANT: preview delay of 3 seconds so humans can read the LLM answer
-        # For guarenteeing that the human can read the LLM answer before seeing the actual moves
-        # IMPORTANT: NEVER REMOVE THIS PART.
-        # IMPORTANT: NEVER REMOVE THE COMMENTS HERE.
         manager.game.draw()
+
         if manager.use_gui:
-            import time as _t
-            _t.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
+            time.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
 
-        # Execute the first move and remove it from planned_moves to prevent
-        # duplicate recording. The communication_utils sets planned_moves to
-        # the full list including the first move, so we need to remove it here.
-        #
-        # CRITICAL BUG FIX: This prevents the first move from being recorded
-        # twice in rounds_data - once here and once when _execute_next_planned_move
-        # processes the remaining planned_moves list.
+        # This call now only populates the plan, it doesn't return the move.
+        get_llm_response(manager, round_id=manager.round_count)
+        
+        manager.awaiting_plan = False
+        manager.need_new_plan = False # We have a plan now.
 
-        _, apple_eaten = self._execute_move(next_move)
-
-        # Remove the first move from planned_moves since we just executed it
-        if manager.game.planned_moves and manager.game.planned_moves[0] == next_move:
-            manager.game.planned_moves = manager.game.planned_moves[1:]
-
-        if apple_eaten:
-            self._post_apple_logic()
-
-    # SPECIFIC TO TASK-0, hence goes here to the subclass
     def _handle_game_over(self) -> None:
-        """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
-
+        """Extend with Task-0 specific game-over processing."""
         manager = self.manager
+        game = manager.game
 
+        # -------------------
+        # Prepare game state information to pass to the helper
+        # -------------------
         game_state_info = {
-            "game_active": manager.game_active,
+            "args": manager.args,
+            "log_dir": manager.log_dir,
             "game_count": manager.game_count,
             "total_score": manager.total_score,
             "total_steps": manager.total_steps,
             "game_scores": manager.game_scores,
             "round_count": manager.round_count,
             "round_counts": manager.round_counts,
-            "args": manager.args,
-            "log_dir": manager.log_dir,
-            "current_game_moves": manager.current_game_moves,
-            "next_move": None,
             "time_stats": manager.time_stats,
             "token_stats": manager.token_stats,
-            "valid_steps": getattr(manager, "valid_steps", 0),
-            "invalid_reversals": getattr(manager, "invalid_reversals", 0),
-            "empty_steps": getattr(manager, "empty_steps", 0),
-            "something_is_wrong_steps": getattr(manager, "something_is_wrong_steps", 0),
-            "no_path_found_steps": getattr(manager, "no_path_found_steps", 0),
+            "valid_steps": manager.valid_steps,
+            "invalid_reversals": manager.invalid_reversals,
+            "empty_steps": manager.empty_steps,
+            "something_is_wrong_steps": manager.something_is_wrong_steps,
+            "no_path_found_steps": manager.no_path_found_steps,
         }
 
+        # -------------------
+        # Use the singleton helper to process game over logic
+        # -------------------
         (
             manager.game_count,
             manager.total_score,
@@ -397,15 +419,21 @@ class GameLoop(BaseGameLoop):
             manager.empty_steps,
             manager.something_is_wrong_steps,
             manager.no_path_found_steps,
-        ) = GameManagerHelper().process_game_over(manager.game, game_state_info)
+        ) = GameManagerHelper().process_game_over(game, game_state_info)
 
+        # -------------------
+        # Reset game state for the next game
+        # -------------------
         # Reset per-game flags/counters for the upcoming game
         manager.need_new_plan = True
         manager.game_active = True
         manager.current_game_moves = []
         manager.round_count = 1
         manager.game.reset()
-        
+
+        # Reset first-plan flag for the new game
+        manager._first_plan = True
+
         # -------------------
         # Elegant Limits Management Reset
         # -------------------
@@ -418,119 +446,77 @@ class GameLoop(BaseGameLoop):
         # -------------------
         manager.consecutive_empty_steps = 0
         manager.consecutive_something_is_wrong = 0
-        
-        if hasattr(manager, "total_rounds"):
-            manager.total_rounds = sum(manager.round_counts)
-
-        # Reset first-plan flag for the new game
-        if hasattr(manager, "_first_plan"):
-            manager._first_plan = True
-
-    # ---------------------
-    # Sentinel-specific handlers
-    # ---------------------
+        manager.consecutive_invalid_reversals = 0
+        manager.consecutive_no_path_found = 0
 
     def _handle_no_move(self) -> None:  # noqa: D401
-        """
-        LLM returned *no* usable move ⇒ record EMPTY sentinel.
-        
-        This method now uses the elegant ConsecutiveLimitsManager for clean,
-        centralized tracking of EMPTY moves with sophisticated limit enforcement.
-        """
-
+        """Handle EMPTY move sentinel with elegant limits management."""
         manager = self.manager
-        from colorama import Fore
 
-        print(Fore.YELLOW + "No valid move found in LLM response. Snake stays in place.")
-
-        # Record EMPTY sentinel in game state & analytics.
-        manager.game.game_state.record_empty_move()
-        manager.empty_steps = manager.game.game_state.empty_steps
-        manager.current_game_moves.append("EMPTY")
-
-        # -------------------
-        # Elegant Limits Management
-        # -------------------
         from core.game_state_adapter import create_game_state_adapter
+
         game_state_adapter = create_game_state_adapter(manager)
-        
-        # Use elegant limits manager to handle EMPTY move
-        game_should_continue = manager.limits_manager.record_move("EMPTY", game_state_adapter)
-        
+
+        # Use elegant limits manager to handle EMPTY moves
+        game_should_continue = manager.limits_manager.record_move(
+            "EMPTY", game_state_adapter
+        )
+
         if not game_should_continue:
             manager.game_active = False
-            return
 
         # -------------------
         # Legacy Counter Updates (for backward compatibility)
         # -------------------
         manager.consecutive_empty_steps += 1
-        manager.consecutive_something_is_wrong = 0  # break SOMETHING_IS_WRONG streak
-        manager.consecutive_invalid_reversals = 0   # EMPTY also breaks invalid reversal chains
+
+        # If the game is still active, execute the EMPTY move
+        if manager.game_active:
+            self._execute_move("EMPTY")
 
     def _handle_no_path_found(self) -> None:  # noqa: D401
-        """
-        Log the NO_PATH_FOUND sentinel and reset related counters.
-        
-        This method now uses the elegant ConsecutiveLimitsManager for clean,
-        centralized tracking of NO_PATH_FOUND occurrences.
-        """
-
+        """Handle NO_PATH_FOUND sentinel from LLM."""
         manager = self.manager
-        from colorama import Fore
 
-        print(Fore.YELLOW + "⚠️ LLM reported NO_PATH_FOUND. Snake stays in place.")
-        manager.game.game_state.record_no_path_found_move()
-        manager.current_game_moves.append("NO_PATH_FOUND")
-
-        # -------------------
-        # Elegant Limits Management
-        # -------------------
         from core.game_state_adapter import create_game_state_adapter
+
         game_state_adapter = create_game_state_adapter(manager)
-        
-        # Use elegant limits manager to handle NO_PATH_FOUND move
-        game_should_continue = manager.limits_manager.record_move("NO_PATH_FOUND", game_state_adapter)
-        
+
+        # Use elegant limits manager to handle NO_PATH_FOUND
+        game_should_continue = manager.limits_manager.record_move(
+            "NO_PATH_FOUND", game_state_adapter
+        )
+
         if not game_should_continue:
             manager.game_active = False
-            return
 
         # -------------------
         # Legacy Counter Updates (for backward compatibility)
         # -------------------
-        manager.consecutive_something_is_wrong = 0
-        manager.consecutive_invalid_reversals = 0
-        manager.last_no_path_found = False
+        manager.consecutive_no_path_found += 1
 
+        # If the game is still active, execute an EMPTY move
+        if manager.game_active:
+            self._execute_move("EMPTY")
 
-# ---------------------
-# Future-proof interface function
-# ---------------------
 
 def run_game_loop(manager: "BaseGameManager") -> None:
-    """
-    Future-proof game loop interface using the new class-based architecture.
-    
-    This function automatically selects the appropriate loop class based on the manager type:
-    - Task-0 (LLM): Uses GameLoop with LLM-specific functionality
-    - Tasks 1-5 (Non-LLM): Uses BaseGameLoop for generic functionality
-    
+    """Procedural-style entry point.
+
+    This factory function preserves the original API, which keeps all existing
+    call-sites in `scripts/` working without modification.
+
+    It detects whether the manager is a base or extended (Task-0 LLM) type and
+    instantiates the correct loop implementation automatically.
+
     Args:
-        manager: Game manager instance (BaseGameManager or subclass)
+        manager: The active game manager instance.
     """
-    from typing import TYPE_CHECKING
-    
-    if TYPE_CHECKING:
-        pass
-    
-    # Detect if this is an LLM manager (Task-0) or generic manager (Tasks 1-5)
-    if hasattr(manager, 'llm_client') or hasattr(manager, 'primary_llm'):
-        # Task-0 (LLM) - use full GameLoop with LLM functionality
+    # Choose the correct GameLoop implementation based on the manager's type.
+    # We check for an LLM-specific attribute to decide.
+    if hasattr(manager, "llm_client"):
         loop = GameLoop(manager)
     else:
-        # Tasks 1-5 (Non-LLM) - use BaseGameLoop for generic functionality
         loop = BaseGameLoop(manager)
-    
-    # Run the appropriate loop
+
     loop.run()

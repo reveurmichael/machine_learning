@@ -178,17 +178,33 @@ class WebViewRenderer:
         self.decorators = []
     
     def render_template(self, template_name: str, **context) -> str:
+        """Render template using Flask/Jinja if available, otherwise fallback.
+
+        This change ensures that Jinja expressions such as
+        ``{{ url_for('static', filename='...') }}`` inside HTML templates are
+        rendered correctly.  Previously we always delegated to
+        ``SimpleTemplateRenderer`` which performs only naive string
+        substitution and therefore left Jinja tags untouched – resulting in
+        invalid ``src`` / ``href`` attributes like
+        ``{{ url_for('static', filename='js/human_play.js') }}`` being sent to
+        the browser.  The JavaScript files could not be loaded and the page
+        was stuck on the "Loading game…" screen.
+
+        With this fix we first try to call :pyfunc:`flask.render_template`,
+        which leverages Flask's built-in Jinja environment linked to the
+        current application.  When the code runs outside an application or
+        request context (e.g. during unit tests) we gracefully fall back to
+        the original minimal renderer.
         """
-        Render template with context.
-        
-        Args:
-            template_name: Name of template
-            **context: Template variables
-            
-        Returns:
-            Rendered template
-        """
-        return self.template_renderer.render_template(template_name, context)
+        try:
+            from flask import render_template  # Late import to avoid hard dependency when used outside Flask
+
+            # If we are inside an application context, render with Jinja2 so
+            # all template directives are processed correctly.
+            return render_template(template_name, **context)
+        except Exception:
+            # Fallback to the simple placeholder-based renderer (original behaviour)
+            return self.template_renderer.render_template(template_name, context)
     
     def render_json_response(self, data: Dict[str, Any]) -> str:
         """

@@ -251,7 +251,7 @@ class Task0LLMController(LLMGameController):
         
         elif command == "resume":
             self.game_manager.running = True
-            return {
+    return {
                 "status": "success", 
                 "message": "Game resumed",
                 "running": self.game_manager.running
@@ -347,7 +347,7 @@ def create_task0_mvc_application(game_args) -> tuple:
     from flask import request
     
     @app.route('/')
-    def index():
+def index():
         return controller.handle_request(request, RequestType.INDEX_GET)
     
     @app.route('/api/state')
@@ -395,13 +395,13 @@ def run_game_manager_thread(game_manager: GameManager, game_args):
 
 def main():
     """Main entry point for Task 0 MVC web interface."""
-    
+
     # Parse command line arguments
     host_port_parser = argparse.ArgumentParser(add_help=False)
     host_port_parser.add_argument("--host", type=str, default="127.0.0.1", help="Host IP")
     host_port_parser.add_argument("--port", type=int, default=find_free_port(8000), help="Port number")
     host_port_args, remaining_argv = host_port_parser.parse_known_args()
-    
+
     # Parse game arguments
     argv_backup = sys.argv.copy()
     sys.argv = [sys.argv[0]] + remaining_argv
@@ -409,10 +409,10 @@ def main():
         game_args = parse_arguments()
     finally:
         sys.argv = argv_backup
-    
+
     # Force headless mode for web
     game_args.no_gui = True
-    
+
     print("\n🐍 Snake Game - Task 0 MVC Web Interface")
     print(f"🔗 URL: http://{host_port_args.host}:{host_port_args.port}")
     print(f"🤖 LLM: {game_args.provider}/{game_args.model}")

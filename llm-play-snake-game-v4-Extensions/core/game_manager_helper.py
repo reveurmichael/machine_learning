@@ -313,7 +313,7 @@ class GameManagerHelper(BaseGameManagerHelper):
         # Save individual game JSON file using the canonical writer
         file_manager = FileManager()
         game_file = file_manager.join_log_path(
-            game_manager.log_dir,
+            log_dir,
             file_manager.get_game_json_filename(game_count)
         )
 

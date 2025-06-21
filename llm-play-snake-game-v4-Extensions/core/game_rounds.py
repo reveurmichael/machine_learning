@@ -102,7 +102,10 @@ class BaseRoundManager:
             "apple_position": self.round_buffer.apple_position,
         })
         current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)
-        current_round_dict.setdefault("moves", []).extend(self.round_buffer.moves)
+        if self.round_buffer.moves:
+            current_round_dict.setdefault("moves", []).extend(self.round_buffer.moves)
+            # After persisting, reset the buffer so only *new* moves accumulate
+            self.round_buffer.moves.clear()
 
     def flush_buffer(self) -> None:
         """Flushes the round buffer.

@@ -1,9 +1,5 @@
 # Quick-and-Dirty Roadmap — LLM Plays Snake (v1 prototype)
 
-> **This file is intentionally rough.**  We care more about seeing something work than about polished code or perfect architecture at this stage.
-
----
-
 
 ## 1. What We're Trying To Prove
 

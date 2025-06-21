@@ -21,9 +21,7 @@ from llm.communication_utils import check_llm_health
 
 if TYPE_CHECKING:
     from core.game_manager import GameManager
-    from core.game_manager import BaseGameManager
 
-# This function is Task0 specific, because LLM is involved (the name of the LLM model is used in the log directory name). So we will be using GameManager here, instead of BaseGameManager.
 def setup_log_directories(game_manager: "GameManager") -> None:
     """Set up log directories for storing game data.
     
@@ -36,7 +34,7 @@ def setup_log_directories(game_manager: "GameManager") -> None:
     else:
         # Create timestamped log directory with model name
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
+        
         # Get model name for directory
         model_name = "unknown"
         if game_manager.args.model:
@@ -44,23 +42,21 @@ def setup_log_directories(game_manager: "GameManager") -> None:
             model_name = game_manager.args.model.replace("/", "-").replace(":", "-")
         elif game_manager.args.provider:
             model_name = game_manager.args.provider
-
+            
         # Create directory path with model name and timestamp
         game_manager.log_dir = os.path.join("logs", f"{model_name}_{timestamp}")
-
+    
     # Create subdirectories for detailed logs
     game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
     game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
-
+    
     # Create all directories
     os.makedirs(game_manager.log_dir, exist_ok=True)
     os.makedirs(game_manager.prompts_dir, exist_ok=True)
     os.makedirs(game_manager.responses_dir, exist_ok=True)
-
+    
     print(Fore.GREEN + f"📁 Session directory created: {game_manager.log_dir}")
 
-
-# This function is Task0 specific, because LLM is involved here. So we will be using GameManager here, instead of BaseGameManager.
 def setup_llm_clients(game_manager: "GameManager") -> None:
     """Set up the LLM clients for the game.
     
@@ -108,8 +104,7 @@ def setup_llm_clients(game_manager: "GameManager") -> None:
         game_manager.args.parser_model = None
         print(Fore.GREEN + "🤖 Using single LLM mode (no secondary parser LLM)")
 
-# This function is NOT Task0 specific. So we will be using BaseGameManager here, instead of GameManager.
-def initialize_game_state(game_manager: "BaseGameManager") -> None:
+def initialize_game_state(game_manager: "GameManager") -> None:
     """Initialize the game state.
     
     Args:
@@ -125,19 +120,17 @@ def initialize_game_state(game_manager: "BaseGameManager") -> None:
     # Set up the game
     game_manager.setup_game()
 
-# ---------------------
-# Start-delay helper – shared by new and continuation sessions
-# ---------------------
-
 def enforce_launch_sleep(args) -> None:  # type: ignore[valid-type]
-    """Apply the ``--sleep-before-launching`` delay (in minutes) if set.
+    """Apply the --sleep-before-launching delay (in minutes) if set.
 
-    This helper is reused by fresh *and* continuation sessions so the behaviour
-    resides in a single place.  The delay is inserted **only after** the LLM
+    This helper is reused by fresh and continuation sessions so the behaviour
+    resides in a single place. The delay is inserted only after the LLM
     health-check passes to avoid wasting time when credentials or network
     connectivity are wrong.
+    
+    Args:
+        args: Command line arguments containing sleep_before_launching setting
     """
-
     minutes: float = getattr(args, "sleep_before_launching", 0)
     if minutes and minutes > 0:
         from time import sleep

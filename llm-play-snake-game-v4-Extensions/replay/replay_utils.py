@@ -10,7 +10,10 @@ from pathlib import Path
 import json
 from typing import Any, Dict, Optional, Tuple
 
-from utils.file_utils import get_game_json_filename, join_log_path
+from core.game_file_manager import FileManager
+
+# Initialize file manager for replay operations
+_file_manager = FileManager()
 
 # Internal models (kept in a separate file for cleaner imports)
 from replay.replay_data import ReplayData
@@ -31,8 +34,8 @@ def load_game_json(log_dir: str, game_number: int) -> Tuple[str, Optional[Dict[s
     (file_path, data) where *data* is ``None`` when the file is missing or
     cannot be parsed.
     """
-    game_filename = get_game_json_filename(game_number)
-    game_file = join_log_path(log_dir, game_filename)
+    game_filename = _file_manager.get_game_json_filename(game_number)
+    game_file = _file_manager.join_log_path(log_dir, game_filename)
 
     file_path = Path(game_file)
     if not file_path.exists():

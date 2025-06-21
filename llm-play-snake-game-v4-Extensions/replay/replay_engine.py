@@ -17,8 +17,11 @@ from core.game_controller import BaseGameController, GameController
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from replay.replay_data import ReplayData
-from utils.file_utils import get_total_games
-from config.game_constants import END_REASON_MAP, SENTINEL_MOVES
+from config.game_constants import END_REASON_MAP, SENTINEL_MOVES, DIRECTIONS
+from core.game_file_manager import FileManager
+
+# Initialize file manager for replay operations
+_file_manager = FileManager()
 
 # ---------------------
 # Generic replay skeleton – future tasks can inherit from this base and plug
@@ -186,7 +189,7 @@ class ReplayEngine(BaseReplayEngine, GameController):
         self.secondary_llm: Optional[str] = None
         self.game_timestamp: Optional[str] = None
         self.llm_response: Optional[str] = None
-        self.total_games: int = get_total_games(log_dir)
+        self.total_games: int = _file_manager.get_total_games(log_dir)
 
     # ---------------------
     # Drawing

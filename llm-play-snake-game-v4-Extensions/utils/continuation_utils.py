@@ -13,19 +13,30 @@ IMPORTANT:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import argparse
-# Import GameManager only for type checking to avoid heavy runtime dependency
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from core.game_manager import GameManager
 
-import os
-import sys
 import json
+import sys
 import traceback
-from colorama import Fore
 from datetime import datetime
+from pathlib import Path
+
+from colorama import Fore
+
+from config.game_constants import (
+    MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
+    MAX_GAMES_ALLOWED as MAX_GAMES,
+    MAX_STEPS_ALLOWED as MAX_STEPS,
+    PAUSE_BETWEEN_MOVES_SECONDS as pause_between_moves,
+)
+from llm.log_utils import clean_prompt_files
+from core.game_file_manager import FileManager
+
+# Initialize file manager for continuation operations
+_file_manager = FileManager()
 
 # This function is Task0 specific.
 def setup_continuation_session(
@@ -41,13 +52,13 @@ def setup_continuation_session(
         start_game_number: The game number to start from
     """
     # Verify log directory exists and is valid
-    if not os.path.isdir(log_dir):
+    if not Path(log_dir).is_dir():
         print(Fore.RED + f"❌ Log directory does not exist: {log_dir}")
         sys.exit(1)
         
     # Check if summary.json exists
-    summary_path = os.path.join(log_dir, "summary.json")
-    if not os.path.exists(summary_path):
+    summary_path = Path(log_dir) / "summary.json"
+    if not summary_path.exists():
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
     
@@ -58,12 +69,12 @@ def setup_continuation_session(
         
     # Set the log directory
     game_manager.log_dir = log_dir
-    game_manager.prompts_dir = os.path.join(log_dir, "prompts")
-    game_manager.responses_dir = os.path.join(log_dir, "responses")
+    game_manager.prompts_dir = Path(log_dir) / "prompts"
+    game_manager.responses_dir = Path(log_dir) / "responses"
     
     # Create directories if they don't exist
-    os.makedirs(game_manager.prompts_dir, exist_ok=True)
-    os.makedirs(game_manager.responses_dir, exist_ok=True)
+    game_manager.prompts_dir.mkdir(exist_ok=True)
+    game_manager.responses_dir.mkdir(exist_ok=True)
     
     # Load and validate the previous game number
     if start_game_number < 1:
@@ -71,21 +82,16 @@ def setup_continuation_session(
         sys.exit(1)
         
     # Get the data from the last game for continuation
-    from utils.file_utils import get_game_json_filename, join_log_path
-    
-    # Get the previous game's data
-    prev_game_filename = get_game_json_filename(start_game_number-1)
-    game_file_path = join_log_path(log_dir, prev_game_filename)
+    prev_game_filename = _file_manager.get_game_json_filename(start_game_number-1)
+    game_file_path = _file_manager.join_log_path(log_dir, prev_game_filename)
     
     # If the previous game's file doesn't exist, can't continue
-    if not os.path.exists(game_file_path):
+    if not Path(game_file_path).exists():
         print(Fore.RED + f"❌ Cannot find previous game file: {game_file_path}")
         sys.exit(1)
     
     # Load aggregated statistics from *summary.json* 
-    from utils.file_utils import load_summary_data
-
-    summary = load_summary_data(log_dir) or {}
+    summary = _file_manager.load_summary_data(log_dir) or {}
 
     game_stats = summary.get("game_statistics", {})
     game_manager.total_score = game_stats.get("total_score", 0)
@@ -138,14 +144,15 @@ def handle_continuation_game_state(game_manager: "GameManager") -> None:
     Args:
         game_manager: The GameManager instance
     """
-    # Initialise pygame & game state via shared helper to avoid duplication
+    # Local import to avoid circular dependency
     from utils.initialization_utils import initialize_game_state
-
+    
+    # Initialise pygame & game state via shared helper to avoid duplication
     initialize_game_state(game_manager)
 
     # Mark this run as a continuation so stats & dashboard reflect it.
     game_manager.game.game_state.record_continuation()
-
+    
     prev_count = game_manager.game.game_state.continuation_count
     print(Fore.GREEN + f"📝 Marked session as continuation ({prev_count})")
     
@@ -169,18 +176,16 @@ def continue_from_directory(
     Returns:
         GameManager instance set up for continuation
     """
-    from utils.file_utils import get_next_game_number, clean_prompt_files
-    
-    log_dir = args.continue_with_game_in_dir
+    log_dir = Path(args.continue_with_game_in_dir)
     
     # Validate the continuation directory
-    if not os.path.isdir(log_dir):
+    if not log_dir.is_dir():
         print(Fore.RED + f"❌ Continuation directory does not exist: '{log_dir}'")
         sys.exit(1)
         
     # Check if summary.json exists
-    summary_path = os.path.join(log_dir, "summary.json")
-    if not os.path.exists(summary_path):
+    summary_path = log_dir / "summary.json"
+    if not summary_path.exists():
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
     
@@ -190,8 +195,7 @@ def continue_from_directory(
     
     # Load the original experiment configuration from summary.json
     try:
-        with open(summary_path, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
+        summary_data = json.loads(summary_path.read_text(encoding='utf-8'))
             
         # Check if configuration exists in the summary
         if 'configuration' in summary_data:
@@ -285,7 +289,7 @@ def continue_from_directory(
         next_game = 1
     else:
         # Determine the next game number
-        next_game = get_next_game_number(log_dir)
+        next_game = _file_manager.get_next_game_number(log_dir)
     
     print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
     print(Fore.GREEN + f"✅ Starting from game {next_game}")
@@ -300,6 +304,7 @@ def continue_from_directory(
     args.is_continuation = True
     
     # Set up LLM clients with the configuration from the original experiment
+    # Local import to avoid circular dependency
     from utils.initialization_utils import setup_llm_clients
     setup_llm_clients(game_manager)
     

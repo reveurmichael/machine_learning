@@ -1,40 +1,65 @@
 """
-Movement-centric helper functions for the Snake game.
+Movement Utilities
 
-This module hosts stateless utilities that work with direction tokens or
-positions.  Keeping them here avoids scattering small movement helpers
-across unrelated files (text_utils, game_manager_utils, etc.).
+This module provides pure, stateless helper functions related to movement,
+such as normalizing direction strings and analyzing spatial relationships
+between game entities. Keeping them here centralizes movement-related logic.
 
-This whole module is NOT Task0 specific.
+All functions in this module are generic and not specific to any single
+task (e.g., Task-0).
 """
 
 from __future__ import annotations
 
 from typing import List, Tuple
 
+import numpy as np
+from numpy.typing import NDArray
+
 __all__ = [
     "normalize_direction",
     "normalize_directions",
     "is_reverse",
-    "calculate_move_differences",
+    "get_relative_apple_direction_text",
 ]
 
 # ----------------
 # Canonicalising direction tokens
 # ----------------
 
-def normalize_direction(move: str) -> str:
-    """Return a canonical representation of a single direction token.
-
-    * Non-string values are returned unchanged (defensive pass-through).
-    * Strings are upper-cased and stripped so that "right\n" → "RIGHT".
+def normalize_direction(direction: str) -> str:
     """
-    return move.strip().upper()
+    Normalizes a single direction string to a canonical format.
+
+    - Non-string inputs are returned as-is to prevent runtime errors.
+    - String inputs are converted to uppercase and stripped of whitespace.
+
+    Example:
+        >>> normalize_direction("  left\\n")
+        'LEFT'
+
+    Args:
+        direction: The direction string to normalize.
+
+    Returns:
+        The normalized direction string (e.g., 'UP', 'DOWN', 'LEFT', 'RIGHT').
+    """
+    if not isinstance(direction, str):
+        return direction  # Defensive pass-through
+    return direction.strip().upper()
 
 
-def normalize_directions(moves: List[str]) -> List[str]:
-    """Vectorised wrapper around *normalize_direction*."""
-    return [normalize_direction(m) for m in moves]
+def normalize_directions(directions: List[str]) -> List[str]:
+    """
+    Normalizes a list of direction strings.
+
+    Args:
+        directions: A list of direction strings.
+
+    Returns:
+        A new list containing the normalized direction strings.
+    """
+    return [normalize_direction(d) for d in directions]
 
 
 # ----------------
@@ -43,47 +68,61 @@ def normalize_directions(moves: List[str]) -> List[str]:
 
 
 def is_reverse(dir_a: str, dir_b: str) -> bool:
-    """Return *True* if *dir_a* is the exact opposite of *dir_b* (e.g. UP vs DOWN).
-
-    This helper is intentionally private (prefixed with an underscore) because it
-    encodes a very specific rule used by the game logic.  External callers
-    should rely on higher-level APIs unless they really need this low-level
-    check.
     """
+    Checks if two directions are exact opposites (e.g., 'UP' and 'DOWN').
 
-    dir_a = dir_a.upper()
-    dir_b = dir_b.upper()
+    Args:
+        dir_a: The first direction string.
+        dir_b: The second direction string.
 
-    return (
-        (dir_a == "UP" and dir_b == "DOWN") or
-        (dir_a == "DOWN" and dir_b == "UP") or
-        (dir_a == "LEFT" and dir_b == "RIGHT") or
-        (dir_a == "RIGHT" and dir_b == "LEFT")
-    )
+    Returns:
+        True if the directions are opposites, False otherwise.
+    """
+    dir_a = normalize_direction(dir_a)
+    dir_b = normalize_direction(dir_b)
+    opposites = {("UP", "DOWN"), ("LEFT", "RIGHT")}
+    return (dir_a, dir_b) in opposites or (dir_b, dir_a) in opposites
 
 
 # ---------------------
 # Simple positional analytics (used in prompt engineering)
 # ---------------------
 
-def calculate_move_differences(head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
-    """Return a human-readable diff between *head_pos* and *apple_pos*.
-
-    Example output:  "#RIGHT - #LEFT = 3, and #UP - #DOWN = 1"
+def get_relative_apple_direction_text(
+    head_pos: NDArray[np.int_], apple_pos: NDArray[np.int_]
+) -> str:
     """
-    head_x, head_y = head_pos
-    apple_x, apple_y = apple_pos
+    Generates a human-readable text describing the apple's position
+    relative to the snake's head.
 
-    # Horizontal diff
-    if head_x <= apple_x:
-        x_diff_text = f"#RIGHT - #LEFT = {apple_x - head_x} (= {apple_x} - {head_x})"
-    else:
-        x_diff_text = f"#LEFT - #RIGHT = {head_x - apple_x} (= {head_x} - {apple_x})"
+    This is primarily used for prompt engineering.
 
-    # Vertical diff
-    if head_y <= apple_y:
-        y_diff_text = f"#UP - #DOWN = {apple_y - head_y} (= {apple_y} - {head_y})"
-    else:
-        y_diff_text = f"#DOWN - #UP = {head_y - apple_y} (= {head_y} - {apple_y})"
+    Example:
+        >>> head = np.array([10, 10])
+        >>> apple = np.array([13, 8])
+        >>> get_relative_apple_direction_text(head, apple)
+        'The apple is 3 units to the RIGHT and 2 units DOWN.'
 
-    return f"{x_diff_text}, and {y_diff_text}" 
+    Args:
+        head_pos: The [x, y] coordinates of the snake's head.
+        apple_pos: The [x, y] coordinates of the apple.
+
+    Returns:
+        A descriptive string of the relative positions.
+    """
+    dx = apple_pos[0] - head_pos[0]
+    dy = apple_pos[1] - head_pos[1]
+
+    x_direction = "RIGHT" if dx >= 0 else "LEFT"
+    y_direction = "DOWN" if dy >= 0 else "UP"  # Inverted Y-axis in many game contexts
+
+    # Correcting for typical screen coordinates (Y increases downwards)
+    # If your game board's origin (0,0) is top-left, this is standard.
+    # If dy is positive, it means apple_y > head_y, which is "DOWN".
+    # If dy is negative, it means apple_y < head_y, which is "UP".
+    y_direction = "UP" if dy < 0 else "DOWN"
+
+    return (
+        f"The apple is {abs(dx)} units to the {x_direction} "
+        f"and {abs(dy)} units {y_direction}."
+    ) 

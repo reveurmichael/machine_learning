@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from utils.game_stats_utils import NumPyJSONEncoder
+from core.game_stats_manager import NumPyJSONEncoder
 from utils.moves_utils import normalize_direction
 from core.game_stats import BaseGameStatistics, GameStatistics
 from core.game_rounds import RoundManager
@@ -473,7 +473,7 @@ class GameData(BaseGameData):
             self.continuation_timestamps.append(timestamp)
 
     # ---------------------
-    # Quick accessors required by utils/game_manager_utils
+    # Quick accessors required by game_manager_helper
     # ---------------------
 
     @property
@@ -507,7 +507,7 @@ class GameData(BaseGameData):
         return self.stats.secondary_response_times
 
     # ---------------------
-    # Time statistics view (used by game_manager_utils)
+    # Time statistics view (used by game_manager_helper)
     # ---------------------
 
     def get_time_stats(self) -> Dict[str, Any]:
@@ -517,7 +517,7 @@ class GameData(BaseGameData):
         return self.stats.time_stats.asdict()
 
     # ---------------------
-    # Misc helpers expected by utils.game_manager_utils
+    # Misc helpers expected by game_manager_helper
     # ---------------------
 
     def _calculate_actual_round_count(self) -> int:
@@ -534,7 +534,7 @@ class GameData(BaseGameData):
 
         This simply delegates to the internal computation method but offers a
         public, linter-friendly API for callers such as
-        ``utils.game_manager_utils``.
+        ``core.game_manager_helper``.
         """
         return self._calculate_actual_round_count()
   

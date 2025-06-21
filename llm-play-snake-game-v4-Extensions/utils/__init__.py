@@ -1,205 +1,110 @@
 """
-Core Utilities for the LLM-powered Snake Game
+Utilities package.
 
-This package provides comprehensive utility functions organized into logical modules:
+This package contains various utility modules for the Snake game project.
+Many utilities have been migrated to OOP systems in the core/ package:
 
-**Core Game Mechanics:**
-- Board state manipulation and collision detection
-- Movement validation and direction processing
+MIGRATED TO OOP:
+- File management utilities → core.file_manager (BaseFileManager, FileManager)
+- Game statistics utilities → core.game_stats_manager (BaseGameStatsManager, GameStatsManager)  
+- Game manager utilities → core.game_manager_helper (BaseGameManagerHelper, GameManagerHelper)
 
-**Data Processing:**
-- JSON parsing and validation from LLM responses
-- Text formatting and display processing
+REMAINING FUNCTIONAL UTILITIES:
+- board_utils: Board state analysis and manipulation
+- collision_utils: Collision detection algorithms
+- moves_utils: Move validation and processing
+- initialization_utils: Setup and initialization helpers
+- text_utils: Text formatting and parsing
+- network_utils: Network communication helpers
+- json_utils: JSON serialization utilities
+- seed_utils: Random seed management
+- path_utils: File path utilities
+- web_utils: Web interface utilities
+- session_utils: Session management
+- continuation_utils: Game continuation logic
 
-**System Management:**
-- Project setup, initialization, and session management
-- File operations, statistics, and networking utilities
-
-All utilities are designed to be type-safe, well-documented, and reusable
-across different game tasks and extensions.
+For new code, prefer the OOP systems in core/ over the functional utilities here.
 """
 
-# JSON processing utilities
-from .json_utils import (
-    extract_valid_json,
-    preprocess_json_string,
-    validate_json_format,
-    extract_json_from_code_block,
-    extract_json_from_text,
-    extract_moves_pattern,
-    extract_moves_from_arrays,
-)
+# Modern clean imports
+from .board_utils import *
+from .collision_utils import *
+from .continuation_utils import *
+from .initialization_utils import *
+from .json_utils import *
+from .moves_utils import *
+from .network_utils import *
+from .path_utils import *
+from .seed_utils import *
+from .session_utils import *
+from .text_utils import *
+from .web_utils import *
 
-# File and storage management
-from .file_utils import (
-    extract_game_summary,
-    get_next_game_number,
-    find_valid_log_folders,
-    load_summary_data,
-    load_game_data,
-    get_folder_display_name,
-    get_game_json_filename,
-    join_log_path,
-)
-
-# Initialization and setup
-from .initialization_utils import (
-    setup_llm_clients,
-    setup_log_directories,
-    initialize_game_state,
-)
-
-# Board manipulation utilities
-from .board_utils import (
-    generate_random_apple,
-    update_board_array,
-    is_position_valid,
-    get_empty_positions,
-)
-
-# Collision detection utilities  
-from .collision_utils import (
-    check_collision,
-    check_wall_collision,
-    check_body_collision,
-    check_apple_collision,
-    positions_overlap,
-)
-
-# Movement and direction utilities
-from .moves_utils import (
-    normalize_direction,
-    normalize_directions,
-    get_relative_apple_direction_text,
-    is_reverse,
-)
-
-# Text processing
-from .text_utils import (
-    process_response_for_display,
-    format_code_blocks,
-    truncate_text,
-    clean_whitespace,
-)
-
-# Continuation helpers
-from .continuation_utils import (
-    setup_continuation_session,
-    handle_continuation_game_state,
-    continue_from_directory,
-)
-
-# Network helpers
-from .network_utils import (
-    find_free_port,
-    is_port_free,
-    ensure_free_port,
-    random_free_port,
-)
-
-from .session_utils import (
-    run_replay,
-    run_web_replay,
-    run_main_web,
-    continue_game,
-    continue_game_web,
-    run_human_play,
-    run_human_play_web,
-    __all__ as _session_all,
-)
-
-from .game_stats_utils import (
-    save_experiment_info_json,
-    save_session_stats,
-)
-
-# Project setup and environment configuration
-from .path_utils import (
-    ensure_project_root,
-    enable_headless_pygame,
-    get_project_root,
-)
-
-# Reproducibility helpers
-from .seed_utils import seed_everything
-
-# Public API for the utils package
+# Export lists for explicit imports
 __all__ = [
-    # ===== Core Game Mechanics =====
     # Board utilities
-    "generate_random_apple",
-    "update_board_array",
-    "is_position_valid",
-    "get_empty_positions",
+    'get_board_representation',
+    'format_board_for_display',
+    'validate_board_state',
     
-    # Collision detection
-    "check_collision",
-    "check_wall_collision", 
-    "check_body_collision",
-    "check_apple_collision",
-    "positions_overlap",
+    # Collision utilities  
+    'check_collision',
+    'check_wall_collision',
+    'check_body_collision',
+    'check_apple_collision',
+    'positions_overlap',
     
-    # Movement utilities
-    "normalize_direction",
-    "normalize_directions",
-    "get_relative_apple_direction_text",
-    "is_reverse",
+    # Continuation utilities
+    'setup_continuation_session',
+    'handle_continuation_game_state', 
+    'continue_from_directory',
     
-    # ===== Data Processing =====
-    # JSON processing
-    "extract_valid_json",
-    "preprocess_json_string",
-    "validate_json_format",
-    "extract_json_from_code_block",
-    "extract_json_from_text",
-    "extract_moves_pattern",
-    "extract_moves_from_arrays",
+    # Initialization utilities
+    'setup_log_directories',
+    'setup_llm_clients',
+    'initialize_game_state',
+    'enforce_launch_sleep',
     
-    # Text processing
-    "process_response_for_display",
-    "format_code_blocks",
-    "truncate_text",
-    "clean_whitespace",
+    # JSON utilities
+    'NumPyJSONEncoder',
+    'safe_json_load',
+    'safe_json_save',
     
-    # ===== System Management =====
-    # Project setup
-    "ensure_project_root",
-    "enable_headless_pygame",
-    "get_project_root",
+    # Move utilities
+    'validate_move',
+    'get_valid_moves',
+    'get_direction_vector',
+    'get_opposite_direction',
     
-    # File management
-    "extract_game_summary",
-    "get_next_game_number",
-    "find_valid_log_folders",
-    "load_summary_data",
-    "load_game_data",
-    "get_folder_display_name",
-    "get_game_json_filename",
-    "join_log_path",
+    # Network utilities  
+    'check_network_connectivity',
+    'retry_with_backoff',
+    'handle_network_error',
     
-    # Initialization and setup
-    "setup_llm_clients",
-    "setup_log_directories",
-    "initialize_game_state",
+    # Path utilities
+    'ensure_directory_exists',
+    'get_relative_path',
+    'get_absolute_path',
+    'validate_file_path',
     
-    # Continuation helpers
-    "setup_continuation_session",
-    "handle_continuation_game_state",
-    "continue_from_directory",
+    # Seed utilities
+    'set_random_seed',
+    'get_random_seed',
+    'generate_seed',
     
-    # Game statistics
-    "save_experiment_info_json",
-    "save_session_stats",
+    # Session utilities
+    'create_session_id',
+    'validate_session',
+    'cleanup_session',
     
-    # Network helpers
-    "find_free_port",
-    "is_port_free",
-    "ensure_free_port",
-    "random_free_port",
+    # Text utilities
+    'format_timestamp',
+    'truncate_text',
+    'sanitize_filename',
+    'parse_coordinates',
     
-    # Session management (dynamically imported)
-    *_session_all,
-    
-    # Reproducibility
-    "seed_everything",
+    # Web utilities
+    'format_json_response',
+    'handle_web_error',
+    'validate_web_request',
 ]

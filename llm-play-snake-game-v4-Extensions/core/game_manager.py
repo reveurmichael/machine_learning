@@ -2,12 +2,10 @@
 
 This module implements a clean, future-proof architecture where:
 - BaseGameManager provides all generic functionality for Tasks 1-5
-- LLMGameManager (Task-0) adds only LLM-specific features
-- No legacy compatibility - fresh code for the future
+- GameManager (Task-0) adds only LLM-specific features
 
 Design Philosophy:
-- Tasks 1-5 inherit BaseGameManager directly
-- Task-0 inherits LLMGameManager (which extends BaseGameManager)
+- Tasks 0-5 inherit BaseGameManager directly
 - Each task gets exactly what it needs, nothing more
 - Clean separation of concerns, no historical baggage
 """
@@ -31,17 +29,9 @@ from config.ui_constants import TIME_DELAY, TIME_TICK
 from llm.client import LLMClient
 
 # Utilities - organized by purpose
-from utils.game_stats_utils import save_session_stats
-from utils.continuation_utils import (
-    continue_from_directory,
-    handle_continuation_game_state,
-    setup_continuation_session,
-)
-from utils.game_manager_utils import (
-    initialize_game_manager,
-    process_events,
-    report_final_statistics,
-)
+from core.game_stats_manager import GameStatsManager
+# Continuation utilities imported locally to avoid circular dependency
+from core.game_manager_helper import GameManagerHelper
 
 # Agent protocol for all tasks
 from core.game_agents import SnakeAgent
@@ -263,7 +253,8 @@ class BaseGameManager:
     def save_session_summary(self) -> None:
         """Save session-level statistics to JSON."""
         if self.log_dir:
-            save_session_stats(self.log_dir)
+            stats_manager = GameStatsManager()
+            stats_manager.save_session_stats(self.log_dir)
 
 
 # -------------------
@@ -271,7 +262,7 @@ class BaseGameManager:
 # -------------------
 
 
-class LLMGameManager(BaseGameManager):
+class GameManager(BaseGameManager):
     """LLM-powered Snake game manager (Task-0).
     
     Extends BaseGameManager with LLM-specific functionality:
@@ -323,7 +314,8 @@ class LLMGameManager(BaseGameManager):
 
     def initialize(self) -> None:
         """Initialize LLM clients and logging infrastructure."""
-        initialize_game_manager(self)
+        helper = GameManagerHelper()
+        helper.initialize_game_manager(self)
 
     def setup_logging(self, base_dir: str, task_name: str = "llm") -> None:
         """Set up LLM-specific logging directories."""
@@ -359,7 +351,8 @@ class LLMGameManager(BaseGameManager):
 
     def process_events(self) -> None:
         """Handle pygame events and user input."""
-        process_events(self)
+        helper = GameManagerHelper()
+        helper.process_events(self)
 
     def report_final_statistics(self) -> None:
         """Generate comprehensive LLM session report."""
@@ -390,7 +383,8 @@ class LLMGameManager(BaseGameManager):
         }
 
         # Generate report and mark session complete
-        report_final_statistics(stats_info)
+        helper = GameManagerHelper()
+        helper.report_final_statistics(stats_info)
         self.running = False
 
     # -------------------
@@ -399,6 +393,8 @@ class LLMGameManager(BaseGameManager):
 
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Resume LLM session from previous checkpoint."""
+        from utils.continuation_utils import setup_continuation_session, handle_continuation_game_state
+        
         print(Fore.GREEN + f"🔄 Resuming LLM session from: {log_dir}")
         print(Fore.GREEN + f"🔄 Starting at game: {start_game_number}")
 
@@ -414,14 +410,7 @@ class LLMGameManager(BaseGameManager):
         self.run()
 
     @classmethod
-    def continue_from_directory(cls, args: "argparse.Namespace") -> "LLMGameManager":
+    def continue_from_directory(cls, args: "argparse.Namespace") -> "GameManager":
         """Factory method for creating continuation sessions."""
+        from utils.continuation_utils import continue_from_directory
         return continue_from_directory(cls, args)
-
-
-# -------------------
-# CONVENIENCE ALIAS - Task-0 compatibility
-# -------------------
-
-# For Task-0 scripts that expect "GameManager"
-GameManager = LLMGameManager

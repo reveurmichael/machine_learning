@@ -48,7 +48,36 @@ class BaseGUI:
         # Optional grid overlay (useful for RL visualisation, off by default)
         self.show_grid = False
         
-    
+    def init_display(self, title: str = "Snake Game"):
+        """Initialize the pygame display.
+        
+        This method sets up the pygame display, screen surface, fonts, and other
+        GUI components needed for rendering. It should be called after __init__
+        but before any drawing operations.
+        
+        Args:
+            title: Window title to display
+        """
+        import pygame  # deferred import to avoid hard dependency
+        
+        pygame.init()
+        
+        # Create the main display surface
+        self.screen = pygame.display.set_mode((self.width + self.width_plus, self.height))
+        pygame.display.set_caption(title)
+        
+        # Initialize fonts
+        self.font = pygame.font.Font(None, 36)
+        self.small_font = pygame.font.Font(None, 24)
+        
+        # Initialize clock for frame rate control
+        self.clock = pygame.time.Clock()
+        
+        # Calculate text panel width for info display
+        self.text_panel_width = self.width_plus - 40  # Leave some margin
+        
+        # Initialize extra panels list for plugins
+        self.extra_panels = []
 
     def draw_apple(self, apple_position, flip_y=False):
         """Draw the apple at the given position."""

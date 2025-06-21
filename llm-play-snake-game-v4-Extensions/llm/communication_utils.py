@@ -1,25 +1,18 @@
 """
-LLM communication sub-system (Task-0).
+LLM communication utilities for the Snake game project.
 
-This module is deliberately **narrow in scope**: given a *prompt* and some
-lightweight contextual *metadata*, talk to the primary and (optionally)
-secondary LLM, parse/format the answer, and hand back the next move plus a
-continuation flag.
+This module provides decoupled LLM interaction functionality with clean
+separation of concerns following SOLID principles.
 
-Historically the helper was *implicitly* tied to the game-flow concept of a
-"round" – it reached into :class:`core.game_manager.GameManager` and
-dereferenced ``round_count`` for log-file names and statistics.  That created
-a hidden dependency: any future task that calls this function had to own a
-``round_count`` attribute, even if its pacing scheme was *not* organised in
-rounds (e.g. heuristic agents, RL curriculum epochs).
+Architecture Overview
+--------------------
 
 As part of the SOLID refactor the coupling was removed:
 
-*   **The caller now passes the round explicitely** via the ``round_id`` kwarg
+*   **The caller now passes the round explicitly** via the ``round_id`` kwarg
     of :func:`get_llm_response`.  If that argument is ``None`` we fall back to
-    ``manager.round_count`` to preserve 100-% backward compatibility for
-    Task-0.  All file names and metadata strings derive *solely* from the
-    value that enters the function – no more global reach-through.
+    ``manager.round_count`` for consistency with Task-0.  All file names and 
+    metadata strings derive *solely* from the value that enters the function.
 
 *   All other responsibilities (prompt construction, round management, timing
     of when to call the LLM, etc.) stay in higher-level orchestration classes
@@ -27,11 +20,10 @@ As part of the SOLID refactor the coupling was removed:
     :class:`llm.agent_llm.LLMSnakeAgent`.
 
 Consequences
-+------------
++----------
 • Task-0 (round-based planning) behaves exactly as before.
 • Future tasks can call the helper with any integer (``round_id=0`` for a
-  single-shot game, ``epoch`` for RL, etc.) or omit the argument entirely if
-  they *do* implement the legacy attribute.
+  single-shot game, ``epoch`` for RL, etc.) or omit the argument entirely.
 • Unit tests can inject a synthetic round number without mocking
   ``GameManager`` internals.
 """
@@ -46,6 +38,7 @@ from datetime import datetime
 from colorama import Fore
 from typing import TYPE_CHECKING, Any, Dict
 
+from core.game_file_manager import FileManager
 from llm.log_utils import get_prompt_filename, save_llm_artefact
 from llm.parsing_utils import parse_llm_response
 from llm.prompt_utils import create_parser_prompt, prepare_snake_prompt
@@ -176,6 +169,9 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
     """
     # Start tracking LLM communication time
     game_manager.game.game_state.record_llm_communication_start()
+    
+    # Initialize file manager for saving prompts/responses
+    file_manager = FileManager()
 
     # Get game state
     game_state = game_manager.game.get_state_representation()
@@ -204,7 +200,7 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
         "Apple Position": parser_input[1],
         "Body Cells": parser_input[2],
     }
-    prompt_path = save_to_file(prompt, game_manager.prompts_dir, prompt_filename, metadata=prompt_metadata)
+    prompt_path = file_manager.save_to_file(prompt, game_manager.prompts_dir, prompt_filename, metadata=prompt_metadata)
     print(Fore.GREEN + f"📝 Prompt saved to {prompt_path}")
 
     # Get next move from first LLM
@@ -253,7 +249,7 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
             "Apple Position": parser_input[1],
             "Body Cells": parser_input[2],
         }
-        response_path = save_to_file(response, game_manager.responses_dir, response_filename, metadata=response_metadata)
+        response_path = file_manager.save_to_file(response, game_manager.responses_dir, response_filename, metadata=response_metadata)
         print(Fore.GREEN + f"📝 Response saved to {response_path}")
 
         # Parse the response - dual or single LLM mode based on configuration
@@ -279,7 +275,7 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
                 "Apple Position": parser_input[1],
                 "Body Cells": parser_input[2],
             }
-            parser_prompt_path = save_to_file(parser_prompt, game_manager.prompts_dir, parser_prompt_filename, metadata=parser_prompt_metadata)
+            parser_prompt_path = file_manager.save_to_file(parser_prompt, game_manager.prompts_dir, parser_prompt_filename, metadata=parser_prompt_metadata)
             print(Fore.GREEN + f"📝 Parser prompt saved to {parser_prompt_path}")
 
             # Record parser request time
@@ -332,7 +328,7 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
                     "Apple Position": parser_input[1],
                     "Body Cells": parser_input[2]
                 }
-                parsed_path = save_to_file(
+                parsed_path = file_manager.save_to_file(
                     secondary_response,
                     game_manager.responses_dir,
                     parsed_response_filename,

@@ -3,6 +3,8 @@
 This module keeps the real-time frame pacing tidy and delegates all
 decision-making (LLM calls, move execution, game-over handling …) to private
 helpers so the public entry point stays small and readable.
+
+IMPORTANT: KEEP THIS FILE OOP. KEEP THE BASE CLASS AS WELL AS THE DERIVED CLASS.
 """
 
 from __future__ import annotations
@@ -14,7 +16,7 @@ from typing import TYPE_CHECKING, Tuple
 import pygame
 from colorama import Fore
 from config.game_constants import PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS
-from utils.game_manager_utils import check_max_steps, process_game_over, process_events
+from core.game_manager_helper import check_max_steps, process_game_over, process_events
 
 
 # ---------------------
@@ -141,59 +143,7 @@ class BaseGameLoop:
 
     def _handle_game_over(self) -> None:
         """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
-
-        manager = self.manager
-
-        game_state_info = {
-            "game_active": manager.game_active,
-            "game_count": manager.game_count,
-            "total_score": manager.total_score,
-            "total_steps": manager.total_steps,
-            "game_scores": manager.game_scores,
-            "round_count": manager.round_count,
-            "round_counts": manager.round_counts,
-            "args": manager.args,
-            "log_dir": manager.log_dir,
-            "current_game_moves": manager.current_game_moves,
-            "next_move": None,
-            "time_stats": manager.time_stats,
-            "token_stats": manager.token_stats,
-            "valid_steps": getattr(manager, "valid_steps", 0),
-            "invalid_reversals": getattr(manager, "invalid_reversals", 0),
-            "empty_steps": getattr(manager, "empty_steps", 0),
-            "something_is_wrong_steps": getattr(manager, "something_is_wrong_steps", 0),
-            "no_path_found_steps": getattr(manager, "no_path_found_steps", 0),
-        }
-
-        (
-            manager.game_count,
-            manager.total_score,
-            manager.total_steps,
-            manager.game_scores,
-            manager.round_count,
-            manager.time_stats,
-            manager.token_stats,
-            manager.valid_steps,
-            manager.invalid_reversals,
-            manager.empty_steps,
-            manager.something_is_wrong_steps,
-            manager.no_path_found_steps,
-        ) = process_game_over(manager.game, game_state_info)
-
-        # Reset per-game flags/counters for the upcoming game
-        manager.need_new_plan = True
-        manager.game_active = True
-        manager.current_game_moves = []
-        manager.round_count = 1
-        manager.game.reset()
-        manager.consecutive_empty_steps = 0
-        manager.consecutive_something_is_wrong = 0
-        if hasattr(manager, "total_rounds"):
-            manager.total_rounds = sum(manager.round_counts)
-        
-        # Reset first-plan flag for the new game
-        if hasattr(manager, "_first_plan"):
-            manager._first_plan = True
+        return None 
 
     # Agent path – unchanged behaviour
     def _process_agent_game(self) -> None:
@@ -276,19 +226,10 @@ class BaseGameLoop:
         time.sleep(pause_min * 60)
 
 
-# ---------------------
-# Back-compat thin wrapper – keeps existing call-sites unchanged
-# ---------------------
-
-
-def run_game_loop(game_manager: "BaseGameManager") -> None:  # pragma: no cover
-    """Historical function wrapper – instantiates :class:`GameLoop` and runs it."""
-
-    GameLoop(game_manager).run()
-
 
 # ---------------------
 # Thin Task-0 subclass – inherits full behaviour
+# Specific to Task-0
 # ---------------------
 
 
@@ -384,15 +325,72 @@ class GameLoop(BaseGameLoop):
         # CRITICAL BUG FIX: This prevents the first move from being recorded
         # twice in rounds_data - once here and once when _execute_next_planned_move
         # processes the remaining planned_moves list.
-        
+
         _, apple_eaten = self._execute_move(next_move)
-        
+
         # Remove the first move from planned_moves since we just executed it
         if manager.game.planned_moves and manager.game.planned_moves[0] == next_move:
             manager.game.planned_moves = manager.game.planned_moves[1:]
-        
+
         if apple_eaten:
             self._post_apple_logic()
+
+    # SPECIFIC TO TASK-0, hence goes here to the subclass
+    def _handle_game_over(self) -> None:
+        """Delegate heavy game-over processing to utils.game_manager_utils then reset for next game."""
+
+        manager = self.manager
+
+        game_state_info = {
+            "game_active": manager.game_active,
+            "game_count": manager.game_count,
+            "total_score": manager.total_score,
+            "total_steps": manager.total_steps,
+            "game_scores": manager.game_scores,
+            "round_count": manager.round_count,
+            "round_counts": manager.round_counts,
+            "args": manager.args,
+            "log_dir": manager.log_dir,
+            "current_game_moves": manager.current_game_moves,
+            "next_move": None,
+            "time_stats": manager.time_stats,
+            "token_stats": manager.token_stats,
+            "valid_steps": getattr(manager, "valid_steps", 0),
+            "invalid_reversals": getattr(manager, "invalid_reversals", 0),
+            "empty_steps": getattr(manager, "empty_steps", 0),
+            "something_is_wrong_steps": getattr(manager, "something_is_wrong_steps", 0),
+            "no_path_found_steps": getattr(manager, "no_path_found_steps", 0),
+        }
+
+        (
+            manager.game_count,
+            manager.total_score,
+            manager.total_steps,
+            manager.game_scores,
+            manager.round_count,
+            manager.time_stats,
+            manager.token_stats,
+            manager.valid_steps,
+            manager.invalid_reversals,
+            manager.empty_steps,
+            manager.something_is_wrong_steps,
+            manager.no_path_found_steps,
+        ) = process_game_over(manager.game, game_state_info)
+
+        # Reset per-game flags/counters for the upcoming game
+        manager.need_new_plan = True
+        manager.game_active = True
+        manager.current_game_moves = []
+        manager.round_count = 1
+        manager.game.reset()
+        manager.consecutive_empty_steps = 0
+        manager.consecutive_something_is_wrong = 0
+        if hasattr(manager, "total_rounds"):
+            manager.total_rounds = sum(manager.round_counts)
+
+        # Reset first-plan flag for the new game
+        if hasattr(manager, "_first_plan"):
+            manager._first_plan = True
 
     # ---------------------
     # Sentinel-specific handlers

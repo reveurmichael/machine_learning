@@ -3,18 +3,18 @@ Dashboard – Overview tab renderer.
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any, Sequence, Optional
+from typing import List, Dict, Any, Sequence, Optional, Union
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from utils.file_utils import (
-    get_folder_display_name,
-    load_summary_data,
-    load_game_data,
-)
-from utils.game_stats_utils import filter_experiments, get_experiment_options
+from core.game_file_manager import FileManager
+
+# Initialize file manager for dashboard operations
+_file_manager = FileManager()
+from core.game_stats_manager import GameStatsManager
 from llm.providers import get_default_model
 
 
@@ -32,13 +32,13 @@ def render_overview_tab(log_folders: Sequence[str]) -> None:
         st.markdown("### Experiment Details")
         # Sort experiments alphabetically for easier navigation
         exp_options = sorted(
-            overview_df["Folder"].tolist(), key=get_folder_display_name
+            overview_df["Folder"].tolist(), key=_file_manager.get_folder_display_name
         )
 
         selected_exp = st.selectbox(
             "Select Experiment",
             options=exp_options,
-            format_func=get_folder_display_name,
+            format_func=_file_manager.get_folder_display_name,
             index=0,
             key="overview_exp_select",
         )
@@ -54,11 +54,11 @@ def display_experiment_overview(log_folders: Sequence[str]) -> Optional[pd.DataF
     # Build raw overview DataFrame (largely copied from the original implementation)
     experiments_data: List[Dict[str, Any]] = []
     for folder in log_folders:
-        summary_data = load_summary_data(folder)
+        summary_data = _file_manager.load_summary_data(folder)
         if not summary_data:
             continue
 
-        folder_name = get_folder_display_name(folder)
+        folder_name = _file_manager.get_folder_display_name(folder)
         timestamp = summary_data.get("timestamp", "Unknown")
         config = summary_data.get("configuration", {})
 
@@ -157,8 +157,9 @@ def display_experiment_overview(log_folders: Sequence[str]) -> Optional[pd.DataF
 
     overview_df = pd.DataFrame(experiments_data)
 
-    # Filter widgets (uses utils.game_stats_utils helpers)
-    options = get_experiment_options(overview_df)
+    # Filter widgets (uses core.game_stats_manager helpers)
+    stats_manager = GameStatsManager()
+    options = stats_manager.get_experiment_options(overview_df)
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         selected_primary_providers = st.multiselect(
@@ -183,7 +184,7 @@ def display_experiment_overview(log_folders: Sequence[str]) -> Optional[pd.DataF
             default=[],
         )
 
-    filtered_df = filter_experiments(
+    filtered_df = stats_manager.filter_experiments(
         overview_df,
         selected_primary_providers,
         selected_primary_models,
@@ -209,12 +210,12 @@ def display_experiment_overview(log_folders: Sequence[str]) -> Optional[pd.DataF
 def display_experiment_details(folder_path: str) -> None:
     """Render charts & table for a single experiment."""
 
-    summary_data = load_summary_data(folder_path)
+    summary_data = _file_manager.load_summary_data(folder_path)
     if not summary_data:
         st.warning("No summary data found.")
         return
 
-    games_data = load_game_data(folder_path)
+    games_data = _file_manager.load_game_data(folder_path)
     if not games_data:
         st.info("No games found in the selected experiment.")
         return

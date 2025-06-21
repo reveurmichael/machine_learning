@@ -9,10 +9,14 @@ from __future__ import annotations
 import streamlit as st
 import json
 from typing import Sequence
-from utils.file_utils import get_folder_display_name, load_game_data
+
+from core.game_file_manager import FileManager
 from utils.session_utils import run_replay, run_web_replay
 from utils.network_utils import random_free_port
 from config.network_constants import HOST_CHOICES
+
+# Initialize file manager for dashboard operations
+_file_manager = FileManager()
 
 
 def render_replay_pygame_tab(log_folders: Sequence[str]) -> None:
@@ -22,14 +26,14 @@ def render_replay_pygame_tab(log_folders: Sequence[str]) -> None:
         return
     col_exp, col_game = st.columns(2)
     # Sort experiments alphabetically
-    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+    sorted_folders = sorted(log_folders, key=_file_manager.get_folder_display_name)
 
     with col_exp:
         exp = st.selectbox(
-            "Experiment", options=sorted_folders, format_func=get_folder_display_name, key="replay_exp_pg",
+            "Experiment", options=sorted_folders, format_func=_file_manager.get_folder_display_name, key="replay_exp_pg",
             label_visibility="collapsed"
         )
-    games = load_game_data(exp)
+    games = _file_manager.load_game_data(exp)
     if not games:
         st.warning("No games found in the selected experiment.")
         return
@@ -56,14 +60,14 @@ def render_replay_web_tab(log_folders: Sequence[str]) -> None:
         return
     col_exp, col_game = st.columns(2)
     # Sort experiments alphabetically (reuse sorted folders)
-    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+    sorted_folders = sorted(log_folders, key=_file_manager.get_folder_display_name)
 
     with col_exp:
         exp = st.selectbox(
-            "Experiment", options=sorted_folders, format_func=get_folder_display_name, key="replay_exp_web",
+            "Experiment", options=sorted_folders, format_func=_file_manager.get_folder_display_name, key="replay_exp_web",
             label_visibility="collapsed"
         )
-    games = load_game_data(exp)
+    games = _file_manager.load_game_data(exp)
     if not games:
         st.warning("No games found in the selected experiment.")
         return

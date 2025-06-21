@@ -22,53 +22,53 @@ __all__ = [
 class SingletonABCMeta(ABCMeta):
     """
     Thread-safe Singleton metaclass that combines ABC and Singleton patterns.
-    
+
     This metaclass implements the Singleton pattern using double-checked locking
     while also supporting abstract base class functionality. This resolves the
     metaclass conflict between ABC and Singleton patterns.
-    
+
     Design Pattern: **Singleton Pattern + Abstract Base Class**
     Purpose: Ensure only one instance exists per class while maintaining
     abstract base class functionality for inheritance.
-    
+
     Benefits:
     - Thread safety through double-checked locking
     - Memory efficiency (single instance per class)
     - Abstract base class functionality
     - Centralized instance control
     - Prevents metaclass conflicts
-    
+
     Usage:
         class MyClass(ABC, metaclass=SingletonABCMeta):
             def __init__(self):
                 if not hasattr(self, '_initialized'):
                     self._initialized = True
                     # Initialization code here
-            
+
             @abstractmethod
             def my_method(self):
                 pass
-    
+
     Thread Safety:
         Uses double-checked locking pattern to minimize synchronization overhead
         while ensuring thread safety during instance creation.
     """
-    
+
     _instances: Dict[type, Any] = {}
     _lock: threading.Lock = threading.Lock()
-    
+
     def __call__(cls, *args, **kwargs):
         """
         Thread-safe singleton instance creation with double-checked locking.
-        
+
         The double-checked locking pattern ensures thread safety while
         minimizing the performance overhead of synchronization by only
         acquiring the lock when necessary.
-        
+
         Args:
             *args: Positional arguments for class constructor
             **kwargs: Keyword arguments for class constructor
-            
+
         Returns:
             The singleton instance of the class
         """
@@ -80,31 +80,31 @@ class SingletonABCMeta(ABCMeta):
                 if cls not in cls._instances:
                     instance = super().__call__(*args, **kwargs)
                     cls._instances[cls] = instance
-        
+
         return cls._instances[cls]
-    
+
     @classmethod
-    def clear_instances(mcs) -> None:
+    def clear_instances(cls) -> None:
         """
         Clear all singleton instances (useful for testing).
-        
+
         This method allows clearing the singleton instances, which is
         particularly useful in testing scenarios where you need fresh
         instances between test cases.
-        
+
         Warning:
             Use with caution in production code as it breaks the singleton
             contract. Primarily intended for testing purposes.
         """
-        with mcs._lock:
-            mcs._instances.clear()
-    
+        with cls._lock:
+            cls._instances.clear()
+
     @classmethod
-    def get_instance_count(mcs) -> int:
+    def get_instance_count(cls) -> int:
         """
         Get the number of singleton instances currently managed.
-        
+
         Returns:
             Number of singleton instances in the registry
         """
-        return len(mcs._instances) 
+        return len(cls._instances)

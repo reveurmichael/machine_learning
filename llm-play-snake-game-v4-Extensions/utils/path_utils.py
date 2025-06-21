@@ -39,7 +39,18 @@ __all__ = [
 # Cache the repository root path for efficient repeated access.
 # The root is determined by finding the parent directory of the utils folder.
 # THIS IS VERY IMPORTANT AND SHOULD BE USED ABSOLUTELY BY THE WEB MODE.
-_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent # TODO: THIS MIGHT NOT BE CORRECT. ALSO, why not put it in the config folder?
+#
+# Implementation Note: Path(__file__).resolve().parent.parent is CORRECT.
+# - __file__ = /path/to/project/utils/path_utils.py
+# - .parent = /path/to/project/utils/  
+# - .parent.parent = /path/to/project/ (project root)
+#
+# This approach is preferred over config folder because:
+# 1. Path utilities are infrastructure, not configuration
+# 2. Config folder should contain settings, not path detection logic
+# 3. This module needs to work before config is loaded
+# 4. Keeps path resolution logic centralized in utils
+_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 
 
 def get_project_root() -> Path:

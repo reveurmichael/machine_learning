@@ -83,13 +83,28 @@ All summary.json updates guarantee:
 - Schema preservation (existing fields never modified)
 - Type consistency (int remains int, list remains list)
 - Error logging without file corruption
+
+=== SINGLETON PATTERN IMPLEMENTATION ===
+BaseGameStatsManager uses the Singleton pattern to ensure:
+- Single source of truth for statistics management
+- Thread-safe statistics operations
+- Memory efficiency (no duplicate instances)
+- Consistent CSV parsing rules across all usage points
+
+The pattern is implemented using the same elegant thread-safe metaclass
+as BaseFileManager, providing both Abstract Base Class functionality
+and Singleton behavior simultaneously.
 """
 from __future__ import annotations
 
 import json
 import os
+import shutil
+from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Sequence
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence, Union
+import threading
 
 import numpy as np
 from utils.path_utils import get_default_logs_root, get_summary_json_filename
@@ -101,41 +116,101 @@ __all__ = [
 ]
 
 
+class SingletonABCMeta(ABCMeta):
+    """
+    Thread-safe Singleton metaclass that combines ABC and Singleton patterns.
+    
+    This metaclass implements the Singleton pattern using double-checked locking
+    while also supporting abstract base class functionality. This resolves the
+    metaclass conflict between ABC and Singleton patterns.
+    
+    Design Pattern: **Singleton Pattern + Abstract Base Class**
+    Purpose: Ensure only one instance of statistics manager exists while maintaining
+    abstract base class functionality for inheritance.
+    
+    Benefits:
+    - Thread safety through double-checked locking
+    - Memory efficiency (single instance)
+    - Abstract base class functionality
+    - Centralized statistics control
+    """
+    
+    _instances: Dict[type, Any] = {}
+    _lock: threading.Lock = threading.Lock()
+    
+    def __call__(cls, *args, **kwargs):
+        """
+        Thread-safe singleton instance creation with double-checked locking.
+        
+        The double-checked locking pattern ensures thread safety while
+        minimizing the performance overhead of synchronization.
+        """
+        # First check (without locking for performance)
+        if cls not in cls._instances:
+            # Acquire lock for thread safety
+            with cls._lock:
+                # Second check (with lock to prevent race conditions)
+                if cls not in cls._instances:
+                    instance = super().__call__(*args, **kwargs)
+                    cls._instances[cls] = instance
+        
+        return cls._instances[cls]
+
+
 class NumPyJSONEncoder(json.JSONEncoder):
-    """Custom JSON encoder that handles NumPy types."""
+    """Custom JSON encoder to handle numpy data types."""
 
     def default(self, o):
-        """Handle NumPy types for JSON serialization.
-
-        Args:
-            o: Object to serialize
-
-        Returns:
-            JSON-serializable version of the object
-        """
         if isinstance(o, np.integer):
             return int(o)
-        if isinstance(o, np.floating):
+        elif isinstance(o, np.floating):
             return float(o)
-        if isinstance(o, np.ndarray):
+        elif isinstance(o, np.ndarray):
             return o.tolist()
-        return json.JSONEncoder.default(self, o)
+        return super().default(o)
 
 
-class BaseGameStatsManager:
+class BaseGameStatsManager(ABC, metaclass=SingletonABCMeta):
     """
-    Base game statistics manager providing common statistical operations.
+    Base game statistics manager providing common statistical operations with Singleton pattern.
     
-    This class contains generic functionality that can be used across all tasks.
-    Task-specific behavior should be implemented in subclasses.
+    This class implements the Singleton pattern to ensure thread-safe statistics operations
+    and centralized management across all tasks. It provides a foundation for statistics
+    operations while allowing task-specific extensions through inheritance.
+    
+    Design Patterns Implemented:
+    1. **Singleton Pattern**: Single instance for thread-safe operations
+    2. **Template Method Pattern**: Defines algorithm structure, subclasses fill details
+    3. **Strategy Pattern**: Different statistics strategies per task type
+    
+    The class provides a foundation for all statistics operations while ensuring:
+    - Thread safety through singleton implementation
+    - Consistent API across different task types
+    - Extensibility for future tasks through inheritance
+    - Separation of concerns between generic and task-specific statistics
     """
     
     def __init__(self, log_dir: str = None):
         """
-        Initialize the statistics manager.
+        Initialize the singleton statistics manager instance.
+        
+        Note: Due to singleton pattern, this will only execute once
+        per class, regardless of how many times the class is instantiated.
         
         Args:
             log_dir: The root directory for log operations (defaults to logs dir).
+        """
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._setup_manager(log_dir)
+    
+    def _setup_manager(self, log_dir: str = None) -> None:
+        """
+        Setup method called only once during singleton initialization.
+        Override in subclasses for specific setup requirements.
+        
+        Args:
+            log_dir: The root directory for log operations.
         """
         if log_dir is None:
             log_dir = get_default_logs_root()

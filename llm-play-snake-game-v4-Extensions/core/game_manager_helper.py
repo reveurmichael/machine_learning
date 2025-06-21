@@ -1,40 +1,124 @@
 """
-Game Manager Helper Classes
+Game Manager Helper classes with singleton pattern for efficient utility functions.
 
-This module provides OOP-based game management utilities for the Snake game.
-It follows the inheritance pattern used throughout the codebase to support
-both generic functionality and task-specific implementations.
+This module provides helper classes for managing game state, statistics, and event processing.
+BaseGameManagerHelper implements the Singleton pattern since it contains mostly stateless
+utility functions that should be shared across all game sessions.
 
-Architecture:
-- BaseGameManagerHelper: Generic functionality for all tasks
-- GameManagerHelper: Task-0 specific functionality (LLM integration, token stats, etc.)
+Design Patterns Used:
+1. **Singleton Pattern**: Ensures single instance of helper utilities
+2. **Template Method Pattern**: Base helper defines algorithm structure  
+3. **Strategy Pattern**: Different helper strategies for different tasks
 
-Future tasks (Task-1 through Task-5) can extend BaseGameManagerHelper to implement
-their own specific requirements while reusing common functionality.
+The singleton pattern is appropriate here because:
+- Helper functions are stateless and purely functional
+- Multiple instances would waste memory without benefit
+- Shared utility functions should have consistent behavior
+- Thread safety is important for web applications
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple, TYPE_CHECKING
 import os
+from abc import ABC, ABCMeta
+from typing import Any, Dict, List, Tuple, TYPE_CHECKING
+import threading
 
 import pygame
 from colorama import Fore
 
 from config.game_constants import END_REASON_MAP
+from core.game_stats_manager import GameStatsManager
+from core.game_file_manager import FileManager
 
-if TYPE_CHECKING:  # Imports needed only for static analysis / type hints
+if TYPE_CHECKING:
     from core.game_logic import GameLogic
     from core.game_manager import GameManager
 
+__all__ = [
+    "BaseGameManagerHelper",
+    "GameManagerHelper",
+]
 
-class BaseGameManagerHelper:
+
+class SingletonABCMeta(ABCMeta):
     """
-    Base class for game manager utilities.
+    Thread-safe Singleton metaclass that combines ABC and Singleton patterns.
     
-    Provides generic functionality that can be used by all tasks.
-    Handles basic game state management, event processing, and utility functions.
+    This metaclass implements the Singleton pattern using double-checked locking
+    while also supporting abstract base class functionality. This resolves the
+    metaclass conflict between ABC and Singleton patterns.
+    
+    Design Pattern: **Singleton Pattern + Abstract Base Class**
+    Purpose: Ensure only one instance of helper utilities exists while maintaining
+    abstract base class functionality for inheritance.
+    
+    Benefits:
+    - Thread safety through double-checked locking
+    - Memory efficiency (single instance)
+    - Abstract base class functionality
+    - Centralized utility function control
     """
+    
+    _instances: Dict[type, Any] = {}
+    _lock: threading.Lock = threading.Lock()
+    
+    def __call__(cls, *args, **kwargs):
+        """
+        Thread-safe singleton instance creation with double-checked locking.
+        
+        The double-checked locking pattern ensures thread safety while
+        minimizing the performance overhead of synchronization.
+        """
+        # First check (without locking for performance)
+        if cls not in cls._instances:
+            # Acquire lock for thread safety
+            with cls._lock:
+                # Second check (with lock to prevent race conditions)
+                if cls not in cls._instances:
+                    instance = super().__call__(*args, **kwargs)
+                    cls._instances[cls] = instance
+        
+        return cls._instances[cls]
+
+
+class BaseGameManagerHelper(ABC, metaclass=SingletonABCMeta):
+    """
+    Base class for game manager utilities using Singleton pattern.
+    
+    This class implements the Singleton pattern because it contains mostly stateless
+    utility functions that should be shared across all game sessions. The pattern
+    ensures thread safety and memory efficiency while providing consistent behavior.
+    
+    Design Patterns Implemented:
+    1. **Singleton Pattern**: Single instance for thread-safe operations
+    2. **Template Method Pattern**: Defines algorithm structure, subclasses fill details
+    3. **Strategy Pattern**: Different utility strategies per task type
+    
+    The class provides utility functions while ensuring:
+    - Thread safety through singleton implementation
+    - Memory efficiency (no duplicate utility instances)
+    - Consistent behavior across all usage points
+    - Extensibility for future tasks through inheritance
+    """
+    
+    def __init__(self):
+        """
+        Initialize the singleton helper instance.
+        
+        Note: Due to singleton pattern, this will only execute once
+        per class, regardless of how many times the class is instantiated.
+        """
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._setup_helper()
+    
+    def _setup_helper(self) -> None:
+        """
+        Setup method called only once during singleton initialization.
+        Override in subclasses for specific setup requirements.
+        """
+        pass
     
     @staticmethod
     def safe_add(target: Dict[str, Any], key: str, delta: Any) -> None:
@@ -138,9 +222,6 @@ class GameManagerHelper(BaseGameManagerHelper):
                      time_stats, token_stats, valid_steps, invalid_reversals, 
                      empty_steps, something_is_wrong_steps, no_path_found_steps)
         """
-        from core.game_stats_manager import GameStatsManager
-        from core.game_file_manager import FileManager
-        
         args = game_state_info["args"]
         log_dir = game_state_info["log_dir"]
         
@@ -355,8 +436,6 @@ class GameManagerHelper(BaseGameManagerHelper):
             - invalid_reversals: Total invalid reversals across all games (optional)
             - no_path_found_steps: Total NO_PATH_FOUND steps across all games (optional)
         """
-        from core.game_stats_manager import GameStatsManager
-        
         # Extract statistics
         log_dir = stats_info["log_dir"]
         game_count = stats_info["game_count"]
@@ -451,7 +530,6 @@ class GameManagerHelper(BaseGameManagerHelper):
         Args:
             game_manager: The GameManager instance
         """
-        from core.game_stats_manager import GameStatsManager
         from utils.initialization_utils import setup_log_directories, setup_llm_clients, initialize_game_state, enforce_launch_sleep
 
         # Set up the LLM clients (primary and optional secondary) - Task-0 specific

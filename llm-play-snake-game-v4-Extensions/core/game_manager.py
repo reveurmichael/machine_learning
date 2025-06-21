@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 
 
 # -------------------
-# BASE CLASS FOR ALL TASKS (1-5) - Pure Generic Implementation
+# BASE CLASS FOR ALL TASKS (0-5) - Pure Generic Implementation
 # -------------------
 
 
@@ -233,6 +233,40 @@ class BaseGameManager:
             print(Fore.BLUE + f"📊 Round {self.round_count} started ({reason})")
         else:
             print(Fore.BLUE + f"📊 Round {self.round_count} incremented")
+
+    def finish_round(self, reason: str = "") -> None:  # noqa: D401
+        """Finalize the **current** round without starting a new one.
+
+        This helper is called by :pyclass:`core.game_loop.GameLoop` when the
+        pre-computed *plan* has been fully executed (i.e. our move queue is
+        empty).  Its sole responsibility is to **persist** whatever is left in
+        the volatile :class:`core.game_rounds.RoundManager` buffer so that JSON
+        outputs and in-memory statistics remain consistent.
+
+        Crucially, the method deliberately **does not** bump
+        :pyattr:`round_count` – that is handled at the *beginning* of the next
+        planning cycle via :meth:`increment_round`.  This design keeps filenames
+        like ``game_2_round_5_prompt.txt`` in perfect sync with the data stored
+        in ``rounds_data`` while avoiding the off-by-one issues observed in the
+        legacy procedural loop.
+
+        Args:
+            reason: Optional text explaining why the round is being closed.
+                Primarily useful for verbose logging during long experiments.
+        """
+        if not self.game or not hasattr(self.game, "game_state"):
+            return
+
+        # Flush any pending data for the *current* round.
+        game_state = self.game.game_state
+        game_state.round_manager.flush_buffer()
+        game_state.round_manager.sync_round_data()
+
+        if reason:
+            print(Fore.BLUE + f"📁 Round {self.round_count} finished ({reason})")
+        else:
+            # Lightweight marker; keeps console noise minimal during large runs.
+            print(Fore.BLUE + f"📁 Round {self.round_count} finished")
 
     # -------------------
     # LOGGING INFRASTRUCTURE - Used by all tasks

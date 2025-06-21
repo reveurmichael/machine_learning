@@ -1,6 +1,6 @@
 /**
- * Snake Game Web Human Play
- * JavaScript for controlling the snake game in human play mode
+ * Snake Game Web Human Play (MVC Architecture)
+ * JavaScript for controlling the snake game in human play mode using MVC API
  */
 
 // DOM elements
@@ -198,30 +198,25 @@ function handleKeyDown(event) {
     
     let direction = null;
     
-    // Map keys to directions - ensure all keys are captured properly
-    switch (event.key) {
-        case 'ArrowUp':
+    // Map keys to directions
+    switch (event.key.toLowerCase()) {
+        case 'arrowup':
         case 'w':
-        case 'W':
             direction = 'UP';
             break;
-        case 'ArrowDown':
+        case 'arrowdown':
         case 's':
-        case 'S':
             direction = 'DOWN';
             break;
-        case 'ArrowLeft':
+        case 'arrowleft':
         case 'a':
-        case 'A':
             direction = 'LEFT';
             break;
-        case 'ArrowRight':
+        case 'arrowright':
         case 'd':
-        case 'D':
             direction = 'RIGHT';
             break;
         case 'r':
-        case 'R':
             resetGame();
             return;
         default:
@@ -229,14 +224,19 @@ function handleKeyDown(event) {
     }
     
     if (direction) {
-        event.preventDefault(); // Prevent default behavior like scrolling
+        event.preventDefault();
         makeMove(direction);
     }
 }
 
 async function makeMove(direction) {
     try {
-        await sendApiRequest('/api/move', 'POST', { direction });
+        // Use MVC API endpoint /api/control with command parameter
+        const result = await sendApiRequest('/api/control', 'POST', { command: direction });
+        
+        if (result.status === 'error') {
+            console.error('Move failed:', result.message);
+        }
     } catch (error) {
         console.error('Error making move:', error);
     }
@@ -244,7 +244,13 @@ async function makeMove(direction) {
 
 async function resetGame() {
     try {
-        await sendApiRequest('/api/reset', 'POST');
+        const result = await sendApiRequest('/api/reset', 'POST');
+        
+        if (result.status === 'success') {
+            console.log('Game reset successfully');
+        } else {
+            console.error('Reset failed:', result.message);
+        }
     } catch (error) {
         console.error('Error resetting game:', error);
     }

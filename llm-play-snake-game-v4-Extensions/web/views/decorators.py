@@ -18,10 +18,8 @@ Educational Goals:
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import time
-import gzip
-import json
 
 logger = logging.getLogger(__name__)
 

@@ -17,13 +17,13 @@ Educational Goals:
     - Illustrate real-time web game interaction
 """
 
-from typing import Dict, Any, Set
+from typing import Dict, Any
 import logging
 
 from .base_controller import RequestContext
 from .game_controllers import GamePlayController, GameMode
-from ..models import GameEvent, EventFactory
-from utils.web_utils import build_state_dict, translate_end_reason
+from ..models import EventFactory
+from utils.web_utils import translate_end_reason
 
 logger = logging.getLogger(__name__)
 

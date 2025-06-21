@@ -3,8 +3,7 @@ Dashboard – Overview tab renderer.
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any, Sequence, Optional, Union
-from pathlib import Path
+from typing import List, Dict, Any, Sequence, Optional
 
 import pandas as pd
 import plotly.express as px

@@ -522,7 +522,7 @@ def run_game_loop(manager: "BaseGameManager") -> None:
     from typing import TYPE_CHECKING
     
     if TYPE_CHECKING:
-        from core.game_manager import GameManager
+        pass
     
     # Detect if this is an LLM manager (Task-0) or generic manager (Tasks 1-5)
     if hasattr(manager, 'llm_client') or hasattr(manager, 'primary_llm'):

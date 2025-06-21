@@ -7,7 +7,7 @@ Provides minimal functionality to support the web interface.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import json
 from pathlib import Path
 

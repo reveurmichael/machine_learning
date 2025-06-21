@@ -29,8 +29,7 @@ from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import MVC components
-from web.factories import create_web_application
-from web.models import GameStateModel, LoggingObserver
+from web.models import LoggingObserver
 from web.controllers import LLMGameController
 
 # Import Task 0 components
@@ -414,10 +413,10 @@ def main():
     # Force headless mode for web
     game_args.no_gui = True
     
-    print(f"\n🐍 Snake Game - Task 0 MVC Web Interface")
+    print("\n🐍 Snake Game - Task 0 MVC Web Interface")
     print(f"🔗 URL: http://{host_port_args.host}:{host_port_args.port}")
     print(f"🤖 LLM: {game_args.provider}/{game_args.model}")
-    print(f"📊 Architecture: MVC with Observer Pattern")
+    print("📊 Architecture: MVC with Observer Pattern")
     print()
     
     try:

@@ -23,11 +23,9 @@ Usage Examples:
 """
 
 import sys
-import os
 from pathlib import Path
 import logging
 import argparse
-import threading
 import time
 
 # Add project root to path
@@ -36,12 +34,9 @@ sys.path.insert(0, str(project_root))
 
 # Import MVC components
 from web.factories import create_web_application
-from web.models import GameStateModel, Observer, LoggingObserver
-from web.controllers import BaseWebController
+from web.models import Observer, LoggingObserver
 
 # Import core game components
-from core.game_controller import GameController
-from replay.replay_engine import ReplayEngine
 
 # Configure logging
 logging.basicConfig(
@@ -347,7 +342,7 @@ def main():
     
     args = parser.parse_args()
     
-    print(f"\n🐍 Snake Game MVC Architecture Example")
+    print("\n🐍 Snake Game MVC Architecture Example")
     print(f"Mode: {args.mode.upper()}")
     print(f"URL: http://{args.host}:{args.port}")
     print()

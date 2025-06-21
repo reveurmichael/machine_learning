@@ -17,7 +17,7 @@ from core.game_controller import BaseGameController, GameController
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from replay.replay_data import ReplayData
-from config.game_constants import END_REASON_MAP, SENTINEL_MOVES, DIRECTIONS
+from config.game_constants import END_REASON_MAP, SENTINEL_MOVES
 from core.game_file_manager import FileManager
 
 # Initialize file manager for replay operations

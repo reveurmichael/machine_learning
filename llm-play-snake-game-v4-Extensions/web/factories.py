@@ -19,20 +19,19 @@ Educational Goals:
     - Provide flexible component configuration
 """
 
-from typing import Dict, Any, Type, Optional, Union
+from typing import Dict, Type
 from flask import Flask
 import logging
 
 # Import MVC components
 from .controllers import (
     BaseWebController, LLMGameController, HumanGameController, 
-    ReplayController, GamePlayController, GameViewingController
+    ReplayController
 )
 from .models import (
-    GameStateModel, StateProvider, LiveGameStateProvider, 
-    ReplayStateProvider
+    GameStateModel, ReplayStateProvider
 )
-from .views import WebViewRenderer, TemplateEngine, JinjaTemplateEngine
+from .views import WebViewRenderer
 
 # Import core components
 from core.game_controller import GameController
@@ -322,39 +321,40 @@ class WebApplicationFactory:
             controller: Controller to handle routes
         """
         from .controllers.base_controller import RequestType
+        from flask import request
         
         @app.route('/')
         def index():
             return controller.handle_request(
-                request=flask.request, 
+                request=request, 
                 request_type=RequestType.INDEX_GET
             )
         
         @app.route('/api/state')
         def api_state():
             return controller.handle_request(
-                request=flask.request,
+                request=request,
                 request_type=RequestType.STATE_GET
             )
         
         @app.route('/api/control', methods=['POST'])
         def api_control():
             return controller.handle_request(
-                request=flask.request,
+                request=request,
                 request_type=RequestType.CONTROL_POST
             )
         
         @app.route('/api/reset', methods=['POST'])
         def api_reset():
             return controller.handle_request(
-                request=flask.request,
+                request=request,
                 request_type=RequestType.RESET_POST
             )
         
         @app.route('/api/health')
         def api_health():
             return controller.handle_request(
-                request=flask.request,
+                request=request,
                 request_type=RequestType.HEALTH_GET
             )
 

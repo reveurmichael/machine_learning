@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, ABCMeta
-from typing import Any, Dict, List, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Tuple, TYPE_CHECKING
 import threading
 
 import pygame

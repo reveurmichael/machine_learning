@@ -36,12 +36,11 @@ import re
 import json
 from datetime import datetime
 from colorama import Fore
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING
 
 from core.game_file_manager import FileManager
-from llm.log_utils import get_prompt_filename, save_llm_artefact
-from llm.parsing_utils import parse_llm_response
-from llm.prompt_utils import create_parser_prompt, prepare_snake_prompt
+from llm.log_utils import get_prompt_filename
+from llm.prompt_utils import create_parser_prompt
 
 if TYPE_CHECKING:
     from core.game_manager import GameManager

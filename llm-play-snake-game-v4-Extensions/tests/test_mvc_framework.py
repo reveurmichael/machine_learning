@@ -11,7 +11,6 @@ and showcases the design patterns implemented.
 """
 
 import sys
-import os
 import logging
 from pathlib import Path
 
@@ -112,7 +111,6 @@ def test_controller_hierarchy():
             HumanGameController, LLMGameController, ReplayController
         )
         from web.models import GameStateModel
-        from web.views import WebViewRenderer
         
         # Create mock dependencies
         class MockStateProvider:
@@ -195,7 +193,6 @@ def test_factory_pattern():
     
     try:
         from web.factories import ControllerFactory, ViewRendererFactory
-        from web.models import GameStateModel
         
         # Test ViewRendererFactory
         view_factory = ViewRendererFactory()
@@ -240,7 +237,7 @@ def test_design_patterns():
         print("✅ Strategy Pattern implemented correctly")
         
         # Test Observer Pattern (Models)
-        from web.models.observers import Observer, LoggingObserver
+        from web.models.observers import LoggingObserver
         
         # Verify observer interface
         observer = LoggingObserver()
@@ -283,7 +280,6 @@ def demonstrate_mvc_workflow():
         from web.controllers import HumanGameController
         from web.models import GameStateModel
         from web.views.template_engines import SimpleTemplateEngine
-        from web.controllers.base_controller import RequestContext, RequestType
         
         # Create mock state provider
         class MockStateProvider:

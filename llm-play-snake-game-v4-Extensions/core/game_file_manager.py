@@ -73,7 +73,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 import threading
 from abc import ABC, ABCMeta, abstractmethod
 from config.game_constants import PROMPTS_DIR_NAME, RESPONSES_DIR_NAME

@@ -18,7 +18,6 @@ from core.game_data import BaseGameData, GameData
 from utils.collision_utils import check_collision
 from utils.moves_utils import normalize_direction, is_reverse
 from utils.board_utils import generate_random_apple, update_board_array
-from colorama import Fore
 
 # ---------------------
 # Typing helpers – avoid heavy GUI imports at runtime

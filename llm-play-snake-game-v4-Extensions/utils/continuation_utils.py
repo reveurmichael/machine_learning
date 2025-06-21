@@ -26,12 +26,6 @@ from pathlib import Path
 
 from colorama import Fore
 
-from config.game_constants import (
-    MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED,
-    MAX_GAMES_ALLOWED as MAX_GAMES,
-    MAX_STEPS_ALLOWED as MAX_STEPS,
-    PAUSE_BETWEEN_MOVES_SECONDS as pause_between_moves,
-)
 from llm.log_utils import clean_prompt_files, get_llm_directories
 from core.game_file_manager import FileManager
 from utils.path_utils import get_summary_json_filename

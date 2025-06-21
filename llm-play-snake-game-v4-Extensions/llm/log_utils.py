@@ -35,7 +35,6 @@ filename = get_prompt_filename(game_num=1, round_num=2, artefact_type="prompt")
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 

@@ -214,7 +214,7 @@ class StandardLimitEnforcement(LimitEnforcementStrategy):
         progress = f"{status.consecutive_count}/{config.max_consecutive}"
         
         print(Fore.YELLOW + f"⚠️  Approaching {limit_name} limit: {progress}")
-        print(Fore.YELLOW + f"   Consider reviewing game strategy or increasing limits")
+        print(Fore.YELLOW + "   Consider reviewing game strategy or increasing limits")
     
     def _handle_violation(self, config: LimitConfiguration, status: LimitStatus, 
                          game_state: GameStateProvider) -> bool:

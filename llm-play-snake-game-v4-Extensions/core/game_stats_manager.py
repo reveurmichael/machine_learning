@@ -99,11 +99,9 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, ABCMeta
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence
 import threading
 
 import numpy as np

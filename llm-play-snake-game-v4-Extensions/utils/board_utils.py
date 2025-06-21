@@ -19,7 +19,7 @@ task (e.g., Task-0).
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import numpy as np
 from numpy.typing import NDArray

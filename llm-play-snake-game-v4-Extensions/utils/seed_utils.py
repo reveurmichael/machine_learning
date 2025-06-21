@@ -17,8 +17,6 @@ from __future__ import annotations
 
 import os
 import random
-import sys
-import types
 from typing import Final, Protocol
 
 __all__: Final = ["seed_everything"]

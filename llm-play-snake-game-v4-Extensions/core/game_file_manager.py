@@ -289,35 +289,124 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
     
     def extract_game_summary(self, summary_file: Union[str, Path]) -> Dict[str, Any]:
         """
-        Extracts basic summary information from a summary.json file.
+        Extract comprehensive game summary with LLM-specific metrics.
         
-        Base implementation provides minimal extraction.
-        Subclasses can override to extract task-specific information.
-
-        Args:
-            summary_file: The path to the summary.json file.
-
-        Returns:
-            A dictionary containing summary information.
+        This method processes Task-0 summary files to extract:
+        - Basic game statistics
+        - LLM provider and model information
+        - Token usage statistics
+        - Response time metrics
+        - Performance indicators
+        
+        Returns a normalized dictionary suitable for dashboard display.
+        Supports both legacy and current summary.json formats.
         """
-        summary_path = Path(summary_file)
-        if not summary_path.exists():
-            return {"error": "Summary file not found."}
-
+        summary = {}
+        
         try:
+            summary_path = Path(summary_file)
+            if not summary_path.exists():
+                return summary
+                
             data = json.loads(summary_path.read_text(encoding="utf-8"))
-            game_count = data.get("game_count", 0)
-            total_score = data.get("total_score", 0)
-
-            return {
-                "date": data.get("date", "Unknown"),
-                "game_count": game_count,
-                "total_score": total_score,
-                "total_steps": data.get("total_steps", 0),
-                "avg_score": total_score / max(1, game_count),
-            }
-        except (json.JSONDecodeError, IOError) as e:
-            return {"error": f"Failed to read or parse summary file: {e}"}
+            
+            # Extract timestamp/date
+            summary['date'] = data.get('timestamp', data.get('date', 'Unknown'))
+            
+            # Extract game statistics (current format)
+            game_stats = data.get('game_statistics', {})
+            if game_stats:
+                summary['game_count'] = game_stats.get('total_games', 0)
+                summary['total_score'] = game_stats.get('total_score', 0)
+                summary['total_steps'] = game_stats.get('total_steps', 0)
+                summary['total_rounds'] = game_stats.get('total_rounds', 0)
+            else:
+                # Legacy format fallback
+                summary['game_count'] = data.get('game_count', 0)
+                summary['total_score'] = data.get('total_score', 0)
+                summary['total_steps'] = data.get('total_steps', 0)
+                summary['total_rounds'] = data.get('total_rounds', 0)
+            
+            # Calculate derived metrics
+            summary['avg_score'] = summary['total_score'] / max(1, summary['game_count'])
+            summary['avg_steps'] = summary['total_steps'] / max(1, summary['game_count'])
+            
+            # Extract LLM information (current format from configuration)
+            config = data.get('configuration', {})
+            if config:
+                summary['primary_provider'] = config.get('provider', 'Unknown')
+                summary['primary_model'] = config.get('model', 'Unknown')
+                summary['secondary_provider'] = config.get('parser_provider', 'None')
+                summary['secondary_model'] = config.get('parser_model', 'None')
+            else:
+                # Legacy format fallback
+                if 'primary_llm' in data:
+                    llm_info = data['primary_llm']
+                    summary['primary_provider'] = llm_info.get('provider', 'Unknown')
+                    summary['primary_model'] = llm_info.get('model', 'Unknown')
+                else:
+                    summary['primary_provider'] = 'Unknown'
+                    summary['primary_model'] = 'Unknown'
+                    
+                if 'secondary_llm' in data:
+                    llm_info = data['secondary_llm']
+                    summary['secondary_provider'] = llm_info.get('provider', 'None')
+                    summary['secondary_model'] = llm_info.get('model', 'None')
+                else:
+                    summary['secondary_provider'] = 'None'
+                    summary['secondary_model'] = 'None'
+                
+            # Extract response time metrics (current format)
+            time_stats = data.get('time_statistics', {})
+            if time_stats:
+                summary['avg_primary_response_time'] = time_stats.get('avg_primary_response_time', 0)
+                summary['avg_secondary_response_time'] = time_stats.get('avg_secondary_response_time', 0)
+                summary['total_llm_communication_time'] = time_stats.get('total_llm_communication_time', 0)
+            else:
+                # Legacy format fallback
+                prompt_stats = data.get('prompt_response_stats', {})
+                summary['avg_primary_response_time'] = prompt_stats.get('avg_primary_response_time', 0)
+                summary['avg_secondary_response_time'] = prompt_stats.get('avg_secondary_response_time', 0)
+                summary['min_primary_response_time'] = prompt_stats.get('min_primary_response_time', 0)
+                summary['max_primary_response_time'] = prompt_stats.get('max_primary_response_time', 0)
+                summary['min_secondary_response_time'] = prompt_stats.get('min_secondary_response_time', 0)
+                summary['max_secondary_response_time'] = prompt_stats.get('max_secondary_response_time', 0)
+            
+            # Extract step statistics (current format)
+            step_stats = data.get('step_stats', {})
+            if step_stats:
+                summary['valid_steps'] = step_stats.get('valid_steps', 0)
+                summary['invalid_reversals'] = step_stats.get('invalid_reversals', 0)
+                summary['empty_steps'] = step_stats.get('empty_steps', 0)
+                summary['something_is_wrong_steps'] = step_stats.get('something_is_wrong_steps', 0)
+                
+                # Calculate performance metrics
+                total_moves = summary['valid_steps'] + summary['invalid_reversals'] + summary['empty_steps']
+                if total_moves > 0:
+                    summary['valid_move_ratio'] = summary['valid_steps'] / total_moves
+                else:
+                    summary['valid_move_ratio'] = 0
+            
+            # Extract performance metrics (legacy format)
+            if 'efficiency_metrics' in data:
+                eff_metrics = data.get('efficiency_metrics', {})
+                summary['apples_per_step'] = eff_metrics.get('apples_per_step', 0)
+                summary['steps_per_game'] = eff_metrics.get('steps_per_game', 0)
+                if 'valid_move_ratio' not in summary:
+                    summary['valid_move_ratio'] = eff_metrics.get('valid_move_ratio', 0)
+            elif 'performance_metrics' in data:
+                perf_metrics = data.get('performance_metrics', {})
+                summary['steps_per_apple'] = perf_metrics.get('steps_per_apple', 0)
+            
+            # Extract token statistics (current format)
+            token_stats = data.get('token_usage_stats', data.get('token_stats', {}))
+            if token_stats:
+                summary['token_stats'] = token_stats
+                
+        except Exception as e:
+            print(f"Error extracting summary: {e}")
+            
+        return summary
 
 
 class FileManager(BaseFileManager):
@@ -451,6 +540,7 @@ class FileManager(BaseFileManager):
         - Performance indicators
         
         Returns a normalized dictionary suitable for dashboard display.
+        Supports both legacy and current summary.json formats.
         """
         summary = {}
         
@@ -461,27 +551,60 @@ class FileManager(BaseFileManager):
                 
             data = json.loads(summary_path.read_text(encoding="utf-8"))
             
-            # Extract basic stats
-            summary['date'] = data.get('date', 'Unknown')
-            summary['game_count'] = data.get('game_count', 0)
-            summary['total_score'] = data.get('total_score', 0)
-            summary['total_steps'] = data.get('total_steps', 0)
+            # Extract timestamp/date
+            summary['date'] = data.get('timestamp', data.get('date', 'Unknown'))
+            
+            # Extract game statistics (current format)
+            game_stats = data.get('game_statistics', {})
+            if game_stats:
+                summary['game_count'] = game_stats.get('total_games', 0)
+                summary['total_score'] = game_stats.get('total_score', 0)
+                summary['total_steps'] = game_stats.get('total_steps', 0)
+                summary['total_rounds'] = game_stats.get('total_rounds', 0)
+            else:
+                # Legacy format fallback
+                summary['game_count'] = data.get('game_count', 0)
+                summary['total_score'] = data.get('total_score', 0)
+                summary['total_steps'] = data.get('total_steps', 0)
+                summary['total_rounds'] = data.get('total_rounds', 0)
+            
+            # Calculate derived metrics
             summary['avg_score'] = summary['total_score'] / max(1, summary['game_count'])
             summary['avg_steps'] = summary['total_steps'] / max(1, summary['game_count'])
             
-            # Extract LLM information
-            if 'primary_llm' in data:
-                llm_info = data['primary_llm']
-                summary['primary_provider'] = llm_info.get('provider', 'Unknown')
-                summary['primary_model'] = llm_info.get('model', 'Unknown')
+            # Extract LLM information (current format from configuration)
+            config = data.get('configuration', {})
+            if config:
+                summary['primary_provider'] = config.get('provider', 'Unknown')
+                summary['primary_model'] = config.get('model', 'Unknown')
+                summary['secondary_provider'] = config.get('parser_provider', 'None')
+                summary['secondary_model'] = config.get('parser_model', 'None')
+            else:
+                # Legacy format fallback
+                if 'primary_llm' in data:
+                    llm_info = data['primary_llm']
+                    summary['primary_provider'] = llm_info.get('provider', 'Unknown')
+                    summary['primary_model'] = llm_info.get('model', 'Unknown')
+                else:
+                    summary['primary_provider'] = 'Unknown'
+                    summary['primary_model'] = 'Unknown'
+                    
+                if 'secondary_llm' in data:
+                    llm_info = data['secondary_llm']
+                    summary['secondary_provider'] = llm_info.get('provider', 'None')
+                    summary['secondary_model'] = llm_info.get('model', 'None')
+                else:
+                    summary['secondary_provider'] = 'None'
+                    summary['secondary_model'] = 'None'
                 
-            if 'secondary_llm' in data:
-                llm_info = data['secondary_llm']
-                summary['secondary_provider'] = llm_info.get('provider', 'None')
-                summary['secondary_model'] = llm_info.get('model', 'None')
-                
-            # Extract response time metrics
-            if 'prompt_response_stats' in data:
+            # Extract response time metrics (current format)
+            time_stats = data.get('time_statistics', {})
+            if time_stats:
+                summary['avg_primary_response_time'] = time_stats.get('avg_primary_response_time', 0)
+                summary['avg_secondary_response_time'] = time_stats.get('avg_secondary_response_time', 0)
+                summary['total_llm_communication_time'] = time_stats.get('total_llm_communication_time', 0)
+            else:
+                # Legacy format fallback
                 prompt_stats = data.get('prompt_response_stats', {})
                 summary['avg_primary_response_time'] = prompt_stats.get('avg_primary_response_time', 0)
                 summary['avg_secondary_response_time'] = prompt_stats.get('avg_secondary_response_time', 0)
@@ -490,19 +613,35 @@ class FileManager(BaseFileManager):
                 summary['min_secondary_response_time'] = prompt_stats.get('min_secondary_response_time', 0)
                 summary['max_secondary_response_time'] = prompt_stats.get('max_secondary_response_time', 0)
             
-            # Extract performance metrics
+            # Extract step statistics (current format)
+            step_stats = data.get('step_stats', {})
+            if step_stats:
+                summary['valid_steps'] = step_stats.get('valid_steps', 0)
+                summary['invalid_reversals'] = step_stats.get('invalid_reversals', 0)
+                summary['empty_steps'] = step_stats.get('empty_steps', 0)
+                summary['something_is_wrong_steps'] = step_stats.get('something_is_wrong_steps', 0)
+                
+                # Calculate performance metrics
+                total_moves = summary['valid_steps'] + summary['invalid_reversals'] + summary['empty_steps']
+                if total_moves > 0:
+                    summary['valid_move_ratio'] = summary['valid_steps'] / total_moves
+                else:
+                    summary['valid_move_ratio'] = 0
+            
+            # Extract performance metrics (legacy format)
             if 'efficiency_metrics' in data:
                 eff_metrics = data.get('efficiency_metrics', {})
                 summary['apples_per_step'] = eff_metrics.get('apples_per_step', 0)
                 summary['steps_per_game'] = eff_metrics.get('steps_per_game', 0)
-                summary['valid_move_ratio'] = eff_metrics.get('valid_move_ratio', 0)
+                if 'valid_move_ratio' not in summary:
+                    summary['valid_move_ratio'] = eff_metrics.get('valid_move_ratio', 0)
             elif 'performance_metrics' in data:
                 perf_metrics = data.get('performance_metrics', {})
                 summary['steps_per_apple'] = perf_metrics.get('steps_per_apple', 0)
             
-            # Extract token statistics
-            if 'token_stats' in data:
-                token_stats = data.get('token_stats', {})
+            # Extract token statistics (current format)
+            token_stats = data.get('token_usage_stats', data.get('token_stats', {}))
+            if token_stats:
                 summary['token_stats'] = token_stats
                 
         except Exception as e:

@@ -20,9 +20,8 @@ The singleton pattern is appropriate here because:
 from __future__ import annotations
 
 import os
-from abc import ABC, ABCMeta
+from abc import ABC
 from typing import Any, Dict, Tuple, TYPE_CHECKING
-import threading
 
 import pygame
 from colorama import Fore

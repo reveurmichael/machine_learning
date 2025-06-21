@@ -99,10 +99,9 @@ from __future__ import annotations
 
 import json
 import os
-from abc import ABC, ABCMeta
+from abc import ABC
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
-import threading
 
 import numpy as np
 from utils.path_utils import get_default_logs_root, get_summary_json_filename

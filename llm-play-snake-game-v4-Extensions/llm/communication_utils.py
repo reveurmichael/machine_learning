@@ -475,6 +475,9 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
         #    for full traceability in logs & replays.
         # 3. Increment consecutive_something_is_wrong and optionally end the
         #    game when it exceeds the CLI limit.
+        # -------------------
+        # SOMETHING_IS_WRONG Elegant Handling
+        # -------------------
         # Record that there was an error in the LLM response BEFORE ending communication time
         # Prevent duplicate EMPTY record later in game loop
         game_manager.skip_empty_this_tick = True
@@ -487,19 +490,31 @@ def get_llm_response(game_manager: "GameManager", *, round_id: int | None = None
         # End tracking LLM communication time even if there was an error
         game_manager.game.game_state.record_llm_communication_end()
         
+        # Record the SOMETHING_IS_WRONG move in game state
+        game_manager.game.game_state.record_something_is_wrong_move()
+        
+        print(Fore.RED + f"❌ Error getting response from LLM: {e}")
+        
+        # -------------------
+        # Elegant Limits Management
+        # -------------------
+        from core.game_state_adapter import create_game_state_adapter
+        game_state_adapter = create_game_state_adapter(game_manager)
+        
+        # Use elegant limits manager to handle SOMETHING_IS_WRONG
+        game_should_continue = game_manager.limits_manager.record_move("SOMETHING_IS_WRONG", game_state_adapter)
+        
+        if not game_should_continue:
+            return None, False
+
+        # -------------------
+        # Legacy Counter Updates (for backward compatibility)
+        # -------------------
         # Increment consecutive errors – and because this tick is *not* an
         # EMPTY move, reset the empty-move streak so the threshold represents
         # truly consecutive EMPTY ticks only.
         game_manager.consecutive_empty_steps = 0
         game_manager.consecutive_something_is_wrong += 1
-        print(Fore.RED + f"❌ Error getting response from LLM: {e}")
-        print(Fore.YELLOW + f"⚠️ Consecutive LLM errors: {game_manager.consecutive_something_is_wrong}/{game_manager.args.max_consecutive_something_is_wrong_allowed}")
-        
-        # End game if maximum consecutive errors reached
-        if game_manager.consecutive_something_is_wrong >= game_manager.args.max_consecutive_something_is_wrong_allowed:
-            print(Fore.RED + f"❌ Maximum consecutive LLM errors reached ({game_manager.args.max_consecutive_something_is_wrong_allowed}). Game over.")
-            game_manager.game.game_state.record_game_end("MAX_CONSECUTIVE_SOMETHING_IS_WRONG_REACHED")
-            return None, False
         
         traceback.print_exc()
         return None, True 

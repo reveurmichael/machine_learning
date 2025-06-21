@@ -38,7 +38,8 @@ __all__ = [
 
 # Cache the repository root path for efficient repeated access.
 # The root is determined by finding the parent directory of the utils folder.
-_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+# THIS IS VERY IMPORTANT AND SHOULD BE USED ABSOLUTELY BY THE WEB MODE.
+_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent # TODO: THIS MIGHT NOT BE CORRECT. ALSO, why not put it in the config folder?
 
 
 def get_project_root() -> Path:
@@ -54,6 +55,7 @@ def get_project_root() -> Path:
     return _PROJECT_ROOT
 
 
+# IMPORTANT: this one is very important for scripts in the folder "scripts" and hence for all web modes (human play web mode, replay web mode, main web mode, continue web mode)
 def ensure_project_root() -> Path:
     """
     Ensures the current working directory is the project root and that the

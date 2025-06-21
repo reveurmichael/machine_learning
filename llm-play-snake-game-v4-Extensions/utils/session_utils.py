@@ -44,6 +44,7 @@ def run_replay(log_folder: str, game_num: int):
 
 
 def run_web_replay(log_folder: str, game_num: int, host: str, port: int):
+    """Launch web-based replay using the new MVC architecture."""
     try:
         port = ensure_free_port(port)
         cmd = [
@@ -83,7 +84,7 @@ def continue_game(log_folder: str, max_games: int, no_gui: bool):
 
 
 def run_main_web(max_games: int, host: str, port: int):
-    """Launch main_web.py with full CLI options.
+    """Launch main_web.py with full CLI options using the new MVC architecture.
 
     The Streamlit tab already stored all user inputs in session_state.  To
     keep the tab code minimal, we harvest those values here and construct the
@@ -171,6 +172,7 @@ def continue_game_web(
     sleep_before: float = 0.0,
     no_gui: bool = False,
 ):
+    """Launch web-based game continuation using the new MVC architecture."""
     try:
         port = ensure_free_port(port)
         cmd = [
@@ -212,7 +214,7 @@ def run_human_play():
 
 
 def run_human_play_web(host: str, port: int):
-    """Launch web human play mode on specified host/port."""
+    """Launch web human play mode using the new MVC architecture."""
     try:
         port = ensure_free_port(port)
         cmd = [

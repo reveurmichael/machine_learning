@@ -14,7 +14,7 @@ from typing import List, Sequence
 import os
 
 from config.game_constants import MAX_GAMES_ALLOWED 
-from utils.file_utils import get_folder_display_name, load_summary_data
+from core.game_file_manager import FileManager
 from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
 from config.network_constants import HOST_CHOICES
@@ -45,13 +45,14 @@ def render_continue_pygame_tab(log_folders: Sequence[str]) -> None:
     col_exp, col_info = st.columns(2)
 
     # Sort experiments alphabetically
-    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+    file_manager = FileManager()
+    sorted_folders = sorted(log_folders, key=file_manager.get_folder_display_name)
 
     with col_exp:
         exp = st.selectbox(
             "Experiment",
             options=sorted_folders,
-            format_func=get_folder_display_name,
+            format_func=file_manager.get_folder_display_name,
             key="cont_pg_exp",
             label_visibility="collapsed",
         )
@@ -61,7 +62,7 @@ def render_continue_pygame_tab(log_folders: Sequence[str]) -> None:
 
     with col_info:
         if exp:
-            summary_data = load_summary_data(exp)
+            summary_data = file_manager.load_summary_data(exp)
             if summary_data:
                 total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
                 st.info(f"Games completed so far: {total_games_finished}")
@@ -117,13 +118,14 @@ def render_continue_web_tab(log_folders: Sequence[str]) -> None:
     col_exp_w, col_info_w = st.columns(2)
 
     # Sort experiments alphabetically
-    sorted_folders = sorted(log_folders, key=get_folder_display_name)
+    file_manager = FileManager()
+    sorted_folders = sorted(log_folders, key=file_manager.get_folder_display_name)
 
     with col_exp_w:
         exp = st.selectbox(
             "Experiment",
             options=sorted_folders,
-            format_func=get_folder_display_name,
+            format_func=file_manager.get_folder_display_name,
             key="cont_web_exp",
             label_visibility="collapsed",
         )
@@ -133,7 +135,7 @@ def render_continue_web_tab(log_folders: Sequence[str]) -> None:
 
     with col_info_w:
         if exp:
-            summary_data = load_summary_data(exp)
+            summary_data = file_manager.load_summary_data(exp)
             if summary_data:
                 total_games_finished = summary_data.get("game_statistics", {}).get("total_games", 0)
                 st.info(f"Games completed so far: {total_games_finished}")

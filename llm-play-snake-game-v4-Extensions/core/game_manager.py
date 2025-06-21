@@ -282,7 +282,13 @@ class GameManager(BaseGameManager):
         super().__init__(args)
 
         # -------------------
-        # LLM-specific counters and state
+        # Elegant Consecutive Limits Management System
+        # -------------------
+        from core.game_limits_manager import create_limits_manager
+        self.limits_manager = create_limits_manager(args)
+
+        # -------------------
+        # LLM-specific counters and state (legacy compatibility)
         # -------------------
         self.empty_steps: int = 0
         self.something_is_wrong_steps: int = 0

@@ -13,12 +13,12 @@ import sys
 import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
-from utils.path_utils import ensureREPO_ROOT
+from utils.path_utils import ensure_project_root
 
 # ------------------
 # Ensure current working directory == repository root
 # ------------------
-REPO_ROOT = ensureREPO_ROOT()
+REPO_ROOT = ensure_project_root()
 
 # ------------------
 # Replace wrapper delegation with the *actual* Task-0 implementation so the

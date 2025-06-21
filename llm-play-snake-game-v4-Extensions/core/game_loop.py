@@ -172,38 +172,53 @@ class BaseGameLoop:
 
         prev_invalid_rev = manager.game.game_state.invalid_reversals
         game_active, apple_eaten = manager.game.make_move(direction)
+        
+        # Check if an invalid reversal occurred
         if manager.game.game_state.invalid_reversals > prev_invalid_rev:
+            # -------------------
+            # Elegant Limits Management for Invalid Reversals
+            # -------------------
+            from core.game_state_adapter import create_game_state_adapter
+            game_state_adapter = create_game_state_adapter(manager, override_game_active=game_active)
+            
+            # Use elegant limits manager to handle INVALID_REVERSAL
+            game_should_continue = manager.limits_manager.record_move("INVALID_REVERSAL", game_state_adapter)
+            
+            if not game_should_continue:
+                game_active = False
+            
+            # -------------------
+            # Legacy Counter Updates (for backward compatibility)
+            # -------------------
             manager.consecutive_invalid_reversals += 1
-            print(
-                Fore.YELLOW +
-                f"⚠️ Invalid reversal detected. Consecutive invalid reversals: "
-                f"{manager.consecutive_invalid_reversals}/{manager.args.max_consecutive_invalid_reversals_allowed}"
-            )
         else:
             manager.consecutive_invalid_reversals = 0
 
-        if (
-            manager.consecutive_invalid_reversals >=
-            manager.args.max_consecutive_invalid_reversals_allowed
-        ):
-            print(
-                Fore.RED +
-                f"❌ Maximum consecutive invalid reversals reached "
-                f"({manager.args.max_consecutive_invalid_reversals_allowed}). Game over."
-            )
-            game_active = False
-            manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
-            manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
-
-        if game_active and BaseGameManagerHelper.check_max_steps(manager.game, manager.args.max_steps):
-            game_active = False
-            manager.game.game_state.record_game_end("MAX_STEPS_REACHED")
+        # -------------------
+        # Elegant Max Steps Management
+        # -------------------
+        if game_active:
+            from core.game_state_adapter import create_game_state_adapter
+            game_state_adapter = create_game_state_adapter(manager)
+            game_active = manager.limits_manager.check_step_limit(manager.game.steps, game_state_adapter)
 
         manager.game.draw()
         pause = manager.get_pause_between_moves()
         if pause > 0:
             time.sleep(pause)
 
+        # -------------------
+        # Elegant Limits Management for Valid Moves
+        # -------------------
+        # For valid directional moves, use the limits manager to intelligently reset counters
+        if direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            from core.game_state_adapter import create_game_state_adapter
+            game_state_adapter = create_game_state_adapter(manager, override_game_active=True)
+            manager.limits_manager.record_move(direction, game_state_adapter)
+
+        # -------------------
+        # Legacy Counter Updates (for backward compatibility)
+        # -------------------
         manager.consecutive_something_is_wrong = 0
         if direction != "EMPTY":
             manager.consecutive_empty_steps = 0
@@ -217,12 +232,19 @@ class BaseGameLoop:
         return None  # override in Task-0
 
     def _apply_empty_move_delay(self) -> None:
+        """
+        Legacy method for applying empty move delay.
+        
+        This functionality is now handled elegantly by the ConsecutiveLimitsManager,
+        but we keep this method for backward compatibility with any code that might
+        still call it directly.
+        """
         manager = self.manager
         pause_min: float = getattr(manager.args, "sleep_after_empty_step", 0.0)
         if pause_min <= 0 or getattr(manager, "last_no_path_found", False):
             return
         plural = "s" if pause_min != 1 else ""
-        print(Fore.CYAN + f"⏸️ Sleeping {pause_min} minute{plural} after EMPTY step …")
+        print(Fore.CYAN + f"⏸️ Legacy sleep: {pause_min} minute{plural} after EMPTY step...")
         time.sleep(pause_min * 60)
 
 
@@ -383,8 +405,20 @@ class GameLoop(BaseGameLoop):
         manager.current_game_moves = []
         manager.round_count = 1
         manager.game.reset()
+        
+        # -------------------
+        # Elegant Limits Management Reset
+        # -------------------
+        # Reset all consecutive counters in the elegant limits manager
+        if hasattr(manager, 'limits_manager'):
+            manager.limits_manager.reset_all_counters()
+        
+        # -------------------
+        # Legacy Counter Resets (for backward compatibility)
+        # -------------------
         manager.consecutive_empty_steps = 0
         manager.consecutive_something_is_wrong = 0
+        
         if hasattr(manager, "total_rounds"):
             manager.total_rounds = sum(manager.round_counts)
 
@@ -397,7 +431,12 @@ class GameLoop(BaseGameLoop):
     # ---------------------
 
     def _handle_no_move(self) -> None:  # noqa: D401
-        """LLM returned *no* usable move ⇒ record EMPTY sentinel."""
+        """
+        LLM returned *no* usable move ⇒ record EMPTY sentinel.
+        
+        This method now uses the elegant ConsecutiveLimitsManager for clean,
+        centralized tracking of EMPTY moves with sophisticated limit enforcement.
+        """
 
         manager = self.manager
         from colorama import Fore
@@ -409,36 +448,33 @@ class GameLoop(BaseGameLoop):
         manager.empty_steps = manager.game.game_state.empty_steps
         manager.current_game_moves.append("EMPTY")
 
+        # -------------------
+        # Elegant Limits Management
+        # -------------------
+        from core.game_state_adapter import create_game_state_adapter
+        game_state_adapter = create_game_state_adapter(manager)
+        
+        # Use elegant limits manager to handle EMPTY move
+        game_should_continue = manager.limits_manager.record_move("EMPTY", game_state_adapter)
+        
+        if not game_should_continue:
+            manager.game_active = False
+            return
+
+        # -------------------
+        # Legacy Counter Updates (for backward compatibility)
+        # -------------------
         manager.consecutive_empty_steps += 1
         manager.consecutive_something_is_wrong = 0  # break SOMETHING_IS_WRONG streak
-
-        print(
-            Fore.YELLOW +
-            f"⚠️ No valid moves found. Empty moves: {manager.consecutive_empty_steps}/{manager.args.max_consecutive_empty_moves_allowed}"
-        )
-
-        # EMPTY also breaks any chain of invalid reversals – reset counter.
-        manager.consecutive_invalid_reversals = 0
-
-        # Game-over condition: too many consecutive EMPTY moves.
-        if (
-            manager.consecutive_empty_steps >=
-            manager.args.max_consecutive_empty_moves_allowed
-        ):
-            print(
-                Fore.RED +
-                "❌ Maximum consecutive empty moves reached "
-                f"({manager.args.max_consecutive_empty_moves_allowed}). Game over."
-            )
-            manager.game_active = False
-            manager.game.last_collision_type = 'MAX_CONSECUTIVE_EMPTY_MOVES_REACHED'
-            manager.game.game_state.record_game_end("MAX_CONSECUTIVE_EMPTY_MOVES_REACHED")
-
-        # Optional back-off sleep as configured via CLI.
-        self._apply_empty_move_delay()
+        manager.consecutive_invalid_reversals = 0   # EMPTY also breaks invalid reversal chains
 
     def _handle_no_path_found(self) -> None:  # noqa: D401
-        """Log the NO_PATH_FOUND sentinel and reset related counters."""
+        """
+        Log the NO_PATH_FOUND sentinel and reset related counters.
+        
+        This method now uses the elegant ConsecutiveLimitsManager for clean,
+        centralized tracking of NO_PATH_FOUND occurrences.
+        """
 
         manager = self.manager
         from colorama import Fore
@@ -446,12 +482,26 @@ class GameLoop(BaseGameLoop):
         print(Fore.YELLOW + "⚠️ LLM reported NO_PATH_FOUND. Snake stays in place.")
         manager.game.game_state.record_no_path_found_move()
         manager.current_game_moves.append("NO_PATH_FOUND")
+
+        # -------------------
+        # Elegant Limits Management
+        # -------------------
+        from core.game_state_adapter import create_game_state_adapter
+        game_state_adapter = create_game_state_adapter(manager)
+        
+        # Use elegant limits manager to handle NO_PATH_FOUND move
+        game_should_continue = manager.limits_manager.record_move("NO_PATH_FOUND", game_state_adapter)
+        
+        if not game_should_continue:
+            manager.game_active = False
+            return
+
+        # -------------------
+        # Legacy Counter Updates (for backward compatibility)
+        # -------------------
         manager.consecutive_something_is_wrong = 0
         manager.consecutive_invalid_reversals = 0
         manager.last_no_path_found = False
-
-        # NO_PATH_FOUND does not affect EMPTY or reversal counters beyond the
-        # resets above – no further action.
 
 
 # ---------------------

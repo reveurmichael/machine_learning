@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Tuple
 import pygame
 from colorama import Fore
 from config.game_constants import PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS
-from core.game_manager_helper import check_max_steps, process_game_over, process_events
+from core.game_manager_helper import BaseGameManagerHelper, GameManagerHelper
 
 
 # ---------------------
@@ -66,7 +66,7 @@ class BaseGameLoop:
         try:
             while manager.running and manager.game_count < manager.args.max_games:
                 # Handle OS / pygame events first so the window remains responsive.
-                process_events(manager)
+                BaseGameManagerHelper.process_events(manager)
 
                 if manager.game_active and manager.game is not None:
                     if getattr(manager, "agent", None) is not None:
@@ -195,7 +195,7 @@ class BaseGameLoop:
             manager.game.last_collision_type = 'MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED'
             manager.game.game_state.record_game_end("MAX_CONSECUTIVE_INVALID_REVERSALS_REACHED")
 
-        if game_active and check_max_steps(manager.game, manager.args.max_steps):
+        if game_active and BaseGameManagerHelper.check_max_steps(manager.game, manager.args.max_steps):
             game_active = False
             manager.game.game_state.record_game_end("MAX_STEPS_REACHED")
 
@@ -375,7 +375,7 @@ class GameLoop(BaseGameLoop):
             manager.empty_steps,
             manager.something_is_wrong_steps,
             manager.no_path_found_steps,
-        ) = process_game_over(manager.game, game_state_info)
+        ) = GameManagerHelper().process_game_over(manager.game, game_state_info)
 
         # Reset per-game flags/counters for the upcoming game
         manager.need_new_plan = True
@@ -452,3 +452,35 @@ class GameLoop(BaseGameLoop):
 
         # NO_PATH_FOUND does not affect EMPTY or reversal counters beyond the
         # resets above – no further action.
+
+
+# ---------------------
+# Future-proof interface function
+# ---------------------
+
+def run_game_loop(manager: "BaseGameManager") -> None:
+    """
+    Future-proof game loop interface using the new class-based architecture.
+    
+    This function automatically selects the appropriate loop class based on the manager type:
+    - Task-0 (LLM): Uses GameLoop with LLM-specific functionality
+    - Tasks 1-5 (Non-LLM): Uses BaseGameLoop for generic functionality
+    
+    Args:
+        manager: Game manager instance (BaseGameManager or subclass)
+    """
+    from typing import TYPE_CHECKING
+    
+    if TYPE_CHECKING:
+        from core.game_manager import GameManager
+    
+    # Detect if this is an LLM manager (Task-0) or generic manager (Tasks 1-5)
+    if hasattr(manager, 'llm_client') or hasattr(manager, 'primary_llm'):
+        # Task-0 (LLM) - use full GameLoop with LLM functionality
+        loop = GameLoop(manager)
+    else:
+        # Tasks 1-5 (Non-LLM) - use BaseGameLoop for generic functionality
+        loop = BaseGameLoop(manager)
+    
+    # Run the appropriate loop
+    loop.run()

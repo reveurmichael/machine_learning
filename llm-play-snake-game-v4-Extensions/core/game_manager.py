@@ -321,10 +321,12 @@ class GameManager(BaseGameManager):
         """Set up LLM-specific logging directories."""
         super().setup_logging(base_dir, task_name)
         if self.log_dir:
-            self.prompts_dir = os.path.join(self.log_dir, "prompts")
-            self.responses_dir = os.path.join(self.log_dir, "responses")
-            os.makedirs(self.prompts_dir, exist_ok=True)
-            os.makedirs(self.responses_dir, exist_ok=True)
+            # Create LLM-specific directories using centralized utilities
+            from llm.log_utils import ensure_llm_directories
+            self.prompts_dir, self.responses_dir = ensure_llm_directories(self.log_dir)
+            # Convert Path objects to strings for backwards compatibility
+            self.prompts_dir = str(self.prompts_dir)
+            self.responses_dir = str(self.responses_dir)
 
     def create_llm_client(self, provider: str, model: Optional[str] = None) -> LLMClient:
         """Create LLM client for the specified provider."""

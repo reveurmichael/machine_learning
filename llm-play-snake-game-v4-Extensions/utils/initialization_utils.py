@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING
 from colorama import Fore
 
 from llm.communication_utils import check_llm_health
+from llm.log_utils import ensure_llm_directories
+from utils.path_utils import create_session_dir_path
 
 # ---------------------
 # Typing-only imports – avoid heavy dependencies at runtime
@@ -44,11 +46,12 @@ def setup_log_directories(game_manager: "GameManager") -> None:
             model_name = game_manager.args.provider
             
         # Create directory path with model name and timestamp
-        game_manager.log_dir = os.path.join("logs", f"{model_name}_{timestamp}")
+        game_manager.log_dir = str(create_session_dir_path(model_name, timestamp))
     
-    # Create subdirectories for detailed logs
-    game_manager.prompts_dir = os.path.join(game_manager.log_dir, "prompts")
-    game_manager.responses_dir = os.path.join(game_manager.log_dir, "responses")
+    # Set up LLM-specific directories using centralized utilities
+    prompts_dir, responses_dir = ensure_llm_directories(game_manager.log_dir)
+    game_manager.prompts_dir = str(prompts_dir)
+    game_manager.responses_dir = str(responses_dir)
     
     # Create all directories
     os.makedirs(game_manager.log_dir, exist_ok=True)

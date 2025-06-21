@@ -21,7 +21,7 @@ _repo_root = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_repo_root))
 
 # Now safe to import helpers
-from utils.path_utils import ensure_repo_root  # noqa: E402
+from utils.path_utils import ensure_repo_root, get_summary_json_filename  # noqa: E402
 
 # Make sure the script runs from the repository root for consistent paths.
 ensure_repo_root()
@@ -46,6 +46,7 @@ from scripts.main import parse_arguments  # Re-use full CLI from scripts/main.py
 from config.ui_constants import GRID_SIZE
 from utils.web_utils import build_color_map, translate_end_reason
 from llm.agent_llm import LLMSnakeAgent
+from utils.continuation_utils import handle_continuation_game_state
 
 # ---------------------
 # Flask setup (static/template folders)
@@ -101,7 +102,7 @@ def _manager_thread_fn(gm: GameManager, args):
                 import json
                 import pathlib as _p
 
-                summary_path = _p.Path(cont_dir) / "summary.json"
+                summary_path = _p.Path(cont_dir) / get_summary_json_filename()
                 if summary_path.exists():
                     with summary_path.open("r", encoding="utf-8") as f:
                         summary = json.load(f)

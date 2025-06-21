@@ -1,5 +1,35 @@
 """Game-wide constants shared across tasks.
 
+=== SINGLE SOURCE OF TRUTH ===
+This module serves as the SINGLE SOURCE OF TRUTH for all game constants.
+Any constant defined here is immediately available to ALL tasks (0-5).
+
+=== TASK USAGE MATRIX ===
+Constants are categorized by their usage across tasks:
+
+UNIVERSAL (Tasks 0-5):
+- VALID_MOVES, DIRECTIONS: Movement mechanics
+- MAX_CONSECUTIVE_INVALID_REVERSALS_ALLOWED: Error limits
+- MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED: Path planning limits  
+- SENTINEL_MOVES, END_REASON_MAP: Game termination logic
+- MAX_STEPS_ALLOWED, MAX_GAMES_ALLOWED: Session limits
+- LOGS_DIR_NAME: Directory structure
+- SUMMARY_JSON_FILENAME, GAME_JSON_FILENAME_PATTERN: File naming conventions
+
+LLM-SPECIFIC (Tasks 0, 4, 5 only):
+- MAX_CONSECUTIVE_EMPTY_MOVES_ALLOWED: LLM parsing failures
+- MAX_CONSECUTIVE_SOMETHING_IS_WRONG_ALLOWED: LLM errors
+- SLEEP_AFTER_EMPTY_STEP: LLM-specific delays
+- AVAILABLE_PROVIDERS: LLM provider list
+- PROMPTS_DIR_NAME, RESPONSES_DIR_NAME: LLM artifact directory names
+
+=== WHY THIS SEPARATION MATTERS ===
+- Tasks 1-3 (heuristics/RL/supervised) never encounter LLM-specific errors
+- They only use universal constants for game mechanics and error limits
+- Tasks 4-5 (LLM fine-tuning/distillation) inherit ALL constants
+- This enables clean inheritance without pollution
+
+=== IMPORT STRATEGY ===
 The list of AVAILABLE_PROVIDERS depends on importing :pymod:`llm.providers`
 which in turn triggers the initialisation of the *llm* package.  Importing it
 eagerly here caused a circular-import chain when other packages pulled in
@@ -52,6 +82,21 @@ MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED = 1  # Task-0: LLM admitted no path; heuri
 # control previously tied to NO_PATH_FOUND. So it's Task0 specific.
 SLEEP_AFTER_EMPTY_STEP = 3.0  # minutes
 
+
+# ---------------------
+# Universal directory structure (Tasks 0-5)
+# Single source of truth for main directory names
+# ---------------------
+
+LOGS_DIR_NAME = "logs"            # Main directory for all experiment logs
+
+# ---------------------
+# LLM-specific directory structure (Task-0, 4, 5 only)
+# Single source of truth for LLM artifact directory names
+# ---------------------
+
+PROMPTS_DIR_NAME = "prompts"      # Directory for LLM prompt files
+RESPONSES_DIR_NAME = "responses"  # Directory for LLM response files
 
 # ---------------------
 # Sentinel move names recorded in game logs.  Keep this single source of truth
@@ -117,3 +162,16 @@ a subset of these limits:
 
 These comments are documentation-only and do not affect Task-0 behaviour.
 """
+
+# ---------------------
+# Universal file naming conventions (Tasks 0-5)
+# Single source of truth for standard file names
+# ---------------------
+
+SUMMARY_JSON_FILENAME = "summary.json"   # Session summary file for all tasks
+GAME_JSON_FILENAME_PATTERN = "game_{}.json"  # Individual game files pattern
+
+# ---------------------
+# Universal directory structure (Tasks 0-5)
+# Single source of truth for main directory names
+# ---------------------

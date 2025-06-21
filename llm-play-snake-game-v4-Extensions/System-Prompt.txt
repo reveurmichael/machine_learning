@@ -12,3 +12,32 @@ Check project-structure-plan.md. That's our objective of the refactoring.
 Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not polute the output data files of FUTURE_TASKS.
 
 
+## Task-0
+If you are losing sight of Task-0, check the files:
+- logs/hunyuan-t1-latest_20250617_223807/game_1.json
+- logs/hunyuan-t1-latest_20250617_223807/game_8.json
+- logs/hunyuan-t1-latest_20250617_223807/summary.json
+As some of the past experiments logs to help you understand Task-0.
+Readme.md is a little bit outdated, but it's a good starting point.
+
+## Class Naming
+No need to rename FileManager to Task0FileManager because here by default we are refering to Task-0. So the name GameController, FileManager, GameData, GameLogic, etc. are all Task-0 specific. In extensions we will have Task1-5, which will extend the base classes (BaseFileManager, BaseGameData, BaseGameLogic, etc.).
+
+## Singleton pattern
+BaseFileManager and FileManager should use Singleton pattern. Maybe some other classes as well. 
+
+## Design Patterns
+As this whole project is about refactoring, we should use design patterns to make things more generic and reusable. Also, this whole project is to be educational, so we should use as many appropriate design patterns as possible to make things more educational. Each time you use a design pattern, you should explain why you are using it, with very detailed comments or docstrings.
+
+## Inheritance
+Most likely, classes in "extensions" folder will be inheriting from base classes in "core", "replay" and "gui" folders. In very rare cases, they might be inheriting from the derived classes for Task-0 instead of the base classes.
+
+## No Need for Backward compatibility
+We are refactoring with a future proof mindset, to make things look so fresh. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. For task0, as long as the output follows the schema of Task-0, we are good. For the schema of Task-0, check the files:
+- logs/hunyuan-t1-latest_20250617_223807/game_1.json
+- logs/hunyuan-t1-latest_20250617_223807/game_8.json
+- logs/hunyuan-t1-latest_20250617_223807/summary.json
+
+## No pollution of code from Task 1-5 to the ROOT folder
+
+No pollution from extensions (Task 1-5) into the ROOT folder (for taks 0, but can be extended to other tasks as well in the folder "extensions"). Hence, such words like "heuristics", "reinforcement learning" should not be used in the ROOT folder. It can only be used in the folder "extensions".

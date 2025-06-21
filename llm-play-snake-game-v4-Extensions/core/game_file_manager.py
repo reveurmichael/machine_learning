@@ -11,6 +11,58 @@ design patterns for educational and practical purposes:
 
 The architecture supports both generic file operations and Task-0 specific
 functionality while maintaining clean separation of concerns.
+
+=== SINGLE SOURCE OF TRUTH FOR FILE OPERATIONS ===
+This module provides the canonical interface for ALL file operations across tasks.
+BaseFileManager handles universal file operations (JSON loading/saving, directory management).
+FileManager extends it with LLM-specific operations (prompt/response saving).
+
+UNIVERSAL FILE OPERATIONS (Tasks 0-5):
+- JSON loading/saving with error handling
+- Directory discovery and validation
+- Session metadata extraction  
+- Consistent file naming conventions (game_N.json, summary.json)
+
+LLM-SPECIFIC OPERATIONS (Task-0 only):
+- Prompt/response file management
+- LLM-specific directory structure
+- Token usage tracking in files
+
+=== ELEGANT JSON SCHEMA HANDLING ===
+This module ensures PERFECT JSON schema consistency:
+
+1. **Schema Validation**: All JSON files follow identical structure for shared fields
+2. **Type Safety**: Consistent data types across all tasks (int, str, list, dict)
+3. **Error Recovery**: Graceful handling of corrupted/missing JSON files  
+4. **Backwards Compatibility**: Fixed schema ensures old files remain readable
+
+=== FILE NAMING CONVENTIONS (Single Source of Truth) ===
+- `game_N.json`: Individual game data (N = 1, 2, 3, ...)
+- `summary.json`: Session aggregated statistics
+- `game_N_round_M_prompt.txt`: LLM prompts (Task-0 only)
+- `game_N_round_M_raw_response.txt`: LLM responses (Task-0 only)
+
+=== TASK INHERITANCE EXAMPLES ===
+```python
+# Task-0 (LLM): Full FileManager with LLM file operations
+file_manager = FileManager()
+file_manager.save_prompt(prompt, game_num, round_num)  # LLM-specific
+
+# Task-1 (Heuristics): Uses BaseFileManager only
+file_manager = BaseFileManager()  
+file_manager.save_game_json(game_data, game_num)  # Universal operation
+
+# Task-2 (RL): Could extend BaseFileManager for RL-specific files
+class RLFileManager(BaseFileManager):
+    def save_episode_data(self, episode_data, episode_num): ...
+```
+
+=== JSON LOADING GUARANTEE ===
+All JSON loading operations guarantee:
+- Consistent field names across tasks
+- Identical data types for shared fields
+- Graceful fallbacks for missing optional fields
+- Error logging without crashes
 """
 
 from __future__ import annotations
@@ -24,6 +76,9 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Union
 import threading
 from abc import ABC, ABCMeta, abstractmethod
+from config.game_constants import PROMPTS_DIR_NAME, RESPONSES_DIR_NAME
+from llm.log_utils import get_llm_directories
+from utils.path_utils import get_default_logs_root, get_summary_json_filename
 
 __all__ = [
     "BaseFileManager",
@@ -180,7 +235,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
     
     def load_summary_data(self, folder_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
         """Load summary data from folder's summary.json file."""
-        summary_path = Path(folder_path) / "summary.json"
+        summary_path = Path(folder_path) / get_summary_json_filename()
         try:
             return json.loads(summary_path.read_text(encoding="utf-8"))
         except (IOError, json.JSONDecodeError):
@@ -230,7 +285,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
     
     def get_total_games(self, log_dir: str) -> int:
         """Get total number of games in log directory."""
-        summary_file = os.path.join(log_dir, "summary.json")
+        summary_file = os.path.join(log_dir, get_summary_json_filename())
         if os.path.isfile(summary_file):
             try:
                 with open(summary_file, "r", encoding="utf-8") as f:
@@ -245,7 +300,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
         game_files = glob.glob(os.path.join(log_dir, "game_*.json"))
         return max(1, len(game_files))
     
-    def find_valid_log_folders(self, root_dir: str = "logs", max_depth: int = 4) -> List[Path]:
+    def find_valid_log_folders(self, root_dir: str = None, max_depth: int = 4) -> List[Path]:
         """
         Finds all valid log folders.
         
@@ -253,19 +308,21 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
         Subclasses can override to add additional validation requirements.
 
         Args:
-            root_dir: The root directory to start the search from.
+            root_dir: The root directory to start the search from (defaults to logs dir).
             max_depth: The maximum depth to search for log folders.
 
         Returns:
             A list of Path objects for each valid log folder.
         """
+        if root_dir is None:
+            root_dir = get_default_logs_root()
         root = Path(root_dir)
         if not root.exists():
             return []
 
         folders = [
             p.parent
-            for p in root.glob(f"**/{'*/' * (max_depth - 1)}summary.json")
+            for p in root.glob(f"**/{'*/' * (max_depth - 1)}{get_summary_json_filename()}")
             if p.is_file()
         ]
         return sorted(folders)
@@ -329,7 +386,7 @@ class FileManager(BaseFileManager):
         """Setup Task-0 specific file manager configuration."""
         super()._setup_manager()
         self._task_type = "llm_snake_game"
-        self._required_directories = ["prompts", "responses"]
+        self._required_directories = [PROMPTS_DIR_NAME, RESPONSES_DIR_NAME]
     
     def _process_directory_files(self, log_dir: Union[str, Path]) -> Dict[str, Any]:
         """
@@ -342,15 +399,16 @@ class FileManager(BaseFileManager):
         
         # Count different file types
         game_files = list(directory_path.glob("game_*.json"))
-        prompt_files = list((directory_path / "prompts").glob("*.txt")) if (directory_path / "prompts").exists() else []
-        response_files = list((directory_path / "responses").glob("*.txt")) if (directory_path / "responses").exists() else []
+        prompts_dir, responses_dir = get_llm_directories(directory_path)
+        prompt_files = list(prompts_dir.glob("*.txt")) if prompts_dir.exists() else []
+        response_files = list(responses_dir.glob("*.txt")) if responses_dir.exists() else []
         
         return {
             "game_count": len(game_files),
             "prompt_count": len(prompt_files),
             "response_count": len(response_files),
-            "has_prompts_dir": (directory_path / "prompts").exists(),
-            "has_responses_dir": (directory_path / "responses").exists(),
+            "has_prompts_dir": prompts_dir.exists(),
+            "has_responses_dir": responses_dir.exists(),
         }
     
     def _add_task_specific_summary(self, summary: Dict[str, Any]) -> Dict[str, Any]:
@@ -361,7 +419,7 @@ class FileManager(BaseFileManager):
             "file_structure_valid": summary.get("has_prompts_dir", False) and summary.get("has_responses_dir", False)
         }
     
-    def find_valid_log_folders(self, root_dir: str = "logs", max_depth: int = 4) -> List[Path]:
+    def find_valid_log_folders(self, root_dir: str = None, max_depth: int = 4) -> List[Path]:
         """
         Find valid Task-0 experiment folders with required LLM structure.
         
@@ -376,12 +434,14 @@ class FileManager(BaseFileManager):
         Design Pattern: **Strategy Pattern**
         Purpose: Different validation strategies for different task types.
         """
+        if root_dir is None:
+            root_dir = get_default_logs_root()
         valid_folders = []
         
         def _check_folder(folder_path: Path) -> bool:
             """Check if folder meets Task-0 validation criteria."""
             # Must have summary.json
-            if not (folder_path / "summary.json").exists():
+            if not (folder_path / get_summary_json_filename()).exists():
                 return False
             
             # Must have at least one game file
@@ -389,10 +449,11 @@ class FileManager(BaseFileManager):
                 return False
             
             # Must have LLM-specific directories
-            if not (folder_path / "prompts").is_dir():
+            prompts_dir, responses_dir = get_llm_directories(folder_path)
+            if not prompts_dir.is_dir():
                 return False
             
-            if not (folder_path / "responses").is_dir():
+            if not responses_dir.is_dir():
                 return False
             
             return True
@@ -491,18 +552,9 @@ class FileManager(BaseFileManager):
     
     def clean_prompt_files(self, log_dir: Union[str, Path], start_game: int) -> None:
         """Clean prompt and response files for games >= start_game."""
-        prompts_dir = Path(log_dir) / "prompts"
-        responses_dir = Path(log_dir) / "responses"
-        
-        # Clean prompt files
-        if prompts_dir.exists():
-            for file in prompts_dir.glob(f"game_{start_game}_*"):
-                file.unlink(missing_ok=True)
-        
-        # Clean response files
-        if responses_dir.exists():
-            for file in responses_dir.glob(f"game_{start_game}_*"):
-                file.unlink(missing_ok=True)
+        # Use centralized utility function
+        from llm.log_utils import cleanup_game_artifacts
+        cleanup_game_artifacts(log_dir, start_game)
     
     def save_to_file(
         self,

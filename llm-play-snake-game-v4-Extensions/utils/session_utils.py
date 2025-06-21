@@ -10,7 +10,7 @@ import subprocess
 import streamlit as st
 import os
 
-from utils.file_utils import get_folder_display_name
+from core.game_file_manager import FileManager
 from utils.network_utils import ensure_free_port
 
 __all__ = [
@@ -22,6 +22,9 @@ __all__ = [
     "run_human_play",
     "run_human_play_web",
 ]
+
+# Initialize file manager for session operations
+_file_manager = FileManager()
 
 
 def run_replay(log_folder: str, game_num: int):
@@ -188,7 +191,7 @@ def continue_game_web(
             cmd.append("--no-gui")
         subprocess.Popen(cmd)
         st.info(
-            f"Continuation (web) started for '{get_folder_display_name(log_folder)}' at http://{host}:{port}."
+            f"Continuation (web) started for '{_file_manager.get_folder_display_name(log_folder)}' at http://{host}:{port}."
         )
     except Exception as exc:
         st.error(f"Error starting web continuation: {exc}")

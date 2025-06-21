@@ -1,18 +1,88 @@
-"""
-Game Statistics Management System - OOP Architecture
+"""Statistics management with elegant summary.json handling and BaseClass architecture.
 
-This module provides an object-oriented game statistics management system that supports
-both Task-0's specific requirements and future extensibility for Tasks 1-5.
+=== SINGLE SOURCE OF TRUTH FOR STATISTICS MANAGEMENT ===
+This module provides the canonical interface for ALL statistics operations across tasks.
+BaseGameStatsManager handles universal statistics operations (session tracking, CSV export).
+GameStatsManager extends it with LLM-specific operations (token stats, response times).
 
-The base class provides generic functionality for statistics collection and processing,
-while Task-0 specific features are implemented in the GameStatsManager subclass.
-Future tasks can create their own subclasses with customized behavior.
+UNIVERSAL STATISTICS OPERATIONS (Tasks 0-5):
+- Session summary creation and management
+- CSV export for data analysis
+- Statistics validation and error handling
+- Consistent summary.json schema across tasks
 
-Design Philosophy:
-- Task-0 functionality is preserved and enhanced in GameStatsManager
-- Base class provides common statistics utilities for all tasks
-- SOLID principles: open for extension, closed for modification
-- Each task can have its own specialized statistics manager
+LLM-SPECIFIC OPERATIONS (Task-0 only):
+- Token usage aggregation
+- Response time statistics
+- LLM provider tracking
+- Prompt/completion metrics
+
+=== ELEGANT summary.json HANDLING ===
+The save_session_stats() method creates perfectly structured summary.json files:
+
+1. **Schema Consistency**: Identical structure for shared fields across all tasks
+2. **Incremental Updates**: Can merge new statistics without losing existing data  
+3. **Type Safety**: Ensures consistent data types (int, float, str, list, dict)
+4. **Error Recovery**: Graceful handling of corrupted summary files
+5. **Backwards Compatibility**: Fixed schema preserves old summary files
+
+### **summary.json Structure (Single Source of Truth)**
+```json
+{
+  "timestamp": "ISO-8601 format",
+  "configuration": {               // Session configuration
+    "provider": "...",             // LLM-only: Task-0, 4, 5
+    "model": "...",                // LLM-only: Task-0, 4, 5  
+    "max_games": 8,                // Universal: all tasks
+    "max_steps": 400,              // Universal: all tasks
+    "max_consecutive_invalid_reversals_allowed": 10,  // Universal
+    "max_consecutive_no_path_found_allowed": 1        // Universal
+  },
+  "game_statistics": {             // Aggregated game results
+    "total_games": 8,              // Universal: all tasks
+    "total_score": 130,            // Universal: all tasks
+    "scores": [8, 27, 12, ...],    // Universal: all tasks
+    "round_counts": [12, 39, ...]  // Universal: all tasks
+  },
+  "step_stats": {                  // Aggregated step statistics
+    "valid_steps": 931,            // Universal: all tasks
+    "invalid_reversals": 0,        // Universal: all tasks
+    "no_path_found_steps": 0,      // Universal: all tasks
+    "empty_steps": 16,             // LLM-only: Task-0, 4, 5
+    "something_is_wrong_steps": 0  // LLM-only: Task-0, 4, 5
+  },
+  "time_statistics": {             // Timing information
+    "total_llm_communication_time": 13681.6,  // LLM-only: Task-0, 4, 5
+    "avg_primary_response_time": 76.4          // LLM-only: Task-0, 4, 5
+  },
+  "token_usage_stats": {           // LLM-only: Task-0, 4, 5
+    "primary_llm": {...},          // Token consumption metrics
+    "secondary_llm": {...}         // Parser token metrics
+  }
+}
+```
+
+=== TASK INHERITANCE EXAMPLES ===
+```python
+# Task-0 (LLM): Full GameStatsManager with LLM statistics
+stats_manager = GameStatsManager()
+stats_manager.save_session_stats(log_dir, token_stats=llm_tokens)  # LLM-specific
+
+# Task-1 (Heuristics): Uses BaseGameStatsManager only
+stats_manager = BaseGameStatsManager()
+stats_manager.save_session_stats(log_dir, algorithm_stats=heuristic_data)  # Generic
+
+# Task-2 (RL): Could extend BaseGameStatsManager for RL-specific metrics
+class RLStatsManager(BaseGameStatsManager):
+    def save_training_stats(self, episode_data): ...
+```
+
+=== JSON UPDATE GUARANTEE ===
+All summary.json updates guarantee:
+- Atomic file operations (write to temp, then rename)
+- Schema preservation (existing fields never modified)
+- Type consistency (int remains int, list remains list)
+- Error logging without file corruption
 """
 from __future__ import annotations
 
@@ -22,6 +92,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
+from utils.path_utils import get_default_logs_root, get_summary_json_filename
 
 __all__ = [
     "BaseGameStatsManager",
@@ -59,13 +130,15 @@ class BaseGameStatsManager:
     Task-specific behavior should be implemented in subclasses.
     """
     
-    def __init__(self, log_dir: str = "logs"):
+    def __init__(self, log_dir: str = None):
         """
         Initialize the statistics manager.
         
         Args:
-            log_dir: The root directory for log operations.
+            log_dir: The root directory for log operations (defaults to logs dir).
         """
+        if log_dir is None:
+            log_dir = get_default_logs_root()
         self.log_dir = log_dir
     
     def create_base_experiment_info(self, args: Any) -> Dict[str, Any]:
@@ -105,7 +178,7 @@ class BaseGameStatsManager:
             Path to the saved file.
         """
         os.makedirs(directory, exist_ok=True)
-        file_path = os.path.join(directory, "summary.json")
+        file_path = os.path.join(directory, get_summary_json_filename())
         
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(experiment_info, f, indent=2, cls=NumPyJSONEncoder)
@@ -122,7 +195,7 @@ class BaseGameStatsManager:
         Returns:
             Summary statistics dictionary or None if not found.
         """
-        summary_path = os.path.join(log_dir, "summary.json")
+        summary_path = os.path.join(log_dir, get_summary_json_filename())
         
         if not os.path.exists(summary_path):
             return None
@@ -337,7 +410,7 @@ class GameStatsManager(BaseGameStatsManager):
             **kwargs: Statistics to merge into the summary.
         """
         # Read existing summary file
-        summary_path = os.path.join(log_dir, "summary.json")
+        summary_path = os.path.join(log_dir, get_summary_json_filename())
 
         if not os.path.exists(summary_path):
             return

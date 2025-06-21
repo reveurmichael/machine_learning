@@ -32,3 +32,4 @@ config.yml
 **/tmp-downloads/** 
 .cursor/*
 **/.cursor/*
+**/extensions/*

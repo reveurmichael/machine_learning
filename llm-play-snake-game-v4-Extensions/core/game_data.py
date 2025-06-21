@@ -1,7 +1,59 @@
+"""Game data management with BaseClass architecture for clean task separation.
+
+=== SINGLE SOURCE OF TRUTH FOR GAME STATE ===
+This module defines the canonical game state structure used across ALL tasks.
+BaseGameData contains ONLY generic attributes that are useful to any algorithm.
+
+UNIVERSAL GAME STATE (Tasks 0-5):
+- Core game state: score, steps, game_over, snake_positions, apple_position
+- Move tracking: moves, current_game_moves, planned_moves
+- Error counters: consecutive_invalid_reversals, consecutive_no_path_found
+- Round management: round_manager (for planning algorithms)
+- Statistics: stats (BaseGameStatistics instance)
+
+LLM-SPECIFIC EXTENSIONS (Task-0 only):
+- LLM counters: consecutive_empty_steps, consecutive_something_is_wrong
+- LLM limits: max_consecutive_empty_moves_allowed, max_consecutive_something_is_wrong_allowed
+- LLM statistics: stats (GameStatistics instance with token/response data)
+
+=== ELEGANT JSON HANDLING ===
+The generate_game_summary() method creates perfectly structured game_N.json files:
+- Consistent schema across all tasks (BaseGameData ensures this)
+- LLM-specific fields only appear in Task-0 JSON files
+- Round data is automatically synchronized via round_manager
+- Statistics are serialized using asdict() methods for consistency
+
+=== TASK INHERITANCE EXAMPLES ===
+```python
+# Task-0 (LLM): Full GameData with LLM extensions
+class GameData(BaseGameData):
+    def __init__(self):
+        super().__init__()
+        self.stats = GameStatistics()  # LLM-specific stats
+
+# Task-1 (Heuristics): Uses BaseGameData directly  
+class HeuristicGameData(BaseGameData):
+    def __init__(self):
+        super().__init__()
+        # Inherits: consecutive_invalid_reversals, consecutive_no_path_found
+        # Does NOT inherit: consecutive_empty_steps, consecutive_something_is_wrong
+
+# Task-2 (RL): Could extend BaseGameData for RL-specific state
+class RLGameData(BaseGameData):
+    def __init__(self):
+        super().__init__()
+        self.episode_rewards = []  # RL-specific extension
+```
+
+=== JSON OUTPUT GUARANTEE ===
+All game_N.json files follow the same schema for shared fields:
+- step_stats contains identical field names
+- detailed_history uses same apple_positions/moves format  
+- metadata section is consistent across tasks
+- Task-specific extensions appear as additional fields without conflicts
 """
-The class BaseGameData is NOT Task0 specific.
-The class GameData is Task0 specific.
-"""
+
+from __future__ import annotations
 
 import json
 import os

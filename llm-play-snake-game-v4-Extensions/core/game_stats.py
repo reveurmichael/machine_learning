@@ -1,3 +1,42 @@
+"""Game statistics with BaseClass architecture for future extensibility.
+
+=== SINGLE SOURCE OF TRUTH FOR STATISTICS ===
+This module defines the canonical statistics structure used across ALL tasks.
+The BaseClass architecture enables clean separation:
+
+UNIVERSAL STATISTICS (Tasks 0-5):
+- BaseStepStats: valid, invalid_reversals, no_path_found
+- BaseGameStatistics: time_stats, step_stats (base versions)
+- TimeStats: Wall-clock timing for any algorithm type
+
+LLM-SPECIFIC STATISTICS (Task-0 only):
+- StepStats: Extends BaseStepStats with empty, something_wrong
+- GameStatistics: Extends BaseGameStatistics with LLM token/response data
+
+=== WHY THIS ARCHITECTURE MATTERS ===
+1. **Single Source of Truth**: All statistics definitions live here
+2. **Clean Inheritance**: Tasks 1-5 inherit BaseXxx classes (no LLM pollution)
+3. **JSON Consistency**: asdict() methods ensure identical JSON schema
+4. **Future-Proof**: New tasks can extend base classes without breaking existing code
+
+=== TASK USAGE EXAMPLES ===
+```python
+# Task-0 (LLM): Uses full GameStatistics with all features
+game_data.stats = GameStatistics()  # Gets empty_steps, token_stats, etc.
+
+# Task-1 (Heuristics): Uses BaseGameStatistics only  
+game_data.stats = BaseGameStatistics()  # Gets valid, invalid_reversals, no_path_found
+
+# Task-2 (RL): Could extend BaseGameStatistics for RL-specific metrics
+class RLGameStatistics(BaseGameStatistics):
+    episode_rewards: List[float] = field(default_factory=list)
+```
+
+=== JSON OUTPUT GUARANTEE ===
+All asdict() methods produce identical JSON structure for the same fields,
+ensuring game_N.json and summary.json files are compatible across tasks.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -7,6 +7,7 @@ A Streamlit app for analyzing, replaying, and continuing recorded Snake game ses
 import streamlit as st
 from streamlit.errors import StreamlitAPIException
 
+from utils.path_utils import get_default_logs_root
 from core.game_file_manager import FileManager
 from dashboard.tab_overview import render_overview_tab
 from dashboard.tab_human_play import (
@@ -43,8 +44,9 @@ class App:
     def main(self):
         st.title("🐍 Snake Game Analytics Dashboard")
 
+        # File manager setup
         file_manager = FileManager()
-        log_folders = file_manager.find_valid_log_folders("logs")
+        log_folders = file_manager.find_valid_log_folders(get_default_logs_root())
 
         (
             tab_overview,

@@ -32,8 +32,9 @@ from config.game_constants import (
     MAX_STEPS_ALLOWED as MAX_STEPS,
     PAUSE_BETWEEN_MOVES_SECONDS as pause_between_moves,
 )
-from llm.log_utils import clean_prompt_files
+from llm.log_utils import clean_prompt_files, get_llm_directories
 from core.game_file_manager import FileManager
+from utils.path_utils import get_summary_json_filename
 
 # Initialize file manager for continuation operations
 _file_manager = FileManager()
@@ -57,7 +58,7 @@ def setup_continuation_session(
         sys.exit(1)
         
     # Check if summary.json exists
-    summary_path = Path(log_dir) / "summary.json"
+    summary_path = Path(log_dir) / get_summary_json_filename()
     if not summary_path.exists():
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)
@@ -69,8 +70,7 @@ def setup_continuation_session(
         
     # Set the log directory
     game_manager.log_dir = log_dir
-    game_manager.prompts_dir = Path(log_dir) / "prompts"
-    game_manager.responses_dir = Path(log_dir) / "responses"
+    game_manager.prompts_dir, game_manager.responses_dir = get_llm_directories(log_dir)
     
     # Create directories if they don't exist
     game_manager.prompts_dir.mkdir(exist_ok=True)
@@ -184,7 +184,7 @@ def continue_from_directory(
         sys.exit(1)
         
     # Check if summary.json exists
-    summary_path = log_dir / "summary.json"
+    summary_path = log_dir / get_summary_json_filename()
     if not summary_path.exists():
         print(Fore.RED + f"❌ Missing summary.json in '{log_dir}'")
         sys.exit(1)

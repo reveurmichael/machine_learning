@@ -1,10 +1,37 @@
-"""
-LLM Logging Utilities
+"""LLM logging utilities with single source of truth for file operations.
 
-This module provides specialized functions for handling the logging of LLM-related
-data, such as prompts, responses, and parser outputs. It ensures that all
-Task-0 specific logging is managed in a consistent and organized manner,
-decoupled from generic file utilities.
+=== SINGLE SOURCE OF TRUTH FOR LLM FILE OPERATIONS ===
+This module provides elegant utility functions for LLM-specific file and directory
+operations, following the same pattern as get_prompt_filename().
+
+All LLM directory names and file patterns are centralized here:
+- Directory names come from config.game_constants (PROMPTS_DIR_NAME, RESPONSES_DIR_NAME)
+- File naming patterns are standardized via get_prompt_filename()
+- Directory creation and management via get_llm_directories(), ensure_llm_directories()
+- Cleanup operations via cleanup_game_artifacts()
+
+=== DESIGN PHILOSOPHY ===
+Like get_prompt_filename(), all functions here follow elegant patterns:
+1. **Centralized Constants**: No hardcoded strings
+2. **Type Safety**: Union[str, Path] for flexibility
+3. **Path Objects**: Modern pathlib.Path usage
+4. **Error Handling**: Graceful missing_ok=True operations
+5. **Consistent Naming**: Standardized file/directory patterns
+
+=== USAGE EXAMPLES ===
+```python
+# Get directory paths
+prompts_dir, responses_dir = get_llm_directories(log_dir)
+
+# Ensure directories exist
+prompts_dir, responses_dir = ensure_llm_directories(log_dir)
+
+# Clean up game artifacts
+cleanup_game_artifacts(log_dir, start_game=3)
+
+# Get standardized filename
+filename = get_prompt_filename(game_num=1, round_num=2, artefact_type="prompt")
+```
 """
 from __future__ import annotations
 
@@ -12,33 +39,31 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
+from config.game_constants import PROMPTS_DIR_NAME, RESPONSES_DIR_NAME
+
 __all__ = [
     "clean_prompt_files",
     "save_llm_artefact",
     "get_prompt_filename",
+    "get_prompts_dir_path",
+    "get_responses_dir_path",
+    "get_llm_directories",
+    "ensure_llm_directories",
+    "cleanup_game_artifacts",
 ]
 
 
 def clean_prompt_files(log_dir: Union[str, Path], start_game: int) -> None:
     """
+    Legacy function - use cleanup_game_artifacts() instead.
+    
     Deletes prompt and response files for a given game number onwards.
-
-    This is used when continuing a session to ensure that artifacts from
-    previous, partial runs of a game are cleared.
 
     Args:
         log_dir: The root directory for the logging session.
         start_game: The game number from which to clear artifacts.
     """
-    prompts_dir = Path(log_dir) / "prompts"
-    if prompts_dir.exists():
-        for f in prompts_dir.glob(f"game_{start_game}_*"):
-            f.unlink(missing_ok=True)
-
-    responses_dir = Path(log_dir) / "responses"
-    if responses_dir.exists():
-        for f in responses_dir.glob(f"game_{start_game}_*"):
-            f.unlink(missing_ok=True)
+    cleanup_game_artifacts(log_dir, start_game)
 
 
 def save_llm_artefact(
@@ -111,4 +136,98 @@ def get_prompt_filename(
             f"Invalid artefact_type '{artefact_type}'. Must be one of: {valid_types}"
         )
 
-    return f"game_{game_number}_round_{round_number}_{artefact_type}.txt" 
+    return f"game_{game_number}_round_{round_number}_{artefact_type}.txt"
+
+
+def get_prompts_dir_path(log_dir: Union[str, Path]) -> Path:
+    """
+    Get the standardized prompts directory path for a given log directory.
+    
+    Args:
+        log_dir: The base log directory path
+        
+    Returns:
+        Path object pointing to the prompts subdirectory
+        
+    Example:
+        >>> get_prompts_dir_path("/logs/session_123")
+        Path("/logs/session_123/prompts")
+    """
+    return Path(log_dir) / PROMPTS_DIR_NAME
+
+
+def get_responses_dir_path(log_dir: Union[str, Path]) -> Path:
+    """
+    Get the standardized responses directory path for a given log directory.
+    
+    Args:
+        log_dir: The base log directory path
+        
+    Returns:
+        Path object pointing to the responses subdirectory
+        
+    Example:
+        >>> get_responses_dir_path("/logs/session_123")
+        Path("/logs/session_123/responses")
+    """
+    return Path(log_dir) / RESPONSES_DIR_NAME
+
+
+def get_llm_directories(log_dir: Union[str, Path]) -> tuple[Path, Path]:
+    """
+    Get both prompts and responses directory paths for a given log directory.
+    
+    Args:
+        log_dir: The base log directory path
+        
+    Returns:
+        Tuple of (prompts_dir, responses_dir) Path objects
+        
+    Example:
+        >>> prompts_dir, responses_dir = get_llm_directories("/logs/session_123")
+        >>> print(prompts_dir)  # Path("/logs/session_123/prompts")
+        >>> print(responses_dir)  # Path("/logs/session_123/responses")
+    """
+    return get_prompts_dir_path(log_dir), get_responses_dir_path(log_dir)
+
+
+def ensure_llm_directories(log_dir: Union[str, Path]) -> tuple[Path, Path]:
+    """
+    Ensure prompts and responses directories exist, creating them if necessary.
+    
+    Args:
+        log_dir: The base log directory path
+        
+    Returns:
+        Tuple of (prompts_dir, responses_dir) Path objects (guaranteed to exist)
+        
+    Example:
+        >>> prompts_dir, responses_dir = ensure_llm_directories("/logs/session_123")
+        # Directories are created if they don't exist
+    """
+    prompts_dir, responses_dir = get_llm_directories(log_dir)
+    prompts_dir.mkdir(parents=True, exist_ok=True)
+    responses_dir.mkdir(parents=True, exist_ok=True)
+    return prompts_dir, responses_dir
+
+
+def cleanup_game_artifacts(log_dir: Union[str, Path], start_game: int) -> None:
+    """
+    Deletes prompt and response files for a given game number onwards.
+
+    This is used when continuing a session to ensure that artifacts from
+    previous, partial runs of a game are cleared.
+
+    Args:
+        log_dir: The root directory for the logging session.
+        start_game: The game number from which to clear artifacts.
+    """
+    prompts_dir, responses_dir = get_llm_directories(log_dir)
+    
+    if prompts_dir.exists():
+        for f in prompts_dir.glob(f"game_{start_game}_*"):
+            f.unlink(missing_ok=True)
+
+    if responses_dir.exists():
+        for f in responses_dir.glob(f"game_{start_game}_*"):
+            f.unlink(missing_ok=True) 

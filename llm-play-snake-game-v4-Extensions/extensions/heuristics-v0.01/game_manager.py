@@ -10,7 +10,7 @@ import argparse
 import os
 import time
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 import json
 
 from colorama import Fore
@@ -28,6 +28,8 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(args)
         self.agent: Optional[BFSAgent] = None
         self.log_dir: Optional[str] = None
+        self.game_steps: List[int] = []  # Track steps per game for efficiency metrics
+        self.game_rounds: List[int] = []  # Track rounds per game for round analysis
 
     def initialize(self) -> None:
         """Initialize BFS game manager."""
@@ -99,20 +101,33 @@ class HeuristicGameManager(BaseGameManager):
         """Save game results."""
         self.total_score += self.game.game_state.score
         self.game_scores.append(self.game.game_state.score)
+        self.game_steps.append(self.game.game_state.steps)  # Track steps for efficiency metrics
+        self.game_rounds.append(self.round_count)  # Track rounds for round analysis
 
         # Simple game file save
         try:
             game_data = {
+                "algorithm": "BFS",
                 "score": self.game.game_state.score,
                 "steps": self.game.game_state.steps,
+                "round_count": self.round_count,
                 "snake_length": len(self.game.snake_positions),
-                "moves": getattr(self.game.game_state, 'moves', []),
-                "apple_positions": []  # Simplified for proof of concept
+                "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'MAX_STEPS'),
+                "detailed_history": {
+                    "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
+                    "moves": getattr(self.game.game_state, 'moves', []),
+                    "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {}
+                },
+                "metadata": {
+                    "timestamp": getattr(self.game.game_state, 'timestamp', ''),
+                    "game_number": self.game_count,
+                    "round_count": self.round_count
+                }
             }
 
             game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
             with open(game_filepath, 'w') as f:
-                json.dump(game_data, f, indent=2)
+                json.dump(game_data, f, indent=2, default=str)
         except Exception as e:
             print(f"❌ Save error: {e}")
 
@@ -124,14 +139,23 @@ class HeuristicGameManager(BaseGameManager):
             "algorithm": "BFS",
             "total_games": self.game_count,
             "total_score": self.total_score,
+            "total_rounds": sum(self.game_rounds),
             "scores": self.game_scores,
-            "average_score": self.total_score / max(self.game_count, 1)
+            "round_counts": self.game_rounds,
+            "average_score": self.total_score / max(self.game_count, 1),
+            "total_steps": sum(self.game_steps),
+            "score_per_step": self.total_score / max(sum(self.game_steps), 1),
+            "score_per_round": self.total_score / max(sum(self.game_rounds), 1)
         }
 
         print(Fore.MAGENTA + f"🧠 Algorithm: {summary['algorithm']}")
         print(Fore.CYAN + f"🎮 Total games: {summary['total_games']}")
+        print(Fore.CYAN + f"🔄 Total rounds: {summary['total_rounds']}")
         print(Fore.CYAN + f"🏆 Total score: {summary['total_score']}")
         print(Fore.YELLOW + f"📈 Scores: {summary['scores']}")
+        print(Fore.YELLOW + f"🔢 Round counts: {summary['round_counts']}")
         print(Fore.MAGENTA + f"📊 Average score: {summary['average_score']:.1f}")
+        print(Fore.GREEN + f"⚡ Score per step: {summary['score_per_step']:.3f}")
+        print(Fore.GREEN + f"🎯 Score per round: {summary['score_per_round']:.3f}")
         with open(os.path.join(self.log_dir, "summary.json"), 'w') as f:
-            json.dump(summary, f, indent=2) 
+            json.dump(summary, f, indent=2, default=str) 

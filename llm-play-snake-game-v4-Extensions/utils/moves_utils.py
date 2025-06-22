@@ -21,6 +21,7 @@ __all__ = [
     "normalize_directions",
     "is_reverse",
     "get_relative_apple_direction_text",
+    "position_to_direction",
 ]
 
 # ----------------
@@ -82,6 +83,43 @@ def is_reverse(dir_a: str, dir_b: str) -> bool:
     dir_b = normalize_direction(dir_b)
     opposites = {("UP", "DOWN"), ("LEFT", "RIGHT")}
     return (dir_a, dir_b) in opposites or (dir_b, dir_a) in opposites
+
+
+def position_to_direction(from_pos: tuple[int, int], to_pos: tuple[int, int]) -> str:
+    """
+    Convert position difference to direction string.
+    
+    This function is commonly used by pathfinding algorithms to convert
+    a position difference into the corresponding direction string.
+    
+    Args:
+        from_pos: Starting position (x, y)
+        to_pos: Target position (x, y)
+        
+    Returns:
+        Direction string ('UP', 'DOWN', 'LEFT', 'RIGHT') or 'NO_PATH_FOUND'
+        if the positions are not adjacent or invalid.
+        
+    Example:
+        >>> position_to_direction((1, 1), (1, 2))
+        'UP'
+        >>> position_to_direction((5, 5), (6, 5))
+        'RIGHT'
+    """
+    dx = to_pos[0] - from_pos[0]
+    dy = to_pos[1] - from_pos[1]
+    
+    # Based on coordinate system: UP:(0,1), DOWN:(0,-1), LEFT:(-1,0), RIGHT:(1,0)
+    if dx == 0 and dy == 1:
+        return "UP"       # Y increases = UP
+    elif dx == 0 and dy == -1:
+        return "DOWN"     # Y decreases = DOWN
+    elif dx == 1 and dy == 0:
+        return "RIGHT"    # X increases = RIGHT
+    elif dx == -1 and dy == 0:
+        return "LEFT"     # X decreases = LEFT
+    else:
+        return "NO_PATH_FOUND"  # Invalid move (not adjacent or diagonal)
 
 
 # ---------------------

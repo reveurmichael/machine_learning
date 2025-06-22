@@ -51,7 +51,9 @@ Regarding the naming: in the root directory, by default it's for task0. so no ne
 
  
 
-## Don't add or remove any classes in the ./core/ folder
+## VITAL: Don't remove any classes in the ./core/, ./replay/ folder. You can add some functions or classes, but don't remove classes.
 Because it's already being used by extensions (check the folder "./extensions/")
+
+
 
 

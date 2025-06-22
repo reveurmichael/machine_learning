@@ -366,15 +366,16 @@ class GameLoop(BaseGameLoop):
             manager.increment_round("new round start")
 
         manager.awaiting_plan = True
-        manager.game.draw()
 
+        # Retrieve plan from LLM – synchronous call; may take a few seconds.
+        get_llm_response(manager, round_id=manager.round_count)
+
+        # Give humans a brief preview window to read the LLM output before the
+        # snake starts moving.  Only relevant for interactive GUI sessions.
+        manager.game.draw()
         if manager.use_gui:
             time.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
 
-        # This call now only populates the plan, it doesn't return the move.
-        get_llm_response(manager, round_id=manager.round_count)
-        
-        manager.awaiting_plan = False
         manager.need_new_plan = False # We have a plan now.
 
     def _handle_game_over(self) -> None:

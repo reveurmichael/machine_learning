@@ -415,32 +415,11 @@ def get_llm_response(
         if parser_output and not parser_output.get("moves"):
             reason_text = str(parser_output.get("reasoning", "")).upper()
             if "NO_PATH_FOUND" in reason_text:
-                game_manager.consecutive_no_path_found += 1
-                streak = game_manager.consecutive_no_path_found
-                limit_np = game_manager.args.max_consecutive_no_path_found_allowed
-                print(
-                    Fore.YELLOW
-                    + f"⚠️ NO_PATH_FOUND from LLM. Consecutive: {streak}/{limit_np}"
-                )
-
                 # Mark flag so the game loop logs the sentinel move & handles any
-                # special sleep logic.
+                # special sleep logic via the elegant limits manager
                 game_manager.last_no_path_found = True
-
-                # If threshold reached – immediate game over
-                if streak >= limit_np:
-                    print(
-                        Fore.RED
-                        + f"❌ Maximum consecutive NO_PATH_FOUND reached ({limit_np}). Game over."
-                    )
-                    game_manager.game.game_state.record_game_end(
-                        "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED"
-                    )
-                    return
-
             else:
-                # Any response *other* than NO_PATH_FOUND resets the streak & flag
-                game_manager.consecutive_no_path_found = 0
+                # Any response *other* than NO_PATH_FOUND resets the flag
                 game_manager.last_no_path_found = False
 
         # Extract the next move
@@ -495,19 +474,7 @@ def get_llm_response(
         # Ensure round data is synchronized before returning
         game_manager.game.game_state.round_manager.sync_round_data()
 
-        # Check if we've reached the max consecutive empty moves
-        if (
-            game_manager.consecutive_empty_steps
-            >= game_manager.args.max_consecutive_empty_moves_allowed
-        ):
-            print(
-                Fore.RED
-                + f"❌ Maximum consecutive empty moves reached ({game_manager.args.max_consecutive_empty_moves_allowed}). Game over."
-            )
-            game_manager.game.game_state.record_game_end(
-                "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED"
-            )
-            return
+        # Note: Empty moves limit checking is handled by the elegant limits manager in the game loop
 
     except Exception as e:
         # ---------------------

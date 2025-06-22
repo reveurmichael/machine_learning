@@ -219,30 +219,53 @@ class StandardLimitEnforcement(LimitEnforcementStrategy):
     
     def _handle_violation(self, config: LimitConfiguration, status: LimitStatus, 
                          game_state: GameStateProvider) -> bool:
-        """Handle limit violation based on configured action."""
-        limit_name = config.limit_type.value.replace('_', ' ').title()
+        """
+        Handle limit violations with specific actions and detailed console output.
         
+        This method provides the final game-over messages that match the original
+        LLM-specific implementation while maintaining the elegant architecture.
+        
+        Design Pattern: Strategy Pattern
+        - Different violation actions can be configured per limit type
+        - Consistent interface with type-specific behavior
+        """
         if config.violation_action == LimitViolationAction.END_GAME:
-            print(Fore.RED + f"❌ Maximum consecutive {limit_name.lower()} reached "
-                             f"({config.max_consecutive}). Game over.")
+            # Provide specific game-over messages matching the original implementation
+            if config.limit_type == LimitType.INVALID_REVERSALS:
+                print(Fore.RED + f"❌ Maximum consecutive invalid reversals reached ({config.max_consecutive}). Game over.")
+            elif config.limit_type == LimitType.EMPTY_MOVES:
+                print(Fore.RED + f"❌ Maximum consecutive empty moves reached ({config.max_consecutive}). Game over.")
+            elif config.limit_type == LimitType.SOMETHING_IS_WRONG:
+                print(Fore.RED + f"❌ Maximum consecutive LLM errors reached ({config.max_consecutive}). Game over.")
+            elif config.limit_type == LimitType.NO_PATH_FOUND:
+                print(Fore.RED + f"❌ Maximum consecutive NO_PATH_FOUND reached ({config.max_consecutive}). Game over.")
+            elif config.limit_type == LimitType.MAX_STEPS:
+                print(Fore.RED + f"❌ Maximum steps reached ({config.max_consecutive}). Game over.")
+            else:
+                # Fallback for any future limit types
+                limit_name = config.limit_type.value.replace('_', ' ').lower()
+                print(Fore.RED + f"❌ Maximum consecutive {limit_name} reached ({config.max_consecutive}). Game over.")
             
-            if game_state.is_game_active():
-                game_state.record_game_end(config.end_reason_code)
-            return False  # End game
-        
-        elif config.violation_action == LimitViolationAction.LOG_WARNING:
-            print(Fore.YELLOW + f"⚠️  Consecutive {limit_name.lower()} limit exceeded "
-                               f"({status.consecutive_count}), but continuing game")
-            return True  # Continue game
-        
+            game_state.record_game_end(config.end_reason_code)
+            return False
+            
         elif config.violation_action == LimitViolationAction.APPLY_PENALTY:
-            penalty_time = config.sleep_after_occurrence * 2  # Double penalty
-            print(Fore.CYAN + f"⏸️  Applying penalty sleep ({penalty_time:.1f} minutes) "
-                             f"for excessive {limit_name.lower()}")
-            time.sleep(penalty_time * 60)
-            return True  # Continue game
-        
-        return True  # Default: continue game
+            self._apply_sleep_penalty(config, status)
+            return True
+            
+        elif config.violation_action == LimitViolationAction.LOG_WARNING:
+            print(Fore.YELLOW + f"⚠️ Limit exceeded but continuing: {config.limit_type.value}")
+            return True
+            
+        elif config.violation_action == LimitViolationAction.RESET_COUNTER:
+            print(Fore.CYAN + f"🔄 Resetting counter for: {config.limit_type.value}")
+            return True
+            
+        else:
+            # Default to ending the game for unknown actions
+            print(Fore.RED + f"❌ Unknown violation action. Game over.")
+            game_state.record_game_end(config.end_reason_code)
+            return False
     
     def _apply_sleep_penalty(self, config: LimitConfiguration, status: LimitStatus) -> None:
         """Apply configured sleep penalty."""
@@ -512,14 +535,45 @@ class ConsecutiveLimitsManager:
     
     def _log_occurrence(self, limit_type: LimitType, status: LimitStatus, 
                        config: LimitConfiguration) -> None:
-        """Log the occurrence of a limit event with appropriate formatting."""
-        limit_name = limit_type.value.replace('_', ' ').title()
+        """
+        Log the occurrence of a limit event with appropriate formatting.
+        
+        This method provides detailed, LLM-specific console output that matches
+        the original implementation while maintaining the elegant architecture.
+        Each limit type gets its own specific messaging format.
+        
+        Design Pattern: Template Method Pattern
+        - Common logging structure with type-specific customization
+        - Maintains consistency while allowing for specialized messaging
+        """
         progress = f"{status.consecutive_count}/{config.max_consecutive}"
         
-        if status.consecutive_count == 1:
-            print(Fore.YELLOW + f"⚠️  {limit_name} occurred. Count: {progress}")
+        # Type-specific logging with detailed messages matching original implementation
+        if limit_type == LimitType.INVALID_REVERSALS:
+            if status.consecutive_count == 1:
+                print(Fore.YELLOW + f"⚠️ Invalid reversal detected. Consecutive invalid reversals: {progress}")
+            else:
+                print(Fore.YELLOW + f"⚠️ Invalid reversal detected. Consecutive invalid reversals: {progress}")
+        
+        elif limit_type == LimitType.EMPTY_MOVES:
+            print(Fore.YELLOW + f"⚠️ Empty move detected. Consecutive empty moves: {progress}")
+        
+        elif limit_type == LimitType.SOMETHING_IS_WRONG:
+            print(Fore.YELLOW + f"⚠️ LLM error detected. Consecutive LLM errors: {progress}")
+        
+        elif limit_type == LimitType.NO_PATH_FOUND:
+            print(Fore.YELLOW + f"⚠️ NO_PATH_FOUND from LLM. Consecutive: {progress}")
+        
+        elif limit_type == LimitType.MAX_STEPS:
+            print(Fore.YELLOW + f"⚠️ Step count increasing. Current steps: {progress}")
+        
         else:
-            print(Fore.YELLOW + f"⚠️  Consecutive {limit_name.lower()}: {progress}")
+            # Fallback for any future limit types
+            limit_name = limit_type.value.replace('_', ' ').title()
+            if status.consecutive_count == 1:
+                print(Fore.YELLOW + f"⚠️ {limit_name} occurred. Count: {progress}")
+            else:
+                print(Fore.YELLOW + f"⚠️ Consecutive {limit_name.lower()}: {progress}")
     
     def get_status_summary(self) -> Dict[str, Dict[str, int]]:
         """

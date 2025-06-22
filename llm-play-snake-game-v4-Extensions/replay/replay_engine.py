@@ -1,12 +1,16 @@
 """
 Replay engine for the Snake game.
 Handles replaying of previously recorded games.
+
+Enhanced with limits manager integration to provide the same console output
+that would have appeared during the original game session.
 """
 
 from __future__ import annotations
 
 import time
 import traceback
+import argparse
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -14,6 +18,7 @@ import pygame
 from pygame.locals import *  # noqa: F403 – Pygame constants
 
 from core.game_logic import GameLogic
+from core.game_limits_manager import create_limits_manager
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from replay.replay_data import ReplayData
@@ -23,6 +28,33 @@ from core.game_file_manager import FileManager
 # Initialize file manager for replay operations
 _file_manager = FileManager()
 
+
+class ReplayGameStateProvider:
+    """
+    Mock game state provider for replay mode limits manager integration.
+    
+    This class provides the necessary interface for the limits manager to
+    function during replay, allowing it to show the same console output
+    that would have appeared during the original game session.
+    
+    Design Pattern: Adapter Pattern
+    - Adapts replay engine interface to limits manager expectations
+    - Provides consistent game state management during replay
+    """
+    
+    def __init__(self, replay_engine: 'BaseReplayEngine') -> None:
+        self.replay_engine = replay_engine
+    
+    def record_game_end(self, reason: str) -> None:
+        """Record game end reason and stop replay."""
+        self.replay_engine.game_end_reason = reason
+        self.replay_engine.running = False
+        print(f"🎮 Replay: Game ended with reason: {reason}")
+    
+    def is_game_active(self) -> bool:
+        """Check if replay is still running."""
+        return self.replay_engine.running
+
 # ---------------------------------------------------------------------------
 # Generic, headless-capable replay skeleton (LLM-agnostic).
 #
@@ -30,6 +62,9 @@ _file_manager = FileManager()
 # implementation (board state, collision handling, etc.) without pulling in
 # the newer *GameManager* / *GameController* abstractions that are not needed
 # for offline replays.
+#
+# Enhanced with limits manager integration to provide authentic console output
+# that matches what would have appeared during the original game session.
 # ---------------------------------------------------------------------------
 
 
@@ -40,6 +75,17 @@ class BaseReplayEngine(GameLogic):
     (e.g. no log file parsing, no LLM meta-data).  Concrete subclasses are
     expected to implement the abstract *load_game_data*, *update*,
     *handle_events*, and *run* methods.
+    
+    Enhanced with limits manager integration to provide the same console output
+    that would have appeared during the original game session, including:
+    - Invalid reversal warnings and limits
+    - Empty move warnings and limits  
+    - LLM error warnings and limits
+    - NO_PATH_FOUND warnings and limits
+    
+    Design Pattern: Template Method Pattern
+    - Common replay structure with type-specific console output
+    - Maintains consistency with live game sessions
     """
 
     # -------------------------------------------------------------------
@@ -122,6 +168,47 @@ class BaseReplayEngine(GameLogic):
         # Game-over meta-data – may stay *None* for subclasses that do not use them.
         self.game_end_reason: Optional[str] = None
 
+        # ---------------------
+        # Enhanced Console Output: Limits Manager Integration
+        # ---------------------
+        # Initialize limits manager with default LLM game configuration
+        # to provide the same console output that would have appeared
+        # during the original game session
+        self._init_limits_manager()
+
+    def _init_limits_manager(self) -> None:
+        """
+        Initialize the limits manager for authentic console output during replay.
+        
+        This method creates a limits manager with default LLM game configuration
+        to ensure that replay mode shows the same warning messages and game-over
+        messages that would have appeared during the original game session.
+        
+        IMPORTANT: Sleep penalties are disabled for replay mode since we're showing
+        past events, not actively waiting for LLM responses.
+        
+        Design Pattern: Factory Pattern
+        - Creates properly configured limits manager for replay context
+        - Maintains consistency with live game behavior (minus sleep delays)
+        """
+        # Create mock args with typical LLM game limits
+        args = argparse.Namespace()
+        args.max_consecutive_empty_moves_allowed = 5  # Typical default
+        args.max_consecutive_something_is_wrong_allowed = 3
+        args.max_consecutive_invalid_reversals_allowed = 10
+        args.max_consecutive_no_path_found_allowed = 5
+        args.max_steps = 1000
+        
+        # CRITICAL: Disable sleep penalties for replay mode
+        # Replay should show what happened, not simulate real-time delays
+        args.sleep_after_empty_step = 0.0  # No sleep during replay
+        
+        # Initialize limits manager
+        self.limits_manager = create_limits_manager(args)
+        
+        # Create mock game state provider for limits manager
+        self.game_state_provider = ReplayGameStateProvider(self)
+
     # ---------------------
     # Abstract hooks – must be provided by concrete subclasses
     # ---------------------
@@ -148,18 +235,29 @@ class BaseReplayEngine(GameLogic):
         if not self.load_game_data(self.game_number):
             print("No more games to load. Replay complete.")
             self.running = False
+        else:
+            # Reset limits manager counters for the new game
+            if hasattr(self, 'limits_manager'):
+                self.limits_manager.reset_all_counters()
 
     def execute_replay_move(self, direction_key: str) -> bool:
         """Execute *direction_key* during a replay step.
 
+        Enhanced with limits manager integration to provide the same console output
+        that would have appeared during the original game session, including warning
+        messages and game-over conditions for consecutive limit violations.
+        
         Keeps logic identical to the original GameController implementation so
         the replay matches exactly what happened during recording.
         """
         # ---------------------
         # Handle *sentinel* pseudo-moves that encode timing or errors in
         # the original session but do *not* move the snake.
+        # 
+        # Enhanced: Use limits manager to show authentic console output
         # ---------------------
         if direction_key in SENTINEL_MOVES:
+            # Record the move in game state (for statistics)
             if direction_key == "INVALID_REVERSAL":
                 self.game_state.record_invalid_reversal()
             elif direction_key == "EMPTY":
@@ -172,10 +270,26 @@ class BaseReplayEngine(GameLogic):
                     self.game_state.record_something_is_wrong_move()  # type: ignore[attr-defined]
             elif direction_key == "NO_PATH_FOUND":
                 self.game_state.record_no_path_found_move()
+            
+            # ---------------------
+            # Enhanced Console Output: Use limits manager for authentic warnings/game-over messages
+            # ---------------------
+            # Process the sentinel move through limits manager to show the same
+            # console output that would have appeared during the original game session
+            game_should_continue = self.limits_manager.record_move(direction_key, self.game_state_provider)
+            
+            # If limits manager says game should end, respect that decision
+            if not game_should_continue:
+                return False
+            
             return True  # Game continues, snake stays put
 
         # Regular move – delegate to *make_move* from BaseGameController
         game_active, apple_eaten = super().make_move(direction_key)
+        
+        # For valid moves, reset appropriate counters in limits manager
+        if direction_key in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            self.limits_manager.record_move(direction_key, self.game_state_provider)
 
         return game_active
 
@@ -238,6 +352,10 @@ class BaseReplayEngine(GameLogic):
         
         # Clear planned moves
         self.planned_moves = []
+        
+        # Reset limits manager counters for the new game
+        if hasattr(self, 'limits_manager'):
+            self.limits_manager.reset_all_counters()
 
 
 # ---------------------

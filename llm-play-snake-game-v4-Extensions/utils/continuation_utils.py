@@ -14,6 +14,7 @@ IMPORTANT:
 from __future__ import annotations
 
 import argparse
+import os
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from core.game_manager import GameManager
@@ -198,10 +199,13 @@ def continue_from_directory(
             # Apply the original experiment's configuration
             print(Fore.GREEN + "📝 Loading original experiment configuration from summary.json")
             
-            # Copy the original provider and model
-            args.provider = original_config.get('provider')
-            args.model = original_config.get('model')
-            
+            # --- Robustly copy provider and model ---
+            if 'provider' not in original_config or not original_config['provider']:
+                print(Fore.RED + "❌ 'provider' missing or empty in summary.json configuration.")
+                sys.exit(1)
+            args.provider = original_config['provider']
+            args.model = original_config.get('model')  # Model can be optional
+
             # Copy the original parser settings
             args.parser_provider = original_config.get('parser_provider')
             args.parser_model = original_config.get('parser_model')
@@ -270,44 +274,34 @@ def continue_from_directory(
         print(Fore.YELLOW + f"⚠️ Warning: Could not load configuration from summary.json: {e}")
         print(Fore.YELLOW + "⚠️ Continuing with command-line arguments")
         
-    # Check if any game files exist
-    game_files = []
+    # Find the latest game number from existing game_*.json files
+    latest_game_number = 0
     for file in os.listdir(log_dir):
-        if file.startswith("game_") or (file.startswith("game") and not file.startswith("game_")):
-            if file.endswith(".json"):
-                game_files.append(file)
+        if file.startswith("game_") and file.endswith(".json"):
+            try:
+                game_num = int(file[5:-5])
+                if game_num > latest_game_number:
+                    latest_game_number = game_num
+            except ValueError:
+                continue
+
+    # Clean up artifacts from the latest game onwards, as they will be re-run
+    if latest_game_number > 0:
+        print(Fore.YELLOW + f"🔄 Resuming from game {latest_game_number}. Cleaning up incomplete artifacts...")
+        # We only clean up the *last* game's artifacts, as it might be partial.
+        # The session will continue from here.
+        cleanup_game_artifacts(log_dir, latest_game_number)
+
+    # The session will continue from the last completed game number + 1
+    start_game_number = latest_game_number + 1
     
-    if not game_files:
-        print(Fore.YELLOW + f"⚠️ Warning: No game files found in '{log_dir}'")
-        print(Fore.YELLOW + "⚠️ Starting from game 1 but in continuation mode")
-        next_game = 1
-    else:
-        # Determine the next game number
-        next_game = _file_manager.get_next_game_number(log_dir)
-    
-    print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
-    print(Fore.GREEN + f"✅ Starting from game {next_game}")
-    
-    # Remove artefacts from incomplete games >= next_game (fresh, no back-compat wrapper)
-    cleanup_game_artifacts(log_dir, next_game)
-    
-    # Create and run the game manager with continuation settings
+    # Create the game manager instance
     game_manager = game_manager_class(args)
     
-    # Set the is_continuation flag explicitly
-    args.is_continuation = True
+    # Setup the session for continuation
+    setup_continuation_session(game_manager, str(log_dir), start_game_number)
     
-    # Set up LLM clients with the configuration from the original experiment
-    # Local import to avoid circular dependency
-    from utils.initialization_utils import setup_llm_clients
-    setup_llm_clients(game_manager)
+    # Run the game manager's continuation logic
+    game_manager.run()
     
-    # Continue from the session
-    try:
-        game_manager.continue_from_session(log_dir, next_game)
-    except Exception as e:
-        print(Fore.RED + f"❌ Error continuing from session: {e}")
-        traceback.print_exc()
-        sys.exit(1)
-        
     return game_manager

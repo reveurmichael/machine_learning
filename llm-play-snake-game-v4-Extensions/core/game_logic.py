@@ -151,6 +151,11 @@ class BaseGameLogic:
 
     def make_move(self, direction_key: str) -> Tuple[bool, bool]:
         """Execute a move in the specified direction."""
+        # Check if game is already over - no moves allowed
+        if self.game_state.game_over:
+            print(f"Game over! No moves allowed. Current end reason: {self.game_state.game_end_reason}")
+            return False, False
+            
         # Standardize direction key to uppercase
         if isinstance(direction_key, str):
             direction_key = direction_key.upper()
@@ -283,6 +288,11 @@ class BaseGameLogic:
     def snake_length(self) -> int:
         """Current snake length."""
         return self.game_state.snake_length
+    
+    @property
+    def game_over(self) -> bool:
+        """Check if the game is over."""
+        return self.game_state.game_over
 
     # ------------------
     # Generic helpers for planned-move agents

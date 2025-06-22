@@ -98,10 +98,16 @@ class HumanGameControllerAdapter(BaseGameController):
         """Reset the game to initial state."""
         try:
             self.game_logic.reset()
-            logger.info("Game reset via human controller adapter")
+            # Also reset the mock game manager's game_active flag
+            self.game_manager.game_active = True
+            logger.info(f"Game reset via human controller adapter. Game over: {self.game_logic.game_over}")
         except Exception as e:
             logger.error(f"Failed to reset game: {e}")
             raise
+    
+    def reset(self) -> None:
+        """Reset method called by the web framework state provider."""
+        self.reset_game()
     
     @property
     def game(self):
@@ -122,6 +128,11 @@ class HumanGameControllerAdapter(BaseGameController):
     def apple_position(self) -> tuple:
         """Get apple position as tuple."""
         return tuple(self.game_logic.apple_position.tolist())
+    
+    @property
+    def game_over(self) -> bool:
+        """Get game over state."""
+        return self.game_logic.game_over
 
 
 def create_argument_parser() -> argparse.ArgumentParser:

@@ -1,3 +1,5 @@
+## Heuristcs algorithms
+
 Here is our log folder naming convention:
 
 logs/heuristics-v0.01-bfs_{timestamp}

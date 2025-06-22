@@ -51,3 +51,7 @@ Regarding the naming: in the root directory, by default it's for task0. so no ne
 
  
 
+## Don't add or remove any classes in the ./core/ folder
+Because it's already being used by extensions (check the folder "./extensions/")
+
+

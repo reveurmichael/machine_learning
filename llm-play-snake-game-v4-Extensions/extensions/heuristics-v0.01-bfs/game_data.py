@@ -17,6 +17,7 @@ from typing import Dict, Any, Optional
 
 from core.game_data import BaseGameData
 from core.game_stats import BaseGameStatistics
+from core.game_stats_manager import NumPyJSONEncoder
 
 
 class HeuristicGameData(BaseGameData):
@@ -129,4 +130,72 @@ class HeuristicGameData(BaseGameData):
         # Add heuristic stats
         data["heuristic_stats"] = self.get_heuristic_stats()
         
-        return data 
+        return data
+
+    def generate_game_summary(
+        self,
+        primary_provider: str = "bfs",
+        primary_model: Optional[str] = None,
+        parser_provider: Optional[str] = None,
+        parser_model: Optional[str] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Produce a Task-0 compatible *game_N.json* dictionary.
+
+        The structure purposefully mirrors the canonical `GameData` output so
+        that replay tooling and dashboards work *unchanged* for heuristic
+        experiments.  Fields that are strictly LLM-specific (token stats,
+        prompt/response timings, etc.) are **omitted** here while retaining
+        identical keys for the shared data blocks (time_stats, step_stats,
+        detailed_history, …).
+        """
+        summary = {
+            # Outcome ---------------------------
+            "score": self.score,
+            "steps": self.steps,
+            "snake_length": self.snake_length,
+            "game_over": self.game_over,
+            "game_end_reason": self.game_end_reason,
+            "round_count": self.round_manager.round_count,
+            # Heuristic provenance -------------
+            "heuristic_info": {
+                "algorithm": self.algorithm_name,
+                "primary_provider": primary_provider,
+                "primary_model": primary_model,
+            },
+            # Timings / generic stats ----------
+            "time_stats": self.stats.time_stats.asdict(),
+            "step_stats": self.stats.step_stats.asdict(),
+            # Misc metadata --------------------
+            "metadata": {
+                "timestamp": self.timestamp,
+                "game_number": self.game_number,
+                **kwargs.get("metadata", {}),
+            },
+            # Replay data ----------------------
+            "detailed_history": {
+                "apple_positions": self.apple_positions,
+                "moves": self.moves,
+                "rounds_data": self.round_manager.get_ordered_rounds_data(),
+            },
+        }
+        return summary
+
+    # ------------------------------------------------------------------
+    # Serialisation helper – mirrors core.GameData.save_game_summary
+    # ------------------------------------------------------------------
+
+    def save_game_summary(self, filepath: str, **kwargs):  # type: ignore[override]
+        """Write *game_N.json* using the local `generate_game_summary()`."""
+        # Ensure the final round buffer is persisted.
+        if hasattr(self, "round_manager") and self.round_manager:
+            self.round_manager.flush_buffer()
+
+        summary_dict = self.generate_game_summary(**kwargs)
+
+        import os, json
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=2)
+
+        return summary_dict 

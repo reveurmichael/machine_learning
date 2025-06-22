@@ -68,8 +68,8 @@ Examples:
     parser.add_argument(
         "--max-games",
         type=int,
-        default=3,
-        help="Maximum number of games to play (default: 3)"
+        default=10,
+        help="Maximum number of games to play (default: 10)"
     )
     
     parser.add_argument(

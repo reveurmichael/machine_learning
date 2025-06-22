@@ -207,76 +207,23 @@ class HeuristicGameManager(BaseGameManager):
         self.game_scores.append(self.game.game_state.score)
         self.round_counts.append(self.round_count)
         
-        # Create game data for logging
-        game_data = self._create_game_log_data(game_duration)
-        
-        # Save game log
+        # Canonical serialiser ensures detailed_history is filled (replay).
         game_filename = f"game_{self.game_count}.json"
         game_filepath = os.path.join(self.log_dir, game_filename)
-        with open(game_filepath, 'w') as f:
-            json.dump(game_data, f, indent=2)
+
+        self.game.game_state.save_game_summary(
+            game_filepath,
+            primary_provider="HEURISTIC",
+            primary_model=self.algorithm_name,
+            parser_provider=None,
+            parser_model=None,
+        )
         
         print(Fore.CYAN + f"📊 Game {self.game_count} completed:")
         print(Fore.CYAN + f"   Score: {self.game.game_state.score}")
         print(Fore.CYAN + f"   Steps: {self.game.game_state.steps}")
         print(Fore.CYAN + f"   Rounds: {self.round_count}")
         print(Fore.CYAN + f"   Duration: {game_duration:.2f}s")
-    
-    def _create_game_log_data(self, game_duration: float) -> Dict[str, Any]:
-        """
-        Create game log data compatible with Task-0 format.
-        
-        This maintains the same JSON structure as Task-0 logs but with
-        heuristic-specific data instead of LLM data.
-        """
-        game_state = self.game.game_state
-        
-        return {
-            "score": game_state.score,
-            "steps": game_state.steps,
-            "snake_length": len(self.game.snake_positions),
-            "game_over": not self.game_active,
-            "game_end_reason": game_state.game_end_reason or "UNKNOWN",
-            "round_count": self.round_count,
-            
-            # Heuristic info (replaces llm_info)
-            "heuristic_info": {
-                "algorithm": self.algorithm_name,
-                "agent_type": type(self.agent).__name__ if self.agent else "None"
-            },
-            
-            # Time stats (simplified, no LLM communication time)
-            "time_stats": {
-                "start_time": self.session_start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "end_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "total_duration_seconds": game_duration,
-                "heuristic_computation_time": getattr(game_state, 'total_search_time', 0.0)
-            },
-            
-            # Heuristic performance stats (replaces token_stats)
-            "pathfinding_stats": game_state.get_heuristic_stats() if hasattr(game_state, 'get_heuristic_stats') else {},
-            
-            # Step stats (reuses base step counting)
-            "step_stats": {
-                "valid_steps": game_state.steps - self.no_path_found_steps,
-                "no_path_found_steps": self.no_path_found_steps,
-                "invalid_reversals": self.invalid_reversals
-            },
-            
-            # Metadata
-            "metadata": {
-                "timestamp": self.session_start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "game_number": self.game_count,
-                "round_count": self.round_count
-            },
-            
-            # Detailed history (simplified for v0.01)
-            "detailed_history": {
-                "apple_positions": [],  # Simplified for v0.01
-                "moves": [],            # Simplified for v0.01
-                "rounds_data": {}       # Simplified for v0.01
-            }
-        }
     
     def _save_session_summary(self) -> None:
         """Save session summary in Task-0 compatible format."""

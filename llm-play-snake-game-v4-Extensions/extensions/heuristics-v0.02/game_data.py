@@ -16,7 +16,6 @@ from __future__ import annotations
 from typing import Dict, Any, Optional
 
 from core.game_data import BaseGameData
-from core.game_stats import BaseGameStatistics
 from core.game_stats_manager import NumPyJSONEncoder
 
 
@@ -193,7 +192,8 @@ class HeuristicGameData(BaseGameData):
 
         summary_dict = self.generate_game_summary(**kwargs)
 
-        import os, json
+        import os
+        import json
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=2)

@@ -263,7 +263,7 @@ class StandardLimitEnforcement(LimitEnforcementStrategy):
             
         else:
             # Default to ending the game for unknown actions
-            print(Fore.RED + f"❌ Unknown violation action. Game over.")
+            print(Fore.RED + "❌ Unknown violation action. Game over.")
             game_state.record_game_end(config.end_reason_code)
             return False
     

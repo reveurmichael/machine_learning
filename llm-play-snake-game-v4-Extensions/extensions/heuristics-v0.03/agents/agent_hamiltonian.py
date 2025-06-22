@@ -16,7 +16,7 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Tuple, Set, TYPE_CHECKING
+from typing import Dict, List, Tuple, TYPE_CHECKING
 
 from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction

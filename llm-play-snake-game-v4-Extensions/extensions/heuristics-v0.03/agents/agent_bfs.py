@@ -15,19 +15,10 @@ Design Patterns:
 
 from __future__ import annotations
 from collections import deque
-from typing import List, Tuple, Optional, TYPE_CHECKING, Any
-import numpy as np
+from typing import List, Tuple, TYPE_CHECKING
 
-import sys
-from pathlib import Path
-
-# Add root directory to Python path for accessing base classes
-root_dir = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(root_dir))
-
-from config.game_constants import DIRECTIONS, VALID_MOVES
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
-from core.game_agents import SnakeAgent
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic

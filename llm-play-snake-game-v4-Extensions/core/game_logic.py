@@ -15,7 +15,7 @@ from config.ui_constants import GRID_SIZE
 from config.game_constants import DIRECTIONS
 from core.game_data import BaseGameData, GameData
 from utils.collision_utils import check_collision
-from utils.moves_utils import normalize_direction, is_reverse
+from utils.moves_utils import is_reverse
 from utils.board_utils import generate_random_apple, update_board_array
 
 # Avoid circular imports

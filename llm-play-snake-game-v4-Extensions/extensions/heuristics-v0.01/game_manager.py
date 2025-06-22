@@ -8,7 +8,6 @@ Minimal extension of BaseGameManager for BFS algorithm.
 from __future__ import annotations
 import argparse
 import os
-import time
 from datetime import datetime
 from typing import Optional, List
 import json
@@ -40,7 +39,7 @@ class HeuristicGameManager(BaseGameManager):
         if isinstance(self.game, HeuristicGameLogic) and self.agent:
             self.game.set_agent(self.agent)
 
-        print(Fore.GREEN + f"🤖 BFS Agent initialized")
+        print(Fore.GREEN + "🤖 BFS Agent initialized")
         print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
 
     def _setup_logging(self) -> None:
@@ -52,7 +51,7 @@ class HeuristicGameManager(BaseGameManager):
     def run(self) -> None:
         """Run BFS game session."""
         try:
-            print(Fore.GREEN + f"🚀 Starting BFS session...")
+            print(Fore.GREEN + "🚀 Starting BFS session...")
             print(Fore.CYAN + f"📊 Target games: {self.args.max_games}")
 
             while self.game_count < self.args.max_games and self.running:
@@ -87,7 +86,7 @@ class HeuristicGameManager(BaseGameManager):
             if planned_move == "NO_PATH_FOUND":
                 self.consecutive_no_path_found += 1
                 if self.consecutive_no_path_found >= 5:
-                    print(Fore.RED + f"❌ Too many pathfinding failures")
+                    print(Fore.RED + "❌ Too many pathfinding failures")
                     break
             else:
                 self.consecutive_no_path_found = 0

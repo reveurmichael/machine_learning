@@ -23,9 +23,8 @@ import os
 import sys
 import json
 import subprocess
-import time
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List
 from streamlit.errors import StreamlitAPIException
 import pandas as pd
 
@@ -447,9 +446,18 @@ class HeuristicsApp:
             with st.expander(f"Show game_{selected_game}.json"):
                 st.code(json.dumps(game_data, indent=2), language="json")
             
-            # Launch replay
-            if st.button("🎮 Start PyGame Replay", type="primary"):
-                self._launch_pygame_replay(selected_folder, selected_game)
+            # Launch replay options
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if st.button("🎮 Task-0 PyGame Replay", type="primary"):
+                    self._launch_pygame_replay(selected_folder, selected_game)
+            
+            with col2:
+                if st.button("🧠 Heuristic PyGame Replay", type="secondary"):
+                    self._launch_heuristic_pygame_replay(selected_folder, selected_game)
+            
+            st.info("**Task-0 PyGame Replay**: Uses ROOT replay infrastructure (universal)\n\n**Heuristic PyGame Replay**: Uses heuristic-specific replay with algorithm metrics")
     
     def _render_replay_web_tab(self, log_folders: List[str]) -> None:
         """
@@ -643,6 +651,28 @@ class HeuristicsApp:
         except Exception as e:
             st.error(f"❌ Failed to launch PyGame replay: {e}")
     
+    def _launch_heuristic_pygame_replay(self, folder_path: str, game_number: int) -> None:
+        """Launch heuristic-specific PyGame replay with algorithm metrics."""
+        try:
+            # Use heuristic-specific replay script
+            cmd = [
+                sys.executable,
+                str(Path(__file__).parent / "scripts" / "replay.py"),
+                "--log-dir", folder_path,
+                "--game", str(game_number),
+                "--verbose"  # Enable heuristic-specific verbose output
+            ]
+            
+            st.code(" ".join(cmd), language="bash")
+            
+            # Launch in background following Task-0 session_utils pattern
+            subprocess.Popen(cmd)
+            st.success(f"🧠 Heuristic PyGame replay launched for Game {game_number}")
+            st.info("Check your desktop for the PyGame window with algorithm metrics. Close the replay window when finished.")
+            
+        except Exception as e:
+            st.error(f"❌ Failed to launch heuristic PyGame replay: {e}")
+    
     def _launch_web_replay(self, folder_path: str, game_number: int, host: str, port: int) -> None:
         """Launch web replay using Task-0 web replay infrastructure."""
         try:
@@ -673,25 +703,27 @@ class HeuristicsApp:
             st.error(f"❌ Failed to launch web replay: {e}")
     
     def _launch_heuristic_web_replay(self, folder_path: str, game_number: int, host: str, port: int) -> None:
-        """Launch heuristic-specific web replay using local replay_gui.py."""
+        """Launch heuristic-specific web replay using scripts/replay_web.py."""
         try:
             # Ensure port is available
             port = ensure_free_port(port)
             
-            # Use local heuristic replay GUI
+            # Use heuristic-specific web replay script
             cmd = [
                 sys.executable,
-                "replay_gui.py",
+                str(Path(__file__).parent / "scripts" / "replay_web.py"),
                 "--log-dir", folder_path,
-                "--game-number", str(game_number),
+                "--game", str(game_number),
                 "--host", host,
-                "--port", str(port)
+                "--port", str(port),
+                "--show-metrics",  # Enable heuristic-specific metrics
+                "--show-path-info"  # Enable pathfinding information
             ]
             
             st.code(" ".join(cmd), language="bash")
             
             # Launch in background
-            subprocess.Popen(cmd, cwd=Path(__file__).parent)
+            subprocess.Popen(cmd)
             
             # Show access information
             st.success(f"🧠 Heuristic Web Replay launched for Game {game_number}")

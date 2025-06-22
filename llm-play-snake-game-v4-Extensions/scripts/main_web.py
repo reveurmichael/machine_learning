@@ -19,7 +19,6 @@ import pathlib
 import logging
 import argparse
 import threading
-import time
 
 # Bootstrap repository root for consistent imports
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent

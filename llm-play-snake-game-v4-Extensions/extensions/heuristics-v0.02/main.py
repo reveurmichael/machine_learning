@@ -30,17 +30,10 @@ sys.path.insert(0, str(root_dir))
 
 # Import the components
 from game_manager import HeuristicGameManager
+from agents import get_available_algorithms, DEFAULT_ALGORITHM
 
-# Available algorithms in v0.02
-AVAILABLE_ALGORITHMS = [
-    "BFS",                    # Pure BFS from v0.01
-    "BFS-SAFE-GREEDY",       # Improved BFS with safety
-    "BFS-HAMILTONIAN",       # BFS + Hamiltonian cycle
-    "DFS",                   # Depth-First Search
-    "ASTAR",                 # A* pathfinding
-    "ASTAR-HAMILTONIAN",     # A* + Hamiltonian cycle
-    "HAMILTONIAN",           # Pure Hamiltonian cycle
-]
+# Available algorithms in v0.02 (from agents package)
+AVAILABLE_ALGORITHMS = get_available_algorithms()
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
@@ -76,9 +69,9 @@ Examples:
     parser.add_argument(
         "--algorithm",
         type=str,
-        default="BFS",
+        default=DEFAULT_ALGORITHM,
         choices=AVAILABLE_ALGORITHMS,
-        help=f"Heuristic algorithm to use. Available: {', '.join(AVAILABLE_ALGORITHMS)} (default: BFS)"
+        help=f"Heuristic algorithm to use. Available: {', '.join(AVAILABLE_ALGORITHMS)} (default: {DEFAULT_ALGORITHM})"
     )
     
     parser.add_argument(

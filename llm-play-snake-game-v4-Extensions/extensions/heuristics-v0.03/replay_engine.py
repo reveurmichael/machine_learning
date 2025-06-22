@@ -14,13 +14,11 @@ This engine can replay games from any of the 7 heuristic algorithms:
 
 from __future__ import annotations
 
-import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import sys
-from pathlib import Path
 
 # Add root directory to Python path for accessing base classes
 root_dir = Path(__file__).resolve().parents[2]
@@ -29,7 +27,6 @@ sys.path.insert(0, str(root_dir))
 # Import Task-0 base replay infrastructure
 from replay.replay_engine import BaseReplayEngine
 from replay.replay_utils import load_game_json, parse_game_data
-from config.ui_constants import TIME_DELAY
 
 
 class HeuristicReplayEngine(BaseReplayEngine):
@@ -195,7 +192,7 @@ class HeuristicReplayEngine(BaseReplayEngine):
     
     def _display_final_statistics(self) -> None:
         """Display comprehensive final statistics for heuristic replay."""
-        print(f"\n🎯 Heuristic Replay Completed!")
+        print("\n🎯 Heuristic Replay Completed!")
         print(f"🧠 Algorithm: {self.algorithm_display_names.get(self.algorithm_name, self.algorithm_name)}")
         print(f"🏆 Final Score: {self.performance_metrics['score']}")
         print(f"👣 Total Steps: {self.performance_metrics['steps']}")
@@ -205,15 +202,15 @@ class HeuristicReplayEngine(BaseReplayEngine):
         
         # Algorithm-specific insights
         if self.algorithm_name in ["bfs", "astar"]:
-            print(f"🎯 Optimal pathfinding algorithm - shortest paths guaranteed")
+            print("🎯 Optimal pathfinding algorithm - shortest paths guaranteed")
         elif self.algorithm_name == "bfs-safe-greedy":
-            print(f"🛡️ Safety-enhanced BFS - balanced performance and safety")
+            print("🛡️ Safety-enhanced BFS - balanced performance and safety")
         elif self.algorithm_name == "hamiltonian":
-            print(f"🔄 Space-filling algorithm - covers entire board systematically")
+            print("🔄 Space-filling algorithm - covers entire board systematically")
         elif "hamiltonian" in self.algorithm_name:
-            print(f"🔀 Hybrid algorithm - combines pathfinding with space-filling")
+            print("🔀 Hybrid algorithm - combines pathfinding with space-filling")
         elif self.algorithm_name == "dfs":
-            print(f"🔍 Depth-first exploration - educational algorithm")
+            print("🔍 Depth-first exploration - educational algorithm")
     
     def handle_events(self) -> None:
         """
@@ -237,7 +234,7 @@ class HeuristicReplayEngine(BaseReplayEngine):
         Provides rich console output and algorithm-specific information
         during replay execution.
         """
-        print(f"\n🚀 Starting Heuristic Replay")
+        print("\n🚀 Starting Heuristic Replay")
         print(f"📁 Log Directory: {self.log_dir}")
         print(f"🧠 Algorithm: {self.algorithm_display_names.get(self.algorithm_name, self.algorithm_name)}")
         print(f"⏱️  Pause Between Moves: {self.pause_between_moves}s")
@@ -262,11 +259,11 @@ class HeuristicReplayEngine(BaseReplayEngine):
                 time.sleep(0.01)
                 
         except KeyboardInterrupt:
-            print(f"\n⚠️  Replay interrupted by user")
+            print("\n⚠️  Replay interrupted by user")
         except Exception as e:
             print(f"\n❌ Replay error: {e}")
         finally:
-            print(f"🏁 Heuristic replay session ended")
+            print("🏁 Heuristic replay session ended")
     
     def get_algorithm_info(self) -> Dict[str, Any]:
         """

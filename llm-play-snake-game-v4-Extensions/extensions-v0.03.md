@@ -9,10 +9,9 @@ What is added:
 Do it now, in "./extensions/heuristics-v0.03". I have already copied the code from "./extensions/heuristics-v0.02" to "./extensions/heuristics-v0.03". You can and should improve the code in "./extensions/heuristics-v0.03".
 
 We will also put all those agents in the folder "./extensions/heuristics-v0.03/agents" .
-
-
 I have also moved main.py into scripts folder. app.py will be the entry point for users.
 
 
 
 
+you should notice this word I mentioned: web, flask. so you will have scripts/replay_web.py and scirpts/replay.py, just like for TASK0 . FOr web, you can go mvc, or simpler, it's up to you.

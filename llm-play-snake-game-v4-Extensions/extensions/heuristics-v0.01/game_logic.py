@@ -6,7 +6,6 @@ Minimal extension of BaseGameLogic for BFS pathfinding.
 """
 
 from __future__ import annotations
-import time
 from typing import List, Optional, TYPE_CHECKING
 
 from config.ui_constants import GRID_SIZE

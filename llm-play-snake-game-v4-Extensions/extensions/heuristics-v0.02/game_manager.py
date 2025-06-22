@@ -19,7 +19,7 @@ import argparse
 import os
 import time
 from datetime import datetime
-from typing import Optional, Dict, Any, Union, List
+from typing import Optional, Union, List
 
 from colorama import Fore
 
@@ -28,23 +28,19 @@ from core.game_agents import SnakeAgent
 import json
 from game_logic import HeuristicGameLogic
 
-# Import all available agents (v0.02 multi-algorithm support)
-from agent_bfs import BFSAgent
-from agent_bfs_safe_greedy import BFSSafeGreedyAgent  
-from agent_bfs_hamiltonian import BFSHamiltonianAgent
-from agent_dfs import DFSAgent
-from agent_astar import AStarAgent
-from agent_astar_hamiltonian import AStarHamiltonianAgent
-from agent_hamiltonian import HamiltonianAgent
+# Import agents package (v0.02 multi-algorithm support)
+from agents import create_agent, DEFAULT_ALGORITHM, get_available_algorithms
 
-# Type alias for any heuristic agent
+# Type alias for any heuristic agent (from agents package)
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from agents import BFSAgent, BFSSafeGreedyAgent, BFSHamiltonianAgent
+    from agents import DFSAgent, AStarAgent, AStarHamiltonianAgent, HamiltonianAgent
+
 HeuristicAgent = Union[
-    BFSAgent, BFSSafeGreedyAgent, BFSHamiltonianAgent,
-    DFSAgent, AStarAgent, AStarHamiltonianAgent, HamiltonianAgent
+    'BFSAgent', 'BFSSafeGreedyAgent', 'BFSHamiltonianAgent',
+    'DFSAgent', 'AStarAgent', 'AStarHamiltonianAgent', 'HamiltonianAgent'
 ]
-
-# Default algorithm for v0.02
-DEFAULT_ALGORITHM = "BFS"
 
 class HeuristicGameManager(BaseGameManager):
     """
@@ -121,26 +117,18 @@ class HeuristicGameManager(BaseGameManager):
         """
         Factory method to create appropriate agent based on algorithm selection.
         
-        Evolution from v0.01: Was hardcoded to BFSAgent(), now supports 7 algorithms.
+        Evolution from v0.01: Was hardcoded to BFSAgent(), now supports 7 algorithms
+        using the agents package factory pattern.
         """
-        algorithm_map = {
-            "BFS": BFSAgent,
-            "BFS-SAFE-GREEDY": BFSSafeGreedyAgent,
-            "BFS-HAMILTONIAN": BFSHamiltonianAgent,
-            "DFS": DFSAgent,
-            "ASTAR": AStarAgent,
-            "ASTAR-HAMILTONIAN": AStarHamiltonianAgent,
-            "HAMILTONIAN": HamiltonianAgent,
-        }
-
-        agent_class = algorithm_map.get(self.algorithm_name)
-        if not agent_class:
-            raise ValueError(f"Unknown algorithm: {self.algorithm_name}")
-
-        self.agent = agent_class()
+        # Use agents package factory method
+        self.agent = create_agent(self.algorithm_name)
+        
+        if not self.agent:
+            available_algorithms = get_available_algorithms()
+            raise ValueError(f"Unknown algorithm: {self.algorithm_name}. Available: {available_algorithms}")
 
         if self.verbose:
-            print(Fore.CYAN + f"🏭 Created {agent_class.__name__} for {self.algorithm_name}")
+            print(Fore.CYAN + f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
 
     def run(self) -> None:
         """
@@ -150,7 +138,7 @@ class HeuristicGameManager(BaseGameManager):
         and better algorithm-specific messaging.
         """
         try:
-            print(Fore.GREEN + f"🚀 Starting heuristics v0.02 session...")
+            print(Fore.GREEN + "🚀 Starting heuristics v0.02 session...")
             print(Fore.CYAN + f"📊 Target games: {self.args.max_games}")
             print(Fore.CYAN + f"🧠 Algorithm: {self.algorithm_name}")
 
@@ -164,7 +152,7 @@ class HeuristicGameManager(BaseGameManager):
             # Save session summary
             self._save_session_summary()
 
-            print(Fore.GREEN + f"✅ Heuristics v0.02 session completed!")
+            print(Fore.GREEN + "✅ Heuristics v0.02 session completed!")
             print(Fore.CYAN + f"📊 Games played: {self.game_count}")
             print(Fore.CYAN + f"🏆 Total score: {self.total_score}")
             if self.game_count > 0:

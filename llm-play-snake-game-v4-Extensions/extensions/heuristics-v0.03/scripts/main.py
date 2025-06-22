@@ -36,10 +36,10 @@ sys.path.insert(0, str(root_dir))
 
 # Import the components
 from game_manager import HeuristicGameManager
-from agents import get_available_algorithms
+from agents import get_available_algorithms, DEFAULT_ALGORITHM
 
 # Get available algorithms from agents package
-AVAILABLE_ALGORITHMS = [alg.upper().replace('-', '-') for alg in get_available_algorithms()]
+AVAILABLE_ALGORITHMS = get_available_algorithms()
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
@@ -75,9 +75,9 @@ Examples:
     parser.add_argument(
         "--algorithm",
         type=str,
-        default="BFS",
+        default=DEFAULT_ALGORITHM,
         choices=AVAILABLE_ALGORITHMS,
-        help=f"Heuristic algorithm to use. Available: {', '.join(AVAILABLE_ALGORITHMS)} (default: BFS)"
+        help=f"Heuristic algorithm to use. Available: {', '.join(AVAILABLE_ALGORITHMS)} (default: {DEFAULT_ALGORITHM})"
     )
     
     parser.add_argument(

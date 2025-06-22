@@ -15,12 +15,10 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import List, Tuple, Optional, TYPE_CHECKING, Set
-import numpy as np
+from typing import List, Tuple, TYPE_CHECKING, Set
 
-from config.game_constants import DIRECTIONS, VALID_MOVES
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
-from core.game_agents import SnakeAgent
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic

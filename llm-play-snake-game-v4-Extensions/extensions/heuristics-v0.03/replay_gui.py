@@ -15,10 +15,9 @@ Features:
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from flask import Flask, render_template, jsonify, request
+from typing import Any, Dict
+from flask import Flask, jsonify
 
 import sys
 
@@ -27,10 +26,7 @@ root_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(root_dir))
 
 # Import Task-0 web infrastructure
-from web.controllers.replay_controller import ReplayController
-from web.models.game_state_model import GameStateModel
 from web.views.template_renderer import TemplateRenderer
-from config.web_constants import WEB_REPLAY_TEMPLATE
 from utils.web_utils import build_state_dict
 
 # Import heuristic replay engine
@@ -328,12 +324,12 @@ class HeuristicReplayGUI:
         
         Uses Flask development server with heuristic-specific configuration.
         """
-        print(f"🌐 Starting Heuristic Web Replay")
+        print("🌐 Starting Heuristic Web Replay")
         print(f"🧠 Algorithm: {self.algorithm_info['algorithm_display_name']}")
         print(f"🎮 Game: {self.game_number}")
         print(f"📁 Log Directory: {self.log_dir}")
         print(f"🌍 Server: http://{self.host}:{self.port}")
-        print(f"⚠️  Press Ctrl+C to stop")
+        print("⚠️  Press Ctrl+C to stop")
         
         try:
             self.app.run(
@@ -343,7 +339,7 @@ class HeuristicReplayGUI:
                 threaded=True
             )
         except KeyboardInterrupt:
-            print(f"\n⚠️  Web replay server stopped")
+            print("\n⚠️  Web replay server stopped")
         except Exception as e:
             print(f"❌ Server error: {e}")
 

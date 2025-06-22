@@ -45,7 +45,8 @@ No pollution from extensions (Task 1-5) into the ROOT folder (for taks 0, but ca
 ## No unncessary or unimplemented code/functions prepared for Task 1-5 in the ROOT folder but it's not used for Task-0
 
 Let the future tasks (Task 1-5) be the ones to implement the code/functions that they need. Overkill is not good. Over-preparation is not good.
- ## Class Naming
+
+## Class Naming
 Regarding the naming: in the root directory, by default it's for task0. so no need for LLMBlabla class  name, just Blabla class name is great. if it's to be extended by task0, 1, 2, 3, 4, 5, then it's name is BaseBlabla. When Extended, it's HeuristicBlabla, RLBlabla, etc.
 
  

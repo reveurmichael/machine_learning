@@ -132,7 +132,8 @@ def check_body_collision(
         segments_to_check = snake_body
     else:
         # Snake is moving - tail will move out of the way, so exclude it
-        segments_to_check = snake_body[:-1] if len(snake_body) > 0 else []
+        # The tail is the first element in snake_body array
+        segments_to_check = snake_body[1:] if len(snake_body) > 1 else []
     
     # Check for collision with remaining segments
     return any(positions_overlap(head_position, segment) for segment in segments_to_check)

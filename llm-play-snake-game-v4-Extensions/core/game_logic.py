@@ -249,9 +249,11 @@ class BaseGameLogic:
         self, head_position: NDArray[np.int_], is_eating_apple_flag: bool
     ) -> Tuple[bool, bool]:
         """Check for wall or body collision."""
+        # Pass only the body segments (excluding the current head which is the last element)
+        snake_body_without_head = self.snake_positions[:-1] if len(self.snake_positions) > 1 else []
         return check_collision(
             head_position=head_position,
-            snake_body=self.snake_positions,
+            snake_body=snake_body_without_head,
             grid_size=self.grid_size,
             is_apple_eaten=is_eating_apple_flag,
         )

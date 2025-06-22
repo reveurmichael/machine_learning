@@ -62,16 +62,26 @@ class BaseReplayEngine(GameLogic):
     # -------------------------------------------------------------------
 
     def set_apple_position(self, position):  # noqa: D401 – keep simple sig
-        """Overwrite the current apple location with *position*.
-
-        The board array is refreshed so the renderer immediately reflects the
-        change.  This helper purposefully lives in the *replay* code path only
-        – it should **not** be exposed on the generic *GameLogic* class.
-        """
-
-        # Accept either list/tuple or array – convert to proper NumPy array.
+        """Force-set the apple to a specific position (for replay determinism)."""
         self.apple_position = np.array(position)
         self._update_board()
+
+    def _generate_apple(self) -> NDArray[np.int_]:  # type: ignore[override]
+        """Override apple generation to use pre-recorded positions during replay.
+        
+        This ensures that the replay uses the exact same apple sequence as the
+        original game, maintaining deterministic behavior.
+        """
+        # During replay, advance to the next pre-recorded apple position
+        if hasattr(self, 'apple_positions') and hasattr(self, 'apple_index'):
+            # Advance to next apple position
+            self.apple_index += 1
+            if self.apple_index < len(self.apple_positions):
+                next_apple = self.apple_positions[self.apple_index]
+                return np.array(next_apple)
+        
+        # Fallback to parent implementation if no pre-recorded positions available
+        return super()._generate_apple()
 
     # ---------------------
     # Construction & basic state
@@ -167,12 +177,6 @@ class BaseReplayEngine(GameLogic):
         # Regular move – delegate to *make_move* from BaseGameController
         game_active, apple_eaten = super().make_move(direction_key)
 
-        # If an apple was eaten, advance *apple_index* so the replay keeps the
-        # pre-recorded apple sequence instead of generating random ones.
-        if apple_eaten and self.apple_index + 1 < len(self.apple_positions):
-            self.apple_index += 1
-            self.set_apple_position(self.apple_positions[self.apple_index])
-
         return game_active
 
     def _build_state_base(self) -> Dict[str, Any]:
@@ -198,6 +202,42 @@ class BaseReplayEngine(GameLogic):
             "game_end_reason": getattr(self, "game_end_reason", None),
             "total_games": getattr(self, "total_games", None),
         }
+
+    def reset(self) -> None:  # type: ignore[override]
+        """Reset the game state without generating a random apple.
+        
+        During replay, we use pre-recorded apple positions instead of
+        generating random ones.
+        """
+        # Reset game state (same as parent, but without apple generation)
+        self.snake_positions = np.array([[self.grid_size//2, self.grid_size//2]])
+        self.head_position = self.snake_positions[-1]
+
+        # Reset game state tracker
+        self.game_state.reset()
+
+        # NOTE: We do NOT call _generate_apple() here like the parent does
+        # The apple position will be set manually after loading replay data
+
+        # Update the board (will be updated again after apple is set)
+        self._update_board()
+
+        # Draw if GUI is available
+        if self.use_gui and self.gui:
+            self.draw()
+
+        # Clear runtime direction/collision trackers for the new game
+        self.current_direction = None
+        self.last_collision_type = None
+
+        # Reset apple history (will be populated with first apple after setup)
+        self.apple_positions_history = []
+
+        # Sync initial snake body into GameData so snake_length starts correct
+        self.game_state.snake_positions = self.snake_positions.tolist()
+        
+        # Clear planned moves
+        self.planned_moves = []
 
 
 # ---------------------
@@ -334,7 +374,11 @@ class ReplayEngine(BaseReplayEngine):
                 [[self.grid_size // 2, self.grid_size // 2]]
             )
             self.head_position = self.snake_positions[-1]
-            self.set_apple_position(self.apple_positions[0])
+            # Set initial apple position without advancing the index
+            # The apple at index 0 is now on the board
+            self.apple_position = np.array(self.apple_positions[0])
+            # Initialize apple history with the first apple
+            self.apple_positions_history = [self.apple_position.copy()]
             self._update_board()
 
             # GUI book-keeping ---------------------

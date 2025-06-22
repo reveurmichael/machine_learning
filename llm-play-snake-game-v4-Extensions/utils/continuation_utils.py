@@ -329,6 +329,9 @@ def continue_from_directory(
     next_game = session.find_latest_game_number()
     session.cleanup_artifacts(next_game)
     
+    # Mark args as continuation to skip re-initialization
+    args.is_continuation = True
+    
     # Create and configure GameManager
     game_manager = game_manager_class(args)
     session.setup_game_manager_session(game_manager, next_game)

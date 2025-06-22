@@ -267,8 +267,27 @@ class MainApplication:
             try:
                 if self.args.continue_with_game_in_dir:
                     print(Fore.GREEN + f"🔄 Continuing from {self.args.continue_with_game_in_dir}")
-                    GameManager.continue_from_directory(self.args)
+                    # Create and configure game manager for continuation
+                    self.game_manager = GameManager.continue_from_directory(self.args)
+                    
+                    # Set up LLM agent for Task-0 continuation
+                    self.game_manager.agent = LLMSnakeAgent(
+                        self.game_manager, 
+                        provider=self.args.provider, 
+                        model=self.args.model
+                    )
+                    
+                    # Create OOP controller for continuation
+                    from core.game_controller import CLIGameController
+                    self.controller = CLIGameController(
+                        self.game_manager, 
+                        use_gui=not self.args.no_gui
+                    )
+                    
+                    # Run the continuation session
+                    self.controller.run_game_session()
                     return
+                    
             except ValueError as e:
                 print(Fore.RED + f"Command-line error: {e}")
                 print(Fore.YELLOW + "For help, use: python scripts/main.py --help")

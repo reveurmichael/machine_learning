@@ -6,6 +6,8 @@ Web mode needs a lot of work to do for reducing code redundancy.
 
 
 
+Main mode (PyGame) is working 100% OK now.
+
 
 
 

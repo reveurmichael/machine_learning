@@ -378,8 +378,14 @@ class GameManager(BaseGameManager):
     def run(self) -> None:
         """Execute LLM game session."""
         try:
-            # Skip initialization for continuation mode
-            if not getattr(self.args, "is_continuation", False):
+            # For continuation mode, we need to set up LLM clients but skip other initialization
+            if getattr(self.args, "is_continuation", False):
+                # Set up LLM clients for continuation mode
+                from utils.initialization_utils import setup_llm_clients, initialize_game_state
+                setup_llm_clients(self)
+                initialize_game_state(self)
+            else:
+                # Full initialization for new sessions
                 self.initialize()
 
             # Run game loop until completion

@@ -15,12 +15,19 @@ Educational Goals:
     - Show how inheritance enables specialized functionality
     - Demonstrate separation of replay logic from general viewing logic
     - Illustrate how controllers can orchestrate complex replay workflows
+
+Naming convention reminder:
+    • Task-0 concrete viewer; therefore the short name *ReplayController*.
+    • Generic/shared behaviour lives in `BaseGameViewingController`.
+    • Extensions provide their own viewer subclasses (e.g.
+      `HeuristicReplayController`) inside their `extensions/` namespace and
+      inherit from the *base*.
 """
 
 import logging
 from typing import Dict, Any, Optional, List
 
-from .game_controllers import GameViewingController
+from .game_controllers import BaseGameViewingController
 from .base_controller import RequestContext
 from ..models import GameStateModel
 from ..views import WebViewRenderer
@@ -28,11 +35,11 @@ from ..views import WebViewRenderer
 logger = logging.getLogger(__name__)
 
 
-class ReplayController(GameViewingController):
+class ReplayController(BaseGameViewingController):
     """
     Controller for game replay functionality.
     
-    Extends GameViewingController to provide replay-specific features.
+    Extends BaseGameViewingController to provide replay-specific features.
     Handles replay loading, navigation, and analytics.
     """
     

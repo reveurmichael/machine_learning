@@ -11,18 +11,57 @@ Design Patterns Used:
     - Chain of Responsibility: Request processing pipeline
     - Observer Pattern: Event-driven architecture
 
-Controller Hierarchy:
-    BaseWebController
-    ├── GamePlayController      - Base for interactive gameplay
-    │   ├── LLMGameController   - AI-driven gameplay
-    │   └── HumanGameController - Human-driven gameplay
-    └── GameViewingController   - Base for viewing/replay modes
-        └── ReplayController    - Game replay functionality
+Controller Hierarchy & Naming Convention (Task-0 First-Citizen):
+    BaseWebController                      – generic cross-mode behaviours
+
+    # Interactive gameplay controllers
+    ├── BaseGamePlayController             – **base** for *all* tasks (0-5)
+    │   ├── GamePlayController             – Task-0 concrete LLM gameplay
+    │   └── HumanGameController            – Task-0 concrete human gameplay
+    
+    # Passive viewing / replay controllers
+    └── BaseGameViewingController          – **base** for *all* tasks (0-5)
+        └── ReplayController               – Task-0 concrete replay viewer
+
+Naming Rules enforced across the repo (see System-Prompt.txt):
+
+    1.  If a class is **generic and meant to be reused** by Tasks 0-5 it lives
+        in the root package and is prefixed with `Base…` (e.g.
+        `BaseGamePlayController`).
+
+    2.  Task-0 concrete implementations drop the prefix – they are the default
+        in the root namespace (e.g. `GamePlayController`, `GameManager`,
+        `GameGUI`).  They may contain LLM-specific logic.
+
+    3.  Future extension tasks implement their own concrete subclasses inside
+        `extensions/<task_name>/…` (e.g. `HeuristicGamePlayController`) that
+        inherit from the *Base* classes – **never** from Task-0 classes unless
+        explicitly documented.  This ensures Task-0 remains the
+        first-citizen and no extension code pollutes the root.
+
+    4.  Legacy names like `LLMGameController` have been retired.  Aliases
+        linger only inside factories/tests for backward compatibility and will
+        be removed after a deprecation window.
+
+This docstring serves as a single canonical description of the naming scheme
+for the web MVC layer.
 
 Educational Goals:
     - Demonstrate role-based inheritance patterns
     - Show how abstract base classes define common behavior
     - Illustrate proper separation of concerns between different game modes
+
+Naming convention reminder:
+    • Generic *base* → **BaseGamePlayController** (this class)
+    • Task-0 concrete → **GamePlayController** in `llm_controller.py`
+    • Extension concretes live in `extensions/<task>/…`, e.g.
+      `HeuristicGamePlayController`, and must subclass **this** base, *not*
+      the Task-0 class.
+
+Design Patterns:
+    - Template Method: Defines common gameplay request handling
+    - Strategy Pattern: Different play strategies (human vs AI)
+    - Observer Pattern: Monitors game events for gameplay logic
 """
 
 import logging
@@ -45,13 +84,20 @@ class GameMode(Enum):
     REPLAY = "replay"  # Future experimental modes should live in extensions
 
 
-class GamePlayController(BaseWebController, ABC):
+class BaseGamePlayController(BaseWebController, ABC):
     """
     Abstract base controller for interactive gameplay modes.
     
     Provides common functionality for controllers that handle active game sessions
     where moves are being made and game state is actively changing.
     
+    Naming convention reminder:
+        • Generic *base* → **BaseGamePlayController** (this class)
+        • Task-0 concrete → **GamePlayController** in `llm_controller.py`
+        • Extension concretes live in `extensions/<task>/…`, e.g.
+          `HeuristicGamePlayController`, and must subclass **this** base, *not*
+          the Task-0 class.
+
     Design Patterns:
         - Template Method: Defines common gameplay request handling
         - Strategy Pattern: Different play strategies (human vs AI)
@@ -309,17 +355,23 @@ class GamePlayController(BaseWebController, ABC):
             self._update_game_statistics()
 
 
-class GameViewingController(BaseWebController, ABC):
+class BaseGameViewingController(BaseWebController, ABC):
     """
     Abstract base controller for viewing/replay modes.
     
     Provides common functionality for controllers that handle viewing game sessions
     without active gameplay (replays, demos, spectating).
     
+    Naming convention reminder:
+        • Generic *base* → **BaseGameViewingController** (this class)
+        • Task-0 concrete → **ReplayController** in `replay_controller.py`.
+        • Extensions provide their own viewer subclasses under
+          `extensions/<task>/…`.
+
     Design Patterns:
-        - Template Method: Common viewing request handling
-        - Strategy Pattern: Different viewing strategies (replay, spectate)
-        - Observer Pattern: Monitors state changes for viewing updates
+        - Template Method: Defines common viewing request handling
+        - Strategy Pattern: Different viewing strategies
+        - Observer Pattern: Monitors replay events for analytics
     """
     
     def __init__(self, model_manager: GameStateModel, view_renderer: WebViewRenderer, **kwargs):

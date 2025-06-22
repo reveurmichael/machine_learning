@@ -25,8 +25,10 @@ import logging
 
 # Import MVC components
 from .controllers import (
-    BaseWebController, LLMGameController, HumanGameController, 
-    ReplayController
+    BaseWebController,
+    GamePlayController,  # Task-0 gameplay controller (LLM)
+    HumanGameController,
+    ReplayController,
 )
 from .models import (
     GameStateModel, ReplayStateProvider
@@ -56,7 +58,8 @@ class ControllerFactory:
     def __init__(self):
         """Initialize controller factory with configuration."""
         self._controller_registry: Dict[str, Type[BaseWebController]] = {
-            'llm_game': LLMGameController,
+            'game': GamePlayController,
+            'llm_game': GamePlayController,  # TEMPORARY alias (see docs)
             'human_game': HumanGameController,
             'replay': ReplayController,
         }

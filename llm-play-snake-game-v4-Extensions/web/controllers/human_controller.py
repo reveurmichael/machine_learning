@@ -21,16 +21,22 @@ from typing import Dict, Any
 import logging
 
 from .base_controller import RequestContext
-from .game_controllers import GamePlayController, GameMode
+from .game_controllers import BaseGamePlayController, GameMode
 from ..models import EventFactory
 from utils.web_utils import translate_end_reason, build_color_map
 
 logger = logging.getLogger(__name__)
 
 
-class HumanGameController(GamePlayController):
+class HumanGameController(BaseGamePlayController):
     """
     Controller for human player Snake game sessions.
+    
+    Naming convention reminder:
+        • Task-0 concrete – lives in root namespace as *HumanGameController*.
+        • Generic gameplay behaviour is inherited from `BaseGamePlayController`.
+        • Extensions that require custom human input logic (e.g. VR input)
+          should subclass the *base* under their own package.
     
     Extends BaseWebController to handle human input through web interface.
     Provides move validation, input processing, and real-time state updates.
@@ -76,7 +82,7 @@ class HumanGameController(GamePlayController):
         """
         Handle human-specific gameplay actions.
         
-        Template Method Pattern: Implements abstract method from GamePlayController.
+        Template Method Pattern: Implements abstract method from BaseGamePlayController.
         """
         # Handle human-specific actions not covered by base class
         if action == 'get_input_stats':

@@ -37,8 +37,12 @@ def test_mvc_imports():
         
         # Test controller imports
         from web.controllers import (
-            BaseWebController, HumanGameController, LLMGameController,
-            GamePlayController, GameViewingController, ReplayController
+            BaseWebController,
+            HumanGameController,
+            GamePlayController,  # Task-0 gameplay controller
+            BaseGamePlayController,
+            BaseGameViewingController,
+            ReplayController,
         )
         print("✅ All controllers imported successfully")
         
@@ -107,8 +111,12 @@ def test_controller_hierarchy():
     
     try:
         from web.controllers import (
-            BaseWebController, GamePlayController, GameViewingController,
-            HumanGameController, LLMGameController, ReplayController
+            BaseWebController,
+            HumanGameController,
+            GamePlayController,  # Task-0 gameplay controller
+            BaseGamePlayController,
+            BaseGameViewingController,
+            ReplayController,
         )
         from web.models import GameStateModel
         
@@ -161,19 +169,19 @@ def test_controller_hierarchy():
         
         # Test HumanGameController
         human_controller = HumanGameController(model, renderer)
-        assert isinstance(human_controller, GamePlayController)
+        assert isinstance(human_controller, BaseGamePlayController)
         assert isinstance(human_controller, BaseWebController)
         print("✅ HumanGameController hierarchy correct")
         
         # Test LLMGameController
-        llm_controller = LLMGameController(model, renderer)
-        assert isinstance(llm_controller, GamePlayController)
+        llm_controller = GamePlayController(model, renderer)
+        assert isinstance(llm_controller, BaseGamePlayController)
         assert isinstance(llm_controller, BaseWebController)
         print("✅ LLMGameController hierarchy correct")
         
         # Test ReplayController
         replay_controller = ReplayController(model, renderer)
-        assert isinstance(replay_controller, GameViewingController)
+        assert isinstance(replay_controller, BaseGameViewingController)
         assert isinstance(replay_controller, BaseWebController)
         print("✅ ReplayController hierarchy correct")
         

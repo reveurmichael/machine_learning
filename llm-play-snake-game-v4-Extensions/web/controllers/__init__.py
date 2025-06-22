@@ -13,10 +13,10 @@ Design Patterns:
 
 Controller Hierarchy:
     BaseWebController           - Abstract base with common functionality
-    ├── GamePlayController      - Base for active gameplay modes
-    │   ├── LLMGameController   - LLM-driven game sessions
+    ├── BaseGamePlayController  - Generic base for active gameplay modes
+    │   ├── GamePlayController  - Task-0 LLM-driven gameplay
     │   └── HumanGameController - Human player input handling
-    └── GameViewingController   - Base for viewing/replay modes
+    └── BaseGameViewingController - Generic base for viewing/replay modes
         └── ReplayController    - Game replay and navigation
 
 Educational Goals:
@@ -27,8 +27,12 @@ Educational Goals:
 
 from .base_controller import BaseWebController, RequestType, RequestContext
 from .human_controller import HumanGameController
-from .llm_controller import LLMGameController
-from .game_controllers import GamePlayController, GameViewingController, GameMode
+from .llm_controller import GamePlayController  # Task-0 gameplay controller
+from .game_controllers import (
+    BaseGamePlayController,
+    BaseGameViewingController,
+    GameMode,
+)
 from .replay_controller import ReplayController
 
 __all__ = [
@@ -36,9 +40,9 @@ __all__ = [
     'RequestType',
     'RequestContext',
     'HumanGameController',
-    'LLMGameController',
     'GamePlayController',
-    'GameViewingController',
+    'BaseGamePlayController',
+    'BaseGameViewingController',
     'GameMode',
     'ReplayController'
 ] 

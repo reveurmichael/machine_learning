@@ -30,7 +30,7 @@ ensure_project_root()
 
 # Import MVC components
 from web.models import LoggingObserver
-from web.controllers import LLMGameController
+from web.controllers import GamePlayController
 
 # Import Task 0 components
 from core.game_manager import GameManager
@@ -207,7 +207,7 @@ class Task0GameControllerAdapter:
         return getattr(self._game, 'grid_size', 10)
 
 
-class Task0LLMController(LLMGameController):
+class Task0LLMController(GamePlayController):
     """
     Task 0 specific LLM controller that extends the base LLM controller.
     

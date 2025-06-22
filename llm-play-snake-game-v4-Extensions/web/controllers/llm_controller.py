@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .base_controller import RequestType, RequestContext
-from .game_controllers import GamePlayController, GameMode
+from .game_controllers import BaseGamePlayController, GameMode
 from ..models import GameStateModel, GameEvent
 from ..views import WebViewRenderer
 
@@ -140,12 +140,22 @@ class MockLLMStrategy(LLMStrategy):
         }
 
 
-class LLMGameController(GamePlayController):
+class GamePlayController(BaseGamePlayController):
     """
     Controller for LLM-driven Snake game sessions.
     
+    ── Naming convention ──────────────────────────────────────────────
+    • This class is the **Task-0 concrete** gameplay controller and therefore
+      keeps the terse name *GamePlayController*.
+    • Generic/shared behaviour lives in `BaseGamePlayController`.
+    • Extensions must create their own concrete subclasses (e.g.
+      `HeuristicGamePlayController`) **inside the `extensions/` tree** and
+      inherit from the *base* – never from this Task-0 implementation.
+    • Deprecated alias `LLMGameController` will be removed after the next
+      major version.
+
     Orchestrates AI decision making with web interface requirements.
-    Inherits request handling framework from BaseWebController.
+    Inherits request handling framework from BaseGamePlayController.
     
     Design Patterns:
         - Template Method: Uses parent's request handling flow
@@ -189,7 +199,7 @@ class LLMGameController(GamePlayController):
         """
         Handle LLM-specific gameplay actions.
         
-        Template Method Pattern: Implements abstract method from GamePlayController.
+        Template Method Pattern: Implements abstract method from BaseGamePlayController.
         """
         try:
             if action == 'toggle_auto_play':
@@ -371,7 +381,7 @@ class LLMGameController(GamePlayController):
         base_info = super().get_controller_info()
         
         llm_info = {
-            'controller_type': 'LLMGameController',
+            'controller_type': 'GamePlayController',
             'llm_provider': self.llm_strategy.get_provider_info(),
             'auto_play_enabled': self.auto_play_enabled,
             'decision_delay': self.decision_delay,

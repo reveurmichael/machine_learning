@@ -69,24 +69,31 @@ class Task0GameControllerAdapter:
             game_manager: Task 0 GameManager instance
         """
         self.game_manager = game_manager
-        self.game = game_manager.game
-        self._start_time = time.time()
         
-        # Expose commonly accessed attributes
-        self.grid_size = getattr(self.game, 'grid_size', 15)
-        self.use_gui = False  # Always headless for web
+        # IMPORTANT: During adapter construction the GameManager has **not**
+        # yet run `setup_game()`, which means `game_manager.game` is *None*.
+        # Capturing that reference here would permanently freeze the adapter
+        # with a `None` game instance and stale grid_size.  Instead we always
+        # look up the live `game_manager.game` attribute **dynamically** via
+        # helper getters so the adapter stays in sync after the GameManager
+        # completes its initialisation.
+
+        self._start_time = time.time()
+
+        # Web mode is strictly head-less – no local PyGame window.
+        self.use_gui = False
         
         logger.info("Initialized Task0GameControllerAdapter")
     
     @property
     def score(self) -> int:
         """Get current game score."""
-        return getattr(self.game, 'score', 0)
+        return getattr(self._game, 'score', 0) if self._game else 0
     
     @property
     def steps(self) -> int:
         """Get current step count."""
-        return getattr(self.game, 'steps', 0)
+        return getattr(self._game, 'steps', 0) if self._game else 0
     
     @property
     def game_over(self) -> bool:
@@ -96,8 +103,8 @@ class Task0GameControllerAdapter:
     @property
     def snake_positions(self) -> list:
         """Get snake body positions."""
-        if hasattr(self.game, 'snake_positions'):
-            positions = self.game.snake_positions
+        if self._game and hasattr(self._game, 'snake_positions'):
+            positions = self._game.snake_positions
             if hasattr(positions, 'tolist'):
                 return positions.tolist()
             return list(positions)
@@ -106,8 +113,8 @@ class Task0GameControllerAdapter:
     @property
     def apple_position(self) -> tuple:
         """Get apple position."""
-        if hasattr(self.game, 'apple_position'):
-            position = self.game.apple_position
+        if self._game and hasattr(self._game, 'apple_position'):
+            position = self._game.apple_position
             if hasattr(position, 'tolist'):
                 return tuple(position.tolist())
             return tuple(position)
@@ -116,13 +123,13 @@ class Task0GameControllerAdapter:
     @property
     def current_direction(self) -> str:
         """Get current movement direction."""
-        return getattr(self.game, 'current_direction', 'UP')
+        return getattr(self._game, 'current_direction', 'UP') if self._game else 'UP'
     
     @property
     def end_reason(self) -> str:
         """Get game end reason."""
-        if hasattr(self.game, 'game_state') and hasattr(self.game.game_state, 'game_end_reason'):
-            return self.game.game_state.game_end_reason
+        if self._game and hasattr(self._game, 'game_state') and hasattr(self._game.game_state, 'game_end_reason'):
+            return self._game.game_state.game_end_reason
         return None
     
     @property
@@ -133,11 +140,15 @@ class Task0GameControllerAdapter:
     def reset(self) -> None:
         """Reset the game to initial state."""
         try:
-            # Reset through GameManager
+            # Delegate reset through the GameManager which in turn resets the
+            # underlying GameLogic instance.  This ensures all ancillary
+            # structures (RoundManager, limits counters, etc.) are refreshed
+            # consistently.
+
             if hasattr(self.game_manager, 'reset_game'):
                 self.game_manager.reset_game()
-            elif hasattr(self.game, 'reset'):
-                self.game.reset()
+            elif self._game and hasattr(self._game, 'reset'):
+                self._game.reset()
             
             self._start_time = time.time()
             logger.info("Game reset via adapter")
@@ -176,11 +187,24 @@ class Task0GameControllerAdapter:
         """Get performance statistics."""
         return {
             "game_duration": time.time() - self._start_time,
-            "moves_per_second": self.steps / max(time.time() - self._start_time, 1),
+            "moves_per_second": self.steps / max(time.time() - self._start_time, 1) if self.steps else 0.0,
             "current_score": self.score,
             "current_steps": self.steps,
             "game_active": not self.game_over
         }
+
+    # --------------------------------------------------
+    # Internal helper – always fetch the **live** GameLogic
+    # --------------------------------------------------
+    @property
+    def _game(self):
+        """Return the current GameLogic instance (may be None during startup)."""
+        return getattr(self.game_manager, 'game', None)
+
+    # Keep a dynamic grid_size property so template / JS always stays correct
+    @property
+    def grid_size(self) -> int:  # type: ignore[override]
+        return getattr(self._game, 'grid_size', 10)
 
 
 class Task0LLMController(LLMGameController):

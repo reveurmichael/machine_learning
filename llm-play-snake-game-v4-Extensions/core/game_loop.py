@@ -209,15 +209,9 @@ class BaseGameLoop:
             # -------------------
             # Elegant Limits Management for Invalid Reversals
             # -------------------
-            from core.game_state_adapter import create_game_state_adapter
-
-            game_state_adapter = create_game_state_adapter(
-                manager, override_game_active=game_active
-            )
-
-            # Use elegant limits manager to handle INVALID_REVERSAL
-            game_should_continue = manager.limits_manager.record_move(
-                "INVALID_REVERSAL", game_state_adapter
+            # Use limits manager helper method to eliminate code duplication
+            game_should_continue = manager.limits_manager.record_move_with_adapter(
+                "INVALID_REVERSAL", manager, override_game_active=game_active
             )
 
             if not game_should_continue:
@@ -234,12 +228,8 @@ class BaseGameLoop:
         # Elegant Max Steps Management
         # -------------------
         if game_active:
-            from core.game_state_adapter import create_game_state_adapter
-
-            game_state_adapter = create_game_state_adapter(manager)
-            game_active = manager.limits_manager.check_step_limit(
-                manager.game.steps, game_state_adapter
-            )
+            # Use limits manager helper method to eliminate code duplication
+            game_active = manager.limits_manager.check_step_limit_with_adapter(manager)
 
         manager.game.draw()
         pause = manager.get_pause_between_moves()
@@ -251,12 +241,8 @@ class BaseGameLoop:
         # -------------------
         # For valid directional moves, use the limits manager to intelligently reset counters
         if direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-            from core.game_state_adapter import create_game_state_adapter
-
-            game_state_adapter = create_game_state_adapter(
-                manager, override_game_active=True
-            )
-            manager.limits_manager.record_move(direction, game_state_adapter)
+            # Use limits manager helper method to eliminate code duplication
+            manager.limits_manager.record_move_with_adapter(direction, manager, override_game_active=True)
 
         # -------------------
         # Legacy Counter Updates (for backward compatibility)
@@ -456,14 +442,8 @@ class GameLoop(BaseGameLoop):
         """Handle EMPTY move sentinel with elegant limits management."""
         manager = self.manager
 
-        from core.game_state_adapter import create_game_state_adapter
-
-        game_state_adapter = create_game_state_adapter(manager)
-
-        # Use elegant limits manager to handle EMPTY moves
-        game_should_continue = manager.limits_manager.record_move(
-            "EMPTY", game_state_adapter
-        )
+        # Use limits manager helper method to eliminate code duplication
+        game_should_continue = manager.limits_manager.record_move_with_adapter("EMPTY", manager)
 
         if not game_should_continue:
             manager.game_active = False
@@ -481,14 +461,8 @@ class GameLoop(BaseGameLoop):
         """Handle NO_PATH_FOUND sentinel from LLM."""
         manager = self.manager
 
-        from core.game_state_adapter import create_game_state_adapter
-
-        game_state_adapter = create_game_state_adapter(manager)
-
-        # Use elegant limits manager to handle NO_PATH_FOUND
-        game_should_continue = manager.limits_manager.record_move(
-            "NO_PATH_FOUND", game_state_adapter
-        )
+        # Use limits manager helper method to eliminate code duplication
+        game_should_continue = manager.limits_manager.record_move_with_adapter("NO_PATH_FOUND", manager)
 
         if not game_should_continue:
             manager.game_active = False

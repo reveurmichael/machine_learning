@@ -29,6 +29,7 @@ from colorama import Fore
 
 if TYPE_CHECKING:
     import argparse
+    from core.game_manager import BaseGameManager
 
 # Import configuration constants
 from config.game_constants import (
@@ -564,6 +565,68 @@ class ConsecutiveLimitsManager:
             status_lines.append(f"{limit_name}: {progress}")
         
         return f"ConsecutiveLimitsManager({', '.join(status_lines)})"
+
+    # ---------------------
+    # Helper methods to eliminate code duplication in game loop
+    # ---------------------
+    
+    def record_move_with_adapter(self, move: str, game_manager: "BaseGameManager", 
+                                override_game_active: bool = None) -> bool:
+        """
+        Record a move with the limits manager using a game state adapter.
+        
+        This helper method eliminates the duplication of:
+        1. Importing create_game_state_adapter
+        2. Creating the adapter with optional override_game_active
+        3. Calling self.record_move()
+        
+        This method encapsulates the adapter creation logic within the limits manager,
+        following the Single Responsibility Principle and providing a cleaner interface
+        for the game loop.
+        
+        Args:
+            move: The move to record (e.g., "EMPTY", "INVALID_REVERSAL", "UP", etc.)
+            game_manager: The game manager instance
+            override_game_active: Optional override for game_active state in adapter
+            
+        Returns:
+            True if game should continue, False if game should end
+        """
+        from core.game_state_adapter import create_game_state_adapter
+        
+        # Create adapter with optional override
+        if override_game_active is not None:
+            game_state_adapter = create_game_state_adapter(
+                game_manager, override_game_active=override_game_active
+            )
+        else:
+            game_state_adapter = create_game_state_adapter(game_manager)
+        
+        # Record the move with limits manager
+        return self.record_move(move, game_state_adapter)
+    
+    def check_step_limit_with_adapter(self, game_manager: "BaseGameManager") -> bool:
+        """
+        Check if the current step count exceeds the maximum allowed steps.
+        
+        This helper method eliminates the duplication of:
+        1. Importing create_game_state_adapter
+        2. Creating the adapter
+        3. Calling self.check_step_limit()
+        
+        This method encapsulates the adapter creation logic within the limits manager,
+        providing a cleaner interface for the game loop.
+        
+        Args:
+            game_manager: The game manager instance
+            
+        Returns:
+            True if game should continue, False if step limit exceeded
+        """
+        from core.game_state_adapter import create_game_state_adapter
+        
+        game_state_adapter = create_game_state_adapter(game_manager)
+        return self.check_step_limit(game_manager.game.steps, game_state_adapter)
 
 
 def create_limits_manager(args: 'argparse.Namespace') -> ConsecutiveLimitsManager:

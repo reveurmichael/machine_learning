@@ -162,6 +162,18 @@ class BaseGameData:
         if move not in ["INVALID_REVERSAL", "NO_PATH_FOUND"]:
             self.consecutive_invalid_reversals = 0
             self.consecutive_no_path_found = 0
+        
+        # --------------------------------------------------------------
+        # Round-level bookkeeping (generic – safe for ALL tasks)
+        # --------------------------------------------------------------
+        # If a RoundManager is attached we mirror the move into the
+        # per-round buffer.  This allows replay engines and analytics to
+        # reconstruct the exact sequence of actions without scanning the
+        # coarse *moves* array for round boundaries.
+        if hasattr(self, "round_manager") and self.round_manager:
+            buffer = getattr(self.round_manager, "round_buffer", None)
+            if buffer is not None:
+                buffer.add_move(move)
     
     def record_apple_position(self, position) -> None:
         """Record an apple position.
@@ -309,7 +321,6 @@ class GameData(BaseGameData):
         
         # LLM-specific tracking
         self.stats.step_stats.valid += 1
-        self.round_manager.round_buffer.add_move(normalize_direction(move))
         
         # Reset LLM-specific consecutive counters on valid move
         if move not in ["EMPTY", "SOMETHING_IS_WRONG"]:

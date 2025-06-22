@@ -12,7 +12,7 @@ This version:
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 
 from config.game_constants import DIRECTIONS
 
@@ -34,9 +34,21 @@ class HamiltonianAgent:
     # ------------------------------------------------------------------
 
     def get_move(self, game: "HeuristicGameLogic") -> str:  # noqa: D401
+        """Return next move.
+
+        Strategy order:
+        1. Use A* to find a shortest path to the apple.
+           If following that path keeps the snake able to reach its tail
+           afterwards (safety guarantee), take the first step.
+        2. Otherwise fall back to the pre-computed Hamiltonian cycle.
+        3. If even that fails (should be impossible), make *any* safe move.
+        """
         try:
             head = tuple(game.head_position)
+            apple = tuple(game.apple_position)
             grid_size = game.grid_size
+            body = [tuple(seg) for seg in game.snake_positions]
+            obstacles: Set[Tuple[int, int]] = set(body[:-1])  # tail can vacate
 
             # Re-generate cycle if grid size changed or not yet built
             if not self.cycle or self.grid_size != grid_size:
@@ -44,40 +56,35 @@ class HamiltonianAgent:
                 self._generate_safe_cycle(grid_size)
                 if self.debug_log:
                     print(f"🌀 Generated {len(self.cycle)}-cell cycle")
-                    self._validate_cycle()
 
             # ------------------------------------------------------
-            # Optional apple shortcut (one-step only)
+            # 1. Safe A* path to apple
             # ------------------------------------------------------
-            apple = tuple(game.apple_position)
-            shortcut_dir = self._safe_shortcut(head, apple, game)
-            if shortcut_dir:
+            path_to_apple = self._astar_path(head, apple, obstacles, grid_size)
+            if (
+                path_to_apple
+                and len(path_to_apple) > 1
+                and self._path_safe_after_eat(path_to_apple, body, grid_size)
+            ):
                 if self.debug_log:
-                    print(f"🍎 Shortcut to apple: {shortcut_dir}")
-                return shortcut_dir
+                    print("🚀 Taking safe A* shortcut to apple")
+                return self._get_direction(head, path_to_apple[1])
 
             # ------------------------------------------------------
-            # Normal cycle following
+            # 2. Follow Hamiltonian cycle
             # ------------------------------------------------------
             head_idx = self.cycle_map.get(head, -1)
             if head_idx == -1:
                 head_idx = self._find_nearest_index(head)
-                if self.debug_log:
-                    print(f"⚠️ Rejoined cycle at index {head_idx}")
-
             next_idx = (head_idx + 1) % len(self.cycle)
             next_pos = self.cycle[next_idx]
-
-            direction = self._get_direction(head, next_pos)
-            if direction != "NO_PATH_FOUND" and self._is_safe_move(next_pos, game):
+            if self._is_safe_move(next_pos, game):
                 self.current_cycle_index = next_idx
-                if self.debug_log:
-                    print(
-                        f"🔄 Cycle: {head_idx}→{next_idx} {head}→{next_pos} via {direction}"
-                    )
-                return direction
+                return self._get_direction(head, next_pos)
 
-            # Fallback: any safe move
+            # ------------------------------------------------------
+            # 3. Any safe move (failsafe)
+            # ------------------------------------------------------
             return self._find_any_safe_move(head, game)
 
         except Exception as e:  # pragma: no cover – defensive guard
@@ -190,6 +197,71 @@ class HamiltonianAgent:
     def _get_next_position(pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
         dx, dy = DIRECTIONS[direction]
         return pos[0] + dx, pos[1] + dy
+
+    # ------------------------------------------------------------------
+    # A* path-finding + safety simulation helpers
+    # ------------------------------------------------------------------
+
+    def _astar_path(
+        self,
+        start: Tuple[int, int],
+        goal: Tuple[int, int],
+        obstacles: Set[Tuple[int, int]],
+        grid_size: int,
+    ) -> Optional[List[Tuple[int, int]]]:
+        """Return shortest path using A* or *None* if not reachable."""
+        open_set: Set[Tuple[int, int]] = {start}
+        came_from: Dict[Tuple[int, int], Tuple[int, int]] = {}
+        g_score: Dict[Tuple[int, int], int] = {start: 0}
+        f_score: Dict[Tuple[int, int], int] = {start: self._heuristic(start, goal)}
+
+        while open_set:
+            current = min(open_set, key=lambda o: f_score.get(o, float("inf")))
+            if current == goal:
+                # Reconstruct path
+                path = [current]
+                while current in came_from:
+                    current = came_from[current]
+                    path.append(current)
+                return list(reversed(path))
+
+            open_set.remove(current)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                neighbor = (current[0] + dx, current[1] + dy)
+                if (
+                    not (0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size)
+                    or neighbor in obstacles
+                ):
+                    continue
+                tentative_g = g_score[current] + 1
+                if tentative_g < g_score.get(neighbor, float("inf")):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f_score[neighbor] = tentative_g + self._heuristic(neighbor, goal)
+                    open_set.add(neighbor)
+        return None
+
+    @staticmethod
+    def _heuristic(a: Tuple[int, int], b: Tuple[int, int]) -> int:
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+    def _path_safe_after_eat(
+        self,
+        path: List[Tuple[int, int]],
+        snake_body: List[Tuple[int, int]],
+        grid_size: int,
+    ) -> bool:
+        """Simulate *path*; ensure head can still reach tail afterwards."""
+        virtual = list(snake_body)
+        apple = path[-1]
+        for step in path[1:]:
+            virtual.insert(0, step)
+            if step == apple:
+                break  # snake grows – keep tail
+            virtual.pop()
+        new_head, new_tail = virtual[0], virtual[-1]
+        obstacles = set(virtual[:-1])
+        return bool(self._astar_path(new_head, new_tail, obstacles, grid_size))
 
     # ------------------------------------------------------------------
     # Diagnostics helper

@@ -28,9 +28,3 @@ if str(project_root) not in sys.path:
 if os.getcwd() != str(project_root):
     os.chdir(str(project_root))
 ```
-
-
-
-#
-
-

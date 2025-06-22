@@ -26,6 +26,10 @@ from pygame.locals import (
     K_DOWN,
     K_LEFT,
     K_RIGHT,
+    K_w,
+    K_a,
+    K_s,
+    K_d,
     K_r,
 )
 
@@ -58,7 +62,7 @@ class HumanGameGUI(GameGUI):
 
         self.screen.blit(title_font.render("Controls", True, COLORS["BLACK"]), (self.height + 20, 130))
         ctrls = [
-            "- Arrow Keys: Move Snake",
+            "- Arrow Keys / WASD: Move Snake",
             "- R: Reset Game",
             "- Esc: Quit Game",
         ]
@@ -104,16 +108,16 @@ def _handle_input(game: GameController, gui: HumanGameGUI) -> bool:
             if event.key == K_ESCAPE:
                 return False
 
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 active, _ = game.make_move("UP")
                 gui.set_game_over(not active)
-            elif event.key == K_DOWN:
+            elif event.key == K_DOWN or event.key == K_s:
                 active, _ = game.make_move("DOWN")
                 gui.set_game_over(not active)
-            elif event.key == K_LEFT:
+            elif event.key == K_LEFT or event.key == K_a:
                 active, _ = game.make_move("LEFT")
                 gui.set_game_over(not active)
-            elif event.key == K_RIGHT:
+            elif event.key == K_RIGHT or event.key == K_d:
                 active, _ = game.make_move("RIGHT")
                 gui.set_game_over(not active)
             elif event.key == K_r:

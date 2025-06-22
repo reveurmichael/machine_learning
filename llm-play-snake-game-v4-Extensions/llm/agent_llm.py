@@ -105,16 +105,25 @@ class LLMSnakeAgent(SnakeAgent):
 
             # Mark awaiting_plan to keep UI behaviour identical
             game_manager.awaiting_plan = True
-            move, game_active = get_llm_response(
+            get_llm_response(
                 game_manager, round_id=game_manager.round_count
-            )  # type: ignore[arg-type]
+            )  # populates game_manager.game.planned_moves
             game_manager.awaiting_plan = False
 
-            # Update game manager state
+            # We have a fresh plan – reset flag
             game_manager.need_new_plan = False
-            game_manager.game_active = game_active
 
-            return move
+            # Consume the first move from the newly planned sequence, if any
+            if hasattr(game_manager.game, "get_next_planned_move"):
+                return game_manager.game.get_next_planned_move()
+            if (
+                hasattr(game_manager.game, "planned_moves")
+                and game_manager.game.planned_moves
+            ):
+                return game_manager.game.planned_moves.pop(0)
+
+            # Fallback – no move parsed (treated by caller as EMPTY)
+            return None
 
         # ----------------
         # Fallback standalone mode (no GameManager) – original lightweight path

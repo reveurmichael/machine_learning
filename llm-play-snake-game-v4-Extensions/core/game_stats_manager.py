@@ -24,7 +24,7 @@ The save_session_stats() method creates perfectly structured summary.json files:
 2. **Incremental Updates**: Can merge new statistics without losing existing data  
 3. **Type Safety**: Ensures consistent data types (int, float, str, list, dict)
 4. **Error Recovery**: Graceful handling of corrupted summary files
-5. **Backwards Compatibility**: Fixed schema preserves old summary files
+5. **Schema Evolution**: Versioned schema keeps historical files readable without special cases
 
 ### **summary.json Structure (Single Source of Truth)**
 ```json

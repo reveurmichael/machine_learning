@@ -325,7 +325,7 @@ class GameManager(BaseGameManager):
         self.limits_manager = create_limits_manager(args)
 
         # -------------------
-        # LLM-specific counters and state (legacy compatibility)
+        # LLM-specific counters and state
         # -------------------
         self.empty_steps: int = 0
         self.something_is_wrong_steps: int = 0
@@ -367,7 +367,7 @@ class GameManager(BaseGameManager):
             # Create LLM-specific directories using centralized utilities
             from llm.log_utils import ensure_llm_directories
             self.prompts_dir, self.responses_dir = ensure_llm_directories(self.log_dir)
-            # Convert Path objects to strings for backwards compatibility
+            # Convert Path objects to plain strings for JSON serialisation
             self.prompts_dir = str(self.prompts_dir)
             self.responses_dir = str(self.responses_dir)
 

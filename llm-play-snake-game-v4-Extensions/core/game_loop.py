@@ -217,9 +217,7 @@ class BaseGameLoop:
             if not game_should_continue:
                 game_active = False
 
-            # -------------------
-            # Legacy Counter Updates (for backward compatibility)
-            # -------------------
+            # Counter updates
             manager.consecutive_invalid_reversals += 1
         else:
             manager.consecutive_invalid_reversals = 0
@@ -244,9 +242,7 @@ class BaseGameLoop:
             # Use limits manager helper method to eliminate code duplication
             manager.limits_manager.record_move_with_adapter(direction, manager, override_game_active=True)
 
-        # -------------------
-        # Legacy Counter Updates (for backward compatibility)
-        # -------------------
+        # Counter updates
         manager.consecutive_something_is_wrong = 0
         if direction != "EMPTY":
             manager.consecutive_empty_steps = 0
@@ -258,25 +254,6 @@ class BaseGameLoop:
     def _handle_no_path_found(self) -> None:
         """Stub – subclasses may implement *NO_PATH_FOUND* sentinel handling."""
         return None  # override in Task-0
-
-    def _apply_empty_move_delay(self) -> None:
-        """
-        Legacy method for applying empty move delay.
-
-        This functionality is now handled elegantly by the ConsecutiveLimitsManager,
-        but we keep this method for backward compatibility with any code that might
-        still call it directly.
-        """
-        manager = self.manager
-        pause_min: float = getattr(manager.args, "sleep_after_empty_step", 0.0)
-        if pause_min <= 0 or getattr(manager, "last_no_path_found", False):
-            return
-        plural = "s" if pause_min != 1 else ""
-        print(
-            Fore.CYAN
-            + f"⏸️ Legacy sleep: {pause_min} minute{plural} after EMPTY step..."
-        )
-        time.sleep(pause_min * 60)
 
 
 class GameLoop(BaseGameLoop):
@@ -430,9 +407,7 @@ class GameLoop(BaseGameLoop):
         if hasattr(manager, 'limits_manager'):
             manager.limits_manager.reset_all_counters()
         
-        # -------------------
-        # Legacy Counter Resets (for backward compatibility)
-        # -------------------
+        # Counter resets
         manager.consecutive_empty_steps = 0
         manager.consecutive_something_is_wrong = 0
         manager.consecutive_invalid_reversals = 0
@@ -448,9 +423,7 @@ class GameLoop(BaseGameLoop):
         if not game_should_continue:
             manager.game_active = False
 
-        # -------------------
-        # Legacy Counter Updates (for backward compatibility)
-        # -------------------
+        # Counter updates
         manager.consecutive_empty_steps += 1
 
         # If the game is still active, execute the EMPTY move
@@ -467,9 +440,7 @@ class GameLoop(BaseGameLoop):
         if not game_should_continue:
             manager.game_active = False
 
-        # -------------------
-        # Legacy Counter Updates (for backward compatibility)
-        # -------------------
+        # Counter updates
         manager.consecutive_no_path_found += 1
 
         # If the game is still active, execute an EMPTY move

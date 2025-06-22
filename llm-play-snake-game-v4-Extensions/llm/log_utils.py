@@ -41,7 +41,6 @@ from typing import Any, Dict, Optional, Union
 from config.game_constants import PROMPTS_DIR_NAME, RESPONSES_DIR_NAME
 
 __all__ = [
-    "clean_prompt_files",
     "save_llm_artefact",
     "get_prompt_filename",
     "get_prompts_dir_path",
@@ -50,19 +49,6 @@ __all__ = [
     "ensure_llm_directories",
     "cleanup_game_artifacts",
 ]
-
-
-def clean_prompt_files(log_dir: Union[str, Path], start_game: int) -> None:
-    """
-    Legacy function - use cleanup_game_artifacts() instead.
-    
-    Deletes prompt and response files for a given game number onwards.
-
-    Args:
-        log_dir: The root directory for the logging session.
-        start_game: The game number from which to clear artifacts.
-    """
-    cleanup_game_artifacts(log_dir, start_game)
 
 
 def save_llm_artefact(

@@ -39,9 +39,8 @@ Naming Rules enforced across the repo (see System-Prompt.txt):
         explicitly documented.  This ensures Task-0 remains the
         first-citizen and no extension code pollutes the root.
 
-    4.  Legacy names like `LLMGameController` have been retired.  Aliases
-        linger only inside factories/tests for backward compatibility and will
-        be removed after a deprecation window.
+    4.  Legacy names like `LLMGameController` have been fully removed –
+        no aliases remain.  New code must use `GamePlayController`.
 
 This docstring serves as a single canonical description of the naming scheme
 for the web MVC layer.

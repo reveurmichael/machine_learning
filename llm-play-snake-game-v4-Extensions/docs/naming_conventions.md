@@ -100,16 +100,15 @@ The `ControllerFactory` maps simple slug strings to classes:
 
 ```python
 _controller_registry = {
-    'game': GamePlayController,      # Task-0 default
+    'game': GamePlayController,      # Task-0 default gameplay
     'human_game': HumanGameController,
     'replay': ReplayController,
     # extensions register their own: 'heuristic_game', 'rl_game', …
 }
 ```
 
-Alias keys (`'llm_game'`) exist for a short transitional period after renames
-so external scripts are not broken; they will be removed in the next major
-release.
+*(The legacy `LLMGameController` alias was removed in v4.1; no further
+deprecation milestones are pending.)*
 
 ---
 

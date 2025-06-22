@@ -26,7 +26,7 @@ from pathlib import Path
 
 from colorama import Fore
 
-from llm.log_utils import clean_prompt_files, get_llm_directories
+from llm.log_utils import cleanup_game_artifacts, get_llm_directories
 from core.game_file_manager import FileManager
 from utils.path_utils import get_summary_json_filename
 
@@ -288,8 +288,8 @@ def continue_from_directory(
     print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
     print(Fore.GREEN + f"✅ Starting from game {next_game}")
     
-    # Clean existing prompt and response files for games >= next_game
-    clean_prompt_files(log_dir, next_game)
+    # Remove artefacts from incomplete games >= next_game (fresh, no back-compat wrapper)
+    cleanup_game_artifacts(log_dir, next_game)
     
     # Create and run the game manager with continuation settings
     game_manager = game_manager_class(args)

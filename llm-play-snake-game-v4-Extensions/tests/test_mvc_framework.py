@@ -173,11 +173,11 @@ def test_controller_hierarchy():
         assert isinstance(human_controller, BaseWebController)
         print("✅ HumanGameController hierarchy correct")
         
-        # Test LLMGameController
+        # Test GamePlayController (Task-0 LLM gameplay)
         llm_controller = GamePlayController(model, renderer)
         assert isinstance(llm_controller, BaseGamePlayController)
         assert isinstance(llm_controller, BaseWebController)
-        print("✅ LLMGameController hierarchy correct")
+        print("✅ GamePlayController hierarchy correct")
         
         # Test ReplayController
         replay_controller = ReplayController(model, renderer)
@@ -212,7 +212,7 @@ def test_factory_pattern():
         available_types = controller_factory.get_available_types()
         
         assert 'human_game' in available_types
-        assert 'llm_game' in available_types
+        assert 'game' in available_types
         assert 'replay' in available_types
         
         print(f"✅ ControllerFactory has types: {available_types}")

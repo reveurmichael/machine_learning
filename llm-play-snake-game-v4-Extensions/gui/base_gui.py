@@ -89,7 +89,7 @@ class BaseGUI:
         
         Args:
             apple_position: [x,y] position of the apple
-            flip_y: Whether y-coordinate is already flipped (for GameGUI compatibility)
+            flip_y: Whether the y-coordinate has already been flipped (needed by some subclasses)
         """
         x, y = apple_position
         

@@ -34,7 +34,7 @@ This module ensures PERFECT JSON schema consistency:
 1. **Schema Validation**: All JSON files follow identical structure for shared fields
 2. **Type Safety**: Consistent data types across all tasks (int, str, list, dict)
 3. **Error Recovery**: Graceful handling of corrupted/missing JSON files  
-4. **Backwards Compatibility**: Fixed schema ensures old files remain readable
+4. **Stable Schema**: Fixed schema ensures current files remain readable
 
 === FILE NAMING CONVENTIONS (Single Source of Truth) ===
 - `game_N.json`: Individual game data (N = 1, 2, 3, ...)
@@ -320,7 +320,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
                 summary['total_steps'] = game_stats.get('total_steps', 0)
                 summary['total_rounds'] = game_stats.get('total_rounds', 0)
             else:
-                # Legacy format fallback
+                # Older schema support
                 summary['game_count'] = data.get('game_count', 0)
                 summary['total_score'] = data.get('total_score', 0)
                 summary['total_steps'] = data.get('total_steps', 0)
@@ -338,7 +338,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
                 summary['secondary_provider'] = config.get('parser_provider', 'None')
                 summary['secondary_model'] = config.get('parser_model', 'None')
             else:
-                # Legacy format fallback
+                # Older schema support
                 if 'primary_llm' in data:
                     llm_info = data['primary_llm']
                     summary['primary_provider'] = llm_info.get('provider', 'Unknown')
@@ -362,7 +362,7 @@ class BaseFileManager(ABC, metaclass=SingletonABCMeta):
                 summary['avg_secondary_response_time'] = time_stats.get('avg_secondary_response_time', 0)
                 summary['total_llm_communication_time'] = time_stats.get('total_llm_communication_time', 0)
             else:
-                # Legacy format fallback
+                # Older schema support
                 prompt_stats = data.get('prompt_response_stats', {})
                 summary['avg_primary_response_time'] = prompt_stats.get('avg_primary_response_time', 0)
                 summary['avg_secondary_response_time'] = prompt_stats.get('avg_secondary_response_time', 0)
@@ -561,7 +561,7 @@ class FileManager(BaseFileManager):
                 summary['total_steps'] = game_stats.get('total_steps', 0)
                 summary['total_rounds'] = game_stats.get('total_rounds', 0)
             else:
-                # Legacy format fallback
+                # Older schema support
                 summary['game_count'] = data.get('game_count', 0)
                 summary['total_score'] = data.get('total_score', 0)
                 summary['total_steps'] = data.get('total_steps', 0)
@@ -579,7 +579,7 @@ class FileManager(BaseFileManager):
                 summary['secondary_provider'] = config.get('parser_provider', 'None')
                 summary['secondary_model'] = config.get('parser_model', 'None')
             else:
-                # Legacy format fallback
+                # Older schema support
                 if 'primary_llm' in data:
                     llm_info = data['primary_llm']
                     summary['primary_provider'] = llm_info.get('provider', 'Unknown')
@@ -603,7 +603,7 @@ class FileManager(BaseFileManager):
                 summary['avg_secondary_response_time'] = time_stats.get('avg_secondary_response_time', 0)
                 summary['total_llm_communication_time'] = time_stats.get('total_llm_communication_time', 0)
             else:
-                # Legacy format fallback
+                # Older schema support
                 prompt_stats = data.get('prompt_response_stats', {})
                 summary['avg_primary_response_time'] = prompt_stats.get('avg_primary_response_time', 0)
                 summary['avg_secondary_response_time'] = prompt_stats.get('avg_secondary_response_time', 0)

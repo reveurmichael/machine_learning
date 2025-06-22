@@ -564,9 +564,7 @@ def get_llm_response(
         if not game_should_continue:
             return
 
-        # -------------------
-        # Legacy Counter Updates (for backward compatibility)
-        # -------------------
+        # Local counter updates
         # Increment consecutive errors – and because this tick is *not* an
         # EMPTY move, reset the empty-move streak so the threshold represents
         # truly consecutive EMPTY ticks only.

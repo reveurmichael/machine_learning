@@ -189,8 +189,7 @@ def get_default_logs_root() -> str:
     """
     Get the default logs root directory name as a string.
     
-    This function provides backwards compatibility for code that expects 
-    a string rather than a Path object.
+    Returns the plain-string name for code that prefers str over Path.
     
     Returns:
         String name of the logs directory

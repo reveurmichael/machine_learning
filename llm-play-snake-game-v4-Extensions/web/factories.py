@@ -58,8 +58,7 @@ class ControllerFactory:
     def __init__(self):
         """Initialize controller factory with configuration."""
         self._controller_registry: Dict[str, Type[BaseWebController]] = {
-            'game': GamePlayController,
-            'llm_game': GamePlayController,  # TEMPORARY alias (see docs)
+            'game': GamePlayController,            # Task-0 default gameplay
             'human_game': HumanGameController,
             'replay': ReplayController,
         }
@@ -269,7 +268,7 @@ class WebApplicationFactory:
         view_renderer = self.view_factory.create_renderer(template_folder, static_folder)
         
         # Determine controller type
-        controller_type = "llm_game" if game_mode == "llm" else "human_game"
+        controller_type = "game" if game_mode == "llm" else "human_game"
         controller = self.controller_factory.create_controller(
             controller_type, model, view_renderer
         )
@@ -395,7 +394,7 @@ def create_controller_for_mode(mode: str, model: GameStateModel,
     Convenience function to create controller for specific mode.
     
     Args:
-        mode: Controller mode (human_game, llm_game, replay)
+        mode: Controller mode (human_game, game, replay)
         model: Game state model
         view_renderer: View renderer
         

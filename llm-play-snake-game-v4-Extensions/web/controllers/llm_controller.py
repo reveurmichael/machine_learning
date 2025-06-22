@@ -151,8 +151,8 @@ class GamePlayController(BaseGamePlayController):
     • Extensions must create their own concrete subclasses (e.g.
       `HeuristicGamePlayController`) **inside the `extensions/` tree** and
       inherit from the *base* – never from this Task-0 implementation.
-    • Deprecated alias `LLMGameController` will be removed after the next
-      major version.
+    • The old name `LLMGameController` has been **removed**; importing it
+      will raise `ImportError`.
 
     Orchestrates AI decision making with web interface requirements.
     Inherits request handling framework from BaseGamePlayController.

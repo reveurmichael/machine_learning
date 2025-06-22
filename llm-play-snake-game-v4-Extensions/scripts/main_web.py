@@ -103,33 +103,35 @@ class Task0GameControllerAdapter:
     @property
     def snake_positions(self) -> list:
         """Get snake body positions."""
-        if self._game and hasattr(self._game, 'snake_positions'):
-            positions = self._game.snake_positions
-            if hasattr(positions, 'tolist'):
-                return positions.tolist()
-            return list(positions)
+        game = self._game
+        if game and hasattr(game, 'snake_positions'):
+            # Convert numpy array to list for JSON serialization
+            return getattr(game.snake_positions, 'tolist', lambda: list(game.snake_positions))()
         return []
     
     @property
     def apple_position(self) -> tuple:
         """Get apple position."""
-        if self._game and hasattr(self._game, 'apple_position'):
-            position = self._game.apple_position
-            if hasattr(position, 'tolist'):
-                return tuple(position.tolist())
-            return tuple(position)
+        game = self._game
+        if game and hasattr(game, 'apple_position'):
+            # Convert numpy array to tuple for JSON serialization
+            return tuple(getattr(game.apple_position, 'tolist', lambda: tuple(game.apple_position))())
         return (0, 0)
     
     @property
     def current_direction(self) -> str:
-        """Get current movement direction."""
-        return getattr(self._game, 'current_direction', 'UP') if self._game else 'UP'
+        """Get current movement direction as a string key ('UP', 'LEFT', etc.)."""
+        game = self._game
+        if game and hasattr(game, 'get_current_direction_key'):
+            return game.get_current_direction_key()
+        return "NONE"  # Default when game not initialized
     
     @property
     def end_reason(self) -> str:
         """Get game end reason."""
-        if self._game and hasattr(self._game, 'game_state') and hasattr(self._game.game_state, 'game_end_reason'):
-            return self._game.game_state.game_end_reason
+        game = self._game
+        if game and hasattr(game, 'game_state') and hasattr(game.game_state, 'game_end_reason'):
+            return game.game_state.game_end_reason
         return None
     
     @property
@@ -167,14 +169,16 @@ class Task0GameControllerAdapter:
         Returns:
             Tuple of (game_still_active, apple_eaten)
         """
+        # For Task 0, moves are handled by the LLM agent. This method is a
+        # compatibility stub for the web framework, which expects a callable
+        # `make_move`. The actual game state is mutated by the `GameManager`
+        # in its background thread, and this adapter serves as a read-only
+        # proxy for the UI.
         try:
-            # For Task 0, moves are handled by the LLM agent
-            # This method is mainly for compatibility
             old_score = self.score
             
-            # The actual move execution happens in the GameManager loop
-            # We just return current state
-            game_active = getattr(self.game_manager, 'game_active', True)
+            # We don't execute a move here; just report current status.
+            game_active = not self.game_over
             apple_eaten = self.score > old_score
             
             return game_active, apple_eaten
@@ -187,10 +191,7 @@ class Task0GameControllerAdapter:
         """Get performance statistics."""
         return {
             "game_duration": time.time() - self._start_time,
-            "moves_per_second": self.steps / max(time.time() - self._start_time, 1) if self.steps else 0.0,
-            "current_score": self.score,
-            "current_steps": self.steps,
-            "game_active": not self.game_over
+            "moves_per_second": self.steps / max(time.time() - self._start_time, 1) if self.steps else 0.0
         }
 
     # --------------------------------------------------

@@ -278,8 +278,11 @@ def main():
     finally:
         sys.argv = argv_backup
 
-    # Force headless mode for web
-    game_args.no_gui = True
+    # The web interface is a GUI, so we should not force headless mode.
+    # The GameManager uses the `use_gui` flag (derived from `no_gui`)
+    # to enable features like pause_between_moves, which are essential for
+    # the web experience.
+    # game_args.no_gui = True # This was causing the no-pause issue
 
     print("\n🐍 Snake Game - Task 0 MVC Web Interface")
     print(f"🔗 URL: http://{host_port_args.host}:{host_port_args.port}")

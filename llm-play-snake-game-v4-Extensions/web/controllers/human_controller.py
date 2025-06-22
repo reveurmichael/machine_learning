@@ -219,9 +219,9 @@ class HumanGameController(GamePlayController):
         self.input_stats['last_input_time'] = current_time
         
         try:
-            # ------------------------------------------------------------------
+            # ------------------
             # Real integration with the *live* GameController
-            # ------------------------------------------------------------------
+            # ------------------
             # Retrieve the active GameController from the state provider.
             state_provider = getattr(self.model_manager, "state_provider", None)
             game_controller = getattr(state_provider, "game_controller", None)

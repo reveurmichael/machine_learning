@@ -131,9 +131,9 @@ class RateLimitFilter(RequestFilter):
     def should_process(self, context: RequestContext) -> bool:
         """Check if client hasn't exceeded rate limit."""
         client_ip = context.client_ip
-        # ------------------------------------------------------------------
+        # ------------------
         # Interactive-gameplay exemptions
-        # ------------------------------------------------------------------
+        # ------------------
         #  1. CONTROL_POST – arrow-key spam can easily hit 500+ req/min.
         #  2. STATE_GET    – the front-end polls every 100 ms (≈600 req/min)
         #                     to animate the board; throttling these turns the

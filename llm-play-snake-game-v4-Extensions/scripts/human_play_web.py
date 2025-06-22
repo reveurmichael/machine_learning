@@ -19,9 +19,9 @@ import pathlib
 import logging
 import argparse
 
-# ------------------------------------------------------------------
+# ------------------
 # Ensure repository root is on sys.path **before** any local imports
-# ------------------------------------------------------------------
+# ------------------
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))

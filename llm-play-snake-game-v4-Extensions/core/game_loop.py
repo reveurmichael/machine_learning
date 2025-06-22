@@ -118,9 +118,9 @@ class BaseGameLoop:
         if manager.awaiting_plan:
             return
         next_move = manager.game.get_next_planned_move()
-        # ------------------------------------------------------------------
+        # ------------------
         # 1. Duplicate-first-move bug (historical)
-        # ------------------------------------------------------------------
+        # ------------------
         # In the legacy procedural loop the *first* element of every freshly
         # downloaded plan was executed immediately **and** left inside the
         # queue, so it was executed *again* one tick later – polluting the
@@ -131,7 +131,7 @@ class BaseGameLoop:
         # ``get_next_planned_move()`` returns a value we *remove* it from the
         # queue and execute it exactly once.  No special-casing, no risk of
         # the queue getting out of sync.
-        # ------------------------------------------------------------------
+        # ------------------
         if not next_move:
             # Plan queue exhausted → round finished.
             print("🔄 No more planned moves in the current round — finishing round and requesting new plan.")

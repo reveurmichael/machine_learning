@@ -13,7 +13,7 @@ import numpy as np
 import pygame
 from pygame.locals import *  # noqa: F403 – Pygame constants
 
-from core.game_controller import BaseGameController
+from core.game_logic import GameLogic
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from replay.replay_data import ReplayData
@@ -23,13 +23,17 @@ from core.game_file_manager import FileManager
 # Initialize file manager for replay operations
 _file_manager = FileManager()
 
-# ---------------------
-# Generic replay skeleton – future tasks can inherit from this base and plug
-# in their own data-loading logic while re-using the event loop helpers.
-# ---------------------
+# ---------------------------------------------------------------------------
+# Generic, headless-capable replay skeleton (LLM-agnostic).
+#
+# It derives directly from *GameLogic* so that we can reuse the full snake
+# implementation (board state, collision handling, etc.) without pulling in
+# the newer *GameManager* / *GameController* abstractions that are not needed
+# for offline replays.
+# ---------------------------------------------------------------------------
 
 
-class BaseReplayEngine(BaseGameController):
+class BaseReplayEngine(GameLogic):
     """Headless-capable replay engine skeleton (LLM-agnostic).
 
     Only contains functionality that is independent of Task-0 specifics
@@ -37,6 +41,37 @@ class BaseReplayEngine(BaseGameController):
     expected to implement the abstract *load_game_data*, *update*,
     *handle_events*, and *run* methods.
     """
+
+    # -------------------------------------------------------------------
+    # GUI plumbing – identical public API as before so that *scripts/replay.py*
+    # continues to work unchanged.
+    # -------------------------------------------------------------------
+
+    def set_gui(self, gui_instance):  # type: ignore[override]
+        """Attach a GUI instance and propagate the current *paused* state."""
+
+        super().set_gui(gui_instance)
+
+        # Keep the GUI's internal flag in sync so it can adapt its display.
+        if gui_instance and hasattr(gui_instance, "set_paused"):
+            gui_instance.set_paused(self.paused)
+
+    # -------------------------------------------------------------------
+    # Utility so the replay can *force-set* an apple position taken from the
+    # JSON artefacts (random generation would desynchronise the playback).
+    # -------------------------------------------------------------------
+
+    def set_apple_position(self, position):  # noqa: D401 – keep simple sig
+        """Overwrite the current apple location with *position*.
+
+        The board array is refreshed so the renderer immediately reflects the
+        change.  This helper purposefully lives in the *replay* code path only
+        – it should **not** be exposed on the generic *GameLogic* class.
+        """
+
+        # Accept either list/tuple or array – convert to proper NumPy array.
+        self.apple_position = np.array(position)
+        self._update_board()
 
     # ---------------------
     # Construction & basic state
@@ -49,6 +84,8 @@ class BaseReplayEngine(BaseGameController):
         auto_advance: bool = False,
         use_gui: bool = True,
     ) -> None:  # noqa: D401 – simple init
+        # Initialise the underlying game engine first so that attributes like
+        # ``snake_positions`` are available before we start loading JSON data.
         super().__init__(use_gui=use_gui)
 
         self.log_dir: str = log_dir
@@ -94,12 +131,6 @@ class BaseReplayEngine(BaseGameController):
     # ---------------------
     # Generic helpers that *can* be shared across replay implementations
     # ---------------------
-
-    def set_gui(self, gui_instance):  # type: ignore[override]
-        """Attach a GUI and keep its *paused* flag in sync."""
-        super().set_gui(gui_instance)
-        if gui_instance and hasattr(gui_instance, "set_paused"):
-            gui_instance.set_paused(self.paused)
 
     def load_next_game(self) -> None:
         """Advance *game_number* by one and attempt to load that game."""
@@ -161,7 +192,9 @@ class BaseReplayEngine(BaseGameController):
             "total_moves": len(self.moves),
             "planned_moves": getattr(self, "planned_moves", []),
             "paused": self.paused,
-            "speed": 1.0 / self.pause_between_moves if self.pause_between_moves else 1.0,
+            "speed": (
+                1.0 / self.pause_between_moves if self.pause_between_moves else 1.0
+            ),
             "game_end_reason": getattr(self, "game_end_reason", None),
             "total_games": getattr(self, "total_games", None),
         }
@@ -182,7 +215,12 @@ class ReplayEngine(BaseReplayEngine):
         auto_advance: bool = False,
         use_gui: bool = True,
     ) -> None:
-        super().__init__(log_dir=log_dir, pause_between_moves=pause_between_moves, auto_advance=auto_advance, use_gui=use_gui)
+        super().__init__(
+            log_dir=log_dir,
+            pause_between_moves=pause_between_moves,
+            auto_advance=auto_advance,
+            use_gui=use_gui,
+        )
 
         # Task-0 meta-data ---------------------
         self.primary_llm: Optional[str] = None
@@ -221,7 +259,9 @@ class ReplayEngine(BaseReplayEngine):
                 self.moves_made.append(next_move)
 
                 if self.planned_moves:
-                    self.planned_moves = self.planned_moves[1:] if len(self.planned_moves) > 1 else []
+                    self.planned_moves = (
+                        self.planned_moves[1:] if len(self.planned_moves) > 1 else []
+                    )
 
                 # Execute and post-process ---------------------
                 game_continues = self.execute_replay_move(next_move)
@@ -249,7 +289,9 @@ class ReplayEngine(BaseReplayEngine):
     # Data loading – parses the *game_N.json* structure produced by Task-0
     # ---------------------
 
-    def load_game_data(self, game_number: int) -> Optional[Dict[str, Any]]:  # noqa: D401 – simple loader
+    def load_game_data(
+        self, game_number: int
+    ) -> Optional[Dict[str, Any]]:  # noqa: D401 – simple loader
         game_file, game_data = load_game_json(self.log_dir, game_number)
         if game_data is None:
             return None
@@ -269,7 +311,9 @@ class ReplayEngine(BaseReplayEngine):
             self.primary_llm = parsed.primary_llm
             self.secondary_llm = parsed.secondary_llm
             self.game_timestamp = parsed.timestamp
-            self.llm_response = parsed.llm_response or "No LLM response data available for this game."
+            self.llm_response = (
+                parsed.llm_response or "No LLM response data available for this game."
+            )
 
             # Reset runtime counters ---------------------
             self.move_index = 0
@@ -286,7 +330,9 @@ class ReplayEngine(BaseReplayEngine):
             # Re-initialise board ---------------------
             print("Initializing game state…")
             self.reset()
-            self.snake_positions = np.array([[self.grid_size // 2, self.grid_size // 2]])
+            self.snake_positions = np.array(
+                [[self.grid_size // 2, self.grid_size // 2]]
+            )
             self.head_position = self.snake_positions[-1]
             self.set_apple_position(self.apple_positions[0])
             self._update_board()
@@ -392,4 +438,5 @@ class ReplayEngine(BaseReplayEngine):
             }
         )
 
-        return base_state 
+        return base_state
+

@@ -99,11 +99,16 @@ def main() -> None:
         logger.info(f"Game number: {args.game}")
         logger.info(f"Server: http://{args.host}:{port}")
         
-        # Create replay engine
-        replay_engine = ReplayEngine(
-            log_dir=args.log_dir,
-            game_number=args.game
-        )
+        # Create replay engine – constructor no longer accepts *game_number*.
+        # We create the instance first and then set its starting point so
+        # existing CLI behaviour remains identical without changing the core
+        # engine API.
+
+        replay_engine = ReplayEngine(log_dir=args.log_dir)
+
+        # Start from the requested game (1-indexed) if provided
+        if args.game and args.game > 1:
+            replay_engine.game_number = args.game
         
         # Create MVC web application using factory
         app, controller = create_web_application(

@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 # Import core game components
-from core.game_controller import GameController
+from core.game_controller import BaseGameController
 from replay.replay_engine import ReplayEngine
 
 # Import MVC components
@@ -132,7 +132,7 @@ class LiveGameStateProvider(StateProvider):
     Wraps GameController to provide state for active gameplay.
     """
     
-    def __init__(self, game_controller: GameController, game_mode: GameMode):
+    def __init__(self, game_controller: BaseGameController, game_mode: GameMode):
         """
         Initialize live game state provider.
         

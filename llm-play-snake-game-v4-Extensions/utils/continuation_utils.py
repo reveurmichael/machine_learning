@@ -1,34 +1,29 @@
 """
-Utility module for continuation functionality in Snake game.
-Handles reading existing game data and continuing sessions.
+Continuation utilities for resuming game sessions.
 
-This module is Task0 specific. Future tasks (Task1-5) will NOT have continuation mode.
+This module provides elegant, OOP-based utilities for continuing game sessions
+from existing log directories. It follows the DRY principle by centralizing
+all continuation logic in a single class.
 
-Design Pattern: Strategy + Factory
-- ContinuationSession: Encapsulates all continuation logic and state
-- Factory method: continue_from_directory() creates and configures sessions
-- Strategy: Different validation and loading strategies can be easily added
+Design Patterns Used:
+- Strategy Pattern: Different continuation strategies can be implemented
+- Dependency Injection: File manager is injected for better testability
+- Single Responsibility: Each method has one clear purpose
 """
 
 from __future__ import annotations
-
-import argparse
-import json
 import os
 import sys
-import traceback
+import json
+import argparse
 from datetime import datetime
-from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Any, Optional
-
+from typing import Dict, Any, Optional, TYPE_CHECKING
 from colorama import Fore
 
 if TYPE_CHECKING:
     from core.game_manager import GameManager
 
-from llm.log_utils import cleanup_game_artifacts, get_llm_directories
 from core.game_file_manager import FileManager
-from utils.path_utils import get_summary_json_filename
 
 
 class ContinuationSession:
@@ -121,7 +116,7 @@ class ContinuationSession:
             if user_no_gui is not None:  # Only override if explicitly set
                 args.no_gui = user_no_gui
             
-            # Log the applied configuration - EXACTLY as original
+            # Log the applied configuration
             print(Fore.GREEN + f"🤖 Primary LLM: {args.provider}" + (f" ({args.model})" if args.model else ""))
             if args.parser_provider and args.parser_provider.lower() != 'none':
                 print(Fore.GREEN + f"🤖 Parser LLM: {args.parser_provider}" + (f" ({args.parser_model})" if args.parser_model else ""))
@@ -206,16 +201,16 @@ class ContinuationSession:
             print(Fore.RED + f"❌ Invalid starting game number: {start_game_number}")
             sys.exit(1)
         
-        # Set the log directory - EXACTLY as original
+        # Set the log directory
         game_manager.log_dir = self.log_dir
         game_manager.prompts_dir = os.path.join(self.log_dir, "prompts")
         game_manager.responses_dir = os.path.join(self.log_dir, "responses")
         
-        # Create directories if they don't exist - EXACTLY as original
+        # Create directories if they don't exist
         os.makedirs(game_manager.prompts_dir, exist_ok=True)
         os.makedirs(game_manager.responses_dir, exist_ok=True)
         
-        # Get the data from the last game for continuation - EXACTLY as original
+        # Get the data from the last game for continuation
         from utils.path_utils import get_game_json_filename
         
         # Get the previous game's data
@@ -227,7 +222,7 @@ class ContinuationSession:
             print(Fore.RED + f"❌ Cannot find previous game file: {game_file_path}")
             sys.exit(1)
         
-        # Load aggregated statistics from *summary.json* - EXACTLY as original
+        # Load aggregated statistics from *summary.json*
         summary = self.file_manager.load_summary_data(self.log_dir) or {}
 
         game_stats = summary.get("game_statistics", {})
@@ -242,7 +237,7 @@ class ContinuationSession:
         game_manager.invalid_reversals = step_stats.get("invalid_reversals", 0)
         game_manager.no_path_found_steps = step_stats.get("no_path_found_steps", 0)
 
-        # Time statistics (guarantee all expected keys exist) - EXACTLY as original
+        # Time statistics (guarantee all expected keys exist)
         ts = summary.get("time_statistics", {})
         game_manager.time_stats = {
             "llm_communication_time": ts.get("total_llm_communication_time", 0),
@@ -250,7 +245,7 @@ class ContinuationSession:
             "secondary_llm_communication_time": ts.get("total_secondary_llm_communication_time", 0),
         }
 
-        # Token statistics – normalize to expected *primary/secondary* keys - EXACTLY as original
+        # Token statistics – normalize to expected *primary/secondary* keys
         token_usage = summary.get("token_usage_stats", {})
         primary = token_usage.get("primary_llm", {})
         secondary = token_usage.get("secondary_llm", {})
@@ -267,102 +262,78 @@ class ContinuationSession:
             },
         }
         
-        # Round tracking - EXACTLY as original
+        # Round tracking
         game_manager.round_counts = game_stats.get("round_counts", [])
         game_manager.total_rounds = game_stats.get("total_rounds", sum(game_manager.round_counts))
         
-        # Set game count to continue from the next game - EXACTLY as original
+        # Set game count to continue from the next game
         game_manager.game_count = start_game_number - 1
 
 
-# Public API functions - these are the main entry points for continuation functionality
+# Public API functions - these delegate to the elegant ContinuationSession class
 
-def setup_continuation_session(game_manager: "GameManager", log_dir: str, start_game_number: int) -> None:
+def setup_continuation_session(
+    game_manager: "GameManager",
+    log_dir: str,
+    start_game_number: int,
+) -> None:
     """Set up a game session for continuation.
     
+    This function delegates to ContinuationSession to avoid code duplication.
+    
     Args:
-        game_manager: The GameManager instance
-        log_dir: Path to the log directory to continue from
-        start_game_number: The game number to start from
+        game_manager: GameManager instance to configure
+        log_dir: Source log directory to continue from
+        start_game_number: Game number to start from
     """
     session = ContinuationSession(log_dir)
-    session.validate_directory()
     session.setup_game_manager_session(game_manager, start_game_number)
 
 
 def handle_continuation_game_state(game_manager: "GameManager") -> None:
     """Handle game state for continuation mode.
     
+    This function delegates to ContinuationSession to avoid code duplication.
+    
     Args:
-        game_manager: The GameManager instance
+        game_manager: GameManager instance with continuation state
     """
-    # Initialize game state using shared utilities - EXACTLY as original
-    from utils.initialization_utils import initialize_game_state
-    initialize_game_state(game_manager)
-    
-    # Mark as continuation and log status - EXACTLY as original
-    game_manager.game.game_state.record_continuation()
-    prev_count = game_manager.game.game_state.continuation_count
-    
-    print(Fore.GREEN + f"📝 Marked session as continuation ({prev_count})")
-    print(Fore.GREEN + f"⏱️ Pause between moves: {game_manager.get_pause_between_moves()} seconds")
-    print(Fore.GREEN + f"⏱️ Maximum steps per game: {game_manager.args.max_steps}")
-    print(
-        Fore.GREEN
-        + f"📊 Continuing from game {game_manager.game_count + 1}, with {game_manager.total_score} total score so far"
-    )
+    if hasattr(game_manager, 'log_dir'):
+        session = ContinuationSession(game_manager.log_dir)
+        next_game = session.find_latest_game_number()
+        session.cleanup_artifacts(next_game)
 
 
-def continue_from_directory(game_manager_class: "type[GameManager]", args: argparse.Namespace) -> "GameManager":
-    """Factory method to create a GameManager instance for continuation.
+def continue_from_directory(
+    game_manager_class: "type[GameManager]", 
+    args: argparse.Namespace
+) -> "GameManager":
+    """Continue from an existing game directory.
     
-    This function implements the Factory Pattern to create properly configured
-    GameManager instances for continuation sessions.
+    This function delegates to ContinuationSession for elegant code organization.
     
     Args:
-        game_manager_class: The GameManager class
-        args: Command-line arguments with continue_with_game_in_dir set
+        game_manager_class: GameManager class to instantiate
+        args: Command line arguments
         
     Returns:
-        GameManager instance set up for continuation
-        
-    Raises:
-        SystemExit: If continuation setup fails
+        Configured GameManager instance ready for continuation
     """
-    log_dir = args.continue_with_game_in_dir
-    
-    # Create and configure continuation session
-    session = ContinuationSession(log_dir)
+    session = ContinuationSession(args.continue_with_game_in_dir)
     session.validate_directory()
     session.load_summary_data()
     session.apply_original_configuration(args)
     session.update_continuation_info(args.max_games)
     
-    # Find next game and clean up artifacts - EXACTLY as original
+    # Find the next game number and clean up artifacts
     next_game = session.find_latest_game_number()
-    
-    print(Fore.GREEN + f"🔄 Continuing from previous session in '{log_dir}'")
-    print(Fore.GREEN + f"✅ Starting from game {next_game}")
-    
-    # Clean existing prompt and response files for games >= next_game - EXACTLY as original
     session.cleanup_artifacts(next_game)
     
-    # Create and run the game manager with continuation settings - EXACTLY as original
+    # Create and configure GameManager
     game_manager = game_manager_class(args)
+    session.setup_game_manager_session(game_manager, next_game)
     
-    # Set the is_continuation flag explicitly - EXACTLY as original
-    args.is_continuation = True
+    print(Fore.GREEN + f"🔄 Continuing from previous session in '{session.log_dir}'")
+    print(Fore.GREEN + f"✅ Starting from game {next_game}")
     
-    # Set up LLM clients with the configuration from the original experiment - EXACTLY as original
-    from utils.initialization_utils import setup_llm_clients
-    setup_llm_clients(game_manager)
-    
-    # Continue from the session - EXACTLY as original
-    try:
-        game_manager.continue_from_session(log_dir, next_game)
-    except Exception as e:
-        print(Fore.RED + f"❌ Error continuing from session: {e}")
-        traceback.print_exc()
-        sys.exit(1)
-        
-    return game_manager
+    return game_manager 

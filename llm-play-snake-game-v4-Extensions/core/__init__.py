@@ -3,7 +3,7 @@ Core package initialization.
 This file exposes the core game components for use by the application.
 """
 
-from core.game_controller import GameController
+# Controller imports moved to avoid circular dependencies
 from core.game_logic import GameLogic
 from core.game_data import GameData
 from core.game_data import BaseGameData
@@ -16,7 +16,6 @@ from core.game_runner import play as quick_play
 
 
 __all__ = [
-    'GameController',
     'GameLogic',
     'GameData',
     'BaseGameData',

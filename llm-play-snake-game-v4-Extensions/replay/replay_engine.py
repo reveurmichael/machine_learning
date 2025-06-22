@@ -13,7 +13,7 @@ import numpy as np
 import pygame
 from pygame.locals import *  # noqa: F403 – Pygame constants
 
-from core.game_controller import BaseGameController, GameController
+from core.game_controller import BaseGameController
 from config.ui_constants import TIME_DELAY, TIME_TICK
 from replay.replay_utils import load_game_json, parse_game_data
 from replay.replay_data import ReplayData
@@ -172,7 +172,7 @@ class BaseReplayEngine(BaseGameController):
 # ---------------------
 
 
-class ReplayEngine(BaseReplayEngine, GameController):
+class ReplayEngine(BaseReplayEngine):
     """Task-0 replay engine that consumes *game_N.json* artefacts."""
 
     def __init__(

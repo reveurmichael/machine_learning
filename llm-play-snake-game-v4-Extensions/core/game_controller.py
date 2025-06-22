@@ -1,522 +1,344 @@
 """
-Game controller for the Snake game.
-Provides core game logic that can run with or without a GUI.
+Game Controller - Base Controller for Snake Game Applications
+============================================================
 
-The class BaseGameController is NOT Task0 specific.
-The class GameController is Task0 specific.
+This module provides the base controller classes that can be used by different
+interfaces (GUI, Web, CLI) to interact with the game engine. It follows OOP
+principles and the MVC pattern.
+
+Design Patterns Used:
+- Template Method: Base controller defines the algorithm, subclasses implement specifics
+- Adapter Pattern: Adapts GameManager interface for different UI frameworks
+- Strategy Pattern: Different execution strategies for different interfaces
 """
 
 from __future__ import annotations
+import time
+import logging
+from abc import ABC, abstractmethod
+from typing import Dict, Any, Tuple, Optional
 
-from typing import List, Tuple, TYPE_CHECKING
+from core.game_manager import GameManager
 
-import numpy as np
-from numpy.typing import NDArray
-from config.ui_constants import GRID_SIZE
-from config.game_constants import DIRECTIONS
-from core.game_data import BaseGameData, GameData
-from utils.collision_utils import check_collision
-from utils.moves_utils import normalize_direction, is_reverse
-from utils.board_utils import generate_random_apple, update_board_array
+logger = logging.getLogger(__name__)
 
-# ---------------------
-# Typing helpers – avoid heavy GUI imports at runtime
-# ---------------------
 
-if TYPE_CHECKING:
-    from gui.base_gui import BaseGUI
-
-# ---------------------
-# Generic controller – agnostic to the concrete GameData subclass.
-# ---------------------
-
-class BaseGameController:
-    """Base class for the Snake game controller."""
-
-    # Subclasses may override to inject their specialised data container.
-    GAME_DATA_CLS = BaseGameData
-
-    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
-        """Initialize the game controller.
+class BaseGameController(ABC):
+    """
+    Abstract base controller for Snake game applications.
+    
+    This class defines the common interface and shared functionality for all
+    game controllers, regardless of the UI framework (PyGame, Web, CLI).
+    
+    Design Pattern: Template Method
+    - Defines the skeleton of game control algorithms
+    - Subclasses implement specific UI-related methods
+    - Ensures consistent behavior across different interfaces
+    
+    Why Base prefix?
+    - Signals this is a reusable foundation class
+    - Task-0 will instantiate concrete subclasses
+    - Extensions can inherit from this base
+    """
+    
+    def __init__(self, game_manager: GameManager, use_gui: bool = True):
+        """
+        Initialize base controller with game manager.
         
         Args:
-            grid_size: Size of the game grid
-            use_gui: Whether to use GUI for display
+            game_manager: The core game manager instance
+            use_gui: Whether this controller uses a GUI interface
         """
-
-        # Game state variables
-        self.grid_size = grid_size
-        self.board = np.zeros((grid_size, grid_size), dtype=np.int8)
-        self.snake_positions = np.array([[grid_size//2, grid_size//2]])  # Start in middle
-        self.head_position = self.snake_positions[-1]
-
-        # Game state tracker for statistics – deferred to class attribute so
-        # specialisations (LLM, RL, etc.) can plug in their own rich data
-        # container without having to re-implement the whole constructor.
-        self.game_state = self.GAME_DATA_CLS()
-
-        # Ensure *reset()* on the freshly created tracker so round_manager and
-        # other internal structures are ready before the first apple is
-        # generated.
-        self.game_state.reset()
-
-        # Generate the very first apple now that the game state is ready.  This
-        # ensures that `self.apple_position` exists before the first render.
-        self.apple_position = self._generate_apple()
-
-        # Runtime trackers
-        self.current_direction = None
-        self.last_collision_type = None
-
-        # Track the apple history starting with the first apple
-        self.apple_positions_history = [self.apple_position.copy()]
-
-        # Board entity codes
-        self.board_info = {
-            "empty": 0,
-            "snake": 1,
-            "apple": 2
-        }
-
-        # GUI settings
+        self.game_manager = game_manager
         self.use_gui = use_gui
-        self.gui = None
-
-        # Initialize the board
-        self._update_board()
-
-        # Sync initial snake body into GameData so snake_length starts correct
-        self.game_state.snake_positions = self.snake_positions.tolist()
-
-    def set_gui(self, gui_instance: "BaseGUI") -> None:
-        """Attach a GUI implementation (pygame, web-proxy, etc.).
-
-        The controller itself remains *UI-agnostic* – all drawing is
-        delegated to the injected object which must expose the expected
-        ``draw_*`` methods.
+        self._start_time = time.time()
         
-        Args:
-            gui_instance: Any object implementing the game-GUI interface.
+        logger.info(f"Initialized {self.__class__.__name__}")
+    
+    # ==========================================
+    # Template Method Pattern - Core Algorithm
+    # ==========================================
+    
+    def run_game_session(self) -> None:
         """
-        self.gui = gui_instance
-        self.use_gui = gui_instance is not None
-
-    def reset(self) -> None:
-        """Reset the game to the initial state."""
-        # Reset game state
-        self.snake_positions = np.array([[self.grid_size//2, self.grid_size//2]])
-        self.head_position = self.snake_positions[-1]
-
-        # Reset game state tracker
-        self.game_state.reset()
-
-        # Generate the initial apple AFTER the game state has been reset so that
-        # record_apple_position() works correctly (round_buffer is not None).
-        self.apple_position = self._generate_apple()
-
-        # Note: _generate_apple() already records the apple position in the
-        # game_state, so we avoid double-recording here.
-
-        # Update the board
-        self._update_board()
-
-        # Draw if GUI is available
-        if self.use_gui and self.gui:
-            self.draw()
-
-        # Clear runtime direction/collision trackers for the new game
-        self.current_direction = None
-        self.last_collision_type = None
-
-        # Reset apple history and seed with the initial apple
-        self.apple_positions_history = [self.apple_position.copy()]
-
-        # Sync initial snake body into GameData so snake_length starts correct
-        self.game_state.snake_positions = self.snake_positions.tolist()
-
-    def draw(self) -> None:
-        """Draw the current game state if GUI is available."""
-        if self.use_gui and self.gui:
-            # Specific drawing handled by the GUI implementation
-            pass
-
-    def _update_board(self) -> None:
-        """Update the game board with current snake and apple positions."""
-        update_board_array(
-            self.board,
-            self.snake_positions,
-            self.apple_position,
-            self.board_info,
-        )
-
-    def filter_invalid_reversals(
-        self,
-        moves: list[str],
-        current_direction: str | None = None,
-    ) -> list[str]:
-        """Filter out invalid reversal moves from a sequence.
+        Template method for running a complete game session.
         
-        Args:
-            moves: List of move directions
-            current_direction: Current direction of the snake (defaults to self.current_direction if None)
-            
-        Returns:
-            Filtered list of moves with invalid reversals removed
-        """
-        if not moves or len(moves) <= 1:
-            return moves
-
-        filtered_moves: list[str] = []
-        last_direction = current_direction or self._get_current_direction_key() or moves[0]
-
-        for move in moves:
-            move = normalize_direction(move)
-
-            if is_reverse(move, last_direction):
-                print(f"Filtering out invalid reversal move: {move} after {last_direction}")
-                # Record invalid reversal in game state when available
-                if hasattr(self, "game_state"):
-                    self.game_state.record_invalid_reversal()
-                # Skip this move – continue with next
-                continue
-
-            # Valid move → keep and update last_direction reference
-            filtered_moves.append(move)
-            last_direction = move
-
-        # If all moves were filtered out, return empty list
-        if not filtered_moves:
-            print("All moves were invalid reversals. Not moving.")
-
-        return filtered_moves
-
-    def _generate_apple(self) -> NDArray[np.int_]:
-        """Generate a new apple at a random empty position.
+        This method defines the standard algorithm for game execution:
+        1. Initialize the session
+        2. Run the main game loop
+        3. Handle cleanup
         
-        Returns:
-            Array of [x, y] coordinates for the new apple
-        """
-        position = generate_random_apple(self.snake_positions, self.grid_size)
-
-        # Record the apple position in game state
-        self.game_state.record_apple_position(position)
-
-        # We do NOT start a new round when an apple is generated
-        # Rounds are ONLY tied to LLM communications
-        return position
-
-    def set_apple_position(self, position: List[int]) -> bool:
-        """Set the apple position manually.
-        
-        Args:
-            position: Position to place the apple as [x, y]
-            
-        Returns:
-            Boolean indicating if the position was valid and set successfully
+        Subclasses can override specific steps while maintaining the overall flow.
         """
         try:
-            x, y = position
-
-            # Validate position
-            if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
-                print(f"Invalid apple position: {position}")
-                return False
-
-            # Check if position is empty
-            if any(np.array_equal([x, y], pos) for pos in self.snake_positions):
-                print(f"Cannot place apple on snake: {position}")
-                return False
-
-            # Set the position
-            self.apple_position = np.array([x, y])
-
-            # Update game state with the new apple position
-            self.game_state.record_apple_position(self.apple_position)
-
-            # We do NOT start a new round when an apple is set
-            # Rounds are ONLY tied to LLM communications
-
-            # Refresh board to reflect the new apple
-            self._update_board()
-
-            if self.use_gui and self.gui:
-                self.draw()
-
-            return True
+            self.initialize_session()
+            self.execute_main_loop()
         except Exception as e:
-            print(f"Error setting apple position: {e}")
-            return False
-
-    def make_move(self, direction_key: str) -> Tuple[bool, bool]:
-        """Execute a move in the specified direction.
-        
-        Args:
-            direction_key: String key of the direction to move in ("UP", "DOWN", etc.)
-            
-        Returns:
-            Tuple of (game_active, apple_eaten) where:
-                game_active: Boolean indicating if the game is still active
-                apple_eaten: Boolean indicating if an apple was eaten on this move
-        """
-        # Standardize direction key to uppercase to handle case insensitivity
-        if isinstance(direction_key, str):
-            direction_key = direction_key.upper()
-
-        # Get direction vector
-        if direction_key not in DIRECTIONS:
-            print(f"Error: Invalid direction: {direction_key}")
-            return False, False
-
-        direction = DIRECTIONS[direction_key]
-
-        # Don't allow reversing direction directly
-        if (
-            self.current_direction is not None and
-            is_reverse(direction_key, self._get_current_direction_key())
-        ):
-            print(f"Tried to reverse direction: {direction_key}. No move will be made.")
-
-            # Record this as an invalid reversal
-            self.game_state.record_invalid_reversal()
-
-            # Return immediately, effectively making no move
-            return True, False
-
-        # Update current direction
-        self.current_direction = direction
-
-        # Calculate new head position according to our coordinate system
-        head_x, head_y = self.head_position
-
-        # Apply direction vector to head position
-        new_head = np.array([
-            head_x + direction[0],  # Apply dx to x-coordinate
-            head_y + direction[1]   # Apply dy to y-coordinate
-        ])
-
-        # Debug log
-        print(f"Moving {direction_key}: Head from ({head_x}, {head_y}) to ({new_head[0]}, {new_head[1]})")
-
-        # Check if the new head position is where the apple is
-        is_eating_apple_at_new_head = np.array_equal(new_head, self.apple_position)
-
-        # Check for collisions - pass the apple flag to handle collisions correctly
-        wall_collision, body_collision = self._check_collision(new_head, is_eating_apple_flag=is_eating_apple_at_new_head)
-
-        if wall_collision:
-            print(f"Game over! Snake hit wall moving {direction_key}")
-            self.last_collision_type = 'WALL'
-
-            # Record the fatal move so it is visible in logs, stats and replay
-            # We treat it as a normal (non–apple-eating) step that immediately
-            # causes the game end.
-            self.game_state.record_move(direction_key, apple_eaten=False)
-
-            # Note: We do NOT increment round_count when a collision occurs
-            # This ensures round numbers in game_N.json match the prompts/responses folders
-            self.game_state.record_game_end("WALL")
-
-            # Extension hook so future controllers (RL, curriculum, etc.) can
-            # react to a terminal event without duplicating collision logic.
-            self._on_game_over("WALL")
-
-            return False, False  # Game over, no apple eaten
-
-        if body_collision:
-            print(f"Game over! Snake hit itself moving {direction_key}")
-            self.last_collision_type = 'SELF'
-
-            # Record the fatal move for visibility and analytics
-            self.game_state.record_move(direction_key, apple_eaten=False)
-
-            # Note: We do NOT increment round_count when a collision occurs
-            # This ensures round numbers in game_N.json match the prompts/responses folders
-            self.game_state.record_game_end("SELF")
-
-            # Extension hook for subclasses.
-            self._on_game_over("SELF")
-
-            return False, False  # Game over, no apple eaten
-
-        # Check if the snake eats an apple
-        apple_eaten = is_eating_apple_at_new_head
-
-        # No collision, proceed with move
-        # Create a copy of current snake positions to modify
-        new_snake_positions = np.copy(self.snake_positions)
-
-        # Add new head to snake positions (at the end)
-        new_snake_positions = np.vstack((new_snake_positions, new_head))
-
-        if not apple_eaten:
-            # Remove tail (first element) if no apple eaten
-            new_snake_positions = new_snake_positions[1:]
-        else:
-            # Generate new apple and add to history when an apple is eaten
-            self.apple_position = self._generate_apple()
-            self.apple_positions_history.append(self.apple_position.copy())
-
-        # Update snake positions and head
-        self.snake_positions = new_snake_positions
-        self.head_position = self.snake_positions[-1]
-
-        # Update the board
-        self._update_board()
-
-        # Record move in game state - this handles incrementing the score if an apple was eaten
-        self.game_state.record_move(direction_key, apple_eaten)
-
-        # Display message if apple was eaten (after score has been updated)
-        if apple_eaten:
-            apples_emoji = "🍎" * self.score
-            print(f"🚀 Apple eaten! Score: {self.score} {apples_emoji}")
-
-        # Draw if GUI is available
-        if self.use_gui and self.gui:
-            self.draw()
-
-        # Keep the GameData replica in sync for accurate snake_length in
-        # summaries and replays.
-        self.game_state.snake_positions = self.snake_positions.tolist()
-
-        # Allow subclasses to post-process the step (e.g. reward shaping).
-        self._post_move(apple_eaten)
-
-        return True, apple_eaten  # Game continues, with or without apple eaten
-
-    def _check_collision(
-        self, head_position: NDArray[np.int_], is_eating_apple_flag: bool
-    ) -> Tuple[bool, bool]:
-        """Check for wall or body collision.
-
-        This method is now a wrapper around the stateless `check_collision`
-        utility function, passing the relevant parts of the game state.
-
-        Args:
-            head_position: The prospective new position of the snake's head.
-            is_eating_apple_flag: Flag indicating if the snake just ate.
-
-        Returns:
-            A tuple of (wall_collision, body_collision).
-        """
-        return check_collision(
-            head_position=head_position,
-            snake_body=self.snake_positions,
-            grid_size=self.grid_size,
-            is_apple_eaten=is_eating_apple_flag,
-        )
-
-    def _get_current_direction_key(self) -> str:
-        """Return the current direction as a string key (e.g., 'UP')."""
-        for key, value in DIRECTIONS.items():
-            if np.array_equal(self.current_direction, value):
-                return key
-        return "RIGHT"  # Fallback
-
-    # Public wrapper for external modules – avoids accessing the protected
-    # helper directly and silences static-analysis warnings.
-    def get_current_direction_key(self) -> str:
-        """Public accessor for the snake's current direction key."""
-
-        return self._get_current_direction_key()
-
+            self.handle_session_error(e)
+        finally:
+            self.cleanup_session()
+    
+    @abstractmethod
+    def initialize_session(self) -> None:
+        """Initialize the game session. Implemented by subclasses."""
+        pass
+    
+    @abstractmethod
+    def execute_main_loop(self) -> None:
+        """Execute the main game loop. Implemented by subclasses."""
+        pass
+    
+    def handle_session_error(self, error: Exception) -> None:
+        """Handle session-level errors. Can be overridden by subclasses."""
+        logger.error(f"Game session error: {error}")
+        raise
+    
+    def cleanup_session(self) -> None:
+        """Clean up resources after session ends. Can be overridden by subclasses."""
+        logger.info("Game session cleanup completed")
+    
+    # ==========================================
+    # Shared Game State Interface
+    # ==========================================
+    
+    @property
+    def game(self):
+        """Get the current game instance from GameManager."""
+        return getattr(self.game_manager, 'game', None)
+    
     @property
     def score(self) -> int:
-        """Get the current score from the game state."""
-        return self.game_state.score
-
+        """Get current game score."""
+        return getattr(self.game, 'score', 0) if self.game else 0
+    
     @property
     def steps(self) -> int:
-        """Get the current steps from the game state."""
-        return self.game_state.steps
-
+        """Get current step count."""
+        return getattr(self.game, 'steps', 0) if self.game else 0
+    
     @property
-    def snake_length(self) -> int:
-        """Current snake length.
-
-        Single-source-of-truth: defer to the `GameData` tracker so that **all**
-        components calculate the length the same way.  This avoids the subtle
-        risk of future discrepancies if one piece updates the body array and
-        the other is forgotten.
+    def game_over(self) -> bool:
+        """Check if game is over."""
+        return not getattr(self.game_manager, 'game_active', True)
+    
+    @property
+    def snake_positions(self) -> list:
+        """Get snake body positions as JSON-serializable list."""
+        game = self.game
+        if game and hasattr(game, 'snake_positions'):
+            # Convert numpy array to list for JSON serialization
+            positions = game.snake_positions
+            return getattr(positions, 'tolist', lambda: list(positions))()
+        return []
+    
+    @property
+    def apple_position(self) -> tuple:
+        """Get apple position as JSON-serializable tuple."""
+        game = self.game
+        if game and hasattr(game, 'apple_position'):
+            # Convert numpy array to tuple for JSON serialization
+            position = game.apple_position
+            return tuple(getattr(position, 'tolist', lambda: tuple(position))())
+        return (0, 0)
+    
+    @property
+    def current_direction(self) -> str:
+        """Get current movement direction as string key ('UP', 'LEFT', etc.)."""
+        game = self.game
+        if game and hasattr(game, 'get_current_direction_key'):
+            return game.get_current_direction_key()
+        return "NONE"  # Default when game not initialized
+    
+    def get_current_direction_key(self) -> str:
         """
-        return self.game_state.snake_length 
-
-    # ------------------
-    # RL-friendly helpers (no deps on external libraries).
-    # ------------------
-
-    def get_state_snapshot(self):  # noqa: D401 – simple accessor
-        """Return an immutable snapshot of the current board as a plain dict.
-
-        Previously returned a ``GameState`` dataclass; that dependency has been
-        removed to slim down Task-0.
+        Get current movement direction as a string key.
+        
+        This method is required by the web MVC framework for proper state updates.
+        It delegates to the current_direction property to avoid code duplication.
+        
+        Design Pattern: Delegation
+        - Delegates to the property to maintain single source of truth
+        - Provides the exact interface expected by web framework
+        - Avoids code duplication between property and method
+        
+        Returns:
+            Current direction as string key or "NONE" if not available
         """
+        return self.current_direction
+    
+    @property
+    def end_reason(self) -> Optional[str]:
+        """Get game end reason."""
+        game = self.game
+        if game and hasattr(game, 'game_state') and hasattr(game.game_state, 'game_end_reason'):
+            return game.game_state.game_end_reason
+        return None
+    
+    @property
+    def start_time(self) -> float:
+        """Get game start time."""
+        return self._start_time
+    
+    @property
+    def grid_size(self) -> int:
+        """Get game grid size."""
+        game = self.game
+        if game and hasattr(game, 'grid_size'):
+            return game.grid_size
+        return 10  # Default fallback
+    
+    # ==========================================
+    # Game Control Operations
+    # ==========================================
+    
+    def reset_game(self) -> None:
+        """
+        Reset the game to initial state.
+        
+        This method provides a consistent interface for game reset across
+        all controller types while delegating to the appropriate GameManager method.
+        """
+        try:
+            if hasattr(self.game_manager, 'reset_game'):
+                self.game_manager.reset_game()
+            elif self.game and hasattr(self.game, 'reset'):
+                self.game.reset()
+            
+            self._start_time = time.time()
+            logger.info("Game reset via controller")
+            
+        except Exception as e:
+            logger.error(f"Failed to reset game via controller: {e}")
+            raise
+    
+    def get_performance_stats(self) -> Dict[str, Any]:
+        """Get performance statistics."""
+        duration = time.time() - self._start_time
         return {
-            "board": [row.copy() for row in self.board],
-            "direction": self._get_current_direction_key() or "NONE",
-            "apple": tuple(self.apple_position),
+            "game_duration": duration,
+            "moves_per_second": self.steps / max(duration, 1) if self.steps else 0.0,
+            "controller_type": self.__class__.__name__
+        }
+    
+    def get_game_state_summary(self) -> Dict[str, Any]:
+        """Get comprehensive game state for debugging/monitoring."""
+        return {
             "score": self.score,
             "steps": self.steps,
+            "game_over": self.game_over,
+            "direction": self.current_direction,
+            "snake_length": len(self.snake_positions),
+            "apple_position": self.apple_position,
+            "end_reason": self.end_reason,
+            "performance": self.get_performance_stats()
         }
 
-    def reset_env(self):  # noqa: D401 – gym-like naming
-        """Reset the environment and return the initial state snapshot.
 
-        Added as a convenience for RL tasks (Task-3) and has *no* effect on
-        Task-0 because nothing calls it yet.
+class GameControllerAdapter(BaseGameController):
+    """
+    Adapter to make GameManager compatible with web MVC architecture.
+    
+    This adapter follows the naming convention (no Task0 prefix since it's
+    in the root and Task-0 is implicit). It provides the specific interface
+    expected by the web MVC framework while inheriting common functionality.
+    
+    Design Pattern: Adapter Pattern
+    - Adapts GameManager interface for MVC compatibility
+    - Maintains Task-0 functionality while enabling MVC benefits
+    - Provides clean integration point between game engine and web framework
+    
+    Why not Task0GameControllerAdapter?
+    - Violates naming conventions (Task-0 is implicit in root)
+    - Should be just GameControllerAdapter
+    - Extensions will create HeuristicGameControllerAdapter, etc.
+    """
+    
+    def __init__(self, game_manager: GameManager):
         """
-
-        self.reset()
-        return self.get_state_snapshot()
-
-    def step(self, action: str):  # gym-style signature
-        """Perform *action* and return (next_state, reward, done, info).
-
-        Reward = change in score (apples eaten) so it stays compatible with
-        future dense/shape functions.
+        Initialize adapter for web MVC framework.
+        
+        Args:
+            game_manager: Task-0 GameManager instance
         """
-
-        prev_score = self.score
-        active, apple_eaten = self.make_move(action)
-        reward = self.score - prev_score
-        done = not active
-        info = {"apple_eaten": apple_eaten}
-
-        return self.get_state_snapshot(), reward, done, info
-
-    # ---------------------
-    # Extension hooks (NOP by default) – subclasses override as needed.
-    # ---------------------
-
-    def _post_move(self, apple_eaten: bool) -> None:  # pragma: no cover
-        """Hook called after every successful move.
-
-        Parameters
-        ----------
-        apple_eaten
-            *True* when the move consumed an apple.
+        # Web mode is strictly headless – no local PyGame window
+        super().__init__(game_manager, use_gui=False)
+        
+        # IMPORTANT: During adapter construction the GameManager has **not**
+        # yet run `setup_game()`, which means `game_manager.game` is *None*.
+        # The base class properties handle this gracefully by checking for None.
+        
+        logger.info("Initialized GameControllerAdapter for web MVC")
+    
+    def initialize_session(self) -> None:
+        """Initialize web session - handled by external web framework."""
+        logger.info("Web session initialization delegated to web framework")
+    
+    def execute_main_loop(self) -> None:
+        """Execute main loop - handled by external web framework."""
+        logger.info("Main loop execution delegated to web framework")
+    
+    def make_move(self, direction: str) -> Tuple[bool, bool]:
         """
-
-        # Default implementation does nothing – override in subclasses.
-        return None
-
-    def _on_game_over(self, reason: str) -> None:  # pragma: no cover
-        """Hook invoked right before returning from a terminal collision.
-
-        The *reason* string follows the values passed to
-        :py:meth:`GameData.record_game_end` ("WALL", "SELF", etc.).
+        Execute a move through the GameManager.
+        
+        For Task-0, moves are handled by the LLM agent. This method is a
+        compatibility stub for the web framework, which expects a callable
+        `make_move`. The actual game state is mutated by the `GameManager`
+        in its background thread.
+        
+        Args:
+            direction: Movement direction (not used in LLM mode)
+            
+        Returns:
+            Tuple of (game_still_active, apple_eaten)
         """
+        try:
+            old_score = self.score
+            
+            # We don't execute a move here; just report current status
+            game_active = not self.game_over
+            apple_eaten = self.score > old_score
+            
+            return game_active, apple_eaten
+            
+        except Exception as e:
+            logger.error(f"Move execution failed in adapter: {e}")
+            return False, False
 
-        return None
 
-# ------------------
-# Task-0 concrete controller (LLM-aware) – plugs in GameData.
-# ------------------
-
-class GameController(BaseGameController):
-    """Task-0 controller uses the richer :class:`GameData` tracker."""
-
-    GAME_DATA_CLS = GameData
-
-    # No further overrides needed; the base class honours the custom data
-    # container type and all behaviour remains unchanged.
+class CLIGameController(BaseGameController):
+    """
+    Controller for command-line interface game execution.
+    
+    This controller handles the traditional pygame-based or headless execution
+    that was previously in main.py. It follows OOP principles while maintaining
+    the same functionality.
+    """
+    
+    def __init__(self, game_manager: GameManager, use_gui: bool = True):
+        """
+        Initialize CLI controller.
+        
+        Args:
+            game_manager: Task-0 GameManager instance
+            use_gui: Whether to show pygame GUI
+        """
+        super().__init__(game_manager, use_gui)
+        logger.info(f"Initialized CLIGameController (GUI: {use_gui})")
+    
+    def initialize_session(self) -> None:
+        """Initialize CLI session."""
+        logger.info("Initializing CLI game session")
+        # Additional CLI-specific initialization can go here
+    
+    def execute_main_loop(self) -> None:
+        """Execute the main game loop for CLI mode."""
+        logger.info("Starting CLI game execution")
+        
+        # Delegate to GameManager's run method
+        # This maintains the existing behavior from main.py
+        if hasattr(self.game_manager, 'run'):
+            self.game_manager.run()
+        else:
+            logger.error("GameManager missing run() method")
+            raise AttributeError("GameManager must implement run() method")

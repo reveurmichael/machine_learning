@@ -27,8 +27,15 @@ REPO_ROOT = ensure_project_root()
 
 # ---- Standard library imports (duplicated harmlessly) ----
 import argparse
+import logging
+import sys
+import time
 import pygame
 from colorama import Fore, init as init_colorama
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ---- Project imports ----
 from config import (
@@ -194,43 +201,106 @@ def parse_arguments():
 # Main entry (unchanged)
 # ------------------
 
-def main():
-    """Initialize and run the LLM Snake game (identical logic)."""
-    try:
-        try:
-            args = parse_arguments()
-        except ValueError as e:
-            print(Fore.RED + f"Command-line error: {e}")
-            print(Fore.YELLOW + "For help, use: python scripts/main.py --help")
-            sys.exit(1)
-
-        if args.continue_with_game_in_dir:
-            print(Fore.GREEN + f"🔄 Continuing from {args.continue_with_game_in_dir}")
-            GameManager.continue_from_directory(args)
-            return
-
-        primary_env_ok = check_env_setup(args.provider)
-        if args.parser_provider and args.parser_provider.lower() != "none":
-            _ = check_env_setup(args.parser_provider)
+class MainApplication:
+    """
+    OOP wrapper for the main Snake game application.
+    
+    This class encapsulates the main game logic in an object-oriented way,
+    following the naming conventions and design patterns used throughout
+    the project. It replaces the procedural main() function.
+    
+    Design Pattern: Facade Pattern
+    - Provides a simplified interface to the complex game subsystem
+    - Encapsulates initialization, execution, and cleanup logic
+    - Makes the application easier to test and extend
+    """
+    
+    def __init__(self, args=None):
+        """
+        Initialize the main application.
+        
+        Args:
+            args: Parsed command line arguments (optional, will parse if None)
+        """
+        self.args = args or parse_arguments()
+        self.game_manager = None
+        self.controller = None
+        
+        logger.info("Initialized MainApplication")
+    
+    def setup_environment(self) -> None:
+        """Set up the environment and validate configuration."""
+        # Environment setup
+        primary_env_ok = check_env_setup(self.args.provider)
+        if self.args.parser_provider and self.args.parser_provider.lower() != "none":
+            _ = check_env_setup(self.args.parser_provider)
 
         if not primary_env_ok:
             print(Fore.RED + "Primary LLM environment not ready.")
             sys.exit(1)
+        
+        # Sleep before launching if requested
+        if self.args.sleep_before_launching > 0:
+            sleep_time = self.args.sleep_before_launching * 60
+            print(f"Sleeping for {self.args.sleep_before_launching} minutes before launching...")
+            time.sleep(sleep_time)
+    
+    def create_game_components(self) -> None:
+        """Create and configure game components."""
+        from core.game_controller import CLIGameController
+        
+        # Create GameManager
+        self.game_manager = GameManager(self.args)
+        
+        # Create OOP controller
+        self.controller = CLIGameController(
+            self.game_manager, 
+            use_gui=not self.args.no_gui
+        )
+        
+        logger.info("Created game components")
+    
+    def run_application(self) -> None:
+        """Run the complete application using OOP controller."""
+        try:
+            # Parse arguments and handle continuation mode
+            try:
+                if self.args.continue_with_game_in_dir:
+                    print(Fore.GREEN + f"🔄 Continuing from {self.args.continue_with_game_in_dir}")
+                    GameManager.continue_from_directory(self.args)
+                    return
+            except ValueError as e:
+                print(Fore.RED + f"Command-line error: {e}")
+                print(Fore.YELLOW + "For help, use: python scripts/main.py --help")
+                return
+            
+            self.setup_environment()
+            self.create_game_components()
+            
+            # Set up LLM agent for Task-0
+            self.game_manager.agent = LLMSnakeAgent(
+                self.game_manager, 
+                provider=self.args.provider, 
+                model=self.args.model
+            )
+            
+            # Use the OOP controller's template method
+            self.controller.run_game_session()
+            
+        except KeyboardInterrupt:
+            print(f"\n{Fore.YELLOW}⚠️ Game interrupted by user")
+        except Exception as e:
+            print(f"{Fore.RED}❌ Fatal error: {e}")
+            logger.error(f"Fatal error in main application: {e}", exc_info=True)
+            raise
+        finally:
+            pygame.quit()
 
-        gm = GameManager(args)
 
-        # ------------------
-        # Inject the Task-0 LLM agent so the game loop switches to the
-        # *agent* pathway which now encapsulates all LLM communication.
-        # ------------------
-
-        gm.agent = LLMSnakeAgent(gm, provider=args.provider, model=args.model)
-
-        gm.run()
-    except KeyboardInterrupt:
-        print("\nExiting…")
-    finally:
-        pygame.quit()
+def main():
+    """Initialize and run the LLM Snake game using OOP approach."""
+    app = MainApplication()
+    app.run_application()
 
 
 if __name__ == "__main__":

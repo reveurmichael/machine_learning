@@ -47,168 +47,11 @@ logger = logging.getLogger(__name__)
 logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 
-class Task0GameControllerAdapter:
-    """
-    Adapter to make GameManager compatible with MVC architecture.
-    
-    Wraps GameManager to provide the interface expected by MVC components.
-    This adapter pattern allows Task 0 to use the new MVC framework without
-    major changes to existing code.
-    
-    Design Pattern: Adapter Pattern
-    - Adapts GameManager interface for MVC compatibility
-    - Maintains Task 0 functionality while enabling MVC benefits
-    - Provides clean integration point for legacy code
-    """
-    
-    def __init__(self, game_manager: GameManager):
-        """
-        Initialize adapter with GameManager instance.
-        
-        Args:
-            game_manager: Task 0 GameManager instance
-        """
-        self.game_manager = game_manager
-        
-        # IMPORTANT: During adapter construction the GameManager has **not**
-        # yet run `setup_game()`, which means `game_manager.game` is *None*.
-        # Capturing that reference here would permanently freeze the adapter
-        # with a `None` game instance and stale grid_size.  Instead we always
-        # look up the live `game_manager.game` attribute **dynamically** via
-        # helper getters so the adapter stays in sync after the GameManager
-        # completes its initialisation.
-
-        self._start_time = time.time()
-
-        # Web mode is strictly head-less – no local PyGame window.
-        self.use_gui = False
-        
-        logger.info("Initialized Task0GameControllerAdapter")
-    
-    @property
-    def score(self) -> int:
-        """Get current game score."""
-        return getattr(self._game, 'score', 0) if self._game else 0
-    
-    @property
-    def steps(self) -> int:
-        """Get current step count."""
-        return getattr(self._game, 'steps', 0) if self._game else 0
-    
-    @property
-    def game_over(self) -> bool:
-        """Check if game is over."""
-        return not getattr(self.game_manager, 'game_active', True)
-    
-    @property
-    def snake_positions(self) -> list:
-        """Get snake body positions."""
-        game = self._game
-        if game and hasattr(game, 'snake_positions'):
-            # Convert numpy array to list for JSON serialization
-            return getattr(game.snake_positions, 'tolist', lambda: list(game.snake_positions))()
-        return []
-    
-    @property
-    def apple_position(self) -> tuple:
-        """Get apple position."""
-        game = self._game
-        if game and hasattr(game, 'apple_position'):
-            # Convert numpy array to tuple for JSON serialization
-            return tuple(getattr(game.apple_position, 'tolist', lambda: tuple(game.apple_position))())
-        return (0, 0)
-    
-    @property
-    def current_direction(self) -> str:
-        """Get current movement direction as a string key ('UP', 'LEFT', etc.)."""
-        game = self._game
-        if game and hasattr(game, 'get_current_direction_key'):
-            return game.get_current_direction_key()
-        return "NONE"  # Default when game not initialized
-    
-    @property
-    def end_reason(self) -> str:
-        """Get game end reason."""
-        game = self._game
-        if game and hasattr(game, 'game_state') and hasattr(game.game_state, 'game_end_reason'):
-            return game.game_state.game_end_reason
-        return None
-    
-    @property
-    def start_time(self) -> float:
-        """Get game start time."""
-        return self._start_time
-    
-    def reset(self) -> None:
-        """Reset the game to initial state."""
-        try:
-            # Delegate reset through the GameManager which in turn resets the
-            # underlying GameLogic instance.  This ensures all ancillary
-            # structures (RoundManager, limits counters, etc.) are refreshed
-            # consistently.
-
-            if hasattr(self.game_manager, 'reset_game'):
-                self.game_manager.reset_game()
-            elif self._game and hasattr(self._game, 'reset'):
-                self._game.reset()
-            
-            self._start_time = time.time()
-            logger.info("Game reset via adapter")
-            
-        except Exception as e:
-            logger.error(f"Failed to reset game via adapter: {e}")
-            raise
-    
-    def make_move(self, direction: str) -> tuple[bool, bool]:
-        """
-        Execute a move through the GameManager.
-        
-        Args:
-            direction: Movement direction
-            
-        Returns:
-            Tuple of (game_still_active, apple_eaten)
-        """
-        # For Task 0, moves are handled by the LLM agent. This method is a
-        # compatibility stub for the web framework, which expects a callable
-        # `make_move`. The actual game state is mutated by the `GameManager`
-        # in its background thread, and this adapter serves as a read-only
-        # proxy for the UI.
-        try:
-            old_score = self.score
-            
-            # We don't execute a move here; just report current status.
-            game_active = not self.game_over
-            apple_eaten = self.score > old_score
-            
-            return game_active, apple_eaten
-            
-        except Exception as e:
-            logger.error(f"Move execution failed in adapter: {e}")
-            return False, False
-    
-    def get_performance_stats(self) -> dict:
-        """Get performance statistics."""
-        return {
-            "game_duration": time.time() - self._start_time,
-            "moves_per_second": self.steps / max(time.time() - self._start_time, 1) if self.steps else 0.0
-        }
-
-    # --------------------------------------------------
-    # Internal helper – always fetch the **live** GameLogic
-    # --------------------------------------------------
-    @property
-    def _game(self):
-        """Return the current GameLogic instance (may be None during startup)."""
-        return getattr(self.game_manager, 'game', None)
-
-    # Keep a dynamic grid_size property so template / JS always stays correct
-    @property
-    def grid_size(self) -> int:  # type: ignore[override]
-        return getattr(self._game, 'grid_size', 10)
+# Import the new OOP controller classes
+from core.game_controller import GameControllerAdapter
 
 
-class Task0LLMController(GamePlayController):
+class LLMController(GamePlayController):
     """
     Task 0 specific LLM controller that extends the base LLM controller.
     
@@ -240,7 +83,7 @@ class Task0LLMController(GamePlayController):
             'current_model': getattr(game_manager.args, 'model', 'unknown')
         }
         
-        logger.info("Initialized Task0LLMController")
+        logger.info("Initialized LLMController")
     
     def handle_state_request(self, context) -> dict:
         """Handle state requests with Task 0 specific enhancements."""
@@ -328,7 +171,7 @@ def create_task0_mvc_application(game_args) -> tuple:
     )
     
     # Create adapter for MVC compatibility
-    game_controller_adapter = Task0GameControllerAdapter(game_manager)
+    game_controller_adapter = GameControllerAdapter(game_manager)
     
     # Create MVC components using factory
     from web.factories import ModelFactory, ViewRendererFactory, ControllerFactory
@@ -347,11 +190,11 @@ def create_task0_mvc_application(game_args) -> tuple:
     )
     
     # Register Task 0 specific controller
-    controller_factory.register_controller_type("task0_llm", Task0LLMController)
+    controller_factory.register_controller_type("llm", LLMController)
     
     # Create controller with Task 0 specific parameters
     controller = controller_factory.create_controller(
-        "task0_llm",
+        "llm",
         model,
         view_renderer,
         game_manager=game_manager

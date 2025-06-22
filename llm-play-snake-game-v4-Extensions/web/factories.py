@@ -36,7 +36,7 @@ from .models import (
 from .views import WebViewRenderer
 
 # Import core components
-from core.game_controller import GameController
+from core.game_controller import BaseGameController
 from replay.replay_engine import ReplayEngine
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ class ModelFactory:
     based on the game mode and configuration.
     """
     
-    def create_live_game_model(self, game_controller: GameController, 
+    def create_live_game_model(self, game_controller: BaseGameController, 
                               game_mode: str = "human") -> GameStateModel:
         """
         Create model for live game sessions.
@@ -239,7 +239,7 @@ class WebApplicationFactory:
         self.model_factory = ModelFactory()
         self.view_factory = ViewRendererFactory()
     
-    def create_live_game_app(self, game_controller: GameController,
+    def create_live_game_app(self, game_controller: BaseGameController,
                             game_mode: str = "human",
                             template_folder: str = "templates",
                             static_folder: str = "static",
@@ -362,7 +362,7 @@ class WebApplicationFactory:
 
 
 # Convenience factory functions
-def create_web_application(game_controller: GameController = None,
+def create_web_application(game_controller: BaseGameController = None,
                           replay_engine: ReplayEngine = None,
                           game_mode: str = "human",
                           **config) -> tuple[Flask, BaseWebController]:

@@ -51,7 +51,7 @@ logging.getLogger("werkzeug").setLevel(logging.WARNING)
 from core.game_controller import GameControllerAdapter
 
 
-class LLMController(GamePlayController):
+class MainController(GamePlayController):
     """
     Task 0 specific LLM controller that extends the base LLM controller.
     
@@ -150,7 +150,7 @@ class LLMController(GamePlayController):
         }
 
 
-def create_task0_mvc_application(game_args) -> tuple:
+def create_mvc_application(game_args) -> tuple:
     """
     Create Task 0 MVC web application.
     
@@ -190,7 +190,7 @@ def create_task0_mvc_application(game_args) -> tuple:
     )
     
     # Register Task 0 specific controller
-    controller_factory.register_controller_type("llm", LLMController)
+    controller_factory.register_controller_type("llm", MainController)
     
     # Create controller with Task 0 specific parameters
     controller = controller_factory.create_controller(
@@ -292,7 +292,7 @@ def main():
     
     try:
         # Create MVC application
-        app, controller, game_manager = create_task0_mvc_application(game_args)
+        app, controller, game_manager = create_mvc_application(game_args)
         
         # Start GameManager in background thread
         game_thread = threading.Thread(

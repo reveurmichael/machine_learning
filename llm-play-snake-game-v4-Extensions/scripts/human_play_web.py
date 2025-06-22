@@ -30,7 +30,8 @@ from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
 # Import MVC components
 from web.factories import create_web_application
-from core.game_controller import GameController
+from core.game_logic import GameLogic
+from core.game_controller import BaseGameController
 from utils.network_utils import find_free_port
 
 # Configure logging
@@ -40,6 +41,87 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
+
+class HumanGameControllerAdapter(BaseGameController):
+    """
+    Adapter to make GameLogic compatible with web MVC architecture for human play.
+    
+    This adapter wraps GameLogic to provide the BaseGameController interface
+    expected by the web MVC framework for human player games.
+    """
+    
+    def __init__(self, game_logic: GameLogic):
+        """
+        Initialize adapter for human play web interface.
+        
+        Args:
+            game_logic: GameLogic instance for core game mechanics
+        """
+        # Create a mock game manager for the base class
+        class MockGameManager:
+            def __init__(self, game_logic):
+                self.game = game_logic
+                self.game_active = True
+        
+        self.game_logic = game_logic
+        mock_manager = MockGameManager(game_logic)
+        super().__init__(mock_manager, use_gui=False)
+        
+        logger.info("Initialized HumanGameControllerAdapter for web interface")
+    
+    def initialize_session(self) -> None:
+        """Initialize web session - handled by external web framework."""
+        logger.info("Human play web session initialization")
+    
+    def execute_main_loop(self) -> None:
+        """Execute main loop - handled by external web framework."""
+        logger.info("Main loop execution delegated to web framework")
+    
+    def make_move(self, direction: str) -> tuple[bool, bool]:
+        """
+        Execute a move through the GameLogic.
+        
+        Args:
+            direction: Movement direction (UP, DOWN, LEFT, RIGHT)
+            
+        Returns:
+            Tuple of (game_still_active, apple_eaten)
+        """
+        try:
+            return self.game_logic.make_move(direction)
+        except Exception as e:
+            logger.error(f"Move execution failed: {e}")
+            return False, False
+    
+    def reset_game(self) -> None:
+        """Reset the game to initial state."""
+        try:
+            self.game_logic.reset()
+            logger.info("Game reset via human controller adapter")
+        except Exception as e:
+            logger.error(f"Failed to reset game: {e}")
+            raise
+    
+    @property
+    def game(self):
+        """Get the game logic instance."""
+        return self.game_logic
+    
+    @property
+    def head_position(self):
+        """Get snake head position."""
+        return self.game_logic.head_position
+    
+    @property
+    def snake_positions(self) -> list:
+        """Get snake positions as list."""
+        return self.game_logic.snake_positions.tolist()
+    
+    @property
+    def apple_position(self) -> tuple:
+        """Get apple position as tuple."""
+        return tuple(self.game_logic.apple_position.tolist())
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
@@ -93,11 +175,14 @@ def main() -> None:
         logger.info(f"Grid size: {args.grid_size}x{args.grid_size}")
         logger.info(f"Server: http://{args.host}:{port}")
         
-        # Create game controller
-        game_controller = GameController(
+        # Create game logic for human play
+        game_logic = GameLogic(
             grid_size=args.grid_size,
             use_gui=False  # Web interface, no pygame GUI
         )
+        
+        # Create adapter to make GameLogic compatible with MVC framework
+        game_controller = HumanGameControllerAdapter(game_logic)
         
         # Create MVC web application using factory
         app, controller = create_web_application(

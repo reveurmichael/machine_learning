@@ -34,7 +34,7 @@ from pygame.locals import (
 )
 
 from gui.game_gui import GameGUI
-from core.game_controller import GameController
+from core.game_logic import GameLogic
 from config.ui_constants import TIME_TICK, COLORS
 
 # pylint: disable=no-member  # init() is dynamically added
@@ -94,7 +94,7 @@ class HumanGameGUI(GameGUI):
         self.game_over = is_game_over
 
 
-def _handle_input(game: GameController, gui: HumanGameGUI) -> bool:
+def _handle_input(game: GameLogic, gui: HumanGameGUI) -> bool:
     """Process user input and update the game state.
 
     Returns ``False`` if the window should close, otherwise ``True``.
@@ -131,7 +131,7 @@ def _handle_input(game: GameController, gui: HumanGameGUI) -> bool:
 def main():
     pygame.init()
     gui = HumanGameGUI()
-    game = GameController(use_gui=True)
+    game = GameLogic(use_gui=True)
     game.set_gui(gui)
     pygame.display.set_caption("Snake Game - Human Player")
     clock = pygame.time.Clock()

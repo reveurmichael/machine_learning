@@ -191,8 +191,6 @@ class HeuristicGameManager(BaseGameManager):
                 if not game_continues:
                     self.game_active = False
                     
-                if apple_eaten:
-                    print(Fore.GREEN + f"🍎 Apple eaten! Score: {self.game.game_state.score}")
         
         # Record game completion
         game_duration = time.time() - game_start_time

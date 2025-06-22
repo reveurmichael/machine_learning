@@ -188,8 +188,6 @@ class BaseGameLoop:
             manager.current_game_moves.append(move)
             manager.game.draw()
             _, apple_eaten = self._execute_move(move)
-            if apple_eaten:
-                print(Fore.CYAN + "🍎 Apple eaten!")
         if not manager.game_active:
             self._handle_game_over()
         manager.game.draw()

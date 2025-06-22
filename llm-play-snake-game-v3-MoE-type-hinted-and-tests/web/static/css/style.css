@@ -1,0 +1,308 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    width: 95%;          /* stretch on large monitors but keep a small margin */
+    max-width: 1600px;   /* still cap extreme ultra-wide for readability */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+}
+
+.header h1 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.loading-message {
+    text-align: center;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 300px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #4361ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.paused-indicator {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #e63946;
+    color: white;
+    font-weight: bold;
+    border-radius: 4px;
+    display: none;
+}
+
+/* Session finished indicator – same look as paused but distinct id */
+.finished-indicator {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #e63946;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    display: none;
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    margin: 0 auto;
+    flex-wrap: wrap;          /* allow sidebar to fall below on narrow windows */
+    max-width: 100%;
+    overflow-x: auto;            /* prevent clipping on ultra-wide canvases */
+}
+
+/* Leaner board wrapper: shrink-wrap around the canvas, minimal padding */
+.game-board {
+    flex: 0 0 auto;               /* shrink-wrap to canvas, don't stretch */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    max-width: 100%;              /* never exceed viewport */
+}
+
+#game-canvas {
+    display: block;
+    margin: 0 auto;              /* center in the board */
+    background-color: #2c2c54;
+    max-width: 100%;             /* never wider than its parent */
+    height: auto;
+}
+
+.game-sidebar {
+    flex: 0 0 420px;      /* fixed-ish width sidebar */
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    word-wrap: break-word;        /* prevent overflow */
+}
+
+.stats-section, .controls-section, .llm-info-section, .progress-section, .instructions-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    color: #3498db;
+    display: flex;                /* keep title and counter on same line */
+    flex-wrap: nowrap;            /* prevent wrapping */
+    align-items: center;          /* vertical centering */
+    justify-content: space-between;
+}
+
+/* Progress value now lives inside the heading */
+.progress-section h2 span#progress {
+    font-weight: 600;
+    font-size: 16px;
+    color: #3498db;
+    margin-left: auto;           /* push it to the far right just in case */
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+button {
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.speed-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.speed-controls button {
+    width: 30px;
+    padding: 4px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid #bdc3c7;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #FF8C00; /* same as COLORS.SNAKE_HEAD */
+    width: 0%;
+}
+
+#end-reason-container {
+    grid-column: span 2;
+    color: #e63946;
+    font-weight: bold;
+    display: none;
+    margin-top: 10px;
+}
+
+/* Error message style */
+.error-message {
+    color: #e63946;
+    font-weight: bold;
+}
+
+/* Human play specific styles */
+.control-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.control-info p {
+    text-align: center;
+    font-size: 16px;
+}
+
+.reset-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #e74c3c;
+}
+
+.reset-button:hover {
+    background-color: #c0392b;
+}
+
+.instructions-section ul {
+    list-style-position: inside;
+    margin-left: 10px;
+}
+
+.instructions-section li {
+    margin-bottom: 8px;
+}
+
+#game-over-indicator {
+    font-size: 18px;
+    padding: 8px 12px;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    .game-container {
+        flex-direction: column;
+        align-items: center;     /* center children instead of left-align */
+    }
+    
+    .game-sidebar {
+        width: 100%;
+        max-width: 420px;        /* don't exceed reasonable width */
+        margin: 0 auto;          /* horizontally center */
+    }
+
+    /* Ensure the board shrinks gracefully and centers */
+    .game-board {
+        max-width: 100%;
+    }
+}
+
+/* Live LLM mode – text wrapping for long content */
+.planned-moves {
+    font-family: monospace;
+    white-space: normal;
+    overflow-wrap: anywhere; /* break long strings */
+    word-wrap: break-word;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.llm-response {
+    white-space: pre-wrap; /* preserve line breaks */
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Card styling for moves & LLM response (same as stats-section) */
+.moves-section, .llm-response-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 15px;
+}

@@ -1,0 +1,975 @@
+{
+    "score": 20,
+    "steps": 157,
+    "snake_length": 21,
+    "game_over": true,
+    "game_end_reason": "MAX_CONSECUTIVE_EMPTY_MOVES_REACHED",
+    "round_count": 32,
+    "llm_info": {
+        "primary_provider": "deepseek",
+        "primary_model": "deepseek-reasoner",
+        "parser_provider": null,
+        "parser_model": null
+    },
+    "time_stats": {
+        "start_time": "2025-06-18 00:39:33",
+        "end_time": "2025-06-18 03:39:44",
+        "total_duration_seconds": 10810.764210224152,
+        "llm_communication_time": 8218.191140300594
+    },
+    "prompt_response_stats": {
+        "primary_response_times": [
+            192.25407814979553,
+            147.4244532585144,
+            296.8430964946747,
+            220.00599265098572,
+            235.9411473274231,
+            228.36136388778687,
+            288.5954008102417,
+            283.78642439842224,
+            217.22586464881897,
+            210.1590428352356,
+            287.2854416370392,
+            245.4605417251587,
+            282.4660985469818,
+            280.6301739215851,
+            281.480473279953,
+            252.75519156455994,
+            253.3209421634674,
+            232.82430291175842,
+            280.89758229255676,
+            275.60209608078003,
+            205.35147833824158,
+            256.45550870895386,
+            251.42448210716248,
+            228.64599466323853,
+            225.10463547706604,
+            288.47913098335266,
+            282.5475060939789,
+            303.9749400615692,
+            298.9529228210449,
+            300.56145787239075,
+            292.42030453681946,
+            290.7562050819397
+        ],
+        "secondary_response_times": [],
+        "avg_primary_response_time": 256.8123211041093,
+        "avg_secondary_response_time": 0.0
+    },
+    "token_stats": {
+        "primary_total_tokens": 298866,
+        "primary_avg_total_tokens": 9339.5625,
+        "primary_total_prompt_tokens": 68836,
+        "primary_avg_prompt_tokens": 2151.125,
+        "primary_total_completion_tokens": 230030,
+        "primary_avg_completion_tokens": 7188.4375,
+        "secondary_total_tokens": 0,
+        "secondary_avg_total_tokens": 0,
+        "secondary_total_prompt_tokens": 0,
+        "secondary_avg_prompt_tokens": 0,
+        "secondary_total_completion_tokens": 0,
+        "secondary_avg_completion_tokens": 0
+    },
+    "step_stats": {
+        "valid_steps": 145,
+        "empty_steps": 12,
+        "something_is_wrong_steps": 0,
+        "invalid_reversals": 0
+    },
+    "metadata": {
+        "timestamp": "2025-06-18 00:39:33",
+        "game_number": 1,
+        "round_count": 32
+    },
+    "detailed_history": {
+        "apple_positions": [
+            {
+                "x": 8,
+                "y": 9
+            },
+            {
+                "x": 7,
+                "y": 6
+            },
+            {
+                "x": 4,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 4
+            },
+            {
+                "x": 8,
+                "y": 6
+            },
+            {
+                "x": 3,
+                "y": 6
+            },
+            {
+                "x": 0,
+                "y": 2
+            },
+            {
+                "x": 6,
+                "y": 9
+            },
+            {
+                "x": 0,
+                "y": 7
+            },
+            {
+                "x": 5,
+                "y": 2
+            },
+            {
+                "x": 8,
+                "y": 7
+            },
+            {
+                "x": 9,
+                "y": 0
+            },
+            {
+                "x": 4,
+                "y": 4
+            },
+            {
+                "x": 0,
+                "y": 9
+            },
+            {
+                "x": 0,
+                "y": 1
+            },
+            {
+                "x": 2,
+                "y": 6
+            },
+            {
+                "x": 4,
+                "y": 9
+            },
+            {
+                "x": 5,
+                "y": 4
+            },
+            {
+                "x": 3,
+                "y": 0
+            },
+            {
+                "x": 7,
+                "y": 4
+            },
+            {
+                "x": 0,
+                "y": 7
+            }
+        ],
+        "moves": [
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "EMPTY",
+            "LEFT",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "UP",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "EMPTY",
+            "EMPTY",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "EMPTY",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "LEFT",
+            "EMPTY",
+            "EMPTY",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "LEFT",
+            "UP",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "RIGHT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "LEFT",
+            "LEFT",
+            "DOWN",
+            "DOWN",
+            "DOWN",
+            "EMPTY",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "RIGHT",
+            "UP",
+            "UP",
+            "UP",
+            "UP",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+        ],
+        "rounds_data": {
+            "1": {
+                "round": 1,
+                "apple_position": [
+                    7,
+                    6
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "2": {
+                "round": 2,
+                "apple_position": [
+                    4,
+                    8
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "3": {
+                "round": 3,
+                "apple_position": [
+                    4,
+                    8
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "4": {
+                "round": 4,
+                "apple_position": [
+                    5,
+                    4
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "UP"
+                ],
+                "moves": [
+                    "LEFT",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "UP"
+                ]
+            },
+            "5": {
+                "round": 5,
+                "apple_position": [
+                    8,
+                    6
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "6": {
+                "round": 6,
+                "apple_position": [
+                    3,
+                    6
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "RIGHT",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "RIGHT",
+                    "RIGHT"
+                ]
+            },
+            "7": {
+                "round": 7,
+                "apple_position": [
+                    3,
+                    6
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "8": {
+                "round": 8,
+                "apple_position": [
+                    3,
+                    6
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "9": {
+                "round": 9,
+                "apple_position": [
+                    0,
+                    2
+                ],
+                "planned_moves": [
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT"
+                ],
+                "moves": [
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT"
+                ]
+            },
+            "10": {
+                "round": 10,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "11": {
+                "round": 11,
+                "apple_position": [
+                    6,
+                    9
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "12": {
+                "round": 12,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "13": {
+                "round": 13,
+                "apple_position": [
+                    5,
+                    2
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT"
+                ],
+                "moves": [
+                    "LEFT",
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "LEFT"
+                ]
+            },
+            "14": {
+                "round": 14,
+                "apple_position": [
+                    5,
+                    2
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "15": {
+                "round": 15,
+                "apple_position": [
+                    5,
+                    2
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "16": {
+                "round": 16,
+                "apple_position": [
+                    8,
+                    7
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT"
+                ],
+                "moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT"
+                ]
+            },
+            "17": {
+                "round": 17,
+                "apple_position": [
+                    9,
+                    0
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "18": {
+                "round": 18,
+                "apple_position": [
+                    4,
+                    4
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "19": {
+                "round": 19,
+                "apple_position": [
+                    0,
+                    9
+                ],
+                "planned_moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "LEFT",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "20": {
+                "round": 20,
+                "apple_position": [
+                    0,
+                    1
+                ],
+                "planned_moves": [
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT"
+                ],
+                "moves": [
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT",
+                    "LEFT"
+                ]
+            },
+            "21": {
+                "round": 21,
+                "apple_position": [
+                    2,
+                    6
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "22": {
+                "round": 22,
+                "apple_position": [
+                    4,
+                    9
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "23": {
+                "round": 23,
+                "apple_position": [
+                    5,
+                    4
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "24": {
+                "round": 24,
+                "apple_position": [
+                    3,
+                    0
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "25": {
+                "round": 25,
+                "apple_position": [
+                    7,
+                    4
+                ],
+                "planned_moves": [
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ],
+                "moves": [
+                    "DOWN",
+                    "LEFT",
+                    "LEFT",
+                    "DOWN",
+                    "DOWN",
+                    "DOWN"
+                ]
+            },
+            "26": {
+                "round": 26,
+                "apple_position": [
+                    7,
+                    4
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "27": {
+                "round": 27,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ],
+                "moves": [
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "RIGHT",
+                    "UP",
+                    "UP",
+                    "UP",
+                    "UP"
+                ]
+            },
+            "28": {
+                "round": 28,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "29": {
+                "round": 29,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "30": {
+                "round": 30,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "31": {
+                "round": 31,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            },
+            "32": {
+                "round": 32,
+                "apple_position": [
+                    0,
+                    7
+                ],
+                "planned_moves": [],
+                "moves": [
+                    "EMPTY"
+                ]
+            }
+        }
+    }
+}

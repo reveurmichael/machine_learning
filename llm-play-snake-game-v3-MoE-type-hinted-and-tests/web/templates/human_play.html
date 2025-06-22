@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - Human Play</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Snake Game - Human Play</h1>
+        </div>
+        
+        <div id="loading-message" class="loading-message">
+            <div class="spinner"></div>
+            <p>Loading game...</p>
+        </div>
+        
+        <div class="game-container" id="game-container" style="display: none;">
+            <div class="game-board">
+                <canvas id="game-canvas"></canvas>
+            </div>
+            
+            <div class="game-sidebar">
+                <div id="game-over-indicator" class="paused-indicator" style="display: none;">GAME OVER</div>
+                <div class="stats-section">
+                    <h2>Game Information</h2>
+                    <div class="stats-grid">
+                        <div>Score: <span id="score">0</span></div>
+                        <div>Steps: <span id="steps">0</span></div>
+                        <div id="end-reason-container" style="display: none;">End Reason: <span id="end-reason"></span></div>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <h2>Controls</h2>
+                    <div class="control-info">
+                        <p>Use Arrow Keys or WASD to move the snake</p>
+                        <button id="reset-button" class="reset-button">Reset Game (R)</button>
+                    </div>
+                </div>
+                
+                <div class="instructions-section">
+                    <h2>Instructions</h2>
+                    <ul>
+                        <li>Use arrow keys or WASD to control the snake</li>
+                        <li>Eat apples to grow longer and score points</li>
+                        <li>Avoid hitting walls or yourself</li>
+                        <li>Press R to restart the game</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/human_play.js') }}"></script>
+</body>
+</html> 

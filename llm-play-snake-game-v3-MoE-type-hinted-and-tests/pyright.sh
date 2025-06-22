@@ -1,0 +1,2 @@
+pyright *.py
+pyright **/*.py

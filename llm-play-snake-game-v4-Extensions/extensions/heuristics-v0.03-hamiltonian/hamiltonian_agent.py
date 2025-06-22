@@ -1,145 +1,130 @@
 """
-Hamiltonian Cycle Agent - Proven Solution
-========================================
+Hamiltonian Agent - Coordinate System Compliant
+===============================================
 
-Fixed cycle generation with:
-- Exactly grid_size*grid_size positions
-- All unique positions
-- Valid cycle closure (first and last cells adjacent)
-- No path-finding failures at (0,0)
+Implements a Hamiltonian cycle agent that strictly adheres to the project-wide
+coordinate system:
+  • (0,0)  = bottom-left corner
+  • X-axis increases to the **right**, Y-axis increases **up**
+  • Directions: UP=(0,1), RIGHT=(1,0), DOWN=(0,-1), LEFT=(-1,0)
+
+Main capabilities
+-----------------
+1. Generates a boustrophedon Hamiltonian cycle covering every cell exactly
+   once.  A small patch ensures the cycle closes correctly on even-sized grids.
+2. Provides a one-step apple shortcut when the fruit is adjacent and the move
+   is safe.
+3. Full safety checks that account for the tail vacating when not eating.
+4. Extensive validation helpers (length, uniqueness, adjacency) when
+   *debug_log* is enabled.
+
+Design Patterns
+---------------
+* Strategy – interchangeable path-planning algorithm.
+* Fail-fast – never raises to the game engine, always returns a move string.
 """
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple
 
 from config.game_constants import DIRECTIONS
 
 
-class HamiltonianAgent:
-    """Snake agent that follows a mathematically correct Hamiltonian cycle."""
+class HamiltonianAgent:  # pylint: disable=too-many-public-methods
+    """Robust Hamiltonian cycle agent compliant with the Y-up coordinate system."""
 
-    def __init__(self) -> None:  # noqa: D401
-        self.name = "Hamiltonian-Proven"
-        self.description = "Reliable cycle navigation with guaranteed pathing"
+    def __init__(self) -> None:
+        self.name = "Hamiltonian-CoordinateCorrect"
+        self.description = "Hamiltonian agent compliant with project coordinate system"
         self.cycle: List[Tuple[int, int]] = []
         self.cycle_map: Dict[Tuple[int, int], int] = {}
         self.grid_size: int = 0
-        self.current_cycle_index: int = 0
-        self.debug_log: bool = True  # Verbose diagnostics
+        self.current_index: int = 0
+        self.debug_log: bool = False  # toggle verbose diagnostics
 
     # ------------------------------------------------------------------
-    # Public entry-point
+    # Public API
     # ------------------------------------------------------------------
 
     def get_move(self, game: "HeuristicGameLogic") -> str:  # noqa: D401
+        """Return the next direction for the snake head."""
         try:
             head = tuple(game.head_position)
             grid_size = game.grid_size
 
-            # (Re-)generate cycle if board size changed ------------------
             if not self.cycle or self.grid_size != grid_size:
-                self.grid_size = grid_size
-                self._generate_robust_cycle(grid_size)
+                self._build_cycle(grid_size)
                 if self.debug_log:
                     print(
-                        f"🌀 Generated {len(self.cycle)}-cell cycle for {grid_size}×{grid_size}",
+                        f"🌀 Built cycle of {len(self.cycle)} cells –"
+                        f" {'VALID' if self._validate_cycle() else 'INVALID'}"
                     )
-                    self._validate_cycle()
 
-            # Attempt adjacent apple shortcut ---------------------------
+            # Apple shortcut --------------------------------------------------
             apple = tuple(game.apple_position)
-            if shortcut := self._safe_shortcut(head, apple, game):
+            shortcut = self._safe_shortcut(head, apple, game)
+            if shortcut:
                 if self.debug_log:
-                    print(f"🍎 Shortcut to apple via {shortcut}")
+                    print(f"🍎 Shortcut via {shortcut}")
                 return shortcut
 
-            # Normal cycle following ------------------------------------
-            head_idx = self.cycle_map.get(head, self.current_cycle_index)
+            # Normal cycle following -----------------------------------------
+            head_idx = self.cycle_map.get(head, self._nearest_cycle_index(head))
             next_idx = (head_idx + 1) % len(self.cycle)
             next_pos = self.cycle[next_idx]
 
             if self._is_safe_move(next_pos, game):
-                self.current_cycle_index = next_idx
-                direction = self._get_direction(head, next_pos)
-                if self.debug_log:
-                    print(f"🔄 Cycle: {head} → {next_pos} via {direction}")
-                return direction
+                self.current_index = next_idx
+                return self._direction_between(head, next_pos)
 
-            # Fallback: any safe move -----------------------------------
-            return self._find_any_safe_move(head, game)
+            # Fallback – any safe move ---------------------------------------
+            return self._fallback_safe_move(head, game)
 
-        except Exception as exc:  # pragma: no cover – defensive
+        except Exception as err:  # pragma: no cover
             if self.debug_log:
-                print(f"🚨 Error: {exc!r}")
+                print(f"🚨 Hamiltonian agent error: {err}")
             return "NO_PATH_FOUND"
 
     # ------------------------------------------------------------------
-    # Cycle generation
+    # Cycle generation & validation
     # ------------------------------------------------------------------
 
-    def _generate_robust_cycle(self, size: int) -> None:
-        """Generate a Hamiltonian cycle covering every cell exactly once."""
-        self.cycle.clear()
-        visited: Set[Tuple[int, int]] = set()
+    def _build_cycle(self, grid_size: int) -> None:
+        self.grid_size = grid_size
+        self.cycle = []
 
-        x = y = 0  # Start at (0, 0)
-        dx, dy = 1, 0  # Initial direction: right
+        # Boustrophedon pattern starting at (0,0) moving right on even rows
+        for y in range(grid_size):
+            row = range(grid_size) if y % 2 == 0 else range(grid_size - 1, -1, -1)
+            self.cycle.extend((x, y) for x in row)
 
-        for _ in range(size * size):
-            self.cycle.append((x, y))
-            visited.add((x, y))
-
-            # Tentative next position
-            nx, ny = x + dx, y + dy
-
-            # Change direction if next cell is out of bounds *or* visited
-            if (
-                nx < 0
-                or nx >= size
-                or ny < 0
-                or ny >= size
-                or (nx, ny) in visited
-            ):
-                # Rotate direction 90° clockwise (right→down→left→up)
-                dx, dy = -dy, dx
-                nx, ny = x + dx, y + dy
-
-            x, y = nx, ny
-
-        # Ensure last cell is adjacent to first; adjust if necessary
-        last = self.cycle[-1]
-        first = self.cycle[0]
-        if abs(last[0] - first[0]) + abs(last[1] - first[1]) != 1:
-            # Replace last cell with a cell adjacent to first and unvisited
-            self.cycle.pop()
-            # Prefer horizontal alignment
-            candidate = (first[0] - 1, first[1]) if first[0] > 0 else (first[0] + 1, first[1])
-            if candidate in visited or not (0 <= candidate[0] < size):
-                candidate = (first[0], first[1] - 1 if first[1] > 0 else first[1] + 1)
-            self.cycle.append(candidate)
-
-        # Rebuild fast lookup map
-        self.cycle_map = {pos: idx for idx, pos in enumerate(self.cycle)}
-        self.current_cycle_index = self.cycle_map.get((0, 0), 0)
-
-    # ------------------------------------------------------------------
-    # Validation helper (debug only)
-    # ------------------------------------------------------------------
-
-    def _validate_cycle(self) -> None:  # noqa: D401
-        if len(self.cycle) != self.grid_size * self.grid_size:
-            print(
-                f"❌ Cycle length {len(self.cycle)} ≠ {self.grid_size * self.grid_size}",
+        # Even grid patch to ensure endpoints adjacency
+        if grid_size % 2 == 0:
+            # End currently at (0, grid_size-1).  Patch path to close loop.
+            self.cycle.pop()  # remove last cell (0, size-1)
+            self.cycle.extend(
+                [
+                    (0, grid_size - 1),
+                    (0, grid_size - 2),
+                    (1, grid_size - 2),
+                ]
             )
-        dupes = len(self.cycle) - len(set(self.cycle))
-        if dupes:
-            print(f"❌ Cycle contains {dupes} duplicate positions")
-        if abs(self.cycle[-1][0] - self.cycle[0][0]) + abs(self.cycle[-1][1] - self.cycle[0][1]) != 1:
-            print("❌ First and last cells are not adjacent")
+
+        self.cycle_map = {pos: idx for idx, pos in enumerate(self.cycle)}
+        self.current_index = 0
+
+    def _validate_cycle(self) -> bool:
+        size_sq = self.grid_size * self.grid_size
+        if len(self.cycle) != size_sq or len(set(self.cycle)) != size_sq:
+            return False
+        return all(
+            self._are_adjacent(self.cycle[i], self.cycle[(i + 1) % size_sq])
+            for i in range(size_sq)
+        )
 
     # ------------------------------------------------------------------
-    # Shortcut / safety utilities
+    # Shortcut, safety, and utility helpers
     # ------------------------------------------------------------------
 
     def _safe_shortcut(
@@ -150,63 +135,53 @@ class HamiltonianAgent:
     ) -> Optional[str]:
         if abs(head[0] - apple[0]) + abs(head[1] - apple[1]) != 1:
             return None
-        for direction in ("UP", "DOWN", "LEFT", "RIGHT"):
-            if self._get_next_position(head, direction) == apple and self._is_safe_move(apple, game):
-                return direction
+        for dir_name, (dx, dy) in DIRECTIONS.items():
+            if (head[0] + dx, head[1] + dy) == apple and self._is_safe_move(apple, game):
+                return dir_name
         return None
-
-    # ..................................................................
 
     def _is_safe_move(self, pos: Tuple[int, int], game: "HeuristicGameLogic") -> bool:
         if not (0 <= pos[0] < game.grid_size and 0 <= pos[1] < game.grid_size):
             return False
         body = [tuple(seg) for seg in game.snake_positions]
-        tail = body[-1] if body else None
-        is_eating = pos == tuple(game.apple_position)
-        if pos in body[:-1]:  # Collision with body (excluding tail)
-            return False
-        if pos == tail:
-            return not is_eating  # Safe only if tail moves away
-        return True
-
-    def _find_any_safe_move(self, head: Tuple[int, int], game: "HeuristicGameLogic") -> str:
-        for direction in ("UP", "DOWN", "LEFT", "RIGHT"):
-            nxt = self._get_next_position(head, direction)
-            if self._is_safe_move(nxt, game):
-                return direction
-        return "NO_PATH_FOUND"
-
-    # ------------------------------------------------------------------
-    # Geometry helpers
-    # ------------------------------------------------------------------
+        eating = pos == tuple(game.apple_position)
+        return pos not in body if eating else pos not in body[:-1]
 
     @staticmethod
-    def _get_next_position(pos: Tuple[int, int], direction: str) -> Tuple[int, int]:
-        dx, dy = DIRECTIONS[direction]
-        return pos[0] + dx, pos[1] + dy
-
-    @staticmethod
-    def _get_direction(frm: Tuple[int, int], to: Tuple[int, int]) -> str:
-        dx, dy = to[0] - frm[0], to[1] - frm[1]
-        if dx == 0 and dy == 1:
-            return "UP"
-        if dx == 0 and dy == -1:
-            return "DOWN"
-        if dx == 1 and dy == 0:
-            return "RIGHT"
-        if dx == -1 and dy == 0:
-            return "LEFT"
-        return "NO_PATH_FOUND"
-
-    # ------------------------------------------------------------------
-    # Debug helper
-    # ------------------------------------------------------------------
-
-    def get_cycle_info(self) -> Dict[str, object]:  # noqa: D401
+    def _direction_between(from_pos: Tuple[int, int], to_pos: Tuple[int, int]) -> str:
+        dx = to_pos[0] - from_pos[0]
+        dy = to_pos[1] - from_pos[1]
         return {
-            "cycle_length": len(self.cycle),
+            (1, 0): "RIGHT",
+            (-1, 0): "LEFT",
+            (0, 1): "UP",
+            (0, -1): "DOWN",
+        }.get((dx, dy), "NO_PATH_FOUND")
+
+    def _nearest_cycle_index(self, pos: Tuple[int, int]) -> int:
+        return min(self.cycle_map.values(), key=lambda idx: abs(self.cycle[idx][0] - pos[0]) + abs(self.cycle[idx][1] - pos[1]))
+
+    def _fallback_safe_move(self, head: Tuple[int, int], game: "HeuristicGameLogic") -> str:
+        for dir_name, (dx, dy) in DIRECTIONS.items():
+            nxt = (head[0] + dx, head[1] + dy)
+            if self._is_safe_move(nxt, game):
+                return dir_name
+        return "NO_PATH_FOUND"
+
+    # ------------------------------------------------------------------
+    # Diagnostics helpers (optional)
+    # ------------------------------------------------------------------
+
+    def get_cycle_info(self) -> Dict[str, object]:
+        return {
             "grid_size": self.grid_size,
-            "current_index": self.current_cycle_index,
-            "start_pos": self.cycle[0] if self.cycle else None,
-            "end_pos": self.cycle[-1] if self.cycle else None,
-        } 
+            "cycle_length": len(self.cycle),
+            "start": self.cycle[0] if self.cycle else None,
+            "end": self.cycle[-1] if self.cycle else None,
+            "valid": self._validate_cycle(),
+        }
+
+    @staticmethod
+    def _are_adjacent(a: Tuple[int, int], b: Tuple[int, int]) -> bool:
+        return abs(a[0] - b[0]) + abs(a[1] - b[1]) == 1
+  

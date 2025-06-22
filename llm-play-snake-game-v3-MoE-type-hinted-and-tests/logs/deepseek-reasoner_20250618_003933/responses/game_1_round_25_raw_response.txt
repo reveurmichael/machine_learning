@@ -1,0 +1,16 @@
+PRIMARY LLM Request Time: 2025-06-18 02:45:24
+PRIMARY LLM Response Time: 2025-06-18 02:49:09
+PRIMARY LLM Provider: deepseek
+PRIMARY LLM Model: deepseek-reasoner
+Head Position: (5, 4)
+Apple Position: (3, 0)
+Body Cells: [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (4, 8), (4, 7), (4, 6), (3, 6), (2, 6), (2, 5), (2, 4), (2, 3), (2, 2), (2, 1), (1, 1), (0, 1)]
+Timestamp: 2025-06-18 02:49:09
+
+
+========== PRIMARY LLM RESPONSE (GAME STRATEGY) ==========
+
+{
+  "moves": ["DOWN", "LEFT", "LEFT", "DOWN", "DOWN", "DOWN"],
+  "reasoning": "Direct path to apple: move down to avoid body, then left twice to align x=3, then down thrice to y=0. Path is safe with no collisions and ensures a legal move exists after eating."
+}

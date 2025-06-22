@@ -4,6 +4,8 @@ Unifying the main.py and main_web.py mode (with OOP, already some first success)
 
 Web mode a lot of work to do for reducing code redundancy.
 
+Replay mode is not working 100% yet. A lot of small bugs. Should not have switched to MVC ! So much pain. 
+
 
 
 

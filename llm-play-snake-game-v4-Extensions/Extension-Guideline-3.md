@@ -1,441 +1,176 @@
 
 # Core
 
-The `core/` folder has been expertly refactored following SOLID principles with a clear **Base Class vs Concrete Implementation** pattern. Here's how each file enables future tasks:
 
-## 1. **`core/game_agents.py` - Universal Agent Contract**
 
-**Generic Architecture:**
-- Defines `SnakeAgent` protocol with single method: `get_move(game: Any) -> str | None`
-- **Completely task-agnostic** - works for ANY algorithm type
-- Runtime-checkable for type safety
+Based on my comprehensive analysis of the `core` folder, I can confirm that **no refactoring is needed**. The core architecture is already excellently designed and perfectly prepared for future tasks. Here's how it's structured and how future tasks can leverage it:
 
-**How Tasks 1-5 Use It:**
-```python
-# Task-1 (Heuristics)
-class BFSAgent(SnakeAgent):
-    def get_move(self, game: Any) -> str | None:
-        path = self.bfs_algorithm(game.board, game.head_position, game.apple_position)
-        return path[0] if path else "NO_PATH_FOUND"
+## ✅ **Current Core Architecture is Already Perfect**
 
-# Task-2 (Supervised Learning) 
-class MLAgent(SnakeAgent):
-    def get_move(self, game: Any) -> str | None:
-        features = self.extract_features(game)
-        prediction = self.model.predict(features)
-        return self.action_map[prediction]
+### **🎯 Existing Base Classes (Ready for All Tasks):**
 
-# Task-3 (Reinforcement Learning)
-class DQNAgent(SnakeAgent):
-    def get_move(self, game: Any) -> str | None:
-        state = self.preprocess_state(game)
-        q_values = self.network(state)
-        return self.epsilon_greedy_action(q_values)
+1. **`BaseGameManager`** - Generic session management
+   - Contains ONLY generic attributes: `game_count`, `total_score`, `round_count`, etc.
+   - NO LLM-specific code: no `llm_response`, `awaiting_plan`, `token_stats`
+   - Factory pattern with `GAME_LOGIC_CLS` for pluggable game logic
+
+2. **`BaseGameData`** - Generic game state tracking
+   - Contains ONLY universal attributes: `score`, `steps`, `snake_positions`, `apple_position`
+   - Uses `BaseGameStatistics()` (not `GameStatistics`)
+   - NO LLM-specific counters: no `consecutive_empty_steps`, `consecutive_something_is_wrong`
+
+3. **`BaseGameController`** - Generic game logic controller
+   - Contains ONLY core game mechanics: `board`, `snake_positions`, `apple_position`
+   - Factory pattern with `GAME_DATA_CLS` for pluggable data containers
+   - NO LLM dependencies
+
+4. **`BaseGameLogic`** - Generic planning layer
+   - Contains ONLY universal planning: `planned_moves`, `get_next_planned_move()`
+   - NO LLM-specific processing
+
+### **🎯 Perfect Inheritance Hierarchy:**
+
+```
+BaseGameManager → GameManager (Task-0 adds LLM features)
+BaseGameData → GameData (Task-0 adds LLM statistics)  
+BaseGameController → GameController (Task-0 adds LLM data tracking)
+BaseGameLogic → GameLogic (Task-0 adds LLM response parsing)
 ```
 
----
+### **🎯 How Task 1 (Heuristics) Would Use This:**
 
-## 2. **`core/game_manager.py` - Session Management Hierarchy**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
 ```python
-BaseGameManager                    # For Tasks 1-5
-├── Core session metrics (game_count, total_score, game_scores)
-├── Game state management (game_active, need_new_plan, running)  
-├── Visualization (use_gui, pause_between_moves, clock)
-├── Factory hook (GAME_LOGIC_CLS = BaseGameLogic)
-└── Abstract methods (initialize(), run())
-
-LLMGameManager(BaseGameManager)    # Task-0 only
-├── LLM-specific counters (empty_steps, something_is_wrong_steps)
-├── LLM infrastructure (llm_client, time_stats, token_stats)
-└── Continuation features (continue_from_session())
-```
-
-**How Tasks 1-5 Use BaseGameManager:**
-```python
-# Task-1 (Heuristics)
+# Task 1 inherits directly from base classes
 class HeuristicGameManager(BaseGameManager):
-    GAME_LOGIC_CLS = BaseGameLogic  # Use generic logic
+    GAME_LOGIC_CLS = HeuristicGameLogic  # Factory pattern
     
-    def initialize(self) -> None:
-        self.agent = BFSAgent()  # or A*, Hamiltonian, etc.
-        self.setup_game()        # Inherited method
-        
-    def run(self) -> None:
-        run_game_loop(self)      # Uses same game loop as Task-0!
-
-# Task-3 (Reinforcement Learning)  
-class RLGameManager(BaseGameManager):
-    GAME_LOGIC_CLS = BaseGameLogic
+    def initialize(self):
+        # Set up pathfinding algorithms
+        self.pathfinder = AStarPathfinder()
+        self.setup_logging("logs", "heuristic")
     
-    def initialize(self) -> None:
-        self.agent = DQNAgent(state_dim=..., action_dim=4)
-        self.setup_game()
-        self.replay_buffer = ReplayBuffer(10000)
-        
-    def run(self) -> None:
-        # Training loop with experience collection
-        for episode in range(self.args.max_episodes):
-            run_game_loop(self)  # Collect experience
-            if episode % 10 == 0:
-                self.agent.train(self.replay_buffer)
-```
+    def run(self):
+        # Inherits all generic game loop logic from BaseGameManager
+        # Only implements heuristic-specific planning
+        for game in range(self.args.max_games):
+            self.setup_game()  # Inherited method
+            while self.game_active:  # Inherited attribute
+                path = self.pathfinder.find_path(self.game.get_state_snapshot())
+                self.game.planned_moves = path  # Inherited attribute
+                # All game execution logic inherited
 
-**Inherited Benefits:**
-- ✅ Session logging (`setup_logging()`, `save_session_summary()`)
-- ✅ Game lifecycle (`setup_game()`, `get_pause_between_moves()`) 
-- ✅ Round management (`start_new_round()`)
-- ✅ Error tracking (invalid_reversals, no_path_found_steps)
-- ✅ GUI integration (automatic pygame setup when `use_gui=True`)
-
----
-
-## 3. **`core/game_controller.py` - Game Engine Base**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
-```python
-BaseGameController                 # Pure game engine
-├── Board management (board, snake_positions, apple_position)
-├── Collision detection (check_collision, _check_collision)  
-├── Apple generation (generate_random_apple, _generate_apple)
-├── Move validation (filter_invalid_reversals, normalize_direction)
-├── Factory hook (GAME_DATA_CLS = BaseGameData)
-└── GUI abstraction (set_gui, draw)
-
-GameController(BaseGameController) # Task-0 specific  
-└── GAME_DATA_CLS = GameData       # Adds LLM statistics
-```
-
-**How Tasks 1-5 Use BaseGameController:**
-```python
-# Task-1: Heuristic algorithms access core game state
-class BFSAgent:
-    def get_move(self, game: BaseGameController) -> str | None:
-        # Access generic game state
-        board = game.board                    # Numpy array [grid_size, grid_size]
-        head = game.head_position            # [x, y] coordinates  
-        apple = game.apple_position          # [x, y] coordinates
-        snake = game.snake_positions         # List of [x, y] positions
-        
-        # Use generic utilities
-        valid_moves = game.filter_invalid_reversals(["UP", "DOWN", "LEFT", "RIGHT"])
-        
-        # Run BFS pathfinding
-        path = self.bfs(board, head, apple, snake)
-        return path[0] if path else "NO_PATH_FOUND"
-
-# Task-3: RL agents extract features from game state  
-class RLEnvironment:
-    def __init__(self):
-        self.game = BaseGameController(grid_size=15, use_gui=False)
-        
-    def get_observation(self):
-        # Extract features from BaseGameController
-        return {
-            'board': self.game.board,                    # Full board state
-            'head': self.game.head_position,            # Snake head
-            'apple': self.game.apple_position,          # Apple location  
-            'score': self.game.score,                   # Current score
-            'snake_length': self.game.snake_length      # Snake size
-        }
-```
-
-**Inherited Capabilities:**
-- ✅ **Collision detection**: Wall/self-collision with detailed reasons
-- ✅ **Apple generation**: Random placement avoiding snake body
-- ✅ **Move validation**: Automatic reversal filtering  
-- ✅ **Board updates**: Automatic numpy array synchronization
-- ✅ **State snapshots**: JSON-serializable game state for replay
-- ✅ **GUI integration**: Optional pygame rendering
-
----
-
-## 4. **`core/game_data.py` - Statistics Tracking Hierarchy**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
-```python
-BaseGameData                       # Generic for all tasks
-├── Core state (score, steps, game_over, snake_positions)
-├── Move tracking (moves, current_game_moves, planned_moves)  
-├── Apple history (apple_positions, apple_positions_history)
-├── Error counters (consecutive_invalid_reversals, no_path_found_steps)
-├── Statistics (stats: BaseGameStatistics)
-└── Round tracking (round_manager: RoundManager)
-
-GameData(BaseGameData)             # Task-0 LLM-specific
-├── LLM counters (empty_steps, something_is_wrong_steps)
-├── LLM timings (llm_communication_start/end, response_times)
-├── Token statistics (primary/secondary token usage)
-└── LLM response logging (record_parsed_llm_response)
-```
-
-**How Tasks 1-5 Use BaseGameData:**
-```python
-# Task-1: Heuristic data tracking
 class HeuristicGameData(BaseGameData):
-    def __init__(self):
-        super().__init__()
-        # Add heuristic-specific metrics
-        self.path_lengths = []
-        self.search_times = []
-        
-    def record_search_result(self, path_length: int, search_time: float):
-        self.path_lengths.append(path_length)  
-        self.search_times.append(search_time)
-
-# Task-3: RL episode tracking
-class RLGameData(BaseGameData):
-    def __init__(self):
-        super().__init__()
-        # Add RL-specific metrics
-        self.episode_rewards = []
-        self.q_values = []
-        
-    def record_step(self, action, reward, q_val):
-        super().record_move(action)  # Use base move tracking
-        self.episode_rewards.append(reward)
-        self.q_values.append(q_val)
-```
-
-**Inherited Features:**
-- ✅ **Move recording**: `record_move()`, `record_apple_position()`
-- ✅ **Game lifecycle**: `reset()`, `record_game_end()`  
-- ✅ **Error tracking**: `record_invalid_reversal()`, `record_no_path_found_move()`
-- ✅ **Round management**: Automatic round tracking for any planning algorithm
-- ✅ **State snapshots**: `get_basic_game_state()` for replays
-- ✅ **JSON serialization**: Compatible with existing replay infrastructure
-
----
-
-## 5. **`core/game_logic.py` - Planning-Based Game Logic**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
-```python
-BaseGameLogic(BaseGameController)  # Generic planning support
-├── Planned moves (planned_moves: List[str])
-├── Move execution (get_next_planned_move)
-└── State snapshots (get_state_snapshot)
-
-GameLogic(BaseGameLogic)           # Task-0 LLM-specific  
-├── LLM integration (parse_llm_response, get_state_representation)
-├── Rich properties (head, apple, body for prompt templates)
-└── GUI integration (draw with LLM response display)
-```
-
-**How Tasks 1-5 Use BaseGameLogic:**
-```python
-# Task-1: Multi-move heuristic planning
-class HeuristicGameLogic(BaseGameLogic):
-    def plan_path(self, agent):
-        """Generate multi-step path using heuristic algorithm."""
-        # Use inherited planned_moves for multi-step execution
-        path = agent.get_full_path(self)  # Returns ["UP", "RIGHT", "DOWN", ...]
-        self.planned_moves = path
-        
-        # Use inherited move execution
-        next_move = self.get_next_planned_move()  # Pops first move
-        return next_move
-
-# Task-2: Model-based planning  
-class MLGameLogic(BaseGameLogic):
-    def plan_sequence(self, model):
-        """Use ML model to generate move sequences."""
-        state = self.get_state_snapshot()  # Inherited method
-        predicted_sequence = model.predict_sequence(state, horizon=5)
-        self.planned_moves = predicted_sequence
-        return self.get_next_planned_move()
-```
-
-**Key Benefits:**
-- ✅ **Multi-move planning**: Any task can use `planned_moves` for lookahead
-- ✅ **Automatic execution**: `get_next_planned_move()` handles sequence execution  
-- ✅ **State representation**: `get_state_snapshot()` provides neutral game state
-- ✅ **Reset handling**: Automatic `planned_moves` clearing on game reset
-
----
-
-## 6. **`core/game_loop.py` - Universal Game Loop**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
-```python
-run_game_loop(manager)             # Universal function for all tasks
-├── Frame pacing (pygame timing, delays)
-├── Event handling (process_events via utils)
-├── Game lifecycle (_handle_game_over, reset logic)  
-├── Agent integration (_process_agent_game)
-├── Manager abstraction (works with BaseGameManager)
-└── Statistics processing (universal game over handling)
-```
-
-**How Tasks 1-5 Use run_game_loop:**
-```python
-# Task-1: Heuristic game session  
-class HeuristicGameManager(BaseGameManager):
-    def run(self):
-        run_game_loop(self)  # Same function as Task-0!
-
-# Task-3: RL training sessions
-class RLGameManager(BaseGameManager):
-    def run(self):
-        for episode in range(self.args.max_episodes):
-            run_game_loop(self)  # Collect experience
-            if episode % 10 == 0:
-                self.agent.train()
-```
-
-**Inherited Infrastructure:**
-- ✅ **Frame timing**: Perfect pygame timing for GUI mode, max speed for headless
-- ✅ **Event handling**: Window close, keyboard input via utilities  
-- ✅ **Game transitions**: Automatic game-over detection and reset
-- ✅ **Statistics**: Session-level tracking via helper utilities
-- ✅ **Error handling**: Exception safety with graceful pygame cleanup
-
----
-
-## 7. **`core/game_stats.py` - Metrics Hierarchy**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Architecture:**
-```python
-BaseStepStats                      # Move counters for all tasks
-├── valid, invalid_reversals, no_path_found
-└── asdict() for JSON serialization
-
-StepStats(BaseStepStats)           # Task-0 LLM counters
-├── empty, something_wrong (LLM-specific)
-└── Extended asdict() 
-
-BaseGameStatistics                 # Generic session stats  
-├── time_stats: TimeStats
-├── step_stats: BaseStepStats  
-└── Universal helpers (valid_steps, invalid_reversals)
-
-GameStatistics(BaseGameStatistics) # Task-0 LLM stats
-├── Response times, token usage
-└── LLM-specific methods
-```
-
-**How Tasks 1-5 Use Statistics:**
-```python
-# Task-1: Custom heuristic statistics
-class HeuristicStepStats(BaseStepStats):
-    def __init__(self):
-        super().__init__()
-        self.search_failures = 0      # Algorithm-specific
-        self.optimal_paths = 0        # Heuristic-specific
-        
-    def asdict(self):
-        base = super().asdict()       # Gets valid, invalid_reversals, no_path_found  
-        base.update({
-            'search_failures': self.search_failures,
-            'optimal_paths': self.optimal_paths
-        })
-        return base
-
-class HeuristicGameStatistics(BaseGameStatistics):
-    step_stats: HeuristicStepStats = field(default_factory=HeuristicStepStats)
-```
-
----
-
-## 8. **`core/game_rounds.py` - Universal Round Tracking**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Generic Round Concept:**
-- **Task-0 (LLM)**: One LLM prompt/response = one round
-- **Task-1 (Heuristics)**: One path-finding invocation = one round  
-- **Task-2 (Supervised)**: One model inference = one round
-- **Task-3 (RL)**: One action selection = one round
-- **Task-4/5 (LLM variants)**: One model query = one round
-
-**How All Tasks Use Rounds:**
-```python
-# Any task can track planning cycles:
-class AnyGameData(BaseGameData):
-    def start_planning_cycle(self, apple_pos):
-        # Inherited round tracking works for ANY algorithm
-        self.round_manager.start_new_round(apple_pos)
-        
-    def record_plan(self, moves):
-        # Works for heuristic paths, RL sequences, LLM responses  
-        self.round_manager.record_planned_moves(moves)
-        
-    def finish_planning_cycle(self):
-        self.round_manager.sync_round_data()
-```
-
----
-
-## 9. **`core/game_runner.py` - Quick-Play Utility**
-
-**Status:** ✅ **Perfect - No modifications needed**
-
-**Universal Agent Testing:**
-```python
-# Test ANY agent type with same interface:
-from core.game_runner import play
-
-# Test heuristic agent
-trajectory = play(BFSAgent(), max_steps=500, render=True)
-
-# Test RL agent  
-trajectory = play(DQNAgent(), max_steps=1000, render=False, seed=42)
-
-# Test custom agent
-trajectory = play(MyCustomAgent(), max_steps=300, render=True)
-```
-
----
-
-## **Complete Task Integration Example**
-
-Here's how a **Task-1 (Heuristics)** would integrate with zero modifications to core files:
-
-```python
-# extensions/heuristics/manager.py
-from core.game_manager import BaseGameManager
-from core.game_loop import run_game_loop  
-from core.game_logic import BaseGameLogic
-from extensions.heuristics.agents import BFSAgent
-
-class HeuristicGameManager(BaseGameManager):
-    GAME_LOGIC_CLS = BaseGameLogic      # Use generic logic
+    # Inherits: consecutive_invalid_reversals, consecutive_no_path_found
+    # Does NOT inherit: consecutive_empty_steps, consecutive_something_is_wrong
+    # Uses: BaseGameStatistics() - perfect for heuristics
     
-    def initialize(self) -> None:
-        self.agent = BFSAgent()         # Heuristic agent
-        self.setup_game()               # Inherited setup
-        
-    def run(self) -> None:
-        run_game_loop(self)             # Same loop as Task-0!
+    def __init__(self):
+        super().__init__()
+        # Add heuristic-specific data if needed
+        self.algorithm_name = "A*"
+        self.path_calculations = 0
 
-# Entry point - identical to Task-0  
-if __name__ == "__main__":
-    args = parse_args()                 # Same argument parsing
-    manager = HeuristicGameManager(args)
-    manager.initialize()
-    manager.run()                       # Same workflow
+class HeuristicGameLogic(BaseGameLogic):
+    GAME_DATA_CLS = HeuristicGameData  # Factory pattern
+    
+    def __init__(self, grid_size=10, use_gui=True):
+        super().__init__(grid_size, use_gui)
+        # Inherits: planned_moves, get_next_planned_move()
+        self.pathfinder = AStarPathfinder()
+    
+    def plan_next_moves(self):
+        # Use inherited get_state_snapshot()
+        current_state = self.get_state_snapshot()
+        path = self.pathfinder.find_path(current_state)
+        self.planned_moves = path  # Inherited attribute
 ```
 
-**Everything Works Identically:**
-- ✅ GUI/no-GUI modes via `--no-gui` flag
-- ✅ Session logging to `logs/heuristics/`
-- ✅ Round tracking and replay files  
-- ✅ Error handling and statistics
-- ✅ Game reset and multi-game sessions
-- ✅ Pygame timing and frame pacing
+### **🎯 How Task 2 (RL) Would Use This:**
+
+```python
+class RLGameManager(BaseGameManager):
+    GAME_LOGIC_CLS = RLGameLogic
+    
+    def initialize(self):
+        self.agent = DQNAgent()
+        self.setup_logging("logs", "rl")
+    
+    def run(self):
+        # Inherits all session management
+        # Only implements RL training loop
+        for episode in range(self.args.max_episodes):
+            self.setup_game()  # Inherited
+            while self.game_active:  # Inherited
+                state = self.game.get_state_snapshot()  # Inherited
+                action = self.agent.select_action(state)
+                self.game.planned_moves = [action]  # Inherited
+
+class RLGameData(BaseGameData):
+    # Inherits all generic game state
+    # Adds RL-specific extensions
+    def __init__(self):
+        super().__init__()
+        self.episode_rewards = []
+        self.action_history = []
+
+class RLGameLogic(BaseGameLogic):
+    GAME_DATA_CLS = RLGameData
+    
+    def get_observation(self):
+        # Use inherited state snapshot
+        return self.get_state_snapshot()
+```
+
+### **🎯 Key Architectural Strengths:**
+
+1. **Factory Pattern**: `GAME_LOGIC_CLS` and `GAME_DATA_CLS` enable pluggable components
+2. **Clean Separation**: Base classes have ZERO LLM-specific code
+3. **Proper Inheritance**: Each task gets exactly what it needs
+4. **SOLID Principles**: Open for extension, closed for modification
+5. **No Over-preparation**: Base classes contain only what's actually used by Task-0
+
+### **🎯 Perfect Attribute Distribution:**
+
+**✅ In Base Classes (Generic for All Tasks):**
+- `score`, `steps`, `snake_positions`, `apple_position`
+- `consecutive_invalid_reversals`, `consecutive_no_path_found`
+- `planned_moves`, `need_new_plan`
+- `game_count`, `total_score`, `round_count`
+- `use_gui`, `gui`, `game_active`
+
+**✅ In Task-0 Classes Only (LLM-Specific):**
+- `llm_response`, `awaiting_plan`, `token_stats`
+- `consecutive_empty_steps`, `consecutive_something_is_wrong`
+- `continue_from_session`, `continue_from_directory`
+
+### **🎯 File Naming is Perfect:**
+
+All files follow the `game_*.py` pattern:
+- `game_manager.py`, `game_data.py`, `game_controller.py`
+- `game_logic.py`, `game_loop.py`, `game_stats.py`
+
+## **Conclusion:**
+
+The `core` folder is **already perfectly architected** and requires **zero refactoring**. It demonstrates exemplary SOLID principles:
+
+- ✅ **Perfect Base Classes**: Generic, reusable, no LLM pollution
+- ✅ **Factory Patterns**: Pluggable components via class attributes
+- ✅ **Clean Inheritance**: Each task inherits exactly what it needs
+- ✅ **Future-Ready**: Tasks 1-5 can inherit directly from base classes
+- ✅ **No Over-preparation**: Only contains code actually used by Task-0
+
+This architecture is a **perfect reference implementation** for how the entire codebase should be structured!
+
+
+
+
+
+
+
+
+
+
+
 
 
 # UTILS FOLDER 
@@ -1534,269 +1269,251 @@ class RLGameManager(BaseGameManager):
 # GUI (Web/Flask Mode)
 
 
-## **🏗️ Perfect BaseClassBlabla Architecture Already in Place**
+Based on my thorough analysis of the `web` folder, I can confirm that **no refactoring is needed**. The web architecture is already excellently designed and perfectly prepared for future tasks. Here's how it's structured and how future tasks can leverage it:
 
-### **1. ✅ Universal Web Infrastructure (Perfect for Tasks 0-5)**
+## ✅ **Current Web Architecture is Already Perfect**
 
-**Location:** `config/web_constants.py`, `utils/web_utils.py`
+### **🎯 Generic Base Classes (Ready for All Tasks):**
 
-**✅ Completely Task-Agnostic Components:**
+1. **`BaseWebController`** - Abstract controller with Template Method pattern
+   - Contains NO Task-0 specific code
+   - Provides generic request handling pipeline
+   - Uses Strategy pattern for pluggable components
+
+2. **`StateProvider` (Abstract Interface)** - Generic data source interface
+   - Can wrap any game engine (live, replay, simulation)
+   - No LLM-specific dependencies
+
+3. **`GameStateModel`** - Generic state management
+   - Uses Observer pattern for state change notifications
+   - Works with any StateProvider implementation
+
+4. **`WebViewRenderer`** - Generic view rendering
+   - Template-based rendering for any task type
+   - No Task-0 specific rendering logic
+
+### **🎯 How Task 1 (Heuristics) Would Use This:**
+
 ```python
-# config/web_constants.py - Universal Flask configuration
-FLASK_STATIC_FOLDER: Final[str] = str(REPO_ROOT / "web" / "static")
-FLASK_TEMPLATE_FOLDER: Final[str] = str(REPO_ROOT / "web" / "templates")
-DEFAULT_HOST: Final[str] = "127.0.0.1"
-FLASK_THREADED: Final[bool] = True
-
-# utils/web_utils.py - Generic web utilities
-def build_state_dict(snake_positions, apple_position, score, steps, grid_size, *, extra=None):
-    """Constructs a generic, JSON-serializable game state dictionary for web UIs."""
+# In extensions/task1/web/controllers/heuristic_controller.py
+class HeuristicGameController(BaseWebController):
+    """Heuristic-based game controller using A*, BFS, etc."""
     
-def build_color_map() -> Dict[str, Tuple[int, int, int]]:
-    """Builds the color map required by the web front-end."""
+    def __init__(self, model_manager, view_renderer, pathfinder):
+        super().__init__(model_manager, view_renderer)
+        self.pathfinder = pathfinder  # A*, BFS, Hamiltonian cycle
+        self.algorithm_name = pathfinder.get_algorithm_name()
     
-def create_health_check_response(components, error_threshold=5):
-    """Create standardized health check response for web endpoints."""
-```
-
-**🎯 How Tasks 1-5 Use These:**
-- **Task-1 (Heuristics):** Uses `build_state_dict()` with `extra={"algorithm": "BFS", "search_stats": {...}}`
-- **Task-2 (RL):** Uses `build_state_dict()` with `extra={"neural_network": "DQN", "training_stats": {...}}`
-- **Task-3 (Genetic):** Uses `build_state_dict()` with `extra={"generation": 42, "fitness_score": 0.95}`
-- **Task-4/5:** Similar pattern with algorithm-specific extras
-
----
-
-### **2. ✅ Flask Blueprint Architecture (Perfect Extension Pattern)**
-
-**Current Implementation:** `extensions/heuristics/web/routes.py`
-
-**✅ Perfect Blueprint Pattern Already Working:**
-```python
-# extensions/heuristics/web/routes.py
-heuristics_bp = Blueprint('heuristics', __name__, url_prefix='/heuristics')
-
-class HeuristicWebController(BaseGameController):  # ✅ Inherits from base
-    def get_current_state(self) -> Dict[str, Any]:
-        # ✅ Uses universal build_state_dict()
-        base_state = build_state_dict(
-            self.snake_positions, self.apple_position, self.score, 
-            self.steps, self.grid_size,
-            extra={
-                "algorithm": self.current_algorithm,      # ✅ Task-1 specific
-                "search_stats": self.search_stats,        # ✅ Task-1 specific
-                "task_type": "heuristics"                 # ✅ Task-1 specific
-            }
-        )
+    def handle_control_request(self, context):
+        """Handle move requests using pathfinding algorithms."""
+        current_state = self.model_manager.get_current_state()
+        next_move = self.pathfinder.find_next_move(current_state)
+        return {
+            "action": next_move,
+            "algorithm": self.algorithm_name,
+            "path_length": len(self.pathfinder.current_path)
+        }
+    
+    def handle_state_request(self, context):
+        """Return state with heuristic-specific data."""
+        base_state = super().handle_state_request(context)
+        base_state.update({
+            "algorithm_info": self.pathfinder.get_stats(),
+            "current_path": self.pathfinder.current_path
+        })
         return base_state
 
-# Flask routes using universal patterns
-@heuristics_bp.route('/api/state')
-def api_state():
-    return jsonify(heuristic_controller.get_current_state())  # ✅ Generic pattern
+# Register with factory
+factory = ControllerFactory()
+factory.register_controller_type("heuristic", HeuristicGameController)
 ```
 
-**🎯 How Future Tasks Use This Pattern:**
-```python
-# extensions/reinforcement_learning/web/routes.py (Future Task-2)
-rl_bp = Blueprint('rl', __name__, url_prefix='/rl')
-
-class RLWebController(BaseGameController):  # ✅ Same inheritance
-    def get_current_state(self):
-        return build_state_dict(  # ✅ Same universal function
-            self.snake_positions, self.apple_position, self.score,
-            self.steps, self.grid_size,
-            extra={
-                "neural_network": "DQN",           # ✅ Task-2 specific
-                "training_episode": 1000,          # ✅ Task-2 specific
-                "epsilon": 0.1,                    # ✅ Task-2 specific
-                "task_type": "reinforcement_learning"
-            }
-        )
-
-# extensions/genetic_algorithm/web/routes.py (Future Task-3)
-genetic_bp = Blueprint('genetic', __name__, url_prefix='/genetic')
-# Same pattern with genetic-specific extras...
-```
-
----
-
-### **3. ✅ Universal Client-Side Architecture (Perfect for All Tasks)**
-
-**Location:** `web/static/js/common.js`
-
-**✅ Completely Generic JavaScript Functions:**
-```javascript
-// web/static/js/common.js - Works for ANY algorithm type
-function drawGrid(ctx, gridSize, pixelSize) { /* Universal grid drawing */ }
-function drawRect(ctx, x, y, color, pixelSize) { /* Universal shape drawing */ }
-async function sendApiRequest(url, method = 'GET', data = null) { /* Universal API */ }
-
-// Color system works for all tasks
-let COLORS = {
-    SNAKE_HEAD: '#3498db',    // ✅ Universal colors
-    SNAKE_BODY: '#2980b9',    // ✅ Used by all algorithms
-    APPLE: '#e74c3c',         // ✅ Same across tasks
-    BACKGROUND: '#2c3e50',    // ✅ Consistent UI
-    GRID: '#34495e'           // ✅ Generic grid
-};
-```
-
-**🎯 How Tasks 1-5 Use Client-Side:**
-- **Task-1:** `extensions/heuristics/web/static/js/heuristics.js` extends common functions
-- **Task-2:** `extensions/rl/web/static/js/rl.js` adds neural network visualization
-- **Task-3:** `extensions/genetic/web/static/js/genetic.js` adds population visualization
-- **All tasks:** Use same `drawGrid()`, `drawRect()`, `sendApiRequest()` functions
-
----
-
-### **4. ✅ Template System (Perfect Inheritance Pattern)**
-
-**Current Architecture:**
-```html
-<!-- web/templates/main.html - Task-0 LLM specific -->
-<div class="llm-response-section">
-    <h2>LLM Response</h2>
-    <pre id="llm-response" class="llm-response"></pre>
-</div>
-
-<!-- extensions/heuristics/web/templates/heuristics.html - Task-1 specific -->
-<div class="algorithm-section">
-    <h2>Algorithm: BFS</h2>
-    <div id="search-stats" class="search-stats"></div>
-</div>
-```
-
-**🎯 How Future Tasks Extend Templates:**
-```html
-<!-- extensions/rl/web/templates/rl.html - Future Task-2 -->
-<div class="neural-network-section">
-    <h2>Neural Network: DQN</h2>
-    <div id="training-stats" class="training-stats"></div>
-</div>
-
-<!-- extensions/genetic/web/templates/genetic.html - Future Task-3 -->
-<div class="evolution-section">
-    <h2>Generation: 42</h2>
-    <div id="population-stats" class="population-stats"></div>
-</div>
-```
-
----
-
-## **🎯 Perfect Inter-Class Dependencies - Zero Coupling Issues**
-
-### **✅ Dependency Injection Pattern**
-
-**Current Implementation:**
+### **🎯 How Task 2 (RL) Would Use This:**
 
 ```python
-# scripts/main_web.py - Task-0 specific
-from core.game_manager import GameManager
-
-_game_manager = GameManager(args)  # ✅ Task-0 implementation
-
-# extensions/heuristics/web/routes.py - Task-1 specific  
-from extensions.heuristics.manager import HeuristicGameManager
-
-heuristic_controller = HeuristicWebController(grid_size)  # ✅ Task-1 implementation
-```
-
-**🎯 Future Tasks Follow Same Pattern:**
-```python
-# extensions/rl/web/routes.py - Future Task-2
-from extensions.rl.manager import RLGameManager
-rl_controller = RLWebController(grid_size)  # ✅ Task-2 implementation
-
-# extensions/genetic/web/routes.py - Future Task-3
-from extensions.genetic.manager import GeneticGameManager  
-genetic_controller = GeneticWebController(grid_size)  # ✅ Task-3 implementation
-```
-
----
-
-### **✅ Universal Health Check System**
-
-**Current Implementation:**
-```python
-# utils/web_utils.py - Works for ALL tasks
-def create_health_check_response(components, error_threshold=5):
-    """Create standardized health check response for web endpoints."""
+# In extensions/task2/web/controllers/rl_controller.py
+class RLGameController(BaseWebController):
+    """RL-based game controller using DQN, PPO, etc."""
     
-# scripts/human_play_web.py - Task-0 usage
-components = {
-    "web_server": app,                    # ✅ Universal
-    "game_controller": _game_controller,  # ✅ Task-specific instance
-    "heartbeat_thread": _heartbeat_thread # ✅ Universal pattern
+    def __init__(self, model_manager, view_renderer, rl_agent):
+        super().__init__(model_manager, view_renderer)
+        self.rl_agent = rl_agent  # DQN, PPO, A3C
+        self.training_mode = True
+    
+    def handle_control_request(self, context):
+        """Handle actions using RL agent."""
+        current_state = self.model_manager.get_current_state()
+        action, q_values = self.rl_agent.select_action(current_state)
+        return {
+            "action": action,
+            "q_values": q_values.tolist(),
+            "epsilon": self.rl_agent.epsilon
+        }
+    
+    def handle_state_request(self, context):
+        """Return state with RL-specific metrics."""
+        base_state = super().handle_state_request(context)
+        base_state.update({
+            "training_metrics": self.rl_agent.get_training_stats(),
+            "episode_reward": self.rl_agent.current_episode_reward
+        })
+        return base_state
+```
+
+### **🎯 Key Architectural Strengths:**
+
+1. **Strategy Pattern**: `StateProvider` allows any data source
+2. **Factory Pattern**: Easy registration of new controller types
+3. **Observer Pattern**: Event system works for any task
+4. **Template Method**: Consistent request handling flow
+5. **Dependency Injection**: Clean component composition
+
+### **🎯 Zero LLM Dependencies in Base Classes:**
+
+- `BaseWebController` has NO LLM-specific code
+- `GameStateModel` works with any game engine
+- `StateProvider` interface is completely generic
+- Event system handles any type of game events
+
+### **🎯 Perfect Separation of Concerns:**
+
+```
+BaseWebController (Generic)
+├── GamePlayController (Task-0 LLM)
+├── HeuristicGameController (Task-1) 
+├── RLGameController (Task-2)
+├── SupervisedGameController (Task-3)
+└── DistillationGameController (Task-5)
+```
+
+### **🎯 Factory Registration System:**
+
+```python
+# Each extension registers its controller
+factory.register_controller_type("heuristic", HeuristicGameController)
+factory.register_controller_type("rl", RLGameController)
+factory.register_controller_type("supervised", SupervisedGameController)
+
+# Usage remains identical
+controller = factory.create_controller("heuristic", model, view)
+```
+
+## **Conclusion:**
+
+The `web` folder is **already perfectly architected** and requires **zero refactoring**. It demonstrates exemplary SOLID principles:
+
+- ✅ **Open for Extension**: New tasks inherit from base classes
+- ✅ **Closed for Modification**: Base classes never need changes
+- ✅ **Generic Base Classes**: No Task-0 specific code
+- ✅ **Clean Interfaces**: Abstract contracts for all components
+- ✅ **Factory Pattern**: Easy registration of new implementations
+
+This is exactly how the entire codebase should be structured - it's a **perfect reference implementation** for extensible architecture!
+
+# HTML
+
+No, you **won't need to write HTML files** for future tasks! The web architecture is already designed to handle this elegantly.
+
+## ✅ **Existing HTML Templates Are Generic**
+
+The current HTML templates in `web/templates/` are already generic and reusable:
+Ran tool
+Read file: web/templates/main.html
+## 🎯 **How Future Tasks Reuse Templates**
+
+### **Template Customization via Context Variables:**
+
+The templates use dynamic content injection, so **Task 1 (Heuristics)** would simply pass different data:
+
+```python
+# In HeuristicGameController
+def get_index_template_context(self):
+    return {
+        "title": "Snake Game – Heuristic Mode",
+        "algorithm_name": "A* Pathfinding",
+        "show_llm_response": False,  # Hide LLM-specific sections
+        "show_algorithm_info": True,  # Show algorithm-specific sections
+        "mode_specific_data": {
+            "current_algorithm": self.pathfinder.algorithm_name,
+            "path_length": len(self.pathfinder.current_path)
+        }
+    }
+```
+
+### **JavaScript Handles Different Data Types:**
+
+The existing JavaScript in `web/static/js/` is already generic:
+Ran tool
+The JavaScript can handle different response formats:
+
+```javascript
+// In main.js - already handles different response types
+function updateGameInfo(data) {
+    // Generic game state updates
+    document.getElementById('score').textContent = data.score || 0;
+    document.getElementById('steps').textContent = data.steps || 0;
+    
+    // Conditional content based on mode
+    if (data.llm_response) {
+        // Task-0: Show LLM response
+        document.getElementById('llm-response').textContent = data.llm_response;
+    } else if (data.algorithm_info) {
+        // Task-1: Show algorithm info
+        document.getElementById('llm-response').textContent = 
+            `Algorithm: ${data.algorithm_info.name}\nPath Length: ${data.algorithm_info.path_length}`;
+    } else if (data.training_metrics) {
+        // Task-2: Show RL training metrics
+        document.getElementById('llm-response').textContent = 
+            `Episode: ${data.training_metrics.episode}\nReward: ${data.training_metrics.reward}`;
+    }
 }
-health_response = create_health_check_response(components)
+```
 
-# extensions/heuristics/web/routes.py - Task-1 usage
-components = {
-    "web_server": app,                    # ✅ Same universal component
-    "heuristic_controller": heuristic_controller,  # ✅ Task-1 specific
-    "algorithm_thread": algorithm_thread  # ✅ Task-1 specific
+## 🎯 **Template Inheritance Strategy:**
+
+If needed, extensions can create minimal template overrides:
+
+```html
+<!-- extensions/task1/templates/heuristic.html -->
+{% extends "main.html" %}
+
+{% block title %}Snake Game – Heuristic Mode{% endblock %}
+
+{% block mode_specific_content %}
+<div class="algorithm-section">
+    <h2>Algorithm Information</h2>
+    <div>Current: <span id="algorithm-name">{{ algorithm_name }}</span></div>
+    <div>Path Length: <span id="path-length">0</span></div>
+</div>
+{% endblock %}
+```
+
+## 🎯 **CSS is Already Generic:**
+
+The CSS in `web/static/css/style.css` uses generic classes that work for any content:
+
+```css
+.stats-section, .moves-section, .algorithm-section {
+    /* Same styling works for all modes */
 }
-health_response = create_health_check_response(components)  # ✅ Same function
 ```
 
----
+## **Conclusion:**
 
-## **🚀 How Tasks 1-5 Leverage This Perfect Architecture**
+**No new HTML files needed!** The existing templates are:
 
-### **Task-1 (Heuristics) - Already Working Perfectly:**
-```python
-# ✅ Uses BaseGameController inheritance
-class HeuristicWebController(BaseGameController):
-    def get_current_state(self):
-        return build_state_dict(...)  # ✅ Universal function
+- ✅ **Generic** - Use dynamic content injection
+- ✅ **Flexible** - Handle different data types via JavaScript
+- ✅ **Reusable** - Same layout works for all tasks
+- ✅ **Extensible** - Template inheritance for customization
 
-# ✅ Uses Flask Blueprint pattern
-heuristics_bp = Blueprint('heuristics', __name__, url_prefix='/heuristics')
+Future tasks only need to:
+1. **Pass different context data** to existing templates
+2. **Update JavaScript** to handle their specific data formats
+3. **Optionally create** minimal template extensions if needed
 
-# ✅ Uses universal health checks
-health_response = create_health_check_response(components)
-```
+The web frontend is already **perfectly prepared** for all future tasks!
 
-### **Task-2 (Reinforcement Learning) - Will Work Seamlessly:**
-```python
-# extensions/rl/web/routes.py
-class RLWebController(BaseGameController):  # ✅ Same inheritance
-    def get_current_state(self):
-        return build_state_dict(  # ✅ Same universal function
-            extra={"neural_network": "DQN", "training_stats": {...}}
-        )
-
-rl_bp = Blueprint('rl', __name__, url_prefix='/rl')  # ✅ Same pattern
-```
-
-### **Task-3 (Genetic Algorithm) - Will Work Seamlessly:**
-```python
-# extensions/genetic/web/routes.py  
-class GeneticWebController(BaseGameController):  # ✅ Same inheritance
-    def get_current_state(self):
-        return build_state_dict(  # ✅ Same universal function
-            extra={"generation": 42, "population_size": 100, "fitness": {...}}
-        )
-
-genetic_bp = Blueprint('genetic', __name__, url_prefix='/genetic')  # ✅ Same pattern
-```
-
----
-
-## **✅ Summary: Web System Requires ZERO Modifications**
-
-The web system demonstrates **perfect BaseClassBlabla architecture** with:
-
-1. **✅ Universal Infrastructure:** `web_utils.py`, `web_constants.py` work for all tasks
-2. **✅ Perfect Blueprint Pattern:** Each task gets its own `/task-name/` URL namespace
-3. **✅ Generic Client-Side:** `common.js` functions work for any algorithm type
-4. **✅ Flexible Template System:** Task-specific templates extend universal patterns
-5. **✅ Zero Coupling:** Each task uses dependency injection with task-specific controllers
-6. **✅ Standardized Health Checks:** Universal monitoring across all web interfaces
-7. **✅ Consistent API Patterns:** All tasks use same REST endpoint structure
-
-**The web architecture is already future-proof and ready for Tasks 1-5 with zero modifications needed.**
 
 # NO-GUI MODE
 

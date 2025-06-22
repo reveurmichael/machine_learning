@@ -371,8 +371,10 @@ class GameLoop(BaseGameLoop):
         get_llm_response(manager, round_id=manager.round_count)
 
         # Give humans a brief preview window to read the LLM output before the
-        # snake starts moving.  Only relevant for interactive GUI sessions.
+        # snake starts moving.  Only relevant for interactive GUI sessions (main mode/continue mode, with Pygame or with Web). 
         manager.game.draw()
+
+        # IMPORTANT: **DON'T** REMOVE THIS SLEEP.  It's **crucial** for the GUI to show the preview window.
         if manager.use_gui:
             time.sleep(PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS)
 

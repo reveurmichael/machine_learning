@@ -33,6 +33,7 @@ from enum import Enum
 from .base_controller import BaseWebController, RequestContext
 from ..models import GameStateModel, GameEvent
 from ..views import WebViewRenderer
+from utils.web_utils import build_color_map
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +99,24 @@ class GamePlayController(BaseWebController, ABC):
         
         Template Method Pattern: Extends base state handling with gameplay-specific info.
         """
-        # Get base state
-        base_state = super().handle_state_request(context)
-        
+        # Build the canonical state directly from the model (avoids the need
+        # to rely on the abstract BaseWebController implementation).
+        game_state = self.model_manager.get_current_state()
+
+        base_state: Dict[str, Any] = {
+            "timestamp": game_state.timestamp,
+            "score": game_state.score,
+            "steps": game_state.steps,
+            "game_over": game_state.game_over,
+            "snake_positions": game_state.snake_positions,
+            "apple_position": game_state.apple_position,
+            "grid_size": game_state.grid_size,
+            "direction": game_state.direction,
+            "end_reason": game_state.end_reason,
+            # single-source colour palette
+            "colors": build_color_map(),
+        }
+
         # Add gameplay-specific state
         gameplay_state = {
             'game_mode': self.game_mode.value,
@@ -336,9 +352,26 @@ class GameViewingController(BaseWebController, ABC):
         
         Template Method Pattern: Extends base state handling with viewing-specific info.
         """
-        # Get base state
-        base_state = super().handle_state_request(context)
-        
+        from utils.web_utils import build_color_map
+
+        # Base snapshot of current state (even in viewing mode we maintain a
+        # live `GameStateModel`, e.g. for replay playback position 0).
+        game_state = self.model_manager.get_current_state()
+
+        base_state: Dict[str, Any] = {
+            "timestamp": game_state.timestamp,
+            "score": game_state.score,
+            "steps": game_state.steps,
+            "game_over": game_state.game_over,
+            "snake_positions": game_state.snake_positions,
+            "apple_position": game_state.apple_position,
+            "grid_size": game_state.grid_size,
+            "direction": game_state.direction,
+            "end_reason": game_state.end_reason,
+            # Palette injection for SSoT UI theming
+            "colors": build_color_map(),
+        }
+
         # Add viewing-specific state
         viewing_state = {
             'viewing_mode': self.viewing_mode,
@@ -351,11 +384,11 @@ class GameViewingController(BaseWebController, ABC):
                 'show_analytics': self.show_analytics
             }
         }
-        
+
         # Add analytics if enabled
         if self.show_analytics:
             viewing_state['analytics'] = self._get_analytics()
-        
+
         return {**base_state, **viewing_state}
     
     def handle_control_request(self, context: RequestContext) -> Dict[str, Any]:

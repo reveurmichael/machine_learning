@@ -251,8 +251,8 @@ class Task0LLMController(LLMGameController):
         
         elif command == "resume":
             self.game_manager.running = True
-    return {
-                "status": "success", 
+            return {
+                "status": "success",
                 "message": "Game resumed",
                 "running": self.game_manager.running
             }
@@ -347,7 +347,7 @@ def create_task0_mvc_application(game_args) -> tuple:
     from flask import request
     
     @app.route('/')
-def index():
+    def index():
         return controller.handle_request(request, RequestType.INDEX_GET)
     
     @app.route('/api/state')

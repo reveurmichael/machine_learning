@@ -1,4 +1,5 @@
 # This is NOT Task0 specific.
+# This is shared across all visual renderers (Pygame, Web, etc.)
 COLORS = {
     "SNAKE_HEAD": (255, 140, 0),  # Bright orange for snake head
     "SNAKE_BODY": (209, 204, 192),  # Light gray for snake body
@@ -14,8 +15,10 @@ COLORS = {
 }
 
 # This is NOT Task0 specific.
+# This is shared across all visual renderers (Pygame, Web, etc.)
 GRID_SIZE = 10
 
+# Pygame-specific constants
 WINDOW_WIDTH = 800  # Width of the application window. This one is NOT Task0 specific.
 WINDOW_HEIGHT = 600  # Height of the application window. This one is NOT Task0 specific.
 TIME_DELAY = 40  # General delay time for the game loop. This one is NOT Task0 specific.

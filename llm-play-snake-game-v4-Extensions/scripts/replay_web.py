@@ -110,6 +110,11 @@ def main() -> None:
         if args.game and args.game > 1:
             replay_engine.game_number = args.game
         
+        # Ensure the first game's data is loaded so the front-end can
+        # immediately query meaningful state instead of seeing
+        # "undefined/undefined" placeholders.
+        replay_engine.load_game_data(replay_engine.game_number)
+        
         # Create MVC web application using factory
         app, controller = create_web_application(
             replay_engine=replay_engine,

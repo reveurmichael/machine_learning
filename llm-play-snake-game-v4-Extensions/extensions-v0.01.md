@@ -1,0 +1,15 @@
+SO here is what I want to do for a first extension, for this very first version, intentionally simple, extremely simple. 
+
+v0.01 will be called "Heuristic-v0.01". It will use the API (extending Base Classes, in the core folder) in the current root directory, for sure. But it will be a very simple heuristic (let's say BFS or DFS). I will not be using the pygame or the web UI. if possible, there is even no need need use the --no-gui flag or use_gui flag. 
+
+
+It will generating game_N.json files and summary.json files. But, per the implementation of Heuristic-v0.01, there is no Replay mode yet, no web mode yet. no pygame or web mode yet. just a script of heuristic BFS or DFS for generating those game_N.json and summary.json files. It will of course extend the BaseController class, maybe other classes as well. 
+
+
+
+
+
+
+
+
+

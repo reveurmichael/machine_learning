@@ -65,3 +65,117 @@ class ReplayController(BaseGameViewingController):
         return {
             'message': 'Replay analytics placeholder'
         }
+
+    # ------------------------------------------------------------------
+    # MVC Index rendering hooks – ensure the correct Jinja template is used
+    # instead of the generic fallback defined in *BaseWebController*.
+    # ------------------------------------------------------------------
+
+    def get_index_template_name(self) -> str:  # noqa: D401 – simple override
+        """Return the Jinja template that renders the replay UI."""
+
+        return "replay.html"
+
+    def get_index_template_context(self) -> Dict[str, Any]:  # noqa: D401
+        """Populate the template context with basic metadata for the header.
+
+        The heavy-lifting (actual state updates) is done via the `/api/state`
+        endpoint, fetched asynchronously by the front-end JavaScript.  Here we
+        merely seed some placeholders so the initial page loads without the
+        fallback warning banner.
+        """
+
+        return {
+            "title": "Snake Game – Replay",
+            "controller_name": self.__class__.__name__,
+            "game_mode": "replay",
+        }
+
+    # ------------------------------------------------------------------
+    # API: enrich the state payload so the front-end can show progress, speed
+    # and LLM meta data (JS expects these fields at *top level*).
+    # ------------------------------------------------------------------
+
+    def handle_state_request(self, context: RequestContext) -> Dict[str, Any]:  # type: ignore[override]
+        """Return the current replay state with Task-0 extras."""
+
+        # Get the generic representation first.
+        state = super().handle_state_request(context)
+
+        try:
+            eng = self.model_manager.state_provider.replay_engine  # type: ignore[attr-defined]
+
+            # Inject additional attributes consumed by `replay.js`.
+            state.update(
+                {
+                    "move_index": getattr(eng, "move_index", 0),
+                    "total_moves": len(getattr(eng, "moves", [])),
+                    "game_end_reason": getattr(eng, "game_end_reason", None),
+                    "paused": getattr(eng, "paused", False),
+                    "primary_llm": getattr(eng, "primary_llm", None),
+                    "secondary_llm": getattr(eng, "secondary_llm", None),
+                    "pause_between_moves": getattr(eng, "pause_between_moves", 1.0),
+                    "speed": (
+                        1.0 / eng.pause_between_moves if eng.pause_between_moves else 1.0
+                    ),
+                }
+            )
+
+        except Exception as exc:  # pragma: no cover – defensive guard
+            logger.debug(f"ReplayController: failed to enrich state – {exc}")
+
+        return state
+
+    # ------------------------------------------------------------------
+    # Control endpoint – the legacy front-end sends {command: "play" | …}
+    # while the new MVC base class expects {action: ...}.  We translate here
+    # so we don't have to touch the JavaScript.
+    # ------------------------------------------------------------------
+
+    def handle_control_request(self, context: RequestContext) -> Dict[str, Any]:  # type: ignore[override]
+        data = context.data or {}
+        command = data.get("command")
+
+        eng = self.model_manager.state_provider.replay_engine  # type: ignore[attr-defined]
+
+        if command == "play":
+            eng.paused = False
+            return {"status": "playing"}
+        if command == "pause":
+            eng.paused = True
+            return {"status": "paused"}
+        if command == "next_game":
+            eng.game_number += 1
+            if not eng.load_game_data(eng.game_number):
+                eng.game_number -= 1
+                return {"status": "error", "message": "No next game"}
+            return {"status": "ok"}
+        if command == "prev_game":
+            if eng.game_number > 1:
+                eng.game_number -= 1
+                eng.load_game_data(eng.game_number)
+                return {"status": "ok"}
+            return {"status": "error", "message": "Already at first game"}
+        if command == "restart_game":
+            eng.load_game_data(eng.game_number)
+            return {"status": "ok"}
+        if command == "speed_up":  # speeds playback (decrease pause)
+            # Mirror the PyGame hotkey logic: multiply by 0.75 (up-key in desktop replay)
+            eng.pause_between_moves = max(0.1, eng.pause_between_moves * 0.75)
+            return {
+                "status": "ok",
+                "pause_between_moves": eng.pause_between_moves,
+                "speed": 1.0 / eng.pause_between_moves,
+            }
+        if command == "speed_down":  # slows playback (increase pause)
+            # Mirror PyGame logic: multiply by 1.25 (down-key in desktop replay)
+            eng.pause_between_moves = min(3.0, eng.pause_between_moves * 1.25)
+            return {
+                "status": "ok",
+                "pause_between_moves": eng.pause_between_moves,
+                "speed": 1.0 / eng.pause_between_moves,
+            }
+
+        # Fallback to base implementation so future MVC actions still work.
+        context.data["action"] = command
+        return super().handle_control_request(context)

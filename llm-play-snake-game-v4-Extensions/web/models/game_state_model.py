@@ -241,7 +241,7 @@ class ReplayStateProvider(StateProvider):
     
     Wraps ReplayEngine to provide state for game replay.
     """
-    
+
     def __init__(self, replay_engine: ReplayEngine):
         """
         Initialize replay state provider.
@@ -251,14 +251,29 @@ class ReplayStateProvider(StateProvider):
         """
         self.replay_engine = replay_engine
         self._last_state_timestamp = 0.0
-    
+
     def get_current_state(self) -> GameState:
         """Get current state from replay engine."""
         if not self.replay_engine:
             raise RuntimeError("Replay engine not available")
-        
+
+        # ------------------------------------------------------------------
+        # Advance the replay one step **if** the engine is not paused and the
+        # required delay has elapsed.  This keeps the web viewer in sync
+        # without needing a separate background thread – every browser poll
+        # (typically 10-20× per second) drives the simulation forward.
+        # ------------------------------------------------------------------
+
+        try:
+            # The engine itself implements the timing logic in `update()` so
+            # calling it unconditionally is safe – it will move only when the
+            # pause interval has passed.
+            self.replay_engine.update()
+        except Exception as exc:
+            logger.debug(f"ReplayEngine.update() failed in web mode: {exc}")
+
         current_time = time.time()
-        
+
         # Build state from replay engine
         state = GameState(
             timestamp=current_time,
@@ -269,14 +284,14 @@ class ReplayStateProvider(StateProvider):
             snake_positions=self._get_replay_snake_positions(),
             apple_position=self._get_replay_apple_position(),
             grid_size=getattr(self.replay_engine, 'grid_size', 10),
-            direction=getattr(self.replay_engine, 'current_direction', None),
+            direction=self._get_replay_direction(),
             end_reason=getattr(self.replay_engine, 'end_reason', None),
             metadata=self._get_replay_metadata()
         )
-        
+
         self._last_state_timestamp = current_time
         return state
-    
+
     def _get_replay_snake_positions(self) -> List[tuple]:
         """Extract snake positions from replay engine."""
         if hasattr(self.replay_engine, 'snake_positions'):
@@ -285,7 +300,7 @@ class ReplayStateProvider(StateProvider):
                 return positions.tolist()
             return list(positions)
         return []
-    
+
     def _get_replay_apple_position(self) -> tuple:
         """Extract apple position from replay engine."""
         if hasattr(self.replay_engine, 'apple_position'):
@@ -294,30 +309,58 @@ class ReplayStateProvider(StateProvider):
                 return tuple(position.tolist())
             return tuple(position)
         return (0, 0)
-    
+
+    def _get_replay_direction(self) -> str:
+        """Extract current direction from replay engine as string key."""
+        if hasattr(self.replay_engine, 'get_current_direction_key'):
+            # Use the built-in method from GameLogic that converts direction vector to string
+            try:
+                return self.replay_engine.get_current_direction_key()
+            except Exception:
+                pass
+
+        # Fallback: if current_direction is a tuple, convert it to string
+        if hasattr(self.replay_engine, 'current_direction'):
+            direction = self.replay_engine.current_direction
+            if direction is not None:
+                # Convert direction vector to string key
+                direction_map = {
+                    (0, 1): "UP",
+                    (0, -1): "DOWN", 
+                    (1, 0): "RIGHT",
+                    (-1, 0): "LEFT"
+                }
+                if isinstance(direction, (tuple, list)) and len(direction) == 2:
+                    return direction_map.get(tuple(direction), "UNKNOWN")
+                elif hasattr(direction, 'tolist'):
+                    direction_tuple = tuple(direction.tolist())
+                    return direction_map.get(direction_tuple, "UNKNOWN")
+
+        return "UNKNOWN"  # Safe fallback
+
     def _get_replay_metadata(self) -> Dict[str, Any]:
         """Extract metadata from replay engine."""
         metadata = {}
-        
+
         if hasattr(self.replay_engine, 'game_number'):
             metadata['game_number'] = self.replay_engine.game_number
-        
+
         if hasattr(self.replay_engine, 'total_games'):
             metadata['total_games'] = self.replay_engine.total_games
-        
+
         if hasattr(self.replay_engine, 'paused'):
             metadata['paused'] = self.replay_engine.paused
-        
+
         return metadata
-    
+
     def get_game_mode(self) -> GameMode:
         """Get the game mode."""
         return GameMode.REPLAY
-    
+
     def is_available(self) -> bool:
         """Check if replay engine is available."""
         return self.replay_engine is not None
-    
+
     def reset_game(self) -> bool:
         """Reset the replay to beginning."""
         try:
@@ -328,7 +371,7 @@ class ReplayStateProvider(StateProvider):
         except Exception as e:
             logger.error(f"Failed to reset replay: {e}")
             return False
-    
+
     def get_health_status(self) -> Dict[str, Any]:
         """Get health status of replay provider."""
         return {

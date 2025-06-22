@@ -108,6 +108,8 @@ class ReplayController(BaseGameViewingController):
             # Inject additional attributes consumed by `replay.js`.
             state.update(
                 {
+                    "game_number": getattr(eng, "game_number", 1),
+                    "total_games": getattr(eng, "total_games", 1),
                     "move_index": getattr(eng, "move_index", 0),
                     "total_moves": len(getattr(eng, "moves", [])),
                     "game_end_reason": getattr(eng, "game_end_reason", None),

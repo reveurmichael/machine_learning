@@ -59,14 +59,33 @@ Because it's already being used by extensions (check the folder "./extensions/")
 
 Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
 
+Keep the folder "agents" in the folder "./extensions/supervized-v0.02" and "./extensions/supervized-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
+
+
+Keep the folder "agents" in the folder "./extensions/reinforcement-v0.02" and "./extensions/reinforcement-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
+
+
+Keep the folder "agents" in the folder "./extensions/evolutionary-v0.02" and "./extensions/evolutionary-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
 
 ## Type-hinted
 
 Make code type-hinted, but only where you are really sure of the type. Don't type-hint for the sake of type-hinting.
 
 
+## IMPORTANT: OOP and docstring, comments
+You should never make docstring/comments less clear/verbose/detailed. You should go for OOP and inheritance extensively. You should go for basic but effective Design Patterns extensively and give very good comments/docstrings for each design pattern you use, its motivation, its philosophy, its trade-offs, and why you use it.
 
 
 
+## Never should happen
+Such code should never happen:
+- from heuristics_v0.01 import blabla
+- from heuristics_v0.02 import blabla
+- from heuristics_v0.03 import blabla
+- from blablabla_v0.0N import blabla
+
+
+## DRY principles
+For extensions, we should go for DRY principles extensively, as well, but only 
 
 

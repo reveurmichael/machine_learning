@@ -1,1 +1,0 @@
-Write here the general design philosophy and motivations of the extensions.

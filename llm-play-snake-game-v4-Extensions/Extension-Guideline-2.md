@@ -1,22 +1,40 @@
+I am currently considering using the **heuristics-v0.03** extension to generate datasets for training various supervised learning models such as **XGBoost, LightGBM, PyTorch-based neural networks (including CNN, RNN), and graph neural networks (PyTorch Geometric)**.
 
-I am now thinking about using the heuristics-v0.03 extension to generate data, for training supvervized learning models (let's say, xgboost, lightgbm, neural networks (pytorch version), cnn (pytorch version), rnn (pytorch version), GNN (pytorch version, pytorch geometric), etc).
-- question: how should the dataset be stored? csv? other stuff? let's call it DATA_FORMAT.
-- question: how should the dataset be structured/encoded? let's call it DATA_STRUCTURE.
-- This game_N.json to DATA_FORMAT.DATA_STRUCTURE function, called in v0.03 (not v0.01, not v0.02), will be used by other future extensions as well. So it's good to have it in the common folder.
-- supervized learning algorithm, when go for training, can use option --dataset-path to load the dataset (in the ./ROOT/logs/extensions/ folder), with variable length (e.g. --dataset-path dir1 dir2 dir3 ... )
+### Key Questions to Address:
 
+* **DATA\_FORMAT:** What is the best format for storing the dataset? Should it be CSV, NPZ, Parquet, or something else?
+* **DATA\_STRUCTURE:** How should the dataset be structured and encoded for optimal use by different model types?
 
-supvervized learning models (let's say, xgboost, lightgbm, neural networks (pytorch version), cnn (pytorch version), rnn (pytorch version), GNN (pytorch version, pytorch geometric), etc):
-- Just like for heuristics, we will have v0.01, v0.02, v0.03, etc.
-- For this moment, go for only v0.01 and v0.02.
-- v0.01 is for neural networks (pytorch version)
-- v0.02 is for all supervised learning models, like xgboost, lightgbm,neural network, cnn, rnn, GNN, etc. but without the gui, no replay, no streamlit app.py yet.
-- v0.03 is will have gui, replay, web mode, pygame mode, streamlit app.py.
+The function that converts `game_N.json` files into the desired `DATA_FORMAT.DATA_STRUCTURE` will be implemented in v0.03 (not in v0.01 or v0.02). Since this functionality will be useful across multiple extensions, it makes sense to place it in a **common utilities folder** for easy reuse.
 
-The other thing I am thinking about, for heurstics v0.04, which is based on v0.03, hence is, since I will be having Task4: fine tuning LLM models, I will have to have long long long language sentences telling how the heuristics working (inserted into each key decision point of the heuristics, so the when fine tuning LLM models, we can have the language sentences telling how the heuristics working), guiding LLM's to learn how to play snake game.
+When training supervised learning models, a command-line option like `--dataset-path` will allow loading one or multiple dataset directories (e.g., `--dataset-path dir1 dir2 dir3`) from `./ROOT/logs/extensions/`, supporting variable-length input paths.
 
+---
 
+### Supervised Learning Models Versioning:
 
+We will follow a similar versioning approach for supervised learning extensions, analogous to heuristics:
 
-We will have GENETIC ALGORITHM/EVOLUTIONARY ALGORITHM. will have v0.01, v0.02, v0.03, as well. But this one won't be able to generate language sentences. They will be similar to heuristics v0.01, v0.02, v0.03.
+* **v0.01:** Focused on neural networks using PyTorch (basic training pipeline).
+* **v0.02:** Supports a broad range of supervised models — XGBoost, LightGBM, neural networks, CNN, RNN, GNN, etc. — but **without GUI, replay, or web interface**.
+* **v0.03:** Adds full user interfaces including GUI, replay features, web and Pygame modes, and a Streamlit `app.py` for interactive training and evaluation.
 
+Currently, the plan is to develop only **v0.01 and v0.02** for supervised models.
+
+---
+
+### Heuristics v0.04 Considerations:
+
+v0.04 builds upon v0.03 and focuses on **generating rich, long-form natural language explanations at every key decision point** within the heuristics. This is crucial for **Task 4: fine-tuning large language models**. By embedding detailed reasoning in the dataset, we aim to teach LLMs how heuristics work in the Snake game through explicit natural language guidance.
+
+---
+
+### Genetic/Evolutionary Algorithms:
+
+We will also implement genetic/evolutionary algorithm extensions with versions v0.01, v0.02, and v0.03. However, these will **not generate language explanations** like heuristics v0.04.
+
+Their structure and functionality will be similar to heuristics v0.01–v0.03. Detailed documentation and design are already included in the respective markdown files:
+
+* `extensions-v0.01.md`
+* `extensions-v0.02.md`
+* `extensions-v0.03.md`

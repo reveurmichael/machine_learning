@@ -1,30 +1,71 @@
-## general
+## 🧩 General Overview
 
-v0.04 will be able to generate csv dataset, with language sentences.
+**v0.04** focuses exclusively on **dataset generation with natural language explanations**, specifically for the **heuristics** family of Snake game agents.
 
+The core feature of v0.04 is the ability to generate **CSV datasets** that include both:
 
-## heuristics 
+* **Structured decision data** (e.g., board state, direction, position),
+* and **rich natural language descriptions** explaining **why each decision is made**.
 
+This dataset is intended for **fine-tuning large language models (LLMs)** in Task 4, enabling them to learn and imitate heuristic algorithms through language-grounded reasoning.
 
+---
 
+## 🤖 Heuristics v0.04
 
+v0.04 applies **only to heuristics**.
+There is **no v0.04** planned for:
 
-v0.04 is Only for heuristics. We don't have v0.04 for supervized learning models. Not for genetic algorithm/evolutionary algorithms. 
+* Supervised learning models
+* Genetic or evolutionary algorithms
+* reinforcement learning models
 
+### 🔁 Built on Top of v0.03
 
-The other thing I am thinking about, for heurstics v0.04, which is based on v0.03, hence is, since I will be having Task4: fine tuning LLM models, I will have to have long long long language sentences telling how the heuristics working (inserted into each key decision point of the heuristics, so the when fine tuning LLM models, we can have the language sentences telling how the heuristics working), guiding LLM's to learn how to play snake game.
+Since v0.04 extends v0.03, it inherits the web interface, replay system, and dataset export infrastructure. However, v0.04 introduces a crucial innovation:
 
+> At **each key decision point** in the heuristic logic, the agent will **generate detailed natural language explanations** describing the reasoning behind its action.
 
+These explanations will be logged alongside standard metadata (e.g., grid state, next move) in CSV format.
 
-The most important thing about v0.04 is csv dataset generation with language sentences.
+### 🧠 LLM Fine-Tuning Use Case (Task 4)
 
-## supervized learning models
+These **language-rich CSV datasets** are designed specifically to:
 
-No need for v0.04 for supervized learning models.
+* Teach LLMs how to play the Snake game
+* Ground decision-making in explicit, interpretable reasoning
+* Provide a training corpus for supervised fine-tuning (e.g., SFT or RFT) of open-weight models
 
+Example data entries will include columns like:
 
+| step | head\_pos | apple\_pos | move  | reasoning\_sentence                                                                    |
+| ---- | --------- | ---------- | ----- | -------------------------------------------------------------------------------------- |
+| 14   | (3,4)     | (6,7)      | RIGHT | “The apple is to the upper-right, and RIGHT leads me closer while avoiding obstacles.” |
 
+This forms the bridge from classic symbolic reasoning to neural policy learning.
 
+---
 
+## 📦 Supervised Learning Models
 
+There is **no v0.04 for supervised learning models**.
 
+The existing supervised extensions (v0.01–v0.03) already:
+
+* Train on datasets exported from heuristics v0.03
+* Cover a wide variety of models (XGBoost, LightGBM, PyTorch NN/CNN/RNN/GNN)
+* Include training, evaluation, and visualization components
+
+These models do **not require** language-annotated data at this time.
+
+---
+
+## ✅ Summary
+
+| Category           | v0.04 Support | Notes                                                               |
+| ------------------ | ------------- | ------------------------------------------------------------------- |
+| Heuristics         | ✅ Yes         | CSV + language reasoning for LLM fine-tuning                        |
+| Supervised Models  | ❌ No          | v0.03 is sufficient for training + evaluation                       |
+| Genetic Algorithms | ❌ No          | v0.03 remains the latest; not involved in language generation tasks |
+
+**v0.04 = Dataset for LLM fine-tuning with rich explanations.**

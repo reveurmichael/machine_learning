@@ -15,9 +15,14 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import List, Tuple, TYPE_CHECKING, Set
+from typing import List, Tuple, TYPE_CHECKING
 
-from config.game_constants import DIRECTIONS
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
+from config import DIRECTIONS
 from utils.moves_utils import position_to_direction
 
 if TYPE_CHECKING:
@@ -96,6 +101,9 @@ class DFSAgent:
             # Validate the direction is not a reverse move
             if direction and direction != "NO_PATH_FOUND":
                 return direction
+            
+            # If direction is invalid, return NO_PATH_FOUND
+            return "NO_PATH_FOUND"
 
         except Exception as e:
             print(f"DFS Agent error: {e}")

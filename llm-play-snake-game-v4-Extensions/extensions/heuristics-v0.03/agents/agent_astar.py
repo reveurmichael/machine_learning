@@ -22,10 +22,20 @@ Design Patterns:
 - Template Method: Consistent agent interface
 """
 
+from __future__ import annotations
+from typing import List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 import heapq
-from typing import List, Tuple, Optional, Set, Dict
-from config.game_constants import DIRECTIONS
+
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
+from config import DIRECTIONS
 from utils.moves_utils import position_to_direction
+
+if TYPE_CHECKING:
+    from game_logic import HeuristicGameLogic
 
 
 class AStarAgent:
@@ -145,7 +155,7 @@ class AStarAgent:
         closed: Set[Tuple[int, int]] = set()
 
         while open_set:
-            f_score, current = heapq.heappop(open_set)
+            _, current = heapq.heappop(open_set)
             if current in closed:
                 continue
             closed.add(current)

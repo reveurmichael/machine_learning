@@ -15,15 +15,12 @@ Features:
 
 from __future__ import annotations
 
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 from pathlib import Path
 from typing import Any, Dict
 from flask import Flask, jsonify
-
-import sys
-
-# Add root directory to Python path for accessing base classes
-root_dir = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(root_dir))
 
 # Import Task-0 web infrastructure
 from web.views.template_renderer import TemplateRenderer

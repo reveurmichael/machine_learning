@@ -34,7 +34,7 @@ sys.path.insert(0, str(root_dir))
 from utils.network_utils import ensure_free_port, random_free_port
 
 # Import heuristic-specific web replay
-from replay_gui import HeuristicReplayWebGUI
+from replay_gui import HeuristicReplayGUI
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
@@ -206,7 +206,7 @@ def main() -> None:
         print(f"🛤️  Show Path Info: {args.show_path_info}")
         
         # Create and configure web GUI
-        web_gui = HeuristicReplayWebGUI(
+        web_gui = HeuristicReplayGUI(
             log_dir=str(Path(args.log_dir)),
             game_number=args.game,
             move_interval=args.interval,

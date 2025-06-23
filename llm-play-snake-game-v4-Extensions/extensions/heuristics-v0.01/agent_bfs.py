@@ -1,70 +1,112 @@
 """
-Simple BFS Agent for Snake Game
-===============================
+BFS Agent - Simple Breadth-First Search Snake Agent
+==================================================
 
-Minimal BFS pathfinding agent.
+Minimal BFS implementation for pathfinding to apples.
 """
 
 from __future__ import annotations
+from typing import List, Tuple, Set
 from collections import deque
-from typing import List, Tuple, TYPE_CHECKING
+
+import sys
+import pathlib
+
+# Add project root to path for imports
+project_root = pathlib.Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from extensions.common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
 
 from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 
-if TYPE_CHECKING:
-    from game_logic import HeuristicGameLogic
-
 
 class BFSAgent:
-    """Simple BFS pathfinding agent."""
+    """
+    Simple BFS agent for Snake game.
     
-    def get_move(self, game: HeuristicGameLogic) -> str | None:
-        """Get next move using BFS pathfinding."""
-        try:
-            head_pos = tuple(game.head_position)
-            apple_pos = tuple(game.apple_position)
-            snake_positions = {tuple(pos) for pos in game.snake_positions}
+    Uses breadth-first search to find shortest path to apple.
+    """
+    
+    def __init__(self) -> None:
+        """Initialize BFS agent."""
+        pass
+    
+    def get_move(self, game_logic) -> str:
+        """
+        Get next move using BFS pathfinding.
+        
+        Args:
+            game_logic: Game logic instance containing current state
             
-            path = self._bfs_pathfind(head_pos, apple_pos, snake_positions, game.grid_size)
-            
-            if len(path) < 2:
-                return "NO_PATH_FOUND"
-                
-            next_pos = path[1]
-            return position_to_direction(head_pos, next_pos)
-            
-        except Exception:
+        Returns:
+            Direction string or "NO_PATH_FOUND"
+        """
+        state = game_logic.get_state_snapshot()
+        
+        head = tuple(state["head_position"])
+        apple = tuple(state["apple_position"])
+        snake_body = set(tuple(pos) for pos in state["snake_positions"])
+        grid_size = state["grid_size"]
+        
+        # Find path to apple
+        path = self._bfs_path(head, apple, snake_body, grid_size)
+        
+        if not path:
             return "NO_PATH_FOUND"
+        
+        # Convert first step to direction
+        next_pos = path[1] if len(path) > 1 else path[0]
+        return position_to_direction(head, next_pos)
     
-    def _bfs_pathfind(self, start: Tuple[int, int], goal: Tuple[int, int], 
-                     obstacles: set, grid_size: int) -> List[Tuple[int, int]]:
-        """Find shortest path using BFS."""
+    def _bfs_path(self, start: Tuple[int, int], goal: Tuple[int, int], 
+                  obstacles: Set[Tuple[int, int]], grid_size: int) -> List[Tuple[int, int]]:
+        """
+        Find shortest path using BFS.
+        
+        Args:
+            start: Starting position
+            goal: Target position
+            obstacles: Set of obstacle positions
+            grid_size: Grid size
+            
+        Returns:
+            List of positions from start to goal, or empty list if no path
+        """
         if start == goal:
             return [start]
-            
+        
         queue = deque([(start, [start])])
         visited = {start}
         
         while queue:
-            current_pos, path = queue.popleft()
+            current, path = queue.popleft()
             
-            for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                dx, dy = DIRECTIONS[direction]
-                next_pos = (current_pos[0] + dx, current_pos[1] + dy)
+            for dx, dy in DIRECTIONS.values():
+                next_x = current[0] + dx
+                next_y = current[1] + dy
+                next_pos = (next_x, next_y)
                 
-                if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
+                # Check bounds
+                if not (0 <= next_x < grid_size and 0 <= next_y < grid_size):
                     continue
-                    
-                if next_pos in obstacles or next_pos in visited:
-                    continue
-                    
-                new_path = path + [next_pos]
                 
+                # Check obstacles
+                if next_pos in obstacles:
+                    continue
+                
+                # Check if visited
+                if next_pos in visited:
+                    continue
+                
+                # Found goal
                 if next_pos == goal:
-                    return new_path
-                    
-                queue.append((next_pos, new_path))
+                    return path + [next_pos]
+                
+                # Add to queue
                 visited.add(next_pos)
+                queue.append((next_pos, path + [next_pos]))
         
-        return [] 
+        return []  # No path found 

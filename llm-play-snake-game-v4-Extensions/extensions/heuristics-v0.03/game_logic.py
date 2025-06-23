@@ -13,6 +13,10 @@ Design Philosophy:
 """
 
 from __future__ import annotations
+
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 import time
 from typing import List, Optional, TYPE_CHECKING
 
@@ -40,6 +44,10 @@ class HeuristicGameLogic(BaseGameLogic):
     # Use heuristic-specific data container
     GAME_DATA_CLS = HeuristicGameData
     
+    # Type annotations to help pylint understand inheritance
+    game_state: HeuristicGameData
+    planned_moves: List[str]
+    
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = False) -> None:
         """
         Initialize heuristic game logic.
@@ -56,6 +64,7 @@ class HeuristicGameLogic(BaseGameLogic):
         self.algorithm_name: str = "v0.02-BFS-Safe-Greedy"
         
         # Ensure we have the correct data type
+        # Note: game_state is initialized in super().__init__(), so we can safely access it here
         if not isinstance(self.game_state, HeuristicGameData):
             self.game_state = HeuristicGameData()
             self.game_state.reset()
@@ -135,6 +144,7 @@ class HeuristicGameLogic(BaseGameLogic):
             Next move direction or "NO_PATH_FOUND"
         """
         # Check if we need a new plan
+        # Note: planned_moves is initialized in super().__init__(), so we can safely access it here
         if not self.planned_moves:
             self.planned_moves = self.plan_next_moves()
         

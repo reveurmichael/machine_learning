@@ -1,59 +1,83 @@
+from __future__ import annotations
+
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 """
-Heuristics v0.02 - Multi-Algorithm Snake Agents
-========================================
+Heuristics v0.03 - Advanced Heuristic Agents with Streamlit Interface
+====================================================================
 
-Evolution from v0.01: This version demonstrates natural software progression
-by expanding from a single BFS algorithm to a comprehensive suite of 7
-heuristic algorithms, while maintaining the same base class architecture.
+This extension demonstrates software evolution from v0.02 to v0.03,
+adding a comprehensive Streamlit interface and enhanced replay capabilities.
 
-Key improvements in v0.02:
-- Multiple algorithm support (BFS, DFS, A*, Hamiltonian, and hybrids)
-- Factory pattern for algorithm selection
-- Enhanced safety validation
-- Verbose mode for debugging
-- Simplified logging (no Task-0 replay compatibility)
+Key Features:
+- Streamlit dashboard with multiple tabs (overview, launch, replay, analysis)
+- PyGame and web-based replay systems
+- Factory pattern for 7 different heuristic algorithms
+- Inheritance hierarchy showing software evolution
+- Reuse of Task-0 base classes and utilities
+
+Evolution from v0.02:
+- Added Streamlit app.py as primary interface
+- Enhanced replay capabilities (PyGame + Flask web)
+- Improved agent factory with better error handling
+- Added comprehensive documentation and educational content
+
+Design Patterns:
+- Factory Pattern: Agent creation through factory functions
+- Inheritance: Progressive enhancement through class hierarchy
+- MVC Pattern: Separation of game logic, data, and presentation
+- Singleton Pattern: File manager and other shared resources
+- Strategy Pattern: Interchangeable pathfinding algorithms
 
 Available Algorithms:
-1. BFS - Pure breadth-first search (from v0.01)
-2. BFS-SAFE-GREEDY - Enhanced BFS with safety checks
-3. BFS-HAMILTONIAN - BFS with Hamiltonian fallback
-4. DFS - Depth-first search (educational comparison)
+1. BFS - Basic breadth-first search
+2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation
+3. BFS-HAMILTONIAN - BFS with Hamiltonian cycle fallback
+4. DFS - Depth-first search (educational)
 5. ASTAR - A* pathfinding with Manhattan heuristic
-6. ASTAR-HAMILTONIAN - A* with Hamiltonian fallback (most advanced)
-7. HAMILTONIAN - Pure Hamiltonian cycle (guaranteed safety)
+6. ASTAR-HAMILTONIAN - A* with Hamiltonian fallback
+7. HAMILTONIAN - Pure Hamiltonian cycle
 
-Design Philosophy:
-- Extends BaseGameManager, BaseGameLogic, and BaseGameData
-- No GUI dependencies (headless by default)
-- Generates the same log format as Task-0 (game_N.json, summary.json)
-- Uses SnakeAgent protocol for clean integration
-
-This extension demonstrates how future tasks can leverage the base classes
-while implementing their own specific algorithms.
+Inheritance Hierarchy:
+- BFSAgent (base)
+  └── BFSSafeGreedyAgent (adds safety)
+      └── BFSHamiltonianAgent (adds Hamiltonian)
+- AStarAgent (base)
+  └── AStarHamiltonianAgent (adds Hamiltonian)
+- DFSAgent (standalone)
+- HamiltonianAgent (standalone)
 """
 
-from agent_bfs import BFSAgent
-from agent_bfs_safe_greedy import BFSSafeGreedyAgent
-from agent_bfs_hamiltonian import BFSHamiltonianAgent
-from agent_dfs import DFSAgent
-from agent_astar import AStarAgent
-from agent_astar_hamiltonian import AStarHamiltonianAgent
-from agent_hamiltonian import HamiltonianAgent
+# Import factory functions from agents package
+from .agents import (
+    create_agent,
+    get_available_algorithms,
+    get_algorithm_info,
+    ALGORITHM_REGISTRY
+)
 
-from game_manager import HeuristicGameManager
-from game_logic import HeuristicGameLogic
+# Import main components
+from . import game_manager
+from . import game_logic
 
+# Version information
+__version__ = "0.03"
+__author__ = "Heuristics Extension Team"
+
+# Public API
 __all__ = [
-    # Agents (7 algorithms)
-    "BFSAgent",
-    "BFSSafeGreedyAgent",
-    "BFSHamiltonianAgent", 
-    "DFSAgent",
-    "AStarAgent",
-    "AStarHamiltonianAgent",
-    "HamiltonianAgent",
+    # Factory functions
+    "create_agent",
+    "get_available_algorithms", 
+    "get_algorithm_info",
+    "ALGORITHM_REGISTRY",
     
-    # Core components
-    "HeuristicGameManager",
-    "HeuristicGameLogic",
+    # Main modules
+    "game_manager",
+    "game_logic",
+    
+    # Version info
+    "__version__",
+    "__author__",
 ] 

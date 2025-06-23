@@ -1,33 +1,34 @@
 """
-Heuristics v0.02 - Agent Package
-===============================
+Heuristics Agents Package - Factory Pattern Implementation
+========================================================
 
-Collection of heuristic algorithms for snake game pathfinding.
-Demonstrates evolution from v0.01 single-algorithm to multi-algorithm system.
+This package provides a factory pattern for creating heuristic agents.
+It demonstrates software evolution through inheritance and encapsulation.
 
 Available Algorithms:
-- BFS: Breadth-First Search (shortest path)
-- BFS-Safe-Greedy: BFS with safety checks and greedy improvements
-- BFS-Hamiltonian: BFS with Hamiltonian cycle considerations
-- DFS: Depth-First Search (exploration-based)
-- A*: A-Star with Manhattan distance heuristic
-- A*-Hamiltonian: A-Star with Hamiltonian cycle considerations
-- Hamiltonian: Pure Hamiltonian cycle pathfinding
+1. BFS - Basic breadth-first search
+2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation (inherits from BFS)
+3. BFS-HAMILTONIAN - BFS with Hamiltonian cycle fallback (inherits from BFS-Safe-Greedy)
+4. DFS - Depth-first search (educational comparison)
+5. ASTAR - A* pathfinding with Manhattan heuristic
+6. ASTAR-HAMILTONIAN - A* with Hamiltonian fallback (inherits from A*)
+7. HAMILTONIAN - Pure Hamiltonian cycle (guaranteed safety)
 
-Design Philosophy:
-- Each algorithm builds upon simpler ones (progressive enhancement)
-- Factory pattern for easy algorithm selection
-- Consistent interface across all agents
-- Educational progression from basic to advanced algorithms
+Design Patterns:
+- Factory Pattern: create_agent() function for instantiation
+- Registry Pattern: ALGORITHM_REGISTRY for algorithm mapping
+- Inheritance: Progressive enhancement through class hierarchy
+- Strategy Pattern: Interchangeable algorithms
 """
 
-from typing import Dict, Type, Optional, Any
-import sys
-from pathlib import Path
+from __future__ import annotations
 
-# Add root directory to Python path for base classes
-root_dir = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(root_dir))
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
+from typing import Dict, Type, Optional, List, Any
 
 # Import all agent classes
 from .agent_bfs import BFSAgent
@@ -38,155 +39,133 @@ from .agent_astar import AStarAgent
 from .agent_astar_hamiltonian import AStarHamiltonianAgent
 from .agent_hamiltonian import HamiltonianAgent
 
-
-# Algorithm Registry - Factory Pattern
-ALGORITHM_REGISTRY: Dict[str, Type[Any]] = {
+# Algorithm registry mapping names to classes
+ALGORITHM_REGISTRY: Dict[str, Type] = {
     "BFS": BFSAgent,
     "BFS-SAFE-GREEDY": BFSSafeGreedyAgent,
     "BFS-HAMILTONIAN": BFSHamiltonianAgent,
     "DFS": DFSAgent,
     "ASTAR": AStarAgent,
-    "A*": AStarAgent,  # Alias for A*
     "ASTAR-HAMILTONIAN": AStarHamiltonianAgent,
-    "A*-HAMILTONIAN": AStarHamiltonianAgent,  # Alias for A*-Hamiltonian
     "HAMILTONIAN": HamiltonianAgent,
 }
 
-# Default algorithm
-DEFAULT_ALGORITHM = "BFS"
+# Aliases for convenience
+ALGORITHM_REGISTRY["A*"] = AStarAgent  # A* is an alias for ASTAR
 
-# Algorithm categories for educational purposes
-ALGORITHM_CATEGORIES = {
-    "Basic Search": ["BFS", "DFS"],
-    "Enhanced BFS": ["BFS-SAFE-GREEDY", "BFS-HAMILTONIAN"],
-    "Heuristic Search": ["ASTAR", "ASTAR-HAMILTONIAN"],
-    "Advanced": ["HAMILTONIAN"]
-}
+# After ALGORITHM_REGISTRY definition
+DEFAULT_ALGORITHM: str = "BFS"
 
-# Algorithm complexity information
-ALGORITHM_COMPLEXITY = {
-    "BFS": {"time": "O(V+E)", "space": "O(V)", "optimal": True},
-    "BFS-SAFE-GREEDY": {"time": "O(V+E)", "space": "O(V)", "optimal": False},
-    "BFS-HAMILTONIAN": {"time": "O(V+E)", "space": "O(V)", "optimal": False},
-    "DFS": {"time": "O(V+E)", "space": "O(V)", "optimal": False},
-    "ASTAR": {"time": "O(b^d)", "space": "O(b^d)", "optimal": True},
-    "ASTAR-HAMILTONIAN": {"time": "O(b^d)", "space": "O(b^d)", "optimal": False},
-    "HAMILTONIAN": {"time": "O(n!)", "space": "O(n)", "optimal": False}
-}
-
-
-def create_agent(algorithm_name: str) -> Optional[Any]:
+def create_agent(algorithm_name: str) -> Any:
     """
-    Factory function to create agent instances.
-    
-    Design Pattern: Factory Method
-    - Encapsulates agent creation logic
-    - Allows easy addition of new algorithms
-    - Provides consistent interface for agent instantiation
+    Factory function to create an agent instance.
     
     Args:
         algorithm_name: Name of the algorithm (case-insensitive)
         
     Returns:
-        Agent instance or None if algorithm not found
+        Agent instance
         
-    Examples:
-        >>> agent = create_agent("BFS")
-        >>> agent = create_agent("astar-hamiltonian")
-        >>> agent = create_agent("A*")  # Alias support
+    Raises:
+        ValueError: If algorithm name is not recognized
     """
-    algorithm_key = algorithm_name.upper().replace("-", "-")
+    algorithm_name = algorithm_name.upper()
     
-    if algorithm_key in ALGORITHM_REGISTRY:
-        agent_class = ALGORITHM_REGISTRY[algorithm_key]
-        return agent_class()
+    if algorithm_name not in ALGORITHM_REGISTRY:
+        available = ", ".join(ALGORITHM_REGISTRY.keys())
+        raise ValueError(
+            f"Unknown algorithm '{algorithm_name}'. "
+            f"Available algorithms: {available}"
+        )
     
-    return None
+    agent_class = ALGORITHM_REGISTRY[algorithm_name]
+    return agent_class()
 
-
-def get_available_algorithms() -> list[str]:
+def get_available_algorithms() -> List[str]:
     """
-    Get list of all available algorithm names.
+    Get list of available algorithm names.
     
     Returns:
-        List of algorithm names (primary names only, no aliases)
+        List of algorithm names
     """
-    # Return primary names only (exclude aliases)
-    primary_algorithms = []
-    for alg in ALGORITHM_REGISTRY.keys():
-        if alg not in ["A*", "A*-HAMILTONIAN"]:  # Skip aliases
-            primary_algorithms.append(alg)
-    
-    return sorted(primary_algorithms)
+    return list(ALGORITHM_REGISTRY.keys())
 
-
-def get_algorithm_info(algorithm_name: str) -> Optional[Dict[str, Any]]:
+def get_algorithm_info(algorithm_name: str) -> Dict[str, Any]:
     """
-    Get detailed information about an algorithm.
+    Get information about a specific algorithm.
     
     Args:
         algorithm_name: Name of the algorithm
         
     Returns:
-        Dictionary with algorithm information or None if not found
+        Dictionary with algorithm information
+        
+    Raises:
+        ValueError: If algorithm name is not recognized
     """
-    algorithm_key = algorithm_name.upper().replace("-", "-")
+    algorithm_name = algorithm_name.upper()
     
-    if algorithm_key not in ALGORITHM_REGISTRY:
-        return None
+    if algorithm_name not in ALGORITHM_REGISTRY:
+        available = ", ".join(ALGORITHM_REGISTRY.keys())
+        raise ValueError(
+            f"Unknown algorithm '{algorithm_name}'. "
+            f"Available algorithms: {available}"
+        )
     
-    # Find category
-    category = "Unknown"
-    for cat, algorithms in ALGORITHM_CATEGORIES.items():
-        if algorithm_key in algorithms:
-            category = cat
-            break
+    agent_class = ALGORITHM_REGISTRY[algorithm_name]
+    agent_instance = agent_class()
     
-    info = {
-        "name": algorithm_key,
-        "category": category,
-        "class": ALGORITHM_REGISTRY[algorithm_key].__name__,
-        "complexity": ALGORITHM_COMPLEXITY.get(algorithm_key, {}),
-        "description": _get_algorithm_description(algorithm_key)
+    return {
+        "name": getattr(agent_instance, "name", algorithm_name),
+        "description": getattr(agent_instance, "description", "No description available"),
+        "algorithm_name": getattr(agent_instance, "algorithm_name", algorithm_name),
+        "complexity": _get_algorithm_complexity(algorithm_name),
+        "category": _get_algorithm_category(algorithm_name),
     }
-    
-    return info
 
-
-def _get_algorithm_description(algorithm_name: str) -> str:
-    """Get human-readable description of algorithm."""
-    descriptions = {
-        "BFS": "Breadth-First Search - finds shortest path by exploring level by level",
-        "BFS-SAFE-GREEDY": "Enhanced BFS with safety checks and greedy optimizations",
-        "BFS-HAMILTONIAN": "BFS with Hamiltonian cycle considerations for safer paths",
-        "DFS": "Depth-First Search - explores as far as possible before backtracking",
-        "ASTAR": "A* algorithm with Manhattan distance heuristic for optimal pathfinding",
-        "ASTAR-HAMILTONIAN": "A* enhanced with Hamiltonian cycle considerations",
-        "HAMILTONIAN": "Pure Hamiltonian cycle pathfinding for complete board coverage"
+def _get_algorithm_complexity(algorithm_name: str) -> str:
+    """Get time complexity information for educational purposes."""
+    complexities = {
+        "BFS": "O(V + E) - Optimal for shortest path",
+        "BFS-SAFE-GREEDY": "O(V + E) - BFS + safety validation",
+        "BFS-HAMILTONIAN": "O(V + E) - BFS + Hamiltonian cycle",
+        "DFS": "O(V + E) - May find longer paths",
+        "ASTAR": "O(V log V) - Optimal with heuristic",
+        "ASTAR-HAMILTONIAN": "O(V log V) - A* + Hamiltonian cycle",
+        "HAMILTONIAN": "O(1) - Pre-computed cycle",
     }
-    
-    return descriptions.get(algorithm_name, "Advanced heuristic pathfinding algorithm")
+    return complexities.get(algorithm_name, "Unknown complexity")
 
+def _get_algorithm_category(algorithm_name: str) -> str:
+    """Get educational category for the algorithm."""
+    categories = {
+        "BFS": "Basic Search",
+        "BFS-SAFE-GREEDY": "Enhanced Search",
+        "BFS-HAMILTONIAN": "Hybrid Search",
+        "DFS": "Educational",
+        "ASTAR": "Informed Search",
+        "ASTAR-HAMILTONIAN": "Advanced Hybrid",
+        "HAMILTONIAN": "Mathematical",
+    }
+    return categories.get(algorithm_name, "Unknown category")
 
-# Export public interface
+# Public API
 __all__ = [
+    # Agent classes
+    "BFSAgent",
+    "BFSSafeGreedyAgent", 
+    "BFSHamiltonianAgent",
+    "DFSAgent",
+    "AStarAgent",
+    "AStarHamiltonianAgent",
+    "HamiltonianAgent",
+    
     # Factory functions
-    'create_agent',
-    'get_available_algorithms', 
-    'get_algorithm_info',
+    "create_agent",
+    "get_available_algorithms",
+    "get_algorithm_info",
     
-    # Constants
-    'DEFAULT_ALGORITHM',
-    'ALGORITHM_REGISTRY',
-    'ALGORITHM_CATEGORIES',
-    'ALGORITHM_COMPLEXITY',
-    
-    # Agent classes (for direct import if needed)
-    'BFSAgent',
-    'BFSSafeGreedyAgent', 
-    'BFSHamiltonianAgent',
-    'DFSAgent',
-    'AStarAgent',
-    'AStarHamiltonianAgent',
-    'HamiltonianAgent'
+    # Registry
+    "ALGORITHM_REGISTRY",
+    "DEFAULT_ALGORITHM",
 ] 

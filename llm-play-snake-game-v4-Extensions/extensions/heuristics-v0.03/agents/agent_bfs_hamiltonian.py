@@ -24,6 +24,12 @@ Design Patterns:
 from __future__ import annotations
 from typing import List, Tuple, Optional, Set, TYPE_CHECKING
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
+
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
 from utils.moves_utils import position_to_direction
 
 if TYPE_CHECKING:
@@ -281,9 +287,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
             if step == apple:
                 # Apple eaten - snake grows, keep tail
                 break
-            else:
-                # No apple - tail moves forward
-                virtual_snake.pop()
+            
+            # No apple - tail moves forward
+            virtual_snake.pop()
         
         # Check if new head can reach new tail
         new_head = virtual_snake[0]

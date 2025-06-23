@@ -22,15 +22,12 @@ Features:
 
 import argparse
 import sys
-from pathlib import Path
-
-# Add the root directory to the Python path
-root_dir = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(root_dir))
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
 
 # Import the components
-from game_manager import HeuristicGameManager
-from agents import get_available_algorithms, DEFAULT_ALGORITHM
+from .game_manager import HeuristicGameManager
+from .agents import get_available_algorithms, DEFAULT_ALGORITHM
 
 # Available algorithms in v0.02 (from agents package)
 AVAILABLE_ALGORITHMS = get_available_algorithms()

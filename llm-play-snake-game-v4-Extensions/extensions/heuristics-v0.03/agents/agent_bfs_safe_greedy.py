@@ -19,8 +19,14 @@ Design Patterns:
 from __future__ import annotations
 from typing import List, Tuple, TYPE_CHECKING
 from .agent_bfs import BFSAgent
+
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
+from config import DIRECTIONS
 from utils.moves_utils import position_to_direction
-from config.game_constants import DIRECTIONS
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
@@ -142,9 +148,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             if step == apple:
                 # Apple eaten - snake grows, keep tail
                 break
-            else:
-                # No apple - tail moves forward
-                virtual_snake.pop()
+            
+            # No apple - tail moves forward
+            virtual_snake.pop()
         
         # Check if new head can reach new tail
         new_head = virtual_snake[0]

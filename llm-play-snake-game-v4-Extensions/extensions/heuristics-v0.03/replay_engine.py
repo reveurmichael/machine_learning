@@ -14,15 +14,11 @@ This engine can replay games from any of the 7 heuristic algorithms:
 
 from __future__ import annotations
 
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 import time
-from pathlib import Path
 from typing import Any, Dict, Optional
-
-import sys
-
-# Add root directory to Python path for accessing base classes
-root_dir = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(root_dir))
 
 # Import Task-0 base replay infrastructure
 from replay.replay_engine import BaseReplayEngine
@@ -48,6 +44,10 @@ class HeuristicReplayEngine(BaseReplayEngine):
     - Reuses Task-0 JSON parsing and file management
     - Leverages existing GUI and web replay infrastructure
     """
+    
+    # Type annotations to help pylint understand inheritance
+    running: bool
+    last_move_time: float
     
     def __init__(
         self,
@@ -221,11 +221,9 @@ class HeuristicReplayEngine(BaseReplayEngine):
         - Performance metrics on demand
         - Pathfinding visualization controls
         """
-        # Use base class event handling for common functionality
-        super().handle_events()
-        
         # Add heuristic-specific event handling if needed
         # This can be extended for algorithm-specific visualizations
+        pass
     
     def run(self) -> None:
         """

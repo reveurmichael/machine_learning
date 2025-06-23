@@ -15,3 +15,11 @@ I have also moved main.py into scripts folder. app.py will be the entry point fo
 
 
 you should notice this word I mentioned: web, flask. so you will have scripts/replay_web.py and scirpts/replay.py, just like for TASK0 . FOr web, you can go mvc, or simpler, it's up to you.
+
+
+in v0.02, there should be importing config folder stuffs from ROOT TASK0 . in v0.03, there should be a config.py . check attached project-structure-plan.md .
+
+
+v0.02 and v0.03 should have exactly the same code in their respective agents folders.
+
+

@@ -15,6 +15,10 @@ Design Philosophy:
 """
 
 from __future__ import annotations
+
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 import argparse
 import os
 import time
@@ -195,7 +199,6 @@ class HeuristicGameManager(BaseGameManager):
         self.consecutive_no_path_found = 0
 
         game_start_time = time.time()
-        last_score = 0
 
         # Game loop
         while self.game_active and self.game.game_state.steps < self.args.max_steps:
@@ -267,7 +270,7 @@ class HeuristicGameManager(BaseGameManager):
         }
 
         game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-        with open(game_filepath, 'w') as f:
+        with open(game_filepath, 'w', encoding='utf-8') as f:
             json.dump(game_data, f, indent=2, default=str)  # Handle numpy types
 
         # Show results
@@ -311,7 +314,7 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.GREEN + f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
 
         summary_filepath = os.path.join(self.log_dir, "summary.json")
-        with open(summary_filepath, 'w') as f:
+        with open(summary_filepath, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, indent=2, default=str)  # Handle numpy types
 
         if self.verbose:

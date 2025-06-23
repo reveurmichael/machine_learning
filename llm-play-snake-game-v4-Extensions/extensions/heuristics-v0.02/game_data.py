@@ -13,10 +13,14 @@ Design Philosophy:
 """
 
 from __future__ import annotations
+
 from typing import Dict, Any, Optional
 
 from core.game_data import BaseGameData
 from core.game_stats_manager import NumPyJSONEncoder
+from ..common.path_utils import ensure_project_root_on_path
+
+ensure_project_root_on_path()
 
 
 class HeuristicGameData(BaseGameData):

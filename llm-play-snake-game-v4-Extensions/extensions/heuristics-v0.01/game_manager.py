@@ -6,6 +6,17 @@ Minimal extension of BaseGameManager for BFS algorithm.
 """
 
 from __future__ import annotations
+
+import sys
+import pathlib
+
+# Add project root to path for imports
+project_root = pathlib.Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from extensions.common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
+
 import argparse
 import os
 from datetime import datetime
@@ -90,7 +101,7 @@ class HeuristicGameManager(BaseGameManager):
                     break
             else:
                 self.consecutive_no_path_found = 0
-                game_continues, apple_eaten = self.game.make_move(planned_move)
+                game_continues, _ = self.game.make_move(planned_move)  # Use underscore for unused variable
                 if not game_continues:
                     self.game_active = False
 
@@ -125,7 +136,7 @@ class HeuristicGameManager(BaseGameManager):
             }
 
             game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-            with open(game_filepath, 'w') as f:
+            with open(game_filepath, 'w', encoding='utf-8') as f:
                 json.dump(game_data, f, indent=2, default=str)
         except Exception as e:
             print(f"❌ Save error: {e}")
@@ -156,5 +167,5 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.MAGENTA + f"📊 Average score: {summary['average_score']:.1f}")
         print(Fore.GREEN + f"⚡ Score per step: {summary['score_per_step']:.3f}")
         print(Fore.GREEN + f"🎯 Score per round: {summary['score_per_round']:.3f}")
-        with open(os.path.join(self.log_dir, "summary.json"), 'w') as f:
+        with open(os.path.join(self.log_dir, "summary.json"), 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2, default=str) 

@@ -19,18 +19,16 @@ with a modern web-based interface while maintaining all functionality.
 """
 
 import streamlit as st
+from pathlib import Path
 import os
 import sys
 import json
 import subprocess
-from pathlib import Path
 from typing import Dict, List
 from streamlit.errors import StreamlitAPIException
 import pandas as pd
-
-# Add root directory to Python path for accessing base classes
-root_dir = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(root_dir))
+from ..common.path_utils import ensure_project_root_on_path
+ensure_project_root_on_path()
 
 # Import base utilities and classes from Task-0
 from core.game_file_manager import FileManager
@@ -160,7 +158,7 @@ class HeuristicsApp:
             
             if summary_file.exists():
                 try:
-                    with open(summary_file, 'r') as f:
+                    with open(summary_file, 'r', encoding='utf-8') as f:
                         summary = json.load(f)
                     
                     # Extract key information
@@ -233,7 +231,7 @@ class HeuristicsApp:
             with st.expander("Show Detailed Summary"):
                 summary_file = Path(exp_data['Folder Path']) / "summary.json"
                 if summary_file.exists():
-                    with open(summary_file, 'r') as f:
+                    with open(summary_file, 'r', encoding='utf-8') as f:
                         summary_data = json.load(f)
                     st.code(json.dumps(summary_data, indent=2), language="json")
     
@@ -569,7 +567,7 @@ class HeuristicsApp:
             summary_file = Path(folder) / "summary.json"
             if summary_file.exists():
                 try:
-                    with open(summary_file, 'r') as f:
+                    with open(summary_file, 'r', encoding='utf-8') as f:
                         summary = json.load(f)
                         analysis_data.append({
                             'folder': Path(folder).name,
@@ -602,12 +600,12 @@ class HeuristicsApp:
             
             with col1:
                 st.markdown("**Average Score by Algorithm**")
-                chart_data = df.set_index('algorithm')['average_score']
+                chart_data = df.set_index('algorithm')['average_score']  # type: ignore
                 st.bar_chart(chart_data)
             
             with col2:
                 st.markdown("**Efficiency (Score per Step)**")
-                chart_data = df.set_index('algorithm')['score_per_step']
+                chart_data = df.set_index('algorithm')['score_per_step']  # type: ignore
                 st.bar_chart(chart_data)
     
     def _load_games_from_folder(self, folder_path: str) -> Dict[int, Dict]:
@@ -622,7 +620,7 @@ class HeuristicsApp:
         for game_file in folder.glob("game_*.json"):
             try:
                 game_number = int(game_file.stem.split('_')[1])
-                with open(game_file, 'r') as f:
+                with open(game_file, 'r', encoding='utf-8') as f:
                     game_data = json.load(f)
                     games[game_number] = game_data
             except (ValueError, json.JSONDecodeError) as e:
@@ -636,7 +634,7 @@ class HeuristicsApp:
             # Use Task-0 replay script with heuristic log folder
             cmd = [
                 sys.executable, 
-                str(root_dir / "scripts" / "replay.py"),
+                str(Path(__file__).parent / "scripts" / "replay.py"),
                 "--log-dir", folder_path,
                 "--game", str(game_number)  # Use --game like Task-0
             ]
@@ -682,7 +680,7 @@ class HeuristicsApp:
             # Use Task-0 web replay script with heuristic log folder
             cmd = [
                 sys.executable,
-                str(root_dir / "scripts" / "replay_web.py"),
+                str(Path(__file__).parent / "scripts" / "replay_web.py"),
                 "--log-dir", folder_path,
                 "--game", str(game_number),  # Use --game like Task-0
                 "--host", host,

@@ -16,9 +16,14 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import Dict, List, Tuple, TYPE_CHECKING
+from typing import List, Tuple, Dict, TYPE_CHECKING
 
-from config.game_constants import DIRECTIONS
+# Use standardized path setup
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+
+from config import DIRECTIONS
 from utils.moves_utils import position_to_direction
 
 if TYPE_CHECKING:
@@ -181,8 +186,7 @@ class HamiltonianAgent:
             print(f"⚠️  Found {duplicates} duplicate positions in cycle")
         
         # Check adjacency of consecutive positions
-        for i in range(len(self.cycle)):
-            current = self.cycle[i]
+        for i, current in enumerate(self.cycle):
             next_pos = self.cycle[(i + 1) % len(self.cycle)]
             
             # Manhattan distance should be exactly 1

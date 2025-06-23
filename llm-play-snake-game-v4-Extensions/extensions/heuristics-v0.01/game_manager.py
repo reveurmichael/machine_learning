@@ -19,6 +19,7 @@ from game_logic import HeuristicGameLogic
 from agent_bfs import BFSAgent
 
 from extensions.common.path_utils import setup_extension_paths
+from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
 setup_extension_paths()
 
 
@@ -71,7 +72,9 @@ class HeuristicGameManager(BaseGameManager):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         # CRITICAL: Extension logs go to ROOT/logs/extensions/
         # This separates experimental extensions from production Task-0 logs
-        self.log_dir = os.path.join("logs", "extensions", f"heuristics-bfs_{timestamp}")
+        # Use common configuration constant instead of hardcoded path
+        experiment_folder = f"{HEURISTICS_LOG_PREFIX}bfs_{timestamp}"
+        self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, experiment_folder)
         os.makedirs(self.log_dir, exist_ok=True)
 
     def run(self) -> None:

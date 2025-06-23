@@ -15,10 +15,14 @@ Features:
 
 from __future__ import annotations
 
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
-
+import sys
 from pathlib import Path
+
+# Add project root to path for imports
+current_dir = Path(__file__).parent
+project_root = current_dir.parent.parent  # Go up to project root
+sys.path.insert(0, str(project_root))
+
 from typing import Any, Dict
 from flask import Flask, jsonify
 

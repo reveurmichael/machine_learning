@@ -25,16 +25,21 @@ import os
 import time
 from datetime import datetime
 from typing import Optional, Union, List
+import json
 
 from colorama import Fore
 
 from core.game_manager import BaseGameManager
-from core.game_agents import SnakeAgent
-import json
-from game_logic import HeuristicGameLogic
+from core.game_data import GameData
+from core.game_logic import GameLogic
 
-# Import agents package (v0.03 multi-algorithm support)
-from agents import create_agent, DEFAULT_ALGORITHM, get_available_algorithms
+# Import heuristic-specific components
+from game_logic import HeuristicGameLogic
+from game_data import HeuristicGameData
+from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
+
+# Import common extension configuration
+from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
 
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
@@ -128,7 +133,9 @@ class HeuristicGameManager(BaseGameManager):
         algo_name = self.algorithm_name.lower().replace('-', '_')
         # CRITICAL: Extension logs go to ROOT/logs/extensions/
         # This separates experimental extensions from production Task-0 logs
-        self.log_dir = os.path.join("logs", "extensions", f"heuristics-{algo_name}_{timestamp}")
+        # Use common configuration constant instead of hardcoded path
+        experiment_folder = f"{HEURISTICS_LOG_PREFIX}{algo_name}_{timestamp}"
+        self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, experiment_folder)
         os.makedirs(self.log_dir, exist_ok=True)
 
     def _setup_agent(self) -> None:

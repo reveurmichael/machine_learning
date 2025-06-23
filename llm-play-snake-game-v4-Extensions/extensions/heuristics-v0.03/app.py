@@ -26,13 +26,19 @@ import subprocess
 from typing import Dict, List
 from streamlit.errors import StreamlitAPIException
 import pandas as pd
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+
+# Add project root to path for imports
+current_dir = Path(__file__).parent
+project_root = current_dir.parent.parent  # Go up to project root
+sys.path.insert(0, str(project_root))
 
 # Import base utilities and classes from Task-0
 from core.game_file_manager import FileManager
 from utils.network_utils import random_free_port, ensure_free_port
 from config.network_constants import HOST_CHOICES
+
+# Import common extension configuration
+from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
 
 # Initialize file manager using Task-0 infrastructure
 _file_manager = FileManager()
@@ -123,13 +129,13 @@ class HeuristicsApp:
         Returns:
             List of heuristic log folder paths
         """
-        logs_dir = Path("../../logs")  # Relative to heuristics-v0.03 folder
+        logs_dir = Path(EXTENSIONS_LOGS_DIR)  # Use common configuration
         if not logs_dir.exists():
             return []
         
         heuristic_folders = []
         for folder in logs_dir.iterdir():
-            if folder.is_dir() and folder.name.startswith("heuristics-"):
+            if folder.is_dir() and folder.name.startswith(HEURISTICS_LOG_PREFIX):
                 heuristic_folders.append(str(folder))
         
         return sorted(heuristic_folders)

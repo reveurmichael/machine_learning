@@ -19,23 +19,18 @@ Features:
 """
 
 import pathlib
-from extensions.common.path_utils import add_repo_root_to_sys_path
-add_repo_root_to_sys_path(pathlib.Path(__file__))
-
-from extensions.common.path_utils import setup_extension_paths
-setup_extension_paths()
-
-import argparse
 import sys
 from pathlib import Path
+import argparse
+
+# Add project root to path for imports
+current_dir = Path(__file__).parent
+project_root = current_dir.parent.parent.parent  # Go up to project root
+sys.path.insert(0, str(project_root))
 
 # Add parent directory (heuristics-v0.03) to Python path
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
-
-# Add root directory to Python path for base classes
-root_dir = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(root_dir))
 
 # Import Task-0 utilities
 from utils.network_utils import ensure_free_port, random_free_port

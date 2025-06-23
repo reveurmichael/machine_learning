@@ -4,7 +4,7 @@ Example:
     python -m extensions.heuristics_llm_fine_tuning_integration_v0_01.pipeline \
         --algorithm BFS --games 800 --grid-size 10 \
         --model mistralai/Mistral-7B-v0.1 \
-        --output-dir logs/extensions/models/mistral_snake_sft
+        --output-dir logs/extensions/models/grid-size-N/mistral_snake_sft
 """
 
 from __future__ import annotations

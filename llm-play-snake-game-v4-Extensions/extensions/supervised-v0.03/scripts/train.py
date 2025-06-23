@@ -132,11 +132,24 @@ def train_neural_network(model_type: str, config: dict, logger):
         validation_split=config["model"]["validation_split"]
     )
     
-    # Save the model
+    # Save the model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     model_name = f"{model_type.lower()}_model"
-    agent.save_model(model_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework="PyTorch",
+        grid_size=config["training"]["grid_size"],
+        model_name=model_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', config["training"]["grid_size"]**2 + 4),
+        output_size=4,
+        training_params=config["model"]
+    )
     
     logger.info(f"Training completed! Final accuracy: {training_result.get('final_accuracy', 'N/A')}")
+    logger.info(f"Model saved to: {saved_path}")
 
 
 def train_tree_model(model_type: str, config: dict, logger):
@@ -175,11 +188,24 @@ def train_tree_model(model_type: str, config: dict, logger):
         validation_split=config["model"]["validation_split"]
     )
     
-    # Save the model
+    # Save the model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     model_name = f"{model_type.lower()}_model"
-    agent.save_model(model_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework=model_type,  # XGBoost, LightGBM, etc.
+        grid_size=config["training"]["grid_size"],
+        model_name=model_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', config["training"]["grid_size"]**2 + 4),
+        output_size=4,
+        training_params=config["model"]
+    )
     
     logger.info(f"Training completed! Final accuracy: {training_result.get('final_accuracy', 'N/A')}")
+    logger.info(f"Model saved to: {saved_path}")
 
 
 def load_training_data(config: dict):

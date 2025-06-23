@@ -35,17 +35,35 @@ from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
 
 
-def get_model_directory(grid_size: int, framework: str = None) -> Path:
+def get_model_directory(grid_size: int, framework: str = None, 
+                       extension_type: str = None, version: str = None) -> Path:
     """
     Get model directory for given grid size and framework.
     
     Args:
         grid_size: Game grid size
         framework: ML framework (optional)
+        extension_type: Extension type for versioned directories (optional)
+        version: Extension version for versioned directories (optional)
         
     Returns:
         Path to model directory
     """
+    # Use versioned directory structure if extension_type and version provided
+    if extension_type and version:
+        try:
+            from .versioned_directory_manager import create_model_directory
+            return create_model_directory(
+                extension_type=extension_type,
+                version=version,
+                grid_size=grid_size,
+                framework=framework or "pytorch"
+            )
+        except ImportError:
+            # Fallback to legacy structure if versioned manager not available
+            pass
+    
+    # Legacy structure for backward compatibility
     base_dir = Path("logs/extensions/models")
     grid_dir = base_dir / f"grid-size-{grid_size}"
     
@@ -109,7 +127,8 @@ def _get_framework_version(framework: str) -> str:
 def save_model_standardized(model: Any, framework: str, grid_size: int, 
                            model_name: str, model_class: str, input_size: int, 
                            output_size: int, training_params: Dict[str, Any] = None,
-                           export_onnx: bool = False) -> str:
+                           export_onnx: bool = False, extension_type: str = None,
+                           version: str = None) -> str:
     """
     Save model with standardized directory structure and metadata.
     
@@ -123,6 +142,8 @@ def save_model_standardized(model: Any, framework: str, grid_size: int,
         output_size: Number of output classes/values
         training_params: Training parameters
         export_onnx: Whether to export ONNX format (PyTorch only)
+        extension_type: Extension type for versioned directories (optional)
+        version: Extension version for versioned directories (optional)
         
     Returns:
         Path to saved model file
@@ -132,8 +153,13 @@ def save_model_standardized(model: Any, framework: str, grid_size: int,
         framework, grid_size, model_class, input_size, output_size, training_params
     )
     
-    # Create directory
-    model_dir = get_model_directory(grid_size, framework)
+    # Add versioning info to metadata if provided
+    if extension_type and version:
+        metadata['extension_type'] = extension_type
+        metadata['extension_version'] = version
+    
+    # Create directory (use versioned structure if possible)
+    model_dir = get_model_directory(grid_size, framework, extension_type, version)
     model_dir.mkdir(parents=True, exist_ok=True)
     
     # Determine file extension and save

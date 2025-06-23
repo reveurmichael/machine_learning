@@ -5,7 +5,7 @@ Usage example (single-GPU):
     python -m extensions.llm_finetune_v0_01.finetune \
         --dataset path/to/dataset.jsonl \
         --model mistralai/Mistral-7B-v0.1 \
-        --output-dir logs/extensions/models/finetuned_mistral_snake/
+        --output-dir logs/extensions/models/grid-size-N/finetuned_mistral_snake/
 
 The script is intentionally *tiny* – it exists to document the data pipeline
 from heuristic explanations → LLM.  Hyper-parameters are exposed via CLI for

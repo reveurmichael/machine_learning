@@ -22,7 +22,7 @@ Key Components:
 Usage:
     streamlit run app.py
     python scripts/train.py --model MLP --grid-size 15
-    python scripts/evaluate.py --model-path logs/extensions/models/grid-size-15/pytorch/
+    python scripts/evaluate.py --model-path logs/extensions/models/grid-size-N/pytorch/
 """
 
 __version__ = "0.03"

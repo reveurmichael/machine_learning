@@ -105,8 +105,15 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
     test_predictions = agent.predict(X_test)
     test_accuracy = (test_predictions == y_test).mean()
     
-    # Save model
-    output_path = Path(output_dir)
+    # Save model using grid-size aware structure
+    # Ensure output_dir follows grid-size structure
+    if "grid-size-" not in str(output_dir):
+        # If output_dir doesn't contain grid-size, create proper structure
+        base_output = Path(output_dir).parent if Path(output_dir).name.startswith("grid-size-") else Path(output_dir)
+        output_path = base_output / f"grid-size-{grid_size}" / "pytorch"
+    else:
+        output_path = Path(output_dir)
+    
     output_path.mkdir(parents=True, exist_ok=True)
     
     # Use common model utilities for standardized saving
@@ -186,8 +193,8 @@ def main():
                        help="Proportion for validation set")
     
     # Output arguments
-    parser.add_argument("--output-dir", default="./trained_models",
-                       help="Directory to save trained models")
+    parser.add_argument("--output-dir", default="logs/extensions/models",
+                       help="Directory to save trained models (will create grid-size-N subdirectory)")
     
     args = parser.parse_args()
     

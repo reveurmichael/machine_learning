@@ -184,6 +184,48 @@ def ensure_datasets_dir(*args, **kwargs):
 
 validate_grid_size = DatasetDirectoryManager.validate_grid_size
 
+# Versioned Directory Manager (with soft dependency handling)
+try:
+    from .versioned_directory_manager import (
+        VersionedDirectoryManager,
+        ExtensionType,
+        create_dataset_directory,
+        create_model_directory,
+        parse_versioned_path,
+        validate_directory_structure,
+        VersionedDirectoryError
+    )
+    VERSIONED_DIRECTORY_AVAILABLE = True
+    __all__.extend([
+        "VersionedDirectoryManager",
+        "ExtensionType", 
+        "create_dataset_directory",
+        "create_model_directory",
+        "parse_versioned_path",
+        "validate_directory_structure",
+        "VersionedDirectoryError"
+    ])
+except ImportError:
+    VERSIONED_DIRECTORY_AVAILABLE = False
+
+# Model utilities (with soft dependency handling)
+try:
+    from .model_utils import (
+        get_model_directory,
+        save_model_standardized,
+        create_model_metadata,
+        ModelRegistry
+    )
+    MODEL_UTILS_AVAILABLE = True
+    __all__.extend([
+        "get_model_directory",
+        "save_model_standardized", 
+        "create_model_metadata",
+        "ModelRegistry"
+    ])
+except ImportError:
+    MODEL_UTILS_AVAILABLE = False
+
 # Add to __all__
 __all__.extend([
     "generate_training_dataset",

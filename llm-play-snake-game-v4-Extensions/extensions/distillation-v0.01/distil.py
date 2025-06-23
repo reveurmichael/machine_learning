@@ -3,10 +3,10 @@
 Example usage:
 
     python -m extensions.distillation_v0_01.distil \
-        --dataset logs/extensions/datasets/grid-size-10/language_mixed_data.jsonl \
-        --teacher logs/extensions/models/finetuned_mistral_snake \
+        --dataset logs/extensions/datasets/grid-size-N/language_mixed_data.jsonl \
+        --teacher logs/extensions/models/grid-size-N/finetuned_mistral_snake \
         --student google/gemma-2b \
-        --output-dir logs/extensions/models/distilled_gemma_snake
+        --output-dir logs/extensions/models/grid-size-N/distilled_gemma_snake
 
 This script implements the *vanilla* distillation objective described in
 Hinton et al. (2015):

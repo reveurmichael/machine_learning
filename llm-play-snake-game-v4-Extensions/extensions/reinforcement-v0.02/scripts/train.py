@@ -135,11 +135,29 @@ def train_dqn_agent(args):
         save_frequency=args.save_frequency
     )
     
-    # Save the final model
+    # Save the final model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     agent_name = args.agent_name or f"{args.agent.lower()}_agent"
-    agent.save_model(agent_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework="PyTorch",
+        grid_size=args.grid_size,
+        model_name=agent_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', args.grid_size**2 + 4),
+        output_size=4,  # 4 possible actions
+        training_params={
+            "learning_rate": args.learning_rate,
+            "gamma": args.gamma,
+            "epsilon": args.epsilon,
+            "max_episodes": args.max_episodes
+        }
+    )
     
     print(f"Training metrics: {training_result}")
+    print(f"Model saved to: {saved_path}")
 
 
 def train_ppo_agent(args):
@@ -166,11 +184,28 @@ def train_ppo_agent(args):
         save_frequency=args.save_frequency
     )
     
-    # Save the final model
+    # Save the final model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     agent_name = args.agent_name or f"{args.agent.lower()}_agent"
-    agent.save_model(agent_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework="PyTorch",
+        grid_size=args.grid_size,
+        model_name=agent_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', args.grid_size**2 + 4),
+        output_size=4,  # 4 possible actions
+        training_params={
+            "learning_rate": args.learning_rate,
+            "gamma": args.gamma,
+            "max_episodes": args.max_episodes
+        }
+    )
     
     print(f"Training metrics: {training_result}")
+    print(f"Model saved to: {saved_path}")
 
 
 def train_a3c_agent(args):
@@ -196,11 +231,28 @@ def train_a3c_agent(args):
         save_frequency=args.save_frequency
     )
     
-    # Save the final model
+    # Save the final model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     agent_name = args.agent_name or f"{args.agent.lower()}_agent"
-    agent.save_model(agent_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework="PyTorch",
+        grid_size=args.grid_size,
+        model_name=agent_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', args.grid_size**2 + 4),
+        output_size=4,  # 4 possible actions
+        training_params={
+            "learning_rate": args.learning_rate,
+            "gamma": args.gamma,
+            "max_episodes": args.max_episodes
+        }
+    )
     
     print(f"Training metrics: {training_result}")
+    print(f"Model saved to: {saved_path}")
 
 
 def train_sac_agent(args):
@@ -227,11 +279,28 @@ def train_sac_agent(args):
         save_frequency=args.save_frequency
     )
     
-    # Save the final model
+    # Save the final model using grid-size aware structure
+    from extensions.common.model_utils import save_model_standardized
     agent_name = args.agent_name or f"{args.agent.lower()}_agent"
-    agent.save_model(agent_name)
+    
+    # Use standardized model saving with grid-size directory structure
+    saved_path = save_model_standardized(
+        model=agent.model,
+        framework="PyTorch",
+        grid_size=args.grid_size,
+        model_name=agent_name,
+        model_class=agent.__class__.__name__,
+        input_size=getattr(agent, 'input_size', args.grid_size**2 + 4),
+        output_size=4,  # 4 possible actions
+        training_params={
+            "learning_rate": args.learning_rate,
+            "gamma": args.gamma,
+            "max_episodes": args.max_episodes
+        }
+    )
     
     print(f"Training metrics: {training_result}")
+    print(f"Model saved to: {saved_path}")
 
 
 if __name__ == "__main__":

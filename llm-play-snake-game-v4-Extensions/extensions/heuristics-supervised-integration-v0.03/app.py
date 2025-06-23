@@ -124,11 +124,9 @@ def main():
     with tab3:
         st.header("📁 Dataset Exploration")
         
-        dataset_paths = [
-            "logs/extensions/datasets/grid-size-8/",
-            "logs/extensions/datasets/grid-size-10/",
-            "logs/extensions/datasets/grid-size-12/"
-        ]
+        # Use dynamic grid-size paths instead of hardcoded ones
+        grid_sizes = [8, 10, 12]
+        dataset_paths = [f"logs/extensions/datasets/grid-size-{size}/" for size in grid_sizes]
         
         selected_path = st.selectbox("Dataset Path", dataset_paths, index=1)
         

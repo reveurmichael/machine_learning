@@ -20,7 +20,7 @@ Key Components:
 
 Usage:
     python scripts/train.py --agent DQN --grid-size 15
-    python scripts/evaluate.py --agent-path logs/extensions/models/grid-size-15/dqn/
+    python scripts/evaluate.py --agent-path logs/extensions/models/grid-size-N/dqn/
     python scripts/compare.py --agents DQN,PPO --grid-size 10
 """
 

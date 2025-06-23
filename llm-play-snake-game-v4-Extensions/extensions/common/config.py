@@ -48,6 +48,9 @@ EXTENSIONS_LOGS_DIR = LOGS_ROOT / "extensions"
 # Dataset storage directory (ROOT/logs/extensions/datasets/)
 DATASETS_ROOT = EXTENSIONS_LOGS_DIR / "datasets"
 
+# Model storage directory (ROOT/logs/extensions/models/)
+MODELS_ROOT = EXTENSIONS_LOGS_DIR / "models"
+
 
 # ---------------------
 # Heuristics Configuration
@@ -71,6 +74,7 @@ __all__ = [
     "LOGS_ROOT", 
     "EXTENSIONS_LOGS_DIR",
     "DATASETS_ROOT",
+    "MODELS_ROOT",
     "HEURISTICS_LOG_PREFIX",
     "DEFAULT_GRID_SIZE",
     "SUPPORTED_GRID_SIZES",

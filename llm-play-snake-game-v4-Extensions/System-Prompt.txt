@@ -86,6 +86,7 @@ Such code should never happen:
 
 
 ## DRY principles
-For extensions, we should go for DRY principles extensively, as well, but only 
+For extensions, we should go for DRY principles extensively, as well, but only really common utils, and should only be put into the ./extensions/common/ folder. Never share code between extensions.
+
 
 

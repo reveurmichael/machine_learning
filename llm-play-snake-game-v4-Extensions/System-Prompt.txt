@@ -55,12 +55,14 @@ Regarding the naming: in the root directory, by default it's for task0. so no ne
 Because it's already being used by extensions (check the folder "./extensions/")
 
 
-
-
 ## VITAL: EVOLUTION OF CODE IN DEMONSTRATION: 
 
 Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
 
+
+## Type-hinted
+
+Make code type-hinted, but only where you are really sure of the type. Don't type-hint for the sake of type-hinting.
 
 
 

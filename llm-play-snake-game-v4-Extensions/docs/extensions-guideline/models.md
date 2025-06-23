@@ -110,6 +110,10 @@ gbm = lgb.Booster(model_file='model_lgb_v1.txt')
 ```
 
 ---
+## 4. Catboost
+
+Catboost is integrated as well.
+
 
 ## 4. Best Practices Across All Frameworks
 

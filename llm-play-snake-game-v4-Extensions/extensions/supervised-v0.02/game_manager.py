@@ -14,7 +14,7 @@ Design Pattern: Template Method + Factory Pattern
 import sys
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, Type
+from typing import Dict, Any, Type
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
@@ -22,7 +22,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 from core.game_manager import BaseGameManager
 from extensions.common.path_utils import setup_extension_paths
 from extensions.supervised_v0_02.game_logic import SupervisedGameLogic
-from extensions.supervised_v0_02.game_data import SupervisedGameData
 setup_extension_paths()
 
 

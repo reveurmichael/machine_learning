@@ -30,6 +30,57 @@ from .dataset_utils import (
     ParquetWriter,
 )
 
+# Expose training helpers (import lazily to avoid heavy deps)
+from . import training_cli_utils, training_config_utils, training_logging_utils, rl_utils, rl_helpers
+
+# Import new heuristic utilities
+try:
+    from .heuristic_utils import (
+        HeuristicSessionConfig,
+        HeuristicLogger,
+        HeuristicPerformanceTracker,
+        setup_heuristic_logging,
+        format_heuristic_console_output,
+        save_heuristic_session_summary,
+        validate_algorithm_name,
+        execute_heuristic_game_loop,
+    )
+    _has_heuristic_utils = True
+except ImportError:
+    _has_heuristic_utils = False
+
+try:
+    from .heuristic_replay_utils import (
+        ALGORITHM_DISPLAY_NAMES,
+        ALGORITHM_DESCRIPTIONS,
+        get_algorithm_display_name,
+        get_algorithm_description,
+        extract_heuristic_replay_data,
+        calculate_heuristic_performance_metrics,
+        format_algorithm_insights,
+        build_heuristic_state_dict,
+        validate_replay_navigation,
+    )
+    _has_heuristic_replay_utils = True
+except ImportError:
+    _has_heuristic_replay_utils = False
+
+try:
+    from .heuristic_web_utils import (
+        create_algorithm_selector,
+        create_parameter_inputs,
+        create_performance_display,
+        format_web_state_response,
+        build_streamlit_tabs,
+        create_replay_controls,
+        format_algorithm_metrics,
+        create_algorithm_comparison_table,
+        create_progress_tracker,
+    )
+    _has_heuristic_web_utils = True
+except ImportError:
+    _has_heuristic_web_utils = False
+
 __all__ = [
     "ensure_project_root_on_path",
     "EXTENSIONS_LOGS_DIR",
@@ -52,4 +103,49 @@ __all__ = [
     "CSVWriter",
     "NPZWriter",
     "ParquetWriter",
-] 
+    # Training helpers
+    "training_cli_utils",
+    "training_config_utils",
+    "training_logging_utils",
+    "rl_utils",
+    "rl_helpers",
+]
+
+# Add heuristic utilities to exports if available
+if _has_heuristic_utils:
+    __all__.extend([
+        "HeuristicSessionConfig",
+        "HeuristicLogger",
+        "HeuristicPerformanceTracker",
+        "setup_heuristic_logging",
+        "format_heuristic_console_output",
+        "save_heuristic_session_summary",
+        "validate_algorithm_name",
+        "execute_heuristic_game_loop",
+    ])
+
+if _has_heuristic_replay_utils:
+    __all__.extend([
+        "ALGORITHM_DISPLAY_NAMES",
+        "ALGORITHM_DESCRIPTIONS",
+        "get_algorithm_display_name",
+        "get_algorithm_description",
+        "extract_heuristic_replay_data",
+        "calculate_heuristic_performance_metrics",
+        "format_algorithm_insights",
+        "build_heuristic_state_dict",
+        "validate_replay_navigation",
+    ])
+
+if _has_heuristic_web_utils:
+    __all__.extend([
+        "create_algorithm_selector",
+        "create_parameter_inputs",
+        "create_performance_display",
+        "format_web_state_response",
+        "build_streamlit_tabs",
+        "create_replay_controls",
+        "format_algorithm_metrics",
+        "create_algorithm_comparison_table",
+        "create_progress_tracker",
+    ]) 

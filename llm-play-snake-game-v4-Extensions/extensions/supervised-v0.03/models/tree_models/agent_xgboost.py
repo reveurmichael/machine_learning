@@ -15,9 +15,8 @@ Design Pattern: Strategy Pattern
 import xgboost as xgb
 import numpy as np
 import json
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from core.game_agents import SnakeAgent
 from extensions.common.path_utils import setup_extension_paths
@@ -152,7 +151,7 @@ class XGBoostAgent(SnakeAgent):
         X_train, X_val = X[:-n_val], X[-n_val:]
         y_train, y_val = y[:-n_val], y[-n_val:]
         
-        print(f"Training XGBoost model...")
+        print("Training XGBoost model...")
         print(f"Grid size: {self.grid_size}, Input size: {self.input_size}")
         print(f"Max depth: {self.max_depth}, Learning rate: {self.learning_rate}")
         print(f"Training samples: {len(X_train)}, Validation samples: {len(X_val)}")
@@ -175,7 +174,7 @@ class XGBoostAgent(SnakeAgent):
         # Get feature importance
         feature_importance = self.model.feature_importances_
         
-        print(f"Training completed!")
+        print("Training completed!")
         print(f"Train accuracy: {train_accuracy:.4f}")
         print(f"Validation accuracy: {val_accuracy:.4f}")
         

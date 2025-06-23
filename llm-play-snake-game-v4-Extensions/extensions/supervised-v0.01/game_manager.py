@@ -14,7 +14,7 @@ Design Pattern: Template Method + Factory Pattern
 import sys
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))

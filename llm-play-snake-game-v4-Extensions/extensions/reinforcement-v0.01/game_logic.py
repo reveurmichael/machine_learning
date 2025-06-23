@@ -28,9 +28,8 @@ Version: 0.01
 """
 
 import sys
-import os
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional, Callable
+from typing import Dict, Any, List, Tuple, Callable
 import numpy as np
 
 # Add project root to path for imports
@@ -44,7 +43,7 @@ setup_extension_paths()
 
 from core.game_logic import BaseGameLogic
 from core.game_data import BaseGameData
-from config.game_constants import DIRECTIONS, VALID_MOVES
+from config.game_constants import VALID_MOVES
 
 
 class RLGameData(BaseGameData):

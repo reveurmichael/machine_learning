@@ -163,9 +163,9 @@ class BaseGameData:
             self.consecutive_invalid_reversals = 0
             self.consecutive_no_path_found = 0
         
-        # --------------------------------------------------------------
+        # ---------------------
         # Round-level bookkeeping (generic – safe for ALL tasks)
-        # --------------------------------------------------------------
+        # ---------------------
         # If a RoundManager is attached we mirror the move into the
         # per-round buffer.  This allows replay engines and analytics to
         # reconstruct the exact sequence of actions without scanning the

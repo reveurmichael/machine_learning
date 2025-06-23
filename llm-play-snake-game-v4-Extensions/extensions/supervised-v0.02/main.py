@@ -15,8 +15,7 @@ Design Pattern: Factory Pattern + Strategy Pattern
 import sys
 import os
 import argparse
-from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, List
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))

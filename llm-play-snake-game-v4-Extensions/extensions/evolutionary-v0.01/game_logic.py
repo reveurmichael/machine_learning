@@ -1,5 +1,5 @@
 """GA GameLogic (Evolutionary-v0.01)
-----------------------------------
+---------------------
 
 Thin wrapper around :class:`core.game_logic.BaseGameLogic` that delegates the
 planning step to a :class:`~extensions.evolutionary_v0_01.agent_ga.GAAgent`.
@@ -29,16 +29,16 @@ class EGA_GameLogic(BaseGameLogic):
         super().__init__(grid_size=grid_size, use_gui=use_gui)
         self._agent: Optional[GAAgent] = None
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Public helper – called by GameManager
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def set_agent(self, agent: GAAgent) -> None:
         self._agent = agent
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # BaseGameLogic contract – override
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def plan_next_moves(self) -> None:  # pylint: disable=missing-function-docstring
         if self._agent is None:

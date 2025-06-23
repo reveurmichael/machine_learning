@@ -141,7 +141,7 @@ class HamiltonianAgent:
                 if next_idx == 0:
                     explanation += f"Completed cycle #{self.cycle_completions}! Starting new cycle traversal."
                 else:
-                    explanation += f"Continuing systematic exploration of the grid."
+                    explanation += "Continuing systematic exploration of the grid."
                 
                 return direction, explanation
             else:

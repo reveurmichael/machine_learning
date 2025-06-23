@@ -18,7 +18,6 @@ Features:
 - Responsive web UI with heuristic insights
 """
 
-import pathlib
 import sys
 from pathlib import Path
 import argparse

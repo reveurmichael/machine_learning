@@ -49,9 +49,9 @@ class EvolutionaryGameManager(BaseGameManager):
         self.game_steps: List[int] = []
         self.game_rounds: List[int] = []
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # BaseGameManager hooks
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def initialize(self) -> None:  # noqa: D401  (imperative mood)
         """Initialise GA session – agent + logging."""
@@ -65,9 +65,9 @@ class EvolutionaryGameManager(BaseGameManager):
         print(Fore.GREEN + "🧬 GA Agent initialised")
         print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Helpers
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _setup_logging(self) -> None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -76,9 +76,9 @@ class EvolutionaryGameManager(BaseGameManager):
         self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, experiment_folder)
         os.makedirs(self.log_dir, exist_ok=True)
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Main loop – keep identical structure to heuristic v0.01 for comparison
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def run(self) -> None:  # noqa: D401
         print(Fore.GREEN + "🚀 Starting GA session…")

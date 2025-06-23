@@ -257,12 +257,12 @@ class ReplayStateProvider(StateProvider):
         if not self.replay_engine:
             raise RuntimeError("Replay engine not available")
 
-        # ------------------------------------------------------------------
+        # ---------------------
         # Advance the replay one step **if** the engine is not paused and the
         # required delay has elapsed.  This keeps the web viewer in sync
         # without needing a separate background thread – every browser poll
         # (typically 10-20× per second) drives the simulation forward.
-        # ------------------------------------------------------------------
+        # ---------------------
 
         try:
             # The engine itself implements the timing logic in `update()` so

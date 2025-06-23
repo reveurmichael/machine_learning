@@ -149,7 +149,7 @@ class SupervisedGameLogic(BaseGameLogic):
 ## 📈 Evolution Path
 
 ### v0.01 → v0.02 Progression
-- **Single model type** → **Multiple model types** (XGBoost, LightGBM, etc.)
+- **Single model type** → **Multiple model types** (XGBoost, LightGBM, CatBoost, etc.)
 - **No arguments** → **`--model` parameter**
 - **Simple structure** → **Organized models folder**
 - **Basic training** → **Advanced training pipelines**

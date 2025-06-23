@@ -30,12 +30,9 @@ import json
 from colorama import Fore
 
 from core.game_manager import BaseGameManager
-from core.game_data import GameData
-from core.game_logic import GameLogic
 
 # Import heuristic-specific components
 from game_logic import HeuristicGameLogic
-from game_data import HeuristicGameData
 from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import common extension configuration

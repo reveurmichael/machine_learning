@@ -8,6 +8,10 @@ We will have:
 - GNN (pytorch, pytorch geometric, dgl)
 - GRU
 - LSTM
+- XGBoost
+- LightGBM
+- CatBoost
+
 
 
 

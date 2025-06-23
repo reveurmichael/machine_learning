@@ -44,13 +44,8 @@ HeuristicAgent = Union[
 ]
 
 # Import base classes and utilities
-from core.game_manager import BaseGameManager
-from core.game_data import GameData
-from core.game_logic import GameLogic
 
 # Import heuristic-specific components
-from game_logic import HeuristicGameLogic
-from game_data import HeuristicGameData
 
 # Import common extension configuration
 from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX

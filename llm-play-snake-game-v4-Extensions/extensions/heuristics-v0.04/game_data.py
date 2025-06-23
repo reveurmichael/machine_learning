@@ -174,7 +174,7 @@ class HeuristicGameData(BaseGameData):
         detailed_history, …).
         """
         summary = {
-            # Outcome ---------------------------
+            # Outcome ---------------------
             "score": self.score,
             "steps": self.steps,
             "snake_length": self.snake_length,
@@ -196,7 +196,7 @@ class HeuristicGameData(BaseGameData):
                 "game_number": self.game_number,
                 **kwargs.get("metadata", {}),
             },
-            # Replay data ----------------------
+            # Replay data ---------------------
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
@@ -207,9 +207,9 @@ class HeuristicGameData(BaseGameData):
         }
         return summary
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Serialisation helper – mirrors core.GameData.save_game_summary
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def save_game_summary(self, filepath: str, **kwargs):  # type: ignore[override]
         """Write *game_N.json* using the local `generate_game_summary()`."""

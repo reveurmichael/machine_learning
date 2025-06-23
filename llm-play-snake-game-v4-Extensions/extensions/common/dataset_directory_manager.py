@@ -20,7 +20,7 @@ This guarantees:
     zero changes to existing code.
 
 Design Patterns Employed
------------------------
+---------------------
 * **Facade / Static Utility** – a single class exports helper methods; no
   instance state is required.
 * **Single-Source-of-Truth (SSoT)** – delegates absolute paths to
@@ -38,24 +38,24 @@ import re
 from pathlib import Path
 from typing import Final
 
-from .config import DATASETS_ROOT, get_dataset_dir, SUPPORTED_GRID_SIZES, ensure_datasets_dir
+from .config import DATASETS_ROOT, SUPPORTED_GRID_SIZES, ensure_datasets_dir
 
 __all__ = [
     "DatasetPathError",
     "DatasetDirectoryManager",
 ]
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Exceptions
-# ---------------------------------------------------------------------------
+# ---------------------
 
 class DatasetPathError(RuntimeError):
     """Raised when a dataset path does *not* conform to the grid-size rule."""
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Manager (static facade)
-# ---------------------------------------------------------------------------
+# ---------------------
 
 class DatasetDirectoryManager:  # pylint: disable=too-few-public-methods
     """Static helpers for grid-size-aware dataset paths.
@@ -67,9 +67,9 @@ class DatasetDirectoryManager:  # pylint: disable=too-few-public-methods
 
     _GRID_DIR_PATTERN: Final[re.Pattern[str]] = re.compile(r"grid-size-(\d+)")
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Path builders
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     @staticmethod
     def dataset_root() -> Path:
@@ -86,9 +86,9 @@ class DatasetDirectoryManager:  # pylint: disable=too-few-public-methods
             )
         return ensure_datasets_dir(grid_size)
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Validation helpers
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     @staticmethod
     def validate_dataset_path(path: Path) -> int:
@@ -109,9 +109,9 @@ class DatasetDirectoryManager:  # pylint: disable=too-few-public-methods
             )
         return grid_size
 
-    # ---------------------------------------------------------------------
+    # ---------------------
     # Convenience builders for filenames
-    # ---------------------------------------------------------------------
+    # ---------------------
 
     @staticmethod
     def make_filename(

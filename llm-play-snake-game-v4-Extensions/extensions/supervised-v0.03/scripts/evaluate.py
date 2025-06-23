@@ -19,8 +19,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from extensions.supervised_v0_03.utils.cli_utils import create_parser, validate_args, parse_model_list
-from extensions.supervised_v0_03.utils.logging_utils import setup_logging
+from extensions.common.training_cli_utils import create_parser, validate_args, parse_model_list
+from extensions.common.training_logging_utils import setup_logging
 from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
 

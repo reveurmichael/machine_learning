@@ -54,7 +54,7 @@ import csv
 import os
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from datetime import datetime
 import argparse
 
@@ -538,7 +538,7 @@ def main():
             algorithm=args.algorithm
         )
         
-        print(f"✅ Dataset generated successfully!")
+        print("✅ Dataset generated successfully!")
         print(f"📁 Grid size: {metadata['grid_size']}")
         print(f"📁 Output directory: {os.path.dirname(metadata['output_file'])}")
         print(f"📄 Dataset file: {os.path.basename(metadata['output_file'])}")

@@ -44,7 +44,7 @@ def test_schema_generation():
         assert len(schema.metadata_columns) == expected_metadata, f"Expected {expected_metadata} metadata columns"
         assert schema.total_columns == expected_total, f"Expected {expected_total} total columns"
         
-        print(f"  ✓ Schema validation passed")
+        print("  ✓ Schema validation passed")
         print()
 
 
@@ -90,7 +90,7 @@ def test_feature_extraction():
         assert features["apple_dir_left"] == 0   # Apple is not to the left
         assert features["apple_dir_up"] == 0     # Apple is not above
         
-        print(f"  ✓ Feature extraction validation passed")
+        print("  ✓ Feature extraction validation passed")
         print()
 
 
@@ -134,7 +134,7 @@ def test_csv_row_creation():
         assert row["snake_length"] == 2
         assert row["target_move"] == "RIGHT"
         
-        print(f"  ✓ CSV row validation passed")
+        print("  ✓ CSV row validation passed")
         print()
 
 

@@ -21,7 +21,7 @@ from typing import Dict, Any
 
 from .agent_mlp import BaseMLAgent
 from extensions.common.path_utils import setup_extension_paths
-from extensions.common.csv_schema import TabularFeatureExtractor, get_schema_info
+from extensions.common.csv_schema import get_schema_info
 setup_extension_paths()
 
 

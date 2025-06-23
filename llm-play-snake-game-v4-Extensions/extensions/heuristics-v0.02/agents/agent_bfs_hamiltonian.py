@@ -127,9 +127,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 self.grid_size = grid_size
                 self.hamiltonian = generate_hamiltonian_cycle(grid_size)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 1. & 2. Try inherited BFS Safe Greedy strategies first
-            # --------------------------------------------------------------
+            # ---------------------
             # This calls the parent's get_move() which handles:
             # - Safe path to apple with validation
             # - Tail-chasing fallback
@@ -149,23 +149,23 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 next_pos = path_to_tail[1]
                 return position_to_direction(head, next_pos)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 3. NEW: Intelligent Hamiltonian shortcut toward apple
-            # --------------------------------------------------------------
+            # ---------------------
             shortcut_move = self._hamiltonian_shortcut(head, apple, snake, grid_size)
             if shortcut_move:
                 return shortcut_move
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 4. NEW: Hamiltonian cycle fallback (ultimate safety)
-            # --------------------------------------------------------------
+            # ---------------------
             hamiltonian_move = self._hamiltonian_move(head, obstacles)
             if hamiltonian_move:
                 return hamiltonian_move
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 5. Last resort: inherited safe move finder
-            # --------------------------------------------------------------
+            # ---------------------
             return self._get_safe_move(head, obstacles, grid_size)
             
         except Exception as e:

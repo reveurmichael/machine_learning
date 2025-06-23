@@ -108,9 +108,9 @@ class AStarHamiltonianAgent(AStarAgent):
                 self.grid_size = grid_size
                 self._generate_hamiltonian_cycle(grid_size)
 
-            # ------------------------------------------------------
+            # ---------------------
             # 1. Try inherited A* pathfinding with safety validation
-            # ------------------------------------------------------
+            # ---------------------
             path_to_apple = self._astar_pathfind(head, apple, obstacles, grid_size)
             
             if path_to_apple and len(path_to_apple) > 1:
@@ -119,16 +119,16 @@ class AStarHamiltonianAgent(AStarAgent):
                     next_pos = path_to_apple[1]
                     return position_to_direction(head, next_pos)
 
-            # ------------------------------------------------------
+            # ---------------------
             # 2. NEW: Hamiltonian cycle fallback (ultimate safety)
-            # ------------------------------------------------------
+            # ---------------------
             hamiltonian_move = self._follow_hamiltonian_cycle(head, obstacles)
             if hamiltonian_move:
                 return hamiltonian_move
 
-            # ------------------------------------------------------
+            # ---------------------
             # 3. Last resort: inherited emergency evasion
-            # ------------------------------------------------------
+            # ---------------------
             return self._emergency_evasion(head, grid_size)
 
         except Exception as e:

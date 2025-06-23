@@ -86,9 +86,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             grid_size = game.grid_size
             obstacles = set(snake[:-1])  # Exclude tail (can vacate)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 1. Try shortest safe path to apple (using inherited BFS)
-            # --------------------------------------------------------------
+            # ---------------------
             path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
             
             if path_to_apple and len(path_to_apple) > 1:
@@ -97,9 +97,9 @@ class BFSSafeGreedyAgent(BFSAgent):
                     next_pos = path_to_apple[1]
                     return position_to_direction(head, next_pos)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 2. Fallback: Chase tail (always safe)
-            # --------------------------------------------------------------
+            # ---------------------
             tail = snake[-1]
             path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
             
@@ -107,9 +107,9 @@ class BFSSafeGreedyAgent(BFSAgent):
                 next_pos = path_to_tail[1]
                 return position_to_direction(head, next_pos)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 3. Last resort: any non-crashing move
-            # --------------------------------------------------------------
+            # ---------------------
             return self._get_safe_move(head, obstacles, grid_size)
             
         except Exception as e:

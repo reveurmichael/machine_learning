@@ -6,7 +6,7 @@ Enhanced with limits manager integration to provide the same console output
 that would have appeared during the original game session.
 
 Lazy Pygame Import
--------------------------------------
+---------------------
 `pygame` is now loaded **only when needed** (``use_gui=True``).  Head-less
 CI jobs or data-pipeline scripts can import and use the replay engine without
 installing SDL/pygame.  All references go through ``self._pygame`` which is
@@ -61,7 +61,7 @@ class ReplayGameStateProvider:
         """Check if replay is still running."""
         return self.replay_engine.running
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Generic, headless-capable replay skeleton (LLM-agnostic).
 #
 # It derives directly from *GameLogic* so that we can reuse the full snake
@@ -71,7 +71,7 @@ class ReplayGameStateProvider:
 #
 # Enhanced with limits manager integration to provide authentic console output
 # that matches what would have appeared during the original game session.
-# ---------------------------------------------------------------------------
+# ---------------------
 
 
 class BaseReplayEngine(GameLogic):
@@ -94,10 +94,10 @@ class BaseReplayEngine(GameLogic):
     - Maintains consistency with live game sessions
     """
 
-    # -------------------------------------------------------------------
+    # ---------------------
     # GUI plumbing – identical public API as before so that *scripts/replay.py*
     # continues to work unchanged.
-    # -------------------------------------------------------------------
+    # ---------------------
 
     def set_gui(self, gui_instance):  # type: ignore[override]
         """Attach a GUI instance and propagate the current *paused* state."""
@@ -108,10 +108,10 @@ class BaseReplayEngine(GameLogic):
         if gui_instance and hasattr(gui_instance, "set_paused"):
             gui_instance.set_paused(self.paused)
 
-    # -------------------------------------------------------------------
+    # ---------------------
     # Utility so the replay can *force-set* an apple position taken from the
     # JSON artefacts (random generation would desynchronise the playback).
-    # -------------------------------------------------------------------
+    # ---------------------
 
     def set_apple_position(self, position):  # noqa: D401 – keep simple sig
         """Force-set the apple to a specific position (for replay determinism)."""

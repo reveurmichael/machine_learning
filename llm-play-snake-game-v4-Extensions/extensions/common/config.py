@@ -23,22 +23,21 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import Union
 
-# Add project root to path for imports
-current_dir = Path(__file__).parent
-project_root = current_dir.parent.parent  # Go up to project root
-sys.path.insert(0, str(project_root))
+# ---------------------
+# Ensure repository root is discoverable via the canonical utility once – this
+# avoids DIY sys.path hacking in every module and keeps *single source of truth*.
+# ---------------------
 
+from utils.path_utils import get_project_root  # Absolute import – root package
 
-# ---------------------------------------------------------------------------
+# Cache the resolved project root for cheaper repeated access
+PROJECT_ROOT: Path = get_project_root()
+
+# ---------------------
 # Core Directory Configuration
-# ---------------------------------------------------------------------------
-
-# Root project directory
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# ---------------------
 
 # Main logs directory (ROOT/logs/)
 LOGS_ROOT = PROJECT_ROOT / "logs"
@@ -50,9 +49,9 @@ EXTENSIONS_LOGS_DIR = LOGS_ROOT / "extensions"
 DATASETS_ROOT = EXTENSIONS_LOGS_DIR / "datasets"
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Heuristics Configuration
-# ---------------------------------------------------------------------------
+# ---------------------
 
 # Log prefix for heuristic algorithms
 HEURISTICS_LOG_PREFIX = "heuristics"
@@ -64,9 +63,9 @@ DEFAULT_GRID_SIZE = 10
 SUPPORTED_GRID_SIZES = [8, 10, 12, 16, 20]
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Dataset Configuration
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def get_dataset_dir(grid_size: int = DEFAULT_GRID_SIZE) -> Path:
     """
@@ -104,9 +103,9 @@ def get_dataset_path(
     return dataset_dir / filename
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Helper Functions
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def get_extension_log_path(extension_name: str) -> Path:
     """
@@ -179,9 +178,9 @@ def validate_grid_size(grid_size: int) -> bool:
     return grid_size in SUPPORTED_GRID_SIZES
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Export Configuration
-# ---------------------------------------------------------------------------
+# ---------------------
 
 __all__ = [
     "PROJECT_ROOT",

@@ -14,10 +14,8 @@ Design Pattern: Strategy Pattern + Template Method
 
 import sys
 import os
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 import numpy as np
-import platform
-from datetime import datetime
 from pathlib import Path
 
 # Add project root to path
@@ -169,7 +167,6 @@ class BaseNeuralAgent(SnakeAgent):
             filepath: Path to save model
             export_onnx: If True, also export ONNX format
         """
-        from extensions.common.model_utils import save_model_standardized
         
         # Use standardized saving with proper directory structure
         training_params = {
@@ -201,7 +198,6 @@ class BaseNeuralAgent(SnakeAgent):
         Args:
             filepath: Path to load model from
         """
-        from extensions.common.model_utils import load_model_standardized
         
         # Use standardized loading
         loaded_model = load_model_standardized(
@@ -690,7 +686,6 @@ class LSTMAgent(BaseNeuralAgent):
             filepath: Path to save model
             export_onnx: If True, also export ONNX format
         """
-        from extensions.common.model_utils import save_model_standardized
         
         # Use standardized saving with proper directory structure
         training_params = {
@@ -746,7 +741,6 @@ class LSTMAgent(BaseNeuralAgent):
         Args:
             filepath: Path to load model from
         """
-        from extensions.common.model_utils import load_model_standardized
         
         # Use standardized loading
         loaded_model = load_model_standardized(

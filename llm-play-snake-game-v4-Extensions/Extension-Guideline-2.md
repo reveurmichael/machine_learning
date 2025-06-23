@@ -16,7 +16,7 @@ When training supervised learning models, a command-line option like `--dataset-
 We will follow a similar versioning approach for supervised learning extensions, analogous to heuristics:
 
 * **v0.01:** Focused on neural networks using PyTorch (basic training pipeline).
-* **v0.02:** Supports a broad range of supervised models — XGBoost, LightGBM, neural networks, CNN, RNN, GNN, etc. — but **without GUI, replay, or web interface**.
+* **v0.02:** Supports a broad range of supervised models — XGBoost, LightGBM, catboost, neural networks, CNN, RNN, GNN, etc. — but **without GUI, replay, or web interface**.
 * **v0.03:** Adds full user interfaces including GUI, replay features, web and Pygame modes, and a Streamlit `app.py` for interactive training and evaluation.
 
 Currently, the plan is to develop only **v0.01 and v0.02** for supervised models.

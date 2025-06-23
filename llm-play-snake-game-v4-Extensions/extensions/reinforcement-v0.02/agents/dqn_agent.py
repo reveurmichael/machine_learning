@@ -16,15 +16,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
-import random
-from collections import deque
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any
+import random
 
 from core.game_agents import SnakeAgent
 from extensions.common.path_utils import setup_extension_paths
-from extensions.common.model_utils import save_model_standardized, get_model_directory
+from extensions.common.model_utils import save_model_standardized
+from extensions.common.rl_utils import ReplayBuffer
 setup_extension_paths()
 
 
@@ -89,61 +88,6 @@ class DQNNetwork(nn.Module):
             Q-values tensor of shape (batch_size, num_actions)
         """
         return self.layers(x)
-
-
-class ReplayBuffer:
-    """
-    Experience replay buffer for DQN.
-    
-    Design Pattern: Singleton Pattern
-    - Centralized experience storage
-    - Efficient sampling for training
-    - Memory management
-    """
-    
-    def __init__(self, capacity: int = 10000):
-        """
-        Initialize replay buffer.
-        
-        Args:
-            capacity: Maximum number of experiences to store
-        """
-        self.capacity = capacity
-        self.buffer = deque(maxlen=capacity)
-    
-    def push(self, state: np.ndarray, action: int, reward: float, 
-             next_state: np.ndarray, done: bool):
-        """
-        Add experience to buffer.
-        
-        Args:
-            state: Current state
-            action: Action taken
-            reward: Reward received
-            next_state: Next state
-            done: Whether episode is done
-        """
-        self.buffer.append((state, action, reward, next_state, done))
-    
-    def sample(self, batch_size: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Sample a batch of experiences.
-        
-        Args:
-            batch_size: Number of experiences to sample
-            
-        Returns:
-            Tuple of (states, actions, rewards, next_states, dones)
-        """
-        batch = random.sample(self.buffer, batch_size)
-        states, actions, rewards, next_states, dones = zip(*batch)
-        
-        return (np.array(states), np.array(actions), np.array(rewards), 
-                np.array(next_states), np.array(dones))
-    
-    def __len__(self) -> int:
-        """Return current buffer size."""
-        return len(self.buffer)
 
 
 class DQNAgent(SnakeAgent):
@@ -289,7 +233,7 @@ class DQNAgent(SnakeAgent):
         Returns:
             Dictionary containing training metrics
         """
-        print(f"Training DQN agent...")
+        print("Training DQN agent...")
         print(f"Grid size: {self.grid_size}, Hidden size: {self.hidden_size}")
         print(f"Learning rate: {self.learning_rate}, Gamma: {self.gamma}")
         print(f"Device: {self.device}")

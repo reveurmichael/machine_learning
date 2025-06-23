@@ -27,7 +27,8 @@ def main() -> None:  # noqa: D401
     args = _build_arg_parser().parse_args()
 
     if args.seed is not None:
-        import random, numpy as np
+        import random
+        import numpy as np
         random.seed(args.seed)
         np.random.seed(args.seed)
 

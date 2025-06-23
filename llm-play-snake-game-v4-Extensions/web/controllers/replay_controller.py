@@ -66,10 +66,10 @@ class ReplayController(BaseGameViewingController):
             'message': 'Replay analytics placeholder'
         }
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # MVC Index rendering hooks – ensure the correct Jinja template is used
     # instead of the generic fallback defined in *BaseWebController*.
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def get_index_template_name(self) -> str:  # noqa: D401 – simple override
         """Return the Jinja template that renders the replay UI."""
@@ -91,10 +91,10 @@ class ReplayController(BaseGameViewingController):
             "game_mode": "replay",
         }
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # API: enrich the state payload so the front-end can show progress, speed
     # and LLM meta data (JS expects these fields at *top level*).
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def handle_state_request(self, context: RequestContext) -> Dict[str, Any]:  # type: ignore[override]
         """Return the current replay state with Task-0 extras."""
@@ -128,11 +128,11 @@ class ReplayController(BaseGameViewingController):
 
         return state
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Control endpoint – the legacy front-end sends {command: "play" | …}
     # while the new MVC base class expects {action: ...}.  We translate here
     # so we don't have to touch the JavaScript.
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def handle_control_request(self, context: RequestContext) -> Dict[str, Any]:  # type: ignore[override]
         data = context.data or {}

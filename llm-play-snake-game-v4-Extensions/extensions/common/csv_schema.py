@@ -22,8 +22,7 @@ Design Pattern: Strategy Pattern
 
 from __future__ import annotations
 
-import numpy as np
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 

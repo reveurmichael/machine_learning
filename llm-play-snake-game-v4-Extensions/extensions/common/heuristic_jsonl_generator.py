@@ -26,13 +26,12 @@ import json
 import os
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 import argparse
 
 # Import grid size detection utilities from CSV generator
 import sys
-import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from heuristic_csv_generator import GridSizeDetector, DatasetDirectoryManager
@@ -245,7 +244,7 @@ def main():
             max_games=args.max_games
         )
         
-        print(f"✅ JSONL dataset generated successfully!")
+        print("✅ JSONL dataset generated successfully!")
         print(f"📁 Grid size: {metadata['grid_size']}")
         print(f"📁 Output directory: {os.path.dirname(metadata['output_file'])}")
         print(f"📄 Dataset file: {os.path.basename(metadata['output_file'])}")

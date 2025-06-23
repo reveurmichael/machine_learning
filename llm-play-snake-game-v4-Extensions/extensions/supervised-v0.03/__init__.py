@@ -27,4 +27,25 @@ Usage:
 
 __version__ = "0.03"
 __author__ = "Snake Game Extensions"
-__description__ = "Supervised Learning with Web Interface for Snake Game" 
+__description__ = "Supervised Learning with Web Interface for Snake Game"
+
+"""Supervised v0.03 – Learning *from* Heuristics
+===========================================
+
+This package consumes the trajectories emitted by *heuristics-v0.03* (CSV)
+and *heuristics-v0.04* (language-rich JSONL) to train conventional ML models.
+Without a diverse and accurate heuristic dataset **there is nothing to learn**.
+
+Dependency chain:
+
+    heuristics  →  supervised  →  rl pre-training / llm distillation
+
+Keep this in mind when adjusting feature extraction or data-loading logic – a
+break here cascades downstream.  Always run the dataset-generation integration
+suite before merging changes.
+"""
+
+from extensions.common.path_utils import ensure_project_root_on_path  # noqa: F401
+ensure_project_root_on_path()
+
+__all__: list[str] = [] 

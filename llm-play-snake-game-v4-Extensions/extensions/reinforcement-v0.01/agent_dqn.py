@@ -31,21 +31,16 @@ Version: 0.01
 """
 
 import sys
-import os
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional, Callable
+from typing import Dict, Any, List, Optional, Callable
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from collections import deque, namedtuple
+from collections import deque
 import random
-import json
 from dataclasses import dataclass, field
-from abc import ABC, abstractmethod
-import platform
-from datetime import datetime
 
 # Add project root to path for imports
 current_file = Path(__file__).resolve()
@@ -55,9 +50,8 @@ if str(project_root) not in sys.path:
 
 from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
+from extensions.common.rl_utils import ReplayBuffer, Experience
 
-from core.game_data import BaseGameData
-from config.game_constants import DIRECTIONS, VALID_MOVES
 
 
 # =============================================================================

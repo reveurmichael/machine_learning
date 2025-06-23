@@ -17,9 +17,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any
 
 from core.game_agents import SnakeAgent
 from extensions.common.path_utils import setup_extension_paths

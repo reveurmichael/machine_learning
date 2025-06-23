@@ -10,7 +10,7 @@ Design Philosophy:
 - Clean separation of concerns, no historical baggage
 
 Testability & head-less execution
---------------------------------
+---------------------
 Now *pygame* is **lazy-loaded**.  We only import/initialise
 it inside :pyclass:`BaseGameManager` **when** the caller explicitly requests a
 GUI session (``use_gui=True``, default for Task-0).  This brings two major

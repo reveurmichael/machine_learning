@@ -3,50 +3,21 @@ from __future__ import annotations
 from ..common.path_utils import ensure_project_root_on_path
 ensure_project_root_on_path()
 
-"""
-Heuristics v0.03 - Advanced Heuristic Agents with Streamlit Interface
-====================================================================
+"""Heuristics v0.03 – CORE DATA GENERATORS
+====================================
 
-This extension demonstrates software evolution from v0.02 to v0.03,
-adding a comprehensive Streamlit interface and enhanced replay capabilities.
+Heuristic algorithms are *foundational* to the entire second-citizen
+research pipeline:
 
-Key Features:
-- Streamlit dashboard with multiple tabs (overview, launch, replay, analysis)
-- PyGame and web-based replay systems
-- Factory pattern for 7 different heuristic algorithms
-- Inheritance hierarchy showing software evolution
-- Reuse of Task-0 base classes and utilities
+1.  They produce **high-quality trajectories** that supervise the first wave
+    of ML models (Task-2 – supervised learning).
+2.  Those same trajectories, once converted to language-rich JSONL in
+    *heuristics-v0.04*, become the **seed corpus for LLM fine-tuning**
+    (Task-4).
 
-Evolution from v0.02:
-- Added Streamlit app.py as primary interface
-- Enhanced replay capabilities (PyGame + Flask web)
-- Improved agent factory with better error handling
-- Added comprehensive documentation and educational content
-
-Design Patterns:
-- Factory Pattern: Agent creation through factory functions
-- Inheritance: Progressive enhancement through class hierarchy
-- MVC Pattern: Separation of game logic, data, and presentation
-- Singleton Pattern: File manager and other shared resources
-- Strategy Pattern: Interchangeable pathfinding algorithms
-
-Available Algorithms:
-1. BFS - Basic breadth-first search
-2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation
-3. BFS-HAMILTONIAN - BFS with Hamiltonian cycle fallback
-4. DFS - Depth-first search (educational)
-5. ASTAR - A* pathfinding with Manhattan heuristic
-6. ASTAR-HAMILTONIAN - A* with Hamiltonian fallback
-7. HAMILTONIAN - Pure Hamiltonian cycle
-
-Inheritance Hierarchy:
-- BFSAgent (base)
-  └── BFSSafeGreedyAgent (adds safety)
-      └── BFSHamiltonianAgent (adds Hamiltonian)
-- AStarAgent (base)
-  └── AStarHamiltonianAgent (adds Hamiltonian)
-- DFSAgent (standalone)
-- HamiltonianAgent (standalone)
+Therefore *every* later task depends transitively on the correctness and
+variety of this package.  Treat modifications with the same care you would
+apply to core engine changes – tests first, benchmarks second.
 """
 
 # Import factory functions from agents package

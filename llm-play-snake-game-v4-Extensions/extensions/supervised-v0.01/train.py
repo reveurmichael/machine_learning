@@ -13,7 +13,6 @@ Design Pattern: Template Method
 """
 
 import sys
-import os
 import argparse
 from pathlib import Path
 from typing import Dict, Any, List
@@ -123,7 +122,7 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
     )
     
     # Print results
-    print(f"Training completed!")
+    print("Training completed!")
     print(f"Validation accuracy: {val_accuracy:.4f}")
     print(f"Test accuracy: {test_accuracy:.4f}")
     print(f"Model saved to: {saved_path}")

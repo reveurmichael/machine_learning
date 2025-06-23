@@ -87,25 +87,25 @@ class AStarAgent:
             grid_size = game.grid_size
             body_list = [tuple(pos) for pos in game.snake_positions]
 
-            # ----------------------------------------------------------
+            # ---------------------
             # Edge-case: head already occupies the apple tile
-            # ----------------------------------------------------------
+            # ---------------------
             if head_pos == apple_pos:
                 move = self._get_any_safe_direction(head_pos, set(body_list), grid_size)
                 explanation = f"A* agent is already at apple position {apple_pos}. Finding any safe direction to continue game: {move}."
                 return move, explanation
 
-            # ----------------------------------------------------------
+            # ---------------------
             # Tail modelling – will the snake grow this tick?
-            # ----------------------------------------------------------
+            # ---------------------
             tail = body_list[-1]
             will_grow = apple_pos == tail  # tail remains stationary when eating
             obstacles: set[Tuple[int, int]] = set(body_list[:-1]) if not will_grow else set(body_list)
             future_tail = None if will_grow else self._predict_tail_movement(body_list)
 
-            # ----------------------------------------------------------
+            # ---------------------
             # Primary path planning with A*
-            # ----------------------------------------------------------
+            # ---------------------
             path = self._astar_pathfind(
                 head_pos,
                 apple_pos,
@@ -134,9 +134,9 @@ class AStarAgent:
                 )
                 return move, explanation
 
-            # ------------------------------------------------------
+            # ---------------------
             # Fallback layers – try any safe move, then evasion
-            # ------------------------------------------------------
+            # ---------------------
             move = self._get_any_safe_direction(head_pos, obstacles, grid_size)
             if move != "NO_PATH_FOUND":
                 explanation = self._generate_fallback_explanation(
@@ -283,9 +283,9 @@ class AStarAgent:
                 return direction
         return "NO_PATH_FOUND" 
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Tail prediction & dead-end detection helpers
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _predict_tail_movement(self, body: List[Tuple[int, int]]) -> Optional[Tuple[int, int]]:
         """Return the coordinate the tail is expected to vacate next tick."""
@@ -390,9 +390,9 @@ class AStarAgent:
                 return False
         return True
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Layer-2 safety: choose alt move with most breathing room
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _get_alternate_safe_move(
         self,
@@ -423,9 +423,9 @@ class AStarAgent:
             and (pos[0] + dx, pos[1] + dy) not in obstacles
         )
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Layer-3 safety helpers
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _get_any_safe_direction(
         self, head: Tuple[int, int], obstacles: Set[Tuple[int, int]], grid_size: int

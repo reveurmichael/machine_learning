@@ -25,14 +25,11 @@ Author: Snake Game Extensions
 Version: 1.0
 """
 
-import os
 import json
-import hashlib
 import platform
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
-from abc import ABC, abstractmethod
+from typing import Dict, Any
 
 from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
@@ -279,7 +276,6 @@ def _load_pytorch_model(filepath: str, model_class: type, **kwargs) -> Any:
 
 def _load_xgboost_model(filepath: str, model_class: type, **kwargs) -> Any:
     """Load XGBoost model from file."""
-    import xgboost as xgb
     
     model = model_class(**kwargs)
     model.load_model(filepath)

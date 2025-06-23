@@ -30,7 +30,6 @@ import random
 from typing import List, Tuple
 
 from config.game_constants import DIRECTIONS, VALID_MOVES
-from utils.moves_utils import move_head  # core utility to compute new head pos
 
 Move = str  # Alias for readability
 Position = Tuple[int, int]
@@ -50,9 +49,9 @@ class GAAgent:
     def __init__(self, rng: random.Random | None = None) -> None:
         self.rng = rng or random.Random()
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # Public interface expected by GameLogic
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def plan(self, head: Position, apple: Position, grid_size: int) -> List[Move]:
         """Return a *sequence* of planned moves starting from *head*.
@@ -79,9 +78,9 @@ class GAAgent:
         best = min(population, key=lambda chrom: self._fitness(chrom, head, apple, grid_size))
         return best
 
-    # ------------------------------------------------------------------
+    # ---------------------
     # GA internals
-    # ------------------------------------------------------------------
+    # ---------------------
 
     def _random_chromosome(self) -> List[Move]:
         return [self.rng.choice(VALID_MOVES) for _ in range(self.CHROMOSOME_LEN)]

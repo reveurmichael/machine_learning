@@ -332,7 +332,7 @@ class RLGameManager(BaseGameManager):
                 
                 # Check for early stopping
                 if episode_data['reward'] > 1000:  # Very good performance
-                    print(f"Early stopping: Excellent performance achieved!")
+                    print("Early stopping: Excellent performance achieved!")
                     break
         
         except KeyboardInterrupt:
@@ -344,7 +344,7 @@ class RLGameManager(BaseGameManager):
             
             # Training summary
             training_time = time.time() - self.training_start_time
-            print(f"\nTraining completed!")
+            print("\nTraining completed!")
             print(f"Total episodes: {self.current_episode}")
             print(f"Training time: {training_time:.1f} seconds")
             print(f"Best reward: {self.best_reward:.1f}")
@@ -416,7 +416,7 @@ class RLGameManager(BaseGameManager):
             'lengths': lengths
         }
         
-        print(f"Evaluation Results:")
+        print("Evaluation Results:")
         print(f"  Avg Reward: {results['avg_reward']:.2f}")
         print(f"  Avg Score: {results['avg_score']:.2f}")
         print(f"  Avg Length: {results['avg_length']:.1f}")

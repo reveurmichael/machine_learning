@@ -14,7 +14,6 @@ Design Pattern: Template Method
 """
 
 import sys
-import os
 import argparse
 from pathlib import Path
 
@@ -23,7 +22,6 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from extensions.common.path_utils import setup_extension_paths
-from extensions.common.model_utils import save_model_standardized, get_model_directory
 setup_extension_paths()
 
 
@@ -112,7 +110,7 @@ def main():
 
 def train_dqn_agent(args):
     """Train DQN agent."""
-    print(f"Training DQN agent...")
+    print("Training DQN agent...")
     
     # Import DQN components
     from agents.dqn_agent import DQNAgent
@@ -146,7 +144,7 @@ def train_dqn_agent(args):
 
 def train_ppo_agent(args):
     """Train PPO agent."""
-    print(f"Training PPO agent...")
+    print("Training PPO agent...")
     
     # Import PPO components
     from agents.ppo_agent import PPOAgent
@@ -177,7 +175,7 @@ def train_ppo_agent(args):
 
 def train_a3c_agent(args):
     """Train A3C agent."""
-    print(f"Training A3C agent...")
+    print("Training A3C agent...")
     
     # Import A3C components
     from agents.a3c_agent import A3CAgent
@@ -207,7 +205,7 @@ def train_a3c_agent(args):
 
 def train_sac_agent(args):
     """Train SAC agent."""
-    print(f"Training SAC agent...")
+    print("Training SAC agent...")
     
     # Import SAC components
     from agents.sac_agent import SACAgent

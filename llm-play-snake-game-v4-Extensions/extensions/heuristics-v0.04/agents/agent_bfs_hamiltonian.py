@@ -143,9 +143,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 self.grid_size = grid_size
                 self.hamiltonian = generate_hamiltonian_cycle(grid_size)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 1. Try inherited safe apple path
-            # --------------------------------------------------------------
+            # ---------------------
             path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
             if path_to_apple and len(path_to_apple) > 1:
                 if self._path_is_safe(path_to_apple, snake, apple, grid_size):
@@ -160,9 +160,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                     )
                     return direction, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 2. Try inherited tail-chasing fallback
-            # --------------------------------------------------------------
+            # ---------------------
             tail = snake[-1]
             path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
             if path_to_tail and len(path_to_tail) > 1:
@@ -176,9 +176,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 )
                 return direction, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 3. NEW: Intelligent Hamiltonian shortcut toward apple
-            # --------------------------------------------------------------
+            # ---------------------
             shortcut_move = self._hamiltonian_shortcut(head, apple, snake, grid_size)
             if shortcut_move:
                 # Calculate shortcut distance along cycle
@@ -192,9 +192,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 )
                 return shortcut_move, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 4. NEW: Hamiltonian cycle fallback (ultimate safety)
-            # --------------------------------------------------------------
+            # ---------------------
             hamiltonian_move = self._hamiltonian_move(head, obstacles)
             if hamiltonian_move:
                 idx_head = self.hamiltonian.index(head)
@@ -206,9 +206,9 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
                 )
                 return hamiltonian_move, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 5. Last resort: inherited safe move finder
-            # --------------------------------------------------------------
+            # ---------------------
             last_resort_move = self._get_safe_move(head, obstacles, grid_size)
             explanation = (
                 f"BFS Hamiltonian: All advanced strategies failed. Using last resort move {last_resort_move} "

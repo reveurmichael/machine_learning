@@ -10,7 +10,6 @@ Design Pattern: Component Pattern
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 import json

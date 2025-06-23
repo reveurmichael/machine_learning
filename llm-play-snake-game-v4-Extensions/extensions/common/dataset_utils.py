@@ -36,20 +36,18 @@ Usage:
 from __future__ import annotations
 
 import json
-import csv
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Union
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
 # Import common configuration
-from .config import EXTENSIONS_LOGS_DIR, ensure_extensions_logs_dir
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Data Structure Definitions
-# ---------------------------------------------------------------------------
+# ---------------------
 
 @dataclass
 class GameState:
@@ -88,9 +86,9 @@ class GameState:
     step_in_game: int  # Which step within the game
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Data Encoders (Strategy Pattern)
-# ---------------------------------------------------------------------------
+# ---------------------
 
 class DataEncoder(ABC):
     """Abstract base class for different data encoding strategies."""
@@ -379,9 +377,9 @@ class GraphEncoder(DataEncoder):
         }
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Data Format Writers (Strategy Pattern)
-# ---------------------------------------------------------------------------
+# ---------------------
 
 class DataWriter(ABC):
     """Abstract base class for different data format writers."""
@@ -527,9 +525,9 @@ class ParquetWriter(DataWriter):
         print(f"✅ Parquet dataset saved to: {output_path}")
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Main Dataset Generation Function
-# ---------------------------------------------------------------------------
+# ---------------------
 
 def extract_game_states_from_json(json_file: str, grid_size: int = 10) -> List[GameState]:
     """
@@ -719,13 +717,13 @@ def generate_training_dataset(
     print(f"💾 Writing dataset with {writer.__class__.__name__}...")
     writer.write_dataset(encoded_data, str(output_path))
     
-    print(f"🎉 Dataset generation completed!")
+    print("🎉 Dataset generation completed!")
     print(f"📄 Output: {output_path}")
 
 
-# ---------------------------------------------------------------------------
+# ---------------------
 # Export Configuration
-# ---------------------------------------------------------------------------
+# ---------------------
 
 __all__ = [
     "GameState",

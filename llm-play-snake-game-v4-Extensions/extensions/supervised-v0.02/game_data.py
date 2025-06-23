@@ -13,7 +13,7 @@ Design Pattern: Template Method
 
 import sys
 import os
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))

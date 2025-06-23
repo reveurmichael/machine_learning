@@ -14,7 +14,6 @@ Design Pattern: Template Method
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add project root to path
@@ -22,9 +21,9 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Import elegant utilities
-from extensions.supervised_v0_03.utils.cli_utils import create_parser, validate_args, args_to_config
-from extensions.supervised_v0_03.utils.config_utils import load_config, save_config, validate_config
-from extensions.supervised_v0_03.utils.logging_utils import log_experiment_start, log_experiment_complete
+from extensions.common.training_cli_utils import create_parser, validate_args, args_to_config
+from extensions.common.training_config_utils import load_config, save_config, validate_config
+from extensions.common.training_logging_utils import log_experiment_start, log_experiment_complete
 from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
 

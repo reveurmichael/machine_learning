@@ -2,14 +2,14 @@
 
 **Short answer:**
 
-* For many classic supervised learning algorithms (XGBoost, LightGBM, simple neural networks), **CSV (tabular) format is often sufficient**.
+* For many classic supervised learning algorithms (XGBoost, LightGBM, Catboost, simple neural networks), **CSV (tabular) format is often sufficient**.
 * However, for deep learning models dealing with **sequential data (RNNs, LSTMs)** or **graph-structured data (GNNs)**, specialized formats like **NPZ (NumPy arrays)** or **Parquet (efficient columnar storage)** provide significant benefits.
 
 ---
 
 ### Why might CSV be enough in many cases?
 
-* **XGBoost / LightGBM / Random Forest:** These typically require flat tabular data, which CSV handles naturally.
+* **XGBoost / LightGBM / Catboost/ Random Forest:** These typically require flat tabular data, which CSV handles naturally.
 * **Basic feedforward neural networks (MLPs):** Also prefer flattened vector inputs, easily stored as CSV rows.
 * **Evolutionary algorithms:** Usually operate on fixed-size feature vectors or parameter sets, again CSV is straightforward.
 

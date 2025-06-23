@@ -17,7 +17,7 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import List, Tuple, Set, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING
 from .agent_bfs import BFSAgent
 
 # Use standardized path setup
@@ -107,9 +107,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             grid_size = game.grid_size
             obstacles = set(snake[:-1])  # Exclude tail (can vacate)
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 1. Try shortest safe path to apple (using inherited BFS)
-            # --------------------------------------------------------------
+            # ---------------------
             path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
             
             if path_to_apple and len(path_to_apple) > 1:
@@ -125,9 +125,9 @@ class BFSSafeGreedyAgent(BFSAgent):
                     )
                     return direction, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 2. Fallback: Chase tail (always safe)
-            # --------------------------------------------------------------
+            # ---------------------
             tail = snake[-1]
             path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
             
@@ -142,9 +142,9 @@ class BFSSafeGreedyAgent(BFSAgent):
                 )
                 return direction, explanation
 
-            # --------------------------------------------------------------
+            # ---------------------
             # 3. Last resort: any non-crashing move
-            # --------------------------------------------------------------
+            # ---------------------
             last_resort_move = self._get_safe_move(head, obstacles, grid_size)
             explanation = (
                 f"BFS Safe Greedy: No safe path to apple at {apple} and no path to tail. "

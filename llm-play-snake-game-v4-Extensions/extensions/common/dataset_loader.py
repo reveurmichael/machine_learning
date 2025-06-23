@@ -22,7 +22,7 @@ from typing import Dict, List, Any, Tuple, Optional, Union
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
-from .csv_schema import get_schema_info, validate_game_state
+from .csv_schema import get_schema_info
 from .path_utils import setup_extension_paths
 setup_extension_paths()
 

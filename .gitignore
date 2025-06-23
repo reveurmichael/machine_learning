@@ -37,6 +37,9 @@ config.yml
 **/extensions/*.json
 **/extensions/*.csv
 **/extensions/*.txt
+**/logs/extensions/*
+./logs/extensions/*
+/logs/extensions/*
 .mypy_cache/
 **/.mypy_cache/*
 **/.mypy_cache/**/*

@@ -56,3 +56,4 @@ config.yml
 **/.ruff_cache/**
 .pyc
 **/*.pyc
+**/test_datasets/**

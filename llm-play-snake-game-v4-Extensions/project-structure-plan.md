@@ -1,5 +1,9 @@
 # v0.03 Roadmap (for all extensions, e.g. heuristics, supervised, rl, evolutionary, llm finetuning, llm distillation, etc)
 
+This one is not for v0.01, not for v0.02.
+
+For v0.04 (only heuristics will have v0.04), it will build on v0.03 and hence will be using those guideline principles, with a little bit of extensions.
+
 The single source of truth for where this repository is heading.
 
 

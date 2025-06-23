@@ -170,6 +170,27 @@ Guideline: **never create an abstract scaffold that Task-0 does not
 instantiate immediately**.  The base must be field-tested in CI; otherwise it
 is premature abstraction.
 
+### 2.3  Per-extension skeleton & mandatory sub-folders
+
+Every extension **that is considered stand-alone** (all v0.02 and v0.03 series –
+plus heuristics v0.04) must contain the following artefacts; CI will flag a
+violation if any of them are missing.
+
+| Required item | Version(s) | Purpose |
+|---------------|------------|---------|
+| `README.md` | v0.02 + | High-level description, quick-start, design patterns.  Serves as the landing page on GitHub. |
+| `agents/` folder | v0.02 +  ( and heuristics v0.03, v0.04) | Houses **all concrete policy classes**.  File names follow `agent_<algo>.py`.  Keeps algorithms quarantined from orchestration code. |
+| `dashboard/` folder | v0.03 +  ( and heuristics v0.04) | Streamlit tabs & helper widgets.  Splitting UI code out of `app.py` keeps the latter thin (Factory → register pages). |
+| `scripts/` folder | optional | CLI entry-points (`train.py`, `generate_dataset.py`, `replay_web.py`, …).  Encouraged for reproducibility. |
+
+Rationale:
+1. **Discoverability** – newcomers can open any extension and immediately see the what/why/how.
+2. **Versioned evolution** – v0.01 stays intentionally simple (may omit the sub-folders); v0.02 introduces algorithm diversity; v0.03 adds dashboards; heuristics v0.04 extends dashboards with explanation generators.
+3. **Touched-once rule** – the same `agents/` directory is *copied verbatim* across version bumps to prevent accidental drift (see heuristics & supervised guidelines).
+
+> Reminder – these folders live in the extension root, never in the repository
+> root.  **Task-0 remains uncluttered.**
+
 
 ---
 

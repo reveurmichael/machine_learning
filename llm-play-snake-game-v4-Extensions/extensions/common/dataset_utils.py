@@ -115,6 +115,14 @@ class TabularEncoder(DataEncoder):
     
     Creates a flat feature vector for each game state with engineered features
     optimized for gradient boosting algorithms.
+    
+    Follows the exact CSV schema specification from the documentation:
+    - game_id, step_in_game (metadata, not used as features)
+    - head_x, head_y, apple_x, apple_y, snake_length (basic state)
+    - apple_dir_up, apple_dir_down, apple_dir_left, apple_dir_right (relative direction)
+    - danger_straight, danger_left, danger_right (immediate collision detection)
+    - free_space_up, free_space_down, free_space_left, free_space_right (maneuvering space)
+    - target_move (supervised learning label)
     """
     
     def encode_game_states(self, game_states: List[GameState]) -> Dict[str, Any]:
@@ -127,37 +135,39 @@ class TabularEncoder(DataEncoder):
         move_to_int = {"UP": 0, "DOWN": 1, "LEFT": 2, "RIGHT": 3}
         
         for state in game_states:
-            # Basic features
+            # Convert GameState to dictionary format for feature extraction
+            game_state_dict = {
+                "head_position": list(state.head_position),
+                "apple_position": list(state.apple_position),
+                "snake_positions": [list(pos) for pos in state.snake_positions],
+                "current_direction": self._get_current_direction(state),
+                "snake_length": state.snake_length,
+            }
+            
+            # Use the exact CSV schema feature extractor
+            from .csv_schema import TabularFeatureExtractor
+            extractor = TabularFeatureExtractor()
+            feature_dict = extractor.extract_features(game_state_dict, 10)  # Assuming 10x10 grid
+            
+            # Convert to feature vector in the correct order
             feature_vector = [
-                state.score,
-                state.steps,
-                state.snake_length,
-                state.head_position[0],
-                state.head_position[1],
-                state.apple_position[0],
-                state.apple_position[1],
-                state.head_to_apple_distance,
-                state.head_to_apple_manhattan,
+                feature_dict["head_x"],
+                feature_dict["head_y"],
+                feature_dict["apple_x"],
+                feature_dict["apple_y"],
+                feature_dict["snake_length"],
+                feature_dict["apple_dir_up"],
+                feature_dict["apple_dir_down"],
+                feature_dict["apple_dir_left"],
+                feature_dict["apple_dir_right"],
+                feature_dict["danger_straight"],
+                feature_dict["danger_left"],
+                feature_dict["danger_right"],
+                feature_dict["free_space_up"],
+                feature_dict["free_space_down"],
+                feature_dict["free_space_left"],
+                feature_dict["free_space_right"],
             ]
-            
-            # Wall distance features
-            feature_vector.extend(state.wall_distances)
-            
-            # Body proximity features
-            feature_vector.extend(state.body_proximity)
-            
-            # Board occupancy features (flattened board)
-            feature_vector.extend(state.board_state.flatten())
-            
-            # Relative apple direction features
-            head_x, head_y = state.head_position
-            apple_x, apple_y = state.apple_position
-            feature_vector.extend([
-                1 if apple_x > head_x else 0,  # Apple is right
-                1 if apple_x < head_x else 0,  # Apple is left
-                1 if apple_y > head_y else 0,  # Apple is up
-                1 if apple_y < head_y else 0,  # Apple is down
-            ])
             
             features.append(feature_vector)
             targets.append(move_to_int[state.optimal_move])
@@ -176,22 +186,45 @@ class TabularEncoder(DataEncoder):
             "target_names": ["UP", "DOWN", "LEFT", "RIGHT"]
         }
     
+    def _get_current_direction(self, state: GameState) -> str:
+        """
+        Estimate current direction from snake positions.
+        
+        This is a heuristic since GameState doesn't store current_direction.
+        We estimate it from the last two positions in the snake.
+        """
+        if len(state.snake_positions) < 2:
+            return "UP"  # Default direction
+        
+        head = state.snake_positions[0]
+        neck = state.snake_positions[1]
+        
+        dx = head[0] - neck[0]
+        dy = head[1] - neck[1]
+        
+        if dx == 1:
+            return "RIGHT"
+        elif dx == -1:
+            return "LEFT"
+        elif dy == 1:
+            return "DOWN"
+        elif dy == -1:
+            return "UP"
+        else:
+            return "UP"  # Default
+    
     def _get_feature_names(self) -> List[str]:
-        """Generate feature names for tabular data."""
-        base_features = [
-            "score", "steps", "snake_length", "head_x", "head_y", 
-            "apple_x", "apple_y", "distance_to_apple", "manhattan_to_apple"
+        """
+        Generate feature names for tabular data.
+        
+        Follows the exact CSV schema specification from the documentation.
+        """
+        return [
+            "head_x", "head_y", "apple_x", "apple_y", "snake_length",
+            "apple_dir_up", "apple_dir_down", "apple_dir_left", "apple_dir_right",
+            "danger_straight", "danger_left", "danger_right",
+            "free_space_up", "free_space_down", "free_space_left", "free_space_right"
         ]
-        
-        wall_features = ["wall_up", "wall_down", "wall_left", "wall_right"]
-        body_features = ["body_up", "body_down", "body_left", "body_right"]
-        
-        # Board features (assuming 10x10 grid)
-        board_features = [f"board_{i}_{j}" for i in range(10) for j in range(10)]
-        
-        direction_features = ["apple_right", "apple_left", "apple_up", "apple_down"]
-        
-        return base_features + wall_features + body_features + board_features + direction_features
 
 
 class SequentialEncoder(DataEncoder):
@@ -366,34 +399,56 @@ class DataWriter(ABC):
 
 
 class CSVWriter(DataWriter):
-    """Writes tabular data to CSV format."""
+    """
+    Writes tabular data to CSV format.
+    
+    Follows the exact CSV schema specification from the documentation:
+    - game_id, step_in_game (metadata, not used as features)
+    - head_x, head_y, apple_x, apple_y, snake_length (basic state)
+    - apple_dir_up, apple_dir_down, apple_dir_left, apple_dir_right (relative direction)
+    - danger_straight, danger_left, danger_right (immediate collision detection)
+    - free_space_up, free_space_down, free_space_left, free_space_right (maneuvering space)
+    - target_move (supervised learning label)
+    """
     
     def write_dataset(self, encoded_data: Dict[str, Any], output_path: str) -> None:
-        """Write tabular data to CSV."""
+        """Write tabular data to CSV following the exact schema specification."""
         features = encoded_data["features"]
         targets = encoded_data["targets"]
         metadata = encoded_data["metadata"]
         feature_names = encoded_data["feature_names"]
         
-        # Create DataFrame
+        # Create DataFrame with exact schema specification
         df_data = {}
         
-        # Add features
+        # Add metadata columns first (exact schema order)
+        df_data["game_id"] = [meta["game_id"] for meta in metadata]
+        df_data["step_in_game"] = [meta["step_in_game"] for meta in metadata]
+        
+        # Add feature columns in exact schema order
         for i, name in enumerate(feature_names):
             df_data[name] = features[:, i]
         
-        # Add target
+        # Add target column last (exact schema order)
         df_data["target_move"] = targets
         
-        # Add metadata
-        for key in ["game_id", "step_in_game", "algorithm", "round_number"]:
-            df_data[key] = [meta[key] for meta in metadata]
+        # Convert target integers back to strings
+        target_names = ["UP", "DOWN", "LEFT", "RIGHT"]
+        df_data["target_move"] = [target_names[target] for target in targets]
+        
+        # Create DataFrame with exact column order
+        from .csv_schema import generate_csv_schema
+        schema = generate_csv_schema(10)  # Assuming 10x10 grid
+        column_order = schema.get_column_names()
         
         df = pd.DataFrame(df_data)
+        df = df[column_order]  # Ensure correct column order
+        
         df.to_csv(output_path, index=False)
         
         print(f"✅ CSV dataset saved to: {output_path}")
         print(f"📊 Shape: {df.shape}")
+        print(f"📋 Columns: {list(df.columns)}")
 
 
 class NPZWriter(DataWriter):

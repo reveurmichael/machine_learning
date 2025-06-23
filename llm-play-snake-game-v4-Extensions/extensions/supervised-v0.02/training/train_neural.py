@@ -1,20 +1,18 @@
-#!/usr/bin/env python3
 """
-Supervised Learning v0.01 - Training Script
-==========================================
+Neural Network Training Script for Supervised Learning v0.02
+===========================================================
 
-Simple training script for supervised learning v0.01, focusing on neural networks only.
-Demonstrates basic training pipeline for proof of concept.
-
-Design Pattern: Template Method
-- Simple training interface with no complex arguments
-- Focused on neural networks only
-- Uses common CSV schema for data processing
+Trains neural network models (MLP, CNN, LSTM, GRU) using datasets generated
+by heuristics extensions. Uses the common CSV schema and dataset loader
+for consistent data processing across different grid sizes.
 """
+
+from __future__ import annotations
 
 import sys
 import os
 import argparse
+import json
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -22,17 +20,17 @@ from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
 
 from extensions.common.dataset_loader import load_dataset_for_training
-from agent_neural import MLPAgent, CNNAgent, LSTMAgent
+from extensions.supervised_v0_02.models.neural_networks.agent_mlp import MLPAgent
+from extensions.supervised_v0_02.models.neural_networks.agent_cnn import CNNAgent
+from extensions.supervised_v0_02.models.neural_networks.agent_lstm import LSTMAgent
 
 
 def create_agent(model_type: str, grid_size: int, **kwargs) -> Any:
     """
     Create a neural network agent based on model type.
     
-    Factory pattern for agent creation in v0.01.
-    
     Args:
-        model_type: Type of model (MLP, CNN, LSTM)
+        model_type: Type of model (MLP, CNN, LSTM, GRU)
         grid_size: Size of the game grid
         **kwargs: Additional model parameters
         
@@ -47,26 +45,34 @@ def create_agent(model_type: str, grid_size: int, **kwargs) -> Any:
         return CNNAgent(grid_size=grid_size, **kwargs)
     elif model_type == "LSTM":
         return LSTMAgent(grid_size=grid_size, **kwargs)
+    elif model_type == "GRU":
+        # Note: GRU agent was deleted, so we'll use LSTM as fallback
+        print("Warning: GRU agent not available, using LSTM instead")
+        return LSTMAgent(grid_size=grid_size, **kwargs)
     else:
         raise ValueError(f"Unknown model type: {model_type}")
 
 
 def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
-               grid_size: int = None, epochs: int = 100, **kwargs) -> Dict[str, Any]:
+               grid_size: int = None, epochs: int = 100, batch_size: int = 32,
+               learning_rate: float = 0.001, test_size: float = 0.2,
+               val_size: float = 0.2, **kwargs) -> Dict[str, Any]:
     """
     Train a neural network model.
     
-    Simple training function for v0.01, focused on proof of concept.
-        
-        Args:
+    Args:
         model_type: Type of model to train
         dataset_paths: Paths to dataset files
         output_dir: Directory to save trained model
         grid_size: Grid size (auto-detected if None)
         epochs: Number of training epochs
+        batch_size: Batch size for training
+        learning_rate: Learning rate
+        test_size: Proportion for test set
+        val_size: Proportion for validation set
         **kwargs: Additional training parameters
-            
-        Returns:
+        
+    Returns:
         Dictionary with training results
     """
     print(f"Training {model_type} model...")
@@ -75,7 +81,7 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
     
     # Load and prepare dataset
     X_train, X_val, X_test, y_train, y_val, y_test, dataset_info = load_dataset_for_training(
-        dataset_paths, grid_size=grid_size
+        dataset_paths, grid_size=grid_size, test_size=test_size, val_size=val_size
     )
     
     # Update grid_size from dataset info
@@ -88,7 +94,9 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
     print(f"Training {model_type} with {len(X_train)} samples...")
     training_results = agent.train(
         X_train, y_train,
-        epochs=epochs
+        epochs=epochs,
+        batch_size=batch_size,
+        learning_rate=learning_rate
     )
     
     # Evaluate on validation set
@@ -117,7 +125,11 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
         output_size=4,  # 4 directions
         training_params={
             'epochs': epochs,
-            'model_type': model_type
+            'batch_size': batch_size,
+            'learning_rate': learning_rate,
+            'test_size': test_size,
+            'val_size': val_size,
+            **kwargs
         },
         export_onnx=True  # Enable ONNX export for PyTorch models
     )
@@ -131,43 +143,69 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
     return {
         "model_type": model_type,
         "grid_size": grid_size,
+        "dataset_info": dataset_info,
         "training_results": training_results,
         "validation_accuracy": val_accuracy,
         "test_accuracy": test_accuracy,
-        "model_path": saved_path
+        "model_path": saved_path,
+        "training_params": {
+            "epochs": epochs,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+            "test_size": test_size,
+            "val_size": val_size,
+            **kwargs
+        }
     }
 
 
 def main():
-    """
-    Main training function for supervised learning v0.01.
+    """Main training function."""
+    parser = argparse.ArgumentParser(description="Train neural network models for Snake game")
     
-    Simple CLI with minimal arguments, focused on neural networks only.
-    """
-    parser = argparse.ArgumentParser(description="Train neural network models for Snake game v0.01")
+    # Dataset arguments
+    parser.add_argument("--dataset-paths", nargs="+", required=True,
+                       help="Paths to dataset files or directories")
+    parser.add_argument("--grid-size", type=int, default=None,
+                       help="Grid size (auto-detected if not specified)")
     
-    # Simple arguments for v0.01
-    parser.add_argument("--model", choices=["MLP", "CNN", "LSTM"], 
-                       default="MLP", help="Model type to train (default: MLP)")
-    parser.add_argument("--dataset-path", type=str, required=True,
-                       help="Path to dataset file or directory")
+    # Model arguments
+    parser.add_argument("--model", choices=["MLP", "CNN", "LSTM", "GRU"], 
+                       default="MLP", help="Model type to train")
+    parser.add_argument("--hidden-size", type=int, default=256,
+                       help="Hidden layer size for MLP")
+    
+    # Training arguments
     parser.add_argument("--epochs", type=int, default=100,
-                       help="Number of training epochs (default: 100)")
+                       help="Number of training epochs")
+    parser.add_argument("--batch-size", type=int, default=32,
+                       help="Batch size for training")
+    parser.add_argument("--learning-rate", type=float, default=0.001,
+                       help="Learning rate")
+    parser.add_argument("--test-size", type=float, default=0.2,
+                       help="Proportion for test set")
+    parser.add_argument("--val-size", type=float, default=0.2,
+                       help="Proportion for validation set")
+    
+    # Output arguments
     parser.add_argument("--output-dir", default="./trained_models",
-                       help="Directory to save trained models (default: ./trained_models)")
+                       help="Directory to save trained models")
     
     args = parser.parse_args()
     
-    # Convert single path to list for compatibility
-    dataset_paths = [args.dataset_path]
-    
+    # Train the model
     try:
-        # Train the model
         results = train_model(
             model_type=args.model,
-            dataset_paths=dataset_paths,
+            dataset_paths=args.dataset_paths,
             output_dir=args.output_dir,
-            epochs=args.epochs
+            grid_size=args.grid_size,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            learning_rate=args.learning_rate,
+            test_size=args.test_size,
+            val_size=args.val_size,
+            hidden_size=args.hidden_size
         )
         
         print("Training completed successfully!")

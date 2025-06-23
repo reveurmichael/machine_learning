@@ -1,4 +1,4 @@
-# Snake-GTP Roadmap
+# v0.03 Roadmap (for all extensions, e.g. heuristics, supervised, rl, evolutionary, llm finetuning, llm distillation, etc)
 
 The single source of truth for where this repository is heading.
 

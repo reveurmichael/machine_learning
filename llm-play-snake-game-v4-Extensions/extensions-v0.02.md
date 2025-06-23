@@ -2,6 +2,11 @@
 
 This document serves as the **definitive guideline** for implementing v0.02 extensions across different algorithm types. It demonstrates the evolution from single-algorithm v0.01 to multi-algorithm systems, showing natural software progression.
 
+In v0.02, there is no CSV dataset generation capability, for whichever algorithm type.
+
+
+
+
 ## 🎯 **Core Philosophy: Algorithm Diversity & Progression**
 
 v0.02 builds upon v0.01's foundation to demonstrate:

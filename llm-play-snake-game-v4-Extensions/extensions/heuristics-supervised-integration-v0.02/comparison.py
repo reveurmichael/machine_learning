@@ -38,14 +38,12 @@ import logging
 import statistics
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union, Tuple
 
-import numpy as np
 
 # Import evaluation components
-from .evaluation import EvaluationMetrics, ModelEvaluator, GamePerformanceMetrics
 
 # Import common utilities
 from extensions.common.training_logging_utils import TrainingLogger

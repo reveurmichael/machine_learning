@@ -44,7 +44,7 @@ from typing import Dict, List, Optional, Any, Union, Tuple
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 
 # Fix Python path for extensions
 import sys
@@ -62,7 +62,6 @@ if os.getcwd() != str(project_root):
 from extensions.common.dataset_directory_manager import DatasetDirectoryManager
 from extensions.common.model_utils import save_model_standardized
 from extensions.common.training_logging_utils import TrainingLogger
-from extensions.common.training_cli_utils import TrainingCLIUtils
 from extensions.common.path_utils import setup_extension_paths
 
 # Import v0.02 components (lazy loading)
@@ -241,12 +240,12 @@ class PipelineResults:
         print(f"🎯 Pipeline Results Summary - {self.experiment_name}")
         print("="*60)
         
-        print(f"\n📊 Dataset Statistics:")
+        print("\n📊 Dataset Statistics:")
         print(f"  Algorithms: {', '.join(self.config.algorithms)}")
         print(f"  Total samples: {self.dataset_stats.get('total_samples', 'N/A')}")
         print(f"  Features: {self.dataset_stats.get('num_features', 'N/A')}")
         
-        print(f"\n🏆 Model Performance:")
+        print("\n🏆 Model Performance:")
         for model_name, results in self.model_results.items():
             accuracy = results.get("validation_accuracy", 0.0)
             training_time = results.get("training_time", 0.0)

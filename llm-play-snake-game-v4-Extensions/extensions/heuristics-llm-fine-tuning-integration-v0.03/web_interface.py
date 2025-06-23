@@ -12,12 +12,9 @@ Design Patterns:
 from __future__ import annotations
 
 import sys
-import os
-import json
-import asyncio
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 
 # Add project root to path

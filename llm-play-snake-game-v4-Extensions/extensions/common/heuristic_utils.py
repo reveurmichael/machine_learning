@@ -22,7 +22,6 @@ import os
 import time
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from pathlib import Path
 
 from colorama import Fore
 import json
@@ -97,7 +96,7 @@ class HeuristicLogger:
         
     def log_session_start(self):
         """Log session startup information."""
-        print(Fore.GREEN + f"🚀 Starting heuristics session...")
+        print(Fore.GREEN + "🚀 Starting heuristics session...")
         print(Fore.CYAN + f"📊 Target games: {self.config.max_games}")
         print(Fore.CYAN + f"🧠 Algorithm: {self.config.algorithm_name}")
         

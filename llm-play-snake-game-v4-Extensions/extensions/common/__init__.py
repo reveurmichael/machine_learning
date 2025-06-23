@@ -172,7 +172,6 @@ if HEURISTIC_WEB_UTILS_AVAILABLE:
     ])
 
 from .dataset_utils import generate_training_dataset
-from .dataset_directory_manager import DatasetDirectoryManager
 
 def get_dataset_path(*args, **kwargs):
     """Public re-export of DatasetDirectoryManager.get_dataset_path."""

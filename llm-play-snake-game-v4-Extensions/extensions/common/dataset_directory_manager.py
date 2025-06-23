@@ -35,7 +35,6 @@ underlying `config` helpers) instead of re-implementing path logic.
 from __future__ import annotations
 
 import re
-import os
 from pathlib import Path
 from typing import Final
 from datetime import datetime

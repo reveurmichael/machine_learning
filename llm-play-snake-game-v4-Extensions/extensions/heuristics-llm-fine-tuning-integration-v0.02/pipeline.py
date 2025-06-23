@@ -24,7 +24,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -32,11 +31,7 @@ from typing import Dict, List, Optional, Any, Union
 
 # Import common utilities for code reuse
 from extensions.common import (
-    training_cli_utils,
-    training_logging_utils, 
-    rl_helpers,  # Reuse for directory setup
-    ensure_extensions_logs_dir,
-    get_dataset_dir,
+    training_logging_utils,
 )
 
 # Import base v0.01 components for inheritance
@@ -495,7 +490,7 @@ class MultiDatasetPipeline:
         
         # Build prompt with game state context
         prompt = f"You are a {algorithm} algorithm playing Snake. "
-        prompt += f"Based on the current game state, what is your next move? "
+        prompt += "Based on the current game state, what is your next move? "
         
         # Add game state information if available
         if "snake_positions" in game_data:
@@ -511,7 +506,7 @@ class MultiDatasetPipeline:
         # Build completion with move and reasoning
         completion = f"I choose to move {current_move}. "
         completion += f"As a {algorithm} algorithm, this move follows the optimal pathfinding strategy "
-        completion += f"to reach the apple while avoiding obstacles."
+        completion += "to reach the apple while avoiding obstacles."
         
         return {
             "prompt": prompt,
@@ -793,7 +788,7 @@ def main():
     pipeline = MultiDatasetPipeline(config)
     results = pipeline.run_pipeline()
     
-    print(f"\n✅ Pipeline completed successfully!")
+    print("\n✅ Pipeline completed successfully!")
     print(f"📊 Processed {results.dataset_stats['total_samples']} samples")
     print(f"🎯 Final evaluation loss: {results.evaluation_metrics.get('final_eval_loss', 'N/A')}")
     print(f"⏱️  Execution time: {results.execution_time:.2f} seconds")

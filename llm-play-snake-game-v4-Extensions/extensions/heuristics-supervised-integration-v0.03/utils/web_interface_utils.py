@@ -4,8 +4,7 @@ Utilities for managing Streamlit web interface components and state management.
 """
 
 import streamlit as st
-from typing import Dict, Any, List, Optional
-from pathlib import Path
+from typing import Dict, Any
 
 
 class WebInterfaceUtils:

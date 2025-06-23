@@ -37,9 +37,8 @@ import argparse
 import json
 import logging
 import sys
-import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 # Fix Python path for extensions
 import os
@@ -64,7 +63,7 @@ from extensions.heuristics_llm_fine_tuning_integration_v0_02 import (
 )
 
 # Import common utilities
-from extensions.common import training_cli_utils, training_logging_utils
+from extensions.common import training_logging_utils
 
 __all__ = ["main", "CLICommands"]
 
@@ -477,10 +476,10 @@ class CLICommands:
         self.logger.info(f"   python cli.py evaluate --model-path output/model --test-data {demo_dir}/demo_test_data.json")
         
         self.logger.info("\n3. Compare two models:")
-        self.logger.info(f"   python cli.py compare --model-a output/lora --model-b output/qlora")
+        self.logger.info("   python cli.py compare --model-a output/lora --model-b output/qlora")
         
         self.logger.info("\n4. Generate production configuration:")
-        self.logger.info(f"   python cli.py config --template production_lora --output production.json")
+        self.logger.info("   python cli.py config --template production_lora --output production.json")
 
 
 def create_parser() -> argparse.ArgumentParser:

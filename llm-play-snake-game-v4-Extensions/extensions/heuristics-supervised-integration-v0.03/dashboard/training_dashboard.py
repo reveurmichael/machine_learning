@@ -6,7 +6,7 @@ interface for configuring and monitoring multi-framework ML training sessions.
 
 import streamlit as st
 import time
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 class TrainingDashboard:
     """Interactive training dashboard component."""

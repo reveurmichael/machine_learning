@@ -27,7 +27,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union, Tuple
+from typing import Dict, List, Any, Union, Tuple
 
 import numpy as np
 
@@ -38,7 +38,7 @@ from extensions.common import training_logging_utils
 try:
     from .evaluation import EvaluationMetrics, EvaluationSuite
 except ImportError:
-    from evaluation import EvaluationMetrics, EvaluationSuite
+    from evaluation import EvaluationMetrics
 
 __all__ = [
     "ComparisonStrategy",

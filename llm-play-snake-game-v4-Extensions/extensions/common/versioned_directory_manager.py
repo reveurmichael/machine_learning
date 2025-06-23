@@ -40,16 +40,13 @@ Design Patterns Used:
 from __future__ import annotations
 
 import re
-import os
 from pathlib import Path
 from typing import Final, Optional, Tuple, List
 from datetime import datetime
 
 from .config import (
     DATASETS_ROOT, 
-    DEFAULT_GRID_SIZE, 
-    SUPPORTED_GRID_SIZES,
-    EXTENSIONS_LOGS_DIR
+    SUPPORTED_GRID_SIZES
 )
 
 # Add MODELS_ROOT if not in config

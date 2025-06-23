@@ -13,7 +13,7 @@ import os
 import argparse
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Optional
 
 # Add project root to path
 current_file = Path(__file__).resolve()
@@ -86,7 +86,7 @@ def list_datasets(grid_size: Optional[int] = None) -> None:
             print(f"\n📁 Datasets for grid size {grid_size}:")
         else:
             datasets = manager.discover_datasets()
-            print(f"\n📁 All available datasets:")
+            print("\n📁 All available datasets:")
         
         if not datasets:
             print("No datasets found.")
@@ -209,7 +209,7 @@ def show_system_info() -> None:
     print("=" * 50)
     
     # Extension info
-    print(f"Extension Type: Web Interface")
+    print("Extension Type: Web Interface")
     print(f"Python Version: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     print(f"Working Directory: {os.getcwd()}")
     
@@ -247,7 +247,7 @@ def show_system_info() -> None:
         manager = DatasetManager()
         summary = manager.get_dataset_summary()
         
-        print(f"\n💾 Dataset Summary:")
+        print("\n💾 Dataset Summary:")
         print(f"  Total Datasets: {summary['total_count']}")
         print(f"  Total Size: {summary['total_size_mb']:.2f} MB")
         print(f"  Formats: {', '.join(summary['formats'].keys())}")

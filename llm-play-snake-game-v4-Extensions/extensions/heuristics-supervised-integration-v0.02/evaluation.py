@@ -36,17 +36,15 @@ from __future__ import annotations
 
 import json
 import time
-import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union, Tuple
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
-    classification_report, confusion_matrix
+    confusion_matrix
 )
 
 # Import common utilities
@@ -251,7 +249,6 @@ class StandardMLEvaluation(EvaluationStrategy):
         """Estimate model memory usage in MB."""
         try:
             if framework == "pytorch":
-                import torch
                 param_size = sum(p.numel() * p.element_size() for p in model.parameters())
                 buffer_size = sum(b.numel() * b.element_size() for b in model.buffers())
                 return (param_size + buffer_size) / (1024 * 1024)
@@ -341,7 +338,6 @@ class GameEvaluation(EvaluationStrategy):
     def _get_pytorch_complexity(self, model: Any) -> float:
         """Estimate PyTorch model complexity (0-1)."""
         try:
-            import torch
             total_params = sum(p.numel() for p in model.parameters())
             # Normalize by typical model size
             return min(total_params / 500000, 1.0)
@@ -802,7 +798,7 @@ class EvaluationReport:
             print(f"💾 Most Memory Efficient: {rankings['memory_efficiency'][0][0]} (Memory: {rankings['memory_efficiency'][0][1]:.1f}MB)")
         
         # Model details
-        print(f"\n📋 Model Performance Details:")
+        print("\n📋 Model Performance Details:")
         for model_name, evaluation in self.model_evaluations.items():
             if "standard_ml" in evaluation:
                 metrics = evaluation["standard_ml"]

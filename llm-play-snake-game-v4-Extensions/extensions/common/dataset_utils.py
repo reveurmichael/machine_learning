@@ -476,12 +476,13 @@ class ParquetWriter(DataWriter):
 # Main Dataset Generation Function
 # ---------------------------------------------------------------------------
 
-def extract_game_states_from_json(json_file: str) -> List[GameState]:
+def extract_game_states_from_json(json_file: str, grid_size: int = 10) -> List[GameState]:
     """
     Extract GameState objects from a heuristic game JSON file.
     
     Args:
         json_file: Path to the game JSON file
+        grid_size: Size of the game grid (default: 10)
         
     Returns:
         List of GameState objects representing decision points in the game
@@ -499,7 +500,6 @@ def extract_game_states_from_json(json_file: str) -> List[GameState]:
     rounds_data = game_data["detailed_history"]["rounds_data"]
     
     # Initialize game state
-    grid_size = 10  # Default grid size
     snake_positions = [(5, 5), (4, 5), (3, 5)]  # Initial snake position
     current_apple_idx = 0
     
@@ -587,6 +587,7 @@ def generate_training_dataset(
     output_path: str,
     data_structure: str = "tabular",
     data_format: str = "csv",
+    grid_size: int = 10,
     **kwargs
 ) -> None:
     """
@@ -597,6 +598,7 @@ def generate_training_dataset(
         output_path: Path where to save the generated dataset
         data_structure: Type of data structure ("tabular", "sequential", "graph")
         data_format: Output format ("csv", "npz", "parquet")
+        grid_size: Size of the game grid (default: 10)
         **kwargs: Additional arguments for encoders (e.g., sequence_length for sequential)
     """
     print(f"🚀 Generating {data_structure} dataset in {data_format} format...")
@@ -617,7 +619,7 @@ def generate_training_dataset(
         
         for game_file in game_files:
             try:
-                game_states = extract_game_states_from_json(str(game_file))
+                game_states = extract_game_states_from_json(str(game_file), grid_size)
                 all_game_states.extend(game_states)
                 print(f"✅ Processed {game_file.name}: {len(game_states)} states")
             except Exception as e:

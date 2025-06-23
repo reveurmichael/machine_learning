@@ -1,3 +1,9 @@
+## general
+
+v0.03 will be able to generate csv dataset, with no language sentences.
+
+
+v0.03 will also feature streamlit app.py, with a tab for each algorithm. 
 
 ## heuristics 
 
@@ -18,6 +24,10 @@ you should notice this word I mentioned: web, flask. so you will have scripts/re
 
 v0.02 and v0.03 should have exactly the same code in their respective agents folders.
 
+v0.03 will also be able to generate csv dataset, with no language sentences.
+
+The csv dataset should be in logs/extensions/dataset/grid-size-N  where N is the size of the grid (10 for this moment by default, but can be configurable in heuristics/supversized learning main.py main_web.py scripts).
+
 
 ## supervized learning models
 
@@ -28,3 +38,6 @@ supvervized learning models (let's say, xgboost, lightgbm, neural networks (pyto
 - v0.02 is for all supervised learning models, like xgboost, lightgbm,neural network, cnn, rnn, GNN, etc. but without the gui, no replay, no streamlit app.py yet.
 - v0.03 is will have gui, replay, web mode, pygame mode, streamlit app.py.
 
+In the app.py, we distingush between 
+- training 
+- using the models to generate game_N.json and summary.json as well as csv dataset.

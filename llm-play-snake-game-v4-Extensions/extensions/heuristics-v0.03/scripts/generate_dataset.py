@@ -46,7 +46,7 @@ current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent.parent  # Go up to project root
 sys.path.insert(0, str(project_root))
 
-from extensions.common import generate_training_dataset, EXTENSIONS_LOGS_DIR
+from extensions.common import generate_training_dataset, get_dataset_path, ensure_datasets_dir, DEFAULT_GRID_SIZE, validate_grid_size
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -97,8 +97,8 @@ Examples:
     
     parser.add_argument(
         "--output",
-        required=True,
-        help="Output path for the generated dataset"
+        required=False,
+        help="Output path for the generated dataset (optional, auto-generated if not provided)"
     )
     
     parser.add_argument(
@@ -114,6 +114,19 @@ Examples:
         type=int,
         default=10,
         help="Sequence length for sequential data structure (default: 10)"
+    )
+    
+    parser.add_argument(
+        "--grid-size",
+        type=int,
+        default=DEFAULT_GRID_SIZE,
+        help=f"Grid size for the dataset (default: {DEFAULT_GRID_SIZE})"
+    )
+    
+    parser.add_argument(
+        "--algorithm",
+        default="mixed",
+        help="Algorithm name for dataset filename (default: mixed)"
     )
     
     parser.add_argument(
@@ -141,6 +154,23 @@ def validate_arguments(args: argparse.Namespace) -> bool:
     Returns:
         True if arguments are valid, False otherwise
     """
+    # Validate grid size
+    if not validate_grid_size(args.grid_size):
+        from extensions.common import SUPPORTED_GRID_SIZES
+        print(f"❌ Unsupported grid size: {args.grid_size}")
+        print(f"Supported sizes: {SUPPORTED_GRID_SIZES}")
+        return False
+    
+    # Auto-generate output path if not provided
+    if not args.output:
+        args.output = str(get_dataset_path(
+            args.data_structure, 
+            args.data_format, 
+            args.algorithm,
+            args.grid_size
+        ))
+        print(f"📁 Auto-generated output path: {args.output}")
+    
     # Check if dataset paths exist
     for dataset_path in args.dataset_path:
         path = Path(dataset_path)
@@ -157,7 +187,7 @@ def validate_arguments(args: argparse.Namespace) -> bool:
         if args.verbose:
             print(f"✅ Found {len(game_files)} game files in: {dataset_path}")
     
-    # Check output directory
+    # Ensure output directory exists
     output_path = Path(args.output)
     if not output_path.parent.exists():
         try:
@@ -188,6 +218,8 @@ def print_dataset_info(args: argparse.Namespace) -> None:
     print("🎯 Dataset Generation Configuration:")
     print(f"   Data Structure: {args.data_structure}")
     print(f"   Data Format: {args.data_format}")
+    print(f"   Grid Size: {args.grid_size}x{args.grid_size}")
+    print(f"   Algorithm Filter: {args.algorithm}")
     print(f"   Output Path: {args.output}")
     print(f"   Input Directories: {len(args.dataset_path)}")
     
@@ -226,10 +258,16 @@ def main() -> None:
         return
     
     try:
+        # Ensure dataset directory exists
+        ensure_datasets_dir(args.grid_size)
+        
         # Generate dataset using common utilities
         kwargs = {}
         if args.data_structure == "sequential":
             kwargs["sequence_length"] = args.sequence_length
+        
+        # Add grid size to kwargs for feature extraction
+        kwargs["grid_size"] = args.grid_size
         
         generate_training_dataset(
             input_dirs=args.dataset_path,

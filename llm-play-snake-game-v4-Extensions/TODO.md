@@ -18,7 +18,9 @@ Main mode (PyGame) is working 100% OK now.
 
 
 
+## GUI Abstraction
 
+no-gui is a gui. Pygame is a gui. Pyglet is a gui. ursina is a gui. Web is a gui. They should all be classed located in the gui folder.
 
 
 

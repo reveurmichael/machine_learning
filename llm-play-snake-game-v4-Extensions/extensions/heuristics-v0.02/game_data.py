@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Heuristic Game Data - Data tracking for heuristic algorithms
 ==========================================================
@@ -12,15 +13,13 @@ Design Philosophy:
 - Uses BaseGameStatistics instead of LLM-specific GameStatistics
 """
 
-from __future__ import annotations
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 from typing import Dict, Any, Optional
 
 from core.game_data import BaseGameData
 from core.game_stats_manager import NumPyJSONEncoder
-from ..common.path_utils import ensure_project_root_on_path
-
-ensure_project_root_on_path()
 
 
 class HeuristicGameData(BaseGameData):

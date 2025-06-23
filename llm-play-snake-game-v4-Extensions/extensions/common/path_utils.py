@@ -1,6 +1,6 @@
 """common path utilities for heuristics extensions
 
-Provides `ensure_project_root_on_path()`
+Provides `ensure_project_root_on_path()` and `setup_extension_paths()`
 so individual modules don't need to repeat boiler-plate path hacks.
 """
 
@@ -46,7 +46,28 @@ def ensure_project_root_on_path() -> pathlib.Path:
     return PathManager.ensure_project_root_on_path()
 
 
+def setup_extension_paths() -> None:
+    """
+    Common path setup for extension modules.
+    
+    This function handles the boilerplate path setup that was previously
+    duplicated across all extension modules:
+    
+    ```python
+    # Add project root to path for imports
+    project_root = pathlib.Path(__file__).parent.parent.parent
+    sys.path.insert(0, str(project_root))
+    ```
+    
+    Usage:
+        from extensions.common.path_utils import setup_extension_paths
+        setup_extension_paths()
+    """
+    # Ensure project root is on path (handles the common pattern)
+    ensure_project_root_on_path()
+
+
 # Auto-register on import
 ensure_project_root_on_path()
 
-__all__ = ["ensure_project_root_on_path"]
+__all__ = ["ensure_project_root_on_path", "setup_extension_paths"]

@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
 """
-Heuristics v0.02 Main Entry Point
-================================
+Heuristics v0.02 - Multi-Algorithm Snake Game Agents
+===================================================
+
+Entry point for v0.02 extension.
 
 This script demonstrates the evolution from v0.01 to v0.02, showing how
 software systems naturally progress. v0.02 adds multiple heuristic algorithms
@@ -20,14 +21,30 @@ Features:
 - Simplified logging (no Task-0 replay compatibility)
 """
 
-import argparse
 import sys
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+import os
+import pathlib
 
-# Import the components
-from .game_manager import HeuristicGameManager
-from .agents import get_available_algorithms, DEFAULT_ALGORITHM
+def _find_repo_root(start: pathlib.Path) -> pathlib.Path:
+    current = start.resolve()
+    for _ in range(10):
+        if (current / "config").is_dir():
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate repository root containing 'config/' folder")
+
+project_root = _find_repo_root(pathlib.Path(__file__))
+sys.path.insert(0, str(project_root))
+os.chdir(str(project_root))
+
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
+
+import argparse
+from game_manager import HeuristicGameManager
+from agents import get_available_algorithms, DEFAULT_ALGORITHM
 
 # Available algorithms in v0.02 (from agents package)
 AVAILABLE_ALGORITHMS = get_available_algorithms()
@@ -99,14 +116,6 @@ Examples:
         help="Enable verbose output (shows algorithm details)"
     )
     
-    # Force headless mode (no GUI support in heuristics)
-    parser.add_argument(
-        "--no-gui",
-        action="store_true",
-        default=True,
-        help="Disable GUI (always true for heuristics extensions)"
-    )
-    
     return parser
 
 
@@ -156,30 +165,32 @@ def main() -> None:
         # Parse command line arguments
         parser = create_argument_parser()
         args = parser.parse_args()
-        
+        # Enforce head-less mode: heuristics extensions v0.02 have no GUI.
+        args.no_gui = True
+
         # Validate arguments
         validate_arguments(args)
-        
+
         # Show algorithm selection (v0.02 enhancement)
         if args.verbose:
             print(f"🔍 Selected algorithm: {args.algorithm}")
             print(f"📊 Will run {args.max_games} games with max {args.max_steps} steps each")
-        
+
         # Create and initialize game manager
         game_manager = HeuristicGameManager(args)
         game_manager.initialize()
-        
+
         # Run the game session
         game_manager.run()
-        
+
     except KeyboardInterrupt:
         print("\n⚠️  Execution interrupted by user")
         sys.exit(1)
-        
+
     except ValueError as e:
         print(f"❌ Argument error: {e}")
         sys.exit(1)
-        
+
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
         if 'args' in locals() and args.verbose:

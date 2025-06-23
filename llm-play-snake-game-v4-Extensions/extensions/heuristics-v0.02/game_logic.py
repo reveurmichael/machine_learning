@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Heuristic Game Logic - Game logic for heuristic algorithms
 ========================================================
@@ -12,7 +13,8 @@ Design Philosophy:
 - No GUI dependencies (headless by default)
 """
 
-from __future__ import annotations
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 import time
 from typing import List, Optional, TYPE_CHECKING
@@ -20,12 +22,9 @@ from typing import List, Optional, TYPE_CHECKING
 from config.ui_constants import GRID_SIZE
 from core.game_logic import BaseGameLogic
 from game_data import HeuristicGameData
-from ..common.path_utils import ensure_project_root_on_path
 
 if TYPE_CHECKING:
     from bfs_agent import BFSAgent
-
-ensure_project_root_on_path()
 
 class HeuristicGameLogic(BaseGameLogic):
     """

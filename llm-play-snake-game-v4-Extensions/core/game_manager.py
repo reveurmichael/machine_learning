@@ -8,21 +8,37 @@ Design Philosophy:
 - Tasks 0-5 inherit BaseGameManager directly
 - Each task gets exactly what it needs, nothing more
 - Clean separation of concerns, no historical baggage
+
+Testability & head-less execution
+--------------------------------
+Now *pygame* is **lazy-loaded**.  We only import/initialise
+it inside :pyclass:`BaseGameManager` **when** the caller explicitly requests a
+GUI session (``use_gui=True``, default for Task-0).  This brings two major
+benefits:
+
+1. **Head-less CI pipelines** – unit-tests can exercise the full planning &
+   game-logic stack on platforms where SDL/pygame is unavailable.
+2. **Lower coupling / faster import time** – every non-visual extension
+   (heuristics, RL, dataset generation, …) remains free of the heavyweight
+   dependency.
+
+The pattern uses ``importlib.import_module("pygame")`` and stores the module
+on :pyattr:`BaseGameManager._pygame`.  All downstream code gates GUI calls via
+``self.use_gui`` **and** ``self._pygame is not None``.
 """
 
 from __future__ import annotations
 
 import os
+import importlib
 from typing import TYPE_CHECKING, List, Optional
 from collections import defaultdict
 
-import pygame
 from colorama import Fore
 
 # Core components - all future-ready
 from core.game_logic import BaseGameLogic, GameLogic
 from core.game_loop import run_game_loop
-from gui.game_gui import GameGUI
 from config.ui_constants import TIME_DELAY, TIME_TICK
 
 # LLM components - only for Task-0
@@ -104,12 +120,28 @@ class BaseGameManager:
         self.pause_between_moves: float = getattr(args, "pause_between_moves", 0.0)
         self.auto_advance: bool = getattr(args, "auto_advance", False)
 
-        # Pygame timing setup (only when GUI is enabled)
+        # Lazy-load pygame ONLY when GUI is requested.
+        # This keeps head-less extensions (heuristics, RL, …) completely
+        # free of the heavyweight SDL dependency and avoids opening any
+        # graphical window when ``use_gui`` is False.
+
+        self._pygame = None  # type: ignore[assignment]
+
         if self.use_gui:
-            self.clock = pygame.time.Clock()
-            self.time_delay = TIME_DELAY
-            self.time_tick = TIME_TICK
+            try:
+                # Import inside the branch so that *headless* runs never even
+                # attempt to import pygame.
+                self._pygame = importlib.import_module("pygame")
+                self.clock = self._pygame.time.Clock()  # type: ignore[attr-defined]
+                self.time_delay = TIME_DELAY
+                self.time_tick = TIME_TICK
+            except ModuleNotFoundError as exc:  # pragma: no cover – dev machines without pygame
+                raise RuntimeError(
+                    "GUI mode requested but pygame is not installed. "
+                    "Install it or re-run with --no-gui."
+                ) from exc
         else:
+            # Headless – initialise dummies so the rest of the code can rely on them.
             self.clock = None
             self.time_delay = 0
             self.time_tick = 0
@@ -155,6 +187,8 @@ class BaseGameManager:
 
         # Attach GUI if visual mode is requested
         if self.use_gui:
+            # Lazy import keeps headless extensions free of pygame.
+            from gui.game_gui import GameGUI  # noqa: WPS433 – intentional local import
             gui = GameGUI()
             # Ensure GUI pixel scaling matches the *actual* game grid size
             if hasattr(self.game, "grid_size"):
@@ -396,8 +430,9 @@ class GameManager(BaseGameManager):
 
         finally:
             # Cleanup and reporting
-            if self.use_gui and pygame.get_init():
-                pygame.quit()
+            # Graceful SDL shutdown (only if we ever initialised it)
+            if self.use_gui and self._pygame and self._pygame.get_init():
+                self._pygame.quit()
             self.report_final_statistics()
 
     def process_events(self) -> None:

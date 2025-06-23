@@ -15,6 +15,13 @@ import pathlib
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from utils.path_utils import ensure_project_root
+
+# ---------------------
+# Ensure current working directory == repository root
+# ---------------------
+REPO_ROOT = ensure_project_root()
+
 # ---------------------
 # Guarantee that 'utils' package is importable even when the user launches
 # the script from inside the scripts/ directory.

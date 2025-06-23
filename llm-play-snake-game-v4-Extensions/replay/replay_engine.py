@@ -4,6 +4,13 @@ Handles replaying of previously recorded games.
 
 Enhanced with limits manager integration to provide the same console output
 that would have appeared during the original game session.
+
+Lazy Pygame Import
+-------------------------------------
+`pygame` is now loaded **only when needed** (``use_gui=True``).  Head-less
+CI jobs or data-pipeline scripts can import and use the replay engine without
+installing SDL/pygame.  All references go through ``self._pygame`` which is
+`None` in head-less mode.
 """
 
 from __future__ import annotations
@@ -13,9 +20,8 @@ import traceback
 import argparse
 from typing import Any, Dict, List, Optional
 
+import importlib
 import numpy as np
-import pygame
-from pygame.locals import *  # noqa: F403 – Pygame constants
 
 from core.game_logic import GameLogic
 from core.game_limits_manager import create_limits_manager
@@ -143,6 +149,26 @@ class BaseReplayEngine(GameLogic):
         # Initialise the underlying game engine first so that attributes like
         # ``snake_positions`` are available before we start loading JSON data.
         super().__init__(use_gui=use_gui)
+
+        # ---------------------
+        # Lazy Pygame import – only when GUI is requested
+        # ---------------------
+        self._pygame = None  # type: ignore[assignment]
+        self.use_gui = use_gui  # store for convenience (Base class already has it)
+
+        if self.use_gui:
+            try:
+                self._pygame = importlib.import_module("pygame")
+                # Local constants module (pygame.locals) is needed for event codes
+                self._pygame_locals = importlib.import_module("pygame.locals")  # type: ignore[attr-defined]
+                self.clock = self._pygame.time.Clock()
+            except ModuleNotFoundError as exc:  # pragma: no cover
+                raise RuntimeError(
+                    "GUI mode requested in replay but pygame is not installed. "
+                    "Install it or use --no-gui/headless mode."
+                ) from exc
+        else:
+            self.clock = None
 
         self.log_dir: str = log_dir
         self.pause_between_moves: float = pause_between_moves
@@ -432,7 +458,10 @@ class ReplayEngine(BaseReplayEngine):
                     self.move_index = len(self.moves)
 
                     if self.auto_advance:
-                        pygame.time.delay(1000)
+                        if self._pygame:
+                            self._pygame.time.delay(1000)
+                        else:
+                            time.sleep(1)
                         self.load_next_game()
 
                 # Immediate redraw so the GUI stays responsive
@@ -516,9 +545,14 @@ class ReplayEngine(BaseReplayEngine):
     # ---------------------
 
     def handle_events(self) -> None:  # noqa: D401 – event loop
+        if not self.use_gui or not self._pygame:
+            return
+
+        pygame = self._pygame  # local alias for brevity
+
         redraw_needed = False
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -560,10 +594,12 @@ class ReplayEngine(BaseReplayEngine):
             self.draw()
 
     def run(self) -> None:  # noqa: D401 – main loop
-        if not pygame.get_init():
-            pygame.init()
-
-        clock = pygame.time.Clock()
+        if self.use_gui and self._pygame:
+            if not self._pygame.get_init():
+                self._pygame.init()
+            clock = self._pygame.time.Clock()
+        else:
+            clock = None
 
         # Try to load the first game; fallback to subsequent ones if necessary
         if not self.load_game_data(self.game_number):
@@ -578,10 +614,16 @@ class ReplayEngine(BaseReplayEngine):
             self.update()
             if self.use_gui and self.gui:
                 self.draw()
-            pygame.time.delay(TIME_DELAY)
-            clock.tick(TIME_TICK)
 
-        pygame.quit()
+            if self.use_gui and self._pygame:
+                self._pygame.time.delay(TIME_DELAY)
+                clock.tick(TIME_TICK)
+            else:
+                # Headless mode – simple sleep to avoid busy loop
+                time.sleep(TIME_DELAY / 1000.0)
+
+        if self.use_gui and self._pygame:
+            self._pygame.quit()
 
     # ---------------------
     # Enrich the generic state with LLM-specific metadata for Task-0

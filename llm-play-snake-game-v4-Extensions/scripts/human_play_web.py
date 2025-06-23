@@ -26,6 +26,13 @@ import argparse
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from utils.path_utils import ensure_project_root
+
+# ------------------
+# Ensure current working directory == repository root
+# ------------------
+REPO_ROOT = ensure_project_root()
+
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
 # Import MVC components

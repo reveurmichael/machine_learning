@@ -18,6 +18,13 @@ Features:
 - Responsive web UI with heuristic insights
 """
 
+import pathlib
+from extensions.common.path_utils import add_repo_root_to_sys_path
+add_repo_root_to_sys_path(pathlib.Path(__file__))
+
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
+
 import argparse
 import sys
 from pathlib import Path

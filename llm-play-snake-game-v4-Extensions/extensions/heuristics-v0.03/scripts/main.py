@@ -22,6 +22,27 @@ Features:
 - Organized code structure with agents/ package
 """
 
+import sys
+import os
+import pathlib
+
+def _find_repo_root(start: pathlib.Path) -> pathlib.Path:
+    current = start.resolve()
+    for _ in range(10):
+        if (current / "config").is_dir():
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate repository root containing 'config/' folder")
+
+project_root = _find_repo_root(pathlib.Path(__file__))
+sys.path.insert(0, str(project_root))
+os.chdir(str(project_root))
+
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
+
 import argparse
 import sys
 from pathlib import Path

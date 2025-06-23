@@ -7,16 +7,6 @@ Minimal extension of BaseGameManager for BFS algorithm.
 
 from __future__ import annotations
 
-import sys
-import pathlib
-
-# Add project root to path for imports
-project_root = pathlib.Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from extensions.common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
-
 import argparse
 import os
 from datetime import datetime
@@ -28,6 +18,9 @@ from core.game_manager import BaseGameManager
 from game_logic import HeuristicGameLogic
 from agent_bfs import BFSAgent
 
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
+
 
 class HeuristicGameManager(BaseGameManager):
     """Simple session manager for BFS algorithm."""
@@ -35,11 +28,19 @@ class HeuristicGameManager(BaseGameManager):
     GAME_LOGIC_CLS = HeuristicGameLogic
 
     def __init__(self, args: argparse.Namespace) -> None:
+        # Force headless mode regardless of CLI flags – heuristics v0.01 is **always** GUI-less.
+        args.no_gui = True  # Inject flag for the base class
         super().__init__(args)
+
+        # The base class initialises GUI-related attributes based on the flag above.
+        # ``clock`` is None when headless; override type to satisfy linters.
+        self.clock = None  # type: ignore[assignment]
+
         self.agent: Optional[BFSAgent] = None
         self.log_dir: Optional[str] = None
         self.game_steps: List[int] = []  # Track steps per game for efficiency metrics
         self.game_rounds: List[int] = []  # Track rounds per game for round analysis
+        self.total_score: int = 0
 
     def initialize(self) -> None:
         """Initialize BFS game manager."""
@@ -54,9 +55,23 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
 
     def _setup_logging(self) -> None:
-        """Setup log directory."""
+        """Setup log directory for **extension mode**.
+
+        CRITICAL: All heuristic extensions write their outputs under:
+
+            ROOT/logs/extensions/<experiment_folder>/
+
+        This keeps extension logs separate from the main Task-0 logs while
+        still living under a single top-level ``logs/`` folder, making backup
+        and analytics scripts much simpler.
+
+        Task-0 logs go to: ROOT/logs/<model>_<timestamp>/
+        Extension logs go to: ROOT/logs/extensions/<task>-<algorithm>_<timestamp>/
+        """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.log_dir = f"logs/heuristics-bfs_{timestamp}"
+        # CRITICAL: Extension logs go to ROOT/logs/extensions/
+        # This separates experimental extensions from production Task-0 logs
+        self.log_dir = os.path.join("logs", "extensions", f"heuristics-bfs_{timestamp}")
         os.makedirs(self.log_dir, exist_ok=True)
 
     def run(self) -> None:

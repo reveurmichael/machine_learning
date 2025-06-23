@@ -23,7 +23,6 @@ import os
 from abc import ABC
 from typing import Any, Dict, Tuple, TYPE_CHECKING
 
-import pygame
 from colorama import Fore
 
 from config.game_constants import END_REASON_MAP
@@ -130,8 +129,15 @@ class BaseGameManagerHelper(ABC, metaclass=SingletonABCMeta):
             game_manager: The GameManager instance
         """
         
-        # Skip if GUI disabled or pygame has already been quit
-        if not game_manager.use_gui or not pygame.get_init():
+        # Skip entirely when GUI is disabled – avoids importing pygame in headless mode.
+        if not game_manager.use_gui:
+            return
+
+        # Lazy import – only executed in GUI runs.  Keeps head-less tests free
+        # of the SDL/pygame dependency.
+        import pygame  # noqa: WPS433 – intentional local import
+
+        if not pygame.get_init():
             return
             
         for event in pygame.event.get():

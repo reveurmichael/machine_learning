@@ -14,8 +14,8 @@ Design Philosophy:
 
 from __future__ import annotations
 
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 import time
 from typing import List, Optional, TYPE_CHECKING

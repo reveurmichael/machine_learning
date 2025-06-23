@@ -8,15 +8,8 @@ Minimal extension of BaseGameLogic for BFS pathfinding.
 from __future__ import annotations
 from typing import List, Optional, TYPE_CHECKING
 
-import sys
-import pathlib
-
-# Add project root to path for imports
-project_root = pathlib.Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from extensions.common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 from config.ui_constants import GRID_SIZE
 from core.game_logic import BaseGameLogic

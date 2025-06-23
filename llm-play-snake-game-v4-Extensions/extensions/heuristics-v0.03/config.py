@@ -29,8 +29,8 @@ Remember: if a constant becomes universally useful, promote it upstream to
 
 from __future__ import annotations
 
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 # ---------------------------------------------------------------------------
 # Re-export first-citizen constants (Task-0 → Task-1 direction ✓)
@@ -39,20 +39,18 @@ ensure_project_root_on_path()
 from config.game_constants import (
     DIRECTIONS,
     VALID_MOVES,
-    DEFAULT_GRID_SIZE,
 )
 
-from config.ui_constants import DEFAULT_FPS
-from config.network_constants import LOCALHOST
+from config.ui_constants import GRID_SIZE
+from config.network_constants import HOST_CHOICES
 
 # Public re-export surface
 __all__: list[str] = [
     # Root constants
     "DIRECTIONS",
     "VALID_MOVES",
-    "DEFAULT_GRID_SIZE",
-    "DEFAULT_FPS",
-    "LOCALHOST",
+    "GRID_SIZE",
+    "HOST_CHOICES",
     # Heuristic-specific additions (below)
     "MAX_HEURISTIC_STEPS",
     "DEFAULT_MOVE_INTERVAL_MS",

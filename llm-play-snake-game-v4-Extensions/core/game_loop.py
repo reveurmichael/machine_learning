@@ -5,6 +5,13 @@ decision-making (LLM calls, move execution, game-over handling …) to private
 helpers so the public entry point stays small and readable.
 
 IMPORTANT: KEEP THIS FILE OOP. KEEP THE BASE CLASS AS WELL AS THE DERIVED CLASS.
+
+Lazy Pygame Import
+------------------
+`pygame` is **not** imported at module load time anymore.  The loop references
+the instance attribute :pyattr:`BaseGameManager._pygame`, which is only set
+when the manager runs in GUI mode.  This means the loop can be unit-tested in
+head-less environments (pytest, GitHub Actions, …) without SDL.
 """
 
 from __future__ import annotations
@@ -13,7 +20,6 @@ import time
 import traceback
 from typing import TYPE_CHECKING, Tuple
 
-import pygame
 from colorama import Fore
 from config.game_constants import PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS
 from core.game_manager_helper import BaseGameManagerHelper, GameManagerHelper
@@ -74,15 +80,16 @@ class BaseGameLoop:
                     else:
                         self._process_active_game()
 
-                if manager.use_gui:
-                    pygame.time.delay(manager.time_delay)
+                if manager.use_gui and manager._pygame:
+                    manager._pygame.time.delay(manager.time_delay)
                     manager.clock.tick(manager.time_tick)
 
         except Exception as exc:  # pragma: no cover – safety net
             print(Fore.RED + f"Fatal error: {exc}")
             traceback.print_exc()
         finally:
-            pygame.quit()
+            if manager._pygame:
+                manager._pygame.quit()
 
     # ---------------------
     # Former top-level helpers – now instance methods (identical bodies)
@@ -275,8 +282,6 @@ class GameLoop(BaseGameLoop):
         ``planned_moves`` queue.  Therefore we bypass the *agent* branch
         entirely and always delegate to :meth:`_process_active_game`.
         """
-        import pygame  # local import to avoid hard dependency for head-less tests
-
         manager = self.manager  # local alias for brevity
 
         try:
@@ -287,15 +292,16 @@ class GameLoop(BaseGameLoop):
                 if manager.game_active and manager.game is not None:
                     self._process_active_game()
 
-                if manager.use_gui:
-                    pygame.time.delay(manager.time_delay)
+                if manager.use_gui and manager._pygame:
+                    manager._pygame.time.delay(manager.time_delay)
                     manager.clock.tick(manager.time_tick)
 
         except Exception as exc:  # pragma: no cover – final safety net
             print(Fore.RED + f"Fatal error: {exc}")
             traceback.print_exc()
         finally:
-            pygame.quit()
+            if manager._pygame:
+                manager._pygame.quit()
 
     # ---------------------
     # Method Overrides

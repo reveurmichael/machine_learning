@@ -9,15 +9,8 @@ from __future__ import annotations
 from typing import List, Tuple, Set
 from collections import deque
 
-import sys
-import pathlib
-
-# Add project root to path for imports
-project_root = pathlib.Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from extensions.common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction

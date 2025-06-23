@@ -1,6 +1,9 @@
+from __future__ import annotations
 """
-Heuristic Game Manager v0.02 - Multi-Algorithm Session Management
-==================================================================
+Heuristic Game Manager 
+=============================
+
+Session management for multi-algorithm heuristic agents.
 
 Evolution from v0.01: This module demonstrates how to extend the simple
 proof-of-concept to support multiple algorithms using factory patterns.
@@ -14,10 +17,8 @@ Design Philosophy:
 - Simplified logging (no Task-0 replay compatibility as requested)
 """
 
-from __future__ import annotations
-
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from extensions.common.path_utils import setup_extension_paths
+setup_extension_paths()
 
 import argparse
 import os
@@ -107,14 +108,27 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
 
     def _setup_logging(self) -> None:
-        """Setup simplified logging directory (no Task-0 compatibility)."""
-        # Create log directory with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        # Use algorithm name in log directory for easy identification
-        algo_name = self.algorithm_name.lower().replace('-', '_')
-        self.log_dir = f"logs/heuristics-{algo_name}_{timestamp}"
+        """Setup logging directory for **extension mode**.
 
-        # Create directory
+        CRITICAL: All heuristic extensions write their outputs under:
+
+            ROOT/logs/extensions/<experiment_folder>/
+
+        This keeps extension logs separate from the main Task-0 logs while
+        still living under a single top-level ``logs/`` folder, making backup
+        and analytics scripts much simpler.
+
+        Task-0 logs go to: ROOT/logs/<model>_<timestamp>/
+        Extension logs go to: ROOT/logs/extensions/<task>-<algorithm>_<timestamp>/
+
+        Directory pattern:
+            logs/extensions/heuristics-<algorithm>_<timestamp>/
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        algo_name = self.algorithm_name.lower().replace('-', '_')
+        # CRITICAL: Extension logs go to ROOT/logs/extensions/
+        # This separates experimental extensions from production Task-0 logs
+        self.log_dir = os.path.join("logs", "extensions", f"heuristics-{algo_name}_{timestamp}")
         os.makedirs(self.log_dir, exist_ok=True)
 
     def _setup_agent(self) -> None:

@@ -1,5 +1,5 @@
 """LLM Fine-tuning v0.01 – Proof of Concept
-=======================================
+--------------------
 
 This second-citizen extension demonstrates how to fine-tune an open-weight
 language model on the **natural-language JSONL dataset** produced by

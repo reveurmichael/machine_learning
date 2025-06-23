@@ -1,6 +1,6 @@
 """
 Reinforcement Learning Game Logic
-================================
+--------------------
 
 This module extends BaseGameLogic to support reinforcement learning training.
 It provides the environment interface that RL agents interact with.

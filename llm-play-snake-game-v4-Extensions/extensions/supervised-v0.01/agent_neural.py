@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.01 - Neural Network Agents
-================================================
+--------------------
 
 Neural network agents for supervised learning v0.01, focusing on PyTorch implementations.
 Extends BaseAgent from Task-0, demonstrating perfect base class reuse.

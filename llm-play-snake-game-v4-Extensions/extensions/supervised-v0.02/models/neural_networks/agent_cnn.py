@@ -1,6 +1,6 @@
 """
 CNNAgent for Supervised Learning v0.02
-======================================
+--------------------
 
 Implements a Convolutional Neural Network agent using PyTorch for board data.
 Processes the game board as a 2D image for spatial pattern recognition.

@@ -1,6 +1,6 @@
 """
 Pure Hamiltonian Cycle Agent - Guaranteed Snake Solution
-=======================================================
+--------------------
 
 This module implements a pure Hamiltonian cycle agent that guarantees
 the snake will never die by following a pre-computed cycle that visits

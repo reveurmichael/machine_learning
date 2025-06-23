@@ -1,6 +1,6 @@
 """
 DQN Agent for Reinforcement Learning v0.02
-=========================================
+--------------------
 
 Deep Q-Network agent using PyTorch for Snake game.
 Implements experience replay, target networks, and epsilon-greedy exploration.

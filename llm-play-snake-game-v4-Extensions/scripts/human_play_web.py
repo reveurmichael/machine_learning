@@ -1,6 +1,6 @@
 """
 Snake Game - Human Player Web Interface (MVC Architecture)
-=========================================================
+--------------------
 
 Flask-based web application for human-driven Snake gameplay using the MVC framework.
 This script demonstrates how to create a clean web interface using the new MVC architecture.

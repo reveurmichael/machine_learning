@@ -1,6 +1,6 @@
 """
 MVC Component Factories
-======================
+--------------------
 
 Factory classes for creating MVC components with proper configuration
 and dependency injection. Implements Factory pattern to centralize

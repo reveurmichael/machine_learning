@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Reinforcement Learning v0.02 - Training Script
-=============================================
+--------------------
 
 Modern CLI training script for reinforcement learning agents.
 Supports multiple RL algorithms with standardized training and evaluation.

@@ -18,7 +18,7 @@ This generator focuses on numerical/categorical features suitable for traditiona
 supervised learning, complementing the language-rich JSONL generator for LLMs.
 
 CRITICAL ARCHITECTURAL RULE: GRID SIZE BASED DATASET ORGANIZATION
-================================================================
+--------------------
 
 The grid_size should NEVER be hardcoded! Generated datasets must be stored in:
 ./logs/extensions/datasets/grid-size-N/
@@ -57,6 +57,8 @@ from pathlib import Path
 from typing import Dict, List, Any, Tuple
 from datetime import datetime
 import argparse
+
+from extensions.common.dataset_directory_manager import DatasetDirectoryManager
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -174,108 +176,16 @@ class GridSizeDetector:
                 max_y = max(max_y, y)
         
         # Extract from moves/snake positions if available
-        # This provides additional validation of grid size
+        # This is future-proofing for different log formats
         if 'detailed_history' in game_data and 'moves' in game_data['detailed_history']:
-            # In some implementations, moves might contain position data
-            # This is future-proofing for different log formats
             pass
         
         return max_x, max_y
 
 
-class DatasetDirectoryManager:
-    """
-    CRITICAL COMPONENT: Dataset Directory Structure Management
-    
-    This class enforces the fundamental architectural rule that all datasets
-    must be organized by grid size in the structure:
-    ./logs/extensions/datasets/grid-size-N/
-    
-    This organization is essential for:
-    1. Clear separation of datasets by complexity
-    2. Easy discovery of datasets for specific grid sizes
-    3. Preventing model training on mixed grid sizes
-    4. Future extensibility to multi-grid research
-    5. Consistent dataset organization across all extensions
-    
-    Directory Structure Enforced:
-    logs/extensions/datasets/
-    ├── grid-size-8/
-    │   ├── heuristic_bfs_TIMESTAMP.csv
-    │   ├── heuristic_astar_TIMESTAMP.csv
-    │   └── metadata_TIMESTAMP.json
-    ├── grid-size-10/
-    │   ├── heuristic_bfs_TIMESTAMP.csv
-    │   └── ...
-    └── grid-size-12/
-        └── ...
-    
-    This structure enables:
-    - Grid-specific model training
-    - Progressive difficulty experiments
-    - Clear dataset versioning
-    - Cross-grid comparison studies
-    """
-    
-    BASE_DATASET_DIR = "logs/extensions/datasets"
-    
-    @staticmethod
-    def get_grid_size_directory(grid_size: int) -> str:
-        """
-        Get the standardized directory path for a specific grid size.
-        
-        This method enforces the architectural rule for dataset organization.
-        All dataset generation must use this method to ensure consistency.
-        
-        Args:
-            grid_size: The detected grid size
-            
-        Returns:
-            str: Standardized path for grid size datasets
-        """
-        return os.path.join(DatasetDirectoryManager.BASE_DATASET_DIR, f"grid-size-{grid_size}")
-    
-    @staticmethod
-    def ensure_grid_size_directory_exists(grid_size: int) -> str:
-        """
-        Ensure the grid size directory exists, creating it if necessary.
-        
-        This method is called before any dataset generation to ensure
-        the proper directory structure is in place.
-        
-        Args:
-            grid_size: The detected grid size
-            
-        Returns:
-            str: Path to the created/verified directory
-        """
-        grid_dir = DatasetDirectoryManager.get_grid_size_directory(grid_size)
-        os.makedirs(grid_dir, exist_ok=True)
-        logger.info(f"Ensured dataset directory exists: {grid_dir}")
-        return grid_dir
-    
-    @staticmethod
-    def generate_dataset_filename(algorithm: str, timestamp: str, file_type: str = "csv") -> str:
-        """
-        Generate standardized dataset filename.
-        
-        Filename format: heuristic_{algorithm}_{timestamp}.{file_type}
-        Example: heuristic_bfs_20250623_160922.csv
-        
-        Args:
-            algorithm: Algorithm name (bfs, astar, etc.)
-            timestamp: Timestamp for uniqueness
-            file_type: File extension (csv, jsonl, etc.)
-            
-        Returns:
-            str: Standardized filename
-        """
-        return f"heuristic_{algorithm}_{timestamp}.{file_type}"
-
-
 class HeuristicCSVGenerator:
     """
-    Enhanced CSV Dataset Generator with Grid Size Awareness
+    Heuristic CSV Dataset Generator (v0.03+)
     
     This generator creates tabular datasets for traditional machine learning
     models while enforcing the critical grid size organization requirement.
@@ -299,257 +209,221 @@ class HeuristicCSVGenerator:
         if verbose:
             logger.setLevel(logging.DEBUG)
     
-    def generate_dataset(self, log_dir: str, output_base_dir: str = None, 
-                        algorithm: str = None) -> Dict[str, Any]:
+    def generate_dataset(self, log_dir: str, output_base_dir: str = None,
+                         algorithm: str = None) -> Dict[str, Any]:
         """
-        Generate CSV dataset with automatic grid size detection and organization.
-        
-        This is the main entry point for CSV dataset generation. It enforces
-        the architectural rule of grid size based organization.
+        Generate a CSV dataset from heuristic agent game logs.
+
+        This method orchestrates the entire dataset generation process:
+        1. Detects grid size from logs for architectural compliance.
+        2. Ensures the correct grid-size-N directory exists.
+        3. Determines the algorithm name.
+        4. Generates a unique, descriptive filename.
+        5. Processes all game logs into a single CSV file.
+        6. Returns comprehensive metadata about the generated dataset.
         
         Args:
-            log_dir: Directory containing game JSON logs
-            output_base_dir: Base output directory (defaults to logs/extensions/datasets)
-            algorithm: Algorithm name for filename generation
+            log_dir: Path to the source log directory.
+            output_base_dir: Optional base directory for output.
+            algorithm: Optional algorithm name override.
             
         Returns:
-            Dict containing generation results and metadata
+            A dictionary containing metadata about the generated dataset.
         """
-        # STEP 1: Detect grid size - CRITICAL for proper organization
+        logger.info(f"Starting CSV generation for log directory: {log_dir}")
+        
+        # STEP 1: Detect grid size for architectural compliance
         grid_size = GridSizeDetector.detect_grid_size_from_log_directory(log_dir)
-        logger.info(f"Detected grid size: {grid_size}")
         
-        # STEP 2: Ensure proper directory structure
-        if output_base_dir is None:
-            dataset_dir = DatasetDirectoryManager.ensure_grid_size_directory_exists(grid_size)
-        else:
-            dataset_dir = os.path.join(output_base_dir, f"grid-size-{grid_size}")
-            os.makedirs(dataset_dir, exist_ok=True)
+        # STEP 2: Ensure proper directory structure using the centralized manager
+        output_dir = DatasetDirectoryManager.ensure_datasets_dir(grid_size)
         
-        # STEP 3: Generate timestamp for unique filenames
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # STEP 4: Determine algorithm name if not provided
+        # STEP 3: Determine algorithm name
         if algorithm is None:
             algorithm = self._extract_algorithm_from_log_dir(log_dir)
         
-        # STEP 5: Generate dataset filename
-        filename = DatasetDirectoryManager.generate_dataset_filename(algorithm, timestamp, "csv")
-        output_file = os.path.join(dataset_dir, filename)
+        # STEP 4: Generate output file path
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"tabular_{algorithm.lower()}_data_{timestamp}.csv"
+        output_file = output_dir / output_filename
         
-        # STEP 6: Process game logs and generate CSV
-        dataset_stats = self._process_logs_to_csv(log_dir, output_file, grid_size)
+        logger.info(f"Generating CSV dataset at: {output_file}")
         
-        # STEP 7: Generate metadata
-        metadata = {
+        # STEP 5: Process logs and get metadata
+        csv_metadata = self._process_logs_to_csv(log_dir, str(output_file), grid_size)
+        
+        final_metadata = {
             "grid_size": grid_size,
             "algorithm": algorithm,
-            "timestamp": timestamp,
-            "source_log_dir": log_dir,
-            "output_file": output_file,
-            "dataset_stats": dataset_stats,
-            "generator_version": "v0.04_grid_aware",
-            "architecture_compliance": "grid-size-N directory structure"
+            "output_file": str(output_file),
+            **csv_metadata
         }
         
-        # Save metadata
-        metadata_file = os.path.join(dataset_dir, f"metadata_{algorithm}_{timestamp}.json")
-        with open(metadata_file, 'w', encoding='utf-8') as f:
-            json.dump(metadata, f, indent=2)
-        
-        logger.info(f"CSV dataset generated: {output_file}")
-        logger.info(f"Metadata saved: {metadata_file}")
-        
-        return metadata
-    
+        logger.info(f"✅ CSV dataset generation complete for {algorithm} (grid size: {grid_size})")
+        return final_metadata
+
     def _extract_algorithm_from_log_dir(self, log_dir: str) -> str:
         """Extract algorithm name from log directory path."""
-        log_dir_name = os.path.basename(log_dir.rstrip('/'))
-        # Extract algorithm from directory name like "heuristics-bfs_20250623_154528"
-        if 'heuristics-' in log_dir_name:
-            parts = log_dir_name.split('_')
-            if len(parts) >= 1 and 'heuristics-' in parts[0]:
-                return parts[0].replace('heuristics-', '').replace('heuristics', '')
-        return "unknown"
-    
+        log_name = Path(log_dir).name
+        # Assumes format like "heuristics-bfs_20230101_120000"
+        parts = log_name.split('_')[0].split('-')
+        if len(parts) > 1:
+            return parts[1].upper()
+        return "UNKNOWN"
+
     def _process_logs_to_csv(self, log_dir: str, output_file: str, grid_size: int) -> Dict[str, Any]:
         """
-        Process game logs and generate CSV with grid-size-aware features.
+        Process all game logs in a directory and generate a single CSV file.
         
-        This method creates the actual CSV dataset with features that are
-        scaled and normalized for the detected grid size.
+        This method is optimized for batch processing of large numbers of
+        JSON log files into a unified CSV dataset.
         
         Args:
-            log_dir: Source log directory
-            output_file: Output CSV file path
-            grid_size: Detected grid size for feature scaling
+            log_dir: Path to log directory
+            output_file: Path to output CSV file
+            grid_size: Detected grid size of the games
             
         Returns:
-            Dict with dataset statistics
+            Dict[str, Any]: Metadata about the generated dataset
         """
-        json_files = sorted(Path(log_dir).glob("game_*.json"))
+        start_time = datetime.now()
+        
+        json_files = sorted(list(Path(log_dir).glob("game_*.json")))
         
         if not json_files:
-            raise ValueError(f"No game JSON files found in {log_dir}")
+            logger.warning(f"No game JSON files found in {log_dir}")
+            return {}
+            
+        logger.info(f"Processing {len(json_files)} game files from {log_dir}...")
         
-        # CSV headers with grid-size-aware features
-        headers = [
-            'game_id', 'step_in_game',
-            'head_x', 'head_y', 'apple_x', 'apple_y',
-            'snake_length',
+        header = [
+            'game_id', 'step', 'grid_size', 'snake_length', 
+            'head_x', 'head_y', 'apple_x', 'apple_y', 'current_direction',
+            'obstacle_up', 'obstacle_down', 'obstacle_left', 'obstacle_right',
             'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
-            'danger_straight', 'danger_left', 'danger_right',
-            'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
-            'normalized_head_x', 'normalized_head_y',  # New: normalized coordinates
-            'normalized_apple_x', 'normalized_apple_y',  # New: normalized coordinates
-            'manhattan_distance', 'euclidean_distance',  # New: distance metrics
             'target_move'
         ]
         
-        total_rows = 0
-        total_games = 0
-        
-        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(headers)
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
             
-            for json_file in json_files:
+            total_rows = 0
+            for i, json_file in enumerate(json_files):
                 try:
                     game_rows = self._process_single_game_file(json_file, grid_size)
-                    for row in game_rows:
-                        writer.writerow(row)
-                        total_rows += 1
-                    total_games += 1
-                    
-                    if self.verbose and total_games % 10 == 0:
-                        logger.debug(f"Processed {total_games} games, {total_rows} rows")
-                        
+                    writer.writerows(game_rows)
+                    total_rows += len(game_rows)
                 except Exception as e:
-                    logger.warning(f"Error processing {json_file}: {e}")
-                    continue
+                    logger.error(f"Error processing file {json_file}: {e}")
+                    
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
         
         return {
-            "total_games": total_games,
+            "total_games": len(json_files),
             "total_rows": total_rows,
-            "features_count": len(headers) - 1,  # Exclude target
-            "grid_size": grid_size
+            "processing_time_seconds": round(duration, 2),
+            "csv_header": header
         }
-    
+
     def _process_single_game_file(self, json_file: Path, grid_size: int) -> List[List]:
-        """Process a single game file into CSV rows with grid-size-aware features."""
+        """Process a single game JSON file into a list of CSV rows."""
         with open(json_file, 'r', encoding='utf-8') as f:
             game_data = json.load(f)
         
-        game_id = json_file.stem.replace('game_', '')
+        game_id = os.path.basename(json_file).replace('game_', '').replace('.json', '')
+        
+        if 'detailed_history' not in game_data or 'moves' not in game_data['detailed_history']:
+            return []
+            
+        moves = game_data['detailed_history']['moves']
+        apple_positions = game_data['detailed_history']['apple_positions']
+        
         rows = []
+        snake_positions = []
+        current_direction = 'RIGHT'
         
-        # Extract game data
-        apple_positions = game_data.get('detailed_history', {}).get('apple_positions', [])
-        moves = game_data.get('detailed_history', {}).get('moves', [])
-        
-        if not apple_positions or not moves:
-            return rows
-        
-        # Process each move
-        for step, move in enumerate(moves):
-            if step >= len(apple_positions):
-                break
+        for i, move in enumerate(moves):
+            if i == 0:
+                snake_positions = [[grid_size // 2, grid_size // 2]]
             
-            # Get current apple position
-            apple_position = apple_positions[step]
+            head = list(snake_positions[0])
+            if move == 'UP':
+                head[1] += 1
+                current_direction = 'UP'
+            elif move == 'DOWN':
+                head[1] -= 1
+                current_direction = 'DOWN'
+            elif move == 'LEFT':
+                head[0] -= 1
+                current_direction = 'LEFT'
+            elif move == 'RIGHT':
+                head[0] += 1
+                current_direction = 'RIGHT'
+
+            apple_pos = apple_positions[min(i, len(apple_positions) - 1)]
             
-            # Calculate head position (simplified - would need actual snake tracking)
-            # For now, use a basic estimation
-            head_x = step % grid_size  # Simplified head position
-            head_y = step // grid_size % grid_size
-            
-            # Position data (ensure integers)
-            apple_x = int(apple_position.get("x", 0))
-            apple_y = int(apple_position.get("y", 0))
-            
-            # Snake length (estimated)
-            snake_length = min(3 + step // 10, grid_size * 2)  # Grows with game progress
-            
-            # Direction flags
-            apple_dir_up = 1 if apple_y > head_y else 0
-            apple_dir_down = 1 if apple_y < head_y else 0
-            apple_dir_left = 1 if apple_x < head_x else 0
-            apple_dir_right = 1 if apple_x > head_x else 0
-            
-            # Danger flags (simplified)
-            danger_straight = 1 if head_y >= grid_size - 1 else 0
-            danger_left = 1 if head_x <= 0 else 0
-            danger_right = 1 if head_x >= grid_size - 1 else 0
-            
-            # Free space calculations
-            free_space_up = grid_size - 1 - head_y
-            free_space_down = head_y
-            free_space_left = head_x
-            free_space_right = grid_size - 1 - head_x
-            
-            # NEW: Normalized coordinates (0.0 to 1.0)
-            normalized_head_x = head_x / (grid_size - 1)
-            normalized_head_y = head_y / (grid_size - 1)
-            normalized_apple_x = apple_x / (grid_size - 1)
-            normalized_apple_y = apple_y / (grid_size - 1)
-            
-            # NEW: Distance metrics
-            manhattan_distance = abs(apple_x - head_x) + abs(apple_y - head_y)
-            euclidean_distance = ((apple_x - head_x) ** 2 + (apple_y - head_y) ** 2) ** 0.5
-            
-            row = [
-                game_id, step,
-                head_x, head_y, apple_x, apple_y,
-                snake_length,
-                apple_dir_up, apple_dir_down, apple_dir_left, apple_dir_right,
-                danger_straight, danger_left, danger_right,
-                free_space_up, free_space_down, free_space_left, free_space_right,
-                normalized_head_x, normalized_head_y,
-                normalized_apple_x, normalized_apple_y,
-                manhattan_distance, euclidean_distance,
-                move
-            ]
-            
+            row = self._create_csv_row(
+                game_id, i + 1, grid_size, snake_positions, 
+                apple_pos, current_direction, move
+            )
             rows.append(row)
+            
+            snake_positions.insert(0, head)
+            if head[0] == apple_pos['x'] and head[1] == apple_pos['y']:
+                pass
+            else:
+                snake_positions.pop()
         
         return rows
+    
+    def _create_csv_row(self, game_id: str, step: int, grid_size: int, 
+                        snake_positions: List[List[int]], apple_pos: Dict[str, int],
+                        current_direction: str, target_move: str) -> List:
+        """Create a single row for the CSV dataset."""
+        
+        head = snake_positions[0]
+        snake_body = set(map(tuple, snake_positions[1:]))
+        
+        obstacle_up = (head[0], head[1] + 1) in snake_body or head[1] + 1 >= grid_size
+        obstacle_down = (head[0], head[1] - 1) in snake_body or head[1] - 1 < 0
+        obstacle_left = (head[0] - 1, head[1]) in snake_body or head[0] - 1 < 0
+        obstacle_right = (head[0] + 1, head[1]) in snake_body or head[0] + 1 >= grid_size
+        
+        apple_dir_up = 1 if apple_pos['y'] > head[1] else 0
+        apple_dir_down = 1 if apple_pos['y'] < head[1] else 0
+        apple_dir_left = 1 if apple_pos['x'] < head[0] else 0
+        apple_dir_right = 1 if apple_pos['x'] > head[0] else 0
+        
+        return [
+            game_id, step, grid_size, len(snake_positions),
+            head[0], head[1], apple_pos['x'], apple_pos['y'], current_direction,
+            int(obstacle_up), int(obstacle_down), int(obstacle_left), int(obstacle_right),
+            apple_dir_up, apple_dir_down, apple_dir_left, apple_dir_right,
+            target_move
+        ]
 
 
 def main():
-    """
-    Main entry point for CSV dataset generation.
+    """Main entry point for the Heuristic CSV Generator CLI."""
+    parser = argparse.ArgumentParser(description="Generate CSV datasets from heuristic snake agent logs.")
     
-    Enforces the architectural rule of grid size based dataset organization.
-    """
-    parser = argparse.ArgumentParser(description="Generate CSV datasets with grid size awareness")
-    parser.add_argument("--log-dir", required=True, help="Directory containing game JSON logs")
-    parser.add_argument("--output-dir", help="Base output directory (default: logs/extensions/datasets)")
-    parser.add_argument("--algorithm", help="Algorithm name for filename")
+    parser.add_argument("log_dir", help="Directory containing game JSON logs")
+    parser.add_argument("--output-dir", help="Base output directory (defaults to logs/extensions/datasets)")
+    parser.add_argument("--algorithm", help="Algorithm name for filename generation (e.g., bfs, astar)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     
     args = parser.parse_args()
     
     generator = HeuristicCSVGenerator(verbose=args.verbose)
     
-    try:
-        metadata = generator.generate_dataset(
-            log_dir=args.log_dir,
-            output_base_dir=args.output_dir,
-            algorithm=args.algorithm
-        )
-        
-        print("✅ Dataset generated successfully!")
-        print(f"📁 Grid size: {metadata['grid_size']}")
-        print(f"📁 Output directory: {os.path.dirname(metadata['output_file'])}")
-        print(f"📄 Dataset file: {os.path.basename(metadata['output_file'])}")
-        print(f"📊 Statistics: {metadata['dataset_stats']}")
-        
-    except Exception as e:
-        logger.error(f"Dataset generation failed: {e}")
-        return 1
-    
-    return 0
+    generator.generate_dataset(
+        log_dir=args.log_dir,
+        output_base_dir=args.output_dir,
+        algorithm=args.algorithm
+    )
 
 
 if __name__ == "__main__":
-    exit(main()) 
+    main()

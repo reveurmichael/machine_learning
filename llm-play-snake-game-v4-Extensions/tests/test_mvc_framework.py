@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 MVC Framework Test Script
-========================
+--------------------
 
 Demonstrates the complete MVC architecture implementation for Snake-GTP.
 Tests all components: Models, Views, Controllers, and Factories.

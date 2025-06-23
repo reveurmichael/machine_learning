@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.01 - Main Entry Point
-===========================================
+--------------------
 
 Simple entry point for supervised learning v0.01, focusing on neural networks only.
 Follows the same pattern as heuristics v0.01 - minimal complexity, proof of concept.

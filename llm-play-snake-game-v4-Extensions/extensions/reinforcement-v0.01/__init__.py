@@ -1,6 +1,6 @@
 """
 Reinforcement Learning v0.01 - DQN Focus
-========================================
+--------------------
 
 This extension implements Deep Q-Network (DQN) reinforcement learning for the Snake game.
 It demonstrates the foundational RL concepts with a single, well-implemented algorithm.

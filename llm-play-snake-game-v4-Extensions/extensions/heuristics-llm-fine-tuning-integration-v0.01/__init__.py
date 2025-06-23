@@ -1,5 +1,5 @@
 """Heuristics→LLM Fine-Tuning Integration v0.01
-===========================================
+--------------------
 
 Automates the two-step pipeline:
 1. Generate language-rich JSONL from heuristic agents (via heuristics-v0.04 &

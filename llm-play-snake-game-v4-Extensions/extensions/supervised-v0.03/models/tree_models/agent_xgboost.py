@@ -1,6 +1,6 @@
 """
 XGBoost Agent for Supervised Learning v0.03
-==========================================
+--------------------
 
 XGBoost gradient boosting agent for tabular feature data.
 Implements standardized model saving/loading with JSON format.

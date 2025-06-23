@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.02 - Main Entry Point
-===========================================
+--------------------
 
 Multi-model entry point for supervised learning v0.02, supporting all ML model types.
 Follows the same pattern as heuristics v0.02 - multiple algorithms with --model argument.

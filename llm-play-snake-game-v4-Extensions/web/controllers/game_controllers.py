@@ -1,6 +1,6 @@
 """
 Game Controllers Base Classes - MVC Architecture
-===============================================
+--------------------
 
 Base controllers for different game modes following role-based inheritance.
 Provides common functionality for gameplay and viewing controllers.

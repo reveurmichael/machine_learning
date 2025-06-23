@@ -46,7 +46,7 @@ def main():
     # Main tabs
     tab1, tab2, tab3 = st.tabs([
         "🎯 Interactive Training",
-        "�� Model Comparison", 
+        "📊 Model Comparison", 
         "📁 Dataset Exploration"
     ])
     
@@ -143,7 +143,7 @@ def main():
                 st.error("Dataset path not found.")
     
     st.markdown("---")
-    st.markdown("**v0.03** - Interactive Web Interface")
+    st.markdown("**v0.03** - Heuristics-Supervised Integration Web Interface")
 
 if __name__ == "__main__":
     main()

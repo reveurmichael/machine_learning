@@ -1,5 +1,5 @@
 """Dataset Directory Manager
-================================
+--------------------
 
 Centralised enforcement of the *grid-size‐aware* dataset-storage rule that
 applies to **all** extensions (heuristics, supervised, reinforcement, …).
@@ -35,10 +35,12 @@ underlying `config` helpers) instead of re-implementing path logic.
 from __future__ import annotations
 
 import re
+import os
 from pathlib import Path
 from typing import Final
+from datetime import datetime
 
-from .config import DATASETS_ROOT, SUPPORTED_GRID_SIZES, ensure_datasets_dir
+from .config import DATASETS_ROOT, DEFAULT_GRID_SIZE, EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX, SUPPORTED_GRID_SIZES
 
 __all__ = [
     "DatasetPathError",
@@ -135,3 +137,109 @@ class DatasetDirectoryManager:  # pylint: disable=too-few-public-methods
         timestamp = timestamp or datetime.utcnow().strftime("%Y%m%dT%H%M%S")
         filename = f"{data_structure}_{algorithm.lower()}_{timestamp}.{data_format}"
         return DatasetDirectoryManager.grid_size_dir(grid_size) / filename 
+
+    @staticmethod
+    def get_dataset_dir(grid_size: int = DEFAULT_GRID_SIZE) -> Path:
+        """
+        Get dataset directory for a specific grid size.
+        
+        Args:
+            grid_size: Size of the game grid
+            
+        Returns:
+            Path to dataset directory (ROOT/logs/extensions/datasets/grid-size-N/)
+        """
+        return DATASETS_ROOT / f"grid-size-{grid_size}"
+
+    @staticmethod
+    def get_dataset_path(
+        data_structure: str,
+        data_format: str,
+        algorithm: str = "mixed",
+        grid_size: int = DEFAULT_GRID_SIZE
+    ) -> Path:
+        """
+        Get full path for a dataset file.
+        
+        Args:
+            data_structure: Type of data structure ("tabular", "sequential", "graph")
+            data_format: File format ("csv", "npz", "parquet")
+            algorithm: Algorithm name or "mixed" for multi-algorithm datasets
+            grid_size: Size of the game grid
+            
+        Returns:
+            Path to dataset file
+        """
+        dataset_dir = DatasetDirectoryManager.get_dataset_dir(grid_size)
+        filename = f"{data_structure}_{algorithm}_data.{data_format}"
+        return dataset_dir / filename
+
+    @staticmethod
+    def get_extension_log_path(extension_name: str) -> Path:
+        """
+        Get log directory path for an extension.
+        
+        Args:
+            extension_name: Name of the extension
+            
+        Returns:
+            Path to extension log directory
+        """
+        return EXTENSIONS_LOGS_DIR / extension_name
+
+    @staticmethod
+    def ensure_extensions_logs_dir() -> Path:
+        """
+        Ensure the extensions logs directory exists.
+        
+        Returns:
+            Path to the extensions logs directory
+        """
+        EXTENSIONS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        return EXTENSIONS_LOGS_DIR
+
+    @staticmethod
+    def ensure_datasets_dir(grid_size: int = DEFAULT_GRID_SIZE) -> Path:
+        """
+        Ensure the datasets directory exists for a specific grid size.
+        
+        Args:
+            grid_size: Size of the game grid
+            
+        Returns:
+            Path to the dataset directory
+        """
+        dataset_dir = DatasetDirectoryManager.get_dataset_dir(grid_size)
+        dataset_dir.mkdir(parents=True, exist_ok=True)
+        return dataset_dir
+
+    @staticmethod
+    def get_heuristic_log_path(algorithm: str, timestamp: str = None) -> Path:
+        """
+        Get log directory path for a heuristic algorithm.
+        
+        Args:
+            algorithm: Name of the heuristic algorithm
+            timestamp: Optional timestamp, generated if not provided
+            
+        Returns:
+            Path to heuristic log directory
+        """
+        if timestamp is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        log_name = f"{HEURISTICS_LOG_PREFIX}-{algorithm.lower()}_{timestamp}"
+        return EXTENSIONS_LOGS_DIR / log_name
+
+    @staticmethod
+    def validate_grid_size(grid_size: int) -> bool:
+        """
+        Validate if a grid size is supported.
+        
+        Args:
+            grid_size: Size to validate
+            
+        Returns:
+            True if supported, False otherwise
+        """
+        return grid_size in SUPPORTED_GRID_SIZES

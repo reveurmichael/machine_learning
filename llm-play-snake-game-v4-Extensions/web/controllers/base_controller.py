@@ -1,6 +1,6 @@
 """
 Base Web Controller - MVC Architecture Foundation
-===============================================
+--------------------
 
 Abstract base controller implementing common web functionality and request processing pipeline.
 Uses Template Method pattern to define request handling flow while allowing subclasses to customize behavior.

@@ -1,6 +1,6 @@
 """
 BFS Safe Greedy Agent - Enhanced BFS with Safety Checks
-==========================================================
+--------------------
 
 This module implements an enhanced BFS agent that extends the basic BFS agent
 with safety validation. It finds the shortest path to the apple but ensures 

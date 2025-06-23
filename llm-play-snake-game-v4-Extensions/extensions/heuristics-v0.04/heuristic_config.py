@@ -1,15 +1,15 @@
-"""heuristics-v0.03 Configuration
-================================
+"""heuristics-v0.04 Configuration
+--------------------
 
 Second-citizen tasks (heuristics, supervised, RL, …) are **allowed** to import
 from first-citizen modules (Task-0).  The reverse dependency is forbidden.
 
 This `config.py` acts as a *thin facade* around the canonical `config/` package
-at the repository root so that files inside `extensions/heuristics-v0.03/` can
+at the repository root so that files inside `extensions/heuristics-v0.04/` can
 simply write:
 
 ```python
-from extensions.heuristics_v0_03 import config as cfg
+from extensions.heuristics_v0_04 import config as cfg
 cfg.DIRECTIONS
 ```
 
@@ -57,7 +57,7 @@ __all__: list[str] = [
 ]
 
 # ---------------------
-# Heuristic-specific settings (only used by v0.03 agents / GUI)
+# Heuristic-specific settings (only used by v0.04 agents / GUI)
 # ---------------------
 
 # Fallback hard cap so runaway agents never freeze the replay.

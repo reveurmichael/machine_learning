@@ -1,6 +1,6 @@
 """
 Heuristics v0.02 - Multi-Algorithm Snake Agents
-========================================
+--------------------
 
 Evolution from v0.01: This version demonstrates natural software progression
 by expanding from a single BFS algorithm to a comprehensive suite of 7

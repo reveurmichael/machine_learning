@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.03 - Configuration Management
-==================================================
+--------------------
 
 Centralized configuration for supervised learning models.
 Uses Pydantic for type safety and validation.

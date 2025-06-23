@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristics v0.03 CLI Entry Point
-===============================
+--------------------
 
 CLI interface for heuristics v0.03 (moved from root to scripts/ folder).
 This maintains backward compatibility with v0.02 while supporting the new

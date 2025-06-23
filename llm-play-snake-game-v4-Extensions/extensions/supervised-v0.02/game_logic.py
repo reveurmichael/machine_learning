@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.02 - Game Logic
-=====================================
+--------------------
 
 Game logic for supervised learning v0.02, supporting all ML model types.
 Extends BaseGameLogic from Task-0, demonstrating perfect base class reuse.

@@ -1,6 +1,6 @@
 """
 Simple Template Renderer
-========================
+--------------------
 
 Basic template rendering implementation for the MVC framework.
 Provides minimal functionality to support the web interface.

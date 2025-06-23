@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristic Replay Engine
-======================
+--------------------
 
 Extension of Task-0's BaseReplayEngine for heuristic algorithms.
 Demonstrates extensive reuse of base infrastructure while adding

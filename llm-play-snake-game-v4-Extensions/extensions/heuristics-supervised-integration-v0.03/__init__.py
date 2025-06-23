@@ -18,7 +18,7 @@ Key Features (v0.03):
 - Web-based hyperparameter tuning
 
 Usage:
-    streamlit run extensions/heuristics_supervised_integration_v0_03/app.py
+    streamlit run extensions/heuristics-supervised-integration-v0.03/app.py
 """
 
 from __future__ import annotations

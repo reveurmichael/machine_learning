@@ -1,6 +1,6 @@
 """
 Game Controller - Base Controller for Snake Game Applications
-============================================================
+--------------------
 
 This module provides the base controller classes that can be used by different
 interfaces (GUI, Web, CLI) to interact with the game engine. It follows OOP
@@ -55,9 +55,9 @@ class BaseGameController(ABC):
         
         logger.info(f"Initialized {self.__class__.__name__}")
     
-    # ==========================================
+    # --------------------
     # Template Method Pattern - Core Algorithm
-    # ==========================================
+    # --------------------
     
     def run_game_session(self) -> None:
         """
@@ -97,9 +97,9 @@ class BaseGameController(ABC):
         """Clean up resources after session ends. Can be overridden by subclasses."""
         logger.info("Game session cleanup completed")
     
-    # ==========================================
+    # --------------------
     # Shared Game State Interface
-    # ==========================================
+    # --------------------
     
     @property
     def game(self):
@@ -187,9 +187,9 @@ class BaseGameController(ABC):
             return game.grid_size
         return 10  # Default fallback
     
-    # ==========================================
+    # --------------------
     # Game Control Operations
-    # ==========================================
+    # --------------------
     
     def reset_game(self) -> None:
         """

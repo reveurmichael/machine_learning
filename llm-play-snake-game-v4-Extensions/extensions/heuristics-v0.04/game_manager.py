@@ -1,7 +1,7 @@
 from __future__ import annotations
 """
 Heuristic Game Manager 
-=============================
+--------------------
 
 Session management for multi-algorithm heuristic agents.
 
@@ -15,6 +15,8 @@ Design Philosophy:
 - Factory pattern for algorithm selection (v0.02 enhancement)
 - No LLM dependencies (no token stats, no continuation mode)
 - Simplified logging (no Task-0 replay compatibility as requested)
+
+Evolution from v0.03: Adds language-rich move explanations and JSONL dataset compatibility while retaining multi-algorithm flexibility.
 """
 
 from extensions.common.path_utils import setup_extension_paths
@@ -30,6 +32,7 @@ import json
 from colorama import Fore
 
 from core.game_manager import BaseGameManager
+from core.game_agents import SnakeAgent
 
 # Import heuristic-specific components
 from game_logic import HeuristicGameLogic
@@ -51,7 +54,7 @@ HeuristicAgent = Union[
 
 class HeuristicGameManager(BaseGameManager):
     """
-    Multi-algorithm session manager for heuristics v0.02.
+    Multi-algorithm session manager for heuristics v0.04.
     
     Evolution from v0.01:
     - Factory pattern for algorithm selection (was: hardcoded BFS)
@@ -104,7 +107,7 @@ class HeuristicGameManager(BaseGameManager):
         if isinstance(self.game, HeuristicGameLogic) and self.agent:
             self.game.set_agent(self.agent)
 
-        print(Fore.GREEN + f"🤖 Heuristics v0.02 initialized with {self.algorithm_name} algorithm")
+        print(Fore.GREEN + f"🤖 Heuristics v0.04 initialized with {self.algorithm_name} algorithm")
         if self.verbose and self.agent:
             print(Fore.CYAN + f"🔍 Agent: {self.agent}")
         print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
@@ -127,7 +130,7 @@ class HeuristicGameManager(BaseGameManager):
             logs/extensions/heuristics-<algorithm>_<timestamp>/
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        algo_name = self.algorithm_name.lower().replace('-', '_')
+        algo_name = self.algorithm_name.lower()
         # CRITICAL: Extension logs go to ROOT/logs/extensions/
         # This separates experimental extensions from production Task-0 logs
         # Use common configuration constant instead of hardcoded path
@@ -160,7 +163,7 @@ class HeuristicGameManager(BaseGameManager):
         and better algorithm-specific messaging.
         """
         try:
-            print(Fore.GREEN + "🚀 Starting heuristics v0.02 session...")
+            print(Fore.GREEN + "🚀 Starting heuristics v0.04 session...")
             print(Fore.CYAN + f"📊 Target games: {self.args.max_games}")
             print(Fore.CYAN + f"🧠 Algorithm: {self.algorithm_name}")
 
@@ -174,7 +177,7 @@ class HeuristicGameManager(BaseGameManager):
             # Save session summary
             self._save_session_summary()
 
-            print(Fore.GREEN + "✅ Heuristics v0.02 session completed!")
+            print(Fore.GREEN + "✅ Heuristics v0.04 session completed!")
             print(Fore.CYAN + f"📊 Games played: {self.game_count}")
             print(Fore.CYAN + f"🏆 Total score: {self.total_score}")
             if self.game_count > 0:
@@ -317,7 +320,7 @@ class HeuristicGameManager(BaseGameManager):
     def _save_session_summary(self) -> None:
         """Save simplified session summary (no Task-0 compatibility as requested)."""
         summary_data = {
-            "heuristics_version": "v0.02",
+            "heuristics_version": "v0.04",
             "timestamp": self.session_start_time.strftime("%Y-%m-%d %H:%M:%S"),
             "algorithm": self.algorithm_name,
             "total_games": self.game_count,

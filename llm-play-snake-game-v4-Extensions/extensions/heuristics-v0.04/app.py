@@ -1,8 +1,8 @@
 """
-Heuristics v0.03 - Streamlit Dashboard
-=====================================
+Heuristics v0.04 - Streamlit Dashboard
+--------------------
 
-Evolution from v0.02: Adding comprehensive web interface with game launching and replay capabilities.
+Evolution from v0.03: Adding JSONL dataset generation with natural-language explanations alongside the existing web interface, game launching and replay capabilities.
 Demonstrates natural software progression by building upon the multi-algorithm foundation.
 
 Features:
@@ -46,7 +46,7 @@ _file_manager = FileManager()
 
 class HeuristicsApp:
     """
-    Streamlit application for Heuristics v0.03.
+    Streamlit application for Heuristics v0.04.
     
     Demonstrates software evolution by building upon v0.02's multi-algorithm
     foundation with web interface capabilities. Extensively reuses Task-0
@@ -79,7 +79,7 @@ class HeuristicsApp:
         """Configure Streamlit page settings."""
         try:
             st.set_page_config(
-                page_title="Heuristics v0.03 - Snake Game Dashboard",
+                page_title="Heuristics v0.04 - Snake Game Dashboard",
                 page_icon="🧠",
                 layout="wide",
                 initial_sidebar_state="expanded",
@@ -89,8 +89,8 @@ class HeuristicsApp:
     
     def main(self) -> None:
         """Main application interface."""
-        st.title("🧠 Heuristics v0.03 - Snake Game Dashboard")
-        st.markdown("**Evolution from v0.02**: Comprehensive web interface with game launching and replay capabilities")
+        st.title("🧠 Heuristics v0.04 - Snake Game Dashboard")
+        st.markdown("**Evolution from v0.03**: Adds JSONL dataset generation with natural-language explanations while preserving the comprehensive web interface and replay capabilities")
         
         # Create tabs for different functionalities
         tab_overview, tab_launch, tab_replay_pg, tab_replay_web, tab_analysis = st.tabs([
@@ -318,7 +318,7 @@ class HeuristicsApp:
         maintaining separation between the web interface and game execution.
         """
         try:
-            # Build command using scripts folder (v0.03 evolution)
+            # Build command using scripts folder (v0.04 evolution)
             cmd = [
                 sys.executable, 
                 os.path.join("scripts", "main.py"),

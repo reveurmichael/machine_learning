@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Reinforcement Learning v0.01 - Training Script
-==============================================
+--------------------
 
 Training script for DQN reinforcement learning agent.
 Provides CLI interface for training with configurable parameters.

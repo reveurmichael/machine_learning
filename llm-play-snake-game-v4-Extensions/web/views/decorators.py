@@ -1,6 +1,6 @@
 """
 View Decorators - MVC Architecture
-=================================
+--------------------
 
 Decorator pattern implementation for view enhancement.
 Provides composable view functionality like caching, compression, etc.

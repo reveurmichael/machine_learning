@@ -1,6 +1,6 @@
 """
 Test script for CSV Schema Utilities
-===================================
+--------------------
 
 Tests the CSV schema generation and feature extraction utilities
 to ensure they work correctly with different grid sizes.

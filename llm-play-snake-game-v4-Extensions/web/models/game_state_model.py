@@ -1,6 +1,6 @@
 """
 Game State Model - Central Data Management
-=========================================
+--------------------
 
 Central model for managing game state with observer pattern support.
 Encapsulates game data, business logic, and state change notifications.

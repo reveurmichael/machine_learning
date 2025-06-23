@@ -1,6 +1,6 @@
 """
 Observer Pattern Implementation
-==============================
+--------------------
 
 Observer interface and concrete implementations for handling game state changes.
 Enables loose coupling between model, view, and controller components.

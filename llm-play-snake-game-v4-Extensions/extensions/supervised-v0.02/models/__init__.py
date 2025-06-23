@@ -1,6 +1,6 @@
 """
 Supervised Learning Models Package - Factory Pattern Implementation
-==================================================================
+--------------------
 
 This package provides a factory pattern for creating supervised learning agents.
 It demonstrates software evolution through inheritance and encapsulation.
@@ -38,45 +38,98 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 
 from typing import Dict, Type, Optional, List, Any
 
-# Import neural network models
-from .neural_networks.agent_mlp import MLPAgent
-from .neural_networks.agent_cnn import CNNAgent
-from .neural_networks.agent_lstm import LSTMAgent
-from .neural_networks.agent_gru import GRUAgent
+# Import models with graceful degradation (optional dependencies)
 
-# Import tree models
-from .tree_models.agent_xgboost import XGBoostAgent
-from .tree_models.agent_lightgbm import LightGBMAgent
-from .tree_models.agent_randomforest import RandomForestAgent
+MLPAgent = CNNAgent = LSTMAgent = GRUAgent = None
+XGBoostAgent = LightGBMAgent = RandomForestAgent = None
+GCNAgent = GraphSAGEAgent = GATAgent = None
 
-# Import graph models
-from .graph_models.agent_gcn import GCNAgent
-from .graph_models.agent_graphsage import GraphSAGEAgent
-from .graph_models.agent_gat import GATAgent
+try:
+    from .neural_networks.agent_mlp import MLPAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .neural_networks.agent_cnn import CNNAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .neural_networks.agent_lstm import LSTMAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .neural_networks.agent_gru import GRUAgent  # type: ignore
+except ImportError:
+    pass
+
+# Tree models (optional external libraries)
+try:
+    from .tree_models.agent_xgboost import XGBoostAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .tree_models.agent_lightgbm import LightGBMAgent  # type: ignore
+except Exception:  # noqa: E722
+    LightGBMAgent = None
+
+try:
+    from .tree_models.agent_randomforest import RandomForestAgent  # type: ignore
+except Exception:  # noqa: E722
+    RandomForestAgent = None
+
+# Graph models (optional)
+try:
+    from .graph_models.agent_gcn import GCNAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .graph_models.agent_graphsage import GraphSAGEAgent  # type: ignore
+except ImportError:
+    pass
+
+try:
+    from .graph_models.agent_gat import GATAgent  # type: ignore
+except ImportError:
+    pass
 
 # Model registry mapping names to classes
-MODEL_REGISTRY: Dict[str, Type] = {
-    # Neural Networks
-    "MLP": MLPAgent,
-    "CNN": CNNAgent,
-    "LSTM": LSTMAgent,
-    "GRU": GRUAgent,
-    
-    # Tree Models
-    "XGBOOST": XGBoostAgent,
-    "LIGHTGBM": LightGBMAgent,
-    "RANDOMFOREST": RandomForestAgent,
-    
-    # Graph Models
-    "GCN": GCNAgent,
-    "GRAPHSAGE": GraphSAGEAgent,
-    "GAT": GATAgent,
-}
+MODEL_REGISTRY: Dict[str, Type] = {}
+# Register models conditionally if implementation is available
 
-# Aliases for convenience
-MODEL_REGISTRY["XGB"] = XGBoostAgent  # XGB is an alias for XGBOOST
-MODEL_REGISTRY["LGBM"] = LightGBMAgent  # LGBM is an alias for LIGHTGBM
-MODEL_REGISTRY["RF"] = RandomForestAgent  # RF is an alias for RANDOMFOREST
+if MLPAgent is not None:
+    MODEL_REGISTRY["MLP"] = MLPAgent
+if CNNAgent is not None:
+    MODEL_REGISTRY["CNN"] = CNNAgent
+if LSTMAgent is not None:
+    MODEL_REGISTRY["LSTM"] = LSTMAgent
+if GRUAgent is not None:
+    MODEL_REGISTRY["GRU"] = GRUAgent
+
+if XGBoostAgent is not None:
+    MODEL_REGISTRY["XGBOOST"] = XGBoostAgent
+if LightGBMAgent is not None:
+    MODEL_REGISTRY["LIGHTGBM"] = LightGBMAgent
+if RandomForestAgent is not None:
+    MODEL_REGISTRY["RANDOMFOREST"] = RandomForestAgent
+
+if GCNAgent is not None:
+    MODEL_REGISTRY["GCN"] = GCNAgent
+if GraphSAGEAgent is not None:
+    MODEL_REGISTRY["GRAPHSAGE"] = GraphSAGEAgent
+if GATAgent is not None:
+    MODEL_REGISTRY["GAT"] = GATAgent
+
+# Aliases for convenience if corresponding models are available
+if "XGBOOST" in MODEL_REGISTRY:
+    MODEL_REGISTRY["XGB"] = MODEL_REGISTRY["XGBOOST"]
+if "LIGHTGBM" in MODEL_REGISTRY:
+    MODEL_REGISTRY["LGBM"] = MODEL_REGISTRY["LIGHTGBM"]
+if "RANDOMFOREST" in MODEL_REGISTRY:
+    MODEL_REGISTRY["RF"] = MODEL_REGISTRY["RANDOMFOREST"]
 
 # Default model
 DEFAULT_MODEL: str = "MLP"

@@ -4,10 +4,10 @@ from ..common.path_utils import ensure_project_root_on_path
 ensure_project_root_on_path()
 
 """
-Heuristics v0.03 - Advanced Heuristic Agents with Streamlit Interface
-====================================================================
+Heuristics v0.04 - Advanced Heuristic Agents with Streamlit Interface
+--------------------
 
-This extension demonstrates software evolution from v0.02 to v0.03,
+This extension demonstrates software evolution from v0.03 to v0.04,
 adding a comprehensive Streamlit interface and enhanced replay capabilities.
 
 Key Features:
@@ -17,7 +17,7 @@ Key Features:
 - Inheritance hierarchy showing software evolution
 - Reuse of Task-0 base classes and utilities
 
-Evolution from v0.02:
+Evolution from v0.03:
 - Added Streamlit app.py as primary interface
 - Enhanced replay capabilities (PyGame + Flask web)
 - Improved agent factory with better error handling
@@ -62,7 +62,7 @@ from . import game_manager
 from . import game_logic
 
 # Version information
-__version__ = "0.03"
+__version__ = "0.04"
 __author__ = "Heuristics Extension Team"
 
 # Public API

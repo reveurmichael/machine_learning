@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.03 - Streamlit Web Interface
-==================================================
+--------------------
 
 Modern Streamlit web interface for interactive supervised learning training and evaluation.
 Provides tabs for different model types and comprehensive parameter control.

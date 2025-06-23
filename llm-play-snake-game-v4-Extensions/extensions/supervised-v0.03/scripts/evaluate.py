@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.03 - Evaluation Script
-============================================
+--------------------
 
 Focused evaluation script for trained models.
 Follows elegance guidelines for clean, maintainable code.

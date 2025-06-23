@@ -1,6 +1,6 @@
 """
 Deep Q-Network (DQN) Agent Implementation
-========================================
+--------------------
 
 This module implements a Deep Q-Network agent for reinforcement learning in the Snake game.
 It demonstrates several key design patterns and RL concepts.
@@ -54,9 +54,9 @@ from extensions.common.rl_utils import ReplayBuffer, Experience
 
 
 
-# =============================================================================
+# ---------------------------------
 # EXPERIENCE REPLAY BUFFER
-# =============================================================================
+# ---------------------------------
 
 @dataclass
 class Experience:
@@ -160,9 +160,9 @@ class ReplayBuffer:
         return self.size
 
 
-# =============================================================================
+# ---------------------------------
 # NEURAL NETWORK ARCHITECTURES
-# =============================================================================
+# ---------------------------------
 
 class DQNNetwork(nn.Module):
     """
@@ -250,9 +250,9 @@ class DQNNetwork(nn.Module):
         return self.network(x)
 
 
-# =============================================================================
+# ---------------------------------
 # DQN AGENT IMPLEMENTATION
-# =============================================================================
+# ---------------------------------
 
 class DQNAgent:
     """

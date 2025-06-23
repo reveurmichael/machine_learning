@@ -1,6 +1,6 @@
 """
 A* Pathfinding Agent for Snake Game
-===================================
+--------------------
 
 This module implements the A* (A-star) pathfinding algorithm for Snake gameplay.
 A* is an informed search algorithm that uses a heuristic function to guide the

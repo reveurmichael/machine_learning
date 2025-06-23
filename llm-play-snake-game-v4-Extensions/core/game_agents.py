@@ -23,4 +23,7 @@ class SnakeAgent(Protocol):
     """Minimal surface required by the game loop."""
 
     def get_move(self, game: Any) -> str | None:  # noqa: D401, ANN401
-        """Return the next direction or ``None`` (treated as EMPTY).""" 
+        """Return the next direction or ``None`` (treated as EMPTY)."""
+
+# Backward compatibility alias for extensions expecting BaseAgent name
+BaseAgent = SnakeAgent 

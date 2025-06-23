@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.03 - Training Script
-==========================================
+--------------------
 
 Modern CLI training script using elegant utilities and configuration management.
 Follows elegance guidelines for file organization and user experience.

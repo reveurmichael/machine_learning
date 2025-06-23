@@ -1,6 +1,6 @@
 """
 Game Events for Observer Pattern
-===============================
+--------------------
 
 Event classes for notifying observers about game state changes.
 Implements event objects that carry information about what happened in the game.

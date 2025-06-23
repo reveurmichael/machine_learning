@@ -1,6 +1,6 @@
 """
 Reinforcement Learning v0.02 - Multi-Agent Framework
-==================================================
+--------------------
 
 This extension implements a comprehensive reinforcement learning framework
 supporting multiple RL algorithms and agents.

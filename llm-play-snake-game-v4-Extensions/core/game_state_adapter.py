@@ -1,6 +1,6 @@
 """
 Game State Adapter for Consecutive Limits Manager
-================================================
+--------------------
 
 This module provides a clean adapter implementation that bridges the gap between
 the game manager and the consecutive limits manager, following the Adapter Pattern

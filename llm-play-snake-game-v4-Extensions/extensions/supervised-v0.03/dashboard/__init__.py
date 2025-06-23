@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.03 - Dashboard Module
-===========================================
+--------------------
 
 Dashboard components for Streamlit web interface.
 Modular, focused components for different dashboard sections.

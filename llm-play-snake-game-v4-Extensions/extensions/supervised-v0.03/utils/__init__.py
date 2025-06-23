@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.03 - Utilities Module
-===========================================
+--------------------
 
 Elegant utilities for configuration, CLI, and logging.
 Organized by responsibility with clear module boundaries.

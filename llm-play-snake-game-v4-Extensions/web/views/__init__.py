@@ -1,6 +1,6 @@
 """
 Views Module - MVC Architecture
-==============================
+--------------------
 
 View layer components for rendering responses and managing templates.
 Provides clean separation between data presentation and business logic.

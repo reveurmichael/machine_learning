@@ -1,6 +1,6 @@
 """
 Heuristics v0.02 - Multi-Algorithm Snake Game Agents
-===================================================
+--------------------
 
 Entry point for v0.02 extension.
 

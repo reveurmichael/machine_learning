@@ -1,5 +1,5 @@
 """LLM Distillation v0.01 – Compress the Fine-Tuned Teacher
-========================================================
+--------------------
 
 This second-citizen extension (Task-5) trains a *student* language model to
 imitate the fine-tuned teacher produced by **llm-finetune-v0.01**.

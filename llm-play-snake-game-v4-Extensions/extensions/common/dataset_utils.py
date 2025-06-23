@@ -1,6 +1,6 @@
 """
 Dataset Generation Utilities for Supervised Learning
-===================================================
+--------------------
 
 Converts heuristic game data (game_N.json) to training datasets for supervised learning models.
 Supports multiple data formats (CSV, NPZ, Parquet) and data structures (tabular, sequential, graph).

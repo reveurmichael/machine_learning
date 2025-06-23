@@ -1,5 +1,5 @@
 """Evolutionary-v0.01
-====================
+--------------------
 
 Proof-of-concept extension that demonstrates a **Genetic Algorithm (GA)**
 planner for Snake.  This is the very first evolutionary package – extremely

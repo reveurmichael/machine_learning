@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.01 - Game Logic
-=====================================
+--------------------
 
 Game logic for supervised learning v0.01, focusing on neural networks only.
 Extends BaseGameLogic from Task-0, demonstrating perfect base class reuse.

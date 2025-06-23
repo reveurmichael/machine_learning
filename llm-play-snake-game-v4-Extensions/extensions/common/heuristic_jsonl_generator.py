@@ -14,7 +14,7 @@ Key Features:
 - GRID SIZE ADAPTIVE: Automatically detects grid size and organizes datasets by grid size
 
 CRITICAL ARCHITECTURAL RULE: GRID SIZE BASED DATASET ORGANIZATION
-================================================================
+--------------------
 
 The grid_size should NEVER be hardcoded! Generated JSONL datasets must be stored in:
 ./logs/extensions/datasets/grid-size-N/

@@ -1,6 +1,6 @@
 """
 MLP Agent for Supervised Learning v0.03
-======================================
+--------------------
 
 Multi-Layer Perceptron agent using PyTorch for tabular feature data.
 Implements standardized model saving/loading with ONNX export.

@@ -1,6 +1,6 @@
 """
 GCNAgent for Supervised Learning v0.02
-======================================
+--------------------
 
 Implements a Graph Convolutional Network agent using PyTorch Geometric.
 Inherits from BaseAgent and provides train/predict interface.

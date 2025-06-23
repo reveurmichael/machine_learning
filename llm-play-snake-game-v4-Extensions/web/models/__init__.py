@@ -1,6 +1,6 @@
 """
 Web Models Module - MVC Data Layer
-=================================
+--------------------
 
 Implements the Model layer of MVC architecture with game state management,
 business logic, and observer pattern for state change notifications.

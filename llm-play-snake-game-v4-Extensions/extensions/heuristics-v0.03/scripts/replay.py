@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristics PyGame Replay Script
-==============================
+--------------------
 
 PyGame-based replay for heuristic algorithm games.
 Follows Task-0 replay.py pattern while adding heuristic-specific features.

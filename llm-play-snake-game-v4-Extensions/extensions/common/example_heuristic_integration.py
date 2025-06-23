@@ -7,9 +7,9 @@ This is for documentation purposes only - it shows the transformation
 from duplicated code to clean, focused extensions.
 """
 
-# ===========================================================================
+# ---------------------------------
 # BEFORE: Lots of boilerplate in each extension
-# ===========================================================================
+# ---------------------------------
 
 def old_heuristic_manager_style():
     """Example of old style with lots of boilerplate."""
@@ -60,9 +60,9 @@ def old_heuristic_manager_style():
     return f"❌ OLD STYLE (500+ lines of boilerplate):\n{OLD_STYLE_CODE}"
 
 
-# ===========================================================================
+# ---------------------------------
 # AFTER: Clean, focused extensions using common utilities  
-# ===========================================================================
+# ---------------------------------
 
 def new_heuristic_manager_style():
     """Example of new style using common utilities."""
@@ -109,9 +109,9 @@ def new_heuristic_manager_style():
     return f"✅ NEW STYLE (50 lines, algorithm-focused):\n{NEW_STYLE_CODE}"
 
 
-# ===========================================================================
+# ---------------------------------
 # Key Benefits Demonstration
-# ===========================================================================
+# ---------------------------------
 
 def demonstrate_benefits():
     """Show the key benefits of the common utilities approach."""
@@ -145,9 +145,9 @@ def demonstrate_benefits():
     return benefits
 
 
-# ===========================================================================
+# ---------------------------------
 # Code Reduction Statistics  
-# ===========================================================================
+# ---------------------------------
 
 def show_code_reduction_stats():
     """Demonstrate the actual code reduction achieved."""
@@ -178,9 +178,9 @@ def show_code_reduction_stats():
     return stats
 
 
-# ===========================================================================
+# ---------------------------------
 # Migration Examples
-# ===========================================================================
+# ---------------------------------
 
 def show_migration_examples():
     """Show how existing extensions can adopt common utilities gradually."""

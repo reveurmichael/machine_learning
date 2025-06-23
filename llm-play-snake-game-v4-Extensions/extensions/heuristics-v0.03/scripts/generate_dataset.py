@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Dataset Generation Script for Heuristics v0.03
-==============================================
+--------------------
 
 Generates training datasets from heuristic game logs for supervised learning models.
 Supports multiple data formats (CSV, NPZ, Parquet) and structures (tabular, sequential, graph).

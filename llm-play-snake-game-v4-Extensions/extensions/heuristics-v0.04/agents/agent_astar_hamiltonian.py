@@ -1,6 +1,6 @@
 """
 A* Hamiltonian Hybrid Agent - Advanced Pathfinding with Safety Guarantee
-==============================================
+--------------------
 
 This module implements a sophisticated agent that extends the A* agent with
 Hamiltonian cycle capabilities. It represents the evolution from A* to A*-Hamiltonian.

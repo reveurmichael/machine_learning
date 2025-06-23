@@ -1,6 +1,6 @@
 """
 LightGBM Agent for Supervised Learning v0.03
-===========================================
+--------------------
 
 LightGBM gradient boosting agent for tabular feature data.
 Implements standardized model saving/loading with text format.

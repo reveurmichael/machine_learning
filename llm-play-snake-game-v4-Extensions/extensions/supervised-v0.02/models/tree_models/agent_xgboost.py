@@ -1,6 +1,6 @@
 """
 XGBoostAgent for Supervised Learning v0.02
-==========================================
+--------------------
 
 Implements an XGBoost-based agent for tabular data.
 Inherits from BaseAgent and provides train/predict interface.

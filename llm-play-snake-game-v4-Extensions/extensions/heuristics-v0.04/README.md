@@ -1,12 +1,12 @@
-# Heuristics v0.03 - Comprehensive Web Dashboard
+# Heuristics v0.04 - Language-Rich Dataset & Web Dashboard
 
-**Natural Evolution from v0.02**: Complete web interface with game launching and replay capabilities
+**Natural Evolution from v0.03**: Adds JSONL dataset generation with natural-language explanations while preserving the comprehensive web interface and replay capabilities.
 
-This v0.03 extension demonstrates the natural progression of software systems by building upon v0.02's multi-algorithm foundation with a comprehensive web-based interface. It shows how modern applications evolve from CLI-only tools to sophisticated web dashboards while maintaining all core functionality.
+This v0.04 extension demonstrates the natural progression of software systems by building upon v0.03's multi-algorithm foundation with a comprehensive web-based interface. It shows how modern applications evolve from CLI-only tools to sophisticated web dashboards while maintaining all core functionality.
 
-## 🚀 Evolution Path: v0.02 → v0.03
+## 🚀 Evolution Path: v0.03 → v0.04
 
-| Aspect | v0.02 (Multi-Algorithm CLI) | v0.03 (Web Dashboard) |
+| Aspect | v0.03 (Multi-Algorithm CLI) | v0.04 (Web Dashboard) |
 |--------|------------------------------|------------------------|
 | **User Interface** | Command-line only | Comprehensive Streamlit web dashboard |
 | **Entry Point** | `main.py` CLI script | `app.py` web application |
@@ -16,7 +16,7 @@ This v0.03 extension demonstrates the natural progression of software systems by
 | **Performance Analysis** | Console output only | Interactive charts and comparisons |
 | **Experiment Overview** | No unified view | Comprehensive experiment dashboard |
 
-## 🎯 Key Features Added in v0.03
+## 🎯 Key Features Added in v0.04
 
 ### 1. **Comprehensive Web Dashboard**
 - **Overview Tab**: Experiment statistics and performance comparison
@@ -27,17 +27,17 @@ This v0.03 extension demonstrates the natural progression of software systems by
 
 ### 2. **Enhanced Code Organization**
 ```
-heuristics-v0.03/
+heuristics-v0.04/
 ├── app.py                    # Main Streamlit dashboard (new entry point)
 ├── agents/                   # All algorithm agents (organized)
 │   ├── agent_bfs.py
 │   ├── agent_astar.py
 │   └── ... (all 7 agents)
-├── scripts/                  # CLI scripts (v0.02 main.py moved here)
+├── scripts/                  # CLI scripts (v0.03 main.py moved here)
 │   └── main.py
 ├── replay_engine.py          # Heuristic-specific replay engine
 ├── replay_gui.py             # Web-based replay interface
-└── game_*.py                 # Core game logic (inherited from v0.02)
+└── game_*.py                 # Core game logic (inherited from v0.03)
 ```
 
 ### 3. **Extensive Task-0 Infrastructure Reuse**
@@ -55,13 +55,13 @@ heuristics-v0.03/
 
 ### Web Dashboard (Recommended)
 ```bash
-cd extensions/heuristics-v0.03
+cd extensions/heuristics-v0.04
 streamlit run app.py
 ```
 
-### CLI Mode (v0.02 compatibility)
+### CLI Mode (v0.03 compatibility)
 ```bash
-cd extensions/heuristics-v0.03
+cd extensions/heuristics-v0.04
 python scripts/main.py --algorithm bfs --max-games 5
 ```
 
@@ -100,7 +100,7 @@ python scripts/main.py --algorithm bfs --max-games 5
 
 ## 🧠 Algorithm Support
 
-All 7 heuristic algorithms from v0.02 are fully supported:
+All 7 heuristic algorithms from v0.03 are fully supported:
 
 | Algorithm | Description | Performance Characteristics |
 |-----------|-------------|----------------------------|
@@ -154,7 +154,7 @@ The dashboard tracks comprehensive performance metrics:
 
 ## 🔗 Integration with Task-0
 
-v0.03 demonstrates extensive reuse of Task-0 infrastructure:
+v0.04 demonstrates extensive reuse of Task-0 infrastructure:
 
 ### Base Classes Used
 - `BaseReplayEngine` - Core replay functionality
@@ -178,6 +178,7 @@ v0.03 demonstrates extensive reuse of Task-0 infrastructure:
 - **v0.01**: Proof of concept (single algorithm)
 - **v0.02**: Multi-algorithm CLI system
 - **v0.03**: Comprehensive web dashboard
+- **v0.04**: Language-rich dataset generation
 
 ### Architecture Maturity
 - Clean separation of concerns
@@ -193,7 +194,7 @@ v0.03 demonstrates extensive reuse of Task-0 infrastructure:
 
 ## 🚀 Future Extensions
 
-v0.03 provides a solid foundation for further evolution:
+v0.04 provides a solid foundation for further evolution:
 
 - **Algorithm Comparison**: Side-by-side algorithm visualization
 - **Real-time Monitoring**: Live game progress tracking
@@ -202,4 +203,4 @@ v0.03 provides a solid foundation for further evolution:
 
 ---
 
-*v0.03 represents the culmination of natural software evolution - from simple proof of concept to sophisticated web application, while maintaining clean architecture and extensive code reuse.* 
+*v0.04 represents the culmination of natural software evolution - from simple proof of concept to sophisticated web application, while maintaining clean architecture and extensive code reuse.* 

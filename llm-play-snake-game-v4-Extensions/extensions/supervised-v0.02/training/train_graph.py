@@ -1,6 +1,6 @@
 """
 Graph Model Training Script for Supervised Learning v0.02
-=========================================================
+--------------------
 
 Trains graph neural network models (GCN, GraphSAGE, GAT) on graph-structured datasets.
 """

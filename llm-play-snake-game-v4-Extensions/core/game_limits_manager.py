@@ -1,6 +1,6 @@
 """
 Consecutive Limits Management System
-===================================
+--------------------
 
 This module provides an elegant, centralized system for managing consecutive move limits
 in the Snake game. It handles tracking and enforcement of limits for various sentinel moves

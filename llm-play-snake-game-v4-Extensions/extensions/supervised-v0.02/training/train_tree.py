@@ -1,6 +1,6 @@
 """
 Tree Model Training Script for Supervised Learning v0.02
-========================================================
+--------------------
 
 Trains tree-based models (XGBoost, LightGBM, RandomForest) on tabular datasets.
 """

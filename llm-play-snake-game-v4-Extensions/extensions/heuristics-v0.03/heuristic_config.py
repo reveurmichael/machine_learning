@@ -1,5 +1,5 @@
 """heuristics-v0.03 Configuration
-================================
+--------------------
 
 Second-citizen tasks (heuristics, supervised, RL, …) are **allowed** to import
 from first-citizen modules (Task-0).  The reverse dependency is forbidden.

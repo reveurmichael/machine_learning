@@ -1,6 +1,6 @@
 """
 Replay Controller - MVC Architecture
-===================================
+--------------------
 
 Controller for game replay functionality.
 Handles replay navigation, playback control, and analytics display.

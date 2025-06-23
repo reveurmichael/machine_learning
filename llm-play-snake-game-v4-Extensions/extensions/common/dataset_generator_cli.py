@@ -3,7 +3,7 @@
 Unified Dataset Generator CLI for Heuristic Snake Agents
 
 CRITICAL ARCHITECTURAL ENFORCEMENT: GRID SIZE BASED ORGANIZATION
-===============================================================
+--------------------
 
 This CLI enforces the fundamental rule that all datasets MUST be organized by 
 grid size in the structure: ./logs/extensions/datasets/grid-size-N/
@@ -21,7 +21,8 @@ from typing import List, Dict, Any, Optional
 # Import the grid-aware generators
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from heuristic_csv_generator import HeuristicCSVGenerator, GridSizeDetector, DatasetDirectoryManager
+from extensions.common.dataset_directory_manager import DatasetDirectoryManager
+from heuristic_csv_generator import HeuristicCSVGenerator, GridSizeDetector
 from heuristic_jsonl_generator import HeuristicJSONLGenerator
 
 # Set up logging
@@ -68,10 +69,10 @@ class DatasetGeneratorOrchestrator:
         
         # STEP 2: Ensure grid-size-N directory exists
         if output_base_dir is None:
-            dataset_dir = DatasetDirectoryManager.ensure_grid_size_directory_exists(grid_size)
+            dataset_dir = DatasetDirectoryManager.ensure_datasets_dir(grid_size)
         else:
-            dataset_dir = os.path.join(output_base_dir, f"grid-size-{grid_size}")
-            os.makedirs(dataset_dir, exist_ok=True)
+            dataset_dir = Path(output_base_dir) / f"grid-size-{grid_size}"
+            dataset_dir.mkdir(parents=True, exist_ok=True)
         
         logger.info(f"📁 Using grid-compliant directory: {dataset_dir}")
         
@@ -175,27 +176,29 @@ class DatasetGeneratorOrchestrator:
     def _extract_algorithm_from_path(self, log_path: str) -> str:
         """Extract algorithm name from log directory path."""
         log_name = os.path.basename(log_path)
-        if "heuristics" in log_name.lower():
-            # Extract algorithm from names like "heuristicsbfs_timestamp"
+        if "heuristics-" in log_name.lower():
+            # Extract algorithm from names like "heuristics-bfs_timestamp"
             parts = log_name.lower().split('_')
-            if parts and 'heuristics' in parts[0]:
-                return parts[0].replace('heuristics', '').upper() or "UNKNOWN"
+            if parts and 'heuristics-' in parts[0]:
+                return parts[0].replace('heuristics-', '').upper() or "UNKNOWN"
         return "UNKNOWN"
     
     def _validate_grid_size_compliance(self, results: Dict[str, Any]) -> None:
         """Validate that generated datasets comply with grid-size-N structure."""
         grid_size = results["grid_size"]
-        dataset_dir = results["dataset_directory"]
+        dataset_dir = str(results["dataset_directory"])
         
         # Check directory name compliance
+        if not DatasetDirectoryManager.validate_grid_size(grid_size):
+            raise ValueError(f"Unsupported grid size: {grid_size}")
+            
         expected_pattern = f"grid-size-{grid_size}"
         if expected_pattern not in dataset_dir:
             raise ValueError(f"Directory structure violation: {dataset_dir} does not contain {expected_pattern}")
         
         # Verify generated files are in correct location
         for file_path in results["generated_files"]:
-            file_dir = os.path.dirname(file_path)
-            if expected_pattern not in file_dir:
+            if expected_pattern not in str(file_path):
                 raise ValueError(f"File placement violation: {file_path} not in grid-size-{grid_size} directory")
         
         logger.info(f"✅ Grid size compliance validated: All files properly organized in grid-size-{grid_size}/")

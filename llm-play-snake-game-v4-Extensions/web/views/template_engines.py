@@ -1,6 +1,6 @@
 """
 Template Engines - MVC Architecture
-===================================
+--------------------
 
 Template rendering engines for the web framework.
 Provides abstraction layer for different template systems.

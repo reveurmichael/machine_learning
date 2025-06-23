@@ -1,7 +1,7 @@
 from __future__ import annotations
 """
 Heuristic Game Manager 
-=============================
+--------------------
 
 Session management for multi-algorithm heuristic agents.
 

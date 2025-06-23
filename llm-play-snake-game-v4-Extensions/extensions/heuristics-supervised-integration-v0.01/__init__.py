@@ -1,5 +1,5 @@
 """Heuristics-Supervised Integration v0.01
-======================================
+--------------------
 
 Proof-of-concept pipeline that demonstrates **end-to-end automation**:
 1. Generate a heuristic dataset (CSV) via the common dataset generator.

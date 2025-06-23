@@ -1,6 +1,6 @@
 """
 Web Interface Framework for Snake-GTP
-====================================
+--------------------
 
 Modern MVC web architecture for Snake game modes with role-based controllers.
 Provides clean separation of concerns between models, views, and controllers.

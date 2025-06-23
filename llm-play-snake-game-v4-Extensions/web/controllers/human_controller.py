@@ -1,6 +1,6 @@
 """
 Human Game Controller - Interactive Gameplay
-===========================================
+--------------------
 
 Controller for human-driven Snake gameplay through web interface.
 Handles user input, move validation, and real-time game state updates.

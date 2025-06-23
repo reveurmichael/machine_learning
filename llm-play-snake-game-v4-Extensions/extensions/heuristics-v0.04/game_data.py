@@ -1,6 +1,6 @@
 """
 Heuristic Game Data - Data tracking for heuristic algorithms
-==========================================================
+--------------------
 
 This module extends BaseGameData to add heuristic-specific tracking
 while maintaining compatibility with the base game data structure.

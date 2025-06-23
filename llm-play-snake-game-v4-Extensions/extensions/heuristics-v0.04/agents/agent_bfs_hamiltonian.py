@@ -1,6 +1,6 @@
 """
 BFS Hamiltonian Agent - Enhanced BFS with Hamiltonian Cycle Fallback
-===================================================================
+--------------------
 
 This module implements a sophisticated agent that extends BFS Safe Greedy
 with Hamiltonian cycle capabilities. It represents the evolution from basic

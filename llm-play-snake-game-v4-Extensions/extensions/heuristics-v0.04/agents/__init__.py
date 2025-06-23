@@ -1,6 +1,6 @@
 """
 Heuristics Agents Package - Factory Pattern Implementation
-========================================================
+--------------------
 
 This package provides a factory pattern for creating heuristic agents.
 It demonstrates software evolution through inheritance and encapsulation.

@@ -1,6 +1,6 @@
 """
 CSV Schema Utilities for Snake Game Extensions
-=============================================
+--------------------
 
 Provides flexible CSV schema generation and feature extraction utilities
 that work with different grid sizes. Used by both heuristics (for dataset generation)
@@ -25,6 +25,18 @@ from __future__ import annotations
 from typing import Dict, List, Any
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+
+SUPPORTED_DATA_FORMATS = ["csv", "npz", "parquet"]
+SUPPORTED_DATA_STRUCTURES = ["tabular", "sequential", "graph"]
+
+TABULAR_FEATURE_COLUMNS = [
+    "head_x", "head_y", "apple_x", "apple_y", "snake_length", 
+    "apple_dir_up", "apple_dir_down", "apple_dir_left", "apple_dir_right",
+    "danger_straight", "danger_left", "danger_right",
+    "free_space_up", "free_space_down", "free_space_left", "free_space_right",
+]
+
+CSVHeader = TABULAR_FEATURE_COLUMNS + ["target_move"]
 
 
 @dataclass

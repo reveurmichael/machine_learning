@@ -1,5 +1,5 @@
 """Evolutionary GameManager – v0.01
-================================
+--------------------
 
 Minimal session manager that wires the tiny GA planner into the base engine.
 The structure mirrors *heuristics-v0.01* to keep learning curve flat.

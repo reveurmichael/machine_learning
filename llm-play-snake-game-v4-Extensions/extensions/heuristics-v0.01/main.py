@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristics v0.01 - Simple BFS Snake Agent
-=========================================
+--------------------
 
 Minimal proof of concept extension.
 """

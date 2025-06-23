@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.01 - Game Manager
-=======================================
+--------------------
 
 Game manager for supervised learning v0.01, focusing on neural networks only.
 Extends BaseGameManager from Task-0, demonstrating perfect base class reuse.

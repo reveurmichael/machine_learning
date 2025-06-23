@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.02 - Multi-Model Framework
-=================================================
+--------------------
 
 This extension demonstrates the evolution from neural networks only (v0.01)
 to a multi-model, multi-framework supervised learning system. It supports

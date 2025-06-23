@@ -1,6 +1,6 @@
 """
 Reinforcement Learning Game Manager
-==================================
+--------------------
 
 This module extends BaseGameManager to support reinforcement learning training.
 It manages training sessions and coordinates between the RL agent and environment.

@@ -1,6 +1,6 @@
 """
 Web Controllers Module - MVC Architecture
-========================================
+--------------------
 
 Implements role-based controller hierarchy following MVC principles.
 Controllers handle HTTP requests, coordinate with models, and delegate to views.

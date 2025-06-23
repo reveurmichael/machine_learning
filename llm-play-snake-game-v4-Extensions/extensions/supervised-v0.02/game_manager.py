@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.02 - Game Manager
-=======================================
+--------------------
 
 Game manager for supervised learning v0.02, supporting all ML model types.
 Extends BaseGameManager from Task-0, demonstrating perfect base class reuse.

@@ -1,6 +1,6 @@
 """
 MVC Architecture Integration Example
-===================================
+--------------------
 
 Example demonstrating how to use the new MVC web architecture
 for different Snake game modes.

@@ -1,6 +1,6 @@
 """
 MLPAgent for Supervised Learning v0.02
-======================================
+--------------------
 
 Implements a Multi-Layer Perceptron agent using PyTorch for tabular data.
 Inherits from BaseAgent and provides train/predict interface.

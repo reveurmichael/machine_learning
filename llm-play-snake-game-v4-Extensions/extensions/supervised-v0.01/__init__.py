@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.01 - Neural Networks (PyTorch)
-====================================================
+--------------------
 
 First supervised learning extension focusing on neural networks using PyTorch.
 Demonstrates the evolution from heuristic algorithms to learned policies.

@@ -1,6 +1,6 @@
 """
 Snake Game - Replay Web Interface (MVC Architecture)
-===================================================
+--------------------
 
 Flask-based web application for game replay using the MVC framework.
 This script demonstrates how to create a clean replay interface using the new MVC architecture.

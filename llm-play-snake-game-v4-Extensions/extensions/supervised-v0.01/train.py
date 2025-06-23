@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Supervised Learning v0.01 - Training Script
-==========================================
+--------------------
 
 Simple training script for supervised learning v0.01, focusing on neural networks only.
 Demonstrates basic training pipeline for proof of concept.

@@ -1,6 +1,6 @@
 """
 Neural Network Training Script for Supervised Learning v0.02
-===========================================================
+--------------------
 
 Trains neural network models (MLP, CNN, LSTM, GRU) using datasets generated
 by heuristics extensions. Uses the common CSV schema and dataset loader

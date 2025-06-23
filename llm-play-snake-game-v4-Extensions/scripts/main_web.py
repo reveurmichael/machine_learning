@@ -1,6 +1,6 @@
 """
 Snake Game - Task 0 Main Web Interface with MVC Architecture
-===========================================================
+--------------------
 
 Flask-based web application for LLM-driven Snake gameplay using the new MVC architecture.
 This script demonstrates how Task 0 integrates with the MVC web framework.

@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.03 - Web Interface & Multi-Model Framework
-================================================================
+--------------------
 
 This extension implements a comprehensive supervised learning framework with web interface,
 supporting multiple model types and interactive training/evaluation.
@@ -30,7 +30,7 @@ __author__ = "Snake Game Extensions"
 __description__ = "Supervised Learning with Web Interface for Snake Game"
 
 """Supervised v0.03 – Learning *from* Heuristics
-===========================================
+--------------------
 
 This package consumes the trajectories emitted by *heuristics-v0.03* (CSV)
 and *heuristics-v0.04* (language-rich JSONL) to train conventional ML models.

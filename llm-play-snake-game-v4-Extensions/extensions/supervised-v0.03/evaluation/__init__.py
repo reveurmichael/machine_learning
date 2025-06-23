@@ -1,6 +1,6 @@
 """
 Supervised Learning v0.03 - Evaluation Module
-============================================
+--------------------
 
 Evaluation utilities and metrics for model assessment.
 Clean API for model evaluation and comparison.

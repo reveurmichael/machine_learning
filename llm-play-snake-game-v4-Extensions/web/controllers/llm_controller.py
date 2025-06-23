@@ -1,6 +1,6 @@
 """
 LLM Game Controller - MVC Architecture
-=====================================
+--------------------
 
 Controller for LLM-driven Snake game sessions.
 Handles AI decision making, game state analysis, and automated gameplay.

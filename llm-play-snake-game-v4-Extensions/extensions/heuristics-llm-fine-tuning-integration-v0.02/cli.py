@@ -51,16 +51,28 @@ if str(project_root) not in sys.path:
 if os.getcwd() != str(project_root):
     os.chdir(str(project_root))
 
-# Import v0.02 components
-from extensions.heuristics_llm_fine_tuning_integration_v0_02 import (
-    MultiDatasetConfig,
-    MultiDatasetPipeline,
-    AdvancedTrainingConfig,
-    ConfigurationTemplate,
-    TrainingConfigBuilder,
-    EvaluationSuite,
-    ModelComparator,
-)
+# Import v0.02 components (using relative imports within the same package)
+try:
+    from .comparison import (
+        MultiDatasetConfig,
+        MultiDatasetPipeline,
+        AdvancedTrainingConfig,
+        ConfigurationTemplate,
+        TrainingConfigBuilder,
+        EvaluationSuite,
+        ModelComparator,
+    )
+except ImportError:
+    # Fallback for direct execution
+    from comparison import (
+        MultiDatasetConfig,
+        MultiDatasetPipeline,
+        AdvancedTrainingConfig,
+        ConfigurationTemplate,
+        TrainingConfigBuilder,
+        EvaluationSuite,
+        ModelComparator,
+    )
 
 # Import common utilities
 from extensions.common import training_logging_utils

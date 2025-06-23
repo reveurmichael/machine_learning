@@ -1,3 +1,3 @@
-rm -rf __pycache__
+shopt -s globstar
 rm -rf **/__pycache__
 

@@ -8,6 +8,9 @@ We are doing the code refactoring, so as to make things more generic and reusabl
 ## VITAL
 Check project-structure-plan.md. That's our objective of the refactoring.
 
+## Single source of truth
+Unless it's between different extensions (each extension, plus the common folder, are regarded as standalone), we should go for single source of truth.
+
 ## OOP, SOLID and DRY
 Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not polute the output data files of FUTURE_TASKS.
 
@@ -88,5 +91,13 @@ Such code should never happen:
 ## DRY principles
 For extensions, we should go for DRY principles extensively, as well, but only really common utils, and should only be put into the ./extensions/common/ folder. Never share code between extensions.
 
+## v0.02
+v0.02 should not break v0.01 functionalities. 
+
+## v0.03
+v0.03 should not break v0.02 functionalities. 
+
+## v0.04
+v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind.
 
 

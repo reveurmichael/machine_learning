@@ -19,6 +19,7 @@ There is **no v0.04** planned for:
 * Supervised learning models
 * Genetic or evolutionary algorithms
 * reinforcement learning models
+* any other extensions
 
 ### 🔁 Built on Top of v0.03
 

@@ -60,15 +60,22 @@ Because it's already being used by extensions (check the folder "./extensions/")
 
 ## VITAL: EVOLUTION OF CODE IN DEMONSTRATION: 
 
-Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
+Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one, as a folder/extension/blabla-v0.0N + the common folder, is standalone.
 
-Keep the folder "agents" in the folder "./extensions/supervized-v0.02" and "./extensions/supervized-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
-
-
-Keep the folder "agents" in the folder "./extensions/reinforcement-v0.02" and "./extensions/reinforcement-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
+Keep the folder "agents" in the folder "./extensions/supervized-v0.02" and "./extensions/supervized-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
 
 
-Keep the folder "agents" in the folder "./extensions/evolutionary-v0.02" and "./extensions/evolutionary-v0.03" exactly the same. Though, they each one as a folder/extension/project is standalone.
+Keep the folder "agents" in the folder "./extensions/reinforcement-v0.02" and "./extensions/reinforcement-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+
+
+Keep the folder "agents" in the folder "./extensions/evolutionary-v0.02" and "./extensions/evolutionary-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+
+## VITAL: standalone
+
+ Unless for really commmon utils, no need to put things into the ./extensions/common/ folder or similar folders because I want things to be standalone, each and every of the new extensions. But we can regard the ./extensions/common/ folder as a folder for REALLY common utils, that no one will forget about its presence, then, an extension, plus the common folder, that is regarded as standalone as well. But we should not be sharing code between extensions. It's forbidden. blabla-v0.01 + common is standalone. blabla-v0.02 + common is standalone. blabla-v0.03 + common is standalone. blabla-v0.04 + common is standalone. (though, only heuristics will have v0.04).
+
+
+
 
 ## Type-hinted
 
@@ -98,6 +105,7 @@ v0.02 should not break v0.01 functionalities.
 v0.03 should not break v0.02 functionalities. 
 
 ## v0.04
-v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind.
+v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind. It's like we assume in extensions, blabla-v0.0N we will be able to generate json files, maybe also pth or npz and paquet files in the case of RL/supvervized learning. On the contrary, for transforming those json files into csv, it is using a shared tool in "common" folder. For generating jsonl files, it can be put into the folder of heuristics-v0.04, or maybe the folder "common", depending on which approach gives the best clarity. I find the naming of generate_dataset_v03.py, generate_dataset.py, generate_jsonl_dataset.py python file naming (in the same folder ) really puzzling. For better clarity, put those stuffs into the "common" folder (except, maybe, one things I am not sure, where to put the jsonl generation tool), give really good file naming for python files.
+
 
 

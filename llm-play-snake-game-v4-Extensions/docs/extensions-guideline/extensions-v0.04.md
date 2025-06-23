@@ -216,6 +216,9 @@ The existing supervised extensions (v0.01–v0.03) already:
 
 These models do **not require** language-annotated data at this time.
 
+## Python tool files
+v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind. It's like we assume in extensions, blabla-v0.0N we will be able to generate json files, maybe also pth or npz and paquet files in the case of RL/supvervized learning. On the contrary, for transforming those json files into csv, it is using a shared tool in "common" folder. For generating jsonl files, it can be put into the folder of heuristics-v0.04, or maybe the folder "common", depending on which approach gives the best clarity. I find the naming of generate_dataset_v03.py, generate_dataset.py, generate_jsonl_dataset.py python file naming (in the same folder ) really puzzling. For better clarity, put those stuffs into the "common" folder (except, maybe, one things I am not sure, where to put the jsonl generation tool), give really good file naming for python files.
+
 ---
 
 ## ✅ Summary
@@ -227,3 +230,5 @@ These models do **not require** language-annotated data at this time.
 | Genetic Algorithms | ❌ No          | v0.03 remains the latest; not involved in language generation tasks |
 
 **v0.04 = Dataset for LLM fine-tuning with rich explanations.**
+
+

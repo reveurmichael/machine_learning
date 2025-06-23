@@ -269,26 +269,39 @@ class HeuristicGameManager(BaseGameManager):
         self.game_steps.append(self.game.game_state.steps)  # Track steps for efficiency metrics
         self.game_rounds.append(self.round_count)  # Track rounds for round analysis
 
-        # Save simplified game data (no Task-0 replay compatibility as requested)
-        game_data = {
-            "algorithm": self.algorithm_name,
-            "score": self.game.game_state.score,
-            "steps": self.game.game_state.steps,
-            "round_count": self.round_count,
-            "snake_length": len(self.game.snake_positions),
-            "duration_seconds": round(game_duration, 2),
-            "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'UNKNOWN'),
-            "detailed_history": {
-                "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
-                "moves": getattr(self.game.game_state, 'moves', []),
-                "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {},
-            },
-            "metadata": {
-                "timestamp": getattr(self.game.game_state, 'timestamp', ''),
-                "game_number": self.game_count,
-                "round_count": self.round_count
+        # Use HeuristicGameData.generate_game_summary for v0.04 explanation support
+        if hasattr(self.game.game_state, 'generate_game_summary'):
+            # Use proper game data generation (includes v0.04 explanations)
+            game_data = self.game.game_state.generate_game_summary(
+                primary_provider=self.algorithm_name.lower(),
+                primary_model=self.algorithm_name,
+                metadata={
+                    "game_number": self.game_count,
+                    "round_count": self.round_count,
+                    "duration_seconds": round(game_duration, 2)
+                }
+            )
+        else:
+            # Fallback to manual construction for older versions
+            game_data = {
+                "algorithm": self.algorithm_name,
+                "score": self.game.game_state.score,
+                "steps": self.game.game_state.steps,
+                "round_count": self.round_count,
+                "snake_length": len(self.game.snake_positions),
+                "duration_seconds": round(game_duration, 2),
+                "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'UNKNOWN'),
+                "detailed_history": {
+                    "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
+                    "moves": getattr(self.game.game_state, 'moves', []),
+                    "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {},
+                },
+                "metadata": {
+                    "timestamp": getattr(self.game.game_state, 'timestamp', ''),
+                    "game_number": self.game_count,
+                    "round_count": self.round_count
+                }
             }
-        }
 
         game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_filepath, 'w', encoding='utf-8') as f:

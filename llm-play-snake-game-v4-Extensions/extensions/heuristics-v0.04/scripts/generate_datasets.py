@@ -4,11 +4,11 @@ Heuristics v0.04 Dataset Generation Script
 
 This script provides v0.04 specific dataset generation by leveraging the
 unified dataset generation utilities in the common folder. It supports both
-CSV (v0.03 compatibility) and JSONL (v0.04 language-rich) formats.
+CSV (numerical features) and JSONL (v0.04 language-rich) formats.
 
 v0.04 Features:
 - JSONL format with rich natural language explanations
-- CSV format for v0.03 compatibility
+- CSV format for numerical features
 - Language-rich datasets for LLM fine-tuning
 - Maintains all v0.03 functionality
 
@@ -24,7 +24,7 @@ Usage Examples:
     # Generate both CSV and JSONL for specific algorithm
     python generate_datasets.py --format both --algorithm BFS --max-games 100
     
-    # Generate CSV for v0.03 compatibility
+            # Generate CSV for numerical features
     python generate_datasets.py --format csv --all-algorithms
 """
 

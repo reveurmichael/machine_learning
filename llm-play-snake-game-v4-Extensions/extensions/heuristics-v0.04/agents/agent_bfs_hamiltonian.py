@@ -104,7 +104,7 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
         """
         Get next move using enhanced BFS with Hamiltonian fallback.
         
-        This method is kept for backward compatibility with v0.03.
+        This method provides a simplified interface for direct move requests.
         For explanation-capable moves, use get_move_with_explanation().
         
         Args:

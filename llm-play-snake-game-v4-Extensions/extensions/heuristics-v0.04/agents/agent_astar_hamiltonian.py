@@ -78,7 +78,7 @@ class AStarHamiltonianAgent(AStarAgent):
         """
         Get next move using A* with Hamiltonian fallback.
         
-        This method is kept for backward compatibility with v0.03.
+        This method provides a simplified interface for direct move requests.
         For explanation-capable moves, use get_move_with_explanation().
         
         Args:

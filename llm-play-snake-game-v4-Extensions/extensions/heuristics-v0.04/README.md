@@ -15,7 +15,7 @@
 - Clean separation of concerns
 - Extensive code reuse
 - Modern web interface
-- Backward compatibility
+- Future-proof design
 
 ### Educational Value
 - Design pattern implementation

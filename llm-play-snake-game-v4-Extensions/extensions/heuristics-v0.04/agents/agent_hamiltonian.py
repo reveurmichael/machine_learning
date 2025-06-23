@@ -76,7 +76,7 @@ class HamiltonianAgent:
         
     def get_move(self, game: HeuristicGameLogic) -> str | None:
         """
-        Get next move following the Hamiltonian cycle (legacy method for v0.03 compatibility).
+        Get next move following the Hamiltonian cycle (simplified interface).
         
         Args:
             game: Game logic instance containing current game state

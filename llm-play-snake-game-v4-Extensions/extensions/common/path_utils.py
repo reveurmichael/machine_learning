@@ -33,7 +33,7 @@ def ensure_project_root_on_path() -> "Path":  # noqa: D401 – keep the historic
     """Ensure repository root is in ``sys.path`` and return it.
 
     This is a thin alias around :pyfunc:`utils.path_utils.ensure_project_root` to
-    preserve backwards-compatibility for existing extensions while enforcing the
+    provide simple path utilities for existing extensions while enforcing the
     *single source of truth* policy.
     """
 
@@ -43,7 +43,7 @@ def ensure_project_root_on_path() -> "Path":  # noqa: D401 – keep the historic
 
 
 def setup_extension_paths() -> None:  # noqa: D401 – historical name retained
-    """Legacy wrapper that now simply calls :pyfunc:`ensure_project_root_on_path`."""
+    """Simple wrapper that calls :pyfunc:`ensure_project_root_on_path`."""
 
     ensure_project_root_on_path()
 

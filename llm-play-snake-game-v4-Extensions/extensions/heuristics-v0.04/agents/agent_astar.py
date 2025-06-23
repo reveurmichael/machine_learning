@@ -71,7 +71,7 @@ class AStarAgent:
         )
     
     def get_move(self, game: "HeuristicGameLogic") -> str | None:
-        """Compute the next move with tail prediction & layered safety (legacy method for v0.03 compatibility)."""
+        """Compute the next move with tail prediction & layered safety (simplified interface)."""
         move, _ = self.get_move_with_explanation(game)
         return move
         

@@ -61,7 +61,8 @@ class HeuristicGameLogic(BaseGameLogic):
         
         # Heuristic-specific initialization
         self.agent: Optional[BFSAgent] = None
-        self.algorithm_name: str = "v0.02-BFS-Safe-Greedy"
+        # Default algorithm name before an agent is set
+        self.algorithm_name: str = "BFS-Safe-Greedy"
         
         # Ensure we have the correct data type
         # Note: game_state is initialized in super().__init__(), so we can safely access it here

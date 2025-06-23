@@ -66,7 +66,7 @@ class BFSSafeGreedyAgent(BFSAgent):
 
     def get_move(self, game: "HeuristicGameLogic") -> str | None:
         """
-        Get next move using safe BFS pathfinding (legacy method for v0.03 compatibility).
+        Get next move using safe BFS pathfinding (simplified interface).
         
         Enhancement over parent BFS:
         - Adds safety validation before following apple path

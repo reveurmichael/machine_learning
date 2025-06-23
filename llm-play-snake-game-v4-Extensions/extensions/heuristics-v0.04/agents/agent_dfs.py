@@ -61,7 +61,7 @@ class DFSAgent:
         
     def get_move(self, game: HeuristicGameLogic) -> str | None:
         """
-        Get next move using DFS pathfinding (legacy method for v0.03 compatibility).
+        Get next move using DFS pathfinding (simplified interface).
         
         Args:
             game: Game logic instance containing current game state

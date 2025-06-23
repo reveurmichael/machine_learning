@@ -16,7 +16,7 @@ Design Philosophy:
 - No LLM dependencies (no token stats, no continuation mode)
 - Simplified logging (no Task-0 replay compatibility as requested)
 
-Evolution from v0.03: Adds language-rich move explanations and JSONL dataset compatibility while retaining multi-algorithm flexibility.
+Evolution from v0.03: Adds language-rich move explanations and JSONL dataset generation while retaining multi-algorithm flexibility.
 """
 
 from extensions.common.path_utils import setup_extension_paths

@@ -1,8 +1,8 @@
 """
-Heuristic CSV Dataset Generator (v0.03 Compatible)
+Heuristic CSV Dataset Generator
 
 This module provides CSV dataset generation for heuristic snake agents, maintaining
-full backward compatibility with v0.03 functionality while providing a clean,
+clean, future-proof functionality while providing a modern,
 reusable interface for supervised learning model training.
 
 Key Features:

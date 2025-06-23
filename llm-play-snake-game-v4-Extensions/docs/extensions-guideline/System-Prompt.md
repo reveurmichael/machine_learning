@@ -6,7 +6,7 @@ Documentation/docstring/comments are very important for me. Each time you do a r
 We are doing the code refactoring, so as to make things more generic and reusable. Keep the functionality of Task 0 (Task0, LLM playing snake game) unchanged.
 
 ## VITAL
-Check project-structure-plan.md. That's our objective of the refactoring.
+Check ROOT/docs/extensions-guideline/project-structure-plan.md. That's our objective of the refactoring.
 
 ## Single source of truth
 Unless it's between different extensions (each extension, plus the common folder, are regarded as standalone), we should go for single source of truth.

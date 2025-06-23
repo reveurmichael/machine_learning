@@ -1,4 +1,6 @@
 
+## heuristics 
+
 In v0.03, in the folder "./extensions/heuristics-v0.03", we can extend things in v0.02. The point is to show that from v0.02, there is progression, that's how softwares/code/systems evolve.
 
 What is added:
@@ -12,14 +14,17 @@ We will also put all those agents in the folder "./extensions/heuristics-v0.03/a
 I have also moved main.py into scripts folder. app.py will be the entry point for users.
 
 
-
-
 you should notice this word I mentioned: web, flask. so you will have scripts/replay_web.py and scirpts/replay.py, just like for TASK0 . FOr web, you can go mvc, or simpler, it's up to you.
-
-
-in v0.02, there should be importing config folder stuffs from ROOT TASK0 . in v0.03, there should be a config.py . check attached project-structure-plan.md .
-
 
 v0.02 and v0.03 should have exactly the same code in their respective agents folders.
 
+
+## supervized learning models
+
+supvervized learning models (let's say, xgboost, lightgbm, neural networks (pytorch version), cnn (pytorch version), rnn (pytorch version), GNN (pytorch version, pytorch geometric), etc):
+- Just like for heuristics, we will have v0.01, v0.02, v0.03, etc.
+- For this moment, go for only v0.01 and v0.02.
+- v0.01 is for neural networks (pytorch version)
+- v0.02 is for all supervised learning models, like xgboost, lightgbm,neural network, cnn, rnn, GNN, etc. but without the gui, no replay, no streamlit app.py yet.
+- v0.03 is will have gui, replay, web mode, pygame mode, streamlit app.py.
 

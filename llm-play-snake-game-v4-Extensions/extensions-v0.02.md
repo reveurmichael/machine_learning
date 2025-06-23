@@ -1,3 +1,4 @@
+## heuristics 
 
 v0.01 has been done and is called "./extensions/heuristics-v0.01". I want to show that after this first proof of concept done in v0.01, we can extend things in v0.02, in the folder "./extensions/heuristics-v0.02", mainly by adding several other heuristic agents (in the folder ./extensions/heuristics-v0.02/agents). Here is the list of heuristic agents in v0.02:
 - agent_bfs.py the same as in v0.01, pure bfs, existing code GOOD
@@ -37,6 +38,7 @@ the folder will be named "./extensions/heuristics-v0.02" . python code will be w
 
 after the modification, just copy the agents folder from v0.02 to v0.03. 
 
+## supervized learning models
 
 
 

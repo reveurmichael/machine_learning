@@ -12,6 +12,17 @@ from .config import (
     ensure_extensions_logs_dir,
     get_heuristic_log_path,
 )
+from .dataset_utils import (
+    GameState,
+    generate_training_dataset,
+    extract_game_states_from_json,
+    TabularEncoder,
+    SequentialEncoder,
+    GraphEncoder,
+    CSVWriter,
+    NPZWriter,
+    ParquetWriter,
+)
 
 __all__ = [
     "ensure_project_root_on_path",
@@ -20,4 +31,13 @@ __all__ = [
     "get_extension_log_path",
     "ensure_extensions_logs_dir",
     "get_heuristic_log_path",
+    "GameState",
+    "generate_training_dataset",
+    "extract_game_states_from_json",
+    "TabularEncoder",
+    "SequentialEncoder", 
+    "GraphEncoder",
+    "CSVWriter",
+    "NPZWriter",
+    "ParquetWriter",
 ] 

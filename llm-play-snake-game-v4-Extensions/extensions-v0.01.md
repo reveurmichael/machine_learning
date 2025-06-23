@@ -1,3 +1,5 @@
+## heuristics 
+
 SO here is what I want to do for a first extension, for this very first version, intentionally simple, extremely simple. 
 
 v0.01 will be called "./extensions/heuristics-v0.01". It will use the API (extending Base Classes, in the core folder) in the current root directory, for sure. But it will be a very simple heuristic (let's say BFS). It will not be using the pygame or the web UI. if possible, there is even no need need use the --no-gui flag or use_gui flag, because it will be no gui by default. We know we have the code already, but I want things to be even more simpler. Specifically for v0.01, there is even no "--algorithm" argument, no "--log-dir", no "--verbose" argument,  for main.py. Specifically for v0.01, there is even no 
@@ -21,6 +23,7 @@ It will generating game_N.json files and summary.json files. But, per the implem
 the folder will be named "./extensions/heuristics-v0.01" . python code will be within the folder.
 
 
+## supervized learning models
 
 
 

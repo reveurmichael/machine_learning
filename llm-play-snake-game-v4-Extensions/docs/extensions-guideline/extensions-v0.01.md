@@ -86,13 +86,16 @@ self.game.game_state.save_game_data(game_filepath)
 ### **Usage Pattern:**
 ```bash
 # Train MLP on tabular data
-python train.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv
+python train.py --model MLP --dataset-path \
+  ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_<timestamp>/bfs/processed_data/tabular_data.csv
 
-# Train CNN on board data
-python train.py --model CNN --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz
+# Train CNN on sequential data
+python train.py --model CNN --dataset-path \
+  ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_<timestamp>/bfs/processed_data/sequential_data.npz
 
 # Train LSTM on sequential data  
-python train.py --model LSTM --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz
+python train.py --model LSTM --dataset-path \
+  ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_<timestamp>/bfs/processed_data/sequential_data.npz
 ```
 
 ## 🏗️ **Base Class Integration Pattern**

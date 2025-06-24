@@ -180,8 +180,8 @@ TODO: This is what we want to have:
 **Mandatory Structure Enforced:**
 ```
 logs/extensions/
-├── datasets/grid-size-N/extension_v0.0M_timestamp_or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
-└── models/grid-size-N/extension_v0.0M_timestamp_or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+├── datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/
+└── models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/
 ```
 
 TODO: but I have a lot of questions and hesitations about how we should organize the things within datasets/grid-size-N/extension_v0.0M_timestamp/ and within models/grid-size-N/extension_v0.0M_timestamp/  . We should have a serious discussion about this. This is very important. Fundamentally important. Because it will have such a huge impact on the whole all extensions.

@@ -7,7 +7,7 @@ I am currently considering using the **heuristics-v0.03** extension to generate 
 
 The function that converts `game_N.json` files into the desired `DATA_FORMAT.DATA_STRUCTURE` will be implemented in v0.03 (not in v0.01 or v0.02). Since this functionality will be useful across multiple extensions, it makes sense to place it in a **common utilities folder** for easy reuse.
 
-When training supervised learning models, a command-line option like `--dataset-path` will allow loading one or multiple dataset directories (e.g., `--dataset-path dir1 dir2 dir3`) from `./ROOT/logs/extensions/`, supporting variable-length input paths. Though, by default, the dataset will be loaded from all `./ROOT/logs/extensions/grid_N/` directories.
+When training supervised learning models, a command-line option like `--dataset-path` will allow loading one or multiple dataset directories (e.g., `--dataset-path dir1 dir2 dir3`) from `./ROOT/logs/extensions/datasets/`, supporting variable-length input paths. The complete path structure follows: `./logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/`.
 
 ---
 

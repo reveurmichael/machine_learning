@@ -375,13 +375,86 @@ np.savez(model_paths['generated_datasets'] / 'experience_replay' / 'transitions.
 
 ## 📊 **Data Format Standards**
 
+### **Grid-Size Agnostic CSV Schema**
+
+To enable models to generalize across different grid sizes, all tabular datasets use **normalized features** that remain consistent regardless of board dimensions:
+
+```python
+# Standardized 16-feature schema for all grid sizes
+GRID_SIZE_AGNOSTIC_FEATURES = [
+    # Metadata columns (2)
+    'game_id',                # Unique game session identifier
+    'step_in_game',          # Step number within the game
+    
+    # Normalized position features (4)
+    'head_x_normalized',     # head_x / grid_size (0.0 to 1.0)
+    'head_y_normalized',     # head_y / grid_size (0.0 to 1.0)
+    'apple_x_normalized',    # apple_x / grid_size (0.0 to 1.0)
+    'apple_y_normalized',    # apple_y / grid_size (0.0 to 1.0)
+    
+    # Game state (1)
+    'snake_length',          # Current snake length (absolute)
+    
+    # Relative direction features (4) - grid-size independent
+    'apple_dir_up',          # 1 if apple is above snake head, else 0
+    'apple_dir_down',        # 1 if apple is below snake head, else 0
+    'apple_dir_left',        # 1 if apple is left of snake head, else 0
+    'apple_dir_right',       # 1 if apple is right of snake head, else 0
+    
+    # Immediate danger features (3) - grid-size independent
+    'danger_straight',       # 1 if collision ahead, else 0
+    'danger_left',           # 1 if collision to left, else 0
+    'danger_right',          # 1 if collision to right, else 0
+    
+    # Proportional free space features (4)
+    'free_space_up_ratio',   # free_space_up / grid_size (0.0 to 1.0)
+    'free_space_down_ratio', # free_space_down / grid_size (0.0 to 1.0)
+    'free_space_left_ratio', # free_space_left / grid_size (0.0 to 1.0)
+    'free_space_right_ratio',# free_space_right / grid_size (0.0 to 1.0)
+    
+    # Target column (1)
+    'target_move'            # Next move (UP, DOWN, LEFT, RIGHT)
+]
+
+# Total: 19 columns (2 metadata + 16 features + 1 target)
+```
+
+### **Normalization Benefits**
+
+| Feature Type | Original (Grid-Dependent) | Normalized (Grid-Agnostic) | Benefit |
+|--------------|--------------------------|----------------------------|---------|
+| **Positions** | `head_x=5` (on 10×10) | `head_x_normalized=0.5` | Model learns relative positions |
+| **Free Space** | `free_space_up=3` (on 10×10) | `free_space_up_ratio=0.3` | Proportional space awareness |
+| **Directions** | `apple_dir_up=1` | `apple_dir_up=1` | Already grid-agnostic |
+| **Dangers** | `danger_straight=1` | `danger_straight=1` | Already grid-agnostic |
+
+### **Cross-Grid Training Examples**
+
+```python
+# Example: Training on mixed grid sizes
+training_data = [
+    # 8×8 grid example
+    {'head_x_normalized': 0.625, 'apple_x_normalized': 0.25, 'free_space_up_ratio': 0.375, 'target_move': 'LEFT'},
+    
+    # 10×10 grid example  
+    {'head_x_normalized': 0.6, 'apple_x_normalized': 0.2, 'free_space_up_ratio': 0.3, 'target_move': 'LEFT'},
+    
+    # 16×16 grid example
+    {'head_x_normalized': 0.5625, 'apple_x_normalized': 0.1875, 'free_space_up_ratio': 0.3125, 'target_move': 'LEFT'}
+]
+
+# Model sees consistent feature ranges regardless of original grid size
+# All normalized features range from 0.0 to 1.0
+# Model can generalize from small grids to large grids and vice versa
+```
+
 ### **Task-Specific Formats**
 
 | Task Type | Primary Data Format | Secondary Formats | Special Features |
 |-----------|-------------------|------------------|------------------|
-| **Heuristics** | CSV (tabular) | NPZ (sequential), JSONL (reasoning) | Algorithm traces, search paths |
-| **Supervised** | CSV (features) | ONNX (deployment), NPZ (predictions) | Confidence scores, feature importance |
-| **Reinforcement** | NPZ (experience) | JSON (episodes), CSV (metrics) | Q-values, policy distributions |
+| **Heuristics** | CSV (tabular) | NPZ (sequential), JSONL (reasoning) | Algorithm traces, search paths, **grid-size normalized** |
+| **Supervised** | CSV (features) | ONNX (deployment), NPZ (predictions) | Confidence scores, feature importance, **cross-grid compatibility** |
+| **Reinforcement** | NPZ (experience) | JSON (episodes), CSV (metrics) | Q-values, policy distributions, **normalized state representations** |
 | **LLM Fine-tuning** | JSONL (reasoning) | NPZ (embeddings), JSON (metadata) | Prompt-completion pairs, quality scores |
 | **LLM Distillation** | BIN (models) | JSON (comparisons), CSV (efficiency) | Compression analysis, knowledge transfer |
 

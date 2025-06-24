@@ -1,0 +1,3 @@
+# Final Decision 0
+
+For md files in the folder ./docs/extensions-guideline/, don't produce a lot of code. Depending on the context, sometimes a little bit of code for the main idea is enough. Sometimes a little bit more. On the contrary, the motivation, the design philosophy, the implications, etc. text are more important for me. Each md should not be excessively long. If the ideas are clear enough, you can go for a shorter md, if there is a lot to discuss, you can go for a longer md. Concise and elegance for most cases, long format for the most complex cases.

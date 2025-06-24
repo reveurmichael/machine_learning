@@ -68,8 +68,8 @@ ROOT/
 └── logs/                    # 📊 Data & artifacts
     ├── [task-0-sessions]/  # First-citizen logs  
     └── extensions/         # Second-citizen outputs
-        ├── datasets/grid-size-N/and_then_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet    # 📁 Training data # TODO: check this for logs model/datasets folder/file naming
-        └── models/grid-size-N/and_then_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet      # 🏗️ Trained models # TODO: check this for logs model/datasets folder/file naming
+        ├── datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/    # 📁 Training data
+└── models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/      # 🏗️ Trained models
 ```
 
 ---
@@ -100,11 +100,11 @@ Every standalone extension (v0.02+) **must** include:
 ```
 logs/extensions/
 ├── datasets/grid-size-N/           # 📊 Training datasets  
-│   ├── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ tabular_bfs_data.csv       # Heuristics → Supervised
-│   ├── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ sequential_mixed_data.npz   # Time-series data
-│   └── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ trajectory_explanations.jsonl # Heuristics v0.04 → LLM tasks
+│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv       # Heuristics → Supervised
+│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz   # Time-series data
+│   └── heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl # Heuristics v0.04 → LLM tasks
 │
-├── models/grid-size-N/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.             # 🧠 Trained models
+├── models/grid-size-N/             # 🧠 Trained models
 │   ├── pytorch/                    # Neural networks
 │   ├── lightgbm/                   # Tree models  
 └── └── transformers/               # Fine-tuned LLMs

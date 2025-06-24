@@ -65,10 +65,10 @@ and then perhaps subfolders, subsubfolders, subsubsubfolders, etc.
 
 And then datasets in different formats. csv, jsonl, etc. we will also have game_N.json and summary.json files.
 
-TODO: naming of model folders and model files to be discussed. The discussion is ongoing.
+✅ **DECIDED**: Model organization follows final-decision-1.md structure: logs/extensions/models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/
 
 
-TODO: naming of datasets folders and dataset files to be discussed. The discussion is ongoing.
+✅ **DECIDED**: Dataset organization follows final-decision-1.md structure: logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/
 ```
 
 ## Part 3: Supervised Learning Pipeline
@@ -76,7 +76,7 @@ TODO: naming of datasets folders and dataset files to be discussed. The discussi
 ### Step 1: Train Neural Network Models, with datasets generated in Step 2, by heuristics-v0.04 extension.
 
 
-And then models in different formats are saved in the ./logs/extensions/models folder.  TODO: naming of model folders and subfolders  and subsubfolders, etc. and model files to be discussed. The discussion is ongoing.
+And then models in different formats are saved in the ./logs/extensions/models folder following the structure: logs/extensions/models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/ as defined in final-decision-1.md.
 
 
 

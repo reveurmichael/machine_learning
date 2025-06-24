@@ -147,24 +147,24 @@ class GCNAgent(BaseAgent):
 ### **Training Scripts:**
 ```
 ./extensions/supervised-v0.02/training/
-├── train_blablabla.py    
-├── train_blablabla.py    
-├── train_blablabla.py    
-├── train_blablabla.py    
-├── train_blablabla.py    
-├── train_blablabla.py    
-└── train_blablabla.py   
+├── train_neural.py      # PyTorch neural networks
+├── train_tree.py        # XGBoost, LightGBM, RandomForest
+├── train_graph.py       # Graph neural networks
+├── train_ensemble.py    # Ensemble methods
+├── train_cnn.py         # Convolutional networks
+├── train_rnn.py         # Recurrent networks
+└── train_mlp.py         # Multi-layer perceptrons
 ```
 
 ### **Command Line Interface:**
 ```bash
 # Train different model types
-python training/train_neural.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
-python training/train_tree.py --model XGBOOST --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
-python training/train_graph.py --model GCN --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+python training/train_neural.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
+python training/train_tree.py --model XGBOOST --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
+python training/train_graph.py --model GCN --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
 
 # Ensemble training
-python training/train_ensemble.py --models MLP,XGBOOST,LIGHTGBM --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+python training/train_ensemble.py --models MLP,XGBOOST,LIGHTGBM --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
 ```
 
 ### **File Structure:**

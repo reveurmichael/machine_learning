@@ -6,10 +6,10 @@ For v0.03, it's really important because streamlit app.py will call those script
 ```bash
 # Train supervised models
 python scripts/training/train_supervised.py \
-    --dataset-paths logs/extensions/datasets/grid-size-N/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/*.csv # TODO: check this, update blablabla.
+    --dataset-paths logs/extensions/datasets/grid-size-N/heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv \
     --model-types all \
     --hyperparameter-tuning \
-    --output-dir models/supervised/grid-N/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_decided_yet # TODO: check this, update blablabla.
+    --output-dir logs/extensions/models/grid-size-N/supervised_v0.02_20250625_143022/mlp/
 
 # Generate heuristic datasets
 python scripts/data_generation/generate_heuristic_data.py \
@@ -20,9 +20,9 @@ python scripts/data_generation/generate_heuristic_data.py \
 
 # Evaluate model performance
 python scripts/evaluation/evaluate_models.py \
-    --model-dir models/supervised/grid-N/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_decided_yet # TODO: check this, update blablabla.
-    --test-data logs/extensions/datasets/grid-size-N/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_decided_yet/test_data.csv \
-    --output-dir evaluation_results #TODO: check this, update blablabla.
+    --model-dir logs/extensions/models/grid-size-N/supervised_v0.02_20250625_143022/mlp/ \
+--test-data logs/extensions/datasets/grid-size-N/heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv \
+--output-dir evaluation_results
 ```
 
 

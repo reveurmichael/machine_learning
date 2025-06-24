@@ -59,18 +59,18 @@ def main():
     
     # Prepare dataset
     train_dataset = SnakeGameDataset(
-        "logs/extensions/datasets/blablabla/blablabla.jsonl", # TODO: check this, update blablabla.
+        "logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl",
         adapter.tokenizer
     )
     
     eval_dataset = SnakeGameDataset(
-        "logs/extensions/datasets/datasets/blablabla/blablabla.jsonl", # TODO: check this, update blablabla.
+        "logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl",
         adapter.tokenizer
     )
     
     # Setup trainer
     training_config = {
-        'output_dir': './logs/extensions/models/grid-size-10/llm_lora_v1_or_maybe_blablabla', # TODO: check this, update blablabla.
+        'output_dir': './logs/extensions/models/grid-size-10/llm_finetune_v0.02_20250625_143022/lora_adapters/',
         'epochs': 3,
         'batch_size': 4,
         'learning_rate': 5e-5,
@@ -88,7 +88,7 @@ def main():
     print(f"Final evaluation loss: {result.log_history[-1]['eval_loss']}")
     
     # Save adapter only (much smaller than full model)
-    model.save_pretrained("./models/snake_game_lora_adapter_or_maybe_blablabla") # TODO: check this, update blablabla.
+    model.save_pretrained("./logs/extensions/models/grid-size-10/llm_finetune_v0.02_20250625_143022/lora_adapters/model_artifacts/")
     
     return model, adapter.tokenizer
 

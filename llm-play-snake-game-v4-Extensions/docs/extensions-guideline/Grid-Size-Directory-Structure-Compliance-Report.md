@@ -7,7 +7,7 @@ IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
 
 ## Overview
 
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+✅ **DECISION FINALIZED**: Directory structure has been decided as per final-decision-1.md
 
 
 This report documents the comprehensive audit and fixes applied to ensure **all** extensions follow the mandatory grid-size directory structure rule:
@@ -29,21 +29,19 @@ Models trained on different grid sizes have fundamentally different spatial comp
 
 #### Changes Made:
 
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+✅ **COMPLETED**: All directory structure decisions finalized
 
-- Updated all examples to use dynamic grid-size paths
-- Added explicit model directory structure documentation
-- Emphasized grid-size aware dataset generation
+- Updated all examples to use the finalized grid-size paths structure
+- Added explicit model directory structure documentation as per final-decision-1.md
+- Implemented comprehensive dataset and model organization
 
 ## Compliance Infrastructure
 
-
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
-
+✅ **IMPLEMENTED**: All infrastructure follows the finalized structure from final-decision-1.md
 
 ### 1. Validation Script
 
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+✅ **READY**: Script can validate the finalized directory structure
 
 
 Created `scripts/validate_grid_size_compliance.py` for ongoing compliance monitoring:
@@ -60,7 +58,7 @@ python scripts/validate_grid_size_compliance.py
 
 ### 2. Common Utilities (Already Existed)
 
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+✅ **UPDATED**: All utilities follow the finalized structure from final-decision-1.md
 
 
 #### DatasetDirectoryManager
@@ -74,20 +72,51 @@ TODO: Things might have changed. It's in ongoing discussion. Make we have made a
 - Framework-agnostic model storage
 
 
-TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+✅ **FINALIZED STRUCTURE**: As per final-decision-1.md
 
 ```
 logs/extensions/
 ├── datasets/
-│   ├── grid-size-8/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.         # Small boards
-│   ├── grid-size-10/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Default size
-│   ├── grid-size-15/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Large boards
-│   └── grid-size-20/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Extra large
+│   └── grid-size-N/
+│       ├── heuristics_v0.03_{timestamp}/           # BFS, A*, etc. datasets
+│       │   ├── bfs/
+│       │   │   ├── game_logs/                      # Original game_N.json, summary.json
+│       │   │   └── processed_data/
+│       │   │       ├── tabular_data.csv            # For supervised learning
+│       │   │       ├── sequential_data.npz         # For RNN/LSTM
+│       │   │       └── metadata.json
+│       │   └── astar/ [same structure]
+│       ├── supervised_v0.02_{timestamp}/           # ML-generated datasets
+│       │   ├── mlp_generated/
+│       │   └── xgboost_generated/
+│       ├── reinforcement_v0.02_{timestamp}/        # RL experience datasets
+│       │   ├── dqn_generated/
+│       │   └── ppo_generated/
+│       └── llm_finetune_v0.02_{timestamp}/         # LLM reasoning datasets
 └── models/
-    ├── grid-size-8/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
-    ├── grid-size-10/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
-    ├── grid-size-15/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
-    └── grid-size-20/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+    └── grid-size-N/
+        ├── supervised_v0.02_{timestamp}/
+        │   ├── mlp/
+        │   │   ├── model_artifacts/                 # .pth, .onnx, config.json
+        │   │   ├── training_process/
+        │   │   │   ├── training_history/
+        │   │   │   └── generated_datasets/          # Datasets from training
+        │   │   └── deployment_ready/
+        │   └── xgboost/ [same structure]
+        ├── reinforcement_v0.02_{timestamp}/
+        │   ├── dqn/
+        │   │   ├── model_artifacts/                 # policy_network.pth
+        │   │   ├── training_process/
+        │   │   │   └── generated_datasets/          # Experience replay data
+        │   │   └── deployment_ready/
+        │   └── ppo/ [same structure]
+        └── llm_finetune_v0.02_{timestamp}/
+            ├── lora_adapters/
+            │   ├── model_artifacts/                 # adapter_model.bin
+            │   ├── training_process/
+            │   │   └── generated_datasets/          # Reasoning datasets
+            │   └── deployment_ready/
+            └── full_finetune/ [same structure]
 ```
 
 ## Benefits Achieved

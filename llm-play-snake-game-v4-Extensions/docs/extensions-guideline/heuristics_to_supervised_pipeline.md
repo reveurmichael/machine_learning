@@ -21,7 +21,7 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 ```
 
 **Key design rules**  (see `project-structure-plan.md`):
-1. Every dataset lives under `logs/extensions/datasets/grid-size-N/` – never mix grid sizes. #TODO: and then subfolders, subsubfolders, subsubsubfolders, etc. and then the name of the dataset files (csv, summary.json, game_N.json, jsonl, npz, parquet, etc.), which is not decided yet, because we are having a ongoing discussion on this folder and file naming conventions.
+1. Every dataset lives under `logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/` – never mix grid sizes. Structure follows final-decision-1.md with clear separation of game_logs/ and processed_data/ folders.
 2. `extensions/common/` holds *all* shared helpers; extensions must **not** import each other.
 3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks. VITAL: THIS IS VERY IMPORTANT. I WANT THOSE FILES TO BE SHARED TO A LOT OF DIFFERENT PEOPLE WITH DIFFERENT OPERATING SYSTEMS. AND I WANT THEM TO BE TIME-PROOF, HENCE STILL USABLE IN THE FUTURE, AT LEAST OF THE NEXT 10 YEARS.
 
@@ -34,9 +34,9 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 # Example: BFS 10×10 – CSV + JSONL (rich explanations)
 python -m extensions.common.dataset_generator_cli \
     both                                \  # csv|jsonl|both
-    --log-dir log_folder_path_for_one_experiment/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. \
+    --log-dir logs/extensions/heuristics_v0.03_20250625_143022/ \
     --prompt-format detailed             \  # jsonl prompt style
-    --output-dir logs/extensions/datasets/grid-size-N/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. \
+    --output-dir logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/ \
     --verbose
 ```
 
@@ -61,7 +61,7 @@ TODO: is this really what we want for naming? Double check. I am not sure. We wi
 
 ```
 python -m extensions.supervised_v0_02.training.train_neural \
-  --dataset-paths blablabla
+  --dataset-paths logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv
   --model MLP                  \  # choices: MLP|CNN|LSTM|GRU
   --epochs 50 --batch-size 64  \  # quick smoke-test
   --output-dir trained_models/mlp_bfs
@@ -81,7 +81,7 @@ TODO: things are not decided yet. We will have to discuss this. After the discus
      "validation_accuracy": 0.94,
      "test_accuracy": 0.93,
      "grid_size": 10,
-     "model_path": "trained_models/mlp_bfs/blablabla.pth"
+     "model_path": "logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/mlp/model_artifacts/model.pth"
    }
    ```
 5. Model is saved in both **PyTorch** (`.pth`) and **ONNX** (`.onnx`) format with rich metadata – see `extensions/common/model_utils.py`.
@@ -106,7 +106,7 @@ If your numbers are low, check:
 ## 4. Evaluating trained agents in-game
 
 ```
-python -m extensions.supervised_v0_03.scripts.replay_web --model trained_models/mlp_bfs/blablabla --grid-size 10
+python -m extensions.supervised_v0_03.scripts.replay_web --model logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/mlp/model_artifacts/model.pth --grid-size 10
 ```
 
 *Opens a Flask replay page under <http://localhost:5000/supervised/replay>*

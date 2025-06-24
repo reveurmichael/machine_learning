@@ -1,5 +1,11 @@
 Here's a clean, practical CSV schema for supervised learning on a 10x10 Snake game grid — balancing expressiveness, simplicity, and easy training:
 
+
+# VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
+
+
+# TODO: what if we have a different grid size? How should things be handled for the csv schema? Will it change? Or maybe not?
+
 ---
 
 # Recommended CSV Schema for Snake v0.03 (10x10 grid)

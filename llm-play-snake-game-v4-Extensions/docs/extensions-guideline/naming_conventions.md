@@ -1,10 +1,14 @@
 # Naming Conventions – First-Citizen vs Second-Citizen
 
 This document is the *single, authoritative* reference for how every class,
-function, file and directory should be named in **Snake-GTP**.  It codifies
-what has been discussed in design docs, `System-Prompt.txt`, and recent PRs.
-The goal is to keep the codebase discoverable, avoid circular dependencies and
+function, The goal is to keep the codebase discoverable, avoid circular dependencies and
 protect Task-0 as the first-citizen of the repository.
+
+VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
+
+IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
+
+
 
 ---
 
@@ -42,7 +46,7 @@ without implying it is abstract-only.
 **Subclass naming tips**
 
 * Use the *algorithm* or *domain* as the prefix: `BFSGameManager`,
-  `PPOGameManager`, `VisionConvNet`, `HamiltonianCycleAgent`.
+  `PPOGameManager`, `HamiltonianCycleAgent`.
 * Avoid redundant suffixes: prefer `ReplayEngine` over `ReplayEngineImpl`.
 * When two concretes differ only by parameterisation, expose the parameter
   instead of inventing two names, e.g. `RLGameManager(algorithm="DQN")`.
@@ -107,19 +111,6 @@ _controller_registry = {
 }
 ```
 
-*(The legacy `LLMGameController` alias was removed in v4.1; no further
-deprecation milestones are pending.)*
-
----
-
-## 6 Deprecation Timeline
-
-| Stage | Action |
-|-------|--------|
-| T      | Rename classes & keep import aliases/factory keys. |
-| T+30d | Update documentation & examples (done). |
-| T+60d | Remove aliases, bump **major** version. |
-
 ---
 
 ## 7 Constants (ALL_CAPS)
@@ -134,15 +125,11 @@ critically – colocated with the *domain* they belong to.
 | LLM tuning knobs     | `config/llm_constants.py`   → `TEMPERATURE`       | **Task-0 only**; do **not** move to a base module. |
 | HTTP / network       | `config/network_constants.py` → `DEFAULT_PORT`    | Used by scripts & tests. |
 
-Golden rule : *If a constant is consumed by ≥2 tasks it belongs in `config/`*.
+Golden rule (for Task-0 only, because Task-1-5 will be standalone) : *If a constant is consumed by ≥2 tasks it belongs in `config/`*.
 
 **Naming tips**
 
-* Indicate units when ambiguous: `TIME_TICK_MS`, `SLEEP_AFTER_EMPTY_STEP_SEC`.
-* Avoid pre-optimisation: keep logarithms, lookup tables or environment-
-  specific tweaks **out of constants**; compute them lazily in code.
-* Versioned constants belong in their own file (e.g. `schema_v2_constants.py`)
-  so migrations can coexist temporarily.
+* Indicate units when ambiguous: `TIME_TICK_MS`, `SLEEP_AFTER_EMPTY_STEP_SEC`. # TODO: THIS IS NOT ENFORCED YET IN OUR CODEBASE. SHOULD BE ENFORCED.
 
 ---
 
@@ -161,12 +148,6 @@ Golden rule : *If a constant is consumed by ≥2 tasks it belongs in `config/`*.
 Prefix with **is_**, **has_**, **use_** or **allow_** so linters (and humans)
 can infer the type: `is_paused`, `has_collision`, `use_gui`, `allow_reset`.
 
-**Function docstring rule of thumb**
-
-If the function signature cannot be understood by reading the *name + types*
-alone, add a one-line docstring. If the body exceeds ~20 lines *or* the
-function has side effects beyond its module, add a full NumPy-style docstring.
-
 ---
 
 ## 9 Package & Directory Names
@@ -180,45 +161,6 @@ function has side effects beyond its module, add a full NumPy-style docstring.
 | Extensions      | `extensions/<task_name>/…`           | Keeps second-citizen code quarantined. |
 | Docs            | `docs/`                              | Markdown only – auto-rendered by GitHub. |
 
-Inside an extension folder, mirror the root layout:
-
-```text
-extensions/heuristics/
-│   algorithms/
-│   gui_heuristics.py
-│   web/
-│   app.py
-│   config.py
-│   …
-```
-
-This symmetry lets devs jump between Task-0 and Task-N without context switch.
-
-> **Hint for extension authors**  If your task needs an external dependency
-> (e.g. Stable-Baselines3) list it in
-> `extensions/<task>/requirements.txt` – the root requirements must stay
-> lightweight for casual contributors.
-
----
-
-## 10 Pull-Request Checklist for New Names
-
-1. **Does the class belong in Task-0?**  → Use the short name.<br/>
-2. **Is it a reusable contract?**         → Prefix with `Base` and ensure
-   Task-0 instantiates it.<br/>
-3. **Is it extension-specific?**          → Live under `extensions/<task>/` and
-   prefix with the task tag (`Heuristic…`, `RL…`).<br/>
-4. **Did you update `docs/naming_conventions.md`?**<br/>
-5. **Did you add/adjust factory keys?**   (`extensions_controller_factory.py` or
-   root `web/factories.py`).
-
-Failing any of the above blocks the PR.
-
-**CI naming lint**
-
-A lightweight script `scripts/ci/check_names.py` (TODO) will scan PR diff and
-flag violations automatically. Until then reviewers must enforce the list
-above manually.
 
 ---
 
@@ -229,15 +171,15 @@ above manually.
 | Creating `LLMWhatever` in *root*       | Use `Whatever` (short) – Task-0 is implicit. |
 | Importing Task-0 code **inside** an extension | Depend only on base classes & utils. |
 | Adding unused abstraction `AbstractFoo` | Promote to `BaseFoo` **only if Task-0 uses it**; else keep it private. |
-| Mixing GUI & headless logic            | Gate PyGame calls behind `if self.use_gui…`. |
+| Mixing GUI & headless logic            | Gate PyGame/Flask web calls behind `if self.use_gui…`. |
 | Saving extension logs under `logs/` root | Use `logs/<task_name>/…` to avoid clutter. |
 
 Additional gotchas:
 
 * **`import core.game_loop as gl`** – Alias imports obscure greps; import the
-  symbol you need (`from core.game_loop import run_game_loop`).
+  symbol you need (`from core.game_loop import run_game_loop`). We should never do this alias imports, it will be so confusing.
 * **Prefix-drift** – Once you commit to `BaseFoo` do *not* later rename it to
-  `FooBase`; consistency beats perceived elegance.
+  `FooBase`; in extensions, classes for agents should be named either all like `AgentFoo`, `AgentBar`, or all like `FooAgent`, `BarAgent`, etc. consistency beats perceived elegance. # TODO: check this. Also, in the final version, we will have to enforce a global naming convention, at that moment drifting will be allowed, but just be careful, and just for the final version. Currently, what we adopt is, in extensions (and then in the "agents" folder, for v0.02+), the python file name is agent_bar.py, agent_foo.py, etc. and the class name is BarAgent, FooAgent, etc. It can be good, or bad. To decide before the final version.
 
 ---
 
@@ -271,5 +213,3 @@ brevity when the intent is not obvious.
 creativity in names!*
 
 ---
-
-*Last updated: 2025-06-22*

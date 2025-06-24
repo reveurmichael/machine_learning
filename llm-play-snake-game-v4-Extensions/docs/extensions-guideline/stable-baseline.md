@@ -22,7 +22,7 @@ Stable-Baselines3 is a reliable, well-tested library of reinforcement learning a
 
 ## 🏗️ **Architecture Design** TODO: this might be only one way of doing things in the extensions folder
 
-### **Extension Structure**
+### **Extension Structure** #TODO: this is not the final structure. Maybe it's good, maybe not. Up to you to adopt it or not.   
 ```
 extensions/reinforcement-v0.02/
 ├── agents/

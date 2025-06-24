@@ -12,7 +12,7 @@ if os.getcwd() != str(project_root):
     os.chdir(str(project_root))
 
 import streamlit as st
-from extensions.distillation_v0_03 import DistilConfig, DistillationPipeline, EvaluationSuite  # noqa: E402
+from extensions.distillation_v0_03 import DistilConfig, EvaluationSuite  # noqa: E402
 
 st.set_page_config(page_title="LLM Distillation v0.03", layout="wide")
 st.title("🔄 Knowledge Distillation – v0.03")

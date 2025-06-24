@@ -147,21 +147,24 @@ class GCNAgent(BaseAgent):
 ### **Training Scripts:**
 ```
 ./extensions/supervised-v0.02/training/
-├── train_neural.py      # PyTorch neural networks
-├── train_tree.py        # XGBoost, LightGBM, RandomForest
-├── train_graph.py       # Graph neural networks
-└── train_ensemble.py    # Ensemble methods
+├── train_blablabla.py    
+├── train_blablabla.py    
+├── train_blablabla.py    
+├── train_blablabla.py    
+├── train_blablabla.py    
+├── train_blablabla.py    
+└── train_blablabla.py   
 ```
 
 ### **Command Line Interface:**
 ```bash
 # Train different model types
-python training/train_neural.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/
-python training/train_tree.py --model XGBOOST --dataset-path ../../logs/extensions/datasets/grid-size-10/
-python training/train_graph.py --model GCN --dataset-path ../../logs/extensions/datasets/grid-size-10/
+python training/train_neural.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+python training/train_tree.py --model XGBOOST --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+python training/train_graph.py --model GCN --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
 
 # Ensemble training
-python training/train_ensemble.py --models MLP,XGBOOST,LIGHTGBM --dataset-path ../../logs/extensions/datasets/grid-size-10/
+python training/train_ensemble.py --models MLP,XGBOOST,LIGHTGBM --dataset-path ../../logs/extensions/datasets/grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
 ```
 
 ### **File Structure:**
@@ -213,18 +216,6 @@ def create_supervised_agent(model: str) -> BaseAgent:
         "GCN": GCNAgent,
     }
     return agents[model]()
-```
-
-### **Performance Comparison Framework:**
-```python
-# ✅ Both extensions support algorithm/model comparison
-class PerformanceComparator:
-    def compare_algorithms(self, algorithms: List[str]) -> Dict[str, Any]:
-        results = {}
-        for algorithm in algorithms:
-            agent = create_agent(algorithm)
-            results[algorithm] = self.evaluate_agent(agent)
-        return results
 ```
 
 ## 🚀 **Evolution Patterns**

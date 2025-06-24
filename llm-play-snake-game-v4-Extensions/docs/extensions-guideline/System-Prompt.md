@@ -9,10 +9,10 @@ We are doing the code refactoring, so as to make things more generic and reusabl
 Check ROOT/docs/extensions-guideline/project-structure-plan.md. That's our objective of the refactoring.
 
 ## Single source of truth
-Unless it's between different extensions (each extension, plus the common folder, are regarded as standalone), we should go for single source of truth.
+Unless it's between different extensions (each extension, plus the common folder, are regarded as standalone), we should go for single source of truth. Especially from the folder ROOT/config , or from "ROOT/extensions/common/" folder.
 
 ## OOP, SOLID and DRY
-Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not polute the output data files of FUTURE_TASKS.
+Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not pollute the output data files of FUTURE_TASKS.
 
 
 ## Task-0
@@ -55,7 +55,8 @@ Regarding the naming: in the root directory, by default it's for task0. so no ne
  
 
 ## VITAL: Don't remove any classes in the ./core/, ./replay/ folder. You can add some functions or classes, but don't remove classes.
-Because it's already being used by extensions (check the folder "./extensions/")
+
+VITAL: Because it's already being used by extensions (check the folder "./extensions/")
 
 
 ## VITAL: EVOLUTION OF CODE IN DEMONSTRATION: 
@@ -73,7 +74,7 @@ Keep the folder "agents" in the folder "./extensions/evolutionary-v0.02" and "./
 
 ## VITAL: standalone should be very visible, across all extensions, but common folder is important
 
-For somewhat commmon utils, put things into the ./extensions/common/ folder. We can regard the ./extensions/common/ folder as a folder for somewhat common utils (common for this moment, or maybe will be used in the future), that no one will forget about its presence, then, an extension blabla-v0.0N, plus the common folder, those two together will be regarded as standalone as well. But we should not be sharing code between extensions. It's forbidden. blabla-v0.01 + common is standalone. blabla-v0.02 + common is standalone. blabla-v0.03 + common is standalone. blabla-v0.04 + common is standalone. (though, only heuristics will have v0.04; for other extensions, there is only v0.01, v0.02 and v0.03).
+For somewhat common utils, put things into the ./extensions/common/ folder. We can regard the ./extensions/common/ folder as a folder for somewhat common utils (common for this moment, or maybe will be used in the future), that no one will forget about its presence, then, an extension blabla-v0.0N, plus the common folder, those two together will be regarded as standalone as well. But we should not be sharing code between extensions. It's forbidden. blabla-v0.01 + common is standalone. blabla-v0.02 + common is standalone. blabla-v0.03 + common is standalone. blabla-v0.04 + common is standalone. (though, only heuristics will have v0.04; for other extensions, there is only v0.01, v0.02 and v0.03).
 
 The common folder is important because, after all, each extension blabla-v0.0N, represents important conceptual ideas (e.g. heuristics, supervised learning, RL, etc.), and it's those conceptual ideas that should be highlighed in each extension folder blabla-v0.0N. Moving non-essential code into the common folder helps those conceptual ideas to be more visible.
 
@@ -90,24 +91,36 @@ You should never make docstring/comments less clear/verbose/detailed. You should
 
 ## Never should happen
 Such code should never happen:
-- from heuristics_v0.01 import blabla
-- from heuristics_v0.02 import blabla
 - from heuristics_v0.03 import blabla
 - from blablabla_v0.0N import blabla
+- from extensions.distillation_v0_03 import blabla
+- from extensions.blablabla_v0_0N import blabla
 
+
+## VITAL
+
+use chdir() extensively, maybe not directly, but you can call functions from "./extensions/common/path_utils.py" and "./utils/path_utils.py"
 
 ## DRY principles
-For extensions, we should go for DRY principles extensively, as well, but only really common utils, and should only be put into the ./extensions/common/ folder. Never share code between extensions.
+For extensions, we should go for DRY principles extensively, as well, but only common utils, and should only be put into the ./extensions/common/ folder. Never share code between extensions. Because, each extension balblabla-v0.0N, plus the common folder, is standalone.
 
-## v0.02
+## Extensions v0.02
 v0.02 should not break v0.01 functionalities. 
 
-## v0.03
+## Extensions v0.03
 v0.03 should not break v0.02 functionalities. 
 
-## v0.04
+## Extensions v0.04
 v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind. It's like we assume in extensions, blabla-v0.0N we will be able to generate json files, maybe also pth or npz and paquet files in the case of RL/supvervized learning. On the contrary, for transforming those json files into csv, it is using a shared tool in "common" folder. For generating jsonl files, it can be put into the folder of heuristics-v0.04, or maybe the folder "common", depending on which approach gives the best clarity. I find the naming of generate_dataset_v03.py, generate_dataset.py, generate_jsonl_dataset.py python file naming (in the same folder ) really puzzling. For better clarity, put those stuffs into the "common" folder (except, maybe, one things I am not sure, where to put the jsonl generation tool), give really good file naming for python files.
 
+
+## In extensions folder, if things are to be break, break it.
+
+No need for things like class name aliases, or an adaptpor, etc.
+
+## No import aliases, unless it's really necessary.
+
+Very important.
 
 
 ## VITAL: datasets folder naming/placement, across all extensions

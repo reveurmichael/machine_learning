@@ -13,7 +13,7 @@ if os.getcwd() != str(project_root):
     os.chdir(str(project_root))
 
 import streamlit as st
-from extensions.llm_finetune_v0_03 import FineTuneConfig, FineTunePipeline, EvaluationSuite  # noqa: E402
+from extensions.llm_finetune_v0_03 import FineTuneConfig, EvaluationSuite  # noqa: E402
 
 st.set_page_config(page_title="LLM Fine-tune v0.03", layout="wide")
 st.title("🚀 LLM Fine-tuning – v0.03")

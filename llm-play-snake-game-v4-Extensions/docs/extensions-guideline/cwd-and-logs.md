@@ -4,6 +4,10 @@
 
 This document explains the working directory management strategy and logging directory structure used throughout the project to ensure consistent behavior across different execution contexts.
 
+TODO: check ROOT/utils/path_utils.py for more details.
+
+TODO: check ROOT/extensions/common/path_utils.py for more details.
+
 ## Working Directory Management
 
 ### Repository Root as Working Directory

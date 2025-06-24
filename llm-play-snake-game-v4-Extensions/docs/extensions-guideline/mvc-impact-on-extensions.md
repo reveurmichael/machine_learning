@@ -7,6 +7,7 @@ This document analyzes how the introduction of the MVC (Model-View-Controller) f
 ## MVC Framework Structure
 
 ### Current Architecture
+In the ROOT, we have:
 ```
 web/
 ├── controllers/     # Game control logic

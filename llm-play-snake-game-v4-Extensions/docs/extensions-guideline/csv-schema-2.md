@@ -145,8 +145,8 @@ Tests cover:
 
 ### Heuristics v0.03
 - Uses `create_csv_row()` to generate training datasets
-- Stores datasets in `ROOT/logs/extensions/datasets/grid-size-N/`
-- Supports multiple data formats (CSV, NPZ, Parquet)
+- Stores datasets in `ROOT/logs/extensions/datasets/grid-size-N/` # TODO: and then subfolders, subsubfolders, subsubsubfolders, etc. and then the name of the dataset files (csv, summary.json, game_N.json, etc.), which is not decided yet, because we are having a ongoing discussion on this.
+- Supports multiple data formats (CSV, NPZ, Parquet) # TODO: really? even for heuristics?
 
 ### Supervised Learning v0.02
 - Uses `DatasetLoader` to load and preprocess datasets
@@ -182,13 +182,4 @@ Tests cover:
 The schema is designed to be extensible:
 
 1. **Additional features**: Can add new engineered features without breaking existing models
-2. **Different formats**: Support for sequential data (LSTM) and graph data (GNN)
-3. **Custom extractors**: Specialized feature extractors for different model types
-4. **Data augmentation**: Built-in support for data augmentation techniques
-
-## 📚 Related Documentation
-
-- [Extensions v0.01 Guidelines](../docs/extensions-v0.01.md)
-- [Extensions v0.02 Guidelines](../docs/extensions-v0.02.md)
-- [Extensions v0.03 Guidelines](../docs/extensions-v0.03.md)
-- [CSV Schema Documentation](../docs/extensions-guideline/csv_schema-1.md) 
+2. **Different formats**: Support for sequential data (LSTM) and graph data (GNN) # TODO: really? should go for npz or other formats, than csv, for this specific use case, right?

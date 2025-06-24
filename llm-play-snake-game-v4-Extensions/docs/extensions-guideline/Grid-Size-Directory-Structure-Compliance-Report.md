@@ -1,6 +1,14 @@
 # Grid-Size Directory Structure Compliance Report
 
+VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions.
+
+IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
+
+
 ## Overview
+
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+
 
 This report documents the comprehensive audit and fixes applied to ensure **all** extensions follow the mandatory grid-size directory structure rule:
 
@@ -19,78 +27,25 @@ Models trained on different grid sizes have fundamentally different spatial comp
 3. **Scalability**: New grid sizes integrate seamlessly
 4. **Experimental Clarity**: Clear organization for research
 
-## Audit Results
-
-### Initial State (Before Fixes)
-❌ **11 total violations** found:
-- 6 hardcoded `grid-size-10` references
-- 5 training scripts not using grid-size aware model saving
-
-### Final State (After Fixes)
-✅ **0 violations** - Full compliance achieved!
-
-## Detailed Fixes Applied
-
-### 1. Hardcoded Path Elimination
-
-#### Fixed Files:
-- `extensions/common/dataset_loader.py`
-- `extensions/heuristics-supervised-integration-v0.03/app.py`
-- `extensions/reinforcement-v0.02/__init__.py`
-- `extensions/supervised-v0.03/__init__.py`
-- `extensions/distillation-v0.01/distil.py`
-- `extensions/llm-finetune-v0.01/finetune.py`
-- `extensions/heuristics-llm-fine-tuning-integration-v0.01/pipeline.py`
-
 #### Changes Made:
-```python
-# BEFORE (hardcoded)
-"logs/extensions/datasets/grid-size-10/..."
 
-# AFTER (dynamic)
-f"logs/extensions/datasets/grid-size-{grid_size}/..."
-```
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
 
-### 2. Training Script Standardization
-
-#### Fixed Files:
-- `extensions/supervised-v0.02/training/train_neural.py`
-- `extensions/supervised-v0.03/scripts/train.py`
-- `extensions/reinforcement-v0.02/scripts/train.py`
-
-#### Changes Made:
-```python
-# BEFORE (non-compliant)
-agent.save_model(model_name)
-
-# AFTER (grid-size aware)
-from extensions.common.model_utils import save_model_standardized
-
-saved_path = save_model_standardized(
-    model=agent.model,
-    framework="PyTorch",
-    grid_size=config["training"]["grid_size"],
-    model_name=model_name,
-    model_class=agent.__class__.__name__,
-    input_size=agent.input_size,
-    output_size=4,
-    training_params=config["model"]
-)
-```
-
-### 3. Documentation Updates
-
-#### Fixed Files:
-- `docs/Large-Scale-Heuristics-to-ML-Pipeline-Tutorial.md`
-
-#### Changes Made:
 - Updated all examples to use dynamic grid-size paths
 - Added explicit model directory structure documentation
 - Emphasized grid-size aware dataset generation
 
 ## Compliance Infrastructure
 
+
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+
+
 ### 1. Validation Script
+
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+
+
 Created `scripts/validate_grid_size_compliance.py` for ongoing compliance monitoring:
 
 ```bash
@@ -105,6 +60,9 @@ python scripts/validate_grid_size_compliance.py
 
 ### 2. Common Utilities (Already Existed)
 
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
+
+
 #### DatasetDirectoryManager
 - `get_dataset_path()` - Grid-size aware dataset paths
 - `get_dataset_dir()` - Grid-size specific directories
@@ -115,56 +73,21 @@ python scripts/validate_grid_size_compliance.py
 - `save_model_standardized()` - Compliant model saving
 - Framework-agnostic model storage
 
-## Extension-Specific Compliance
 
-### ✅ Heuristics Extensions
-- **v0.01, v0.02, v0.03, v0.04**: All use common utilities
-- Delegate to `extensions/common/dataset_generator_cli.py`
-- Automatic grid-size directory creation
+TODO: Things might have changed. It's in ongoing discussion. Make we have made a decison on this logs folder and file naming conventions. Maybe, or maybe not. You have to double check.
 
-### ✅ Supervised Learning Extensions
-- **v0.01, v0.02, v0.03**: Updated to use `save_model_standardized()`
-- Grid-size aware dataset loading
-- Framework-specific model organization
-
-### ✅ Reinforcement Learning Extensions
-- **v0.01, v0.02**: Updated to use standardized model saving
-- All RL algorithms (DQN, PPO, A3C, SAC) compliant
-- Grid-size parameterization in all training scripts
-
-### ✅ Integration Extensions
-- **Heuristics-Supervised**: Dynamic grid-size path selection
-- **LLM Fine-tuning**: Grid-size aware model storage
-- **Distillation**: Compliant teacher/student paths
-
-## Testing and Validation
-
-### Current Directory Structure
 ```
 logs/extensions/
 ├── datasets/
-│   └── grid-size-10/           # Existing datasets
-│       ├── tabular_bfs_sample.csv
-│       └── ...
+│   ├── grid-size-8/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.         # Small boards
+│   ├── grid-size-10/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Default size
+│   ├── grid-size-15/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Large boards
+│   └── grid-size-20/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.   #TODO: check this, update blablabla.           # Extra large
 └── models/
-    └── grid-size-10/           # Existing models
-        ├── pytorch/
-        └── ...
-```
-
-### Future Scalability
-```
-logs/extensions/
-├── datasets/
-│   ├── grid-size-8/            # Small boards
-│   ├── grid-size-10/           # Default size
-│   ├── grid-size-15/           # Large boards
-│   └── grid-size-20/           # Extra large
-└── models/
-    ├── grid-size-8/
-    ├── grid-size-10/
-    ├── grid-size-15/
-    └── grid-size-20/
+    ├── grid-size-8/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+    ├── grid-size-10/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+    ├── grid-size-15/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+    └── grid-size-20/and_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
 ```
 
 ## Benefits Achieved

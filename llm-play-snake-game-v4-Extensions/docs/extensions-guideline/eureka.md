@@ -13,7 +13,7 @@ Eureka represents a paradigm shift in reinforcement learning where reward functi
 
 ## 🧬 **Eureka Architecture for Snake Game**
 
-### **Extension Structure**
+### **Extension Structure** # TODO: this is not the final structure. Maybe it's good, maybe not. Up to you to adopt it or not.
 ```
 extensions/eureka-v0.01/
 ├── __init__.py

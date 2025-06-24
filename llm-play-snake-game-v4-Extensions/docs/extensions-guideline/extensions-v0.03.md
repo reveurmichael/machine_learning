@@ -31,13 +31,14 @@ v0.03 builds upon v0.02's multi-algorithm foundation to demonstrate:
 ```
 ./extensions/heuristics-v0.03/
 ├── __init__.py
-├── app.py                    # 🆕 Streamlit web interface
+├── app.py                    # 🆕 Streamlit web interface, for launching scripts in the scripts folder, with adjustable params, with subprocess.
 ├── heuristic_config.py       # 🆕 Configuration (renamed from config.py)
 ├── game_logic.py             # Extends BaseGameLogic
 ├── game_manager.py           # Multi-algorithm manager
 ├── game_data.py              # Heuristic game data with dataset export
 ├── replay_engine.py          # 🆕 Replay processing engine
 ├── replay_gui.py             # 🆕 PyGame replay interface
+├── dashboard/                # streamlit tabs
 ├── agents/                   # Same as v0.02 (copied exactly)
 │   ├── __init__.py
 │   ├── agent_bfs.py
@@ -54,43 +55,48 @@ v0.03 builds upon v0.02's multi-algorithm foundation to demonstrate:
     └── replay_web.py         # 🆕 Flask web replay
 ```
 
-### **Streamlit Web Interface:**
+### **Streamlit Web Interface:** # TODO: GO FOR OOP, EVEN FOR STREAMLIT BASED app.py
 ```python
 # app.py structure
 import streamlit as st
 
-def main():
-    st.title("Heuristic Snake Algorithms - v0.03")
-    
-    # Algorithm selection tabs
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "BFS", "BFS Safe Greedy", "BFS Hamiltonian", 
-        "DFS", "A*", "A* Hamiltonian", "Hamiltonian"
-    ])
-    
-    with tab1:
-        run_algorithm_interface("BFS")
-    with tab2:
-        run_algorithm_interface("BFS_SAFE_GREEDY")
-    # ... etc for each algorithm
-    
-def run_algorithm_interface(algorithm: str):
-    st.subheader(f"{algorithm} Algorithm")
-    
-    # Parameters
-    max_games = st.slider("Max Games", 1, 100, 10)
-    grid_size = st.selectbox("Grid Size", [8, 10, 12, 16, 20], index=1)
-    
-    # Run controls
-    if st.button(f"Run {algorithm}"):
-        run_heuristic_games(algorithm, max_games, grid_size)
-    
-    # Replay controls
-    if st.button(f"Replay {algorithm} (PyGame)"):
-        launch_pygame_replay(algorithm)
-    
-    if st.button(f"Replay {algorithm} (Web)"):
-        launch_web_replay(algorithm)
+class HeuristicSnakeApp:
+    def __init__(self):
+        # some preparation code, for page title, width of the page,etc.
+        self.main()
+
+    def main():
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+            "BFS", "BFS Safe Greedy", "BFS Hamiltonian", 
+            "DFS", "A*", "A* Hamiltonian", "Hamiltonian"
+        ])
+        
+        with tab1:
+            run_algorithm_interface("BFS")
+        with tab2:
+            run_algorithm_interface("BFS_SAFE_GREEDY")
+        # ... etc for each algorithm
+        
+    def run_algorithm_interface(algorithm: str):
+        st.subheader(f"{algorithm} Algorithm")
+        
+        # Parameters
+        max_games = st.slider("Max Games", 1, 100, 10)
+        grid_size = st.selectbox("Grid Size", [8, 10, 12, 16, 20], index=1)
+        
+        # Run controls
+        if st.button(f"Run {algorithm}"):
+            run_heuristic_games(algorithm, max_games, grid_size)
+        
+        # Replay controls
+        if st.button(f"Replay {algorithm} (PyGame)"):
+            launch_pygame_replay(algorithm)
+        
+        if st.button(f"Replay {algorithm} (Web)"):
+            launch_web_replay(algorithm)
+
+if __name__ == "__main__":
+    HeuristicSnakeApp()
 ```
 
 ### **Dataset Generation:**
@@ -100,7 +106,7 @@ python scripts/generate_dataset.py --algorithm BFS --games 1000 --format csv --s
 python scripts/generate_dataset.py --algorithm ASTAR --games 500 --format npz --structure sequential
 python scripts/generate_dataset.py --algorithm mixed --games 2000 --format parquet --structure graph
 
-# Output location: ROOT/logs/extensions/datasets/grid-size-N/
+# Output location: ROOT/logs/extensions/datasets/grid-size-N/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
 ```
 
 ### **Web Replay System:**
@@ -114,17 +120,12 @@ python scripts/generate_dataset.py --algorithm mixed --games 2000 --format parqu
 ### **Location:** `./extensions/supervised-v0.03`
 
 ### **Key Evolution from v0.02:**
-- **CLI training only** → **Streamlit training interface**
-- **No visualization** → **Interactive training progress & model comparison**
-- **Basic evaluation** → **Web-based model performance dashboard**
-- **Static training** → **Dynamic hyperparameter tuning**
+- **CLI training only** → **Streamlit interface, for launching scripts in the scripts folder, with adjustable params, with subprocess.**
+- **No real time snake moves** → **snake as can be shown in pygame, or in the web, gui; during RL training, we can see how the snake explores the environment; during supervised learning, we can see how the snake performance on its moves at different epochs of the training;**
 
 ### **New Features Added:**
 - **`app.py`**: Streamlit interface for training, evaluation, and comparison
-- **Interactive training**: Real-time loss/accuracy plots
-- **Model comparison**: Side-by-side performance analysis
-- **Web replay**: Visualize model decision-making process
-- **Dataset integration**: Load datasets from heuristics-v0.03
+- **PyGame/Flask Web replay**: Visualize model decision-making process
 
 ### **File Structure:**
 ```
@@ -279,18 +280,9 @@ python scripts/train.py --model XGBoost \
 ### **Dataset Storage Structure:**
 ```
 ROOT/logs/extensions/datasets/
-├── grid-size-8/
-│   ├── tabular_bfs_data.csv
-│   ├── tabular_astar_data.csv
-│   ├── sequential_mixed_data.npz
-│   └── graph_mixed_data.parquet
-├── grid-size-10/
-│   ├── tabular_bfs_data.csv
-│   ├── tabular_astar_data.csv
-│   ├── tabular_mixed_data.csv
-│   └── sequential_mixed_data.npz
-└── grid-size-12/
-    └── [similar structure]
+├── grid-size-8/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+├── grid-size-10/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
+└── grid-size-12/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla.
 ```
 
 ### **Data Formats Supported:**
@@ -317,18 +309,15 @@ ROOT/logs/extensions/datasets/
 
 **Supervised Learning:**
 - ✅ **CLI training only** → **Interactive training interface**
-- ✅ **No visualization** → **Real-time training progress plots**
-- ✅ **Basic evaluation** → **Comprehensive model comparison**
-- ✅ **Static training** → **Dynamic hyperparameter tuning**
 
 ### **v0.03 → v0.04 Preview:**
 - **Heuristics only**: Numerical datasets → **Language-rich datasets for LLM fine-tuning**
-- **Supervised**: v0.03 is sufficient (no v0.04 planned)
+- **Supervised**: v0.03 is sufficient (no v0.04 planned; v0.04 is only for heuristics)
 
 ## 📋 **Implementation Checklist**
 
 ### **For Heuristics v0.03:**
-- [ ] **Streamlit app.py** with algorithm tabs
+- [ ] **Streamlit app.py** with algorithm tabs for launching scripts in the scripts folder, with adjustable params, with subprocess.
 - [ ] **Dataset generation** scripts and CLI
 - [ ] **PyGame replay** system
 - [ ] **Flask web replay** system
@@ -336,26 +325,15 @@ ROOT/logs/extensions/datasets/
 - [ ] **Configuration renamed** to avoid conflicts
 
 ### **For Supervised Learning v0.03:**
-- [ ] **Streamlit training interface** with live updates
-- [ ] **Model comparison dashboard** with metrics
-- [ ] **Dataset integration** from heuristics-v0.03
-- [ ] **PyGame model visualization** 
-- [ ] **Web-based model replay** system
+- [ ] **PyGame  replay** 
+- [ ] **Web-based  replay** 
 - [ ] **All model types** from v0.02 integrated
 
 ### **Shared Infrastructure:**
 - [ ] **Common dataset utilities** in extensions/common/
-- [ ] **Consistent web styling** across both extensions
-- [ ] **Cross-extension compatibility** for datasets
-- [ ] **Performance benchmarking** between algorithms and models
+- [ ] **Consistent Flask web styling** across ALL extensions
 
 ## 🎯 **Success Criteria**
-
-### **Web Interface Goals:**
-- Interactive parameter adjustment with immediate feedback
-- Real-time visualization of algorithm/model performance
-- Seamless switching between algorithms/models
-- Professional, responsive web design
 
 ### **Dataset Generation Goals:**
 - Multiple data formats for different model types
@@ -367,8 +345,8 @@ ROOT/logs/extensions/datasets/
 - Smooth visualization of game progression
 - Clear display of algorithm reasoning or model decisions
 - Export capabilities for analysis and presentation
-- Cross-platform compatibility (desktop and web)
+- Cross-platform compatibility (pygame desktop and flask web)
 
 ---
 
-**Remember**: v0.03 is about **user experience** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem.
+**Remember**: v0.03 is about **user experience by adding app.py which launches scripts in the scripts folder, with adjustable params, with subprocess.** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem.

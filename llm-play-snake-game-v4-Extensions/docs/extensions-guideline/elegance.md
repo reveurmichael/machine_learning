@@ -34,7 +34,7 @@
 
   * Does new code belong there or in a new helper file?
   * Can common patterns be abstracted into a shared utility?
-  * Really shared functions should go to the "./extensions/common/" folder. Each extension plus the shared common folder should be regarded as standalone, hence no sharing code among extensions.
+  * Really shared functions should go to the "./extensions/common/" folder (still, it should making the extension folder core ideas very very visible). Each extension plus the shared common folder should be regarded as standalone, hence no sharing code among extensions.
 
 
 Here are several more **elegance guidelines** to complement your file‐length rules—tailored for extensions around Snake AI (LLM, ML, RL, heuristics):
@@ -75,7 +75,7 @@ Here are several more **elegance guidelines** to complement your file‐length r
   * Use `typing` for clarity (`List[Tuple[int,int]]`, `Dict[str, Any]`)
 * **README updates**
 
-  * Each extension folder gets a `README.md` (for v0.01 it should be short can concise, for v0.02 a bit longer and v0.03 even longer) with high-level description, and example usage
+  * Each extension folder gets a `README.md` (IMPORTANT:for v0.01 it should be short can concise, for v0.02 a bit longer and v0.03 even longer) with high-level description, and example usage
 
 ---
 
@@ -106,13 +106,16 @@ Here are several more **elegance guidelines** to complement your file‐length r
 
 ## No Need for Backward compatibility
 
+
 We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions.
 ---
 
 By following these principles—together with your file-length and folder guidelines—you’ll create an **elegant**, **maintainable**, and **scalable** extensions ecosystem for your Snake AI platform.
 
 
-## Logger
+## Logger : IMPORTANT: WE DON'T USE LOGGER YET. AND I DON'T  PLAN TO DO THAT YET.
+
+VITAL: WE DON'T USE LOGGER YET. AND I DON'T  PLAN TO DO THAT YET.
 
 We don't use Logger in this whole project yet. So, no worries. Maybe someday I will do it.
 

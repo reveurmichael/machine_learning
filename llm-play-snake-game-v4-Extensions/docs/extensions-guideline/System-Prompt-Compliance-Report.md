@@ -158,6 +158,7 @@ TODO: This is what we want to have:
 - No `from heuristics_v0.03 import` patterns
 - No `from supervised_v0.0N import` patterns
 - No `from reinforcement_v0.0N import` patterns
+- No `from blablabla_v0.0N import` patterns
 
 **Validation Method:**
 - Comprehensive grep searches across entire codebase
@@ -168,7 +169,7 @@ TODO: This is what we want to have:
 TODO: This is what we want to have:
 
 - **v0.02 → v0.01**: No breaking changes
-- **v0.03 → v0.02**: No breaking changes, just adding streamlit app.py and dashboard folder  
+- **v0.03 → v0.02**: No breaking changes, just adding streamlit app.py and dashboard folder for launching scripts in the scripts folder, with adjustable params, with subprocess.; also, for adding replay capabilities with PyGame and Flask Web.
 - **v0.04 → v0.03**: No breaking changes (heuristics only, just making agents exporting jsonl files so that those output files can be used in LLM-Fine-Tuning and maybe distillation)
 - **Progressive Enhancement**: Each version builds upon previous
 
@@ -179,8 +180,8 @@ TODO: This is what we want to have:
 **Mandatory Structure Enforced:**
 ```
 logs/extensions/
-├── datasets/grid-size-N/extension_v0.0M_timestamp/
-└── models/grid-size-N/extension_v0.0M_timestamp/
+├── datasets/grid-size-N/extension_v0.0M_timestamp_or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
+└── models/grid-size-N/extension_v0.0M_timestamp_or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.
 ```
 
 TODO: but I have a lot of questions and hesitations about how we should organize the things within datasets/grid-size-N/extension_v0.0M_timestamp/ and within models/grid-size-N/extension_v0.0M_timestamp/  . We should have a serious discussion about this. This is very important. Fundamentally important. Because it will have such a huge impact on the whole all extensions.

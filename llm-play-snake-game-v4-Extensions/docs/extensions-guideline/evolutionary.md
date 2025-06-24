@@ -28,9 +28,9 @@ Evolutionary algorithms represent a family of optimization techniques inspired b
 
 ## 🏗️ **Architecture Design**
 
-### **Extension Structure**
+### **Extension Structure** # TODO: this is not the final structure. Maybe it's good, maybe not. Up to you to adopt it or not.
 ```
-extensions/evolutionary-v0.01/
+extensions/evolutionary-v0.01/ 
 ├── __init__.py
 ├── agent_ga.py              # Main genetic algorithm agent
 ├── game_logic.py            # Evolutionary-specific game logic
@@ -41,7 +41,7 @@ extensions/evolutionary-v0.01/
 └── population_manager.py    # Population initialization and evolution
 ```
 
-### **For v0.02 (Multi-Algorithm)**
+### **For v0.02 (Multi-Algorithm)** # TODO: this is not the final structure. Maybe it's good, maybe not. Up to you to adopt it or not.
 ```
 extensions/evolutionary-v0.02/
 ├── __init__.py

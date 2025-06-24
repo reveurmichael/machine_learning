@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import deque
 from random import random, sample
-from typing import Any, Deque, List, Tuple
+from typing import Any, Deque, Tuple
 
 import numpy as np
 

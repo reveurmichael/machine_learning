@@ -63,8 +63,8 @@ extensions/supervised-v0.02/
 
 extensions/supervised-v0.03/
 ├── [All v0.02 components]
-├── dashboard/              # Streamlit training dashboard
-│   ├── __init__.py        # Dashboard initializatio
+├── dashboard/              # Streamlit dashboard, for launching scripts in the folder "scripts" with adjustable params, with subprocess.
+│   ├── __init__.py        # Dashboard tabs
 │   ├── tab_1.py           # Tab 1
 │   ├── tab_2.py           # Tab 2
 │   ├── tab_3.py           # Tab 3

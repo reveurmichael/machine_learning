@@ -1,5 +1,10 @@
 # Coordinate System
 
+VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
+
+IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
+
+
 The entire code-base (core logic, agents, prompts, GUI adapters, and all extensions) adopts **one single right-handed 2-D Cartesian coordinate system**.  All positions are expressed as integer tuples **(x, y)** that respect the following conventions:
 
 * **Origin** : (0, 0) is the **bottom-left** corner of the board.
@@ -78,18 +83,10 @@ Observe that horizontal moves affected **x**, vertical moves affected **y**, exa
 ---
 ## Scalability & Custom Boards
 
-Although Task-0 uses a 10 × 10 grid, the code supports arbitrary rectangular sizes.  The semantics remain identical—only the upper bounds change.  Example: on a 20 × 15 board the top-right corner is (19, 14).
+Although Task-0 uses a 10 × 10 grid, the code supports arbitrary rectangular sizes.  The semantics remain identical—only the upper bounds change.  
 
 ---
 ## Common Pitfalls
 
-1. **Mixing GUI pixels with board units** – always convert via the GUI adapter.
 2. **Off-by-one errors** – remember the highest valid index is *size – 1*.
 3. **Y-axis confusion** – many graphics toolkits have (0, 0) at top-left; our logic does not.
-
----
-## TL;DR
-
-* (0, 0) bottom-left; x→right, y→up.  
-* Directions map to Δ(x, y) as shown.  
-* Follow the convention everywhere—logic, agents, prompts, GUI, extensions.

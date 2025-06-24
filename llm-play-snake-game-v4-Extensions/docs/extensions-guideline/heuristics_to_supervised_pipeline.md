@@ -21,9 +21,9 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 ```
 
 **Key design rules**  (see `project-structure-plan.md`):
-1. Every dataset lives under `logs/extensions/datasets/grid-size-N/` – never mix grid sizes.
+1. Every dataset lives under `logs/extensions/datasets/grid-size-N/` – never mix grid sizes. #TODO: and then subfolders, subsubfolders, subsubsubfolders, etc. and then the name of the dataset files (csv, summary.json, game_N.json, jsonl, npz, parquet, etc.), which is not decided yet, because we are having a ongoing discussion on this folder and file naming conventions.
 2. `extensions/common/` holds *all* shared helpers; extensions must **not** import each other.
-3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks.
+3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks. VITAL: THIS IS VERY IMPORTANT. I WANT THOSE FILES TO BE SHARED TO A LOT OF DIFFERENT PEOPLE WITH DIFFERENT OPERATING SYSTEMS. AND I WANT THEM TO BE TIME-PROOF, HENCE STILL USABLE IN THE FUTURE, AT LEAST OF THE NEXT 10 YEARS.
 
 
 ---
@@ -34,9 +34,9 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 # Example: BFS 10×10 – CSV + JSONL (rich explanations)
 python -m extensions.common.dataset_generator_cli \
     both                                \  # csv|jsonl|both
-    --log-dir logs/extensions/heuristics-bfs_20250623_090525 \
+    --log-dir log_folder_path_for_one_experiment/blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. \
     --prompt-format detailed             \  # jsonl prompt style
-    --output-dir logs/extensions/datasets \
+    --output-dir logs/extensions/datasets/grid-size-N/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. \
     --verbose
 ```
 
@@ -47,6 +47,8 @@ The CLI will:
    * `tabular_bfs_data_<timestamp>.csv`
    * `rich_bfs_data_<timestamp>.jsonl` *(for Task-4)*
    * `metadata_*.json` (schema, git SHA, etc.)
+
+TODO: is this really what we want for naming? Double check. I am not sure. We will have to discuss this. After the discussion, we will have to update this documentation. After the discussion, things will be fixed, and we will really enforce the naming conventions, not by our brain memory, but by the code (validation, etc.), as well as by documentions everywhere in the codebase.
 
 > **Tip:** `--all-algorithms` will sweep *every* `heuristics-*` log folder and batch-generate datasets.
 
@@ -59,7 +61,7 @@ The CLI will:
 
 ```
 python -m extensions.supervised_v0_02.training.train_neural \
-  --dataset-paths logs/extensions/datasets/grid-size-10/tabular_bfs_data_*.csv \
+  --dataset-paths blablabla
   --model MLP                  \  # choices: MLP|CNN|LSTM|GRU
   --epochs 50 --batch-size 64  \  # quick smoke-test
   --output-dir trained_models/mlp_bfs
@@ -67,6 +69,9 @@ python -m extensions.supervised_v0_02.training.train_neural \
 
 ### 3.2 What happens under the hood?
 
+TODO: things are not decided yet. We will have to discuss this. After the discussion, we will have to update this documentation. After the discussion, things will be fixed, and we will really enforce the naming conventions, not by our brain memory, but by the code (validation, etc.), as well as by documentions everywhere in the codebase.
+
+ 
 1. `DatasetLoader` – handles train/val/test split (default 60/20/20), one-hot encodes moves.
 2. `agent_mlp.MLPAgent` – simple 3-layer feed-forward **(input size = 16 engineered features)**.
 3. Training loop logs loss every epoch (see stdout).  Early stopping coming in v0.03.
@@ -76,7 +81,7 @@ python -m extensions.supervised_v0_02.training.train_neural \
      "validation_accuracy": 0.94,
      "test_accuracy": 0.93,
      "grid_size": 10,
-     "model_path": "trained_models/mlp_bfs/mlp_grid10.pth"
+     "model_path": "trained_models/mlp_bfs/blablabla.pth"
    }
    ```
 5. Model is saved in both **PyTorch** (`.pth`) and **ONNX** (`.onnx`) format with rich metadata – see `extensions/common/model_utils.py`.
@@ -91,7 +96,7 @@ python -m extensions.supervised_v0_02.training.train_neural \
 
 *Hamiltonian path yields deterministic "RIGHT"/"DOWN" cycles after startup – even linear models hit 100 %.*
 
-If your numbers are **>3 %** lower, check:
+If your numbers are low, check:
 * `--epochs` too small (start with 100 for serious runs)
 * Dataset imbalance (ensure `--all-algorithms` isn't mixing incompatible agents)
 
@@ -101,9 +106,7 @@ If your numbers are **>3 %** lower, check:
 ## 4. Evaluating trained agents in-game
 
 ```
-python -m extensions.supervised_v0_03.scripts.replay_web \
-   --model trained_models/mlp_bfs/mlp_grid10.onnx \
-   --grid-size 10
+python -m extensions.supervised_v0_03.scripts.replay_web --model trained_models/mlp_bfs/blablabla --grid-size 10
 ```
 
 *Opens a Flask replay page under <http://localhost:5000/supervised/replay>*
@@ -123,23 +126,13 @@ python -m extensions.supervised_v0_03.scripts.replay_web \
 
 ### 5.3 Model saving
 * Wrapper adds checksum, git SHA, & ONNX export.
-* File tree example:
-  ```
-  trained_models/mlp_bfs/
-  ├── mlp_grid10.pth
-  ├── mlp_grid10.onnx
-  └── metadata.json
-  ```
-
 
 ---
 
-## 6. Future work (v0.03+)
+## 6. We are not finished yet.
 
-* **Hyper-parameter sweeps** via Optuna – CLI flag `--tune` (WIP).
-* **LightGBM / XGBoost** trainer script – tabular CSV already compatible.
-* **Streamlit dashboard** for live loss & accuracy curves (supervised-v0.03).
-* **Cross-grid generalisation** study: train on 8×8, test on 12×12.
+* **LightGBM / XGBoost** trainer script – tabular CSV already compatible. # TODO: make sure.
+* **Cross-grid generalisation** study: train on 8×8, test on 12×12. # TODO: so this is curriculum learning? 
 
 ---
 
@@ -148,9 +141,3 @@ python -m extensions.supervised_v0_03.scripts.replay_web \
 | Symptom | Possible Cause | Fix |
 |---------|----------------|-----|
 | `ModuleNotFoundError: extensions` in Streamlit | Working directory changed | Ensure `path_utils.setup_extension_paths()` at top of script |
-| Validation accuracy stuck at 25 % | Label mismatch (UP/DOWN/LEFT/RIGHT) | Check `csv_schema.create_csv_row()` – must match `SnakeAgent.DIRECTIONS` |
-| `ValueError: Unsupported grid size` | CSV file path not under `grid-size-N` dir | Regenerate dataset via CLI |
-
----
-
-*Last updated: 2025-06-23 by refactor-bot.* 

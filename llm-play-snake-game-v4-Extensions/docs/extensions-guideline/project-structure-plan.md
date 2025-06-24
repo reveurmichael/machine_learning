@@ -68,8 +68,8 @@ ROOT/
 └── logs/                    # 📊 Data & artifacts
     ├── [task-0-sessions]/  # First-citizen logs  
     └── extensions/         # Second-citizen outputs
-        ├── datasets/grid-size-N/    # 📁 Training data
-        └── models/grid-size-N/      # 🏗️ Trained models
+        ├── datasets/grid-size-N/and_then_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet    # 📁 Training data # TODO: check this for logs model/datasets folder/file naming
+        └── models/grid-size-N/and_then_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet      # 🏗️ Trained models # TODO: check this for logs model/datasets folder/file naming
 ```
 
 ---
@@ -100,18 +100,15 @@ Every standalone extension (v0.02+) **must** include:
 ```
 logs/extensions/
 ├── datasets/grid-size-N/           # 📊 Training datasets  
-│   ├── #TODO: DOUBLE CHECK tabular_bfs_data.csv       # Heuristics → Supervised
-│   ├── #TODO: DOUBLE CHECK sequential_mixed_data.npz   # Time-series data
-│   └── #TODO: DOUBLE CHECK trajectory_explanations.jsonl # Heuristics v0.04 → LLM tasks
+│   ├── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ tabular_bfs_data.csv       # Heuristics → Supervised
+│   ├── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ sequential_mixed_data.npz   # Time-series data
+│   └── #TODO: DOUBLE CHECK maybe we should have blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet/ trajectory_explanations.jsonl # Heuristics v0.04 → LLM tasks
 │
-├── models/grid-size-N/             # 🧠 Trained models
+├── models/grid-size-N/or_maybe_blablabla_folder_or_sub_or_subsub_folders_or_file_whose_naming_is_not_decided_yet # TODO: check this, update blablabla. #TODO: check this, update blablabla.             # 🧠 Trained models
 │   ├── pytorch/                    # Neural networks
 │   ├── lightgbm/                   # Tree models  
-│   └── transformers/               # Fine-tuned LLMs
-│
-└── [session-logs]/                 # 📝 Runtime logs
-    ├── heuristics-bfs_20250101/
-    └── supervised-mlp_20250102/
+└── └── transformers/               # Fine-tuned LLMs
+
 ```
 
 ### 🔗 Critical Dependencies
@@ -185,9 +182,10 @@ Each extension provides **two presentation layers**:
 - **Comprehensive docstrings** explaining design patterns used
 
 ### Sentinel Values
-- **`EMPTY`**: Task-0 only (LLM parsing failures)
+- **`EMPTY`**: Task-0 only (LLM parsing failures? Maybe something else? #TODO: check this. I forgot about what this is for. )
+- **`SOMETHING_IS_WRONG`**: Task-0 only (#TODO: check this. I forgot about what this is for. )
 - **`INVALID_REVERSALS`**: Shared across all tasks
-- **`NO_PATH_FOUND`**: Heuristics & supervised replay
+- **`NO_PATH_FOUND`**: Task-0 LLM tells us that there is no path found. Or, in the case of heuristics, the heuristics tells us that there is no path found.
 
 ---
 

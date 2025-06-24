@@ -15,19 +15,14 @@ This document verifies that **ALL** critical requirements from the system prompt
 - **Design Pattern Documentation**: Each design pattern used is thoroughly documented with motivation, philosophy, and trade-offs
 - **Comments**: Critical architectural decisions are well-documented in code comments
 
-**Examples:**
-- `extensions/common/versioned_directory_manager.py`: 35+ lines of module docstring explaining philosophy
-- `extensions/common/model_utils.py`: Comprehensive function documentation with usage examples
-- All design patterns documented with philosophical reasoning
 
 ### 2. **Task-0 Functionality Preservation**
 
 **STATUS: ✅ FULLY COMPLIANT**
 
-- **Task-0 Unchanged**: All Task-0 (LLM Snake Game) functionality remains intact
+- **Task-0 Unchanged**: All Task-0 (LLM Snake Game) functionality remains intact. Existing Task-0 scripts and workflows continue to work. No touch to Task-0 code.
 - **Base Class Pattern**: Task-0 classes inherit from base classes without functionality loss
 - **Output Schema Preserved**: Game logs still follow the original JSON schema format
-- **Backward Compatibility**: Existing Task-0 scripts and workflows continue to work
 
 **Validation:**
 - Existing log files in `logs/hunyuan-t1-latest_20250617_223807/` maintain correct schema
@@ -42,26 +37,24 @@ This document verifies that **ALL** critical requirements from the system prompt
 - **Extensions Structure**: Proper versioning (v0.01, v0.02, v0.03, v0.04)
 - **Common Folder**: Shared utilities properly placed in `extensions/common/`
 
-### 4. **Single Source of Truth**
+### 4. **Single Source of Truth** TODO: maybe this one is not fully accomplished yet. Make sure we have a single source of truth for all code across all extensions.
 
-**STATUS: ✅ FULLY COMPLIANT**
-
-- **Configuration Centralized**: All constants in `config/` and `extensions/common/config.py`
+What we want to have:
+- **Configuration Centralized**: All constants in `config/` and `extensions/common/config.py # TODO or maybe a /extensions/common/config/ folder?`
 - **No Duplication**: Shared logic lives in common modules
 - **Cross-Extension Independence**: Each extension + common is standalone
 - **Versioned Directory Manager**: Single implementation for all directory structure needs
 
 ### 5. **OOP, SOLID and DRY Principles**
 
-**STATUS: ✅ FULLY COMPLIANT**
+What we want to have: # TODO: make sure this is accomplished 100%
 
 **Design Patterns Implemented:**
 - **Factory Pattern**: Agent creation across all extensions
-- **Singleton Pattern**: FileManager and directory managers
+- **Singleton Pattern**: FileManager and directory managers # TODO: or maybe other classes should be singletons?
 - **Strategy Pattern**: Algorithm selection and model frameworks
 - **Template Method**: Base classes with extension hooks
 - **Facade Pattern**: Simplified interfaces for complex systems
-- **Observer Pattern**: Event handling and state management
 - **Adapter Pattern**: Integration between different components
 
 **SOLID Principles:**
@@ -73,8 +66,7 @@ This document verifies that **ALL** critical requirements from the system prompt
 
 ### 6. **Class Naming Convention**
 
-**STATUS: ✅ FULLY COMPLIANT**
-
+This is what we want to have:
 - **Root Classes**: Simple names (GameController, FileManager, GameData)
 - **Base Classes**: Prefixed with "Base" (BaseGameManager, BaseFileManager)
 - **Extension Classes**: Prefixed with algorithm type (HeuristicGameManager, MLGameManager)
@@ -86,13 +78,12 @@ This document verifies that **ALL** critical requirements from the system prompt
 
 - **BaseFileManager**: Implements Singleton pattern
 - **FileManager**: Implements Singleton pattern
-- **VersionedDirectoryManager**: Static facade (pseudo-singleton) pattern
+- TODO: maybe other classes should be singletons?
 - **Proper Documentation**: All singleton implementations thoroughly documented
 
 ### 8. **Forbidden Code Pollution**
 
-**STATUS: ✅ FULLY COMPLIANT**
-
+TODO: This is what we want to have (hence I am not sure if it is fully accomplished yet):
 **Verified No Pollution:**
 - **No Heuristics Terms**: Words like "heuristics", "reinforcement learning" absent from ROOT
 - **No ML Terms**: Machine learning terminology restricted to extensions
@@ -103,17 +94,17 @@ This document verifies that **ALL** critical requirements from the system prompt
 ```bash
 # No forbidden import patterns found
 find . -name "*.py" -exec grep -l "from heuristics_v0\.0[1-4] import" {} \;
+find . -name "*.py" -exec grep -l "from blablabla_v0\.0[1-4] import" {} \;
 # Returns: empty (✅ COMPLIANT)
 ```
 
 ### 9. **No Over-Preparation**
 
-**STATUS: ✅ FULLY COMPLIANT**
-
+WHAT SHOULD BE ACCOMPLISHED:
 - **Task-0 Focus**: Only implements what Task-0 actually uses
 - **No Unused Code**: No unimplemented functions prepared for future tasks
 - **Clean Base Classes**: Base classes contain only what Task-0 needs
-- **Future Tasks**: Will implement their own specific requirements
+- **Future Tasks**: Will implement their own specific requirements, but reusing the same base classes and config as much as possible.
 
 ### 10. **Core/Replay Class Preservation**
 
@@ -126,12 +117,11 @@ find . -name "*.py" -exec grep -l "from heuristics_v0\.0[1-4] import" {} \;
 
 ### 11. **Agent Folder Evolution Preservation**
 
-**STATUS: ✅ FULLY COMPLIANT**
-
+TODO: This is what we want to have:
 **Verified Preservation:**
-- `extensions/heuristics-v0.02/agents/`: Exactly preserved
-- `extensions/heuristics-v0.03/agents/`: Exactly preserved  
-- `extensions/heuristics-v0.04/agents/`: Exactly preserved
+- `extensions/heuristics-v0.02/agents/`: Ideally, should be the same as in v0.02, v0.03, v0.04, but with some changes.
+- `extensions/heuristics-v0.03/agents/`: Ideally, should be the same as in v0.02, v0.03, v0.04, but with some changes.
+- `extensions/heuristics-v0.04/agents/`: Ideally, should be the same as in v0.02, v0.03, v0.04, but with some changes.
 - `extensions/supervised-v0.02/`: Structure preserved
 - `extensions/reinforcement-v0.02/`: Structure preserved
 
@@ -147,7 +137,7 @@ find . -name "*.py" -exec grep -l "from heuristics_v0\.0[1-4] import" {} \;
 - **Shared Utilities**: Common code properly placed in `extensions/common/`
 - **No Cross-Extension Sharing**: Extensions share via common only
 - **Standalone Principle**: Extension + common = standalone
-- **Conceptual Clarity**: Extension-specific concepts remain visible
+- **Conceptual Clarity**: Extension-specific concepts remain visible (# TODO:very very important, very very much visible because we want to learn things just by looking at the code of each extension and each of its version, without even going to the common folder, because common stuffs are just too common, that's why it's named "common")
 
 ### 13. **Type Hints**
 
@@ -160,7 +150,7 @@ find . -name "*.py" -exec grep -l "from heuristics_v0\.0[1-4] import" {} \;
 
 ### 14. **Forbidden Import Patterns**
 
-**STATUS: ✅ FULLY COMPLIANT**
+TODO: This is what we want to have:
 
 **Zero Violations Found:**
 - No `from heuristics_v0.01 import` patterns
@@ -175,16 +165,16 @@ find . -name "*.py" -exec grep -l "from heuristics_v0\.0[1-4] import" {} \;
 
 ### 15. **Version Compatibility**
 
-**STATUS: ✅ FULLY COMPLIANT**
+TODO: This is what we want to have:
 
 - **v0.02 → v0.01**: No breaking changes
-- **v0.03 → v0.02**: No breaking changes  
-- **v0.04 → v0.03**: No breaking changes (heuristics only)
+- **v0.03 → v0.02**: No breaking changes, just adding streamlit app.py and dashboard folder  
+- **v0.04 → v0.03**: No breaking changes (heuristics only, just making agents exporting jsonl files so that those output files can be used in LLM-Fine-Tuning and maybe distillation)
 - **Progressive Enhancement**: Each version builds upon previous
 
 ### 16. **Grid-Size Directory Structure (VITAL)**
 
-**STATUS: ✅ FULLY COMPLIANT**
+TODO: This is what we want to have:
 
 **Mandatory Structure Enforced:**
 ```
@@ -193,65 +183,50 @@ logs/extensions/
 └── models/grid-size-N/extension_v0.0M_timestamp/
 ```
 
+TODO: but I have a lot of questions and hesitations about how we should organize the things within datasets/grid-size-N/extension_v0.0M_timestamp/ and within models/grid-size-N/extension_v0.0M_timestamp/  . We should have a serious discussion about this. This is very important. Fundamentally important. Because it will have such a huge impact on the whole all extensions.
+
 **Implementation:**
-- **Centralized Management**: `VersionedDirectoryManager` in common
-- **Validation System**: `scripts/validate_grid_size_compliance.py`
+- **Centralized Management**: `VersionedDirectoryManager` in common # TODO: make sure; also, this one maybe be code changed in the future, depending on our discussion results about the datasets/grid-size-N/extension_v0.0M_timestamp/ and within models/grid-size-N/extension_v0.0M_timestamp/  origanization.
+- **Validation System**: `scripts/validate_grid_size_compliance.py` # TODO: maybe a validation folder because we have a lot of validation to do?
 - **Zero Violations**: All extensions comply with grid-size structure
 - **Dynamic Paths**: No hardcoded grid-size-10 references
 
-**Validation Results:**
-```
-🎉 ALL CHECKS PASSED! Grid-size directory structure is properly enforced.
-✅ Benefits achieved:
-   • Clean separation of models by spatial complexity  
-   • No accidental mixing of different grid-size datasets
-   • Scalable to new grid sizes without code changes
-   • Clear experimental organization
-```
 
 ### 17. **Comprehensive Documentation**
 
-**STATUS: ✅ FULLY COMPLIANT**
+TODO: before changing this line to "**STATUS: ✅ FULLY COMPLIANT**", we should make sure it's really 100% accomplished. Anyways, this is what we want to have:
 
 **Documentation Coverage:**
 - **Philosophy Documents**: Versioned directory structure philosophy
-- **Migration Guides**: Complete migration examples
-- **Compliance Reports**: Grid-size compliance audit
 - **API Documentation**: Comprehensive function and class documentation
 - **Design Pattern Explanations**: Each pattern thoroughly documented
+- TODO: what else important documentation we need?
+- TODO: not only documentation, but also comments, and docstrings.
 
 ## 🎯 Architectural Achievements
 
 ### Design Pattern Implementation
 
-1. **Factory Pattern**: Agent creation across all extensions
-2. **Singleton Pattern**: File and directory management  
+1. **Factory Pattern**: Agent creation across all extensions, TODO:maybe other classes should be factories?
+2. **Singleton Pattern**: File and directory management  # TODO: maybe other classes should be singletons?
 3. **Strategy Pattern**: Algorithm and model selection
 4. **Template Method**: Base class extension hooks
-5. **Facade Pattern**: Simplified complex system interfaces
-6. **Observer Pattern**: Event handling and notifications
-7. **Adapter Pattern**: Cross-system integration
-8. **Command Pattern**: Move and action encapsulation
+5. **Facade Pattern**: Simplified complex system interfaces #TODO: where is it used?
+7. **Adapter Pattern**: Cross-system integration # TODO: where is it used? is it justified? since we want to have a lot of standalones in the extensions. But maybe adapter pattern can be used for MVC adapting GameData or GameController stuffs, jut maybe.
 
 ### SOLID Principles Adherence
-
-- **Single Responsibility**: Each class focused on one concern
-- **Open/Closed**: Extensions via inheritance, not modification  
-- **Liskov Substitution**: Proper behavioral substitution
-- **Interface Segregation**: Clean, focused interfaces
-- **Dependency Inversion**: Abstractions over concretions
 
 ### Educational Value
 
 - **Progressive Complexity**: v0.01 → v0.02 → v0.03 → v0.04 evolution
 - **Design Pattern Exhibition**: Multiple patterns demonstrated
 - **Best Practices**: SOLID, DRY, and OOP principles throughout
-- **Real-World Architecture**: Production-quality code organization
+- **Real-World Architecture**: Production-quality code organization # TODO: will our code be that good?
 
 ## 🚀 System Benefits Achieved
 
 ### Scalability
-- **Grid Size Independence**: Automatic support for any grid size
+- **Grid Size Independence**: Automatic support for any grid size. # TODO: Though, for GUI of Pygame and Web, we should have reasonable grid size limits, or else things will look really ugly or even broken. For no-gui mode, it should be 100% grid size independence.
 - **Algorithm Extension**: Easy addition of new algorithms
 - **Model Framework Support**: Multiple ML frameworks integrated
 - **Version Evolution**: Clean upgrade paths between versions
@@ -268,25 +243,11 @@ logs/extensions/
 - **Best Practices**: Industry-standard architectural principles
 - **Scientific Rigor**: Proper experimental organization
 
-## ✅ Final Validation
-
-**System Prompt Compliance: 100%**
-
-All 17 critical requirements from the system prompt have been successfully implemented and verified through:
-
-1. **Automated Validation**: Compliance scripts pass with zero violations
-2. **Manual Code Review**: Comprehensive codebase examination  
-3. **Testing Verification**: All systems tested and working
-4. **Documentation Review**: Complete documentation coverage
-
-The codebase successfully maintains Task-0 as the first-class citizen while providing a robust, extensible foundation for all future tasks through proper OOP design, architectural compliance, and comprehensive documentation.
-
 ## 📋 Continuous Compliance
 
 **Monitoring Tools:**
-- `scripts/validate_grid_size_compliance.py`: Automated structure validation
+- `scripts/validate_grid_size_compliance.py`: Automated structure validation # TODO: maybe a validation folder because we have a lot of validation to do? And we should, indeed, continously validate whether things are compliant with what we want to have.
 - Comprehensive documentation for ongoing maintenance
 - Clear architectural principles for future development
 - Established patterns for extension development
 
-The system is designed for long-term maintainability with clear guidelines for future development while preserving all critical architectural principles established in the system prompt. 

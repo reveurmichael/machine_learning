@@ -1,6 +1,8 @@
 
 ## **🎯 Perfect Architecture: Task-Agnostic vs Task-Specific Separation**
 
+### TODO: make sure here we are talking about the utils folder in the ROOT/utils/ folder. But, at extend sections, we can talk about the  the extensions/common/ folder.
+
 ### **✅ Universal (Tasks 0-5) Utilities - Already Generic**
 
 These utilities contain **zero LLM-specific dependencies** and work for any algorithm:
@@ -82,9 +84,6 @@ def safe_json_save(data: Any, filepath: str) -> bool:
 ```
 
 **How Tasks 1-5 Use This:**
-- **Task-1**: Heuristic outputs can be validated via `validate_json_format()`
-- **Task-2**: Neural network predictions parsed via these utilities
-- **Task-3**: RL action sequences validated through same JSON schema
 - **Task-4/5**: LLM outputs use identical parsing pipeline
 
 #### **5. `web_utils.py` - Universal Web Infrastructure ✅**
@@ -104,9 +103,6 @@ def to_list(obj) -> list | object:
 ```
 
 **How Tasks 1-5 Use This:**
-- **Task-1**: Web interface shows BFS search progress using same JSON format
-- **Task-2**: Training visualization uses same color scheme and state structure
-- **Task-3**: RL training dashboard inherits same web infrastructure
 - **All Tasks**: Universal web API format
 
 ---
@@ -153,53 +149,6 @@ from utils.moves_utils import normalize_direction, is_reverse
 from utils.json_utils import validate_json_format, safe_json_save
 from utils.web_utils import build_state_dict, build_color_map
 
-class BFSAgent:
-    def get_move(self, game):
-        # ✅ Use universal collision detection
-        head_pos = game.head_position
-        snake_positions = game.snake_positions
-        grid_size = game.grid_size
-        
-        # ✅ Check each possible move for safety
-        for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-            dx, dy = DIRECTIONS[direction]
-            new_pos = [head_pos[0] + dx, head_pos[1] + dy]
-            
-            # ✅ Universal collision checking
-            wall_hit, body_hit = check_collision(new_pos, snake_positions, grid_size, False)
-            
-            if not (wall_hit or body_hit):
-                # ✅ Universal move processing
-                if is_reverse(direction, game.current_direction):
-                    continue  # Skip reversal moves
-                return normalize_direction(direction)  # ✅ Same format as Task-0!
-        
-        return "NO_PATH_FOUND"  # ✅ Same sentinel as Task-0!
-
-class HeuristicWebController:
-    def get_current_state(self):
-        # ✅ Universal web state building
-        return build_state_dict(
-            self.snake_positions,     # ✅ From BaseGameController
-            self.apple_position,      # ✅ From BaseGameController  
-            self.score,              # ✅ From BaseGameController
-            self.steps,              # ✅ From BaseGameController
-            self.grid_size,          # ✅ From BaseGameController
-            extra={
-                "algorithm": "BFS",
-                "search_time": 0.003,
-                "nodes_explored": 42,
-                "task_type": "heuristics"
-            }
-        )
-        
-    def generate_apple(self):
-        # ✅ Universal apple placement
-        return generate_random_apple(self.snake_positions, self.grid_size)
-        
-    def save_results(self, results):
-        # ✅ Universal JSON saving
-        return safe_json_save(results, f"logs/heuristics/game_{self.game_number}.json")
 ```
 
 ### **Task-3 (RL) Integration:**
@@ -210,46 +159,6 @@ from utils.moves_utils import normalize_direction
 from utils.json_utils import validate_json_format  
 from utils.web_utils import build_state_dict
 
-class RLEnvironment:
-    def step(self, action):
-        # ✅ Universal move normalization
-        action = normalize_direction(action)
-        
-        # ✅ Universal collision detection
-        head_pos = self.get_head_position()
-        dx, dy = DIRECTIONS[action]
-        new_pos = [head_pos[0] + dx, head_pos[1] + dy]
-        
-        wall_hit, body_hit = check_collision(new_pos, self.snake_positions, self.grid_size, False)
-        
-        # ✅ Calculate reward based on universal collision system
-        if wall_hit or body_hit:
-            reward = -10  # Collision penalty
-            done = True
-        elif self.check_apple_collision(new_pos):
-            reward = 10   # Apple reward
-            done = False
-        else:
-            reward = -0.1 # Step penalty
-            done = False
-            
-        # ✅ Universal board update
-        update_board_array(self.board, self.snake_positions, self.apple_position, self.board_info)
-        
-        return self.get_observation(), reward, done, {}
-        
-    def get_web_state(self):
-        # ✅ Universal web interface
-        return build_state_dict(
-            self.snake_positions, self.apple_position, self.score,
-            self.steps, self.grid_size,
-            extra={
-                "episode": self.episode,
-                "total_reward": self.total_reward,
-                "epsilon": self.epsilon,
-                "task_type": "reinforcement_learning"
-            }
-        )
 ```
 
 ### **Task-2 (Supervised Learning) Integration:**
@@ -257,53 +166,6 @@ class RLEnvironment:
 from utils.board_utils import get_empty_positions, update_board_array
 from utils.moves_utils import normalize_direction, normalize_directions
 from utils.json_utils import safe_json_load, safe_json_save
-
-class DatasetGenerator:
-    def generate_training_data(self, num_games=10000):
-        """Generate training dataset using universal utilities."""
-        dataset = []
-        
-        for game_idx in range(num_games):
-            # ✅ Use universal board utilities
-            snake_positions = self.initialize_snake()
-            apple_position = generate_random_apple(snake_positions, self.grid_size)
-            
-            while not self.game_over:
-                # ✅ Capture state using universal board update
-                board = np.zeros((self.grid_size, self.grid_size), dtype=np.int8)
-                update_board_array(board, snake_positions, apple_position, self.board_info)
-                
-                # ✅ Get optimal action from heuristic (ground truth)
-                optimal_action = self.get_optimal_action_bfs()
-                optimal_action = normalize_direction(optimal_action)  # ✅ Universal format
-                
-                # ✅ Record training example
-                dataset.append({
-                    'board_state': board.tolist(),
-                    'snake_positions': [pos.tolist() for pos in snake_positions],
-                    'apple_position': apple_position.tolist(),
-                    'optimal_action': optimal_action,
-                    'score': self.score
-                })
-                
-                # ✅ Execute move using universal collision detection
-                self.execute_move(optimal_action)
-                
-        # ✅ Save using universal JSON utilities
-        safe_json_save(dataset, "datasets/supervised_training_data.json")
-        return dataset
-        
-    def validate_model_output(self, model_predictions):
-        """Validate neural network predictions."""
-        # ✅ Universal move validation
-        for prediction in model_predictions:
-            moves = prediction.get('moves', [])
-            normalized_moves = normalize_directions(moves)  # ✅ Universal
-            
-            # ✅ Universal JSON format validation
-            is_valid, error = validate_json_format({'moves': normalized_moves})
-            if not is_valid:
-                print(f"Invalid model output: {error}")
 ```
 
 ---
@@ -329,8 +191,9 @@ def setup_llm_clients(game_manager: "GameManager"):  # Task-0 specific
 ```
 
 ### **✅ Universal Constants Usage:**
+TODO: this is what we want to have:
 ```python
-# ✅ Generic utilities use universal constants
+# ✅ Generic utilities use universal constants, across task0-5, and across all extensions.
 from config.game_constants import END_REASON_MAP       # Game termination (all tasks)
 from config.ui_constants import COLORS                 # Visualization (all tasks)
 
@@ -341,6 +204,8 @@ from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-only
 ---
 
 ## **📊 Naming Convention Compliance - Perfect**
+
+TODO: is such naming really good?
 
 ### **✅ All Files Follow `*_utils.py` Pattern:**
 ```
@@ -363,6 +228,7 @@ from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-only
 ## **🏆 Summary: Utils Architecture is Already Perfect**
 
 ### **✅ What's Already Working:**
+TODO: this is what we want to have:
 
 1. **Perfect SOLID Compliance**: Utils follow dependency inversion - depend on abstractions
 2. **Clean Task Separation**: LLM-specific vs generic utilities clearly marked and separated
@@ -391,26 +257,8 @@ from utils.moves_utils import normalize_direction, is_reverse
 from utils.json_utils import validate_json_format, safe_json_save
 from utils.web_utils import build_state_dict, build_color_map
 
-class AnyTaskAgent:
-    def get_move(self, game):
-        # Universal collision detection
-        wall_hit, body_hit = check_collision(next_pos, game.snake_positions, game.grid_size, False)
-        
-        # Universal move processing
-        if not (wall_hit or body_hit):
-            return normalize_direction(best_move)  # Same format as all tasks
-        else:
-            return "NO_PATH_FOUND"  # Same sentinel as all tasks
-
-class AnyTaskWebController:
-    def get_current_state(self):
-        # Universal web state building
-        return build_state_dict(
-            self.snake_positions, self.apple_position, self.score,
-            self.steps, self.grid_size,
-            extra={"task_specific_data": "..."}
-        )
-
+class AnyTaskAgent(BaseAgent):
+    pass
 # Works immediately with zero modifications to utils!
 ```
 

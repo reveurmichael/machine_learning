@@ -6,18 +6,19 @@ This document provides practical examples of how to update existing extensions t
 
 ### Before and After Directory Structure
 
-**Before (Legacy)**:
+**Before (Legacy, and should be removed, should be totally abandoned, should not be having legacy code or backward compatibility)**:
 ```
 logs/extensions/models/grid-size-10/pytorch/mlp_model.pth
 logs/extensions/models/grid-size-10/xgboost/xgb_model.json
 logs/extensions/datasets/grid-size-10/tabular_data.csv
 ```
 
-**After (Versioned)**:
+**After (Versioned, code should be only for this version, and should not be having legacy code or backward compatibility, per the code, it should look so fresh, so new, so future-oriented. Per the code, it has no past, no legay, nothing to look back to)**:
 ```
-logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/pytorch/mlp_model.pth
-logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/xgboost/xgb_model.json
-logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_142015/bfs/tabular_data.csv
+logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/pytorch/mlp_model.pth (TODO: along with the mlp_model.onnx file? npz file? parquet file? or other file?)
+logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/xgboost/xgb_model.json (TODO: along with the xgb_model.onnx file? npz file? parquet file? or other file?)
+logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_142015/bfs/tabular_data.csv (TODO: along with the game_N.json and summary.json files)
+logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_142015/bfs/tabular_data.csv (TODO: along with the game_N.json and summary.json files. Importantly, along with the JSONL files. VITAL !)
 ```
 
 ## 1. Updating Model Saving in Training Scripts
@@ -132,6 +133,8 @@ json_file = output_dir / "game_logs.json"
 
 ### Pattern A: Get Extension Version Automatically
 
+TODO: this is what we want to have, and this is so COOL ! Make sure in the code base of extensions we use it everywhere.
+
 Create a utility function to extract version from extension directory:
 
 ```python
@@ -152,13 +155,15 @@ extension_version = get_extension_version()
 
 ### Pattern B: Configuration-Based Extension Info
 
+TODO: this can be good as well, though I prefer Pattern A.
+
 **File**: `extensions/supervised-v0.03/config.py`
 
 ```python
 # Extension configuration
 EXTENSION_CONFIG = {
     "extension_type": "supervised",
-    "version": "v0.03",
+    "version": get_extension_version(),
     "supported_models": ["MLP", "CNN", "LSTM", "XGBoost", "LightGBM"],
     "default_grid_size": 10
 }

@@ -18,6 +18,8 @@ import sys
 import os
 from pathlib import Path
 
+# TODO: or, we can do this with things provided in extensions/common/path_utils.py , this is even better, even much better. Some code is already using that in the extensions/heuristics-v0.
+0N folder
 # Add project root to Python path
 current_file = Path(__file__).resolve()
 project_root = current_file.parent.parent.parent
@@ -27,4 +29,6 @@ if str(project_root) not in sys.path:
 # Ensure we're working from project root
 if os.getcwd() != str(project_root):
     os.chdir(str(project_root))
+
+# TODO: or, we can do this with things provided in extensions/common/path_utils.py , this is even better, even much better
 ```

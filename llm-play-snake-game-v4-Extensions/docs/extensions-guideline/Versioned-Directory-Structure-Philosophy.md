@@ -38,12 +38,34 @@ Where:
 ```
 logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/
 ├── bfs/
-│   ├── game_logs.json
+│   ├── game_1.json
+│   ├── game_2.json
+│   ├── game_N.json
+│   ├── summary.json
 │   └── tabular_data.csv
 ├── astar/
 │   ├── game_logs.json
 │   └── tabular_data.csv
 └── .directory_metadata.json
+
+logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250625_143022/
+├── bfs/
+│   ├── game_1.json
+│   ├── game_2.json
+│   ├── game_N.json
+│   ├── summary.json
+│   └── tabular_data.csv
+│   └── jsonl files or one single jsonl file. VITAL ! Because we are on heuristics-v0.04, and we are exporting jsonl files.
+├── astar/
+│   ├── game_1.json
+│   ├── game_2.json
+│   ├── game_M.json
+│   ├── summary.json
+│   └── tabular_data.csv
+│   └── jsonl files or one single jsonl file. VITAL ! Because we are on heuristics-v0.04, and we are 
+└── .directory_metadata.json
+
+
 
 logs/extensions/models/grid-size-10/supervised_v0.02_20250625_150830/
 ├── pytorch/
@@ -269,70 +291,6 @@ model_dir = create_model_directory(
 # Save RL agent to versioned directory
 torch.save(agent.state_dict(), model_dir / "agent_weights.pth")
 torch.save(optimizer.state_dict(), model_dir / "optimizer_state.pth")
-```
-
-## Benefits and Implications
-
-### 1. **Scientific Rigor**
-
-- **No Contamination**: Impossible to accidentally mix different grid sizes
-- **Reproducibility**: Every experiment has unique, traceable identifier
-- **Comparison**: Fair comparison between algorithm versions
-
-### 2. **Educational Value**
-
-- **Evolution Tracking**: Students see how algorithms evolve over time
-- **Historical Preservation**: All versions remain accessible
-- **Learning Progression**: Clear progression from simple to complex
-
-### 3. **Engineering Excellence**
-
-- **Maintainability**: Centralized structure logic
-- **Scalability**: New grid sizes and versions integrate seamlessly
-- **Debuggability**: Easy to locate specific experiment artifacts
-
-### 4. **Research Efficiency**
-
-- **Discovery**: Quick finding of relevant datasets and models
-- **Collaboration**: Shared understanding of organization
-- **Documentation**: Self-documenting through structure
-
-## Migration Strategy
-
-### Phase 1: Adopt in New Code
-
-All new extensions must use versioned structure:
-
-```python
-# Required imports in all new training scripts
-from extensions.common.versioned_directory_manager import create_model_directory
-from extensions.common.model_utils import save_model_standardized
-
-# Required parameters in all training functions
-def train_model(extension_type: str, version: str, ...):
-    # Use versioned structure
-    pass
-```
-
-### Phase 2: Enhance Common Utilities
-
-Update existing utilities to support versioned structure:
-
-- ✅ `model_utils.py` - Enhanced with version support
-- ✅ `dataset_directory_manager.py` - Integration with versioned manager
-- ✅ `config.py` - Added MODELS_ROOT constant
-
-### Phase 3: Update Extensions
-
-Gradually update existing extensions to use versioned structure while maintaining backward compatibility.
-
-### Phase 4: Validation and Cleanup
-
-Use compliance validator to ensure all extensions follow the rule:
-
-```bash
-python scripts/validate_grid_size_compliance.py
-python scripts/validate_versioned_structure.py  # Future enhancement
 ```
 
 ## Common Patterns and Best Practices

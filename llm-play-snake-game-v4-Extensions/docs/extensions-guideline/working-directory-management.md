@@ -1,5 +1,7 @@
 # Working Directory Management Strategy
 
+TODO: chdir() a lot ! That's what we want to have. With chdir(), we can make things easier to manage.
+
 ## Overview
 
 This document explains the critical importance of working directory management in our project and how the `os.chdir(project_root)` pattern solves multiple challenges related to data management, subprocess integration, and cross-platform compatibility.

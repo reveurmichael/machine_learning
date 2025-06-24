@@ -21,14 +21,14 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
 
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 from extensions.common.path_utils import setup_extension_paths
 from extensions.common.csv_schema import TabularFeatureExtractor, get_schema_info
 from extensions.common.model_utils import save_model_standardized, load_model_standardized
 setup_extension_paths()
 
 
-class BaseNeuralAgent(SnakeAgent):
+class BaseNeuralAgent(BaseAgent):
     """
     Base class for all neural network agents in supervised learning v0.01.
     

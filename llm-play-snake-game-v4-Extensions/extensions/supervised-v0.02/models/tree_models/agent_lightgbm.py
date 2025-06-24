@@ -1,10 +1,10 @@
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 import lightgbm as lgb
 import json
 from pathlib import Path
 from extensions.common.model_utils import get_model_directory
 
-class LightGBMAgent(SnakeAgent):
+class LightGBMAgent(BaseAgent):
     """
     LightGBM agent for tabular feature data.
     """

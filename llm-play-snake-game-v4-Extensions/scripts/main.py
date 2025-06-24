@@ -55,7 +55,7 @@ AVAILABLE_PROVIDERS = list_available_providers()
 from core.game_manager import GameManager
 from llm.setup_utils import check_env_setup
 from llm.providers import get_available_models
-from llm.agent_llm import LLMSnakeAgent
+from llm.agent_llm import SnakeAgent
 
 # Initialise colour output early (no-op if already called)
 init_colorama(autoreset=True)
@@ -271,7 +271,7 @@ class MainApplication:
                     self.game_manager = GameManager.continue_from_directory(self.args)
                     
                     # Set up LLM agent for Task-0 continuation
-                    self.game_manager.agent = LLMSnakeAgent(
+                    self.game_manager.agent = SnakeAgent(
                         self.game_manager, 
                         provider=self.args.provider, 
                         model=self.args.model
@@ -297,7 +297,7 @@ class MainApplication:
             self.create_game_components()
             
             # Set up LLM agent for Task-0
-            self.game_manager.agent = LLMSnakeAgent(
+            self.game_manager.agent = SnakeAgent(
                 self.game_manager, 
                 provider=self.args.provider, 
                 model=self.args.model

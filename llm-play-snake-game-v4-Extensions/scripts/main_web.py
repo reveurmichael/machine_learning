@@ -33,7 +33,7 @@ from web.controllers import GamePlayController
 
 # Import Task 0 components
 from core.game_manager import GameManager
-from llm.agent_llm import LLMSnakeAgent
+from llm.agent_llm import SnakeAgent
 from scripts.main import parse_arguments
 from utils.network_utils import find_free_port
 
@@ -163,7 +163,7 @@ def create_mvc_application(game_args) -> tuple:
     
     # Create GameManager for Task 0
     game_manager = GameManager(game_args)
-    game_manager.agent = LLMSnakeAgent(
+    game_manager.agent = SnakeAgent(
         game_manager, 
         provider=game_args.provider, 
         model=game_args.model

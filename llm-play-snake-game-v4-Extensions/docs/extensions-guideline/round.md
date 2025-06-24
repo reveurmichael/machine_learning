@@ -48,7 +48,7 @@ class HeuristicGameManager(BaseGameManager):
         
         # ✅ Heuristic-specific extensions only
         self.algorithm_name = getattr(args, "algorithm", DEFAULT_ALGORITHM)
-        self.agent: Optional[SnakeAgent] = None
+        self.agent: Optional[BaseAgent] = None
 ```
 
 **✅ Round Usage Examples:**

@@ -42,7 +42,7 @@
 ROOT/
 ├── core/                    # 🏛️ First-citizen engine (Task-0)
 │   ├── game_*.py           # BaseGameManager, BaseGameLogic, etc.
-│   └── agents.py           # SnakeAgent protocol (universal interface)
+│   └── agents.py           # BaseAgent protocol (universal interface)
 │
 ├── gui/                     # 🎨 First-citizen visualization  
 │   ├── base_gui.py         # BaseGUI (extensible by second-citizens)
@@ -50,7 +50,7 @@ ROOT/
 │   └── replay_gui.py       # Task-0 replay viewer
 │
 ├── llm/                     # 🤖 First-citizen LLM integration
-│   ├── agent_llm.py        # LLM implementation of SnakeAgent
+│   ├── agent_llm.py        # LLM implementation of BaseAgent
 │   └── providers/          # LLM provider abstractions
 │
 ├── web/                     # 🌐 First-citizen Flask site

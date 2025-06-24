@@ -203,7 +203,7 @@ Even with common utilities, each extension keeps its algorithmic identity:
 
 ```python
 # This stays in heuristics-v0.02/agents/agent_bfs.py
-class BFSAgent(SnakeAgent):
+class BFSAgent(BaseAgent):
     """Breadth-First Search pathfinding agent."""
     
     def find_path(self, start, goal, obstacles):

@@ -50,7 +50,7 @@ from core.game_stats_manager import GameStatsManager
 from core.game_manager_helper import GameManagerHelper
 
 # Agent protocol for all tasks
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 
 if TYPE_CHECKING:
     import argparse
@@ -348,7 +348,9 @@ class GameManager(BaseGameManager):
     # Use LLM-capable game logic
     GAME_LOGIC_CLS = GameLogic
 
-    def __init__(self, args: "argparse.Namespace", agent: Optional[SnakeAgent] = None) -> None:
+    def __init__(
+        self, args: "argparse.Namespace", agent: Optional[BaseAgent] = None
+    ) -> None:
         """Initialize LLM-specific session."""
         super().__init__(args)
 
@@ -383,7 +385,7 @@ class GameManager(BaseGameManager):
         self.llm_client: Optional[LLMClient] = None
         self.parser_provider: Optional[str] = None
         self.parser_model: Optional[str] = None
-        self.agent: Optional[SnakeAgent] = agent
+        self.agent: Optional[BaseAgent] = agent
 
         # LLM-specific logging directories
         self.prompts_dir: Optional[str] = None
@@ -480,7 +482,7 @@ class GameManager(BaseGameManager):
     def continue_from_session(self, log_dir: str, start_game_number: int) -> None:
         """Resume LLM session from previous checkpoint."""
         from utils.continuation_utils import setup_continuation_session, handle_continuation_game_state
-        
+
         print(Fore.GREEN + f"🔄 Resuming LLM session from: {log_dir}")
         print(Fore.GREEN + f"🔄 Starting at game: {start_game_number}")
 

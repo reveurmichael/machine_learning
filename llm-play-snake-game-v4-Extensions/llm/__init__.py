@@ -14,7 +14,7 @@ from llm.client import LLMClient  # noqa: F401  (public API)
 # it as part of the public API even if not yet referenced by the live game
 # loop.  Future refactors will instantiate this via the generic *agent*
 # pathway in :pymod:`core.game_loop`.
-from llm.agent_llm import LLMSnakeAgent  # noqa: F401
+from llm.agent_llm import SnakeAgent  # noqa: F401
 
 # Lightweight pass-throughs from provider registry
 from llm.providers import (  # noqa: F401
@@ -51,7 +51,7 @@ def __getattr__(name):  # pragma: no cover – lazy imports
 # Public API (only statically available names)
 __all__ = [
     "LLMClient",
-    "LLMSnakeAgent",
+    "SnakeAgent",
     "create_provider",
     "list_providers",
     "get_available_models",

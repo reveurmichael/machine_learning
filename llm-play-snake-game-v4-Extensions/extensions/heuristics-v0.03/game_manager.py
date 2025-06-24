@@ -83,7 +83,7 @@ class HeuristicGameManager(BaseGameManager):
         self.verbose = getattr(args, "verbose", False)
 
         # Agent and logging
-        self.agent: Optional[SnakeAgent] = None
+        self.agent: Optional[BaseAgent] = None
         self.log_dir: Optional[str] = None
         self.session_start_time = datetime.now()
         self.game_steps: List[int] = []  # Track steps per game for efficiency metrics

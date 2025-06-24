@@ -6,7 +6,7 @@ LightGBM gradient boosting agent for tabular feature data.
 Implements standardized model saving/loading with text format.
 
 Design Pattern: Strategy Pattern
-- Implements SnakeAgent interface
+- Implements BaseAgent interface
 - Configurable hyperparameters
 - Standardized training and prediction
 - Text model format for cross-platform compatibility
@@ -18,19 +18,19 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 from extensions.common.path_utils import setup_extension_paths
 from extensions.common.csv_schema import TabularFeatureExtractor, get_schema_info
 from extensions.common.model_utils import get_model_directory
 setup_extension_paths()
 
 
-class LightGBMAgent(SnakeAgent):
+class LightGBMAgent(BaseAgent):
     """
     LightGBM gradient boosting agent for Snake game.
     
     Design Pattern: Strategy Pattern
-    - Implements SnakeAgent interface
+    - Implements BaseAgent interface
     - Configurable hyperparameters
     - Standardized training and prediction
     """

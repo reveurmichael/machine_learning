@@ -27,7 +27,7 @@ Design Philosophy:
 - Extends BaseGameManager, BaseGameLogic, and BaseGameData
 - No GUI dependencies (headless by default)
 - Generates the same log format as Task-0 (game_N.json, summary.json)
-- Uses SnakeAgent protocol for clean integration
+- Uses BaseAgent protocol for clean integration
 - Demonstrates inheritance patterns for software evolution
 
 This extension demonstrates how future tasks can leverage the base classes

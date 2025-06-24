@@ -5,12 +5,12 @@ BFS Agent - Breadth-First Search pathfinding for Snake Game
 This module implements a simple BFS (Breadth-First Search) agent that finds
 the shortest path to the apple while avoiding walls and its own body.
 
-The agent implements the SnakeAgent protocol, making it compatible with
+The agent implements the BaseAgent protocol, making it compatible with
 the existing game engine infrastructure.
 
 Design Patterns:
 - Strategy Pattern: BFS algorithm encapsulated as a strategy
-- Protocol Pattern: Implements SnakeAgent interface for compatibility
+- Protocol Pattern: Implements BaseAgent interface for compatibility
 """
 
 from __future__ import annotations

@@ -259,7 +259,7 @@ def train_model(model_type: str, dataset_paths: List[str], output_dir: str,
 
 **Before**:
 ```python
-class MLPAgent(SnakeAgent):
+class MLPAgent(BaseAgent):
     def save_model(self, model_name: str, export_onnx: bool = True) -> str:
         metadata = {...}
         
@@ -276,7 +276,7 @@ class MLPAgent(SnakeAgent):
 
 **After**:
 ```python
-class MLPAgent(SnakeAgent):
+class MLPAgent(BaseAgent):
     def save_model(self, model_name: str, export_onnx: bool = True, 
                    extension_type: str = "supervised", version: str = "v0.02") -> str:
         metadata = {...}

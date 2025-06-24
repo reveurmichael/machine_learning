@@ -32,7 +32,7 @@ import json
 from colorama import Fore
 
 from core.game_manager import BaseGameManager
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 
 # Import heuristic-specific components
 from game_logic import HeuristicGameLogic
@@ -86,7 +86,7 @@ class HeuristicGameManager(BaseGameManager):
         self.verbose = getattr(args, "verbose", False)
 
         # Agent and logging
-        self.agent: Optional[SnakeAgent] = None
+        self.agent: Optional[BaseAgent] = None
         self.log_dir: Optional[str] = None
         self.session_start_time = datetime.now()
         self.game_steps: List[int] = []  # Track steps per game for efficiency metrics

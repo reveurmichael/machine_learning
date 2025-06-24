@@ -5,13 +5,13 @@ XGBoostAgent for Supervised Learning v0.02
 Implements an XGBoost-based agent for tabular data.
 Inherits from BaseAgent and provides train/predict interface.
 """
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 import xgboost as xgb
 import json
 from pathlib import Path
 from extensions.common.model_utils import get_model_directory
 
-class XGBoostAgent(SnakeAgent):
+class XGBoostAgent(BaseAgent):
     """
     XGBoost agent for tabular feature data.
     """

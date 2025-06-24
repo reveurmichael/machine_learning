@@ -20,7 +20,7 @@ import numpy as np
 from datetime import datetime
 from typing import Dict, Any
 
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 from extensions.common.path_utils import setup_extension_paths
 from extensions.common.csv_schema import TabularFeatureExtractor, get_schema_info
 from extensions.common.model_utils import save_model_standardized, load_model_standardized
@@ -90,12 +90,12 @@ class MLPModel(nn.Module):
         return self.layers(x)
 
 
-class MLPAgent(SnakeAgent):
+class MLPAgent(BaseAgent):
     """
     Multi-Layer Perceptron agent for Snake game.
     
     Design Pattern: Strategy Pattern
-    - Implements SnakeAgent interface
+    - Implements BaseAgent interface
     - Configurable model architecture
     - Standardized training and prediction
     """

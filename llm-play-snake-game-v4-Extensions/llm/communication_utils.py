@@ -17,7 +17,7 @@ As part of the SOLID refactor the coupling was removed:
 *   All other responsibilities (prompt construction, round management, timing
     of when to call the LLM, etc.) stay in higher-level orchestration classes
     such as :class:`core.game_loop.GameLoop` or the concrete
-    :class:`llm.agent_llm.LLMSnakeAgent`.
+    :class:`llm.agent_llm.SnakeAgent`.
 
 Consequences
 +----------

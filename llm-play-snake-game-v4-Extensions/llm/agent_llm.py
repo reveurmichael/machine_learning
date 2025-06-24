@@ -1,9 +1,9 @@
-"""Task-0 LLM agent (`LLMSnakeAgent`).
+"""Task-0 LLM agent (`SnakeAgent`).
 
 This module houses **all** heavy-weight communication with language models –
 prompt construction, dual-LLM parsing, disk logging, token/time statistics,
 continuation bookkeeping – and exposes it as a normal
-:pyclass:`core.game_agents.SnakeAgent` implementation.  Moving that logic out
+:pyclass:`core.game_agents.BaseAgent` implementation.  Moving that logic out
 of *core* achieves two design goals:
 
 1. **Pluggability** – The game loop now talks to an *agent* instead of a
@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, TYPE_CHECKING
 
-from core.game_agents import SnakeAgent
+from core.game_agents import BaseAgent
 from llm.client import LLMClient
 
 if TYPE_CHECKING:  # pragma: no cover – avoid runtime import cycle
@@ -32,7 +32,8 @@ if TYPE_CHECKING:  # pragma: no cover – avoid runtime import cycle
 # Public class
 # ---------------------
 
-class LLMSnakeAgent(SnakeAgent):
+
+class SnakeAgent(BaseAgent):
     """A pluggable agent that queries a large-language model for each move."""
 
     def __init__(
@@ -134,7 +135,7 @@ class LLMSnakeAgent(SnakeAgent):
             prompt: str = game.get_state_representation()  # type: ignore[attr-defined]
         except AttributeError as exc:  # pragma: no cover – dev error
             raise TypeError(
-                "LLMSnakeAgent expects a game object with 'get_state_representation()'"
+                "SnakeAgent expects a game object with 'get_state_representation()'"
             ) from exc
 
         response: str = self._client.generate_response(prompt, **self._gen_kwargs)
@@ -156,7 +157,7 @@ def _simple_parse(llm_response: str) -> str | None:
 
     Motivation
     ----------
-    ``LLMSnakeAgent`` is usually instantiated **with** a
+    ``SnakeAgent`` is usually instantiated **with** a
     :class:`core.game_manager.GameManager`, in which case the heavy parsing
     pipeline located in :pymod:`llm.communication_utils` runs and this helper
     is never touched.
@@ -164,13 +165,13 @@ def _simple_parse(llm_response: str) -> str | None:
     During *unit tests*, quick demos or in external notebooks developers often
     want to call the agent in complete isolation:
 
-    >>> agent = LLMSnakeAgent()                # no GameManager passed
+    >>> agent = SnakeAgent()                # no GameManager passed
     >>> move  = agent.get_move(minimal_game)  # minimal stub object
 
     Such a stub usually provides *only* ``get_state_representation()`` and
     not the full ``parse_llm_response()`` helper that Task-0ʼs
     :class:`core.game_logic.GameLogic` implements.  When that method is
-    missing ``LLMSnakeAgent`` drops down to ``_simple_parse`` so that we still
+    missing ``SnakeAgent`` drops down to ``_simple_parse`` so that we still
     obtain a **single** move instead of ``None`` – avoiding an EMPTY sentinel
     and keeping the test concise.
 

@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This planning document is subordinate to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Any conflicting guidance must follow the Final Decision documents.
+
 # Project Structure Plan – Extensions & Multi-Task Architecture
 
 *The definitive blueprint for building robust, extensible Snake AI – from heuristics to neural networks to LLM fine-tuning.*

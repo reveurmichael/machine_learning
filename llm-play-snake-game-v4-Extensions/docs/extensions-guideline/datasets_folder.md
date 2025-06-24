@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series (final-decision-0 → final-decision-10). If conflict arises, the Final Decisions prevail.
+
 ## VITAL: datasets folder naming/placement
 
 ✅ **DECISION FINALIZED**: Directory structure has been decided as per final-decision-1.md

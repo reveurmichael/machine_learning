@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This CSV schema guide is supplementary to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Any conflicts must be resolved in favor of the Final Decisions.
+
 Here's a clean, practical CSV schema for supervised learning on a 10x10 Snake game grid — balancing expressiveness, simplicity, and easy training:
 
 

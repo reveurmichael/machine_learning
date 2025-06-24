@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). In case of discrepancy, the Final Decision documents prevail.
+
 # Extensions v0.02 - Multi-Algorithm Expansion
 
 This document serves as the **definitive guideline** for implementing v0.02 extensions across different algorithm types. It demonstrates the evolution from single-algorithm v0.01 to multi-algorithm systems, showing natural software progression.

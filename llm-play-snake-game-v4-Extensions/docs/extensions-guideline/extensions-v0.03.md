@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Where conflicts exist, defer to the Final Decision documents.
+
 # Extensions v0.03 - Web Interface & Dataset Generation
 
 This document serves as the **definitive guideline** for implementing v0.03 extensions across different algorithm types. It demonstrates the evolution from CLI-only v0.02 to web-enabled systems with dataset generation capabilities.

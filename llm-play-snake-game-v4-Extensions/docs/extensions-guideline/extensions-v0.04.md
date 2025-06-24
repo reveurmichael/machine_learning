@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This document augments the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). If any statement here conflicts with the Final Decisions, the latter overrides.
+
 ## 🧩 General Overview
 
 **v0.04** focuses exclusively on **dataset generation with natural language explanations**, specifically for the **heuristics** family of Snake game agents.
@@ -41,7 +43,7 @@ Example data entries will include columns like:
 
 | step | head\_pos | apple\_pos | move  | reasoning\_sentence                                                                    |
 | ---- | --------- | ---------- | ----- | -------------------------------------------------------------------------------------- |
-| 14   | (3,4)     | (6,7)      | RIGHT | “The apple is to the upper-right, and RIGHT leads me closer while avoiding obstacles.” |
+| 14   | (3,4)     | (6,7)      | RIGHT | "The apple is to the upper-right, and RIGHT leads me closer while avoiding obstacles." |
 
 This forms the bridge from classic symbolic reasoning to neural policy learning.
 

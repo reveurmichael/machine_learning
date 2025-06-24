@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Any conflicting information must defer to those definitive documents.
+
 # Extensions v0.01 - Foundation & Proof of Concept
 
 This document serves as the **definitive guideline** for implementing v0.01 extensions across different algorithm types. It establishes the foundational patterns and principles that will be evolved in v0.02 and v0.03.

@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
+
 # Agents Architecture and Implementation Guide
 
 This document provides comprehensive guidelines for implementing and organizing AI agents across all Snake Game AI extensions, covering the progression from v0.01 to v0.04 versions.

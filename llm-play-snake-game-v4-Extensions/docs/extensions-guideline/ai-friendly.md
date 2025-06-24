@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). When conflicts arise, prefer the Final Decision documents.
+
 # AI-Friendly Development Guidelines
 
 This document outlines how the Snake Game AI project is designed to be AI development assistant-friendly, making it easier for AI tools to understand, navigate, and contribute to the codebase.

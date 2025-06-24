@@ -1,3 +1,5 @@
+> **Important — Authoritative Reference:** This utility guide complements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Conflicting details must defer to those Final Decisions.
+
 # CSV Schema Utilities for Snake Game Extensions
 
 This directory contains utilities for handling CSV datasets in the Snake game extensions. The implementation provides a flexible, grid-size-agnostic approach to feature extraction and data processing.

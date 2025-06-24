@@ -1,0 +1,2 @@
+mypy *.py
+mypy **/*.py

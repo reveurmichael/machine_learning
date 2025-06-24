@@ -1,23 +1,80 @@
-# Advanced Streamlit App Development for Extensions
+# Advanced Streamlit Architecture
 
-This document covers advanced Streamlit patterns, architectures, and best practices used in the Snake Game AI project's extension applications (v0.03+ versions).
+> **Important — Authoritative Reference:** This document supplements Final Decision 9 (Streamlit OOP Architecture).
 
-## 🎯 **Advanced Streamlit Architecture**
+## 🎯 **Script-Runner Philosophy**
 
-### **Multi-Tab Application Pattern**
-Extensions v0.03 use sophisticated tab-based interfaces to organize different functionalities:
+Following Final Decision 9, all v0.03+ extensions use **Object-Oriented Streamlit architecture** with the **script-runner philosophy**: launch scripts from the `scripts/` directory with user-configured parameters via `subprocess`.
 
+## 🧠 **What Streamlit Apps Are For**
 
-### VITAL
-TODO: MAKE SURE THIS IDEA IS SPREAD ACROSS OTHER DOC MD FILES AND DOCSTRINGS AND COMMENTS.
+### **✅ Streamlit Apps ARE for:**
+- User-friendly parameter configuration
+- Script launching with `subprocess`  
+- Results display and analysis
+- Dashboard organization
 
-streamlit app.py of streamlit is only for launching scripts in the folder "scripts", with 
-subprocess 
+### **❌ Streamlit Apps are NOT for:**
+- Real-time game visualization
+- Complex game state management
+- Direct algorithm implementation
 
-# IMPORTANT
-streamlit app.py is not for visualization of game states, is not for real time showing progress, is 
-not 
-for showing snake moves.
+## 🏗️ **OOP Architecture Requirements**
 
-It's main idea is to launch scripts in the folder "scripts" with adjustable params, with 
-subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in the first place.
+### **Base Class Pattern**
+```python
+from extensions.common.app_utils import BaseExtensionApp
+
+class AlgorithmApp(BaseExtensionApp):
+    def setup_page(self) -> None:
+        """Configure page settings and layout"""
+        pass
+    
+    def main(self) -> None:
+        """Main application logic - script launching interface"""
+        pass
+```
+
+### **Standard Tab Structure**
+```python
+def main(self):
+    tab1, tab2, tab3 = st.tabs([
+        "Run Algorithm",     # Primary functionality
+        "Generate Dataset",  # Data generation  
+        "Replay & Analysis"  # Results analysis
+    ])
+```
+
+## 🔧 **Script Integration**
+
+### **Standard Launching Pattern**
+```python
+import subprocess
+from extensions.common.path_utils import get_extension_path
+
+def launch_script(self, script_name: str, params: dict):
+    extension_path = get_extension_path(__file__)
+    script_path = extension_path / "scripts" / f"{script_name}.py"
+    
+    cmd = ["python", str(script_path)]
+    for key, value in params.items():
+        cmd.extend([f"--{key}", str(value)])
+    
+    return subprocess.run(cmd, capture_output=True, text=True)
+```
+
+## 🎨 **Benefits**
+
+### **Consistency**
+- Same interface patterns across all algorithm types
+- Predictable user experience
+- Standardized error handling
+
+### **Maintainability**  
+- Clear separation of concerns
+- Modular dashboard components
+- Reusable base class functionality
+
+---
+
+**This architecture ensures consistent, maintainable interfaces while maintaining the script-runner philosophy that keeps core functionality accessible via command line.**

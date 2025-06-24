@@ -1,102 +1,85 @@
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
+> **Important — Authoritative Reference:** This guide supplements Final Decision 4 (Agent Naming) and Final Decision 5 (Directory Structure). **For conflicts, Final Decisions prevail.**
 
 # Agent Implementation Standards
 
-This document provides guidelines for implementing AI agents across Snake Game AI extensions, following the standardized conventions established in Final Decision 4.
+This document establishes agent naming conventions and implementation patterns following the standardized architecture from Final Decision 4.
 
-## 🎯 **Agent Naming Philosophy**
+## 🎯 **Standardized Naming Convention**
 
-The agent architecture demonstrates natural software evolution from proof-of-concept to sophisticated multi-algorithm systems, with consistent naming throughout.
+**Philosophy**: Consistent naming enables predictable patterns across all extensions and algorithm types.
 
-### **Version Progression:**
-- **v0.01**: Single agent in extension root (proof-of-concept)
-- **v0.02**: Organized `agents/` package with multiple algorithms
-- **v0.03**: Enhanced with dashboard integration
-- **v0.04**: Advanced features with JSONL generation (heuristics only)
-
-### **Directory Structure Rules:**
-
-#### **v0.01 Structure (Proof-of-Concept)**
-- Agents go directly in: `./extensions/[Algorithm]-v0.01/`
-- Single-file implementations
-- Basic game integration
-
-#### **v0.02+ Structure (Multi-Algorithm)**
-- Agents go in: `./extensions/[Algorithm]-v0.0N/agents/`
-- Where N ≥ 2 (v0.02, v0.03, and for heuristics: v0.04)
-- Organized package structure with multiple agents
-
-### **Standardized Naming Convention**
-
-Following Final Decision 4, all agents use consistent naming:
-
-#### **File Naming Pattern**
+### **File and Class Naming (Final Decision 4)**
 ```python
-# ✅ REQUIRED PATTERN: agent_{algorithm}.py
-agent_bfs.py              # Breadth-First Search
-agent_astar.py            # A* pathfinding
-agent_hamiltonian.py      # Hamiltonian path algorithm
-agent_mlp.py              # Multi-Layer Perceptron
-agent_dqn.py              # Deep Q-Network
+# ✅ REQUIRED PATTERN: agent_{algorithm}.py → {Algorithm}Agent
+agent_bfs.py              → class BFSAgent(BaseAgent)
+agent_astar.py            → class AStarAgent(BaseAgent)  
+agent_hamiltonian.py      → class HamiltonianAgent(BaseAgent)
+agent_mlp.py              → class MLPAgent(BaseAgent)
+agent_dqn.py              → class DQNAgent(BaseAgent)
+agent_lora.py             → class LoRAAgent(BaseAgent)
 ```
 
-#### **Class Naming Pattern**
-```python
-# ✅ REQUIRED PATTERN: {Algorithm}Agent
-class BFSAgent(BaseAgent):              # from agent_bfs.py
-class AStarAgent(BaseAgent):            # from agent_astar.py
-class HamiltonianAgent(BaseAgent):      # from agent_hamiltonian.py
-class MLPAgent(BaseAgent):              # from agent_mlp.py
-class DQNAgent(BaseAgent):              # from agent_dqn.py
-```
-
-Note: For Task-0, the agent is named `SnakeAgent` (not `LLMSnakeAgent`) per Final Decision 10.
+**Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) per Final Decision 10.
 
 ## 🏗️ **Directory Structure Evolution**
 
-### **Version Progression (Final Decision 5):**
-- **v0.01**: Single agent in extension root (proof-of-concept)
-- **v0.02**: Organized `agents/` package with multiple algorithms
-- **v0.03**: Enhanced with dashboard integration (agents/ copied exactly from v0.02)
+Following Final Decision 5, agent placement evolves naturally:
 
-### **Directory Structure Rules:**
-
-#### **v0.01 Structure**
+### **v0.01: Proof of Concept**
 ```
 extensions/{algorithm}-v0.01/
-├── agent_{primary}.py             # Single algorithm implementation
-├── game_logic.py                  # Algorithm-specific logic
-└── game_manager.py                # Algorithm-specific manager
-```
-
-#### **v0.02+ Structure**
-```
-extensions/{algorithm}-v0.02/
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_{algo1}.py
-│   └── agent_{algo2}.py
+├── agent_{primary}.py             # Single algorithm in extension root
 ├── game_logic.py
 └── game_manager.py
 ```
 
-## 🧠 **Agent Implementation Standards**
+### **v0.02+: Multi-Algorithm**
+```
+extensions/{algorithm}-v0.02/
+├── agents/                        # Organized package structure
+│   ├── __init__.py               # Agent factory
+│   ├── agent_{algo1}.py
+│   ├── agent_{algo2}.py
+│   └── agent_{algo3}.py
+├── game_logic.py
+└── game_manager.py
+```
 
-### **Common Agent Protocol**
-All agents must extend BaseAgent from the core framework:
+### **v0.03: Dashboard Integration**
+- `agents/` directory **copied exactly** from v0.02
+- Enhanced with dashboard UI components
+- No changes to agent implementations
 
+### **v0.04: Advanced Features (Heuristics Only)**
+- `agents/` directory **unchanged** from v0.03
+- Enhanced with JSONL generation capabilities
+- Algorithm implementations remain stable
+
+## 🧠 **Design Patterns & Philosophy**
+
+### **Template Method Pattern**
+- **BaseAgent** defines common structure for all agents
+- Subclasses implement algorithm-specific logic
+- Ensures consistent interface across all extensions
+
+### **Strategy Pattern**
+- Each agent encapsulates a specific algorithm strategy
+- Pluggable into game managers via factory patterns
+- Isolated algorithm logic for maintainability
+
+### **Factory Pattern**
+- Centralized agent creation via factory classes
+- Dynamic agent selection by name/configuration
+- Consistent initialization across all agent types
+
+## 📋 **Implementation Standards**
+
+### **Required Agent Interface**
 ```python
 from core.game_agents import BaseAgent
 
 class HeuristicAgent(BaseAgent):
-    """
-    Base class for all heuristic agents
-    
-    Design Pattern: Template Method Pattern
-    - Defines common structure for all heuristic agents
-    - Subclasses implement specific algorithms
-    - Ensures consistent interface across all heuristics
-    """
+    """Algorithm-specific agent implementation"""
     
     def __init__(self, name: str, grid_size: int):
         super().__init__(name, grid_size)
@@ -107,50 +90,43 @@ class HeuristicAgent(BaseAgent):
         """Plan next move based on current game state"""
         pass
     
-    @abstractmethod
+    @abstractmethod 
     def reset(self) -> None:
         """Reset agent state for new game"""
         pass
 ```
 
-### **Design Philosophy**
-
-#### **Template Method Pattern**
-- Base classes define common structure
-- Subclasses implement algorithm-specific logic
-- Consistent error handling and logging across all agents
-
-#### **Strategy Pattern**
-- Each agent implements a specific algorithm strategy
-- Pluggable into game managers via factory patterns
-- Isolated algorithm logic for maintainability
-
-#### **Factory Pattern**
-- Centralized agent creation via factory classes
-- Dynamic agent selection by name
-- Consistent initialization across all agent types
+### **Agent Factory Pattern**
+```python
+# agents/__init__.py
+class AgentFactory:
+    """Factory for creating algorithm-specific agents"""
+    
+    @staticmethod
+    def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
+        """Create agent by algorithm name"""
+        # Dynamic agent creation based on standardized naming
+        pass
+```
 
 ## 🎯 **Benefits of Standardized Architecture**
 
-### **Educational Benefits**
-- **Clear Algorithm Separation**: Each agent represents one algorithm
-- **Progressive Complexity**: From simple BFS to complex RL
-- **Comparative Analysis**: Easy to compare different approaches
-- **Modular Learning**: Students can focus on specific algorithms
+### **Educational Value**
+- **Clear Algorithm Separation**: One algorithm per agent file
+- **Progressive Complexity**: From simple BFS to complex RL/LLM
+- **Comparative Analysis**: Easy comparison of different approaches
 
 ### **Technical Benefits**
 - **Consistent Interface**: All agents implement BaseAgent protocol
-- **Easy Extension**: New algorithms can be added easily
-- **Testable Components**: Each agent can be tested independently
-- **Performance Monitoring**: Built-in statistics and metrics
+- **Easy Extension**: New algorithms follow established patterns
+- **Testable Components**: Each agent independently testable
 
-### **Research Benefits**
-- **Algorithm Isolation**: Pure algorithm implementations
-- **Reproducible Results**: Consistent initialization and state management
-- **Extensible Framework**: Easy to add new agent types
-- **Comparative Studies**: Standardized evaluation metrics
+### **Cross-Extension Compatibility**
+- **Uniform Naming**: Same patterns across heuristics, ML, RL, LLM
+- **Version Stability**: Agent directory structure preserved across versions
+- **Factory Integration**: Consistent agent creation across all extensions
 
 ---
 
-**This agent architecture ensures consistent, extensible, and educational implementations across all Snake Game AI extensions while maintaining clear separation of concerns and supporting progressive learning from simple heuristics to complex machine learning approaches.**
+**This standardized architecture ensures educational value, technical consistency, and scalable agent development across all Snake Game AI extensions.**
 

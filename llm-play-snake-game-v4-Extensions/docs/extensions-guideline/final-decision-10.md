@@ -36,6 +36,8 @@ standalone.md
 round.md
 single-source-of-truth.md
 scripts.md
+vision-language-model.md
+project-structure-plan.md
 
 
 

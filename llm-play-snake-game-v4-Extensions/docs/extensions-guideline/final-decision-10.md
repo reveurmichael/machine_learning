@@ -51,7 +51,7 @@ Don't modify GOODFILES. They are the single source of truth. Now, according to G
 
 Now, do the TASK_DISCRIPTION_GOODFILES. For md files in the folder ./docs/extensions-guideline/ (excluding GOODFILES), don't produce a lot of code. Depending on the context, sometimes a little bit of code for the main idea is enough. Sometimes a bit more. On the contrary, the motivation, the design philosophy, the implications, the interconnection of the concept/classes/python files etc. text are more important for me. Each md should not be excessively long. If the ideas are clear enough, you can go for a relatively short md, targeting 300 lines; if there is a lot to discuss, you can go for a longer md, targeting 500 lines. Concise and elegance for most cases, long format for the more complex cases.
 
-So you basically have to rewrite those md files, most likely make them shorter and more concise, each of them, to make them coherent and with the objective of making the whole project elegant.
+So you basically have to rewrite those md files, most likely make them shorter and more concise, each of them, to make them coherent among each other and with the objective of making the whole project elegant.
 
 ## GO AHEAD AND NOW, DO IT.
 

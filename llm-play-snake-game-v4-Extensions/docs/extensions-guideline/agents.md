@@ -1,12 +1,12 @@
 > **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
 
-# Agents Architecture and Implementation Guide
+# Agent Implementation Standards
 
-This document provides guidelines for implementing AI agents across Snake Game AI extensions, following the progression from v0.01 to v0.04.
+This document provides guidelines for implementing AI agents across Snake Game AI extensions, following the standardized conventions established in Final Decision 4.
 
-## 🎯 **Agent Organization Philosophy**
+## 🎯 **Agent Naming Philosophy**
 
-The `agents/` folder structure demonstrates natural software evolution from proof-of-concept to sophisticated multi-algorithm systems.
+The agent architecture demonstrates natural software evolution from proof-of-concept to sophisticated multi-algorithm systems, with consistent naming throughout.
 
 ### **Version Progression:**
 - **v0.01**: Single agent in extension root (proof-of-concept)
@@ -32,7 +32,7 @@ Following Final Decision 4, all agents use consistent naming:
 
 #### **File Naming Pattern**
 ```python
-# ✅ STANDARDIZED: agent_{algorithm}.py
+# ✅ REQUIRED PATTERN: agent_{algorithm}.py
 agent_bfs.py              # Breadth-First Search
 agent_astar.py            # A* pathfinding
 agent_hamiltonian.py      # Hamiltonian path algorithm
@@ -42,7 +42,7 @@ agent_dqn.py              # Deep Q-Network
 
 #### **Class Naming Pattern**
 ```python
-# ✅ STANDARDIZED: {Algorithm}Agent
+# ✅ REQUIRED PATTERN: {Algorithm}Agent
 class BFSAgent(BaseAgent):              # from agent_bfs.py
 class AStarAgent(BaseAgent):            # from agent_astar.py
 class HamiltonianAgent(BaseAgent):      # from agent_hamiltonian.py
@@ -50,7 +50,37 @@ class MLPAgent(BaseAgent):              # from agent_mlp.py
 class DQNAgent(BaseAgent):              # from agent_dqn.py
 ```
 
-## 🏗️ **Agent Implementation Standards**
+Note: For Task-0, the agent is named `SnakeAgent` (not `LLMSnakeAgent`) per Final Decision 10.
+
+## 🏗️ **Directory Structure Evolution**
+
+### **Version Progression (Final Decision 5):**
+- **v0.01**: Single agent in extension root (proof-of-concept)
+- **v0.02**: Organized `agents/` package with multiple algorithms
+- **v0.03**: Enhanced with dashboard integration (agents/ copied exactly from v0.02)
+
+### **Directory Structure Rules:**
+
+#### **v0.01 Structure**
+```
+extensions/{algorithm}-v0.01/
+├── agent_{primary}.py             # Single algorithm implementation
+├── game_logic.py                  # Algorithm-specific logic
+└── game_manager.py                # Algorithm-specific manager
+```
+
+#### **v0.02+ Structure**
+```
+extensions/{algorithm}-v0.02/
+├── agents/
+│   ├── __init__.py               # Agent factory
+│   ├── agent_{algo1}.py
+│   └── agent_{algo2}.py
+├── game_logic.py
+└── game_manager.py
+```
+
+## 🧠 **Agent Implementation Standards**
 
 ### **Common Agent Protocol**
 All agents must extend BaseAgent from the core framework:
@@ -100,7 +130,7 @@ class HeuristicAgent(BaseAgent):
 - Dynamic agent selection by name
 - Consistent initialization across all agent types
 
-## 🎯 **Benefits of Agent Architecture**
+## 🎯 **Benefits of Standardized Architecture**
 
 ### **Educational Benefits**
 - **Clear Algorithm Separation**: Each agent represents one algorithm

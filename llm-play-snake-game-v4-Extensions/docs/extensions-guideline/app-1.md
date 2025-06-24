@@ -1,77 +1,53 @@
 # Streamlit App Path Management
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 6 on mandatory path management standards.
+> **Important — Authoritative Reference:** This document supplements Final Decision 6 (Path Management). **Path utilities are MANDATORY for all Streamlit apps.**
 
-## 🎯 **Path Management for Streamlit Apps**
+## 🎯 **Core Issue: Streamlit Path Challenges**
 
-All Streamlit applications in extensions **MUST** use the standardized path utilities from `extensions/common/path_utils.py` as established in Final Decision 6.
+Streamlit applications face unique path management challenges because Streamlit changes the working directory and Python path when launching applications, leading to common import failures.
 
-## 🚫 **Common Path Issues**
-
-### **Problem: Module Import Failures**
+## 🚫 **Common Failure Pattern**
 ```
 ModuleNotFoundError: No module named 'extensions'
 ```
 
-**Root Cause**: Streamlit changes working directory and Python path when launching applications.
+**Root Cause**: Streamlit's execution model modifies the Python environment, breaking relative imports and path assumptions.
 
-## ✅ **Mandatory Solution Pattern**
+## ✅ **Mandatory Solution: Use Path Utilities**
 
-### **Standard Path Setup**
+All Streamlit applications **MUST** use the standardized path utilities from Final Decision 6:
+
 ```python
-# REQUIRED at the top of all extension app.py files
-import sys
-import os
-from pathlib import Path
+# REQUIRED pattern for all extension app.py files
+from extensions.common.path_utils import ensure_project_root
 
-# Use common path utilities (Final Decision 6)
-from extensions.common.path_utils import ensure_project_root, get_extension_path
-
-def setup_streamlit_environment():
-    """
-    Standard setup for all Streamlit apps in extensions
-    
-    This function ensures:
-    - Working directory is project root
-    - Python path includes project root
-    - Extension paths are properly resolved
-    """
-    project_root = ensure_project_root()
-    extension_path = get_extension_path(__file__)
-    return project_root, extension_path
-
-# Call setup before any other imports
-project_root, extension_path = setup_streamlit_environment()
+# MANDATORY: Call before any other imports
+ensure_project_root()
 
 # Now safe to import project modules
 import streamlit as st
 from extensions.common.app_utils import BaseExtensionApp
 ```
 
-### **Benefits of Standardized Setup**
+## 🧠 **Benefits of Standardized Path Management**
 
-#### **Reliability**
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Environment Independent**: Same behavior in IDE, terminal, and containers
+### **Reliability**
+- **Cross-Platform**: Works consistently on Windows, macOS, and Linux
+- **Environment Independent**: Same behavior in IDE, terminal, containers
 - **Streamlit Compatible**: Handles Streamlit's working directory changes
 
-#### **Maintainability**
-- **Consistent Pattern**: Same setup across all extension apps
-- **Single Source**: Changes to path logic centralized in one location
-- **Error Prevention**: Eliminates path-related import failures
-
-#### **Development Experience**
+### **Development Experience**
 - **Predictable Behavior**: Apps launch reliably from any directory
+- **Error Prevention**: Eliminates path-related import failures
 - **Easy Debugging**: Clear working directory and path resolution
-- **IDE Integration**: Works with different IDE configurations
 
-## 🔧 **Implementation Guidelines**
+## 🔧 **Standard Implementation Pattern**
 
 ### **App Entry Point**
 ```python
 # extensions/{algorithm}-v0.03/app.py
 
-# MANDATORY: Path setup before imports
+# MANDATORY: Path setup first
 from extensions.common.path_utils import ensure_project_root
 ensure_project_root()
 
@@ -95,10 +71,8 @@ if __name__ == "__main__":
     AlgorithmApp()
 ```
 
-### **Script Launching**
+### **Script Launching with Proper Paths**
 ```python
-# Use proper path resolution for subprocess calls
-import subprocess
 from extensions.common.path_utils import get_extension_path
 
 extension_path = get_extension_path(__file__)
@@ -111,12 +85,13 @@ subprocess.run([
 ])
 ```
 
-## 📋 **Compliance Checklist**
+## 📋 **Compliance Requirements**
 
-- [ ] Does the app use `ensure_project_root()` before other imports?
-- [ ] Are all path operations using utilities from `extensions/common/path_utils.py`?
-- [ ] Does the app work when launched from any directory?
-- [ ] Are subprocess calls using properly resolved script paths?
+All extension Streamlit apps must:
+- [ ] Use `ensure_project_root()` before other imports
+- [ ] Use path utilities from `extensions/common/path_utils.py`
+- [ ] Work when launched from any directory
+- [ ] Use properly resolved paths for subprocess calls
 
 ---
 

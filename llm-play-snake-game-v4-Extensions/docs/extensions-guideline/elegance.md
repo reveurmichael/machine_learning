@@ -1,121 +1,157 @@
-# Elegance for Extension folder code
+# Code Elegance Guidelines for Extensions
 
-## 🧹 File Length & Organization
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series for extension development standards.
 
-* **Keep files focused and concise.** Aim for **≤ 300–400 lines** per Python file. If a file grows beyond this:
+## 🧹 **File Organization Philosophy**
 
-  * **Split by responsibility.** Group related functions, classes, or views into separate modules.
-  * **Use clear folder names** to convey intent. Common patterns include:
+### **File Length Standards**
+- **Target**: ≤ 300–400 lines per Python file
+- **Solution**: Split by responsibility when files grow beyond this limit
+- **Principle**: One concept per file
 
-    * `utils/` or `helpers/` — standalone functions and small utilities
-    * `services/` or `managers/` — business logic, data‐access layers, long‐running workflows
-    * `models/` — data schemas, domain objects, serializers
-    * `views/` or `controllers/` — HTTP endpoints, CLI commands, UI components
-    * `dashboard/`, `pages/`, `components/` — Streamlit or React pages and widgets
-    * `core/` — shared abstractions, base classes, essential infrastructure
-    * `tools/` — CLI or developer scripts
+### **Directory Organization**
+Following Final Decision 5 directory structure:
+```
+extensions/{algorithm}-v0.0N/
+├── agents/                 # Algorithm implementations (v0.02+)
+├── dashboard/              # UI components (v0.03+)
+├── scripts/                # CLI entry points (v0.03+)
+├── utils/                  # Extension-specific utilities
+└── core files              # game_logic.py, game_manager.py, etc.
+```
 
-* **One concept per file.**
-  A good heuristic: if you can describe the file’s purpose in a single sentence, it’s likely well scoped.
+### **Modular Boundaries**
+- **Clear Separation**: Business logic, data access, UI components
+- **Avoid Circular Imports**: Group interdependent code appropriately
+- **Clean APIs**: Re-export through `__init__.py` for external consumption
+- **Shared Utilities**: Use `extensions/common/` for cross-extension functionality
 
-* **Maintain explicit module boundaries.**
+## 🎨 **Naming Conventions**
 
-  * Avoid circular imports by grouping interdependent code in the same module.
-  * Re-export a clean API in `__init__.py` when exposing multiple submodules.
+### **Standardized Patterns (Final Decision 4)**
+```python
+# ✅ File naming
+agent_bfs.py              # Algorithm implementations
+game_logic.py             # Core extension files
+tab_main.py               # Dashboard components
 
-* **Name files after their main content.**
+# ✅ Class naming
+class BFSAgent(BaseAgent)        # Algorithm agents
+class HeuristicGameLogic         # Extension-specific classes
+class ConfigurationManager      # Utility classes
+```
 
-  * `path_utils.py` for path‐finding utilities
-  * `game_logic.py` for core game rules
-  * `dataset_writer.py` for CSV/JSONL export logic
+### **Consistency Rules**
+- **Classes**: `PascalCase` (e.g., `GameManager`, `BFSAgent`)
+- **Functions & Variables**: `snake_case` (e.g., `compute_path`, `max_steps`)
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_STEPS_ALLOWED`)
+- **No One-Letter Variables**: Except in very local loops
 
-* **Review periodically.**
-  When adding new features, revisit existing modules:
+## 📚 **Documentation Standards**
 
-  * Does new code belong there or in a new helper file?
-  * Can common patterns be abstracted into a shared utility?
-  * Really shared functions should go to the "./extensions/common/" folder (still, it should making the extension folder core ideas very very visible). Each extension plus the shared common folder should be regarded as standalone, hence no sharing code among extensions.
+### **Required Documentation**
+- **Modules**: Purpose and usage summary at top
+- **Classes**: Purpose, design patterns used, key methods
+- **Functions**: Arguments, return values, side effects, exceptions
+- **Design Patterns**: Explicit documentation of patterns used
 
+### **Docstring Quality**
+```python
+class PathfindingAgent(BaseAgent):
+    """
+    Base class for pathfinding algorithms in Snake game.
+    
+    Design Pattern: Template Method Pattern
+    - Defines common pathfinding structure
+    - Subclasses implement specific algorithms
+    - Ensures consistent interface across pathfinding variants
+    
+    Educational Note:
+    Demonstrates how different pathfinding algorithms can share
+    common infrastructure while implementing different strategies.
+    """
+```
 
-Here are several more **elegance guidelines** to complement your file‐length rules—tailored for extensions around Snake AI (LLM, ML, RL, heuristics):
+## 🔧 **Configuration Management**
+
+### **Follow Final Decision 2**
+```python
+# ✅ Universal constants (all tasks)
+from config.game_constants import VALID_MOVES, DIRECTIONS
+
+# ✅ Extension-specific constants
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+
+# ❌ Task-0 specific (forbidden in extensions)
+# from config.llm_constants import AVAILABLE_PROVIDERS
+```
+
+### **Centralized Settings**
+- Use `extensions/common/config/` for extension-specific configurations
+- Validate arguments early with clear error messages
+- Provide sensible defaults for all parameters
+
+## ⚙️ **Path Management**
+
+### **Mandatory Pattern (Final Decision 6)**
+```python
+# Required for all extensions
+from extensions.common.path_utils import (
+    ensure_project_root,
+    get_dataset_path,
+    get_model_path
+)
+
+# Standard setup
+project_root = ensure_project_root()
+```
+
+## 🚀 **Design Philosophy**
+
+### **No Backward Compatibility Burden**
+- **Future-Proof Mindset**: Fresh, modern approach
+- **No Deprecation**: Remove outdated code completely
+- **Clean Architecture**: No legacy considerations for extensions
+
+### **Educational Excellence**
+- **Pattern Documentation**: Explain why each design pattern is used
+- **Clear Examples**: Provide concrete usage examples
+- **Progressive Complexity**: From simple v0.01 to sophisticated v0.03
+
+### **OOP and SOLID Principles**
+- **Single Responsibility**: Each class has one clear purpose
+- **Open/Closed**: Open for extension, closed for modification
+- **Interface Segregation**: Clean, focused interfaces
+- **Dependency Inversion**: Depend on abstractions, not concretions
+
+## 📊 **Type Hints and Validation**
+
+### **Type Annotation Standards**
+- **Public APIs**: Always type-hinted
+- **Internal Functions**: Type-hint where beneficial
+- **Avoid Over-Annotation**: Only where you're certain of types
+- **Use Union Types**: For parameters accepting multiple types
+
+### **Input Validation**
+```python
+def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
+    """Create agent with proper validation"""
+    if grid_size < 8 or grid_size > 20:
+        raise ValueError(f"Grid size must be 8-20, got {grid_size}")
+    
+    if algorithm not in SUPPORTED_ALGORITHMS:
+        raise ValueError(f"Unknown algorithm: {algorithm}")
+```
+
+## 🔍 **Code Quality Tools**
+
+### **Linting and Formatting**
+- **PEP8 Compliance**: Use linters like `flake8`, `pylint`
+- **Line Length**: 88 characters (Black default)
+- **Import Organization**: Standard library, third-party, local imports
+- **Trailing Whitespace**: Remove consistently
 
 ---
 
-## 🎨 Naming & Style
-
-* **Consistent naming**
-
-  * Agents: should be agent_blabla.py, or, simply blabla.py, depending on the scenarios 
-  * **Classes**: `PascalCase` (e.g. `BFSAgent`, `GameManager`)
-  * **Functions & variables**: `snake_case` (e.g. `compute_path`, `max_steps`)
-  * **Constants**: `UPPER_SNAKE_CASE` 
-
-* **PEP8 compliance**
-
-  * Use a linter (e.g. `flake8`, `pylint`) as a pre-commit hook
-  * Trim trailing whitespace, enforce 88-character line length (Black defaults), consistent indentation
-* **Descriptive names**
-
-  * Avoid one-letter variables (except in very local loops)
-  * Name modules by responsibility, e.g. `heuristic_utils.py`, `replay_engine.py`
-
----
-
-## 📚 Documentation & Typing
-
-* **Docstrings everywhere**
-
-  * **Modules**: short summary at top
-  * **Classes**: explain purpose and usage, list important methods
-  * **Functions**: describe arguments, return values, side effects, exceptions
-  * Follow [Google](https://google.github.io/styleguide/pyguide.html#383-functions-and-methods) or NumPy style consistently
-* **Type annotations**
-
-  * Annotate public APIs: class methods, major functions
-  * Use `typing` for clarity (`List[Tuple[int,int]]`, `Dict[str, Any]`)
-* **README updates**
-
-  * Each extension folder gets a `README.md` (IMPORTANT:for v0.01 it should be short can concise, for v0.02 a bit longer and v0.03 even longer) with high-level description, and example usage
-
----
-
-## 🧩 Modularity & Dependency Management
-
-* **Clear separation**
-
-  * Core logic, data I/O, training scripts, UI should live in distinct modules
-* **Minimal direct imports**
-
-  * Avoid deep import chains—have a single `extensions/common/` for shared utilities
-
-
----
-
-
-## ⚙️ Configuration & CLI
-
-* **Centralized config**
-
-  * Use `config/*.yaml` or `pydantic` settings class, not hard-coded constants
-* **User-friendly CLI**
-
-  * Use `argparse` or `click` with clear help text
-  * Validate arguments early (e.g. grid size bounds)
-
----
-
-## No Need for Backward compatibility
-
-
-We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions.
----
-
-By following these principles—together with your file-length and folder guidelines—you’ll create an **elegant**, **maintainable**, and **scalable** extensions ecosystem for your Snake AI platform.
-
-
-## Logger : IMPORTANT: WE DON'T USE LOGGER YET. AND I DON'T  PLAN TO DO THAT YET.
-
-VITAL: WE DON'T USE LOGGER YET. AND I DON'T  PLAN TO DO THAT YET.
-
-We don't use Logger in this whole project yet. So, no worries. Maybe someday I will do it.
+**These elegance guidelines ensure maintainable, educational, and scalable extension development while following the architectural decisions established in the Final Decision Series.**
 

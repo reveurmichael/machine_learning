@@ -23,7 +23,7 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 **Key design rules**  (see `project-structure-plan.md`):
 1. Every dataset lives under `logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/` – never mix grid sizes. Structure follows final-decision-1.md with clear separation of game_logs/ and processed_data/ folders.
 2. `extensions/common/` holds *all* shared helpers; extensions must **not** import each other.
-3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks. VITAL: THIS IS VERY IMPORTANT. I WANT THOSE FILES TO BE SHARED TO A LOT OF DIFFERENT PEOPLE WITH DIFFERENT OPERATING SYSTEMS. AND I WANT THEM TO BE TIME-PROOF, HENCE STILL USABLE IN THE FUTURE, AT LEAST OF THE NEXT 10 YEARS.
+3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks. 
 
 
 ---
@@ -68,9 +68,6 @@ python -m extensions.supervised_v0_02.training.train_neural \
 ```
 
 ### 3.2 What happens under the hood?
-
-TODO: things are not decided yet. We will have to discuss this. After the discussion, we will have to update this documentation. After the discussion, things will be fixed, and we will really enforce the naming conventions, not by our brain memory, but by the code (validation, etc.), as well as by documentions everywhere in the codebase.
-
  
 1. `DatasetLoader` – handles train/val/test split (default 60/20/20), one-hot encodes moves.
 2. `agent_mlp.MLPAgent` – simple 3-layer feed-forward **(input size = 16 engineered features)**.
@@ -131,8 +128,7 @@ python -m extensions.supervised_v0_03.scripts.replay_web --model logs/extensions
 
 ## 6. We are not finished yet.
 
-* **LightGBM / XGBoost** trainer script – tabular CSV already compatible. # TODO: make sure.
-* **Cross-grid generalisation** study: train on 8×8, test on 12×12. # TODO: so this is curriculum learning? 
+* **Cross-grid generalisation** study: train on 8×8, test on 12×12. So this is curriculum learning? 
 
 ---
 

@@ -24,9 +24,6 @@ heuristics logs
                      fine-tune LLM  (Task-4)
 ```
 
-Breaking the CSV or JSONL schema will ripple into **three** other tasks – keep
-backwards compatibility inside the `logs/extensions/datasets/grid-size-N/`
-hierarchy.
 
 ## 3. Coding guidelines for heuristic extensions
 
@@ -46,5 +43,3 @@ reflected back into the heuristic → CSV converter so the contract remains
 synchronised.
 
 ---
-
-*Last updated : 2025-06-23* 

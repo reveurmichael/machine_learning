@@ -20,8 +20,6 @@ Gymnasium is the maintained successor to OpenAI Gym, providing a standardized AP
 | **A3C** | ✅ Direct integration | ✅ Gym environment | Distributed training |
 | **SAC** | ✅ Direct integration | ✅ Gym environment | Continuous control adaptation |
 
-## 🏗️ **Architecture Design**
-
 ---
 
 **Gymnasium integration provides a standardized interface for reinforcement learning algorithms while maintaining compatibility with the native Snake Game components, enabling seamless integration with popular RL libraries and frameworks.**

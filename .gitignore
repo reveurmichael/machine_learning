@@ -51,6 +51,8 @@ config.yml
 .mypy_cache/
 **/.mypy_cache/*
 **/.mypy_cache/**
+**/.pytest_cache/**
+.pytest_cache/**
 .ruff_cache
 **/.ruff_cache/*
 **/.ruff_cache/**

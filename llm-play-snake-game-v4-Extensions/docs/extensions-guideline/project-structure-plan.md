@@ -2,13 +2,9 @@
 
 # Project Structure Plan – Extensions & Multi-Task Architecture
 
-*The definitive blueprint for building robust, extensible Snake AI – from heuristics to neural networks to LLM fine-tuning.*
+This document provides the blueprint for building robust, extensible Snake AI extensions from heuristics to neural networks to LLM fine-tuning.
 
-> This document covers v0.02+. For heuristics-v0.04, it builds upon v0.03 principles with JSONL trajectory generation for LLM fine-tuning.
-
----
-
-## 🎯 Core Philosophy: First-Citizen vs Second-Citizen
+## 🎯 **Core Philosophy: First-Citizen vs Second-Citizen**
 
 **Guiding Principle: "Task-0 first, everything else second."**
 
@@ -18,9 +14,7 @@
 
 3. **Dependency Direction**: Second-citizens extend Task-0's base classes but Task-0 remains completely unaware of their existence.
 
----
-
-## 🎮 Task Overview & Data Flow
+## 🎮 **Task Overview & Data Flow**
 
 | Task | Role | Key Output | Feeds Into |
 |------|------|------------|------------|
@@ -36,9 +30,7 @@
 - **Task 2** trains on heuristics CSV datasets
 - **Task 3** can use heuristics for curriculum learning
 
----
-
-## 📁 Repository Architecture
+## 📁 **Repository Architecture**
 
 ```
 ROOT/
@@ -70,13 +62,11 @@ ROOT/
 └── logs/                    # 📊 Data & artifacts
     ├── [task-0-sessions]/  # First-citizen logs  
     └── extensions/         # Second-citizen outputs
-        ├── datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/    # 📁 Training data
-└── models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/      # 🏗️ Trained models
+        ├── datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/
+        └── models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/
 ```
 
----
-
-## 🏗️ Mandatory Extension Components
+## 🏗️ **Mandatory Extension Components**
 
 Every standalone extension (v0.02+) **must** include:
 
@@ -93,33 +83,28 @@ Every standalone extension (v0.02+) **must** include:
 - **v0.03**: Web dashboards (`dashboard/`, `scripts/`)
 - **v0.04**: JSONL generation (*heuristics only*)
 
----
+## 🔄 **Data Lineage & Storage**
 
-## 🔄 Data Lineage & Storage
-
-### 📂 Standardized Paths
-
+### **Standardized Paths**
 ```
 logs/extensions/
 ├── datasets/grid-size-N/           # 📊 Training datasets  
-│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv       # Heuristics → Supervised
-│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz   # Time-series data
-│   └── heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl # Heuristics v0.04 → LLM tasks
+│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv
+│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz
+│   └── heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl
 │
-├── models/grid-size-N/             # 🧠 Trained models
-│   ├── pytorch/                    # Neural networks
-│   ├── lightgbm/                   # Tree models  
-└── └── transformers/               # Fine-tuned LLMs
-
+└── models/grid-size-N/             # 🧠 Trained models
+    ├── pytorch/                    # Neural networks
+    ├── lightgbm/                   # Tree models  
+    └── transformers/               # Fine-tuned LLMs
 ```
 
-### 🔗 Critical Dependencies
-
+### **Critical Dependencies**
 **heuristics-v0.04** → **JSONL trajectories** → **Task 4 & 5**
+
 
 Without heuristics-v0.04 JSONL output, Task 4 (LLM fine-tuning) and Task 5 (distillation) cannot begin. This creates a clear dependency chain that ensures data quality and consistency.
 
----
 
 ## 🎯 Extension Deep Dive
 
@@ -153,12 +138,9 @@ Without heuristics-v0.04 JSONL output, Task 4 (LLM fine-tuning) and Task 5 (dist
 **Loss**: α·CrossEntropy + β·KL divergence
 **Output**: Deployment-ready compressed models
 
----
-
-## 🎨 Multi-Modal Interface Strategy
+## 🎨 **Multi-Modal Interface Strategy**
 
 Each extension provides **two presentation layers**:
-
 
 1. **Flask Blueprint** → Integration with main web interface  
 2. **PyGame** (`gui_*.py`) → Desktop visualization with overlays
@@ -167,36 +149,32 @@ Each extension provides **two presentation layers**:
 - `--use-gui` (default): Real-time PyGame rendering
 - `--no-gui`: Headless mode for high-speed training/dataset generation
 
----
+## 🔧 **Technical Standards**
 
-## 🔧 Technical Standards
-
-### Architecture Patterns
+### **Architecture Patterns**
 - **SOLID principles** throughout
 - **Base classes** in `core/` extended by second-citizens
 - **Factory pattern** for agent creation
 - **Observer pattern** for GUI updates
 - **Singleton pattern** for file managers
 
-### Code Quality
+### **Code Quality**
 - **Python 3.10+** with type hints
 - **Black** formatting, **Ruff** linting, **Mypy** type checking
 - **Comprehensive docstrings** explaining design patterns used
 
-### Sentinel Values
-- **`EMPTY`**: Task-0 only (LLM parsing failures? Maybe something else? #TODO: check this. I forgot about what this is for. )
-- **`SOMETHING_IS_WRONG`**: Task-0 only (#TODO: check this. I forgot about what this is for. )
+### **Sentinel Values**
+- **`EMPTY`**: Task-0 only (LLM parsing failures)
+- **`SOMETHING_IS_WRONG`**: Task-0 only
 - **`INVALID_REVERSALS`**: Shared across all tasks
-- **`NO_PATH_FOUND`**: Task-0 LLM tells us that there is no path found. Or, in the case of heuristics, the heuristics tells us that there is no path found.
+- **`NO_PATH_FOUND`**: Shared across all tasks. E.g. Task-0 LLM tells us that there is no path found. Or, in the case of heuristics, the heuristics tells us that there is no path found.
 
----
-
-## 📋 Success Criteria
+## 📋 **Success Criteria**
 
 ✅ **Architectural Integrity**: Task-0 never breaks due to extension changes  
 ✅ **Data Quality**: Grid-size aware storage, proper metadata  
 ✅ **Interface Consistency**: All extensions follow component requirements  
-✅ **Educational Value**: Rich docstrings demonstrating design patterns  
+✅ **Educational Value**: Rich docstrings demonstrating design patterns
 
 ---
 

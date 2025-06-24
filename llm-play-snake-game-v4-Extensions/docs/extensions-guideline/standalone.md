@@ -19,6 +19,78 @@ The standalone principle is fundamental to the Snake Game AI extension architect
 - **Learning Progression**: Students can study extensions in isolation
 - **Research Isolation**: Experimental features remain contained
 
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
+
+# The Standalone Principle
+
+## 🎯 **Core Philosophy: The Golden Rule of Modularity**
+
+This document defines the single most important architectural principle for extensions: the **Standalone Principle**. It is a non-negotiable rule that governs the entire `extensions/` directory and ensures that the project remains modular, maintainable, and educational.
+
+> **The Golden Rule:**
+> **An extension directory, when combined with the `extensions/common/` directory, must be a completely self-contained, standalone unit.**
+
+This means you should be able to delete all other extension folders, and the remaining extension would still function perfectly.
+
+## 🚧 **Defining the Boundary**
+
+Think of each extension as being inside a protective "bubble." The only things allowed to cross into this bubble are dependencies on the **core framework** and the shared **common utilities**.
+
+## 🚫 **Forbidden vs. ✅ Allowed Imports**
+
+This principle translates into a very clear set of rules about what an extension can and cannot import.
+
+### **Absolutely Forbidden**
+
+An extension **must never** import code from another extension. This is the most critical rule.
+
+```python
+# ❌ COMPLETELY FORBIDDEN IN: extensions/supervised-v0.02/main.py
+
+# Cannot import from another extension type
+from extensions.heuristics_v0_03.agents import BFSAgent
+
+# Cannot import from a different version of the same extension
+from extensions.supervised_v0_01.models import OldMLPAgent
+
+# Cannot import from a sibling extension, no matter how helpful
+from extensions.reinforcement_v0_01 import DQNAgent
+```
+
+### **Perfectly Allowed**
+
+An extension is **expected** to import from the core framework and the common utilities.
+
+```python
+# ✅ PERFECTLY ALLOWED IN: extensions/supervised-v0.02/main.py
+
+# Import the foundational base classes
+from core.game_manager import BaseGameManager
+from core.game_data import BaseGameData
+
+# Import the shared utility belt
+from extensions.common.path_utils import ensure_project_root
+from extensions.common.dataset_utils import load_heuristic_dataset
+```
+
+## 🧰 **The Role of the `extensions/common/` Directory**
+
+The `common/` directory is designed to support the Standalone Principle, not violate it. It is a **shared utility belt**, not a shared brain.
+
+*   **It provides TOOLS, not CONCEPTS.** `common/` contains helper functions for paths, file I/O, data validation, and other tasks that are conceptually neutral.
+*   **It has no algorithmic knowledge.** The `common/` directory knows nothing about BFS, A*, DQN, or neural networks. It only knows how to handle common data structures and files.
+*   **It reduces boilerplate, not thinking.** Using `common/` prevents you from rewriting the same `ensure_project_root()` function in every extension, but it does not provide the core logic for your extension.
+
+By centralizing these non-essential utilities, the `common/` directory allows each extension's code to focus purely on what makes it unique: its algorithms and its approach to solving the Snake game.
+
+---
+
+> **Adherence to the Standalone Principle is what makes our project scalable and understandable. It allows for independent development, isolated testing, and clear conceptual separation, which are essential for long-term success.**
+
+# Standalone Extension Architecture
+
+This document provides guidelines for implementing the standalone principle across all extensions in the Snake Game AI project, ensuring modularity, independence, and clear conceptual boundaries.
+
 ## 🏗️ **Architecture Overview**
 
 ### **Standalone Units**

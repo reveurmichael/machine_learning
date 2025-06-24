@@ -1,16 +1,50 @@
-# Naming Conventions – First-Citizen vs Second-Citizen
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
 
-This document is the *single, authoritative* reference for how every class,
-function, The goal is to keep the codebase discoverable, avoid circular dependencies and
-protect Task-0 as the first-citizen of the repository.
+# Naming Conventions
 
-VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
+## 🎯 **Core Philosophy: Names as Contracts**
 
-IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
+In this project, names are not arbitrary labels; they are contracts. A well-chosen name tells a developer (or an AI assistant) what a component is, where it belongs, and how it should be used.
 
+Our naming conventions are designed to enforce:
+*   **Clarity:** The purpose of a file or class should be obvious from its name.
+*   **Consistency:** The same patterns are used everywhere, making the codebase predictable.
+*   **Automation:** Consistent names allow us to build reliable automated tools for code generation, analysis, and refactoring.
 
+## 📋 **The Rules: A Quick Reference Guide**
 
----
+This table provides the mandatory naming conventions for the entire project.
+
+| Category               | Pattern                                        | Example(s)                                   |
+| ---------------------- | ---------------------------------------------- | -------------------------------------------- |
+| **File: Agents**       | `agent_{algorithm_name}.py`                    | `agent_bfs.py`, `agent_dqn.py`               |
+| **File: Game Engine**  | `game_{component}.py`                          | `game_logic.py`, `game_manager.py`           |
+| **File: Utilities**    | `{purpose}_utils.py`                           | `path_utils.py`, `dataset_utils.py`          |
+| **Class: Base**        | `Base{ConceptName}`                            | `BaseGameManager`, `BaseAgent`               |
+| **Class: Task-0**      | `{ConceptName}` (No prefix)                    | `GameManager`, `GameLogic`                   |
+| **Class: Extension**   | `{ExtensionType}{ConceptName}`                 | `HeuristicGameManager`, `RLGameLogic`        |
+| **Class: Agent**       | `{AlgorithmName}Agent`                         | `BFSAgent`, `DQNAgent`, `AStarAgent`         |
+| **Variables/Functions**| `snake_case`                                   | `current_score`, `calculate_next_move()`     |
+| **Constants**          | `UPPER_SNAKE_CASE`                             | `MAX_STEPS`, `GRID_SIZE`                     |
+| **Booleans**           | `is_`, `has_`, `use_` + `snake_case`             | `is_game_over`, `has_path`, `use_gui`        |
+| **Private/Internal**   | `_{leading_underscore}`                        | `_internal_state`, `_calculate_risk()`       |
+
+## 🚫 **Common Anti-Patterns to Avoid**
+
+Violating these patterns introduces confusion and inconsistency. The following are strictly forbidden.
+
+#### **1. Confusing `Base` and `Task-0` Classes**
+An extension must inherit from the `Base` class, never the concrete `Task-0` class.
+```python
+# ❌ INCORRECT: Inherits from the Task-0 implementation
+class HeuristicGameManager(GameManager):
+    pass
+
+# ✅ CORRECT: Inherits from the abstract Base class
+class HeuristicGameManager(BaseGameManager):
+    pass
+```
+
 
 ## 1 Guiding Principles
 
@@ -73,45 +107,7 @@ without implying it is abstract-only.
   memory intact: pressing the *same* hotkeys in an IDE jumps to equivalent
   modules regardless of task.
 
----
 
-## 4 Web MVC Layer (specific)
-
-```
-BaseWebController
-├── BaseGamePlayController   – common gameplay behaviour
-│   ├── GamePlayController    – Task-0 LLM game
-│   └── HumanGameController   – Task-0 human game
-└── BaseGameViewingController – common viewer behaviour
-    └── ReplayController      – Task-0 replay viewer
-```
-
-Extensions will add e.g. `HeuristicGamePlayController` under their own
-sub-package and inherit from the *Base* classes above.
-
-### Why not merge the controllers?
-
-Because gameplay vs. viewing differs fundamentally in **write-access** to the
-game state. Conflating them would invite subtle bugs where a replay endpoint
-mutates live state or an RL agent pauses the global Flask app. Separate bases
-give each concern its own guard-rails.
-
----
-
-## 5 Factory Registry Keys
-
-The `ControllerFactory` maps simple slug strings to classes:
-
-```python
-_controller_registry = {
-    'game': GamePlayController,      # Task-0 default gameplay
-    'human_game': HumanGameController,
-    'replay': ReplayController,
-    # extensions register their own: 'heuristic_game', 'rl_game', …
-}
-```
-
----
 
 ## 7 Constants (ALL_CAPS)
 
@@ -178,38 +174,44 @@ Additional gotchas:
 
 * **`import core.game_loop as gl`** – Alias imports obscure greps; import the
   symbol you need (`from core.game_loop import run_game_loop`). We should never do this alias imports, it will be so confusing.
-* **Prefix-drift** – Once you commit to `BaseFoo` do *not* later rename it to
-  `FooBase`; in extensions, classes for agents should be named either all like `AgentFoo`, `AgentBar`, or all like `FooAgent`, `BarAgent`, etc. consistency beats perceived elegance. # TODO: check this. Also, in the final version, we will have to enforce a global naming convention, at that moment drifting will be allowed, but just be careful, and just for the final version. Currently, what we adopt is, in extensions (and then in the "agents" folder, for v0.02+), the python file name is agent_bar.py, agent_foo.py, etc. and the class name is BarAgent, FooAgent, etc. It can be good, or bad. To decide before the final version.
 
----
 
-## 12 Quick-Reference Cheatsheet
-
+#### **2. Inconsistent Agent Naming**
+Agent classes are always `{AlgorithmName}Agent`.
 ```python
-# Good
-class BaseReplayEngine: ...
-class ReplayEngine(BaseReplayEngine):  # Task-0 concrete
+# ❌ INCORRECT: Inconsistent naming
+class AgentBFS(BaseAgent): pass
+class AStar_Agent(BaseAgent): pass
 
-class HeuristicReplayEngine(BaseReplayEngine):  # extension-specific
-    pass
-
-# Bad – violates naming & dependency rules
-class RLReplayEngine(ReplayEngine):  # ❌ depends on Task-0 concrete
-    pass
-
-# Good constant location
-from config.game_constants import MAX_STEPS_ALLOWED
-
-# Bad – local magic number replicates constant
-MAX_STEPS = 500  # ❌ duplicate single-source-of-truth
+# ✅ CORRECT: Follows the standard
+class BFSAgent(BaseAgent): pass
+class AStarAgent(BaseAgent): pass
 ```
 
-**Remember** – names are a *public API* for future you. Choose clarity over
-brevity when the intent is not obvious.
+#### **3. Polluting the Global Namespace**
+Extension-specific concepts should be named accordingly and live within the extension.
+```python
+# ❌ INCORRECT: A heuristic-specific concept with a generic name
+class PathFinder: # This name is too generic for an extension
+    pass
+
+# ✅ CORRECT: The name clearly states its origin and purpose
+class HeuristicPathFinder:
+    pass
+```
+
+#### **4. Redundant or Vague Naming**
+Names should be concise but descriptive. Avoid placeholder words like `Impl`, `Handler`, or `Manager` when a more specific term exists.
+```python
+# ❌ INCORRECT: Redundant and vague
+class DataManagerHandler: pass
+class ReplayEngineImpl: pass
+
+# ✅ CORRECT: Concise and specific
+class FileManager: pass
+class ReplayEngine: pass
+```
 
 ---
 
-*When in doubt, open this file and follow the examples.  Consistency beats
-creativity in names!*
-
----
+> **These naming conventions are a pillar of our project's clarity. Adhering to them is not optional; it is a fundamental part of writing clean, professional code.**

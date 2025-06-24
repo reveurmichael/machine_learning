@@ -1,41 +1,185 @@
 > **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). In case of discrepancy, the Final Decision documents prevail.
 
-# Extensions v0.02 - Multi-Algorithm Expansion
+# Extensions v0.02: The Expansion Phase
 
-This document serves as the **definitive guideline** for implementing v0.02 extensions across different algorithm types. It demonstrates the evolution from single-algorithm v0.01 to multi-algorithm systems, showing natural software progression.
+## 🎯 **Core Philosophy: From Proof of Concept to a Multi-Algorithm System**
 
-In v0.02, there is no CSV dataset generation capability, for whichever algorithm type.
+The `v0.02` extension represents the natural evolution from a minimalist proof of concept (`v0.01`) to a more robust and practical system. Its primary purpose is to demonstrate how a single-algorithm extension can mature to **support a diverse suite of comparable algorithms** within the same domain.
 
+This version introduces organizational structure and dynamic selection, transforming a simple script into a versatile command-line tool. It answers the question:
 
+> "How does our architecture scale from one solution to many?"
 
+## 🏗️ **Architectural Upgrade: Structure and Selection**
 
-## 🎯 **Core Philosophy: Algorithm Diversity & Progression**
+A `v0.02` extension introduces two fundamental architectural upgrades, as defined in `final-decision-5.md`.
 
-v0.02 builds upon v0.01's foundation to demonstrate:
-- **Natural software evolution**: From proof-of-concept to production-ready systems
-- **Multi-algorithm support**: Multiple approaches within each domain
-- **Inheritance patterns**: How algorithms can extend and improve upon each other
-- **Performance comparison**: Benchmarking different approaches
+### **1. The `agents/` Directory: An Organized Home for Agents**
 
-## 🔧 **Heuristics v0.02 - Multi-Algorithm Suite**
+All agent-related code is moved from the root of the extension into a new, dedicated `agents/` directory. This cleans up the top-level directory and establishes a clear, organized location for all algorithm implementations.
 
-### **Location:** `./extensions/heuristics-v0.02`
+### **2. The `--algorithm` Flag: Enabling Dynamic Selection**
 
-### **Key Evolution from v0.01:**
-- **Single BFS** → **7 different algorithms**
-- **No arguments** → **`--algorithm` argument with choices**
-- **Simple structure** → **Organized agents folder**
+The entry point, `main.py`, is enhanced to become a true command-line tool. It **must** accept an `--algorithm` argument, allowing the user to dynamically select which agent to run from the command line.
 
-### **Algorithm Portfolio:**
+### **Updated Directory Structure**
 ```
-./extensions/heuristics-v0.02/agents/
-├── agent_bfs.py                # Pure BFS (same as v0.01)
-├── agent_bfs_safe_greedy.py    # BFS + safety heuristics
-├── agent_bfs_hamiltonian.py    # BFS + Hamiltonian path concepts
-├── agent_dfs.py                # Depth-First Search
-├── agent_astar.py              # A* pathfinding
-├── agent_astar_hamiltonian.py  # A* + Hamiltonian optimization
-└── agent_hamiltonian.py        # Pure Hamiltonian path algorithm
+extensions/{algorithm_type}-v0.02/
+├── __init__.py
+├── README.md
+├── agents/                  # 👈 NEW: All agent code now lives here
+│   ├── __init__.py          # Contains the Agent Factory
+│   ├── agent_{algo1}.py
+│   └── agent_{algo2}.py
+├── game_data.py             # 👈 NEW: Often added to handle more detailed stats
+├── game_logic.py
+├── game_manager.py
+└── main.py                  # 👈 ENHANCED: Now accepts `--algorithm` flag
+```
+
+## 🔧 **The Core Mechanism: The Agent Factory**
+
+To power the `--algorithm` flag, a `v0.02` extension **must** implement an **Agent Factory**. This is the single most important pattern in this version.
+
+The factory is a simple class, typically located in `agents/__init__.py`, that maps string names to agent classes.
+
+```python
+# extensions/heuristics-v0.02/agents/__init__.py
+
+from .agent_bfs import BFSAgent
+from .agent_astar import AStarAgent
+from .agent_dfs import DFSAgent
+
+class HeuristicAgentFactory:
+    """A factory to create heuristic agent instances from a string name."""
+
+    _agent_registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
+    }
+
+    @classmethod
+    def create_agent(cls, algorithm_name: str, **kwargs) -> BaseAgent:
+        """Looks up the algorithm name and returns an instance of the class."""
+        agent_class = cls._agent_registry.get(algorithm_name.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm_name}")
+        return agent_class(**kwargs)
+
+# The GameManager can now use this factory to create the correct agent
+# based on the --algorithm command-line argument.
+```
+
+## 🚀 **A Stable Foundation for the Future**
+
+A key principle of the `v0.02` to `v0.03` evolution is **stability**. The `agents/` folder, including its factory, is considered a stable and complete unit. When moving to `v0.03`, this entire folder should be **copied exactly as-is**.
+
+This demonstrates a powerful software engineering principle: the core logic (the agents) can be finalized and then built upon with new interfaces (like a web UI in `v0.03`) without modification.
+
+## 📋 **Compliance Checklist: The Definition of Done**
+
+A `v0.02` extension is considered complete and successful if it meets these criteria:
+
+- [ ] Has all agent code been moved into a dedicated `agents/` directory?
+- [ ] Does the `main.py` script correctly parse an `--algorithm` command-line argument?
+- [ ] Is there an `AgentFactory` class in `agents/__init__.py` that can create agents from a string name?
+- [ ] Does the `GameManager` correctly use this factory to instantiate the user-selected agent?
+- [ ] Is the extension still headless (no GUI)?
+
+---
+
+> **The `v0.02` extension marks the transition from a simple test case to a structured, reusable, and scalable software component. It lays the stable foundation upon which the user-facing features of `v0.03` will be built.**
+
+## 🧠 **Algorithm-Specific Examples**
+
+### **Heuristics v0.02**
+```
+extensions/heuristics-v0.02/
+├── __init__.py
+├── main.py                        # --algorithm BFS|ASTAR|DFS|HAMILTONIAN
+├── game_logic.py                  # HeuristicGameLogic with algorithm switching
+├── game_manager.py                # Multi-algorithm manager
+├── game_data.py                   # Heuristic-specific data tracking
+├── agents/
+│   ├── __init__.py               # HeuristicAgentFactory
+│   ├── agent_bfs.py              # BFS algorithm
+│   ├── agent_bfs_safe_greedy.py  # BFS with safety heuristics
+│   ├── agent_bfs_hamiltonian.py  # BFS + Hamiltonian concepts
+│   ├── agent_dfs.py              # Depth-First Search
+│   ├── agent_astar.py            # A* pathfinding
+│   ├── agent_astar_hamiltonian.py # A* + Hamiltonian
+│   └── agent_hamiltonian.py      # Pure Hamiltonian path
+└── README.md
+```
+
+### **Supervised v0.02**
+```
+extensions/supervised-v0.02/
+├── __init__.py
+├── main.py                        # Model selection and evaluation
+├── game_logic.py                  # ML-specific game logic
+├── game_manager.py                # Multi-model manager
+├── game_data.py                   # ML game data with prediction tracking
+├── models/                        # ✨ Different from agents/ - algorithm dependent
+│   ├── neural_networks/
+│   │   ├── __init__.py
+│   │   ├── agent_mlp.py
+│   │   ├── agent_cnn.py
+│   │   ├── agent_lstm.py
+│   │   └── agent_gru.py
+│   ├── tree_models/
+│   │   ├── __init__.py
+│   │   ├── agent_xgboost.py
+│   │   ├── agent_lightgbm.py
+│   │   └── agent_randomforest.py
+│   └── graph_models/
+│       ├── __init__.py
+│       ├── agent_gcn.py
+│       ├── agent_graphsage.py
+│       └── agent_gat.py
+├── training/                      # Training scripts per model type
+│   ├── train_neural.py
+│   ├── train_tree.py
+│   └── train_graph.py
+└── README.md
+```
+
+### **Reinforcement v0.02**
+```
+extensions/reinforcement-v0.02/
+├── __init__.py
+├── main.py                        # --algorithm DQN|PPO|A3C
+├── game_logic.py                  # RL-specific game logic
+├── game_manager.py                # Multi-algorithm RL manager
+├── game_data.py                   # RL game data with experience tracking
+├── agents/
+│   ├── __init__.py               # RLAgentFactory
+│   ├── agent_dqn.py              # Deep Q-Network
+│   ├── agent_double_dqn.py       # Double DQN
+│   ├── agent_dueling_dqn.py      # Dueling DQN
+│   ├── agent_ppo.py              # Proximal Policy Optimization
+│   └── agent_a3c.py              # Asynchronous Actor-Critic
+├── training/                      # RL training scripts
+│   ├── train_dqn.py
+│   ├── train_ppo.py
+│   └── train_a3c.py
+└── README.md
+```
+
+## 🏗️ **Shared Infrastructure Patterns**
+
+### **Agent Factory Pattern:**
+```python
+# ✅ All extensions use factory patterns
+def create_agent(algorithm: str) -> BaseAgent:
+    agents = {
+        'BFS': BFSAgent,
+        'ASTAR': AStarAgent,
+        'MLP': MLPAgent,
+        'DQN': DQNAgent,
+    }
+    return agents[algorithm]()
 ```
 
 ### **Inheritance Hierarchy:**
@@ -49,175 +193,9 @@ class BFSSafeGreedyAgent(BFSAgent):
     """Extends BFS with safety checks and greedy optimization"""
     pass
 
-class BFSHamiltonianAgent(BFSSafeGreedyAgent):
-    """Adds Hamiltonian path concepts to safe greedy BFS"""
-    pass
-
 class AStarAgent(BaseAgent):
     """A* pathfinding with heuristics"""
     pass
-
-class AStarHamiltonianAgent(AStarAgent):
-    """A* enhanced with Hamiltonian optimization"""
-    pass
-```
-
-### **Command Line Interface:**
-```bash
-# Choose specific algorithm
-python main.py --algorithm BFS --max-games 10 --verbose
-
-# Different algorithms for comparison
-python main.py --algorithm ASTAR --max-games 5
-python main.py --algorithm HAMILTONIAN --max-games 3
-```
-
-### **File Structure:**
-```
-./extensions/heuristics-v0.02/
-├── __init__.py
-├── main.py              # Multi-algorithm entry point
-├── game_logic.py        # Heuristic-specific game logic
-├── game_manager.py      # Multi-algorithm manager
-├── game_data.py         # Heuristic game data extensions
-└── agents/              # Algorithm implementations
-    ├── __init__.py      # Agent factory and exports
-    ├── agent_bfs.py
-    ├── agent_bfs_safe_greedy.py
-    ├── agent_bfs_hamiltonian.py
-    ├── agent_dfs.py
-    ├── agent_astar.py
-    ├── agent_astar_hamiltonian.py
-    └── agent_hamiltonian.py
-```
-
-### **What It Still Does NOT Have:**
-- **No replay mode** (pygame/web) - comes in v0.03
-- **No GUI interface** - CLI only
-- **No dataset generation** - comes in v0.03
-- **No Streamlit app** - comes in v0.03
-
-## 🧠 **Supervised Learning v0.02 - Multi-Model Framework**
-
-### **Location:** `./extensions/supervised-v0.02`
-
-### **Key Evolution from v0.01:**
-- **Neural networks only** → **All supervised learning types**
-- **PyTorch focus** → **Multiple ML frameworks**
-- **Single training script** → **Framework-specific trainers**
-
-### **Model Portfolio:**
-```
-./extensions/supervised-v0.02/models/
-├── neural_networks/     # PyTorch implementations
-│   ├── agent_mlp.py
-│   ├── agent_cnn.py
-│   ├── agent_lstm.py
-│   └── agent_gru.py
-├── tree_models/         # Tree-based models
-│   ├── agent_xgboost.py
-│   ├── agent_lightgbm.py
-│   └── agent_randomforest.py
-└── graph_models/        # Graph neural networks
-    ├── agent_gcn.py
-    ├── agent_graphsage.py
-    └── agent_gat.py
-```
-
-### **Framework Integration:**
-```python
-# ✅ Multiple ML frameworks with consistent interface
-class XGBoostAgent(BaseAgent):
-    """XGBoost gradient boosting agent"""
-    def __init__(self):
-        import xgboost as xgb
-        self.model = xgb.XGBClassifier()
-
-class LightGBMAgent(BaseAgent):
-    """LightGBM gradient boosting agent"""
-    def __init__(self):
-        import lightgbm as lgb
-        self.model = lgb.LGBMClassifier()
-
-class GCNAgent(BaseAgent):
-    """Graph Convolutional Network agent"""
-    def __init__(self):
-        import torch_geometric
-        # GCN implementation
-```
-
-### **Training Scripts:**
-```
-./extensions/supervised-v0.02/training/
-├── train_neural.py      # PyTorch neural networks
-├── train_tree.py        # XGBoost, LightGBM, RandomForest
-├── train_graph.py       # Graph neural networks
-├── train_ensemble.py    # Ensemble methods
-├── train_cnn.py         # Convolutional networks
-├── train_rnn.py         # Recurrent networks
-└── train_mlp.py         # Multi-layer perceptrons
-```
-
-### **Command Line Interface:**
-```bash
-# Train different model types
-python training/train_neural.py --model MLP --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
-python training/train_tree.py --model XGBOOST --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
-python training/train_graph.py --model GCN --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
-
-# Ensemble training
-python training/train_ensemble.py --models MLP,XGBOOST,LIGHTGBM --dataset-path ../../logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/
-```
-
-### **File Structure:**
-```
-./extensions/supervised-v0.02/
-├── __init__.py
-├── main.py              # Model selection and evaluation
-├── game_logic.py        # ML-specific game logic
-├── game_manager.py      # Multi-model manager
-├── models/              # Model implementations
-│   ├── neural_networks/
-│   ├── tree_models/
-│   └── graph_models/
-├── training/            # Training scripts
-├── evaluation/          # Evaluation utilities
-└── utils/               # ML-specific utilities
-```
-
-### **What It Still Does NOT Have:**
-- **No GUI interface** - CLI only
-- **No replay visualization** - comes in v0.03
-- **No Streamlit app** - comes in v0.03
-- **No web interface** - comes in v0.03
-
-## 🏗️ **Shared Infrastructure Patterns**
-
-### **Agent Factory Pattern:**
-```python
-# ✅ Both heuristics and supervised learning use factory patterns
-def create_heuristic_agent(algorithm: str) -> BaseAgent:
-    agents = {
-        "BFS": BFSAgent,
-        "BFS_SAFE_GREEDY": BFSSafeGreedyAgent,
-        "BFS_HAMILTONIAN": BFSHamiltonianAgent,
-        "DFS": DFSAgent,
-        "ASTAR": AStarAgent,
-        "ASTAR_HAMILTONIAN": AStarHamiltonianAgent,
-        "HAMILTONIAN": HamiltonianAgent,
-    }
-    return agents[algorithm]()
-
-def create_supervised_agent(model: str) -> BaseAgent:
-    agents = {
-        "MLP": MLPAgent,
-        "CNN": CNNAgent,
-        "LSTM": LSTMAgent,
-        "XGBOOST": XGBoostAgent,
-        "LIGHTGBM": LightGBMAgent,
-        "GCN": GCNAgent,
-    }
-    return agents[model]()
 ```
 
 ## 🚀 **Evolution Patterns**
@@ -236,12 +214,15 @@ def create_supervised_agent(model: str) -> BaseAgent:
 - ✅ **Basic training** → **Advanced training pipelines**
 - ✅ **Limited evaluation** → **Comprehensive benchmarking**
 
+**Reinforcement Learning:**
+- ✅ **Single DQN** → **Multiple RL algorithms**
+- ✅ **Basic training** → **Advanced RL training pipelines**
+- ✅ **Simple evaluation** → **Comprehensive RL benchmarking**
+
 ### **v0.02 → v0.03 Preview:**
-- **Both**: CLI only → **Streamlit web interface**
-- **Both**: No replay → **PyGame + Flask web replay**
-- **Both**: Basic logging → **Dataset generation capabilities**
-- **Heuristics**: No dataset output → **CSV dataset generation for ML**
-- **Supervised**: Training only → **Interactive training + evaluation interface**
+- **All**: CLI only → **Streamlit web interface**
+- **All**: No replay → **PyGame + Flask web replay**
+- **All**: Basic logging → **Dataset generation capabilities**
 
 ## 📋 **Implementation Guidelines**
 
@@ -283,7 +264,7 @@ class PyTorchAgent(BaseMLAgent):
 
 ## 🎯 **Shared Output Schema**
 
-### **Both Extensions Generate:**
+### **All Extensions Generate:**
 - `game_N.json` files with game histories
 - `summary.json` with experiment statistics
 - **No LLM-specific fields** (removed from Task-0 schema)
@@ -292,7 +273,7 @@ class PyTorchAgent(BaseMLAgent):
 ### **JSON Schema Example:**
 ```json
 {
-  "algorithm": "BFS",  // or "MLP", "XGBOOST", etc.
+  "algorithm": "BFS",  // or "MLP", "XGBOOST", "DQN", etc.
   "score": 15,
   "steps": 120,
   "duration_seconds": 2.5,
@@ -308,7 +289,7 @@ class PyTorchAgent(BaseMLAgent):
 ## 📚 **Key Success Metrics**
 
 ### **For Heuristics v0.02:**
-- [ ] **7 different algorithms** implemented and working
+- [ ] **Multiple algorithms** implemented and working
 - [ ] **Inheritance relationships** between related algorithms
 - [ ] **Performance comparison** capabilities
 - [ ] **Consistent command-line interface**
@@ -318,6 +299,12 @@ class PyTorchAgent(BaseMLAgent):
 - [ ] **Multiple ML frameworks** integrated (PyTorch, XGBoost, LightGBM)
 - [ ] **Different model architectures** (Neural, Tree, Graph)
 - [ ] **Training pipelines** for each model type
+- [ ] **Performance evaluation** and comparison
+- [ ] **Model persistence** and loading
+
+### **For Reinforcement Learning v0.02:**
+- [ ] **Multiple RL algorithms** implemented (DQN, PPO, A3C)
+- [ ] **Experience replay** and training mechanisms
 - [ ] **Performance evaluation** and comparison
 - [ ] **Model persistence** and loading
 

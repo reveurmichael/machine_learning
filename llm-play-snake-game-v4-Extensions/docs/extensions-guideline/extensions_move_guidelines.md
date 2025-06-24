@@ -78,11 +78,5 @@ class HeuristicLoop(BaseGameLoop):
       assert info["moves"] == list(dict.fromkeys(info["moves"])), "duplicates!"
   ```
 
-## 6 Further Reading
-
-* `core/game_loop.py` – inline comments around the duplicate-first-move fix.
-* `docs/2.md` – historical analysis of the bug.
-* `docs/1.md` – deep dive into round-increment architecture.
-
 ---
 Following these practices keeps your extension's logs perfectly aligned with Task-0's robust data contracts, ensuring replays, dashboards and analytics remain reliable across all future tasks. 

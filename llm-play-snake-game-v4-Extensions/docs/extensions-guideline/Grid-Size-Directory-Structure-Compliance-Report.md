@@ -1,21 +1,9 @@
 # Grid-Size Directory Structure Compliance Report
 
-VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions.
-
-IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
-
 
 ## Overview
 
 ✅ **DECISION FINALIZED**: Directory structure has been decided as per final-decision-1.md
-
-
-This report documents the comprehensive audit and fixes applied to ensure **all** extensions follow the mandatory grid-size directory structure rule:
-
-- **DATASETS**: `logs/extensions/datasets/grid-size-N/...`
-- **MODELS**: `logs/extensions/models/grid-size-N/...`
-
-Where `N` is the grid size used during training/generation.
 
 ## Why This Rule Matters
 
@@ -27,27 +15,17 @@ Models trained on different grid sizes have fundamentally different spatial comp
 3. **Scalability**: New grid sizes integrate seamlessly
 4. **Experimental Clarity**: Clear organization for research
 
-#### Changes Made:
-
-✅ **COMPLETED**: All directory structure decisions finalized
-
-- Updated all examples to use the finalized grid-size paths structure
-- Added explicit model directory structure documentation as per final-decision-1.md
-- Implemented comprehensive dataset and model organization
-
 ## Compliance Infrastructure
-
-✅ **IMPLEMENTED**: All infrastructure follows the finalized structure from final-decision-1.md
 
 ### 1. Validation Script
 
 ✅ **READY**: Script can validate the finalized directory structure
 
 
-Created `scripts/validate_grid_size_compliance.py` for ongoing compliance monitoring:
+Created `ROOT/extensions/common/validate_grid_size_compliance.py` for ongoing compliance monitoring:
 
 ```bash
-python scripts/validate_grid_size_compliance.py
+python ROOT/extensions/common/validate_grid_size_compliance.py
 ```
 
 **Features:**
@@ -146,7 +124,7 @@ logs/extensions/
 ### 1. Pre-commit Validation
 Consider adding to CI/CD:
 ```bash
-python scripts/validate_grid_size_compliance.py
+python ROOT/extensions/common/validate_grid_size_compliance.py
 ```
 
 ### 2. New Extension Guidelines

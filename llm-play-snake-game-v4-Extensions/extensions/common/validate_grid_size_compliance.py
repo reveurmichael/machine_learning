@@ -21,6 +21,9 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
 
+# Ensure project root is on path so script can be called from anywhere
+from extensions.common.path_utils import ensure_project_root_on_path
+
 def find_hardcoded_grid_sizes(root_dir: Path) -> List[Tuple[str, int, str]]:
     """Find hardcoded grid-size references that should be dynamic."""
     violations = []
@@ -145,7 +148,12 @@ def main():
     print("🔍 Grid-Size Directory Structure Compliance Validator")
     print("=" * 60)
     
-    root_dir = Path(".")
+    # Ensure project root is on path and get the project root
+    project_root = ensure_project_root_on_path()
+    print(f"📁 Project root: {project_root}")
+    
+    # Use project root for all path operations
+    root_dir = project_root
     
     # 1. Check for hardcoded grid sizes
     print("\n1. Checking for hardcoded grid-size paths...")

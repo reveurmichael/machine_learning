@@ -1,13 +1,5 @@
 # Documentation as First-Class Citizen
 
-VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
-
-IMPORTANT FILE THAT YOU SHOULD NEVER IGNORE.
-
-
-
-
-
 
 This document outlines the philosophy and practices that make documentation a **first-class citizen** in the Snake Game AI project, equal in importance to the code itself.
 
@@ -20,22 +12,6 @@ In this project, documentation is not an afterthought—it's the foundation that
 - **Extensibility**: Well-documented extension points and patterns
 
 ## 📚 **Documentation Architecture**
-
-### **1. Layered Documentation Strategy**
-```
-Documentation Layers (from general to specific):
-├── README.md                    # Project overview and quick start
-├── docs/                        # Core architectural documentation
-│   ├── ai-friendly.md          # AI development assistant guidelines
-│   ├── fail-fast.md            # Error handling philosophy
-│   └── MVC-Functionality-Comparison.md  # Framework comparisons
-├── docs/extensions-guideline/   # Extension-specific deep dives
-│   ├── extensions-v0.01.md     # Foundation patterns
-│   ├── core.md                 # Base class architecture
-│   └── coordinate-system.md    # Technical specifications
-```
-
-### **2. Documentation Types and Purposes**
 
 | Documentation Type | Purpose | Audience |
 |-------------------|---------|-----------|

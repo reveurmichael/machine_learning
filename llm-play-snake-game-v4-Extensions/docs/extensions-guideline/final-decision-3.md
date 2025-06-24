@@ -2,7 +2,15 @@
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive guidelines** for Singleton pattern implementation across the Snake Game AI project. It specifies which classes should use the Singleton pattern, provides implementation standards, and explains the architectural rationale for these decisions.
+This document establishes the **definitive guidelines** for Singleton pattern implementation across the Snake Game AI project. It leverages the existing `SingletonABCMeta` implementation from `utils/singleton_utils.py` to provide thread-safe singleton functionality combined with abstract base class support.
+
+## 🛠️ **Existing Implementation Foundation**
+
+The project already includes a robust singleton implementation in `utils/singleton_utils.py`:
+- **`SingletonABCMeta`**: Thread-safe metaclass combining Singleton + ABC patterns
+- **Double-checked locking**: Minimizes synchronization overhead
+- **Metaclass conflict resolution**: Seamlessly combines Singleton with Abstract Base Class
+- **Testing utilities**: `clear_instances()` and `get_instance_count()` for testing scenarios
 
 ## 🔄 **DECISION: Approved Singleton Classes**
 
@@ -10,7 +18,10 @@ This document establishes the **definitive guidelines** for Singleton pattern im
 
 #### **1. TaskAwarePathManager**
 ```python
-class TaskAwarePathManager(Singleton):
+from abc import ABC, abstractmethod
+from utils.singleton_utils import SingletonABCMeta
+
+class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
     """
     Manages all directory structure and path operations across the entire project.
     
@@ -29,13 +40,13 @@ class TaskAwarePathManager(Singleton):
     """
     
     def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._path_cache = {}
-        self._grid_size_cache = {}
-        self._validate_project_structure()
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._path_cache = {}
+            self._grid_size_cache = {}
+            self._validate_project_structure()
     
+    @abstractmethod
     def get_dataset_path(self, extension_type: str, version: str, 
                         grid_size: int, algorithm: str) -> Path:
         """Get standardized dataset path with caching"""
@@ -46,6 +57,7 @@ class TaskAwarePathManager(Singleton):
             self._path_cache[cache_key] = path
         return self._path_cache[cache_key]
     
+    @abstractmethod
     def get_model_path(self, extension_type: str, version: str,
                       grid_size: int, model_name: str) -> Path:
         """Get standardized model path with caching"""
@@ -59,7 +71,7 @@ class TaskAwarePathManager(Singleton):
 
 #### **2. ConfigurationManager**
 ```python
-class ConfigurationManager(Singleton):
+class ConfigurationManager(ABC, metaclass=SingletonABCMeta):
     """
     Centralizes access to all configuration values across the project.
     
@@ -78,13 +90,13 @@ class ConfigurationManager(Singleton):
     """
     
     def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._configs = {}
-        self._load_all_configurations()
-        self._validate_configurations()
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._configs = {}
+            self._load_all_configurations()
+            self._validate_configurations()
     
+    @abstractmethod
     def get_universal_config(self, module: str, key: str) -> Any:
         """Get universal configuration from ROOT/config/"""
         config_key = f"universal.{module}.{key}"
@@ -92,11 +104,13 @@ class ConfigurationManager(Singleton):
             raise ConfigurationError(f"Universal config not found: {config_key}")
         return self._configs[config_key]
     
+    @abstractmethod
     def get_extension_config(self, module: str, key: str, default: Any = None) -> Any:
         """Get extension-specific configuration from extensions/common/config/"""
         config_key = f"extension.{module}.{key}"
         return self._configs.get(config_key, default)
     
+    @abstractmethod
     def validate_extension_compatibility(self, extension_type: str) -> bool:
         """Validate that extension configuration is compatible with universal configs"""
         # Implementation validates no conflicts between extension and universal configs
@@ -105,7 +119,7 @@ class ConfigurationManager(Singleton):
 
 #### **3. ValidationRegistry**
 ```python
-class ValidationRegistry(Singleton):
+class ValidationRegistry(ABC, metaclass=SingletonABCMeta):
     """
     Registry of all validation rules and schemas across the project.
     
@@ -124,25 +138,27 @@ class ValidationRegistry(Singleton):
     """
     
     def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._validators = {}
-        self._schemas = {}
-        self._register_default_validators()
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._validators = {}
+            self._schemas = {}
+            self._register_default_validators()
     
+    @abstractmethod
     def register_validator(self, data_type: str, validator: BaseValidator):
         """Register new validator for specific data type"""
         if data_type in self._validators:
             raise ValidationError(f"Validator already registered for: {data_type}")
         self._validators[data_type] = validator
     
+    @abstractmethod
     def validate_data(self, data_type: str, data: Any) -> ValidationResult:
         """Validate data using registered validator"""
         if data_type not in self._validators:
             raise ValidationError(f"No validator registered for: {data_type}")
         return self._validators[data_type].validate(data)
     
+    @abstractmethod
     def get_schema(self, schema_type: str, version: str = "latest") -> Schema:
         """Get validation schema with caching"""
         schema_key = f"{schema_type}_{version}"
@@ -153,7 +169,7 @@ class ValidationRegistry(Singleton):
 
 #### **4. DatasetSchemaManager**
 ```python
-class DatasetSchemaManager(Singleton):
+class DatasetSchemaManager(ABC, metaclass=SingletonABCMeta):
     """
     Manages CSV schemas and data format definitions across all extensions.
     
@@ -172,13 +188,13 @@ class DatasetSchemaManager(Singleton):
     """
     
     def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._schemas = {}
-        self._feature_extractors = {}
-        self._initialize_schemas()
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._schemas = {}
+            self._feature_extractors = {}
+            self._initialize_schemas()
     
+    @abstractmethod
     def get_csv_schema(self, grid_size: int, version: str = "v1") -> CSVSchema:
         """Get CSV schema for specific grid size (grid-size agnostic features)"""
         schema_key = f"csv_{version}"  # Note: grid_size agnostic
@@ -186,12 +202,14 @@ class DatasetSchemaManager(Singleton):
             self._schemas[schema_key] = self._create_grid_agnostic_schema(version)
         return self._schemas[schema_key]
     
+    @abstractmethod
     def get_feature_extractor(self, grid_size: int) -> FeatureExtractor:
         """Get feature extractor for specific grid size"""
         if grid_size not in self._feature_extractors:
             self._feature_extractors[grid_size] = GridSizeAgnosticFeatureExtractor(grid_size)
         return self._feature_extractors[grid_size]
     
+    @abstractmethod
     def validate_dataset_compatibility(self, dataset_path: Path, 
                                      expected_schema: str) -> bool:
         """Validate that dataset follows expected schema"""
@@ -201,7 +219,7 @@ class DatasetSchemaManager(Singleton):
 
 #### **5. ModelRegistryManager**
 ```python
-class ModelRegistryManager(Singleton):
+class ModelRegistryManager(ABC, metaclass=SingletonABCMeta):
     """
     Registry of available model types and their metadata across all extensions.
     
@@ -220,14 +238,14 @@ class ModelRegistryManager(Singleton):
     """
     
     def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._model_types = {}
-        self._model_metadata = {}
-        self._deployment_formats = {}
-        self._register_default_model_types()
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._model_types = {}
+            self._model_metadata = {}
+            self._deployment_formats = {}
+            self._register_default_model_types()
     
+    @abstractmethod
     def register_model_type(self, model_name: str, model_class: Type, 
                            metadata: ModelMetadata):
         """Register new model type with metadata"""
@@ -237,12 +255,14 @@ class ModelRegistryManager(Singleton):
         self._model_types[model_name] = model_class
         self._model_metadata[model_name] = metadata
     
+    @abstractmethod
     def get_model_class(self, model_name: str) -> Type:
         """Get model class by name"""
         if model_name not in self._model_types:
             raise ModelRegistryError(f"Model type not registered: {model_name}")
         return self._model_types[model_name]
     
+    @abstractmethod
     def get_compatible_models(self, data_format: str, 
                             grid_size: int) -> List[str]:
         """Get list of models compatible with data format and grid size"""

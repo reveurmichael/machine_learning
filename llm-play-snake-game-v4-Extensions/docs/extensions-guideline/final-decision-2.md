@@ -132,12 +132,18 @@ if not report.is_valid():
 
 ## 🔄 **DECISION 3: Singleton Pattern Extension**
 
+### **Using Existing SingletonABCMeta Implementation**
+
+The project already includes a robust `SingletonABCMeta` implementation in `utils/singleton_utils.py` that combines the Singleton pattern with Abstract Base Class functionality using double-checked locking for thread safety.
+
 ### **Approved Singleton Classes**
 
 ```python
 # ✅ RECOMMENDED SINGLETON CLASSES:
+from abc import ABC, abstractmethod
+from utils.singleton_utils import SingletonABCMeta
 
-class TaskAwarePathManager(Singleton):
+class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
     """
     Manages all directory structure and path operations.
     
@@ -147,12 +153,19 @@ class TaskAwarePathManager(Singleton):
     - Expensive initialization (directory scanning, validation)
     """
     
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._path_cache = {}
+            self._validate_project_structure()
+    
+    @abstractmethod
     def get_dataset_path(self, extension_type: str, version: str, 
                         grid_size: int, algorithm: str) -> Path:
         """Get standardized dataset path"""
         pass
 
-class ConfigurationManager(Singleton):
+class ConfigurationManager(ABC, metaclass=SingletonABCMeta):
     """
     Centralizes access to all configuration values.
     
@@ -162,11 +175,18 @@ class ConfigurationManager(Singleton):
     - Consistent configuration access across application
     """
     
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._configs = {}
+            self._load_all_configurations()
+    
+    @abstractmethod
     def get_config(self, config_type: str, key: str) -> Any:
         """Get configuration value with fallback handling"""
         pass
 
-class ValidationRegistry(Singleton):
+class ValidationRegistry(ABC, metaclass=SingletonABCMeta):
     """
     Registry of all validation rules and schemas.
     
@@ -176,11 +196,18 @@ class ValidationRegistry(Singleton):
     - Consistent validation rules across application
     """
     
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._validators = {}
+            self._schemas = {}
+    
+    @abstractmethod
     def register_validator(self, data_type: str, validator: BaseValidator):
         """Register new validator for data type"""
         pass
 
-class DatasetSchemaManager(Singleton):
+class DatasetSchemaManager(ABC, metaclass=SingletonABCMeta):
     """
     Manages CSV schemas and data format definitions.
     
@@ -190,11 +217,18 @@ class DatasetSchemaManager(Singleton):
     - Schema consistency across all data operations
     """
     
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._schemas = {}
+            self._feature_extractors = {}
+    
+    @abstractmethod
     def get_schema(self, grid_size: int, data_format: str) -> Schema:
         """Get appropriate schema for grid size and format"""
         pass
 
-class ModelRegistryManager(Singleton):
+class ModelRegistryManager(ABC, metaclass=SingletonABCMeta):
     """
     Registry of available model types and their metadata.
     
@@ -204,6 +238,13 @@ class ModelRegistryManager(Singleton):
     - Consistent model type definitions across application
     """
     
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialized = True
+            self._model_types = {}
+            self._model_metadata = {}
+    
+    @abstractmethod
     def register_model_type(self, model_name: str, model_class: Type, 
                            metadata: ModelMetadata):
         """Register new model type"""

@@ -496,97 +496,19 @@ class DistilBERTAgent(BaseAgent):    # HuggingFace DistilBERT
 ```
 
 ### **Validation Script**
+All extension validation utilities live in `extensions/common/validation/` (see Final-Decision 2).
+
+A lightweight validator for agent naming conventions is provided at:
 ```python
-# scripts/validate_agent_naming.py
+# extensions/common/validation/validate_agent_naming.py
+"""CLI utility to check that every agent file follows `agent_*.py` and every
+class inside follows `*Agent` naming.  Run with:
+
+    python -m extensions.common.validation.validate_agent_naming \
+        --extension heuristics-v0.03
 """
-Validation script to ensure agent naming convention compliance.
-
-Usage:
-    python scripts/validate_agent_naming.py
-    python scripts/validate_agent_naming.py --extension heuristics-v0.03
-"""
-
-import re
-from pathlib import Path
-from typing import List, Tuple
-
-class AgentNamingValidator:
-    """Validates agent file and class naming conventions"""
-    
-    def __init__(self):
-        self.file_pattern = re.compile(r'^agent_[a-z_]+\.py$')
-        self.class_pattern = re.compile(r'^class ([A-Z][a-zA-Z]*Agent)\(')
-        
-    def validate_extension(self, extension_path: Path) -> List[str]:
-        """Validate all agent files in extension"""
-        violations = []
-        
-        # Find all potential agent directories
-        agent_dirs = []
-        if (extension_path / "agents").exists():
-            agent_dirs.append(extension_path / "agents")
-        if (extension_path / "models").exists():
-            # Check subdirectories in models/
-            for subdir in (extension_path / "models").iterdir():
-                if subdir.is_dir():
-                    agent_dirs.append(subdir)
-        
-        for agent_dir in agent_dirs:
-            violations.extend(self.validate_directory(agent_dir))
-            
-        return violations
-    
-    def validate_directory(self, agent_dir: Path) -> List[str]:
-        """Validate agent files in specific directory"""
-        violations = []
-        
-        for py_file in agent_dir.glob("*.py"):
-            if py_file.name == "__init__.py":
-                continue
-                
-            # Validate file name
-            if not self.file_pattern.match(py_file.name):
-                violations.append(f"File name violation: {py_file} (should be agent_*.py)")
-                continue
-            
-            # Validate class name
-            content = py_file.read_text()
-            class_matches = self.class_pattern.findall(content)
-            
-            if not class_matches:
-                violations.append(f"No agent class found in: {py_file}")
-                continue
-                
-            for class_name in class_matches:
-                if not class_name.endswith("Agent"):
-                    violations.append(f"Class name violation: {class_name} in {py_file} (should end with 'Agent')")
-                    
-        return violations
-
-# Usage
-if __name__ == "__main__":
-    validator = AgentNamingValidator()
-    extensions_dir = Path("extensions")
-    
-    total_violations = []
-    for extension_dir in extensions_dir.iterdir():
-        if extension_dir.is_dir() and not extension_dir.name == "common":
-            violations = validator.validate_extension(extension_dir)
-            total_violations.extend(violations)
-            
-            if violations:
-                print(f"\n❌ {extension_dir.name}:")
-                for violation in violations:
-                    print(f"  - {violation}")
-            else:
-                print(f"✅ {extension_dir.name}: All agents follow naming convention")
-    
-    if total_violations:
-        print(f"\n💥 Total violations: {len(total_violations)}")
-        exit(1)
-    else:
-        print("\n🎉 All extensions follow agent naming convention!")
 ```
+This single entry-point is auto-registered in `ValidationRegistry` and can be invoked from any extension or CI workflow.  Detailed implementation is omitted here for brevity—see the source file for full logic.
 
 ## 🎯 **Benefits of Standardized Naming**
 
@@ -629,7 +551,7 @@ if __name__ == "__main__":
 
 ### **Validation Requirements**
 - [ ] All existing agent files renamed to `agent_*.py` pattern
-- [ ] All existing agent classes renamed to `*Agent` pattern  
+- [ ] All existing agent classes renamed to `*Agent` pattern  (IMPORTANT: for task-0, it's   SnakeAgent)
 - [ ] All factory registrations updated to use new names
 - [ ] All imports updated throughout codebase
 - [ ] All documentation updated to reflect new naming

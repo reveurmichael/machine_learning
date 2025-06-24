@@ -1,3 +1,102 @@
+# Configuration Architecture
+
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series. Where conflicts exist, Final Decision 2 prevails.
+
+## 🎯 **Configuration Philosophy**
+
+The configuration architecture follows a **clear separation model** established in Final Decision 2:
+- **Universal constants** (used by all tasks) in `ROOT/config/`
+- **Extension-specific constants** in `extensions/common/config/`
+- **Task-0 specific constants** remain isolated
+
+## 📁 **Final Configuration Structure**
+
+### **Universal Constants (ROOT/config/)**
+```python
+# ✅ Used by ALL tasks (Task-0 and all extensions)
+from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
+from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
+```
+
+### **Task-0 Specific Constants (ROOT/config/)**
+```python
+# ❌ FORBIDDEN in extensions - Task-0 only
+from config.llm_constants import AVAILABLE_PROVIDERS
+from config.prompt_templates import SYSTEM_PROMPT
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
+```
+
+### **Extension-Specific Constants**
+```
+extensions/common/config/
+├── ml_constants.py        # ML-specific hyperparameters, thresholds
+├── training_defaults.py   # Default training configurations
+├── dataset_formats.py     # Data format specifications
+├── path_constants.py      # Directory path templates
+├── validation_rules.py    # Validation thresholds and rules
+└── model_registry.py      # Model type definitions and metadata
+```
+
+## 🧠 **Design Benefits**
+
+### **Clear Boundaries**
+- **Universal constants** ensure consistency across all tasks
+- **LLM constants** remain isolated to prevent extension pollution
+- **Extension constants** enable shared functionality without coupling
+
+### **Single Source of Truth**
+- Each constant has exactly one authoritative location
+- No duplication between Task-0 and extensions
+- Clear import patterns prevent accidental dependencies
+
+### **Scalability**
+- Easy to add new extension-specific configurations
+- Universal constants automatically available to new extensions
+- Clean separation enables independent evolution
+
+## 🔧 **Usage Patterns**
+
+### **Extensions Should Use**
+```python
+# ✅ Universal game rules
+from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
+
+# ✅ Universal UI settings
+from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
+
+# ✅ Extension-specific settings
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
+```
+
+### **Extensions Must NOT Use**
+```python
+# ❌ Task-0 specific - FORBIDDEN in extensions
+from config.llm_constants import AVAILABLE_PROVIDERS
+from config.prompt_templates import SYSTEM_PROMPT
+```
+
+## 📊 **Benefits for Extension Types**
+
+### **Heuristics Extensions**
+- Access to universal movement rules and coordinate system
+- Consistent visualization across all heuristic algorithms
+- Extension-specific pathfinding constants and optimization settings
+
+### **Supervised Learning Extensions**
+- Universal game constants for feature engineering
+- Shared ML hyperparameters and training configurations
+- Consistent model evaluation metrics and thresholds
+
+### **Reinforcement Learning Extensions**
+- Universal game rules for environment definition
+- Shared RL training parameters and exploration settings
+- Consistent reward function definitions and normalization
+
+---
+
+**This configuration architecture ensures clean separation, prevents pollution, and enables scalable extension development.**
 
 ## **🏗️ Perfect BaseClassBlabla Architecture Already in Place**
 

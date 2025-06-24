@@ -1,86 +1,129 @@
-# The Dashboard Architecture
+# Dashboard Architecture for v0.03 Extensions
 
-## 🎯 **Executive Summary**
+> **Important — Authoritative Reference:** This document supplements Final Decision 9 (Streamlit OOP) and Final Decision 5 (Directory Structure).
 
-This document outlines the purpose and architecture of the `dashboard/` directory, a mandatory component for all `v0.03` and later extensions. The `dashboard/` directory serves as the dedicated location for organizing all modular UI components, such as tabs and views, that are used by the extension's main `app.py` Streamlit application.
+## 🎯 **Dashboard Philosophy**
 
-## 🧠 **Core Philosophy: Separation of UI Concerns**
+The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in Final Decision 9.
 
-As a Streamlit application grows, placing all UI code into a single `app.py` file becomes unmanageable. The `dashboard/` directory enforces a **separation of concerns** for the user interface.
+## 🧠 **Separation of UI Concerns**
 
-*   **`app.py` (The Conductor):** The main `app.py` file is responsible for the overall application structure and lifecycle, as defined by the `BaseExtensionApp` architecture. It acts as a "conductor," deciding which UI components to render and when.
-*   **`dashboard/` (The UI Components):** This directory contains the individual, modular pieces of the UI. Each file in this directory should ideally correspond to a distinct part of the interface, such as a Streamlit tab or a complex, reusable component.
+### **Core Architecture Pattern**
+- **`app.py`**: Main Streamlit application class (the conductor)
+- **`dashboard/`**: Modular UI components (the instruments)
+- **`scripts/`**: Command-line functionality (the workers)
 
-This separation makes the UI code easier to navigate, develop, and test.
+This separation ensures **script-runner philosophy**: the UI primarily launches scripts from the `scripts/` directory using `subprocess` with user-configured parameters.
 
-## 🏗️ **Architectural Integration**
+## 🏗️ **Mandatory Directory Structure**
 
-The `dashboard/` directory works in direct concert with the mandatory OOP Streamlit architecture. The main `app.py` class will import and instantiate UI components from the `dashboard/` directory to build the final user interface.
-
-### **Example Structure for `heuristics-v0.03`**
-
+### **v0.03 Template**
 ```
-extensions/heuristics-v0.03/
-├── app.py              # The main application class (HeuristicsApp)
-└── dashboard/
-    ├── __init__.py
-    ├── run_agent_tab.py  # A class or function that renders the "Run Agent" tab
-    ├── dataset_tab.py    # A class or function for the "Generate Dataset" tab
-    └── replay_tab.py     # A class or function for the "Replay Game" tab
+extensions/{algorithm}-v0.03/
+├── app.py                         # OOP Streamlit application
+├── dashboard/                     # Modular UI components
+│   ├── __init__.py
+│   ├── tab_main.py               # Primary functionality tab
+│   ├── tab_evaluation.py         # Performance evaluation
+│   ├── tab_replay.py             # Replay interface
+│   └── tab_comparison.py         # Algorithm comparison
+├── scripts/                       # CLI entry points
+│   ├── main.py                   # Core functionality
+│   ├── generate_dataset.py       # Dataset generation
+│   └── replay.py                 # Replay functionality
+└── agents/                        # Copied exactly from v0.02
+    └── [agent files unchanged]
 ```
 
-### **How `app.py` Uses the Dashboard Components**
+## 🎨 **UI Component Organization**
 
-The main `HeuristicsApp` class would then use these components to render its body.
+### **Tab-Based Architecture**
+Each dashboard component represents a distinct functionality:
 
 ```python
-# extensions/heuristics-v0.03/app.py
+# dashboard/tab_main.py - Primary algorithm interface
+def render(session_state):
+    """Render main algorithm execution interface"""
+    # Parameter controls
+    # Script launch interface
+    # Results display
 
-import streamlit as st
-from extensions.common.app_utils import BaseExtensionApp
-# Import the UI components from the dashboard directory
-from .dashboard import run_agent_tab, dataset_tab, replay_tab
-
-class HeuristicsApp(BaseExtensionApp):
-    # ... (get_extension_name and render_sidebar methods) ...
-
-    def render_body(self):
-        """Renders the main body using tabs defined in the dashboard."""
-        st.header(f"Algorithm: `{st.session_state.selected_algorithm}`")
-
-        # Create tabs in the UI
-        tab1, tab2, tab3 = st.tabs(["Run Agent", "Generate Dataset", "Replay Game"])
-
-        with tab1:
-            # Delegate the rendering of this tab's content to the imported component
-            run_agent_tab.render(st.session_state)
-
-        with tab2:
-            dataset_tab.render(st.session_state)
-
-        with tab3:
-            replay_tab.render(st.session_state)
-
-if __name__ == "__main__":
-    HeuristicsApp()
+# dashboard/tab_evaluation.py - Performance analysis
+def render(session_state):
+    """Render evaluation and benchmarking interface"""
+    # Performance metrics
+    # Comparison tools
+    # Export functionality
 ```
 
-## 🚀 **The "Script-Runner" Philosophy**
+### **Script-Runner Integration**
+```python
+# Example from dashboard component
+import subprocess
 
-It is critical to remember that the primary goal of the v0.03 Streamlit UI is **not** to re-implement core logic. Instead, the UI components in the `dashboard/` should be designed to:
-1.  Provide user-friendly controls (sliders, selectors, etc.) to configure a task.
-2.  Use those user-defined configurations to build a command-line string.
-3.  Execute the appropriate script from the `scripts/` directory using `subprocess`.
+def launch_algorithm(algorithm: str, params: dict):
+    """Launch algorithm script with user parameters"""
+    cmd = f"python scripts/main.py --algorithm {algorithm}"
+    for key, value in params.items():
+        cmd += f" --{key} {value}"
+    
+    # Launch with subprocess
+    subprocess.run(cmd, shell=True)
+```
 
-This ensures that all core functionality remains accessible via the command line, and the Streamlit app serves as a convenient, interactive "frontend" for these powerful scripts.
+## 🚀 **Benefits of Dashboard Architecture**
 
-## 📋 **Compliance Checklist**
+### **Modularity**
+- **Isolated Components**: Each tab handles one specific function
+- **Reusable Design**: Components can be shared across extensions
+- **Easy Maintenance**: Updates isolated to specific components
 
-- [ ] Does the `v0.03` extension contain a `dashboard/` directory?
-- [ ] Are modular UI components (like tabs) separated into their own files within `dashboard/`?
-- [ ] Does the main `app.py` import and use the components from the `dashboard/` directory to construct its UI?
-- [ ] Does the UI logic in the dashboard components focus on configuring and launching scripts from the `scripts/` folder?
+### **Scalability**
+- **Plugin Architecture**: Easy to add new dashboard components
+- **Extension Points**: Clear interfaces for custom functionality
+- **Performance**: Lazy loading of complex components
+
+### **User Experience**
+- **Consistent Interface**: Same tab structure across all extensions
+- **Intuitive Navigation**: Clear separation of different functions
+- **Responsive Design**: Adapts to different screen sizes
+
+## 📋 **Implementation Guidelines**
+
+### **Dashboard Component Standards**
+```python
+# Required pattern for all dashboard components
+def render(session_state: dict) -> None:
+    """
+    Render dashboard component
+    
+    Args:
+        session_state: Streamlit session state for state management
+    """
+    # Component-specific UI logic
+    # Parameter collection
+    # Script launching
+    # Results display
+```
+
+### **State Management**
+- Use Streamlit `session_state` for persistence
+- Share common state between dashboard components
+- Isolate component-specific state appropriately
+
+### **Error Handling**
+- Consistent error display across all components
+- User-friendly error messages
+- Graceful degradation for missing functionality
+
+## 🔧 **Compliance Checklist**
+
+- [ ] Does the v0.03 extension have a `dashboard/` directory?
+- [ ] Are UI components separated into individual files?
+- [ ] Does each component follow the `render(session_state)` pattern?
+- [ ] Does the main `app.py` use OOP architecture from Final Decision 9?
+- [ ] Do dashboard components primarily launch scripts via subprocess?
 
 ---
 
-> **The `dashboard/` architecture is key to building scalable and maintainable Streamlit applications. By properly separating UI components, we keep our `app.py` clean and our overall interface modular.**
+**The dashboard architecture ensures maintainable, scalable, and user-friendly interfaces while maintaining the script-runner philosophy that keeps core functionality accessible via command line.**

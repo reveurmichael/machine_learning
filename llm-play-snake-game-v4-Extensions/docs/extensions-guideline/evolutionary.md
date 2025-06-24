@@ -1,3 +1,6 @@
+IMPORTANT: THOUGH EVOLUTIONARY ALGORITHMS ARE NOT THE MAIN FOCUS OF THIS PROJECT (not termed as task1-task5), we should still adopt evolutionary algorithms, because it's a good way to incoorporate ideas. There is ONE VERY IMPORTANT THING that touches only Evolutionary Algorithms, it's the represention/encoding of the game state. 16 features might not be enough. So we might need a specific encoding/representation of the game state for Evolutionary Algorithms. # TODO: DON'T REMOVE THIS LINE. IT'S VERY IMPORTANT. Even if you have a great solution (and you should), keep this line, and I will come back torecheck it.
+
+
 # Evolutionary Algorithms for Snake Game AI
 
 This document provides comprehensive guidelines for implementing evolutionary algorithms, specifically genetic algorithms, in the Snake Game AI project.

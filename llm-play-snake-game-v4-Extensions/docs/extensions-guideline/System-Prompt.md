@@ -157,3 +157,6 @@ for showing snake moves.
 
 It's main idea is to launch scripts in the folder "scripts" with adjustable params, with 
 subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in the first place.
+
+## VITAL
+You should never edit the file "ROOT/docs/extensions-guideline/final-decision-1.md" (or, more generally, "ROOT/docs/extensions-guideline/final-decision-N.md"), because it's the final decision, and it's the single source of truth.

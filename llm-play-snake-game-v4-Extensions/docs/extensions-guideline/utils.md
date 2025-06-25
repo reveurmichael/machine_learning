@@ -1,7 +1,11 @@
+# Utility Architecture for Snake Game AI
 
-## **🎯 Perfect Architecture: Task-Agnostic vs Task-Specific Separation**
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOODFILES.
 
-### TODO: make sure here we are talking about the utils folder in the ROOT/utils/ folder. But, at extend sections, we can talk about the  the extensions/common/ folder.
+## 🎯 **Utility Philosophy**
+
+The utility architecture provides a clean separation between universal game mechanics and task-specific functionality. This enables all extensions to leverage shared infrastructure while maintaining clear boundaries between different AI approaches.
+
 
 ### **✅ Universal (Tasks 0-5) Utilities - Already Generic**
 
@@ -262,28 +266,171 @@ class AnyTaskAgent(BaseAgent):
 # Works immediately with zero modifications to utils!
 ```
 
-### **✅ Generic Examples in Action:**
 
-**Heuristics can immediately use:**
+### **Core Design Principles**
+- **Universal Mechanics**: Core game utilities work for all tasks and extensions
+- **Task-Specific Isolation**: LLM-specific utilities remain in Task-0 only
+- **Dependency Direction**: Utils → Config (allowed), Core → Utils (forbidden)
+- **Pure Functions**: Stateless utilities for maximum reusability
+
+## 🏗️ **Utility Organization**
+
+### **Universal Utilities (ROOT/utils/)**
+These utilities serve ALL tasks and extensions without modification:
+
+**Game Mechanics**:
+- `board_utils.py`: Grid management, apple placement, position validation
+- `collision_utils.py`: Wall/body collision detection, game physics
+- `moves_utils.py`: Direction processing, move validation
+
+**Data & Web**:
+- `json_utils.py`: Safe JSON operations, data validation
+- `web_utils.py`: Universal web state representation
+- `path_utils.py`: Cross-platform path management
+
+**Infrastructure**:
+- `seed_utils.py`: Random number generation management
+- `text_utils.py`: Common text formatting operations
+
+### **Task-0 Specific Utilities (ROOT/utils/)**
+These utilities are isolated to LLM-specific functionality:
+
+**LLM Infrastructure**:
+- `continuation_utils.py`: Session recovery and continuation
+- `initialization_utils.py`: LLM client setup and configuration
+- `session_utils.py`: Task-0 script launchers and session management
+
+### **Extension-Specific Utilities (extensions/common/)**
+Cross-extension utilities that don't belong in the universal ROOT/utils/:
+
+**Configuration & Validation**:
+- `config/`: Extension-specific configuration constants
+- `validation/`: Schema validation and data integrity checks
+- `path_utils.py`: Extension-specific path management patterns
+
+## 🚀 **Integration Patterns**
+
+### **Universal Utility Usage**
+All extensions leverage the same core utilities:
+
 ```python
-# BFS pathfinding with universal collision detection
-wall_hit, body_hit = check_collision(candidate_pos, snake_body, grid_size, False)
-if not (wall_hit or body_hit):
-    path.append(normalize_direction("UP"))  # Same format as LLM
+# Heuristics Extension
+from utils.board_utils import generate_random_apple, get_empty_positions
+from utils.collision_utils import check_collision, check_wall_collision
+from utils.moves_utils import normalize_direction, is_reverse
+
+class BFSAgent(BaseAgent):
+    def plan_move(self, game_state):
+        # Uses same collision detection as Task-0
+        valid_moves = []
+        for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            pos = self.calculate_next_position(direction)
+            wall_hit, body_hit = check_collision(pos, self.snake_body, self.grid_size, False)
+            if not (wall_hit or body_hit):
+                valid_moves.append(normalize_direction(direction))
 ```
 
-**RL can immediately use:**
 ```python
-# Environment step with universal utilities  
-reward = 10 if check_apple_collision(head_pos, apple_pos) else -0.1
-state_dict = build_state_dict(snake_pos, apple_pos, score, steps, grid_size)
+# Supervised Learning Extension
+from utils.json_utils import safe_json_save, validate_json_format
+from utils.web_utils import build_state_dict
+
+class SupervisedGameManager(BaseGameManager):
+    def save_training_data(self):
+        # Uses same JSON utilities as Task-0
+        state_dict = build_state_dict(
+            self.snake_positions, self.apple_position, 
+            self.score, self.steps, self.grid_size
+        )
+        safe_json_save(state_dict, self.training_data_path)
 ```
 
-**Supervised Learning can immediately use:**
+### **Configuration Integration**
+Following Final Decision 2, utilities access universal constants:
+
 ```python
-# Dataset generation with universal board management
-update_board_array(board, snake_positions, apple_position, board_info)
-training_example = {'state': board.tolist(), 'action': normalize_direction(action)}
+# Universal utilities use universal constants
+from config.game_constants import VALID_MOVES, DIRECTIONS, END_REASON_MAP
+from config.ui_constants import COLORS, GRID_SIZE
+
+# Task-0 utilities access LLM-specific constants
+from config.llm_constants import MAX_TOKENS, TEMPERATURE  # Task-0 only
+from config.prompt_templates import SYSTEM_PROMPT         # Task-0 only
 ```
+
+
+
+## 🎓 **Educational and Design Benefits**
+
+### **Consistency Across Extensions**
+Universal utilities ensure all extensions behave identically:
+- **Collision Detection**: Same physics rules across all AI approaches
+- **Board Management**: Consistent grid representation and manipulation
+- **Move Processing**: Uniform direction handling and validation
+- **Web Interface**: Identical state representation for visualization
+
+### **Rapid Extension Development**
+Extensions inherit rich functionality immediately:
+- **No Reimplementation**: Core game mechanics work out-of-the-box
+- **Focus on Algorithms**: Developers focus on AI logic, not infrastructure
+- **Guaranteed Compatibility**: All extensions interoperate seamlessly
+- **Cross-Extension Replay**: Universal utilities enable cross-algorithm replay
+
+### **Maintenance Benefits**
+Centralized utilities simplify system maintenance:
+- **Single Source of Truth**: Game rules defined once, used everywhere
+- **Bug Fixes Propagate**: Fix once, benefits all extensions
+- **Feature Enhancement**: Improvements automatically available to all tasks
+- **Testing Efficiency**: Test utilities once, confidence across all extensions
+
+## 🔧 **Dependency Management**
+
+### **Clean Dependency Hierarchy**
+The utility architecture maintains clear dependency direction:
+
+```python
+# ✅ Allowed Dependencies
+utils/board_utils.py    → config/game_constants.py
+utils/web_utils.py      → config/ui_constants.py
+core/game_logic.py      → utils/collision_utils.py
+
+# ❌ Forbidden Dependencies (circular)
+utils/board_utils.py    ← core/game_logic.py  # Never happens
+```
+
+### **Task-Specific Isolation**
+Task-0 utilities correctly depend on concrete classes:
+
+```python
+# Task-0 specific utilities can use Task-0 classes
+def setup_llm_clients(game_manager: "GameManager"):  # Task-0 concrete class
+    """Setup LLM clients for Task-0 only"""
+
+# Universal utilities use abstractions only
+def update_board_array(board, snake_positions, apple_position, board_info):
+    """Works with any snake positions from any algorithm"""
+```
+
+## 🔮 **Future Extensibility**
+
+
+
+### **Extension Points**
+The utility architecture supports future enhancements:
+- **Algorithm-Specific Utilities**: Extensions can add specialized utilities
+- **Performance Optimizations**: Universal utilities can be optimized without breaking extensions
+- **New Game Modes**: Additional utilities can be added while maintaining compatibility
+- **Cross-Platform Support**: Path and system utilities enable deployment flexibility
+
+### **Integration Guidelines**
+When adding new utilities:
+1. **Universal**: Add to `ROOT/utils/` if useful across all tasks
+2. **Extension-Specific**: Add to `extensions/common/` if useful across multiple extensions
+3. **Task-Specific**: Keep in extension directory if specific to one algorithm type
+4. **Follow Patterns**: Use established naming and organizational conventions
+
+---
+
+**The utility architecture demonstrates the power of careful separation of concerns. By distinguishing between universal game mechanics and task-specific functionality, the system enables rapid extension development while maintaining consistency and compatibility across all AI approaches. This foundation supports the educational mission while providing the flexibility needed for advanced research and development.**
 
 

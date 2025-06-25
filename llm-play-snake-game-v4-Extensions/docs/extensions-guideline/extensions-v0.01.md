@@ -26,7 +26,7 @@ v0.01 is intentionally **extremely simple** - it's a proof of concept that demon
 ./extensions/heuristics-v0.01/
 ├── __init__.py
 ├── main.py              # Simple entry point, no arguments
-├── agent_bfs.py         # Single BFS agent (not bfs_agent.py!)
+├── agent_bfs.py         # ✅ v0.01: Single BFS agent in extension root
 ├── game_logic.py        # Extends BaseGameLogic
 └── game_manager.py      # Extends BaseGameManager
 ```
@@ -172,6 +172,7 @@ class NeuralGameManager(BaseGameManager):
 ### **Specific to Supervised v0.01:**
 - [ ] **PyTorch neural networks** only
 - [ ] **Dataset loading** from heuristics
+- [ ] **Agent files in extension root** (v0.01 pattern)
 
 ## 🎯 **Success Criteria**
 

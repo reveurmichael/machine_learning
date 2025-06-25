@@ -1,41 +1,5 @@
 # Extension Guidelines Contradictions and Issues Analysis
 
-## 🚨 **Major Contradictions and Incoherent Aspects**
-
-### 1. **Agent Directory Structure Inconsistency**
-
-**Problem:**
-- `agents.md` states: "ALL agent files MUST use `agent_{algorithm}.py` naming pattern. No exceptions."
-- `extensions-v0.01.md` shows `agent_bfs.py` in the extension root directory
-- `extensions-v0.02.md` says all agents move to `agents/` directory
-- This creates confusion about where agents should be placed in v0.01
-
-**Solution:**
-```
-✅ CLARIFIED RULE:
-- v0.01: agent_*.py files in extension root (proof of concept simplicity)
-- v0.02+: ALL agent_*.py files MUST be in agents/ directory
-- Update agents.md to reflect this version-specific placement rule
-```
-
-### 2. **Configuration Architecture Boundary Confusion**
-
-**Problem:**
-- `config.md` states LLM constants should NOT be used by general extensions
-- But then creates exceptions for "LLM-focused extensions" 
-- Unclear boundaries on what constitutes an "LLM-focused extension"
-- Risk of configuration pollution when boundaries are fuzzy
-
-**Solution:**
-```
-✅ CLEAR BOUNDARY DEFINITION:
-- ONLY these extensions may use LLM constants:
-  * agentic-llms-*
-  * llm-finetune-*
-  * vision-language-model-*
-- ALL other extensions (heuristics, supervised, reinforcement, evolutionary) FORBIDDEN
-- Remove fuzzy language about "LLM-focused" - use explicit whitelist
-```
 
 ### 3. **Data Format Decision Matrix Confusion**
 

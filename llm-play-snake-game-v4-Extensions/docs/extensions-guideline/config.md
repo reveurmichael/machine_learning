@@ -70,15 +70,25 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
 ```
 
-### **Extensions Must NOT Use (General Rule – *except* LLM-focused extensions)**
+### **Extensions Must NOT Use (General Rule – *except* explicit whitelist)**
 ```python
-# 🚫 Do NOT import these in heuristics/supervised/RL/evolutionary extensions
-# ✅ LLM-centric extensions *may* import when implementing language-model features
+# 🚫 FORBIDDEN for: heuristics, supervised, reinforcement, evolutionary extensions
+from config.llm_constants import AVAILABLE_PROVIDERS
+from config.prompt_templates import SYSTEM_PROMPT
+
+# ✅ ALLOWED ONLY for: agentic-llms-*, llms-*, llm-*, llm-finetune-*, vision-language-model-*
 from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
 ```
 
-**Exception**: LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune) MAY use LLM constants when implementing LLM functionality.
+**Exception**: ONLY these specific extensions MAY use LLM constants:
+- agentic-llms-*
+- llms-*
+- llm-*
+- llm-finetune-*
+- vision-language-model-*
+
+ALL other extensions (heuristics, supervised, reinforcement, evolutionary) are FORBIDDEN from using LLM constants.
 
 ## 📊 **Benefits for Extension Types**
 

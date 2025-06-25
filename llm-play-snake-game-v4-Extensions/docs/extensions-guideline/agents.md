@@ -21,6 +21,10 @@ agent_lora.py             → class LoRAAgent(BaseAgent)
 
 **Critical Rule**: ALL agent files MUST use `agent_{algorithm}.py` naming pattern. No exceptions.
 
+**Agent Placement by Version:**
+- **v0.01**: Agent files in extension root directory (proof of concept simplicity)
+- **v0.02+**: ALL agent files MUST be in `agents/` directory (organized structure)
+
 **Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) per final-decision-10.md.
 
 ## 🏗️ **Directory Structure Evolution**
@@ -30,7 +34,7 @@ Following final-decision-5.md, agent placement evolves naturally:
 ### **v0.01: Proof of Concept**
 ```
 extensions/{algorithm}-v0.01/
-├── agent_{primary}.py             # Single algorithm in extension root
+├── agent_{primary}.py             # ✅ Single algorithm in extension root
 ├── game_logic.py
 └── game_manager.py
 ```
@@ -38,7 +42,7 @@ extensions/{algorithm}-v0.01/
 ### **v0.02+: Multi-Algorithm**
 ```
 extensions/{algorithm}-v0.02/
-├── agents/                        # Organized package structure
+├── agents/                        # ✅ ALL agents in organized package structure
 │   ├── __init__.py               # Agent factory
 │   ├── agent_{algo1}.py
 │   ├── agent_{algo2}.py

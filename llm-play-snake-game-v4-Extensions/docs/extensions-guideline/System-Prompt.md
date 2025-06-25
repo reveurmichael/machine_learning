@@ -63,7 +63,7 @@ VITAL: Because it's already being used by extensions (check the folder "./extens
 
 Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one, as a folder/extension/blabla-v0.0N + the common folder, is standalone.
 
-Keep the folder "agents" in the folder "./extensions/supervized-v0.02" and "./extensions/supervized-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+Keep the folder "agents" in the folder "./extensions/supervised-v0.02" and "./extensions/supervised-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
 
 
 Keep the folder "agents" in the folder "./extensions/reinforcement-v0.02" and "./extensions/reinforcement-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
@@ -133,10 +133,10 @@ Check this for all heuristics extensions:
 - heuristics-v0.03
 - heuristics-v0.04
 
-Check this for all supervized learning extensions:
-- supervized-v0.01
-- supervized-v0.02
-- supervized-v0.03
+Check this for all supervised learning extensions:
+- supervised-v0.01
+- supervised-v0.02
+- supervised-v0.03
 
 Check this for all reinforcement learning extensions:
 - reinforcement-v0.01

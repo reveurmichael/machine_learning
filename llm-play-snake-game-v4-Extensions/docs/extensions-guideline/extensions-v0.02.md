@@ -16,7 +16,11 @@ A `v0.02` extension introduces two fundamental architectural upgrades, as define
 
 ### **1. The `agents/` Directory: An Organized Home for Agents**
 
-All agent-related code is moved from the root of the extension into a new, dedicated `agents/` directory. This cleans up the top-level directory and establishes a clear, organized location for all algorithm implementations.
+**MAJOR CHANGE from v0.01:** All agent-related code is moved from the extension root into a new, dedicated `agents/` directory. This cleans up the top-level directory and establishes a clear, organized location for all algorithm implementations.
+
+**Version-Specific Agent Placement:**
+- **v0.01**: `agent_bfs.py` in extension root (simple proof of concept)
+- **v0.02+**: ALL `agent_*.py` files MUST be in `agents/` directory (organized structure)
 
 ### **2. The `--algorithm` Flag: Enabling Dynamic Selection**
 
@@ -27,10 +31,10 @@ The entry point, `main.py`, is enhanced to become a true command-line tool. It *
 extensions/{algorithm_type}-v0.02/
 ├── __init__.py
 ├── README.md
-├── agents/                  # 👈 NEW: All agent code now lives here
+├── agents/                  # 👈 NEW: All agent code moved from root to here
 │   ├── __init__.py          # Contains the Agent Factory
-│   ├── agent_{algo1}.py
-│   └── agent_{algo2}.py
+│   ├── agent_{algo1}.py     # ✅ v0.02+: Agents in organized directory
+│   └── agent_{algo2}.py     # ✅ v0.02+: Agents in organized directory
 ├── game_data.py             # 👈 NEW: Often added to handle more detailed stats
 ├── game_logic.py
 ├── game_manager.py

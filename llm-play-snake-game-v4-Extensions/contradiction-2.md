@@ -27,7 +27,7 @@ from config.llm_constants import AVAILABLE_PROVIDERS
 
 I love your solution. modify accordingly across all md files in "./docs/extension/" folder.
 
-This time, you are allowed to modify final-decision-N.md files.
+This time, you are allowed to modify final-decision-N.md files, if really really necessary.
 
 
 
@@ -52,7 +52,7 @@ This time, you are allowed to modify final-decision-N.md files.
 
 I love your solution. modify accordingly across all md files in "./docs/extension/" folder.
 
-This time, you are allowed to modify final-decision-N.md files.
+This time, you are allowed to modify final-decision-N.md files, if really really necessary.
 
 
 
@@ -84,7 +84,7 @@ This time, you are allowed to modify final-decision-N.md files.
 
 I love your solution. modify accordingly across all md files in "./docs/extension/" folder.
 
-This time, you are allowed to modify final-decision-N.md files.
+This time, you are allowed to modify final-decision-N.md files, if really really necessary.
 
 
 
@@ -120,7 +120,7 @@ This time, you are allowed to modify final-decision-N.md files.
 
 I love your solution. modify accordingly across all md files in "./docs/extension/" folder.
 
-This time, you are allowed to modify final-decision-N.md files.
+This time, you are allowed to modify final-decision-N.md files, if really really necessary.
 
 
 
@@ -178,7 +178,7 @@ This time, you are allowed to modify final-decision-N.md files.
 
 I love your solution. modify accordingly across all md files in "./docs/extension/" folder.
 
-This time, you are allowed to modify final-decision-N.md files.
+This time, you are allowed to modify final-decision-N.md files, if really really necessary.
 
 
 

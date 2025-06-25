@@ -18,7 +18,7 @@ This short meta-document explains how the **Final Decision Series (N = 0-10)** f
 | **Final-Decision-7** | Factory Pattern Extensions | Additional factories & design philosophy |
 | **Final-Decision-8** | Factory Implementation Details | Layered architecture, phased rollout |
 | **Final-Decision-9** | Streamlit OOP Architecture | Base/Extension apps, UX standards |
-| **Final-Decision-10** | Task-0 Agent Naming | `SnakeAgent` (not `LLMSnakeAgent`) consistency |
+| **Final-Decision-10** | Non-eligible; AI prompt | Non-eligble; AI prompt |
 
 ## 🏆 High-Priority Coherence Checklist
 

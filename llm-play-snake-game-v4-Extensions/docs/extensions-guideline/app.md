@@ -1,6 +1,7 @@
 # Streamlit App Path Management
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 6 (Path Management). **See `cwd-and-logs.md` for complete path management documentation.**
+> **Important — Reference Redirect:** Streamlit apps have unique needs, but the **authoritative path-management guide is `final-decision-6.md`**.  
+> This file shows only the *Streamlit-specific* snippet; all generic patterns and rationales live in the Final Decision document.
 
 ## 🎯 **Streamlit-Specific Path Requirements**
 
@@ -18,19 +19,7 @@ import streamlit as st
 from extensions.common.app_utils import BaseExtensionApp
 ```
 
-## 🧠 **Benefits of Standardized Path Management**
-
-### **Reliability**
-- **Cross-Platform**: Works consistently on Windows, macOS, and Linux
-- **Environment Independent**: Same behavior in IDE, terminal, containers
-- **Streamlit Compatible**: Handles Streamlit's working directory changes
-
-### **Development Experience**
-- **Predictable Behavior**: Apps launch reliably from any directory
-- **Error Prevention**: Eliminates path-related import failures
-- **Easy Debugging**: Clear working directory and path resolution
-
-## 🔧 **Standard Implementation Pattern**
+## 🔧 **Standard Implementation Pattern (Streamlit Only)**
 
 ### **App Entry Point**
 ```python
@@ -74,14 +63,4 @@ subprocess.run([
 ])
 ```
 
-## 📋 **Compliance Requirements**
-
-All extension Streamlit apps must:
-- [ ] Use `ensure_project_root()` before other imports
-- [ ] Use path utilities from `extensions/common/path_utils.py`
-- [ ] Work when launched from any directory
-- [ ] Use properly resolved paths for subprocess calls
-
----
-
-**This standardized path management ensures reliable Streamlit app operation across all extensions and environments.**
+For any **non-Streamlit** scripts (training, dataset generation, etc.) follow the generic template in `final-decision-6.md`.

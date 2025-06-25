@@ -1,6 +1,14 @@
 # Working Directory and Path Management
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 6 (Path Management). **The path management utilities are MANDATORY for all extensions.**
+> **📢 NOTE — Authoritative Reference**: Final Decision 6 ( `final-decision-6.md` ) is now the **single source of truth** for all path-management code patterns and utilities.  
+> This document focuses **only** on directory-structure conventions and log locations.
+
+## 🎯 **Why This Document Still Exists**
+`cwd-and-logs.md` captures *where* generated artifacts live (datasets, models, execution logs) and *why* the grid-size hierarchy matters.  The *how* (code needed to set paths) has been centralized in Final Decision 6 to avoid duplication.
+
+If you need to know **how to call** `ensure_project_root()` or any related helper, **stop reading now and open `final-decision-6.md`**.
+
+---
 
 ## 🎯 **Mandatory Path Management Philosophy**
 

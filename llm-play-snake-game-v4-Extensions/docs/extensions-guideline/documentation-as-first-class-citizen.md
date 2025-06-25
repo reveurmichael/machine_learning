@@ -98,12 +98,12 @@ class GameAgentFactory:
             ↓ creates
         Product (BaseAgent)
             ↓ implements
-        ConcreteProducts (LLMAgent, BFSAgent, DQNAgent, etc.)
+        ConcreteProducts (BFSAgent, DQNAgent, etc.)
     
     Participants:
         - GameAgentFactory: Declares factory method returning BaseAgent
         - BaseAgent: Abstract interface for all game agents
-        - LLMAgent, BFSAgent, etc.: Concrete agent implementations
+        - BFSAgent, etc.: Concrete agent implementations
     
     Collaborations:
         1. Client calls GameAgentFactory.create_agent(agent_type, config)

@@ -12,7 +12,7 @@ The codebase follows principles that make it highly readable and navigable for A
 - **Meaningful file names**: `game_controller.py`, `agent_bfs.py`, `replay_engine.py`
 - **Clear directory hierarchy**: `core/`, `extensions/`, `gui/`, `web/`
 - **Consistent naming patterns**: All core files use `game_*.py` pattern
-- **Descriptive class names**: `BaseGameManager`, `LLMAgent`, `HeuristicGameLogic`
+- **Descriptive class names**: `BaseGameManager`, `HeuristicGameLogic`
 
 ### **2. Comprehensive Documentation Strategy**
 ```python

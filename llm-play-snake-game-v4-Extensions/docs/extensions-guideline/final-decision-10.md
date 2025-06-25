@@ -3,6 +3,7 @@
 
 THOSE FILES ARE CALLED SUPREME_RULES, that are GOLDEN STARDARD FOR THE WHOLE PROJECT:
 - flask.md
+- final-decison-1.md
 
 
 SUPREME_RULES is like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE OF THE PROJECT, AND HAVE THE FINAL SAY ON EVERYTHING.
@@ -10,10 +11,9 @@ SUPREME_RULES is like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE 
 
 
 Those files in the ./docs/extensions-guideline/ folder are called GOOD_RULES: 
-- final-decision-N.md (N=0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 - agents.md
 - app.md
-- datasets_folder.md
+- datasets-folder.md
 - dashboard.md
 - documentation-as-first-class-citizen.md
 - extensions-move-guidelines.md

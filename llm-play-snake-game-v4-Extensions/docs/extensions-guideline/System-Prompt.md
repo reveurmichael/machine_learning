@@ -158,8 +158,13 @@ Extensions `{algorithm}-v0.0N` should generate:
 
 For transforming JSON files to CSV, use shared tools in the "common" folder. For JSONL generation, place in heuristics-v0.04 folder or common folder based on clarity requirements.
 
-### **File Naming Clarity**
-Avoid confusing file names like `generate_dataset_v03.py`, `generate_dataset.py`, `generate_jsonl_dataset.py` in the same folder. Use clear, descriptive names and consider moving utilities to the "common" folder.
+### **File Naming Standards**
+Use clear, descriptive file names that follow established patterns:
+- `generate_datasets.py` for comprehensive dataset generation
+- `generate_jsonl_dataset.py` for JSONL-specific generation
+- `dataset_converter.py` for format conversion utilities
+
+Consider organizing utilities in the "common" folder for better clarity and reusability.
 
 ## 🚫 **Breaking Changes in Extensions**
 
@@ -180,7 +185,9 @@ Grid size should not be fixed to 10. Generated datasets (JSON, CSV, JSONL files/
 Ensure this structure works for:
 - **Heuristics**: v0.01, v0.02, v0.03, v0.04
 - **Supervised Learning**: v0.01, v0.02, v0.03
-- **Reinforcement Learning**: v0.01, v0.02
+- **Reinforcement Learning**: v0.01, v0.02, v0.03
+- **LLM Fine-tuning**: v0.01, v0.02, v0.03
+- **LLM Distillation**: v0.01, v0.02, v0.03
 
 ### **Model Storage**
 Models trained by ML/DL/RL are stored in:

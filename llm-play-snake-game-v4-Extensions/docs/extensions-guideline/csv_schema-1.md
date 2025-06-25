@@ -64,14 +64,15 @@ Uses standardized path management from Final Decision 6:
 ```python
 from extensions.common.path_utils import get_dataset_path
 
-# Grid-size agnostic path generation
+# Standardized path generation with enforced format
 dataset_path = get_dataset_path(
     extension_type="heuristics", 
     version="0.03",
     grid_size=grid_size,  # Any supported size
     algorithm="bfs",
-    timestamp=timestamp
+    timestamp=timestamp  # Format: YYYYMMDD_HHMMSS
 )
+# Result: logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.03_{timestamp}/
 ```
 
 ## 🔧 **Usage Examples**

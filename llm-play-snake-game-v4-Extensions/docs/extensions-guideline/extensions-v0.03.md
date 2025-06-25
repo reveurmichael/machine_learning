@@ -38,7 +38,34 @@ extensions/{algorithm_type}-v0.03/
 3.  **`dashboard/` Organizes the UI:** All UI components used by `app.py` are organized into the `dashboard/` folder for modularity and clarity.
 4.  **The `agents/` Folder is Stable:** The `agents/` directory contains the same core algorithms from `v0.02`. This is a critical principle, demonstrating that the core agent logic is stable and can be reused without modification.
 
-**Evolution Rule**: Core algorithm implementations remain unchanged. New agents may be added for enhanced functionality, but existing agent files should not be modified between v0.02 and v0.03.
+### **🔒 Evolution Rules for Agents Folder**
+
+**Core Stability Principle**: The `agents/` folder follows strict evolution rules to maintain algorithmic integrity:
+
+**✅ Required: Copy Exactly from v0.02**
+- All core algorithm files (`agent_bfs.py`, `agent_astar.py`, etc.)
+- Factory registration system (`__init__.py`)
+- Base agent interfaces and method signatures
+
+**➕ Allowed: Enhancements and Extensions**
+- Enhanced algorithm variants (`agent_bfs_web_optimized.py`)
+- Monitoring and metrics collection utilities
+- Web interface integration helpers
+- Performance optimization wrappers
+
+**❌ Forbidden: Breaking Changes**
+- Modifying core algorithm behavior or logic
+- Changing factory registration names or signatures
+- Removing or renaming existing agent files
+- Breaking backward compatibility with v0.02
+
+### **Exception Cases for New Agents**
+
+New agents can be added in v0.03 **only** if they:
+1. **Extend existing algorithms** without modifying originals
+2. **Add web-specific functionality** (real-time monitoring, progress tracking)
+3. **Maintain interface compatibility** with existing factory patterns
+4. **Follow naming conventions** (`agent_{algorithm}_{enhancement}.py`)
 
 ## 🔧 **The "UI as a Script-Runner" Pattern**
 
@@ -99,11 +126,12 @@ extensions/{algorithm}-v0.03/
 │   ├── tab_evaluation.py         # Evaluation interface
 │   ├── tab_replay.py             # Replay interface
 │   └── tab_comparison.py         # Comparison interface
-├── agents/                        # Stable from v0.02 (core algorithms unchanged)
-│   ├── __init__.py
-│   ├── agent_{type1}.py
-│   ├── agent_{type2}.py
-│   └── [additional agents]
+├── agents/                        # 🔒 Copied exactly from v0.02 + allowed enhancements
+│   ├── __init__.py               # 🔒 Stable factory (unchanged)
+│   ├── agent_{type1}.py          # 🔒 Core algorithm (unchanged)
+│   ├── agent_{type2}.py          # 🔒 Core algorithm (unchanged)
+│   ├── agent_{type1}_enhanced.py # ➕ Allowed: Enhanced variants
+│   └── [monitoring utilities]    # ➕ Allowed: Web interface support
 └── scripts/                       # 🆕 Script organization
     ├── main.py                   # Moved from root
     ├── generate_dataset.py       # 🆕 Dataset generation CLI
@@ -138,15 +166,17 @@ extensions/heuristics-v0.03/
 │   ├── tab_evaluation.py         # Performance evaluation
 │   ├── tab_replay.py             # Replay interface
 │   └── tab_comparison.py         # Algorithm comparison
-├── agents/                   # Same as v0.02 (copied exactly)
-│   ├── __init__.py
-│   ├── agent_bfs.py
-│   ├── agent_bfs_safe_greedy.py
-│   ├── agent_bfs_hamiltonian.py
-│   ├── agent_dfs.py
-│   ├── agent_astar.py
-│   ├── agent_astar_hamiltonian.py
-│   └── agent_hamiltonian.py
+├── agents/                   # 🔒 Core algorithms from v0.02 + ➕ allowed enhancements
+│   ├── __init__.py           # 🔒 Stable factory (copied exactly)
+│   ├── agent_bfs.py          # 🔒 Core BFS (copied exactly)
+│   ├── agent_bfs_safe_greedy.py    # 🔒 Core variant (copied exactly)
+│   ├── agent_bfs_hamiltonian.py    # 🔒 Core variant (copied exactly)
+│   ├── agent_dfs.py          # 🔒 Core DFS (copied exactly)
+│   ├── agent_astar.py        # 🔒 Core A* (copied exactly)
+│   ├── agent_astar_hamiltonian.py  # 🔒 Core variant (copied exactly)
+│   ├── agent_hamiltonian.py # 🔒 Core algorithm (copied exactly)
+│   ├── agent_bfs_web_optimized.py  # ➕ New: Web interface optimization
+│   └── web_monitoring_utils.py     # ➕ New: Real-time monitoring
 └── scripts/
     ├── main.py                   # CLI interface
     ├── generate_dataset.py       # CSV dataset generation
@@ -172,10 +202,18 @@ extensions/supervised-v0.03/
 │   ├── tab_evaluation.py         # Model evaluation
 │   ├── tab_comparison.py         # Model comparison
 │   └── tab_replay.py             # Model decision replay
-├── models/                        # Same as v0.02
-│   ├── neural_networks/
-│   ├── tree_models/
-│   └── graph_models/
+├── models/                        # 🔒 Core models from v0.02 + ➕ web enhancements
+│   ├── neural_networks/          # 🔒 Core neural models (copied exactly)
+│   │   ├── __init__.py           # 🔒 Stable factory
+│   │   ├── agent_mlp.py          # 🔒 Core MLP (unchanged)
+│   │   ├── agent_cnn.py          # 🔒 Core CNN (unchanged)
+│   │   ├── agent_lstm.py         # 🔒 Core LSTM (unchanged)
+│   │   └── agent_mlp_web_monitor.py # ➕ New: Web training visualization
+│   ├── tree_models/              # 🔒 Core tree models (copied exactly)
+│   │   ├── agent_xgboost.py      # 🔒 Core XGBoost (unchanged)
+│   │   ├── agent_lightgbm.py     # 🔒 Core LightGBM (unchanged)
+│   │   └── tree_web_explainer.py # ➕ New: Interactive feature importance
+│   └── graph_models/             # 🔒 Core graph models (copied exactly)
 ├── training/                      # Enhanced training scripts
 │   ├── train_neural.py
 │   ├── train_tree.py
@@ -204,10 +242,13 @@ extensions/reinforcement-v0.03/
 │   ├── tab_evaluation.py         # RL evaluation
 │   ├── tab_comparison.py         # RL algorithm comparison
 │   └── tab_replay.py             # RL agent replay
-├── agents/                        # Same as v0.02
-│   ├── agent_dqn.py
-│   ├── agent_ppo.py
-│   └── [other RL agents]
+├── agents/                        # 🔒 Core RL algorithms from v0.02 + ➕ enhancements
+│   ├── __init__.py               # 🔒 Stable factory (copied exactly)
+│   ├── agent_dqn.py              # 🔒 Core DQN (copied exactly)
+│   ├── agent_ppo.py              # 🔒 Core PPO (copied exactly)
+│   ├── agent_a3c.py              # 🔒 Core A3C (copied exactly)
+│   ├── agent_dqn_web_monitor.py  # ➕ New: Web training monitoring
+│   └── rl_metrics_collector.py   # ➕ New: Real-time metrics
 ├── training/                      # RL training scripts
 │   ├── train_dqn.py
 │   ├── train_ppo.py
@@ -236,7 +277,7 @@ Following Final Decision 9, all v0.03 extensions use Object-Oriented Programming
 ## 📊 **Dataset Generation System**
 
 ### **Dataset Storage Structure**
-Following Final Decision 1:
+Following Final Decision 1 with standardized format:
 ```
 logs/extensions/datasets/
 ├── grid-size-8/
@@ -246,6 +287,8 @@ logs/extensions/datasets/
 └── grid-size-12/
     └── {extension}_v0.03_{timestamp}/
 ```
+
+**🎯 Enforced Path Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
 
 ### **Data Formats Supported**
 - **CSV**: Tabular data for XGBoost, LightGBM, simple neural networks
@@ -261,16 +304,29 @@ logs/extensions/datasets/
 
 ## 🚀 **Evolution Summary**
 
-### **v0.02 → v0.03 Progression:**
+### **v0.02 → v0.03 Standardized Evolution:**
 
-**All Extensions:**
+**All Extensions (Heuristics, Supervised, Reinforcement):**
 - ✅ **CLI only** → **Streamlit web application**
 - ✅ **No replay** → **PyGame + Flask web replay**
-- ✅ **Basic logging** → **Dataset generation**
+- ✅ **Basic logging** → **Dataset generation with standardized paths**
+- 🔒 **Core algorithms** → **Stable (copied exactly from v0.02)**
+- ➕ **Web enhancements** → **Allowed additions for UI integration**
 
-### **v0.03 → v0.04 Preview:**
+### **v0.03 → v0.04 Evolution Rules:**
 - **Heuristics only**: Numerical datasets → **Language-rich datasets for LLM fine-tuning**
-- **Other algorithms**: No v0.04 (v0.03 is sufficient)
+- **All other extensions**: No v0.04 (v0.03 is the final mature version)
+- **Path structure**: Remains identical across all versions
+- **Core stability**: v0.04 maintains same 🔒 stability rules as v0.03
+
+### **Version Compatibility Guarantee:**
+| Component | v0.02 → v0.03 | v0.03 → v0.04 |
+|-----------|---------------|---------------|
+| **Core Algorithm Files** | 🔒 **Copy exactly** | 🔒 **Copy exactly** |
+| **Factory Registration** | 🔒 **Unchanged** | 🔒 **Unchanged** |
+| **Path Structure** | ✅ **Standardized** | 🔒 **Stable** |
+| **Web Interface** | ➕ **Added** | ➕ **Enhanced** |
+| **Dataset Formats** | ➕ **CSV/NPZ** | ➕ **Add JSONL** |
 
 ## 📋 **Implementation Checklist**
 

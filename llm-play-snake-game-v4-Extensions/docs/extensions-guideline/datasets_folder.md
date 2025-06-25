@@ -44,7 +44,20 @@ logs/extensions/datasets/
     └── llm_distillation_v0.02_{timestamp}/ # Task 5 → Others (Efficient)
 ```
 
-**Standard Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
+**🎯 Standardized Directory Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
+
+### **Path Validation Utilities**
+```python
+def validate_dataset_path_structure(path: str) -> bool:
+    """Validate dataset path follows standardized format"""
+    import re
+    pattern = r"logs/extensions/datasets/grid-size-\d+/\w+_v\d+\.\d+_\d{8}_\d{6}/"
+    return bool(re.match(pattern, path))
+
+def enforce_path_structure(extension_type: str, version: str, grid_size: int, timestamp: str) -> str:
+    """Enforce standardized path structure"""
+    return f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/"
+```
 
 ### **Models Organization**
 ```
@@ -63,6 +76,8 @@ logs/extensions/models/
     ├── reinforcement_v0.02_{timestamp}/
     └── llm_finetune_v0.02_{timestamp}/
 ```
+
+**🎯 Standardized Model Path Format**: `logs/extensions/models/grid-size-N/{extension}_v{version}_{timestamp}/`
 
 ## 🔄 **Data Flow Benefits**
 
@@ -83,14 +98,15 @@ All extensions **MUST** use standardized path utilities from Final Decision 6:
 ```python
 from extensions.common.path_utils import get_dataset_path, get_model_path
 
-# Grid-size agnostic path generation
+# Standardized path generation with validation
 dataset_path = get_dataset_path(
     extension_type="heuristics", 
     version="0.03",
     grid_size=grid_size,  # Any supported size
     algorithm="bfs",
-    timestamp=timestamp
+    timestamp=timestamp  # Format: YYYYMMDD_HHMMSS
 )
+# Enforced result: logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.03_{timestamp}/
 ```
 
 ## 🎯 **Extension Compliance Requirements**

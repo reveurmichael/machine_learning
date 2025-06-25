@@ -32,12 +32,28 @@ Evolutionary algorithms represent a family of optimization techniques inspired b
 
 ## 🎯 **Integration with Extension Architecture**
 
-### **Following GOODFILES Patterns**
-Evolutionary algorithms follow the same extension evolution as other algorithm types:
+### **Extension Evolution Integration**
+Evolutionary algorithms follow the **same standardized evolution** as other algorithm types:
 
-**v0.01**: Single genetic algorithm implementation (proof of concept)
-**v0.02**: Multiple evolutionary approaches with factory patterns
-**v0.03**: Web interface and dataset generation capabilities
+| Version | Evolutionary Extension Characteristics |
+|---------|---------------------------------------|
+| **v0.01** | Single GA implementation (proof of concept) |
+| **v0.02** | Multiple evolutionary approaches + factory patterns |
+| **v0.03** | Web interface + dataset generation capabilities |
+| **v0.04** | ❌ Not supported (heuristics only) |
+
+### **Following GOODFILES Patterns**
+Evolutionary algorithms integrate seamlessly with the established architecture:
+
+**Directory Structure (Final Decision 5)**:
+```
+extensions/evolutionary-v0.02/
+├── agents/                     # 🔒 Core evolutionary algorithms
+│   ├── __init__.py            # Factory pattern
+│   ├── agent_ga.py            # Genetic Algorithm
+│   ├── agent_es.py            # Evolution Strategies  
+│   └── agent_gp.py            # Genetic Programming
+```
 
 ### **Agent Naming Conventions**
 Following Final Decision 4:
@@ -130,14 +146,15 @@ Following Final Decision 6:
 ```python
 from extensions.common.path_utils import get_dataset_path
 
-# Evolutionary-specific dataset paths
+# Standardized evolutionary dataset paths
 evolution_dataset_path = get_dataset_path(
     extension_type="evolutionary",
     version="0.02",
     grid_size=grid_size,
     algorithm="ga",
-    timestamp=timestamp
+    timestamp=timestamp  # Format: YYYYMMDD_HHMMSS
 )
+# Result: logs/extensions/datasets/grid-size-{grid_size}/evolutionary_v0.02_{timestamp}/
 ```
 
 ### **Configuration Management**

@@ -74,11 +74,42 @@ class HeuristicAgentFactory:
         return agent_class(**kwargs)
 ```
 
-## 🚀 **A Stable Foundation for the Future**
+## 🚀 **Extension Evolution Rules and Stability**
 
-A key principle of the `v0.02` to `v0.03` evolution is **stability**. The `agents/` folder, including its factory, is considered a stable and complete unit. When moving to `v0.03`, this entire folder should be **copied exactly as-is**.
+### **Core Algorithm Stability Principle**
+A key principle of the `v0.02` to `v0.03` evolution is **core algorithm stability**. The `agents/` folder represents the **stable algorithmic foundation**:
 
-This demonstrates a powerful software engineering principle: the core logic (the agents) can be finalized and then built upon with new interfaces (like a web UI in `v0.03`) without modification.
+**✅ Stable Between Versions (Never Modified):**
+- Core algorithm implementations (BFS, A*, DQN, etc.)
+- Factory patterns and registry systems
+- Base agent interfaces and contracts
+- Fundamental algorithmic logic
+
+**⚠️ Allowed Extensions (Can Be Added):**
+- Enhanced variants of existing algorithms (BFSSafeGreedy extends BFS)
+- Performance optimizations that maintain interface
+- Additional utility methods for web interface support
+- Monitoring and metrics collection capabilities
+
+**❌ Forbidden Changes (Breaking Stability):**
+- Modifying core algorithm behavior
+- Changing factory registration names
+- Breaking existing agent interfaces
+- Removing or renaming existing agents
+
+### **Version Compatibility Matrix**
+
+| Component | v0.01 → v0.02 | v0.02 → v0.03 | v0.03 → v0.04* |
+|-----------|---------------|---------------|----------------|
+| **Core Algorithms** | ✅ Add new | 🔒 **Stable (copy exactly)** | 🔒 **Stable** |
+| **Agent Factory** | ✅ Add registry | 🔒 **Stable** | 🔒 **Stable** |
+| **Enhanced Variants** | ➕ Can add | ➕ Can add | ➕ Can add |
+| **Interface Methods** | ✅ Define | 🔒 **Stable** | ➕ Can extend |
+| **Web Integration** | ❌ Not present | ✅ Add dashboard | ✅ Enhance |
+
+*v0.04 only exists for heuristics extensions
+
+This demonstrates a powerful software engineering principle: the core algorithmic logic can be finalized and then built upon with new interfaces (like web UI in `v0.03`) without modification.
 
 ## 📋 **Compliance Checklist: The Definition of Done**
 

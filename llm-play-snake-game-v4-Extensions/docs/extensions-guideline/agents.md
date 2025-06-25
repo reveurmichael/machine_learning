@@ -47,15 +47,24 @@ extensions/{algorithm}-v0.02/
 └── game_manager.py
 ```
 
-### **v0.03: Dashboard Integration**
-- `agents/` directory **copied exactly** from v0.02
-- Enhanced with dashboard UI components
-- No changes to agent implementations
+### **v0.03: Dashboard Integration + Allowed Enhancements**
+- 🔒 **Core agents copied exactly** from v0.02 (algorithm logic unchanged)
+- ➕ **Web-specific enhancements allowed** (monitoring, optimization wrappers)
+- 🔒 **Factory patterns unchanged** (registration names stable)
+- ➕ **UI integration utilities** for dashboard components
 
 ### **v0.04: Advanced Features (Heuristics Only)**
-- `agents/` directory **unchanged** from v0.03
-- Enhanced with JSONL generation capabilities
-- Algorithm implementations remain stable
+- 🔒 **Core agents unchanged** from v0.03 (algorithm stability maintained)
+- ➕ **JSONL generation capabilities** added without modifying core algorithms
+- 🔒 **All v0.03 functionality preserved** (backward compatibility)
+- ➕ **Language-rich dataset generation** for LLM fine-tuning
+
+### **Extension Evolution Rules Summary**
+| Version Transition | Core Algorithms | Enhancements | Factory | Breaking Changes |
+|-------------------|----------------|-------------|---------|------------------|
+| **v0.01 → v0.02** | ✅ Add new | ✅ Add variants | ✅ Create factory | ✅ Allowed |
+| **v0.02 → v0.03** | 🔒 **Copy exactly** | ➕ Web utilities | 🔒 **Stable** | ❌ **Forbidden** |
+| **v0.03 → v0.04** | 🔒 **Copy exactly** | ➕ JSONL tools | 🔒 **Stable** | ❌ **Forbidden** |
 
 ## 🧠 **Design Patterns & Philosophy**
 

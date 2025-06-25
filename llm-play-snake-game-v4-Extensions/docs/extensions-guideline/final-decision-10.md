@@ -21,7 +21,7 @@ csv_schema-2.md
 ai-friendly.md
 config.md
 gymnasium.md
-heuristics_as_foundation.md
+heuristics-as-foundation.md
 heuristics_to_supervised_pipeline.md
 html.md
 limits-manager-impact-on-extensions.md

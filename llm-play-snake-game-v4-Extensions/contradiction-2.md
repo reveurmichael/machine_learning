@@ -63,22 +63,6 @@ Allowed Changes (PERMITTED):
 - Provide complete working code samples in one location
 ```
 
-### 6. **Streamlit Architecture Pattern Inconsistency**
-
-**Problem:**
-- `app.md` references `BaseExtensionApp` pattern
-- `extensions-v0.03.md` mentions OOP architecture from `final-decision-9.md` (not provided)
-- Different files show different Streamlit implementation patterns
-- No consistent base class definition
-
-**Solution:**
-```
-✅ STANDARDIZE STREAMLIT ARCHITECTURE:
-- Define explicit BaseExtensionApp interface in extensions/common/
-- Provide complete implementation template
-- Remove references to unavailable final-decision documents
-- Show consistent OOP pattern across all v0.03 extensions
-```
 
 ### 7. **Documentation Reference Chain Breaks**
 
@@ -114,30 +98,3 @@ Allowed Changes (PERMITTED):
 - Reference single authoritative factory implementation
 ```
 
-## 🔧 **Implementation Priority**
-
-### High Priority (Fix Immediately):
-1. **Agent directory placement rules** - Creates deployment confusion
-2. **Configuration boundary definitions** - Prevents pollution
-3. **Data format decision matrix** - Critical for interoperability
-
-### Medium Priority (Fix Soon):
-1. **Extension evolution rules** - Important for version consistency
-2. **Path management consolidation** - Reduces implementation errors
-3. **Streamlit architecture standardization** - Improves UX consistency
-
-### Low Priority (Fix When Possible):
-1. **Documentation reference integrity** - Improves navigation
-2. **Factory pattern unification** - Reduces code duplication
-
-## 📋 **Recommended Action Plan**
-
-1. **Create definitive format decision guide** replacing scattered format recommendations
-2. **Establish clear configuration boundary whitelist** removing fuzzy "LLM-focused" language  
-3. **Consolidate path management into single implementation guide**
-4. **Define explicit extension evolution rules** with clear breaking/non-breaking change definitions
-5. **Remove or create missing final-decision documents** to fix broken reference chains
-6. **Standardize agent placement rules** with version-specific clarity
-7. **Unify factory pattern implementations** across all guideline documents
-
-This will eliminate contradictions and create coherent, actionable extension guidelines.

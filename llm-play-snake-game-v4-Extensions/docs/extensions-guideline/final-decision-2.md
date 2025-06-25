@@ -12,7 +12,7 @@ This document establishes the **definitive architectural standards** for configu
 ROOT/config/               # Task-0 specific (LLM-related configs)
 ├── game_constants.py      # ✅ Universal game rules (used by all tasks)
 ├── ui_constants.py        # ✅ Universal UI settings (used by all tasks) 
-├── llm_constants.py       # ❌ Task-0 only (LLM providers, models)
+├── llm_constants.py       # 🚫 General extensions must not import; ✅ LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune) may use
 ├── prompt_templates.py    # ❌ Task-0 only (LLM prompts)
 ├── network_constants.py   # ❌ Task-0 only (HTTP, WebSocket settings)
 └── web_constants.py       # ❌ Task-0 only (Flask, web interface)
@@ -40,8 +40,8 @@ from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
 from extensions.common.config.dataset_formats import CSV_SCHEMA_VERSION
 
 # ❌ Task-0 only (extensions should NOT import these)
-# from config.llm_constants import AVAILABLE_PROVIDERS  # FORBIDDEN in extensions
-# from config.prompt_templates import SYSTEM_PROMPT     # FORBIDDEN in extensions
+# from config.llm_constants import AVAILABLE_PROVIDERS  # 🚫 Forbidden for non-LLM extensions
+# from config.prompt_templates import SYSTEM_PROMPT     # 🚫 Forbidden for non-LLM extensions
 ```
 
 ### **Rationale**

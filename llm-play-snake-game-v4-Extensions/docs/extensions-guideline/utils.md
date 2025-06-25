@@ -201,7 +201,7 @@ TODO: this is what we want to have:
 from config.game_constants import END_REASON_MAP       # Game termination (all tasks)
 from config.ui_constants import COLORS                 # Visualization (all tasks)
 
-# ✅ Task-0 utilities use LLM constants
+# ✅ LLM-centric extensions (agentic-llms, vision-language-model, etc.) and Task-0 may import LLM constants
 from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-only
 ```
 
@@ -353,8 +353,8 @@ Following Final Decision 2, utilities access universal constants:
 from config.game_constants import VALID_MOVES, DIRECTIONS, END_REASON_MAP
 from config.ui_constants import COLORS, GRID_SIZE
 
-# Task-0 utilities access LLM-specific constants
-from config.llm_constants import MAX_TOKENS, TEMPERATURE  # Task-0 only
+# ✅ Allowed in Task-0 and LLM-centric extensions; 🚫 Do not use in other extension types
+from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-specific
 from config.prompt_templates import SYSTEM_PROMPT         # Task-0 only
 ```
 

@@ -20,7 +20,7 @@ from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
 
 ### **Task-0 Specific Constants (ROOT/config/)**
 ```python
-# ❌ FORBIDDEN in extensions - Task-0 only
+# 🚫 Not for general-purpose extensions — allowed **only** in LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune)
 from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
 from config.network_constants import HTTP_TIMEOUT
@@ -70,9 +70,10 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
 ```
 
-### **Extensions Must NOT Use (General Rule)**
+### **Extensions Must NOT Use (General Rule – *except* LLM-focused extensions)**
 ```python
-# ❌ Task-0 specific - FORBIDDEN in most extensions
+# 🚫 Do NOT import these in heuristics/supervised/RL/evolutionary extensions
+# ✅ LLM-centric extensions *may* import when implementing language-model features
 from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
 ```

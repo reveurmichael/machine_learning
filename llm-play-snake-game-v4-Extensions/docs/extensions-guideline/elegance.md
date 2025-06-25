@@ -82,7 +82,8 @@ from config.game_constants import VALID_MOVES, DIRECTIONS
 # ✅ Extension-specific constants
 from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 
-# ❌ Task-0 specific (forbidden in extensions)
+# 🚫 Not for heuristics/supervised/RL/evolutionary extensions
+# ✅ Allowed in LLM-centric extensions (agentic-llms, vision-language-model, etc.)
 # from config.llm_constants import AVAILABLE_PROVIDERS
 ```
 

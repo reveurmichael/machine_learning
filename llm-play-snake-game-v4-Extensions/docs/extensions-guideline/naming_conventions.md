@@ -118,7 +118,7 @@ critically – colocated with the *domain* they belong to.
 |----------------------|---------------------------------------------------|-------|
 | Game-rule numbers    | `config/game_constants.py`  → `MAX_STEPS_ALLOWED` | Shared by every task. |
 | UI / colour palette  | `config/ui_constants.py`    → `COLORS`, `GRID_SIZE` | First-citizen SSoT for both PyGame & Web. |
-| LLM tuning knobs     | `config/llm_constants.py`   → `TEMPERATURE`       | **Task-0 only**; do **not** move to a base module. |
+| LLM tuning knobs     | `config/llm_constants.py`   → `TEMPERATURE`       | **Task-0 & LLM-focused extensions**; other extensions must not import. |
 | HTTP / network       | `config/network_constants.py` → `DEFAULT_PORT`    | Used by scripts & tests. |
 
 Golden rule (for Task-0 only, because Task-1-5 will be standalone) : *If a constant is consumed by ≥2 tasks it belongs in `config/`*.

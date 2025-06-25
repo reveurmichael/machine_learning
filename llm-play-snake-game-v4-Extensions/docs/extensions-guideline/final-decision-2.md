@@ -338,15 +338,15 @@ extensions/
 ├── {algorithm}-v0.01/           # Proof of concept
 ├── {algorithm}-v0.02/           # Multi-algorithm expansion
 ├── {algorithm}-v0.03/           # Web interface + dataset generation
-└── {algorithm}-v0.04/           # Advanced features (heuristics only)
+└── heuristics-v0.04/            # Advanced features (heuristics only)
 
 # Where {algorithm} is:
-heuristics-v0.0N/        # Pathfinding algorithms
-supervised-v0.0N/        # Machine learning models
-reinforcement-v0.0N/     # Reinforcement learning
-llm-finetune-v0.0N/      # LLM fine-tuning
-llm-distillation-v0.0N/  # Model distillation
-evolutionary-v0.0N/      # Genetic algorithms
+heuristics-v0.0N/        # Pathfinding algorithms (v0.01-v0.04)
+supervised-v0.0N/        # Machine learning models (v0.01-v0.03)
+reinforcement-v0.0N/     # Reinforcement learning (v0.01-v0.03)
+llm-finetune-v0.0N/      # LLM fine-tuning (v0.01-v0.03)
+llm-distillation-v0.0N/  # Model distillation (v0.01-v0.03)
+evolutionary-v0.0N/      # Genetic algorithms (v0.01-v0.03)
 ```
 
 ## 📊 **DECISION 5: CSV Schema Grid-Size Handling**

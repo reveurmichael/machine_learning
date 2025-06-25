@@ -160,3 +160,8 @@ subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in
 
 ## VITAL
 You should never edit the file "ROOT/docs/extensions-guideline/final-decision-1.md" (or, more generally, "ROOT/docs/extensions-guideline/final-decision-N.md"), because it's the final decision, and it's the single source of truth.
+
+
+
+## No Tensorflow, at all. 
+For deep learning, we will use PyTorch and PyTorch family frameworks (e.g. torchvision, torchtext, torchaudio, torch-geometric / PyG (for graph neural networks) etc.).

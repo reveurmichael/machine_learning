@@ -1,21 +1,10 @@
 # Streamlit App Path Management
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 6 (Path Management). **Path utilities are MANDATORY for all Streamlit apps.**
+> **Important — Authoritative Reference:** This document supplements Final Decision 6 (Path Management). **See `cwd-and-logs.md` for complete path management documentation.**
 
-## 🎯 **Core Issue: Streamlit Path Challenges**
+## 🎯 **Streamlit-Specific Path Requirements**
 
-Streamlit applications face unique path management challenges because Streamlit changes the working directory and Python path when launching applications, leading to common import failures.
-
-## 🚫 **Common Failure Pattern**
-```
-ModuleNotFoundError: No module named 'extensions'
-```
-
-**Root Cause**: Streamlit's execution model modifies the Python environment, breaking relative imports and path assumptions.
-
-## ✅ **Mandatory Solution: Use Path Utilities**
-
-All Streamlit applications **MUST** use the standardized path utilities from Final Decision 6:
+All Streamlit applications **MUST** use the standardized path utilities from Final Decision 6 to handle Streamlit's unique execution environment:
 
 ```python
 # REQUIRED pattern for all extension app.py files

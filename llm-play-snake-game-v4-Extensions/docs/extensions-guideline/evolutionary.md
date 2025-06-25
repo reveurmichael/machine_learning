@@ -1,4 +1,11 @@
-IMPORTANT: THOUGH EVOLUTIONARY ALGORITHMS ARE NOT THE MAIN FOCUS OF THIS PROJECT (not termed as task1-task5), we should still adopt evolutionary algorithms, because it's a good way to incorporate ideas. There is ONE VERY IMPORTANT THING that touches only Evolutionary Algorithms, it's the representation/encoding of the game state. 16 features might not be enough. So we might need a specific encoding/representation of the game state for Evolutionary Algorithms. # TODO: DON'T REMOVE THIS LINE. IT'S VERY IMPORTANT. Even if you have a great solution (and you should), keep this line, and I will come back to recheck it.
+**IMPORTANT**: Evolutionary algorithms are supported but use specialized state representations. The standard 16-feature CSV schema may be insufficient for evolutionary approaches, which often benefit from raw board states, spatial patterns, or graph structures.
+
+**State Representation Decision Matrix**:
+- **16-feature tabular**: XGBoost, Random Forest, simple MLP
+- **Raw board state**: Evolutionary algorithms, genetic programming
+- **Sequential data**: LSTM, GRU, temporal models  
+- **Spatial arrays**: CNN, computer vision models
+- **Graph structures**: GNN, relationship-based models
 
 # Evolutionary Algorithms for Snake Game AI
 

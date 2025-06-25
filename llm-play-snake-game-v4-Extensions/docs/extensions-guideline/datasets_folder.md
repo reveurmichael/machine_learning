@@ -44,6 +44,8 @@ logs/extensions/datasets/
     └── llm_distillation_v0.02_{timestamp}/ # Task 5 → Others (Efficient)
 ```
 
+**Standard Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
+
 ### **Models Organization**
 ```
 logs/extensions/models/

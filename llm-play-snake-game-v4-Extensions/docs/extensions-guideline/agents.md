@@ -19,6 +19,8 @@ agent_dqn.py              → class DQNAgent(BaseAgent)
 agent_lora.py             → class LoRAAgent(BaseAgent)
 ```
 
+**Critical Rule**: ALL agent files MUST use `agent_{algorithm}.py` naming pattern. No exceptions.
+
 **Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) per Final Decision 10.
 
 ## 🏗️ **Directory Structure Evolution**

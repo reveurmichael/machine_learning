@@ -101,6 +101,12 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 - Consistent evaluation metrics and feature interpretability
 - Transfer learning possibilities between different configurations
 
+## 🔗 **See Also**
+
+- **`csv-schema-2.md`**: Detailed utilities and implementation guide
+- **`evolutionary.md`**: Alternative state representations for evolutionary algorithms
+- **`datasets_folder.md`**: Directory structure and organization standards
+
 ---
 
 **This grid-size agnostic CSV schema ensures consistent, scalable datasets for supervised learning across all Snake Game AI extensions while maintaining cross-extension compatibility.**

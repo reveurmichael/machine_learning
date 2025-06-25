@@ -51,24 +51,27 @@ from .agent_astar import AStarAgent
 from .agent_dfs import DFSAgent
 
 class HeuristicAgentFactory:
-    """A factory to create heuristic agent instances from a string name."""
+    """
+    Factory Pattern Implementation for Heuristic Agents
+    
+    Design Pattern: Factory Pattern
+    Purpose: Create heuristic agent instances without exposing instantiation logic
+    Educational Note: Demonstrates how factory patterns enable plugin architectures
+    """
 
-    _agent_registry = {
+    _registry = {
         "BFS": BFSAgent,
         "ASTAR": AStarAgent,
         "DFS": DFSAgent,
     }
 
     @classmethod
-    def create_agent(cls, algorithm_name: str, **kwargs) -> BaseAgent:
-        """Looks up the algorithm name and returns an instance of the class."""
-        agent_class = cls._agent_registry.get(algorithm_name.upper())
+    def create(cls, algorithm_name: str, **kwargs) -> BaseAgent:
+        """Create heuristic agent by algorithm name"""
+        agent_class = cls._registry.get(algorithm_name.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm_name}")
         return agent_class(**kwargs)
-
-# The GameManager can now use this factory to create the correct agent
-# based on the --algorithm command-line argument.
 ```
 
 ## 🚀 **A Stable Foundation for the Future**
@@ -173,6 +176,14 @@ extensions/reinforcement-v0.02/
 ```python
 # ✅ All extensions use factory patterns
 def create_agent(algorithm: str) -> BaseAgent:
+    """
+    Factory Pattern Implementation
+    
+    Design Pattern: Factory Pattern
+    Purpose: Decouple agent creation from client code
+    Educational Note: This pattern makes it easy to add new algorithms
+    without modifying existing code (Open/Closed Principle)
+    """
     agents = {
         'BFS': BFSAgent,
         'ASTAR': AStarAgent,
@@ -186,11 +197,24 @@ def create_agent(algorithm: str) -> BaseAgent:
 ```python
 # ✅ Natural algorithm evolution through inheritance
 class BFSAgent(BaseAgent):
-    """Foundation BFS implementation"""
+    """
+    Foundation BFS implementation
+    
+    Design Pattern: Template Method Pattern
+    Purpose: Provides base BFS algorithm that can be extended
+    Educational Note: Inheritance enables algorithm specialization
+    while maintaining consistent interface
+    """
     pass
 
 class BFSSafeGreedyAgent(BFSAgent):
-    """Extends BFS with safety checks and greedy optimization"""
+    """
+    Extends BFS with safety checks and greedy optimization
+    
+    Design Pattern: Decorator Pattern (via inheritance)
+    Purpose: Adds safety features without modifying base BFS
+    Educational Note: Shows how to enhance algorithms incrementally
+    """
     pass
 
 class AStarAgent(BaseAgent):

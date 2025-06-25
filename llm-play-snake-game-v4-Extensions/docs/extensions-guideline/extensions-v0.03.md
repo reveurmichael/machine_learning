@@ -36,7 +36,9 @@ extensions/{algorithm_type}-v0.03/
 1.  **`app.py` is the New Entry Point:** The primary way to interact with a `v0.03` extension is through the Streamlit web application. It **must** follow the OOP architecture defined in `final-decision-9.md`.
 2.  **`scripts/` Consolidates CLI Tools:** All command-line functionality is moved into the `scripts/` folder. These scripts are self-contained and can be run independently of the UI.
 3.  **`dashboard/` Organizes the UI:** All UI components used by `app.py` are organized into the `dashboard/` folder for modularity and clarity.
-4.  **The `agents/` Folder is Stable:** The `agents/` directory is copied **identically** from `v0.02`. This is a critical principle, demonstrating that the core agent logic is stable and can be reused without modification.
+4.  **The `agents/` Folder is Stable:** The `agents/` directory contains the same core algorithms from `v0.02`. This is a critical principle, demonstrating that the core agent logic is stable and can be reused without modification.
+
+**Evolution Rule**: Core algorithm implementations remain unchanged. New agents may be added for enhanced functionality, but existing agent files should not be modified between v0.02 and v0.03.
 
 ## 🔧 **The "UI as a Script-Runner" Pattern**
 
@@ -97,7 +99,7 @@ extensions/{algorithm}-v0.03/
 │   ├── tab_evaluation.py         # Evaluation interface
 │   ├── tab_replay.py             # Replay interface
 │   └── tab_comparison.py         # Comparison interface
-├── agents/                        # Same as v0.02 (copied exactly)
+├── agents/                        # Stable from v0.02 (core algorithms unchanged)
 │   ├── __init__.py
 │   ├── agent_{type1}.py
 │   ├── agent_{type2}.py
@@ -236,13 +238,13 @@ Following Final Decision 9, all v0.03 extensions use Object-Oriented Programming
 ### **Dataset Storage Structure**
 Following Final Decision 1:
 ```
-ROOT/logs/extensions/datasets/
+logs/extensions/datasets/
 ├── grid-size-8/
-│   └── {algorithm}_v0.03_{timestamp}/
+│   └── {extension}_v0.03_{timestamp}/
 ├── grid-size-10/
-│   └── {algorithm}_v0.03_{timestamp}/
+│   └── {extension}_v0.03_{timestamp}/
 └── grid-size-12/
-    └── {algorithm}_v0.03_{timestamp}/
+    └── {extension}_v0.03_{timestamp}/
 ```
 
 ### **Data Formats Supported**

@@ -19,9 +19,15 @@ Following Final Decision 7-8 factory patterns:
 
 ```python
 class VLMFactory:
-    """Factory for creating vision-language model instances"""
+    """
+    Factory Pattern Implementation for Vision-Language Models
     
-    _model_registry = {
+    Design Pattern: Factory Pattern
+    Purpose: Create VLM provider instances without exposing instantiation logic
+    Educational Note: Demonstrates factory pattern with plugin-style VLM registration
+    """
+    
+    _registry = {
         "gpt4_vision": GPT4VisionProvider,
         "claude_vision": ClaudeVisionProvider,
         "llava": LLaVAProvider,
@@ -30,9 +36,9 @@ class VLMFactory:
     }
     
     @classmethod
-    def create_model(cls, model_type: str, **kwargs) -> BaseVLMProvider:
+    def create(cls, model_type: str, **kwargs) -> BaseVLMProvider:
         """Create VLM provider by model type"""
-        provider_class = cls._model_registry.get(model_type.lower())
+        provider_class = cls._registry.get(model_type.lower())
         if not provider_class:
             raise ValueError(f"Unsupported VLM: {model_type}")
         return provider_class(**kwargs)
@@ -41,7 +47,13 @@ class VLMFactory:
 ### **Universal VLM Interface**
 ```python
 class BaseVLMProvider:
-    """Base class for all vision-language model providers"""
+    """
+    Base class for all vision-language model providers
+    
+    Design Pattern: Template Method Pattern
+    Purpose: Define common interface for all VLM implementations
+    Educational Note: Enables consistent VLM integration across different models
+    """
     
     def __init__(self, grid_size: int = 10, model_config: Dict[str, Any] = None):
         self.grid_size = grid_size

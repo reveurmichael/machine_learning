@@ -23,10 +23,11 @@ extensions/{algorithm}-v0.03/
 ├── app.py                         # OOP Streamlit application
 ├── dashboard/                     # Modular UI components
 │   ├── __init__.py
-│   ├── tab_main.py               # Primary functionality tab
-│   ├── tab_evaluation.py         # Performance evaluation
+│   ├── base_tab.py               # Common tab functionality
+│   ├── tab_main.py               # Algorithm execution
+│   ├── tab_evaluation.py         # Performance analysis
 │   ├── tab_replay.py             # Replay interface
-│   └── tab_comparison.py         # Algorithm comparison
+│   └── tab_visualization.py      # Results display
 ├── scripts/                       # CLI entry points
 │   ├── main.py                   # Core functionality
 │   ├── generate_dataset.py       # Dataset generation
@@ -34,6 +35,8 @@ extensions/{algorithm}-v0.03/
 └── agents/                        # Copied exactly from v0.02
     └── [agent files unchanged]
 ```
+
+**Standard Dashboard Template**: All v0.03 extensions MUST use this exact dashboard structure.
 
 ## 🎨 **UI Component Organization**
 

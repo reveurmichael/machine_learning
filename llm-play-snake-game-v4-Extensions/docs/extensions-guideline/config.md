@@ -70,12 +70,14 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
 ```
 
-### **Extensions Must NOT Use**
+### **Extensions Must NOT Use (General Rule)**
 ```python
-# ❌ Task-0 specific - FORBIDDEN in extensions
+# ❌ Task-0 specific - FORBIDDEN in most extensions
 from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
 ```
+
+**Exception**: LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune) MAY use LLM constants when implementing LLM functionality.
 
 ## 📊 **Benefits for Extension Types**
 

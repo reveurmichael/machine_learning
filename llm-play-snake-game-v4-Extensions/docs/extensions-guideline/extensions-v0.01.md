@@ -165,7 +165,7 @@ class NeuralGameManager(BaseGameManager):
 
 ### **Specific to Heuristics v0.01:**
 - [ ] **Single BFS agent** implementation
-- [ ] **File named `agent_bfs.py`** (not `bfs_agent.py`), though the class name should be `BFSAgent` # TODO: check this.
+- [ ] **File named `agent_bfs.py`** containing `class BFSAgent(BaseAgent)`
 - [ ] **Extends BaseGameLogic** and BaseGameManager
 - [ ] **Logs to extensions directory**
 

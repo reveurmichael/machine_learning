@@ -75,6 +75,23 @@ model_path = get_model_path(
 
 ## 🎓 **RL-Specific Considerations**
 
+### **RL State Representation Strategy**
+Reinforcement learning often benefits from raw or minimally processed state representations:
+
+| Representation Type | RL Algorithm | Why It Works |
+|-------------------|-------------|--------------|
+| **Raw Board State** | **DQN, A3C, PPO** | Direct policy learning from grid |
+| **16-Feature Tabular** | Q-Learning (classical) | State space compression |
+| **Sequential NPZ** | LSTM-based RL | Temporal pattern recognition |
+| **Spatial 2D Arrays** | CNN-based DQN | Spatial pattern extraction |
+| **Graph Structures** | Graph-based RL | Relationship-aware policies |
+
+**RL-Specific Advantages:**
+- **Raw States**: Enable end-to-end learning without feature engineering
+- **Spatial Arrays**: Leverage convolutions for spatial understanding
+- **Sequential Data**: Learn from temporal patterns and trajectories
+- **Direct Policy Learning**: Avoid hand-crafted feature bias
+
 ### **Environment Integration**
 RL agents interact with the Snake game through a consistent interface:
 ```python

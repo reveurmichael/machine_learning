@@ -124,29 +124,35 @@ extensions/supervised-v0.02/
 ├── game_logic.py                  # ML-specific game logic
 ├── game_manager.py                # Multi-model manager
 ├── game_data.py                   # ML game data with prediction tracking
-├── models/                        # ✨ Different from agents/ - algorithm dependent
-│   ├── neural_networks/
+├── models/                        # ✨ Organized by data representation needs
+│   ├── neural_networks/          # Sequential & spatial data models
 │   │   ├── __init__.py
-│   │   ├── agent_mlp.py
-│   │   ├── agent_cnn.py
-│   │   ├── agent_lstm.py
-│   │   └── agent_gru.py
-│   ├── tree_models/
+│   │   ├── agent_mlp.py          # 16-feature tabular input
+│   │   ├── agent_cnn.py          # 2D spatial board representation
+│   │   ├── agent_lstm.py         # Sequential NPZ time series
+│   │   └── agent_gru.py          # Sequential NPZ time series
+│   ├── tree_models/              # Tabular data specialists
 │   │   ├── __init__.py
-│   │   ├── agent_xgboost.py
-│   │   ├── agent_lightgbm.py
-│   │   └── agent_randomforest.py
-│   └── graph_models/
+│   │   ├── agent_xgboost.py      # 16-feature CSV optimal
+│   │   ├── agent_lightgbm.py     # 16-feature CSV optimal
+│   │   └── agent_randomforest.py # 16-feature CSV optimal
+│   └── graph_models/             # Graph structure specialists
 │       ├── __init__.py
-│       ├── agent_gcn.py
-│       ├── agent_graphsage.py
-│       └── agent_gat.py
+│       ├── agent_gcn.py          # Graph representation
+│       ├── agent_graphsage.py    # Graph representation
+│       └── agent_gat.py          # Graph representation
 ├── training/                      # Training scripts per model type
-│   ├── train_neural.py
-│   ├── train_tree.py
-│   └── train_graph.py
+│   ├── train_neural.py           # Handles multiple data formats
+│   ├── train_tree.py             # Optimized for 16-feature CSV
+│   └── train_graph.py            # Graph-specific training
 └── README.md
 ```
+
+**Data Representation Strategy by Model Type:**
+- **Tree Models**: Use 16-feature CSV from heuristics extensions
+- **CNNs**: Convert game state to 2D spatial arrays
+- **RNNs**: Use sequential NPZ format with temporal history
+- **GNNs**: Create graph representations of game state relationships
 
 ### **Reinforcement v0.02**
 ```

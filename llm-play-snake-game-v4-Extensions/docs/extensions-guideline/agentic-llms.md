@@ -1076,6 +1076,30 @@ Agentic LLMs can adapt their teaching approach based on individual student needs
 
 ## 🔬 **Research and Development Opportunities**
 
+## 📊 **State Representation for Agentic LLMs**
+
+Agentic LLMs require **rich, contextual representations** that differ from traditional ML approaches:
+
+| Representation Type | Agentic LLM Use | Benefits |
+|-------------------|----------------|----------|
+| **Natural Language** | **Primary format** | Rich reasoning, explanations, strategies |
+| **Visual Images** | Multi-modal analysis | Spatial understanding + language |
+| **Code Representations** | Self-modification | Agent can analyze and improve itself |
+| **16-Feature Tabular** | Quick decision making | Fast inference for reactive behaviors |
+| **Graph Structures** | Relationship reasoning | Complex state relationship analysis |
+
+**Agentic LLM Advantages:**
+- **Multi-Modal Reasoning**: Combine text, visual, and structured data
+- **Self-Reflection**: Analyze own decision-making patterns
+- **Strategic Planning**: Long-term thinking beyond immediate moves
+- **Natural Explanations**: Human-understandable decision rationale
+
+**Integration with Other Representations:**
+- **Consume Heuristic Data**: Analyze pathfinding decisions in natural language
+- **Interpret ML Predictions**: Explain neural network and tree model decisions
+- **Guide RL Training**: Provide high-level strategy descriptions for reward shaping
+- **Generate Training Data**: Create language-rich datasets for fine-tuning
+
 ## 🔧 **Advanced Multi-Agent Orchestration Systems**
 
 ### **Multi-Agent Coordination Architecture**

@@ -79,6 +79,24 @@ class BaseVLMProvider:
 
 ## 🎮 **Game State Visualization Engine**
 
+### **VLM State Representation Strategy**
+
+Vision-Language Models require **visual representations** that differ from other ML approaches:
+
+| Representation Type | Use Case | VLM Compatibility |
+|-------------------|----------|------------------|
+| **Visual Images** | **VLMs (GPT-4V, LLaVA, BLIP2)** | ✅ Native format - optimal |
+| **16-Feature Tabular** | Tree models, simple MLP | ❌ Text-only, no visual reasoning |
+| **Sequential NPZ** | LSTM, GRU, temporal models | ❌ Not visual, temporal focus |
+| **Graph Structures** | GNN, relationship models | ⚠️ Can be visualized for VLMs |
+| **Raw Board State** | Evolutionary algorithms | ⚠️ Can be converted to visual |
+
+**VLM-Specific Requirements:**
+- **High-Quality Visuals**: Clear, unambiguous game state representation
+- **Consistent Styling**: Standardized colors and layouts for reliable analysis
+- **Rich Context**: Visual annotations and metadata for enhanced understanding
+- **Multi-Modal Input**: Combination of visual data and textual prompts
+
 ### **Visual Input Processing**
 ```python
 class GameStateVisualizer:

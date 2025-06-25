@@ -32,10 +32,25 @@ The CSV schema uses a **fixed set of 16 engineered features** that work for any 
 - **Scalable Performance**: Efficient feature extraction across all grid configurations
 - **Cross-Grid Compatibility**: Enables training on one size, testing on another
 
-### **ML Compatibility**
-- **Tabular Models**: Optimal for XGBoost, LightGBM, Random Forest
-- **Neural Networks**: Appropriate input dimensions for MLPs and deep networks
-- **Feature Engineering**: Rich enough feature set for effective learning
+### **State Representation Decision Matrix**
+The 16-feature tabular schema is **specifically designed** for certain algorithm types:
+
+| Representation Type | Best For | Data Format | Use Cases |
+|-------------------|----------|-------------|-----------|
+| **16-Feature Tabular** | XGBoost, LightGBM, Random Forest, Simple MLP | CSV | Tree-based models, traditional ML |
+| **Sequential (NPZ)** | LSTM, GRU, Temporal Models | NPZ arrays | Time-series analysis, RNN architectures |
+| **Spatial (2D Arrays)** | CNN, Computer Vision Models | 2D numpy arrays | Image-like processing, spatial patterns |
+| **Graph Structures** | GNN, Relationship-based Models | Graph formats | Complex relationships, network analysis |
+| **Raw Board State** | Evolutionary Algorithms, GP | Full grid matrices | Population-based optimization |
+
+### **When to Use 16-Feature Schema**
+- ✅ **Tree-based models**: XGBoost, LightGBM, Random Forest
+- ✅ **Simple MLPs**: Fully connected networks with tabular input
+- ✅ **Traditional ML**: SVM, Logistic Regression, Naive Bayes
+- ✅ **Fast inference**: Minimal preprocessing required
+- ❌ **CNNs**: Use spatial 2D arrays instead
+- ❌ **RNNs**: Use sequential NPZ format instead
+- ❌ **GNNs**: Use graph representation instead
 
 ### **Cross-Extension Integration**
 - **Heuristics v0.03**: Generates standardized CSV datasets for supervised learning

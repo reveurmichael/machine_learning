@@ -14,6 +14,19 @@ The multi-format dataset architecture provides flexible data storage and loading
 
 ## 📊 **Format Selection Strategy**
 
+### **State Representation Decision Matrix**
+Choose the right combination of representation type and storage format:
+
+| Representation Type | Storage Format | Model Types | Why This Combination |
+|-------------------|---------------|-------------|---------------------|
+| **16-Feature Tabular** | **CSV** | XGBoost, LightGBM, Random Forest | Simple tabular data, human readable |
+| **16-Feature Tabular** | **Parquet** | Large-scale tree models | Efficient columnar storage |
+| **Sequential Time Series** | **NPZ** | LSTM, GRU, RNN | Preserves temporal array shapes |
+| **Spatial 2D Arrays** | **NPZ** | CNN, computer vision | Native array format, spatial structure |
+| **Graph Structures** | **Parquet** | GNN, relationship models | Complex schema support |
+| **Raw Board States** | **NPZ** | Evolutionary algorithms | Direct array manipulation |
+| **Visual Images** | **Image Files** | VLMs (GPT-4V, LLaVA) | Native visual format |
+
 ### **Format Mapping by Model Type**
 Following the established ML architecture patterns:
 

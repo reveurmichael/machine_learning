@@ -1,11 +1,20 @@
 **IMPORTANT**: Evolutionary algorithms are supported but use specialized state representations. The standard 16-feature CSV schema may be insufficient for evolutionary approaches, which often benefit from raw board states, spatial patterns, or graph structures.
 
 **State Representation Decision Matrix**:
-- **16-feature tabular**: XGBoost, Random Forest, simple MLP
-- **Raw board state**: Evolutionary algorithms, genetic programming
-- **Sequential data**: LSTM, GRU, temporal models  
-- **Spatial arrays**: CNN, computer vision models
-- **Graph structures**: GNN, relationship-based models
+
+| Representation Type | Best For | Why Evolutionary Needs Different |
+|-------------------|----------|--------------------------------|
+| **16-Feature Tabular** | XGBoost, Random Forest, simple MLP | ❌ Too compressed for genetic operators |
+| **Raw Board State** | **Evolutionary algorithms, GP** | ✅ Direct manipulation by genetic operators |
+| **Sequential Data** | LSTM, GRU, temporal models | ❌ Fixed temporal structure limits evolution |
+| **Spatial Arrays** | CNN, computer vision models | ✅ Good for spatial genetic operators |
+| **Graph Structures** | GNN, relationship-based models | ✅ Excellent for graph evolution algorithms |
+
+**Why Evolutionary Algorithms Need Special Representations:**
+- **Genetic Operators**: Crossover and mutation work better on raw data structures
+- **Search Space**: Full board state provides richer search landscape
+- **Phenotype Mapping**: Direct representation enables clearer genotype-phenotype mapping
+- **Population Diversity**: Raw representations support greater population diversity
 
 # Evolutionary Algorithms for Snake Game AI
 

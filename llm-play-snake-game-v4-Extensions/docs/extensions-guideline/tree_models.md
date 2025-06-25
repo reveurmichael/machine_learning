@@ -77,6 +77,29 @@ extensions/supervised-v0.02/
 
 ## 🚀 **Implementation Guidelines**
 
+### **Tree Model State Representation**
+Tree-based models work optimally with the **16-feature tabular representation**:
+
+| Representation Type | Tree Model Compatibility | Performance |
+|-------------------|-------------------------|-------------|
+| **16-Feature Tabular (CSV)** | ✅ **Perfect match** | Optimal - native format |
+| **Sequential NPZ** | ❌ Poor fit | Trees don't handle sequences well |
+| **Spatial 2D Arrays** | ⚠️ Requires flattening | Loses spatial structure benefits |
+| **Graph Structures** | ❌ Incompatible | Trees need tabular input |
+| **Raw Board State** | ⚠️ Too high-dimensional | Feature explosion problem |
+
+**Why 16-Feature Schema is Perfect for Trees:**
+- **Engineered Features**: Pre-processed meaningful attributes
+- **Fixed Dimensionality**: Consistent input size across all games
+- **Interpretable Features**: Clear mapping to game state concepts
+- **Optimal Performance**: Designed specifically for tree-based learning
+
+**Tree-Specific Advantages:**
+- **No Preprocessing**: CSV can be used directly without scaling
+- **Feature Importance**: Built-in analysis of which features matter most
+- **Fast Training**: Tabular data enables efficient tree construction
+- **Interpretability**: Decision paths directly reference meaningful features
+
 ### **Data Pipeline Integration**
 Tree models consume the standardized CSV schema from csv-schema-1.md:
 ```python

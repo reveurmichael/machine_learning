@@ -12,6 +12,42 @@ The CSV schema utilities provide:
 - **Centralized data processing**: Used by both heuristics (for dataset generation) and supervised learning (for training)
 - **Validation and error handling**: Ensures data integrity and compatibility
 
+## 📊 **State Representation Selection Guide**
+
+**Choose the right representation for your algorithm type:**
+
+### **16-Feature Tabular (CSV) - This Schema**
+```python
+# Best for: Tree-based models, simple MLPs, traditional ML
+features = extract_tabular_features(game_state)  # Returns 16 features
+model = XGBoostAgent(features)
+```
+**Use when**: XGBoost, LightGBM, Random Forest, simple neural networks
+
+### **Sequential (NPZ) - Time Series**
+```python
+# Best for: LSTM, GRU, temporal analysis
+sequence = extract_temporal_sequence(game_states)  # Multiple time steps
+model = LSTMAgent(sequence)
+```
+**Use when**: RNN architectures, temporal pattern recognition
+
+### **Spatial (2D Arrays) - Computer Vision**
+```python
+# Best for: CNN, computer vision approaches
+board_image = game_state_to_2d_array(game_state)  # Grid as image
+model = CNNAgent(board_image)
+```
+**Use when**: Convolutional networks, spatial pattern recognition
+
+### **Graph Structures - Relationship Modeling**
+```python
+# Best for: GNN, relationship-based models
+graph = game_state_to_graph(game_state)  # Nodes and edges
+model = GCNAgent(graph)
+```
+**Use when**: Graph neural networks, complex relationship modeling
+
 ## 📊 CSV Schema Structure
 
 ### Fixed Feature Set (16 features)

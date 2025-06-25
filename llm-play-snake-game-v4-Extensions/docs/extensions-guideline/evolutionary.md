@@ -1,4 +1,6 @@
-**IMPORTANT**: Evolutionary algorithms are supported but use specialized state representations. The standard 16-feature CSV schema may be insufficient for evolutionary approaches, which often benefit from raw board states, spatial patterns, or graph structures.
+> **Important**: For authoritative data format decisions, see `data-format-decision-guide.md`.
+
+**Data Format for Evolutionary Algorithms**: Evolutionary algorithms use **Raw Arrays (NPZ format)** for population-based optimization. The 16-feature CSV schema is not suitable for genetic operators.
 
 **State Representation Decision Matrix**:
 

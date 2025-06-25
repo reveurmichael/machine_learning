@@ -40,20 +40,22 @@ extensions/{algorithm_type}-v0.03/
 
 ### **🔒 Evolution Rules for Agents Folder**
 
+> **Important**: For complete evolution rules, see `extension-evolution-rules.md` - the authoritative reference for all version transitions.
+
 **Core Stability Principle**: The `agents/` folder follows strict evolution rules to maintain algorithmic integrity:
 
-**✅ Required: Copy Exactly from v0.02**
+**✅ Required: Copy Exactly from v0.02** (See evolution rules guide for details)
 - All core algorithm files (`agent_bfs.py`, `agent_astar.py`, etc.)
 - Factory registration system (`__init__.py`)
 - Base agent interfaces and method signatures
 
-**➕ Allowed: Enhancements and Extensions**
+**➕ Allowed: Enhancements and Extensions** (See evolution rules guide for patterns)
 - Enhanced algorithm variants (`agent_bfs_web_optimized.py`)
 - Monitoring and metrics collection utilities
 - Web interface integration helpers
 - Performance optimization wrappers
 
-**❌ Forbidden: Breaking Changes**
+**❌ Forbidden: Breaking Changes** (See evolution rules guide for complete list)
 - Modifying core algorithm behavior or logic
 - Changing factory registration names or signatures
 - Removing or renaming existing agent files

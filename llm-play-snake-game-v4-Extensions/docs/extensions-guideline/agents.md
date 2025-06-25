@@ -1,14 +1,12 @@
-> **Important — Authoritative Reference:** This guide supplements final-decision-4.md (Agent Naming) and final-decision-5.md (Directory Structure). **For conflicts, Final Decisions prevail.**
-
 # Agent Implementation Standards
 
-This document establishes agent naming conventions and implementation patterns following the standardized architecture from final-decision-4.md.
+This document establishes agent naming conventions and implementation patterns for all extensions.
 
 ## 🎯 **Standardized Naming Convention**
 
 **Philosophy**: Consistent naming enables predictable patterns across all extensions and algorithm types.
 
-### **File and Class Naming (final-decision-4.md)**
+### **File and Class Naming Standards**
 ```python
 # ✅ REQUIRED PATTERN: agent_{algorithm}.py → {Algorithm}Agent
 agent_bfs.py              → class BFSAgent(BaseAgent)
@@ -25,11 +23,11 @@ agent_lora.py             → class LoRAAgent(BaseAgent)
 - **v0.01**: Agent files in extension root directory (proof of concept simplicity)
 - **v0.02+**: ALL agent files MUST be in `agents/` directory (organized structure)
 
-**Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) per final-decision-10.md.
+**Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) following established naming conventions.
 
 ## 🏗️ **Directory Structure Evolution**
 
-Following final-decision-5.md, agent placement evolves naturally:
+Agent placement evolves naturally across versions:
 
 ### **v0.01: Proof of Concept**
 ```

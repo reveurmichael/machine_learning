@@ -50,32 +50,22 @@ The factory is a simple class, typically located in `agents/__init__.py`, that m
 ```python
 # extensions/heuristics-v0.02/agents/__init__.py
 
+> **Important**: For complete factory pattern implementation, see `unified-factory-pattern-guide.md` - the authoritative reference for all factory implementations.
+
 from .agent_bfs import BFSAgent
 from .agent_astar import AStarAgent
 from .agent_dfs import DFSAgent
 
-class HeuristicAgentFactory:
-    """
-    Factory Pattern Implementation for Heuristic Agents
-    
-    Design Pattern: Factory Pattern
-    Purpose: Create heuristic agent instances without exposing instantiation logic
-    Educational Note: Demonstrates how factory patterns enable plugin architectures
-    """
-
-    _registry = {
-        "BFS": BFSAgent,
-        "ASTAR": AStarAgent,
-        "DFS": DFSAgent,
-    }
+class HeuristicAgentFactory(BaseAgentFactory):
+    """Factory for Heuristic Pathfinding Agents - See factory pattern guide for complete implementation"""
 
     @classmethod
-    def create(cls, algorithm_name: str, **kwargs) -> BaseAgent:
-        """Create heuristic agent by algorithm name"""
-        agent_class = cls._registry.get(algorithm_name.upper())
-        if not agent_class:
-            raise ValueError(f"Unknown algorithm: {algorithm_name}")
-        return agent_class(**kwargs)
+    def get_registry(cls) -> Dict[str, Type[BaseAgent]]:
+        return {
+            "BFS": BFSAgent,
+            "ASTAR": AStarAgent,
+            "DFS": DFSAgent,
+        }
 ```
 
 ## 🚀 **Extension Evolution Rules and Stability**

@@ -3097,7 +3097,9 @@ These models do **not require** language-annotated data at this time.
 | Supervised Models  | ❌ No          | v0.03 is sufficient for training + evaluation                       |
 | Genetic Algorithms | ❌ No          | v0.03 remains the latest; not involved in language generation tasks |
 
-**v0.04 = Dataset for LLM fine-tuning with rich explanations.**
+**v0.04 = JSONL datasets for LLM fine-tuning with rich explanations.**
+
+> **Important**: See `data-format-decision-guide.md` for complete format specifications. v0.04 uses JSONL exclusively for LLM fine-tuning purposes.
 
 
 

@@ -1,10 +1,14 @@
 # CSV Schema for Snake Game Extensions
 
-> **Important — Authoritative Reference:** This document supplements final-decision-2.md (Configuration Standards). **For conflicts, final-decision-2.md prevails.**
+# CSV Schema for Snake Game Extensions
+
+> **Important**: For complete data format decisions, see `data-format-decision-guide.md` - the authoritative reference for all format choices.
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
 The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons.
+
+**When to Use CSV**: This format is optimal for tree-based models (XGBoost, LightGBM) and simple MLPs. For other model types, see the data format decision guide.
 
 ## 📊 **Standardized Schema Structure**
 
@@ -59,7 +63,7 @@ The 16-feature tabular schema is **specifically designed** for certain algorithm
 
 ## 📁 **Path Integration**
 
-Uses standardized path management from final-decision-6.md:
+Uses standardized path management from `unified-path-management-guide.md`:
 
 ```python
 from extensions.common.path_utils import get_dataset_path

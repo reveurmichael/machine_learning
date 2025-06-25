@@ -6,7 +6,7 @@ of randomness used in the project, ensuring experimental reproducibility.
 
 It is designed to be a best-effort utility:
 - It seeds standard libraries like `random` and `numpy`.
-- It attempts to seed optional deep learning libraries (PyTorch, JAX, TensorFlow)
+- It attempts to seed optional deep learning libraries (PyTorch, JAX)
   if they are installed, but does not fail if they are not.
 
 Importing this module has no side effects. The `seed_everything` function
@@ -57,10 +57,6 @@ def _maybe_seed(
             module.random.PRNGKey(seed)
             if verbose:
                 print(f"🌱 Seeded `jax` with value {seed}.")
-        elif module_name == "tensorflow":
-            module.random.set_seed(seed)
-            if verbose:
-                print(f"🌱 Seeded `tensorflow` with value {seed}.")
     except ImportError:
         if verbose:
             print(f"⚪️ `{module_name}` not found, skipping seeding.")
@@ -71,7 +67,7 @@ def _maybe_seed(
 
 def seed_everything(seed: int = 42, verbose: bool = True) -> int:
     """
-    Seeds Python's `random`, `numpy`, and optionally PyTorch, JAX, and TensorFlow
+    Seeds Python's `random`, `numpy`, and optionally PyTorch and JAX
     to ensure reproducibility.
 
     Args:
@@ -94,6 +90,5 @@ def seed_everything(seed: int = 42, verbose: bool = True) -> int:
     _maybe_seed("numpy", seed, verbose)
     _maybe_seed("torch", seed, verbose, seed_func_name="manual_seed")
     _maybe_seed("jax", seed, verbose)
-    _maybe_seed("tensorflow", seed, verbose, seed_func_name="set_seed")
 
     return seed 

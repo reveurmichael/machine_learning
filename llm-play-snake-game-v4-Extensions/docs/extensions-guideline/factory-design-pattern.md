@@ -415,7 +415,7 @@ class PluginFactoryMixin:
 ### **Real-World Applications**
 
 - **Game Engine Architecture**: Similar patterns used in Unity, Unreal Engine
-- **Machine Learning Frameworks**: PyTorch, TensorFlow use factory patterns
+- **Machine Learning Frameworks**: PyTorch use factory patterns
 - **Web Frameworks**: Django, Flask use factories for component creation
 - **Enterprise Software**: Spring Framework, .NET Core rely heavily on factories
 

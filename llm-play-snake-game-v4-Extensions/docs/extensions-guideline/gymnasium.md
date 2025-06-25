@@ -92,10 +92,10 @@ Following the extension architecture patterns:
 
 | Algorithm | Native Implementation | Gymnasium Environment | Primary Framework |
 |-----------|----------------------|----------------------|-------------------|
-| **DQN** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch/TensorFlow |
-| **PPO** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch/TensorFlow |
+| **DQN** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
+| **PPO** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
 | **A3C** | ✅ Direct integration | ✅ Ray RLlib | PyTorch |
-| **SAC** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch/TensorFlow |
+| **SAC** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
 
 ### **Framework Integration Examples**
 ```python

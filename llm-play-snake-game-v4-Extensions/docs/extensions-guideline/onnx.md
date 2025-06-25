@@ -23,7 +23,6 @@ class ONNXExportFactory:
     
     _exporter_registry = {
         "pytorch": PyTorchONNXExporter,
-        "tensorflow": TensorFlowONNXExporter,
         "sklearn": SklearnONNXExporter,
         "xgboost": XGBoostONNXExporter,
     }

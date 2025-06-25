@@ -10,7 +10,7 @@
 - **Principle**: One concept per file
 
 ### **Directory Organization**
-Following Final Decision 5 directory structure:
+Following final-decision-5.md directory structure:
 ```
 extensions/{algorithm}-v0.0N/
 ├── agents/                 # Algorithm implementations (v0.02+)
@@ -28,7 +28,7 @@ extensions/{algorithm}-v0.0N/
 
 ## 🎨 **Naming Conventions**
 
-### **Standardized Patterns (Final Decision 4)**
+### **Standardized Patterns (final-decision-4.md)**
 ```python
 # ✅ File naming
 agent_bfs.py              # Algorithm implementations
@@ -74,7 +74,7 @@ class PathfindingAgent(BaseAgent):
 
 ## 🔧 **Configuration Management**
 
-### **Follow Final Decision 2**
+### **Follow final-decision-2.md**
 ```python
 # ✅ Universal constants (all tasks)
 from config.game_constants import VALID_MOVES, DIRECTIONS
@@ -94,7 +94,7 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 
 ## ⚙️ **Path Management**
 
-### **Mandatory Pattern (Final Decision 6)**
+### **Mandatory Pattern (final-decision-6.md)**
 ```python
 # Required for all extensions
 from extensions.common.path_utils import (

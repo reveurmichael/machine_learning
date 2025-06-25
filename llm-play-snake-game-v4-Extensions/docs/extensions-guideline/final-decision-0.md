@@ -24,14 +24,14 @@ This short meta-document explains how the **Final Decision Series (N = 0-10)** f
 
 The following cross-cutting decisions are reflected consistently across **all** Final Decision docs:
 
-1. **Configuration Organization** – Universal constants in `ROOT/config/`; extension-specific configs in `extensions/common/config/` (see FD-2).
-2. **Validation Folder** – Comprehensive validators in `extensions/common/validation/` (see FD-2).
-3. **Singleton Usage** – Global managers implemented with `SingletonABCMeta` (see FD-3).
-4. **Dataset/Model Paths** – `logs/extensions/{datasets|models}/grid-size-N/...` (see FD-1).
-5. **Agent Naming** – `agent_*.py` files and `*Agent` classes (see FD-4 & FD-10).
-6. **Path Utilities** – Mandatory use of `extensions/common/path_utils.py` (see FD-6).
-7. **Grid-Size Agnostic CSV Schema** – 16 normalized features (see FD-1 & FD-2).
-8. **Factory & Streamlit Patterns** – Standardized factories (FD-7/8) and OOP Streamlit apps (FD-9).
+1. **Configuration Organization** – Universal constants in `ROOT/config/`; extension-specific configs in `extensions/common/config/` (see final-decision-2.md).
+2. **Validation Folder** – Comprehensive validators in `extensions/common/validation/` (see final-decision-2.md).
+3. **Singleton Usage** – Global managers implemented with `SingletonABCMeta` (see final-decision-3.md).
+4. **Dataset/Model Paths** – `logs/extensions/{datasets|models}/grid-size-N/...` (see final-decision-1.md).
+5. **Agent Naming** – `agent_*.py` files and `*Agent` classes (see final-decision-4.md & final-decision-10.md).
+6. **Path Utilities** – Mandatory use of `extensions/common/path_utils.py` (see final-decision-6.md).
+7. **Grid-Size Agnostic CSV Schema** – 16 normalized features (see final-decision-1.md & final-decision-2.md).
+8. **Factory & Streamlit Patterns** – Standardized factories (final-decision-7.md/final-decision-8.md) and OOP Streamlit apps (final-decision-9.md).
 
 ## ✍️ Editing Policy
 
@@ -45,8 +45,8 @@ When referring to Final Decisions or GOODRULES, use the following format:
 - Don't use Final Decision 6; use final-decision-6.md
 - Don't use Final Decision N; use final-decision-N.md
 - Don't use FD-N; use final-decision-N.md
-- Don't use GOODRULES in general; use GOODRULES (corresponding-rule-markdown-file-name.md)
-
+- Don't use GOODRULES in a general sense; use GOODRULES (corresponding-rule-markdown-file-name.md)
+- If you don't know what GOODRULES is, check final-decision-10.md 
 ---
 
 > **In short:** Use this index to navigate the authoritative decisions.  When in doubt, the numbered Final Decision documents outrank every other piece of documentation except a newer Final Decision document with a higher revision number.

@@ -1,10 +1,10 @@
 # Dashboard Architecture for v0.03 Extensions
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 9 (Streamlit OOP) and Final Decision 5 (Directory Structure).
+> **Important — Authoritative Reference:** This document supplements final-decision-9.md (Streamlit OOP) and final-decision-5.md (Directory Structure).
 
 ## 🎯 **Dashboard Philosophy**
 
-The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in Final Decision 9.
+The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in final-decision-9.md.
 
 ## 🧠 **Separation of UI Concerns**
 
@@ -124,7 +124,7 @@ def render(session_state: dict) -> None:
 - [ ] Does the v0.03 extension have a `dashboard/` directory?
 - [ ] Are UI components separated into individual files?
 - [ ] Does each component follow the `render(session_state)` pattern?
-- [ ] Does the main `app.py` use OOP architecture from Final Decision 9?
+- [ ] Does the main `app.py` use OOP architecture from final-decision-9.md?
 - [ ] Do dashboard components primarily launch scripts via subprocess?
 
 ---

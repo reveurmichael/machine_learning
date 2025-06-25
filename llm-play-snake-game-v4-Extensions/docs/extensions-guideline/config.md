@@ -1,10 +1,10 @@
 # Configuration Architecture
 
-> **Important — Authoritative Reference:** This document supplements the Final Decision Series. Where conflicts exist, Final Decision 2 prevails.
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series. Where conflicts exist, final-decision-2.md prevails.
 
 ## 🎯 **Configuration Philosophy**
 
-The configuration architecture follows a **clear separation model** established in Final Decision 2:
+The configuration architecture follows a **clear separation model** established in final-decision-2.md:
 - **Universal constants** (used by all tasks) in `ROOT/config/`
 - **Extension-specific constants** in `extensions/common/config/`
 - **Task-0 specific constants** remain isolated

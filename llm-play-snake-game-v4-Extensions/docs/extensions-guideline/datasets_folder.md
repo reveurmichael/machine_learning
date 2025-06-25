@@ -1,8 +1,8 @@
-> **Important — Authoritative Reference:** This document supplements Final Decision 1 (Directory Structure). **For conflicts, Final Decision 1 prevails.**
+> **Important — Authoritative Reference:** This document supplements final-decision-1.md (Directory Structure). **For conflicts, final-decision-1.md prevails.**
 
 # Dataset and Model Directory Structure
 
-This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions, following the architecture established in Final Decision 1.
+This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions, following the architecture established in final-decision-1.md.
 
 ## 🎯 **Core Design Philosophy**
 
@@ -93,7 +93,7 @@ Expected progression generally follows: **Heuristics** → **Supervised** → **
 
 ## 📊 **Path Management Integration**
 
-All extensions **MUST** use standardized path utilities from Final Decision 6:
+All extensions **MUST** use standardized path utilities from final-decision-6.md:
 
 ```python
 from extensions.common.path_utils import get_dataset_path, get_model_path
@@ -114,7 +114,7 @@ dataset_path = get_dataset_path(
 ### **All Extensions Must:**
 - Use the standardized `grid-size-N/` hierarchy
 - Generate paths using `extensions/common/path_utils.py`
-- Follow dataset format specifications from Final Decision 2
+- Follow dataset format specifications from final-decision-2.md
 - Maintain version-specific naming conventions
 - Support multi-directional data consumption and generation
 

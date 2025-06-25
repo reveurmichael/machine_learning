@@ -15,7 +15,7 @@ The KISS principle drives the evolutionary design of extensions from v0.01 throu
 ## 🌱 **KISS in Extension Evolution**
 
 ### **v0.01: Radical Simplicity**
-Following the GOODRULES pattern, v0.01 extensions embody pure KISS:
+Following the GOODRULES (kiss.md) pattern, v0.01 extensions embody pure KISS:
 - **Single algorithm only**: One clear demonstration
 - **No command-line arguments**: Zero configuration complexity
 - **Minimal file structure**: Just what's absolutely necessary
@@ -38,7 +38,7 @@ Maximum functionality while maintaining KISS principles:
 ## 🔧 **KISS Design Patterns**
 
 ### **Factory Pattern Simplicity**
-Following Final Decision 7-8, factories are deliberately simple:
+Following final-decision-7.md and final-decision-8.md, factories are deliberately simple:
 ```python
 class SimpleAgentFactory:
     """KISS-compliant agent factory"""
@@ -55,7 +55,7 @@ class SimpleAgentFactory:
 ```
 
 ### **Configuration Simplicity**
-Following Final Decision 2, configuration is straightforward:
+Following final-decision-2.md, configuration is straightforward:
 ```python
 # Simple, clear configuration access
 from config.game_constants import VALID_MOVES  # Universal
@@ -63,7 +63,7 @@ from extensions.common.config.simple_defaults import DEFAULT_GRID_SIZE  # Extens
 ```
 
 ### **Path Management Simplicity**
-Following Final Decision 6, path management is consistent:
+Following final-decision-6.md, path management is consistent:
 ```python
 from extensions.common.path_utils import ensure_project_root
 
@@ -82,7 +82,7 @@ Following documentation-as-first-class-citizen.md:
 
 ### **Progressive Disclosure**
 Information architecture follows KISS:
-- **GOODRULES**: Authoritative, comprehensive reference
+- **GOODRULES (see final-decision-10.md)**: Authoritative, comprehensive reference
 - **Supporting docs**: Focus on specific aspects
 - **Code examples**: Simple, clear demonstrations
 - **Inline documentation**: Context-specific guidance

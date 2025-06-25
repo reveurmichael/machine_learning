@@ -1,6 +1,6 @@
 # CSV Schema for Snake Game Extensions
 
-> **Important — Authoritative Reference:** This document supplements Final Decision 2 (Configuration Standards). **For conflicts, Final Decision 2 prevails.**
+> **Important — Authoritative Reference:** This document supplements final-decision-2.md (Configuration Standards). **For conflicts, final-decision-2.md prevails.**
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
@@ -59,7 +59,7 @@ The 16-feature tabular schema is **specifically designed** for certain algorithm
 
 ## 📁 **Path Integration**
 
-Uses standardized path management from Final Decision 6:
+Uses standardized path management from final-decision-6.md:
 
 ```python
 from extensions.common.path_utils import get_dataset_path

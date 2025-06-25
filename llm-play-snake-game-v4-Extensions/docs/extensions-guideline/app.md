@@ -5,7 +5,7 @@
 
 ## 🎯 **Streamlit-Specific Path Requirements**
 
-All Streamlit applications **MUST** use the standardized path utilities from Final Decision 6 to handle Streamlit's unique execution environment:
+All Streamlit applications **MUST** use the standardized path utilities from final-decision-6.md to handle Streamlit's unique execution environment:
 
 ```python
 # REQUIRED pattern for all extension app.py files

@@ -1,10 +1,10 @@
 # Working Directory and Path Management
 
-> **📢 NOTE — Authoritative Reference**: Final Decision 6 ( `final-decision-6.md` ) is now the **single source of truth** for all path-management code patterns and utilities.  
+> **📢 NOTE — Authoritative Reference**: final-decision-6.md is now the **single source of truth** for all path-management code patterns and utilities.  
 > This document focuses **only** on directory-structure conventions and log locations.
 
 ## 🎯 **Why This Document Still Exists**
-`cwd-and-logs.md` captures *where* generated artifacts live (datasets, models, execution logs) and *why* the grid-size hierarchy matters.  The *how* (code needed to set paths) has been centralized in Final Decision 6 to avoid duplication.
+`cwd-and-logs.md` captures *where* generated artifacts live (datasets, models, execution logs) and *why* the grid-size hierarchy matters.  The *how* (code needed to set paths) has been centralized in final-decision-6.md to avoid duplication.
 
 If you need to know **how to call** `ensure_project_root()` or any related helper, **stop reading now and open `final-decision-6.md`**.
 
@@ -12,7 +12,7 @@ If you need to know **how to call** `ensure_project_root()` or any related helpe
 
 ## 🎯 **Mandatory Path Management Philosophy**
 
-All extensions **MUST** use standardized path management from `extensions/common/path_utils.py` as established in Final Decision 6. This eliminates path-related bugs and ensures reliable cross-platform operation.
+All extensions **MUST** use standardized path management from `extensions/common/path_utils.py` as established in final-decision-6.md. This eliminates path-related bugs and ensures reliable cross-platform operation.
 
 ## 📁 **Path Management Requirements**
 
@@ -60,7 +60,7 @@ logs/
 ```
 
 ### **Extension Logs (Organized)**
-Following Final Decision 1 structure:
+Following final-decision-1.md structure:
 ```
 logs/extensions/
 ├── datasets/                     # Grid-size organized datasets

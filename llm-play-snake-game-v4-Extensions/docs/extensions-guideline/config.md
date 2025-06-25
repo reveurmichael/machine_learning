@@ -145,6 +145,60 @@ from config.ui_constants import COLORS, GRID_SIZE
 
 ---
 
+## 🏗️ **Configuration Hierarchy & Boundaries**
+
+> **Educational Note:** A clear configuration hierarchy prevents "constant-sprawl" and makes it obvious where new settings belong. This section formalises the boundary rules already hinted at elsewhere.
+
+### **1. Hierarchy Overview**
+| Level | Path | Purpose |
+|-------|------|---------|
+| **Universal** | `config/` | Core game rules, UI, coordinate system – *used by every task & extension* |
+| **Shared Extension** | `extensions/common/config/` | Settings reused by **multiple** extensions (e.g. CSV schema, training defaults) |
+| **Type-Specific** | `extensions/{type}/config/` | Settings unique to one algorithm family (heuristics, supervised, rl, llm, …) |
+| **Experiment / Script** | Local to script | Hyper-parameters that change per run (CLI flags, YAML, etc.) |
+
+### **2. LLM Constants Rule**
+* **Universal constant folder (`config/`)** must **NOT** contain LLM-specific settings.
+* **LLM-focused extensions** (e.g. *agentic-llms*, *vision-language-model*) may import from:
+  ```python
+  from extensions.llm.config.llm_constants import AVAILABLE_PROVIDERS
+  ```
+* Non-LLM extensions must never depend on LLM constants – this enforces loose coupling.
+
+### **3. Examples**
+**Heuristics extension** – needs only universal constants:
+```python
+from config.game_constants import DIRECTIONS, VALID_MOVES
+```
+
+**Supervised extension** – universal + shared ML defaults:
+```python
+from config.game_constants import GRID_SIZE
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+```
+
+**Agentic LLM extension** – universal + shared + LLM-specific:
+```python
+from config.game_constants import VALID_MOVES
+from extensions.common.config.ml_constants import DEFAULT_TEMPERATURE
+from extensions.llm.config.llm_constants import AVAILABLE_PROVIDERS  # ✅ allowed here
+```
+
+### **4. Validation Helpers**
+```python
+# extensions/common/validation/config_validator.py
+
+def validate_constant_access(module_name: str, constant_name: str) -> None:
+    """Raise if an extension imports forbidden constants."""
+    forbidden = (
+        module_name.startswith('config.llm_constants') and
+        not __name__.startswith('extensions.llm')
+    )
+    if forbidden:
+        raise ImportError(
+            f"{constant_name} is Task-0 specific and cannot be imported outside LLM extensions")
+```
+
 ---
 
 ## **🚀 How Tasks 1-5 Leverage Perfect Config Architecture**

@@ -15,7 +15,7 @@ The KISS principle drives the evolutionary design of extensions from v0.01 throu
 ## 🌱 **KISS in Extension Evolution**
 
 ### **v0.01: Radical Simplicity**
-Following the GOODRULES (kiss.md) pattern, v0.01 extensions embody pure KISS:
+Following the GOODRULES (KISS.md) pattern, v0.01 extensions embody pure KISS:
 - **Single algorithm only**: One clear demonstration
 - **No command-line arguments**: Zero configuration complexity
 - **Minimal file structure**: Just what's absolutely necessary

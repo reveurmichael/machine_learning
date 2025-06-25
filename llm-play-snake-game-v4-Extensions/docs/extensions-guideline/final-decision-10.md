@@ -7,7 +7,7 @@ Those files in the ./docs/extensions-guideline/ folder are called GOODRULES:
 - datasets_folder.md
 - dashboard.md
 - documentation-as-first-class-citizen.md
-- extensions_move_guidelines.md
+- extensions-move-guidelines.md
 - Grid-Size-Directory-Structure-Compliance-Report.md
 elegance.md
 extensions-v0.01.md
@@ -16,7 +16,7 @@ extensions-v0.03.md
 extensions-v0.04.md
 coordinate-system.md
 cwd-and-logs.md
-csv_schema-1.md
+csv-schema-1.md
 csv_schema-2.md
 ai-friendly.md
 config.md

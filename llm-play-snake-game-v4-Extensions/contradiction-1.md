@@ -37,56 +37,6 @@ MANDATORY ACTIONS:
 
 ---
 
-## **Issue 2: Documentation Bloat and Impracticality**
-
-### **Problem:**
-`agentic-llms.md` is **2,151 lines long** - this is not a guideline, it's a book. Guideline documents should be concise and actionable.
-
-### **Impact:**
-- **Unusable for Quick Reference**: Too long to be practical
-- **Mixed Purposes**: Combines tutorial, specification, and implementation examples
-- **Maintenance Burden**: Extremely difficult to keep current
-
-### **Solution:**
-```
-RESTRUCTURE APPROACH:
-1. Split agentic-llms.md into:
-   - agentic-llms-overview.md (50-100 lines: core concepts)
-   - agentic-llms-implementation.md (200-300 lines: practical patterns)
-   - agentic-llms-examples/ (directory with separate example files)
-2. Follow "one concept per file" principle
-3. Maximum guideline length: 500 lines
-```
-
----
-
-## **Issue 3: Placeholder and Empty Files**
-
-### **Problem:**
-Multiple guideline files are essentially empty or contain only placeholders:
-
-**Empty/Minimal Files:**
-- `conceptual-clarity.md` (16 lines, mostly TODO comments)
-- `fine-tuning.md` (1 line, empty)
-- `llm-distillation.md` (1 line, empty) 
-- `llm-with-cot.md` (1 line, empty)
-- `llm-with-reasoning.md` (1 line, empty)
-
-### **Impact:**
-- **Broken Navigation**: Users find empty files when following documentation links
-- **Incomplete Guidance**: Missing essential information for implementation
-- **Poor Developer Experience**: Creates confusion about what's actually available
-
-### **Solution:**
-```
-CLEANUP STRATEGY:
-1. REMOVE all empty/placeholder files immediately
-2. Create proper guidelines only when the content is ready
-3. Use a "guidelines-todo.md" file to track planned but not yet written guidelines
-4. Never commit empty guideline files to the repository
-```
-
----
 
 ## **Issue 4: Inconsistent Authority Claims**
 

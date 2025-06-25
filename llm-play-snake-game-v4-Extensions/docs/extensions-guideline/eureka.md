@@ -13,7 +13,7 @@ Eureka represents a paradigm shift in reinforcement learning where reward functi
 
 ## 🧬 **Eureka Architecture for Snake Game**
 
-### **Extension Structure** # TODO: this is not the final structure. Maybe it's good, maybe not. Up to you to adopt it or not.
+### **Extension Structure**
 ```
 extensions/eureka-v0.01/
 ├── __init__.py
@@ -22,11 +22,23 @@ extensions/eureka-v0.01/
 ├── reward_evaluator.py       # Reward function evaluation framework
 ├── code_executor.py          # Safe reward function execution
 ├── population_manager.py     # Reward function population management
-├── llm_interface.py          # LOCAL LLM API integration, OLLAMA
+├── llm_interface.py          # Local LLM API integration (OLLAMA)
+├── game_logic.py             # Eureka-specific game logic
+├── game_manager.py           # Eureka experiment management
 └── templates/
     ├── reward_templates.py   # Base reward function templates
     └── prompts/              # LLM prompts for generation
+        ├── generation_prompts.py
+        ├── mutation_prompts.py
+        └── evaluation_prompts.py
 ```
+
+### **Core Workflow**
+1. **Initial Population**: Generate diverse reward functions via LLM prompts
+2. **Evaluation**: Test each reward function with RL agents in Snake environment
+3. **Selection**: Rank reward functions by resulting agent performance
+4. **Evolution**: Use LLM to mutate and crossover successful reward functions
+5. **Iteration**: Repeat evolution cycles to discover optimal reward structures
 
 ---
 

@@ -1,5 +1,7 @@
 # Agent Implementation Standards
 
+> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `extension-evolution-rules.md`. Any conflicting information must defer to those definitive documents.
+
 This document establishes agent naming conventions and implementation patterns for all extensions.
 
 ## 🎯 **Standardized Naming Convention**
@@ -19,15 +21,11 @@ agent_lora.py             → class LoRAAgent(BaseAgent)
 
 **Critical Rule**: ALL agent files MUST use `agent_{algorithm}.py` naming pattern. No exceptions.
 
-**Agent Placement by Version:**
-- **v0.01**: Agent files in extension root directory (proof of concept simplicity)
-- **v0.02+**: ALL agent files MUST be in `agents/` directory (organized structure)
-
-**Special Case**: Task-0 agent is named `SnakeAgent` (not `LLMSnakeAgent`) following established naming conventions.
-
 ## 🏗️ **Directory Structure Evolution**
 
-Agent placement evolves naturally across versions:
+> **Authoritative Reference**: See `extension-evolution-rules.md` for complete evolution rules and stability requirements.
+
+Agent placement follows a clear evolution pattern across versions:
 
 ### **v0.01: Proof of Concept**
 ```
@@ -37,7 +35,7 @@ extensions/{algorithm}-v0.01/
 └── game_manager.py
 ```
 
-### **v0.02+: Multi-Algorithm**
+### **v0.02+: Multi-Algorithm (MANDATORY ORGANIZATION)**
 ```
 extensions/{algorithm}-v0.02/
 ├── agents/                        # ✅ ALL agents in organized package structure
@@ -49,10 +47,12 @@ extensions/{algorithm}-v0.02/
 └── game_manager.py
 ```
 
+**Critical Rule**: Starting from v0.02, ALL agent files MUST be in the `agents/` directory. No exceptions.
+
 ### **v0.03: Dashboard Integration + Allowed Enhancements**
 - 🔒 **Core agents copied exactly** from v0.02 (algorithm logic unchanged)
-- ➕ **Web-specific enhancements allowed** (monitoring, optimization wrappers)
-- 🔒 **Factory patterns unchanged** (registration names stable)
+- ➕ **Web-specific enhancements allowed** (monitoring, optimization wrappers following ROOT/web patterns)
+- �� **Factory patterns unchanged** (registration names stable)
 - ➕ **UI integration utilities** for dashboard components
 
 ### **v0.04: Advanced Features (Heuristics Only)**
@@ -81,6 +81,8 @@ extensions/{algorithm}-v0.02/
 - Isolated algorithm logic for maintainability
 
 ### **Factory Pattern**
+> **Authoritative Reference**: See `unified-factory-pattern-guide.md` for complete factory pattern implementation.
+
 - Centralized agent creation via factory classes
 - Dynamic agent selection by name/configuration
 - Consistent initialization across all agent types
@@ -138,6 +140,13 @@ class AgentFactory:
 - **Uniform Naming**: Same patterns across heuristics, ML, RL, LLM
 - **Version Stability**: Agent directory structure preserved across versions
 - **Factory Integration**: Consistent agent creation across all extensions
+
+## 🔗 **See Also**
+
+- **`extension-evolution-rules.md`**: Authoritative reference for version evolution rules
+- **`unified-factory-pattern-guide.md`**: Complete factory pattern implementation
+- **`final-decision-4.md`**: Naming conventions and standards
+- **`final-decision-5.md`**: Directory structure standards
 
 ---
 

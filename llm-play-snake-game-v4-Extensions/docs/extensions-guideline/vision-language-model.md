@@ -1,6 +1,6 @@
 # Vision-Language Models for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. VLM integration follows the same architectural patterns established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. VLM integration follows the same architectural patterns established in the GOOD_RULES.
 
 ## 🎯 **Core Philosophy: Multimodal AI Integration**
 

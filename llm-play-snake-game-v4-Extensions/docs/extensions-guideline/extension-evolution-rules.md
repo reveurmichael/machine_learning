@@ -1,216 +1,248 @@
 # Extension Evolution Rules
 
-> **Authoritative Reference**: This document defines the **explicit rules** for extension evolution across versions. It replaces all ambiguous language about "copy exactly", "enhancements allowed", etc.
+> **Authoritative Reference**: This document establishes the definitive rules for extension evolution from v0.01 through v0.04.
+
+> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 ## 🎯 **Core Evolution Philosophy**
 
-Extension evolution follows **algorithmic stability** principles:
-- **Core algorithms remain unchanged** once established in v0.02
-- **Interfaces can be extended** but not modified
-- **New functionality can be added** without breaking existing code
-- **Version progression** serves specific purposes (CLI → Web → Data Generation)
+Extensions evolve through **natural software progression** while maintaining **algorithmic stability** and **educational value**. Each version builds upon the previous while introducing new capabilities.
 
-## 📋 **Version Evolution Rules Matrix**
+## 📋 **Version Evolution Matrix**
 
-| Transition | Core Algorithms | Factory Registry | Interfaces | New Features | Breaking Changes |
-|------------|----------------|------------------|------------|--------------|------------------|
-| **v0.01 → v0.02** | ✅ Add new algorithms | ✅ Create factory | ✅ Define interfaces | ✅ Multiple algorithms | ✅ Allowed |
-| **v0.02 → v0.03** | 🔒 **Copy exactly** | 🔒 **Stable** | ➕ Can extend | ✅ Web interface | ❌ **Forbidden** |
-| **v0.03 → v0.04*** | 🔒 **Copy exactly** | 🔒 **Stable** | ➕ Can extend | ✅ JSONL generation | ❌ **Forbidden** |
+| Version | Purpose | Key Changes | Stability Rules |
+|---------|---------|-------------|-----------------|
+| **v0.01** | Proof of Concept | Single algorithm, minimal complexity | Basic structure |
+| **v0.02** | Multi-Algorithm | Organized agents/, factory patterns | Core algorithms stable |
+| **v0.03** | Web Interface | Streamlit app, dataset generation | Agents copied exactly |
+| **v0.04** | Language Generation | JSONL datasets (heuristics only) | All v0.03 functionality preserved |
 
-***v0.04 only exists for heuristics extensions**
+## 🔒 **Stability Rules by Version Transition**
 
-## 🚫 **Explicitly Forbidden Changes (v0.02+)**
-
-### **Breaking Changes - NEVER ALLOWED**
+### **v0.01 → v0.02: Allowed Breaking Changes**
 ```python
-# ❌ FORBIDDEN: Modifying core algorithm logic
-class BFSAgent(BaseAgent):
-    def plan_move(self, game_state):
-        # Changing the BFS algorithm implementation
-        return modified_bfs_logic(game_state)  # FORBIDDEN!
+# ✅ ALLOWED: Major structural changes
+- Add agents/ directory
+- Implement factory patterns
+- Add --algorithm command-line argument
+- Reorganize file structure
+- Add new algorithms
 
-# ❌ FORBIDDEN: Changing factory registration names
-class AgentFactory:
-    _registry = {
-        "BFS_NEW": BFSAgent,  # FORBIDDEN! Was "BFS" in v0.02
-    }
-
-# ❌ FORBIDDEN: Removing existing agent files
-# agents/agent_bfs.py → DELETED  # FORBIDDEN!
-
-# ❌ FORBIDDEN: Changing public method signatures
-class BFSAgent(BaseAgent):
-    def plan_move(self, game_state, new_param):  # FORBIDDEN! Added parameter
-        pass
+# ✅ ALLOWED: Interface changes
+- Change main.py signature
+- Add new configuration options
+- Modify data structures
 ```
 
-### **Interface Violations - NEVER ALLOWED**
+### **v0.02 → v0.03: Core Stability Required**
 ```python
-# ❌ FORBIDDEN: Breaking BaseAgent interface
-class BFSAgent(BaseAgent):
-    # Missing required method - FORBIDDEN!
-    # def plan_move(self, game_state): pass
+# 🔒 REQUIRED: Copy agents/ exactly
+agents/ directory must be identical to v0.02
+- Same file names and class names
+- Same factory registrations
+- Same algorithm implementations
+- Same method signatures
+
+# ➕ ALLOWED: Add web enhancements
+- Streamlit app.py
+- Dashboard components
+- Web-specific utilities
+- Monitoring wrappers
+- UI integration helpers
+
+# ❌ FORBIDDEN: Core algorithm changes
+- Modify existing agent logic
+- Change factory registration names
+- Break existing interfaces
+- Remove agent files
+```
+
+### **v0.03 → v0.04: Maximum Stability (Heuristics Only)**
+```python
+# 🔒 REQUIRED: Copy v0.03 exactly
+- All v0.03 functionality preserved
+- Same agents/ directory structure (copied exactly from v0.03)
+- Same web interface capabilities
+- Same dataset generation (CSV)
+
+# ➕ ALLOWED: Add JSONL capabilities
+- JSONL dataset generation
+- Language explanation features
+- LLM fine-tuning utilities
+- Enhanced reasoning output
+
+# ❌ FORBIDDEN: Any breaking changes
+- All v0.03 features must work unchanged
+- No algorithm modifications
+- No interface changes
+```
+
+## 🏗️ **Directory Structure Evolution**
+
+### **v0.01 Template**
+```
+extensions/{algorithm}-v0.01/
+├── __init__.py
+├── main.py                    # Simple entry point
+├── agent_{primary}.py         # Single algorithm
+├── game_logic.py
+├── game_manager.py
+└── README.md
+```
+
+### **v0.02 Template**
+```
+extensions/{algorithm}-v0.02/
+├── __init__.py
+├── main.py                    # --algorithm argument
+├── game_logic.py
+├── game_manager.py
+├── game_data.py               # NEW
+├── agents/                    # NEW: Organized structure
+│   ├── __init__.py           # Factory pattern
+│   ├── agent_{type1}.py
+│   ├── agent_{type2}.py
+│   └── agent_{type3}.py
+└── README.md
+```
+
+### **v0.03 Template**
+```
+extensions/{algorithm}-v0.03/
+├── app.py                     # NEW: Streamlit app
+├── dashboard/                 # NEW: UI components
+├── scripts/                   # NEW: CLI tools
+├── agents/                    # 🔒 Copied from v0.02
+├── game_logic.py
+├── game_manager.py
+├── game_data.py
+└── {algorithm}_config.py      # NEW
+```
+
+### **v0.04 Template (Heuristics Only)**
+```
+extensions/heuristics-v0.04/
+├── app.py                     # Enhanced with JSONL
+├── dashboard/                 # Enhanced with JSONL
+├── scripts/                   # Enhanced with JSONL
+├── agents/                    # 🔒 Copied from v0.03
+├── game_logic.py              # Enhanced with JSONL
+├── game_manager.py            # Enhanced with JSONL
+├── game_data.py               # Enhanced with JSONL
+└── heuristic_config.py
+```
+
+## 🎯 **Algorithm Stability Enforcement**
+
+### **Required Stability Checks**
+```python
+# Validation script for v0.02 → v0.03 transition
+def validate_agent_stability(v02_path, v03_path):
+    """Ensure agents/ directory is copied exactly"""
     
-# ❌ FORBIDDEN: Changing return types
-class BFSAgent(BaseAgent):
-    def plan_move(self, game_state) -> List[str]:  # Was str, now List[str] - FORBIDDEN!
-        return ["UP", "RIGHT"]  # Breaking change!
-```
-
-## ✅ **Explicitly Allowed Changes (v0.02+)**
-
-### **Extensions and Enhancements - PERMITTED**
-```python
-# ✅ ALLOWED: Adding new agent variants
-# agents/agent_bfs_enhanced.py - NEW FILE
-class BFSEnhancedAgent(BFSAgent):  # Inherits from stable BFS
-    def plan_move(self, game_state):
-        base_move = super().plan_move(game_state)  # Uses stable BFS
-        return self.add_safety_check(base_move)    # Adds enhancement
-
-# ✅ ALLOWED: Adding monitoring utilities
-# agents/web_monitoring_utils.py - NEW FILE
-class AgentMonitor:
-    def track_performance(self, agent, game_state):
-        # Web interface monitoring - NEW functionality
-        pass
-
-# ✅ ALLOWED: Adding new methods (not modifying existing)
-class BFSAgent(BaseAgent):
-    def plan_move(self, game_state):  # 🔒 Unchanged
-        return self._bfs_implementation(game_state)
+    # Check file existence
+    v02_agents = list_files(f"{v02_path}/agents/")
+    v03_agents = list_files(f"{v03_path}/agents/")
     
-    def get_performance_metrics(self):  # ✅ NEW method
-        return self.performance_data  # Added for web interface
+    if v02_agents != v03_agents:
+        raise ValidationError("Agent files must be identical")
+    
+    # Check factory registrations
+    v02_factory = load_factory(f"{v02_path}/agents/__init__.py")
+    v03_factory = load_factory(f"{v03_path}/agents/__init__.py")
+    
+    if v02_factory.registry != v03_factory.registry:
+        raise ValidationError("Factory registrations must be identical")
 ```
 
-### **Factory Extensions - PERMITTED**
+### **Allowed Enhancements**
 ```python
-# ✅ ALLOWED: Adding new registrations (keeping existing)
-class AgentFactory:
-    _registry = {
-        "BFS": BFSAgent,              # 🔒 Unchanged
-        "ASTAR": AStarAgent,          # 🔒 Unchanged
-        "BFS_ENHANCED": BFSEnhancedAgent,  # ✅ NEW addition
-    }
-```
-
-## 🔧 **Version-Specific Evolution Guidelines**
-
-### **v0.02 → v0.03: Web Interface Integration**
-**Purpose**: Add web interface without breaking CLI functionality
-
-**Required Stability**:
-```python
-# 🔒 MUST remain identical
-agents/agent_bfs.py           # Core algorithm unchanged
-agents/agent_astar.py         # Core algorithm unchanged
-agents/__init__.py            # Factory registry unchanged
-```
-
-**Allowed Additions**:
-```python
-# ✅ NEW: Web interface components
-dashboard/tab_main.py         # Web UI
-scripts/replay_web.py         # Web replay
-agents/agent_bfs_web_optimized.py  # Web-specific optimizations
-```
-
-### **v0.03 → v0.04: Language Generation (Heuristics Only)**
-**Purpose**: Add JSONL generation for LLM fine-tuning
-
-**Required Stability**:
-```python
-# 🔒 MUST remain identical to v0.03
-agents/                       # ALL agent files unchanged
-dashboard/                    # Web interface unchanged
-scripts/main.py              # CLI unchanged
-```
-
-**Allowed Additions**:
-```python
-# ✅ NEW: Language generation only
-scripts/generate_jsonl_dataset.py   # JSONL generation
-agents/reasoning_mixin.py           # Add reasoning capability
-```
-
-## 🏗️ **Architectural Patterns for Safe Evolution**
-
-### **Decorator Pattern for Enhancements**
-```python
-# ✅ SAFE: Enhance without modifying
-class WebOptimizedBFS(BFSAgent):
-    """Web-optimized wrapper for BFS with monitoring"""
+# ✅ Allowed in v0.03: Web-specific enhancements
+class BFSAgentWebOptimized(BFSAgent):
+    """Web interface optimization wrapper"""
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.monitor = WebMonitor()
+        self.web_monitoring = WebMonitoring()
     
     def plan_move(self, game_state):
-        move = super().plan_move(game_state)  # 🔒 Uses stable BFS
-        self.monitor.log_decision(move)       # ✅ Adds monitoring
-        return move
+        # Original BFS logic unchanged
+        result = super().plan_move(game_state)
+        # Add web monitoring
+        self.web_monitoring.record_decision(result)
+        return result
 ```
 
-### **Composition for New Features**
+## 📊 **Version Compatibility Matrix**
+
+| Component | v0.01→v0.02 | v0.02→v0.03 | v0.03→v0.04 |
+|-----------|-------------|-------------|-------------|
+| **Core Algorithms** | ✅ Can change | 🔒 Copy exactly | 🔒 Copy exactly |
+| **Factory Patterns** | ✅ Can add | 🔒 Stable | 🔒 Stable |
+| **File Structure** | ✅ Can reorganize | ✅ Can add web | ✅ Can add JSONL |
+| **CLI Interface** | ✅ Can change | ✅ Can enhance | ✅ Can enhance |
+| **Data Formats** | ✅ Can change | ✅ Can add | ✅ Can add JSONL |
+
+## 🚫 **Forbidden Patterns**
+
+### **Breaking Algorithm Stability**
 ```python
-# ✅ SAFE: Add features via composition
-class ReasoningCapableBFS:
-    def __init__(self):
-        self.bfs_agent = BFSAgent()      # 🔒 Uses stable BFS
-        self.reasoner = ReasoningEngine()  # ✅ NEW component
-    
-    def plan_move_with_reasoning(self, game_state):
-        move = self.bfs_agent.plan_move(game_state)  # 🔒 Stable
-        reasoning = self.reasoner.explain(move)      # ✅ NEW feature
-        return move, reasoning
+# ❌ FORBIDDEN: Modify core algorithm in v0.03
+class BFSAgent(BaseAgent):
+    def plan_move(self, game_state):
+        # ❌ Changed from v0.02 implementation
+        return self.new_algorithm(game_state)  # BREAKING CHANGE
 ```
 
-## 📊 **Compliance Validation**
-
-### **Automated Checks (Required)**
+### **Removing Required Components**
 ```python
-# extensions/common/validation/evolution_validator.py
+# ❌ FORBIDDEN: Remove agent files in v0.03
+# agents/agent_bfs.py  # ❌ DELETED - BREAKING CHANGE
+```
 
-def validate_evolution_compliance(v_old: str, v_new: str):
-    """Validate that extension evolution follows rules"""
+### **Changing Factory Registrations**
+```python
+# ❌ FORBIDDEN: Change registration names
+_registry = {
+    "BFS_NEW": BFSAgent,  # ❌ Changed from "BFS" - BREAKING CHANGE
+}
+```
+
+## 🔍 **Compliance Validation**
+
+### **Automated Checks**
+```python
+# Required validation for all version transitions
+def validate_evolution_compliance(old_version, new_version):
+    """Validate extension evolution compliance"""
     
-    # Check core files unchanged
-    for agent_file in get_core_agent_files(v_old):
-        assert files_identical(
-            f"{v_old}/{agent_file}", 
-            f"{v_new}/{agent_file}"
-        ), f"Core agent {agent_file} was modified - FORBIDDEN!"
+    if new_version == "0.03":
+        validate_agent_stability(old_version, new_version)
+        validate_factory_stability(old_version, new_version)
     
-    # Check factory registry stability
-    old_registry = get_factory_registry(v_old)
-    new_registry = get_factory_registry(v_new)
-    
-    for name, agent_class in old_registry.items():
-        assert name in new_registry, f"Registry entry {name} removed - FORBIDDEN!"
-        assert new_registry[name] == agent_class, f"Registry {name} changed - FORBIDDEN!"
+    if new_version == "0.04":
+        validate_v03_functionality_preserved(new_version)
+        validate_jsonl_capabilities_added(new_version)
 ```
 
 ### **Manual Review Checklist**
-- [ ] Are all v0.02 agent files byte-identical in v0.03?
-- [ ] Do factory registrations maintain exact same names?
-- [ ] Are all public method signatures unchanged?
-- [ ] Do new features use composition/decoration patterns?
-- [ ] Are breaking changes properly justified and documented?
-
-## 🎯 **Benefits of Strict Evolution Rules**
-
-### **Stability Guarantees**
-- **Reproducibility**: v0.02 experiments remain valid
-- **Reliability**: Core algorithms never break
-- **Compatibility**: Extensions can reference stable interfaces
-
-### **Educational Value**
-- **Clear Progression**: Students see natural software evolution
-- **Design Patterns**: Demonstrates safe extension techniques
-- **Best Practices**: Shows how to add features without breaking existing code
+- [ ] Core algorithms unchanged (v0.02→v0.03, v0.03→v0.04)
+- [ ] Factory registrations stable
+- [ ] Required functionality preserved
+- [ ] New capabilities properly added
+- [ ] Documentation updated
+- [ ] Tests pass for all versions
 
 ---
 
-**These explicit rules eliminate ambiguity and ensure stable, predictable extension evolution while enabling legitimate enhancements and new functionality.** 
+**These evolution rules ensure consistent, stable extension development while enabling natural software progression and maintaining educational value.**
+
+## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+
+- **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
+- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only
+- **For research**: Use both formats from heuristics-v0.04
+- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)
+
+**Both heuristics-v0.03 and heuristics-v0.04 are widely used depending on use cases and scenarios.** 

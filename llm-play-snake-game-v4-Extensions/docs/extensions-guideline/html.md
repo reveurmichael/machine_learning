@@ -1,6 +1,6 @@
 # HTML Template Architecture for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. HTML templates follow the same architectural patterns established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. HTML templates follow the same architectural patterns established in the GOOD_RULES.
 
 ## 🎯 **Core Philosophy: Generic Templates, Dynamic Content**
 

@@ -10,7 +10,7 @@
 - **Principle**: One concept per file
 
 ### **Directory Organization**
-Following final-decision-5.md directory structure:
+Following `final-decision-5.md` directory structure:
 ```
 extensions/{algorithm}-v0.0N/
 ├── agents/                 # Algorithm implementations (v0.02+)
@@ -28,7 +28,9 @@ extensions/{algorithm}-v0.0N/
 
 ## 🎨 **Naming Conventions**
 
-### **Standardized Patterns (final-decision-4.md)**
+### **Standardized Patterns**
+> **Authoritative Reference**: See `final-decision-4.md` for complete naming conventions.
+
 ```python
 # ✅ File naming
 agent_bfs.py              # Algorithm implementations
@@ -74,7 +76,9 @@ class PathfindingAgent(BaseAgent):
 
 ## 🔧 **Configuration Management**
 
-### **Follow final-decision-2.md**
+### **Follow Configuration Standards**
+> **Authoritative Reference**: See `config.md` for complete configuration architecture.
+
 ```python
 # ✅ Universal constants (all tasks)
 from config.game_constants import VALID_MOVES, DIRECTIONS
@@ -94,7 +98,9 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 
 ## ⚙️ **Path Management**
 
-### **Mandatory Pattern (final-decision-6.md)**
+### **Mandatory Pattern**
+> **Authoritative Reference**: See `unified-path-management-guide.md` for complete path management standards.
+
 ```python
 # Required for all extensions
 from extensions.common.path_utils import (
@@ -151,6 +157,14 @@ def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
 - **Line Length**: 88 characters (Black default)
 - **Import Organization**: Standard library, third-party, local imports
 - **Trailing Whitespace**: Remove consistently
+
+## 🔗 **See Also**
+
+- **`config.md`**: Configuration architecture standards
+- **`unified-path-management-guide.md`**: Path management standards
+- **`unified-factory-pattern-guide.md`**: Factory pattern standards
+- **`final-decision-4.md`**: Naming conventions
+- **`final-decision-5.md`**: Directory structure
 
 ---
 

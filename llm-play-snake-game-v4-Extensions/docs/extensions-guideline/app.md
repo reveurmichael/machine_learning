@@ -1,11 +1,11 @@
 # Streamlit App Path Management
 
-> **Important — Reference Redirect:** Streamlit apps have unique needs, but the **authoritative path-management guide is `final-decision-6.md`**.  
-> This file shows only the *Streamlit-specific* snippet; all generic patterns and rationales live in the Final Decision document.
+> **Important — Reference Redirect:** Streamlit apps have unique needs, but the **authoritative path-management guide is `unified-path-management-guide.md`**.  
+> This file shows only the *Streamlit-specific* snippet; all generic patterns and rationales live in the unified guide.
 
 ## 🎯 **Streamlit-Specific Path Requirements**
 
-All Streamlit applications **MUST** use the standardized path utilities from final-decision-6.md to handle Streamlit's unique execution environment:
+All Streamlit applications **MUST** use the standardized path utilities from `unified-path-management-guide.md` to handle Streamlit's unique execution environment:
 
 ```python
 # REQUIRED pattern for all extension app.py files
@@ -63,4 +63,10 @@ subprocess.run([
 ])
 ```
 
-For any **non-Streamlit** scripts (training, dataset generation, etc.) follow the generic template in `final-decision-6.md`.
+## 🔗 **See Also**
+
+- **`unified-path-management-guide.md`**: Authoritative reference for all path management patterns
+- **`final-decision-6.md`**: Path management architectural decisions
+- **`dashboard.md`**: Dashboard architecture standards
+
+For any **non-Streamlit** scripts (training, dataset generation, etc.) follow the generic template in `unified-path-management-guide.md`.

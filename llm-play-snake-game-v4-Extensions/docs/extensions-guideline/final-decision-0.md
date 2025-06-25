@@ -39,14 +39,16 @@ The following cross-cutting decisions are reflected consistently across **all** 
 * Keep each document focused; link to others rather than duplicate large sections.
 * Preserve rich explanations—motivation, trade-offs, design patterns—over excessive code listings.
 
-## Referring to Final Decisions or GOODRULES
+## Referring to Final Decisions or GOOD_RULES
 
-When referring to Final Decisions or GOODRULES, use the following format:
+When referring to Final Decisions or GOOD_RULES, use the following format:
 - Don't use Final Decision 6; use final-decision-6.md
 - Don't use Final Decision N; use final-decision-N.md
 - Don't use FD-N; use final-decision-N.md
-- Don't use GOODRULES in a general sense; use GOODRULES (corresponding-rule-markdown-file-name.md)
-- If you don't know what GOODRULES is, check final-decision-10.md 
+- Don't use final-decision-N; use final-decision-N.md
+- Don't use GOOD_RULES in a general sense; use GOOD_RULES (corresponding-rule-markdown-file-name.md)
+- If you don't know what GOOD_RULES is, check final-decision-10.md 
+- Some of the markdown files in "ROOT/docs/extensions-guidelines/" are empty. Ingnore them.
 ---
 
 > **In short:** Use this index to navigate the authoritative decisions.  When in doubt, the numbered Final Decision documents outrank every other piece of documentation except a newer Final Decision document with a higher revision number.

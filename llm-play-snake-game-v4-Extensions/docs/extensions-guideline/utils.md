@@ -1,6 +1,6 @@
 # Utility Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOOD_RULES.
 
 ## 🎯 **Utility Philosophy**
 
@@ -195,7 +195,6 @@ def setup_llm_clients(game_manager: "GameManager"):  # Task-0 specific
 ```
 
 ### **✅ Universal Constants Usage:**
-TODO: this is what we want to have:
 ```python
 # ✅ Generic utilities use universal constants, across task0-5, and across all extensions.
 from config.game_constants import END_REASON_MAP       # Game termination (all tasks)
@@ -208,8 +207,6 @@ from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-only
 ---
 
 ## **📊 Naming Convention Compliance - Perfect**
-
-TODO: is such naming really good?
 
 ### **✅ All Files Follow `*_utils.py` Pattern:**
 ```
@@ -232,7 +229,6 @@ TODO: is such naming really good?
 ## **🏆 Summary: Utils Architecture is Already Perfect**
 
 ### **✅ What's Already Working:**
-TODO: this is what we want to have:
 
 1. **Perfect SOLID Compliance**: Utils follow dependency inversion - depend on abstractions
 2. **Clean Task Separation**: LLM-specific vs generic utilities clearly marked and separated

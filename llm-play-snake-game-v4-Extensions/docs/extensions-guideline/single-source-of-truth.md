@@ -1,232 +1,190 @@
 # Single Source of Truth Principle
 
-This document outlines the **Single Source of Truth (SSOT)** principle as applied throughout the Snake Game AI project, ensuring consistency, maintainability, and reliability across all components.
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series and unified guides for extension development standards.
 
-## 🎯 **Core Principle**
+## 🎯 **Core Philosophy: One Truth, One Place**
 
-**Unless it's between different extensions** (each extension, plus the common folder, are regarded as standalone), we should go for **single source of truth**.
+The Single Source of Truth (SSOT) principle ensures that every piece of information has exactly one authoritative location. This eliminates contradictions, reduces maintenance burden, and ensures consistency across the entire Snake Game AI ecosystem.
 
-### **Definition**
-Single Source of Truth means that every piece of data, configuration, or business logic should have exactly one authoritative representation within the system. This eliminates contradictions, reduces maintenance burden, and ensures consistency.
+## 🏗️ **SSOT Architecture**
 
-## 🏗️ **Application Areas**
-
-### **1. Configuration Management**
-All configuration constants are centralized in the `config/` directory:
-
-```python
-# ✅ GOOD: Single source in config/game_constants.py
-VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
-DIRECTIONS = {
-    "UP": (0, 1),
-    "DOWN": (0, -1), 
-    "LEFT": (-1, 0),
-    "RIGHT": (1, 0)
-}
-MAX_STEPS_ALLOWED = 1000
-
-# ✅ All extensions import from this single source
-from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
-```
-
-```python
-# ❌ BAD: Duplicated constants across files
-# File 1: VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]
-# File 2: MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]  # Duplicate!
-# File 3: DIRECTIONS = ["UP", "DOWN", "LEFT", "RIGHT"]  # Another duplicate!
-```
-
-### **2. Coordinate System**
-The entire codebase uses **one single coordinate system** defined in `docs/extensions-guideline/coordinate-system.md`:
-
-```python
-# ✅ GOOD: Consistent coordinate system everywhere
-# Origin (0,0) at bottom-left, x grows right, y grows up
-# Used by: core logic, agents, prompts, GUI adapters, extensions
-```
-
-### **3. Game State Schema**
-Game state structure is defined once and reused everywhere:
-
-```python
-# ✅ GOOD: Single game state schema in core/game_data.py
-class BaseGameData:
-    def get_state_snapshot(self) -> Dict:
-        return {
-            'grid_size': self.grid_size,
-            'snake_positions': self.snake_positions.copy(),
-            'apple_position': self.apple_position,
-            'current_direction': self.current_direction,
-            'score': self.score,
-            'steps': self.steps,
-            'game_active': self.game_active
-        }
-
-# ✅ All extensions use this same schema
-# Heuristics, RL, Supervised Learning all get consistent data
-```
-
-### **4. CSV Schema for ML**
-Dataset schema is centralized in `extensions/common/csv_schema.py`:
-
-```python
-# ✅ GOOD: Single CSV schema definition
-from extensions.common.csv_schema import generate_csv_schema, TabularFeatureExtractor
-
-# Used by:
-# - Heuristics v0.03 (dataset generation)
-# - Supervised Learning v0.02+ (training)
-# - All ML models (consistent feature extraction)
-```
-
-### **5. File Naming Conventions**
-Naming rules are documented once and applied consistently:
-
-```python
-# ✅ GOOD: Single naming convention
-# Files: game_*.py in core/
-# Classes: PascalCase (GameManager, BFSAgent)
-# Functions: snake_case (make_move, get_state)
-# Constants: UPPER_SNAKE_CASE (MAX_STEPS, VALID_MOVES)
-```
-
-## 🚫 **Extension Boundaries**
-
-### **When SSOT Does NOT Apply**
-Extensions are designed to be **standalone** (extension + common folder), so they can have their own versions of certain components:
-
-```python
-# ✅ ALLOWED: Each extension can have its own GameManager
-# ROOT/core/game_manager.py        (Task-0 LLM version)
-# extensions/heuristics-v0.02/game_manager.py  (Heuristic version)
-# extensions/supervised-v0.02/game_manager.py  (ML version)
-
-# Each inherits from BaseGameManager but adds domain-specific logic
-```
-
-### **Extension Independence**
-```python
-# ✅ GOOD: Extensions don't share code between each other
-# heuristics-v0.02 + common = standalone
-# supervised-v0.02 + common = standalone
-# reinforcement-v0.02 + common = standalone
-
-# ❌ BAD: Cross-extension dependencies
-# from heuristics_v0.02 import some_utility  # FORBIDDEN
-# from supervised_v0.01 import helper_function  # FORBIDDEN
-```
-
-## 📚 **Authoritative SSOT Locations**
-
-### 1. Configuration Constants (ROOT/config/)
-These modules are *the* authority for project-wide constants.  Import; never redefine.
-
-| File | Purpose |
-|------|---------|
-| `game_constants.py` | Game-rule numbers, movement maps, sentinel moves, step limits |
-| `ui_constants.py`   | Universal colour palette, grid size default, window dimensions |
-| `llm_constants.py`  | **Task-0 & LLM-focused extensions only** – provider names, model aliases, token limits |
-| `prompt_templates.py` | System / user prompt skeletons (LLM tasks only) |
-| `network_constants.py` | HTTP / WebSocket defaults for scripts & dashboards |
-| `web_constants.py` | Flask / Streamlit specific settings |
-
+### **Configuration Hierarchy**
 > For an expanded rationale and hierarchy diagram see **`config.md`** and **`final-decision-2.md`**.
 
-### 2. Universal Utilities (ROOT/utils/)
-Stateless helper functions that *every* task and extension may (and should) reuse:
+| Level | Location | Purpose | Example |
+|-------|----------|---------|---------|
+| **Universal** | `config/` | Core game rules, UI, coordinate system | `VALID_MOVES`, `DIRECTIONS` |
+| **Shared Extension** | `extensions/common/config/` | Cross-extension settings | `DEFAULT_LEARNING_RATE` |
+| **Type-Specific** | `extensions/{type}/config/` | Algorithm-specific settings | `HEURISTIC_ALGORITHMS` |
+| **Experiment** | Local to script | Runtime parameters | CLI flags, YAML configs |
 
-| Module | Key Responsibilities |
-|--------|---------------------|
-| `board_utils.py` | Apple placement, board generation, vacant-cell queries |
-| `collision_utils.py` | Wall / body collision tests, reverse-move detection |
-| `moves_utils.py` | Direction parsing, normalization, convenience enums |
-| `json_utils.py` | Safe JSON read/write, pretty printing, schema sanity checks |
-| `path_utils.py` | **Lightweight helpers only** (heavyweight project-root logic now lives in `extensions/common/path_utils.py`) |
-| `seed_utils.py` | Project-wide RNG seed control for reproducible runs |
-| `text_utils.py` | Markdown / console colouring, padding, wrapping |
-| `web_utils.py` | Board-state → JSON for browser front-ends |
+### **Path Management SSOT**
+All non-trivial path logic is consolidated in **`unified-path-management-guide.md`** and its implementation `extensions/common/path_utils.py`.  *Do not* copy `ensure_project_root()` or sibling helpers into extension folders – just import them.
 
-### 3. Path Management (Single Source of Truth)
-All non-trivial path logic is consolidated in **`final-decision-6.md`** and its implementation `extensions/common/path_utils.py`.  *Do not* copy `ensure_project_root()` or sibling helpers into extension folders – just import them.
+### **Data Format SSOT**
+All data format decisions are centralized in **`data-format-decision-guide.md`**. This includes:
+- When to use CSV vs NPZ vs JSONL
+- Feature engineering standards
+- Storage structure requirements
+- Format validation rules
 
-### 4. Shared Extension Utilities (extensions/common/)
-Cross-extension helpers that don't belong in ROOT:
+### **Factory Pattern SSOT**
+All factory pattern implementations follow **`unified-factory-pattern-guide.md`**:
+- Standard factory template
+- Registration patterns
+- Error handling
+- Extension-specific examples
 
-* `csv_schema.py`, `dataset_loader.py` – dataset definitions & loaders  
-* `validation/` sub-package – reusable data / directory validators  
-* `config/` sub-package – hyper-parameters used by multiple extension families
+## 🔧 **SSOT Implementation**
 
-## 🔄 **How to Contribute Without Breaking SSOT**
-1. **Look first** – search for an existing constant/function before adding a new one.
-2. **Prefer import over copy-paste** – keep behaviour changes in one spot.
-3. **If truly new:** place it in the *single* correct location (table above) and document it.
+### **Configuration Access**
+```python
+# ✅ CORRECT: Single source for each type
+from config.game_constants import VALID_MOVES          # Universal
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE  # Shared
+from extensions.heuristics.config import HEURISTIC_ALGORITHMS  # Type-specific
 
-> 🛑 **Checklist** – Each time before writing the code, ask yourself:  
-> • Am I duplicating any constant already defined in `ROOT/config/` or `ROOT/extensions/common/`?  
-> • Could this helper live in `ROOT/utils/` or `ROOT/extensions/common/`?  
-> • Does the documentation reference the new SSOT location?
+# ❌ WRONG: Duplicate definitions
+VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]  # Don't redefine
+```
 
-## 🎯 **Benefits Achieved**
+### **Path Management**
+```python
+# ✅ CORRECT: Use centralized utilities
+from extensions.common.path_utils import ensure_project_root, get_dataset_path
 
-### **1. Consistency**
-- All components use the same coordinate system
-- All ML models use the same feature schema
-- All extensions follow the same naming conventions
+# ❌ WRONG: Manual path construction
+import os
+dataset_path = os.path.join(os.getcwd(), "logs", "datasets")  # Don't construct manually
+```
 
-### **2. Maintainability**
-- Change configuration in one place, affects entire system
-- Update game state schema once, all components benefit
-- Fix coordinate system bug in one location
+### **Data Format Decisions**
+```python
+# ✅ CORRECT: Follow authoritative guide
+from extensions.common.csv_schema import create_csv_row  # For tree models
+from extensions.common.npz_utils import create_sequential_dataset  # For RNNs
 
-### **3. Reliability**
-- No contradictory information across codebase
-- Reduced chance of integration bugs
-- Clear ownership of each piece of data
+# ❌ WRONG: Ad-hoc format decisions
+if model_type == "xgboost":
+    format = "csv"  # Don't decide locally
+```
 
-### **4. Developer Experience**
-- New developers learn one way of doing things
-- Clear documentation hierarchy
-- Predictable code organization
+## 🚫 **SSOT Violations to Avoid**
 
-## 🚀 **Implementation Guidelines**
+### **Configuration Duplication**
+```python
+# ❌ WRONG: Multiple definitions
+# file1.py
+MAX_STEPS = 1000
 
-### **For Core Components**
-1. **Identify authoritative source** for each piece of information
-2. **Document the source location** clearly
-3. **Import, don't duplicate** in other files
-4. **Validate consistency** with automated tests
+# file2.py  
+MAX_STEPS = 1000  # Duplicate!
 
-### **For Extensions**
-1. **Inherit from base classes** rather than reimplementing
-2. TODO: IMPORTANT: use ROOT/utils/ stuffs
+# ✅ CORRECT: Single definition
+# config/game_constants.py
+MAX_STEPS = 1000
 
-2. **Use common utilities** from extensions/common/
-3. **Don't share code** between different extensions
-4. **Document extension-specific** deviations clearly
+# file1.py and file2.py
+from config.game_constants import MAX_STEPS
+```
 
-### **For Documentation**
-1. **One authoritative document** per topic
-2. **Cross-reference, don't duplicate** information
-3. **Update single source** when changes occur
-4. **Validate documentation** against implementation
+### **Path Logic Scattering**
+```python
+# ❌ WRONG: Path logic everywhere
+# file1.py
+def get_log_path():
+    return os.path.join(os.getcwd(), "logs")
 
-## 📋 **Checklist for SSOT Compliance**
+# file2.py
+def get_log_path():
+    return Path.cwd() / "logs"  # Different implementation!
 
-### **Before Adding New Code:**
-- [ ] Is this information already defined elsewhere?
-- [ ] Can I import/inherit instead of reimplementing?
-- [ ] Am I creating a new authoritative source?
-- [ ] Is the authoritative location documented?
+# ✅ CORRECT: Centralized path utilities
+from extensions.common.path_utils import get_log_path
+```
 
-### **Before Adding New Documentation:**
-- [ ] Does this information exist in another document?
-- [ ] Should I reference existing docs instead?
-- [ ] Am I creating the authoritative source for this topic?
-- [ ] Are cross-references updated?
+### **Format Decision Fragmentation**
+```python
+# ❌ WRONG: Format decisions scattered
+# file1.py
+if algorithm == "bfs":
+    save_as_csv(data)
+
+# file2.py
+if model_type == "xgboost":
+    save_as_csv(data)  # Duplicate logic!
+
+# ✅ CORRECT: Centralized format decisions
+from extensions.common.data_formats import save_dataset
+save_dataset(data, algorithm, model_type)  # Centralized decision
+```
+
+## 🎯 **SSOT Benefits**
+
+### **Consistency**
+- **Uniform Behavior**: Same configuration, same behavior across extensions
+- **Predictable Paths**: Standardized path resolution everywhere
+- **Consistent Formats**: Same data format decisions across all extensions
+
+### **Maintainability**
+- **Single Update Point**: Change once, affects everywhere
+- **Reduced Bugs**: No synchronization issues between copies
+- **Clear Ownership**: Each piece of information has one owner
+
+### **Educational Value**
+- **Clear Learning Path**: One place to learn each concept
+- **Reduced Confusion**: No contradictory information
+- **Focused Documentation**: Each document has one clear purpose
+
+## 🔍 **SSOT Validation**
+
+### **Automated Checks**
+```python
+# extensions/common/validation/ssot_validator.py
+
+def validate_configuration_ssot():
+    """Ensure no configuration duplication"""
+    # Check for duplicate constant definitions
+    # Validate all imports point to authoritative sources
+    # Verify no local redefinitions
+
+def validate_path_ssot():
+    """Ensure path logic is centralized"""
+    # Check for manual path construction
+    # Validate use of path utilities
+    # Verify no duplicate path logic
+
+def validate_format_ssot():
+    """Ensure format decisions are centralized"""
+    # Check for local format decisions
+    # Validate use of centralized format utilities
+    # Verify adherence to format guide
+```
+
+### **Manual Review Checklist**
+- [ ] No duplicate constant definitions
+- [ ] All paths use centralized utilities
+- [ ] All format decisions follow authoritative guide
+- [ ] No local redefinitions of standard patterns
+- [ ] Clear documentation of SSOT locations
+
+## 🔗 **SSOT References**
+
+### **Authoritative Sources**
+- **Configuration**: `config.md` + `final-decision-2.md`
+- **Path Management**: `unified-path-management-guide.md`
+- **Data Formats**: `data-format-decision-guide.md`
+- **Factory Patterns**: `unified-factory-pattern-guide.md`
+- **Streamlit Architecture**: `unified-streamlit-architecture-guide.md`
+
+### **Supporting Documentation**
+- **Extension Guidelines**: Version-specific implementation guides
+- **Final Decisions**: Architectural decisions and rationale
+- **Code Examples**: Concrete implementation patterns
 
 ---
 
-**The Single Source of Truth principle ensures that the Snake Game AI project remains maintainable, consistent, and reliable as it grows in complexity across multiple extensions and algorithm types.**
+**The Single Source of Truth principle ensures that the Snake Game AI project remains consistent, maintainable, and educational by eliminating contradictions and centralizing authoritative information.**
 
 
 

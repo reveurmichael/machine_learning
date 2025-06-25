@@ -1,149 +1,200 @@
-# KISS Principle in Snake Game AI Extensions
+# KISS Principle for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. KISS (Keep It Simple, Stupid) is a fundamental design principle that guides all extension development.
+> **Important — Authoritative Reference:** This document supplements the Final Decision Series and unified guides for extension development standards.
 
-## 🎯 **KISS Philosophy in Extensions**
+## 🎯 **Core Philosophy: Keep It Simple, Stupid**
 
-The KISS principle drives the evolutionary design of extensions from v0.01 through v0.03, ensuring that complexity is introduced only when necessary and always with clear justification.
+The KISS principle is fundamental to the Snake Game AI project. Extensions should be **simple, clear, and focused** rather than complex, clever, and confusing.
 
-### **Core KISS Tenets**
-- **Progressive Complexity**: Start simple (v0.01), add complexity gradually (v0.02, v0.03)
-- **Clear Purpose**: Each component has one well-defined responsibility
-- **Minimal Dependencies**: Use existing infrastructure before creating new components
-- **Educational Clarity**: Code should teach, not confuse
+## 🏗️ **Simple Architecture Patterns**
 
-## 🌱 **KISS in Extension Evolution**
+### **Factory Patterns**
+> **Authoritative Reference**: See `unified-factory-pattern-guide.md` for complete factory implementations.
 
-### **v0.01: Radical Simplicity**
-Following the GOODRULES (KISS.md) pattern, v0.01 extensions embody pure KISS:
-- **Single algorithm only**: One clear demonstration
-- **No command-line arguments**: Zero configuration complexity
-- **Minimal file structure**: Just what's absolutely necessary
-- **Console output only**: No GUI complexity
+Following the unified factory pattern guide, factories are deliberately simple:
 
-### **v0.02: Controlled Expansion**
-KISS guides the addition of complexity:
-- **Factory pattern introduction**: Simple, clear algorithm selection
-- **Organized structure**: `agents/` folder for clarity
-- **Command-line interface**: One `--algorithm` parameter
-- **Still headless**: No UI complexity yet
-
-### **v0.03: Justified Sophistication**
-Maximum functionality while maintaining KISS principles:
-- **UI serves scripts**: Streamlit app launches subprocess scripts
-- **Modular dashboard**: Each tab handles one clear function
-- **Reused agent logic**: `agents/` folder copied exactly from v0.02
-- **Clear separation**: UI, scripts, and core logic remain distinct
-
-## 🔧 **KISS Design Patterns**
-
-### **Factory Pattern Simplicity**
-Following final-decision-7.md and final-decision-8.md, factories are deliberately simple:
 ```python
-class SimpleAgentFactory:
-    """KISS-compliant agent factory"""
+class HeuristicAgentFactory:
+    """Simple factory for heuristic agents"""
     
-    _agents = {
+    _registry = {
         "BFS": BFSAgent,
         "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
     }
     
     @classmethod
-    def create_agent(cls, name: str):
-        """One method, clear purpose, simple implementation"""
-        return cls._agents[name.upper()]()
+    def create(cls, algorithm: str, **kwargs) -> BaseAgent:
+        """Create agent by name"""
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        return agent_class(**kwargs)
 ```
 
-### **Configuration Simplicity**
-Following final-decision-2.md, configuration is straightforward:
+### **Configuration Management**
+> **Authoritative Reference**: See `config.md` for complete configuration architecture.
+
+Following the configuration standards, configuration is straightforward:
+
 ```python
-# Simple, clear configuration access
-from config.game_constants import VALID_MOVES  # Universal
-from extensions.common.config.simple_defaults import DEFAULT_GRID_SIZE  # Extension-specific
+# Simple, clear imports
+from config.game_constants import VALID_MOVES, DIRECTIONS
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+
+# No complex configuration hierarchies
+# No dynamic configuration loading
+# No configuration inheritance chains
 ```
 
-### **Path Management Simplicity**
-Following final-decision-6.md, path management is consistent:
-```python
-from extensions.common.path_utils import ensure_project_root
+### **Path Management**
+> **Authoritative Reference**: See `unified-path-management-guide.md` for complete path management standards.
 
-# One call, solves all path problems
+Following the unified path management guide, path management is consistent:
+
+```python
+# Simple, standardized path utilities
+from extensions.common.path_utils import ensure_project_root, get_dataset_path
+
+# Always start with this
 ensure_project_root()
+
+# Use utilities for all paths
+dataset_path = get_dataset_path(
+    extension_type="heuristics",
+    version="0.03",
+    grid_size=grid_size,
+    algorithm="bfs",
+    timestamp=timestamp
+)
 ```
 
-## 📚 **KISS Documentation Philosophy**
+## 📚 **Simple Documentation**
 
-### **Documentation as Code**
-Following documentation-as-first-class-citizen.md:
-- **Self-explaining code**: Variable and function names that describe purpose
-- **Minimal comments**: Only when the why isn't obvious
-- **Rich docstrings**: Comprehensive but concise explanations
-- **Clear examples**: Simple, executable examples
-
-### **Progressive Disclosure**
-Information architecture follows KISS:
-- **GOODRULES (see final-decision-10.md)**: Authoritative, comprehensive reference
-- **Supporting docs**: Focus on specific aspects
-- **Code examples**: Simple, clear demonstrations
-- **Inline documentation**: Context-specific guidance
-
-## 🚀 **KISS Implementation Guidelines**
-
-### **Avoid Over-Engineering**
-KISS prevents common pitfalls:
-- **No premature optimization**: Make it work first, optimize later
-- **No unnecessary abstractions**: Create abstractions when you have 3+ similar things
-- **No feature creep**: Each version has clear, limited scope
-- **No complex inheritance**: Prefer composition and simple inheritance
-
-### **Embrace Constraints**
-KISS thrives within constraints:
-- **Grid-size agnostic**: One solution works for all sizes
-- **Extension isolation**: Each extension + common folder is standalone
-- **Version compatibility**: v0.03 agents folder = v0.02 agents folder
-- **Clear boundaries**: Task-0 vs. extension functionality
-
-### **Favor Composition**
-KISS prefers simple composition:
+### **Clear, Concise Docstrings**
 ```python
-# Simple composition over complex inheritance
-class HeuristicGameManager:
-    def __init__(self):
-        self.agent_factory = HeuristicAgentFactory()  # Composition
-        self.game_logic = HeuristicGameLogic()        # Composition
-        self.file_manager = FileManager()             # Composition
+def plan_move(self, game_state: Dict[str, Any]) -> str:
+    """
+    Plan next move using BFS algorithm.
+    
+    Args:
+        game_state: Current game state
+        
+    Returns:
+        Next move direction (UP, DOWN, LEFT, RIGHT)
+    """
+    # Simple, readable implementation
+    path = self.find_path(game_state)
+    return path[0] if path else "NONE"
 ```
 
-## 🎓 **Educational Benefits of KISS**
+### **No Over-Documentation**
+- **Purpose**: What the function does
+- **Parameters**: What it expects
+- **Returns**: What it gives back
+- **No**: Long explanations, design pattern discussions, educational notes
 
-### **Learning Facilitation**
-KISS makes the codebase educational:
-- **Clear progression**: v0.01 → v0.02 → v0.03 shows natural evolution
-- **Understandable complexity**: Each level appropriate for learning stage
-- **Pattern demonstration**: Design patterns used simply and clearly
-- **AI assistant friendly**: Simple code is easier for AI to understand and modify
+## 🔧 **Simple Implementation**
 
-### **Research Enablement**
-KISS enables effective research:
-- **Quick experimentation**: Simple structure enables rapid iteration
-- **Clear comparison**: Minimal complexity allows focus on algorithm differences
-- **Easy modification**: Simple code is easier to extend and modify
-- **Reliable reproduction**: Simple systems are more reproducible
+### **One Function, One Purpose**
+```python
+# ✅ Simple and clear
+def calculate_distance(pos1: Tuple[int, int], pos2: Tuple[int, int]) -> int:
+    """Calculate Manhattan distance between two positions"""
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-## 🔍 **KISS Anti-Patterns to Avoid**
+# ❌ Complex and confusing
+def calculate_distance_with_optimization_and_caching_and_validation(
+    pos1: Tuple[int, int], 
+    pos2: Tuple[int, int],
+    use_cache: bool = True,
+    validate_inputs: bool = True,
+    optimization_level: int = 1
+) -> int:
+    """Calculate distance with many options"""
+    # Complex implementation with many branches
+```
 
-### **Common Violations**
-- **Configuration explosion**: Too many parameters, flags, and options
-- **Deep inheritance hierarchies**: Complex chains of inheritance
-- **God objects**: Classes that do too many things
-- **Premature abstraction**: Creating frameworks before understanding needs
+### **Simple Data Structures**
+```python
+# ✅ Simple and clear
+snake_positions = [(x, y) for x, y in snake_body]
+apple_position = (apple_x, apple_y)
 
-### **Extension-Specific Pitfalls**
-- **Cross-extension coupling**: Extensions depending on each other
-- **Version fragmentation**: Breaking compatibility between versions
-- **UI complexity**: Making Streamlit apps do too much
-- **Path confusion**: Not using standardized path utilities
+# ❌ Complex and confusing
+snake_positions = {
+    "body": [{"x": x, "y": y, "segment_id": i} for i, (x, y) in enumerate(snake_body)],
+    "metadata": {"length": len(snake_body), "head_index": 0}
+}
+```
+
+## 🎯 **Simple Extension Structure**
+
+### **Minimal File Count**
+```
+extensions/heuristics-v0.02/
+├── agents/
+│   ├── __init__.py
+│   ├── agent_bfs.py
+│   └── agent_astar.py
+├── game_logic.py
+├── game_manager.py
+└── main.py
+```
+
+### **No Unnecessary Abstractions**
+- **No**: Abstract base classes for simple functionality
+- **No**: Complex inheritance hierarchies
+- **No**: Multiple layers of indirection
+- **Yes**: Direct, clear implementations
+
+## 🚫 **What to Avoid**
+
+### **Over-Engineering**
+- **No**: Complex design patterns for simple problems
+- **No**: Multiple inheritance for single-purpose classes
+- **No**: Dynamic dispatch when static is sufficient
+- **No**: Plugin architectures for fixed functionality
+
+### **Premature Optimization**
+- **No**: Caching for rarely-used functions
+- **No**: Complex algorithms for small datasets
+- **No**: Memory optimization for simple data structures
+- **No**: Performance tuning before profiling
+
+### **Over-Abstraction**
+- **No**: Generic interfaces for specific use cases
+- **No**: Configuration systems for fixed values
+- **No**: Factory patterns for single implementations
+- **No**: Strategy patterns for simple algorithms
+
+## ✅ **What to Embrace**
+
+### **Clear, Direct Code**
+- **Yes**: Simple functions with clear names
+- **Yes**: Direct data access without getters/setters
+- **Yes**: Explicit error handling
+- **Yes**: Readable variable names
+
+### **Minimal Dependencies**
+- **Yes**: Standard library when possible
+- **Yes**: Single-purpose external libraries
+- **Yes**: Clear dependency boundaries
+- **Yes**: Minimal import statements
+
+### **Straightforward Testing**
+- **Yes**: Simple unit tests
+- **Yes**: Clear test names
+- **Yes**: Minimal test setup
+- **Yes**: Direct assertions
+
+## 🔗 **See Also**
+
+- **`config.md`**: Simple configuration patterns
+- **`unified-path-management-guide.md`**: Simple path management
+- **`unified-factory-pattern-guide.md`**: Simple factory patterns
+- **`final-decision-10.md`**: GOOD_RULES - Authoritative, comprehensive reference
 
 ---
 
-**KISS is not about dumbing down the system—it's about finding the simplest solution that accomplishes the goal. In the Snake Game AI project, KISS ensures that extensions remain educational, maintainable, and extensible while demonstrating sophisticated AI concepts through clear, understandable implementations.**
+**Remember: The best code is the code that's easiest to understand, maintain, and extend. Keep it simple.**

@@ -1,6 +1,6 @@
 # Agentic LLMs for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Agentic LLM integration follows the same architectural patterns established in the GOODRULES while introducing advanced autonomous reasoning capabilities.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Agentic LLM integration follows the same architectural patterns established in the GOOD_RULES while introducing advanced autonomous reasoning capabilities.
 
 ## 🎯 **Core Philosophy: Autonomous AI Agents Beyond Simple Response Generation**
 

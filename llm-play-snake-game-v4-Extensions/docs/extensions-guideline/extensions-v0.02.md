@@ -276,7 +276,7 @@ class AStarAgent(BaseAgent):
 
 ### **v0.02 → v0.03 Preview:**
 - **All**: CLI only → **Streamlit web interface**
-- **All**: No replay → **PyGame + Flask web replay**
+- **All**: No replay → **PyGame + Flask web replay (following ROOT/web patterns)**
 - **All**: Basic logging → **Dataset generation capabilities**
 
 ## 📋 **Implementation Guidelines**

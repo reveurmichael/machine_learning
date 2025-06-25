@@ -4,7 +4,7 @@
 
 ## 🎯 **Integration Philosophy**
 
-Stable-Baselines3 (SB3) provides production-ready RL implementations that complement custom educational implementations. The integration follows the dual-approach strategy while maintaining architectural consistency with GOODRULES principles.
+Stable-Baselines3 (SB3) provides production-ready RL implementations that complement custom educational implementations. The integration follows the dual-approach strategy while maintaining architectural consistency with GOOD_RULES principles.
 
 ### **Design Philosophy**
 - **Educational vs. Production**: Custom implementations for learning, SB3 for performance
@@ -14,7 +14,7 @@ Stable-Baselines3 (SB3) provides production-ready RL implementations that comple
 
 ## 🏗️ **Architectural Integration**
 
-### **Following GOODRULES Patterns**
+### **Following GOOD_RULES Patterns**
 SB3 agents integrate seamlessly with existing architecture:
 
 **Agent Naming (Final Decision 4)**:

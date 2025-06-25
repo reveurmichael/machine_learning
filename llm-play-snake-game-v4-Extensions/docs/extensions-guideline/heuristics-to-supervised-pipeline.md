@@ -1,7 +1,13 @@
-# Heuristics → Supervised Learning Pipeline (v0.04)
+# Heuristics to Supervised Learning Pipeline
 
 > **Status:** Alpha – Works end-to-end on PyTorch; LightGBM/XGBoost planned.<br/>
 > **Audience:** Practitioners who want to reproduce the full data-generation & training loop on a fresh clone.
+
+> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+
+## 🎯 **Pipeline Overview**
+
+This document describes the complete pipeline from heuristic algorithm execution to supervised learning model training, demonstrating how different extensions work together to create a comprehensive machine learning workflow.
 
 ---
 
@@ -12,7 +18,7 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 ```
 ┌─────────────┐    game_*.json      ┌────────────────┐   CSV / NPZ / Parquet   ┌──────────────┐
 │ heuristics  │───────────────────▶│ common/dataset │────────────────────────▶│ supervised   │
-│  v0.03+     │                    │   generators    │                          │  v0.02/03    │
+│  v0.04+     │                    │   generators    │                          │  v0.02/03    │
 └─────────────┘                    └────────────────┘                          └──────────────┘
           ▲                                     │                                         │
           │                                     │ .pt / .onnx                            │
@@ -34,9 +40,9 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 # Example: BFS 10×10 – CSV + JSONL (rich explanations)
 python -m extensions.common.dataset_generator_cli \
     both                                \  # csv|jsonl|both
-    --log-dir logs/extensions/heuristics_v0.03_20250625_143022/ \
+    --log-dir logs/extensions/heuristics_v0.04_20250625_143022/ \  # Use v0.04 (definitive)
     --prompt-format detailed             \  # jsonl prompt style
-    --output-dir logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/ \
+    --output-dir logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250625_143022/bfs/processed_data/ \  # Use v0.04
     --verbose
 ```
 
@@ -44,13 +50,15 @@ The CLI will:
 1. Auto-detect grid size (`GridSizeDetector`) – supports 8-50.
 2. Enforce `grid-size-N/` directory creation via `DatasetDirectoryManager`.
 3. Produce:
-   * `tabular_bfs_data_<timestamp>.csv`
-   * `rich_bfs_data_<timestamp>.jsonl` *(for Task-4)*
-   * `metadata_*.json` (schema, git SHA, etc.)
+   * `tabular_data.csv` - Standardized 16-feature tabular format (ACTIVE, NOT legacy)
+   * `reasoning_data.jsonl` - Language-rich explanations for LLM fine-tuning
+   * `metadata.json` - Schema information, git SHA, generation timestamp
 
-TODO: is this really what we want for naming? Double check. I am not sure. We will have to discuss this. After the discussion, we will have to update this documentation. After the discussion, things will be fixed, and we will really enforce the naming conventions, not by our brain memory, but by the code (validation, etc.), as well as by documentions everywhere in the codebase.
+**Naming Convention**: Dataset files follow standardized naming patterns enforced by validation utilities in `extensions/common/validation/`. The naming format ensures consistency across all extensions and grid sizes.
 
 > **Tip:** `--all-algorithms` will sweep *every* `heuristics-*` log folder and batch-generate datasets.
+
+> **SUPREME_RULES**: Use heuristics-v0.04 for dataset generation - it's a superset with no downsides.
 
 
 ---
@@ -61,7 +69,7 @@ TODO: is this really what we want for naming? Double check. I am not sure. We wi
 
 ```
 python -m extensions.supervised_v0_02.training.train_neural \
-  --dataset-paths logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv
+  --dataset-paths logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250625_143022/bfs/processed_data/tabular_data.csv  # Use v0.04
   --model MLP                  \  # choices: MLP|CNN|LSTM|GRU
   --epochs 50 --batch-size 64  \  # quick smoke-test
   --output-dir trained_models/mlp_bfs
@@ -106,7 +114,7 @@ If your numbers are low, check:
 python -m extensions.supervised_v0_03.scripts.replay_web --model logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/mlp/model_artifacts/model.pth --grid-size 10
 ```
 
-*Opens a Flask replay page under <http://localhost:5000/supervised/replay>*
+*Opens a Flask replay page under <http://localhost:5000/supervised/replay> (extends ROOT/web infrastructure)*
 
 
 ---
@@ -137,3 +145,12 @@ python -m extensions.supervised_v0_03.scripts.replay_web --model logs/extensions
 | Symptom | Possible Cause | Fix |
 |---------|----------------|-----|
 | `ModuleNotFoundError: extensions` in Streamlit | Working directory changed | Ensure `path_utils.setup_extension_paths()` at top of script |
+
+## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+
+- **For heuristics**: Always use v0.04 - it's a superset with no downsides
+- **For supervised learning**: Use CSV from heuristics-v0.04
+- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04
+- **For research**: Use both formats from heuristics-v0.04
+- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning

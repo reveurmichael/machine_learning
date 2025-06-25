@@ -12,10 +12,10 @@ This document establishes the **definitive architectural standards** for configu
 ROOT/config/               # Task-0 specific (LLM-related configs)
 ├── game_constants.py      # ✅ Universal game rules (used by all tasks)
 ├── ui_constants.py        # ✅ Universal UI settings (used by all tasks) 
-├── llm_constants.py       # 🚫 General extensions must not import; ✅ LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune) may use
-├── prompt_templates.py    # ❌ Task-0 only (LLM prompts)
-├── network_constants.py   # ❌ Task-0 only (HTTP, WebSocket settings)
-└── web_constants.py       # ❌ Task-0 only (Flask, web interface)
+├── llm_constants.py       # 🚫 General extensions must not import; ✅ LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune, etc.) may use
+├── prompt_templates.py    # ❌ Task-0 only (LLM prompts); ✅ LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune, etc.) may use
+├── network_constants.py   # ✅ Universal HTTP/WebSocket settings (used by all tasks)
+└── web_constants.py       # ✅ Universal Flask Web settings (used by all tasks)
 
 extensions/common/config/  # Extension-specific configurations
 ├── __init__.py
@@ -656,26 +656,6 @@ class HeuristicStreamlitApp(BaseExtensionApp):
 if __name__ == "__main__":
     HeuristicStreamlitApp()
 ```
-
-## 🚀 **Implementation Priority and Timeline**
-
-### **Phase 1: Critical Infrastructure (Immediate)**
-1. ✅ **Configuration Organization**: Implement `extensions/common/config/` folder structure
-2. ✅ **Validation System**: Create `extensions/common/validation/` folder structure
-3. ✅ **Singleton Classes**: Implement TaskAwarePathManager, ConfigurationManager, ValidationRegistry
-4. ✅ **File Naming**: Standardize all agent files to `agent_*.py` pattern
-
-### **Phase 2: Standards Implementation (1-2 weeks)**
-5. ✅ **CSV Schema**: Implement grid-size agnostic feature engineering
-6. ✅ **Path Management**: Update all extensions to use standardized path utilities
-7. ✅ **Streamlit Apps**: Refactor all apps to use OOP pattern
-8. ✅ **Documentation**: Update all extension guides to reflect new standards
-
-### **Phase 3: Validation and Compliance (2-3 weeks)**
-9. ✅ **Automated Validation**: Implement comprehensive validation system
-10. ✅ **Compliance Checking**: Create automated scripts to verify standards
-11. ✅ **Extension Updates**: Update all existing extensions to comply
-12. ✅ **Testing**: Comprehensive testing of new standards
 
 ## 📋 **Compliance Checklist**
 

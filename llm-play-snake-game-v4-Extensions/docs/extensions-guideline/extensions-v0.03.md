@@ -1,16 +1,12 @@
 > **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Where conflicts exist, defer to the Final Decision documents.
 
-# Extensions v0.03: The Application & Data Phase
+> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
-## 🎯 **Core Philosophy: From Tool to Application**
+# Extensions v0.03: Web Interface & Dataset Generation
 
-The `v0.03` extension represents the final and most mature stage of development. It marks the transition from a command-line tool (`v0.02`) into a polished, user-facing **web application** and a reliable **producer of high-quality data**.
+## 🎯 **Core Philosophy: User-Friendly Interface + Data Generation**
 
-This version answers the question:
-
-> "How do we make our powerful algorithms accessible, interactive, and useful to other parts of the ecosystem?"
-
-It achieves this by introducing a clear separation between the user interface and the underlying scriptable logic.
+v0.03 represents the transition from command-line tools to **user-friendly web interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern web technologies.
 
 ## 🏗️ **Architectural Transformation: UI, Scripts, and Stability**
 
@@ -95,6 +91,7 @@ A `v0.03` extension is considered complete and successful if it meets these crit
 - [ ] Is the `agents/` folder an identical copy of the one from `v0.02`?
 - [ ] Does the Streamlit UI function primarily as a "script-runner" using `subprocess`?
 - [ ] Does it include a `scripts/generate_dataset.py` for data production?
+- [ ] **Flask web replay** system (extends ROOT/web infrastructure)
 
 ---
 
@@ -138,13 +135,13 @@ extensions/{algorithm}-v0.03/
     ├── main.py                   # Moved from root
     ├── generate_dataset.py       # 🆕 Dataset generation CLI
     ├── replay.py                 # 🆕 PyGame replay script
-    └── replay_web.py             # 🆕 Flask web replay
+    └── replay_web.py             # Flask web replay (extends ROOT/web infrastructure)
 ```
 
 ### **Key Characteristics:**
 - **Streamlit web interface** with OOP architecture (Final Decision 9)
 - **Dataset generation** for other extensions
-- **Replay capabilities** (PyGame + Flask web)
+- **Replay capabilities** (PyGame + Flask web following ROOT/web architecture)
 - **Organized dashboard** components
 - **Script launching** via subprocess with adjustable parameters
 
@@ -183,7 +180,7 @@ extensions/heuristics-v0.03/
     ├── main.py                   # CLI interface
     ├── generate_dataset.py       # CSV dataset generation
     ├── replay.py                 # PyGame replay
-    └── replay_web.py             # Flask web replay
+    └── replay_web.py             # Flask web replay (extends ROOT/web infrastructure)
 ```
 
 ### **Supervised v0.03**
@@ -197,7 +194,7 @@ extensions/supervised-v0.03/
 ├── game_data.py                   # ML data with prediction tracking
 ├── replay_engine.py               # Replay engine
 ├── replay_gui.py                  # PyGame replay
-├── replay_web.py                  # Flask web replay
+├── replay_web.py                  # Flask web replay (extends ROOT/web infrastructure)
 ├── dashboard/
 │   ├── __init__.py
 │   ├── tab_training.py           # Model training interface
@@ -224,7 +221,7 @@ extensions/supervised-v0.03/
     ├── train.py                  # CLI training interface
     ├── evaluate.py               # Model evaluation
     ├── replay.py                 # PyGame model replay
-    └── replay_web.py             # Flask model replay
+    └── replay_web.py             # Flask model replay (extends ROOT/web infrastructure)
 ```
 
 ### **Reinforcement v0.03**
@@ -259,7 +256,7 @@ extensions/reinforcement-v0.03/
     ├── train.py                  # CLI RL training
     ├── evaluate.py               # RL evaluation
     ├── replay.py                 # PyGame RL replay
-    └── replay_web.py             # Flask RL replay
+    └── replay_web.py             # Flask RL replay (extends ROOT/web infrastructure)
 ```
 
 ## 🏗️ **Streamlit OOP Architecture**
@@ -267,15 +264,29 @@ extensions/reinforcement-v0.03/
 Following Final Decision 9, all v0.03 extensions use Object-Oriented Programming architecture.
 ## 🌐 **Web Infrastructure & Replay Systems**
 
+> **SUPREME_RULES Reference**: All Flask integration follows `flask.md` - extensions must leverage existing ROOT/web infrastructure and follow MVC patterns.
+
 ### **Common Web Components**
 - **Streamlit frontend**: Interactive parameter control and visualization
-- **Flask replay backend**: RESTful API for game state management
-- **JavaScript visualization**: Real-time board state rendering
+- **Flask replay backend**: Extends ROOT/web infrastructure with RESTful API for game state management
+- **JavaScript visualization**: Real-time board state rendering using ROOT/web static assets
 - **WebSocket support**: Live algorithm/model execution updates
+
+### **Flask Integration Pattern (SUPREME_RULES)**
+```python
+# All extension Flask apps must follow this pattern
+from web.controllers.base_controller import BaseController
+from web.views.template_engines import render_template
+from web.models.game_state_model import GameStateModel
+
+class ExtensionController(BaseController):
+    """Extension-specific Flask controller following ROOT/web patterns"""
+    pass
+```
 
 ### **Replay Features**
 - **PyGame replay**: Algorithm/model step-through with performance metrics
-- **Web replay**: Browser-based replay with responsive design
+- **Web replay**: Browser-based replay using ROOT/web templates and static assets
 ## 📊 **Dataset Generation System**
 
 ### **Dataset Storage Structure**
@@ -310,7 +321,7 @@ logs/extensions/datasets/
 
 **All Extensions (Heuristics, Supervised, Reinforcement):**
 - ✅ **CLI only** → **Streamlit web application**
-- ✅ **No replay** → **PyGame + Flask web replay**
+- ✅ **No replay** → **PyGame + Flask web replay (following ROOT/web patterns)**
 - ✅ **Basic logging** → **Dataset generation with standardized paths**
 - 🔒 **Core algorithms** → **Stable (copied exactly from v0.02)**
 - ➕ **Web enhancements** → **Allowed additions for UI integration**
@@ -337,7 +348,7 @@ logs/extensions/datasets/
 - [ ] **Dashboard folder** with organized tab components
 - [ ] **Dataset generation** scripts and CLI
 - [ ] **PyGame replay** system
-- [ ] **Flask web replay** system
+- [ ] **Flask web replay** system (extends ROOT/web infrastructure)
 - [ ] **Agent/model folder** copied exactly from v0.02
 - [ ] **Configuration renamed** to avoid conflicts
 
@@ -360,13 +371,22 @@ logs/extensions/datasets/
 - Smooth visualization of game progression
 - Clear display of algorithm reasoning or model decisions
 - Export capabilities for analysis and presentation
-- Cross-platform compatibility (pygame desktop and flask web)
+- Cross-platform compatibility (pygame desktop and flask web following ROOT/web patterns)
 
 ### **Web Interface Goals:**
 - Consistent user experience across all extensions
 - Intuitive parameter adjustment and control
 - Seamless integration between different algorithm types
 
+## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+
+- **For heuristics**: Use v0.04 instead of v0.03 - it's a superset with no downsides
+- **For supervised learning**: Use CSV from heuristics-v0.04
+- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04
+- **For research**: Use both formats from heuristics-v0.04
+- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning
+
 ---
 
-**Remember**: v0.03 is about **user experience** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem.
+**Remember**: v0.03 is about **user experience** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem. However, for heuristics specifically, prefer v0.04 as it provides everything v0.03 does and more.

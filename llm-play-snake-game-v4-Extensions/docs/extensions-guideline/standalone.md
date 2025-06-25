@@ -7,10 +7,10 @@ This document provides comprehensive guidelines for implementing the standalone 
 The standalone principle is fundamental to the Snake Game AI extension architecture:
 
 ### **Definition of Standalone**
-- **Extension + Common = Standalone**: Each extension (`blabla-v0.0N`) combined with the `common/` folder forms a completely self-contained unit
+- **Extension + Common = Standalone**: Each extension (`{algorithm}-v0.0N`) combined with the `common/` folder forms a completely self-contained unit
 - **No Cross-Extension Dependencies**: Extensions cannot import from other extensions
 - **Conceptual Clarity**: Each extension represents a distinct AI approach (heuristics, RL, supervised learning, etc.)
-- **Version Independence**: Different versions of the same extension are completely independent . # TODO: Though, ideally, for things like supervised, Heuristics, Reinforcement Learning,StableBaseline, the agents folder between v0.02 and v0.03 should be exactly the same. This forces us to conceive really good code architecture in v0.02 in the first place. # TODO
+- **Version Independence**: Different versions of the same extension are completely independent, with the important exception that agents/ folders should be copied exactly between v0.02 → v0.03 to maintain algorithmic stability and ensure consistent interfaces.
 
 ### **Why Standalone Architecture?**
 - **Educational Clarity**: Each extension showcases a specific AI concept without confusion
@@ -107,7 +107,7 @@ Examples:
 - supervised-v0.03 + common = Standalone
 - reinforcement-v0.01 + common = Standalone
 - reinforcement-v0.02 + common = Standalone
-- reinforcement-v0.03 + common = Standalone
+└── reinforcement-v0.03 + common = Standalone
 ```
 
 ### **Directory Structure**
@@ -121,7 +121,11 @@ extensions/
 │   ├── file_utils.py         # File management utilities
 │   ├── grid_utils.py         # Grid size validation and utilities
 │   ├── path_utils.py         # Path management utilities
-│   └── validation_utils.py   # Common validation functions # TODO: or, maybe, make this into a folder "validation" because we will have a lot of validation functionalities. Validation is important for us to make sure that we are not going everywhere which knowing that we are already doing things very wrong.
+│   └── validation/           # Validation functions and utilities
+│       ├── __init__.py
+│       ├── dataset_validator.py  # Dataset format validation
+│       ├── model_validator.py    # Model format validation
+│       └── path_validator.py     # Path structure validation
 ├── heuristics-v0.01/         # Standalone with common
 ├── heuristics-v0.02/         # Standalone with common
 ├── heuristics-v0.03/         # Standalone with common
@@ -176,7 +180,9 @@ The `common/` folder serves as a **shared utility library** that enhances the st
 ### **Design Patterns in Common**
 - **Utility Pattern**: Stateless helper functions
 - **Template Pattern**: Common workflows
-- TODO: maybe some other stuffs?
+- **Factory Pattern**: Creation utilities for common objects
+- **Configuration Pattern**: Centralized settings management
+- **Validation Pattern**: Data integrity and format checking
 
 ## 🔄 **Standalone Workflow Examples**
 
@@ -327,7 +333,7 @@ class SupervisedGameManager(BaseGameManager):
 Each extension must pass the standalone validation:
 
 ```python
-# extensions/common/validation_utils.py # TODO: or, maybe, make this into a folder "validation" because we will have a lot of validation functionalities. Validation is important for us to make sure that we are not going everywhere which knowing that we are already doing things very wrong.
+# extensions/common/validation/
 class StandaloneValidator:
     """
     Validates that extensions follow standalone principles

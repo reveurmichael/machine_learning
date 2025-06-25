@@ -4,7 +4,7 @@
 
 ## 🎯 **Core Philosophy: Comprehensive ML Pipeline**
 
-This tutorial demonstrates the complete journey from heuristic algorithm execution to trained ML models, showcasing the multi-directional data ecosystem established in the GOODRULES architecture.
+This tutorial demonstrates the complete journey from heuristic algorithm execution to trained ML models, showcasing the multi-directional data ecosystem established in the GOOD_RULES architecture.
 
 ### **Pipeline Overview**
 - **Heuristics v0.04**: Generates 10,000+ games per algorithm with language-rich explanations
@@ -205,7 +205,7 @@ fine_tune_llm(
 - **Total Storage**: ~600MB for complete multi-format datasets
 
 ### **Model Performance Expectations**
-Following the performance hierarchy from datasets_folder.md:
+Following the performance hierarchy from datasets-folder.md:
 
 - **BFS Models**: 85-90% accuracy (optimal pathfinding)
 - **Hamiltonian Models**: 95%+ accuracy (guaranteed safety)

@@ -1,4 +1,6 @@
-> **Important — Authoritative Reference:** This utility guide complements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Conflicting details must defer to those Final Decisions.
+> **Important — Authoritative Reference:** This utility guide complements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and the `data-format-decision-guide.md`. Conflicting details must defer to those authoritative documents.
+
+> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 # CSV Schema Utilities for Snake Game Extensions
 
@@ -14,11 +16,14 @@ The CSV schema utilities provide:
 
 ## 📊 **State Representation Selection Guide**
 
+> **Authoritative Reference**: See `data-format-decision-guide.md` for complete format selection criteria.
+
 **Choose the right representation for your algorithm type:**
 
 ### **16-Feature Tabular (CSV) - This Schema**
 ```python
 # Best for: Tree-based models, simple MLPs, traditional ML
+# Source: heuristics-v0.04 (definitive version) - actively used, NOT legacy
 features = extract_tabular_features(game_state)  # Returns 16 features
 model = XGBoostAgent(features)
 ```
@@ -97,7 +102,7 @@ from extensions.common.dataset_loader import load_dataset_for_training
 
 # Load and prepare dataset for training
 X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training(
-    dataset_paths=["path/to/dataset.csv"],
+    dataset_paths=["path/to/heuristics_v0.04_dataset.csv"],  # Use v0.04
     grid_size=10
 )
 ```
@@ -134,9 +139,9 @@ csv_row = create_csv_row(
 ```python
 from extensions.common.dataset_loader import DatasetLoader
 
-# Load dataset
+# Load dataset from heuristics-v0.04
 loader = DatasetLoader(grid_size=10)
-df = loader.load_csv_dataset("path/to/dataset.csv")
+df = loader.load_csv_dataset("path/to/heuristics_v0.04_dataset.csv")  # Use v0.04
 
 # Prepare for training
 X, y = loader.prepare_features_and_targets(df, scale_features=True)
@@ -181,15 +186,17 @@ Tests cover:
 
 ## 🔄 Integration with Extensions
 
-### Heuristics v0.03
+### Heuristics v0.04 (DEFINITIVE)
 - Uses `create_csv_row()` to generate training datasets
-- Stores datasets in `ROOT/logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/`
-- Supports multiple data formats (CSV, NPZ, Parquet) for different use cases
+- Stores datasets in `ROOT/logs/extensions/datasets/grid-size-N/heuristics_v0.04_{timestamp}/`
+- Supports multiple data formats (CSV, JSONL) for different use cases
+- CSV format actively used for supervised learning
 
 ### Supervised Learning v0.02
-- Uses `DatasetLoader` to load and preprocess datasets
+- Uses `DatasetLoader` to load and preprocess datasets from heuristics-v0.04
 - Supports multiple model types (MLP, CNN, LSTM, XGBoost, etc.)
 - Automatic grid size detection and validation
+- Uses CSV from heuristics-v0.04 for optimal results
 
 ## 🎯 Design Patterns
 
@@ -221,3 +228,17 @@ The schema is designed to be extensible:
 
 1. **Additional features**: Can add new engineered features without breaking existing models
 2. **Different formats**: Support for sequential data (LSTM) using NPZ and graph data (GNN) using specialized formats
+
+## 🔗 **See Also**
+
+- **`data-format-decision-guide.md`**: Authoritative reference for all format decisions
+- **`csv-schema-1.md`**: Core schema documentation
+- **`unified-path-management-guide.md`**: Path management standards
+
+## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+
+- **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
+- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only
+- **For research**: Use both formats from heuristics-v0.04
+- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)

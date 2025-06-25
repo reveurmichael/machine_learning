@@ -1,5 +1,7 @@
 # Dataset and Model Directory Structure
 
+> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+
 This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions.
 
 ## 🎯 **Core Design Philosophy**
@@ -20,19 +22,20 @@ Unlike traditional linear pipelines, our architecture recognizes that:
 ```
 logs/extensions/datasets/
 └── grid-size-N/                          # Grid-size specific organization
-    ├── heuristics_v0.03_{timestamp}/      # Task 1 → Tasks 2-5 (Foundation)
+    ├── heuristics_v0.04_{timestamp}/      # 🎯 DEFINITIVE VERSION - Use this!
     │   ├── bfs/
     │   │   ├── game_logs/                 # Original game data
     │   │   └── processed_data/
-    │   │       ├── tabular_data.csv       # For supervised learning
+    │   │       ├── tabular_data.csv       # ✅ ACTIVE: For supervised learning
+    │   │       ├── reasoning_data.jsonl   # 🔥 NEW: For LLM fine-tuning
     │   │       └── metadata.json
     │   └── astar/ [same structure]
     │
-    ├── heuristics_v0.04_{timestamp}/      # Task 1 → Task 4 (LLM Fine-tuning)
+    ├── heuristics_v0.03_{timestamp}/      # STILL SUPPORTED: Widely used in production; v0.04 recommended for new work
     │   ├── bfs/
+    │   │   ├── game_logs/                 # Original game data
     │   │   └── processed_data/
-    │   │       ├── tabular_data.csv       # Legacy format
-    │   │       ├── reasoning_data.jsonl   # 🔥 For LLM fine-tuning
+    │   │       ├── tabular_data.csv       # ✅ Still valuable, but v0.04 is better
     │   │       └── metadata.json
     │   └── astar/ [same structure]
     │
@@ -43,6 +46,12 @@ logs/extensions/datasets/
 ```
 
 **🎯 Standardized Directory Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
+
+### **SUPREME_RULES: Version Selection**
+- **Prefer `heuristics-v0.04`** for new datasets: it is a strict superset of v0.03 and adds JSONL generation.
+- **`heuristics-v0.03` remains fully supported and widely used** in existing pipelines.  Continue to use it when backward-compatibility or comparison with historical results is required.
+- **CSV format is ACTIVE**: Not legacy – essential for supervised learning across both v0.03 and v0.04.
+- **JSONL format is ADDITIONAL**: Available only in v0.04 for LLM fine-tuning use-cases.
 
 ### **Path Validation Utilities**
 ```python
@@ -80,10 +89,10 @@ logs/extensions/models/
 ## 🔄 **Data Flow Benefits**
 
 ### **Performance Hierarchy Integration**
-Expected progression generally follows: **Heuristics** → **Supervised** → **Reinforcement** → **LLM Fine-tuned** → **LLM Distilled**
+Expected progression generally follows: **Heuristics v0.04** → **Supervised** → **Reinforcement** → **LLM Fine-tuned** → **LLM Distilled**
 
 ### **Cross-Task Data Enhancement**
-- **Heuristics** provide baseline datasets with algorithmic traces
+- **Heuristics v0.04** provide baseline datasets with algorithmic traces + language explanations
 - **Supervised** generate confidence-scored datasets with faster inference
 - **Reinforcement** create potentially optimal datasets with exploration data
 - **LLM Fine-tuned** produce language-grounded datasets with explanations
@@ -99,12 +108,12 @@ from extensions.common.path_utils import get_dataset_path, get_model_path
 # Standardized path generation with validation
 dataset_path = get_dataset_path(
     extension_type="heuristics", 
-    version="0.03",
+    version="0.04",  # 🎯 Use v0.04 - it's the definitive version
     grid_size=grid_size,  # Any supported size
     algorithm="bfs",
     timestamp=timestamp  # Format: YYYYMMDD_HHMMSS
 )
-# Enforced result: logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.03_{timestamp}/
+# Enforced result: logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.04_{timestamp}/
 ```
 
 ## 🎯 **Extension Compliance Requirements**
@@ -117,13 +126,19 @@ dataset_path = get_dataset_path(
 - Support multi-directional data consumption and generation
 
 ### **Supported Extensions:**
-- **Heuristics**: v0.01, v0.02, v0.03, v0.04
+- **Heuristics**: v0.01, v0.02, v0.03, **v0.04 (DEFINITIVE)**
 - **Supervised**: v0.01, v0.02, v0.03
 - **Reinforcement**: v0.01, v0.02, v0.03
 - **LLM Fine-tuning**: v0.01, v0.02, v0.03
 - **LLM Distillation**: v0.01, v0.02, v0.03
 
+### **SUPREME_RULES: Version Selection Guidelines**
+- **For heuristics**: Prefer v0.04 for new experiments, but v0.03 is still valid and maintained.
+- **For supervised learning**: Use CSV from either heuristics-v0.03 **or** heuristics-v0.04 (both widely used).
+- **For LLM fine-tuning**: Use JSONL available in heuristics-v0.04.
+- **For research & ablation studies**: Consider using **both** versions to assess the impact of language-rich explanations introduced in v0.04.
+
 ---
 
-**This directory structure ensures consistent, scalable organization while supporting the multi-directional data ecosystem that enables continuous improvement across all algorithm types.**
+**This directory structure ensures consistent, scalable organization while supporting the multi-directional data ecosystem that enables continuous improvement across all algorithm types. Remember: heuristics-v0.04 is the definitive version to use.**
 

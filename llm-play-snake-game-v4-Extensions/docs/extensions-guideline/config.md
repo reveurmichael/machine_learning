@@ -1,5 +1,7 @@
 # Configuration Architecture
 
+> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `final-decision-2.md`. Any conflicting information must defer to those definitive documents.
+
 ## 🎯 **Configuration Philosophy**
 
 The configuration architecture follows a **clear separation model**:
@@ -14,15 +16,16 @@ The configuration architecture follows a **clear separation model**:
 # ✅ Used by ALL tasks (Task-0 and all extensions)
 from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
 from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
 ```
 
 ### **Task-0 Specific Constants (ROOT/config/)**
 ```python
-# 🚫 Not for general-purpose extensions — allowed **only** in LLM-focused extensions (agentic-llms, vision-language-model, llm-finetune)
+# 🚫 FORBIDDEN for general-purpose extensions
+# ✅ ALLOWED ONLY for explicit LLM-focused extensions (see whitelist below)
 from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
-from config.network_constants import HTTP_TIMEOUT
-from config.web_constants import FLASK_CONFIG
 ```
 
 ### **Extension-Specific Constants**
@@ -34,6 +37,53 @@ extensions/common/config/
 ├── path_constants.py      # Directory path templates
 ├── validation_rules.py    # Validation thresholds and rules
 └── model_registry.py      # Model type definitions and metadata
+```
+
+## 🚫 **LLM Constants Access Control**
+
+### **Explicit Whitelist: ONLY These Extensions May Use LLM Constants**
+
+**✅ ALLOWED Extensions:**
+- `agentic-llms-*` (any version)
+- `llms-*` (any version) 
+- `llm-*` (any version)
+- `llm-finetune-*` (any version)
+- `vision-language-model-*` (any version)
+
+**❌ FORBIDDEN Extensions:**
+- `heuristics-*` (all versions) - both v0.03 and v0.04 are widely used
+- `supervised-*` (all versions)
+- `reinforcement-*` (all versions)
+- `evolutionary-*` (all versions)
+- `distillation-*` (all versions)
+- Any other extension not explicitly listed above
+
+### **Clear Usage Patterns**
+
+#### **Extensions That MUST Use Universal Constants Only**
+```python
+# ✅ CORRECT for: heuristics, supervised, reinforcement, evolutionary
+from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
+from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
+from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
+
+# 🚫 FORBIDDEN for these extensions
+# from config.llm_constants import AVAILABLE_PROVIDERS  # ❌ NOT ALLOWED
+# from config.prompt_templates import SYSTEM_PROMPT     # ❌ NOT ALLOWED
+```
+
+#### **Extensions That MAY Use LLM Constants**
+```python
+# ✅ ALLOWED for: agentic-llms, llms, llm, llm-finetune, vision-language-model
+from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
+from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
+from config.llm_constants import AVAILABLE_PROVIDERS  # ✅ ALLOWED
+from config.prompt_templates import SYSTEM_PROMPT     # ✅ ALLOWED
 ```
 
 ## 🧠 **Design Benefits**
@@ -63,6 +113,12 @@ from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
 # ✅ Universal UI settings
 from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
 
+# ✅ Universal network settings
+from config.network_constants import HTTP_TIMEOUT
+
+# ✅ Universal web settings
+from config.web_constants import FLASK_CONFIG
+
 # ✅ Extension-specific settings
 from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
@@ -79,21 +135,13 @@ from config.llm_constants import AVAILABLE_PROVIDERS
 from config.prompt_templates import SYSTEM_PROMPT
 ```
 
-**Exception**: ONLY these specific extensions MAY use LLM constants:
-- agentic-llms-*
-- llms-*
-- llm-*
-- llm-finetune-*
-- vision-language-model-*
-
-ALL other extensions (heuristics, supervised, reinforcement, evolutionary) are FORBIDDEN from using LLM constants.
-
 ## 📊 **Benefits for Extension Types**
 
-### **Heuristics Extensions**
+### **Heuristics Extensions (v0.03 and v0.04)**
 - Access to universal movement rules and coordinate system
 - Consistent visualization across all heuristic algorithms
 - Extension-specific pathfinding constants and optimization settings
+- Both v0.03 and v0.04 are widely used depending on use cases and scenarios
 
 ### **Supervised Learning Extensions**
 - Universal game constants for feature engineering
@@ -105,11 +153,33 @@ ALL other extensions (heuristics, supervised, reinforcement, evolutionary) are F
 - Shared RL training parameters and exploration settings
 - Consistent reward function definitions and normalization
 
+### **Evolutionary Extensions**
+- Universal game constants for fitness evaluation
+- Shared evolutionary parameters and population settings
+- Consistent genetic operator configurations
+
+## 🔍 **Validation Requirements**
+
+All extensions MUST validate configuration compliance:
+```python
+from extensions.common.validation import validate_config_access
+
+def validate_extension_config(extension_type: str, imported_modules: List[str]):
+    """Validate extension configuration access compliance"""
+    validate_config_access(extension_type, imported_modules)
+```
+
+## 🔗 **See Also**
+
+- **`final-decision-2.md`**: Authoritative reference for configuration architecture decisions
+- **`extensions/common/config/`**: Extension-specific configuration constants
+- **`config/`**: Universal configuration constants
+
 ---
 
 **This configuration architecture ensures clean separation, prevents pollution, and enables scalable extension development.**
 
-## **🏗️ Perfect BaseClassBlabla Architecture Already in Place**
+## **🏗️ Perfect Base Class Architecture Already in Place**
 
 **✅ Task-0 Specific (Properly Isolated):**
 ```python
@@ -161,7 +231,7 @@ from config.ui_constants import COLORS, GRID_SIZE
 ### **1. Hierarchy Overview**
 | Level | Path | Purpose |
 |-------|------|---------|
-| **Universal** | `config/` | Core game rules, UI, coordinate system – *used by every task & extension* |
+| **Universal** | `config/` | Core game rules, UI, coordinate system, network, web – *used by every task & extension* |
 | **Shared Extension** | `extensions/common/config/` | Settings reused by **multiple** extensions (e.g. CSV schema, training defaults) |
 | **Type-Specific** | `extensions/{type}/config/` | Settings unique to one algorithm family (heuristics, supervised, rl, llm, …) |
 | **Experiment / Script** | Local to script | Hyper-parameters that change per run (CLI flags, YAML, etc.) |
@@ -170,7 +240,8 @@ from config.ui_constants import COLORS, GRID_SIZE
 * **Universal constant folder (`config/`)** must **NOT** contain LLM-specific settings.
 * **LLM-focused extensions** (e.g. *agentic-llms*, *vision-language-model*) may import from:
   ```python
-  from extensions.llm.config.llm_constants import AVAILABLE_PROVIDERS
+  from config.llm_constants import AVAILABLE_PROVIDERS
+  from config.prompt_templates import SYSTEM_PROMPT
   ```
 * Non-LLM extensions must never depend on LLM constants – this enforces loose coupling.
 
@@ -178,19 +249,28 @@ from config.ui_constants import COLORS, GRID_SIZE
 **Heuristics extension** – needs only universal constants:
 ```python
 from config.game_constants import DIRECTIONS, VALID_MOVES
+from config.ui_constants import COLORS, GRID_SIZE
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
 ```
 
 **Supervised extension** – universal + shared ML defaults:
 ```python
 from config.game_constants import GRID_SIZE
+from config.ui_constants import COLORS
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
 from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 ```
 
 **Agentic LLM extension** – universal + shared + LLM-specific:
 ```python
 from config.game_constants import VALID_MOVES
-from extensions.common.config.ml_constants import DEFAULT_TEMPERATURE
-from extensions.llm.config.llm_constants import AVAILABLE_PROVIDERS  # ✅ allowed here
+from config.ui_constants import COLORS
+from config.network_constants import HTTP_TIMEOUT
+from config.web_constants import FLASK_CONFIG
+from config.llm_constants import AVAILABLE_PROVIDERS  # ✅ allowed here
+from config.prompt_templates import SYSTEM_PROMPT     # ✅ allowed here
 ```
 
 ### **4. Validation Helpers**

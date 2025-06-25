@@ -1,6 +1,6 @@
 # LoRA Fine-Tuning Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. LoRA implementations follow the same architectural patterns established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. LoRA implementations follow the same architectural patterns established in the GOOD_RULES.
 
 ## 🎯 **Core Philosophy: Efficient LLM Adaptation**
 
@@ -77,7 +77,7 @@ from extensions.common.config.lora_constants import (
 )
 
 class LoRAConfig:
-    """LoRA adapter configuration following GOODRULES patterns"""
+    """LoRA adapter configuration following GOOD_RULES patterns"""
     
     def __init__(self, 
                  rank: int = DEFAULT_LORA_RANK,

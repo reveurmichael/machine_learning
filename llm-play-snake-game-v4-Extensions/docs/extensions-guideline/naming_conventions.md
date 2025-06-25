@@ -67,7 +67,7 @@ class HeuristicGameManager(BaseGameManager):
 | Task-N concrete (N≥1)      | Task tag prefix inside its package → `HeuristicGameManager`, `RLGameManager` | Keeps second-citizen code out of root namespace. |
 | Legacy / transitional      | Deprecated names stay as **aliases** only inside factories/tests; to be removed after a grace period. |
 
-### 2.1 Why not suffix the base (`AbstractGameManager`)?
+### 2.1 Rationale for Base Class Naming Convention
 Because the base is *meant to be instantiated*.  `Base…` conveys "foundation"
 without implying it is abstract-only.
 
@@ -125,7 +125,9 @@ Golden rule (for Task-0 only, because Task-1-5 will be standalone) : *If a const
 
 **Naming tips**
 
-* Indicate units when ambiguous: `TIME_TICK_MS`, `SLEEP_AFTER_EMPTY_STEP_SEC`. # TODO: THIS IS NOT ENFORCED YET IN OUR CODEBASE. SHOULD BE ENFORCED.
+* Indicate units when ambiguous: `TIME_TICK_MS`, `SLEEP_AFTER_EMPTY_STEP_SEC`.
+
+**Implementation Note**: Unit indicators should be consistently applied across the codebase. The validation utilities in `extensions/common/validation/` should enforce this naming standard for new constants.
 
 ---
 
@@ -153,65 +155,5 @@ can infer the type: `is_paused`, `has_collision`, `use_gui`, `allow_reset`.
 | Core engine     | `core/`                              | No task prefix because it is first-citizen. |
 | Generic utils   | `utils/`                             | Pure functions, no heavy deps. |
 | GUI             | `gui/`                               | PyGame windows & helpers. |
-| Web MVC         | `web/`                               | Flask blueprints, JS, templates. |
-| Extensions      | `extensions/<task_name>/…`           | Keeps second-citizen code quarantined. |
-| Docs            | `docs/`                              | Markdown only – auto-rendered by GitHub. |
-
-
----
-
-## 11 Common Pitfalls & Anti-Patterns
-
-| ❌ Anti-pattern                         | ✅ Correct Approach |
-|----------------------------------------|---------------------|
-| Creating `LLMWhatever` in *root*       | Use `Whatever` (short) – Task-0 is implicit. |
-| Importing Task-0 code **inside** an extension | Depend only on base classes & utils. |
-| Adding unused abstraction `AbstractFoo` | Promote to `BaseFoo` **only if Task-0 uses it**; else keep it private. |
-| Mixing GUI & headless logic            | Gate PyGame/Flask web calls behind `if self.use_gui…`. |
-| Saving extension logs under `logs/` root | Use `logs/<task_name>/…` to avoid clutter. |
-
-Additional gotchas:
-
-* **`import core.game_loop as gl`** – Alias imports obscure greps; import the
-  symbol you need (`from core.game_loop import run_game_loop`). We should never do this alias imports, it will be so confusing.
-
-
-#### **2. Inconsistent Agent Naming**
-Agent classes are always `{AlgorithmName}Agent`.
-```python
-# ❌ INCORRECT: Inconsistent naming
-class AgentBFS(BaseAgent): pass
-class AStar_Agent(BaseAgent): pass
-
-# ✅ CORRECT: Follows the standard
-class BFSAgent(BaseAgent): pass
-class AStarAgent(BaseAgent): pass
-```
-
-#### **3. Polluting the Global Namespace**
-Extension-specific concepts should be named accordingly and live within the extension.
-```python
-# ❌ INCORRECT: A heuristic-specific concept with a generic name
-class PathFinder: # This name is too generic for an extension
-    pass
-
-# ✅ CORRECT: The name clearly states its origin and purpose
-class HeuristicPathFinder:
-    pass
-```
-
-#### **4. Redundant or Vague Naming**
-Names should be concise but descriptive. Avoid placeholder words like `Impl`, `Handler`, or `Manager` when a more specific term exists.
-```python
-# ❌ INCORRECT: Redundant and vague
-class DataManagerHandler: pass
-class ReplayEngineImpl: pass
-
-# ✅ CORRECT: Concise and specific
-class FileManager: pass
-class ReplayEngine: pass
-```
-
----
-
-> **These naming conventions are a pillar of our project's clarity. Adhering to them is not optional; it is a fundamental part of writing clean, professional code.**
+| Web MVC         | `web/`                               | Flask blueprints, JS, templates (ROOT/web infrastructure for extensions) |
+| Extensions      | `extensions/<task_name>/…`

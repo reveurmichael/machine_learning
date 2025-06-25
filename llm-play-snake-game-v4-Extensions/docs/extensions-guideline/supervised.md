@@ -1,6 +1,6 @@
 # Supervised Learning Extensions for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Supervised learning extensions follow the same architectural patterns established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Supervised learning extensions follow the same architectural patterns established in the GOOD_RULES.
 
 ## 🎯 **Core Philosophy: Learning from Expert Demonstrations**
 
@@ -12,7 +12,7 @@ Supervised learning extensions demonstrate how ML models can learn optimal game 
 - **Factory Pattern Integration**: Consistent agent creation across model types
 - **Educational Value**: Comprehensive ML model comparison framework
 
-## 🏗️ **Extension Architecture Following GOODRULES**
+## 🏗️ **Extension Architecture Following GOOD_RULES**
 
 ### **Extension Evolution (v0.01 → v0.03)**
 Following Final Decision 5 directory structure:

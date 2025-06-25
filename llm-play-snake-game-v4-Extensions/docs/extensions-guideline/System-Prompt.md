@@ -1,167 +1,211 @@
-## Ducumentation as first priority and first class citizen
+# System Prompt Guidelines
 
-Documentation/docstring/comments are very important for me. Each time you do a refactoring, make sure you put back the comments and docstrings. Each time you modify and fix a bug, make sure you record that in related code comments and docstrings. 
+> **Important — Authoritative Reference:** This document establishes core principles for the Snake Game AI project. All other guideline documents must align with these foundational principles.
 
-## IMPORTANT
-We are doing the code refactoring, so as to make things more generic and reusable. Keep the functionality of Task 0 (Task0, LLM playing snake game) unchanged.
+## 📚 **Documentation as First-Class Citizen**
 
-## VITAL
-Check ROOT/docs/extensions-guideline/project-structure-plan.md. That's our objective of the refactoring.
+Documentation, docstrings, and comments are paramount in this project. Each refactoring must preserve and enhance existing documentation. Every bug fix must be recorded in related code comments and docstrings.
 
-## Single source of truth
-Unless it's between different extensions (each extension, plus the common folder, are regarded as standalone), we should go for single source of truth. Especially from the folder ROOT/config , or from "ROOT/extensions/common/" folder.
+## 🎯 **Core Refactoring Philosophy**
 
-## OOP, SOLID and DRY
-Respecting OOP, SOLID and DRY principles is very important. Whenever possible, make things OOP, because it is easier to extend. Future tasks such as Task 1, Task 2, Task 3, Task 4, Task 5 (let's call them FUTURE_TASKS) etc. can be implemented as subclasses of base classes (with inheritance, but maybe adaptor/composition as well, though less desirable), or even as subclasses of subclasses of Task 0. We can tolerate that FUTURE_TASKS will not be using all attributes/functions of base classes, as long as this will not pollute the output data files of FUTURE_TASKS.
+We are refactoring the codebase to make it more generic and reusable while keeping Task-0 (LLM playing snake game) functionality unchanged.
 
+### **VITAL Reference**
+Check `ROOT/docs/extensions-guideline/project-structure-plan.md` for the complete refactoring objectives.
 
-## Task-0
-If you are losing sight of Task-0, check the files:
-- logs/hunyuan-t1-latest_20250617_223807/game_1.json
-- logs/hunyuan-t1-latest_20250617_223807/game_8.json
-- logs/hunyuan-t1-latest_20250617_223807/summary.json
-As some of the past experiments logs to help you understand Task-0.
-Readme.md is a little bit outdated, but it's a good starting point.
+## 🏗️ **Architectural Principles**
 
-## Class Naming
-No need to rename FileManager to Task0FileManager because here by default we are refering to Task-0. So the name GameController, FileManager, GameData, GameLogic, etc. are all Task-0 specific. In extensions we will have Task1-5, which will extend the base classes (BaseFileManager, BaseGameData, BaseGameLogic, etc.).
+### **Single Source of Truth**
+Each extension plus the common folder is regarded as standalone. We maintain single source of truth, especially from:
+- `ROOT/config/` folder
+- `ROOT/extensions/common/` folder
 
-## Singleton pattern
-BaseFileManager and FileManager should use Singleton pattern. Maybe some other classes as well. 
+### **OOP, SOLID, and DRY Principles**
+- **OOP First**: Make everything object-oriented for easier extension
+- **SOLID Compliance**: Follow all SOLID principles rigorously
+- **DRY Principle**: Eliminate code duplication through proper abstraction
 
-## Design Patterns
-As this whole project is about refactoring, we should use design patterns to make things more generic and reusable. Also, this whole project is to be educational, so we should use as many appropriate design patterns as possible to make things more educational. Each time you use a design pattern, you should explain why you are using it, with very detailed comments or docstrings.
+Future tasks (Task 1-5) can be implemented as subclasses of base classes using inheritance, adapters, or composition. We tolerate that future tasks may not use all base class attributes/functions, as long as they don't pollute output data files.
 
-## Inheritance
-Most likely, classes in "extensions" folder will be inheriting from base classes in "core", "replay" and "gui" folders. In very rare cases, they might be inheriting from the derived classes for Task-0 instead of the base classes.
+## 🎮 **Task-0 Reference**
 
-## No Need for Backward compatibility
-We are refactoring with a future proof mindset, to make things look so fresh, so newly shipped, so self-consistent, so self-contained. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. For task0, as long as the output follows the schema of Task-0, we are good. For the schema of Task-0, check the files:
-- logs/hunyuan-t1-latest_20250617_223807/game_1.json
-- logs/hunyuan-t1-latest_20250617_223807/game_8.json
-- logs/hunyuan-t1-latest_20250617_223807/summary.json
+If you lose sight of Task-0, check these reference files:
+- `logs/hunyuan-t1-latest_20250617_223807/game_1.json`
+- `logs/hunyuan-t1-latest_20250617_223807/game_8.json`
+- `logs/hunyuan-t1-latest_20250617_223807/summary.json`
 
-## No pollution of code from Task 1-5 to the ROOT (Task-0) folder
+These provide concrete examples of Task-0 output schema and behavior.
 
-No pollution from extensions (Task 1-5) into the ROOT folder (for taks 0, but can be extended to other tasks as well in the folder "extensions"). Hence, such words like "heuristics", "reinforcement learning" should not be used in the ROOT folder. It can only be used in the folder "extensions".
+## 🏷️ **Naming Conventions**
 
-## No unncessary or unimplemented code/functions prepared for Task 1-5 in the ROOT folder but it's not used for Task-0
+### **Class Naming Philosophy**
+- **Task-0 Classes**: No need for `Task0` prefix. Names like `GameController`, `FileManager`, `GameData`, `GameLogic` are Task-0 specific by default
+- **Base Classes**: Use `Base` prefix for classes extended by multiple tasks (e.g., `BaseFileManager`, `BaseGameData`, `BaseGameLogic`)
+- **Extension Classes**: Use descriptive prefixes (e.g., `HeuristicGameManager`, `RLGameManager`)
 
-Let the future tasks (Task 1-5) be the ones to implement the code/functions that they need. Overkill is not good. Over-preparation is not good.
+### **Singleton Pattern**
+`BaseFileManager` and `FileManager` should use the Singleton pattern. Consider other classes for singleton implementation as appropriate.
 
-## Class Naming
-Regarding the naming: in the root directory, by default it's for task0. so no need for LLMBlabla class  name, just Blabla class name is great. if it's to be extended by task0, 1, 2, 3, 4, 5, then it's name is BaseBlabla. When Extended, it's HeuristicBlabla, RLBlabla, etc.
+## 🧠 **Design Patterns**
 
- 
+This project emphasizes design patterns for educational value and maintainability:
+- Use appropriate design patterns extensively
+- Document each pattern with detailed comments explaining:
+  - Why the pattern was chosen
+  - Its philosophical approach
+  - Trade-offs and alternatives
+  - Implementation rationale
 
-## VITAL: Don't remove any classes in the ./core/, ./replay/ folder. You can add some functions or classes, but don't remove classes.
+## 🔗 **Inheritance Strategy**
 
-VITAL: Because it's already being used by extensions (check the folder "./extensions/")
+Classes in the `extensions/` folder should primarily inherit from base classes in `core/`, `replay/`, and `gui/` folders. In rare cases, they might inherit from Task-0 derived classes instead of base classes.
 
+## 🚀 **Forward-Looking Architecture**
 
-## VITAL: EVOLUTION OF CODE IN DEMONSTRATION: 
+### **No Backward Compatibility**
+We refactor with a future-proof mindset, creating fresh, self-consistent, and self-contained systems. We do not maintain backward compatibility - deprecated code should be removed entirely. No legacy considerations for extensions.
 
-Keep the folder "agents" in the folder "./extensions/heuristics-v0.02" and "./extensions/heuristics-v0.03" exactly the same. Though, they each one, as a folder/extension/blabla-v0.0N + the common folder, is standalone.
+For Task-0, maintain output schema compliance as defined in the reference files above.
 
-Keep the folder "agents" in the folder "./extensions/supervised-v0.02" and "./extensions/supervised-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+### **No Code Pollution**
+No pollution from extensions (Task 1-5) into the ROOT folder. Extension-specific terminology (e.g., "heuristics", "reinforcement learning") should not appear in the ROOT folder - only in the `extensions/` folder.
 
+### **No Over-Preparation**
+Let future tasks implement their own required code/functions. Avoid overkill and over-preparation in the ROOT folder.
 
-Keep the folder "agents" in the folder "./extensions/reinforcement-v0.02" and "./extensions/reinforcement-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+## 🔒 **Critical Constraints**
 
+### **Core and Replay Folder Protection**
+**VITAL**: Do not remove any classes in `./core/` or `./replay/` folders. You can add functions or classes, but never remove existing classes. These are already being used by extensions.
 
-Keep the folder "agents" in the folder "./extensions/evolutionary-v0.02" and "./extensions/evolutionary-v0.03" exactly the same. Though, they each one as a folder/extension/blabla-v0.0N, plus the common folder, is standalone.
+### **Extension Evolution Stability**
+**VITAL**: Maintain exact consistency across extension versions:
 
+- Keep the `agents/` folder identical between `./extensions/heuristics-v0.02` and `./extensions/heuristics-v0.03`
+- Keep the `agents/` folder identical between `./extensions/supervised-v0.02` and `./extensions/supervised-v0.03`
+- Keep the `agents/` folder identical between `./extensions/reinforcement-v0.02` and `./extensions/reinforcement-v0.03`
+- Keep the `agents/` folder identical between `./extensions/evolutionary-v0.02` and `./extensions/evolutionary-v0.03`
 
-## VITAL: standalone should be very visible, across all extensions, but common folder is important
+Each extension version plus the common folder forms a standalone unit.
 
-For somewhat common utils, put things into the ./extensions/common/ folder. We can regard the ./extensions/common/ folder as a folder for somewhat common utils (common for this moment, or maybe will be used in the future), that no one will forget about its presence, then, an extension blabla-v0.0N, plus the common folder, those two together will be regarded as standalone as well. But we should not be sharing code between extensions. It's forbidden. blabla-v0.01 + common is standalone. blabla-v0.02 + common is standalone. blabla-v0.03 + common is standalone. blabla-v0.04 + common is standalone. (though, only heuristics will have v0.04; for other extensions, there is only v0.01, v0.02 and v0.03).
+## 📁 **Common Folder Philosophy**
 
-The common folder is important because, after all, each extension blabla-v0.0N, represents important conceptual ideas (e.g. heuristics, supervised learning, RL, etc.), and it's those conceptual ideas that should be highlighed in each extension folder blabla-v0.0N. Moving non-essential code into the common folder helps those conceptual ideas to be more visible.
+The `./extensions/common/` folder contains shared utilities that are:
+- Common for current needs
+- Potentially useful for future extensions
+- Non-essential to core extension concepts
 
+This approach ensures that each extension `{algorithm}-v0.0N` represents important conceptual ideas (e.g., heuristics, supervised learning, RL) while keeping these concepts highly visible. Moving non-essential code to the common folder enhances conceptual clarity.
 
-## Type-hinted
+**Standalone Principle**: Each extension `{algorithm}-v0.0N` plus the common folder forms a standalone unit. No code sharing between extensions is allowed.
 
-Make code type-hinted, but only where you are really sure of the type. Don't type-hint for the sake of type-hinting.
+## 🏷️ **Type Hints**
 
+Use type hints where you are confident about types. Don't add type hints for the sake of type hinting alone.
 
-## IMPORTANT: OOP and docstring, comments
-You should never make docstring/comments less clear/verbose/detailed. You should go for OOP and inheritance extensively. You should go for basic but effective Design Patterns extensively and give very good comments/docstrings for each design pattern you use, its motivation, its philosophy, its trade-offs, and why you use it.
+## 📝 **Documentation Standards**
 
+Never reduce the clarity, verbosity, or detail of docstrings and comments. Embrace OOP and inheritance extensively. Use basic but effective design patterns extensively with comprehensive documentation.
 
+## 🚫 **Forbidden Import Patterns**
 
-## Never should happen
-Such code should never happen:
-- from heuristics_v0.03 import blabla
-- from blablabla_v0.0N import blabla
-- from extensions.distillation_v0_03 import blabla
-- from extensions.blablabla_v0_0N import blabla
+These import patterns are strictly forbidden:
+```python
+# ❌ NEVER DO THIS
+from heuristics_v0.03 import some_module
+from {algorithm}_v0.0N import some_module
+from extensions.distillation_v0_03 import some_module
+from extensions.{algorithm}_v0_0N import some_module
+```
 
+## 🛣️ **Path Management**
 
-## VITAL
+Use `chdir()` extensively, preferably through utility functions from:
+- `./extensions/common/path_utils.py`
+- `./utils/path_utils.py`
 
-use chdir() extensively, maybe not directly, but you can call functions from "./extensions/common/path_utils.py" and "./utils/path_utils.py"
+## 🔄 **DRY Principles for Extensions**
 
-## DRY principles
-For extensions, we should go for DRY principles extensively, as well, but only common utils, and should only be put into the ./extensions/common/ folder. Never share code between extensions. Because, each extension balblabla-v0.0N, plus the common folder, is standalone.
+Apply DRY principles extensively in extensions, but only for common utilities in the `./extensions/common/` folder. Never share code between extensions directly.
 
-## Extensions v0.02
-v0.02 should not break v0.01 functionalities. 
+## 📈 **Extension Version Evolution**
 
-## Extensions v0.03
-v0.03 should not break v0.02 functionalities. 
+### **v0.02 Requirements**
+v0.02 should not break v0.01 functionalities.
 
-## Extensions v0.04
-v0.04 is only for heuristics. For other extensions/algorithms, there is only v0.01, v0.02 and v0.03. Ideally, for heuristics v0.04, it will generate jsonl files, in plus to csv files (of v0.03). You should not break v0.03 functionalities. If you extend thing, use OOP or adapter or create another python file. When finished, try a pipeline to check v0.04 jsonl files are really generated for all those heuristics agents are good. ## No Need for Backward compatibility We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. You should leave extensive comments/docstrings on those important things to keep in mind. It's like we assume in extensions, blabla-v0.0N we will be able to generate json files, maybe also pth or npz and paquet files in the case of RL/supvervized learning. On the contrary, for transforming those json files into csv, it is using a shared tool in "common" folder. For generating jsonl files, it can be put into the folder of heuristics-v0.04, or maybe the folder "common", depending on which approach gives the best clarity. I find the naming of generate_dataset_v03.py, generate_dataset.py, generate_jsonl_dataset.py python file naming (in the same folder ) really puzzling. For better clarity, put those stuffs into the "common" folder (except, maybe, one things I am not sure, where to put the jsonl generation tool), give really good file naming for python files.
+### **v0.03 Requirements**
+v0.03 should not break v0.02 functionalities.
 
+### **v0.04 Requirements (Heuristics Only)**
+v0.04 is exclusive to heuristics extensions. Other extensions only support v0.01, v0.02, and v0.03.
 
-## In extensions folder, if things are to be break, break it.
+For heuristics v0.04:
+- Generate JSONL files in addition to CSV files (from v0.03)
+- Preserve all v0.03 functionality
+- Use OOP or adapters for extensions
+- Implement validation pipeline to ensure JSONL generation works for all heuristic agents
 
-No need for things like class name aliases, or an adaptpor, etc.
+## 🔧 **Implementation Guidelines**
 
-## No import aliases, unless it's really necessary.
+### **No Backward Compatibility**
+Refactor with a future-proof mindset for fresh, newly shipped, self-consistent, and self-contained systems. No backward compatibility maintenance.
 
-Very important.
+### **Extension Data Generation**
+Extensions `{algorithm}-v0.0N` should generate:
+- JSON files (standard)
+- PTH or NPZ files (for RL/supervised learning)
+- Parquet files (as appropriate)
 
+For transforming JSON files to CSV, use shared tools in the "common" folder. For JSONL generation, place in heuristics-v0.04 folder or common folder based on clarity requirements.
 
-## VITAL: datasets folder naming/placement, across all extensions
+### **File Naming Clarity**
+Avoid confusing file names like `generate_dataset_v03.py`, `generate_dataset.py`, `generate_jsonl_dataset.py` in the same folder. Use clear, descriptive names and consider moving utilities to the "common" folder.
 
-The grid_size should not be fixed to 10, because generated datasets (json files/folders, csv files/folders, jsonl files/folders, etc.) will be stored in ./logs/extensions/datasets/grid-size-N/blabla_v0.0.N_timestamps folder. Make a clear rule and maybe write some python code (maybe OOP Abstract CLass that should be implemented by all extensions blabla-v0.0N? Config constants? Validation mechanism? do it in common folder) for enforcing your rule.
+## 🚫 **Breaking Changes in Extensions**
 
-Check this for all heuristics extensions:
-- heuristics-v0.01
-- heuristics-v0.02
-- heuristics-v0.03
-- heuristics-v0.04
+In the extensions folder, if things need to break, break them cleanly. No need for class name aliases or adapters unless absolutely necessary.
 
-Check this for all supervised learning extensions:
-- supervised-v0.01
-- supervised-v0.02
-- supervised-v0.03
+### **Import Aliases**
+No import aliases unless truly necessary.
 
-Check this for all reinforcement learning extensions:
-- reinforcement-v0.01
-- reinforcement-v0.02
+## 📊 **Dataset and Model Organization**
 
-## VITAL: models and datasets folder naming/placement, across all extensions
+### **Grid Size Flexibility**
+Grid size should not be fixed to 10. Generated datasets (JSON, CSV, JSONL files/folders) are stored in:
+```
+./logs/extensions/datasets/grid-size-N/{algorithm}_v0.0N_{timestamp}/
+```
 
-Models trained by machine learning/DL/RL will be stored in ./logs/extensions/models/grid-size-N/blabla_v0.0.N_timestamps folder
+### **Extension Coverage**
+Ensure this structure works for:
+- **Heuristics**: v0.01, v0.02, v0.03, v0.04
+- **Supervised Learning**: v0.01, v0.02, v0.03
+- **Reinforcement Learning**: v0.01, v0.02
 
-Datasets generated by the heuristics/ML/DL will be stored in ./extensions/datasets/grid-size-N/blabla_v0.0.N_timestamps folder
+### **Model Storage**
+Models trained by ML/DL/RL are stored in:
+```
+./logs/extensions/models/grid-size-N/{algorithm}_v0.0N_{timestamp}/
+```
 
+## 🎨 **Streamlit App Philosophy**
 
+Streamlit `app.py` is **NOT** for:
+- Game state visualization
+- Real-time progress display
+- Snake move visualization
 
-## IMPORTANT
-streamlit app.py is not for visualization of game states, is not for real time showing progress, is 
-not 
-for showing snake moves.
+Its primary purpose is to launch scripts in the "scripts" folder with adjustable parameters using subprocess. This is why extensions v0.03 have a "dashboard" folder.
 
-It's main idea is to launch scripts in the folder "scripts" with adjustable params, with 
-subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in the first place.
+## 🔒 **Final Decision Protection**
 
-## VITAL
-You should never edit the file "ROOT/docs/extensions-guideline/final-decision-1.md" (or, more generally, "ROOT/docs/extensions-guideline/final-decision-N.md"), because it's the final decision, and it's the single source of truth.
+**VITAL**: Never edit files in the pattern `ROOT/docs/extensions-guideline/final-decision-N.md` as these are final decisions and single sources of truth.
 
+## 🧠 **Deep Learning Framework**
 
-
-## No Tensorflow, at all. 
-For deep learning, we will use PyTorch and PyTorch family frameworks (e.g. torchvision, torchtext, torchaudio, torch-geometric / PyG (for graph neural networks) etc.).
+**No TensorFlow**: Use PyTorch and PyTorch ecosystem exclusively:
+- torchvision
+- torchtext
+- torchaudio
+- torch-geometric / PyG (for graph neural networks)
+- Other PyTorch family frameworks

@@ -1,6 +1,6 @@
 # ONNX Export Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. ONNX export follows the same architectural patterns established in the GOODRULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. ONNX export follows the same architectural patterns established in the GOOD_RULES.
 
 ## 🎯 **Core Philosophy: Framework-Agnostic Model Deployment**
 
@@ -269,4 +269,4 @@ torch.onnx.export(model, dummy_input, 'model.onnx',
                   opset_version=11)
 ```
 
-along with other model formats (json, .pth, jsonl, etc., maybe)
+along with other model formats (json, .pth, jsonl, etc.)

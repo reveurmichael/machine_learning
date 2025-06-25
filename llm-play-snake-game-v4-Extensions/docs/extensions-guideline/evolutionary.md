@@ -44,7 +44,7 @@ Evolutionary algorithms follow the **same standardized evolution** as other algo
 | **v0.03** | Web interface + dataset generation capabilities |
 | **v0.04** | ❌ Not supported (heuristics only) |
 
-### **Following GOODRULES Patterns**
+### **Following GOOD_RULES Patterns**
 Evolutionary algorithms integrate seamlessly with the established architecture:
 
 **Directory Structure (Final Decision 5)**:
@@ -118,28 +118,137 @@ Evolutionary algorithms showcase multiple design patterns:
 - **vs. RL**: Evolution vs. temporal difference learning
 - **Hybrid Approaches**: Combining evolutionary with other methods
 
-## 🧠 **State Representation Challenge**
+## 🧠 **Specialized Data Format for Evolutionary Algorithms**
 
-### **Critical Design Decision**
-The 16-feature CSV schema (from csv-schema-1.md) may be insufficient for evolutionary algorithms. Evolutionary approaches often benefit from:
+### **Evolutionary NPZ Format Specification**
 
-- **Raw Board State**: Direct grid representation
-- **Spatial Patterns**: 2D convolutional features
-- **Temporal Sequences**: Historical state information
-- **Graph Structures**: Snake body as connected components
+Evolutionary algorithms require a **specialized data format** that supports population-based operations, genotype-phenotype mapping, and multi-objective optimization.
 
-### **Alternative Representations**
 ```python
-# Example extended representation for evolutionary algorithms
-class EvolutionaryGameState:
-    """Extended state representation for evolutionary algorithms"""
+# Evolutionary Algorithm Data Format (NPZ Raw Arrays)
+evolutionary_data = {
+    # Population Structure
+    'population': np.array(shape=(population_size, individual_length)),
+    'fitness_scores': np.array(shape=(population_size, num_objectives)),
+    'generation_history': np.array(shape=(num_generations, population_size, individual_length)),
     
-    def __init__(self, game_state):
-        self.raw_board = self.extract_board_matrix(game_state)
-        self.spatial_features = self.compute_spatial_features(game_state)
-        self.temporal_history = self.update_history(game_state)
-        self.graph_representation = self.build_graph(game_state)
+    # Genetic Operators Data
+    'crossover_points': np.array(shape=(num_crossovers, 2)),  # Parent indices
+    'mutation_mask': np.array(shape=(population_size, individual_length)),  # Boolean mask
+    'selection_pressure': np.array(shape=(num_generations,)),  # Selection statistics
+    
+    # Fitness Landscape
+    'fitness_landscape': np.array(shape=(grid_size, grid_size, num_objectives)),
+    'pareto_front': np.array(shape=(pareto_size, num_objectives)),
+    
+    # Evolutionary Metadata
+    'generation_metadata': {
+        'best_fitness': np.array(shape=(num_generations,)),
+        'average_fitness': np.array(shape=(num_generations,)),
+        'diversity_metrics': np.array(shape=(num_generations,)),
+        'convergence_rate': np.array(shape=(num_generations,))
+    },
+    
+    # Game-Specific Evolutionary Data
+    'game_performance': {
+        'scores': np.array(shape=(population_size,)),
+        'steps': np.array(shape=(population_size,)),
+        'efficiency': np.array(shape=(population_size,)),
+        'survival_rate': np.array(shape=(population_size,))
+    }
+}
 ```
+
+### **Why This Format is Special for Evolutionary Algorithms**
+
+#### **1. Population-Centric Structure**
+- **Direct genetic representation**: Each individual is a raw array
+- **Batch operations**: Support for population-wide genetic operators
+- **Diversity tracking**: Built-in metrics for population health
+
+#### **2. Multi-Objective Support**
+- **Fitness vectors**: Multiple objectives per individual
+- **Pareto front tracking**: Multi-objective optimization support
+- **Trade-off analysis**: Objective correlation matrices
+
+#### **3. Genetic Operator Efficiency**
+- **Crossover tracking**: Record which individuals were crossed
+- **Mutation history**: Track mutation patterns and success rates
+- **Selection pressure**: Monitor selection algorithm performance
+
+#### **4. Fitness Landscape Analysis**
+- **Spatial representation**: Grid-based fitness mapping
+- **Convergence tracking**: Monitor algorithm convergence
+- **Diversity metrics**: Population diversity over generations
+
+#### **5. Game-Specific Evolutionary Features**
+- **Performance correlation**: Link genetic traits to game performance
+- **Strategy evolution**: Track how strategies evolve over generations
+- **Adaptation patterns**: Monitor adaptation to different game scenarios
+
+### **Implementation Example**
+
+```python
+# extensions/evolutionary-v0.02/agents/agent_ga.py
+class GAAgent(BaseAgent):
+    """Genetic Algorithm Agent with specialized data format"""
+    
+    def __init__(self, population_size=100, individual_length=64):
+        super().__init__()
+        self.population_size = population_size
+        self.individual_length = individual_length
+        self.population = np.random.rand(population_size, individual_length)
+        self.fitness_scores = np.zeros((population_size, 3))  # score, steps, efficiency
+    
+    def save_evolutionary_data(self, output_path):
+        """Save evolutionary data in specialized NPZ format"""
+        evolutionary_data = {
+            'population': self.population,
+            'fitness_scores': self.fitness_scores,
+            'generation_history': self.generation_history,
+            'crossover_points': self.crossover_history,
+            'mutation_mask': self.mutation_history,
+            'selection_pressure': self.selection_history,
+            'fitness_landscape': self.compute_fitness_landscape(),
+            'pareto_front': self.compute_pareto_front(),
+            'generation_metadata': {
+                'best_fitness': self.best_fitness_history,
+                'average_fitness': self.avg_fitness_history,
+                'diversity_metrics': self.diversity_history,
+                'convergence_rate': self.convergence_history
+            },
+            'game_performance': {
+                'scores': self.game_scores,
+                'steps': self.game_steps,
+                'efficiency': self.game_efficiency,
+                'survival_rate': self.survival_rates
+            }
+        }
+        
+        np.savez(output_path, **evolutionary_data)
+```
+
+### **Benefits of This Evolutionary Format**
+
+#### **1. Algorithm Efficiency**
+- **Vectorized operations**: NumPy arrays enable fast genetic operators
+- **Memory efficiency**: Compressed storage of large populations
+- **Parallel processing**: Support for parallel fitness evaluation
+
+#### **2. Research Value**
+- **Reproducibility**: Complete evolutionary history preserved
+- **Analysis capabilities**: Rich data for evolutionary analysis
+- **Visualization support**: Data structure supports evolutionary visualization
+
+#### **3. Educational Value**
+- **Clear genotype-phenotype mapping**: Direct representation
+- **Evolutionary process transparency**: Complete tracking of evolution
+- **Multi-objective demonstration**: Shows trade-offs in optimization
+
+#### **4. Cross-Extension Integration**
+- **Fitness landscape sharing**: Other extensions can analyze fitness landscapes
+- **Strategy transfer**: Evolved strategies can be analyzed by other algorithms
+- **Benchmarking**: Provides benchmarks for other optimization approaches
 
 ## 🚀 **Implementation Guidelines**
 

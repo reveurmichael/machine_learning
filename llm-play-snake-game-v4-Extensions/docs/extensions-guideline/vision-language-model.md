@@ -260,6 +260,577 @@ class LLaVAProvider(BaseVLMProvider):
         pass
 ```
 
+## 🎓 **VLM Fine-Tuning for Snake Game Optimization**
+
+### **Domain-Specific VLM Fine-Tuning**
+```python
+class VLMFineTuner:
+    """Fine-tune VLMs for Snake Game domain expertise"""
+    
+    def __init__(self, base_model: str, grid_size: int = 10):
+        self.base_model = base_model
+        self.grid_size = grid_size
+        self.training_data_manager = VLMTrainingDataManager(grid_size)
+        self.model_optimizer = VLMOptimizer()
+        
+    def prepare_training_dataset(self, heuristic_data_path: str) -> Dict[str, Any]:
+        """Convert heuristic gameplay data to VLM training format"""
+        dataset = {
+            "visual_states": [],
+            "expert_actions": [],
+            "reasoning_explanations": [],
+            "game_contexts": []
+        }
+        
+        # Load heuristic expert data
+        expert_games = self.training_data_manager.load_expert_games(heuristic_data_path)
+        
+        for game in expert_games:
+            for state in game['states']:
+                # Generate visual representation
+                visual_data = self.visualizer.create_visual_state(state)
+                
+                # Extract expert action and reasoning
+                expert_action = state['action']
+                reasoning = self._generate_expert_reasoning(state, expert_action)
+                
+                dataset["visual_states"].append(visual_data)
+                dataset["expert_actions"].append(expert_action)
+                dataset["reasoning_explanations"].append(reasoning)
+                dataset["game_contexts"].append(state['context'])
+                
+        return dataset
+        
+    def fine_tune_model(self, 
+                       training_dataset: Dict[str, Any],
+                       validation_dataset: Dict[str, Any],
+                       epochs: int = 10,
+                       learning_rate: float = 5e-5) -> VLMFineTunedModel:
+        """Fine-tune VLM on Snake Game data"""
+        
+        # Initialize fine-tuning configuration
+        config = VLMFineTuningConfig(
+            base_model=self.base_model,
+            task_type="visual_reasoning",
+            learning_rate=learning_rate,
+            batch_size=8,
+            max_epochs=epochs,
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            logging_steps=10
+        )
+        
+        # Create training loop
+        trainer = VLMTrainer(config)
+        
+        # Fine-tune model
+        fine_tuned_model = trainer.train(
+            train_dataset=training_dataset,
+            eval_dataset=validation_dataset,
+            compute_metrics=self._compute_snake_game_metrics
+        )
+        
+        return fine_tuned_model
+        
+    def _generate_expert_reasoning(self, state: Dict[str, Any], action: str) -> str:
+        """Generate expert reasoning for training data"""
+        return f"""
+        Analyzing game state: Score {state['score']}, Snake length {state['snake_length']}
+        
+        Chosen action: {action}
+        
+        Reasoning: Based on the current snake position and food location,
+        this action optimizes for {self._analyze_action_purpose(state, action)}.
+        Risk assessment: {self._assess_risks(state, action)}
+        Long-term strategy: {self._extract_strategy(state)}
+        """
+```
+
+### **LoRA-based Efficient Fine-Tuning**
+```python
+class VLMLoRAFineTuner(VLMFineTuner):
+    """Efficient VLM fine-tuning using LoRA (Low-Rank Adaptation)"""
+    
+    def __init__(self, base_model: str, grid_size: int = 10, lora_rank: int = 16):
+        super().__init__(base_model, grid_size)
+        self.lora_rank = lora_rank
+        self.lora_alpha = 32
+        self.lora_dropout = 0.1
+        
+    def setup_lora_config(self) -> LoRAConfig:
+        """Configure LoRA for efficient VLM fine-tuning"""
+        return LoRAConfig(
+            r=self.lora_rank,
+            lora_alpha=self.lora_alpha,
+            target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
+            lora_dropout=self.lora_dropout,
+            bias="none",
+            task_type="FEATURE_EXTRACTION"
+        )
+        
+    def fine_tune_with_lora(self, 
+                           training_dataset: Dict[str, Any],
+                           validation_dataset: Dict[str, Any]) -> VLMLoRAModel:
+        """Fine-tune VLM using LoRA for parameter efficiency"""
+        
+        # Setup LoRA configuration
+        lora_config = self.setup_lora_config()
+        
+        # Initialize LoRA model
+        model = self._load_base_model_with_lora(self.base_model, lora_config)
+        
+        # Training configuration optimized for LoRA
+        training_args = VLMTrainingArguments(
+            output_dir=f"./vlm_lora_checkpoints/{self.grid_size}x{self.grid_size}",
+            num_train_epochs=5,
+            per_device_train_batch_size=4,
+            gradient_accumulation_steps=2,
+            warmup_steps=100,
+            logging_steps=10,
+            evaluation_strategy="steps",
+            eval_steps=50,
+            save_steps=100,
+            learning_rate=1e-4,
+            fp16=True,
+            remove_unused_columns=False
+        )
+        
+        # Create trainer with LoRA-specific settings
+        trainer = VLMLoRATrainer(
+            model=model,
+            args=training_args,
+            train_dataset=training_dataset,
+            eval_dataset=validation_dataset,
+            tokenizer=self.tokenizer,
+            data_collator=self.data_collator
+        )
+        
+        # Fine-tune with LoRA
+        trainer.train()
+        
+        # Save LoRA adapters
+        model.save_pretrained(f"./vlm_lora_adapters/{self.grid_size}x{self.grid_size}")
+        
+        return VLMLoRAModel(model, lora_config)
+```
+
+## 🔬 **Knowledge Distillation from VLMs**
+
+### **VLM-to-Lightweight Model Distillation**
+```python
+class VLMDistillationPipeline:
+    """Distill knowledge from large VLMs to efficient student models"""
+    
+    def __init__(self, 
+                 teacher_vlm: BaseVLMProvider,
+                 student_architecture: str = "efficient_cnn",
+                 grid_size: int = 10):
+        self.teacher_vlm = teacher_vlm
+        self.student_architecture = student_architecture
+        self.grid_size = grid_size
+        self.distillation_dataset = VLMDistillationDataset(grid_size)
+        
+    def generate_teacher_labels(self, 
+                               game_states: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Generate comprehensive teacher labels from VLM"""
+        teacher_labels = []
+        
+        for state in game_states:
+            # Get VLM analysis
+            vlm_response = self.teacher_vlm.analyze_game_state(
+                state, 
+                self.teacher_vlm.prompt_manager.create_analysis_prompt(state)
+            )
+            
+            # Extract rich knowledge for distillation
+            label = {
+                "action_logits": self._extract_action_distribution(vlm_response),
+                "confidence_score": vlm_response.confidence / 100.0,
+                "reasoning_embedding": self._encode_reasoning(vlm_response.reasoning),
+                "risk_assessment": self._quantify_risks(vlm_response.risks),
+                "strategic_features": self._extract_strategic_features(vlm_response.strategy)
+            }
+            
+            teacher_labels.append(label)
+            
+        return teacher_labels
+        
+    def create_student_model(self) -> VLMStudentModel:
+        """Create efficient student model for distillation"""
+        if self.student_architecture == "efficient_cnn":
+            return EfficientCNNStudent(
+                input_size=(self.grid_size, self.grid_size, 3),
+                action_space=4,
+                hidden_dim=128,
+                reasoning_dim=64
+            )
+        elif self.student_architecture == "mobile_transformer":
+            return MobileTransformerStudent(
+                grid_size=self.grid_size,
+                embed_dim=256,
+                num_heads=4,
+                num_layers=6
+            )
+        else:
+            raise ValueError(f"Unknown student architecture: {self.student_architecture}")
+            
+    def distill_knowledge(self, 
+                         game_states: List[Dict[str, Any]],
+                         epochs: int = 20,
+                         temperature: float = 4.0,
+                         alpha: float = 0.7) -> VLMStudentModel:
+        """Perform knowledge distillation from VLM teacher to student"""
+        
+        # Generate teacher labels
+        teacher_labels = self.generate_teacher_labels(game_states)
+        
+        # Create student model
+        student_model = self.create_student_model()
+        
+        # Setup distillation loss
+        distillation_loss = VLMDistillationLoss(
+            temperature=temperature,
+            alpha=alpha,
+            feature_loss_weight=0.1,
+            reasoning_loss_weight=0.2
+        )
+        
+        # Training loop
+        optimizer = torch.optim.AdamW(student_model.parameters(), lr=1e-3)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+        
+        for epoch in range(epochs):
+            total_loss = 0
+            
+            for batch_states, batch_labels in self._create_batches(game_states, teacher_labels):
+                # Student forward pass
+                student_output = student_model(batch_states)
+                
+                # Compute distillation loss
+                loss = distillation_loss(
+                    student_output=student_output,
+                    teacher_labels=batch_labels,
+                    ground_truth=self._extract_ground_truth(batch_states)
+                )
+                
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                total_loss += loss.item()
+                
+            scheduler.step()
+            
+            if epoch % 5 == 0:
+                avg_loss = total_loss / len(game_states)
+                print(f"Epoch {epoch}: Distillation Loss = {avg_loss:.4f}")
+                
+        return student_model
+        
+    def _extract_action_distribution(self, vlm_response: VLMResponse) -> torch.Tensor:
+        """Extract action probability distribution from VLM response"""
+        # Convert VLM confidence and reasoning to action probabilities
+        action_probs = torch.zeros(4)  # UP, DOWN, LEFT, RIGHT
+        
+        # Primary action gets high probability
+        primary_action_idx = self._action_to_index(vlm_response.action)
+        action_probs[primary_action_idx] = vlm_response.confidence / 100.0
+        
+        # Distribute remaining probability based on reasoning
+        remaining_prob = 1.0 - action_probs[primary_action_idx]
+        safe_actions = self._identify_safe_actions(vlm_response.reasoning)
+        
+        for action_idx in safe_actions:
+            if action_idx != primary_action_idx:
+                action_probs[action_idx] = remaining_prob / len(safe_actions)
+                
+        return action_probs
+```
+
+### **Progressive Knowledge Distillation**
+```python
+class ProgressiveVLMDistillation:
+    """Progressive distillation for gradual knowledge transfer"""
+    
+    def __init__(self, teacher_vlm: BaseVLMProvider, grid_size: int = 10):
+        self.teacher_vlm = teacher_vlm
+        self.grid_size = grid_size
+        self.distillation_stages = self._create_distillation_curriculum()
+        
+    def _create_distillation_curriculum(self) -> List[Dict[str, Any]]:
+        """Create progressive curriculum for knowledge distillation"""
+        return [
+            {
+                "stage": "basic_survival",
+                "focus": "collision_avoidance",
+                "complexity": "low",
+                "epochs": 10,
+                "data_filter": lambda state: state['snake_length'] <= 5
+            },
+            {
+                "stage": "food_seeking",
+                "focus": "pathfinding",
+                "complexity": "medium",
+                "epochs": 15,
+                "data_filter": lambda state: 5 < state['snake_length'] <= 15
+            },
+            {
+                "stage": "advanced_strategy",
+                "focus": "long_term_planning",
+                "complexity": "high",
+                "epochs": 20,
+                "data_filter": lambda state: state['snake_length'] > 15
+            }
+        ]
+        
+    def progressive_distillation(self, 
+                               full_dataset: List[Dict[str, Any]]) -> VLMStudentModel:
+        """Perform progressive knowledge distillation"""
+        
+        # Initialize student model
+        student_model = self.create_student_model()
+        
+        for stage in self.distillation_stages:
+            print(f"Distillation Stage: {stage['stage']}")
+            
+            # Filter data for current stage
+            stage_data = [
+                state for state in full_dataset 
+                if stage['data_filter'](state)
+            ]
+            
+            # Stage-specific distillation
+            student_model = self._distill_stage(
+                student_model,
+                stage_data,
+                stage['epochs'],
+                stage['focus']
+            )
+            
+            # Evaluate stage performance
+            stage_metrics = self._evaluate_stage_performance(
+                student_model, 
+                stage_data, 
+                stage['focus']
+            )
+            
+            print(f"Stage {stage['stage']} completed: {stage_metrics}")
+            
+        return student_model
+```
+
+## 🔧 **Advanced VLM Training Techniques**
+
+### **Multi-Task VLM Training**
+```python
+class MultiTaskVLMTrainer:
+    """Train VLMs on multiple Snake Game tasks simultaneously"""
+    
+    def __init__(self, grid_sizes: List[int] = [10, 15, 20]):
+        self.grid_sizes = grid_sizes
+        self.task_weights = {f"grid_{size}": 1.0 for size in grid_sizes}
+        self.shared_encoder = MultiScaleVLMEncoder()
+        self.task_heads = {
+            f"grid_{size}": TaskSpecificHead(size) 
+            for size in grid_sizes
+        }
+        
+    def create_multitask_dataset(self) -> Dict[str, Any]:
+        """Create dataset with multiple grid sizes and tasks"""
+        dataset = {
+            "visual_states": [],
+            "task_labels": [],
+            "actions": [],
+            "reasoning": [],
+            "grid_sizes": []
+        }
+        
+        for grid_size in self.grid_sizes:
+            # Load data for each grid size
+            grid_data = self._load_grid_specific_data(grid_size)
+            
+            for sample in grid_data:
+                dataset["visual_states"].append(sample["visual_state"])
+                dataset["task_labels"].append(f"grid_{grid_size}")
+                dataset["actions"].append(sample["action"])
+                dataset["reasoning"].append(sample["reasoning"])
+                dataset["grid_sizes"].append(grid_size)
+                
+        return dataset
+        
+    def train_multitask_model(self, 
+                             dataset: Dict[str, Any],
+                             epochs: int = 30) -> MultiTaskVLMModel:
+        """Train VLM on multiple tasks simultaneously"""
+        
+        model = MultiTaskVLMModel(
+            encoder=self.shared_encoder,
+            task_heads=self.task_heads,
+            task_weights=self.task_weights
+        )
+        
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=10, T_mult=2
+        )
+        
+        for epoch in range(epochs):
+            total_loss = 0
+            task_losses = {task: 0 for task in self.task_weights.keys()}
+            
+            # Batch processing with task balancing
+            for batch in self._create_balanced_batches(dataset):
+                # Forward pass through shared encoder
+                shared_features = model.encoder(batch["visual_states"])
+                
+                # Task-specific processing
+                batch_loss = 0
+                for task_name in self.task_weights.keys():
+                    task_mask = batch["task_labels"] == task_name
+                    if task_mask.sum() > 0:
+                        task_features = shared_features[task_mask]
+                        task_output = model.task_heads[task_name](task_features)
+                        
+                        task_loss = self._compute_task_loss(
+                            task_output, 
+                            batch, 
+                            task_mask
+                        )
+                        
+                        weighted_loss = task_loss * self.task_weights[task_name]
+                        batch_loss += weighted_loss
+                        task_losses[task_name] += weighted_loss.item()
+                
+                # Backward pass
+                optimizer.zero_grad()
+                batch_loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                
+                total_loss += batch_loss.item()
+                
+            scheduler.step()
+            
+            # Log progress
+            if epoch % 5 == 0:
+                print(f"Epoch {epoch}: Total Loss = {total_loss:.4f}")
+                for task, loss in task_losses.items():
+                    print(f"  {task}: {loss:.4f}")
+                    
+        return model
+```
+
+### **Curriculum Learning for VLMs**
+```python
+class VLMCurriculumLearning:
+    """Implement curriculum learning for VLM training"""
+    
+    def __init__(self, vlm_model: BaseVLMProvider, grid_size: int = 10):
+        self.vlm_model = vlm_model
+        self.grid_size = grid_size
+        self.curriculum_stages = self._design_curriculum()
+        
+    def _design_curriculum(self) -> List[Dict[str, Any]]:
+        """Design curriculum from simple to complex scenarios"""
+        return [
+            {
+                "stage": "basic_movement",
+                "description": "Learn basic movement without obstacles",
+                "difficulty": 0.1,
+                "scenarios": ["empty_grid", "single_food"],
+                "success_threshold": 0.8,
+                "max_episodes": 1000
+            },
+            {
+                "stage": "collision_avoidance",
+                "description": "Learn to avoid walls and self-collision",
+                "difficulty": 0.3,
+                "scenarios": ["wall_proximity", "self_collision_risk"],
+                "success_threshold": 0.75,
+                "max_episodes": 1500
+            },
+            {
+                "stage": "efficient_pathfinding",
+                "description": "Learn efficient paths to food",
+                "difficulty": 0.5,
+                "scenarios": ["distant_food", "blocked_paths"],
+                "success_threshold": 0.7,
+                "max_episodes": 2000
+            },
+            {
+                "stage": "strategic_planning",
+                "description": "Learn long-term strategic thinking",
+                "difficulty": 0.8,
+                "scenarios": ["complex_layouts", "multiple_obstacles"],
+                "success_threshold": 0.65,
+                "max_episodes": 3000
+            },
+            {
+                "stage": "mastery",
+                "description": "Master all aspects of the game",
+                "difficulty": 1.0,
+                "scenarios": ["random_scenarios", "expert_challenges"],
+                "success_threshold": 0.6,
+                "max_episodes": 5000
+            }
+        ]
+        
+    def train_with_curriculum(self, 
+                             base_training_data: List[Dict[str, Any]]) -> VLMModel:
+        """Train VLM using curriculum learning"""
+        
+        model = self.vlm_model
+        
+        for stage in self.curriculum_stages:
+            print(f"Training Stage: {stage['stage']}")
+            print(f"Description: {stage['description']}")
+            
+            # Generate stage-specific training data
+            stage_data = self._generate_stage_data(
+                base_training_data,
+                stage['scenarios'],
+                stage['difficulty']
+            )
+            
+            # Track performance
+            stage_performance = []
+            
+            # Training loop for current stage
+            for episode in range(stage['max_episodes']):
+                # Sample from stage data
+                batch = self._sample_stage_batch(stage_data, batch_size=32)
+                
+                # Train on batch
+                loss = self._train_batch(model, batch)
+                
+                # Evaluate periodically
+                if episode % 100 == 0:
+                    performance = self._evaluate_stage_performance(
+                        model, 
+                        stage_data, 
+                        stage['scenarios']
+                    )
+                    stage_performance.append(performance)
+                    
+                    # Check if ready for next stage
+                    if performance > stage['success_threshold']:
+                        print(f"Stage {stage['stage']} completed at episode {episode}")
+                        break
+                        
+            # Validate stage completion
+            final_performance = self._evaluate_stage_performance(
+                model, 
+                stage_data, 
+                stage['scenarios']
+            )
+            
+            if final_performance < stage['success_threshold']:
+                print(f"Warning: Stage {stage['stage']} not fully mastered")
+                
+        return model
+```
+
 ## 📁 **Path Integration and Model Management**
 
 ### **VLM Model Storage**
@@ -300,6 +871,42 @@ def save_vlm_analysis_results(
         json.dump(analysis_data, f, indent=2)
         
     return str(results_path)
+
+def save_fine_tuned_vlm_model(
+    model: VLMFineTunedModel,
+    extension_type: str,
+    version: str,
+    grid_size: int,
+    model_name: str,
+    timestamp: str
+) -> str:
+    """Save fine-tuned VLM model with proper organization"""
+    
+    model_dir = get_model_path(
+        extension_type=extension_type,
+        version=version,
+        grid_size=grid_size,
+        algorithm=f"vlm_{model_name}",
+        timestamp=timestamp
+    )
+    
+    # Save model artifacts
+    model.save_pretrained(model_dir / "model")
+    
+    # Save training metadata
+    metadata = {
+        "model_name": model_name,
+        "base_model": model.config.base_model,
+        "grid_size": grid_size,
+        "training_timestamp": timestamp,
+        "fine_tuning_config": model.config.to_dict(),
+        "performance_metrics": model.get_performance_metrics()
+    }
+    
+    with open(model_dir / "metadata.json", 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    return str(model_dir)
 ```
 
 ## 🚀 **Extension Integration Benefits**

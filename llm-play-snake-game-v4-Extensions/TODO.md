@@ -1,3 +1,9 @@
+## NO MVC
+
+No MVC for version 4. 
+
+It will be there for version 5. 
+
 ## Scripts folder
 
 Unifying the main.py and main_web.py mode (with OOP, already some first success), then replay.py and replay_web.py mode with OOP. Then human play pygame mode and web mode.
@@ -10,17 +16,4 @@ Main mode (PyGame) is working 100% OK now.
 
 
 
-
-
-
-
-
-
-
-
-## GUI Abstraction
-
-no-gui is a gui. Pygame is a gui. Pyglet is a gui. ursina is a gui. Web is a gui. They should all be classed located in the gui folder.
-
-
-
+## Heuristics, at least no gui mode, is totally great now. Don't modify it - Yet. 

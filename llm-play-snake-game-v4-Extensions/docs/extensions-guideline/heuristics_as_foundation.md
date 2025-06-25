@@ -1,10 +1,10 @@
 # Heuristics as Foundation for ML Ecosystem
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Heuristics serve as the foundational data source following the architectural patterns established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Heuristics serve as the foundational data source following the architectural patterns established in the GOODRULES.
 
 ## 🎯 **Core Philosophy: Heuristics Drive the ML Ecosystem**
 
-Heuristic algorithms serve as the cornerstone of the entire machine learning pipeline, providing high-quality labeled data that powers all downstream learning approaches. This follows the multi-directional data ecosystem established in the GOODFILES.
+Heuristic algorithms serve as the cornerstone of the entire machine learning pipeline, providing high-quality labeled data that powers all downstream learning approaches. This follows the multi-directional data ecosystem established in the GOODRULES.
 
 ### **Design Philosophy**
 - **Ground Truth Generation**: Deterministic algorithms create perfect training labels

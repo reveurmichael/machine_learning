@@ -4,7 +4,7 @@
 
 ## 🎯 **Core Philosophy: Comprehensive ML Pipeline**
 
-This tutorial demonstrates the complete journey from heuristic algorithm execution to trained ML models, showcasing the multi-directional data ecosystem established in the GOODFILES architecture.
+This tutorial demonstrates the complete journey from heuristic algorithm execution to trained ML models, showcasing the multi-directional data ecosystem established in the GOODRULES architecture.
 
 ### **Pipeline Overview**
 - **Heuristics v0.04**: Generates 10,000+ games per algorithm with language-rich explanations

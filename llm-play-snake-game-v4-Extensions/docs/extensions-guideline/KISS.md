@@ -15,7 +15,7 @@ The KISS principle drives the evolutionary design of extensions from v0.01 throu
 ## 🌱 **KISS in Extension Evolution**
 
 ### **v0.01: Radical Simplicity**
-Following the GOODFILES pattern, v0.01 extensions embody pure KISS:
+Following the GOODRULES pattern, v0.01 extensions embody pure KISS:
 - **Single algorithm only**: One clear demonstration
 - **No command-line arguments**: Zero configuration complexity
 - **Minimal file structure**: Just what's absolutely necessary
@@ -82,7 +82,7 @@ Following documentation-as-first-class-citizen.md:
 
 ### **Progressive Disclosure**
 Information architecture follows KISS:
-- **GOODFILES**: Authoritative, comprehensive reference
+- **GOODRULES**: Authoritative, comprehensive reference
 - **Supporting docs**: Focus on specific aspects
 - **Code examples**: Simple, clear demonstrations
 - **Inline documentation**: Context-specific guidance

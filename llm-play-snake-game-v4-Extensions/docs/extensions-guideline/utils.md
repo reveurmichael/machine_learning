@@ -1,6 +1,6 @@
 # Utility Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Utility organization follows the universal vs. task-specific separation principle established in the GOODRULES.
 
 ## 🎯 **Utility Philosophy**
 

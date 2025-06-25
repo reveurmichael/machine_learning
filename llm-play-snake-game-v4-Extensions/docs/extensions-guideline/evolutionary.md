@@ -42,7 +42,7 @@ Evolutionary algorithms follow the **same standardized evolution** as other algo
 | **v0.03** | Web interface + dataset generation capabilities |
 | **v0.04** | ❌ Not supported (heuristics only) |
 
-### **Following GOODFILES Patterns**
+### **Following GOODRULES Patterns**
 Evolutionary algorithms integrate seamlessly with the established architecture:
 
 **Directory Structure (Final Decision 5)**:

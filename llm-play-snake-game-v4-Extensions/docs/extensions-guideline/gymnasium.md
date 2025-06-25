@@ -1,6 +1,6 @@
 # Gymnasium Environment Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Gymnasium integration follows the same architectural patterns established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Gymnasium integration follows the same architectural patterns established in the GOODRULES.
 
 ## 🎯 **Core Philosophy: Standardized RL Interface**
 

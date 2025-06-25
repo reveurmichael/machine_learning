@@ -1,6 +1,6 @@
 # ONNX Export Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. ONNX export follows the same architectural patterns established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. ONNX export follows the same architectural patterns established in the GOODRULES.
 
 ## 🎯 **Core Philosophy: Framework-Agnostic Model Deployment**
 

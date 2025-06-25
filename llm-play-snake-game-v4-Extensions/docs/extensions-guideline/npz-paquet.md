@@ -1,6 +1,6 @@
 # Multi-Format Dataset Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Multi-format datasets follow the same architectural patterns established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Multi-format datasets follow the same architectural patterns established in the GOODRULES.
 
 ## 🎯 **Core Philosophy: Format-Agnostic Data Pipeline**
 

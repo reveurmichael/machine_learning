@@ -30,7 +30,7 @@ Tree-based models excel at learning decision patterns from tabular data, making 
 
 ## 🏗️ **Architecture Integration**
 
-### **Following GOODFILES Patterns**
+### **Following GOODRULES Patterns**
 Tree models integrate with established supervised learning architecture:
 
 **Agent Naming (Final Decision 4)**:

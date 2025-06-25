@@ -1,6 +1,6 @@
 # Model Architecture for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Model components follow the same architectural patterns established in the GOODFILES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Model components follow the same architectural patterns established in the GOODRULES.
 
 ## 🎯 **Core Philosophy: Universal Model Foundation**
 

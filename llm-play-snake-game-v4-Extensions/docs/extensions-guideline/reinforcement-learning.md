@@ -32,7 +32,7 @@ Following the extension evolution pattern:
 
 ## 🏗️ **Architecture Integration**
 
-### **Following GOODFILES Patterns**
+### **Following GOODRULES Patterns**
 RL extensions adhere to established architectural decisions:
 
 **Agent Naming (Final Decision 4)**:

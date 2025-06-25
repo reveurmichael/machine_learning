@@ -36,7 +36,7 @@ As this whole project is about refactoring, we should use design patterns to mak
 Most likely, classes in "extensions" folder will be inheriting from base classes in "core", "replay" and "gui" folders. In very rare cases, they might be inheriting from the derived classes for Task-0 instead of the base classes.
 
 ## No Need for Backward compatibility
-We are refactoring with a future proof mindset, to make things look so fresh, so needly shipped.. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. For task0, as long as the output follows the schema of Task-0, we are good. For the schema of Task-0, check the files:
+We are refactoring with a future proof mindset, to make things look so fresh, so newly shipped, so self-consistent, so self-contained. So we are not going to keep backward compatibility, for anything. Nothing is going to be deprecated, if anything is deprecated, it should be removed. No legacy consideration for extensions. For task0, as long as the output follows the schema of Task-0, we are good. For the schema of Task-0, check the files:
 - logs/hunyuan-t1-latest_20250617_223807/game_1.json
 - logs/hunyuan-t1-latest_20250617_223807/game_8.json
 - logs/hunyuan-t1-latest_20250617_223807/summary.json

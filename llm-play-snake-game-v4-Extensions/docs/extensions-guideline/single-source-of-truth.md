@@ -116,87 +116,55 @@ Extensions are designed to be **standalone** (extension + common folder), so the
 # from supervised_v0.01 import helper_function  # FORBIDDEN
 ```
 
-## 📚 **Common Utilities**
+## 📚 **Authoritative SSOT Locations**
 
-### ALL THINGS WITHIN THE FOLDER ROOT/config
+### 1. Configuration Constants (ROOT/config/)
+These modules are *the* authority for project-wide constants.  Import; never redefine.
 
-TODO: HERE IS A LIST OF SSOT THINGS EXTENSIONS SHOULD ADOPT:
-- TODO LIST
-- TODO LIST
-- TODO LIST
-- TODO LIST
-- TODO LIST
-- TODO LIST
-- TODO LIST
-- TODO LIST
+| File | Purpose |
+|------|---------|
+| `game_constants.py` | Game-rule numbers, movement maps, sentinel moves, step limits |
+| `ui_constants.py`   | Universal colour palette, grid size default, window dimensions |
+| `llm_constants.py`  | **Task-0 & LLM-focused extensions only** – provider names, model aliases, token limits |
+| `prompt_templates.py` | System / user prompt skeletons (LLM tasks only) |
+| `network_constants.py` | HTTP / WebSocket defaults for scripts & dashboards |
+| `web_constants.py` | Flask / Streamlit specific settings |
 
-## TODO: IMPORTANT: use ROOT/utils/ stuffs
-Here is a list of ROOT/utils/ stuffs (functions) that can and SHOULD be reused in extensions.
-TODO: LIST
-TODO: LIST
-TODO: LIST
-TODO: LIST
-TODO: LIST
-TODO: LIST
+> For an expanded rationale and hierarchy diagram see **`config.md`** and **`final-decision-2.md`**.
 
-### **Shared Components in extensions/common/**
-```python
-# ✅ GOOD: Truly common utilities go in extensions/common/
-extensions/common/
-├── csv_schema.py          # CSV schema for all ML tasks
-├── dataset_loader.py      # Dataset loading utilities
-├── config.py             # Extension-specific configurations
-└── validation.py         # Data validation utilities
+### 2. Universal Utilities (ROOT/utils/)
+Stateless helper functions that *every* task and extension may (and should) reuse:
 
-# These are shared across extensions but NOT between extension versions
-```
+| Module | Key Responsibilities |
+|--------|---------------------|
+| `board_utils.py` | Apple placement, board generation, vacant-cell queries |
+| `collision_utils.py` | Wall / body collision tests, reverse-move detection |
+| `moves_utils.py` | Direction parsing, normalization, convenience enums |
+| `json_utils.py` | Safe JSON read/write, pretty printing, schema sanity checks |
+| `path_utils.py` | **Lightweight helpers only** (heavyweight project-root logic now lives in `extensions/common/path_utils.py`) |
+| `seed_utils.py` | Project-wide RNG seed control for reproducible runs |
+| `text_utils.py` | Markdown / console colouring, padding, wrapping |
+| `web_utils.py` | Board-state → JSON for browser front-ends |
 
-### **Usage Pattern**
-```python
-# ✅ Each extension version uses common utilities
-# heuristics-v0.03 uses extensions/common/csv_schema.py
-# supervised-v0.02 uses extensions/common/dataset_loader.py
-# But heuristics-v0.03 does NOT import from supervised-v0.02
-```
+### 3. Path Management (Single Source of Truth)
+All non-trivial path logic is consolidated in **`final-decision-6.md`** and its implementation `extensions/common/path_utils.py`.  *Do not* copy `ensure_project_root()` or sibling helpers into extension folders – just import them.
 
-## 🔍 **Validation and Enforcement**
+### 4. Shared Extension Utilities (extensions/common/)
+Cross-extension helpers that don't belong in ROOT:
 
-### **Automated Checks**
-```python
-# Example validation in extensions/common/validation.py # TODO: or maybe a lot valiations scripts in the folder common/validation
-def validate_game_state_schema(game_state: Dict) -> bool:
-    """Validate that game state follows SSOT schema"""
-    required_fields = [
-        'grid_size', 'snake_positions', 'apple_position',
-        'current_direction', 'score', 'steps', 'game_active'
-    ]
-    
-    for field in required_fields:
-        if field not in game_state:
-            raise ValueError(f"Missing required field: {field}")
-    
-    return True
+* `csv_schema.py`, `dataset_loader.py` – dataset definitions & loaders  
+* `validation/` sub-package – reusable data / directory validators  
+* `config/` sub-package – hyper-parameters used by multiple extension families
 
-def validate_coordinate_system(position: Tuple[int, int], grid_size: int) -> bool:
-    """Validate position follows SSOT coordinate system"""
-    x, y = position
-    if not (0 <= x < grid_size and 0 <= y < grid_size):
-        raise ValueError(f"Position {position} outside valid range for grid {grid_size}")
-    
-    return True
-```
+## 🔄 **How to Contribute Without Breaking SSOT**
+1. **Look first** – search for an existing constant/function before adding a new one.
+2. **Prefer import over copy-paste** – keep behaviour changes in one spot.
+3. **If truly new:** place it in the *single* correct location (table above) and document it.
 
-# TODO: or maybe a lot valiations scripts in the folder common/validation
-
-### **Documentation Consistency**
-```python
-# ✅ GOOD: Single source documentation
-# docs/extensions-guideline/coordinate-system.md  (authoritative)
-# All other docs reference this, don't duplicate
-
-# ❌ BAD: Multiple coordinate system explanations
-# Different docs saying different things about coordinates
-```
+> 🛑 **Checklist** – Each time before writing the code, ask yourself:  
+> • Am I duplicating any constant already defined in `ROOT/config/` or `ROOT/extensions/common/`?  
+> • Could this helper live in `ROOT/utils/` or `ROOT/extensions/common/`?  
+> • Does the documentation reference the new SSOT location?
 
 ## 🎯 **Benefits Achieved**
 

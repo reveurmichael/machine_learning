@@ -4,24 +4,6 @@
 
 **Problem**: Multiple interpretations of what constitutes "standalone" behavior.
 
-**Contradictory Statements**:
-- `standalone.md`: "Extension + Common = Standalone"
-- `conceptual-clarity.md`: "Extension folders should be immediately understandable without common utilities"
-- Various files: Different definitions of cross-extension dependencies
-
-**Impact**: Unclear boundaries for code sharing and dependency management.
-
-**Solution**:
-- **Clear Definition**: Standalone = Extension + Common folder only
-- **Forbidden Dependencies**: No direct extension-to-extension imports
-- **Common Folder Role**: Shared utilities only, no algorithmic logic
-- **Visibility Principle**: Core concepts remain visible in extension folders
-
-
-
-
-
-
 
 
 ### **5. Path Management Fragmentation**
@@ -53,6 +35,11 @@
 - **Clear Examples**: Provide consistent factory examples across all documentation
 
 
+do it for all attached md files that touch this topic
+
+
+
+
 
 
 
@@ -75,6 +62,7 @@
   - NPZ Experience: For RL experience replay buffers
 - **Clear Selection Criteria**: When to use each NPZ variant
 
+do it for all attached md files that touch this topic
 
 
 
@@ -97,6 +85,7 @@
 ATETNTION: IN the md files text,  **No NEED TO MENTION Migration Path**: We don't need a process for transitioning existing data.
 
 
+do it for all attached md files that touch this topic
 
 
 
@@ -116,3 +105,6 @@ ATETNTION: IN the md files text,  **No NEED TO MENTION Migration Path**: We don'
 - **Import Format**: Use proper Python import syntax
 - **Consistent References**: All documentation uses the same naming convention
 
+
+
+do it for all attached md files that touch this topic

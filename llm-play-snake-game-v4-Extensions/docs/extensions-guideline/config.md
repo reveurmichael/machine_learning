@@ -10,6 +10,7 @@ The Snake Game AI configuration architecture implements a sophisticated separati
 - **Extension-Specific Constants**: ML, training, and extension utilities in `extensions/common/config/`
 - **Task-0 Isolation**: LLM-specific constants properly isolated with controlled access
 - **Access Control**: Explicit whitelisting prevents inappropriate cross-domain dependencies
+- **Whitelist Clarification**: The term *extensions* below refers to general-purpose families (`heuristics-*`, `supervised-*`, `reinforcement-*`, `evolutionary-*`, `distillation-*`). **Only** LLM-focused families whose folder names start with `agentic-llms-`, `llm-`, or `vision-language-model-` (any version) are permitted to import `config.llm_constants` or `config.prompt_templates`; all other extensions are strictly forbidden.
 
 ## 📁 **Final Configuration Structure**
 

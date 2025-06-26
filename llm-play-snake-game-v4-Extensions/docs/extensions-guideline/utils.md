@@ -201,6 +201,7 @@ from config.game_constants import END_REASON_MAP       # Game termination (all t
 from config.ui_constants import COLORS                 # Visualization (all tasks)
 
 # ✅ LLM-centric extensions (agentic-llms, vision-language-model, etc.) and Task-0 may import LLM constants
+#    (See docs/extensions-guideline/config.md for the authoritative whitelist governing this rule.)
 from config.llm_constants import TEMPERATURE, MAX_TOKENS  # LLM-only
 ```
 

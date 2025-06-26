@@ -223,6 +223,18 @@ AGENTIC_CONFIG = {
 }
 ```
 
+### **LLM Constants Import Whitelist**
+
+> **Authoritative Note**: See `docs/extensions-guideline/config.md` for the full specification of configuration access rules.
+>
+> • **Permitted**: Only extensions whose **folder names start with** `agentic-llms-`, `llm-`, or `vision-language-model-` (any version) may import from `config.llm_constants` or `config.prompt_templates`.
+>
+> • **Forbidden**: All other extension families &mdash; including `heuristics-*`, `supervised-*`, `reinforcement-*`, `evolutionary-*`, and `distillation-*` &mdash; **MUST NOT** import these LLM-specific constants.  They rely exclusively on the universal constants in `ROOT/config/` and any extension-specific constants in `extensions/common/config/`.
+>
+> • **Validation**: The shared helper `extensions.common.validation.validate_config_access()` enforces these rules at import-time to prevent accidental architectural violations.
+
+This whitelist ensures clear architectural boundaries and prevents leakage of Task-0 (LLM-specific) configuration into general-purpose extensions.
+
 ## 🔮 **Future Directions**
 
 ### **Advanced Reasoning Patterns**

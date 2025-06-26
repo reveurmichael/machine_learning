@@ -82,17 +82,17 @@ Task-0 establishes the **canonical data format** that all extensions must mainta
 }
 ```
 
-## TODO
+## 🎯 **Task Overview: Extension Ecosystem**
 
-No need to be long. Be short and concise for this 
+**Task-1 (Heuristics)**: Classical pathfinding algorithms (BFS, A*, DFS, Hamiltonian) demonstrating systematic search strategies and optimal path finding in constrained environments.
 
-TODO: ADD WHAT TASK-1 IS LIKE, THE GENERAL IDEA.
-TODO: ADD WHAT TASK-2 IS LIKE, THE GENERAL IDEA.
-TODO: ADD WHAT TASK-3 IS LIKE, THE GENERAL IDEA.
-TODO: ADD WHAT TASK-4 IS LIKE, THE GENERAL IDEA.
-TODO: ADD WHAT TASK-5 IS LIKE, THE GENERAL IDEA.
+**Task-2 (Supervised Learning)**: Machine learning models trained on heuristic-generated datasets, showing how to learn from expert demonstrations using neural networks and tree-based models.
 
-No need to be long. Be short and concise for this 
+**Task-3 (Reinforcement Learning)**: RL agents learning through trial-and-error using algorithms like Q-Learning and DQN, demonstrating autonomous learning in game environments.
+
+**Task-4 (LLM Fine-Tuning)**: Specialized language models fine-tuned on Snake Game data, showing how to adapt pre-trained models for specific reasoning tasks.
+
+**Task-5 (LLM Distillation)**: Knowledge distillation techniques transferring insights from large models to smaller, more efficient ones for deployment.
 
 ## 🔗 **Extension Integration Pattern**
 

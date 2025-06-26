@@ -69,30 +69,6 @@ dataset_path = get_dataset_path(
 )
 ```
 
-## 📚 **Simple Documentation**
-
-### **Clear, Concise Docstrings**
-```python
-def plan_move(self, game_state: Dict[str, Any]) -> str:
-    """
-    Plan next move using BFS algorithm.
-    
-    Args:
-        game_state: Current game state
-        
-    Returns:
-        Next move direction (UP, DOWN, LEFT, RIGHT)
-    """
-    # Simple, readable implementation
-    path = self.find_path(game_state)
-    return path[0] if path else "NONE"
-```
-
-### **No Over-Documentation**
-- **Purpose**: What the function does
-- **Parameters**: What it expects
-- **Returns**: What it gives back
-- **No**: Long explanations, design pattern discussions, educational notes
 
 ## 🔧 **Simple Implementation**
 
@@ -128,26 +104,6 @@ snake_positions = {
 }
 ```
 
-## 🎯 **Simple Extension Structure**
-
-### **Minimal File Count**
-```
-extensions/heuristics-v0.02/
-├── agents/
-│   ├── __init__.py
-│   ├── agent_bfs.py
-│   └── agent_astar.py
-├── game_logic.py
-├── game_manager.py
-└── main.py
-```
-
-### **No Unnecessary Abstractions**
-- **No**: Abstract base classes for simple functionality
-- **No**: Complex inheritance hierarchies
-- **No**: Multiple layers of indirection
-- **Yes**: Direct, clear implementations
-
 ## 🚫 **What to Avoid**
 
 ### **Over-Engineering**
@@ -181,19 +137,6 @@ extensions/heuristics-v0.02/
 - **Yes**: Single-purpose external libraries
 - **Yes**: Clear dependency boundaries
 - **Yes**: Minimal import statements
-
-### **Straightforward Testing**
-- **Yes**: Simple unit tests
-- **Yes**: Clear test names
-- **Yes**: Minimal test setup
-- **Yes**: Direct assertions
-
-## 🔗 **See Also**
-
-- **`config.md`**: Simple configuration patterns
-- **`unified-path-management-guide.md`**: Simple path management
-- **`unified-factory-pattern-guide.md`**: Simple factory patterns
-- **`final-decision-10.md`**: GOOD_RULES - Authoritative, comprehensive reference
 
 ---
 

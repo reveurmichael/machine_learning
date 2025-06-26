@@ -66,7 +66,7 @@ For GOOD_RULES references:
 - 📖 **Reference**: See `final-decision-10.md` for GOOD_RULES system details
 
 ### **Documentation Hierarchy Navigation**
-Empty markdown files in `ROOT/docs/extensions-guidelines/` should be ignored during navigation. Focus on substantive documentation with architectural content.
+Empty markdown files in `ROOT/docs/extensions-guideline/` should be ignored during navigation. Focus on substantive documentation with architectural content.
 
 ---
 

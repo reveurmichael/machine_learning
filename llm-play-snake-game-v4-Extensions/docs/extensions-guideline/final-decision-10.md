@@ -5,7 +5,7 @@ THOSE FILES ARE CALLED SUPREME_RULES, that are GOLDEN STANDARD FOR THE WHOLE PRO
 
 SUPREME_RULES is like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CIBINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATION + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + GENESIS OF BIG BANG OF THE PROJECT, AND HAVE THE FINAL SAY ON EVERYTHING.
 
-SUPREME_RULES NO.1 is: when updating markdown files in "./docs/extensions-guidelines/", make sure to read all markdown files in "./docs/extensions-guidelines/" first.
+SUPREME_RULES NO.1 is: when updating markdown files in "./docs/extensions-guideline/", make sure to read all markdown files in "./docs/extensions-guideline/" first.
 
 
 SUPREME_RULES NO.2 is: When citing Final Decision documents, use the precise format`final-decision-N.md`; Don't use "Final Decision N", "FD-N", "final-decision-N".

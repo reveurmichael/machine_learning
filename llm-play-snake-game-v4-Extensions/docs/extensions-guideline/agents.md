@@ -1,8 +1,8 @@
-# Agent Implementation Standards
+# Agent Implementation Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `extension-evolution-rules.md`. Any conflicting information must defer to those definitive documents.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `extension-evolution-rules.md`, establishing comprehensive agent implementation standards.
 
-This document establishes agent naming conventions and implementation patterns for all extensions.
+This document defines the authoritative agent naming conventions, implementation patterns, and architectural standards that ensure consistency, educational value, and maintainability across all Snake Game AI extensions.
 
 ## 🎯 **Standardized Naming Convention**
 

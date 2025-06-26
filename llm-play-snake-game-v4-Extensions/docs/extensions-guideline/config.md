@@ -1,13 +1,15 @@
-# Configuration Architecture
+# Configuration Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `final-decision-2.md`. Any conflicting information must defer to those definitive documents.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `final-decision-2.md`, establishing comprehensive configuration management standards.
 
-## 🎯 **Configuration Philosophy**
+## 🎯 **Configuration Philosophy: Single Source of Truth with Clear Separation**
 
-The configuration architecture follows a **clear separation model**:
-- **Universal constants** (used by all tasks) in `ROOT/config/`
-- **Extension-specific constants** in `extensions/common/config/`
-- **Task-0 specific constants** remain isolated
+The Snake Game AI configuration architecture implements a sophisticated separation model that ensures consistency, prevents pollution, and enables scalable extension development:
+
+- **Universal Constants**: Core game rules and shared settings in `ROOT/config/`
+- **Extension-Specific Constants**: ML, training, and extension utilities in `extensions/common/config/`
+- **Task-0 Isolation**: LLM-specific constants properly isolated with controlled access
+- **Access Control**: Explicit whitelisting prevents inappropriate cross-domain dependencies
 
 ## 📁 **Final Configuration Structure**
 

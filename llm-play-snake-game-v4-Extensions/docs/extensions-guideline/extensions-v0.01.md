@@ -1,318 +1,249 @@
-# Extensions v0.01: Foundation & Proof of Concept
+# Extensions v0.01 - Foundation Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and establishes foundational patterns for all extension development.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows SUPREME_RULE NO.3 for educational flexibility.
 
-## 🎯 **Core Philosophy: Simplicity & Proof of Concept**
+## 🎯 **SUPREME_RULES: Educational Flexibility & OOP Design**
 
-Extensions v0.01 serve as the **foundational proof of concept** that demonstrates how the Task-0 base class architecture seamlessly adapts to different algorithm types. This version intentionally maintains extreme simplicity while proving that:
+**SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
-- **Base Class Abstraction**: Task-0's core infrastructure works perfectly for alternative algorithms
-- **Extension Reusability**: Core systems require no modification for new algorithm types
-- **Consistent Patterns**: Each algorithm type implements its specific logic while maintaining architectural coherence
-- **Educational Value**: Clear demonstration of inheritance and abstraction principles
+**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
 
-## 🏗️ **Universal v0.01 Characteristics**
+**Educational Philosophy**: v0.01 extensions serve as proof-of-concept implementations that encourage experimentation and learning. The architecture supports any algorithm type without artificial restrictions. The OOP design in common utilities enables both standard usage and specialized customization when needed.
 
-All v0.01 extensions, regardless of algorithm type, share these fundamental traits:
+## 🏗️ **Foundation Architecture**
 
-### **Architectural Simplicity**
+### **Core Philosophy: Proof of Concept**
+v0.01 extensions demonstrate:
 - **Single Algorithm Focus**: One primary algorithm per extension
-- **Minimal Complexity**: No command-line arguments or complex configuration
-- **Console Output Only**: Pure console interaction, no GUI components
-- **Direct Inheritance**: Extends base classes without modification
+- **Minimal Viable Implementation**: Core functionality without complexity
+- **Educational Clarity**: Clear, understandable code structure
+- **Extensibility Foundation**: Prepared for future algorithm additions
 
-### **Implementation Constraints**
-- **No Web Interface**: GUI development deferred to v0.03
-- **Limited Configuration**: Hardcoded parameters for simplicity
-- **Basic Logging**: Essential JSON output following established schemas
-- **Proof of Concept Scope**: Demonstrates viability without production features
-
-## 🔧 **Algorithm-Specific Implementations**
-
-### **Heuristics v0.01: Pathfinding Foundation**
-
-**Location**: `./extensions/heuristics-v0.01`
-
-**Core Algorithm**: Breadth-First Search (BFS) pathfinding
-
-#### **Directory Structure**
-```
-./extensions/heuristics-v0.01/
-├── __init__.py                    # Package initialization
-├── main.py                        # Simple entry point (no arguments)
-├── agent_bfs.py                   # ✅ Single BFS agent in extension root
-├── game_logic.py                  # Extends BaseGameLogic for pathfinding
-├── game_manager.py                # Extends BaseGameManager for heuristics
-└── README.md                      # Extension documentation
-```
-
-#### **Key Features**
-- **Pure BFS Implementation**: Classic breadth-first search pathfinding
-- **Grid-Based Navigation**: Optimal path calculation on game board
-- **Obstacle Avoidance**: Smart navigation around snake body
-- **Apple Targeting**: Direct pathfinding to food locations
-
-#### **Usage Pattern**
-```bash
-# Simple execution - no arguments required
-cd extensions/heuristics-v0.01
-python main.py
-```
-
-#### **Generated Output**
-- Game JSON files with pathfinding decisions
-- Summary statistics for BFS performance
-- Console logging of pathfinding operations
-
-### **Supervised Learning v0.01: Neural Network Foundation**
-
-**Location**: `./extensions/supervised-v0.01`
-
-**Core Approach**: PyTorch-based neural network implementations
-
-#### **Directory Structure**
-```
-./extensions/supervised-v0.01/
-├── __init__.py                    # Package initialization
-├── agent_neural.py                # Neural network agent architectures
-├── train.py                       # Training script
-├── game_logic.py                  # Extends BaseGameLogic for ML agents
-├── game_manager.py                # Extends BaseGameManager for evaluation
-└── README.md                      # Extension documentation
-```
-
-#### **Neural Architectures**
-- **Multi-Layer Perceptron (MLP)**: Tabular data processing
-- **Convolutional Neural Network (CNN)**: Spatial board representation
-- **Recurrent Neural Networks (LSTM/GRU)**: Sequential pattern recognition
-
-#### **Data Integration**
-- **Dataset Consumption**: Loads datasets from heuristics extensions
-- **Multiple Formats**: Supports CSV (tabular), NPZ (sequential/spatial)
-- **Cross-Grid Compatibility**: Works with different board sizes
-- **Performance Evaluation**: Benchmarks against heuristic baselines
-
-#### **Training Workflow**
-```bash
-# Train MLP on tabular features
-python train.py --model MLP --dataset-path ../heuristics-v0.03/datasets/tabular_data.csv
-
-# Train CNN on spatial representation
-python train.py --model CNN --dataset-path ../heuristics-v0.03/datasets/spatial_data.npz
-
-# Train LSTM on sequential data
-python train.py --model LSTM --dataset-path ../heuristics-v0.03/datasets/sequential_data.npz
-```
-
-### **Reinforcement Learning v0.01: Value-Based Learning**
-
-**Location**: `./extensions/reinforcement-v0.01`
-
-**Core Algorithm**: Deep Q-Network (DQN) implementation
-
-#### **Directory Structure**
-```
-./extensions/reinforcement-v0.01/
-├── __init__.py                    # Package initialization
-├── agent_dqn.py                   # DQN agent implementation
-├── train.py                       # RL training script
-├── game_logic.py                  # Extends BaseGameLogic for RL
-├── game_manager.py                # Extends BaseGameManager for RL
-└── README.md                      # Extension documentation
-```
-
-#### **RL Components**
-- **Deep Q-Network**: Neural network for value function approximation
-- **Experience Replay**: Buffer for storing and sampling experiences
-- **Epsilon-Greedy**: Exploration strategy for action selection
-- **Target Network**: Stable target for Q-learning updates
-
-#### **Training Features**
-- **Environment Integration**: Uses Snake game as RL environment
-- **Reward Shaping**: Custom reward function for game performance
-- **Training Metrics**: Episode rewards, loss tracking, exploration rate
-- **Model Persistence**: Save/load trained DQN models
-
-## 🎯 **Base Class Integration Pattern**
-
-All v0.01 extensions demonstrate **perfect base class reuse** through inheritance:
-
-### **Heuristics Integration Example**
+### **Flexible Algorithm Support (Following SUPREME_RULE NO.3)**
 ```python
-from core.game_manager import BaseGameManager
-from core.game_logic import BaseGameLogic
+# ✅ FLEXIBLE: Extensions can implement any algorithm
+class AnyAlgorithmAgent(BaseAgent):
+    """
+    Educational Note (SUPREME_RULE NO.3):
+    Extensions can implement any algorithm without restrictions.
+    This encourages experimentation and creative problem-solving.
+    """
+    
+    def plan_move(self, game_state):
+        # Any algorithm implementation welcome
+        return self.your_creative_algorithm(game_state)
+```
+
+**No Algorithm Restrictions**: Following SUPREME_RULE NO.3, extensions can implement any algorithm approach - pathfinding, machine learning, evolutionary, rule-based, or novel approaches.
+
+### **Common Utilities Usage (Following SUPREME_RULE NO.4)**
+```python
+# ✅ STANDARD USAGE: Most v0.01 extensions use common utilities as-is
+from extensions.common.path_utils import ensure_project_root, get_dataset_path
+from extensions.common.csv_schema import TabularFeatureExtractor
+from extensions.common.dataset_loader import BaseDatasetLoader
+
+# Standard usage - works for most extensions
+project_root = ensure_project_root()
+extractor = TabularFeatureExtractor()
+loader = BaseDatasetLoader(config)
+
+# ✅ SPECIALIZED USAGE: If needed, inherit for exceptional requirements
+class CustomFeatureExtractor(TabularFeatureExtractor):
+    """
+    Educational Note (SUPREME_RULE NO.4):
+    When standard features aren't sufficient, inherit and customize.
+    Most extensions won't need this - only for exceptional cases.
+    """
+    
+    def _extract_extension_specific_features(self, game_state):
+        # Add custom features for specialized algorithms
+        return {"custom_metric": self._calculate_custom_metric(game_state)}
+```
+
+## 📁 **Directory Structure Template**
+
+### **Standard v0.01 Pattern**
+```
+extensions/{algorithm}-v0.01/
+├── __init__.py
+├── agent_{algorithm}.py        # Primary algorithm implementation
+├── game_logic.py              # Extension-specific game logic
+├── game_manager.py            # Session management
+├── main.py                    # CLI entry point
+└── README.md                  # Algorithm documentation
+```
+
+### **Flexible Naming (Following SUPREME_RULE NO.3)**
+- **Extension Types**: Any descriptive name (heuristics, supervised, reinforcement, evolutionary, custom, experimental, etc.)
+- **Algorithm Names**: Any algorithm identifier following `agent_{name}.py` pattern
+- **Version Numbers**: Any version following `v0.01` pattern
+
+**Educational Value**: This simple structure makes it easy to understand the core components while providing a foundation for future expansion.
+
+## 🔧 **Implementation Patterns**
+
+### **Agent Implementation Template**
+```python
 from core.game_agents import BaseAgent
 
-class HeuristicGameManager(BaseGameManager):
+class YourAlgorithmAgent(BaseAgent):
     """
-    Heuristic game manager extending base functionality
+    Proof-of-concept implementation for [Your Algorithm].
     
-    Design Pattern: Template Method Pattern
-    - Inherits complete session management from BaseGameManager
-    - Adds pathfinding-specific extensions
-    - Maintains compatibility with base infrastructure
-    """
+    Educational Note (SUPREME_RULE NO.3):
+    This template supports any algorithm approach. Feel free to:
+    - Implement novel pathfinding strategies
+    - Try machine learning approaches
+    - Experiment with rule-based systems
+    - Create hybrid algorithms
+    - Test theoretical concepts
     
-    GAME_LOGIC_CLS = HeuristicGameLogic  # Factory pattern
-    
-    def __init__(self, args):
-        super().__init__(args)  # Inherits all base functionality
-        self.pathfinder = BFSPathfinder()  # Heuristic-specific addition
-
-class HeuristicGameLogic(BaseGameLogic):
-    """
-    Game logic for heuristic pathfinding algorithms
-    
-    Design Pattern: Strategy Pattern
-    - Different pathfinding algorithms as strategies
-    - Consistent interface through BaseGameLogic
-    - Pluggable algorithm selection
+    The system is designed to be flexible and encourage innovation.
     """
     
-    GAME_DATA_CLS = GameData  # Uses base game data
+    def __init__(self, name: str, grid_size: int):
+        super().__init__(name, grid_size)
+        self.algorithm_name = name
+        # Add your algorithm-specific initialization
+        
+    def plan_move(self, game_state: Dict[str, Any]) -> str:
+        """
+        Plan next move using your algorithm.
+        
+        Following SUPREME_RULE NO.3, this can be any algorithm:
+        - Pathfinding (BFS, A*, Dijkstra, custom)
+        - Machine learning (neural networks, decision trees)
+        - Evolutionary (genetic algorithms, swarm intelligence)
+        - Rule-based (expert systems, fuzzy logic)
+        - Hybrid approaches combining multiple techniques
+        """
+        # Your algorithm implementation here
+        return self.your_algorithm_logic(game_state)
     
-    def plan_next_moves(self):
-        """Implement pathfinding-specific planning"""
-        current_state = self.get_state_snapshot()
-        path = self.pathfinder.find_path(current_state)
-        self.planned_moves = path
+    def reset(self) -> None:
+        """Reset algorithm state for new game."""
+        # Reset any algorithm-specific state
+        pass
 ```
 
-### **Supervised Learning Integration Example**
+### **Game Logic Integration**
 ```python
-class SupervisedGameManager(BaseGameManager):
-    """
-    Supervised learning manager for trained model evaluation
-    
-    Design Pattern: Strategy Pattern
-    - Different ML models as strategies  
-    - Consistent evaluation interface
-    - Model persistence and loading
-    """
-    
-    GAME_LOGIC_CLS = SupervisedGameLogic
-    
-    def __init__(self, args):
-        super().__init__(args)
-        self.model = self.load_trained_model(args.model_path)
+from core.game_logic import BaseGameLogic
 
-class SupervisedGameLogic(BaseGameLogic):
+class YourExtensionGameLogic(BaseGameLogic):
     """
-    Game logic for supervised learning model inference
+    Extension-specific game logic for [Your Algorithm].
     
-    Educational Value:
-    Demonstrates how trained models can be integrated into
-    the same infrastructure used for heuristics and RL
+    Educational Note (SUPREME_RULE NO.3):
+    Customize game logic for your specific algorithm needs:
+    - Add algorithm-specific state tracking
+    - Implement custom move validation
+    - Include performance metrics
+    - Add debugging capabilities
     """
     
+    def __init__(self, grid_size=10, use_gui=True):
+        super().__init__(grid_size, use_gui)
+        # Add your extension-specific initialization
+        
     def plan_next_moves(self):
-        """Use trained model for move prediction"""
-        features = self.extract_features()
-        prediction = self.model.predict(features)
-        move = self.prediction_to_move(prediction)
-        self.planned_moves = [move]
+        """Plan moves using your algorithm agent."""
+        # Integration with your agent implementation
+        pass
 ```
 
-## 🧠 **Educational Design Patterns**
+## 🚀 **Benefits of v0.01 Pattern**
 
-### **Template Method Pattern**
-Base classes define the algorithm structure, extensions implement specifics:
-- **BaseGameManager**: Session management template
-- **BaseGameLogic**: Planning workflow template  
-- **BaseAgent**: Agent interface template
-
-### **Factory Pattern**
-Dynamic component creation through class attributes:
-- **GAME_LOGIC_CLS**: Pluggable game logic implementations
-- **GAME_DATA_CLS**: Configurable data containers
-- **Agent creation**: Runtime algorithm selection
-
-### **Strategy Pattern**
-Interchangeable algorithm implementations:
-- **Pathfinding strategies**: BFS, A*, DFS algorithms
-- **ML model strategies**: MLP, CNN, LSTM architectures
-- **RL strategies**: DQN, PPO, A3C algorithms
-
-## 📋 **Implementation Standards**
-
-### **Universal Requirements**
-- [ ] **Base Class Extension**: Inherits from appropriate base classes
-- [ ] **Minimal Complexity**: Proof of concept simplicity
-- [ ] **Console Interface**: `python main.py` execution
-- [ ] **Valid JSON Output**: Follows established log schemas
-- [ ] **No GUI Components**: Console-only interaction
-- [ ] **Clear Documentation**: Purpose and usage instructions
-
-### **Heuristics-Specific Requirements**
-- [ ] **Single BFS Agent**: File named `agent_bfs.py`
-- [ ] **BFSAgent Class**: Extends `BaseAgent` interface
-- [ ] **Pathfinding Logic**: Grid-based navigation implementation
-- [ ] **Extension Logging**: Outputs to extensions directory structure
-
-### **Supervised Learning Requirements**
-- [ ] **PyTorch Implementation**: Neural network frameworks only
-- [ ] **Dataset Integration**: Loads data from heuristics extensions
-- [ ] **Multiple Architectures**: MLP, CNN, LSTM implementations
-- [ ] **Training Pipeline**: Complete train/validate/test workflow
-
-### **Reinforcement Learning Requirements**
-- [ ] **DQN Implementation**: Deep Q-Network algorithm
-- [ ] **Experience Replay**: Training data management
-- [ ] **Environment Integration**: Snake game as RL environment
-- [ ] **Training Metrics**: Performance and learning progress tracking
-
-## 🚀 **Evolution Pathway**
-
-v0.01 extensions establish the foundation for natural software evolution:
-
-### **v0.01 → v0.02 Evolution**
-- **Heuristics**: Single BFS → Multiple algorithms (A*, DFS, Hamiltonian)
-- **Supervised**: Basic neural networks → Comprehensive ML suite (XGBoost, LightGBM, etc.)
-- **Reinforcement**: Single DQN → Multiple RL algorithms (PPO, A3C, etc.)
-
-### **v0.02 → v0.03 Evolution**
-- **All Extensions**: CLI-only → Streamlit web interfaces
-- **All Extensions**: Basic logging → Dataset generation capabilities
-- **All Extensions**: Simple structure → Organized dashboard components
-
-### **v0.03 → v0.04 Evolution** (Heuristics Only)
-- **Heuristics**: Numerical datasets → Language-rich JSONL for LLM fine-tuning
-- **Others**: v0.03 remains the final version (no v0.04)
-
-## 🎯 **Success Criteria**
-
-A successful v0.01 extension demonstrates:
-
-1. **Architectural Validation**: Proves base class abstraction works for the algorithm type
-2. **Functional Output**: Generates valid logs following established schemas
-3. **Clear Evolution Path**: Shows obvious progression to v0.02 complexity
-4. **Code Simplicity**: Maintains readability and educational value
-5. **Infrastructure Reuse**: Maximizes use of existing Task-0 components
-6. **Documentation Quality**: Clear explanations of design decisions
-
-## 🔗 **Integration Benefits**
+### **Educational Advantages**
+- **Clear Learning Path**: Simple structure easy to understand
+- **Minimal Complexity**: Focus on algorithm implementation
+- **Rapid Prototyping**: Quick proof-of-concept development
+- **Foundation Building**: Prepares for more complex versions
 
 ### **Technical Benefits**
-- **Proven Architecture**: Validates design patterns across algorithm types
-- **Code Reuse**: Minimizes duplication through inheritance
-- **Consistent Interface**: Uniform behavior across different approaches
-- **Easy Extension**: Clear patterns for adding new algorithms
+- **Clean Architecture**: Inherits from proven base classes
+- **Consistent Interface**: Works with existing game framework
+- **Easy Testing**: Simple structure enables focused testing
+- **Future-Ready**: Designed for expansion in v0.02+
 
-### **Educational Benefits**
-- **Design Pattern Demonstration**: Real-world application of software patterns
-- **Inheritance Principles**: Shows proper use of object-oriented design
-- **Abstraction Examples**: Demonstrates separation between interface and implementation
-- **Progressive Complexity**: Natural learning progression from simple to sophisticated
+### **Flexibility (SUPREME_RULE NO.3)**
+- **No Algorithm Restrictions**: Implement any approach
+- **Custom Extensions**: Create entirely new extension types
+- **Experimental Freedom**: Try novel ideas without constraints
+- **Rapid Iteration**: Easy to modify and improve
 
-### **Development Benefits**
-- **Rapid Prototyping**: Quick validation of new algorithm concepts
-- **Consistent Testing**: Same testing patterns across all algorithm types
-- **Predictable Behavior**: Shared infrastructure ensures reliable operation
-- **Maintenance Efficiency**: Changes to base classes benefit all extensions
+## 📊 **Configuration and Usage**
+
+### **Flexible Configuration Pattern**
+```python
+# Following SUPREME_RULE NO.3: No restrictive configuration
+def create_agent(algorithm: str, grid_size: int, **kwargs):
+    """
+    Create agent with flexible configuration.
+    
+    Educational Note (SUPREME_RULE NO.3):
+    This function accepts any algorithm name and configuration,
+    encouraging experimentation with new approaches.
+    """
+    try:
+        # Dynamic agent creation - no hard-coded restrictions
+        agent_class = import_agent_class(algorithm)
+        return agent_class(grid_size=grid_size, **kwargs)
+    except ImportError:
+        available = list_available_algorithms()
+        raise ValueError(f"Algorithm '{algorithm}' not found. "
+                        f"Available: {available}. "
+                        f"Following SUPREME_RULE NO.3, you can easily add new algorithms!")
+```
+
+### **Example Usage**
+```bash
+# Any algorithm can be implemented and used
+python main.py --algorithm your_custom_algorithm --grid-size 10
+python main.py --algorithm experimental_approach --grid-size 12
+python main.py --algorithm novel_pathfinding --grid-size 16
+```
+
+## 🎓 **Educational Value**
+
+### **Learning Objectives**
+- **Algorithm Implementation**: Practice implementing algorithms from scratch
+- **Software Architecture**: Understand inheritance and design patterns
+- **Problem Solving**: Apply algorithms to concrete problems
+- **Experimentation**: Encourage trying new approaches
+
+### **Research Applications**
+- **Algorithm Comparison**: Easy to compare different approaches
+- **Performance Analysis**: Built-in metrics and logging
+- **Educational Demonstrations**: Clear examples for teaching
+- **Innovation Platform**: Foundation for novel algorithm development
+
+## 🔮 **Evolution Path**
+
+### **v0.01 → v0.02 Evolution**
+- **Single Algorithm**: v0.01 focuses on one primary algorithm
+- **Multi-Algorithm**: v0.02 expands to multiple related algorithms
+- **Agent Organization**: v0.02 introduces `agents/` directory structure
+- **Factory Patterns**: v0.02 adds agent factory for dynamic creation
+
+### **Preparation for Growth**
+v0.01 extensions are designed to evolve naturally:
+- **Inheritance Ready**: Base classes support extension
+- **Modular Design**: Easy to add new components
+- **Consistent Patterns**: Smooth transition to complex versions
+- **Educational Continuity**: Learning builds progressively
+
+## 🔗 **See Also**
+
+- **`extensions-v0.02.md`**: Multi-algorithm expansion patterns
+- **`core.md`**: Base class architecture documentation
+- **`final-decision-10.md`**: SUPREME_RULE NO.3 specification
+- **`config.md`**: Configuration architecture guidelines
 
 ---
 
-**Extensions v0.01 represent the crucial foundation that validates our architectural decisions and establishes the patterns that will scale to more sophisticated implementations. They prove that good design enables both simplicity and extensibility.**
+**v0.01 extensions provide the perfect starting point for algorithm exploration, combining educational clarity with the flexibility needed for innovation. Following SUPREME_RULE NO.3, they encourage experimentation and creative problem-solving while establishing solid architectural foundations.**
 
 
 

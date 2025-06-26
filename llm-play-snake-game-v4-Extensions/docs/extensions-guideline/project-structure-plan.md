@@ -1,181 +1,306 @@
-> **Important — Authoritative Reference:** This planning document is subordinate to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). Any conflicting guidance must follow the Final Decision documents.
+# Project Structure Plan for Snake Game AI Extensions
 
-# Project Structure Plan – Extensions & Multi-Task Architecture
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows SUPREME_RULE NO.3 for educational flexibility.
 
-This document provides the blueprint for building robust, extensible Snake AI extensions from heuristics to neural networks to LLM fine-tuning.
+## 🎯 **SUPREME_RULES: Educational Flexibility & OOP Extensibility**
 
-## 🎯 **Core Philosophy: First-Citizen vs Second-Citizen**
+**SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
-**Guiding Principle: "Task-0 first, everything else second."**
+**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
 
-1. **Task-0 (LLM Snake)** is the *first-citizen* – our flagship production system that must always compile, run, and deliver the core "LLM plays Snake" experience. It owns the `master` branch and defines architectural patterns.
+**Core Philosophy**: The project structure is designed to encourage experimentation, rapid prototyping, and educational exploration while maintaining clean architecture and code reusability. The OOP design enables both standard usage and specialized customization when needed.
 
-2. **Task 1-5** are *second-citizens* – experimental research tracks that live alongside Task-0 but can never break or degrade its stability. They import from Task-0 modules (`core/`, `gui/`, `utils/`) but never the reverse.
-
-3. **Dependency Direction**: Second-citizens extend Task-0's base classes but Task-0 remains completely unaware of their existence.
-
-## 🎮 **Task Overview & Data Flow**
-
-| Task | Role | Key Output | Feeds Into |
-|------|------|------------|------------|
-| **0** | LLM Snake (First-Citizen) | Game sessions, replays | *Foundation for all* |
-| **1** | Heuristic Agents | CSV datasets, **JSONL trajectories** | Task 2, 4, 5 |
-| **2** | Supervised Learning | Trained models (PyTorch, XGBoost, etc.) | *Performance baselines* |
-| **3** | Reinforcement Learning | RL agents (DQN, PPO, SAC) | *Alternative policies* |
-| **4** | LLM Fine-tuning | LoRA-tuned models | Task 5 |
-| **5** | Knowledge Distillation | Compressed student models | *Deployment-ready agents* |
-
-**Critical Data Dependencies:**
-- **Task 4 & 5** depend entirely on **heuristics-v0.04** JSONL outputs
-- **Task 2** trains on heuristics CSV datasets
-- **Task 3** can use heuristics for curriculum learning
-
-## 📁 **Repository Architecture**
+## 🏗️ **High-Level Architecture Overview**
 
 ```
-ROOT/
-├── core/                    # 🏛️ First-citizen engine (Task-0)
-│   ├── game_*.py           # BaseGameManager, BaseGameLogic, etc.
-│   └── agents.py           # BaseAgent protocol (universal interface)
-│
-├── gui/                     # 🎨 First-citizen visualization  
-│   ├── base_gui.py         # BaseGUI (extensible by second-citizens)
-│   ├── game_gui.py         # Task-0 PyGame implementation
-│   └── replay_gui.py       # Task-0 replay viewer
-│
-├── llm/                     # 🤖 First-citizen LLM integration
-│   ├── agent_llm.py        # LLM implementation of BaseAgent
-│   └── providers/          # LLM provider abstractions
-│
-├── web/                     # 🌐 First-citizen Flask site
-│   ├── templates/          # Task-0 web interface
-│   └── static/             # Task-0 assets
-│
-├── extensions/              # 🧪 Second-citizen research tracks
-│   ├── common/             # Shared utilities (non-essential)
-│   ├── heuristics-v0.0X/   # Task-1: Classical algorithms
-│   ├── supervised-v0.0X/   # Task-2: Neural networks
-│   ├── reinforcement-v0.0X/# Task-3: RL agents  
-│   ├── llm-finetune-v0.0X/ # Task-4: LLM fine-tuning
-│   └── distillation-v0.0X/ # Task-5: Knowledge distillation
-│
-└── logs/                    # 📊 Data & artifacts
-    ├── [task-0-sessions]/  # First-citizen logs  
-    └── extensions/         # Second-citizen outputs
-        ├── datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/
-        └── models/grid-size-N/{extension_type}_v{version}_{timestamp}/{model_name}/model_artifacts/
+ROOT/                                    # Task-0 (LLM-based Snake AI)
+├── core/                               # Base classes for all tasks
+├── config/                             # Universal constants
+├── extensions/                         # Task 1-5 implementations
+│   ├── common/                         # Shared utilities (following SUPREME_RULE NO.3)
+│   ├── {algorithm}-v{version}/         # Flexible extension naming
+│   └── [any new extension type]/       # Unlimited extensibility
+├── gui/                                # GUI components
+├── web/                                # Web interface
+├── replay/                             # Replay system
+├── scripts/                            # Entry points
+└── docs/                               # Documentation
+
+# Educational Note (SUPREME_RULE NO.3):
+# Extensions can be any algorithm type - heuristics, ML, RL, evolutionary,
+# custom approaches, experimental ideas, or novel research directions.
 ```
 
-## 🏗️ **Mandatory Extension Components**
+## 📁 **Extension Structure Template (Flexible)**
 
-Every standalone extension (v0.02+) **must** include:
-
-| Component | Versions | Purpose |
-|-----------|----------|---------|
-| **`README.md`** | v0.02+ | Documentation entrypoint, quick-start guide |
-| **`agents/`** | v0.02+ | Policy implementations (`agent_<algo>.py`) |
-| **`dashboard/`** | v0.03+ | Streamlit UI components |
-| **`scripts/`** | v0.03+ | CLI tools + `app.py` launcher |
-
-**Evolution Pattern:**
-- **v0.01**: Proof-of-concept (minimal structure)
-- **v0.02**: Multi-algorithm support (`agents/` folder)  
-- **v0.03**: Web dashboards (`dashboard/`, `scripts/`)
-- **v0.04**: JSONL generation (*heuristics only*)
-
-## 🔄 **Data Lineage & Storage**
-
-### **Standardized Paths**
+### **Universal Extension Pattern**
 ```
-logs/extensions/
-├── datasets/grid-size-N/           # 📊 Training datasets  
-│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/tabular_data.csv
-│   ├── heuristics_v0.03_20250625_143022/bfs/processed_data/sequential_data.npz
-│   └── heuristics_v0.04_20250625_143022/bfs/processed_data/reasoning_data.jsonl
-│
-└── models/grid-size-N/             # 🧠 Trained models
-    ├── pytorch/                    # Neural networks
-    ├── lightgbm/                   # Tree models  
-    └── transformers/               # Fine-tuned LLMs
+extensions/{extension_type}-v{version}/
+├── __init__.py
+├── agents/                             # Algorithm implementations (v0.02+)
+│   ├── __init__.py                     # Agent factory
+│   ├── agent_{algorithm1}.py           # Any algorithm approach
+│   ├── agent_{algorithm2}.py           # Following SUPREME_RULE NO.3
+│   └── agent_{algorithmN}.py           # Unlimited algorithm variety
+├── dashboard/                          # UI components (v0.03+)
+├── scripts/                            # CLI entry points (v0.03+)
+├── game_logic.py                       # Extension-specific logic
+├── game_manager.py                     # Session management
+└── README.md                           # Documentation
+
+# Educational Note (SUPREME_RULE NO.3):
+# - {extension_type}: Any descriptive name (heuristics, supervised, custom, experimental)
+# - {algorithm}: Any algorithm following agent_{name}.py pattern
+# - No restrictions on algorithm types or approaches
 ```
 
-### **Critical Dependencies**
-**heuristics-v0.04** → **JSONL trajectories** → **Task 4 & 5**
+## 🎯 **Core Design Principles**
 
+### **1. Educational Flexibility (SUPREME_RULE NO.3)**
+- **No Algorithm Restrictions**: Extensions can implement any approach
+- **Rapid Prototyping**: Easy to create and test new ideas
+- **Experimental Freedom**: Encourage novel and creative solutions
+- **Learning-Focused**: Structure supports educational exploration
 
-Without heuristics-v0.04 JSONL output, Task 4 (LLM fine-tuning) and Task 5 (distillation) cannot begin. This creates a clear dependency chain that ensures data quality and consistency.
+### **2. Inheritance-Based Architecture**
+```python
+# Perfect inheritance hierarchy enabling any algorithm type
+BaseGameManager → YourCustomGameManager
+BaseGameLogic → YourCustomGameLogic  
+BaseAgent → YourCustomAgent
 
+# Educational Note (SUPREME_RULE NO.3):
+# Base classes are designed to support ANY algorithm approach:
+# - Pathfinding algorithms
+# - Machine learning models
+# - Evolutionary algorithms
+# - Rule-based systems
+# - Hybrid approaches
+# - Novel research ideas
+```
 
-## 🎯 Extension Deep Dive
+### **3. Shared Utilities (Non-Restrictive & OOP)**
+```python
+# extensions/common/ - Flexible utilities following SUPREME_RULE NO.3 & NO.4
+from extensions.common.path_utils import get_dataset_path
+from extensions.common.dataset_loader import BaseDatasetLoader
+from extensions.common.validation import ExtensionValidator
 
-### 🧠 Task 1: Heuristic Agents
+# Educational Note (SUPREME_RULE NO.3):
+# Common utilities are designed to be flexible and non-restrictive,
+# supporting any extension type without artificial limitations.
 
-**Algorithms**: BFS, A*, Hamiltonian paths, wall-following
-**Key Output**: CSV datasets + **JSONL with reasoning explanations**
-**Success Metrics**: >80% apple efficiency, 100% survival (Hamiltonian)
+# Educational Note (SUPREME_RULE NO.4):
+# Most extensions use common utilities as-is, but specialized extensions
+# can inherit and customize when needed for exceptional requirements.
 
-### 🎓 Task 2: Supervised Learning  
+# Example: Standard usage (most extensions)
+loader = BaseDatasetLoader(config)
+data = loader.load_dataset(path)
 
-**Models**: MLP, CNN, LSTM, XGBoost, LightGBM, Graph Neural Networks
-**Data Source**: Heuristics CSV datasets exclusively
-**Training**: Multi-framework support (PyTorch, scikit-learn, etc.)
+# Example: Specialized usage (exceptional needs)
+class QuantumDatasetLoader(BaseDatasetLoader):
+    def _initialize_loader_specific_settings(self):
+        self.quantum_validator = QuantumValidator()
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        return {"quantum_entanglement_score": self._measure_entanglement(data)}
+```
 
-### 🎮 Task 3: Reinforcement Learning
+## 🔧 **Implementation Guidelines**
 
-**Algorithms**: DQN, PPO, A3C, SAC (with/without Gymnasium)
-**Environment**: OpenAI Gym wrapper around Snake core
-**Features**: Live Q-value visualization, training curve monitoring
+### **Extension Creation (Following SUPREME_RULE NO.3)**
+```python
+# ✅ ENCOURAGED: Any algorithm approach
+class NovelAlgorithmAgent(BaseAgent):
+    """
+    Educational Note (SUPREME_RULE NO.3):
+    Implement any algorithm you can imagine:
+    - Traditional pathfinding
+    - Machine learning approaches
+    - Evolutionary computation
+    - Swarm intelligence
+    - Quantum algorithms
+    - Hybrid methods
+    - Your own novel ideas
+    """
+    
+    def plan_move(self, game_state):
+        # Your creative algorithm implementation
+        return self.your_innovative_approach(game_state)
+```
 
-### 🤖 Task 4: LLM Fine-tuning
+### **Flexible Configuration**
+```python
+# Configuration supports any extension type
+EXTENSION_CONFIG = {
+    'type': 'your_custom_type',           # Any descriptive name
+    'algorithms': ['any', 'approach'],    # No restrictions
+    'parameters': {                       # Flexible parameters
+        'custom_param1': 'any_value',
+        'experimental_setting': True,
+        'novel_hyperparameter': 42
+    }
+}
+```
 
-**Technique**: LoRA/QLoRA via Hugging Face PEFT  
-**Data Source**: heuristics-v0.04 JSONL trajectories
-**Models**: Instruction-tuned LLMs adapted for Snake gameplay
+## 📊 **Extension Evolution Path**
 
-### 📦 Task 5: Knowledge Distillation
+### **Version Progression (Flexible)**
+```
+v0.01: Proof of Concept
+├── Single algorithm implementation
+├── Basic functionality
+├── Educational clarity
+└── Foundation for growth
 
-**Approach**: Teacher (fine-tuned LLM) → Student (smaller model)
-**Loss**: α·CrossEntropy + β·KL divergence
-**Output**: Deployment-ready compressed models
+v0.02: Multi-Algorithm Expansion
+├── Multiple related algorithms
+├── Agent factory patterns
+├── Enhanced functionality
+└── Comparative analysis
 
-## 🎨 **Multi-Modal Interface Strategy**
+v0.03: Interactive Dashboards
+├── Streamlit web interface
+├── Real-time monitoring
+├── Parameter tuning
+└── User-friendly interaction
 
-Each extension provides **two presentation layers**:
+v0.04: Advanced Features (Optional)
+├── Language-rich datasets (if applicable)
+├── Advanced analytics
+├── Research capabilities
+└── Production features
 
-1. **Flask Blueprint** → Integration with main web interface  
-2. **PyGame** (`gui_*.py`) → Desktop visualization with overlays
+# Educational Note (SUPREME_RULE NO.3):
+# Version progression is flexible - extensions can:
+# - Skip versions if not needed
+# - Add custom versions (v0.05, v0.06, etc.)
+# - Implement features in any order
+# - Focus on their specific research goals
+```
 
-**Performance Modes:**
-- `--use-gui` (default): Real-time PyGame rendering
-- `--no-gui`: Headless mode for high-speed training/dataset generation
+## 🎓 **Educational Benefits**
 
-## 🔧 **Technical Standards**
+### **Learning Objectives**
+- **Algorithm Design**: Practice implementing any algorithm approach
+- **Software Architecture**: Understand inheritance and design patterns
+- **Comparative Analysis**: Easy comparison between different methods
+- **Research Skills**: Platform for novel algorithm development
 
-### **Architecture Patterns**
-- **SOLID principles** throughout
-- **Base classes** in `core/` extended by second-citizens
-- **Factory pattern** for agent creation
-- **Observer pattern** for GUI updates
-- **Singleton pattern** for file managers
+### **Research Applications**
+- **Algorithm Innovation**: Test new algorithmic ideas
+- **Performance Benchmarking**: Compare across different approaches
+- **Educational Demonstrations**: Clear examples for teaching
+- **Experimental Platform**: Rapid prototyping and iteration
 
-### **Code Quality**
-- **Python 3.10+** with type hints
-- **Black** formatting, **Ruff** linting, **Mypy** type checking
-- **Comprehensive docstrings** explaining design patterns used
+## 🚀 **Extensibility Features**
 
-### **Sentinel Values**
-- **`EMPTY`**: Task-0 only (LLM parsing failures)
-- **`SOMETHING_IS_WRONG`**: Task-0 only
-- **`INVALID_REVERSALS`**: Shared across all tasks
-- **`NO_PATH_FOUND`**: Shared across all tasks. E.g. Task-0 LLM tells us that there is no path found. Or, in the case of heuristics, the heuristics tells us that there is no path found.
+### **Unlimited Algorithm Support**
+```python
+# Following SUPREME_RULE NO.3: Support any algorithm type
+ALGORITHM_CATEGORIES = {
+    'pathfinding': ['bfs', 'astar', 'dijkstra', 'custom_pathfinding'],
+    'machine_learning': ['neural_networks', 'decision_trees', 'ensemble_methods'],
+    'reinforcement_learning': ['dqn', 'ppo', 'a3c', 'novel_rl'],
+    'evolutionary': ['genetic_algorithms', 'particle_swarm', 'custom_evolution'],
+    'rule_based': ['expert_systems', 'fuzzy_logic', 'custom_rules'],
+    'hybrid': ['ml_pathfinding', 'rl_heuristics', 'custom_hybrid'],
+    'experimental': ['quantum_algorithms', 'bio_inspired', 'your_novel_idea'],
+    'custom': ['any_approach_you_imagine']
+}
 
-## 📋 **Success Criteria**
+# Educational Note:
+# This is just a sample - extensions can implement ANY algorithm
+# without being limited to these categories!
+```
 
-✅ **Architectural Integrity**: Task-0 never breaks due to extension changes  
-✅ **Data Quality**: Grid-size aware storage, proper metadata  
-✅ **Interface Consistency**: All extensions follow component requirements  
-✅ **Educational Value**: Rich docstrings demonstrating design patterns
+### **Dynamic Component Creation**
+```python
+# Factory patterns support unlimited extension types
+def create_extension_component(extension_type: str, component_name: str, **kwargs):
+    """
+    Create any extension component dynamically.
+    
+    Educational Note (SUPREME_RULE NO.3):
+    This function supports creating components for any extension type,
+    encouraging experimentation with new approaches and ideas.
+    """
+    try:
+        component_class = import_component_class(extension_type, component_name)
+        return component_class(**kwargs)
+    except ImportError:
+        # Provide helpful guidance for adding new components
+        available = list_available_components(extension_type)
+        raise ValueError(f"Component '{component_name}' not found for {extension_type}. "
+                        f"Available: {available}. "
+                        f"Following SUPREME_RULE NO.3, you can easily add new components!")
+```
+
+## 🔗 **Integration Patterns**
+
+### **Cross-Extension Compatibility**
+- **Data Sharing**: Extensions can consume datasets from any other extension
+- **Model Reuse**: Trained models can be used across different extension types
+- **Benchmark Comparison**: Easy performance comparison across approaches
+- **Hybrid Systems**: Combine algorithms from multiple extensions
+
+### **Common Utilities Integration**
+```python
+# Non-restrictive common utilities
+from extensions.common.path_utils import flexible_path_management
+from extensions.common.dataset_loader import load_any_dataset_format
+from extensions.common.validation import validate_without_restrictions
+from extensions.common.factory_utils import create_any_component
+
+# Educational Note (SUPREME_RULE NO.3):
+# Common utilities are designed to support any extension type
+# without imposing artificial restrictions or limitations.
+```
+
+## 📋 **Implementation Checklist**
+
+### **Extension Development (Following SUPREME_RULE NO.3)**
+- [ ] **Choose any algorithm approach** - no restrictions
+- [ ] **Implement agent following BaseAgent interface**
+- [ ] **Extend game logic for your specific needs**
+- [ ] **Use flexible common utilities**
+- [ ] **Document your approach and design decisions**
+- [ ] **Test with different grid sizes and configurations**
+- [ ] **Share insights and learnings with community**
+
+### **Quality Standards**
+- [ ] **Clear documentation** explaining your approach
+- [ ] **Educational value** for other learners
+- [ ] **Code clarity** for understanding and extension
+- [ ] **Flexibility** for future modifications
+- [ ] **Integration** with existing framework
+
+## 🔮 **Future Vision**
+
+### **Unlimited Growth Potential**
+The project structure is designed to support:
+- **Any number of extension types**
+- **Any algorithm approaches**
+- **Any research directions**
+- **Any educational goals**
+- **Any experimental ideas**
+
+### **Community Contributions**
+Following SUPREME_RULE NO.3, the structure encourages:
+- **Student projects** implementing novel algorithms
+- **Research experiments** testing new approaches
+- **Educational demonstrations** for teaching purposes
+- **Industrial applications** solving real problems
+- **Creative explorations** pushing boundaries
+
+## 🔗 **See Also**
+
+- **`final-decision-10.md`**: SUPREME_RULE NO.3 specification
+- **`extensions-v0.01.md`**: Foundation patterns for new extensions
+- **`config.md`**: Flexible configuration architecture
+- **`core.md`**: Base class documentation for inheritance
 
 ---
 
-**Task-0 first, everything else second.**
+**This project structure plan ensures maximum flexibility and educational value while maintaining clean architecture. Following SUPREME_RULE NO.3, it encourages innovation, experimentation, and creative problem-solving in the Snake Game AI domain.**

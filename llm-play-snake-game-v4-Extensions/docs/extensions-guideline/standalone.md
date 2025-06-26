@@ -19,6 +19,38 @@ The standalone principle is fundamental to the Snake Game AI extension architect
 - **Learning Progression**: Students can study extensions in isolation
 - **Research Isolation**: Experimental features remain contained
 
+### **SUPREME_RULE NO.4: OOP Extensibility in Common Utilities**
+
+**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+
+**Key Benefits for Standalone Architecture:**
+- **Standard Usage**: Most extensions use common utilities as-is, maintaining simplicity
+- **Specialized Customization**: Extensions with exceptional needs can inherit and customize
+- **No Cross-Dependencies**: Inheritance from common utilities maintains standalone principle
+- **Future-Proof Design**: New extension types can leverage existing utilities with customization
+
+**Example - Standalone Extension with Customization:**
+```python
+# extensions/quantum-algorithms-v0.01/quantum_loader.py
+from extensions.common.dataset_loader import BaseDatasetLoader
+
+class QuantumDatasetLoader(BaseDatasetLoader):
+    """
+    Specialized loader for quantum algorithms - still maintains standalone principle.
+    This extension + common = standalone unit, even with customization.
+    """
+    
+    def _initialize_loader_specific_settings(self):
+        # Quantum-specific initialization
+        self.quantum_validator = QuantumValidator()
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        # Add quantum-specific metadata
+        return {"quantum_coherence": self._measure_coherence(data)}
+
+# The extension remains standalone: quantum-algorithms-v0.01 + common = complete unit
+```
+
 > **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
 
 # The Standalone Principle
@@ -115,7 +147,7 @@ Examples:
 extensions/
 ├── common/                    # Shared utilities (part of every standalone unit)
 │   ├── __init__.py
-│   ├── config FOLDER # TODO: THIS IS A FOLDER, NOT A FILE
+│   ├── config/               # Configuration constants folder
 │   ├── csv_schema.py         # Dataset schema definitions
 │   ├── dataset_loader.py     # Dataset loading utilities
 │   ├── file_utils.py         # File management utilities

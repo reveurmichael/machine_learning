@@ -1,234 +1,223 @@
 """
-This package contains common utilities for the extensions.
+Extensions Common Utilities Package
 
-Design Philosophy: Standalone Extensions with Shared Commons
--------------------------------------------------------------
-Each extension (e.g., `heuristics-v0.02`, `supervised-v0.01`) is designed
-to be conceptually standalone. However, to avoid code duplication for
-truly generic functionality (like path management, dataset loading, or
-standardized web components), this `common` package exists.
+This package provides shared utilities for all Snake Game AI extensions, following the
+principle that each extension + common folder = standalone unit.
 
-An extension is considered "standalone" when combined with this `common`
-package. There should be NO direct imports between different extensions
-(e.g., `heuristics-v0.02` should not import from `supervised-v0.01`).
+Design Philosophy:
+- Single source of truth for shared functionality
+- Grid-size agnostic implementations
+- Educational value with comprehensive documentation
+- Support for multiple data formats and validation
+- Factory patterns for creating appropriate components
 
-This `__init__.py` serves as a facade, exposing the key components from
-the common modules. It uses try-except blocks to handle optional
-dependencies gracefully, allowing extensions to only use the parts of
-the common package they need without pulling in unnecessary libraries
-(like streamlit or pytorch).
+Key Components:
+- Configuration management (config/)
+- Data validation utilities (validation/)
+- Dataset loading and processing
+- Path management utilities
+- Factory pattern implementations
+- CSV schema for supervised learning
 
-Key sub-modules:
-- config.py: Shared constants.
-- dataset_directory_manager.py: Manages paths for logs and datasets.
-- csv_schema.py: Defines the data schema for CSV datasets.
-- dataset_loader.py: Utilities for loading datasets for training.
-- heuristic_*.py: Reusable components for heuristic-based extensions.
-- ... and more for RL, supervised learning, etc.
+Usage:
+    from extensions.common import get_dataset_path, validate_dataset_format
+    from extensions.common.config import DEFAULT_LEARNING_RATE
+    from extensions.common.validation import DatasetValidator
 """
 
-# --- Core Common Utilities ---
+# Core path utilities - fundamental for all extensions
+from .path_utils import (
+    ensure_project_root,
+    get_extension_path,
+    get_dataset_path,
+    get_model_path,
+    validate_path_structure,
+    setup_extension_environment
+)
 
+# Configuration utilities
 from .config import (
-    PROJECT_ROOT,
-    LOGS_ROOT,
-    EXTENSIONS_LOGS_DIR,
-    DATASETS_ROOT,
-    HEURISTICS_LOG_PREFIX,
-    DEFAULT_GRID_SIZE,
-    SUPPORTED_GRID_SIZES,
+    # ML constants
+    DEFAULT_LEARNING_RATE,
+    EARLY_STOPPING_PATIENCE,
+    DEFAULT_BATCH_SIZE,
+    
+    # Training defaults
+    TRAIN_SPLIT_RATIO,
+    VALIDATION_SPLIT_RATIO,
+    TEST_SPLIT_RATIO,
+    
+    # Dataset formats
+    CSV_FEATURE_SCHEMA,
+    JSONL_SCHEMA,
+    NPZ_SEQUENTIAL_SCHEMA,
+    
+    # Path constants
+    DATASET_PATH_TEMPLATE,
+    MODEL_PATH_TEMPLATE,
+    
+    # Validation rules
+    MIN_GRID_SIZE,
+    MAX_GRID_SIZE,
+    
+    # Model registry
+    ModelType,
+    MODEL_CAPABILITIES,
+    MODEL_METADATA
 )
-from .dataset_directory_manager import DatasetDirectoryManager
+
+# Data processing utilities
 from .csv_schema import (
-    SUPPORTED_DATA_FORMATS,
-    SUPPORTED_DATA_STRUCTURES,
-    TABULAR_FEATURE_COLUMNS,
-    CSVHeader,
-    CSVSchema,
-    create_csv_row,
     generate_csv_schema,
+    create_csv_row,
+    TabularFeatureExtractor,
+    validate_csv_schema,
+    FEATURE_COUNT,
+    COLUMN_NAMES
 )
-from .dataset_loader import DatasetLoader
 
-# --- Optional Utilities (with soft dependency handling) ---
+from .dataset_loader import (
+    DatasetLoader,
+    load_dataset_for_training,
+    prepare_features_and_targets,
+    split_dataset,
+    validate_dataset_compatibility
+)
 
-# Selective imports for optional dependencies
-try:
-    from .heuristic_utils import (
-        ConsoleTable,
-        HeuristicPerformanceTracker,
-        HeuristicSessionManager,
-        format_results_as_table,
-        log_and_print,
-        run_heuristic_game,
-        setup_game_manager,
-        validate_algorithm
-    )
-    HEURISTIC_UTILS_AVAILABLE = True
-except ImportError:
-    HEURISTIC_UTILS_AVAILABLE = False
+# Factory utilities
+from .factory_utils import (
+    BaseFactory,
+    AgentFactory,
+    ModelFactory,
+    ValidatorFactory,
+    create_appropriate_validator,
+    register_factory_type
+)
 
-try:
-    from .heuristic_replay_utils import (
-        ReplayManager,
-        ReplayData,
-        calculate_replay_metrics,
-        create_replay_state_dict,
-        get_replay_data,
-        get_replay_display_name,
-        get_replay_description,
-        get_replay_insights,
-        validate_replay_navigation
-    )
-    HEURISTIC_REPLAY_UTILS_AVAILABLE = True
-except ImportError:
-    HEURISTIC_REPLAY_UTILS_AVAILABLE = False
+# Validation utilities - comprehensive validation system
+from .validation import (
+    # Main validation functions
+    validate_dataset_format,
+    validate_model_output,
+    validate_path_structure as validate_paths,
+    validate_config_access,
+    validate_extension_compliance,
+    
+    # Validation types
+    ValidationResult,
+    ValidationLevel,
+    ValidationReport,
+    
+    # Specific validators
+    DatasetValidator,
+    ModelValidator,
+    PathValidator,
+    ConfigValidator,
+    ExtensionValidator
+)
 
-try:
-    from .heuristic_web_utils import (
-        StreamlitAlgorithmSelector,
-        StreamlitMetricsDashboard,
-        StreamlitReplayControls,
-        StreamlitTabs,
-        create_flask_test_client,
-        format_for_flask_response,
-        get_heuristic_comparison_table,
-        render_leaderboard,
-        track_progress
-    )
-    HEURISTIC_WEB_UTILS_AVAILABLE = True
-except ImportError:
-    HEURISTIC_WEB_UTILS_AVAILABLE = False
+# Extension management utilities
+from .extension_utils import (
+    ExtensionType,
+    ExtensionConfig,
+    ExtensionEnvironment,
+    create_extension_environment,
+    get_extension_info,
+    list_available_extensions,
+    validate_extension_standalone
+)
 
-# TODO: Add similar blocks for RL, Supervised, etc.
+# Testing utilities  
+from .test_utils import (
+    TestRunner,
+    TestCase,
+    create_test_environment,
+    cleanup_test_environment,
+    run_common_utilities_tests
+)
 
-# --- Public API (via __all__) ---
+# Version information
+__version__ = "1.0.0"
+__author__ = "Snake Game AI Project"
+__description__ = "Common utilities for Snake Game AI extensions"
 
+# Export categories for convenience
 __all__ = [
-    # config.py
-    "PROJECT_ROOT",
-    "LOGS_ROOT",
-    "EXTENSIONS_LOGS_DIR",
-    "DATASETS_ROOT",
-    "HEURISTICS_LOG_PREFIX",
-    "DEFAULT_GRID_SIZE",
-    "SUPPORTED_GRID_SIZES",
-
-    # dataset_directory_manager.py
-    "DatasetDirectoryManager",
-
-    # csv_schema.py
-    "SUPPORTED_DATA_FORMATS",
-    "SUPPORTED_DATA_STRUCTURES",
-    "TABULAR_FEATURE_COLUMNS",
-    "CSVHeader",
-    "CSVSchema",
-    "create_csv_row",
-    "generate_csv_schema",
-
-    # dataset_loader.py
-    "DatasetLoader",
-]
-
-if HEURISTIC_UTILS_AVAILABLE:
-    __all__.extend([
-        # heuristic_utils.py
-        "ConsoleTable",
-        "HeuristicPerformanceTracker",
-        "HeuristicSessionManager",
-        "format_results_as_table",
-        "log_and_print",
-        "run_heuristic_game",
-        "setup_game_manager",
-        "validate_algorithm",
-    ])
-
-if HEURISTIC_REPLAY_UTILS_AVAILABLE:
-    __all__.extend([
-        # heuristic_replay_utils.py
-        "ReplayManager",
-        "ReplayData",
-        "calculate_replay_metrics",
-        "create_replay_state_dict",
-        "get_replay_data",
-        "get_replay_display_name",
-        "get_replay_description",
-        "get_replay_insights",
-        "validate_replay_navigation",
-    ])
-
-if HEURISTIC_WEB_UTILS_AVAILABLE:
-    __all__.extend([
-        # heuristic_web_utils.py
-        "StreamlitAlgorithmSelector",
-        "StreamlitMetricsDashboard",
-        "StreamlitReplayControls",
-        "StreamlitTabs",
-        "create_flask_test_client",
-        "format_for_flask_response",
-        "get_heuristic_comparison_table",
-        "render_leaderboard",
-        "track_progress",
-    ])
-
-from .dataset_utils import generate_training_dataset
-
-def get_dataset_path(*args, **kwargs):
-    """Public re-export of DatasetDirectoryManager.get_dataset_path."""
-    return DatasetDirectoryManager.get_dataset_path(*args, **kwargs)
-
-def ensure_datasets_dir(*args, **kwargs):
-    """Public re-export to create dataset directory."""
-    return DatasetDirectoryManager.ensure_datasets_dir(*args, **kwargs)
-
-validate_grid_size = DatasetDirectoryManager.validate_grid_size
-
-# Versioned Directory Manager (with soft dependency handling)
-try:
-    from .versioned_directory_manager import (
-        VersionedDirectoryManager,
-        ExtensionType,
-        create_dataset_directory,
-        create_model_directory,
-        parse_versioned_path,
-        validate_directory_structure,
-        VersionedDirectoryError
-    )
-    VERSIONED_DIRECTORY_AVAILABLE = True
-    __all__.extend([
-        "VersionedDirectoryManager",
-        "ExtensionType", 
-        "create_dataset_directory",
-        "create_model_directory",
-        "parse_versioned_path",
-        "validate_directory_structure",
-        "VersionedDirectoryError"
-    ])
-except ImportError:
-    VERSIONED_DIRECTORY_AVAILABLE = False
-
-# Model utilities (with soft dependency handling)
-try:
-    from .model_utils import (
-        get_model_directory,
-        save_model_standardized,
-        create_model_metadata,
-        ModelRegistry
-    )
-    MODEL_UTILS_AVAILABLE = True
-    __all__.extend([
-        "get_model_directory",
-        "save_model_standardized", 
-        "create_model_metadata",
-        "ModelRegistry"
-    ])
-except ImportError:
-    MODEL_UTILS_AVAILABLE = False
-
-# Add to __all__
-__all__.extend([
-    "generate_training_dataset",
-    "get_dataset_path",
-    "ensure_datasets_dir",
-    "validate_grid_size",
-]) 
+    # Path management
+    'ensure_project_root',
+    'get_extension_path', 
+    'get_dataset_path',
+    'get_model_path',
+    'validate_path_structure',
+    'setup_extension_environment',
+    
+    # Configuration constants
+    'DEFAULT_LEARNING_RATE',
+    'EARLY_STOPPING_PATIENCE',
+    'DEFAULT_BATCH_SIZE',
+    'TRAIN_SPLIT_RATIO',
+    'VALIDATION_SPLIT_RATIO',
+    'TEST_SPLIT_RATIO',
+    'CSV_FEATURE_SCHEMA',
+    'JSONL_SCHEMA',
+    'NPZ_SEQUENTIAL_SCHEMA',
+    'DATASET_PATH_TEMPLATE',
+    'MODEL_PATH_TEMPLATE',
+    'MIN_GRID_SIZE',
+    'MAX_GRID_SIZE',
+    'ModelType',
+    'MODEL_CAPABILITIES',
+    'MODEL_METADATA',
+    
+    # Data processing
+    'generate_csv_schema',
+    'create_csv_row',
+    'TabularFeatureExtractor',
+    'validate_csv_schema',
+    'FEATURE_COUNT',
+    'COLUMN_NAMES',
+    'DatasetLoader',
+    'load_dataset_for_training',
+    'prepare_features_and_targets',
+    'split_dataset',
+    'validate_dataset_compatibility',
+    
+    # Factory patterns
+    'BaseFactory',
+    'AgentFactory',
+    'ModelFactory',
+    'ValidatorFactory',
+    'create_appropriate_validator',
+    'register_factory_type',
+    
+    # Validation system
+    'validate_dataset_format',
+    'validate_model_output',
+    'validate_paths',
+    'validate_config_access',
+    'validate_extension_compliance',
+    'ValidationResult',
+    'ValidationLevel',
+    'ValidationReport',
+    'DatasetValidator',
+    'ModelValidator',
+    'PathValidator',
+    'ConfigValidator',
+    'ExtensionValidator',
+    
+    # Extension management
+    'ExtensionType',
+    'ExtensionConfig',
+    'ExtensionEnvironment',
+    'create_extension_environment',
+    'get_extension_info',
+    'list_available_extensions',
+    'validate_extension_standalone',
+    
+    # Testing utilities
+    'TestRunner',
+    'TestCase',
+    'create_test_environment',
+    'cleanup_test_environment',
+    'run_common_utilities_tests',
+] 

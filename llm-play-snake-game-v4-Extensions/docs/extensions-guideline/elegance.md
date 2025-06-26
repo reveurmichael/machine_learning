@@ -131,6 +131,40 @@ project_root = ensure_project_root()
 - **Interface Segregation**: Clean, focused interfaces
 - **Dependency Inversion**: Depend on abstractions, not concretions
 
+### **SUPREME_RULE NO.4 Implementation**
+
+Following **SUPREME_RULE NO.4**: "Whenever possible, make things in the 'extensions/common/' folder OOP, so that, if exceptions are to be made, they can extend those classes to adapt to exceptional needs."
+
+**OOP Design for Extensibility:**
+```python
+# ✅ Base class with extension points
+class BaseDatasetLoader(ABC):
+    def _initialize_loader_specific_settings(self):
+        """SUPREME_RULE NO.4: Override for specialized loaders"""
+        pass
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        """SUPREME_RULE NO.4: Add custom metadata fields"""
+        return {}
+
+# ✅ Extension through inheritance
+class RLDatasetLoader(BaseDatasetLoader):
+    def _initialize_loader_specific_settings(self):
+        self.rl_validator = RLValidator()
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        return {
+            "episode_count": self._count_episodes(data),
+            "reward_range": self._calculate_reward_range(data)
+        }
+```
+
+**Key Benefits:**
+- **Most extensions use base classes as-is** (no unnecessary complexity)
+- **Specialized extensions can inherit and customize** when needed
+- **Protected methods enable selective override** without breaking base functionality
+- **Composition patterns support pluggable components** for maximum flexibility
+
 ## 📊 **Type Hints and Validation**
 
 ### **Type Annotation Standards**
@@ -139,15 +173,26 @@ project_root = ensure_project_root()
 - **Avoid Over-Annotation**: Only where you're certain of types
 - **Use Union Types**: For parameters accepting multiple types
 
-### **Input Validation**
+### **Input Validation (Following SUPREME_RULE NO.3)**
 ```python
 def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
-    """Create agent with proper validation"""
-    if grid_size < 8 or grid_size > 20:
-        raise ValueError(f"Grid size must be 8-20, got {grid_size}")
+    """
+    Create agent with flexible validation
     
-    if algorithm not in SUPPORTED_ALGORITHMS:
-        raise ValueError(f"Unknown algorithm: {algorithm}")
+    Educational Note (SUPREME_RULE NO.3):
+    We should be able to add new extensions easily and try out new ideas.
+    Therefore, validation is flexible to encourage experimentation.
+    """
+    # Basic grid size validation (flexible range)
+    if grid_size < 5 or grid_size > 50:
+        raise ValueError(f"Grid size should be reasonable (5-50), got {grid_size}")
+    
+    # Algorithm validation through factory pattern (no hard-coded lists)
+    try:
+        return AgentFactory.create_agent(algorithm, grid_size)
+    except KeyError:
+        available = AgentFactory.list_available_algorithms()
+        raise ValueError(f"Algorithm '{algorithm}' not available. Available: {available}")
 ```
 
 ## 🔍 **Code Quality Tools**

@@ -125,12 +125,19 @@ dataset_path = get_dataset_path(
 - Maintain version-specific naming conventions
 - Support multi-directional data consumption and generation
 
-### **Supported Extensions:**
+### **Extension Guidelines (Following SUPREME_RULE NO.3):**
+
+**Educational Note (SUPREME_RULE NO.3)**: We should be able to add new extensions easily and try out new ideas. Therefore, the directory structure supports flexible extension development.
+
+**Current Extension Examples:**
 - **Heuristics**: v0.01, v0.02, v0.03, **v0.04 (DEFINITIVE)**
 - **Supervised**: v0.01, v0.02, v0.03
 - **Reinforcement**: v0.01, v0.02, v0.03
-- **LLM Fine-tuning**: v0.01, v0.02, v0.03
-- **LLM Distillation**: v0.01, v0.02, v0.03
+- **Evolutionary**: v0.01, v0.02, v0.03
+- **LLM-based**: agentic-llms, llm-finetune, vision-language-model
+- **Custom Extensions**: Any new extension type following the naming pattern
+
+**Path Format Support**: The directory structure automatically accommodates any extension following the pattern `{extension_type}_v{version}_{timestamp}/`
 
 ### **SUPREME_RULES: Version Selection Guidelines**
 - **For heuristics**: Prefer v0.04 for new experiments, but v0.03 is still valid and maintained.

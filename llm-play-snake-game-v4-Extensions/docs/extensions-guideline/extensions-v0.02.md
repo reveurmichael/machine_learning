@@ -41,7 +41,7 @@ All v0.02 extensions share these enhanced capabilities:
 
 **Location**: `./extensions/heuristics-v0.02`
 
-**Supported Algorithms**: BFS, A*, DFS, Hamiltonian Cycle
+**Algorithm Examples**: BFS, A*, DFS, Hamiltonian Cycle (Following SUPREME_RULE NO.3, easily extensible)
 
 #### **Directory Structure**
 ```
@@ -119,7 +119,14 @@ class HeuristicAgentFactory:
     
     @classmethod
     def list_algorithms(cls) -> List[str]:
-        """Return list of supported algorithm names"""
+        """
+        Return list of available algorithm names (Following SUPREME_RULE NO.3)
+        
+        Educational Note (SUPREME_RULE NO.3):
+        We should be able to add new extensions easily and try out new ideas.
+        This method dynamically returns available algorithms, making the system
+        flexible and extensible without hard-coded restrictions.
+        """
         return list(cls._registry.keys())
 ```
 
@@ -225,7 +232,7 @@ class AStarAgent(BaseAgent):
 
 **Location**: `./extensions/supervised-v0.02`
 
-**Supported Models**: Neural Networks, Tree Models, Ensemble Methods
+**Model Examples**: Neural Networks, Tree Models, Ensemble Methods (Following SUPREME_RULE NO.3, easily extensible)
 
 #### **Directory Structure**
 ```
@@ -318,7 +325,7 @@ class SupervisedModelFactory:
 
 **Location**: `./extensions/reinforcement-v0.02`
 
-**Supported Algorithms**: DQN, PPO, A3C, DDPG
+**Algorithm Examples**: DQN, PPO, A3C, DDPG (Following SUPREME_RULE NO.3, easily extensible)
 
 #### **Directory Structure**
 ```

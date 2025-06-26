@@ -16,6 +16,45 @@ The Factory Pattern is a cornerstone design pattern in the Snake Game AI project
 - **Single Responsibility**: Creation logic centralized in factory classes
 - **Consistent Interface**: Uniform creation patterns across all extensions
 
+### **SUPREME_RULE NO.4 Integration**
+
+Factory patterns in `extensions/common/` follow **SUPREME_RULE NO.4**: "Whenever possible, make things in the 'extensions/common/' folder OOP, so that, if exceptions are to be made, they can extend those classes to adapt to exceptional needs."
+
+**Key OOP Features for Extensibility:**
+- **Inheritance-Ready Base Factories**: All factory classes designed for extension through inheritance
+- **Protected Extension Points**: Methods marked for selective customization by subclasses
+- **Virtual Registry Methods**: Complete behavior replacement when needed for specialized requirements
+- **Composition Support**: Pluggable registry and validation components
+
+**Example - Extensible Factory:**
+```python
+# extensions/common/factory_utils.py - Base implementation
+class BaseFactory(ABC):
+    def _initialize_factory_settings(self):
+        """SUPREME_RULE NO.4: Extension point for specialized factories"""
+        pass
+    
+    def _setup_extension_specific_agents(self):
+        """SUPREME_RULE NO.4: Override to register custom agents"""
+        pass
+
+# In a specialized extension
+class CustomRLFactory(BaseFactory):
+    def _initialize_factory_settings(self):
+        # Add RL-specific factory configuration
+        self.rl_model_validator = RLModelValidator()
+        self.environment_integration = True
+    
+    def _setup_extension_specific_agents(self):
+        # Register specialized RL agents
+        self._agent_registry["multi_objective_dqn"] = {
+            "class": MultiObjectiveDQNAgent,
+            "required_params": ["state_size", "action_size", "objectives"],
+            "extensions": ["reinforcement"],
+            "description": "Multi-objective Deep Q-Network"
+        }
+```
+
 ## 🏗️ **Standard Factory Template**
 
 > **Authoritative Reference**: See `unified-factory-pattern-guide.md` for the complete, standardized factory implementation.
@@ -167,13 +206,25 @@ def main():
     agent = HeuristicAgentFactory.create(args.algorithm, grid_size=10)
 ```
 
-### **Configuration Integration**
+### **Configuration Integration (Following SUPREME_RULE NO.3)**
 ```python
-# config.py - Factory-aware configuration
+# config.py - Flexible factory-aware configuration
 from agents import HeuristicAgentFactory
 
-SUPPORTED_ALGORITHMS = HeuristicAgentFactory.list_algorithms()
-DEFAULT_ALGORITHM = "BFS"  # Must be in SUPPORTED_ALGORITHMS
+# Educational Note (SUPREME_RULE NO.3): 
+# We should be able to add new extensions easily and try out new ideas.
+# Dynamic algorithm listing enables flexibility without hard-coded restrictions.
+
+def get_available_algorithms():
+    """Get currently available algorithms dynamically"""
+    return HeuristicAgentFactory.list_algorithms()
+
+# Flexible defaults that adapt to available algorithms
+def get_default_algorithm():
+    """Get sensible default algorithm from available options"""
+    available = get_available_algorithms()
+    # Prefer BFS if available, otherwise use first available
+    return "BFS" if "BFS" in available else available[0] if available else None
 ```
 
 ## 🚀 **Benefits for Extension Development**

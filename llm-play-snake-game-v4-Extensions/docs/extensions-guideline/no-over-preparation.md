@@ -12,6 +12,19 @@ The "No Over-Preparation" principle ensures that extensions remain focused, main
 - **Iterative Enhancement**: Add features when actually needed, not preemptively
 - **Concrete Implementation**: Prefer working solutions over abstract frameworks
 
+## 🎯 **SUPREME_RULES: Flexibility & Smart OOP Design**
+
+**SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
+
+**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+
+### **Core Philosophy**
+- **Educational Project**: Encourages experimentation and learning
+- **Flexible Architecture**: Supports rapid prototyping and new ideas
+- **Non-Restrictive Validation**: Validates for safety, not rigid conformity
+- **Extensibility**: Easy addition of new algorithms, extensions, and approaches
+- **Smart OOP Design**: Most extensions use common utilities as-is, but specialized ones can inherit when needed
+
 ## 🚫 **What Constitutes Over-Preparation**
 
 ### **Premature Abstraction**
@@ -51,15 +64,15 @@ class HeuristicAgentFactory:
         return agent_class(algorithm, grid_size)
 ```
 
-### **Unnecessary Configuration Systems**
+### **Unnecessary Configuration Systems (Violates SUPREME_RULE NO.3)**
 ```python
-# ❌ OVER-PREPARATION: Complex configuration hierarchy
+# ❌ OVER-PREPARATION: Complex configuration hierarchy (TOO RESTRICTIVE)
 class AdvancedConfigurationManager:
     """Over-engineered configuration for simple needs"""
     
     def __init__(self):
         self.config_sources = []
-        self.validation_rules = {}
+        self.validation_rules = {}  # Restrictive validation violates SUPREME_RULE NO.3
         self.transformation_pipelines = {}
         self.inheritance_chains = {}
         self.environment_overrides = {}
@@ -68,11 +81,13 @@ class AdvancedConfigurationManager:
         # Complex configuration loading for simple constants
         pass
 
-# ✅ APPROPRIATE: Simple configuration access
+# ✅ APPROPRIATE: Simple, flexible configuration (Follows SUPREME_RULE NO.3)
 from config.game_constants import VALID_MOVES, DIRECTIONS
 from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 
-# Direct access to needed constants without over-engineering
+# Educational Note (SUPREME_RULE NO.3):
+# Direct access with minimal restrictions enables easy experimentation
+# and addition of new extensions without architectural barriers.
 ```
 
 ### **Speculative Feature Development**
@@ -109,6 +124,60 @@ class SupervisedLearningAgent(BaseAgent):
         # Actual training implementation for current needs
         pass
 ```
+
+### **SUPREME_RULE NO.4: Smart OOP Balance**
+
+SUPREME_RULE NO.4 demonstrates **appropriate** preparation - not over-preparation:
+
+```python
+# ✅ APPROPRIATE: Smart OOP design with extension points
+class BaseDatasetLoader(ABC):
+    """
+    Smart OOP design following SUPREME_RULE NO.4:
+    - Most extensions use this as-is (no over-engineering)
+    - Specialized extensions can inherit when needed (not speculative)
+    - Extension points are simple, not complex frameworks
+    """
+    
+    def load_dataset(self, path):
+        # Standard implementation used by 90% of extensions
+        data = self._load_data(path)
+        metadata = self._generate_metadata(data, path)
+        return LoadedDataset(data, metadata, self.config)
+    
+    def _initialize_loader_specific_settings(self):
+        """SUPREME_RULE NO.4: Simple extension point, not complex framework"""
+        pass  # Most extensions don't need this
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        """SUPREME_RULE NO.4: Simple override point, not abstract pipeline"""
+        return {}  # Most extensions don't need this
+
+# ✅ APPROPRIATE: Specialized extension when actually needed
+class QuantumDatasetLoader(BaseDatasetLoader):
+    """
+    Only created when quantum algorithms actually exist and need special handling.
+    Not created speculatively "just in case quantum algorithms might be added."
+    """
+    
+    def _initialize_loader_specific_settings(self):
+        # Only implement when quantum algorithms are real, not hypothetical
+        self.quantum_validator = QuantumValidator()
+    
+    def _generate_extension_specific_metadata(self, data, file_path):
+        # Only add quantum metadata when quantum algorithms actually need it
+        return {"quantum_entanglement_score": self._measure_entanglement(data)}
+
+# ❌ OVER-PREPARATION: Complex extension framework
+class AbstractConfigurableExtensibleLoaderFactoryFramework:
+    """
+    This would be over-preparation - complex framework for simple needs.
+    SUPREME_RULE NO.4 provides simple extension points, not complex frameworks.
+    """
+    pass
+```
+
+**Key Balance**: SUPREME_RULE NO.4 provides **simple extension points** that most extensions ignore, but specialized extensions can use when they have **actual, concrete needs** - not speculative requirements.
 
 ## ✅ **Appropriate Preparation Levels**
 

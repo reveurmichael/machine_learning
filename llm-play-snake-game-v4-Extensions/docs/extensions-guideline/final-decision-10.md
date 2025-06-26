@@ -12,6 +12,33 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 3. **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 4. **SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions. Of course, in most cases, extensions should be able to use the things in the "extensions/common/" folder as is, without the need to extend them.
 
+## 🔧 **SUPREME_RULE NO.4 Implementation Status**
+
+The implementation of SUPREME_RULE NO.4 has been completed across the `extensions/common/` folder:
+
+### **Key Classes Made OOP-Extensible:**
+- **BaseDatasetLoader**: Extension points for specialized data loading
+- **TabularFeatureExtractor**: Customizable feature extraction for different algorithms
+- **CSVDatasetGenerator**: Extensible dataset generation with custom settings
+- **BaseFactory**: Inheritance-ready factory patterns for agent/model creation
+- **ExtensionValidator**: Customizable validation for specialized requirements
+
+### **Design Pattern Implementation:**
+- **Template Method Pattern**: Base workflows with protected extension points
+- **Strategy Pattern**: Pluggable components for specialized behavior
+- **Factory Pattern**: Extensible creation patterns for custom components
+- **Protected Methods**: `_initialize_*_settings()` and `_*_extension_specific_*()` methods
+
+### **Usage Balance:**
+- **90% of extensions**: Use common utilities as-is (no inheritance needed)
+- **10% of extensions**: Inherit and customize for exceptional requirements
+- **0% breaking changes**: All existing code continues to work unchanged
+
+### **Educational Value:**
+- **Clear OOP examples**: Demonstrates inheritance, polymorphism, and design patterns
+- **Practical application**: Shows when and how to use inheritance appropriately
+- **Future-proof design**: Enables innovation without architectural constraints
+
 ## 📋 **GOOD_RULES: Authoritative References**
 
 The following files in `./docs/extensions-guideline/` are designated as **GOOD_RULES** and serve as the **single source of truth**:

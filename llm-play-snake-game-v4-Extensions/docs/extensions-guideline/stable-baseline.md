@@ -58,9 +58,18 @@ class SB3AgentFactory:
     
     @classmethod
     def create_agent(cls, algorithm: str, env, **kwargs) -> BaseRLModel:
-        """Create SB3 agent with specified algorithm"""
+        """
+        Create SB3 agent with specified algorithm (Following SUPREME_RULE NO.3)
+        
+        Educational Note (SUPREME_RULE NO.3):
+        We should be able to add new extensions easily and try out new ideas.
+        This factory is designed to be flexible and extensible.
+        """
         if algorithm not in cls._algorithm_registry:
-            raise ValueError(f"Unsupported SB3 algorithm: {algorithm}")
+            available = list(cls._algorithm_registry.keys())
+            raise ValueError(f"Algorithm '{algorithm}' not available in SB3 registry. "
+                           f"Available: {available}. You can register new algorithms "
+                           f"by extending the _algorithm_registry.")
         
         module_name, class_name = cls._algorithm_registry[algorithm]
         module = importlib.import_module(module_name)
@@ -437,7 +446,10 @@ class SB3ModelManager:
         }
         
         if algorithm not in algorithm_map:
-            raise ValueError(f"Unsupported algorithm: {algorithm}")
+            available = list(algorithm_map.keys())
+            raise ValueError(f"Algorithm '{algorithm}' not available. "
+                           f"Available: {available}. Following SUPREME_RULE NO.3, "
+                           f"you can extend algorithm_map to add new algorithms.")
         
         model = algorithm_map[algorithm].load(model_path / "model")
         

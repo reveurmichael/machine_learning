@@ -59,6 +59,7 @@ Don't modify GOOD_RULES. They are the single source of truth. Now, according to 
 
 - Flag them in the md file, with a TODO comment about why things are not coherent. Users (I and my colleagues) can then recheck those md files for TODO comments and make my own decision.
 - Or, if the solutions to adopt is just so obvious, you can just do it, no need to go for this TODO comment.
++ Document any remaining ambiguities with a concise explanatory note (e.g., `> **Note:** Section X requires further clarification`).  When the resolution is self-evident, apply the fix directly instead of leaving markers for later review.
 
 ## Now, Do TASK_DISCRIPTION_GOOD_RULES
 

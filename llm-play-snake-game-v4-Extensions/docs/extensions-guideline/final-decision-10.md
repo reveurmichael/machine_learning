@@ -35,7 +35,7 @@ config.md
 flask.md
 gymnasium.md
 heuristics-as-foundation.md
-heuristics_to_supervised_pipeline.md
+heuristicsto-supervised-pipeline.md
 html.md
 limits-manager-impact-on-extensions.md
 lora.md

@@ -115,7 +115,7 @@ Examples:
 extensions/
 ├── common/                    # Shared utilities (part of every standalone unit)
 │   ├── __init__.py
-│   ├── config.py             # Common configuration utilities
+│   ├── config FOLDER # TODO: THIS IS A FOLDER, NOT A FILE
 │   ├── csv_schema.py         # Dataset schema definitions
 │   ├── dataset_loader.py     # Dataset loading utilities
 │   ├── file_utils.py         # File management utilities

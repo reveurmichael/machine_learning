@@ -236,7 +236,6 @@ from config.ui_constants import COLORS, GRID_SIZE
 |-------|------|---------|
 | **Universal** | `config/` | Core game rules, UI, coordinate system, network, web – *used by every task & extension* |
 | **Shared Extension** | `extensions/common/config/` | Settings reused by **multiple** extensions (e.g. CSV schema, training defaults) |
-| **Type-Specific** | `extensions/{type}/config/` | Settings unique to one algorithm family (heuristics, supervised, rl, llm, …) |
 | **Experiment / Script** | Local to script | Hyper-parameters that change per run (CLI flags, YAML, etc.) |
 
 ### **2. LLM Constants Rule**

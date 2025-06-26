@@ -34,7 +34,9 @@ config.yml
 **/.cursor/*
 **/.cursor/**/*
 **/extensions/**/*.json
+**/extensions/**/*.jsonl
 **/extensions/*.json
+**/extensions/*.jsonl
 **/extensions/*.csv
 **/extensions/**/*.csv
 **/extensions/*.txt

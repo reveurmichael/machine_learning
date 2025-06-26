@@ -10,6 +10,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, make sure to read ALL markdown files in `./docs/extensions-guideline/` first.
 2. **SUPREME_RULE NO.2**: When citing Final Decision documents, use the precise format `final-decision-N.md`; Don't use "Final Decision N", "FD-N", or "final-decision-N".
 3. **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
+4. **SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions. Of course, in most cases, extensions should be able to use the things in the "extensions/common/" folder as is, without the need to extend them.
 
 ## 📋 **GOOD_RULES: Authoritative References**
 

@@ -1,4 +1,4 @@
-> **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Where conflicts exist, defer to the Final Decision documents.
+> **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). Where conflicts exist, defer to the Final Decision documents.
 
 > **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 

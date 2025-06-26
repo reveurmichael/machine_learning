@@ -1,6 +1,6 @@
 # Streamlit Application Architecture for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and provides comprehensive guidelines for Streamlit application development in extensions v0.03.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides comprehensive guidelines for Streamlit application development in extensions v0.03.
 
 ## 🎯 **Core Philosophy: Interactive Algorithm Exploration**
 

@@ -19,7 +19,7 @@ The standalone principle is fundamental to the Snake Game AI extension architect
 - **Learning Progression**: Students can study extensions in isolation
 - **Research Isolation**: Experimental features remain contained
 
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
 
 # The Standalone Principle
 

@@ -1,4 +1,4 @@
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). When conflicts arise, prefer the Final Decision documents.
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). When conflicts arise, prefer the Final Decision documents.
 
 # AI-Friendly Development Guidelines
 

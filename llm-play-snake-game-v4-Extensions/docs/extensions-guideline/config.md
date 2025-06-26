@@ -1,6 +1,6 @@
 # Configuration Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and `final-decision-2.md`, establishing comprehensive configuration management standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `final-decision-2.md`, establishing comprehensive configuration management standards.
 
 ## 🎯 **Configuration Philosophy: Single Source of Truth with Clear Separation**
 

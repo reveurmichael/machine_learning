@@ -325,7 +325,7 @@ def save_multi_format_dataset(
 
 # NPZ and Parquet Data Formats for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and follows established architectural patterns. For data format decisions, see `data-format-decision-guide.md`.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns. For data format decisions, see `data-format-decision-guide.md`.
 
 ## 🎯 **Core Philosophy: Efficient Scientific Data Storage**
 

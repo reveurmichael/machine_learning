@@ -1,6 +1,6 @@
 # Extension Integration Guidelines: Preventing System Invariant Violations
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and provides essential guidelines for extension developers.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides essential guidelines for extension developers.
 
 ## 🎯 **Core Philosophy: Maintaining System Integrity**
 

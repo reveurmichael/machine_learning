@@ -1,6 +1,6 @@
 # Extensions v0.01: Foundation & Proof of Concept
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and establishes foundational patterns for all extension development.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and establishes foundational patterns for all extension development.
 
 ## 🎯 **Core Philosophy: Simplicity & Proof of Concept**
 

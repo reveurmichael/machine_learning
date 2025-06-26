@@ -1,6 +1,6 @@
 # Agentic LLMs for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and follows the established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows the established architectural patterns.
 
 ## 🎯 **Core Philosophy: LLM-Powered Autonomous Agents**
 

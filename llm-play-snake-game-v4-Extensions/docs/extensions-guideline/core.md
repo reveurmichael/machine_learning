@@ -1,6 +1,6 @@
 # Core Architecture Documentation
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and provides detailed analysis of the core architecture.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides detailed analysis of the core architecture.
 
 ## ✅ **Current Core Architecture Assessment**
 

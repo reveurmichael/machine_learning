@@ -1,6 +1,6 @@
 # Extensions v0.02: Multi-Algorithm Architecture & Command Line Interface
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and builds upon `extensions-v0.01.md` foundational patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and builds upon `extensions-v0.01.md` foundational patterns.
 
 ## 🎯 **Core Philosophy: Algorithmic Diversity & Command Line Interface**
 

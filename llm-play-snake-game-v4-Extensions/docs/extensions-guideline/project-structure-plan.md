@@ -1,4 +1,4 @@
-> **Important — Authoritative Reference:** This planning document is subordinate to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). Any conflicting guidance must follow the Final Decision documents.
+> **Important — Authoritative Reference:** This planning document is subordinate to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). Any conflicting guidance must follow the Final Decision documents.
 
 # Project Structure Plan – Extensions & Multi-Task Architecture
 

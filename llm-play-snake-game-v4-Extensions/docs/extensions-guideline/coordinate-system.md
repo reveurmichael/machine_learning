@@ -1,6 +1,6 @@
 # Coordinate System
 
-> **Important — Authoritative Reference:** This specification complements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). In case of conflict, defer to the Final Decision documents.
+> **Important — Authoritative Reference:** This specification complements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). In case of conflict, defer to the Final Decision documents.
 
 VITAL: THIS ONE IS VERY IMPORTANT. It's a single-source-of-truth documentation – applies to **all** extensions, all tasks0-5.
 

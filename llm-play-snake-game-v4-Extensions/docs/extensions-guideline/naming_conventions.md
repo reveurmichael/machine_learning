@@ -1,4 +1,4 @@
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0` → `final-decision-10`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
+> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
 
 # Naming Conventions
 

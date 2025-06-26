@@ -1,6 +1,6 @@
 # LLM Fine-Tuning for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0` → `final-decision-10`) and follows established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns.
 
 ## 🎯 **Core Philosophy: Specialized LLM Training**
 

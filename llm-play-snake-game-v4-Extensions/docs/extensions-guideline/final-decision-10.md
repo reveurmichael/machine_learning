@@ -9,6 +9,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 ### **SUPREME_RULES Hierarchy**
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, make sure to read ALL markdown files in `./docs/extensions-guideline/` first.
 2. **SUPREME_RULE NO.2**: When citing Final Decision documents, use the precise format `final-decision-N.md`; Don't use "Final Decision N", "FD-N", or "final-decision-N".
+3. **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
 ## 📋 **GOOD_RULES: Authoritative References**
 

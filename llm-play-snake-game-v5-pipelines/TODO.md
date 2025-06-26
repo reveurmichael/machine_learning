@@ -5,3 +5,12 @@ v4 will go for MVC, it has to be there.
 but, v5 will be unifying rendering interface, all of them going into render or renderer folder, even the no_gui ! 
 yes, we will have a renderer/no_gui folder
 
+
+
+
+## Piplelines in v0.5
+
+heuristics-llm-fine-tuning-integration
+
+heuristics-supervised-integration
+

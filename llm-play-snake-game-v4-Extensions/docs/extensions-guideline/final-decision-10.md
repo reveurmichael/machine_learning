@@ -8,7 +8,7 @@ SUPREME_RULES is like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE 
 SUPREME_RULES NO.1 is: when updating markdown files in "./docs/extensions-guidelines/", make sure to read all markdown files in "./docs/extensions-guidelines/" first.
 
 
-SUPREME_RULES NO.2 is: When citing Final Decision documents, use the precise format`final-decision-6.md`; Don't use "Final Decision 6", "FD-6", "final-decision-N".
+SUPREME_RULES NO.2 is: When citing Final Decision documents, use the precise format`final-decision-N.md`; Don't use "Final Decision N", "FD-N", "final-decision-N".
 
 
 ## GOOD_RULES

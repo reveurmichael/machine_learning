@@ -144,7 +144,6 @@ class AgentFactory:
 ## 🔗 **See Also**
 
 - **`extension-evolution-rules.md`**: Authoritative reference for version evolution rules
-- **`unified-factory-pattern-guide.md`**: Complete factory pattern implementation
 - **`final-decision-4.md`**: Naming conventions and standards
 - **`final-decision-5.md`**: Directory structure standards
 

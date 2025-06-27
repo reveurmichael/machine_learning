@@ -9,7 +9,6 @@ The KISS principle is fundamental to the Snake Game AI project. Extensions shoul
 ## 🏗️ **Simple Architecture Patterns**
 
 ### **Factory Patterns**
-> **Authoritative Reference**: See `unified-factory-pattern-guide.md` for complete factory implementations.
 
 Following the unified factory pattern guide, factories are deliberately simple:
 

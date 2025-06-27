@@ -49,7 +49,11 @@ Move generic utilities to common folder:
 ```python
 # ✅ Generic utilities in common folder
 from extensions.common.dataset_loader import load_training_data
-from extensions.common.model_utils import save_model_standardized
+# SUPREME_RULE NO.3: Simple model saving instead of complex utils
+def save_model_standardized(model, model_path):
+    """Simple model saving function"""
+    print(f"Saving model to {model_path}")
+    model.save(model_path)
 from extensions.common.path_utils import get_dataset_path
 ```
 

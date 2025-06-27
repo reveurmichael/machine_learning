@@ -207,7 +207,6 @@ def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
 
 - **`config.md`**: Configuration architecture standards
 - **`unified-path-management-guide.md`**: Path management standards
-- **`unified-factory-pattern-guide.md`**: Factory pattern standards
 - **`final-decision-4.md`**: Naming conventions
 - **`final-decision-5.md`**: Directory structure
 

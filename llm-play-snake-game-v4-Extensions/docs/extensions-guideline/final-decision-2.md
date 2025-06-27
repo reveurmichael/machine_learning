@@ -19,12 +19,13 @@ ROOT/config/               # Task-0 specific (LLM-related configs)
 
 extensions/common/config/  # Extension-specific configurations
 ├── __init__.py
-├── ml_constants.py        # ML-specific hyperparameters, thresholds
-├── training_defaults.py   # Default training configurations
 ├── dataset_formats.py     # Data format specifications
 ├── path_constants.py      # Directory path templates
-├── validation_rules.py    # Validation thresholds and rules
-└── model_registry.py      # Model type definitions and metadata
+└── validation_rules.py    # Validation thresholds and rules
+
+# Note: Following SUPREME_RULE NO.3, we avoid patterns like:
+# ml_constants.py, training_defaults.py, model_registry.py
+# Instead, define extension-specific constants locally in each extension
 ```
 
 ### **Usage Patterns**
@@ -34,9 +35,13 @@ extensions/common/config/  # Extension-specific configurations
 from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
 from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
 
-# ✅ Extension-specific constants
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE, BATCH_SIZES
-from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
+# ✅ Extension-specific constants (SUPREME_RULE NO.3: define locally in extensions)
+# Local constants in each extension instead of importing from common config
+DEFAULT_LEARNING_RATE = 0.001
+BATCH_SIZES = [16, 32, 64, 128]
+EARLY_STOPPING_PATIENCE = 10
+
+# ✅ Common utilities (lightweight, generic)
 from extensions.common.config.dataset_formats import CSV_SCHEMA_VERSION
 
 # ❌ Task-0 only (extensions should NOT import these)
@@ -86,42 +91,39 @@ from .model_validation import validate_model_artifacts, ModelValidator
 from .directory_validation import validate_directory_structure, DirectoryValidator
 from .coordinate_validation import validate_coordinates, CoordinateValidator
 
-class ValidationManager:
-    """
-    Centralized validation management using Facade pattern.
-    
-    Provides simple interface to complex validation subsystem.
-    """
-    
-    def __init__(self):
-        self.validators = {
-            'game_state': GameStateValidator(),
-            'dataset': DatasetValidator(),
-            'model': ModelValidator(),
-            'directory': DirectoryValidator(),
-            'coordinate': CoordinateValidator()
-        }
-    
-    def validate_all(self, extension_path: str, data: dict) -> ValidationReport:
-        """Run comprehensive validation suite"""
-        report = ValidationReport()
-        
-        for validator_name, validator in self.validators.items():
-            try:
-                result = validator.validate(data)
-                report.add_result(validator_name, result)
-            except Exception as e:
-                report.add_error(validator_name, str(e))
-        
-        return report
+# SUPREME_RULE NO.3: Simple validation functions instead of complex classes
+def validate_game_state(state):
+    """Simple game state validation"""
+    if not state or 'snake_positions' not in state:
+        raise ValueError("Invalid game state")
+    print("[Validator] Game state is valid")
+    return True
 
-# Usage in extensions
-from extensions.common.validation import ValidationManager
+def validate_dataset_format(dataset_path):
+    """Simple dataset format validation"""
+    if not dataset_path.endswith('.csv'):
+        raise ValueError("Expected CSV format")
+    print(f"[Validator] Dataset format valid: {dataset_path}")
+    return True
 
-validator = ValidationManager()
-report = validator.validate_all(extension_path, data)
-if not report.is_valid():
-    raise ValidationError(f"Validation failed: {report.get_errors()}")
+def validate_model_artifacts(model_path):
+    """Simple model validation"""
+    if not any(model_path.endswith(ext) for ext in ['.pth', '.pkl', '.onnx']):
+        raise ValueError("Expected model file")
+    print(f"[Validator] Model artifacts valid: {model_path}")
+    return True
+
+# Usage in extensions - simple function calls
+def validate_extension_data(extension_path: str, data: dict):
+    """Simple validation for extension data"""
+    print(f"[Validator] Validating extension: {extension_path}")
+    
+    validate_game_state(data.get('game_state'))
+    validate_dataset_format(data.get('dataset_path', ''))
+    validate_model_artifacts(data.get('model_path', ''))
+    
+    print("[Validator] All validations passed")
+    return True
 ```
 
 ### **Rationale**

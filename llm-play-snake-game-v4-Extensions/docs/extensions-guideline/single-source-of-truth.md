@@ -28,13 +28,6 @@ All data format decisions are centralized in **`data-format-decision-guide.md`**
 - Storage structure requirements
 - Format validation rules
 
-### **Factory Pattern SSOT**
-All factory pattern implementations follow **`unified-factory-pattern-guide.md`**:
-- Standard factory template
-- Registration patterns
-- Error handling
-- Extension-specific examples
-
 ## 🔧 **SSOT Implementation**
 
 ### **Configuration Access**
@@ -174,7 +167,6 @@ def validate_format_ssot():
 - **Configuration**: `config.md` + `final-decision-2.md`
 - **Path Management**: `unified-path-management-guide.md`
 - **Data Formats**: `data-format-decision-guide.md`
-- **Factory Patterns**: `unified-factory-pattern-guide.md`
 - **Streamlit Architecture**: `unified-streamlit-architecture-guide.md`
 
 ### **Supporting Documentation**

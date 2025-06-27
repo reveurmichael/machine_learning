@@ -33,10 +33,11 @@ Small, focused mixin classes that provide specific utilities:
 
 ```python
 class LoggingMixin:
-    """Simple mixin for logging capabilities"""
+    """Simple mixin for logging capabilities (SUPREME_RULE NO.3: simple print statements)"""
     
     def setup_logging(self, name: str):
-        self.logger = logging.getLogger(name)
+        self.agent_name = name
+        print(f"[{name}] Agent initialized")
 
 class HeuristicAgent(BaseAgent, LoggingMixin):
     """Agent with logging capabilities via mixin"""

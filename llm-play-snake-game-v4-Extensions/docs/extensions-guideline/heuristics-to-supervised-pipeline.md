@@ -29,7 +29,7 @@ The pipeline converts classical heuristic play-throughs of Snake into tabular CS
 **Key design rules**  (see `project-structure-plan.md`):
 1. Every dataset lives under `logs/extensions/datasets/grid-size-N/{extension_type}_v{version}_{timestamp}/{algorithm_name}/processed_data/` – never mix grid sizes. Structure follows final-decision-1.md with clear separation of game_logs/ and processed_data/ folders.
 2. `extensions/common/` holds *all* shared helpers; extensions must **not** import each other.
-3. Output models are saved with [`common.model_utils.save_model_standardized`](../extensions/common/model_utils.py) – portable across OS & frameworks. 
+3. Output models are saved with simple, local save functions (SUPREME_RULE NO.3: avoid over-engineered utilities) – portable across OS & frameworks. 
 
 
 ---
@@ -89,7 +89,7 @@ python -m extensions.supervised_v0_02.training.train_neural \
      "model_path": "logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/mlp/model_artifacts/model.pth"
    }
    ```
-5. Model is saved in both **PyTorch** (`.pth`) and **ONNX** (`.onnx`) format with rich metadata – see `extensions/common/model_utils.py`.
+5. Model is saved in both **PyTorch** (`.pth`) and **ONNX** (`.onnx`) format with rich metadata using simple, local save functions (SUPREME_RULE NO.3: lightweight approach).
 
 ### 3.3 Expected baselines  (10×10 grid)
 

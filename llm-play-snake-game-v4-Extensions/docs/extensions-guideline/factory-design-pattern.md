@@ -1,7 +1,5 @@
 # Factory Design Pattern for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document is **supplementary** to `unified-factory-pattern-guide.md` - the definitive factory pattern implementation. For complete factory patterns, see the unified guide.
-
 ## 🎯 **Core Philosophy: Consistent Creation Patterns**
 
 The Factory Pattern is a cornerstone design pattern in the Snake Game AI project, enabling:
@@ -28,7 +26,8 @@ Factory patterns in `extensions/common/` follow **SUPREME_RULE NO.3**: "The comm
 
 **Example - Extensible Factory:**
 ```python
-# extensions/common/factory_utils.py - Base implementation
+# Note: Following SUPREME_RULE NO.3, factory patterns are kept simple
+# Each extension implements its own lightweight factory
 class BaseFactory(ABC):
     def _initialize_factory_settings(self):
         """SUPREME_RULE NO.3: Extension point for specialized factories"""
@@ -246,7 +245,6 @@ def get_default_algorithm():
 
 ## 🔗 **See Also**
 
-- **`unified-factory-pattern-guide.md`**: Authoritative reference for complete factory implementations
 - **`extension-evolution-rules.md`**: How factory patterns evolve across versions
 - **`final-decision-7.md`**: Factory pattern architectural decisions
 - **`final-decision-8.md`**: Factory pattern implementation standards

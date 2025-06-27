@@ -200,7 +200,12 @@ from core.game_data import BaseGameData
 from extensions.common.config import get_grid_size_config
 from extensions.common.dataset_loader import load_csv_dataset
 from extensions.common.csv_schema import generate_csv_schema
-from extensions.common.validation_utils import validate_game_state
+# SUPREME_RULE NO.3: Simple validation instead of complex utils
+def validate_game_state(state):
+    """Simple validation function"""
+    if not state or 'snake_positions' not in state:
+        raise ValueError("Invalid game state")
+    return True
 
 ```
 
@@ -234,7 +239,6 @@ from core.game_logic import BaseGameLogic
 # ✅ Common utilities imports (allowed)
 from extensions.common.config import ExtensionConfig
 from extensions.common.csv_schema import CSVSchemaManager
-from extensions.common.logging_utils import setup_extension_logging
 
 # ✅ Extension-specific imports (allowed)
 from .agents.agent_bfs import BFSAgent
@@ -252,14 +256,14 @@ class HeuristicGameManager(BaseGameManager):
     """
     
     def __init__(self, algorithm: str, grid_size: int):
-        # Validate using common utilities
-        if not ExtensionConfig.validate_grid_size(grid_size):
+        # Validate using common utilities (SUPREME_RULE NO.3: simple validation)
+        if grid_size < 5 or grid_size > 50:
             raise ValueError(f"Invalid grid size: {grid_size}")
         
         super().__init__(grid_size=grid_size)
         
-        # Setup logging using common utilities
-        self.logger = setup_extension_logging('heuristics-v0.03')
+        # Simple logging following SUPREME_RULE NO.3
+        print(f"[HeuristicGameManager] Initializing with algorithm: {algorithm}, grid: {grid_size}x{grid_size}")
         
         # Create agent using extension-specific factory
         self.agent = self._create_agent(algorithm)
@@ -285,11 +289,9 @@ class HeuristicGameManager(BaseGameManager):
         # Convert to standard CSV format using common utilities
         csv_data = CSVSchemaManager.convert_to_standard_format(game_data)
         
-        # Save to standard location using common utilities
-        output_path = ExtensionConfig.create_grid_size_path(
-            ExtensionConfig.get_dataset_base_path(),
-            self.grid_size
-        )
+        # Save to standard location using simple path construction (SUPREME_RULE NO.3)
+        base_path = "logs/extensions/datasets"
+        output_path = f"{base_path}/grid-size-{self.grid_size}/heuristics_v0.03_{timestamp}"
         
         csv_file = f"{output_path}/tabular_{self.agent.name.lower()}_data.csv"
         csv_data.to_csv(csv_file, index=False)
@@ -311,8 +313,11 @@ from core.game_manager import BaseGameManager
 
 # ✅ Common utilities imports (allowed)
 from extensions.common.dataset_loader import DatasetLoader
-from extensions.common.config import ExtensionConfig
-from extensions.common.validation_utils import validate_model_config
+
+# ✅ Extension-specific constants (SUPREME_RULE NO.3: define locally)
+DEFAULT_BATCH_SIZE = 32
+DEFAULT_EPOCHS = 100
+VALID_MODEL_TYPES = ["MLP", "CNN", "XGBOOST", "LIGHTGBM"]
 
 # ✅ Extension-specific imports (allowed)
 from .models.neural_networks.agent_mlp import MLPAgent
@@ -328,11 +333,16 @@ class SupervisedGameManager(BaseGameManager):
     """
     
     def __init__(self, model_type: str, grid_size: int):
-        # Validate using common utilities
-        if not ExtensionConfig.validate_grid_size(grid_size):
+        # Simple validation (SUPREME_RULE NO.3: lightweight, no over-engineering)
+        if model_type not in VALID_MODEL_TYPES:
+            raise ValueError(f"Invalid model type: {model_type}. Supported: {VALID_MODEL_TYPES}")
+        if grid_size < 5 or grid_size > 50:
             raise ValueError(f"Invalid grid size: {grid_size}")
         
         super().__init__(grid_size=grid_size)
+        
+        # Simple logging following SUPREME_RULE NO.3
+        print(f"[SupervisedGameManager] Initializing {model_type} model for {grid_size}x{grid_size} grid")
         
         # Load training data using common utilities
         self.dataset_loader = DatasetLoader(grid_size)
@@ -350,11 +360,9 @@ class SupervisedGameManager(BaseGameManager):
         # Train using extension-specific logic
         self.model.train(X, y)
         
-        # Save model to standard location using common utilities
-        model_path = ExtensionConfig.create_grid_size_path(
-            ExtensionConfig.get_models_base_path(),
-            self.grid_size
-        )
+        # Save model to standard location using simple path construction (SUPREME_RULE NO.3)
+        base_path = "logs/extensions/models"
+        model_path = f"{base_path}/grid-size-{self.grid_size}/supervised_v0.03_{timestamp}"
         
         self.model.save(f"{model_path}/{self.model.name}_model.pkl")
 ```
@@ -365,72 +373,27 @@ class SupervisedGameManager(BaseGameManager):
 Each extension must pass the standalone validation:
 
 ```python
-# extensions/common/validation/
-class StandaloneValidator:
-    """
-    Validates that extensions follow standalone principles
+# SUPREME_RULE NO.3: Simple validation instead of over-engineered classes
+def validate_extension_standalone(extension_path: str) -> bool:
+    """Simple validation function for standalone principles"""
+    print(f"[Validator] Checking extension: {extension_path}")
     
-    Features:
-    - Import dependency analysis
-    - Cross-extension reference detection
-    - Common folder usage validation
-    - Version independence verification
-    """
+    # Simple checks using basic file operations
+    python_files = [f for f in os.listdir(extension_path) if f.endswith('.py')]
     
-    @staticmethod
-    def validate_extension(extension_path: str) -> Dict[str, bool]:
-        """Validate extension follows standalone principles"""
-        
-        results = {
-            'no_cross_extension_imports': False,
-            'uses_common_utilities': False,
-            'no_version_specific_code': False,
-            'proper_core_usage': False
-        }
-        
-        # Analyze Python files in extension
-        python_files = glob.glob(f"{extension_path}/**/*.py", recursive=True)
-        
-        for file_path in python_files:
-            with open(file_path, 'r') as f:
-                content = f.read()
-                
-                # Check for forbidden imports
-                if StandaloneValidator._has_cross_extension_imports(content):
-                    results['no_cross_extension_imports'] = False
-                    return results
-                
-                # Check for common utilities usage
-                if StandaloneValidator._uses_common_utilities(content):
-                    results['uses_common_utilities'] = True
-                
-                # Check for proper core usage
-                if StandaloneValidator._uses_core_framework(content):
-                    results['proper_core_usage'] = True
-        
-        results['no_cross_extension_imports'] = True
-        results['no_version_specific_code'] = True
-        
-        return results
+    for file_path in python_files:
+        with open(file_path, 'r') as f:
+            content = f.read()
+            
+            # Simple pattern checks
+            forbidden_patterns = ['heuristics_v0_', 'supervised_v0_', 'reinforcement_v0_']
+            for pattern in forbidden_patterns:
+                if pattern in content:
+                    print(f"[Validator] Found forbidden import: {pattern} in {file_path}")
+                    return False
     
-    @staticmethod
-    def _has_cross_extension_imports(content: str) -> bool:
-        """Check for forbidden cross-extension imports"""
-        
-        forbidden_patterns = [
-            r'from\s+heuristics_v0_\d+',
-            r'from\s+supervised_v0_\d+',
-            r'from\s+reinforcement_v0_\d+',
-            r'from\s+extensions\.heuristics-v0\.\d+',
-            r'from\s+extensions\.supervised-v0\.\d+',
-            r'from\s+extensions\.reinforcement-v0\.\d+'
-        ]
-        
-        for pattern in forbidden_patterns:
-            if re.search(pattern, content):
-                return True
-        
-        return False
+    print(f"[Validator] Extension {extension_path} is standalone compliant")
+    return True
 ```
 
 ## 🎯 **Benefits of Standalone Architecture**

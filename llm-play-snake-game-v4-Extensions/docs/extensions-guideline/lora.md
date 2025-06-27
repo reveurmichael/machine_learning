@@ -32,8 +32,12 @@ extensions/llm-finetune-v0.03/
 │   ├── model_factory.py          # Model creation with LoRA
 │   └── checkpoint_manager.py     # Training checkpoints
 └── config/                        # Configuration
-    ├── lora_presets.py           # Common LoRA configurations
-    └── training_defaults.py      # Training parameters
+    └── lora_presets.py           # Common LoRA configurations
+
+# Note: Following SUPREME_RULE NO.3, training parameters are defined locally:
+DEFAULT_LORA_RANK = 16
+DEFAULT_LORA_ALPHA = 32  
+DEFAULT_EPOCHS = 100
 ```
 
 ### **Factory Pattern Integration**
@@ -70,11 +74,10 @@ class LoRAAdapterFactory:
 Following Final Decision 2 configuration standards:
 
 ```python
-from extensions.common.config.lora_constants import (
-    DEFAULT_LORA_RANK,
-    DEFAULT_LORA_ALPHA,
-    DEFAULT_LORA_DROPOUT
-)
+# SUPREME_RULE NO.3: Define constants locally instead of importing from common
+DEFAULT_LORA_RANK = 16
+DEFAULT_LORA_ALPHA = 32
+DEFAULT_LORA_DROPOUT = 0.05
 
 class LoRAConfig:
     """LoRA adapter configuration following GOOD_RULES patterns"""

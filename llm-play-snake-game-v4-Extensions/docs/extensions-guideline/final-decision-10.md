@@ -41,7 +41,6 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `single-source-of-truth.md` (Architectural principles)
 - `standalone.md` (Standalone principle enforcement)
 - `supervised.md` (Supervised learning extension standards)
-- `unified-factory-pattern-guide.md` (Factory pattern implementation)
 - `unified-path-management-guide.md` (Path management standards)
 - `unified-streamlit-architecture-guide.md` (Streamlit OOP architecture)
 - `vision-language-model.md` (VLM extension standards)

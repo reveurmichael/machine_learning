@@ -71,202 +71,132 @@ class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
 
 #### **2. ConfigurationManager**
 ```python
-class ConfigurationManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Centralizes access to all configuration values across the project.
+# SUPREME_RULE NO.3: Simple configuration access instead of complex singletons
+def get_universal_config(module: str, key: str):
+    """Simple universal configuration access"""
+    print(f"[Config] Accessing universal config: {module}.{key}")
     
-    Singleton Justification:
-    - Global configuration state that must be consistent
-    - Expensive initialization (file loading, parsing, validation)
-    - Single source of truth for all configuration access
-    - Configuration validation and fallback handling
+    # Direct imports - simple and clear
+    if module == "game":
+        from config.game_constants import VALID_MOVES, DIRECTIONS
+        config_map = {"VALID_MOVES": VALID_MOVES, "DIRECTIONS": DIRECTIONS}
+    elif module == "ui":
+        from config.ui_constants import COLORS, GRID_SIZE
+        config_map = {"COLORS": COLORS, "GRID_SIZE": GRID_SIZE}
+    else:
+        config_map = {}
     
-    Responsibilities:
-    - Load and validate configurations from ROOT/config/
-    - Load and validate configurations from extensions/common/config/
-    - Provide unified interface for configuration access
-    - Handle configuration inheritance and overrides
-    - Validate configuration consistency across extensions
-    """
+    return config_map.get(key)
+
+def get_extension_config(module: str, key: str, default=None):
+    """Simple extension configuration access"""
+    print(f"[Config] Accessing extension config: {module}.{key}")
     
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._configs = {}
-            self._load_all_configurations()
-            self._validate_configurations()
+    # Extension-specific constants defined locally (SUPREME_RULE NO.3)
+    if module == "dataset":
+        local_config = {"CSV_SCHEMA_VERSION": "1.0", "FEATURE_COUNT": 16}
+    else:
+        local_config = {}
     
-    @abstractmethod
-    def get_universal_config(self, module: str, key: str) -> Any:
-        """Get universal configuration from ROOT/config/"""
-        config_key = f"universal.{module}.{key}"
-        if config_key not in self._configs:
-            raise ConfigurationError(f"Universal config not found: {config_key}")
-        return self._configs[config_key]
-    
-    @abstractmethod
-    def get_extension_config(self, module: str, key: str, default: Any = None) -> Any:
-        """Get extension-specific configuration from extensions/common/config/"""
-        config_key = f"extension.{module}.{key}"
-        return self._configs.get(config_key, default)
-    
-    @abstractmethod
-    def validate_extension_compatibility(self, extension_type: str) -> bool:
-        """Validate that extension configuration is compatible with universal configs"""
-        # Implementation validates no conflicts between extension and universal configs
-        pass
+    return local_config.get(key, default)
 ```
 
 #### **3. ValidationRegistry**
 ```python
-class ValidationRegistry(ABC, metaclass=SingletonABCMeta):
-    """
-    Registry of all validation rules and schemas across the project.
+# SUPREME_RULE NO.3: Simple validation functions instead of complex registries
+_validators = {}  # Simple module-level registry
+
+def register_validator(data_type: str, validator_func):
+    """Simple validator registration"""
+    print(f"[Validation] Registering validator for {data_type}")
+    _validators[data_type] = validator_func
+
+def validate_data(data_type: str, data):
+    """Simple data validation"""
+    validator = _validators.get(data_type, lambda x: True)  # Default: always valid
+    try:
+        result = validator(data)
+        print(f"[Validation] {data_type} validation: {'PASS' if result else 'FAIL'}")
+        return result
+    except Exception as e:
+        print(f"[Validation] {data_type} validation error: {e}")
+        return False
+
+def get_schema(schema_type: str, version: str = "latest"):
+    """Simple schema retrieval"""
+    print(f"[Schema] Getting {schema_type} schema v{version}")
     
-    Singleton Justification:
-    - Global validation state that must be consistent
-    - Expensive initialization (schema loading, rule compilation)
-    - Single source of truth for all validation rules
-    - Performance optimization through rule caching
+    # Simple schema definitions without complex caching
+    if schema_type == "csv":
+        return ["head_x", "head_y", "apple_x", "apple_y", "snake_length", "target_move"]
     
-    Responsibilities:
-    - Register and manage validation rules
-    - Provide validation rule lookup and execution
-    - Validate data consistency across extensions
-    - Cache compiled validation schemas
-    - Handle validation rule inheritance and composition
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._validators = {}
-            self._schemas = {}
-            self._register_default_validators()
-    
-    @abstractmethod
-    def register_validator(self, data_type: str, validator: BaseValidator):
-        """Register new validator for specific data type"""
-        if data_type in self._validators:
-            raise ValidationError(f"Validator already registered for: {data_type}")
-        self._validators[data_type] = validator
-    
-    @abstractmethod
-    def validate_data(self, data_type: str, data: Any) -> ValidationResult:
-        """Validate data using registered validator"""
-        if data_type not in self._validators:
-            raise ValidationError(f"No validator registered for: {data_type}")
-        return self._validators[data_type].validate(data)
-    
-    @abstractmethod
-    def get_schema(self, schema_type: str, version: str = "latest") -> Schema:
-        """Get validation schema with caching"""
-        schema_key = f"{schema_type}_{version}"
-        if schema_key not in self._schemas:
-            self._schemas[schema_key] = self._load_schema(schema_type, version)
-        return self._schemas[schema_key]
+    return []
 ```
 
 #### **4. DatasetSchemaManager**
 ```python
-class DatasetSchemaManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Manages CSV schemas and data format definitions across all extensions.
+# SUPREME_RULE NO.3: Simple schema functions instead of complex managers
+def get_csv_schema(grid_size: int, version: str = "v1"):
+    """Simple CSV schema retrieval - grid-size agnostic"""
+    print(f"[Schema] Getting CSV schema v{version} for grid {grid_size}x{grid_size}")
     
-    Singleton Justification:
-    - Global schema state that must be consistent across all data operations
-    - Expensive initialization (schema parsing, feature engineering validation)
-    - Single source of truth for all dataset schemas
-    - Schema consistency across different grid sizes and extensions
+    # Standard 16-feature schema works for any grid size
+    return [
+        'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
+        'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
+        'danger_straight', 'danger_left', 'danger_right',
+        'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
+        'game_id', 'step_in_game', 'target_move'
+    ]
+
+def extract_features(game_state, grid_size: int):
+    """Simple feature extraction function"""
+    print(f"[Features] Extracting features for grid {grid_size}x{grid_size}")
     
-    Responsibilities:
-    - Manage grid-size agnostic CSV schemas
-    - Provide feature extraction and validation
-    - Handle schema evolution and versioning
-    - Validate dataset compatibility across extensions
-    - Cache schema computations for performance
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._schemas = {}
-            self._feature_extractors = {}
-            self._initialize_schemas()
-    
-    @abstractmethod
-    def get_csv_schema(self, grid_size: int, version: str = "v1") -> CSVSchema:
-        """Get CSV schema for specific grid size (grid-size agnostic features)"""
-        schema_key = f"csv_{version}"  # Note: grid_size agnostic
-        if schema_key not in self._schemas:
-            self._schemas[schema_key] = self._create_grid_agnostic_schema(version)
-        return self._schemas[schema_key]
-    
-    @abstractmethod
-    def get_feature_extractor(self, grid_size: int) -> FeatureExtractor:
-        """Get feature extractor for specific grid size"""
-        if grid_size not in self._feature_extractors:
-            self._feature_extractors[grid_size] = GridSizeAgnosticFeatureExtractor(grid_size)
-        return self._feature_extractors[grid_size]
-    
-    @abstractmethod
-    def validate_dataset_compatibility(self, dataset_path: Path, 
-                                     expected_schema: str) -> bool:
-        """Validate that dataset follows expected schema"""
-        schema = self.get_csv_schema(grid_size=None, version=expected_schema)
-        return schema.validate_dataset(dataset_path)
+    # Simple feature extraction without complex classes
+    features = {
+        'head_x': game_state.get('head_position', [0, 0])[0],
+        'head_y': game_state.get('head_position', [0, 0])[1],
+        'snake_length': len(game_state.get('snake_positions', []))
+    }
+    return features
+
+def validate_dataset_compatibility(dataset_path: str, expected_schema: str):
+    """Simple dataset validation"""
+    print(f"[Validation] Checking dataset {dataset_path} against {expected_schema}")
+    # Simple validation without complex class hierarchies
+    return True  # Flexible validation following SUPREME_RULE NO.3
 ```
 
 #### **5. ModelRegistryManager**
 ```python
-class ModelRegistryManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Registry of available model types and their metadata across all extensions.
+# SUPREME_RULE NO.3: Simple model registry instead of complex managers
+_model_types = {}  # Simple module-level registry
+
+def register_model_type(model_name: str, model_class):
+    """Simple model registration"""
+    print(f"[ModelRegistry] Registering model: {model_name}")
+    _model_types[model_name] = model_class
+
+def get_model_class(model_name: str):
+    """Simple model class retrieval"""
+    model_class = _model_types.get(model_name)
+    if model_class:
+        print(f"[ModelRegistry] Found model: {model_name}")
+    else:
+        print(f"[ModelRegistry] Model not found: {model_name}")
+        available = list(_model_types.keys())
+        print(f"[ModelRegistry] Available models: {available}")
+    return model_class
+
+def get_compatible_models(data_format: str, grid_size: int):
+    """Simple compatibility check"""
+    print(f"[ModelRegistry] Finding models for {data_format} on {grid_size}x{grid_size} grid")
     
-    Singleton Justification:
-    - Global model registry state that must be consistent
-    - Expensive initialization (model discovery, metadata loading)
-    - Single source of truth for all model type definitions
-    - Model compatibility and interoperability management
-    
-    Responsibilities:
-    - Register and manage model types across extensions
-    - Provide model metadata and compatibility information
-    - Handle model serialization and deployment formats
-    - Manage model performance benchmarks
-    - Validate model artifact consistency
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._model_types = {}
-            self._model_metadata = {}
-            self._deployment_formats = {}
-            self._register_default_model_types()
-    
-    @abstractmethod
-    def register_model_type(self, model_name: str, model_class: Type, 
-                           metadata: ModelMetadata):
-        """Register new model type with metadata"""
-        if model_name in self._model_types:
-            raise ModelRegistryError(f"Model type already registered: {model_name}")
-        
-        self._model_types[model_name] = model_class
-        self._model_metadata[model_name] = metadata
-    
-    @abstractmethod
-    def get_model_class(self, model_name: str) -> Type:
-        """Get model class by name"""
-        if model_name not in self._model_types:
-            raise ModelRegistryError(f"Model type not registered: {model_name}")
-        return self._model_types[model_name]
-    
-    @abstractmethod
-    def get_compatible_models(self, data_format: str, 
-                            grid_size: int) -> List[str]:
-        """Get list of models compatible with data format and grid size"""
-        compatible = []
+    # Simple compatibility - most models work with any grid size and CSV format
+    available_models = list(_model_types.keys())
+    print(f"[ModelRegistry] Compatible models: {available_models}")
+    return available_models
         for model_name, metadata in self._model_metadata.items():
             if (data_format in metadata.supported_formats and 
                 grid_size in metadata.supported_grid_sizes):

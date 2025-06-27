@@ -167,90 +167,62 @@ class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
         """Get standardized dataset path"""
         pass
 
-class ConfigurationManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Centralizes access to all configuration values.
+# SUPREME_RULE NO.3: Simple configuration access instead of complex managers
+def get_config_value(config_type: str, key: str) -> Any:
+    """Simple configuration value retrieval"""
+    print(f"[Config] Getting {config_type}.{key}")
     
-    Singleton Justification:
-    - Global configuration state
-    - Expensive initialization (file loading, validation)
-    - Consistent configuration access across application
-    """
+    # Simple config access without complex class hierarchies
+    if config_type == "game":
+        from config.game_constants import VALID_MOVES, DIRECTIONS
+        return {"VALID_MOVES": VALID_MOVES, "DIRECTIONS": DIRECTIONS}.get(key)
+    elif config_type == "ui":
+        from config.ui_constants import COLORS, GRID_SIZE
+        return {"COLORS": COLORS, "GRID_SIZE": GRID_SIZE}.get(key)
     
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._configs = {}
-            self._load_all_configurations()
-    
-    @abstractmethod
-    def get_config(self, config_type: str, key: str) -> Any:
-        """Get configuration value with fallback handling"""
-        pass
+    return None
 
-class ValidationRegistry(ABC, metaclass=SingletonABCMeta):
-    """
-    Registry of all validation rules and schemas.
-    
-    Singleton Justification:
-    - Global validation state
-    - Expensive initialization (schema loading, rule compilation)
-    - Consistent validation rules across application
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._validators = {}
-            self._schemas = {}
-    
-    @abstractmethod
-    def register_validator(self, data_type: str, validator: BaseValidator):
-        """Register new validator for data type"""
-        pass
+# SUPREME_RULE NO.3: Simple validation registry instead of complex singletons
+_validators = {}  # Simple module-level registry
 
-class DatasetSchemaManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Manages CSV schemas and data format definitions.
-    
-    Singleton Justification:
-    - Global schema state
-    - Expensive initialization (schema parsing, validation)
-    - Schema consistency across all data operations
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._schemas = {}
-            self._feature_extractors = {}
-    
-    @abstractmethod
-    def get_schema(self, grid_size: int, data_format: str) -> Schema:
-        """Get appropriate schema for grid size and format"""
-        pass
+def register_validator(data_type: str, validator_func):
+    """Simple validator registration"""
+    print(f"[Registry] Registering validator for {data_type}")
+    _validators[data_type] = validator_func
 
-class ModelRegistryManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Registry of available model types and their metadata.
+def get_validator(data_type: str):
+    """Simple validator retrieval"""
+    return _validators.get(data_type, lambda x: True)  # Default: always valid
+
+# SUPREME_RULE NO.3: Simple schema functions instead of complex managers
+def get_csv_schema(grid_size: int) -> list:
+    """Simple CSV schema retrieval"""
+    print(f"[Schema] Getting CSV schema for grid {grid_size}x{grid_size}")
     
-    Singleton Justification:
-    - Global model registry state
-    - Expensive initialization (model discovery, metadata loading)
-    - Consistent model type definitions across application
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._model_types = {}
-            self._model_metadata = {}
-    
-    @abstractmethod
-    def register_model_type(self, model_name: str, model_class: Type, 
-                           metadata: ModelMetadata):
-        """Register new model type"""
-        pass
+    # Standard 16-feature schema works for any grid size
+    return [
+        'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
+        'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
+        'danger_straight', 'danger_left', 'danger_right',
+        'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
+        'game_id', 'step_in_game', 'target_move'
+    ]
+
+# SUPREME_RULE NO.3: Simple model registry instead of complex managers
+_model_types = {}  # Simple module-level registry
+
+def register_model_type(model_name: str, model_class):
+    """Simple model registration"""
+    print(f"[ModelRegistry] Registering model: {model_name}")
+    _model_types[model_name] = model_class
+
+def get_model_class(model_name: str):
+    """Simple model class retrieval"""
+    return _model_types.get(model_name)
+
+def list_available_models():
+    """List all registered models"""
+    return list(_model_types.keys())
 ```
 
 ### **NOT Singleton Classes**

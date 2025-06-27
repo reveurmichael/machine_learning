@@ -45,9 +45,6 @@ MODEL_PATH_TEMPLATE: str = "{root_dir}/{extensions_dir}/{models_dir}/grid-size-{
 """Template for model directory paths.
 Example: logs/extensions/models/grid-size-10/supervised_v0.02_20240101_120000"""
 
-LOG_PATH_TEMPLATE: str = "{root_dir}/{extensions_dir}/logs/{extension_type}_v{version}_{timestamp}"
-"""Template for execution log paths.
-Example: logs/extensions/logs/heuristics_v0.03_20240101_120000"""
 
 CHECKPOINT_PATH_TEMPLATE: str = "{model_dir}/checkpoints/{algorithm}/epoch_{epoch:03d}_{metric}_{value:.4f}.pth"
 """Template for model checkpoint paths."""
@@ -115,14 +112,6 @@ MODEL_FILE_PATTERNS: Dict[str, str] = {
 }
 """File naming patterns for different model formats."""
 
-LOG_FILE_PATTERNS: Dict[str, str] = {
-    "training": "training_{algorithm}_{timestamp}.log",
-    "evaluation": "evaluation_{algorithm}_{timestamp}.log",
-    "metrics": "metrics_{algorithm}_{timestamp}.json",
-    "config": "config_{algorithm}_{timestamp}.json"
-}
-"""File naming patterns for different log types."""
-
 # =============================================================================
 # Subdirectory Structures
 # =============================================================================
@@ -143,14 +132,6 @@ MODEL_SUBDIRS: List[str] = [
 ]
 """Standard subdirectories within model directories."""
 
-LOG_SUBDIRS: List[str] = [
-    "execution_logs",   # Main execution logs
-    "error_logs",       # Error and exception logs
-    "debug_logs",       # Debug information
-    "performance_logs"  # Performance metrics
-]
-"""Standard subdirectories within log directories."""
-
 # =============================================================================
 # Path Validation (See validation_rules.py for comprehensive validation)
 # =============================================================================
@@ -166,36 +147,6 @@ DEFAULT_PATHS: Dict[str, str] = {
     "root": ROOT_DIR_NAME,
     "extensions": f"{ROOT_DIR_NAME}/{EXTENSIONS_DIR_NAME}",
     "datasets": f"{ROOT_DIR_NAME}/{EXTENSIONS_DIR_NAME}/{DATASETS_DIR_NAME}",
-    "models": f"{ROOT_DIR_NAME}/{EXTENSIONS_DIR_NAME}/{MODELS_DIR_NAME}",
-    "logs": f"{ROOT_DIR_NAME}/{EXTENSIONS_DIR_NAME}/logs"
+    "models": f"{ROOT_DIR_NAME}/{EXTENSIONS_DIR_NAME}/{MODELS_DIR_NAME}"
 }
 """Default path configurations."""
-
-# =============================================================================
-# Archive and Backup Patterns
-# =============================================================================
-
-ARCHIVE_DIR_NAME: str = "archive"
-"""Directory name for archived datasets/models."""
-
-BACKUP_DIR_NAME: str = "backup"
-"""Directory name for backup copies."""
-
-ARCHIVE_PATH_TEMPLATE: str = "{base_path}/{archive_dir}/{year}/{month}"
-"""Template for archived data organization."""
-
-BACKUP_SUFFIX: str = "_backup_{timestamp}"
-"""Suffix pattern for backup files."""
-
-# =============================================================================
-# Temporary File Patterns
-# =============================================================================
-
-TEMP_DIR_NAME: str = "temp"
-"""Directory name for temporary files."""
-
-TEMP_FILE_PREFIX: str = "snakeai_temp_"
-"""Prefix for temporary files."""
-
-TEMP_PATH_TEMPLATE: str = "{root_dir}/{temp_dir}/{extension_type}_{process_id}"
-"""Template for temporary directory paths.""" 

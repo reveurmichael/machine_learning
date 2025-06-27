@@ -46,102 +46,16 @@ DEFAULT_GRID_SIZE: int = 10
 # File Extension Validation
 # =============================================================================
 
+# TODO: make sure this follow the rules set in the folder "./docs/extensions-guideline/"
 REQUIRED_FILE_EXTENSIONS: Dict[str, Set[str]] = {
     "dataset_csv": {".csv"},
-    "dataset_jsonl": {".jsonl", ".json"},
+    "dataset_jsonl": {".jsonl"},
     "dataset_npz": {".npz"},
     "model_pytorch": {".pth", ".pt"},
     "model_sklearn": {".pkl", ".joblib"},
     "model_onnx": {".onnx"},
-    "config": {".json", ".yaml", ".yml"},
-    "log": {".log", ".txt", ".json"}
 }
 """Required file extensions for different file types."""
-
-# =============================================================================
-# Version Validation (Flexible for Educational Project)
-# =============================================================================
-
-VERSION_PATTERN: str = r"^v?\d+\.\d{2}$"
-"""Regex pattern for version validation.
-
-Educational Note (SUPREME_RULE NO.3):
-We should be able to add new extensions easily and try out new ideas.
-Therefore, we don't restrict specific extension versions - any version
-following the pattern is valid to encourage experimentation.
-"""
-
-# =============================================================================
-# Dataset Quality Validation
-# =============================================================================
-
-DATASET_QUALITY_RULES: Dict[str, Any] = {
-    "min_samples": {
-        "csv": 100,
-        "jsonl": 100,
-        "npz": 100
-    },
-    "max_samples": {
-        "csv": 1000000,
-        "jsonl": 100000,
-        "npz": 10000000
-    },
-    "min_classes": 2,
-    "max_class_imbalance": 10.0,  # ratio
-    "max_missing_ratio": 0.1,
-    "max_duplicate_ratio": 0.05,
-    "min_feature_variance": 1e-6
-}
-"""Dataset quality validation rules."""
-
-# =============================================================================
-# Configuration Validation
-# =============================================================================
-
-HYPERPARAMETER_RANGES: Dict[str, Dict[str, Tuple[float, float]]] = {
-    "neural_networks": {
-        "learning_rate": (1e-6, 1e-1),
-        "batch_size": (1, 1024),
-        "epochs": (1, 10000),
-        "dropout_rate": (0.0, 0.9),
-        "weight_decay": (0.0, 1.0)
-    },
-    "tree_models": {
-        "n_estimators": (1, 10000),
-        "max_depth": (1, 50),
-        "min_samples_split": (2, 1000),
-        "min_samples_leaf": (1, 500)
-    },
-    "reinforcement_learning": {
-        "epsilon": (0.0, 1.0),
-        "gamma": (0.0, 1.0),
-        "learning_rate": (1e-6, 1e-1),
-        "buffer_size": (1000, 1000000)
-    }
-}
-"""Valid ranges for hyperparameters."""
-
-# =============================================================================
-# Path Validation Rules
-# =============================================================================
-
-PATH_VALIDATION_RULES: Dict[str, str] = {
-    "extension_type": r"^[a-z][a-z0-9_]*[a-z0-9]$",
-    "algorithm": r"^[a-z][a-z0-9_]*[a-z0-9]$",
-    "version": r"^\d+\.\d{2}$",
-    "timestamp": r"^\d{8}_\d{6}$",
-    "grid_size": r"^\d+$"
-}
-"""Regex patterns for path component validation."""
-
-FORBIDDEN_PATH_CHARACTERS: str = r'[<>:"/\\|?*\x00-\x1f]'
-"""Characters forbidden in path components."""
-
-MAX_PATH_LENGTH: int = 260
-"""Maximum total path length."""
-
-MAX_COMPONENT_LENGTH: int = 255
-"""Maximum length for individual path components."""
 
 # =============================================================================
 # Import Validation Rules
@@ -236,82 +150,4 @@ NPZ_VALIDATION_RULES: Dict[str, Dict[str, Any]] = {
 }
 """NPZ format validation rules for different types."""
 
-# =============================================================================
-# Performance Validation Thresholds
-# =============================================================================
 
-PERFORMANCE_THRESHOLDS: Dict[str, Dict[str, float]] = {
-    "accuracy": {
-        "minimum": 0.5,      # Better than random
-        "good": 0.7,         # Decent performance
-        "excellent": 0.9     # Excellent performance
-    },
-    "loss": {
-        "maximum": 10.0,     # Reasonable loss ceiling
-        "good": 1.0,         # Good loss level
-        "excellent": 0.1     # Excellent loss level
-    },
-    "training_time": {
-        "reasonable_hours": 24,   # Maximum reasonable training time
-        "fast_hours": 1,          # Fast training threshold
-        "very_fast_minutes": 10   # Very fast training threshold
-    }
-}
-"""Performance validation thresholds."""
-
-# =============================================================================
-# Resource Usage Validation
-# =============================================================================
-
-RESOURCE_LIMITS: Dict[str, Dict[str, Any]] = {
-    "memory": {
-        "dataset_mb": 1000,      # 1GB dataset limit
-        "model_mb": 500,         # 500MB model limit
-        "training_mb": 4000      # 4GB training memory limit
-    },
-    "disk": {
-        "experiment_gb": 10,     # 10GB per experiment
-        "total_gb": 100         # 100GB total storage
-    },
-    "time": {
-        "max_training_hours": 48,    # 48 hour training limit
-        "max_evaluation_hours": 4    # 4 hour evaluation limit
-    }
-}
-"""Resource usage validation limits."""
-
-# =============================================================================
-# Naming Convention Validation
-# =============================================================================
-
-NAMING_PATTERNS: Dict[str, str] = {
-    "agent_file": r"^agent_[a-z][a-z0-9_]*\.py$",
-    "class_name": r"^[A-Z][A-Za-z0-9]*Agent$",
-    "function_name": r"^[a-z][a-z0-9_]*[a-z0-9]$",
-    "constant_name": r"^[A-Z][A-Z0-9_]*[A-Z0-9]$",
-    "variable_name": r"^[a-z][a-z0-9_]*[a-z0-9]$"
-}
-"""Naming convention validation patterns."""
-
-# =============================================================================
-# Configuration Compliance Rules
-# =============================================================================
-
-COMPLIANCE_RULES: Dict[str, Dict[str, Any]] = {
-    "directory_structure": {
-        "required_dirs": ["agents", "scripts"],  # v0.02+
-        "optional_dirs": ["dashboard", "utils", "config"],
-        "forbidden_dirs": ["legacy", "deprecated"]
-    },
-    "file_organization": {
-        "agents_in_subdir": True,     # v0.02+ requirement
-        "max_files_per_dir": 20,
-        "min_documentation_ratio": 0.3  # 30% of lines should be comments/docs
-    },
-    "import_compliance": {
-        "no_relative_imports": True,
-        "no_circular_imports": True,
-        "use_type_hints": True
-    }
-}
-"""Extension compliance validation rules.""" 

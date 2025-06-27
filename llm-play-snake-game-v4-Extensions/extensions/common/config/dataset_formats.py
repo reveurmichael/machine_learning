@@ -178,7 +178,6 @@ SUPPORTED_FILE_EXTENSIONS: Dict[str, Set[str]] = {
     "jsonl": {".jsonl", ".json"},
     "npz": {".npz"},
     "model": {".pth", ".pkl", ".joblib", ".onnx"},
-    "log": {".json", ".log", ".txt"}
 }
 """Valid file extensions for each format type."""
 
@@ -225,35 +224,3 @@ FORMAT_COMPATIBILITY: Dict[str, Dict[str, bool]] = {
     }
 }
 """Format compatibility matrix for different use cases."""
-
-# =============================================================================
-# Quality Control Specifications
-# =============================================================================
-
-DATA_QUALITY_THRESHOLDS: Dict[str, Any] = {
-    "min_samples_per_class": 50,
-    "max_class_imbalance_ratio": 10.0,  # max_class_size / min_class_size
-    "min_feature_variance": 1e-6,
-    "max_missing_value_ratio": 0.1,
-    "max_duplicate_ratio": 0.05
-}
-"""Data quality validation thresholds."""
-
-DATASET_SIZE_LIMITS: Dict[str, Dict[str, int]] = {
-    "csv": {
-        "min_rows": 100,
-        "max_rows": 1000000,
-        "max_memory_mb": 500
-    },
-    "jsonl": {
-        "min_lines": 100,
-        "max_lines": 100000,
-        "max_memory_mb": 1000
-    },
-    "npz": {
-        "min_samples": 100,
-        "max_samples": 10000000,
-        "max_memory_mb": 2000
-    }
-}
-"""Dataset size limits for different formats.""" 

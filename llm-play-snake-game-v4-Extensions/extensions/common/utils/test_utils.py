@@ -308,7 +308,7 @@ def test_path_utils():
 def test_csv_schema():
     """Test CSV schema functionality"""
     try:
-        from .csv_schema import generate_csv_schema, create_csv_row, FEATURE_COUNT
+        from .csv_schema_utils import generate_csv_schema, create_csv_row, FEATURE_COUNT
         
         # Test schema generation
         schema = generate_csv_schema(grid_size=10)
@@ -347,7 +347,7 @@ def test_csv_schema():
 def test_validation_system():
     """Test validation system functionality"""
     try:
-        from .validation import validate_dataset_format, ValidationResult
+        from ..validation import validate_dataset_format, ValidationResult
         
         # Create temporary test file
         test_dir = create_test_environment()
@@ -378,8 +378,8 @@ def test_validation_system():
 def test_configuration_access():
     """Test configuration access functionality"""
     try:
-        from .config.ml_constants import DEFAULT_LEARNING_RATE
-        from .config.validation_rules import MIN_GRID_SIZE, MAX_GRID_SIZE
+        from ..config.ml_constants import DEFAULT_LEARNING_RATE
+        from ..config.validation_rules import MIN_GRID_SIZE, MAX_GRID_SIZE
         
         # Test that constants are accessible and reasonable
         assert isinstance(DEFAULT_LEARNING_RATE, float), "Learning rate should be float"

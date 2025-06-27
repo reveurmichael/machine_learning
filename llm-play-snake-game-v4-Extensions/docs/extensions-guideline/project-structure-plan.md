@@ -29,10 +29,6 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 # Educational Note (SUPREME_RULE NO.3):
 # Extensions can be any algorithm type - heuristics, ML, RL, evolutionary,
 # custom approaches, experimental ideas, or novel research directions.
-
-# Educational Note (SUPREME_RULE NO.4):
-# Common utilities are designed to support any extension type
-# without imposing artificial restrictions or limitations.
 ```
 
 ## 📁 **Extension Structure Template (Flexible)**
@@ -93,10 +89,7 @@ from extensions.common.validation import ExtensionValidator
 # Educational Note (SUPREME_RULE NO.3):
 # Common utilities are designed to be flexible and non-restrictive,
 # supporting any extension type without artificial limitations.
-
-# Educational Note (SUPREME_RULE NO.4):
-# Most extensions use common utilities as-is, but specialized extensions
-# can inherit and customize when needed for exceptional requirements.
+# Specialised extensions can still subclass utilities when needed.
 
 # Example: Standard usage (most extensions)
 loader = BaseDatasetLoader(config)

@@ -131,20 +131,20 @@ project_root = ensure_project_root()
 - **Interface Segregation**: Clean, focused interfaces
 - **Dependency Inversion**: Depend on abstractions, not concretions
 
-### **SUPREME_RULE NO.4 Implementation**
+### **SUPREME_RULE NO.3 Implementation (OOP Extensibility in Common Utilities)**
 
-Following **SUPREME_RULE NO.4**: "Whenever possible, make things in the 'extensions/common/' folder OOP, so that, if exceptions are to be made, they can extend those classes to adapt to exceptional needs."
+Following **SUPREME_RULE NO.3**: "The extensions/common/ folder should stay lightweight and generic. Whenever specialised behaviour is required, extensions can inherit from these simple OOP base classes without breaking the core."
 
 **OOP Design for Extensibility:**
 ```python
 # ✅ Base class with extension points
 class BaseDatasetLoader(ABC):
     def _initialize_loader_specific_settings(self):
-        """SUPREME_RULE NO.4: Override for specialized loaders"""
+        """SUPREME_RULE NO.3: Override for specialized loaders"""
         pass
     
     def _generate_extension_specific_metadata(self, data, file_path):
-        """SUPREME_RULE NO.4: Add custom metadata fields"""
+        """SUPREME_RULE NO.3: Add custom metadata fields"""
         return {}
 
 # ✅ Extension through inheritance

@@ -16,9 +16,9 @@ The Factory Pattern is a cornerstone design pattern in the Snake Game AI project
 - **Single Responsibility**: Creation logic centralized in factory classes
 - **Consistent Interface**: Uniform creation patterns across all extensions
 
-### **SUPREME_RULE NO.4 Integration**
+### **SUPREME_RULE NO.3 Integration**
 
-Factory patterns in `extensions/common/` follow **SUPREME_RULE NO.4**: "Whenever possible, make things in the 'extensions/common/' folder OOP, so that, if exceptions are to be made, they can extend those classes to adapt to exceptional needs."
+Factory patterns in `extensions/common/` follow **SUPREME_RULE NO.3**: "The common folder provides lightweight OOP bases; extensions can subclass them if specialised behaviour is needed."
 
 **Key OOP Features for Extensibility:**
 - **Inheritance-Ready Base Factories**: All factory classes designed for extension through inheritance
@@ -31,11 +31,11 @@ Factory patterns in `extensions/common/` follow **SUPREME_RULE NO.4**: "Whenever
 # extensions/common/factory_utils.py - Base implementation
 class BaseFactory(ABC):
     def _initialize_factory_settings(self):
-        """SUPREME_RULE NO.4: Extension point for specialized factories"""
+        """SUPREME_RULE NO.3: Extension point for specialized factories"""
         pass
     
     def _setup_extension_specific_agents(self):
-        """SUPREME_RULE NO.4: Override to register custom agents"""
+        """SUPREME_RULE NO.3: Override to register custom agents"""
         pass
 
 # In a specialized extension

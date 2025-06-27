@@ -19,9 +19,9 @@ The standalone principle is fundamental to the Snake Game AI extension architect
 - **Learning Progression**: Students can study extensions in isolation
 - **Research Isolation**: Experimental features remain contained
 
-### **SUPREME_RULE NO.4: OOP Extensibility in Common Utilities**
+### **SUPREME_RULE NO.3: OOP Extensibility in Common Utilities**
 
-**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+**SUPREME_RULE NO.3**: The `extensions/common/` folder is lightweight, generic, and object-oriented so that exceptional extensions can subclass the basics without altering shared code.
 
 **Key Benefits for Standalone Architecture:**
 - **Standard Usage**: Most extensions use common utilities as-is, maintaining simplicity

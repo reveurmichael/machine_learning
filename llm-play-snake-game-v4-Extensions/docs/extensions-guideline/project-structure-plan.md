@@ -6,7 +6,7 @@
 
 **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
-**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder remains lightweight and generic. When specialised requirements emerge, extensions can subclass or extend these simple OOP bases without altering the foundation.
 
 **Core Philosophy**: The project structure is designed to encourage experimentation, rapid prototyping, and educational exploration while maintaining clean architecture and code reusability. The OOP design enables both standard usage and specialized customization when needed.
 
@@ -29,6 +29,10 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 # Educational Note (SUPREME_RULE NO.3):
 # Extensions can be any algorithm type - heuristics, ML, RL, evolutionary,
 # custom approaches, experimental ideas, or novel research directions.
+
+# Educational Note (SUPREME_RULE NO.4):
+# Common utilities are designed to support any extension type
+# without imposing artificial restrictions or limitations.
 ```
 
 ## 📁 **Extension Structure Template (Flexible)**

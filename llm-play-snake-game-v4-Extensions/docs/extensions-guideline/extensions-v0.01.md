@@ -6,7 +6,7 @@
 
 **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
-**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+**SUPREME_RULE NO.3 – OOP Extensibility in Common Utilities**: While the `extensions/common/` folder is shared by all extensions, specialised extensions may have exceptional requirements. Hence its code should be simple, generic and object-oriented so that subclasses can extend behaviour without modifying the foundation.
 
 **Educational Philosophy**: v0.01 extensions serve as proof-of-concept implementations that encourage experimentation and learning. The architecture supports any algorithm type without artificial restrictions. The OOP design in common utilities enables both standard usage and specialized customization when needed.
 
@@ -36,7 +36,7 @@ class AnyAlgorithmAgent(BaseAgent):
 
 **No Algorithm Restrictions**: Following SUPREME_RULE NO.3, extensions can implement any algorithm approach - pathfinding, machine learning, evolutionary, rule-based, or novel approaches.
 
-### **Common Utilities Usage (Following SUPREME_RULE NO.4)**
+### **Common Utilities Usage (Following SUPREME_RULE NO.3)**
 ```python
 # ✅ STANDARD USAGE: Most v0.01 extensions use common utilities as-is
 from extensions.common.path_utils import ensure_project_root, get_dataset_path
@@ -51,7 +51,7 @@ loader = BaseDatasetLoader(config)
 # ✅ SPECIALIZED USAGE: If needed, inherit for exceptional requirements
 class CustomFeatureExtractor(TabularFeatureExtractor):
     """
-    Educational Note (SUPREME_RULE NO.4):
+    Educational Note (SUPREME_RULE NO.3):
     When standard features aren't sufficient, inherit and customize.
     Most extensions won't need this - only for exceptional cases.
     """

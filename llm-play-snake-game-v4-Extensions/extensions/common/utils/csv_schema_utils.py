@@ -56,13 +56,13 @@ class TabularFeatureExtractor:
     positioning and directional indicators rather than absolute coordinates
     that would vary with grid size.
     
-    Educational Note (SUPREME_RULE NO.4):
+    Educational Note (SUPREME_RULE NO.3):
     This class is designed to be extensible for extensions that need
     specialized feature extraction while maintaining compatibility with
     the standard 16-feature format. Extensions can inherit and customize
     specific feature extraction methods.
     
-    SUPREME_RULE NO.4 Implementation:
+    SUPREME_RULE NO.3 Implementation:
     - Base class provides complete 16-feature extraction
     - Protected methods allow selective feature customization
     - Virtual methods enable additional feature extraction
@@ -115,7 +115,7 @@ class TabularFeatureExtractor:
     
     def _initialize_extractor_settings(self) -> None:
         """
-        Initialize extractor-specific settings (SUPREME_RULE NO.4 Extension Point).
+        Initialize extractor-specific settings (SUPREME_RULE NO.3 Extension Point).
         
         This method can be overridden by subclasses to set up extension-specific
         feature extraction configurations or custom processing parameters.
@@ -130,7 +130,7 @@ class TabularFeatureExtractor:
     
     def _extract_extension_specific_features(self, game_state: GameState) -> Dict[str, Any]:
         """
-        Extract extension-specific features (SUPREME_RULE NO.4 Extension Point).
+        Extract extension-specific features (SUPREME_RULE NO.3 Extension Point).
         
         Override this method in subclasses to add custom features while
         maintaining compatibility with the standard 16-feature format.
@@ -344,11 +344,11 @@ class CSVDatasetGenerator:
     This class handles the conversion from raw game logs to
     standardized CSV datasets that can be used for training.
     
-    Educational Note (SUPREME_RULE NO.4):
+    Educational Note (SUPREME_RULE NO.3):
     This class is designed to be extensible for extensions that need
     specialized dataset generation while maintaining CSV format compatibility.
     
-    SUPREME_RULE NO.4 Implementation:
+    SUPREME_RULE NO.3 Implementation:
     - Base class provides complete CSV generation functionality
     - Pluggable feature extractor allows customization
     - Protected methods enable selective behavior modification
@@ -436,7 +436,7 @@ class CSVDatasetGenerator:
     
     def _initialize_generator_settings(self) -> None:
         """
-        Initialize generator-specific settings (SUPREME_RULE NO.4 Extension Point).
+        Initialize generator-specific settings (SUPREME_RULE NO.3 Extension Point).
         
         This method can be overridden by subclasses to set up extension-specific
         dataset generation configurations or custom processing parameters.

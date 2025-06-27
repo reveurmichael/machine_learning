@@ -16,7 +16,7 @@ The "No Over-Preparation" principle ensures that extensions remain focused, main
 
 **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
 
-**SUPREME_RULE NO.4**: While things in the folder "extensions/common/" are expected to be shared across all extensions, we expect exceptions to be made for certain extensions, as we have a very future-proof mindset. Therefore, whenever possible, make things in the "extensions/common/" folder OOP, so that, if exceptions are to be made, they can extend those classes in the "extensions/common/" folder, to adapt to the exceptions and some exceptional needs for those certain extensions.
+**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder is lightweight and generic. Extensions can inherit from its simple OOP base classes when specialised behaviour is required — no over-engineering upfront.
 
 ### **Core Philosophy**
 - **Educational Project**: Encourages experimentation and learning
@@ -125,15 +125,15 @@ class SupervisedLearningAgent(BaseAgent):
         pass
 ```
 
-### **SUPREME_RULE NO.4: Smart OOP Balance**
+### **SUPREME_RULE NO.3: Smart OOP Balance**
 
-SUPREME_RULE NO.4 demonstrates **appropriate** preparation - not over-preparation:
+SUPREME_RULE NO.3 demonstrates **appropriate** preparation - not over-preparation:
 
 ```python
 # ✅ APPROPRIATE: Smart OOP design with extension points
 class BaseDatasetLoader(ABC):
     """
-    Smart OOP design following SUPREME_RULE NO.4:
+    Smart OOP design following SUPREME_RULE NO.3:
     - Most extensions use this as-is (no over-engineering)
     - Specialized extensions can inherit when needed (not speculative)
     - Extension points are simple, not complex frameworks
@@ -146,11 +146,11 @@ class BaseDatasetLoader(ABC):
         return LoadedDataset(data, metadata, self.config)
     
     def _initialize_loader_specific_settings(self):
-        """SUPREME_RULE NO.4: Simple extension point, not complex framework"""
+        """SUPREME_RULE NO.3: Simple extension point, not complex framework"""
         pass  # Most extensions don't need this
     
     def _generate_extension_specific_metadata(self, data, file_path):
-        """SUPREME_RULE NO.4: Simple override point, not abstract pipeline"""
+        """SUPREME_RULE NO.3: Simple override point, not abstract pipeline"""
         return {}  # Most extensions don't need this
 
 # ✅ APPROPRIATE: Specialized extension when actually needed
@@ -172,12 +172,12 @@ class QuantumDatasetLoader(BaseDatasetLoader):
 class AbstractConfigurableExtensibleLoaderFactoryFramework:
     """
     This would be over-preparation - complex framework for simple needs.
-    SUPREME_RULE NO.4 provides simple extension points, not complex frameworks.
+    SUPREME_RULE NO.3 provides simple extension points, not complex frameworks.
     """
     pass
 ```
 
-**Key Balance**: SUPREME_RULE NO.4 provides **simple extension points** that most extensions ignore, but specialized extensions can use when they have **actual, concrete needs** - not speculative requirements.
+**Key Balance**: SUPREME_RULE NO.3 provides **simple extension points** that most extensions ignore, but specialized extensions can use when they have **actual, concrete needs** - not speculative requirements.
 
 ## ✅ **Appropriate Preparation Levels**
 

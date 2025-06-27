@@ -30,13 +30,13 @@ from enum import Enum
 import logging
 from pathlib import Path
 
-# Import configuration constants
-from .config.model_registry import (
+# Import configuration constants (updated paths for new structure)
+from ..config.model_registry import (
     ModelType, MODEL_METADATA, NEURAL_NETWORK_MODELS,
     TREE_MODELS, RL_MODELS, EVOLUTIONARY_MODELS
 )
-from .config.ml_constants import DEFAULT_LEARNING_RATE, DEFAULT_BATCH_SIZE
-from .config.validation_rules import ALGORITHM_SUPPORT
+from ..config.ml_constants import DEFAULT_LEARNING_RATE, DEFAULT_BATCH_SIZE
+from ..config.validation_rules import ALGORITHM_SUPPORT
 
 # =============================================================================
 # Factory Configuration Classes
@@ -204,108 +204,148 @@ class AgentFactory(BaseFactory):
         """Get specifications for all creatable agents."""
         specs = []
         for name, info in self._agent_registry.items():
-            specs.append(ComponentSpec(
+            spec = ComponentSpec(
                 name=name,
                 component_type=ComponentType.AGENT,
-                factory_class=info["class"],
-                supported_extensions=info["extensions"],
-                required_parameters=info["required_params"],
+                factory_class=type(self),
+                supported_extensions=info.get("supported_extensions", [self.extension_type]),
+                required_parameters=info.get("required_params", []),
                 optional_parameters=info.get("optional_params", {}),
-                description=info.get("description", f"Agent: {name}")
-            ))
+                description=info.get("description", f"{name} agent implementation")
+            )
+            specs.append(spec)
         return specs
     
     def _build_agent_registry(self) -> Dict[str, Dict[str, Any]]:
-        """Build registry of available agents for this extension type."""
+        """Build registry of available agents based on extension type."""
         registry = {}
         
         if self.extension_type == "heuristics":
+            # Heuristic pathfinding agents
             registry.update({
-                "bfs": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["grid_size"],
-                    "optional_params": {"max_depth": 100},
-                    "extensions": ["heuristics"],
-                    "description": "Breadth-First Search agent"
+                "BFS": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["name", "grid_size"],
+                    "optional_params": {"use_gui": False},
+                    "description": "Breadth-First Search pathfinding agent",
+                    "supported_extensions": ["heuristics"]
                 },
-                "astar": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["grid_size", "heuristic"],
-                    "optional_params": {"max_iterations": 1000},
-                    "extensions": ["heuristics"],
-                    "description": "A* Search agent"
+                "ASTAR": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["name", "grid_size"],
+                    "optional_params": {"heuristic": "manhattan", "use_gui": False},
+                    "description": "A* pathfinding agent with configurable heuristic",
+                    "supported_extensions": ["heuristics"]
                 },
-                "hamiltonian": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["grid_size"],
-                    "optional_params": {"safety_margin": 2},
-                    "extensions": ["heuristics"],
-                    "description": "Hamiltonian Cycle agent"
+                "DFS": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["name", "grid_size"],
+                    "optional_params": {"max_depth": 1000, "use_gui": False},
+                    "description": "Depth-First Search pathfinding agent",
+                    "supported_extensions": ["heuristics"]
+                },
+                "HAMILTONIAN": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["name", "grid_size"],
+                    "optional_params": {"use_gui": False},
+                    "description": "Hamiltonian cycle pathfinding agent",
+                    "supported_extensions": ["heuristics"]
                 }
             })
-        
+            
         elif self.extension_type == "supervised":
+            # Machine learning agents
             registry.update({
-                "neural_network": {
-                    "class": None,  # Would import actual class
+                "MLP": {
+                    "class": None,  # Would be imported dynamically
                     "required_params": ["input_size", "output_size"],
-                    "optional_params": {"hidden_layers": [64, 32], "activation": "relu"},
-                    "extensions": ["supervised"],
-                    "description": "Neural Network agent"
+                    "optional_params": {
+                        "hidden_layers": [64, 32],
+                        "activation": "relu",
+                        "learning_rate": DEFAULT_LEARNING_RATE,
+                        "batch_size": DEFAULT_BATCH_SIZE
+                    },
+                    "description": "Multi-Layer Perceptron neural network agent",
+                    "supported_extensions": ["supervised"]
                 },
-                "decision_tree": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["max_depth"],
-                    "optional_params": {"criterion": "gini", "min_samples_split": 2},
-                    "extensions": ["supervised"],
-                    "description": "Decision Tree agent"
+                "CNN": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["input_shape", "num_classes"],
+                    "optional_params": {
+                        "conv_layers": [(32, 3), (64, 3)],
+                        "pool_size": 2,
+                        "learning_rate": DEFAULT_LEARNING_RATE
+                    },
+                    "description": "Convolutional Neural Network agent",
+                    "supported_extensions": ["supervised"]
+                },
+                "XGBOOST": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["n_estimators"],
+                    "optional_params": {
+                        "max_depth": 6,
+                        "learning_rate": 0.1,
+                        "subsample": 0.8,
+                        "colsample_bytree": 0.8
+                    },
+                    "description": "XGBoost gradient boosting agent",
+                    "supported_extensions": ["supervised"]
                 }
             })
-        
+            
         elif self.extension_type == "reinforcement":
+            # Reinforcement learning agents
             registry.update({
-                "dqn": {
-                    "class": None,  # Would import actual class
+                "DQN": {
+                    "class": None,  # Would be imported dynamically
                     "required_params": ["state_size", "action_size"],
-                    "optional_params": {"lr": DEFAULT_LEARNING_RATE, "gamma": 0.95},
-                    "extensions": ["reinforcement"],
-                    "description": "Deep Q-Network agent"
+                    "optional_params": {
+                        "learning_rate": 0.001,
+                        "gamma": 0.95,
+                        "epsilon": 0.1,
+                        "memory_size": 10000
+                    },
+                    "description": "Deep Q-Network reinforcement learning agent",
+                    "supported_extensions": ["reinforcement"]
                 },
-                "ppo": {
-                    "class": None,  # Would import actual class
+                "PPO": {
+                    "class": None,  # Would be imported dynamically
                     "required_params": ["state_size", "action_size"],
-                    "optional_params": {"lr": DEFAULT_LEARNING_RATE, "clip_ratio": 0.2},
-                    "extensions": ["reinforcement"],
-                    "description": "Proximal Policy Optimization agent"
+                    "optional_params": {
+                        "learning_rate": 0.0003,
+                        "gamma": 0.99,
+                        "gae_lambda": 0.95,
+                        "clip_epsilon": 0.2
+                    },
+                    "description": "Proximal Policy Optimization agent",
+                    "supported_extensions": ["reinforcement"]
                 }
             })
-        
+            
         elif self.extension_type == "evolutionary":
+            # Evolutionary algorithm agents
             registry.update({
-                "genetic_algorithm": {
-                    "class": None,  # Would import actual class
+                "GENETIC": {
+                    "class": None,  # Would be imported dynamically
                     "required_params": ["population_size", "genome_length"],
-                    "optional_params": {"mutation_rate": 0.01, "crossover_rate": 0.8},
-                    "extensions": ["evolutionary"],
-                    "description": "Genetic Algorithm agent"
+                    "optional_params": {
+                        "mutation_rate": 0.01,
+                        "crossover_rate": 0.8,
+                        "selection_method": "tournament"
+                    },
+                    "description": "Genetic Algorithm agent",
+                    "supported_extensions": ["evolutionary"]
                 },
-                "neuroevolution": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["network_structure", "population_size"],
-                    "optional_params": {"mutation_strength": 0.1, "elitism": 0.1},
-                    "extensions": ["evolutionary"],
-                    "description": "Neuroevolution agent"
-                }
-            })
-        
-        elif self.extension_type == "llm":
-            registry.update({
-                "llm_agent": {
-                    "class": None,  # Would import actual class
-                    "required_params": ["model_name", "api_key"],
-                    "optional_params": {"temperature": 0.7, "max_tokens": 1000},
-                    "extensions": ["llm"],
-                    "description": "Large Language Model agent"
+                "PARTICLE_SWARM": {
+                    "class": None,  # Would be imported dynamically
+                    "required_params": ["population_size", "dimensions"],
+                    "optional_params": {
+                        "inertia": 0.9,
+                        "cognitive": 1.5,
+                        "social": 1.5
+                    },
+                    "description": "Particle Swarm Optimization agent",
+                    "supported_extensions": ["evolutionary"]
                 }
             })
         
@@ -316,16 +356,17 @@ class AgentFactory(BaseFactory):
         Setup extension-specific agents (SUPREME_RULE NO.4 Extension Point).
         
         This method can be overridden by subclasses to register additional
-        agents or modify the agent registry for specialized requirements.
+        agents specific to their extension requirements or to modify the
+        standard agent configurations.
         
         Example:
-            class CustomEvolutionaryFactory(AgentFactory):
+            class CustomHeuristicsFactory(AgentFactory):
                 def _setup_extension_specific_agents(self):
-                    self._agent_registry["multi_objective_ga"] = {
-                        "class": MultiObjectiveGAAgent,
-                        "required_params": ["population_size", "objectives"],
-                        "extensions": ["evolutionary"],
-                        "description": "Multi-objective genetic algorithm"
+                    self._agent_registry["CUSTOM_BFS"] = {
+                        "class": CustomBFSAgent,
+                        "required_params": ["name", "grid_size", "custom_param"],
+                        "optional_params": {"optimization": True},
+                        "description": "Custom optimized BFS agent"
                     }
         """
         pass
@@ -336,15 +377,15 @@ class AgentFactory(BaseFactory):
 
 class ModelFactory(BaseFactory):
     """
-    Factory for creating machine learning models.
+    Factory for creating ML models using Builder pattern.
     
     Design Pattern: Builder Pattern
-    Purpose: Construct complex model objects step by step
+    Purpose: Construct complex ML models step by step
     
     Educational Note:
-    The Builder pattern is ideal for model creation because models
-    often require complex configuration with many optional parameters
-    that can be set in different combinations.
+    This factory demonstrates how the Builder pattern can be used
+    to create complex objects (ML models) with many optional parameters
+    while keeping the construction process clear and flexible.
     """
     
     def __init__(self, extension_type: str):
@@ -352,25 +393,22 @@ class ModelFactory(BaseFactory):
         self._model_builders = self._build_model_builders()
     
     def create(self, config: FactoryConfig) -> Any:
-        """Create a model using the builder pattern."""
+        """Create a model based on configuration."""
         model_name = config.component_name
         if model_name not in self._model_builders:
             raise ValueError(f"Unknown model type: {model_name}")
         
-        builder = self._model_builders[model_name]()
+        builder_class = self._model_builders[model_name]
+        builder = builder_class()
         
-        # Configure model using builder methods
-        for param, value in config.parameters.items():
-            if hasattr(builder, f"set_{param}"):
-                getattr(builder, f"set_{param}")(value)
-            else:
-                self.logger.warning(f"Unknown parameter {param} for model {model_name}")
+        # Configure builder with parameters
+        for param_name, param_value in config.parameters.items():
+            method_name = f"set_{param_name}"
+            if hasattr(builder, method_name):
+                getattr(builder, method_name)(param_value)
         
-        # Build the final model
-        try:
-            return builder.build()
-        except Exception as e:
-            raise RuntimeError(f"Failed to build model {model_name}: {str(e)}")
+        # Build and return model
+        return builder.build()
     
     def get_supported_components(self) -> List[str]:
         """Get list of model types this factory can create."""
@@ -379,34 +417,33 @@ class ModelFactory(BaseFactory):
     def get_component_specs(self) -> List[ComponentSpec]:
         """Get specifications for all creatable models."""
         specs = []
-        for model_type in ModelType:
-            if model_type.value in MODEL_METADATA:
-                metadata = MODEL_METADATA[model_type.value]
-                if self.extension_type in metadata.get("supported_extensions", []):
-                    specs.append(ComponentSpec(
-                        name=model_type.value,
-                        component_type=ComponentType.MODEL,
-                        factory_class=type(None),  # Would be actual builder class
-                        supported_extensions=metadata["supported_extensions"],
-                        required_parameters=metadata.get("required_params", []),
-                        optional_parameters=metadata.get("hyperparameters", {}),
-                        description=metadata.get("description", f"Model: {model_type.value}")
-                    ))
+        for model_name in self._model_builders.keys():
+            # Get model metadata from configuration
+            model_info = MODEL_METADATA.get(model_name, {})
+            
+            spec = ComponentSpec(
+                name=model_name,
+                component_type=ComponentType.MODEL,
+                factory_class=type(self),
+                supported_extensions=model_info.get("supported_extensions", [self.extension_type]),
+                required_parameters=model_info.get("required_params", []),
+                optional_parameters=model_info.get("optional_params", {}),
+                description=model_info.get("description", f"{model_name} model implementation")
+            )
+            specs.append(spec)
         return specs
     
     def _build_model_builders(self) -> Dict[str, Type]:
-        """Build registry of model builders for this extension type."""
+        """Build dictionary of model builders based on extension type."""
         builders = {}
         
         # Neural network models
-        if self.extension_type in ["supervised", "reinforcement"]:
-            for model_name in NEURAL_NETWORK_MODELS:
-                builders[model_name] = self._create_neural_builder_class(model_name)
+        for model_name in NEURAL_NETWORK_MODELS:
+            builders[model_name] = self._create_neural_builder_class(model_name)
         
-        # Tree models
-        if self.extension_type == "supervised":
-            for model_name in TREE_MODELS:
-                builders[model_name] = self._create_tree_builder_class(model_name)
+        # Tree-based models
+        for model_name in TREE_MODELS:
+            builders[model_name] = self._create_tree_builder_class(model_name)
         
         # RL models
         if self.extension_type == "reinforcement":
@@ -421,199 +458,210 @@ class ModelFactory(BaseFactory):
         return builders
     
     def _create_neural_builder_class(self, model_name: str) -> Type:
-        """Create a builder class for neural network models."""
+        """Create builder class for neural network models."""
         class NeuralNetworkBuilder:
             def __init__(self):
-                self.config = {
-                    "input_size": None,
-                    "output_size": None,
-                    "hidden_layers": [64, 32],
-                    "activation": "relu",
-                    "dropout": 0.1,
-                    "batch_norm": False
-                }
+                self.model_name = model_name
+                self.input_size = None
+                self.output_size = None
+                self.hidden_layers = [64, 32]
+                self.activation = "relu"
+                self.dropout = 0.0
+                self.batch_norm = False
+                self.learning_rate = DEFAULT_LEARNING_RATE
             
             def set_input_size(self, size: int):
-                self.config["input_size"] = size
+                self.input_size = size
                 return self
             
             def set_output_size(self, size: int):
-                self.config["output_size"] = size
+                self.output_size = size
                 return self
             
             def set_hidden_layers(self, layers: List[int]):
-                self.config["hidden_layers"] = layers
+                self.hidden_layers = layers
                 return self
             
             def set_activation(self, activation: str):
-                self.config["activation"] = activation
+                self.activation = activation
                 return self
             
             def set_dropout(self, dropout: float):
-                self.config["dropout"] = dropout
+                self.dropout = dropout
                 return self
             
             def set_batch_norm(self, use_batch_norm: bool):
-                self.config["batch_norm"] = use_batch_norm
+                self.batch_norm = use_batch_norm
                 return self
             
             def build(self):
-                if self.config["input_size"] is None or self.config["output_size"] is None:
-                    raise ValueError("Input and output sizes must be specified")
-                
                 # Would create actual neural network here
-                # For now, return configuration
+                # This is a placeholder implementation
                 return {
-                    "type": model_name,
-                    "config": self.config.copy()
+                    "type": "neural_network",
+                    "model_name": self.model_name,
+                    "input_size": self.input_size,
+                    "output_size": self.output_size,
+                    "hidden_layers": self.hidden_layers,
+                    "activation": self.activation,
+                    "dropout": self.dropout,
+                    "batch_norm": self.batch_norm,
+                    "learning_rate": self.learning_rate
                 }
         
         return NeuralNetworkBuilder
     
     def _create_tree_builder_class(self, model_name: str) -> Type:
-        """Create a builder class for tree-based models."""
+        """Create builder class for tree-based models."""
         class TreeModelBuilder:
             def __init__(self):
-                self.config = {
-                    "max_depth": 10,
-                    "min_samples_split": 2,
-                    "min_samples_leaf": 1,
-                    "criterion": "gini"
-                }
+                self.model_name = model_name
+                self.max_depth = None
+                self.min_samples_split = 2
+                self.min_samples_leaf = 1
+                self.criterion = "gini"
+                self.n_estimators = 100
             
             def set_max_depth(self, depth: int):
-                self.config["max_depth"] = depth
+                self.max_depth = depth
                 return self
             
             def set_min_samples_split(self, samples: int):
-                self.config["min_samples_split"] = samples
+                self.min_samples_split = samples
                 return self
             
             def set_min_samples_leaf(self, samples: int):
-                self.config["min_samples_leaf"] = samples
+                self.min_samples_leaf = samples
                 return self
             
             def set_criterion(self, criterion: str):
-                self.config["criterion"] = criterion
+                self.criterion = criterion
                 return self
             
             def build(self):
                 # Would create actual tree model here
                 return {
-                    "type": model_name,
-                    "config": self.config.copy()
+                    "type": "tree_model",
+                    "model_name": self.model_name,
+                    "max_depth": self.max_depth,
+                    "min_samples_split": self.min_samples_split,
+                    "min_samples_leaf": self.min_samples_leaf,
+                    "criterion": self.criterion,
+                    "n_estimators": self.n_estimators
                 }
         
         return TreeModelBuilder
     
     def _create_rl_builder_class(self, model_name: str) -> Type:
-        """Create a builder class for RL models."""
+        """Create builder class for RL models."""
         class RLModelBuilder:
             def __init__(self):
-                self.config = {
-                    "state_size": None,
-                    "action_size": None,
-                    "learning_rate": DEFAULT_LEARNING_RATE,
-                    "gamma": 0.95,
-                    "epsilon": 0.1
-                }
+                self.model_name = model_name
+                self.state_size = None
+                self.action_size = None
+                self.learning_rate = 0.001
+                self.gamma = 0.95
+                self.epsilon = 0.1
+                self.memory_size = 10000
             
             def set_state_size(self, size: int):
-                self.config["state_size"] = size
+                self.state_size = size
                 return self
             
             def set_action_size(self, size: int):
-                self.config["action_size"] = size
+                self.action_size = size
                 return self
             
             def set_learning_rate(self, lr: float):
-                self.config["learning_rate"] = lr
+                self.learning_rate = lr
                 return self
             
             def set_gamma(self, gamma: float):
-                self.config["gamma"] = gamma
+                self.gamma = gamma
                 return self
             
             def set_epsilon(self, epsilon: float):
-                self.config["epsilon"] = epsilon
+                self.epsilon = epsilon
                 return self
             
             def build(self):
-                if self.config["state_size"] is None or self.config["action_size"] is None:
-                    raise ValueError("State and action sizes must be specified")
-                
                 # Would create actual RL model here
                 return {
-                    "type": model_name,
-                    "config": self.config.copy()
+                    "type": "rl_model",
+                    "model_name": self.model_name,
+                    "state_size": self.state_size,
+                    "action_size": self.action_size,
+                    "learning_rate": self.learning_rate,
+                    "gamma": self.gamma,
+                    "epsilon": self.epsilon,
+                    "memory_size": self.memory_size
                 }
         
         return RLModelBuilder
     
     def _create_evolutionary_builder_class(self, model_name: str) -> Type:
-        """Create a builder class for evolutionary models."""
+        """Create builder class for evolutionary models."""
         class EvolutionaryModelBuilder:
             def __init__(self):
-                self.config = {
-                    "population_size": 100,
-                    "genome_length": None,
-                    "mutation_rate": 0.01,
-                    "crossover_rate": 0.8,
-                    "selection_method": "tournament"
-                }
+                self.model_name = model_name
+                self.population_size = 50
+                self.genome_length = None
+                self.mutation_rate = 0.01
+                self.crossover_rate = 0.8
+                self.selection_method = "tournament"
             
             def set_population_size(self, size: int):
-                self.config["population_size"] = size
+                self.population_size = size
                 return self
             
             def set_genome_length(self, length: int):
-                self.config["genome_length"] = length
+                self.genome_length = length
                 return self
             
             def set_mutation_rate(self, rate: float):
-                self.config["mutation_rate"] = rate
+                self.mutation_rate = rate
                 return self
             
             def set_crossover_rate(self, rate: float):
-                self.config["crossover_rate"] = rate
+                self.crossover_rate = rate
                 return self
             
             def set_selection_method(self, method: str):
-                self.config["selection_method"] = method
+                self.selection_method = method
                 return self
             
             def build(self):
-                if self.config["genome_length"] is None:
-                    raise ValueError("Genome length must be specified")
-                
                 # Would create actual evolutionary model here
                 return {
-                    "type": model_name,
-                    "config": self.config.copy()
+                    "type": "evolutionary_model",
+                    "model_name": self.model_name,
+                    "population_size": self.population_size,
+                    "genome_length": self.genome_length,
+                    "mutation_rate": self.mutation_rate,
+                    "crossover_rate": self.crossover_rate,
+                    "selection_method": self.selection_method
                 }
         
         return EvolutionaryModelBuilder
 
 # =============================================================================
-# Registry Pattern Implementation
+# Component Registry (Registry Pattern)
 # =============================================================================
 
 class ComponentRegistry:
     """
-    Registry for managing component factories.
+    Registry for managing factories and creating components.
     
     Design Pattern: Registry Pattern
-    Purpose: Centralized registry for factory lookup and management
+    Purpose: Provide centralized lookup and creation of components
     
     Educational Note:
     The Registry pattern provides a centralized way to manage
-    different factories and allows for dynamic registration
-    of new component types.
+    object creation while keeping the system flexible and extensible.
     """
     
     def __init__(self):
         self._factories: Dict[str, Dict[ComponentType, BaseFactory]] = {}
-        self.logger = logging.getLogger("ComponentRegistry")
     
     def register_factory(
         self,
@@ -621,28 +669,25 @@ class ComponentRegistry:
         component_type: ComponentType,
         factory: BaseFactory
     ) -> None:
-        """Register a factory for an extension and component type."""
+        """Register a factory for a specific extension and component type."""
         if extension_type not in self._factories:
             self._factories[extension_type] = {}
         
         self._factories[extension_type][component_type] = factory
-        self.logger.info(f"Registered factory: {extension_type}.{component_type.value}")
     
     def get_factory(
         self,
         extension_type: str,
         component_type: ComponentType
     ) -> Optional[BaseFactory]:
-        """Get factory for extension and component type."""
+        """Get factory for specific extension and component type."""
         return self._factories.get(extension_type, {}).get(component_type)
     
     def create_component(self, config: FactoryConfig) -> Any:
         """Create component using appropriate factory."""
         factory = self.get_factory(config.extension_type, config.component_type)
         if factory is None:
-            raise ValueError(
-                f"No factory registered for {config.extension_type}.{config.component_type.value}"
-            )
+            raise ValueError(f"No factory registered for {config.extension_type} {config.component_type.value}")
         
         return factory.create(config)
     
@@ -657,43 +702,37 @@ class ComponentRegistry:
         if extension_type not in self._factories:
             return result
         
-        for comp_type, factory in self._factories[extension_type].items():
-            if component_type is None or comp_type == component_type:
+        factories = self._factories[extension_type]
+        if component_type is not None:
+            if component_type in factories:
+                result[component_type] = factories[component_type].get_supported_components()
+        else:
+            for comp_type, factory in factories.items():
                 result[comp_type] = factory.get_supported_components()
         
         return result
 
 # =============================================================================
-# Global Registry Instance
+# Global Registry and Convenience Functions
 # =============================================================================
 
-# Global registry instance for shared use across extensions
 _global_registry = ComponentRegistry()
 
 def get_component_registry() -> ComponentRegistry:
-    """Get the global component registry."""
+    """Get global component registry."""
     return _global_registry
 
 def initialize_standard_factories(extension_type: str) -> None:
     """Initialize standard factories for an extension type."""
     registry = get_component_registry()
     
-    # Register standard factories
-    registry.register_factory(
-        extension_type,
-        ComponentType.AGENT,
-        AgentFactory(extension_type)
-    )
+    # Register agent factory
+    agent_factory = AgentFactory(extension_type)
+    registry.register_factory(extension_type, ComponentType.AGENT, agent_factory)
     
-    registry.register_factory(
-        extension_type,
-        ComponentType.MODEL,
-        ModelFactory(extension_type)
-    )
-
-# =============================================================================
-# High-Level Factory Functions
-# =============================================================================
+    # Register model factory
+    model_factory = ModelFactory(extension_type)
+    registry.register_factory(extension_type, ComponentType.MODEL, model_factory)
 
 def create_agent(
     extension_type: str,
@@ -702,23 +741,26 @@ def create_agent(
     **kwargs
 ) -> Any:
     """
-    High-level function to create an agent.
+    Convenience function to create an agent.
     
     Args:
         extension_type: Type of extension (heuristics, supervised, etc.)
         agent_name: Name of agent to create
-        grid_size: Grid size for the game
+        grid_size: Grid size for the agent
         **kwargs: Additional parameters for agent creation
-    
+        
     Returns:
         Created agent instance
     """
+    # Ensure factories are initialized
+    initialize_standard_factories(extension_type)
+    
     config = FactoryConfig(
         component_type=ComponentType.AGENT,
         component_name=agent_name,
         parameters={"grid_size": grid_size, **kwargs},
         extension_type=extension_type,
-        version="v0.01",  # Default version
+        version="latest",
         grid_size=grid_size
     )
     
@@ -731,23 +773,26 @@ def create_model(
     **kwargs
 ) -> Any:
     """
-    High-level function to create a model.
+    Convenience function to create a model.
     
     Args:
-        extension_type: Type of extension
+        extension_type: Type of extension (supervised, reinforcement, etc.)
         model_name: Name of model to create
-        **kwargs: Model configuration parameters
-    
+        **kwargs: Parameters for model creation
+        
     Returns:
         Created model instance
     """
+    # Ensure factories are initialized
+    initialize_standard_factories(extension_type)
+    
     config = FactoryConfig(
         component_type=ComponentType.MODEL,
         component_name=model_name,
         parameters=kwargs,
         extension_type=extension_type,
-        version="v0.01",  # Default version
-        grid_size=kwargs.get("grid_size", 10)  # Default grid size
+        version="latest",
+        grid_size=kwargs.get("grid_size", 10)
     )
     
     registry = get_component_registry()
@@ -758,13 +803,48 @@ def list_available_components(extension_type: str) -> Dict[str, List[str]]:
     List all available components for an extension type.
     
     Args:
-        extension_type: Extension type to query
-    
+        extension_type: Type of extension
+        
     Returns:
-        Dictionary mapping component types to available component names
+        Dictionary mapping component types to available components
     """
+    # Ensure factories are initialized
+    initialize_standard_factories(extension_type)
+    
     registry = get_component_registry()
     components = registry.get_available_components(extension_type)
     
-    # Convert enum keys to strings for easier use
-    return {comp_type.value: comp_list for comp_type, comp_list in components.items()} 
+    # Convert enum keys to strings for easier consumption
+    return {comp_type.value: comp_list for comp_type, comp_list in components.items()}
+
+def register_agent_type(extension_type: str, agent_name: str, agent_class: Type) -> None:
+    """Register a new agent type with the factory."""
+    registry = get_component_registry()
+    factory = registry.get_factory(extension_type, ComponentType.AGENT)
+    
+    if factory is None:
+        initialize_standard_factories(extension_type)
+        factory = registry.get_factory(extension_type, ComponentType.AGENT)
+    
+    # Add to agent registry
+    if hasattr(factory, '_agent_registry'):
+        factory._agent_registry[agent_name] = {
+            "class": agent_class,
+            "required_params": ["name", "grid_size"],
+            "optional_params": {},
+            "description": f"Custom {agent_name} agent",
+            "supported_extensions": [extension_type]
+        }
+
+def register_model_type(extension_type: str, model_name: str, builder_class: Type) -> None:
+    """Register a new model type with the factory."""
+    registry = get_component_registry()
+    factory = registry.get_factory(extension_type, ComponentType.MODEL)
+    
+    if factory is None:
+        initialize_standard_factories(extension_type)
+        factory = registry.get_factory(extension_type, ComponentType.MODEL)
+    
+    # Add to model builders
+    if hasattr(factory, '_model_builders'):
+        factory._model_builders[model_name] = builder_class 

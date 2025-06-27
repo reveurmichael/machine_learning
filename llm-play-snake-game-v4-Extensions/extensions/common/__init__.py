@@ -1,223 +1,107 @@
 """
-Extensions Common Utilities Package
+Extensions Common Package
 
-This package provides shared utilities for all Snake Game AI extensions, following the
-principle that each extension + common folder = standalone unit.
+This package provides shared utilities and configurations for all Snake Game AI
+extensions. It follows the principle that each extension + common folder = standalone unit.
 
-Design Philosophy:
-- Single source of truth for shared functionality
-- Grid-size agnostic implementations
-- Educational value with comprehensive documentation
-- Support for multiple data formats and validation
-- Factory patterns for creating appropriate components
+Structure:
+    config/         - Configuration packages and constants
+    validation/     - Validation utilities and rules
+    utils/          - Utility modules (reorganized from *_utils.py files)
+        - dataset_utils.py (from dataset_loader.py)
+        - extension_utils.py
+        - factory_utils.py
+        - metrics_utils.py
+        - path_utils.py
+        - test_utils.py
+        - csv_schema.py
 
-Key Components:
-- Configuration management (config/)
-- Data validation utilities (validation/)
-- Dataset loading and processing
-- Path management utilities
-- Factory pattern implementations
-- CSV schema for supervised learning
+Key Design Principles:
+- SUPREME_RULE NO.3: Flexibility and non-restrictiveness
+- SUPREME_RULE NO.4: OOP extensibility for exceptional needs
+- Single Source of Truth for shared functionality
+- Standalone principle (extension + common = self-contained)
 
-Usage:
-    from extensions.common import get_dataset_path, validate_dataset_format
-    from extensions.common.config import DEFAULT_LEARNING_RATE
-    from extensions.common.validation import DatasetValidator
+SUPREME_RULE NO.4 Implementation:
+All utility classes are designed with inheritance-ready patterns:
+- 90% standard usage: Most extensions use utilities as-is
+- 10% specialized usage: Extensions can inherit and customize
+- Protected extension points for algorithm-specific needs
+- Virtual methods for complete behavior replacement
 """
 
-# Core path utilities - fundamental for all extensions
-from .path_utils import (
-    ensure_project_root,
-    get_extension_path,
-    get_dataset_path,
-    get_model_path,
-    validate_path_structure,
-    setup_extension_environment
+# Import key utilities from the new structure
+from .utils.dataset_utils import BaseDatasetLoader, DatasetLoaderFactory
+from .utils.extension_utils import (
+    ExtensionEnvironment, ExtensionConfig, ExtensionType,
+    create_extension_environment, setup_extension_logging
+)
+from .utils.factory_utils import (
+    BaseFactory, AgentFactory, ModelFactory, ComponentRegistry,
+    create_agent, create_model, list_available_components
+)
+from .utils.metrics_utils import (
+    ExtensionGameData, ExtensionGameStatistics, ExtensionStepStats,
+    MetricsCollector
+)
+from .utils.path_utils import (
+    ensure_project_root_on_path, setup_extension_paths,
+    get_extension_path, get_dataset_path, get_model_path
+)
+from .utils.test_utils import TestRunner, TestCase, run_common_utilities_tests
+from .utils.csv_schema import (
+    TabularFeatureExtractor, CSVDatasetGenerator, CSVValidator,
+    load_and_validate_csv
 )
 
-# Configuration utilities
-from .config import (
-    # ML constants
-    DEFAULT_LEARNING_RATE,
-    EARLY_STOPPING_PATIENCE,
-    DEFAULT_BATCH_SIZE,
-    
-    # Training defaults
-    TRAIN_SPLIT_RATIO,
-    VALIDATION_SPLIT_RATIO,
-    TEST_SPLIT_RATIO,
-    
-    # Dataset formats
-    CSV_FEATURE_SCHEMA,
-    JSONL_SCHEMA,
-    NPZ_SEQUENTIAL_SCHEMA,
-    
-    # Path constants
-    DATASET_PATH_TEMPLATE,
-    MODEL_PATH_TEMPLATE,
-    
-    # Validation rules
-    MIN_GRID_SIZE,
-    MAX_GRID_SIZE,
-    
-    # Model registry
-    ModelType,
-    MODEL_CAPABILITIES,
-    MODEL_METADATA
-)
+# Import configuration packages
+from .config import *
 
-# Data processing utilities
-from .csv_schema import (
-    generate_csv_schema,
-    create_csv_row,
-    TabularFeatureExtractor,
-    validate_csv_schema,
-    FEATURE_COUNT,
-    COLUMN_NAMES
-)
+# Import validation utilities  
+from .validation import *
 
-from .dataset_loader import (
-    DatasetLoader,
-    load_dataset_for_training,
-    prepare_features_and_targets,
-    split_dataset,
-    validate_dataset_compatibility
-)
-
-# Factory utilities
-from .factory_utils import (
-    BaseFactory,
-    AgentFactory,
-    ModelFactory,
-    ValidatorFactory,
-    create_appropriate_validator,
-    register_factory_type
-)
-
-# Validation utilities - comprehensive validation system
-from .validation import (
-    # Main validation functions
-    validate_dataset_format,
-    validate_model_output,
-    validate_path_structure as validate_paths,
-    validate_config_access,
-    validate_extension_compliance,
-    
-    # Validation types
-    ValidationResult,
-    ValidationLevel,
-    ValidationReport,
-    
-    # Specific validators
-    DatasetValidator,
-    ModelValidator,
-    PathValidator,
-    ConfigValidator,
-    ExtensionValidator
-)
-
-# Extension management utilities
-from .extension_utils import (
-    ExtensionType,
-    ExtensionConfig,
-    ExtensionEnvironment,
-    create_extension_environment,
-    get_extension_info,
-    list_available_extensions,
-    validate_extension_standalone
-)
-
-# Testing utilities  
-from .test_utils import (
-    TestRunner,
-    TestCase,
-    create_test_environment,
-    cleanup_test_environment,
-    run_common_utilities_tests
-)
-
-# Version information
-__version__ = "1.0.0"
-__author__ = "Snake Game AI Project"
-__description__ = "Common utilities for Snake Game AI extensions"
-
-# Export categories for convenience
 __all__ = [
-    # Path management
-    'ensure_project_root',
-    'get_extension_path', 
-    'get_dataset_path',
-    'get_model_path',
-    'validate_path_structure',
-    'setup_extension_environment',
+    # Dataset utilities
+    "BaseDatasetLoader",
+    "DatasetLoaderFactory",
     
-    # Configuration constants
-    'DEFAULT_LEARNING_RATE',
-    'EARLY_STOPPING_PATIENCE',
-    'DEFAULT_BATCH_SIZE',
-    'TRAIN_SPLIT_RATIO',
-    'VALIDATION_SPLIT_RATIO',
-    'TEST_SPLIT_RATIO',
-    'CSV_FEATURE_SCHEMA',
-    'JSONL_SCHEMA',
-    'NPZ_SEQUENTIAL_SCHEMA',
-    'DATASET_PATH_TEMPLATE',
-    'MODEL_PATH_TEMPLATE',
-    'MIN_GRID_SIZE',
-    'MAX_GRID_SIZE',
-    'ModelType',
-    'MODEL_CAPABILITIES',
-    'MODEL_METADATA',
+    # Extension utilities
+    "ExtensionEnvironment",
+    "ExtensionConfig", 
+    "ExtensionType",
+    "create_extension_environment",
+    "setup_extension_logging",
     
-    # Data processing
-    'generate_csv_schema',
-    'create_csv_row',
-    'TabularFeatureExtractor',
-    'validate_csv_schema',
-    'FEATURE_COUNT',
-    'COLUMN_NAMES',
-    'DatasetLoader',
-    'load_dataset_for_training',
-    'prepare_features_and_targets',
-    'split_dataset',
-    'validate_dataset_compatibility',
+    # Factory utilities
+    "BaseFactory",
+    "AgentFactory", 
+    "ModelFactory",
+    "ComponentRegistry",
+    "create_agent",
+    "create_model",
+    "list_available_components",
     
-    # Factory patterns
-    'BaseFactory',
-    'AgentFactory',
-    'ModelFactory',
-    'ValidatorFactory',
-    'create_appropriate_validator',
-    'register_factory_type',
+    # Metrics utilities
+    "ExtensionGameData",
+    "ExtensionGameStatistics",
+    "ExtensionStepStats", 
+    "MetricsCollector",
     
-    # Validation system
-    'validate_dataset_format',
-    'validate_model_output',
-    'validate_paths',
-    'validate_config_access',
-    'validate_extension_compliance',
-    'ValidationResult',
-    'ValidationLevel',
-    'ValidationReport',
-    'DatasetValidator',
-    'ModelValidator',
-    'PathValidator',
-    'ConfigValidator',
-    'ExtensionValidator',
-    
-    # Extension management
-    'ExtensionType',
-    'ExtensionConfig',
-    'ExtensionEnvironment',
-    'create_extension_environment',
-    'get_extension_info',
-    'list_available_extensions',
-    'validate_extension_standalone',
+    # Path utilities
+    "ensure_project_root_on_path",
+    "setup_extension_paths",
+    "get_extension_path",
+    "get_dataset_path",
+    "get_model_path",
     
     # Testing utilities
-    'TestRunner',
-    'TestCase',
-    'create_test_environment',
-    'cleanup_test_environment',
-    'run_common_utilities_tests',
+    "TestRunner",
+    "TestCase", 
+    "run_common_utilities_tests",
+    
+    # CSV schema utilities
+    "TabularFeatureExtractor",
+    "CSVDatasetGenerator",
+    "CSVValidator",
+    "load_and_validate_csv",
 ] 

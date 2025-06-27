@@ -34,13 +34,13 @@ from enum import Enum
 import logging
 
 # Import configuration constants
-from .config.dataset_formats import (
+from ..config.dataset_formats import (
     CSV_COLUMN_NAMES, JSONL_REQUIRED_FIELDS, NPZ_ARRAY_NAMES
 )
-from .config.training_defaults import (
+from ..config.training_defaults import (
     DEFAULT_TRAIN_SPLIT, DEFAULT_VAL_SPLIT, DEFAULT_BATCH_SIZE
 )
-from .config.validation_rules import DATASET_VALIDATION_RULES
+from ..config.validation_rules import DATASET_VALIDATION_RULES
 from .path_utils import ensure_project_root_on_path
 
 # =============================================================================
@@ -306,130 +306,112 @@ class CSVDatasetLoader(BaseDatasetLoader):
         """Get number of rows in DataFrame."""
         return len(data)
 
+
 class JSONLDatasetLoader(BaseDatasetLoader):
     """
-    JSONL dataset loader for sequential data.
+    JSONL dataset loader for language-rich data.
     
-    Design Pattern: Strategy Pattern implementation
-    Purpose: Handle JSONL-specific loading for game sequences
-    
-    Educational Note:
-    Shows how to handle streaming JSON data while maintaining
-    memory efficiency for large datasets.
+    Purpose: Handle JSONL-specific loading for LLM fine-tuning data
     """
     
     def _load_raw_data(self, file_path: Path) -> List[Dict[str, Any]]:
         """Load JSONL data line by line."""
         data = []
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 for line_num, line in enumerate(f, 1):
-                    try:
-                        data.append(json.loads(line.strip()))
-                    except json.JSONDecodeError as e:
-                        raise ValueError(f"Invalid JSON on line {line_num}: {e}")
-            return data
+                    if line.strip():  # Skip empty lines
+                        data.append(json.loads(line))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON on line {line_num}: {e}")
         except Exception as e:
             raise ValueError(f"Failed to load JSONL file: {e}")
+        
+        return data
     
     def _validate_data_format(self, data: List[Dict[str, Any]]) -> None:
         """Validate JSONL data format."""
         if not data:
             raise ValueError("JSONL file is empty")
         
-        # Check required fields in first few records
-        sample_size = min(10, len(data))
-        for i, record in enumerate(data[:sample_size]):
-            missing_fields = set(JSONL_REQUIRED_FIELDS) - set(record.keys())
+        # Check required fields
+        for i, item in enumerate(data[:10]):  # Check first 10 items
+            missing_fields = set(JSONL_REQUIRED_FIELDS) - set(item.keys())
             if missing_fields:
-                raise ValueError(f"Record {i} missing required fields: {missing_fields}")
+                raise ValueError(f"Missing required fields in item {i}: {missing_fields}")
     
     def _preprocess_data(self, data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Apply JSONL-specific preprocessing."""
-        # Filter by grid size if specified
-        if self.config.grid_size is not None:
-            data = [
-                record for record in data 
-                if record.get("grid_size") == self.config.grid_size
-            ]
-        
-        # Extension-specific preprocessing
-        if self.config.extension_type == ExtensionType.REINFORCEMENT:
-            # For RL, ensure reward fields are numeric
-            for record in data:
-                if "reward" in record:
-                    record["reward"] = float(record["reward"])
+        # Filter by extension type
+        if self.config.extension_type == ExtensionType.LLM:
+            # Ensure all items have valid prompt and completion
+            filtered_data = []
+            for item in data:
+                if item.get("prompt") and item.get("completion"):
+                    filtered_data.append(item)
+            return filtered_data
         
         return data
     
     def _get_data_size(self, data: List[Dict[str, Any]]) -> int:
-        """Get number of records in list."""
+        """Get number of items in list."""
         return len(data)
+
 
 class NPZDatasetLoader(BaseDatasetLoader):
     """
-    NPZ dataset loader for numerical arrays.
+    NPZ dataset loader for numerical array data.
     
-    Design Pattern: Strategy Pattern implementation
-    Purpose: Handle NPZ-specific loading for neural network training
-    
-    Educational Note:
-    Demonstrates efficient loading of numerical data for deep learning
-    while maintaining the common interface.
+    Purpose: Handle NPZ-specific loading for RL/ML numerical data
     """
     
     def _load_raw_data(self, file_path: Path) -> Dict[str, np.ndarray]:
-        """Load NPZ data as dictionary of arrays."""
+        """Load NPZ data using numpy."""
         try:
-            return dict(np.load(file_path))
+            npz_file = np.load(file_path)
+            return dict(npz_file)
         except Exception as e:
             raise ValueError(f"Failed to load NPZ file: {e}")
     
     def _validate_data_format(self, data: Dict[str, np.ndarray]) -> None:
         """Validate NPZ data format."""
-        # Check required arrays
-        missing_arrays = set(NPZ_ARRAY_NAMES) - set(data.keys())
+        if not data:
+            raise ValueError("NPZ file is empty")
+        
+        # Check for required arrays
+        required_arrays = NPZ_ARRAY_NAMES.get(self.config.extension_type.value, [])
+        missing_arrays = set(required_arrays) - set(data.keys())
         if missing_arrays:
             raise ValueError(f"Missing required arrays: {missing_arrays}")
-        
-        # Check array shapes are consistent
-        if "features" in data and "targets" in data:
-            if data["features"].shape[0] != data["targets"].shape[0]:
-                raise ValueError("Features and targets must have same number of samples")
     
     def _preprocess_data(self, data: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """Apply NPZ-specific preprocessing."""
-        # Extension-specific preprocessing
-        if self.config.extension_type == ExtensionType.SUPERVISED:
-            # Normalize features for supervised learning
-            if "features" in data:
-                features = data["features"]
-                # Simple min-max normalization
-                features_min = features.min(axis=0)
-                features_max = features.max(axis=0)
-                features_range = features_max - features_min
-                # Avoid division by zero
-                features_range[features_range == 0] = 1
-                data["features"] = (features - features_min) / features_range
-                data["normalization_params"] = {
-                    "min": features_min,
-                    "max": features_max,
-                    "range": features_range
-                }
+        processed_data = {}
         
-        return data
+        for key, array in data.items():
+            # Ensure all arrays are proper numpy arrays
+            processed_data[key] = np.asarray(array)
+        
+        # Extension-specific preprocessing
+        if self.config.extension_type == ExtensionType.REINFORCEMENT:
+            # Normalize rewards if present
+            if "rewards" in processed_data:
+                rewards = processed_data["rewards"]
+                if len(rewards) > 0:
+                    processed_data["rewards"] = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
+        
+        return processed_data
     
     def _get_data_size(self, data: Dict[str, np.ndarray]) -> int:
-        """Get number of samples in arrays."""
-        if "features" in data:
-            return data["features"].shape[0]
-        elif "states" in data:
-            return data["states"].shape[0]
-        else:
+        """Get size of the first array (assuming all arrays have same first dimension)."""
+        if not data:
             return 0
+        first_array = next(iter(data.values()))
+        return first_array.shape[0]
+
 
 # =============================================================================
-# Dataset Loader Factory (Factory Pattern)
+# Factory Pattern Implementation
 # =============================================================================
 
 class DatasetLoaderFactory:
@@ -455,19 +437,19 @@ class DatasetLoaderFactory:
         """Create appropriate dataset loader based on configuration."""
         loader_class = cls._loaders.get(config.format)
         if loader_class is None:
-            supported_formats = [f.value for f in DatasetFormat]
-            raise ValueError(f"Unsupported format: {config.format.value}. "
-                           f"Supported formats: {supported_formats}")
+            available_formats = list(cls._loaders.keys())
+            raise ValueError(f"Unsupported format: {config.format}. Available: {available_formats}")
         
         return loader_class(config)
     
     @classmethod
     def register_loader(cls, format_type: DatasetFormat, loader_class: type) -> None:
-        """Register a new loader class for a format (for extension)."""
+        """Register a new dataset loader for a specific format."""
         cls._loaders[format_type] = loader_class
 
+
 # =============================================================================
-# High-Level Loading Functions
+# Convenience Functions
 # =============================================================================
 
 def load_dataset_for_training(
@@ -478,35 +460,35 @@ def load_dataset_for_training(
     **kwargs
 ) -> LoadedDataset:
     """
-    High-level function to load dataset for training.
+    Convenience function to load a dataset for training.
     
     Args:
-        file_path: Path to dataset file
+        file_path: Path to the dataset file
         extension_type: Type of extension (heuristics, supervised, etc.)
-        format_type: Dataset format (auto-detected from file extension if None)
-        grid_size: Filter by grid size if specified
+        format_type: Format of the dataset (auto-detected if None)
+        grid_size: Grid size filter (optional)
         **kwargs: Additional configuration options
     
     Returns:
-        LoadedDataset with data and metadata
+        LoadedDataset: The loaded dataset with metadata
     
-    Educational Note:
-    This function demonstrates how to provide a simple, high-level interface
-    that hides the complexity of the factory and template method patterns
-    from the client code.
+    Example:
+        >>> dataset = load_dataset_for_training(
+        ...     "data/heuristics_v0.04_20240101_120000.csv",
+        ...     ExtensionType.SUPERVISED,
+        ...     grid_size=10
+        ... )
     """
-    ensure_project_root_on_path()
-    
     file_path = Path(file_path)
     
-    # Auto-detect format if not specified
+    # Auto-detect format if not provided
     if format_type is None:
-        format_map = {
+        suffix_to_format = {
             ".csv": DatasetFormat.CSV,
             ".jsonl": DatasetFormat.JSONL,
             ".npz": DatasetFormat.NPZ,
         }
-        format_type = format_map.get(file_path.suffix)
+        format_type = suffix_to_format.get(file_path.suffix)
         if format_type is None:
             raise ValueError(f"Cannot auto-detect format for file: {file_path}")
     
@@ -522,6 +504,7 @@ def load_dataset_for_training(
     loader = DatasetLoaderFactory.create_loader(config)
     return loader.load_dataset(file_path)
 
+
 def split_dataset(
     dataset: LoadedDataset,
     train_split: Optional[float] = None,
@@ -529,73 +512,92 @@ def split_dataset(
     random_seed: int = 42
 ) -> Tuple[LoadedDataset, LoadedDataset, Optional[LoadedDataset]]:
     """
-    Split dataset into train/validation/test sets.
+    Split a dataset into training, validation, and test sets.
     
     Args:
-        dataset: Loaded dataset to split
-        train_split: Training set proportion (uses config default if None)
-        val_split: Validation set proportion (uses config default if None)
+        dataset: The dataset to split
+        train_split: Training split ratio (uses config default if None)
+        val_split: Validation split ratio (uses config default if None)
         random_seed: Random seed for reproducible splits
     
     Returns:
         Tuple of (train_dataset, val_dataset, test_dataset)
         test_dataset is None if train_split + val_split = 1.0
-    
-    Educational Note:
-    Demonstrates how to handle dataset splitting while preserving
-    metadata and configuration across split datasets.
     """
-    np.random.seed(random_seed)
+    if train_split is None:
+        train_split = dataset.config.train_split
+    if val_split is None:
+        val_split = dataset.config.val_split
     
-    # Use provided splits or defaults from config
-    train_split = train_split or dataset.config.train_split
-    val_split = val_split or dataset.config.val_split
     test_split = 1.0 - train_split - val_split
-    
     if test_split < 0:
         raise ValueError("Train and validation splits cannot exceed 1.0")
     
-    # Get data size and create indices
-    data_size = dataset.size
-    indices = np.random.permutation(data_size)
+    # Set random seed for reproducibility
+    np.random.seed(random_seed)
     
-    # Calculate split points
-    train_end = int(data_size * train_split)
-    val_end = train_end + int(data_size * val_split)
-    
-    train_indices = indices[:train_end]
-    val_indices = indices[train_end:val_end]
-    test_indices = indices[val_end:] if test_split > 0 else None
-    
-    # Split data based on type
+    # Handle different data types
     if isinstance(dataset.data, pd.DataFrame):
-        train_data = dataset.data.iloc[train_indices].copy()
-        val_data = dataset.data.iloc[val_indices].copy()
-        test_data = dataset.data.iloc[test_indices].copy() if test_indices is not None else None
+        data = dataset.data.sample(frac=1, random_state=random_seed).reset_index(drop=True)
+        total_size = len(data)
+        
+        train_end = int(total_size * train_split)
+        val_end = train_end + int(total_size * val_split)
+        
+        train_data = data.iloc[:train_end]
+        val_data = data.iloc[train_end:val_end]
+        test_data = data.iloc[val_end:] if test_split > 0 else None
+        
     elif isinstance(dataset.data, list):
-        train_data = [dataset.data[i] for i in train_indices]
-        val_data = [dataset.data[i] for i in val_indices]
-        test_data = [dataset.data[i] for i in test_indices] if test_indices is not None else None
-    elif isinstance(dataset.data, dict) and "features" in dataset.data:
-        # Handle NPZ format
+        data = dataset.data.copy()
+        np.random.shuffle(data)
+        total_size = len(data)
+        
+        train_end = int(total_size * train_split)
+        val_end = train_end + int(total_size * val_split)
+        
+        train_data = data[:train_end]
+        val_data = data[train_end:val_end]
+        test_data = data[val_end:] if test_split > 0 else None
+        
+    elif isinstance(dataset.data, dict):
+        # Handle NPZ data (dict of arrays)
+        # Shuffle indices
+        first_key = next(iter(dataset.data.keys()))
+        total_size = dataset.data[first_key].shape[0]
+        indices = np.random.permutation(total_size)
+        
+        train_end = int(total_size * train_split)
+        val_end = train_end + int(total_size * val_split)
+        
+        train_indices = indices[:train_end]
+        val_indices = indices[train_end:val_end]
+        test_indices = indices[val_end:] if test_split > 0 else None
+        
         train_data = {k: v[train_indices] for k, v in dataset.data.items()}
         val_data = {k: v[val_indices] for k, v in dataset.data.items()}
         test_data = {k: v[test_indices] for k, v in dataset.data.items()} if test_indices is not None else None
+        
     else:
         raise ValueError(f"Unsupported data type for splitting: {type(dataset.data)}")
     
-    # Create split datasets with updated metadata
+    # Create split datasets
     def create_split_dataset(data, split_name: str) -> LoadedDataset:
-        metadata = dataset.metadata.copy()
-        metadata["split"] = split_name
-        metadata["split_size"] = len(train_indices) if split_name == "train" else (
-            len(val_indices) if split_name == "val" else len(test_indices)
+        split_metadata = dataset.metadata.copy()
+        split_metadata.update({
+            "split_type": split_name,
+            "split_size": len(data) if hasattr(data, '__len__') else data[first_key].shape[0],
+            "original_size": dataset.size
+        })
+        
+        return LoadedDataset(
+            data=data,
+            metadata=split_metadata,
+            config=dataset.config
         )
-        metadata["split_random_seed"] = random_seed
-        return LoadedDataset(data=data, metadata=metadata, config=dataset.config)
     
     train_dataset = create_split_dataset(train_data, "train")
-    val_dataset = create_split_dataset(val_data, "val")
+    val_dataset = create_split_dataset(val_data, "validation")
     test_dataset = create_split_dataset(test_data, "test") if test_data is not None else None
     
     return train_dataset, val_dataset, test_dataset 

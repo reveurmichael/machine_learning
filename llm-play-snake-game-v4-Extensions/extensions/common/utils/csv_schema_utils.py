@@ -21,12 +21,12 @@ import numpy as np
 from dataclasses import dataclass
 
 # Import configuration constants
-from .config.dataset_formats import (
+from ..config.dataset_formats import (
     CSV_COLUMN_NAMES, CSV_FEATURE_NAMES, CSV_METADATA_COLUMNS,
     CSV_TARGET_COLUMN, CSV_BINARY_FEATURES, CSV_COUNT_FEATURES,
     CSV_POSITION_FEATURES, CSV_VALID_MOVES, CSV_EXPECTED_COLUMNS
 )
-from .config.validation_rules import CSV_VALIDATION_RULES
+from ..config.validation_rules import CSV_VALIDATION_RULES
 
 # =============================================================================
 # Feature Extractor Classes

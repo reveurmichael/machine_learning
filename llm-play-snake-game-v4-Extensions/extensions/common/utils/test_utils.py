@@ -70,6 +70,18 @@ class TestRunner:
     Design Pattern: Template Method Pattern
     Defines standard test execution workflow while allowing
     customization of specific test steps.
+    
+    Educational Note (SUPREME_RULE NO.4):
+    This class is designed to be extensible through inheritance. Extensions
+    can create specialized test runners by inheriting from this base class
+    and overriding specific methods for algorithm-specific testing while
+    maintaining the common testing workflow.
+    
+    SUPREME_RULE NO.4 Implementation:
+    - Base class provides complete test execution functionality
+    - Protected methods allow selective customization by subclasses
+    - Virtual methods enable complete behavior replacement when needed
+    - Algorithm-specific test runners can inherit and adapt as needed
     """
     
     def __init__(self):
@@ -77,6 +89,23 @@ class TestRunner:
         self.results: List[TestResult] = []
         self.setup_functions: List[Callable[[], None]] = []
         self.teardown_functions: List[Callable[[], None]] = []
+        self._initialize_runner_specific_settings()
+    
+    def _initialize_runner_specific_settings(self) -> None:
+        """
+        Initialize runner-specific settings (SUPREME_RULE NO.4 Extension Point).
+        
+        This method can be overridden by subclasses to set up algorithm-specific
+        test configurations, custom assertions, or specialized test environments.
+        
+        Example:
+            class RLTestRunner(TestRunner):
+                def _initialize_runner_specific_settings(self):
+                    self.gpu_testing_enabled = True
+                    self.tensorboard_validation = TensorboardValidator()
+                    self.model_stability_tests = ModelStabilityTester()
+        """
+        pass
     
     def add_setup(self, setup_function: Callable[[], None]) -> None:
         """Add global setup function"""

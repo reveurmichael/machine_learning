@@ -56,7 +56,8 @@ class HeuristicGameManager(BaseGameManager):
     def initialize(self):
         # Set up pathfinding algorithms
         self.pathfinder = AStarPathfinder()
-        self.setup_logging("logs", "heuristic")
+        # Simple debug output (SUPREME_RULE NO.3 discourages complex *.log files)
+        print("[HeuristicGameManager] Initialised pathfinder and ready to run.")
     
     def run(self):
         # Inherits all generic game loop logic from BaseGameManager
@@ -104,7 +105,8 @@ class RLGameManager(BaseGameManager):
     
     def initialize(self):
         self.agent = DQNAgent()
-        self.setup_logging("logs", "rl")
+        # Simple debug output instead of file-based logging (SUPREME_RULE NO.3)
+        print("[RLGameManager] DQN agent initialised.")
     
     def run(self):
         # Inherits all session management

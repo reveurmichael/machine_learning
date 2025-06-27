@@ -431,12 +431,5 @@ from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
 ### **Logging Integration**
 Use consistent logging patterns:
 ```python
-import logging
-
-logger = logging.getLogger(__name__)
-logger.info("Starting extension with algorithm: %s", algorithm_name)
+print("Starting extension with algorithm: %s", algorithm_name)
 ```
-
----
-
-**Following these guidelines ensures that extensions maintain system integrity while providing the flexibility needed for diverse algorithmic approaches. The invariants protect the core functionality while enabling innovation in planning and decision-making strategies.** 

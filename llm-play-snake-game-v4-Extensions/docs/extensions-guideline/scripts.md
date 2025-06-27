@@ -107,16 +107,13 @@ def main():
     
     args = parser.parse_args()
     
-    # Setup logging
-    logger = setup_logging("heuristics_main", verbose=args.verbose)
-    
     # Import and execute algorithm
     from game_manager import HeuristicGameManager
     
     manager = HeuristicGameManager(args)
     results = manager.run()
     
-    logger.info(f"Execution completed. Results: {results}")
+    print(f"Execution completed. Results: {results}")
     return results
 
 if __name__ == "__main__":

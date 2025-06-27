@@ -34,12 +34,9 @@ from config.prompt_templates import SYSTEM_PROMPT
 ### **Extension-Specific Constants**
 ```
 extensions/common/config/
-├── ml_constants.py        # ML-specific hyperparameters, thresholds
-├── training_defaults.py   # Default training configurations
 ├── dataset_formats.py     # Data format specifications
 ├── path_constants.py      # Directory path templates
-├── validation_rules.py    # Validation thresholds and rules
-└── model_registry.py      # Model type definitions and metadata
+└── validation_rules.py    # Validation thresholds and rules
 ```
 
 ## 🚫 **LLM Constants Access Control**
@@ -70,8 +67,7 @@ from config.game_constants import VALID_MOVES, DIRECTIONS, MAX_STEPS_ALLOWED
 from config.ui_constants import COLORS, GRID_SIZE, WINDOW_WIDTH
 from config.network_constants import HTTP_TIMEOUT
 from config.web_constants import FLASK_CONFIG
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
-from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
+# Note: Extension-specific constants (SUPREME_RULE NO.3) are defined locally in each extension
 
 # 🚫 FORBIDDEN for these extensions
 # from config.llm_constants import AVAILABLE_PROVIDERS  # ❌ NOT ALLOWED
@@ -122,9 +118,10 @@ from config.network_constants import HTTP_TIMEOUT
 # ✅ Universal web settings
 from config.web_constants import FLASK_CONFIG
 
-# ✅ Extension-specific settings
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
-from extensions.common.config.training_defaults import EARLY_STOPPING_PATIENCE
+# ✅ Extension-specific constants (SUPREME_RULE NO.3)
+# Define locally in each extension to avoid tight coupling
+DEFAULT_LEARNING_RATE = 0.001  # Extension-specific constant
+BATCH_SIZE = 32                 # Extension-specific constant
 ```
 
 ### **Extensions Must NOT Use (General Rule – *except* explicit whitelist)**
@@ -256,13 +253,14 @@ from config.network_constants import HTTP_TIMEOUT
 from config.web_constants import FLASK_CONFIG
 ```
 
-**Supervised extension** – universal + shared ML defaults:
+**Supervised extension** – universal + local constants:
 ```python
 from config.game_constants import GRID_SIZE
 from config.ui_constants import COLORS
 from config.network_constants import HTTP_TIMEOUT
 from config.web_constants import FLASK_CONFIG
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+# Extension-specific constants defined locally (SUPREME_RULE NO.3)
+DEFAULT_LEARNING_RATE = 0.001
 ```
 
 **Agentic LLM extension** – universal + shared + LLM-specific:
@@ -308,6 +306,8 @@ from config.ui_constants import COLORS, GRID_SIZE  # ✅ Universal visualization
 # ✅ Task-1 specific extensions
 HEURISTIC_ALGORITHMS = ["BFS", "A_STAR", "HAMILTONIAN"]
 ```
+
+**Note (SUPREME_RULE NO.3)**: The common config folder avoids ML/DL-specific files like `ml_constants.py`, `training_defaults.py`, or `model_registry.py` to stay lightweight and generic.
 
 
 

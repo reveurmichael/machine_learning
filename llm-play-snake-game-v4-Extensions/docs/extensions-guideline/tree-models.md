@@ -117,12 +117,10 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 ### **Configuration Management**
 Following Final Decision 2:
 ```python
-from extensions.common.config.ml_constants import (
-    DEFAULT_TREE_DEPTH,
-    DEFAULT_N_ESTIMATORS,
-    DEFAULT_LEARNING_RATE,
-    TREE_VALIDATION_SPLIT
-)
+# Extension-specific constants (SUPREME_RULE NO.3) - defined locally
+DEFAULT_LEARNING_RATE = 0.1
+DEFAULT_N_ESTIMATORS = 100  
+DEFAULT_MAX_DEPTH = 6
 ```
 
 ### **Base Agent Integration**
@@ -180,7 +178,7 @@ class XGBoostAgent(TreeAgent):
         super().__init__(name, grid_size)
         self.model = XGBClassifier(
             n_estimators=DEFAULT_N_ESTIMATORS,
-            max_depth=DEFAULT_TREE_DEPTH,
+            max_depth=DEFAULT_MAX_DEPTH,
             learning_rate=DEFAULT_LEARNING_RATE,
             random_state=42
         )

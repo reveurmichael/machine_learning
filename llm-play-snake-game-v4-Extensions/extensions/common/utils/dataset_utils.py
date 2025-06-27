@@ -221,3 +221,74 @@ def guess_dataset_format(file_path: Union[str, Path]) -> Optional[str]:
             return format_type
     
     return None 
+
+
+# ---------------------------------------------------------------------------
+# Lightweight OOP façade (SUPREME_RULE NO.3)
+# ---------------------------------------------------------------------------
+class DatasetIO:
+    """Tiny wrapper class that groups dataset IO helpers.
+
+    Design Goal (SUPREME_RULE NO.3):
+        • Keep the implementation *dead simple* – essentially just delegate to
+          the existing standalone functions.
+        • Provide an extensibility point for specialised extensions that may
+          want to override or augment a single method without editing the
+          common base.
+
+    Usage (both styles work):
+        >>> df = load_csv_dataset("file.csv")           # Functional
+        >>> df = DatasetIO().load_csv("file.csv")       # OOP façade
+    """
+
+    # CSV -------------------------------------------------------------------
+    def load_csv(self, file_path: Union[str, Path]) -> pd.DataFrame:  # noqa: D401
+        return load_csv_dataset(file_path)
+
+    def save_csv(self, data: pd.DataFrame, file_path: Union[str, Path]) -> None:  # noqa: D401
+        save_csv_dataset(data, file_path)
+
+    # JSONL -----------------------------------------------------------------
+    def load_jsonl(self, file_path: Union[str, Path]) -> List[Dict[str, Any]]:  # noqa: D401
+        return load_jsonl_dataset(file_path)
+
+    def save_jsonl(self, data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:  # noqa: D401
+        save_jsonl_dataset(data, file_path)
+
+    # NPZ -------------------------------------------------------------------
+    def load_npz(self, file_path: Union[str, Path]) -> Dict[str, np.ndarray]:  # noqa: D401
+        return load_npz_dataset(file_path)
+
+    def save_npz(self, data: Dict[str, np.ndarray], file_path: Union[str, Path]) -> None:  # noqa: D401
+        save_npz_dataset(data, file_path)
+
+    # Info ------------------------------------------------------------------
+    def info(self, file_path: Union[str, Path]) -> Dict[str, Any]:  # noqa: D401
+        return get_dataset_info(file_path)
+
+    # Format guessing -------------------------------------------------------
+    def guess_format(self, file_path: Union[str, Path]) -> Optional[str]:  # noqa: D401
+        return guess_dataset_format(file_path)
+
+
+# Default instance for quick access ------------------------------------------------
+# Extensions that like an OOP style can `from ... import dataset_io` and use it.
+# The object is intentionally *stateless* so sharing it is harmless.
+dataset_io = DatasetIO()
+
+# ---------------------------------------------------------------------------
+# Public re-exports ----------------------------------------------------------
+__all__ = [
+    # Functional API
+    "load_csv_dataset",
+    "save_csv_dataset",
+    "load_jsonl_dataset",
+    "save_jsonl_dataset",
+    "load_npz_dataset",
+    "save_npz_dataset",
+    "get_dataset_info",
+    "guess_dataset_format",
+    # OOP façade
+    "DatasetIO",
+    "dataset_io",
+] 

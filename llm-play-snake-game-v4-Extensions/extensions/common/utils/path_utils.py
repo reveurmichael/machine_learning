@@ -199,18 +199,65 @@ def validate_path_structure(extension_path: Path) -> bool:
     return True
 
 
-# ---------------------
-# Public re-exports – keep the historical interface intact
-# ---------------------
+# ---------------------------------------------------------------------------
+# Lightweight OOP façade (SUPREME_RULE NO.3)
+# ---------------------------------------------------------------------------
+class PathManager:
+    """Tiny helper class grouping path-related utilities.
+
+    Rationale:
+        * Keeps procedural helpers intact for callers that prefer them.
+        * Offers an easy inheritance point for extensions needing tweaks
+          (e.g. custom directory naming) without editing common code.
+    """
+
+    # Static helpers are forwarded for clarity – instance methods keep signature.
+    # These very thin wrappers intentionally **do not** add new logic.
+
+    def ensure_project_root(self) -> Path:  # noqa: D401
+        return ensure_project_root_on_path()
+
+    # Dataset / model paths --------------------------------------------------
+    def dataset_path(
+        self,
+        extension_type: str,
+        version: str,
+        grid_size: int,
+        algorithm: str = "",
+        timestamp: str = "",
+    ) -> Path:
+        return get_dataset_path(extension_type, version, grid_size, algorithm, timestamp)
+
+    def model_path(
+        self,
+        extension_type: str,
+        version: str,
+        grid_size: int,
+        model_name: str = "",
+        timestamp: str = "",
+    ) -> Path:
+        return get_model_path(extension_type, version, grid_size, model_name, timestamp)
+
+    # Validation -------------------------------------------------------------
+    def validate(self, extension_path: Path) -> bool:  # noqa: D401
+        return validate_path_structure(extension_path)
+
+
+# Shared singleton-like instance (stateless)
+path_manager = PathManager()
 
 __all__ = [
+    # Functional re-exports
     "ensure_project_root_on_path",
     "setup_extension_paths",
     "get_extension_path",
-    "get_dataset_path", 
+    "get_dataset_path",
     "get_model_path",
     "ensure_extension_directories",
     "validate_path_structure",
+    # OOP façade
+    "PathManager",
+    "path_manager",
 ]
 
 # Ensure side-effects (cwd + sys.path) are applied as soon as the module is

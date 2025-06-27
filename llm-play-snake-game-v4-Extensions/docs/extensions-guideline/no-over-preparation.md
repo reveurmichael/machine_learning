@@ -83,7 +83,8 @@ class AdvancedConfigurationManager:
 
 # ✅ APPROPRIATE: Simple, flexible configuration (Follows SUPREME_RULE NO.3)
 from config.game_constants import VALID_MOVES, DIRECTIONS
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+# Extension-specific constants defined locally to avoid coupling
+DEFAULT_LEARNING_RATE = 0.001
 
 # Educational Note (SUPREME_RULE NO.3):
 # Direct access with minimal restrictions enables easy experimentation

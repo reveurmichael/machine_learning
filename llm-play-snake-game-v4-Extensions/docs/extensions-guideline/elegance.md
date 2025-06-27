@@ -83,8 +83,8 @@ class PathfindingAgent(BaseAgent):
 # ✅ Universal constants (all tasks)
 from config.game_constants import VALID_MOVES, DIRECTIONS
 
-# ✅ Extension-specific constants
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
+# ✅ Extension-specific constants (SUPREME_RULE NO.3) - define locally
+DEFAULT_LEARNING_RATE = 0.001  # Local extension constant
 
 # 🚫 Not for heuristics/supervised/RL/evolutionary extensions
 # ✅ Allowed in LLM-centric extensions (agentic-llms, vision-language-model, etc.)

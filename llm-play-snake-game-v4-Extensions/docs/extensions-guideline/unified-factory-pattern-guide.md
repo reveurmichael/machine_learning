@@ -6,6 +6,15 @@
 
 Factory patterns enable **flexible object creation** without tight coupling to concrete classes, supporting the **plugin-style architecture** that makes extensions easily extensible.
 
+## 🚫 **EXPLICIT DECISION: NO BaseFactory or factory_utils.py**
+
+**CRITICAL ARCHITECTURAL DECISION**: This project **explicitly rejects**:
+- ❌ **BaseFactory abstract class** in `extensions/common/utils/`
+- ❌ **factory_utils.py module** in `extensions/common/utils/`
+- ❌ **Any shared factory inheritance hierarchy**
+
+**Rationale**: Simple dictionary-based factories work perfectly and follow SUPREME_RULE NO.3. Each extension creates its own simple factory following the template below.
+
 ## 🏗️ **Standard Factory Template**
 
 ### **Universal Factory Implementation**

@@ -19,7 +19,7 @@ The **Final Decision Series (0-10)** establishes definitive architectural standa
 | **final-decision-0.md** | Meta | *Navigation & Meta-Guidelines* | Authority hierarchy, coherence rules, editing policy |
 | **final-decision-1.md** | Core | **Directory Structure & Data Organization** | Grid-size hierarchy, multi-directional data ecosystem, logs/extensions structure |
 | **final-decision-2.md** | Core | **Configuration & Validation Architecture** | Config separation, validation system, architectural standards |
-| **final-decision-3.md** | Core | **Singleton Pattern Standards** | `SingletonABCMeta` usage, approved singletons, thread safety |
+| **final-decision-3.md** | Core | **Simple Utility Functions** | Lightweight utilities following SUPREME_RULE NO.3 |
 | **final-decision-4.md** | Core | **Agent Naming Conventions** | `agent_*.py` files, `*Agent` classes, naming validation |
 | **final-decision-5.md** | Core | **Extension Directory Templates** | v0.01→v0.04 evolution, stability rules, breaking changes |
 | **final-decision-6.md** | Core | **Path Management Standards** | Mandatory `path_utils.py`, cross-platform compatibility |
@@ -35,7 +35,7 @@ The following architectural principles are maintained consistently across **all*
 ### **Core Architecture Pillars**
 1. **🗂️ Directory Structure**: Grid-size hierarchies (`logs/extensions/{datasets|models}/grid-size-N/...`) with multi-directional data flow (final-decision-1.md)
 2. **⚙️ Configuration Management**: Universal constants in `ROOT/config/`, extension configs in `extensions/common/config/` (final-decision-2.md)
-3. **🔒 Singleton Patterns**: Global managers using `SingletonABCMeta` for thread-safe state management (final-decision-3.md)
+3. **🔧 Simple Utilities**: Lightweight utility functions following SUPREME_RULE NO.3 (final-decision-3.md)
 4. **🎯 Naming Standards**: Strict `agent_*.py` → `*Agent` class patterns across all extensions (final-decision-4.md)
 
 ### **Implementation Standards**
@@ -47,6 +47,23 @@ The following architectural principles are maintained consistently across **all*
 ### **Data and Integration Standards**
 9. **📊 Schema Consistency**: Grid-size agnostic CSV schemas with 16 normalized features for universal compatibility
 10. **🔗 Cross-Extension Integration**: Validation systems in `extensions/common/validation/` ensuring interoperability
+
+## 🚫 **CRITICAL ARCHITECTURAL REJECTIONS**
+
+### **Explicitly Rejected Patterns (DO NOT IMPLEMENT)**
+These architectural decisions are **explicitly rejected** to prevent future confusion:
+
+#### **Factory Patterns**
+- ❌ **BaseFactory abstract class** in `extensions/common/utils/`
+- ❌ **factory_utils.py module** in `extensions/common/utils/`
+- ❌ **Shared factory inheritance hierarchy**
+- ✅ **Instead**: Simple dictionary-based factories in each extension (SUPREME_RULE NO.3)
+
+#### **Singleton Patterns**
+- ❌ **singleton_utils.py in extensions/common/utils/**
+- ❌ **Any wrapper around ROOT/utils/singleton_utils.py**
+- ❌ **Duplicating singleton functionality in extensions/common/**
+- ✅ **Instead**: Use ROOT/utils/singleton_utils.py when truly needed, prefer simple functions (SUPREME_RULE NO.3)
 
 ## 📝 **Document Management Policy**
 

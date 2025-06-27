@@ -1,5 +1,12 @@
 # Final Decision: Logs/Extensions Directory Structure
 
+## 🚫 **CRITICAL: NO singleton_utils.py in extensions/common/**
+
+**STOP! READ THIS FIRST**: This project **explicitly FORBIDS**:
+- ❌ **singleton_utils.py in extensions/common/utils/**
+- ❌ **Any wrapper around ROOT/utils/singleton_utils.py**
+- ✅ **USE ROOT/utils/singleton_utils.py** directly when truly needed (it's already generic)
+
 ## 🎯 **Executive Summary**
 
 This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models.

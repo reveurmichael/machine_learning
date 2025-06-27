@@ -12,6 +12,8 @@ The KISS principle is fundamental to the Snake Game AI project. Extensions shoul
 
 Following the unified factory pattern guide, factories are deliberately simple:
 
+> **CRITICAL DECISION**: This project **explicitly rejects** creating `BaseFactory` abstract classes or `factory_utils.py` modules in `extensions/common/utils/`. Simple dictionary-based factories (shown below) work perfectly and follow SUPREME_RULE NO.3.
+
 ```python
 class HeuristicAgentFactory:
     """Simple factory for heuristic agents"""

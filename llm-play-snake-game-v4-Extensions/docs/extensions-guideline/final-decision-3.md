@@ -1,72 +1,65 @@
-# Final Decision 3: Singleton Pattern Implementation Standards
+# Final Decision 3: Simple Utility Functions (SUPREME_RULE NO.3)
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive guidelines** for Singleton pattern implementation across the Snake Game AI project. It leverages the existing `SingletonABCMeta` implementation from `utils/singleton_utils.py` to provide thread-safe singleton functionality combined with abstract base class support.
+This document establishes **lightweight utility functions** for the Snake Game AI project following **SUPREME_RULE NO.3**: "The extensions/common/ folder should stay lightweight and generic." Complex singleton patterns have been simplified to simple, easy-to-understand functions.
 
-## 🛠️ **Existing Implementation Foundation**
+## 🛠️ **Existing Infrastructure (Available When Needed)**
 
-The project already includes a robust singleton implementation in `utils/singleton_utils.py`:
-- **`SingletonABCMeta`**: Thread-safe metaclass combining Singleton + ABC patterns
-- **Double-checked locking**: Minimizes synchronization overhead
-- **Metaclass conflict resolution**: Seamlessly combines Singleton with Abstract Base Class
-- **Testing utilities**: `clear_instances()` and `get_instance_count()` for testing scenarios
+The project includes a robust singleton implementation in `ROOT/utils/singleton_utils.py`:
+- **`SingletonABCMeta`**: Generic, thread-safe metaclass for all tasks
+- **Double-checked locking**: High-performance singleton implementation
+- **Testing utilities**: Available for any extension that truly needs singleton behavior
 
-## 🔄 **DECISION: Approved Singleton Classes**
+## 🚫 **EXPLICIT DECISION: NO singleton_utils.py in extensions/common/**
 
-### **✅ RECOMMENDED SINGLETON CLASSES**
+**CRITICAL ARCHITECTURAL DECISION**: This project **explicitly rejects**:
+- ❌ **singleton_utils.py in extensions/common/utils/**
+- ❌ **Any wrapper around ROOT/utils/singleton_utils.py**
+- ❌ **Duplicating singleton functionality in extensions/common/**
+
+**Rationale**: 
+- **ROOT/utils/singleton_utils.py is already generic** and works for all tasks (0-5)
+- **SUPREME_RULE NO.3**: Avoid unnecessary duplication and complexity
+- **Most use cases should use simple functions** instead of singletons
+
+## 🔄 **DECISION: Simple Functions Over Complex Singletons**
+
+### **✅ SIMPLIFIED UTILITY FUNCTIONS**
 
 #### **1. TaskAwarePathManager**
 ```python
 from abc import ABC, abstractmethod
 from utils.singleton_utils import SingletonABCMeta
 
-class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
-    """
-    Manages all directory structure and path operations across the entire project.
-    
-    Singleton Justification:
-    - Global file system state that must be consistent across all components
-    - Expensive initialization (directory scanning, validation, path resolution)
-    - Single source of truth for all path-related operations
-    - Thread-safe access to shared file system resources
-    
-    Responsibilities:
-    - Dataset path generation and validation
-    - Model path generation and validation  
-    - Grid-size directory structure management
-    - Extension-specific path resolution
-    - Compliance checking for directory structures
-    """
-    
-    def __init__(self):
-        if not hasattr(self, '_initialized'):
-            self._initialized = True
-            self._path_cache = {}
-            self._grid_size_cache = {}
-            self._validate_project_structure()
-    
-    @abstractmethod
-    def get_dataset_path(self, extension_type: str, version: str, 
-                        grid_size: int, algorithm: str) -> Path:
-        """Get standardized dataset path with caching"""
-        cache_key = f"dataset_{extension_type}_{version}_{grid_size}_{algorithm}"
-        if cache_key not in self._path_cache:
-            path = Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / \
-                   f"{extension_type}_v{version}_{self._get_timestamp()}" / algorithm
-            self._path_cache[cache_key] = path
-        return self._path_cache[cache_key]
-    
-    @abstractmethod
-    def get_model_path(self, extension_type: str, version: str,
-                      grid_size: int, model_name: str) -> Path:
-        """Get standardized model path with caching"""
-        cache_key = f"model_{extension_type}_{version}_{grid_size}_{model_name}"
-        if cache_key not in self._path_cache:
-            path = Path("logs/extensions/models") / f"grid-size-{grid_size}" / \
-                   f"{extension_type}_v{version}_{self._get_timestamp()}" / model_name
-            self._path_cache[cache_key] = path
-        return self._path_cache[cache_key]
+# SUPREME_RULE NO.3: Simple path functions instead of complex managers
+from datetime import datetime
+from pathlib import Path
+
+def get_dataset_path(extension_type: str, version: str, grid_size: int, algorithm: str) -> str:
+    """Simple dataset path generation"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}"
+    print(f"[Path] Generated dataset path: {path}")
+    return path
+
+def get_model_path(extension_type: str, version: str, grid_size: int, model_name: str) -> str:
+    """Simple model path generation"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = f"logs/extensions/models/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{model_name}"
+    print(f"[Path] Generated model path: {path}")
+    return path
+
+def ensure_directory_exists(path: str):
+    """Simple directory creation"""
+    Path(path).mkdir(parents=True, exist_ok=True)
+    print(f"[Path] Ensured directory exists: {path}")
+
+def validate_grid_size(grid_size: int):
+    """Simple grid size validation"""
+    if grid_size < 5 or grid_size > 50:
+        raise ValueError(f"Grid size should be reasonable (5-50), got {grid_size}")
+    print(f"[Path] Grid size {grid_size} is valid")
 ```
 
 #### **2. ConfigurationManager**

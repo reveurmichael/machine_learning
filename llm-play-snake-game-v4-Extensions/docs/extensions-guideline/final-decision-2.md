@@ -132,20 +132,16 @@ def validate_extension_data(extension_path: str, data: dict):
 - **Reusable**: Shared validation logic across all extensions
 - **Educational**: Demonstrates multiple design patterns
 
-## 🔄 **DECISION 3: Singleton Pattern Extension**
+## 🔄 **DECISION 3: Simple Utility Functions (SUPREME_RULE NO.3)**
 
-### **Using Existing SingletonABCMeta Implementation**
+### **Using Simple Functions Instead of Complex Singletons**
 
-The project already includes a robust `SingletonABCMeta` implementation in `utils/singleton_utils.py` that combines the Singleton pattern with Abstract Base Class functionality using double-checked locking for thread safety.
+Following **SUPREME_RULE NO.3**, complex singleton managers have been simplified to lightweight utility functions that encourage experimentation and flexibility.
 
-### **Approved Singleton Classes**
+### **Simplified Utility Functions**
 
 ```python
-# ✅ RECOMMENDED SINGLETON CLASSES:
-from abc import ABC, abstractmethod
-from utils.singleton_utils import SingletonABCMeta
-
-class TaskAwarePathManager(ABC, metaclass=SingletonABCMeta):
+# ✅ SIMPLIFIED UTILITY FUNCTIONS (SUPREME_RULE NO.3):
     """
     Manages all directory structure and path operations.
     
@@ -224,6 +220,20 @@ def list_available_models():
     """List all registered models"""
     return list(_model_types.keys())
 ```
+
+## 🚫 **EXPLICIT ARCHITECTURAL REJECTIONS**
+
+### **Factory Pattern Rejections**
+- ❌ **BaseFactory abstract class** in `extensions/common/utils/`
+- ❌ **factory_utils.py module** in `extensions/common/utils/`
+- ❌ **Shared factory inheritance hierarchy**
+- ✅ **Instead**: Simple dictionary-based factories in each extension (SUPREME_RULE NO.3)
+
+### **Singleton Pattern Rejections**  
+- ❌ **singleton_utils.py in extensions/common/utils/**
+- ❌ **Any wrapper around ROOT/utils/singleton_utils.py**
+- ❌ **Duplicating singleton functionality in extensions/common/**
+- ✅ **Instead**: Use ROOT/utils/singleton_utils.py when truly needed, prefer simple functions (SUPREME_RULE NO.3)
 
 ### **NOT Singleton Classes**
 

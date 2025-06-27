@@ -43,7 +43,3 @@ __all__ = [
     "validate_dataset",
     "validate_extension_path",
 ]
-
-# Version info
-__version__ = "0.1.0"
-__author__ = "Snake Game AI Project" 

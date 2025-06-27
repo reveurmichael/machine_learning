@@ -1,7 +1,11 @@
 """Lightweight path validator (`extensions.common.validation.path_validator`).
 
-Guarantees that a given path exists and looks like an extension directory or a
-sub-directory inside *logs/extensions*.
+Checks only for the most obvious issues:
+1. The path exists on disk.
+2. The path is located somewhere inside an *extensions* directory (either the
+   source tree or `logs/extensions`).
+
+Anything more sophisticated is intentionally left to individual extensions.
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ __all__ = ["validate_extension_path"]
 
 
 def validate_extension_path(path: Union[str, Path]) -> ValidationResult:
-    """Very small helper to spot the most obvious path issues."""
+    """Return a ValidationResult summarising whether *path* looks reasonable."""
     p = Path(path)
 
     if not p.exists():
@@ -25,15 +29,14 @@ def validate_extension_path(path: Union[str, Path]) -> ValidationResult:
             message=f"Path does not exist: {p}",
         )
 
-    # Heuristic: an extension directory always lives somewhere inside the
-    # `extensions` folder or in the `logs/extensions` hierarchy.  This keeps the
-    # rule flexible while still catching typos like `extenstions/`.
+    # A very soft check that encourages (but does not strictly enforce) the
+    # canonical directory structure described in the documentation.
     if "extensions" not in p.parts:
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.WARNING,
-            message="Path does not seem to belong to an extension directory.",
-            details={"path_parts": p.parts},
+            message="Path does not appear to belong to an extension directory.",
+            details={"parts": p.parts},
         )
 
     return ValidationResult(

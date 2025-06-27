@@ -59,9 +59,6 @@ EXPORT_PATH_TEMPLATE: str = "{model_dir}/exports/{algorithm}/{format}/{timestamp
 GRID_SIZE_DIR_PATTERN: str = "grid-size-{grid_size}"
 """Pattern for grid-size specific directories."""
 
-SUPPORTED_GRID_SIZES: List[int] = [5, 8, 10, 12, 16, 20, 25]
-"""List of supported grid sizes."""
-
 DEFAULT_GRID_SIZE: int = 10
 """Default grid size for new experiments."""
 
@@ -111,33 +108,6 @@ MODEL_FILE_PATTERNS: Dict[str, str] = {
     "joblib": "{algorithm}_model.joblib"
 }
 """File naming patterns for different model formats."""
-
-# =============================================================================
-# Subdirectory Structures
-# =============================================================================
-
-DATASET_SUBDIRS: List[str] = [
-    "game_logs",        # Original game data
-    "processed_data",   # Processed datasets
-    "metadata"          # Dataset metadata
-]
-"""Standard subdirectories within dataset directories."""
-
-MODEL_SUBDIRS: List[str] = [
-    "model_artifacts",  # Final trained models
-    "checkpoints",      # Training checkpoints
-    "exports",          # Exported model formats
-    "training_logs",    # Training process logs
-    "evaluation_results" # Model evaluation results
-]
-"""Standard subdirectories within model directories."""
-
-# =============================================================================
-# Path Validation (See validation_rules.py for comprehensive validation)
-# =============================================================================
-
-# Note: Detailed path validation rules are in validation_rules.py
-# to avoid code duplication and maintain single source of truth
 
 # =============================================================================
 # Default Path Configurations

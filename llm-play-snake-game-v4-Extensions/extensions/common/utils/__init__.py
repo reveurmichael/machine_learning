@@ -1,129 +1,74 @@
 """
-Utilities package for extensions/common/.
+Utility helpers shared by *all* extensions
+=========================================
 
-This package contains all utility modules that support extension development
-across the Snake Game AI project. Following SUPREME_RULE NO.4, these utilities
-are designed with OOP extensibility to handle exceptional needs while serving
-most extensions without modification.
-
-Modules:
-    dataset_utils: Dataset loading and preprocessing utilities
-    extension_utils: Extension environment management utilities  
-    factory_utils: Factory pattern implementations for agent/model creation
-    metrics_utils: Performance tracking and analysis utilities
-    path_utils: Path management and validation utilities
-    test_utils: Testing infrastructure and utilities
-
-Design Philosophy:
-    - 90% standard usage: Most extensions use utilities as-is
-    - 10% specialized usage: Extensions with exceptional needs can inherit
-    - OOP extensibility: Template Method and Strategy patterns enable customization
-    - Future-proof design: Enables innovation without breaking existing code
-
-Usage:
-    from extensions.common.utils.dataset_utils import BaseDatasetLoader
-    from extensions.common.utils.factory_utils import BaseFactory
-    from extensions.common.utils.metrics_utils import MetricsCollector
-    from extensions.common.utils.path_utils import get_extension_path
+The modules exposed here are intentionally lightweight – each one should be
+small enough to understand at a glance and generic enough to work for almost
+any extension without modification.  If your extension has specialised needs,
+feel free to extend or wrap these helpers inside your own package rather than
+changing the common ones.
 """
 
-# Core utility imports for convenience
+# ---------------------------------------------------------------------------
+# Dataset helpers
+# ---------------------------------------------------------------------------
 from .dataset_utils import (
-    BaseDatasetLoader,
-    CSVDatasetLoader, 
-    JSONLDatasetLoader,
-    NPZDatasetLoader,
-    DatasetLoaderFactory,
-    load_dataset_for_training,
-    split_dataset
+    load_csv_dataset,
+    load_jsonl_dataset,
+    load_npz_dataset,
+    save_csv_dataset,
+    save_jsonl_dataset,
+    save_npz_dataset,
+    get_dataset_info,
+    guess_dataset_format,
 )
 
-from .extension_utils import (
-    ExtensionEnvironment,
-    setup_extension_logging,
-    create_extension_directories,
-    validate_extension_structure
+# ---------------------------------------------------------------------------
+# CSV schema helpers – these are a bit more advanced but still generic.
+# ---------------------------------------------------------------------------
+from .csv_schema_utils import (
+    TabularFeatureExtractor,
+    CSVDatasetGenerator,
+    CSVValidator,
+    load_and_validate_csv,
 )
 
-from .factory_utils import (
-    BaseFactory,
-    AgentFactory,
-    ModelFactory,
-    create_agent,
-    create_model,
-    register_agent_type,
-    register_model_type
-)
-
-from .metrics_utils import (
-    ExtensionGameData,
-    ExtensionGameStatistics, 
-    ExtensionStepStats,
-    MetricsCollector,
-    PerformanceAnalyzer,
-    compare_algorithm_performance,
-    generate_performance_report
-)
-
+# ---------------------------------------------------------------------------
+# Path helpers
+# ---------------------------------------------------------------------------
 from .path_utils import (
+    ensure_project_root_on_path,
+    setup_extension_paths,
     get_extension_path,
     get_dataset_path,
     get_model_path,
     ensure_extension_directories,
-    validate_path_structure
-)
-
-from .test_utils import (
-    TestRunner,
-    run_extension_tests,
-    validate_extension_compliance,
-    generate_test_report
+    validate_path_structure,
 )
 
 __all__ = [
-    # Dataset utilities
-    'BaseDatasetLoader',
-    'CSVDatasetLoader',
-    'JSONLDatasetLoader', 
-    'NPZDatasetLoader',
-    'DatasetLoaderFactory',
-    'load_dataset_for_training',
-    'split_dataset',
-    
-    # Extension utilities
-    'ExtensionEnvironment',
-    'setup_extension_logging',
-    'create_extension_directories',
-    'validate_extension_structure',
-    
-    # Factory utilities
-    'BaseFactory',
-    'AgentFactory',
-    'ModelFactory',
-    'create_agent',
-    'create_model',
-    'register_agent_type',
-    'register_model_type',
-    
-    # Metrics utilities
-    'ExtensionGameData',
-    'ExtensionGameStatistics',
-    'ExtensionStepStats', 
-    'MetricsCollector',
-    'PerformanceAnalyzer',
-    'compare_algorithm_performance',
-    'generate_performance_report',
-    
-    # Path utilities
-    'get_extension_path',
-    'get_dataset_path',
-    'get_model_path',
-    'ensure_extension_directories',
-    'validate_path_structure',
-    
-    # Test utilities
-    'TestRunner',
-    'run_extension_tests',
-    'validate_extension_compliance',
-    'generate_test_report'
+    # dataset
+    "load_csv_dataset",
+    "load_jsonl_dataset",
+    "load_npz_dataset",
+    "save_csv_dataset",
+    "save_jsonl_dataset",
+    "save_npz_dataset",
+    "get_dataset_info",
+    "guess_dataset_format",
+
+    # csv schema
+    "TabularFeatureExtractor",
+    "CSVDatasetGenerator",
+    "CSVValidator",
+    "load_and_validate_csv",
+
+    # path utils
+    "ensure_project_root_on_path",
+    "setup_extension_paths",
+    "get_extension_path",
+    "get_dataset_path",
+    "get_model_path",
+    "ensure_extension_directories",
+    "validate_path_structure",
 ] 

@@ -81,7 +81,7 @@ extensions/{algorithm}-v0.02/
 - Isolated algorithm logic for maintainability
 
 ### **Factory Pattern**
-> **Authoritative Reference**: See `unified-factory-pattern-guide.md` for complete factory pattern implementation.
+> **Authoritative Reference**: See `factory-design-pattern.md` for complete factory pattern implementation.
 
 - Centralized agent creation via factory classes
 - Dynamic agent selection by name/configuration
@@ -108,19 +108,6 @@ class HeuristicAgent(BaseAgent):
     @abstractmethod 
     def reset(self) -> None:
         """Reset agent state for new game"""
-        pass
-```
-
-### **Agent Factory Pattern**
-```python
-# agents/__init__.py
-class AgentFactory:
-    """Factory for creating algorithm-specific agents"""
-    
-    @staticmethod
-    def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
-        """Create agent by algorithm name"""
-        # Dynamic agent creation based on standardized naming
         pass
 ```
 

@@ -81,7 +81,8 @@ BaseAgent → YourCustomAgent
 
 ### **3. Shared Utilities (Non-Restrictive & OOP)**
 ```python
-# extensions/common/ - Flexible utilities following SUPREME_RULE NO.3 & NO.4
+# extensions/common/ - Flexible utilities following SUPREME_RULE NO.3
+
 from extensions.common.path_utils import get_dataset_path
 from extensions.common.dataset_loader import BaseDatasetLoader
 from extensions.common.validation import ExtensionValidator

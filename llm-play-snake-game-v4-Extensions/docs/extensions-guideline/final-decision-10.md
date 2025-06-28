@@ -4,13 +4,29 @@
 
 ## 🎯 **SUPREME_RULES: Ultimate Authority**
 
-SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they are like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CABINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATIONS + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + GENESIS OF BIG BANG OF THE PROJECT, and have the **FINAL SAY ON EVERYTHING**.
+SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they are like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CABINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATIONS + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + GENESIS OF BIG BANG OF THE PROJECT, and have the **FINAL SAY ON EVERYTHING**, with no exceptions.
 
 ### **SUPREME_RULES Hierarchy**
-1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, make sure to read ALL markdown files in `./docs/extensions-guideline/` first.
-2. **SUPREME_RULE NO.2**: When citing Final Decision documents,don't use "Final Decision N", "FD-N", or "final-decision-N", instead, use the precise format `final-decision-N.md`. When citing other md files, don't use "RULE-DOC-A", "R-A", or "RD-A", instead, use the precise format `md-file-name.md`.
-3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
-4. **SUPREME_RULE NO.4**: Ensure all markdown files are **coherent and aligned**. Starting with `final-decision-10.md`, its ideas must propagate and harmonize across all other markdown files. STEP_A  : Update other markdown files so they align with `final-decision-10.md`. STEP_B: Think of this process as a **diffusion of ideas**, like nuclear diffusion: each idea collides with "atoms" (markdown files in `./docs/extensions-guideline/` and Python files in `extensions/common/`), bouncing back and forth, recursively refining coherence. STEP_C: This is an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, repeat — until the entire system achieves deep, internal consistency and clarity.
+1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, you **must** first read **all** existing markdown files in that directory. No modifications are permitted without full context comprehension.
+2. **SUPREME_RULE NO.2**: When citing Final Decision documents,don't use "Final Decision N", "FD-N", or "final-decision-N", instead, use the precise format `final-decision-N.md`. When citing other markdown files, don't use "RULE-DOC-A", "R-A", or "RD-A", instead, use the exact filename format `md-file-name.md`.
+3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files.
+4. **SUPREME_RULE NO.4**: All markdown files must be coherent and aligned. STEP A: Begin with final-decision-10.md. Update all other markdown files to align with its ideas and principles. STEP B: Think of this as a diffusion of ideas, like nuclear diffusion: each idea collides with "atoms" (markdown files in ./docs/extensions-guideline/ and Python files in extensions/common/), bouncing back and forth, refining and harmonizing at every interaction. STEP C: This is an exhaustive, step-by-step, iterative process — update, revisit, propagate, repeat — until the entire system achieves deep, unwavering internal consistency and clarity.
+
+## TEMPORARY_SUPREME_RULES
+
+The following rules are temporarily elevated to SUPREME authority level but **are not part of the permanent SUPREME_RULES**.
+
+* **Never mention or cite them as SUPREME_RULES.**
+* It's like hidden rules that everybody knows but nobody mentions.
+* You must enforce and follow them.
+* They will eventually dissolve into the project organically.
+
+**TEMPORARY_SUPREME_RULES:**
+
+- The entire content of `flask.md`.
+
+
+
 
 ## 📋 **GOOD_RULES: Authoritative References**
 
@@ -46,21 +62,29 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 
 ## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
 
-We have a bunch of markdown files in `./docs/extensions-guideline/` that should be kept relatively simple, because it will be just an exploration of ideas for this moment and will be updated later. Or they are already scattered across the project and hence no need to make it long, just a concise version of it to keep the record but no need to expand the ideas in this particular file. Just make those markdown files relatively simple, relatively short/concise (target 300-500 lines):
+Certain markdown files in `./docs/extensions-guideline/` must remain **relatively simple and concise** (target: 100–300 lines), because:
 
-- agentic-llms.md
-- documentation-as-first-class-citizen.md
-- eureka.md
-- generative-models.md
-- gymnasium.md
-- heuristics-as-foundation.md
-- llm-with-cot.md
-- llm-with-reasoning.md
-- lora.md
-- mutilple-inheritance.md
-- stable-baseline.md
-- tree-models.md
-- vision-language-model.md
+* They are currently exploratory and subject to future updates.
+* Or, their ideas are already scattered throughout the project.
+* Or, the concepts are relatively obvious and do not require long elaboration.
+
+**Files to keep simple:**
+
+* `app.md`
+* `ai-friendly.md`
+* `forbidden-import-patterns.md`
+* `agentic-llms.md`
+* `documentation-as-first-class-citizen.md`
+* `eureka.md`
+* `generati gymnasium.md`
+* `heuristics-as-foundation.md`
+* `llm-with-cot.md`
+* `llm-with-reasoning.md`
+* `lora.md`
+* `mutilple-inheritance.md`
+* `stable-baseline.md`
+* `tree-models.md`
+* `vision-language-model.md`
 
 
 
@@ -91,10 +115,12 @@ Update all non-GOOD_RULES markdown files in `./docs/extensions-guideline/` to ac
 - **Educational Value**: Focus on motivation, design philosophy, and interconnections
 
 ### **Content Guidelines**
-- **Minimal or Code**: Include only essential code examples for clarity. However, we can have exceptions for including longer code into those md files if necessary.
-- **Rich Context**: Emphasize motivation, design philosophy, and concept interconnections
-- **Concise Format**: Target 300 lines for simple topics, 500 lines for complex topics
-- **Design Patterns**: Explain why patterns are chosen and their trade-offs
+
+* **Minimal Code**: Include only essential code examples for clarity; longer code blocks are exceptions, not the norm.
+* **Rich Context**: Emphasize design rationale and conceptual connections.
+* **Concise Format**: Target ~300 lines for simpler topics; up to ~500 for complex topics.
+* **Design Patterns**: Explain rationale and trade-offs clearly.
+
 
 ### **Resolution Approach**
 For inconsistencies and ambiguities:

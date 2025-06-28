@@ -116,10 +116,10 @@ Update all non-GOOD_RULES markdown files in `./docs/extensions-guideline/` to ac
 
 ### **Content Guidelines**
 
-* **Minimal Code**: Include only essential code examples for clarity; longer code blocks are exceptions, not the norm.
-* **Rich Context**: Emphasize design rationale and conceptual connections.
-* **Concise Format**: Target ~300 lines for simpler topics; up to ~500 for complex topics.
-* **Design Patterns**: Explain rationale and trade-offs clearly.
+* **Minimal Code**: Include only essential code examples to illustrate concepts clearly. It is encouraged to use code snippets or sketches with liberal use of `pass` statements or `...` placeholders to keep examples short and focused, avoiding unnecessary complexity and verbosity.
+* **Rich Context**: Emphasize the design rationale, philosophy, motivations, and conceptual connections behind each component or decision.
+* **Concise Format**: Aim for approximately 300 lines for simpler topics, and up to 600 lines for more complex topics.
+* **Design Patterns**: Clearly explain the reasoning behind chosen design patterns, including trade-offs and alternatives when relevant.
 
 
 ### **Resolution Approach**

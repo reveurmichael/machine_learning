@@ -77,6 +77,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 **Files to keep simple:**
 
 * `app.md`
+* `kiss.md`
 * `ai-friendly.md`
 * `forbidden-import-patterns.md`
 * `agentic-llms.md`

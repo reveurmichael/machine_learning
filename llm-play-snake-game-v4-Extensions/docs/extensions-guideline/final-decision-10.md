@@ -81,6 +81,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `app.md`
 * `documentation-as-first-class-citizen.md`
 * `eureka.md`
+* `extension-evolution-rules.md`
 * `forbidden-import-patterns.md`
 * `generati gymnasium.md`
 * `heuristics-as-foundation.md`

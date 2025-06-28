@@ -1,4 +1,47 @@
-# Final Decision 3: Simple Utility Functions (SUPREME_RULE NO.3)
+# Final Decision 3: Simple Utility Functions Architecture
+
+> **SUPREME AUTHORITY**: This document establishes the definitive standards for simple utility functions following SUPREME_RULE NO.3.
+
+## 🎯 **Core Philosophy: Lightweight, OOP-Based Common Utilities**
+
+### **Guidelines Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making utility architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining utility patterns through inheritance rather than tight coupling
+
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`utils.md`**: Authoritative reference for utility function standards
+- **`elegance.md`**: Authoritative reference for code quality and simplicity standards
+- **`single-source-of-truth.md`**: Ensures utility consistency across all extensions
+- **`no-over-preparation.md`**: Prevents over-engineering of utility functions
+
+### **Simple Logging Examples (SUPREME_RULE NO.3)**
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def get_dataset_path(extension_type: str, version: str, grid_size: int, algorithm: str) -> str:
+    """Simple dataset path generation"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}"
+    print(f"[Path] Generated dataset path: {path}")  # SUPREME_RULE NO.3
+    return path
+
+def validate_grid_size(grid_size: int):
+    """Simple grid size validation"""
+    if grid_size < 5 or grid_size > 50:
+        print(f"[Validator] Invalid grid size: {grid_size} (must be 5-50)")  # SUPREME_RULE NO.3
+        raise ValueError(f"Grid size should be reasonable (5-50), got {grid_size}")
+    print(f"[Validator] Grid size {grid_size} is valid")  # SUPREME_RULE NO.3
+
+def register_validator(data_type: str, validator_func):
+    """Simple validator registration"""
+    print(f"[Registry] Registering validator for {data_type}")  # SUPREME_RULE NO.3
+    _validators[data_type] = validator_func
+```
+
+The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered.
 
 ## 🎯 **Executive Summary**
 
@@ -27,7 +70,7 @@ The project includes a robust singleton implementation in `ROOT/utils/singleton_
 
 ### **✅ SIMPLIFIED UTILITY FUNCTIONS**
 
-#### **1. TaskAwarePathManager**
+#### **1. Simple Path Management Functions**
 ```python
 from abc import ABC, abstractmethod
 from utils.singleton_utils import SingletonABCMeta
@@ -161,42 +204,6 @@ def validate_dataset_compatibility(dataset_path: str, expected_schema: str):
     return True  # Flexible validation following SUPREME_RULE NO.3
 ```
 
-#### **5. ModelRegistryManager**
-```python
-# SUPREME_RULE NO.3: Simple model registry instead of complex managers
-_model_types = {}  # Simple module-level registry
-
-def register_model_type(model_name: str, model_class):
-    """Simple model registration"""
-    print(f"[ModelRegistry] Registering model: {model_name}")
-    _model_types[model_name] = model_class
-
-def get_model_class(model_name: str):
-    """Simple model class retrieval"""
-    model_class = _model_types.get(model_name)
-    if model_class:
-        print(f"[ModelRegistry] Found model: {model_name}")
-    else:
-        print(f"[ModelRegistry] Model not found: {model_name}")
-        available = list(_model_types.keys())
-        print(f"[ModelRegistry] Available models: {available}")
-    return model_class
-
-def get_compatible_models(data_format: str, grid_size: int):
-    """Simple compatibility check"""
-    print(f"[ModelRegistry] Finding models for {data_format} on {grid_size}x{grid_size} grid")
-    
-    # Simple compatibility - most models work with any grid size and CSV format
-    available_models = list(_model_types.keys())
-    print(f"[ModelRegistry] Compatible models: {available_models}")
-    return available_models
-        for model_name, metadata in self._model_metadata.items():
-            if (data_format in metadata.supported_formats and 
-                grid_size in metadata.supported_grid_sizes):
-                compatible.append(model_name)
-        return compatible
-```
-
 ## ❌ **NON-SINGLETON CLASSES**
 
 ### **Classes That Should NOT Be Singletons**
@@ -215,7 +222,19 @@ class GameManager:
     - Comparison experiments need separate game instances
     - Parallel processing requires separate managers
     """
-    pass
+    def __init__(self, game_config):
+        # Individual game session initialization
+        self.config = game_config
+        self.game_state = {}
+        self.is_running = False
+        print(f"[GameManager] Initialized with config: {game_config}")  # SUPREME_RULE NO.3
+    
+    def run_game(self):
+        # Game execution logic
+        print(f"[GameManager] Starting game execution")  # SUPREME_RULE NO.3
+        self.is_running = True
+        # Game loop implementation here
+        print(f"[GameManager] Game execution completed")  # SUPREME_RULE NO.3
 
 class GameData:
     """
@@ -227,7 +246,13 @@ class GameData:
     - Concurrent games need separate data containers
     - Memory efficiency requires data cleanup after games
     """
-    pass
+    def __init__(self):
+        self.score = 0
+        self.steps = 0
+        self.moves = []
+        self.snake_positions = []
+        self.apple_positions = []
+        print(f"[GameData] Initialized new game data")  # SUPREME_RULE NO.3
 
 class GameController:
     """
@@ -239,7 +264,11 @@ class GameController:
     - Extension-specific game logic variations
     - Independent game state management
     """
-    pass
+    def __init__(self, grid_size):
+        self.grid_size = grid_size
+        self.current_state = {}
+        self.game_rules = {}
+        print(f"[GameController] Initialized for grid size {grid_size}")  # SUPREME_RULE NO.3
 ```
 
 #### **2. Agent Classes**
@@ -256,7 +285,17 @@ class BFSAgent:
     - Parallel agent execution
     - Independent agent state and performance tracking
     """
-    pass
+    def __init__(self, grid_size):
+        self.grid_size = grid_size
+        self.visited = set()
+        self.queue = []
+        print(f"[BFSAgent] Initialized BFS agent for grid size {grid_size}")  # SUPREME_RULE NO.3
+    
+    def plan_move(self, game_state):
+        # BFS pathfinding logic
+        print(f"[BFSAgent] Planning move using BFS")  # SUPREME_RULE NO.3
+        # BFS implementation here
+        return "UP"  # Default move
 
 class MLPAgent:
     """
@@ -268,7 +307,12 @@ class MLPAgent:
     - Different training states and checkpoints
     - A/B testing different model configurations
     """
-    pass
+    def __init__(self, input_size, hidden_size):
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.model = self._build_model()
+        self.optimizer = None
+        print(f"[MLPAgent] Initialized MLP agent")  # SUPREME_RULE NO.3
 
 class DQNAgent:
     """
@@ -280,7 +324,12 @@ class DQNAgent:
     - Population-based training methods
     - Independent exploration and exploitation strategies
     """
-    pass
+    def __init__(self, state_size, action_size):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.q_network = self._build_q_network()
+        self.target_network = self._build_q_network()
+        print(f"[DQNAgent] Initialized DQN agent")  # SUPREME_RULE NO.3
 ```
 
 #### **3. Training Classes**
@@ -297,7 +346,16 @@ class TrainingManager:
     - Independent training state and progress tracking
     - Experiment isolation and reproducibility
     """
-    pass
+    def __init__(self, model_type: str, config: dict):
+        self.model_type = model_type
+        self.config = config
+        self.training_history = []
+        print(f"[TrainingManager] Initialized for {model_type}")  # SUPREME_RULE NO.3
+    
+    def start_training(self):
+        """Start training process"""
+        print(f"[TrainingManager] Starting {self.model_type} training")  # SUPREME_RULE NO.3
+        # Training implementation here
 
 class ModelTrainer:
     """
@@ -309,7 +367,17 @@ class ModelTrainer:
     - Separate validation and checkpoint management
     - Parallel hyperparameter optimization
     """
-    pass
+    def __init__(self, model, optimizer, loss_fn):
+        self.model = model
+        self.optimizer = optimizer
+        self.loss_fn = loss_fn
+        self.epoch = 0
+        print(f"[ModelTrainer] Initialized trainer")  # SUPREME_RULE NO.3
+    
+    def train_epoch(self, dataloader):
+        """Train for one epoch"""
+        print(f"[ModelTrainer] Training epoch {self.epoch}")  # SUPREME_RULE NO.3
+        # Epoch training implementation here
 
 class DatasetLoader:
     """
@@ -321,63 +389,46 @@ class DatasetLoader:
     - Memory management and batch loading
     - Concurrent data loading for parallel training
     """
-    pass
+    def __init__(self, dataset_path: str, batch_size: int):
+        self.dataset_path = dataset_path
+        self.batch_size = batch_size
+        self.data = None
+        print(f"[DatasetLoader] Initialized for {dataset_path}")  # SUPREME_RULE NO.3
+    
+    def load_data(self):
+        """Load dataset from path"""
+        print(f"[DatasetLoader] Loading dataset")  # SUPREME_RULE NO.3
+        # Data loading implementation here
 ```
 
 ## 🏗️ **Singleton Implementation Standards**
 
-### **Base Singleton Class**
+### **Singleton Implementation Reference**
+
+**Note**: Robust singleton implementation already exists in `ROOT/utils/singleton_utils.py`:
+
 ```python
-# extensions/common/patterns/singleton.py
-import threading
-from typing import Any, Dict, Type
+# Reference: ROOT/utils/singleton_utils.py (already implemented)
+from utils.singleton_utils import SingletonABCMeta
 
-class SingletonMeta(type):
-    """
-    Thread-safe Singleton metaclass implementation.
-    
-    Design Pattern: Singleton with thread safety
-    Features:
-    - Thread-safe instance creation
-    - Lazy initialization
-    - Memory efficient
-    - Inheritance support
-    """
-    
-    _instances: Dict[Type, Any] = {}
-    _lock: threading.Lock = threading.Lock()
-    
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            with cls._lock:
-                # Double-check locking pattern
-                if cls not in cls._instances:
-                    instance = super().__call__(*args, **kwargs)
-                    cls._instances[cls] = instance
-        return cls._instances[cls]
-
-class Singleton(metaclass=SingletonMeta):
-    """
-    Base Singleton class with proper initialization handling.
-    
-    Usage:
-        class MyManager(Singleton):
-            def __init__(self):
-                if hasattr(self, '_initialized'):
-                    return
-                self._initialized = True
-                # Actual initialization code here
-    """
-    pass
+class MyManager(metaclass=SingletonABCMeta):
+    """Use existing singleton implementation when truly needed"""
+    def __init__(self):
+        if hasattr(self, '_initialized'):
+            return
+        self._initialized = True
+        # Actual initialization code here
+        self.config = {}
+        self.resources = []
+        print(f"[MyManager] Singleton initialized")  # SUPREME_RULE NO.3
 ```
 
 ### **Usage Pattern Example**
 ```python
 # Example: Using singleton in extension
-from extensions.common.patterns.singleton import Singleton
-from extensions.common.config.path_constants import DATASET_PATH_TEMPLATE
+from utils.singleton_utils import SingletonABCMeta
 
-class HeuristicPathManager(Singleton):
+class HeuristicPathManager(metaclass=SingletonABCMeta):
     """Extension-specific path manager inheriting singleton behavior"""
     
     def __init__(self):
@@ -385,164 +436,18 @@ class HeuristicPathManager(Singleton):
             return
         self._initialized = True
         
-        # Get global path manager
-        self.global_path_manager = TaskAwarePathManager()
-        
         # Extension-specific initialization
         self.heuristic_algorithms = ["BFS", "ASTAR", "HAMILTONIAN"]
+        print(f"[HeuristicPathManager] Initialized singleton")  # SUPREME_RULE NO.3
     
     def get_algorithm_dataset_path(self, algorithm: str, grid_size: int) -> Path:
         """Get dataset path for specific heuristic algorithm"""
-        return self.global_path_manager.get_dataset_path(
-            extension_type="heuristics",
-            version="0.03",
-            grid_size=grid_size,
-            algorithm=algorithm.lower()
-        )
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = Path(f"logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.03_{timestamp}/{algorithm}")
+        print(f"[HeuristicPathManager] Generated path: {path}")  # SUPREME_RULE NO.3
+        return path
 
 # Usage in heuristics extension
 path_manager = HeuristicPathManager()  # Always returns same instance
 dataset_path = path_manager.get_algorithm_dataset_path("BFS", 10)
 ```
-
-## 🎯 **Design Principles for Singleton Usage**
-
-### **✅ WHEN TO USE Singleton**
-1. **Global State Management**: Class manages truly global, application-wide state
-2. **Expensive Initialization**: Resource-intensive setup that benefits from sharing
-3. **Single Source of Truth**: Must maintain consistency across entire application
-4. **Thread-Safe Access**: Shared resource that needs coordinated access
-5. **Configuration Management**: Global settings that shouldn't be duplicated
-
-### **❌ WHEN NOT TO USE Singleton**
-1. **Independent Instances**: Objects that need separate state or configuration
-2. **Parallel Processing**: Components that run concurrently with different data
-3. **Testing Isolation**: Classes that need fresh instances for test isolation
-4. **Stateful Operations**: Objects that accumulate state specific to use case
-5. **Plugin Architecture**: Components that may have multiple implementations
-
-### **🔄 Singleton vs Factory Pattern**
-```python
-# ✅ GOOD: Singleton for global registry
-class ModelRegistryManager(Singleton):
-    def register_model_type(self, name: str, model_class: Type):
-        """Global model registration"""
-        pass
-
-# ✅ GOOD: Factory for creating instances
-class ModelFactory:
-    def __init__(self):
-        self.registry = ModelRegistryManager()  # Use singleton registry
-    
-    def create_model(self, model_name: str, **kwargs) -> BaseModel:
-        """Create new model instance (NOT singleton)"""
-        model_class = self.registry.get_model_class(model_name)
-        return model_class(**kwargs)  # New instance each time
-
-# Usage
-factory = ModelFactory()
-model1 = factory.create_model("MLP", hidden_size=128)  # Independent instance
-model2 = factory.create_model("MLP", hidden_size=256)  # Different instance
-```
-
-## 📋 **Implementation Checklist**
-
-### **For New Singleton Classes**
-- [ ] **Justification**: Clear rationale for why singleton is needed
-- [ ] **Thread Safety**: Uses SingletonMeta or equivalent thread-safe implementation
-- [ ] **Lazy Initialization**: Only initializes when first accessed
-- [ ] **Proper Init Guard**: Prevents multiple initialization with `_initialized` flag
-- [ ] **Documentation**: Clear docstring explaining singleton justification
-- [ ] **Testing**: Unit tests verify singleton behavior and thread safety
-
-### **For Existing Classes Being Converted**
-- [ ] **Impact Analysis**: Assess impact on existing code using the class
-- [ ] **Migration Plan**: Plan for updating all instantiation points
-- [ ] **Backward Compatibility**: Ensure existing code continues to work
-- [ ] **Performance Testing**: Verify singleton improves rather than degrades performance
-- [ ] **Memory Analysis**: Confirm singleton reduces rather than increases memory usage
-
-## 🚀 **Benefits of This Singleton Strategy**
-
-### **Performance Benefits**
-- **Reduced Memory Usage**: Single instance of expensive-to-initialize classes
-- **Faster Access**: Cached instances eliminate repeated initialization overhead
-- **Resource Optimization**: Shared access to file system, configuration, and registry resources
-
-### **Architectural Benefits**
-- **Consistency**: Global state management ensures consistency across extensions
-- **Single Source of Truth**: Configuration and validation rules centralized
-- **Simplified Dependencies**: Extensions can reliably access global services
-- **Thread Safety**: Coordinated access to shared resources
-
-### **Maintenance Benefits**
-- **Clear Boundaries**: Explicit definition of what should and shouldn't be singleton
-- **Reduced Coupling**: Global services accessible without complex dependency injection
-- **Easier Testing**: Singleton services can be easily mocked or stubbed
-- **Configuration Management**: Centralized configuration eliminates duplication
-
-## ⚠️ **Potential Pitfalls and Mitigations**
-
-### **Common Singleton Antipatterns**
-```python
-# ❌ AVOID: Singleton for convenience rather than necessity
-class UtilityHelper(Singleton):  # BAD - utility functions don't need state
-    def format_string(self, text: str) -> str:
-        return text.upper()
-
-# ✅ BETTER: Regular utility functions or static methods
-class UtilityHelper:
-    @staticmethod
-    def format_string(text: str) -> str:
-        return text.upper()
-
-# ❌ AVOID: Singleton that accumulates state
-class GameResultsCollector(Singleton):  # BAD - each experiment needs fresh collection
-    def __init__(self):
-        self.results = []  # Accumulates across all uses
-    
-    def add_result(self, result: dict):
-        self.results.append(result)
-
-# ✅ BETTER: Regular class with clear lifecycle
-class ExperimentResultsCollector:
-    def __init__(self, experiment_name: str):
-        self.experiment_name = experiment_name
-        self.results = []  # Fresh for each experiment
-```
-
-### **Testing Considerations**
-```python
-# Testing singleton classes requires special consideration
-class TestTaskAwarePathManager:
-    def setup_method(self):
-        """Reset singleton state before each test"""
-        # Clear singleton instances for testing
-        TaskAwarePathManager._instances = {}
-        
-    def test_path_generation(self):
-        """Test singleton behavior in isolation"""
-        manager1 = TaskAwarePathManager()
-        manager2 = TaskAwarePathManager()
-        
-        # Verify same instance
-        assert manager1 is manager2
-        
-        # Test functionality
-        path = manager1.get_dataset_path("heuristics", "0.03", 10, "bfs")
-        assert path.exists() or path.parent.exists()
-```
-
-## 🎓 **Educational Value**
-
-This singleton implementation demonstrates:
-
-1. **Design Pattern Mastery**: Proper singleton implementation with thread safety
-2. **Architectural Decision Making**: Clear criteria for when to use singletons
-3. **Performance Optimization**: Resource management and caching strategies
-4. **Global State Management**: Centralized configuration and registry patterns
-5. **Thread Safety**: Concurrent access patterns and synchronization
-
----
-
-**This document establishes the definitive standards for Singleton pattern usage across the Snake Game AI project, ensuring consistent, efficient, and maintainable global state management while avoiding common singleton antipatterns.** 

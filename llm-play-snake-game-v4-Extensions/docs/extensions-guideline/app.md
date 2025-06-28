@@ -1,22 +1,18 @@
 # Streamlit Application Architecture for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides comprehensive guidelines for Streamlit application development in extensions v0.03.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Streamlit application architecture patterns.
+
+> **See also:** `scripts.md`, `dashboard.md`, `final-decision-10.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Interactive Algorithm Exploration**
 
-Streamlit applications in Snake Game AI extensions serve as **interactive dashboards** that enable researchers, students, and developers to explore algorithm behavior, compare performance, and understand the decision-making processes of different AI approaches. These applications transform command-line tools into accessible, visual learning environments.
+Streamlit applications in Snake Game AI extensions serve as **interactive dashboards** that enable researchers, students, and developers to explore algorithm behavior, compare performance, and understand the decision-making processes of different AI approaches.
 
 ### **Educational Value**
 - **Algorithm Visualization**: Real-time observation of decision-making processes
 - **Interactive Parameter Tuning**: Dynamic exploration of algorithm behavior
 - **Comparative Analysis**: Side-by-side algorithm performance evaluation
 - **Learning Analytics**: Progress tracking and performance insights
-
-### **Technical Benefits**
-- **Unified Interface**: Consistent interaction patterns across all extension types
-- **Subprocess Integration**: Safe execution of training and evaluation scripts
-- **Real-time Monitoring**: Live progress tracking for long-running operations
-- **Configuration Management**: User-friendly parameter adjustment interfaces
 
 ## 🏗️ **Streamlit Architecture Patterns**
 
@@ -72,7 +68,7 @@ os.chdir(project_root)
 
 # Now safe to import project modules
 import streamlit as st
-from extensions.common.path_utils import get_extension_path, ensure_logs_directory
+from extensions.common.utils.path_utils import get_extension_path, ensure_logs_directory
 from dashboard.components import AlgorithmSelector, ParameterControls, ProgressMonitor
 ```
 
@@ -89,12 +85,6 @@ class BaseExtensionApp:
     Purpose: Provide consistent structure and functionality across all extensions
     Educational Value: Demonstrates how template patterns enable code reuse
     while allowing customization of specific behaviors.
-    
-    Benefits:
-    - Consistent UI/UX across all algorithm types
-    - Shared functionality (session management, subprocess handling)
-    - Standardized error handling and logging
-    - Unified configuration patterns
     """
     
     def __init__(self, extension_name: str):
@@ -102,6 +92,7 @@ class BaseExtensionApp:
         self.setup_page_config()
         self.initialize_session_state()
         self.setup_sidebar()
+        print(f"[{extension_name}App] Initialized")  # Simple logging
         
     def setup_page_config(self):
         """Configure Streamlit page settings"""
@@ -389,6 +380,7 @@ class SubprocessRunner:
     def __init__(self, extension_path: Path):
         self.extension_path = extension_path
         self.current_process = None
+        print(f"[SubprocessRunner] Initialized for {extension_path}")  # Simple logging
         
     def run_script(self, script_name: str, arguments: Dict[str, Any]) -> subprocess.Popen:
         """Execute script with arguments and return process handle"""
@@ -412,6 +404,7 @@ class SubprocessRunner:
                 cwd=self.extension_path.parent.parent.parent  # Project root
             )
             self.current_process = process
+            print(f"[SubprocessRunner] Started process: {' '.join(cmd)}")  # Simple logging
             return process
             
         except Exception as e:
@@ -446,10 +439,12 @@ class SubprocessRunner:
             if return_code == 0:
                 progress_bar.progress(1.0)
                 status_text.text("✅ Completed successfully!")
+                print(f"[SubprocessRunner] Process completed successfully")  # Simple logging
                 return True
             else:
                 error_output = process.stderr.read()
                 st.error(f"Process failed with return code {return_code}: {error_output}")
+                print(f"[SubprocessRunner] Process failed with code {return_code}")  # Simple logging
                 return False
                 
         except Exception as e:
@@ -499,7 +494,7 @@ class SubprocessRunner:
 ### **Integration Requirements**
 - [ ] **Factory Pattern**: Dynamic algorithm selection from available implementations
 - [ ] **Configuration**: Integration with extension configuration systems
-- [ ] **Logging**: Proper integration with project logging infrastructure
+- [ ] **Logging**: Proper integration with project logging infrastructure (simple print statements)
 - [ ] **Data Management**: Safe handling of datasets and model files
 
 ---

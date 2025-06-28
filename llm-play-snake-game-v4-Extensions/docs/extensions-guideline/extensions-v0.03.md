@@ -1,6 +1,6 @@
 > **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). Where conflicts exist, defer to the Final Decision documents.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 # Extensions v0.03: Web Interface & Dataset Generation
 
@@ -264,7 +264,7 @@ extensions/reinforcement-v0.03/
 Following final-decision-9.md, all v0.03 extensions use Object-Oriented Programming architecture.
 ## 🌐 **Web Infrastructure & Replay Systems**
 
-> **SUPREME_RULES Reference**: All Flask integration follows `flask.md` - extensions must leverage existing ROOT/web infrastructure and follow MVC patterns.
+> **Important Reference**: All Flask integration follows `flask.md` - extensions must leverage existing ROOT/web infrastructure and follow MVC patterns.
 
 ### **Common Web Components**
 - **Streamlit frontend**: Interactive parameter control and visualization
@@ -272,7 +272,7 @@ Following final-decision-9.md, all v0.03 extensions use Object-Oriented Programm
 - **JavaScript visualization**: Real-time board state rendering using ROOT/web static assets
 - **WebSocket support**: Live algorithm/model execution updates
 
-### **Flask Integration Pattern (SUPREME_RULES)**
+### **Flask Integration Pattern (Important Guidelines)**
 ```python
 # All extension Flask apps must follow this pattern
 from web.controllers.base_controller import BaseController
@@ -378,7 +378,7 @@ logs/extensions/datasets/
 - Intuitive parameter adjustment and control
 - Seamless integration between different algorithm types
 
-## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+## 🎯 **Important Guidelines: Version Selection Guidelines**
 
 - **For heuristics**: Use v0.04 instead of v0.03 - it's a superset with no downsides
 - **For supervised learning**: Use CSV from heuristics-v0.04

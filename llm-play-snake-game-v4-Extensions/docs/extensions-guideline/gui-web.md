@@ -1,3 +1,9 @@
+# Web GUI Architecture for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines web GUI architecture patterns for extensions.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 
 
 Based on my thorough analysis of the `web` folder, I can confirm that **no refactoring is needed**. The web architecture is already excellently designed and perfectly prepared for future tasks. Here's how it's structured and how future tasks can leverage it:

@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document is **supplementary** to `data-format-decision-guide.md` - the authoritative reference for all format decisions. For complete data format decisions, see `data-format-decision-guide.md`.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
@@ -137,7 +137,7 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 - **`datasets-folder.md`**: Directory structure and organization standards
 - **`unified-path-management-guide.md`**: Path management standards
 
-## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+## 🎯 **Important Guidelines: Version Selection Guidelines**
 
 - **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
 - **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only

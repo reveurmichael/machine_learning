@@ -1,550 +1,442 @@
-# Extensions v0.02: Multi-Algorithm Architecture & Command Line Interface
+# Extensions v0.02: Multi-Algorithm Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and builds upon `extensions-v0.01.md` foundational patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the multi-algorithm patterns for all v0.02 extensions.
 
-## 🎯 **Core Philosophy: Algorithmic Diversity & Command Line Interface**
+> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
-Extensions v0.02 represent the **algorithmic expansion phase**, transforming the single-algorithm proof of concept from v0.01 into comprehensive multi-algorithm platforms. This version introduces sophisticated command-line interfaces while maintaining the foundational architectural patterns established in v0.01.
+## 🎯 **Core Philosophy: Algorithm Comparison**
 
-### **Key Advancement Areas**
-- **Algorithm Diversity**: Multiple algorithms per extension type
-- **Command Line Interface**: Comprehensive argument parsing and configuration
-- **Factory Pattern Integration**: Dynamic algorithm selection at runtime
-- **Performance Benchmarking**: Comparative analysis across algorithms
-- **Enhanced Logging**: Detailed algorithm-specific metrics and outputs
+Extensions v0.02 extend v0.01 by implementing **multiple related algorithms** within the same extension. This enables comparative analysis and demonstrates how different algorithmic approaches solve the same problem.
 
-## 🏗️ **Universal v0.02 Characteristics**
+### **Educational Value**
+- **Algorithm Comparison**: Comparing different algorithmic approaches
+- **Factory Patterns**: Learning factory patterns for algorithm selection
+- **Performance Analysis**: Understanding algorithm performance differences
+- **Code Organization**: Managing multiple algorithms in a single extension
 
-All v0.02 extensions share these enhanced capabilities:
+## 🏗️ **v0.02 Architecture Requirements**
 
-### **Command Line Interface**
-- **Algorithm Selection**: `--algorithm` parameter for runtime choice
-- **Configuration Control**: `--grid-size`, `--max-games`, `--max-steps` parameters
-- **Output Management**: `--log-dir`, `--verbose` flags for detailed control
-- **Performance Options**: `--benchmark`, `--compare` modes for analysis
-
-### **Factory Pattern Implementation**
-- **Dynamic Algorithm Creation**: Runtime instantiation based on user selection
-- **Consistent Interfaces**: Uniform agent contracts across all algorithm types
-- **Extensible Registry**: Easy addition of new algorithms without architectural changes
-- **Error Handling**: Graceful management of invalid algorithm selections
-
-### **Enhanced Logging**
-- **Algorithm-Specific Metrics**: Performance data unique to each approach
-- **Comparative Analysis**: Cross-algorithm benchmarking capabilities
-- **Detailed Debugging**: Verbose logging for algorithm behavior analysis
-- **Structured Output**: JSON schemas supporting multiple algorithm types
-
-## 🔧 **Algorithm-Specific Implementations**
-
-### **Heuristics v0.02: Comprehensive Pathfinding Suite**
-
-**Location**: `./extensions/heuristics-v0.02`
-
-**Algorithm Examples**: BFS, A*, DFS, Hamiltonian Cycle (Following SUPREME_RULE NO.3, easily extensible)
-
-#### **Directory Structure**
+### **Mandatory Directory Structure**
 ```
-./extensions/heuristics-v0.02/
-├── __init__.py                     # Package initialization
-├── main.py                         # CLI entry point with argument parsing
-├── agents/                         # 📁 Agent directory structure
-│   ├── __init__.py                 # Agent package initialization
-│   ├── agent_bfs.py                # Breadth-First Search implementation
-│   ├── agent_astar.py              # A* pathfinding algorithm
-│   ├── agent_dfs.py                # Depth-First Search implementation
-│   └── agent_hamiltonian.py        # Hamiltonian cycle pathfinding
-├── game_logic.py                   # Extended pathfinding game logic
-├── game_manager.py                 # Enhanced heuristic game management
-└── README.md                       # Comprehensive documentation
+extensions/{algorithm}-v0.02/
+├── __init__.py
+├── main.py                 # Primary execution entry point
+├── game_logic.py           # Extension-specific game logic
+├── game_manager.py         # Extension-specific game manager
+├── agents/                 # 🎯 MANDATORY: Multiple algorithm implementations
+│   ├── __init__.py
+│   ├── agent_bfs.py
+│   ├── agent_astar.py
+│   ├── agent_dfs.py
+│   └── agent_hamiltonian.py
+└── README.md               # Documentation
 ```
 
-#### **Command Line Interface**
-```bash
-# BFS pathfinding with custom parameters
-python main.py --algorithm BFS --grid-size 15 --max-games 5 --verbose
+### **Factory Pattern: Canonical Method is create()**
+All v0.02 extensions must use the canonical method name `create()` for instantiation:
 
-# A* algorithm with performance benchmarking
-python main.py --algorithm ASTAR --grid-size 20 --benchmark --max-steps 1000
-
-# Hamiltonian cycle generation with detailed logging
-python main.py --algorithm HAMILTONIAN --log-dir ./custom_logs --verbose
-
-# Compare all algorithms on standard configuration
-python main.py --compare --grid-size 10 --max-games 3
-```
-
-#### **Factory Pattern Implementation**
 ```python
 class HeuristicAgentFactory:
-    """
-    Factory Pattern for Dynamic Heuristic Agent Creation
-    
-    Design Pattern: Factory Pattern + Strategy Pattern
-    Purpose: Enable runtime algorithm selection with consistent interfaces
-    Educational Value: Demonstrates how factory patterns support the
-    Open/Closed Principle by allowing new algorithms without modifying
-    existing client code.
-    """
-    
     _registry = {
         "BFS": BFSAgent,
-        "ASTAR": AStarAgent, 
+        "ASTAR": AStarAgent,
         "DFS": DFSAgent,
         "HAMILTONIAN": HamiltonianAgent,
     }
     
     @classmethod
-    def create(cls, algorithm: str, grid_size: int = 10, **kwargs) -> BaseAgent:
-        """
-        Create heuristic agent by algorithm name
-        
-        Args:
-            algorithm: Algorithm identifier (BFS, ASTAR, DFS, HAMILTONIAN)
-            grid_size: Game board dimensions
-            **kwargs: Algorithm-specific parameters
-            
-        Returns:
-            Configured agent instance
-            
-        Raises:
-            ValueError: If algorithm not supported
-        """
-        if algorithm not in cls._registry:
-            available = ", ".join(cls._registry.keys())
-            raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
-        
-        agent_class = cls._registry[algorithm]
-        return agent_class(grid_size=grid_size, **kwargs)
-    
-    @classmethod
-    def list_algorithms(cls) -> List[str]:
-        """
-        Return list of available algorithm names (Following SUPREME_RULE NO.3)
-        
-        Educational Note (SUPREME_RULE NO.3):
-        We should be able to add new extensions easily and try out new ideas.
-        This method dynamically returns available algorithms, making the system
-        flexible and extensible without hard-coded restrictions.
-        """
-        return list(cls._registry.keys())
+    def create(cls, algorithm: str, **kwargs):
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # Simple logging
+        return agent_class(**kwargs)
 ```
 
-#### **Algorithm Implementations**
+## 🚀 **Implementation Examples**
 
-**BFS Agent (Breadth-First Search)**
+### **Multiple Agent Implementations**
 ```python
+# agents/agent_bfs.py
+from core.game_agents import BaseAgent
+
 class BFSAgent(BaseAgent):
-    """
-    Breadth-First Search pathfinding agent
+    """Breadth-First Search agent for v0.02."""
     
-    Algorithm: Explores all paths level by level, guaranteeing shortest path
-    Time Complexity: O(V + E) where V is vertices, E is edges
-    Space Complexity: O(V) for the queue storage
+    def __init__(self, name: str = "BFS"):
+        super().__init__(name)
+        print(f"[BFSAgent] Initialized BFS agent")  # Simple logging
     
-    Educational Value:
-    Demonstrates classic graph traversal algorithm with guaranteed
-    optimality at the cost of potentially high memory usage.
-    """
-    
-    def find_path(self, start: Position, goal: Position, obstacles: Set[Position]) -> List[Direction]:
-        """Find optimal path using BFS algorithm"""
-        queue = deque([(start, [])])
-        visited = {start}
+    def plan_move(self, game_state: dict) -> str:
+        """Plan next move using BFS"""
+        snake_positions = game_state['snake_positions']
+        apple_position = game_state['apple_position']
+        grid_size = game_state['grid_size']
         
-        while queue:
-            current_pos, path = queue.popleft()
-            
-            if current_pos == goal:
-                return path
-                
-            for direction in DIRECTIONS:
-                next_pos = self._apply_direction(current_pos, direction)
-                
-                if (next_pos not in visited and 
-                    next_pos not in obstacles and 
-                    self._is_valid_position(next_pos)):
-                    
-                    visited.add(next_pos)
-                    queue.append((next_pos, path + [direction]))
+        path = self._bfs_pathfinding(snake_positions[0], apple_position, snake_positions, grid_size)
         
-        return []  # No path found
-```
-
-**A* Agent (A-Star Algorithm)**
-```python
-class AStarAgent(BaseAgent):
-    """
-    A* pathfinding agent with Manhattan distance heuristic
+        if path and len(path) > 1:
+            next_pos = path[1]
+            return self._get_direction(snake_positions[0], next_pos)
+        else:
+            return self._fallback_move(snake_positions, grid_size)
     
-    Algorithm: Best-first search using f(n) = g(n) + h(n) evaluation
-    Time Complexity: O(b^d) where b is branching factor, d is depth
-    Space Complexity: O(b^d) for the open/closed sets
-    
-    Educational Value:
-    Shows how heuristic functions can guide search efficiency while
-    maintaining optimality guarantees (when heuristic is admissible).
-    """
-    
-    def find_path(self, start: Position, goal: Position, obstacles: Set[Position]) -> List[Direction]:
-        """Find optimal path using A* algorithm with Manhattan heuristic"""
-        open_set = []
-        heapq.heappush(open_set, (0, start, []))
-        
-        g_scores = {start: 0}
+    def _bfs_pathfinding(self, start: tuple, goal: tuple, obstacles: list, grid_size: int) -> list:
+        """BFS pathfinding implementation"""
+        queue = [(start, [start])]
         visited = set()
         
-        while open_set:
-            f_score, current_pos, path = heapq.heappop(open_set)
-            
-            if current_pos in visited:
-                continue
-                
-            visited.add(current_pos)
-            
-            if current_pos == goal:
+        while queue:
+            current, path = queue.pop(0)
+            if current == goal:
                 return path
             
-            for direction in DIRECTIONS:
-                next_pos = self._apply_direction(current_pos, direction)
-                
-                if (next_pos not in obstacles and 
-                    self._is_valid_position(next_pos) and
-                    next_pos not in visited):
-                    
-                    tentative_g = g_scores[current_pos] + 1
-                    
-                    if next_pos not in g_scores or tentative_g < g_scores[next_pos]:
-                        g_scores[next_pos] = tentative_g
-                        h_score = self._manhattan_distance(next_pos, goal)
-                        f_score = tentative_g + h_score
-                        
-                        heapq.heappush(open_set, (f_score, next_pos, path + [direction]))
+            for neighbor in self._get_neighbors(current, grid_size):
+                if neighbor not in visited and neighbor not in obstacles:
+                    visited.add(neighbor)
+                    queue.append((neighbor, path + [neighbor]))
         
-        return []  # No path found
+        return None
+
+# agents/agent_astar.py
+class AStarAgent(BaseAgent):
+    """A* Search agent for v0.02."""
     
-    def _manhattan_distance(self, pos1: Position, pos2: Position) -> int:
-        """Calculate Manhattan distance heuristic"""
+    def __init__(self, name: str = "ASTAR"):
+        super().__init__(name)
+        print(f"[AStarAgent] Initialized A* agent")  # Simple logging
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Plan next move using A*"""
+        snake_positions = game_state['snake_positions']
+        apple_position = game_state['apple_position']
+        grid_size = game_state['grid_size']
+        
+        path = self._astar_pathfinding(snake_positions[0], apple_position, snake_positions, grid_size)
+        
+        if path and len(path) > 1:
+            next_pos = path[1]
+            return self._get_direction(snake_positions[0], next_pos)
+        else:
+            return self._fallback_move(snake_positions, grid_size)
+    
+    def _astar_pathfinding(self, start: tuple, goal: tuple, obstacles: list, grid_size: int) -> list:
+        """A* pathfinding implementation"""
+        import heapq
+        
+        open_set = [(0, start, [start])]
+        closed_set = set()
+        
+        while open_set:
+            f_score, current, path = heapq.heappop(open_set)
+            
+            if current == goal:
+                return path
+            
+            if current in closed_set:
+                continue
+            
+            closed_set.add(current)
+            
+            for neighbor in self._get_neighbors(current, grid_size):
+                if neighbor not in closed_set and neighbor not in obstacles:
+                    g_score = len(path)
+                    h_score = self._manhattan_distance(neighbor, goal)
+                    f_score = g_score + h_score
+                    
+                    heapq.heappush(open_set, (f_score, neighbor, path + [neighbor]))
+        
+        return None
+    
+    def _manhattan_distance(self, pos1: tuple, pos2: tuple) -> int:
+        """Calculate Manhattan distance"""
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+# agents/agent_dfs.py
+class DFSAgent(BaseAgent):
+    """Depth-First Search agent for v0.02."""
+    
+    def __init__(self, name: str = "DFS"):
+        super().__init__(name)
+        print(f"[DFSAgent] Initialized DFS agent")  # Simple logging
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Plan next move using DFS"""
+        snake_positions = game_state['snake_positions']
+        apple_position = game_state['apple_position']
+        grid_size = game_state['grid_size']
+        
+        path = self._dfs_pathfinding(snake_positions[0], apple_position, snake_positions, grid_size)
+        
+        if path and len(path) > 1:
+            next_pos = path[1]
+            return self._get_direction(snake_positions[0], next_pos)
+        else:
+            return self._fallback_move(snake_positions, grid_size)
+    
+    def _dfs_pathfinding(self, start: tuple, goal: tuple, obstacles: list, grid_size: int) -> list:
+        """DFS pathfinding implementation"""
+        stack = [(start, [start])]
+        visited = set()
+        
+        while stack:
+            current, path = stack.pop()
+            
+            if current == goal:
+                return path
+            
+            if current in visited:
+                continue
+            
+            visited.add(current)
+            
+            for neighbor in self._get_neighbors(current, grid_size):
+                if neighbor not in visited and neighbor not in obstacles:
+                    stack.append((neighbor, path + [neighbor]))
+        
+        return None
 ```
 
-### **Supervised Learning v0.02: Comprehensive ML Suite**
-
-**Location**: `./extensions/supervised-v0.02`
-
-**Model Examples**: Neural Networks, Tree Models, Ensemble Methods (Following SUPREME_RULE NO.3, easily extensible)
-
-#### **Directory Structure**
-```
-./extensions/supervised-v0.02/
-├── __init__.py                     # Package initialization
-├── main.py                         # CLI with model selection
-├── models/                         # 📁 Model directory structure  
-│   ├── __init__.py                 # Model package initialization
-│   ├── neural_networks/            # 📁 Neural network implementations
-│   │   ├── __init__.py
-│   │   ├── agent_mlp.py            # Multi-Layer Perceptron
-│   │   ├── agent_cnn.py            # Convolutional Neural Network
-│   │   └── agent_lstm.py           # Long Short-Term Memory
-│   └── tree_models/                # 📁 Tree-based model implementations
-│       ├── __init__.py
-│       ├── agent_xgboost.py        # XGBoost classifier
-│       ├── agent_lightgbm.py       # LightGBM classifier
-│       └── agent_randomforest.py   # Random Forest classifier
-├── train.py                        # Enhanced training pipeline
-├── evaluate.py                     # Model evaluation utilities
-├── game_logic.py                   # ML-adapted game logic
-├── game_manager.py                 # Model evaluation manager
-└── README.md                       # Comprehensive documentation
-```
-
-#### **Command Line Interface**
-```bash
-# Train MLP on tabular features
-python train.py --model MLP --dataset ../heuristics-v0.02/datasets/bfs_games.csv \
-    --epochs 100 --batch-size 32 --learning-rate 0.001
-
-# Train XGBoost with hyperparameter tuning
-python train.py --model XGBOOST --dataset ../heuristics-v0.02/datasets/astar_games.csv \
-    --n-estimators 100 --max-depth 6 --tune-hyperparameters
-
-# Evaluate trained CNN model
-python evaluate.py --model CNN --model-path ./models/cnn_model.pth \
-    --test-dataset ../heuristics-v0.02/datasets/test_games.csv
-
-# Compare all models on benchmark dataset
-python main.py --compare-models --benchmark-dataset ./datasets/benchmark.csv
-```
-
-#### **Model Factory Implementation**
+### **Enhanced Game Manager with Factory**
 ```python
-class SupervisedModelFactory:
+# game_manager.py
+from core.game_manager import BaseGameManager
+from .agents.agent_bfs import BFSAgent
+from .agents.agent_astar import AStarAgent
+from .agents.agent_dfs import DFSAgent
+from .agents.agent_hamiltonian import HamiltonianAgent
+
+class HeuristicGameManager(BaseGameManager):
     """
-    Factory Pattern for ML Model Creation
+    Enhanced game manager for v0.02 with multiple algorithms.
     
-    Design Pattern: Abstract Factory Pattern
-    Purpose: Create different types of ML models with consistent interfaces
-    Educational Value: Shows how factory patterns can manage complex
-    object hierarchies (neural networks vs tree models) through abstraction.
+    Uses factory pattern for algorithm selection and comparison.
     """
     
-    _registry = {
-        # Neural Network Models
-        "MLP": MLPAgent,
-        "CNN": CNNAgent,
-        "LSTM": LSTMAgent,
-        
-        # Tree-Based Models
-        "XGBOOST": XGBoostAgent,
-        "LIGHTGBM": LightGBMAgent,
-        "RANDOMFOREST": RandomForestAgent,
-    }
+    def __init__(self, algorithm: str, grid_size: int = 10, max_games: int = 1):
+        super().__init__(grid_size=grid_size)
+        self.algorithm = algorithm
+        self.max_games = max_games
+        self.agent = self.create(algorithm)
+        print(f"[HeuristicGameManager] Initialized with {algorithm}")  # Simple logging
     
-    @classmethod
-    def create(cls, model_type: str, input_dim: int, **kwargs) -> BaseMLAgent:
-        """
-        Create ML model by type
+    def create(self, algorithm: str):
+        """Create agent using factory pattern"""
+        agents = {
+            'BFS': BFSAgent,
+            'ASTAR': AStarAgent,
+            'DFS': DFSAgent,
+            'HAMILTONIAN': HamiltonianAgent,
+        }
         
-        Args:
-            model_type: Model architecture identifier
-            input_dim: Input feature dimensionality
-            **kwargs: Model-specific hyperparameters
+        if algorithm not in agents:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        
+        return agents[algorithm]()
+    
+    def run_comparison(self, algorithms: list) -> dict:
+        """Run comparison between multiple algorithms"""
+        print(f"[HeuristicGameManager] Running comparison for {algorithms}")  # Simple logging
+        
+        comparison_results = {}
+        
+        for algorithm in algorithms:
+            print(f"[HeuristicGameManager] Testing {algorithm}")  # Simple logging
             
-        Returns:
-            Configured model instance
-        """
-        if model_type not in cls._registry:
-            available = ", ".join(cls._registry.keys())
-            raise ValueError(f"Unknown model: {model_type}. Available: {available}")
+            # Create agent for this algorithm
+            self.agent = self.create(algorithm)
+            
+            # Run games
+            algorithm_results = self.run_multiple_games()
+            comparison_results[algorithm] = algorithm_results
         
-        model_class = cls._registry[model_type]
-        return model_class(input_dim=input_dim, **kwargs)
+        return comparison_results
+    
+    def run_multiple_games(self) -> dict:
+        """Run multiple games with current agent"""
+        results = {
+            'algorithm': self.agent.name,
+            'games_played': 0,
+            'total_score': 0,
+            'successful_games': 0,
+            'average_score': 0.0,
+            'success_rate': 0.0
+        }
+        
+        for game_id in range(self.max_games):
+            print(f"[HeuristicGameManager] Running game {game_id + 1} with {self.agent.name}")  # Simple logging
+            
+            try:
+                game_result = self.run_single_game()
+                results['games_played'] += 1
+                results['total_score'] += game_result['score']
+                
+                if game_result['success']:
+                    results['successful_games'] += 1
+                
+                print(f"[HeuristicGameManager] Game {game_id + 1} completed, score: {game_result['score']}")  # Simple logging
+                
+            except Exception as e:
+                print(f"[HeuristicGameManager] ERROR in game {game_id + 1}: {e}")  # Simple logging
+                continue
+        
+        # Calculate averages
+        if results['games_played'] > 0:
+            results['average_score'] = results['total_score'] / results['games_played']
+            results['success_rate'] = results['successful_games'] / results['games_played']
+        
+        return results
 ```
 
-### **Reinforcement Learning v0.02: Multi-Algorithm RL Suite**
-
-**Location**: `./extensions/reinforcement-v0.02`
-
-**Algorithm Examples**: DQN, PPO, A3C, DDPG (Following SUPREME_RULE NO.3, easily extensible)
-
-#### **Directory Structure**
-```
-./extensions/reinforcement-v0.02/
-├── __init__.py                     # Package initialization
-├── main.py                         # CLI with algorithm selection
-├── agents/                         # 📁 RL agent implementations
-│   ├── __init__.py                 # Agent package initialization
-│   ├── agent_dqn.py                # Deep Q-Network
-│   ├── agent_ppo.py                # Proximal Policy Optimization
-│   ├── agent_a3c.py                # Asynchronous Advantage Actor-Critic
-│   └── agent_ddpg.py               # Deep Deterministic Policy Gradient
-├── train.py                        # RL training pipeline
-├── evaluate.py                     # Agent evaluation utilities
-├── environments/                   # 📁 Environment wrappers
-│   ├── __init__.py
-│   └── snake_env.py                # Gymnasium-compatible Snake environment
-├── game_logic.py                   # RL-adapted game logic
-├── game_manager.py                 # RL training manager
-└── README.md                       # Comprehensive documentation
-```
-
-#### **Command Line Interface**
-```bash
-# Train DQN with experience replay
-python train.py --algorithm DQN --episodes 10000 --learning-rate 0.0001 \
-    --epsilon-decay 0.995 --replay-buffer-size 100000
-
-# Train PPO with custom hyperparameters
-python train.py --algorithm PPO --episodes 5000 --batch-size 64 \
-    --clip-epsilon 0.2 --entropy-coef 0.01
-
-# Evaluate trained A3C agent
-python evaluate.py --algorithm A3C --model-path ./models/a3c_model.pth \
-    --num-episodes 100 --render
-
-# Compare RL algorithms performance
-python main.py --compare-algorithms --episodes 1000 --grid-size 10
-```
-
-## 🧠 **Advanced Design Pattern Integration**
-
-### **Command Line Architecture**
-All v0.02 extensions implement sophisticated argument parsing:
-
+### **Enhanced Main Entry Point**
 ```python
-class ExtensionArgumentParser:
-    """
-    Standardized argument parsing for v0.02 extensions
-    
-    Design Pattern: Builder Pattern
-    Purpose: Construct complex command-line interfaces incrementally
-    Educational Value: Shows how builder pattern can create flexible,
-    maintainable configuration systems.
-    """
-    
-    def __init__(self, extension_type: str):
-        self.extension_type = extension_type
-        self.parser = argparse.ArgumentParser(
-            description=f"{extension_type} v0.02 - Multi-algorithm implementation"
-        )
-        self._setup_common_arguments()
-        self._setup_extension_specific_arguments()
-    
-    def _setup_common_arguments(self):
-        """Add arguments common to all extensions"""
-        self.parser.add_argument("--grid-size", type=int, default=10,
-                               help="Game board size (default: 10)")
-        self.parser.add_argument("--max-games", type=int, default=1,
-                               help="Maximum number of games (default: 1)")
-        self.parser.add_argument("--max-steps", type=int, default=1000,
-                               help="Maximum steps per game (default: 1000)")
-        self.parser.add_argument("--log-dir", type=str, default="./logs",
-                               help="Logging directory (default: ./logs)")
-        self.parser.add_argument("--verbose", action="store_true",
-                               help="Enable verbose logging")
-    
-    def _setup_extension_specific_arguments(self):
-        """Add extension-specific arguments (implemented by subclasses)"""
-        raise NotImplementedError("Subclasses must implement extension-specific arguments")
-```
+# main.py
+#!/usr/bin/env python3
+"""
+Main entry point for heuristics v0.02 extension.
 
-### **Performance Benchmarking Framework**
-```python
-class PerformanceBenchmark:
-    """
-    Comprehensive benchmarking framework for algorithm comparison
+Supports single algorithm execution and algorithm comparison.
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Ensure project root is in Python path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from extensions.common.utils.path_utils import ensure_project_root
+from game_manager import HeuristicGameManager
+
+def main():
+    """Main execution function with algorithm comparison"""
+    # Ensure proper working directory
+    ensure_project_root()
     
-    Design Pattern: Observer Pattern
-    Purpose: Monitor and report algorithm performance metrics
-    Educational Value: Demonstrates how observer pattern enables
-    decoupled monitoring and metric collection systems.
-    """
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Run heuristic algorithms with comparison")
+    parser.add_argument("--algorithm", help="Single algorithm to run")
+    parser.add_argument("--algorithms", nargs="+", help="Multiple algorithms for comparison")
+    parser.add_argument("--grid-size", type=int, default=10, help="Grid size")
+    parser.add_argument("--max-games", type=int, default=10, help="Number of games per algorithm")
+    parser.add_argument("--comparison", action="store_true", help="Run algorithm comparison")
     
-    def __init__(self, algorithms: List[str]):
-        self.algorithms = algorithms
-        self.results = {}
-        self.observers = []
+    args = parser.parse_args()
     
-    def add_observer(self, observer: BenchmarkObserver):
-        """Add performance monitoring observer"""
-        self.observers.append(observer)
+    # Create game manager
+    manager = HeuristicGameManager(
+        algorithm=args.algorithm or "BFS",
+        grid_size=args.grid_size,
+        max_games=args.max_games
+    )
     
-    def run_benchmark(self, config: BenchmarkConfig) -> BenchmarkResults:
-        """Execute comprehensive algorithm benchmark"""
-        for algorithm in self.algorithms:
-            print(f"Benchmarking {algorithm}...")
-            
-            # Run algorithm with specified configuration
-            agent = self._create_agent(algorithm, config)
-            metrics = self._execute_benchmark(agent, config)
-            
-            self.results[algorithm] = metrics
-            
-            # Notify observers of results
-            for observer in self.observers:
-                observer.on_algorithm_completed(algorithm, metrics)
+    if args.comparison or args.algorithms:
+        # Run comparison
+        algorithms_to_test = args.algorithms or ["BFS", "ASTAR", "DFS"]
+        results = manager.run_comparison(algorithms_to_test)
         
-        return BenchmarkResults(self.results)
+        # Print comparison results
+        print(f"\nAlgorithm Comparison Results:")
+        print(f"  Grid Size: {args.grid_size}x{args.grid_size}")
+        print(f"  Games per Algorithm: {args.max_games}")
+        print(f"  {'Algorithm':<12} {'Avg Score':<10} {'Success Rate':<12}")
+        print(f"  {'-'*12} {'-'*10} {'-'*12}")
+        
+        for algorithm, result in results.items():
+            print(f"  {algorithm:<12} {result['average_score']:<10.2f} {result['success_rate']:<12.2%}")
+        
+    else:
+        # Run single algorithm
+        results = manager.run_multiple_games()
+        
+        # Print single algorithm results
+        print(f"\nSingle Algorithm Results:")
+        print(f"  Algorithm: {results['algorithm']}")
+        print(f"  Grid Size: {args.grid_size}x{args.grid_size}")
+        print(f"  Games Played: {results['games_played']}")
+        print(f"  Average Score: {results['average_score']:.2f}")
+        print(f"  Success Rate: {results['success_rate']:.2%}")
+    
+    return results
+
+if __name__ == "__main__":
+    main()
 ```
 
-## 📊 **Enhanced Logging and Analytics**
+## 📊 **v0.02 Standards**
 
-### **Algorithm-Specific Metrics**
-Each algorithm type generates specialized performance data:
+### **Multi-Algorithm Requirements**
+- **Multiple Algorithms**: At least 3 related algorithms
+- **Factory Pattern**: Canonical `create()` method for algorithm selection
+- **Comparison Capability**: Ability to compare algorithm performance
+- **Consistent Interface**: All algorithms implement the same interface
 
-**Heuristics Metrics**:
-- Path length optimality
-- Search space exploration
-- Algorithm execution time
-- Memory usage patterns
+### **Educational Focus**
+- **Algorithm Comparison**: Clear comparison between different approaches
+- **Performance Analysis**: Understanding algorithm performance differences
+- **Factory Patterns**: Learning factory patterns for algorithm selection
+- **Code Organization**: Managing multiple algorithms in a single extension
 
-**Supervised Learning Metrics**:
-- Training/validation accuracy
-- Loss convergence patterns
-- Inference time performance
-- Model complexity measures
+### **Quality Standards**
+- **Working Algorithms**: All algorithms must work correctly
+- **Performance Metrics**: Comprehensive performance comparison
+- **Code Reuse**: Shared utilities between algorithms
+- **Clear Documentation**: Documentation for each algorithm
 
-**Reinforcement Learning Metrics**:
-- Episode reward trends
-- Exploration vs exploitation balance
-- Q-value convergence
-- Policy gradient magnitudes
+## 📋 **Implementation Checklist**
 
-### **Comparative Analysis Output**
-```json
-{
-  "benchmark_results": {
-    "configuration": {
-      "grid_size": 10,
-      "max_games": 5,
-      "max_steps": 1000
-    },
-    "algorithms": {
-      "BFS": {
-        "average_score": 45.2,
-        "average_path_length": 12.8,
-        "execution_time_ms": 15.3,
-        "success_rate": 0.95
-      },
-      "ASTAR": {
-        "average_score": 47.8,
-        "average_path_length": 11.2,
-        "execution_time_ms": 8.7,
-        "success_rate": 0.98
-      }
-    },
-    "ranking": ["ASTAR", "BFS"],
-    "summary": "A* demonstrates superior performance with 6% higher scores and 43% faster execution"
-  }
-}
-```
+### **Required Components**
+- [ ] **Multiple Agents**: At least 3 algorithm implementations
+- [ ] **Factory Pattern**: Canonical `create()` method
+- [ ] **Comparison Logic**: Algorithm comparison functionality
+- [ ] **Performance Metrics**: Comprehensive performance analysis
+- [ ] **Shared Utilities**: Common utilities for all algorithms
 
-## 📋 **Implementation Standards**
+### **Code Quality**
+- [ ] **Algorithm Correctness**: All algorithms work correctly
+- [ ] **Code Reuse**: Shared code between algorithms
+- [ ] **Performance Analysis**: Meaningful performance comparison
+- [ ] **Error Handling**: Proper error handling for all algorithms
 
-### **Universal v0.02 Requirements**
-- [ ] **Multi-Algorithm Support**: Minimum 3 algorithms per extension
-- [ ] **Factory Pattern**: Dynamic algorithm creation and selection
-- [ ] **CLI Interface**: Comprehensive argument parsing with help text
-- [ ] **Performance Benchmarking**: Cross-algorithm comparison capabilities
-- [ ] **Enhanced Logging**: Algorithm-specific metrics and detailed output
-- [ ] **Error Handling**: Graceful handling of invalid configurations
-- [ ] **Documentation**: Clear usage examples and algorithm descriptions
+### **Educational Value**
+- [ ] **Algorithm Comparison**: Clear comparison between approaches
+- [ ] **Factory Patterns**: Understanding factory pattern usage
+- [ ] **Performance Analysis**: Learning to analyze algorithm performance
+- [ ] **Code Organization**: Managing multiple algorithms effectively
 
-### **Heuristics-Specific Requirements**
-- [ ] **BFS Implementation**: Breadth-first search pathfinding
-- [ ] **A* Implementation**: A-star with admissible heuristic
-- [ ] **DFS Implementation**: Depth-first search variant
-- [ ] **Hamiltonian Implementation**: Cycle-based path generation
-- [ ] **Pathfinding Metrics**: Path optimality and search efficiency tracking
+## 🎓 **Educational Benefits**
 
-### **Supervised Learning Requirements**
-- [ ] **Neural Networks**: MLP, CNN, LSTM implementations
-- [ ] **Tree Models**: XGBoost, LightGBM, Random Forest support
-- [ ] **Training Pipeline**: Complete train/validate/test workflow
-- [ ] **Model Persistence**: Save/load trained model functionality
-- [ ] **Hyperparameter Tuning**: Automated parameter optimization
+### **Learning Objectives**
+- **Algorithm Comparison**: Understanding differences between algorithms
+- **Factory Patterns**: Learning factory patterns for object creation
+- **Performance Analysis**: Analyzing and comparing algorithm performance
+- **Code Organization**: Managing multiple related implementations
 
-### **Reinforcement Learning Requirements**
-- [ ] **Value-Based**: DQN implementation with experience replay
-- [ ] **Policy-Based**: PPO with clipped surrogate objective
-- [ ] **Actor-Critic**: A3C with parallel environment workers
-- [ ] **Continuous Control**: DDPG for potential continuous variants
-- [ ] **Environment Integration**: Gymnasium-compatible Snake environment
+### **Best Practices**
+- **Modular Design**: Clear separation between algorithms
+- **Factory Patterns**: Using factories for object creation
+- **Performance Metrics**: Meaningful performance comparison
+- **Code Reuse**: Sharing common utilities between algorithms
 
-## 🚀 **Evolution Preview: v0.02 → v0.03**
+## 🔗 **Progression to v0.03**
 
-### **Web Interface Integration**
-v0.03 will transform command-line interfaces into sophisticated Streamlit dashboards while preserving all v0.02 functionality.
-
-### **Dataset Generation Capabilities**
-v0.03 will add comprehensive dataset generation for cross-extension training and evaluation.
-
-### **Enhanced Visualization**
-v0.03 will introduce real-time algorithm visualization and interactive performance analysis.
+v0.02 extensions serve as the foundation for v0.03 extensions, which will:
+- **Add Data Generation**: Generate training datasets from algorithm execution
+- **Add Visualization**: Enhanced visualization and analysis capabilities
+- **Add Scripts**: Backend scripts for batch processing
+- **Add Dashboard**: Web-based interface for algorithm comparison
 
 ---
 
-**Extensions v0.02 establish the multi-algorithm foundation that demonstrates the power and flexibility of the Snake Game AI architecture. They prove that sophisticated algorithmic diversity can coexist with clean, maintainable code through proper application of design patterns and architectural principles.**
+**Extensions v0.02 demonstrate multi-algorithm patterns and factory usage, providing educational value through algorithm comparison and performance analysis while establishing patterns for more sophisticated extensions.**
+
+## 🔗 **See Also**
+
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`standalone.md`**: Standalone principle and extension independence
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation guide
 
 
 

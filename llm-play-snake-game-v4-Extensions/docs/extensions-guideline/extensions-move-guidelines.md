@@ -394,28 +394,13 @@ def test_extension_system_integrity():
     print("✅ Extension passes all system integrity tests")
 ```
 
-### **Performance Validation**
-```python
-def benchmark_extension_performance():
-    """Benchmark extension performance against baseline"""
-    
-    baseline_time = benchmark_baseline_implementation()
-    extension_time = benchmark_extension_implementation()
-    
-    # Extension should not be significantly slower
-    performance_ratio = extension_time / baseline_time
-    assert performance_ratio < 2.0, \
-        f"Extension is too slow: {performance_ratio:.2f}x baseline"
-    
-    print(f"✅ Extension performance: {performance_ratio:.2f}x baseline")
-```
 
 ## 🔗 **Integration with Extension Architecture**
 
 ### **Path Management**
 Extensions must use standardized path utilities:
 ```python
-from extensions.common.path_utils import ensure_project_root
+from extensions.common.utils.path_utils import ensure_project_root
 
 # Ensure proper working directory
 ensure_project_root()
@@ -426,10 +411,4 @@ Follow established configuration patterns:
 ```python
 from config.game_constants import VALID_MOVES, DIRECTIONS
 from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
-```
-
-### **Logging Integration**
-Use consistent logging patterns:
-```python
-print("Starting extension with algorithm: %s", algorithm_name)
 ```

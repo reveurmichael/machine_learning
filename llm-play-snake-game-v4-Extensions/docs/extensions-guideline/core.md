@@ -6,10 +6,46 @@
 
 Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring.
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making core architectural changes to ensure comprehensive understanding
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and core patterns
-- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining core patterns through inheritance rather than tight coupling
+## 🏗️ **Factory Pattern: Canonical Method is create()**
+
+All extension factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle. Factories should be simple, dictionary-based, and avoid over-engineering.
+
+### Reference Implementation
+
+A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+
+```python
+from extensions.common.utils.factory_utils import SimpleFactory
+
+class MyAgent:
+    def __init__(self, name):
+        self.name = name
+
+factory = SimpleFactory()
+factory.register("myagent", MyAgent)
+agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method
+print(agent.name)  # Output: TestAgent
+```
+
+### Example Extension Factory
+
+```python
+class HeuristicAgentFactory:
+    _registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
+    }
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # simple logging
+        return agent_class(**kwargs)
+```
+
+---
 
 ## 🎯 **Existing Base Classes Architecture**
 
@@ -61,8 +97,8 @@ class HeuristicGameManager(BaseGameManager):
     def initialize(self):
         # Set up pathfinding algorithms
         self.pathfinder = AStarPathfinder()
-        # Simple debug output (SUPREME_RULE NO.3 discourages complex *.log files)
-        print("[HeuristicGameManager] Initialised pathfinder and ready to run.")
+        # Simple debug output (simple logging discourages complex *.log files)
+        print("[HeuristicGameManager] Initialised pathfinder and ready to run.")  # simple logging
     
     def run(self):
         # Inherits all generic game loop logic from BaseGameManager
@@ -110,8 +146,8 @@ class RLGameManager(BaseGameManager):
     
     def initialize(self):
         self.agent = DQNAgent()
-        # Simple debug output instead of file-based logging (SUPREME_RULE NO.3)
-        print("[RLGameManager] DQN agent initialised.")
+        # Simple debug output instead of file-based logging (simple logging)
+        print("[RLGameManager] DQN agent initialised.")  # simple logging
     
     def run(self):
         # Inherits all session management
@@ -200,6 +236,16 @@ The `core` folder demonstrates **exceptional software architecture** and require
 - ✅ **No Over-preparation**: Contains only code actually used by Task-0
 
 This architecture serves as a **perfect reference implementation** for how the entire codebase should be structured, demonstrating world-class software engineering principles in practice.
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Authoritative reference for agent implementation standards
+- **`factory-design-pattern.md`**: Factory pattern implementation guide
+- **`final-decision-10.md`**: final-decision-10.md governance system
+
+---
+
+**This core architecture ensures educational value, technical consistency, and scalable development across all Snake Game AI extensions.**
 
 
 

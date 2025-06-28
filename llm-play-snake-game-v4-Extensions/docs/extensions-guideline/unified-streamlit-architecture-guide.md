@@ -1,5 +1,11 @@
 # Unified Streamlit Architecture Guide
 
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines unified Streamlit architecture patterns.
+
+> **See also:** `app.md`, `scripts.md`, `final-decision-10.md`, `standalone.md`.
+
+# Unified Streamlit Architecture Guide
+
 > **Authoritative Reference**: This document provides the **single canonical Streamlit OOP architecture** for all v0.03+ extensions.
 
 ## 🎯 **Core Streamlit Philosophy**

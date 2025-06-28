@@ -5,6 +5,17 @@ This module provides utilities for handling the standardized 16-feature CSV
 dataset format used across extensions. It implements a grid-size agnostic
 approach that works with any board size.
 
+This file follows the principles from final-decision-10.md:
+- This file follows the principles from final-decision-10.md.
+- All utilities must use simple print logging (simple logging).
+- All utilities must be OOP, extensible, and never over-engineered.
+- Reference: SimpleFactory in factory_utils.py is the canonical factory pattern for all extensions.
+- See also: agents.md, core.md, config.md, factory-design-pattern.md, extension-evolution-rules.md.
+
+Design Philosophy:
+- Simple, educational, and extensible CSV schema utilities for all extensions.
+- All code examples use print() and create() as canonical patterns.
+
 Design Pattern: Strategy Pattern
 - Different feature extraction strategies for different game states
 - Pluggable validation strategies
@@ -13,6 +24,15 @@ Design Pattern: Strategy Pattern
 Educational Value:
 Demonstrates how to design data format utilities that are both flexible
 and maintainable, with proper separation of concerns and validation.
+
+CSV schema utilities for Snake Game AI extensions.
+
+This module follows the principles from final-decision-10.md.
+- OOP extensibility is prioritized.
+- Logging is always simple (print()).
+- No ML/DL/RL/LLM-specific coupling.
+
+Reference: docs/extensions-guideline/final-decision-10.md
 """
 
 from typing import Dict, List, Any, Optional, Set, Tuple
@@ -56,13 +76,13 @@ class TabularFeatureExtractor:
     positioning and directional indicators rather than absolute coordinates
     that would vary with grid size.
     
-    Educational Note (SUPREME_RULE NO.3):
+    Educational Note (simple logging):
     This class is designed to be extensible for extensions that need
     specialized feature extraction while maintaining compatibility with
     the standard 16-feature format. Extensions can inherit and customize
     specific feature extraction methods.
     
-    SUPREME_RULE NO.3 Implementation:
+    simple logging Implementation:
     - Base class provides complete 16-feature extraction
     - Protected methods allow selective feature customization
     - Virtual methods enable additional feature extraction
@@ -115,7 +135,7 @@ class TabularFeatureExtractor:
     
     def _initialize_extractor_settings(self) -> None:
         """
-        Initialize extractor-specific settings (SUPREME_RULE NO.3 Extension Point).
+        Initialize extractor-specific settings (simple logging Extension Point).
         
         This method can be overridden by subclasses to set up extension-specific
         feature extraction configurations or custom processing parameters.
@@ -130,7 +150,7 @@ class TabularFeatureExtractor:
     
     def _extract_extension_specific_features(self, game_state: GameState) -> Dict[str, Any]:
         """
-        Extract extension-specific features (SUPREME_RULE NO.3 Extension Point).
+        Extract extension-specific features (simple logging Extension Point).
         
         Override this method in subclasses to add custom features while
         maintaining compatibility with the standard 16-feature format.
@@ -303,6 +323,7 @@ def create_csv_row(
     metadata to create complete training examples that can be used
     across different machine learning frameworks.
     """
+    print(f"[CSVSchemaUtils] Creating CSV row for game_id={game_id}, step={step_in_game}")
     # Validate target move
     if target_move not in CSV_VALID_MOVES:
         raise ValueError(f"Invalid target move: {target_move}. Must be one of {CSV_VALID_MOVES}")
@@ -344,11 +365,11 @@ class CSVDatasetGenerator:
     This class handles the conversion from raw game logs to
     standardized CSV datasets that can be used for training.
     
-    Educational Note (SUPREME_RULE NO.3):
+    Educational Note (simple logging):
     This class is designed to be extensible for extensions that need
     specialized dataset generation while maintaining CSV format compatibility.
     
-    SUPREME_RULE NO.3 Implementation:
+    simple logging Implementation:
     - Base class provides complete CSV generation functionality
     - Pluggable feature extractor allows customization
     - Protected methods enable selective behavior modification
@@ -436,7 +457,7 @@ class CSVDatasetGenerator:
     
     def _initialize_generator_settings(self) -> None:
         """
-        Initialize generator-specific settings (SUPREME_RULE NO.3 Extension Point).
+        Initialize generator-specific settings (simple logging Extension Point).
         
         This method can be overridden by subclasses to set up extension-specific
         dataset generation configurations or custom processing parameters.

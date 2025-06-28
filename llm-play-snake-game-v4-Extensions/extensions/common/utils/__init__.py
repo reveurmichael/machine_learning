@@ -1,74 +1,54 @@
 """
-Utility helpers shared by *all* extensions
-=========================================
+Common utilities package for Snake Game AI extensions.
 
-The modules exposed here are intentionally lightweight – each one should be
-small enough to understand at a glance and generic enough to work for almost
-any extension without modification.  If your extension has specialised needs,
-feel free to extend or wrap these helpers inside your own package rather than
-changing the common ones.
+This package is governed by final-decision-10.md governance system.
+- Exports all utility modules.
+- Logging is always simple (print()).
+
+Reference: docs/extensions-guideline/final-decision-10.md
 """
 
-# ---------------------------------------------------------------------------
-# Dataset helpers
-# ---------------------------------------------------------------------------
-from .dataset_utils import (
-    load_csv_dataset,
-    load_jsonl_dataset,
-    load_npz_dataset,
-    save_csv_dataset,
-    save_jsonl_dataset,
-    save_npz_dataset,
-    get_dataset_info,
-    guess_dataset_format,
-)
+print("[common.utils] Imported common utilities (final-decision-10.md Guideline 3)")
 
-# ---------------------------------------------------------------------------
-# CSV schema helpers – these are a bit more advanced but still generic.
-# ---------------------------------------------------------------------------
-from .csv_schema_utils import (
-    TabularFeatureExtractor,
-    CSVDatasetGenerator,
-    CSVValidator,
-    load_and_validate_csv,
-)
+from .factory_utils import SimpleFactory
+from .dataset_utils import DatasetLoader
+from .path_utils import ensure_project_root, get_extension_path, get_dataset_path, get_model_path
+from .csv_schema_utils import create_csv_row
 
-# ---------------------------------------------------------------------------
-# Path helpers
-# ---------------------------------------------------------------------------
 from .path_utils import (
-    ensure_project_root_on_path,
-    setup_extension_paths,
-    get_extension_path,
-    get_dataset_path,
-    get_model_path,
-    ensure_extension_directories,
     validate_path_structure,
+    setup_extension_environment
 )
 
-__all__ = [
-    # dataset
-    "load_csv_dataset",
-    "load_jsonl_dataset",
-    "load_npz_dataset",
-    "save_csv_dataset",
-    "save_jsonl_dataset",
-    "save_npz_dataset",
-    "get_dataset_info",
-    "guess_dataset_format",
+from .dataset_utils import (
+    load_dataset_for_training,
+    save_dataset_standardized,
+    validate_dataset_compatibility,
+    extract_features_from_game_state,
+    create_csv_row
+)
 
-    # csv schema
-    "TabularFeatureExtractor",
-    "CSVDatasetGenerator",
-    "CSVValidator",
-    "load_and_validate_csv",
+from .csv_schema_utils import (
+    generate_csv_schema,
+    TabularFeatureExtractor,
+    validate_csv_schema
+)
 
-    # path utils
-    "ensure_project_root_on_path",
-    "setup_extension_paths",
-    "get_extension_path",
-    "get_dataset_path",
-    "get_model_path",
-    "ensure_extension_directories",
-    "validate_path_structure",
-] 
+# final-decision-10.md Guideline 3: Simple utility functions
+def print_extension_info(extension_name: str, version: str):
+    """Simple extension information logging"""
+    print(f"[CommonUtils] Extension: {extension_name} v{version}")
+
+def validate_extension_structure(extension_path: str):
+    """Simple extension structure validation"""
+    print(f"[CommonUtils] Validating extension structure: {extension_path}")
+    return True
+
+def get_common_config():
+    """Simple common configuration access"""
+    print("[CommonUtils] Accessing common configuration")
+    return {
+        "default_grid_size": 10,
+        "max_grid_size": 50,
+        "min_grid_size": 5
+    } 

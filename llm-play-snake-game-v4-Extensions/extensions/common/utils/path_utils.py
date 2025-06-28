@@ -1,5 +1,11 @@
 """Path utilities for extensions/common/utils/ package.
 
+This file follows the principles from final-decision-10.md:
+- All utilities must use simple print logging
+- All utilities must be OOP, extensible, and never over-engineered
+- Reference: SimpleFactory in factory_utils.py is the canonical factory pattern for all extensions
+- See also: agents.md, core.md, config.md, factory-design-pattern.md, extension-evolution-rules.md
+
 This module provides path management utilities for the extensions package,
 serving as a thin façade to the canonical implementation in the root utils
 package to maintain the Single Source of Truth principle.
@@ -16,6 +22,13 @@ Key Functions:
     get_model_path: Get standardized model directory paths
     ensure_extension_directories: Create extension directories if needed
     validate_path_structure: Validate extension path compliance
+
+Design Philosophy:
+- Simple, object-oriented utilities that can be inherited and extended
+- No tight coupling with ML/DL/RL/LLM-specific concepts
+- Simple logging with print() statements
+- Enables easy addition of new extensions without friction
+- All code examples use print() and create() as canonical patterns.
 """
 
 from __future__ import annotations
@@ -27,137 +40,79 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from pathlib import Path
+import os
 
 if TYPE_CHECKING:  # pragma: no cover – only for static type checkers
     from pathlib import Path
 
 
-def ensure_project_root_on_path() -> "Path":  # noqa: D401 – keep the historical name
-    """Ensure repository root is in sys.path and return it.
-
-    This is a thin alias around utils.path_utils.ensure_project_root to
-    provide simple path utilities for existing extensions while enforcing the
-    single source of truth policy.
+def ensure_project_root() -> Path:
     """
-    from utils.path_utils import ensure_project_root as _ensure_root  # local import to avoid cycles
-    return _ensure_root()
+    Ensure the working directory is the project root.
+    Returns:
+        Path to the project root.
+    """
+    root = Path(__file__).parent.parent.parent.parent.resolve()
+    os.chdir(root)
+    print(f"[PathUtils] Changed working directory to project root: {root}")  # Simple logging
+    return root
 
 
 def setup_extension_paths() -> None:  # noqa: D401 – historical name retained
-    """Simple wrapper that calls ensure_project_root_on_path."""
-    ensure_project_root_on_path()
-
-
-def get_extension_path(extension_file: str) -> Path:
-    """
-    Get the path to an extension directory from an extension file.
+    """Simple wrapper that calls ensure_project_root_on_path.
     
+    Simple logging with print() statements.
+    """
+    print("[PathUtils] Setting up extension paths...")  # Simple logging
+    ensure_project_root()
+    print("[PathUtils] Extension paths setup complete")  # Simple logging
+
+
+def get_extension_path(file: str) -> Path:
+    """
+    Get the path to the extension directory containing the given file.
     Args:
-        extension_file: Usually __file__ from the calling extension
-        
+        file: __file__ from the caller.
     Returns:
-        Path to the extension directory
-        
-    Example:
-        >>> # From within extensions/heuristics-v0.03/main.py
-        >>> extension_path = get_extension_path(__file__)
-        >>> # Returns: Path("extensions/heuristics-v0.03")
+        Path to the extension directory.
     """
-    return Path(extension_file).parent
+    path = Path(file).parent.resolve()
+    print(f"[PathUtils] Extension path: {path}")  # Simple logging
+    return path
 
 
-def get_dataset_path(
-    extension_type: str,
-    version: str,
-    grid_size: int,
-    algorithm: str = "",
-    timestamp: str = ""
-) -> Path:
+def get_dataset_path(extension_type: str, version: str, grid_size: int, algorithm: str, timestamp: str) -> Path:
     """
-    Get standardized dataset path following the grid-size hierarchy.
-    
+    Generate standardized dataset path.
     Args:
-        extension_type: Type of extension (heuristics, supervised, etc.)
-        version: Version string (e.g., "0.04")
-        grid_size: Grid size for the dataset
-        algorithm: Algorithm name (optional)
-        timestamp: Timestamp string (optional)
-        
+        extension_type: Type of extension (e.g., 'heuristics').
+        version: Version string (e.g., '0.04').
+        grid_size: Grid size (int).
+        algorithm: Algorithm name.
+        timestamp: Timestamp string.
     Returns:
-        Standardized dataset path
-        
-    Example:
-        >>> path = get_dataset_path("heuristics", "0.04", 10, "bfs", "20240101_120000")
-        >>> # Returns: logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/bfs/
+        Path to the dataset directory.
     """
-    ensure_project_root_on_path()
-    
-    # Base dataset directory
-    base_path = Path("logs/extensions/datasets")
-    
-    # Grid-size hierarchy
-    grid_path = base_path / f"grid-size-{grid_size}"
-    
-    # Extension-specific directory
-    if timestamp:
-        extension_dir = f"{extension_type}_v{version}_{timestamp}"
-    else:
-        extension_dir = f"{extension_type}_v{version}"
-    
-    dataset_path = grid_path / extension_dir
-    
-    # Add algorithm subdirectory if specified
-    if algorithm:
-        dataset_path = dataset_path / algorithm
-    
-    return dataset_path
+    path = Path(f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}/")
+    print(f"[PathUtils] Dataset path: {path}")  # Simple logging
+    return path
 
 
-def get_model_path(
-    extension_type: str,
-    version: str,
-    grid_size: int,
-    model_name: str = "",
-    timestamp: str = ""
-) -> Path:
+def get_model_path(extension_type: str, version: str, grid_size: int, algorithm: str, timestamp: str) -> Path:
     """
-    Get standardized model path following the grid-size hierarchy.
-    
+    Generate standardized model path.
     Args:
-        extension_type: Type of extension (supervised, reinforcement, etc.)
-        version: Version string (e.g., "0.02")
-        grid_size: Grid size for the model
-        model_name: Model name (optional)
-        timestamp: Timestamp string (optional)
-        
+        extension_type: Type of extension (e.g., 'supervised').
+        version: Version string (e.g., '0.02').
+        grid_size: Grid size (int).
+        algorithm: Algorithm name.
+        timestamp: Timestamp string.
     Returns:
-        Standardized model path
-        
-    Example:
-        >>> path = get_model_path("supervised", "0.02", 10, "mlp", "20240101_120000")
-        >>> # Returns: logs/extensions/models/grid-size-10/supervised_v0.02_20240101_120000/mlp/
+        Path to the model directory.
     """
-    ensure_project_root_on_path()
-    
-    # Base model directory
-    base_path = Path("logs/extensions/models")
-    
-    # Grid-size hierarchy
-    grid_path = base_path / f"grid-size-{grid_size}"
-    
-    # Extension-specific directory
-    if timestamp:
-        extension_dir = f"{extension_type}_v{version}_{timestamp}"
-    else:
-        extension_dir = f"{extension_type}_v{version}"
-    
-    model_path = grid_path / extension_dir
-    
-    # Add model subdirectory if specified
-    if model_name:
-        model_path = model_path / model_name
-    
-    return model_path
+    path = Path(f"logs/extensions/models/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}/")
+    print(f"[PathUtils] Model path: {path}")  # Simple logging
+    return path
 
 
 def ensure_extension_directories(path: Path) -> Path:
@@ -169,8 +124,11 @@ def ensure_extension_directories(path: Path) -> Path:
         
     Returns:
         The created path
+        
+    Simple logging with print() statements.
     """
     path.mkdir(parents=True, exist_ok=True)
+    print(f"[PathUtils] Extension directories ensured: {path}")  # Simple logging
     return path
 
 
@@ -186,7 +144,11 @@ def validate_path_structure(extension_path: Path) -> bool:
         
     Raises:
         ValueError: If path structure is invalid
+        
+    Simple logging with print() statements.
     """
+    print(f"[PathUtils] Validating path structure: {extension_path}")  # Simple logging
+    
     # Basic validation - extension should be in extensions/ directory
     if "extensions" not in str(extension_path):
         raise ValueError(f"Extension path should be in extensions/ directory: {extension_path}")
@@ -196,11 +158,12 @@ def validate_path_structure(extension_path: Path) -> bool:
     if not any(char.isdigit() for char in extension_name):
         raise ValueError(f"Extension should have version number: {extension_name}")
     
+    print(f"[PathUtils] Path structure validation passed: {extension_path}")  # Simple logging
     return True
 
 
 # ---------------------------------------------------------------------------
-# Lightweight OOP façade (SUPREME_RULE NO.3)
+# Lightweight OOP façade
 # ---------------------------------------------------------------------------
 class PathManager:
     """Tiny helper class grouping path-related utilities.
@@ -209,13 +172,15 @@ class PathManager:
         * Keeps procedural helpers intact for callers that prefer them.
         * Offers an easy inheritance point for extensions needing tweaks
           (e.g. custom directory naming) without editing common code.
+        
+    Simple logging: All logging uses simple print() statements.
     """
 
     # Static helpers are forwarded for clarity – instance methods keep signature.
     # These very thin wrappers intentionally **do not** add new logic.
 
     def ensure_project_root(self) -> Path:  # noqa: D401
-        return ensure_project_root_on_path()
+        return ensure_project_root()
 
     # Dataset / model paths --------------------------------------------------
     def dataset_path(
@@ -238,7 +203,6 @@ class PathManager:
     ) -> Path:
         return get_model_path(extension_type, version, grid_size, model_name, timestamp)
 
-    # Validation -------------------------------------------------------------
     def validate(self, extension_path: Path) -> bool:  # noqa: D401
         return validate_path_structure(extension_path)
 
@@ -264,4 +228,4 @@ __all__ = [
 # imported – this mimics the historical behaviour so that existing extensions
 # continue to work without modification.
 
-ensure_project_root_on_path() 
+ensure_project_root() 

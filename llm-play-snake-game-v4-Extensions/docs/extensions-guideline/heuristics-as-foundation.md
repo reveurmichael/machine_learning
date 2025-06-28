@@ -1,277 +1,242 @@
-# Heuristics as Foundation for ML Ecosystem
+# Heuristics as Foundation for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines heuristics as foundation patterns for extensions.
 
-## 🎯 **Core Philosophy: Heuristics Drive the ML Ecosystem**
+> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`, `csv-schema-1.md`.
 
-Heuristic algorithms serve as the cornerstone of the entire machine learning pipeline, providing high-quality labeled data that powers all downstream learning approaches. This follows the multi-directional data ecosystem established in the GOOD_RULES.
+## 🎯 **Core Philosophy: Algorithmic Intelligence**
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for foundational heuristic implementations
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout heuristic architecture references
-- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
+Heuristic algorithms provide the foundational intelligence for Snake game AI, demonstrating how systematic problem-solving approaches can achieve excellent performance. These algorithms serve as both educational tools and practical solutions.
 
-### **Design Philosophy**
-- **Ground Truth Generation**: Deterministic algorithms create perfect training labels
-- **Curriculum Foundation**: Systematic progression from simple to complex strategies
-- **Language Bridge**: v0.04 converts algorithmic reasoning into natural language
-- **Performance Baseline**: Establishes benchmarks for all learning approaches
+## 🏗️ **Extension Structure**
 
-## 🔄 **Multi-Directional Data Flow**
-
-### **Data Lineage Architecture**
-Following Final Decision 1 patterns:
-
+### **Directory Layout**
 ```
-Heuristics (Foundation)
-├── v0.03 → CSV Datasets ──────────→ Supervised Learning (Task-2)
-│                                   ├── Neural Networks (MLP, CNN, LSTM)
-│                                   ├── Tree Models (XGBoost, LightGBM)
-│                                   └── Graph Models (GCN, GraphSAGE)
-│
-├── v0.03 → NPZ Datasets ──────────→ Reinforcement Learning (Task-3)
-│                                   ├── DQN, PPO, A3C training
-│                                   └── Experience replay initialization
-│
-└── v0.04 → JSONL Datasets ────────→ LLM Fine-tuning (Task-4)
-                                    ├── Supervised fine-tuning
-                                    └── Language-grounded reasoning
+extensions/heuristics-v0.04/
+├── __init__.py
+├── agents/
+│   ├── __init__.py               # Agent factory
+│   ├── agent_bfs.py              # Breadth-First Search
+│   ├── agent_astar.py            # A* pathfinding
+│   ├── agent_hamiltonian.py      # Hamiltonian cycle
+│   ├── agent_dfs.py              # Depth-First Search
+│   └── agent_bfs_safe_greedy.py  # Safe greedy BFS
+├── algorithms/
+│   ├── __init__.py
+│   ├── pathfinding.py            # Pathfinding utilities
+│   ├── collision_detection.py    # Collision detection
+│   └── optimization.py           # Path optimization
+├── game_logic.py                 # Heuristic game logic
+├── game_manager.py               # Heuristic manager
+└── main.py                       # CLI interface
 ```
 
-### **Cross-Extension Data Consumption**
+## 🔧 **Implementation Patterns**
+
+### **Heuristic Agent Factory**
 ```python
-# Extensions consume heuristic datasets following standardized paths
-from extensions.common.path_utils import get_dataset_path
-
-# Supervised learning consumes CSV data
-supervised_dataset = get_dataset_path(
-    extension_type="heuristics",
-    version="0.03",
-    grid_size=10,
-    algorithm="bfs",
-    timestamp="20250625_143022"
-) / "processed_data" / "tabular_data.csv"
-
-# LLM fine-tuning consumes JSONL data  
-llm_dataset = get_dataset_path(
-    extension_type="heuristics",
-    version="0.04",
-    grid_size=10,
-    algorithm="astar",
-    timestamp="20250625_143022"
-) / "processed_data" / "reasoning_data.jsonl"
+class HeuristicAgentFactory:
+    """
+    Simple factory for heuristic agents
+    
+    Design Pattern: Factory Pattern
+    - Simple dictionary-based registry
+    - Canonical create() method
+    - Easy extension for new algorithms
+    """
+    
+    _registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "HAMILTONIAN": HamiltonianAgent,
+        "DFS": DFSAgent,
+        "BFS_SAFE_GREEDY": BFSSafeGreedyAgent,
+    }
+    
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):
+        """Create heuristic agent by type (canonical: create())"""
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
+        print(f"[HeuristicAgentFactory] Creating: {algorithm}")  # Simple logging
+        return agent_class(**kwargs)
 ```
 
-## 🏗️ **Heuristic Algorithm Hierarchy**
-
-### **Progressive Algorithm Complexity**
-Following the extension evolution patterns:
-
+### **BFS Agent Implementation**
 ```python
-# v0.01: Foundation algorithm
 class BFSAgent(BaseAgent):
-    """Breadth-first search - guaranteed shortest path"""
+    """
+    Breadth-First Search agent for Snake game
     
-# v0.02: Algorithm variations
-class BFSSafeGreedyAgent(BFSAgent):
-    """BFS with safety heuristics and greedy optimization"""
+    Design Pattern: Strategy Pattern
+    - Encapsulates BFS pathfinding logic
+    - Provides shortest path to apple
+    - Handles collision avoidance
+    """
     
-class AStarAgent(BaseAgent):
-    """A* pathfinding with Manhattan distance heuristic"""
+    def __init__(self, name: str, grid_size: int):
+        super().__init__(name, grid_size)
+        self.pathfinder = BFSPathfinder(grid_size)
+        print(f"[BFSAgent] Initialized BFS agent: {name}")
     
-class HamiltonianAgent(BaseAgent):
-    """Hamiltonian path - theoretical optimum strategy"""
+    def plan_move(self, game_state: Dict[str, Any]) -> str:
+        """Plan move using BFS pathfinding"""
+        head = game_state['snake_head']
+        apple = game_state['apple_position']
+        snake_body = set(game_state['snake_body'])
+        
+        path = self.pathfinder.find_path(head, apple, snake_body)
+        
+        if path:
+            next_pos = path[1] if len(path) > 1 else path[0]
+            move = self._get_direction(head, next_pos)
+            print(f"[BFSAgent] Found path to apple, moving: {move}")
+            return move
+        else:
+            print("[BFSAgent] No path found, using safe move")
+            return self._find_safe_move(head, snake_body)
 ```
 
-### **Algorithm Characteristics**
-| Algorithm | Optimality | Speed | Dataset Quality | Use Case |
-|-----------|------------|-------|-----------------|----------|
-| **BFS** | Optimal | Slow | High-quality paths | Baseline training |
-| **A*** | Optimal | Fast | Efficient paths | Production training |
-| **Hamiltonian** | Perfect | Deterministic | Perfect labels | Curriculum learning |
-| **Greedy BFS** | Good | Very Fast | Practical patterns | Real-world simulation |
+## 📊 **Algorithm Comparison**
 
-## 📊 **Dataset Generation Standards**
+### **Performance Characteristics**
+| Algorithm | Path Quality | Speed | Memory | Use Case |
+|-----------|-------------|-------|--------|----------|
+| **BFS** | Optimal | Fast | Medium | General purpose |
+| **A*** | Optimal | Very Fast | Low | Large grids |
+| **Hamiltonian** | Suboptimal | Fast | Low | Guaranteed survival |
+| **DFS** | Variable | Fast | Low | Exploration |
+| **BFS Safe Greedy** | Good | Fast | Medium | Safety-focused |
 
-### **Grid-Size Agnostic Design**
-Following Final Decision 2 configuration patterns:
+### **Educational Value**
+- **BFS**: Demonstrates systematic search and shortest path finding
+- **A***: Shows heuristic-guided search optimization
+- **Hamiltonian**: Illustrates cycle-based strategies
+- **DFS**: Teaches depth-first exploration concepts
 
+## 🚀 **Advanced Features**
+
+### **Path Optimization**
 ```python
-from config.game_constants import VALID_MOVES, DIRECTIONS
-from extensions.common.config.dataset_formats import HEURISTIC_FEATURES
-
-class HeuristicDatasetGenerator:
-    """Generates standardized datasets from heuristic gameplay"""
+class PathOptimizer:
+    """
+    Optimize paths for better game performance
     
-    def __init__(self, grid_size: int = 10):
-        self.grid_size = grid_size
-        self.feature_extractor = TabularFeatureExtractor()
-        
-    def generate_csv_dataset(self, algorithm: str, num_games: int = 1000):
-        """Generate CSV dataset with 16 standardized features"""
-        dataset_rows = []
-        
-        for game_id in range(num_games):
-            game_data = self.run_game_with_algorithm(algorithm)
-            
-            for step, state in enumerate(game_data.states):
-                # Extract 16 grid-size agnostic features
-                features = self.feature_extractor.extract_features(state, self.grid_size)
-                
-                csv_row = {
-                    'game_id': game_id,
-                    'step_in_game': step,
-                    **features,  # 16 standardized features
-                    'target_move': game_data.moves[step]
-                }
-                dataset_rows.append(csv_row)
-                
-        return pd.DataFrame(dataset_rows)
+    Design Pattern: Decorator Pattern
+    - Adds optimization to base pathfinding
+    - Maintains original algorithm interface
+    - Improves path quality without changing core logic
+    """
+    
+    def __init__(self, base_pathfinder):
+        self.base_pathfinder = base_pathfinder
+        print("[PathOptimizer] Initialized path optimizer")
+    
+    def find_optimized_path(self, start, goal, obstacles):
+        """Find and optimize path"""
+        base_path = self.base_pathfinder.find_path(start, goal, obstacles)
+        if base_path:
+            optimized_path = self._optimize_path(base_path, obstacles)
+            print(f"[PathOptimizer] Optimized path length: {len(optimized_path)}")
+            return optimized_path
+        return None
 ```
 
-### **Language-Rich Dataset Generation (v0.04)**
+### **Collision Detection**
 ```python
-class HeuristicReasoningGenerator:
-    """Generates JSONL datasets with natural language explanations"""
+class CollisionDetector:
+    """
+    Advanced collision detection for heuristic agents
     
-    def generate_jsonl_dataset(self, algorithm: str, num_games: int = 1000):
-        """Generate JSONL dataset with reasoning explanations"""
-        jsonl_entries = []
+    Design Pattern: Strategy Pattern
+    - Different collision detection strategies
+    - Pluggable detection algorithms
+    - Efficient collision prediction
+    """
+    
+    def __init__(self, detection_strategy="standard"):
+        self.strategy = detection_strategy
+        print(f"[CollisionDetector] Using strategy: {detection_strategy}")
+    
+    def predict_collision(self, position, direction, snake_body, grid_size):
+        """Predict if move will cause collision"""
+        next_pos = self._get_next_position(position, direction)
         
-        agent = self.create_reasoning_agent(algorithm)
+        # Wall collision
+        if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
+            print(f"[CollisionDetector] Wall collision predicted at {next_pos}")
+            return True
         
-        for game_id in range(num_games):
-            for state, move, reasoning in agent.play_with_explanations():
-                entry = {
-                    "prompt": self.format_state_prompt(state),
-                    "completion": f"Move: {move}. Reasoning: {reasoning}"
-                }
-                jsonl_entries.append(entry)
-                
-        return jsonl_entries
+        # Snake body collision
+        if next_pos in snake_body:
+            print(f"[CollisionDetector] Body collision predicted at {next_pos}")
+            return True
+        
+        return False
 ```
 
-## 🎯 **Quality Assurance Standards**
+## 📋 **Configuration and Usage**
 
-### **Data Quality Metrics**
-- **Path Optimality**: Percentage of shortest paths found
-- **Game Completion**: Success rate reaching maximum score
-- **Coverage**: Variety of game states encountered
-- **Consistency**: Reproducible behavior across runs
-
-### **Validation Requirements**
-Following Final Decision 2 validation patterns:
-```python
-from extensions.common.validation.dataset_validator import validate_heuristic_dataset
-
-# Automatic validation during dataset generation
-validation_result = validate_heuristic_dataset(
-    dataset_path=generated_dataset_path,
-    expected_algorithms=["bfs", "astar", "hamiltonian"],
-    grid_size=grid_size,
-    min_games_per_algorithm=1000
-)
-
-if not validation_result.is_valid:
-    raise DatasetValidationError(validation_result.errors)
+### **Algorithm Selection**
+```bash
+python main.py --algorithm BFS --grid-size 10 --max-games 5
+python main.py --algorithm ASTAR --grid-size 12 --verbose
+python main.py --algorithm HAMILTONIAN --grid-size 8
 ```
 
-## 🚀 **Integration with Learning Extensions**
+### **Educational Applications**
+- **Algorithm Comparison**: Side-by-side performance analysis
+- **Path Visualization**: Visual representation of search algorithms
+- **Performance Metrics**: Quantitative algorithm evaluation
+- **Strategy Analysis**: Understanding algorithm decision-making
 
-### **Supervised Learning Dependencies**
-All supervised learning extensions acknowledge their dependency on heuristic data:
+## 🔗 **Integration with Other Extensions**
 
-```python
-"""
-Supervised Learning Extension v0.02
+### **With Supervised Learning**
+- Generate training datasets from heuristic gameplay
+- Use heuristic performance as baseline for ML models
+- Create hybrid approaches combining heuristics and ML
 
-Data Source: Heuristic algorithms from extensions/heuristics-v0.03+
-Training Data: CSV datasets with 16 engineered features
-Model Types: Neural networks, tree models, graph models
+### **With Reinforcement Learning**
+- Use heuristic policies for reward shaping
+- Compare RL performance against heuristic baselines
+- Create curriculum learning starting with heuristic solutions
 
-This extension depends entirely on high-quality datasets generated
-by heuristic algorithms for training and evaluation.
-"""
-```
+### **With Evolutionary Algorithms**
+- Use heuristics to evaluate evolved strategies
+- Create hybrid evolutionary-heuristic approaches
+- Generate diverse training scenarios
 
-### **Cross-Extension Data Contracts**
-- **Feature Consistency**: Same 16 features across all extensions
-- **Format Standardization**: CSV for tabular, NPZ for sequential, JSONL for language
-- **Grid-Size Independence**: Works across all supported board sizes
-- **Version Compatibility**: Clear data lineage tracking
+## 📊 **Dataset Generation**
 
-## 🔗 **GOOD_RULES Integration**
+### **CSV Dataset Format (v0.03)**
+Heuristics generate structured datasets for supervised learning:
+- Game state features (16 grid-size agnostic features)
+- Action labels (UP, DOWN, LEFT, RIGHT)
+- Performance metrics (score, survival time, efficiency)
 
-This document integrates with the following authoritative references from the **GOOD_RULES** system:
+### **JSONL Dataset Format (v0.04)**
+Enhanced datasets with language explanations:
+- Natural language descriptions of game states
+- Reasoning explanations for actions taken
+- Educational annotations for learning
 
-### **Core Architecture Integration**
-- **`agents.md`**: Follows BaseAgent interface and factory patterns for all heuristic implementations
-- **`config.md`**: Uses authorized configuration hierarchies for heuristic algorithm parameters
-- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+## 🎯 **Best Practices**
 
-### **Extension Development Standards**
-- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines for heuristic evolution
-- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
-- **`single-source-of-truth.md`**: Provides authoritative ground truth data for all other extensions
-- **`supervised.md`**: Supplies foundational datasets for supervised learning approaches
+### **Algorithm Implementation**
+- **Clear Interfaces**: Consistent API across all algorithms
+- **Efficient Data Structures**: Optimize for performance
+- **Comprehensive Testing**: Validate algorithm correctness
+- **Educational Documentation**: Explain algorithm principles
 
-### **Data and Path Management**
-- **`data-format-decision-guide.md`**: Generates all major data formats (CSV, NPZ, JSONL) as the primary data source
-- **`csv-schema-1.md`** and **`csv-schema-2.md`**: Implements 16-feature tabular schema as the definitive source
-- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
-- **`datasets-folder.md`**: Establishes the foundational tier in the data ecosystem hierarchy
-
-### **Cross-Extension Integration**
-- **`reinforcement-learning.md`**: Provides initial datasets and baselines for RL training
-- **`fine-tuning.md`**: Supplies language-rich datasets (v0.04 JSONL) for LLM fine-tuning
-- **`tree-models.md`**: Generates optimal CSV datasets for tree-based supervised learning
-- **`stable-baseline.md`**: Provides experience initialization data for RL frameworks
-
-### **Implementation Quality**
-- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and algorithmic explanations
-- **`elegance.md`**: Follows code quality and educational value standards
-- **`naming_conventions.md`**: Uses consistent naming across all heuristic implementations
-
-## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
-
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
-
-```python
-# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
-def generate_foundation_datasets(self, algorithms, num_games):
-    print(f"[HeuristicFoundation] Generating datasets for {len(algorithms)} algorithms")
-    
-    for algorithm in algorithms:
-        print(f"[HeuristicFoundation] Processing {algorithm} algorithm...")
-        
-        # Generate CSV for supervised learning
-        csv_dataset = self.generate_csv_dataset(algorithm, num_games)
-        print(f"[HeuristicFoundation] Generated {len(csv_dataset)} CSV samples for {algorithm}")
-        
-        # Generate JSONL for LLM fine-tuning (v0.04 only)
-        if self.version == "0.04":
-            jsonl_dataset = self.generate_jsonl_dataset(algorithm, num_games)
-            print(f"[HeuristicFoundation] Generated {len(jsonl_dataset)} JSONL samples for {algorithm}")
-        
-        print(f"[HeuristicFoundation] {algorithm} dataset generation completed")
-
-# ✅ CORRECT: Educational progress tracking
-def validate_foundation_quality(self, dataset_path):
-    print(f"[FoundationValidator] Validating dataset quality at {dataset_path}")
-    
-    # Quality metrics
-    optimality_score = self._check_path_optimality()
-    coverage_score = self._check_state_coverage()
-    consistency_score = self._check_algorithmic_consistency()
-    
-    print(f"[FoundationValidator] Optimality: {optimality_score:.3f}")
-    print(f"[FoundationValidator] Coverage: {coverage_score:.3f}")
-    print(f"[FoundationValidator] Consistency: {consistency_score:.3f}")
-    
-    overall_quality = (optimality_score + coverage_score + consistency_score) / 3
-    print(f"[FoundationValidator] Overall foundation quality: {overall_quality:.3f}")
-```
+### **Performance Optimization**
+- **Memory Management**: Efficient use of data structures
+- **Algorithm Tuning**: Optimize parameters for different grid sizes
+- **Caching Strategies**: Cache frequently computed paths
+- **Parallel Processing**: Utilize multiple cores when possible
 
 ---
 
-**Heuristics provide the essential foundation for the entire machine learning ecosystem, generating high-quality labeled data that enables sophisticated learning across neural networks, reinforcement learning, and language models while maintaining full compliance with established GOOD_RULES standards and serving as the authoritative ground truth source.**
+**Heuristic algorithms provide the foundation for understanding systematic problem-solving in game AI. They demonstrate how algorithmic intelligence can achieve excellent performance while serving as educational tools and practical solutions for the Snake game domain.**

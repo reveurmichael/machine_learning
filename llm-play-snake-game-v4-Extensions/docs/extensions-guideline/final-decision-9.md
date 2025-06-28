@@ -4,6 +4,53 @@
 
 This document establishes **Object-Oriented Programming architecture** for all Streamlit applications across the Snake Game AI ecosystem. This standardization ensures consistent user experience, maintainable code structure, and educational value through proper design pattern implementation.
 
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`unified-streamlit-architecture-guide.md`**: Authoritative reference for Streamlit OOP patterns
+- **`app.md`**: Authoritative reference for Streamlit application standards
+- **`dashboard.md`**: Authoritative reference for dashboard architecture
+- **`elegance.md`**: Maintains code quality and educational value in UI implementations
+
+### **Simple Logging Examples (SUPREME_RULE NO.3)**
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+class BaseStreamlitApp:
+    """Base class for all Streamlit applications"""
+    
+    def __init__(self, app_name: str):
+        self.app_name = app_name
+        print(f"[StreamlitApp] Initialized {app_name}")  # SUPREME_RULE NO.3
+    
+    def setup_page(self) -> None:
+        """Configure page settings and layout"""
+        print(f"[StreamlitApp] Setting up page for {self.app_name}")  # SUPREME_RULE NO.3
+        st.set_page_config(
+            page_title=f"{self.app_name} Dashboard",
+            page_icon="🐍",
+            layout="wide"
+        )
+    
+    def run_script_interface(self, script_name: str, params: Dict) -> None:
+        """Standard interface for launching scripts"""
+        print(f"[StreamlitApp] Launching script: {script_name}")  # SUPREME_RULE NO.3
+        
+        # Build command
+        cmd = ["python", script_name]
+        for key, value in params.items():
+            cmd.extend([f"--{key}", str(value)])
+        
+        print(f"[StreamlitApp] Command: {' '.join(cmd)}")  # SUPREME_RULE NO.3
+        
+        # Execute with subprocess
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print(f"[StreamlitApp] Script completed successfully")  # SUPREME_RULE NO.3
+        else:
+            print(f"[StreamlitApp] Script failed with return code {result.returncode}")  # SUPREME_RULE NO.3
+
 ## 🧠 **Design Philosophy**
 
 ### **OOP Principles in Streamlit Context**

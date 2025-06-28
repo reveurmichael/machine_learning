@@ -1,6 +1,8 @@
 # Code Elegance Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the final-decision series (final-decision-0.md → final-decision-10.md) for extension development standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines code elegance guidelines for extensions.
+
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
 ## 🧹 **File Organization Philosophy**
 
@@ -83,7 +85,7 @@ class PathfindingAgent(BaseAgent):
 # ✅ Universal constants (all tasks)
 from config.game_constants import VALID_MOVES, DIRECTIONS
 
-# ✅ Extension-specific constants (SUPREME_RULE NO.3) - define locally
+# ✅ Extension-specific constants - define locally
 DEFAULT_LEARNING_RATE = 0.001  # Local extension constant
 
 # 🚫 Not for heuristics/supervised/RL/evolutionary extensions
@@ -103,7 +105,7 @@ DEFAULT_LEARNING_RATE = 0.001  # Local extension constant
 
 ```python
 # Required for all extensions
-from extensions.common.path_utils import (
+from extensions.common.utils.path_utils import (
     ensure_project_root,
     get_dataset_path,
     get_model_path
@@ -131,20 +133,20 @@ project_root = ensure_project_root()
 - **Interface Segregation**: Clean, focused interfaces
 - **Dependency Inversion**: Depend on abstractions, not concretions
 
-### **SUPREME_RULE NO.3 Implementation (OOP Extensibility in Common Utilities)**
+### **OOP Extensibility in Common Utilities**
 
-Following **SUPREME_RULE NO.3**: "The extensions/common/ folder should stay lightweight and generic. Whenever specialised behaviour is required, extensions can inherit from these simple OOP base classes without breaking the core."
+Following the principle: "The extensions/common/ folder should stay lightweight and generic. Whenever specialised behaviour is required, extensions can inherit from these simple OOP base classes without breaking the core."
 
 **OOP Design for Extensibility:**
 ```python
 # ✅ Base class with extension points
 class BaseDatasetLoader(ABC):
     def _initialize_loader_specific_settings(self):
-        """SUPREME_RULE NO.3: Override for specialized loaders"""
+        """Override for specialized loaders"""
         pass
     
     def _generate_extension_specific_metadata(self, data, file_path):
-        """SUPREME_RULE NO.3: Add custom metadata fields"""
+        """Add custom metadata fields"""
         return {}
 
 # ✅ Extension through inheritance
@@ -173,13 +175,13 @@ class RLDatasetLoader(BaseDatasetLoader):
 - **Avoid Over-Annotation**: Only where you're certain of types
 - **Use Union Types**: For parameters accepting multiple types
 
-### **Input Validation (Following SUPREME_RULE NO.3)**
+### **Input Validation**
 ```python
 def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
     """
     Create agent with flexible validation
     
-    Educational Note (SUPREME_RULE NO.3):
+    Educational Note:
     We should be able to add new extensions easily and try out new ideas.
     Therefore, validation is flexible to encourage experimentation.
     """
@@ -189,28 +191,49 @@ def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
     
     # Algorithm validation through factory pattern (no hard-coded lists)
     try:
-        return AgentFactory.create_agent(algorithm, grid_size)
+        return AgentFactory.create(algorithm, grid_size)  # Canonical create() method
     except KeyError:
         available = AgentFactory.list_available_algorithms()
-        raise ValueError(f"Algorithm '{algorithm}' not available. Available: {available}")
+        raise ValueError(f"Unknown algorithm '{algorithm}'. Available: {available}")
 ```
 
-## 🔍 **Code Quality Tools**
+## 🎯 **Code Quality Standards**
 
-### **Linting and Formatting**
-- **PEP8 Compliance**: Use linters like `flake8`, `pylint`
-- **Line Length**: 88 characters (Black default)
-- **Import Organization**: Standard library, third-party, local imports
-- **Trailing Whitespace**: Remove consistently
+### **Simplicity Over Complexity**
+- **Clear Intent**: Code should be self-documenting
+- **Minimal Dependencies**: Avoid unnecessary imports and dependencies
+- **Consistent Patterns**: Use established patterns throughout the codebase
+- **Educational Value**: Code should teach good practices
 
-## 🔗 **See Also**
+### **Performance Considerations**
+- **Efficient Algorithms**: Choose appropriate algorithms for the task
+- **Memory Management**: Be mindful of memory usage in large datasets
+- **Lazy Loading**: Load resources only when needed
+- **Caching**: Cache expensive computations when appropriate
 
-- **`config.md`**: Configuration architecture standards
-- **`unified-path-management-guide.md`**: Path management standards
-- **`final-decision-4.md`**: Naming conventions
-- **`final-decision-5.md`**: Directory structure
+### **Error Handling**
+- **Graceful Degradation**: Handle errors without crashing
+- **Clear Error Messages**: Provide helpful error information
+- **Logging**: Use simple print statements for debugging
+- **Validation**: Validate inputs early and clearly
 
 ---
 
-**These elegance guidelines ensure maintainable, educational, and scalable extension development while following the architectural decisions established in the final-decision series.**
+**Code elegance in extensions is achieved through clear organization, consistent patterns, comprehensive documentation, and thoughtful design. The goal is to create code that is not only functional but also educational and maintainable.**
 
+## 🔗 **See Also**
+
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`config.md`**: Configuration management
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation
+
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`config.md`**: Configuration management
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation

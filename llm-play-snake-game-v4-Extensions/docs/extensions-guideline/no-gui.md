@@ -1,3 +1,9 @@
+# No GUI Architecture for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines no GUI architecture patterns for extensions.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 
 ### **1. ✅ Universal Headless Controller (Perfect for Tasks 0-5)**
 

@@ -6,9 +6,9 @@
 
 The utility architecture provides a clean separation between universal game mechanics and task-specific functionality. This enables all extensions to leverage shared infrastructure while maintaining clear boundaries between different AI approaches.
 
-### **SUPREME_RULE NO.3 Implementation in Extensions/Common**
+### **simple logging Implementation in Extensions/Common**
 
-While the ROOT/utils/ folder provides universal utilities, the `extensions/common/` folder implements **SUPREME_RULE NO.3**: "Keep utilities simple, lightweight, and object-oriented so that extensions can inherit and extend them when specialised behaviour is necessary."
+While the ROOT/utils/ folder provides universal utilities, the `extensions/common/` folder implements **simple logging**: "Keep utilities simple, lightweight, and object-oriented so that extensions can inherit and extend them when specialised behaviour is necessary."
 
 **Key Design Principles:**
 - **Inheritance-Ready Classes**: All major utilities designed for extension through inheritance
@@ -21,7 +21,7 @@ While the ROOT/utils/ folder provides universal utilities, the `extensions/commo
 # extensions/common/csv_schema.py - Base implementation
 class TabularFeatureExtractor:
     def _extract_extension_specific_features(self, game_state):
-        """SUPREME_RULE NO.3: Override for custom features"""
+        """simple logging: Override for custom features"""
         return {}
 
 # In a specialized extension

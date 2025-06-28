@@ -1,14 +1,8 @@
 # Project Structure Plan for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows SUPREME_RULE NO.3 for educational flexibility.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for project structure and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
-## 🎯 **SUPREME_RULES: Educational Flexibility & OOP Extensibility**
-
-**SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts, and exclude overused patterns like `*_utils.py` or `*_defaults.py` files (e.g., `ml_constants.py`, `metrics_utils.py`, etc.). Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
-
-**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder remains lightweight and generic. When specialised requirements emerge, extensions can subclass or extend these simple OOP bases without modifying the shared code.
-
-**Core Philosophy**: The project structure is designed to encourage experimentation, rapid prototyping, and educational exploration while maintaining clean architecture and code reusability. The OOP design enables both standard usage and specialized customization when needed.
+> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `config.md`.
 
 ## 🏗️ **High-Level Architecture Overview**
 
@@ -17,7 +11,7 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 ├── core/                               # Base classes for all tasks
 ├── config/                             # Universal constants
 ├── extensions/                         # Task 1-5 implementations
-│   ├── common/                         # Shared utilities (following SUPREME_RULE NO.3)
+│   ├── common/                         # Shared utilities (simple logging)
 │   ├── {algorithm}-v{version}/         # Flexible extension naming
 │   └── [any new extension type]/       # Unlimited extensibility
 ├── gui/                                # GUI components
@@ -26,7 +20,7 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 ├── scripts/                            # Entry points
 └── docs/                               # Documentation
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Extensions can be any algorithm type - heuristics, ML, RL, evolutionary,
 # custom approaches, experimental ideas, or novel research directions.
 ```
@@ -40,7 +34,7 @@ extensions/{extension_type}-v{version}/
 ├── agents/                             # Algorithm implementations (v0.02+)
 │   ├── __init__.py                     # Agent factory
 │   ├── agent_{algorithm1}.py           # Any algorithm approach
-│   ├── agent_{algorithm2}.py           # Following SUPREME_RULE NO.3
+│   ├── agent_{algorithm2}.py           # Following simple logging
 │   └── agent_{algorithmN}.py           # Unlimited algorithm variety
 ├── dashboard/                          # UI components (v0.03+)
 ├── scripts/                            # CLI entry points (v0.03+)
@@ -48,7 +42,7 @@ extensions/{extension_type}-v{version}/
 ├── game_manager.py                     # Session management
 └── README.md                           # Documentation
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # - {extension_type}: Any descriptive name (heuristics, supervised, custom, experimental)
 # - {algorithm}: Any algorithm following agent_{name}.py pattern
 # - No restrictions on algorithm types or approaches
@@ -56,7 +50,7 @@ extensions/{extension_type}-v{version}/
 
 ## 🎯 **Core Design Principles**
 
-### **1. Educational Flexibility (SUPREME_RULE NO.3)**
+### **1. Educational Flexibility (simple logging)**
 - **No Algorithm Restrictions**: Extensions can implement any approach
 - **Rapid Prototyping**: Easy to create and test new ideas
 - **Experimental Freedom**: Encourage novel and creative solutions
@@ -69,7 +63,7 @@ BaseGameManager → YourCustomGameManager
 BaseGameLogic → YourCustomGameLogic  
 BaseAgent → YourCustomAgent
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Base classes are designed to support ANY algorithm approach:
 # - Pathfinding algorithms
 # - Machine learning models
@@ -81,13 +75,13 @@ BaseAgent → YourCustomAgent
 
 ### **3. Shared Utilities (Non-Restrictive & OOP)**
 ```python
-# extensions/common/ - Flexible utilities following SUPREME_RULE NO.3
+# extensions/common/ - Flexible utilities following simple logging
 
 from extensions.common.path_utils import get_dataset_path
 from extensions.common.dataset_loader import BaseDatasetLoader
 from extensions.common.validation import ExtensionValidator
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Common utilities are designed to be flexible and non-restrictive,
 # supporting any extension type without artificial limitations.
 # Specialised extensions can still subclass utilities when needed.
@@ -107,12 +101,12 @@ class QuantumDatasetLoader(BaseDatasetLoader):
 
 ## 🔧 **Implementation Guidelines**
 
-### **Extension Creation (Following SUPREME_RULE NO.3)**
+### **Extension Creation (Following simple logging)**
 ```python
 # ✅ ENCOURAGED: Any algorithm approach
 class NovelAlgorithmAgent(BaseAgent):
     """
-    Educational Note (SUPREME_RULE NO.3):
+    Educational Note (simple logging):
     Implement any algorithm you can imagine:
     - Traditional pathfinding
     - Machine learning approaches
@@ -170,7 +164,7 @@ v0.04: Advanced Features (Optional)
 ├── Research capabilities
 └── Production features
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Version progression is flexible - extensions can:
 # - Skip versions if not needed
 # - Add custom versions (v0.05, v0.06, etc.)
@@ -196,7 +190,7 @@ v0.04: Advanced Features (Optional)
 
 ### **Unlimited Algorithm Support**
 ```python
-# Following SUPREME_RULE NO.3: Support any algorithm type
+# Following simple logging: Support any algorithm type
 ALGORITHM_CATEGORIES = {
     'pathfinding': ['bfs', 'astar', 'dijkstra', 'custom_pathfinding'],
     'machine_learning': ['neural_networks', 'decision_trees', 'ensemble_methods'],
@@ -220,7 +214,7 @@ def create_extension_component(extension_type: str, component_name: str, **kwarg
     """
     Create any extension component dynamically.
     
-    Educational Note (SUPREME_RULE NO.3):
+    Educational Note (simple logging):
     This function supports creating components for any extension type,
     encouraging experimentation with new approaches and ideas.
     """
@@ -232,7 +226,7 @@ def create_extension_component(extension_type: str, component_name: str, **kwarg
         available = list_available_components(extension_type)
         raise ValueError(f"Component '{component_name}' not found for {extension_type}. "
                         f"Available: {available}. "
-                        f"Following SUPREME_RULE NO.3, you can easily add new components!")
+                        f"Following simple logging, you can easily add new components!")
 ```
 
 ## 🔗 **Integration Patterns**
@@ -249,20 +243,21 @@ def create_extension_component(extension_type: str, component_name: str, **kwarg
 from extensions.common.path_utils import flexible_path_management
 from extensions.common.dataset_loader import load_any_dataset_format
 from extensions.common.validation import validate_without_restrictions
-# SUPREME_RULE NO.3: Simple component creation instead of complex factory utils
+
+# Simple component creation instead of complex factory utils
 def create_any_component(component_type: str, **kwargs):
     """Simple component creation function"""
-    print(f"Creating {component_type} component")
+    print(f"Creating {component_type} component")  # Simple logging
     # Simple factory logic without over-engineering
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Common utilities are designed to support any extension type
 # without imposing artificial restrictions or limitations.
 ```
 
 ## 📋 **Implementation Checklist**
 
-### **Extension Development (Following SUPREME_RULE NO.3)**
+### **Extension Development (Following simple logging)**
 - [ ] **Choose any algorithm approach** - no restrictions
 - [ ] **Implement agent following BaseAgent interface**
 - [ ] **Extend game logic for your specific needs**
@@ -289,7 +284,7 @@ The project structure is designed to support:
 - **Any experimental ideas**
 
 ### **Community Contributions**
-Following SUPREME_RULE NO.3, the structure encourages:
+Following simple logging, the structure encourages:
 - **Student projects** implementing novel algorithms
 - **Research experiments** testing new approaches
 - **Educational demonstrations** for teaching purposes
@@ -298,11 +293,11 @@ Following SUPREME_RULE NO.3, the structure encourages:
 
 ## 🔗 **See Also**
 
-- **`final-decision-10.md`**: SUPREME_RULE NO.3 specification
+- **`final-decision-10.md`**: final-decision-10.md governance system
 - **`extensions-v0.01.md`**: Foundation patterns for new extensions
 - **`config.md`**: Flexible configuration architecture
 - **`core.md`**: Base class documentation for inheritance
 
 ---
 
-**This project structure plan ensures maximum flexibility and educational value while maintaining clean architecture. Following SUPREME_RULE NO.3, it encourages innovation, experimentation, and creative problem-solving in the Snake Game AI domain.**
+**This project structure plan ensures maximum flexibility and educational value while maintaining clean architecture. Following simple logging, it encourages innovation, experimentation, and creative problem-solving in the Snake Game AI domain.**

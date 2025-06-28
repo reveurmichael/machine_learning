@@ -1,248 +1,153 @@
 # Extension Evolution Rules
 
-> **Authoritative Reference**: This document establishes the definitive rules for extension evolution from v0.01 through v0.04.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension evolution rules with strict SUPREME_RULES compliance.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **See also:** `final-decision-10.md`, `factory-design-pattern.md`, `standalone.md`, `project-structure-plan.md`.
 
-## 🎯 **Core Evolution Philosophy**
+## 🎯 **Core Philosophy: SUPREME_RULES Compliance**
 
-Extensions evolve through **natural software progression** while maintaining **algorithmic stability** and **educational value**. Each version builds upon the previous while introducing new capabilities.
+Extension evolution follows the **SUPREME_RULES** established in `final-decision-10.md`, ensuring that all extensions maintain:
+- **Canonical `create()` method** for all factories
+- **Simple logging** (print statements only, no complex logging frameworks)
+- **Lightweight, OOP-based, extensible, non-over-engineered** design
+- **Standalone principle** for extensions
+- **Single source of truth** compliance
 
-## 📋 **Version Evolution Matrix**
+### **Educational Value**
+- **Consistent Evolution**: All extensions follow identical evolution patterns
+- **Canonical Patterns**: Factory methods use `create()` method consistently
+- **Simple Logging**: All components use print() statements only
+- **Architectural Integrity**: Maintains project-wide consistency
 
-| Version | Purpose | Key Changes | Stability Rules |
-|---------|---------|-------------|-----------------|
-| **v0.01** | Proof of Concept | Single algorithm, minimal complexity | Basic structure |
-| **v0.02** | Multi-Algorithm | Organized agents/, factory patterns | Core algorithms stable |
-| **v0.03** | Web Interface | Streamlit app, dataset generation | Agents copied exactly |
-| **v0.04** | Language Generation | JSONL datasets (heuristics only) | All v0.03 functionality preserved |
+## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-## 🔒 **Stability Rules by Version Transition**
+All extension factories MUST use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle.
 
-### **v0.01 → v0.02: Allowed Breaking Changes**
+### **Reference Implementation**
+
+A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+
 ```python
-# ✅ ALLOWED: Major structural changes
-- Add agents/ directory
-- Implement factory patterns
-- Add --algorithm command-line argument
-- Reorganize file structure
-- Add new algorithms
+from extensions.common.utils.factory_utils import SimpleFactory
 
-# ✅ ALLOWED: Interface changes
-- Change main.py signature
-- Add new configuration options
-- Modify data structures
+class MyExtension:
+    def __init__(self, name):
+        self.name = name
+
+factory = SimpleFactory()
+factory.register("myextension", MyExtension)
+extension = factory.create("myextension", name="TestExtension")  # CANONICAL create() method
+print(f"[Factory] Created extension: {extension.name}")  # Simple logging
 ```
 
-### **v0.02 → v0.03: Core Stability Required**
+### **Example Extension Factory**
 ```python
-# 🔒 REQUIRED: Copy agents/ exactly
-agents/ directory must be identical to v0.02
-- Same file names and class names
-- Same factory registrations
-- Same algorithm implementations
-- Same method signatures
-
-# ➕ ALLOWED: Add web enhancements
-- Streamlit app.py
-- Dashboard components
-- Web-specific utilities
-- Monitoring wrappers
-- UI integration helpers
-
-# ❌ FORBIDDEN: Core algorithm changes
-- Modify existing agent logic
-- Change factory registration names
-- Break existing interfaces
-- Remove agent files
+class ExtensionFactory:
+    _registry = {
+        "HEURISTICS": HeuristicsExtension,
+        "SUPERVISED": SupervisedExtension,
+        "REINFORCEMENT": ReinforcementExtension,
+    }
+    @classmethod
+    def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method
+        extension_class = cls._registry.get(extension_type.upper())
+        if not extension_class:
+            raise ValueError(f"Unknown extension type: {extension_type}")
+        print(f"[ExtensionFactory] Creating extension: {extension_type}")  # Simple logging
+        return extension_class(**kwargs)
 ```
 
-### **v0.03 → v0.04: Maximum Stability (Heuristics Only)**
-```python
-# 🔒 REQUIRED: Copy v0.03 exactly
-- All v0.03 functionality preserved
-- Same agents/ directory structure (copied exactly from v0.03)
-- Same web interface capabilities
-- Same dataset generation (CSV)
+## 📋 **Extension Evolution Standards**
 
-# ➕ ALLOWED: Add JSONL capabilities
-- JSONL dataset generation
-- Language explanation features
-- LLM fine-tuning utilities
-- Enhanced reasoning output
+### **Version Progression Rules**
+1. **v0.01**: Basic implementation with canonical factory patterns
+2. **v0.02**: Enhanced features while maintaining v0.01 compatibility
+3. **v0.03**: Streamlit dashboard integration with canonical patterns
+4. **v0.04**: Advanced capabilities (heuristics only) with canonical patterns
 
-# ❌ FORBIDDEN: Any breaking changes
-- All v0.03 features must work unchanged
-- No algorithm modifications
-- No interface changes
+### **Mandatory Requirements for All Versions**
+- [ ] **Canonical Factory**: All factories use `create()` method exactly
+- [ ] **Simple Logging**: Uses print() statements only for all operations
+- [ ] **SUPREME_RULES Reference**: References `final-decision-10.md` in documentation
+- [ ] **Standalone Principle**: Extension + common folder = standalone unit
+- [ ] **No Cross-Extension Dependencies**: Only share code via common folder
+
+### **Quality Standards**
+- **OOP Design**: Proper inheritance and composition patterns
+- **Educational Value**: Clear examples and explanations
+- **Extensibility**: Easy to extend without breaking existing functionality
+- **Documentation**: Comprehensive docstrings and comments
+
+## 🔧 **Implementation Guidelines**
+
+### **Extension Structure**
 ```
-
-## 🏗️ **Directory Structure Evolution**
-
-### **v0.01 Template**
-```
-extensions/{algorithm}-v0.01/
+extensions/{algorithm}-v0.0N/
 ├── __init__.py
-├── main.py                    # Simple entry point
-├── agent_{primary}.py         # Single algorithm
-├── game_logic.py
-├── game_manager.py
-└── README.md
+├── agents/                    # Agent implementations
+├── app.py                     # Streamlit app (v0.03+)
+├── dashboard/                 # UI components (v0.03+)
+├── scripts/                   # CLI entry points
+└── config.py                  # Extension-specific configuration
 ```
 
-### **v0.02 Template**
-```
-extensions/{algorithm}-v0.02/
-├── __init__.py
-├── main.py                    # --algorithm argument
-├── game_logic.py
-├── game_manager.py
-├── game_data.py               # NEW
-├── agents/                    # NEW: Organized structure
-│   ├── __init__.py           # Factory pattern
-│   ├── agent_{type1}.py
-│   ├── agent_{type2}.py
-│   └── agent_{type3}.py
-└── README.md
-```
-
-### **v0.03 Template**
-```
-extensions/{algorithm}-v0.03/
-├── app.py                     # NEW: Streamlit app
-├── dashboard/                 # NEW: UI components
-├── scripts/                   # NEW: CLI tools
-├── agents/                    # 🔒 Copied from v0.02
-├── game_logic.py
-├── game_manager.py
-├── game_data.py
-└── {algorithm}_config.py      # NEW
-```
-
-### **v0.04 Template (Heuristics Only)**
-```
-extensions/heuristics-v0.04/
-├── app.py                     # Enhanced with JSONL
-├── dashboard/                 # Enhanced with JSONL
-├── scripts/                   # Enhanced with JSONL
-├── agents/                    # 🔒 Copied from v0.03
-├── game_logic.py              # Enhanced with JSONL
-├── game_manager.py            # Enhanced with JSONL
-├── game_data.py               # Enhanced with JSONL
-└── heuristic_config.py
-```
-
-## 🎯 **Algorithm Stability Enforcement**
-
-### **Required Stability Checks**
+### **Common Integration**
 ```python
-# Validation script for v0.02 → v0.03 transition
-def validate_agent_stability(v02_path, v03_path):
-    """Ensure agents/ directory is copied exactly"""
-    
-    # Check file existence
-    v02_agents = list_files(f"{v02_path}/agents/")
-    v03_agents = list_files(f"{v03_path}/agents/")
-    
-    if v02_agents != v03_agents:
-        raise ValidationError("Agent files must be identical")
-    
-    # Check factory registrations
-    v02_factory = load_factory(f"{v02_path}/agents/__init__.py")
-    v03_factory = load_factory(f"{v03_path}/agents/__init__.py")
-    
-    if v02_factory.registry != v03_factory.registry:
-        raise ValidationError("Factory registrations must be identical")
+# All extensions use common utilities
+from extensions.common.utils.factory_utils import SimpleFactory
+from extensions.common.utils.path_utils import get_extension_path
+
+# Simple logging throughout
+print(f"[{extension_name}] Initializing extension")  # Simple logging
 ```
 
-### **Allowed Enhancements**
-```python
-# ✅ Allowed in v0.03: Web-specific enhancements
-class BFSAgentWebOptimized(BFSAgent):
-    """Web interface optimization wrapper"""
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.web_monitoring = WebMonitoring()
-    
-    def plan_move(self, game_state):
-        # Original BFS logic unchanged
-        result = super().plan_move(game_state)
-        # Add web monitoring
-        self.web_monitoring.record_decision(result)
-        return result
-```
+## 📊 **Evolution Compliance Checklist**
 
-## 📊 **Version Compatibility Matrix**
+### **v0.01 Requirements**
+- [ ] Basic agent implementation with canonical factory
+- [ ] Simple logging with print() statements only
+- [ ] Standalone operation (extension + common)
+- [ ] Reference to `final-decision-10.md`
 
-| Component | v0.01→v0.02 | v0.02→v0.03 | v0.03→v0.04 |
-|-----------|-------------|-------------|-------------|
-| **Core Algorithms** | ✅ Can change | 🔒 Copy exactly | 🔒 Copy exactly |
-| **Factory Patterns** | ✅ Can add | 🔒 Stable | 🔒 Stable |
-| **File Structure** | ✅ Can reorganize | ✅ Can add web | ✅ Can add JSONL |
-| **CLI Interface** | ✅ Can change | ✅ Can enhance | ✅ Can enhance |
-| **Data Formats** | ✅ Can change | ✅ Can add | ✅ Can add JSONL |
+### **v0.02 Requirements**
+- [ ] All v0.01 requirements maintained
+- [ ] Enhanced features with canonical patterns
+- [ ] Backward compatibility with v0.01
+- [ ] Additional agent types with canonical factory
 
-## 🚫 **Forbidden Patterns**
+### **v0.03 Requirements**
+- [ ] All v0.02 requirements maintained
+- [ ] Streamlit dashboard with canonical patterns
+- [ ] Script integration with subprocess
+- [ ] Multi-tab interface following dashboard standards
 
-### **Breaking Algorithm Stability**
-```python
-# ❌ FORBIDDEN: Modify core algorithm in v0.03
-class BFSAgent(BaseAgent):
-    def plan_move(self, game_state):
-        # ❌ Changed from v0.02 implementation
-        return self.new_algorithm(game_state)  # BREAKING CHANGE
-```
+### **v0.04 Requirements (Heuristics Only)**
+- [ ] All v0.03 requirements maintained
+- [ ] JSONL generation capability
+- [ ] Advanced data formats with canonical patterns
+- [ ] Enhanced visualization and analysis tools
 
-### **Removing Required Components**
-```python
-# ❌ FORBIDDEN: Remove agent files in v0.03
-# agents/agent_bfs.py  # ❌ DELETED - BREAKING CHANGE
-```
+## 🎓 **Educational Integration**
 
-### **Changing Factory Registrations**
-```python
-# ❌ FORBIDDEN: Change registration names
-_registry = {
-    "BFS_NEW": BFSAgent,  # ❌ Changed from "BFS" - BREAKING CHANGE
-}
-```
+### **Learning Progression**
+- **v0.01**: Learn basic canonical patterns and simple logging
+- **v0.02**: Understand extension evolution and backward compatibility
+- **v0.03**: Master Streamlit integration with canonical patterns
+- **v0.04**: Experience advanced capabilities with canonical patterns
 
-## 🔍 **Compliance Validation**
-
-### **Automated Checks**
-```python
-# Required validation for all version transitions
-def validate_evolution_compliance(old_version, new_version):
-    """Validate extension evolution compliance"""
-    
-    if new_version == "0.03":
-        validate_agent_stability(old_version, new_version)
-        validate_factory_stability(old_version, new_version)
-    
-    if new_version == "0.04":
-        validate_v03_functionality_preserved(new_version)
-        validate_jsonl_capabilities_added(new_version)
-```
-
-### **Manual Review Checklist**
-- [ ] Core algorithms unchanged (v0.02→v0.03, v0.03→v0.04)
-- [ ] Factory registrations stable
-- [ ] Required functionality preserved
-- [ ] New capabilities properly added
-- [ ] Documentation updated
-- [ ] Tests pass for all versions
+### **Best Practices**
+- **Consistency**: Same patterns across all extensions and versions
+- **Simplicity**: Avoid over-engineering and complex logging
+- **Documentation**: Clear explanations of canonical patterns
+- **Examples**: Working code examples with canonical factory usage
 
 ---
 
-**These evolution rules ensure consistent, stable extension development while enabling natural software progression and maintaining educational value.**
+**Extension evolution rules ensure consistent, educational, and maintainable development across all Snake Game AI extensions while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES.**
 
-## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+## 🔗 **See Also**
 
-- **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
-- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only
-- **For research**: Use both formats from heuristics-v0.04
-- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
-- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)
-
-**Both heuristics-v0.03 and heuristics-v0.04 are widely used depending on use cases and scenarios.** 
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Canonical factory implementation for all systems
+- **`standalone.md`**: Standalone principle and extension independence
+- **`project-structure-plan.md`**: Project structure and organization 

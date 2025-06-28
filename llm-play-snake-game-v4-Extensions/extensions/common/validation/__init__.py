@@ -4,6 +4,15 @@ A *very* small collection of helper functions that perform lightweight sanity
 checks on datasets and paths. The idea is to catch obvious issues while
 remaining completely unopinionated – extensions are free to perform stricter
 validation in their own codebases.
+
+This package follows final-decision-10.md Guideline 3: lightweight, OOP-based common utilities 
+with simple logging (print() statements) rather than complex *.log file mechanisms.
+
+Design Philosophy:
+- Simple, object-oriented utilities that can be inherited and extended
+- No tight coupling with ML/DL/RL/LLM-specific concepts
+- Simple logging with print() statements (final-decision-10.md Guideline 3)
+- Enables easy addition of new extensions without friction
 """
 
 from enum import Enum

@@ -1,17 +1,23 @@
+# Data Format Decision Guide for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines data format decision patterns.
+
+> **See also:** `csv-schema-1.md`, `csv-schema-2.md`, `final-decision-10.md`, `heuristics-as-foundation.md`.
+
 # Data Format Decision Guide
 
 > **Authoritative Reference**: This document serves as a **GOOD_RULES** authoritative reference for data format decisions and is the single source of truth for all data format decisions across the Snake Game AI project.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
 Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types.
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
-- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
+- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**
 
@@ -280,7 +286,7 @@ def create_evolutionary_dataset(population, fitness_scores, generation_history):
     np.savez(output_path, **evolutionary_data)
 ```
 
-## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+## 🎯 **Important Guidelines: Version Selection Guidelines**
 
 - **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
 - **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only

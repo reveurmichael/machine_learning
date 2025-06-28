@@ -1,3 +1,9 @@
+# Game Limits Manager Impact on Extensions
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines game limits manager impact on extensions.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 # Game Limits Manager Impact on Task 1-5 Extensions
 
 ## Overview

@@ -1,3 +1,9 @@
+# Multiple Inheritance Guidelines for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines multiple inheritance guidelines for extensions.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 # Multiple Inheritance Guidelines
 
 ## 🎯 **Core Philosophy: Careful Use of Multiple Inheritance**
@@ -33,7 +39,7 @@ Small, focused mixin classes that provide specific utilities:
 
 ```python
 class LoggingMixin:
-    """Simple mixin for debug output (SUPREME_RULE NO.3: simple print statements)"""
+    """Simple mixin for debug output (simple logging: simple print statements)"""
     
     def debug_print(self, name: str, message: str):
         """Simple debug output for the component"""

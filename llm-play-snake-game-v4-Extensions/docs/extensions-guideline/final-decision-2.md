@@ -4,6 +4,47 @@
 
 This document establishes the **definitive architectural standards** for configuration organization, validation systems, singleton patterns, file naming conventions, and other critical structural decisions across all Snake Game AI extensions. These decisions resolve all major TODOs and provide concrete implementation guidelines.
 
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`config.md`**: Authoritative reference for configuration access rules and LLM constants whitelist
+- **`validation.md`**: Authoritative reference for validation system standards
+- **`naming-conventions.md`**: Authoritative reference for naming standards
+- **`single-source-of-truth.md`**: Ensures configuration consistency across all extensions
+
+### **Simple Logging Examples (SUPREME_RULE NO.3)**
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def validate_config_access(extension_type: str, imported_modules: List[str]):
+    """Validate extension configuration access compliance"""
+    print(f"[ConfigValidator] Validating {extension_type} extension")  # SUPREME_RULE NO.3
+    
+    for module in imported_modules:
+        if module.startswith('config.llm_constants'):
+            if not extension_type.startswith(('agentic-llms', 'llm', 'vision-language-model')):
+                print(f"[ConfigValidator] WARNING: {extension_type} accessing forbidden LLM constants")  # SUPREME_RULE NO.3
+                raise ImportError(f"LLM constants forbidden for {extension_type}")
+    
+    print(f"[ConfigValidator] Configuration access validated for {extension_type}")  # SUPREME_RULE NO.3
+
+def get_universal_config(module: str, key: str):
+    """Simple universal configuration access"""
+    print(f"[Config] Accessing universal config: {module}.{key}")  # SUPREME_RULE NO.3
+    
+    if module == "game":
+        from config.game_constants import VALID_MOVES, DIRECTIONS
+        config_map = {"VALID_MOVES": VALID_MOVES, "DIRECTIONS": DIRECTIONS}
+    elif module == "ui":
+        from config.ui_constants import COLORS, GRID_SIZE
+        config_map = {"COLORS": COLORS, "GRID_SIZE": GRID_SIZE}
+    else:
+        config_map = {}
+    
+    value = config_map.get(key)
+    print(f"[Config] Retrieved {module}.{key} = {value}")  # SUPREME_RULE NO.3
+    return value
+
 ## 🔧 **DECISION 1: Configuration Organization**
 
 ### **Finalized Structure**
@@ -161,7 +202,10 @@ Following **SUPREME_RULE NO.3**, complex singleton managers have been simplified
     def get_dataset_path(self, extension_type: str, version: str, 
                         grid_size: int, algorithm: str) -> Path:
         """Get standardized dataset path"""
-        pass
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = Path(f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}")
+        print(f"[PathManager] Generated dataset path: {path}")  # SUPREME_RULE NO.3
+        return path
 
 # SUPREME_RULE NO.3: Simple configuration access instead of complex managers
 def get_config_value(config_type: str, key: str) -> Any:
@@ -306,9 +350,6 @@ llm_constants.py        # LLM providers, models
 prompt_templates.py     # LLM prompt templates
 network_constants.py    # HTTP, WebSocket settings
 
-# Extension-specific (extensions/common/config/)
-ml_constants.py         # Machine learning hyperparameters
-training_defaults.py    # Training configuration defaults
 dataset_formats.py      # Data format specifications
 validation_rules.py     # Validation thresholds and rules
 ```
@@ -429,43 +470,37 @@ class GridSizeAgnosticCSVSchema:
         return features
 ```
 
-### **Benefits**
-- **Cross-Grid Compatibility**: Models trained on 8x8 can work on 10x10
-- **Consistent Feature Count**: Always 16 features regardless of grid size
-- **Normalized Values**: All features in [0, 1] range for better training
-- **Educational Value**: Demonstrates proper feature engineering
-
 ## 🛠️ **DECISION 6: Path Management Standardization**
 
 ### **Mandatory Usage Pattern**
 
 ```python
 # ✅ ALL extensions must use this pattern:
-
-# At the top of every extension script
-import sys
-import os
-from pathlib import Path
-
-# Import standardized path utilities
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from extensions.common.path_utils import ensure_project_root, get_extension_path
 
 def setup_extension_environment():
-    """
-    Standard setup for all extensions.
-    
-    Returns:
-        tuple: (project_root_path, extension_path)
-    """
+    """Standard setup for all extensions"""
     project_root = ensure_project_root()
     extension_path = get_extension_path(__file__)
     return project_root, extension_path
 
-# Usage in extension
-if __name__ == "__main__":
+def main():
+    """Main entry point with proper path management"""
     project_root, extension_path = setup_extension_environment()
-    # Continue with extension logic...
+    
+    # Initialize extension components
+    print(f"[Main] Starting extension execution")  # SUPREME_RULE NO.3
+    
+    # Load configuration
+    config = load_extension_config(extension_path)
+    
+    # Run extension logic
+    results = execute_extension_logic(config)
+    
+    # Save results
+    save_extension_results(results, project_root)
+    
+    print(f"[Main] Extension execution completed")  # SUPREME_RULE NO.3
 ```
 
 ### **Forbidden Patterns**
@@ -484,201 +519,3 @@ os.chdir("/Users/someone/project/root")
 sys.path.insert(0, "../../../")
 os.chdir("../../../")
 ```
-
-## 🎨 **DECISION 7: Streamlit App Architecture**
-
-### **Object-Oriented Streamlit Pattern**
-
-```python
-# ✅ STANDARDIZED OOP PATTERN for all Streamlit apps:
-
-from abc import ABC, abstractmethod
-import streamlit as st
-import subprocess
-from pathlib import Path
-from typing import Dict, List, Any
-
-class BaseExtensionApp(ABC):
-    """
-    Base class for all extension Streamlit applications.
-    
-    Design Patterns:
-    - Template Method: Standard app structure with customizable parts
-    - Strategy Pattern: Different tab strategies for different extensions
-    - Factory Pattern: Create appropriate interfaces based on extension type
-    """
-    
-    def __init__(self):
-        self.setup_page()
-        self.initialize_session_state()
-        self.main()
-    
-    def setup_page(self):
-        """Configure Streamlit page settings"""
-        st.set_page_config(
-            page_title=f"{self.get_extension_name()} - Snake AI",
-            layout="wide",
-            initial_sidebar_state="expanded",
-            page_icon="🐍"
-        )
-    
-    def initialize_session_state(self):
-        """Initialize Streamlit session state variables"""
-        if 'experiment_history' not in st.session_state:
-            st.session_state.experiment_history = []
-        if 'current_status' not in st.session_state:
-            st.session_state.current_status = "Ready"
-    
-    @abstractmethod
-    def get_extension_name(self) -> str:
-        """Return the extension name for display"""
-        pass
-    
-    @abstractmethod
-    def get_available_algorithms(self) -> List[str]:
-        """Return list of available algorithms/models"""
-        pass
-    
-    @abstractmethod
-    def main(self):
-        """Main app logic - implement in subclasses"""
-        pass
-    
-    def create_algorithm_tabs(self) -> Dict[str, Any]:
-        """Create tabs for each algorithm"""
-        algorithms = self.get_available_algorithms()
-        tabs = st.tabs(algorithms)
-        return dict(zip(algorithms, tabs))
-    
-    def run_script_interface(self, script_name: str, algorithm: str, params: Dict):
-        """
-        Standard interface for launching scripts with subprocess.
-        
-        This is the core philosophy: Streamlit app launches scripts in the 
-        scripts folder with adjustable parameters via subprocess.
-        """
-        if st.button(f"Run {algorithm}"):
-            with st.spinner(f"Running {algorithm}..."):
-                cmd = self.build_command(script_name, algorithm, params)
-                try:
-                    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-                    st.success(f"{algorithm} completed successfully!")
-                    st.code(result.stdout)
-                except subprocess.CalledProcessError as e:
-                    st.error(f"Error running {algorithm}: {e}")
-                    st.code(e.stderr)
-    
-    def build_command(self, script_name: str, algorithm: str, params: Dict) -> List[str]:
-        """Build subprocess command with parameters"""
-        cmd = ["python", f"scripts/{script_name}"]
-        cmd.extend(["--algorithm", algorithm])
-        
-        for key, value in params.items():
-            cmd.extend([f"--{key.replace('_', '-')}", str(value)])
-        
-        return cmd
-
-# Concrete implementation
-class HeuristicStreamlitApp(BaseExtensionApp):
-    """Streamlit app for heuristics extension"""
-    
-    def get_extension_name(self) -> str:
-        return "Heuristics v0.03"
-    
-    def get_available_algorithms(self) -> List[str]:
-        return ["BFS", "A*", "Hamiltonian", "DFS", "BFS Safe Greedy"]
-    
-    def main(self):
-        st.title("🐍 Heuristic Snake AI - v0.03")
-        st.markdown("Launch heuristic algorithms with customizable parameters")
-        
-        # Create tabs for each algorithm
-        algorithm_tabs = self.create_algorithm_tabs()
-        
-        for algorithm, tab in algorithm_tabs.items():
-            with tab:
-                self.create_algorithm_interface(algorithm)
-    
-    def create_algorithm_interface(self, algorithm: str):
-        """Create interface for specific algorithm"""
-        st.subheader(f"{algorithm} Algorithm")
-        
-        # Parameter controls
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            max_games = st.slider("Max Games", 1, 100, 10, key=f"{algorithm}_games")
-            grid_size = st.selectbox("Grid Size", [8, 10, 12, 16, 20], 
-                                   index=1, key=f"{algorithm}_grid")
-        
-        with col2:
-            max_steps = st.slider("Max Steps", 100, 2000, 1000, key=f"{algorithm}_steps")
-            verbose = st.checkbox("Verbose Output", key=f"{algorithm}_verbose")
-        
-        # Parameters dict
-        params = {
-            'max_games': max_games,
-            'grid_size': grid_size,
-            'max_steps': max_steps,
-            'verbose': verbose
-        }
-        
-        # Run interface
-        self.run_script_interface("main.py", algorithm, params)
-        
-        # Replay interfaces
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button(f"Replay {algorithm} (PyGame)", key=f"{algorithm}_pygame"):
-                self.launch_pygame_replay(algorithm)
-        
-        with col2:
-            if st.button(f"Replay {algorithm} (Web)", key=f"{algorithm}_web"):
-                self.launch_web_replay(algorithm)
-
-# Usage
-if __name__ == "__main__":
-    HeuristicStreamlitApp()
-```
-
-## 📋 **Compliance Checklist**
-
-### **For All New Extensions**
-- [ ] **Configuration**: Uses `extensions/common/config/` for extension-specific configs
-- [ ] **Validation**: Integrates with `extensions/common/validation/` system
-- [ ] **Singletons**: Uses approved singleton classes for global state management
-- [ ] **File Naming**: Follows `agent_*.py` pattern for all agent files
-- [ ] **CSV Schema**: Uses grid-size agnostic feature engineering
-- [ ] **Path Management**: Uses standardized path utilities from `extensions/common/path_utils.py`
-- [ ] **Streamlit Apps**: Uses OOP pattern with BaseExtensionApp inheritance
-- [ ] **Documentation**: Includes comprehensive documentation following standards
-
-### **For Existing Extensions**
-- [ ] **Migration Plan**: Create plan to update to new standards
-- [ ] **Backward Compatibility**: Ensure no breaking changes during migration
-- [ ] **Testing**: Validate functionality after migration
-- [ ] **Documentation Update**: Update all documentation to reflect changes
-
-## 🎯 **Benefits Achieved**
-
-### **Architectural Benefits**
-- **Consistency**: Uniform patterns across all extensions
-- **Maintainability**: Clear separation of concerns and responsibilities
-- **Scalability**: Easy to add new extensions following established patterns
-- **Educational Value**: Demonstrates best practices and design patterns
-
-### **Developer Experience**
-- **Predictability**: Consistent structure and naming across extensions
-- **Clarity**: Clear guidelines for where to place different types of code
-- **Efficiency**: Reusable components and patterns reduce development time
-- **Quality**: Automated validation ensures compliance with standards
-
-### **System Benefits**
-- **Reliability**: Standardized validation reduces bugs and inconsistencies
-- **Performance**: Singleton patterns optimize resource usage
-- **Flexibility**: Grid-size agnostic features enable cross-size compatibility
-- **Integration**: Standardized interfaces enable seamless component interaction
-
----
-
-**This document establishes the definitive standards for all Snake Game AI extensions, ensuring consistency, maintainability, and educational value across the entire project ecosystem.** 

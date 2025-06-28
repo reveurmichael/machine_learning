@@ -12,9 +12,9 @@ The "No Over-Preparation" principle ensures that extensions remain focused, main
 - **Iterative Enhancement**: Add features when actually needed, not preemptively
 - **Concrete Implementation**: Prefer working solutions over abstract frameworks
 
-## 🎯 **SUPREME_RULES: Flexibility & Smart OOP Design**
+## 🎯 **Important Guidelines: Flexibility & Smart OOP Design**
 
-**SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts, and exclude overused patterns like `*_utils.py` or `*_defaults.py` files (e.g., `ml_constants.py`, `metrics_utils.py`, etc.). Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
+**simple logging**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts, and exclude overused patterns like `*_utils.py` or `*_defaults.py` files (e.g., `ml_constants.py`, `metrics_utils.py`, etc.). Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
 
 ### **Core Philosophy**
 - **Educational Project**: Encourages experimentation and learning
@@ -62,7 +62,7 @@ class HeuristicAgentFactory:
         return agent_class(algorithm, grid_size)
 ```
 
-### **Unnecessary Configuration Systems (Violates SUPREME_RULE NO.3)**
+### **Unnecessary Configuration Systems (Violates simple logging)**
 ```python
 # ❌ OVER-PREPARATION: Complex configuration hierarchy (TOO RESTRICTIVE)
 class AdvancedConfigurationManager:
@@ -70,7 +70,7 @@ class AdvancedConfigurationManager:
     
     def __init__(self):
         self.config_sources = []
-        self.validation_rules = {}  # Restrictive validation violates SUPREME_RULE NO.3
+        self.validation_rules = {}  # Restrictive validation violates simple logging
         self.transformation_pipelines = {}
         self.inheritance_chains = {}
         self.environment_overrides = {}
@@ -79,12 +79,12 @@ class AdvancedConfigurationManager:
         # Complex configuration loading for simple constants
         pass
 
-# ✅ APPROPRIATE: Simple, flexible configuration (Follows SUPREME_RULE NO.3)
+# ✅ APPROPRIATE: Simple, flexible configuration (Follows simple logging)
 from config.game_constants import VALID_MOVES, DIRECTIONS
 # Extension-specific constants defined locally to avoid coupling
 DEFAULT_LEARNING_RATE = 0.001
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (simple logging):
 # Direct access with minimal restrictions enables easy experimentation
 # and addition of new extensions without architectural barriers.
 ```
@@ -115,7 +115,7 @@ class SupervisedLearningAgent(BaseAgent):
     
     def __init__(self, model_type: str):
         super().__init__(model_type, 10)
-        self.model = self.create_model(model_type)
+        self.model = self.create(model_type)
         self.training_history = []
     
     def train(self, X_train, y_train, epochs: int):
@@ -124,15 +124,15 @@ class SupervisedLearningAgent(BaseAgent):
         pass
 ```
 
-### **SUPREME_RULE NO.3: Smart OOP Balance**
+### **simple logging: Smart OOP Balance**
 
-SUPREME_RULE NO.3 demonstrates **appropriate** preparation - not over-preparation:
+simple logging demonstrates **appropriate** preparation - not over-preparation:
 
 ```python
 # ✅ APPROPRIATE: Smart OOP design with extension points
 class BaseDatasetLoader(ABC):
     """
-    Smart OOP design following SUPREME_RULE NO.3:
+    Smart OOP design following simple logging:
     - Most extensions use this as-is (no over-engineering)
     - Specialized extensions can inherit when needed (not speculative)
     - Extension points are simple, not complex frameworks
@@ -145,11 +145,11 @@ class BaseDatasetLoader(ABC):
         return LoadedDataset(data, metadata, self.config)
     
     def _initialize_loader_specific_settings(self):
-        """SUPREME_RULE NO.3: Simple extension point, not complex framework"""
+        """simple logging: Simple extension point, not complex framework"""
         pass  # Most extensions don't need this
     
     def _generate_extension_specific_metadata(self, data, file_path):
-        """SUPREME_RULE NO.3: Simple override point, not abstract pipeline"""
+        """simple logging: Simple override point, not abstract pipeline"""
         return {}  # Most extensions don't need this
 
 # ✅ APPROPRIATE: Specialized extension when actually needed
@@ -171,12 +171,12 @@ class QuantumDatasetLoader(BaseDatasetLoader):
 class AbstractConfigurableExtensibleLoaderFactoryFramework:
     """
     This would be over-preparation - complex framework for simple needs.
-    SUPREME_RULE NO.3 provides simple extension points, not complex frameworks.
+    simple logging provides simple extension points, not complex frameworks.
     """
     pass
 ```
 
-**Key Balance**: SUPREME_RULE NO.3 provides **simple extension points** that most extensions ignore, but specialized extensions can use when they have **actual, concrete needs** - not speculative requirements.
+**Key Balance**: simple logging provides **simple extension points** that most extensions ignore, but specialized extensions can use when they have **actual, concrete needs** - not speculative requirements.
 
 ## ✅ **Appropriate Preparation Levels**
 
@@ -219,7 +219,7 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(args)
         # Add only heuristic-specific needs
         self.pathfinder = PathfindingFactory.create(args.algorithm)
-        # Simple debug output following SUPREME_RULE NO.3 (no *.log files)
+        # Simple debug output following simple logging (no *.log files)
         print("[HeuristicGameManager] Initialized for debugging")
     
     # No speculative features for "future heuristic algorithms"

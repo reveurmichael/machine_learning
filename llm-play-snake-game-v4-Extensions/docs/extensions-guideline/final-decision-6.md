@@ -4,6 +4,13 @@
 
 This document establishes **mandatory path management standards** for all Snake Game AI extensions, requiring consistent use of `extensions/common/path_utils.py` utilities. This ensures reliable cross-platform operation, consistent working directory management, and eliminates path-related bugs across all extension types.
 
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`unified-path-management-guide.md`**: Authoritative reference for path management standards
+- **`cwd-and-logs.md`**: Authoritative reference for working directory and log organization
+- **`single-source-of-truth.md`**: Ensures path consistency across all extensions
+- **`standalone.md`**: Maintains extension independence through proper path management
+
 ## 🛠️ **Mandatory Path Management Pattern**
 
 ### **Core Requirement: Use Common Path Utilities**
@@ -305,7 +312,50 @@ class HeuristicSnakeApp:
                             max_games: int, grid_size: int):
         """Generate CSV dataset with grid-size agnostic features"""
         # Implementation using standardized paths
-        pass
+        print(f"[DatasetGenerator] Generating CSV dataset for {algorithm}")  # SUPREME_RULE NO.3
+        
+        # Create dataset directory
+        dataset_path.mkdir(parents=True, exist_ok=True)
+        
+        # Generate game data
+        game_data = []
+        for game_id in range(max_games):
+            game_result = self._run_single_game(algorithm, grid_size)
+            game_data.extend(self._extract_features(game_result, game_id))
+        
+        # Save to CSV
+        csv_path = dataset_path / f"{algorithm}_data.csv"
+        self._save_to_csv(game_data, csv_path)
+        
+        print(f"[DatasetGenerator] CSV dataset saved to {csv_path}")  # SUPREME_RULE NO.3
+    
+    def main(self):
+        """Main Streamlit interface"""
+        st.title("Heuristic Snake AI - v0.03")
+        
+        # Setup sidebar controls
+        with st.sidebar:
+            st.header("Configuration")
+            algorithm = st.selectbox("Algorithm", ["BFS", "A*", "DFS", "Hamiltonian"])
+            grid_size = st.slider("Grid Size", 8, 20, 10)
+            max_games = st.number_input("Max Games", 1, 100, 10)
+        
+        # Main content area
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.subheader(f"{algorithm} Algorithm")
+            
+            # Algorithm controls
+            if st.button("Run Algorithm"):
+                self.run_algorithm(algorithm, grid_size, max_games)
+            
+            if st.button("Generate Dataset"):
+                self.generate_dataset(algorithm, grid_size, max_games)
+        
+        with col2:
+            st.subheader("Results")
+            # Results display area
 
 if __name__ == "__main__":
     HeuristicSnakeApp()
@@ -440,6 +490,14 @@ def validate_extension(extension_path: Path):
         # Check for forbidden patterns
         if "os.chdir(" in content and "ensure_project_root" not in content:
             print(f"WARNING: {py_file} uses manual os.chdir() without ensure_project_root()")
+        
+        # Check for hardcoded paths
+        if "logs/extensions/" in content and "get_dataset_path" not in content:
+            print(f"WARNING: {py_file} uses hardcoded extension paths")
+            
+        # Check for relative path assumptions
+        if "open(" in content and "Path(" not in content:
+            print(f"WARNING: {py_file} may use relative path assumptions")
             
         if "sys.path.insert" in content and "ensure_project_root" not in content:
             print(f"WARNING: {py_file} uses manual sys.path.insert() without ensure_project_root()")

@@ -2,16 +2,16 @@
 
 > **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for dataset and model directory structure standards and supplements the _Final Decision Series_.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions.
 
 ## 🎯 **Core Design Philosophy**
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making dataset/model directory architectural changes to ensure comprehensive understanding
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and directory structure patterns
-- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining directory structure patterns through inheritance rather than tight coupling
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making dataset/model directory architectural changes to ensure comprehensive understanding
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and directory structure patterns
+- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining directory structure patterns through inheritance rather than tight coupling
 
 ### **Grid-Size Agnostic Organization**
 Directory structure is designed to be **grid-size independent** while maintaining clear separation between different grid configurations, enabling flexible experimentation across different board sizes.
@@ -54,7 +54,7 @@ logs/extensions/datasets/
 
 **🎯 Standardized Directory Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
 
-### **SUPREME_RULES: Version Selection**
+### **Important Guidelines: Version Selection**
 - **Prefer `heuristics-v0.04`** for new datasets: it is a strict superset of v0.03 and adds JSONL generation.
 - **`heuristics-v0.03` remains fully supported and widely used** in existing pipelines.  Continue to use it when backward-compatibility or comparison with historical results is required.
 - **CSV format is ACTIVE**: Not legacy – essential for supervised learning across both v0.03 and v0.04.
@@ -132,9 +132,9 @@ dataset_path = get_dataset_path(
 - Maintain version-specific naming conventions
 - Support multi-directional data consumption and generation
 
-### **Extension Guidelines (Following SUPREME_RULE NO.3):**
+### **Extension Guidelines (Following simple logging):**
 
-**Educational Note (SUPREME_RULE NO.3)**: We should be able to add new extensions easily and try out new ideas. Therefore, the directory structure supports flexible extension development.
+**Educational Note (simple logging)**: We should be able to add new extensions easily and try out new ideas. Therefore, the directory structure supports flexible extension development.
 
 **Current Extension Examples:**
 - **Heuristics**: v0.01, v0.02, v0.03, **v0.04 (DEFINITIVE)**
@@ -146,7 +146,7 @@ dataset_path = get_dataset_path(
 
 **Path Format Support**: The directory structure automatically accommodates any extension following the pattern `{extension_type}_v{version}_{timestamp}/`
 
-### **SUPREME_RULES: Version Selection Guidelines**
+### **Important Guidelines: Version Selection Guidelines**
 - **For heuristics**: Prefer v0.04 for new experiments, but v0.03 is still valid and maintained.
 - **For supervised learning**: Use CSV from either heuristics-v0.03 **or** heuristics-v0.04 (both widely used).
 - **For LLM fine-tuning**: Use JSONL available in heuristics-v0.04.

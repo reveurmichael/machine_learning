@@ -1,6 +1,8 @@
 # Gymnasium Environment Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Gymnasium integration follows the same architectural patterns established in the GOOD_RULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Gymnasium environment integration patterns.
+
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Standardized RL Interface**
 
@@ -15,7 +17,7 @@ Gymnasium provides a standardized API for reinforcement learning environments, e
 ## 🏗️ **Integration Architecture**
 
 ### **Environment Factory Pattern**
-Following Final Decision 7-8 factory patterns:
+Following established factory patterns:
 
 ```python
 class SnakeEnvironmentFactory:
@@ -28,11 +30,12 @@ class SnakeEnvironmentFactory:
     }
     
     @classmethod
-    def create_environment(cls, env_type: str, grid_size: int = 10, **kwargs):
+    def create(cls, env_type: str, grid_size: int = 10, **kwargs):
         """Create environment by type"""
         env_class = cls._env_registry.get(env_type)
         if not env_class:
             raise ValueError(f"Unknown environment type: {env_type}")
+        print(f"[SnakeEnvironmentFactory] Creating {env_type} environment")  # Simple logging
         return env_class(grid_size=grid_size, **kwargs)
 ```
 
@@ -48,6 +51,7 @@ class SnakeGameEnvironment(gym.Env):
     def __init__(self, grid_size: int = 10):
         super().__init__()
         self.grid_size = grid_size
+        print(f"[SnakeGameEnvironment] Initialized for {grid_size}x{grid_size} grid")  # Simple logging
         
         # Action space: UP, DOWN, LEFT, RIGHT
         self.action_space = spaces.Discrete(4)
@@ -153,6 +157,7 @@ class RLEnvironmentManager:
             self.env = SnakeGameEnvironment(grid_size=grid_size)
         else:
             self.env = NativeSnakeEnvironment(grid_size=grid_size)
+        print(f"[RLEnvironmentManager] Created {env_type} environment")  # Simple logging
             
     def create_vectorized_env(self, n_envs: int = 4):
         """Create vectorized environment for parallel training"""
@@ -170,20 +175,114 @@ def train_agent(algorithm: str, env_type: str = "gymnasium", **kwargs):
     
     # Create environment
     env_factory = SnakeEnvironmentFactory()
-    env = env_factory.create_environment(env_type, **kwargs)
+    env = env_factory.create(env_type, **kwargs)
     
     # Create agent using existing factory pattern
     agent_factory = RLAgentFactory()
-    agent = agent_factory.create_agent(algorithm, env=env)
+    agent = agent_factory.create(algorithm, env=env)
     
     # Train using existing training pipeline
     trainer = AgentTrainer(agent, env)
     return trainer.train()
 ```
 
+## 🎓 **Educational Applications**
+
+### **Environment Design Patterns**
+- **Adapter Pattern**: Wraps native environment with Gymnasium interface
+- **Factory Pattern**: Creates different environment types
+- **Strategy Pattern**: Different environment implementations
+- **Observer Pattern**: Environment state monitoring
+
+### **Learning Objectives**
+- **Standard RL Interfaces**: Understand Gymnasium API design
+- **Environment Wrapping**: Learn to adapt custom environments
+- **Library Integration**: Work with popular RL frameworks
+- **Performance Comparison**: Compare native vs. standardized implementations
+
+## 📊 **Implementation Guidelines**
+
+### **Environment Registration**
+```python
+# Register custom environment with Gymnasium
+from gymnasium.envs.registration import register
+
+register(
+    id='SnakeGame-v0',
+    entry_point='extensions.common.gymnasium_env:SnakeGameEnvironment',
+    max_episode_steps=1000,
+)
+```
+
+### **Feature Extraction Standardization**
+```python
+def _get_observation(self):
+    """Extract standardized 16-feature observation"""
+    # Grid-size agnostic features for consistent interface
+    features = [
+        # Snake position features (4)
+        self.snake_head_x / self.grid_size,
+        self.snake_head_y / self.grid_size,
+        self.apple_x / self.grid_size,
+        self.apple_y / self.grid_size,
+        
+        # Direction features (4)
+        self.direction_up,
+        self.direction_down,
+        self.direction_left,
+        self.direction_right,
+        
+        # Game state features (4)
+        self.snake_length / (self.grid_size * self.grid_size),
+        self.distance_to_apple / (self.grid_size * 2),
+        self.danger_ahead,
+        self.danger_left,
+        
+        # Additional features (4)
+        self.danger_right,
+        self.danger_behind,
+        self.game_over,
+        self.score / 100.0,
+    ]
+    return np.array(features, dtype=np.float32)
+```
+
+### **Reward Function Consistency**
+```python
+def _calculate_reward(self, success: bool) -> float:
+    """Calculate reward consistent across implementations"""
+    reward = 0.0
+    
+    if self.game_logic.apple_eaten:
+        reward += 10.0
+    elif self.game_logic.game_over:
+        reward -= 10.0
+    elif success:
+        reward += 0.1  # Small positive reward for successful moves
+    
+    return reward
+```
+
+## 🔗 **Integration with Other Extensions**
+
+### **With Heuristics**
+- Use heuristic algorithms to validate Gymnasium environment behavior
+- Compare performance between native and Gymnasium implementations
+- Generate training data using both environment types
+
+### **With Supervised Learning**
+- Train models on data from both environment types
+- Use supervised learning to validate environment consistency
+- Create environment comparison tools
+
+### **With Reinforcement Learning**
+- Enable seamless switching between environment types
+- Provide consistent training pipelines across implementations
+- Support algorithm comparison studies
+
 ---
 
-**Gymnasium integration provides a bridge between the Snake Game AI architecture and the broader reinforcement learning ecosystem, enabling both custom implementations and standard library compatibility while maintaining the educational and architectural benefits of the native system.**
+**Gymnasium integration provides a standardized interface for reinforcement learning while maintaining compatibility with the native Snake Game architecture. This dual implementation strategy enables both educational clarity and practical library integration.**
 
 
 

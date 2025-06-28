@@ -1,4 +1,6 @@
-# Final Decision 4: Agent File and Class Naming Conventions
+# Final Decision 4: Agent Naming Conventions & Standards
+
+> **SUPREME AUTHORITY**: This document establishes the definitive agent naming conventions and implementation standards for the Snake Game AI project.
 
 ## 🎯 **Executive Summary**
 
@@ -255,13 +257,23 @@ class {Algorithm}Agent(BaseAgent):
             RuntimeError: If no valid move can be found
         """
         # Algorithm-specific implementation
-        pass
+        print(f"[{self.algorithm_name}] Planning move")  # SUPREME_RULE NO.3
+        
+        # Extract game state components
+        head_pos = game_state.get('snake_positions', [[]])[0]
+        apple_pos = game_state.get('apple_position', [])
+        
+        # Algorithm-specific logic here
+        move = self._calculate_move(head_pos, apple_pos, game_state)
+        
+        print(f"[{self.algorithm_name}] Selected move: {move}")  # SUPREME_RULE NO.3
+        return move
         
     def reset(self) -> None:
         """Reset agent state for new game"""
         # Algorithm-specific reset logic
-        pass
-```
+        print(f"[{self.algorithm_name}] Resetting agent state")  # SUPREME_RULE NO.3
+        # Reset algorithm-specific state variables
 
 ### **Agent Factory Integration**
 ```python
@@ -308,7 +320,7 @@ class AgentFactory:
     }
     
     @classmethod
-    def create_agent(cls, algorithm: str, grid_size: int, **kwargs) -> BaseAgent:
+    def create(cls, algorithm: str, grid_size: int, **kwargs) -> BaseAgent:
         """
         Create agent instance by algorithm name.
         
@@ -324,8 +336,8 @@ class AgentFactory:
             ValueError: If algorithm is not supported
             
         Example:
-            >>> agent = AgentFactory.create_agent("BFS", grid_size=10)
-            >>> agent = AgentFactory.create_agent("MLP", grid_size=10, hidden_size=128)
+            >>> agent = AgentFactory.create("BFS", grid_size=10)
+            >>> agent = AgentFactory.create("MLP", grid_size=10, hidden_size=128)
         """
         algorithm_upper = algorithm.upper()
         
@@ -355,7 +367,7 @@ class AgentFactory:
 # Convenience function following naming convention
 def create_agent(algorithm: str, grid_size: int, **kwargs) -> BaseAgent:
     """Create agent instance - convenience function"""
-    return AgentFactory.create_agent(algorithm, grid_size, **kwargs)
+    return AgentFactory.create(algorithm, grid_size, **kwargs)
 ```
 
 ### **Import Patterns**
@@ -375,31 +387,13 @@ from extensions.heuristics_v0_03.agents.agent_bfs import BFSAgent
 from extensions.supervised_v0_02.models.neural_networks.agent_mlp import MLPAgent
 
 # Factory usage
-agent = AgentFactory.create_agent("BFS", grid_size=10)
+agent = AgentFactory.create("BFS", grid_size=10)
 agent = create_agent("MLP", grid_size=10, hidden_size=256)
 ```
 
 ## 🔍 **Special Naming Cases**
 
 ### **Multi-Word Algorithms**
-```python
-# ✅ STANDARDIZED HANDLING of multi-word algorithms:
-
-# File names: use underscores for separation
-agent_bfs_safe_greedy.py          → class BFSSafeGreedyAgent
-agent_astar_hamiltonian.py        → class AStarHamiltonianAgent
-agent_double_dqn.py               → class DoubleDQNAgent
-agent_dueling_dqn.py              → class DuelingDQNAgent
-agent_random_forest.py            → class RandomForestAgent
-agent_knowledge_distilled.py      → class KnowledgeDistilledAgent
-
-# Class names: use PascalCase without separators
-class BFSSafeGreedyAgent(BFSAgent):          # Inherits from BFS
-class AStarHamiltonianAgent(AStarAgent):     # Inherits from A*
-class DoubleDQNAgent(DQNAgent):              # Inherits from DQN
-class DuelingDQNAgent(DQNAgent):             # Inherits from DQN
-class RandomForestAgent(BaseAgent):          # Independent implementation
-class KnowledgeDistilledAgent(DistilledAgent):  # Inherits from Distilled
 ```
 
 ### **Algorithm Variants and Inheritance**
@@ -409,155 +403,41 @@ class KnowledgeDistilledAgent(DistilledAgent):  # Inherits from Distilled
 # Base algorithm
 class BFSAgent(BaseAgent):
     """Base BFS implementation"""
-    pass
+    def __init__(self, grid_size: int):
+        super().__init__(name="BFS", grid_size=grid_size)
+        print(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULE NO.3
+    
+    def _calculate_move(self, head_pos, apple_pos, game_state):
+        """BFS pathfinding implementation"""
+        # BFS algorithm logic here
+        return "UP"  # Default move
 
 # Enhanced variants inherit from base
 class BFSSafeGreedyAgent(BFSAgent):
     """BFS with safety checks and greedy optimization"""
-    pass
+    def __init__(self, grid_size: int):
+        super().__init__(grid_size)
+        self.safety_threshold = 0.8
+        print(f"[BFSSafeGreedyAgent] Initialized with safety checks")  # SUPREME_RULE NO.3
 
 class BFSHamiltonianAgent(BFSSafeGreedyAgent):
     """BFS with Hamiltonian path concepts"""
-    pass
+    def __init__(self, grid_size: int):
+        super().__init__(grid_size)
+        self.hamiltonian_cycle = self._generate_hamiltonian_cycle()
+        print(f"[BFSHamiltonianAgent] Initialized with Hamiltonian cycle")  # SUPREME_RULE NO.3
 
 # Independent but related algorithms
 class AStarAgent(BaseAgent):
     """A* pathfinding algorithm"""
-    pass
+    def __init__(self, grid_size: int):
+        super().__init__(name="A*", grid_size=grid_size)
+        print(f"[AStarAgent] Initialized A* agent")  # SUPREME_RULE NO.3
 
 class AStarHamiltonianAgent(AStarAgent):
     """A* with Hamiltonian optimization"""
-    pass
+    def __init__(self, grid_size: int):
+        super().__init__(grid_size)
+        self.hamiltonian_weight = 0.3
+        print(f"[AStarHamiltonianAgent] Initialized with Hamiltonian optimization")  # SUPREME_RULE NO.3
 ```
-
-### **Framework-Specific Agents**
-```python
-# ✅ FRAMEWORK INTEGRATION following naming convention:
-
-# PyTorch-based agents
-class MLPAgent(BaseAgent):           # PyTorch MLP
-class CNNAgent(BaseAgent):           # PyTorch CNN
-class LSTMAgent(BaseAgent):          # PyTorch LSTM
-
-# Scikit-learn based agents  
-class RandomForestAgent(BaseAgent):  # sklearn RandomForest
-class SVMAgent(BaseAgent):           # sklearn SVM
-
-# XGBoost/LightGBM agents
-class XGBoostAgent(BaseAgent):       # XGBoost implementation
-class LightGBMAgent(BaseAgent):      # LightGBM implementation
-
-# PyTorch Geometric agents
-class GCNAgent(BaseAgent):           # PyTorch Geometric GCN
-class GraphSAGEAgent(BaseAgent):     # PyTorch Geometric GraphSAGE
-
-# Transformers library agents
-class LoRAAgent(BaseAgent):          # HuggingFace LoRA
-class DistilBERTAgent(BaseAgent):    # HuggingFace DistilBERT
-```
-
-## 📋 **Migration and Compliance Guidelines**
-
-### **For Existing Extensions**
-```python
-# ✅ MIGRATION CHECKLIST:
-
-# 1. Rename files to follow agent_*.py pattern
-# OLD: bfs_agent.py, astar_pathfinder.py, mlp_model.py
-# NEW: agent_bfs.py, agent_astar.py, agent_mlp.py
-
-# 2. Rename classes to follow *Agent pattern  
-# OLD: class BFS, class AStarPathfinder, class MLPModel
-# NEW: class BFSAgent, class AStarAgent, class MLPAgent
-
-# 3. Update imports throughout extension
-# OLD: from bfs_agent import BFS
-# NEW: from agent_bfs import BFSAgent
-
-# 4. Update factory registrations
-# OLD: register_algorithm("bfs", BFS)
-# NEW: register_agent("BFS", BFSAgent)
-
-# 5. Update documentation and comments
-# Update all references to use new naming convention
-```
-
-### **For New Extensions**
-```python
-# ✅ REQUIREMENTS for new extensions:
-
-# 1. All agent files MUST follow agent_*.py pattern
-# 2. All agent classes MUST follow *Agent pattern
-# 3. All agents MUST inherit from BaseAgent
-# 4. All agents MUST implement required interface methods
-# 5. All agents MUST include comprehensive docstrings
-# 6. Factory registration MUST use uppercase algorithm names
-# 7. File organization MUST follow established directory patterns
-```
-
-### **Validation Script**
-All extension validation utilities live in `extensions/common/validation/` (see Final-Decision 2).
-
-A lightweight validator for agent naming conventions is provided at:
-```python
-# extensions/common/validation/validate_agent_naming.py
-"""CLI utility to check that every agent file follows `agent_*.py` and every
-class inside follows `*Agent` naming.  Run with:
-
-    python -m extensions.common.validation.validate_agent_naming \
-        --extension heuristics-v0.03
-"""
-```
-This single entry-point is auto-registered in `ValidationRegistry` and can be invoked from any extension or CI workflow.  Detailed implementation is omitted here for brevity—see the source file for full logic.
-
-## 🎯 **Benefits of Standardized Naming**
-
-### **Developer Experience Benefits**
-- **Predictable Structure**: Developers know exactly where to find agent implementations
-- **Clear Intent**: File and class names immediately convey purpose
-- **IDE Support**: Better autocomplete, navigation, and refactoring support
-- **Reduced Cognitive Load**: No need to remember different naming patterns per extension
-
-### **Maintenance Benefits**
-- **Consistent Imports**: Same import patterns across all extensions
-- **Easy Refactoring**: Standardized names make mass updates simpler
-- **Clear Dependencies**: Obvious relationships between files and classes
-- **Documentation Clarity**: Consistent naming in docs and code comments
-
-### **Educational Benefits**
-- **Pattern Recognition**: Students learn one naming pattern that applies everywhere
-- **Algorithm Focus**: Algorithm name prominence emphasizes the core concepts
-- **Inheritance Understanding**: Clear class relationships through naming
-- **Professional Standards**: Demonstrates industry-standard naming conventions
-
-### **Technical Benefits**
-- **Factory Pattern Support**: Enables clean factory implementations
-- **Dynamic Loading**: Predictable names enable runtime algorithm loading
-- **Testing Efficiency**: Standardized structure simplifies test automation
-- **Plugin Architecture**: Consistent interface enables plugin-style extensions
-
-## 📊 **Implementation Status Tracking**
-
-### **Compliance Matrix**
-
-| Extension | v0.01 Status | v0.02 Status | v0.03 Status | v0.04 Status |
-|-----------|--------------|--------------|--------------|--------------|
-| **heuristics** | ✅ Compliant | ✅ Compliant | ✅ Compliant | ✅ Compliant |
-| **supervised** | ✅ Compliant | ✅ Compliant | ✅ Compliant | N/A |
-| **reinforcement** | ✅ Compliant | ✅ Compliant | ✅ Compliant | N/A |
-| **llm-finetune** | ✅ Compliant | ✅ Compliant | ✅ Compliant | N/A |
-| **llm-distillation** | ✅ Compliant | ✅ Compliant | ✅ Compliant | N/A |
-| **evolutionary** | ✅ Compliant | ✅ Compliant | ✅ Compliant | N/A |
-
-### **Validation Requirements**
-- [ ] All existing agent files renamed to `agent_*.py` pattern
-- [ ] All existing agent classes renamed to `*Agent` pattern  (IMPORTANT: for task-0, it's   SnakeAgent)
-- [ ] All factory registrations updated to use new names
-- [ ] All imports updated throughout codebase
-- [ ] All documentation updated to reflect new naming
-- [ ] Validation script passes for all extensions
-- [ ] All new extensions follow naming convention from start
-
----
-
-**This document establishes the definitive agent naming standards for the Snake Game AI project, ensuring consistency, clarity, and maintainability across all extensions and algorithm types.** 

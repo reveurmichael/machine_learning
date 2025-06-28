@@ -1,15 +1,12 @@
 # Documentation as First-Class Citizen
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for documentation standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). It also follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines documentation standards as first-class citizen.
+
+> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`.
 
 This document outlines the philosophy and practices that make documentation a **first-class citizen** in the Snake Game AI project, equal in importance to the code itself.
 
 ## 🎯 **Core Philosophy: Documentation-Driven Development**
-
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making documentation changes
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout examples
-- **SUPREME_RULE NO.3**: Advocates simple logging (print() statements) in all code examples rather than complex *.log file mechanisms
 
 In this project, documentation is not an afterthought—it's the foundation that enables:
 - **AI assistant effectiveness**: Rich context for automated code understanding
@@ -37,47 +34,16 @@ class ConsecutiveLimitsManager:
     """
     Centralizes tracking and enforcement of consecutive move limits in Snake game.
     
-    This class implements the Facade pattern to provide a simple interface to
-    complex limit tracking across multiple game scenarios. It consolidates what
-    was previously scattered limit-checking logic into a single, maintainable unit.
-    
     Design Patterns Used:
-        - Facade Pattern: Simplifies complex subsystem interactions
-        - Strategy Pattern: Pluggable enforcement policies via LimitEnforcementStrategy
-        - Template Method Pattern: Consistent move processing workflow
-        - Value Object Pattern: Immutable LimitConfiguration and LimitStatus
+    - Facade Pattern: Provides simple interface to complex limit tracking
+    - Strategy Pattern: Pluggable enforcement policies
+    - Template Method Pattern: Consistent move processing workflow
     
-    Architecture Benefits:
-        - Single source of truth for all limit management
-        - Thread-safe operations for concurrent access
-        - Progressive warnings at 75% of limits
-        - Intelligent counter reset logic based on success patterns
-    
-    Usage Example:
-        >>> config = LimitConfiguration(
-        ...     max_consecutive_empty=3,
-        ...     max_consecutive_errors=2,
-        ...     sleep_after_empty=1.0
-        ... )
-        >>> manager = ConsecutiveLimitsManager(config)
-        >>> status = manager.check_and_update(LimitType.EMPTY_MOVES)
-        >>> if status.limit_exceeded:
-        ...     manager.handle_limit_exceeded(status)
-    
-    Thread Safety:
-        All methods are thread-safe through careful use of locks and
-        immutable data structures. Status tracking uses atomic operations.
-    
-    Performance Considerations:
-        - O(1) limit checking operations
-        - Minimal memory overhead per limit type
-        - Efficient sleep management without blocking
-    
-    See Also:
-        - core/game_loop.py: Primary consumer of limit management
-        - docs/consecutive-limits-refactoring.md: Design documentation
-        - LimitType: Enumeration of trackable limit types
-        - LimitConfiguration: Immutable configuration value object
+    Usage:
+        manager = create_limits_manager(args)
+        status = manager.check_and_update(LimitType.EMPTY_MOVES)
+        if status.limit_exceeded:
+            handle_limit_exceeded()
     """
 ```
 
@@ -87,51 +53,16 @@ Every design pattern usage is explicitly documented:
 ```python
 class GameAgentFactory:
     """
-    Factory Pattern Implementation for Snake Game Agents
+    Factory Pattern Implementation
     
-    Intent:
-        Provide an interface for creating families of related or dependent
-        Snake game agents without specifying their concrete classes.
+    Purpose: Create appropriate agent instances based on configuration
+    Benefits: 
+    - Loose coupling between client code and concrete agents
+    - Easy to add new agent types
+    - Centralized agent creation logic
     
-    Motivation:
-        The game needs to support multiple agent types (LLM, Heuristic, RL, etc.)
-        without tightly coupling the client code to specific agent implementations.
-        This factory encapsulates agent creation logic and makes it easy to add
-        new agent types or modify existing ones.
-    
-    Structure:
-        Creator (GameAgentFactory)
-            ↓ creates
-        Product (BaseAgent)
-            ↓ implements
-        ConcreteProducts (BFSAgent, DQNAgent, etc.)
-    
-    Participants:
-        - GameAgentFactory: Declares factory method returning BaseAgent
-        - BaseAgent: Abstract interface for all game agents
-        - BFSAgent, etc.: Concrete agent implementations
-    
-    Collaborations:
-        1. Client calls GameAgentFactory.create_agent(agent_type, config)
-        2. Factory determines appropriate concrete agent class
-        3. Factory instantiates and configures agent
-        4. Client receives configured agent through BaseAgent interface
-    
-    Consequences:
-        + Eliminates need to bind application-specific classes into code
-        + Makes it easy to add new agent types
-        + Promotes loose coupling between agent creation and usage
-        - Requires extra level of indirection
-        - Can complicate code if not many agent types exist
-    
-    Implementation Notes:
-        Uses registry pattern internally to map agent types to classes.
-        Supports plugin-style agent registration for extensions.
-    
-    Related Patterns:
-        - Abstract Factory: For creating families of related agents
-        - Builder: For complex agent configuration
-        - Prototype: For cloning pre-configured agents
+    Usage:
+        agent = GameAgentFactory.create("BFS", config)  # Canonical create() method
     """
 ```
 
@@ -222,7 +153,6 @@ class BFSSafeGreedyAgent(BFSAgent):
 ```
 This shows not just WHAT to implement, but WHY and HOW.
 
-
 ### **3. Living Documentation**
 Documentation that evolves with code:
 
@@ -230,8 +160,6 @@ Documentation that evolves with code:
 - **Version-specific documentation** for each extension version
 - **Cross-references** between code and documentation
 - **Usage examples** that are tested and verified
-
-
 
 ## 🎯 **Documentation Quality Standards**
 
@@ -260,43 +188,31 @@ class PathfindingAgent:
     - Manhattan distance is admissible (never overestimates)
     - Search space reduction is typically 3-5x smaller
     - Path quality is identical to Dijkstra
-    - Memory usage is significantly lower
-    
-    This makes A* the optimal choice for real-time pathfinding in Snake.
     """
 ```
 
-### **2. Documentation Standards Enforcement**
-```python
-# Automated checks for documentation quality
-class DocumentationLinter:
-    """
-    Enforces documentation standards across the codebase.
-    
-    Rules:
-    - Every public class must have comprehensive docstring
-    - Design patterns must be explicitly documented
-    - Extension points must be clearly marked
-    - Usage examples must be provided and tested
-    """
-```
+## 📋 **Documentation Maintenance**
 
-### **3. Review Criteria**
-- **Clarity**: Can a newcomer understand this?
-- **Completeness**: Are all important aspects covered?
-- **Accuracy**: Does this match the implementation?
-- **Educational value**: Does this teach the reader?
-- **Maintainability**: Will this stay current?
+### **1. Regular Reviews**
+- **Monthly consistency checks** between code and documentation
+- **Version-specific updates** when new features are added
+- **Cross-reference validation** to ensure links remain accurate
+- **Example testing** to verify code examples still work
 
-## 🎓 **Educational Documentation Philosophy**
+### **2. Feedback Integration**
+- **User feedback** incorporated into documentation improvements
+- **AI assistant effectiveness** monitored and optimized
+- **Learning outcomes** tracked and documented
+- **Common questions** addressed in FAQ sections
 
-This project serves as both functional software and educational resource. Documentation should:
+---
 
-1. **Explain the WHY** - Not just what the code does, but why it's designed that way
-2. **Teach patterns** - Show how design patterns solve real problems
-3. **Guide extension** - Make it easy for others to build upon the work
-4. **Share knowledge** - Transfer architectural understanding to readers
-5. **Document decisions** - Preserve the reasoning behind choices
+**Documentation as a first-class citizen ensures that the Snake Game AI project remains accessible, educational, and maintainable. By treating documentation with the same care as code, we create a learning environment that supports both human developers and AI assistants in understanding and extending the system effectively.**
 
+## 🔗 **See Also**
 
-**Remember**: In this project, documentation is not overhead—it's an investment in clarity, maintainability, and educational value. Every line of documentation makes the codebase more accessible and valuable to future developers and AI assistants.
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation
+- **`config.md`**: Configuration management

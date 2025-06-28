@@ -108,7 +108,7 @@ class MLAgent(BaseAgent):
     def __init__(self, model_type: str, input_dim: int, 
                  output_dim: int, device: str = "cpu") -> None:
         super().__init__(model_type, 10)  # grid_size default
-        self.model: torch.nn.Module = self.create_model(input_dim, output_dim)
+        self.model: torch.nn.Module = self.create(input_dim, output_dim)
         self.device: torch.device = torch.device(device)
         self.training_history: TrainingMetrics = {}
     

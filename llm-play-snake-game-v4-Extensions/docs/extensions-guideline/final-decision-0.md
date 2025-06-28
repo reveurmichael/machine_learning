@@ -6,6 +6,18 @@
 
 The **Final Decision Series (0-10)** establishes definitive architectural standards for the Snake Game AI project. These documents collectively form the authoritative reference that supersedes all other documentation when conflicts arise. Each decision is carefully designed to be self-contained while maintaining coherence with the entire series.
 
+### **Guidelines Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining architectural patterns through inheritance rather than tight coupling
+
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **SUPREME_RULES**: Absolute authority for all architectural decisions
+- **GOOD_RULES**: Authoritative references for implementation standards
+- **SIMPLE_RULES**: Target 300-500 lines for focused documentation
+- **Educational Value**: All decisions prioritize learning and extensibility
+
 ### **Authority Hierarchy**
 1. **Final Decision Series** (highest authority)
 2. Extension-specific guidelines (supplements Final Decisions)
@@ -19,14 +31,14 @@ The **Final Decision Series (0-10)** establishes definitive architectural standa
 | **final-decision-0.md** | Meta | *Navigation & Meta-Guidelines* | Authority hierarchy, coherence rules, editing policy |
 | **final-decision-1.md** | Core | **Directory Structure & Data Organization** | Grid-size hierarchy, multi-directional data ecosystem, logs/extensions structure |
 | **final-decision-2.md** | Core | **Configuration & Validation Architecture** | Config separation, validation system, architectural standards |
-| **final-decision-3.md** | Core | **Simple Utility Functions** | Lightweight utilities following SUPREME_RULE NO.3 |
+| **final-decision-3.md** | Core | **Simple Utility Functions** | Lightweight utilities following SUPREME_RULE NO.3, simple functions over singletons |
 | **final-decision-4.md** | Core | **Agent Naming Conventions** | `agent_*.py` files, `*Agent` classes, naming validation |
 | **final-decision-5.md** | Core | **Extension Directory Templates** | v0.01→v0.04 evolution, stability rules, breaking changes |
 | **final-decision-6.md** | Core | **Path Management Standards** | Mandatory `path_utils.py`, cross-platform compatibility |
-| **final-decision-7.md** | Advanced | **Factory Pattern Architecture** | Agent factories, design philosophy, extensibility |
-| **final-decision-8.md** | Advanced | **Factory Implementation Details** | Layered architecture, registration patterns, error handling |
+| **final-decision-7.md** | Advanced | **Factory Pattern Architecture** | Canonical `create()` method, agent factories, design philosophy |
+| **final-decision-8.md** | Advanced | **Configuration & Validation Standards** | Simple configuration management, validation patterns, runtime config |
 | **final-decision-9.md** | Advanced | **Streamlit OOP Architecture** | Base/Extension apps, dashboard patterns, UX standards |
-| **final-decision-10.md** | Special | **GOOD_RULES System** | AI assistant guidelines, implementation rules |
+| **final-decision-10.md** | Special, entry point | **GOOD_RULES System** | AI assistant guidelines, SUPREME_RULES, implementation rules |
 
 ## 🔄 **Cross-Document Coherence Requirements**
 

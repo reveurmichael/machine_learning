@@ -1,6 +1,6 @@
 > **Important — Authoritative Reference:** This utility guide complements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and the `data-format-decision-guide.md`. Conflicting details must defer to those authoritative documents.
 
-> **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 # CSV Schema Utilities for Snake Game Extensions
 
@@ -235,7 +235,7 @@ The schema is designed to be extensible:
 - **`csv-schema-1.md`**: Core schema documentation
 - **`unified-path-management-guide.md`**: Path management standards
 
-## 🎯 **SUPREME_RULES: Version Selection Guidelines**
+## 🎯 **Important Guidelines: Version Selection Guidelines**
 
 - **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
 - **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only

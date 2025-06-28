@@ -39,6 +39,8 @@ subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the mandatory script architecture for all v0.03 extensions.
 
+> **See also:** `app.md`, `dashboard.md`, `final-decision-10.md`, `standalone.md`.
+
 ## 🎯 **Core Philosophy: Script-Runner Architecture**
 
 The `scripts/` directory is **mandatory for all v0.03 extensions** and implements the "script-runner" architecture where Streamlit applications serve as **interactive frontends** that launch specialized scripts via subprocess. This separation ensures clean architecture and enables both CLI and web-based operation.
@@ -88,8 +90,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from extensions.common.path_utils import ensure_project_root
-from extensions.common.script_utils import parse_common_args
+from extensions.common.utils.path_utils import ensure_project_root
 
 def main():
     """Main execution function for heuristic algorithms"""
@@ -113,7 +114,7 @@ def main():
     manager = HeuristicGameManager(args)
     results = manager.run()
     
-    print(f"Execution completed. Results: {results}")
+    print(f"Execution completed. Results: {results}")  # Simple logging
     return results
 
 if __name__ == "__main__":
@@ -127,13 +128,11 @@ if __name__ == "__main__":
 Dataset generation script for supervised learning training data.
 
 Generates standardized datasets in multiple formats (CSV, JSONL, NPZ) following
-the data format decisions from final-decision-2.md.
+the data format decisions from `data-format-decision-guide.md`.
 """
 
 import argparse
 from pathlib import Path
-import json
-import pandas as pd
 
 def main():
     """Generate training datasets from algorithm execution"""
@@ -148,12 +147,12 @@ def main():
     
     # Generate datasets for each algorithm
     from game_manager import HeuristicGameManager
-    from extensions.common.dataset_generator import DatasetGenerator
+    from extensions.common.utils.dataset_utils import DatasetGenerator
     
     generator = DatasetGenerator(args.grid_size, args.output_format)
     
     for algorithm in args.algorithms:
-        print(f"Generating dataset for {algorithm}...")
+        print(f"Generating dataset for {algorithm}...")  # Simple logging
         
         # Execute games and collect data
         game_args = argparse.Namespace(
@@ -170,7 +169,7 @@ def main():
         dataset = generator.create_dataset(results, algorithm)
         generator.save_dataset(dataset, args.output_dir / algorithm)
         
-        print(f"Dataset saved for {algorithm} at {args.output_dir / algorithm}")
+        print(f"Dataset saved for {algorithm} at {args.output_dir / algorithm}")  # Simple logging
 
 if __name__ == "__main__":
     main()
@@ -204,7 +203,7 @@ def main():
     
     # Import training infrastructure
     from training.model_trainer import ModelTrainer
-    from extensions.common.dataset_loader import load_dataset_for_training
+    from extensions.common.utils.dataset_utils import load_dataset_for_training
     
     # Load and prepare datasets
     X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training(
@@ -216,9 +215,9 @@ def main():
     trainer = ModelTrainer(args.output_dir)
     
     for model_type in args.model_types:
-        print(f"Training {model_type}...")
+        print(f"Training {model_type}...")  # Simple logging
         
-        model = trainer.create_model(model_type, input_dim=X_train.shape[1])
+        model = trainer.create(model_type, input_dim=X_train.shape[1])
         
         training_result = trainer.train_model(
             model=model,
@@ -233,7 +232,7 @@ def main():
         evaluation = trainer.evaluate_model(model, X_test, y_test)
         trainer.save_model(model, model_type, training_result, evaluation)
         
-        print(f"{model_type} training completed. Accuracy: {evaluation['accuracy']:.3f}")
+        print(f"{model_type} training completed. Accuracy: {evaluation['accuracy']:.3f}")  # Simple logging
 
 if __name__ == "__main__":
     main()
@@ -265,7 +264,7 @@ def main():
     
     # Import evaluation infrastructure
     from evaluation.model_evaluator import ModelEvaluator
-    from extensions.common.dataset_loader import load_test_dataset
+    from extensions.common.utils.dataset_utils import load_test_dataset
     
     # Load test data
     X_test, y_test = load_test_dataset(args.test_data)
@@ -280,14 +279,14 @@ def main():
     results = {}
     
     for model_file in model_files:
-        print(f"Evaluating {model_file.name}...")
+        print(f"Evaluating {model_file.name}...")  # Simple logging
         
         model = evaluator.load_model(model_file)
         metrics = evaluator.evaluate_comprehensive(model, X_test, y_test)
         
         results[model_file.name] = metrics
-        print(f"  Accuracy: {metrics['accuracy']:.3f}")
-        print(f"  F1-Score: {metrics['f1_score']:.3f}")
+        print(f"  Accuracy: {metrics['accuracy']:.3f}")  # Simple logging
+        print(f"  F1-Score: {metrics['f1_score']:.3f}")  # Simple logging
     
     # Save results
     with open(args.output_dir / "evaluation_results.json", "w") as f:
@@ -356,78 +355,41 @@ class MainTab:
             else:
                 cmd.extend([f"--{key.replace('_', '-')}", str(value)])
         
-        return subprocess.run(
-            cmd, 
-            capture_output=True, 
-            text=True,
-            cwd=script_path.parent.parent.parent  # Project root
-        )
+        return subprocess.run(cmd, capture_output=True, text=True)
 ```
 
-## 📊 **Script Execution Standards**
+## 📋 **Implementation Checklist**
 
-### **Common Argument Patterns**
-All scripts should support these standard arguments:
-```bash
-# Universal arguments
---grid-size 10              # Grid size for algorithms
---output-dir ./results      # Output directory path
---verbose                   # Enable verbose logging
---help                      # Show help message
+### **Required Components**
+- [ ] **main.py**: Primary algorithm execution script
+- [ ] **generate_dataset.py**: Dataset generation (if applicable)
+- [ ] **train.py**: Training script (ML extensions only)
+- [ ] **evaluate.py**: Performance evaluation script
+- [ ] **replay.py**: Game replay functionality
+- [ ] **Path Management**: Proper working directory handling
+- [ ] **Argument Parsing**: Standardized command-line interface
+- [ ] **Error Handling**: Graceful failure recovery
 
-# Algorithm-specific arguments
---algorithm BFS             # Algorithm selection
---max-games 100            # Number of games to run
---visualization            # Enable visualization
+### **Quality Standards**
+- [ ] **Modularity**: Clean separation of concerns
+- [ ] **Reusability**: Scripts work independently and via subprocess
+- [ ] **Error Handling**: Proper error messages and recovery
+- [ ] **Documentation**: Clear docstrings and usage examples
+- [ ] **Testing**: Comprehensive test coverage
 
-# Training-specific arguments  
---epochs 100               # Training epochs
---batch-size 32            # Batch size
---learning-rate 0.001      # Learning rate
-```
-
-### **Error Handling Standards**
-```python
-def main():
-    """Main function with comprehensive error handling"""
-    try:
-        # Script execution logic
-        result = execute_algorithm(args)
-        return result
-        
-    except FileNotFoundError as e:
-        print(f"Error: Required file not found: {e}")
-        sys.exit(1)
-        
-    except ValueError as e:
-        print(f"Error: Invalid parameter value: {e}")
-        sys.exit(1)
-        
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
-```
-
-## 🎯 **Benefits of Script Architecture**
-
-### **For Development**
-- **CLI Accessibility**: All functionality available via command line
-- **Testing Friendly**: Scripts can be tested independently
-- **Debugging**: Easy to debug individual components
-- **Version Control**: Clear separation of UI and logic
-
-### **For Users**
-- **Flexibility**: Choose between CLI and web interface
-- **Automation**: Scripts can be used in batch processing
-- **Reproducibility**: Exact command-line arguments for reproduction
-- **Performance**: No UI overhead for batch operations
-
-### **For Education**
-- **Clear Architecture**: Demonstrates separation of concerns
-- **Modular Design**: Shows how to structure complex systems
-- **Interface Design**: Web and CLI interface patterns
-- **Best Practices**: Error handling and argument parsing
+### **Integration Requirements**
+- [ ] **Streamlit Integration**: Seamless subprocess launching
+- [ ] **Factory Pattern**: Dynamic algorithm selection
+- [ ] **Configuration**: Support for configurable parameters
+- [ ] **Logging**: Simple print statements for debugging
+- [ ] **Data Management**: Safe handling of datasets and models
 
 ---
 
-**The script architecture for v0.03 extensions provides a robust foundation for both interactive and programmatic access to algorithm functionality. By separating core logic into standalone scripts, the architecture maintains flexibility while supporting rich web-based interfaces through Streamlit integration.**
+**Script architecture ensures clean separation between UI and core algorithm implementation, enabling both interactive web interfaces and command-line operation while maintaining educational value and technical excellence.**
+
+## 🔗 **See Also**
+
+- **`app.md`**: Streamlit application architecture
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`standalone.md`**: Standalone principle and extension independence

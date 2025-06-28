@@ -1,5 +1,9 @@
 # Extension Conceptual Clarity Guidelines
 
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines conceptual clarity guidelines for extensions.
+
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
+
 ## 🎯 **Core Philosophy: Visible Conceptual Learning**
 
 Extension-specific concepts in each folder `extensions/algorithm_v0.0N` should remain **highly visible** and **immediately understandable** without requiring deep dives into common utilities. This ensures optimal learning experiences and clear conceptual boundaries.
@@ -48,13 +52,15 @@ class DQNAgent(BaseAgent):
 Move generic utilities to common folder:
 ```python
 # ✅ Generic utilities in common folder
-from extensions.common.dataset_loader import load_training_data
-# SUPREME_RULE NO.3: Simple model saving instead of complex utils
+from extensions.common.utils.dataset_utils import load_training_data
+
+# Simple model saving instead of complex utils
 def save_model_standardized(model, model_path):
     """Simple model saving function"""
-    print(f"Saving model to {model_path}")
+    print(f"Saving model to {model_path}")  # Simple logging
     model.save(model_path)
-from extensions.common.path_utils import get_dataset_path
+
+from extensions.common.utils.path_utils import get_dataset_path
 ```
 
 ## 🎓 **Educational Value Optimization**
@@ -83,7 +89,7 @@ Each extension folder plus the common folder should form a complete, standalone 
 Extensions should only share code through the common folder:
 ```python
 # ✅ CORRECT: Share via common folder
-from extensions.common.validation import validate_model_output
+from extensions.common.utils.validation import validate_model_output
 
 # ❌ FORBIDDEN: Direct extension-to-extension imports
 # from extensions.heuristics_v0_03 import some_utility
@@ -106,4 +112,12 @@ from extensions.common.validation import validate_model_output
 ---
 
 **This approach ensures that the educational value of each extension remains maximized while maintaining clean architecture and eliminating code duplication through appropriate use of shared utilities.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`config.md`**: Configuration management
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation
 

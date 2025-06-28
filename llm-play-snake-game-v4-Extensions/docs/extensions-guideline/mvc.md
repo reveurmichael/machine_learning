@@ -1,3 +1,9 @@
+# MVC Architecture for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines MVC architecture patterns for extensions.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 # MVC Architecture in Snake Game AI Project
 
 This document explains how the Model-View-Controller (MVC) architectural pattern is implemented throughout the Snake Game AI project, providing separation of concerns and extensibility for all tasks (Task-0 through Task-5).

@@ -72,7 +72,7 @@ VERSION_PATTERN: str = "v{major}.{minor:02d}"
 EXTENSION_DIR_PATTERN: str = "{extension_type}-{version}"
 """Pattern for extension directory names (e.g., heuristics-v0.03)."""
 
-# Educational Note (SUPREME_RULE NO.3):
+# Educational Note (final-decision-10.md Guideline 3):
 # We should be able to add new extensions easily and try out new ideas.
 # Therefore, we don't restrict specific extensions or versions - 
 # this encourages experimentation and flexibility in an educational project.

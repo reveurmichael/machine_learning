@@ -1,239 +1,389 @@
 # Vision-Language Models for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows the established architectural patterns from GOOD_RULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines vision-language model patterns for extensions.
 
-## 🎯 **Core Philosophy: Multimodal AI Integration**
+# Vision-Language Models for Snake Game AI
 
-Vision-Language Models (VLMs) represent a cutting-edge approach that combines visual understanding with natural language processing for Snake Game AI. This extension explores multimodal reasoning capabilities while maintaining coherence with the project's architectural standards.
+> **Guidelines Alignment:**
+> - This document is governed by the guidelines in `final-decision-10.md`.
+> - All agent factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
+> - All code must use simple print logging (simple logging).
+> - Reference: `extensions/common/utils/factory_utils.py` for the canonical `SimpleFactory` implementation.
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns
-- **SUPREME_RULE NO.2**: References `final-decision-N.md` format consistently  
-- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements)
+> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`.
 
-## 🏗️ **VLM Extension Architecture**
+## 🎯 **Core Philosophy: Multimodal AI + SUPREME_RULES Compliance**
 
-### **Extension Structure**
-Following `agents.md`, `app.md`, and `dashboard.md` patterns:
-```
-extensions/vision-language-model-v0.02/
-├── agents/
-│   ├── agent_gpt4_vision.py     # GPT-4 Vision integration
-│   ├── agent_llava.py           # Open-source LLaVA model
-│   └── agent_claude_vision.py   # Claude 3 Vision
-├── dashboard/                   # Streamlit UI (v0.03+)
-├── scripts/                     # CLI entry points
-├── visualization/
-│   ├── state_renderer.py       # Game state to image conversion
-│   └── prompt_manager.py       # VLM prompt engineering
-├── game_logic.py               # VLM-specific game logic  
-├── game_manager.py             # Session management
-└── main.py                     # CLI interface
-```
+Vision-Language Models (VLMs) represent a cutting-edge approach that combines visual understanding with natural language processing for Snake Game AI. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements**.
 
-### **Factory Pattern Integration**
-Following `factory-design-pattern.md` standards:
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for multimodal AI integration
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout VLM implementations
+- **simple logging**: Lightweight, OOP-based common utilities with simple logging (print() statements only)
+
+### **Educational Value**
+- **Multimodal Understanding**: Learn how AI interprets visual and textual data simultaneously using canonical patterns
+- **Vision Processing**: Understand visual reasoning following SUPREME_RULES compliance
+- **Advanced AI**: Experience cutting-edge VLM capabilities with simple logging throughout
+- **Pattern Recognition**: Canonical `create()` method enables consistent learning across vision extensions
+
+## 🏗️ **VLM Extension Architecture (SUPREME_RULES Compliant)**
+
+### **Factory Pattern Implementation (CANONICAL create() METHOD)**
+**CRITICAL REQUIREMENT**: All VLM factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md` SUPREME_RULES:
+
 ```python
 class VLMAgentFactory:
     """
-    Factory Pattern for VLM agents following established patterns
+    Factory Pattern for VLM agents following final-decision-10.md SUPREME_RULES
     
-    Educational Note: Demonstrates factory pattern with VLM providers
-    while maintaining consistency with other agent factories
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for multimodal AI agents
+    Educational Value: Shows how SUPREME_RULES apply to advanced AI systems -
+    canonical patterns work regardless of AI complexity.
+    
+    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
     """
     
     _registry = {
-        "gpt4_vision": GPT4VisionAgent,
-        "claude_vision": ClaudeVisionAgent,  
-        "llava": LLaVAAgent,
+        "GPT4_VISION": GPT4VisionAgent,
+        "CLAUDE_VISION": ClaudeVisionAgent,  
+        "LLAVA": LLaVAAgent,
+        "GEMINI_VISION": GeminiVisionAgent,
     }
     
     @classmethod
-    def create_agent(cls, model_type: str, grid_size: int) -> BaseAgent:
-        """Create VLM agent following BaseAgent interface from core.md"""
-        agent_class = cls._registry.get(model_type.lower())
+    def create(cls, model_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
+        """Create VLM agent using canonical create() method following final-decision-10.md"""
+        agent_class = cls._registry.get(model_type.upper())
         if not agent_class:
             available = list(cls._registry.keys())
-            raise ValueError(f"VLM '{model_type}' not available. Available: {available}")
-        return agent_class("VLM_" + model_type.upper(), grid_size)
+            raise ValueError(f"Unknown VLM model: {model_type}. Available: {available}")
+        print(f"[VLMAgentFactory] Creating VLM agent: {model_type}")  # Simple logging - SUPREME_RULES
+        return agent_class(**kwargs)
+
+# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
+class VLMAgentFactory:
+    def create_vlm_agent(self, model_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def build_vision_model(self, model_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def make_multimodal_agent(self, model_type: str):  # FORBIDDEN - not canonical
+        pass
 ```
 
-## 🎮 **Visual State Representation**
+### **Visual Renderer Factory (CANONICAL PATTERN)**
+```python
+class VisionRendererFactory:
+    """
+    Factory for visual rendering strategies following SUPREME_RULES.
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Educational Value: Shows how canonical create() method enables
+    consistent visual processing across different VLM providers.
+    
+    Reference: final-decision-10.md for canonical factory standards
+    """
+    
+    _registry = {
+        "HIGH_CONTRAST": HighContrastRenderer,
+        "DETAILED": DetailedGridRenderer,
+        "MINIMALIST": MinimalistRenderer,
+        "ANNOTATED": AnnotatedRenderer,
+    }
+    
+    @classmethod
+    def create(cls, renderer_type: str, **kwargs):  # CANONICAL create() method
+        """Create visual renderer using canonical create() method (SUPREME_RULES compliance)"""
+        renderer_class = cls._registry.get(renderer_type.upper())
+        if not renderer_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown renderer: {renderer_type}. Available: {available}")
+        print(f"[VisionRendererFactory] Creating renderer: {renderer_type}")  # Simple logging
+        return renderer_class(**kwargs)
+```
 
-### **Data Format Selection**
-Following `data-format-decision-guide.md` principles:
+### **Prompt Strategy Factory (CANONICAL PATTERN)**
+```python
+class VLMPromptFactory:
+    """
+    Factory for VLM prompt strategies following SUPREME_RULES.
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Educational Value: Demonstrates canonical create() method for
+    multimodal prompt engineering across different VLM architectures.
+    
+    Reference: final-decision-10.md SUPREME_RULES for factory implementation
+    """
+    
+    _registry = {
+        "CHAIN_OF_THOUGHT": CoTPromptStrategy,
+        "REACT": ReActPromptStrategy,
+        "DIRECT": DirectPromptStrategy,
+        "GUIDED": GuidedAnalysisPromptStrategy,
+    }
+    
+    @classmethod
+    def create(cls, strategy_type: str, **kwargs):  # CANONICAL create() method
+        """Create prompt strategy using canonical create() method (SUPREME_RULES compliance)"""
+        strategy_class = cls._registry.get(strategy_type.upper())
+        if not strategy_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown prompt strategy: {strategy_type}. Available: {available}")
+        print(f"[VLMPromptFactory] Creating prompt strategy: {strategy_type}")  # Simple logging
+        return strategy_class(**kwargs)
+```
 
-| Format | VLM Compatibility | Use Case |
-|--------|------------------|----------|
-| **Visual Images** | ✅ **Optimal** | Native VLM input format |
-| **CSV (16-feature)** | ❌ No visual reasoning | Traditional ML only |
-| **NPZ Sequential** | ⚠️ Can supplement | Temporal context |
-| **JSONL** | ✅ Good | Prompt-completion pairs |
+## 🎮 **Visual State Representation (Simple Logging)**
 
-### **Game State Visualization**
+### **Game State Renderer (SUPREME_RULES Compliant)**
 ```python
 class GameStateRenderer:
     """
-    Convert game states to VLM-compatible visual formats
+    Convert game states to VLM-compatible visual formats following SUPREME_RULES.
     
-    Design Pattern: Strategy Pattern
-    Purpose: Multiple rendering strategies for different VLM providers
-    SUPREME_RULE NO.3: Simple implementation with print() logging
+    Design Pattern: Strategy Pattern (Canonical Implementation)
+    Purpose: Multiple rendering strategies using canonical factory patterns
+    Educational Value: Shows how simple logging and canonical patterns
+    work together in complex visual processing pipelines.
+    
+    Reference: final-decision-10.md for simple logging standards
     """
     
-    def __init__(self, grid_size: int = 10):
+    def __init__(self, grid_size: int = 10, renderer_type: str = "HIGH_CONTRAST"):
         self.grid_size = grid_size
-        print(f"[GameStateRenderer] Initialized for {grid_size}x{grid_size} grid")
+        self.renderer = VisionRendererFactory.create(renderer_type, grid_size=grid_size)  # Canonical
+        print(f"[GameStateRenderer] Initialized for {grid_size}x{grid_size} grid")  # Simple logging
     
     def render_state_for_vlm(self, game_state: dict) -> bytes:
-        """Create high-quality visual representation"""
+        """Create high-quality visual representation with simple logging"""
+        print(f"[GameStateRenderer] Starting render for step {game_state.get('step', 0)}")  # Simple logging
+        
         # Simple visualization optimized for VLM analysis
-        image_bytes = self._create_clean_visualization(game_state)
-        print(f"[GameStateRenderer] Generated visualization for step {game_state.get('step', 0)}")
+        image_bytes = self.renderer.create_visualization(game_state)
+        
+        print(f"[GameStateRenderer] Generated visualization: {len(image_bytes)} bytes")  # Simple logging
         return image_bytes
+    
+    def create_multiframe_sequence(self, game_states: list) -> bytes:
+        """Create multi-frame visualization for temporal analysis"""
+        print(f"[GameStateRenderer] Creating sequence: {len(game_states)} frames")  # Simple logging
+        
+        sequence_data = self.renderer.create_sequence(game_states)
+        
+        print(f"[GameStateRenderer] Sequence created: {len(sequence_data)} bytes")  # Simple logging
+        return sequence_data
 ```
 
-## 🧠 **VLM Agent Implementation**
+## 🧠 **VLM Agent Implementation (CANONICAL PATTERNS)**
 
-### **Base VLM Agent Pattern**
-Following `agents.md` and `core.md` standards:
+### **Base VLM Agent (SUPREME_RULES Compliant)**
 ```python
 class BaseVLMAgent(BaseAgent):
     """
-    Base class for VLM agents following established patterns
+    Base class for VLM agents following final-decision-10.md SUPREME_RULES.
     
-    Educational Note: Inherits from BaseAgent (core.md) to maintain
-    consistency with all other agent implementations
+    Design Pattern: Template Method Pattern (Canonical Implementation)
+    Educational Value: Inherits from BaseAgent to maintain consistency
+    while adding multimodal capabilities using canonical factory patterns.
+    
+    Reference: final-decision-10.md for canonical agent architecture
     """
     
-    def __init__(self, name: str, grid_size: int):
+    def __init__(self, name: str, grid_size: int, 
+                 renderer_type: str = "HIGH_CONTRAST",
+                 prompt_strategy: str = "CHAIN_OF_THOUGHT"):
         super().__init__(name, grid_size)
-        self.renderer = GameStateRenderer(grid_size)
-        self.prompt_manager = VLMPromptManager()
-        print(f"[{name}] VLM Agent initialized")  # SUPREME_RULE NO.3: Simple logging
+        
+        # Use canonical factory patterns
+        self.renderer = VisionRendererFactory.create(renderer_type, grid_size=grid_size)  # Canonical
+        self.prompt_manager = VLMPromptFactory.create(prompt_strategy)  # Canonical
+        
+        print(f"[{name}] VLM Agent initialized with {renderer_type} renderer")  # Simple logging
     
     def plan_move(self, game_state: dict) -> str:
-        """Plan move using VLM analysis"""
-        # Convert state to visual format
-        image_data = self.renderer.render_state_for_vlm(game_state)
+        """Plan move using VLM analysis with simple logging throughout"""
+        print(f"[{self.name}] Starting VLM analysis")  # Simple logging
         
-        # Generate VLM prompt
+        # Convert state to visual format using canonical patterns
+        image_data = self.renderer.render_state_for_vlm(game_state)
+        print(f"[{self.name}] Visual data prepared")  # Simple logging
+        
+        # Generate VLM prompt using canonical patterns
         prompt = self.prompt_manager.create_analysis_prompt(game_state)
+        print(f"[{self.name}] Prompt generated")  # Simple logging
         
         # Get VLM response
         response = self._query_vlm(image_data, prompt)
+        print(f"[{self.name}] VLM response received")  # Simple logging
         
         # Extract and validate move
-        return self._extract_move(response)
-```
-
-## 🔧 **Configuration and Integration**
-
-### **LLM Constants Access**
-Following `config.md` whitelist rules:
-
-```python
-# ✅ ALLOWED: VLM extensions can access LLM constants
-from config.llm_constants import AVAILABLE_PROVIDERS
-from config.prompt_templates import SYSTEM_PROMPT
-
-# VLM-specific configuration
-VLM_CONFIG = {
-    'image_resolution': (512, 512),
-    'temperature': 0.1,  # Lower for more consistent analysis
-    'max_tokens': 1000,
-}
-```
-
-### **Path Management**
-Following `unified-path-management-guide.md`:
-```python
-from extensions.common.path_utils import ensure_project_root, get_dataset_path
-
-# Standard setup pattern
-project_root = ensure_project_root()
-dataset_path = get_dataset_path(
-    extension_type="vision-language-model",
-    version="0.02",
-    grid_size=grid_size,
-    algorithm="gpt4_vision",
-    timestamp=timestamp
-)
-```
-
-## 📊 **VLM-Specific Features**
-
-### **Multimodal Reasoning**
-- **Visual Analysis**: Direct analysis of game board images
-- **Natural Language**: Human-readable strategy explanations  
-- **Confidence Scoring**: Uncertainty quantification
-- **Strategy Evolution**: Learning from visual patterns
-
-### **Educational Applications**
-- **Explainable AI**: Clear reasoning for all decisions
-- **Strategy Visualization**: Visual explanation of game plans
-- **Comparative Analysis**: VLM vs. traditional AI approaches
-- **Research Platform**: State-of-the-art multimodal AI demonstration
-
-## 🚀 **Usage Examples**
-
-### **Basic VLM Agent**
-```bash
-# CLI usage following scripts.md patterns
-python main.py --algorithm gpt4_vision --grid-size 10 --max-games 5
-python main.py --algorithm llava --visualization --explain-decisions
-```
-
-### **Dashboard Integration**
-Following `app.md` and `dashboard.md` patterns:
-```python
-# Streamlit dashboard integration (v0.03)
-class VLMDashboard(BaseExtensionApp):
-    def get_available_algorithms(self) -> list[str]:
-        return ["gpt4_vision", "claude_vision", "llava"]
+        move = self._extract_move(response)
+        print(f"[{self.name}] VLM decided: {move}")  # Simple logging
+        return move
     
-    def add_extension_controls(self):
-        """VLM-specific controls"""
-        st.subheader("VLM Options")
-        st.session_state.explain_decisions = st.checkbox("Generate Explanations", True)
-        st.session_state.visual_quality = st.selectbox("Visual Quality", ["High", "Medium"])
+    def _query_vlm(self, image_data: bytes, prompt: str) -> str:
+        """Query VLM with image and prompt (override in subclasses)"""
+        raise NotImplementedError("Subclasses must implement VLM querying")
+    
+    def _extract_move(self, response: str) -> str:
+        """Extract move from VLM response with simple validation"""
+        print(f"[{self.name}] Extracting move from response")  # Simple logging
+        
+        # Simple move extraction logic
+        valid_moves = ["UP", "DOWN", "LEFT", "RIGHT"]
+        for move in valid_moves:
+            if move.lower() in response.lower():
+                print(f"[{self.name}] Move extracted: {move}")  # Simple logging
+                return move
+        
+        print(f"[{self.name}] No valid move found, defaulting to UP")  # Simple logging
+        return "UP"
 ```
 
-## 🔮 **Research Directions**
+### **Specific VLM Agent Implementations (CANONICAL PATTERNS)**
+```python
+class GPT4VisionAgent(BaseVLMAgent):
+    """
+    GPT-4 Vision agent following canonical patterns.
+    
+    Educational Value: Shows how canonical factory patterns scale
+    to complex AI systems while maintaining simple logging.
+    """
+    
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size, **kwargs)
+        self.client = self._initialize_openai_client()
+        print(f"[{name}] GPT-4 Vision client initialized")  # Simple logging
+    
+    def _query_vlm(self, image_data: bytes, prompt: str) -> str:
+        """Query GPT-4 Vision with simple logging"""
+        print(f"[{self.name}] Querying GPT-4 Vision")  # Simple logging
+        
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_data}"}}
+                        ]
+                    }
+                ]
+            )
+            result = response.choices[0].message.content
+            print(f"[{self.name}] GPT-4 Vision response received")  # Simple logging
+            return result
+        except Exception as e:
+            print(f"[{self.name}] GPT-4 Vision error: {e}")  # Simple logging
+            return "No response available"
 
-### **Multimodal Capabilities**
-- **Few-Shot Learning**: Quick adaptation to new visual patterns
-- **Chain-of-Thought**: Visual reasoning step-by-step
-- **Cross-Modal Transfer**: Learning from both visual and textual data
-- **Emergent Strategies**: Discovery of novel visual patterns
+class ClaudeVisionAgent(BaseVLMAgent):
+    """
+    Claude Vision agent following canonical patterns.
+    
+    Educational Value: Demonstrates how canonical patterns enable
+    consistent implementation across different VLM providers.
+    """
+    
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size, **kwargs)
+        self.client = self._initialize_anthropic_client()
+        print(f"[{name}] Claude Vision client initialized")  # Simple logging
+    
+    def _query_vlm(self, image_data: bytes, prompt: str) -> str:
+        """Query Claude Vision with simple logging"""
+        print(f"[{self.name}] Querying Claude Vision")  # Simple logging
+        
+        try:
+            response = self.client.messages.create(
+                model="claude-3-opus-20240229",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": image_data}}
+                        ]
+                    }
+                ]
+            )
+            result = response.content[0].text
+            print(f"[{self.name}] Claude Vision response received")  # Simple logging
+            return result
+        except Exception as e:
+            print(f"[{self.name}] Claude Vision error: {e}")  # Simple logging
+            return "No response available"
+```
 
-### **Integration Opportunities**
-- **Heuristics Enhancement**: VLM analysis of pathfinding strategies
-- **Supervised Learning**: VLM-generated training explanations
-- **RL Integration**: Visual reward function understanding
-- **Human-AI Collaboration**: Natural language strategy discussion
+## 📊 **Simple Logging Standards for VLM Operations**
 
-## 🔗 **Integration with GOOD_RULES**
+### **Required Logging Pattern (SUPREME_RULES)**
+All VLM operations MUST use simple print statements as established in `final-decision-10.md`:
 
-This extension follows all established patterns:
-- **`agents.md`**: Agent implementation standards
-- **`config.md`**: Configuration access rules
-- **`core.md`**: Base class inheritance
-- **`coordinate-system.md`**: Universal coordinate system
-- **`data-format-decision-guide.md`**: Format selection criteria
-- **`unified-path-management-guide.md`**: Path management standards
+```python
+# ✅ CORRECT: Simple logging for VLM operations (SUPREME_RULES compliance)
+def process_vlm_request(image_data: bytes, prompt: str):
+    print(f"[VLMProcessor] Processing request: {len(image_data)} bytes image")  # Simple logging
+    response = query_vlm_api(image_data, prompt)
+    print(f"[VLMProcessor] Response received: {len(response)} characters")  # Simple logging
+    return response
 
-## 📋 **Implementation Checklist**
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
+import logging
+logger = logging.getLogger(__name__)
 
-- [ ] **Agent Implementation**: Follow `agents.md` patterns
-- [ ] **Factory Pattern**: Implement VLM agent factory
-- [ ] **Configuration**: Use `config.md` whitelist rules  
-- [ ] **Path Management**: Use common utilities
-- [ ] **Dashboard**: Implement Streamlit interface (v0.03+)
-- [ ] **Logging**: Use simple print() statements (SUPREME_RULE NO.3)
-- [ ] **Testing**: Validate with multiple VLM providers
+def process_vlm_request(image_data: bytes, prompt: str):
+    logger.info(f"Processing VLM request")  # FORBIDDEN - complex logging
+    # This violates final-decision-10.md SUPREME_RULES
+```
+
+## 🎓 **Educational Applications with Canonical Patterns**
+
+### **Multimodal AI Understanding**
+- **Visual Processing**: Understand AI interpretation using canonical `create()` patterns
+- **Language Integration**: Combine vision and language with simple logging throughout
+- **Cross-Modal Learning**: Learn from multiple modalities using canonical factory patterns
+- **State-of-the-Art AI**: Experience cutting-edge VLM with SUPREME_RULES compliance
+
+### **Pattern Consistency**
+- **Factory Patterns**: All VLM components use canonical `create()` method
+- **Simple Logging**: Print statements provide clear operation visibility
+- **Educational Value**: Canonical patterns enable predictable learning across complex AI
+- **SUPREME_RULES**: Advanced AI systems follow same standards as simple heuristics
+
+## 📋 **SUPREME_RULES Implementation Checklist for VLM**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all VLM operations (final-decision-10.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all VLM documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all VLM implementations
+
+### **VLM-Specific Standards**
+- [ ] **Visual Processing**: Canonical factory patterns for all rendering components
+- [ ] **Prompt Engineering**: Canonical factory patterns for all prompt strategies
+- [ ] **Model Integration**: Canonical patterns for all VLM provider integrations
+- [ ] **Error Handling**: Simple logging for all VLM operations and error conditions
+
+### **Educational Integration**
+- [ ] **Clear Examples**: Simple examples using canonical `create()` method for VLM
+- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in multimodal context
+- [ ] **Best Practices**: Demonstration of SUPREME_RULES in advanced AI systems
+- [ ] **Learning Value**: Easy to understand canonical patterns regardless of AI complexity
 
 ---
 
-**Vision-Language Models represent an exciting frontier in Snake Game AI, enabling sophisticated multimodal reasoning while maintaining consistency with the project's established architectural patterns and SUPREME_RULES.**
+**Vision-Language Models represent cutting-edge multimodal AI while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, demonstrating that canonical patterns and simple logging work effectively across all AI complexity levels.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
+- **`core.md`**: Base class architecture following canonical principles
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Canonical factory implementation for all systems
 ```

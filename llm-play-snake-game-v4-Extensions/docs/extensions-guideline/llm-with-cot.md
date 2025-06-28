@@ -1,421 +1,375 @@
 # LLM with Chain-of-Thought Reasoning for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines LLM with Chain-of-Thought reasoning patterns.
+
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Explicit Step-by-Step Reasoning**
 
 Chain-of-Thought (CoT) reasoning represents a breakthrough in LLM capabilities, enabling models to perform complex reasoning tasks by explicitly working through problems step-by-step. In the Snake Game AI context, CoT enables transparent, interpretable decision-making processes that can be analyzed, debugged, and improved.
 
 ### **Design Philosophy**
-- **Transparent Reasoning**: Make every step of the decision process explicit
-- **Improved Accuracy**: Break complex problems into manageable steps
-- **Educational Value**: Demonstrate human-like problem-solving approaches
-- **Debugging Capability**: Enable analysis and improvement of reasoning chains
+- **Transparent Reasoning**: Make every step of the decision process explicit and traceable
+- **Simple Logging**: All components use print() statements only (per `final-decision-10.md`)
+- **Canonical Patterns**: Factory methods use `create()` (never `create_agent()`)
+- **Educational Value**: Demonstrate human-like problem-solving approaches with clear examples
+
+## 🎯 **Factory Pattern Implementation (CANONICAL create() METHOD)**
+**CRITICAL REQUIREMENT**: All CoT LLM factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md SUPREME_RULES:
+
+```python
+class CoTLLMFactory:
+    """
+    Factory Pattern for Chain-of-Thought LLM agents following final-decision-10.md SUPREME_RULES
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for reasoning-based LLM agents
+    Educational Value: Shows how SUPREME_RULES apply to advanced reasoning systems -
+    canonical patterns work regardless of reasoning complexity.
+    
+    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    """
+    
+    _registry = {
+        "STEP_BY_STEP": StepByStepAgent,
+        "REASONING_TREE": ReasoningTreeAgent,
+        "MULTI_STEP": MultiStepAgent,
+        "VERBAL_REASONING": VerbalReasoningAgent,
+    }
+    
+    @classmethod
+    def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
+        """Create CoT LLM agent using canonical create() method following final-decision-10.md"""
+        agent_class = cls._registry.get(agent_type.upper())
+        if not agent_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
+        print(f"[CoTLLMFactory] Creating agent: {agent_type}")  # Simple logging - SUPREME_RULES
+        return agent_class(**kwargs)
+
+# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
+class CoTLLMFactory:
+    def create_cot_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def build_reasoning_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def make_thinking_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
+```
 
 ## 🧠 **Chain-of-Thought Architecture**
 
-### **Core Components**
+### **Core Reasoning Components**
+```python
+# Create CoT agent using canonical factory method
+cot_agent = CoTAgentFactory.create("COT_BASIC", name="ReasoningSnake")  # Canonical create()
+print(f"[CoTArchitecture] Initialized reasoning agent")  # Simple logging
 
-#### **Reasoning Chain Structure**
-- **Problem Analysis**: Break down the current game state
-- **Goal Identification**: Identify immediate and long-term objectives
-- **Option Generation**: Consider available moves and their consequences
-- **Evaluation**: Assess each option against multiple criteria
-- **Decision**: Select the best move with justification
-
-#### **Prompt Engineering Patterns**
-- **Few-Shot Examples**: Provide reasoning exemplars
-- **Template Structures**: Consistent reasoning formats
-- **Scaffolding Questions**: Guide the reasoning process
-- **Verification Steps**: Self-check reasoning validity
+# Reasoning chain structure follows consistent pattern:
+reasoning_steps = [
+    "1. Problem Analysis: Assess current game state",
+    "2. Goal Identification: Determine immediate objectives", 
+    "3. Option Generation: Consider available moves",
+    "4. Evaluation: Assess each option against criteria",
+    "5. Decision: Select best move with justification"
+]
+print(f"[CoTArchitecture] Reasoning chain has {len(reasoning_steps)} steps")  # Simple logging
+```
 
 ### **Advanced CoT Techniques**
 - **Self-Consistency**: Generate multiple reasoning chains and choose most consistent
-- **Tree of Thoughts**: Explore multiple reasoning branches
+- **Tree of Thoughts**: Explore multiple reasoning branches systematically
 - **Iterative Refinement**: Improve reasoning through multiple passes
 - **Meta-Reasoning**: Reason about the reasoning process itself
 
-## 🏗️ **Extension Structure**
-
-### **Directory Layout**
-```
-extensions/llm-with-cot-v0.02/
-├── __init__.py
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_cot_basic.py        # Basic CoT reasoning
-│   ├── agent_cot_selfcheck.py    # Self-verification CoT
-│   ├── agent_cot_tree.py         # Tree of thoughts
-│   └── agent_cot_iterative.py    # Iterative refinement
-├── reasoning/
-│   ├── __init__.py
-│   ├── chain_builder.py          # Construct reasoning chains
-│   ├── prompt_templates.py       # CoT prompt patterns
-│   ├── verification_engine.py    # Verify reasoning validity
-│   └── consistency_checker.py    # Multi-chain consistency
-├── prompts/
-│   ├── __init__.py
-│   ├── basic_cot_prompts.py      # Standard CoT templates
-│   ├── domain_specific_prompts.py # Snake-specific reasoning
-│   ├── verification_prompts.py   # Self-check templates
-│   └── meta_reasoning_prompts.py # Reasoning about reasoning
-├── evaluation/
-│   ├── __init__.py
-│   ├── reasoning_quality.py      # Assess reasoning chains
-│   ├── step_analysis.py          # Analyze individual steps
-│   └── error_categorization.py   # Classify reasoning errors
-├── game_logic.py                # CoT-aware game logic
-├── game_manager.py              # Reasoning chain management
-└── main.py                      # CLI interface
-```
-
 ## 🔧 **Implementation Patterns**
 
-### **Basic Chain-of-Thought Agent**
+### **Core Implementation Components (SUPREME_RULES Compliant)**
+
+### **Base CoT Agent**
 ```python
-class CoTBasicAgent(BaseAgent):
+class BaseCoTAgent(BaseAgent):
     """
-    Basic Chain-of-Thought reasoning agent for Snake Game
+    Base class for Chain-of-Thought LLM agents following final-decision-10.md SUPREME_RULES.
     
-    Design Pattern: Template Method Pattern
-    - Defines standard reasoning workflow
-    - Allows customization of specific reasoning steps
-    - Ensures consistent reasoning structure
+    Design Pattern: Template Method Pattern (Canonical Implementation)
+    Educational Value: Inherits from BaseAgent to maintain consistency
+    while adding reasoning capabilities using canonical factory patterns.
     
-    Educational Value:
-    Demonstrates how breaking down complex decisions into
-    explicit steps can improve both accuracy and interpretability.
+    Reference: final-decision-10.md for canonical agent architecture
     """
     
-    def __init__(self, name: str, grid_size: int):
+    def __init__(self, name: str, grid_size: int, 
+                 reasoning_strategy: str = "STEP_BY_STEP"):
         super().__init__(name, grid_size)
+        
+        self.reasoning_strategy = reasoning_strategy
         self.reasoning_history = []
-        self.prompt_template = CoTPromptTemplate()
+        self.thought_process = []
+        
+        print(f"[{name}] CoT Agent initialized with {reasoning_strategy}")  # Simple logging - SUPREME_RULES
     
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move using Chain-of-Thought reasoning"""
+    def plan_move(self, game_state: dict) -> str:
+        """Plan move using Chain-of-Thought reasoning with simple logging throughout"""
+        print(f"[{self.name}] Starting CoT reasoning process")  # Simple logging
         
-        # 1. Construct reasoning prompt
-        cot_prompt = self._build_reasoning_prompt(game_state)
+        # Generate reasoning steps using canonical patterns
+        reasoning_steps = self._generate_reasoning_steps(game_state)
+        self.reasoning_history.append(reasoning_steps)
         
-        # 2. Generate reasoning chain
-        reasoning_chain = self._generate_reasoning_chain(cot_prompt)
+        # Extract final decision
+        move = self._extract_decision_from_reasoning(reasoning_steps)
         
-        # 3. Extract decision from reasoning
-        move_decision = self._extract_move_from_reasoning(reasoning_chain)
-        
-        # 4. Store reasoning for analysis
-        self.reasoning_history.append({
-            'game_state': game_state,
-            'reasoning_chain': reasoning_chain,
-            'decision': move_decision,
-            'timestamp': datetime.now()
-        })
-        
-        return move_decision
+        print(f"[{self.name}] CoT decided: {move}")  # Simple logging
+        return move
     
-    def _build_reasoning_prompt(self, game_state: Dict[str, Any]) -> str:
-        """Build step-by-step reasoning prompt"""
-        return self.prompt_template.format_cot_prompt(
-            current_state=self._format_game_state(game_state),
-            reasoning_steps=[
-                "1. Analyze current situation:",
-                "2. Identify immediate goals:",
-                "3. Consider available moves:",
-                "4. Evaluate each option:",
-                "5. Select best move and explain why:"
-            ]
-        )
+    def _generate_reasoning_steps(self, game_state: dict) -> list:
+        """Generate reasoning steps (override in subclasses)"""
+        raise NotImplementedError("Subclasses must implement reasoning generation")
     
-    def _generate_reasoning_chain(self, prompt: str) -> str:
-        """Generate explicit reasoning chain"""
-        response = self.llm_interface.generate(
-            prompt=prompt,
-            temperature=0.3,  # Lower temperature for consistent reasoning
-            max_tokens=500
-        )
-        return response
-    
-    def _extract_move_from_reasoning(self, reasoning_chain: str) -> str:
-        """Extract final move decision from reasoning chain"""
-        # Parse reasoning chain to find final decision
-        move_pattern = r"(?:move|choose|select)\s+(UP|DOWN|LEFT|RIGHT)"
-        match = re.search(move_pattern, reasoning_chain, re.IGNORECASE)
+    def _extract_decision_from_reasoning(self, reasoning_steps: list) -> str:
+        """Extract final decision from reasoning steps with simple logging"""
+        print(f"[{self.name}] Extracting decision from {len(reasoning_steps)} reasoning steps")  # Simple logging
         
-        if match:
-            return match.group(1).upper()
-        else:
-            # Fallback parsing or default move
-            return self._fallback_move_extraction(reasoning_chain)
+        # Simple decision extraction logic
+        for step in reversed(reasoning_steps):
+            if "move" in step.lower() or "direction" in step.lower():
+                # Extract move from reasoning step
+                move = self._parse_move_from_text(step)
+                if move:
+                    print(f"[{self.name}] Decision extracted: {move}")  # Simple logging
+                    return move
+        
+        print(f"[{self.name}] No clear decision found, defaulting to UP")  # Simple logging
+        return "UP"
 ```
 
-### **Self-Verification CoT Agent**
+### **Step-by-Step Agent Implementation**
 ```python
-class CoTSelfCheckAgent(CoTBasicAgent):
+class StepByStepAgent(BaseCoTAgent):
     """
-    Chain-of-Thought agent with self-verification capabilities
+    Step-by-step reasoning agent following canonical patterns.
     
-    Design Pattern: Decorator Pattern
-    - Extends basic CoT with verification layer
-    - Can be applied to any CoT reasoning agent
-    - Adds quality control without changing core logic
+    Educational Value: Shows how canonical factory patterns scale
+    to complex reasoning systems while maintaining simple logging.
     """
     
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.verification_template = VerificationPromptTemplate()
-        self.error_correction_enabled = True
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size, reasoning_strategy="STEP_BY_STEP", **kwargs)
+        self.step_counter = 0
+        print(f"[{name}] Step-by-Step reasoning agent ready")  # Simple logging
     
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move with self-verification"""
+    def _generate_reasoning_steps(self, game_state: dict) -> list:
+        """Generate step-by-step reasoning with simple logging"""
+        print(f"[{self.name}] Generating step-by-step reasoning")  # Simple logging
         
-        # 1. Generate initial reasoning chain
-        initial_reasoning = super()._generate_reasoning_chain(
-            self._build_reasoning_prompt(game_state)
-        )
+        self.step_counter += 1
+        reasoning_steps = []
         
-        # 2. Self-verify the reasoning
-        verification_result = self._verify_reasoning(initial_reasoning, game_state)
+        # Step 1: Analyze current position
+        position_analysis = self._analyze_position(game_state)
+        reasoning_steps.append(f"Step {self.step_counter}.1: {position_analysis}")
         
-        # 3. Correct if necessary
-        if not verification_result.is_valid and self.error_correction_enabled:
-            corrected_reasoning = self._correct_reasoning(
-                initial_reasoning, verification_result, game_state
-            )
-            final_reasoning = corrected_reasoning
-        else:
-            final_reasoning = initial_reasoning
+        # Step 2: Identify available moves
+        available_moves = self._identify_available_moves(game_state)
+        reasoning_steps.append(f"Step {self.step_counter}.2: {available_moves}")
         
-        # 4. Extract and return decision
-        move_decision = self._extract_move_from_reasoning(final_reasoning)
+        # Step 3: Evaluate each move
+        move_evaluation = self._evaluate_moves(game_state, available_moves)
+        reasoning_steps.append(f"Step {self.step_counter}.3: {move_evaluation}")
         
-        # 5. Store extended reasoning history
-        self.reasoning_history.append({
-            'game_state': game_state,
-            'initial_reasoning': initial_reasoning,
-            'verification_result': verification_result,
-            'final_reasoning': final_reasoning,
-            'decision': move_decision,
-            'self_corrected': verification_result.is_valid != True
-        })
+        # Step 4: Select best move
+        best_move = self._select_best_move(move_evaluation)
+        reasoning_steps.append(f"Step {self.step_counter}.4: Best move is {best_move}")
         
-        return move_decision
-    
-    def _verify_reasoning(self, reasoning_chain: str, game_state: Dict[str, Any]) -> VerificationResult:
-        """Verify the quality and validity of reasoning chain"""
-        
-        verification_prompt = self.verification_template.format_verification_prompt(
-            reasoning_chain=reasoning_chain,
-            game_state=self._format_game_state(game_state),
-            check_criteria=[
-                "Is the situation analysis accurate?",
-                "Are all viable moves considered?",
-                "Is the evaluation logic sound?",
-                "Does the conclusion follow from the analysis?",
-                "Are there any logical inconsistencies?"
-            ]
-        )
-        
-        verification_response = self.llm_interface.generate(
-            prompt=verification_prompt,
-            temperature=0.1  # Very low temperature for verification
-        )
-        
-        return self._parse_verification_result(verification_response)
+        print(f"[{self.name}] Generated {len(reasoning_steps)} reasoning steps")  # Simple logging
+        return reasoning_steps
 ```
 
-## 🚀 **Advanced CoT Techniques**
-
-### **Tree of Thoughts Implementation**
+### **Reasoning Tree Agent Implementation**
 ```python
-class CoTTreeAgent(BaseAgent):
+class ReasoningTreeAgent(BaseCoTAgent):
     """
-    Tree of Thoughts agent exploring multiple reasoning branches
+    Tree-based reasoning agent following canonical patterns.
     
-    Design Pattern: Strategy Pattern + Composite Pattern
-    - Multiple reasoning strategies can be employed
-    - Tree structure represents different reasoning paths
-    - Best path selected through evaluation
+    Educational Value: Demonstrates how canonical patterns enable
+    consistent implementation across different reasoning architectures.
     """
     
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.max_branches = 3
-        self.max_depth = 2
-        self.evaluation_criteria = ['safety', 'progress', 'efficiency']
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size, reasoning_strategy="REASONING_TREE", **kwargs)
+        self.tree_depth = 3
+        print(f"[{name}] Reasoning Tree agent initialized with depth {self.tree_depth}")  # Simple logging
     
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move using Tree of Thoughts"""
+    def _generate_reasoning_steps(self, game_state: dict) -> list:
+        """Generate tree-based reasoning with simple logging"""
+        print(f"[{self.name}] Building reasoning tree")  # Simple logging
         
-        # 1. Generate multiple initial reasoning branches
-        root_branches = self._generate_initial_branches(game_state)
+        reasoning_tree = self._build_reasoning_tree(game_state, depth=self.tree_depth)
+        reasoning_steps = self._flatten_tree_to_steps(reasoning_tree)
         
-        # 2. Expand promising branches
-        expanded_tree = self._expand_reasoning_tree(root_branches, game_state)
-        
-        # 3. Evaluate all complete reasoning paths
-        path_evaluations = self._evaluate_reasoning_paths(expanded_tree, game_state)
-        
-        # 4. Select best reasoning path
-        best_path = self._select_best_path(path_evaluations)
-        
-        # 5. Extract decision from best path
-        move_decision = self._extract_move_from_path(best_path)
-        
-        return move_decision
+        print(f"[{self.name}] Tree built with {len(reasoning_steps)} reasoning steps")  # Simple logging
+        return reasoning_steps
     
-    def _generate_initial_branches(self, game_state: Dict[str, Any]) -> List[ReasoningBranch]:
-        """Generate multiple initial reasoning approaches"""
-        branches = []
+    def _build_reasoning_tree(self, game_state: dict, depth: int) -> dict:
+        """Build reasoning tree structure with simple logging"""
+        print(f"[{self.name}] Building tree at depth {depth}")  # Simple logging
         
-        reasoning_approaches = [
-            "safety_first",    # Prioritize avoiding collisions
-            "goal_oriented",   # Focus on reaching apple
-            "exploration"      # Consider long-term positioning
-        ]
+        if depth == 0:
+            return {"type": "leaf", "analysis": "Reached maximum depth"}
         
-        for approach in reasoning_approaches:
-            branch_prompt = self._build_approach_specific_prompt(game_state, approach)
-            reasoning = self.llm_interface.generate(branch_prompt)
-            
-            branches.append(ReasoningBranch(
-                approach=approach,
-                reasoning=reasoning,
-                depth=0,
-                parent=None
-            ))
+        # Build tree structure
+        tree = {
+            "type": "node",
+            "analysis": self._analyze_current_state(game_state),
+            "children": []
+        }
         
-        return branches
+        # Add child nodes for each possible move
+        for move in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            child_state = self._simulate_move(game_state, move)
+            child_tree = self._build_reasoning_tree(child_state, depth - 1)
+            tree["children"].append({"move": move, "tree": child_tree})
+        
+        return tree
 ```
 
-### **Self-Consistency CoT**
+## 🚀 **Advanced Capabilities**
+
+### **Multi-Agent CoT Integration**
 ```python
-class CoTSelfConsistencyAgent(BaseAgent):
-    """
-    Self-consistency CoT generating multiple reasoning chains
-    and selecting the most consistent answer
-    """
-    
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.num_chains = 5
-        self.consistency_threshold = 0.6
-    
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move using self-consistency approach"""
-        
-        # 1. Generate multiple reasoning chains
-        reasoning_chains = []
-        for i in range(self.num_chains):
-            chain = self._generate_reasoning_chain(game_state, temperature=0.7)
-            move = self._extract_move_from_reasoning(chain)
-            reasoning_chains.append({
-                'chain': chain,
-                'move': move,
-                'chain_id': i
-            })
-        
-        # 2. Analyze consistency across chains
-        consistency_analysis = self._analyze_consistency(reasoning_chains)
-        
-        # 3. Select most consistent answer
-        if consistency_analysis.max_agreement >= self.consistency_threshold:
-            return consistency_analysis.consensus_move
-        else:
-            # Generate additional chain with explicit consistency prompt
-            return self._resolve_inconsistency(reasoning_chains, game_state)
+# Create multiple CoT agents using canonical factory method
+basic_agent = CoTAgentFactory.create("COT_BASIC")  # Canonical create()
+selfcheck_agent = CoTAgentFactory.create("COT_SELFCHECK")  # Canonical create()
+tree_agent = CoTAgentFactory.create("COT_TREE")  # Canonical create()
+
+print(f"[CoTIntegration] Created {3} different CoT agents")  # Simple logging
+
+# Compare reasoning approaches
+results = {}
+for agent_name, agent in [("basic", basic_agent), ("selfcheck", selfcheck_agent), ("tree", tree_agent)]:
+    decision = agent.plan_move(game_state)
+    results[agent_name] = decision
+    print(f"[CoTIntegration] {agent_name} decided: {decision}")  # Simple logging
 ```
 
-## 🎓 **Educational Applications**
-
-### **Reasoning Quality Analysis**
-- **Step-by-Step Evaluation**: Assess quality of each reasoning step
-- **Logic Validation**: Check for logical consistency and soundness
-- **Common Error Patterns**: Identify frequent reasoning mistakes
-- **Improvement Strategies**: Develop better reasoning prompts
-
-### **Comparative Studies**
-- **CoT vs Direct**: Compare reasoning vs direct answer approaches
-- **Different CoT Styles**: Compare various CoT prompting techniques
-- **Human vs AI Reasoning**: Analyze similarities and differences
-- **Domain Transfer**: Study how CoT transfers across different problems
-
-## 🔗 **Integration with Other Extensions**
-
-### **With Heuristics Extensions**
-- Use heuristic insights to guide reasoning steps
-- Compare CoT decisions with algorithmic solutions
-- Hybrid approaches combining both methods
-
-### **With Fine-tuning Extensions**
-- Fine-tune models specifically for CoT reasoning
-- Train on high-quality reasoning chains
-- Improve domain-specific reasoning patterns
-
-### **With Agentic LLMs**
-- Combine CoT with tool use and multi-step planning
-- Use reasoning chains to guide tool selection
-- Enable transparent agentic decision-making
-
-## 📊 **Configuration and Usage**
-
-### **Basic CoT Configuration**
-```bash
-# Basic Chain-of-Thought reasoning
-python main.py --algorithm COT_BASIC --grid-size 10 --max-games 5
-
-# Self-verification CoT
-python main.py --algorithm COT_SELFCHECK --grid-size 10 --verification-enabled
-
-# Tree of Thoughts exploration
-python main.py --algorithm COT_TREE --grid-size 10 --max-branches 3 --max-depth 2
-
-# Self-consistency CoT
-python main.py --algorithm COT_CONSISTENCY --grid-size 10 --num-chains 5
-```
-
-### **Advanced Configuration**
+### **Reasoning Quality Assessment**
 ```python
-COT_CONFIG = {
-    'reasoning': {
-        'max_steps': 10,
-        'step_verification': True,
-        'reasoning_temperature': 0.3,
-        'verification_temperature': 0.1
-    },
-    'self_consistency': {
-        'num_chains': 5,
-        'consistency_threshold': 0.6,
-        'disagreement_resolution': 'additional_chain'
-    },
-    'tree_of_thoughts': {
-        'max_branches': 3,
-        'max_depth': 2,
-        'branch_evaluation_criteria': ['safety', 'progress', 'efficiency']
-    }
-}
+class CoTReasoningEvaluator:
+    """
+    Evaluator for assessing quality of Chain-of-Thought reasoning
+    
+    Simple logging: All evaluation uses print() statements only
+    """
+    
+    def evaluate_reasoning_quality(self, reasoning_chain: str) -> float:
+        """Assess overall quality of reasoning chain"""
+        coherence_score = self._assess_coherence(reasoning_chain)
+        completeness_score = self._assess_completeness(reasoning_chain)
+        logic_score = self._assess_logic(reasoning_chain)
+        
+        overall_score = (coherence_score + completeness_score + logic_score) / 3
+        print(f"[CoTEvaluator] Reasoning quality score: {overall_score}")  # Simple logging
+        return overall_score
+    
+    def analyze_reasoning_patterns(self, reasoning_history: list):
+        """Analyze patterns in reasoning chains over time"""
+        print(f"[CoTEvaluator] Analyzing {len(reasoning_history)} reasoning chains")  # Simple logging
+        patterns = self._extract_patterns(reasoning_history)
+        print(f"[CoTEvaluator] Found {len(patterns)} reasoning patterns")  # Simple logging
+        return patterns
 ```
 
-## 🔮 **Future Directions**
+## 📊 **Integration with Extensions**
 
-### **Advanced Reasoning Techniques**
-- **Multi-Modal CoT**: Reasoning with visual game state representation
-- **Interactive CoT**: Human-AI collaborative reasoning
-- **Adaptive CoT**: Reasoning complexity based on situation difficulty
-- **Meta-CoT**: Learning to reason about reasoning strategies
+### **With Heuristics**
+```python
+# Compare CoT reasoning with heuristic algorithms
+heuristic_agent = HeuristicFactory.create("BFS")  # Canonical create()
+cot_agent = CoTAgentFactory.create("COT_BASIC")  # Canonical create()
 
-### **Integration and Enhancement**
-- **Tool-Augmented CoT**: Reasoning with external tools and APIs
-- **Memory-Enhanced CoT**: Persistent reasoning patterns across games
-- **Collaborative CoT**: Multiple agents reasoning together
-- **Curriculum CoT**: Progressive reasoning skill development
+heuristic_move = heuristic_agent.plan_move(game_state)
+cot_move = cot_agent.plan_move(game_state)
 
-### **Evaluation and Analysis**
-- **Reasoning Visualization**: Visual representation of thought processes
-- **Error Analysis**: Systematic categorization of reasoning failures
-- **Human Alignment**: How well CoT matches human reasoning
-- **Transferability**: How reasoning patterns transfer across domains
+print(f"[Integration] Heuristic: {heuristic_move}, CoT: {cot_move}")  # Simple logging
+```
+
+### **With Supervised Learning**
+```python
+# Train models to predict reasoning quality
+quality_predictor = SupervisedFactory.create("REASONING_QUALITY_PREDICTOR")  # Canonical create()
+predicted_quality = quality_predictor.predict(reasoning_chain)
+print(f"[Integration] Predicted reasoning quality: {predicted_quality}")  # Simple logging
+```
+
+## 🎓 **Educational Value**
+
+### **Learning Objectives**
+- **Transparent AI**: Understanding how AI systems can show their reasoning process
+- **Problem Decomposition**: Learning to break complex problems into manageable steps
+- **Reasoning Quality**: Assessing the quality and validity of reasoning chains
+- **Simple Logging**: All examples demonstrate print()-based logging patterns
+
+### **Research Applications**
+- **Reasoning Analysis**: Study how different CoT approaches affect performance
+- **Error Detection**: Identify common reasoning failures and their causes
+- **Reasoning Transfer**: Apply successful reasoning patterns to new problems
+
+## 📊 **Performance Monitoring**
+
+### **Reasoning Metrics**
+```python
+class CoTMetrics:
+    """
+    Metrics collection for Chain-of-Thought reasoning performance
+    
+    Simple logging: All metrics use print() statements only
+    """
+    
+    def track_reasoning_time(self, agent, game_state):
+        """Track time spent on reasoning process"""
+        start_time = time.time()
+        decision = agent.plan_move(game_state)
+        reasoning_time = time.time() - start_time
+        print(f"[CoTMetrics] Reasoning completed in {reasoning_time:.2f} seconds")  # Simple logging
+        return reasoning_time, decision
+    
+    def measure_reasoning_depth(self, reasoning_chain: str) -> int:
+        """Measure depth of reasoning chain"""
+        steps = reasoning_chain.count("Step")
+        print(f"[CoTMetrics] Reasoning depth: {steps} steps")  # Simple logging
+        return steps
+```
+
+## 📋 **SUPREME_RULES Implementation Checklist for Chain-of-Thought LLMs**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all CoT operations (final-decision-10.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all CoT documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all CoT implementations
+
+### **CoT-Specific Standards**
+- [ ] **Reasoning Systems**: Canonical factory patterns for all reasoning components
+- [ ] **Step Generation**: Canonical factory patterns for all reasoning step types
+- [ ] **Decision Extraction**: Canonical patterns for all decision extraction systems
+- [ ] **Verification Systems**: Simple logging for all reasoning verification operations
+
+### **Educational Integration**
+- [ ] **Clear Examples**: Simple examples using canonical `create()` method for CoT systems
+- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in reasoning context
+- [ ] **Best Practices**: Demonstration of SUPREME_RULES in advanced reasoning systems
+- [ ] **Learning Value**: Easy to understand canonical patterns regardless of reasoning complexity
 
 ---
 
-**Chain-of-Thought reasoning represents a fundamental advance in making AI decision-making transparent and interpretable. By explicitly working through problems step-by-step, CoT enables better understanding, debugging, and improvement of AI reasoning processes while maintaining high performance in complex decision-making tasks.**
+**Chain-of-Thought LLMs represent advanced reasoning capabilities while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
+- **`core.md`**: Base class architecture following canonical principles
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Canonical factory implementation for all systems

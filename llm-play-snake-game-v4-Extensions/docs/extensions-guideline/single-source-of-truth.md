@@ -4,10 +4,10 @@
 
 ## 🎯 **Core Philosophy: One Truth, One Place**
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making architectural changes to ensure SSOT compliance
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout architectural references
-- **SUPREME_RULE NO.3**: Promotes lightweight common utilities with simple logging (print() statements) to maintain SSOT for logging patterns
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making architectural changes to ensure SSOT compliance
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout architectural references
+- **simple logging**: Promotes lightweight common utilities with simple logging (print() statements) to maintain SSOT for logging patterns
 
 The Single Source of Truth (SSOT) principle ensures that every piece of information has exactly one authoritative location. This eliminates contradictions, reduces maintenance burden, and ensures consistency across the entire Snake Game AI ecosystem.
 

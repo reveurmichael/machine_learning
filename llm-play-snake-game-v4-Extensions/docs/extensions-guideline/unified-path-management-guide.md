@@ -1,3 +1,9 @@
+# Unified Path Management Guide for Snake Game AI
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines unified path management patterns.
+
+> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 # Unified Path Management Guide
 
 > **Authoritative Reference**: This document serves as a **GOOD_RULES** authoritative reference for path management standards and establishes the definitive path management standards for all Snake Game AI extensions, following final-decision-6.md.
@@ -6,10 +12,10 @@
 
 All extensions **MUST** use standardized path utilities from `extensions/common/path_utils.py` to ensure reliable cross-platform operation and eliminate path-related bugs.
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making path management architectural changes to ensure comprehensive understanding
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and path management patterns
-- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining path management patterns through inheritance rather than tight coupling
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making path management architectural changes to ensure comprehensive understanding
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and path management patterns
+- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining path management patterns through inheritance rather than tight coupling
 
 ## 🛠️ **Mandatory Path Management Pattern**
 

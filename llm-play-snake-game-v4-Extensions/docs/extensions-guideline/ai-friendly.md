@@ -1,44 +1,12 @@
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). When conflicts arise, prefer the Final Decision documents.
-
 # AI-Friendly Development Guidelines
 
-This document outlines how the Snake Game AI project is designed to be AI development assistant-friendly, making it easier for AI tools to understand, navigate, and contribute to the codebase.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines AI-friendly development guidelines.
+
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
 The codebase follows principles that make it highly readable and navigable for AI development assistants:
-
-### **1. Self-Documenting Code Structure**
-- **Meaningful file names**: `game_controller.py`, `agent_bfs.py`, `replay_engine.py`
-- **Clear directory hierarchy**: `core/`, `extensions/`, `gui/`, `web/`
-- **Consistent naming patterns**: All core files use `game_*.py` pattern
-- **Descriptive class names**: `BaseGameManager`, `HeuristicGameLogic`
-
-### **2. Comprehensive Documentation Strategy**
-```python
-# Every class includes purpose and usage examples
-class ConsecutiveLimitsManager:
-    """
-    Centralizes tracking and enforcement of consecutive move limits in Snake game.
-    
-    Design Patterns Used:
-    - Facade Pattern: Provides simple interface to complex limit tracking
-    - Strategy Pattern: Pluggable enforcement policies
-    - Template Method Pattern: Consistent move processing workflow
-    
-    Usage:
-        manager = create_limits_manager(args)
-        status = manager.check_and_update(LimitType.EMPTY_MOVES)
-        if status.limit_exceeded:
-            handle_limit_exceeded()
-    """
-```
-
-### **3. Architecture Documentation**
-- **Base class hierarchies clearly documented**
-- **Design patterns explicitly named and explained**
-- **Inheritance relationships with UML-style comments**
-- **Extension points clearly marked**
 
 ## 🔍 **Navigation Aids for AI Assistants**
 
@@ -63,7 +31,7 @@ ROOT/
 # Clear, hierarchical imports
 from core.game_manager import BaseGameManager
 from config.game_constants import VALID_MOVES, DIRECTIONS
-from extensions.common.dataset_loader import load_dataset_for_training
+from extensions.common.utils.factory_utils import SimpleFactory
 ```
 
 ### **Design Pattern Documentation**
@@ -80,7 +48,7 @@ class GameAgentFactory:
     - Centralized agent creation logic
     
     Usage:
-        agent = GameAgentFactory.create_agent("BFS", config)
+        agent = GameAgentFactory.create("BFS", config)  # Canonical create() method
     """
 ```
 
@@ -191,8 +159,7 @@ class GameStateAdapter:
 All constants in `config/` directory with clear names:
 - `game_constants.py` - Core game rules
 - `ui_constants.py` - Display and interface settings
-- `llm_constants.py` - LLM-specific configurations
-
+- `llm_constants.py` - LLM-specific configurations (whitelisted extensions only)
 
 ## 🔧 **Tools and Utilities for AI Assistance**
 
@@ -222,66 +189,63 @@ All constants in `config/` directory with clear names:
 - **Inline comments**: Implementation-specific details
 - **Docstrings**: API documentation
 
-### **2. Extension Guidelines**
-Comprehensive guides for each extension type:
-- `extensions-v0.01.md` - Foundation patterns
-- `extensions-v0.02.md` - Multi-algorithm expansion
-- `extensions-v0.03.md` - Web interface integration
-- `extensions-v0.04.md` - Language-rich datasets
+### **2. Cross-Reference System**
+- Each document references related documents
+- Clear navigation paths between concepts
+- Consistent terminology across all docs
 
-### **3. Architecture Documentation**
-- `core.md` - Base class architecture
-- `mvc.md` - Model-View-Controller patterns
-- `coordinate-system.md` - Consistent coordinate handling
+### **3. Code Examples**
+- Every concept illustrated with working code
+- Complete, runnable examples
+- Progressive complexity from simple to advanced
 
-## 🎯 **Best Practices for AI-Friendly Code**
+## 🎯 **AI-Friendly Design Principles**
 
 ### **1. Explicit Over Implicit**
-```python
-# ✅ Explicit and clear
-class HeuristicGameManager(BaseGameManager):
-    """Manages heuristic-based Snake gameplay using pathfinding algorithms"""
-    GAME_LOGIC_CLS = HeuristicGameLogic  # Clear factory pattern
+- Clear naming conventions
+- Explicit type hints
+- Obvious control flow
 
-# ❌ Implicit and unclear
-class Manager(Base):
-    logic = Logic()
-```
+### **2. Consistency Over Cleverness**
+- Predictable patterns
+- Standard library usage
+- Familiar idioms
 
-### **2. Rich Context in Comments**
-```python
-# ✅ Provides context and reasoning
-def calculate_path(self, start: Position, goal: Position) -> List[Direction]:
-    """
-    Calculate optimal path using A* algorithm.
-    
-    The heuristic function uses Manhattan distance which is admissible
-    for our grid-based movement system where diagonal moves are not allowed.
-    
-    Args:
-        start: Current snake head position
-        goal: Apple position to reach
-        
-    Returns:
-        List of directions forming optimal path, or empty list if no path exists
-        
-    Design Note:
-        Uses A* instead of Dijkstra because we have a good heuristic (Manhattan
-        distance) that significantly reduces search space.
-    """
-```
+### **3. Documentation Over Code**
+- Rich docstrings
+- Clear comments
+- Architecture explanations
 
+### **4. Simplicity Over Complexity**
+- Single responsibility principle
+- Clear interfaces
+- Minimal dependencies
 
+## 🔍 **AI Assistant Workflow Optimization**
 
-## 📋 **AI Assistant Checklist**
+### **1. Context Preservation**
+- Clear file organization
+- Consistent import patterns
+- Explicit dependencies
 
-When working with this codebase, AI assistants can quickly orient by checking:
+### **2. Error Handling**
+- Clear error messages
+- Graceful degradation
+- Helpful debugging information
 
-- [ ] **File purpose**: Check docstring at top of file
-- [ ] **Class responsibility**: Read class docstring for design patterns
-- [ ] **Extension points**: Look for `# 🔌 EXTENSION POINT:` comments
-- [ ] **Related documentation**: Check `docs/` for detailed guides
-- [ ] **Configuration**: Check `config/` for relevant constants
-- [ ] **Examples**: Look in `extensions/` for usage patterns
+### **3. Testing Support**
+- Clear test structure
+- Comprehensive coverage
+- Easy test execution
 
-This structure ensures that AI development assistants can quickly understand the codebase architecture, locate relevant files, and contribute effectively to the project.
+---
+
+**These AI-friendly development guidelines ensure that the codebase remains accessible, understandable, and maintainable for both human developers and AI development assistants. The focus on explicit patterns, comprehensive documentation, and consistent structure makes the project an excellent learning resource and development platform.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`config.md`**: Configuration management
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`factory-design-pattern.md`**: Factory pattern implementation

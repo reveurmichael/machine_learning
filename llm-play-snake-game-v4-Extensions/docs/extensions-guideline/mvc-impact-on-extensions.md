@@ -1,3 +1,9 @@
+# MVC Framework Impact on Extensions
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines MVC framework impact on extensions.
+
+> **See also:** `mvc.md`, `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+
 # MVC Framework Impact on Task 1-5 Extensions
 
 ## Overview

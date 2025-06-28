@@ -1,66 +1,8 @@
-# Standalone Extension Architecture for Snake Game AI
+# Standalone Principle for Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone architecture standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone principles and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
-This document provides comprehensive guidelines for implementing the standalone principle across all extensions in the Snake Game AI project, ensuring modularity, independence, and clear conceptual boundaries.
-
-## 🎯 **Core Standalone Principle**
-
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making standalone architecture changes to ensure comprehensive understanding
-- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
-- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining standalone principle through inheritance rather than tight coupling
-
-The standalone principle is fundamental to the Snake Game AI extension architecture:
-
-### **Definition of Standalone**
-- **Extension + Common = Standalone**: Each extension (`{algorithm}-v0.0N`) combined with the `common/` folder forms a completely self-contained unit
-- **No Cross-Extension Dependencies**: Extensions cannot import from other extensions
-- **Conceptual Clarity**: Each extension represents a distinct AI approach (heuristics, RL, supervised learning, etc.)
-- **Version Independence**: Different versions of the same extension are completely independent, with the important exception that agents/ folders should be copied exactly between v0.02 → v0.03 to maintain algorithmic stability and ensure consistent interfaces.
-
-### **Why Standalone Architecture?**
-- **Educational Clarity**: Each extension showcases a specific AI concept without confusion
-- **Maintenance Simplicity**: Changes to one extension don't break others
-- **Deployment Flexibility**: Extensions can be deployed independently
-- **Learning Progression**: Students can study extensions in isolation
-- **Research Isolation**: Experimental features remain contained
-
-### **SUPREME_RULE NO.3: OOP Extensibility in Common Utilities**
-
-**SUPREME_RULE NO.3**: The `extensions/common/` folder is lightweight, generic, and object-oriented so that exceptional extensions can subclass the basics without altering shared code.
-
-**Key Benefits for Standalone Architecture:**
-- **Standard Usage**: Most extensions use common utilities as-is, maintaining simplicity
-- **Specialized Customization**: Extensions with exceptional needs can inherit and customize
-- **No Cross-Dependencies**: Inheritance from common utilities maintains standalone principle
-- **Future-Proof Design**: New extension types can leverage existing utilities with customization
-
-**Example - Standalone Extension with Customization:**
-```python
-# extensions/quantum-algorithms-v0.01/quantum_loader.py
-from extensions.common.dataset_loader import BaseDatasetLoader
-
-class QuantumDatasetLoader(BaseDatasetLoader):
-    """
-    Specialized loader for quantum algorithms - still maintains standalone principle.
-    This extension + common = standalone unit, even with customization.
-    """
-    
-    def _initialize_loader_specific_settings(self):
-        # Quantum-specific initialization
-        self.quantum_validator = QuantumValidator()
-    
-    def _generate_extension_specific_metadata(self, data, file_path):
-        # Add quantum-specific metadata
-        return {"quantum_coherence": self._measure_coherence(data)}
-
-# The extension remains standalone: quantum-algorithms-v0.01 + common = complete unit
-```
-
-> **Important — Authoritative Reference:** This guide is **supplementary** to the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). **If any statement here conflicts with a Final Decision document, the latter always prevails.**
-
-# The Standalone Principle
+> **See also:** `core.md`, `project-structure-plan.md`, `final-decision-10.md`, `config.md`.
 
 ## 🎯 **Core Philosophy: The Golden Rule of Modularity**
 
@@ -207,13 +149,13 @@ from core.game_data import BaseGameData
 from extensions.common.config import get_grid_size_config
 from extensions.common.dataset_loader import load_csv_dataset
 from extensions.common.csv_schema import generate_csv_schema
-# SUPREME_RULE NO.3: Simple validation instead of complex utils
+
+# Simple validation instead of complex utils
 def validate_game_state(state):
     """Simple validation function"""
     if not state or 'snake_positions' not in state:
         raise ValueError("Invalid game state")
     return True
-
 ```
 
 ## 📁 **Common Folder Design**
@@ -263,19 +205,19 @@ class HeuristicGameManager(BaseGameManager):
     """
     
     def __init__(self, algorithm: str, grid_size: int):
-        # Validate using common utilities (SUPREME_RULE NO.3: simple validation)
+        # Validate using common utilities
         if grid_size < 5 or grid_size > 50:
             raise ValueError(f"Invalid grid size: {grid_size}")
         
         super().__init__(grid_size=grid_size)
         
-        # Simple logging following SUPREME_RULE NO.3
+        # Simple logging
         print(f"[HeuristicGameManager] Initializing with algorithm: {algorithm}, grid: {grid_size}x{grid_size}")
         
         # Create agent using extension-specific factory
-        self.agent = self._create_agent(algorithm)
+        self.agent = self.create(algorithm)
     
-    def _create_agent(self, algorithm: str):
+    def create(self, algorithm: str):
         """Create agent using extension-specific factory"""
         agents = {
             'BFS': BFSAgent,
@@ -296,13 +238,14 @@ class HeuristicGameManager(BaseGameManager):
         # Convert to standard CSV format using common utilities
         csv_data = CSVSchemaManager.convert_to_standard_format(game_data)
         
-        # Save to standard location using simple path construction (SUPREME_RULE NO.3)
+        # Save to standard location using simple path construction
         base_path = "logs/extensions/datasets"
         output_path = f"{base_path}/grid-size-{self.grid_size}/heuristics_v0.03_{timestamp}"
         
         csv_file = f"{output_path}/tabular_{self.agent.name.lower()}_data.csv"
         csv_data.to_csv(csv_file, index=False)
         
+        print(f"[HeuristicGameManager] Dataset saved to: {csv_file}")  # Simple logging
         return csv_file
 ```
 
@@ -321,7 +264,7 @@ from core.game_manager import BaseGameManager
 # ✅ Common utilities imports (allowed)
 from extensions.common.dataset_loader import DatasetLoader
 
-# ✅ Extension-specific constants (SUPREME_RULE NO.3: define locally)
+# ✅ Extension-specific constants
 DEFAULT_BATCH_SIZE = 32
 DEFAULT_EPOCHS = 100
 VALID_MODEL_TYPES = ["MLP", "CNN", "XGBOOST", "LIGHTGBM"]
@@ -340,7 +283,7 @@ class SupervisedGameManager(BaseGameManager):
     """
     
     def __init__(self, model_type: str, grid_size: int):
-        # Simple validation (SUPREME_RULE NO.3: lightweight, no over-engineering)
+        # Simple validation
         if model_type not in VALID_MODEL_TYPES:
             raise ValueError(f"Invalid model type: {model_type}. Supported: {VALID_MODEL_TYPES}")
         if grid_size < 5 or grid_size > 50:
@@ -348,12 +291,12 @@ class SupervisedGameManager(BaseGameManager):
         
         super().__init__(grid_size=grid_size)
         
-        # Simple logging following SUPREME_RULE NO.3
+        # Simple logging
         print(f"[SupervisedGameManager] Initializing {model_type} model for {grid_size}x{grid_size} grid")
         
         # Load training data using common utilities
         self.dataset_loader = DatasetLoader(grid_size)
-        self.model = self._create_model(model_type)
+        self.model = self.create(model_type)
     
     def train_model(self, algorithms: List[str] = None):
         """Train model using datasets from heuristic extensions"""
@@ -367,11 +310,12 @@ class SupervisedGameManager(BaseGameManager):
         # Train using extension-specific logic
         self.model.train(X, y)
         
-        # Save model to standard location using simple path construction (SUPREME_RULE NO.3)
+        # Save model to standard location using simple path construction
         base_path = "logs/extensions/models"
         model_path = f"{base_path}/grid-size-{self.grid_size}/supervised_v0.03_{timestamp}"
         
         self.model.save(f"{model_path}/{self.model.name}_model.pkl")
+        print(f"[SupervisedGameManager] Model saved to: {model_path}")  # Simple logging
 ```
 
 ## 📊 **Standalone Validation**
@@ -380,10 +324,9 @@ class SupervisedGameManager(BaseGameManager):
 Each extension must pass the standalone validation:
 
 ```python
-# SUPREME_RULE NO.3: Simple validation instead of over-engineered classes
 def validate_extension_standalone(extension_path: str) -> bool:
     """Simple validation function for standalone principles"""
-    print(f"[Validator] Checking extension: {extension_path}")
+    print(f"[Validator] Checking extension: {extension_path}")  # Simple logging
     
     # Simple checks using basic file operations
     python_files = [f for f in os.listdir(extension_path) if f.endswith('.py')]
@@ -396,10 +339,10 @@ def validate_extension_standalone(extension_path: str) -> bool:
             forbidden_patterns = ['heuristics_v0_', 'supervised_v0_', 'reinforcement_v0_']
             for pattern in forbidden_patterns:
                 if pattern in content:
-                    print(f"[Validator] Found forbidden import: {pattern} in {file_path}")
+                    print(f"[Validator] Found forbidden import: {pattern} in {file_path}")  # Simple logging
                     return False
     
-    print(f"[Validator] Extension {extension_path} is standalone compliant")
+    print(f"[Validator] Extension {extension_path} is standalone compliant")  # Simple logging
     return True
 ```
 
@@ -422,6 +365,13 @@ def validate_extension_standalone(extension_path: str) -> bool:
 - **Version Control**: Different versions coexist without conflicts
 - **Reproducibility**: Standalone units ensure reproducible results
 - **Modularity**: Easy to add new extensions without breaking existing ones
+
+## 🔗 **See Also**
+
+- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`project-structure-plan.md`**: Project structure and organization
+- **`config.md`**: Configuration architecture standards
 
 ---
 

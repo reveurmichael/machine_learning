@@ -1,90 +1,104 @@
 # Eureka: Reward Function Evolution for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Eureka reward function evolution patterns.
 
-## 🎯 **Core Philosophy: Automated Reward Engineering**
+> **Guidelines Alignment:**
+> - This document is governed by the guidelines in `final-decision-10.md`.
+> - All agent factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
+> - All code must use simple print logging (simple logging).
+> - Reference: `extensions/common/utils/factory_utils.py` for the canonical `SimpleFactory` implementation.
 
-Eureka represents a paradigm shift in reinforcement learning where reward functions are automatically generated and evolved using large language models (LLMs) rather than being hand-crafted by humans. This approach can discover novel and effective reward shaping strategies that might not be intuitive to human designers.
+> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
-### **SUPREME_RULES Alignment**
-- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns
-- **SUPREME_RULE NO.2**: References `final-decision-N.md` format consistently  
-- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements)
+## 🎯 **Core Philosophy: Automated Reward Engineering + SUPREME_RULES Compliance**
 
-### **Design Philosophy**
-- **Automated Discovery**: Let AI discover optimal reward functions
-- **Human-AI Collaboration**: Combine human insights with AI exploration
-- **Iterative Refinement**: Continuous improvement through evolutionary processes
-- **Educational Value**: Demonstrate automated engineering principles
+Eureka represents a paradigm shift in reinforcement learning where reward functions are automatically generated and evolved using large language models (LLMs). **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements**.
 
-## 🧠 **Eureka vs. Traditional Approaches**
+### **Guidelines Alignment**
+- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for automated engineering
+- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout Eureka implementations
+- **simple logging**: Lightweight, OOP-based common utilities with simple logging (print() statements only)
 
-### **Traditional Reinforcement Learning**
+### **Educational Value**
+- **Automated Discovery**: Learn how AI discovers optimal reward functions using canonical patterns
+- **Evolutionary Computation**: Understand automated engineering with simple logging throughout
+- **LLM Integration**: Experience AI-driven exploration following SUPREME_RULES compliance
+- **Pattern Recognition**: Canonical `create()` method enables consistent learning across evolution systems
+
+## ��️ **Factory Pattern Integration**
+
+Following `factory-design-pattern.md` standards with canonical `create()` method:
+
 ```python
-# ❌ Hand-crafted reward function
-def traditional_reward(game_state):
-    reward = 0
-    if game_state.apple_eaten:
-        reward += 10  # Human intuition
-    if game_state.game_over:
-        reward -= 100  # Human penalty design
-    reward += 0.1 * game_state.score  # Linear human assumption
-    return reward
+class EurekaAgentFactory:
+    """
+    Factory for creating Eureka-based agents following final-decision-10.md SUPREME_RULES
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for automated engineering agents
+    Educational Value: Shows how SUPREME_RULES enable consistent patterns
+    across simple heuristics and complex automated AI systems.
+    
+    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    """
+    
+    _registry = {
+        "REWARD_EVOLUTION": RewardEvolutionAgent,
+        "MULTI_OBJECTIVE": MultiObjectiveAgent,
+        "COLLABORATIVE": CollaborativeAgent,
+    }
+    
+    @classmethod
+    def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
+        """Create Eureka agent using canonical create() method following final-decision-10.md"""
+        agent_class = cls._registry.get(agent_type.upper())
+        if not agent_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
+        print(f"[EurekaAgentFactory] Creating agent: {agent_type}")  # Simple logging - SUPREME_RULES
+        return agent_class(**kwargs)
+
+# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
+class EurekaAgentFactory:
+    def create_eureka_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def build_automated_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def make_evolution_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+        pass
 ```
 
-### **Eureka Approach**
+### **Reward Function Factory (CANONICAL PATTERN)**
 ```python
-# ✅ LLM-generated and evolved reward function
-def evolved_reward(game_state):
-    # Generated by LLM based on performance feedback
-    reward = 0
+class RewardFunctionFactory:
+    """
+    Factory for reward function generation following SUPREME_RULES.
     
-    # Discovered patterns that humans might miss
-    if game_state.apple_eaten:
-        # Non-linear reward based on snake length
-        reward += 10 * (1 + 0.1 * game_state.snake_length)
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Educational Value: Shows how canonical create() method enables
+    consistent reward function generation across different evolution strategies.
     
-    # Sophisticated survival incentives
-    if game_state.near_wall_count < 2:
-        reward += 2  # Safety reward
+    Reference: final-decision-10.md for canonical factory standards
+    """
     
-    # Efficiency bonuses discovered through evolution
-    if game_state.manhattan_distance_to_apple < previous_distance:
-        reward += 1  # Progress reward
+    _registry = {
+        "LINEAR": LinearRewardFunction,
+        "NON_LINEAR": NonLinearRewardFunction,
+        "MULTI_OBJECTIVE": MultiObjectiveRewardFunction,
+        "ADAPTIVE": AdaptiveRewardFunction,
+    }
     
-    return reward
-```
-
-## 🏗️ **Eureka Architecture for Snake Game**
-
-### **Extension Structure**
-```
-extensions/eureka-v0.02/
-├── __init__.py
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_eureka_dqn.py       # DQN with evolved rewards
-│   ├── agent_eureka_ppo.py       # PPO with evolved rewards
-│   └── agent_reward_tester.py    # Test reward functions
-├── reward_evolution/
-│   ├── __init__.py
-│   ├── reward_generator.py       # LLM-based reward generation
-│   ├── reward_evaluator.py       # Reward function evaluation
-│   ├── population_manager.py     # Manage reward populations
-│   └── evolution_engine.py       # Core evolution logic
-├── llm_interface/
-│   ├── __init__.py
-│   ├── local_llm.py             # OLLAMA integration
-│   ├── prompt_templates.py      # Evolution prompts
-│   └── code_executor.py         # Safe reward function execution
-├── evaluation/
-│   ├── __init__.py
-│   ├── performance_tracker.py   # Track RL performance
-│   ├── diversity_metrics.py     # Measure reward diversity
-│   └── safety_validator.py      # Validate reward functions
-├── game_logic.py                # Eureka-specific game logic
-├── game_manager.py              # Eureka experiment management
-└── main.py                      # CLI interface
+    @classmethod
+    def create(cls, function_type: str, **kwargs):  # CANONICAL create() method
+        """Create reward function using canonical create() method (SUPREME_RULES compliance)"""
+        function_class = cls._registry.get(function_type.upper())
+        if not function_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown function type: {function_type}. Available: {available}")
+        print(f"[RewardFunctionFactory] Creating function: {function_type}")  # Simple logging
+        return function_class(**kwargs)
 ```
 
 ## 🔧 **Core Implementation Components**
@@ -93,400 +107,260 @@ extensions/eureka-v0.02/
 ```python
 class RewardFunctionGenerator:
     """
-    LLM-based reward function generation and evolution
+    LLM-based reward function generation and evolution following SUPREME_RULES.
     
-    Design Pattern: Strategy Pattern
-    - Different generation strategies (mutation, crossover, novel creation)
-    - Pluggable LLM backends for different capabilities
-    - Safe code execution environment
+    Design Pattern: Strategy Pattern (Canonical Implementation)
+    Purpose: Multiple reward generation strategies using canonical factory patterns
+    Educational Value: Shows how simple logging and canonical patterns
+    work together in complex automated engineering pipelines.
     
-    Educational Value:
-    Demonstrates how LLMs can be used for code generation
-    and automated engineering of complex systems.
+    Reference: final-decision-10.md for simple logging standards
     """
     
-    def __init__(self, llm_interface, safety_validator):
+    def __init__(self, llm_interface):
         self.llm = llm_interface
-        self.validator = safety_validator
         self.generation_history = []
-        print("[RewardFunctionGenerator] Initialized")  # SUPREME_RULE NO.3: Simple logging
+        print(f"[RewardFunctionGenerator] Initialized")  # Simple logging - SUPREME_RULES
     
     def generate_initial_population(self, population_size: int = 10):
-        """Generate diverse initial reward functions"""
-        population = []
+        """Generate diverse initial reward functions with simple logging"""
+        print(f"[RewardFunctionGenerator] Generating {population_size} functions")  # Simple logging
         
-        base_prompt = """
-        Generate a reward function for a Snake game AI agent using reinforcement learning.
-        The function should:
-        1. Encourage collecting apples
-        2. Discourage collisions
-        3. Promote efficient movement
-        4. Be creative and non-obvious
+        # Implementation uses LLM to generate candidate functions
+        functions = self._create_reward_functions(population_size)
         
-        Return only Python code for the reward function.
-        """
-        
-        for i in range(population_size):
-            # Add diversity through prompt variations
-            variant_prompt = self._add_diversity_hints(base_prompt, i)
-            
-            # Generate reward function code
-            generated_code = self.llm.generate(variant_prompt)
-            
-            # Validate and sanitize
-            if self.validator.is_safe(generated_code):
-                reward_func = self._compile_reward_function(generated_code)
-                population.append({
-                    'function': reward_func,
-                    'code': generated_code,
-                    'generation': 0,
-                    'parent_ids': [],
-                    'performance': None
-                })
-        
-        return population
+        print(f"[RewardFunctionGenerator] Generated {len(functions)} functions")  # Simple logging
+        return functions
     
     def evolve_reward_function(self, parent_functions, performance_data):
-        """Evolve reward functions based on performance"""
+        """Evolve reward functions based on performance feedback with simple logging"""
+        print(f"[RewardFunctionGenerator] Evolving {len(parent_functions)} functions")  # Simple logging
         
-        # Select best performers
-        top_performers = self._select_top_performers(parent_functions, performance_data)
+        # Implementation combines successful patterns from parent functions
+        evolved_functions = self._combine_and_mutate(parent_functions, performance_data)
         
-        evolution_prompt = f"""
-        Here are the top-performing reward functions and their results:
-        
-        {self._format_performance_data(top_performers)}
-        
-        Generate a new, improved reward function that:
-        1. Builds upon the successful patterns above
-        2. Addresses weaknesses in current approaches
-        3. Introduces novel reward mechanisms
-        4. Maintains or improves performance
-        
-        Be creative but maintain code safety and efficiency.
-        """
-        
-        # Generate evolved reward function
-        evolved_code = self.llm.generate(evolution_prompt)
-        
-        if self.validator.is_safe(evolved_code):
-            return {
-                'function': self._compile_reward_function(evolved_code),
-                'code': evolved_code,
-                'generation': max([p['generation'] for p in top_performers]) + 1,
-                'parent_ids': [p['id'] for p in top_performers],
-                'performance': None
-            }
-        
-        return None
-```
-
-### **Performance Evaluation System**
-```python
-class RewardFunctionEvaluator:
-    """
-    Evaluate reward functions through RL training and game performance
-    
-    Design Pattern: Template Method Pattern
-    - Standard evaluation workflow
-    - Customizable metrics and training parameters
-    - Comprehensive performance tracking
-    """
-    
-    def __init__(self, rl_algorithm="DQN", training_episodes=1000):
-        self.rl_algorithm = rl_algorithm
-        self.training_episodes = training_episodes
-        self.evaluation_history = []
-    
-    def evaluate_reward_function(self, reward_function, test_games=100):
-        """Comprehensive evaluation of a reward function"""
-        
-        # 1. Train RL agent with this reward function
-        agent = self._create_rl_agent(reward_function)
-        training_metrics = self._train_agent(agent, self.training_episodes)
-        
-        # 2. Test performance on actual games
-        game_performance = self._test_game_performance(agent, test_games)
-        
-        # 3. Analyze reward function properties
-        reward_analysis = self._analyze_reward_properties(reward_function)
-        
-        # 4. Combine metrics
-        overall_score = self._calculate_overall_score(
-            training_metrics, game_performance, reward_analysis
-        )
-        
-        evaluation_result = {
-            'overall_score': overall_score,
-            'training_metrics': training_metrics,
-            'game_performance': game_performance,
-            'reward_analysis': reward_analysis,
-            'timestamp': datetime.now()
-        }
-        
-        self.evaluation_history.append(evaluation_result)
-        return evaluation_result
-    
-    def _calculate_overall_score(self, training_metrics, game_performance, reward_analysis):
-        """Calculate weighted overall performance score"""
-        score = 0
-        
-        # Game performance (40% weight)
-        score += 0.4 * game_performance['average_score'] / 100
-        
-        # Training efficiency (20% weight)
-        score += 0.2 * (1.0 - training_metrics['convergence_time'] / self.training_episodes)
-        
-        # Stability (20% weight)
-        score += 0.2 * (1.0 - game_performance['score_variance'] / game_performance['average_score'])
-        
-        # Reward function elegance (20% weight)
-        score += 0.2 * reward_analysis['elegance_score']
-        
-        return min(score, 1.0)  # Cap at 1.0
+        print(f"[RewardFunctionGenerator] Evolution completed")  # Simple logging
+        return evolved_functions
 ```
 
 ### **Evolution Engine**
 ```python
 class EurekaEvolutionEngine:
     """
-    Core engine for evolving reward functions using Eureka methodology
+    Core engine for evolving reward functions using Eureka methodology following SUPREME_RULES.
     
-    Design Pattern: Observer Pattern
-    - Notify observers of evolution progress
-    - Track performance improvements over generations
-    - Enable real-time monitoring and analysis
+    Design Pattern: Template Method Pattern (Canonical Implementation)
+    Purpose: Consistent evolution workflow using canonical factory patterns
+    Educational Value: Shows how canonical patterns enable
+    consistent automated engineering across different evolution strategies.
+    
+    Reference: final-decision-10.md for canonical engine architecture
     """
     
-    def __init__(self, generator, evaluator, population_size=20):
+    def __init__(self, generator, evaluator):
         self.generator = generator
         self.evaluator = evaluator
-        self.population_size = population_size
         self.generation = 0
-        self.best_performance_history = []
-        self.observers = []
+        print(f"[EurekaEvolutionEngine] Initialized")  # Simple logging - SUPREME_RULES
     
-    def evolve(self, max_generations=50, convergence_threshold=0.95):
-        """Run the complete evolution process"""
-        
-        # Initialize population
-        self.population = self.generator.generate_initial_population(self.population_size)
+    def evolve(self, max_generations=50):
+        """Run the complete evolution process with simple logging throughout"""
+        print(f"[EurekaEvolutionEngine] Starting evolution for {max_generations} generations")  # Simple logging
         
         for generation in range(max_generations):
-            self.generation = generation
+            # Generate candidate reward functions
+            candidates = self.generator.generate_population()
+            print(f"[EurekaEvolutionEngine] Generation {generation}: {len(candidates)} candidates")  # Simple logging
             
-            # Evaluate all reward functions in parallel
-            for individual in self.population:
-                if individual['performance'] is None:
-                    individual['performance'] = self.evaluator.evaluate_reward_function(
-                        individual['function']
-                    )
+            # Evaluate performance
+            performance = self.evaluator.evaluate_all(candidates)
+            print(f"[EurekaEvolutionEngine] Generation {generation}: evaluation completed")  # Simple logging
             
-            # Track best performance
-            best_individual = max(self.population, key=lambda x: x['performance']['overall_score'])
-            self.best_performance_history.append(best_individual['performance']['overall_score'])
+            # Select best performers for next generation
+            selected = self._select_best(candidates, performance)
+            print(f"[EurekaEvolutionEngine] Generation {generation}: {len(selected)} selected")  # Simple logging
             
-            # Notify observers
-            self._notify_observers({
-                'generation': generation,
-                'best_score': best_individual['performance']['overall_score'],
-                'population': self.population
-            })
-            
-            # Check convergence
-            if best_individual['performance']['overall_score'] >= convergence_threshold:
-                print(f"Converged at generation {generation} with score {best_individual['performance']['overall_score']:.3f}")
-                break
-            
-            # Evolve population
-            self._evolve_population()
-        
-        return self._get_best_reward_function()
-    
-    def _evolve_population(self):
-        """Evolve the population for the next generation"""
-        
-        # Keep top performers (elitism)
-        sorted_population = sorted(self.population, 
-                                 key=lambda x: x['performance']['overall_score'], 
-                                 reverse=True)
-        
-        elite_count = self.population_size // 4
-        new_population = sorted_population[:elite_count]
-        
-        # Generate new individuals
-        while len(new_population) < self.population_size:
-            # Evolve from top performers
-            evolved_individual = self.generator.evolve_reward_function(
-                sorted_population[:elite_count],
-                [ind['performance'] for ind in sorted_population[:elite_count]]
-            )
-            
-            if evolved_individual:
-                new_population.append(evolved_individual)
-        
-        self.population = new_population
+        best_function = self._get_best_reward_function()
+        print(f"[EurekaEvolutionEngine] Evolution completed, best function selected")  # Simple logging
+        return best_function
 ```
 
-## 🚀 **Advanced Eureka Features**
+## 🧠 **Traditional vs. Eureka Approaches (Simple Logging)**
 
-### **Multi-Objective Reward Evolution**
-- **Performance vs. Elegance**: Balance game performance with code simplicity
-- **Stability vs. Exploration**: Balance consistent performance with discovery
-- **Efficiency vs. Effectiveness**: Optimize both training speed and final performance
-- **Safety vs. Innovation**: Ensure safe reward functions while encouraging creativity
-
-### **Human-AI Collaborative Evolution**
-- **Human Feedback Integration**: Incorporate human preferences into evolution
-- **Expert Knowledge Injection**: Seed evolution with domain expert insights
-- **Interactive Evolution**: Allow human guidance during evolution process
-- **Explainable Rewards**: Generate human-interpretable reward functions
-
-### **Meta-Learning Capabilities**
-- **Cross-Game Transfer**: Apply learned reward patterns to other games
-- **Few-Shot Adaptation**: Quickly adapt to new game variants
-- **Curriculum Generation**: Automatically create training curricula
-- **Strategy Discovery**: Find novel game-playing strategies
-
-## 🎓 **Educational and Research Applications**
-
-### **Research Questions**
-- Can LLMs discover reward functions better than human experts?
-- How does reward function complexity affect training efficiency?
-- What reward patterns transfer across different game domains?
-- How can we ensure reward function safety and interpretability?
-
-### **Comparative Studies**
-- **Eureka vs. Human Design**: Compare evolved vs. hand-crafted rewards
-- **Different LLM Backends**: Test various language models for reward generation
-- **Evolution Strategies**: Compare different evolutionary approaches
-- **Training Algorithms**: Test evolved rewards with different RL algorithms
-
-## 📊 **Configuration and Usage**
-
-### **Running Eureka Evolution**
-```bash
-# Start Eureka evolution with default settings
-python main.py --mode evolve --population-size 20 --max-generations 50
-
-# Use specific LLM backend
-python main.py --mode evolve --llm-backend ollama --model llama2:13b
-
-# Evaluate specific reward function
-python main.py --mode evaluate --reward-function ./evolved_rewards/best_gen_15.py
-
-# Run comparative study
-python main.py --mode compare --baseline human_designed --evolved best_evolved
-```
-
-### **Configuration Options**
+### **Traditional Approach**
 ```python
-EUREKA_CONFIG = {
-    'evolution': {
-        'population_size': 20,
-        'max_generations': 50,
-        'elite_ratio': 0.25,
-        'convergence_threshold': 0.95
-    },
-    'evaluation': {
-        'training_episodes': 1000,
-        'test_games': 100,
-        'parallel_evaluations': 4
-    },
-    'llm': {
-        'backend': 'ollama',
-        'model': 'llama2:13b',
-        'temperature': 0.7,
-        'max_tokens': 2048
-    }
-}
+# ❌ Hand-crafted reward function with simple logging
+def traditional_reward(game_state):
+    reward = 0
+    if game_state.apple_eaten:
+        reward += 10  # Human intuition
+    if game_state.game_over:
+        reward -= 100  # Human penalty design
+    print(f"[TraditionalReward] Calculated reward: {reward}")  # Simple logging - SUPREME_RULES
+    return reward
 ```
 
-## 🔮 **Future Research Directions**
+### **Eureka Approach**
+```python
+# ✅ LLM-generated and evolved reward function with simple logging
+def evolved_reward(game_state):
+    """Generated by LLM based on performance feedback following SUPREME_RULES"""
+    reward = 0
+    
+    # Discovered patterns that humans might miss
+    if game_state.apple_eaten:
+        # Non-linear reward based on snake length
+        reward += 10 * (1 + 0.1 * game_state.snake_length)
+    
+    # Sophisticated survival incentives discovered through evolution
+    if game_state.near_wall_count < 2:
+        reward += 2  # Safety reward discovered by AI
+    
+    print(f"[EvolvedReward] Calculated reward: {reward}")  # Simple logging - SUPREME_RULES
+    return reward
+```
 
-### **Advanced Evolution Techniques**
-- **Differential Evolution**: More sophisticated evolutionary operators
-- **Genetic Programming**: Evolve reward function structure, not just parameters
-- **Neuroevolution**: Evolve neural network-based reward functions
-- **Multi-Population Evolution**: Maintain diverse populations for different objectives
+## 🚀 **Advanced Capabilities with Canonical Patterns**
 
-### **Integration with Other Extensions**
-- **Heuristics-Informed Evolution**: Use heuristic insights to guide evolution
-- **Supervised Learning Integration**: Use ML models to predict reward function performance
-- **Human Player Data**: Incorporate human gameplay data into reward design
-- **Cross-Domain Transfer**: Apply evolved rewards to other game domains
+### **Multi-Objective Evolution**
+```python
+class MultiObjectiveEurekaAgent(BaseAgent):
+    """
+    Multi-objective evolution agent following canonical patterns.
+    
+    Educational Value: Shows how canonical factory patterns scale
+    to complex multi-objective systems while maintaining simple logging.
+    """
+    
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size)
+        
+        # Use canonical factory patterns
+        self.reward_function = RewardFunctionFactory.create("MULTI_OBJECTIVE", **kwargs)  # Canonical
+        self.evolution_engine = EurekaAgentFactory.create("MULTI_OBJECTIVE", **kwargs)  # Canonical
+        
+        print(f"[{name}] Multi-objective agent initialized")  # Simple logging
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Plan move using multi-objective evolution with simple logging"""
+        print(f"[{self.name}] Planning multi-objective move")  # Simple logging
+        
+        # Use evolved reward function
+        reward = self.reward_function.calculate(game_state)
+        print(f"[{self.name}] Calculated reward: {reward}")  # Simple logging
+        
+        # Select action based on evolved strategy
+        move = self._select_action(game_state, reward)
+        print(f"[{self.name}] Selected move: {move}")  # Simple logging
+        return move
+```
 
-### **Safety and Interpretability**
-- **Formal Verification**: Prove safety properties of evolved reward functions
-- **Interpretable Rewards**: Generate human-understandable reward explanations
-- **Robustness Testing**: Ensure evolved rewards work across different scenarios
-- **Bias Detection**: Identify and mitigate biases in evolved reward functions
+## 📊 **Simple Logging Standards for Eureka Operations**
 
-## 🔗 **GOOD_RULES Integration**
-
-This document integrates with the following authoritative references from the **GOOD_RULES** system:
-
-### **Core Architecture Integration**
-- **`agents.md`**: Follows BaseAgent interface and factory patterns for all Eureka RL implementations
-- **`config.md`**: Uses authorized configuration hierarchies for evolution parameters
-- **`core.md`**: Inherits from base classes and follows established inheritance patterns
-
-### **Extension Development Standards**
-- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
-- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
-- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
-- **`reinforcement-learning.md`**: Follows RL extension standards and patterns
-
-### **Data and Path Management**
-- **`data-format-decision-guide.md`**: Follows format selection criteria for evolved reward functions
-- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
-- **`datasets-folder.md`**: Follows standard directory structure for evolution datasets
-
-### **UI and Interaction Standards**
-- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for evolution monitoring
-- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for interactive interfaces
-
-### **Implementation Quality**
-- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
-- **`elegance.md`**: Follows code quality and educational value standards
-- **`naming_conventions.md`**: Uses consistent naming across all evolution components
-
-## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
-
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+### **Required Logging Pattern (SUPREME_RULES)**
+All Eureka operations MUST use simple print statements as established in `final-decision-10.md`:
 
 ```python
-# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
-def evolve_reward_function(self, parent_functions, performance_data):
-    print("[EurekaEvolution] Starting evolution process...")
-    
-    top_performers = self._select_top_performers(parent_functions, performance_data)
-    print(f"[EurekaEvolution] Selected {len(top_performers)} top performers")
-    
-    evolved_code = self.llm.generate(evolution_prompt)
-    print(f"[EurekaEvolution] Generated new reward function ({len(evolved_code)} chars)")
-    
-    if self.validator.is_safe(evolved_code):
-        print("[EurekaEvolution] Reward function passed safety validation")
-        return self._compile_reward_function(evolved_code)
-    else:
-        print("[EurekaEvolution] WARNING: Generated function failed safety check")
-        return None
+# ✅ CORRECT: Simple logging for Eureka operations (SUPREME_RULES compliance)
+def process_eureka_evolution(population: list, performance: dict):
+    print(f"[EurekaProcessor] Processing evolution: {len(population)} individuals")  # Simple logging
+    evolved_population = evolve_population(population, performance)
+    print(f"[EurekaProcessor] Evolution completed: {len(evolved_population)} individuals")  # Simple logging
+    return evolved_population
 
-# ✅ CORRECT: Educational progress tracking
-def run_evolution_cycle(self, generation):
-    print(f"[EurekaEngine] Starting generation {generation}")
-    
-    for i, individual in enumerate(self.population):
-        print(f"[EurekaEngine] Evaluating individual {i+1}/{len(self.population)}")
-        performance = self.evaluator.evaluate_reward_function(individual['function'])
-        print(f"[EurekaEngine] Individual {i+1} performance: {performance['overall_score']:.3f}")
-    
-    best_score = max(ind['performance']['overall_score'] for ind in self.population)
-    print(f"[EurekaEngine] Generation {generation} best score: {best_score:.3f}")
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
+import logging
+logger = logging.getLogger(__name__)
+
+def process_eureka_evolution(population: list, performance: dict):
+    logger.info(f"Processing evolution")  # FORBIDDEN - complex logging
+    # This violates final-decision-10.md SUPREME_RULES
 ```
+
+## 🎓 **Educational Applications with Canonical Patterns**
+
+### **Automated Engineering Understanding**
+- **AI-Driven Discovery**: Understand automated engineering using canonical `create()` patterns
+- **Evolutionary Computation**: Learn evolutionary algorithms with simple logging throughout
+- **LLM Integration**: Experience AI-driven exploration following SUPREME_RULES compliance
+- **Pattern Recognition**: Canonical patterns enable consistent learning across automated systems
+
+### **Pattern Consistency**
+- **Factory Patterns**: All Eureka components use canonical `create()` method
+- **Simple Logging**: Print statements provide clear operation visibility
+- **Educational Value**: Canonical patterns enable predictable learning across complex AI
+- **SUPREME_RULES**: Advanced automated systems follow same standards as simple heuristics
+
+## 📋 **SUPREME_RULES Implementation Checklist for Eureka**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all Eureka operations (final-decision-10.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all Eureka documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all Eureka implementations
+
+### **Eureka-Specific Standards**
+- [ ] **Evolution Systems**: Canonical factory patterns for all evolution components
+- [ ] **Reward Functions**: Canonical factory patterns for all reward function types
+- [ ] **LLM Integration**: Canonical patterns for all LLM-based generation systems
+- [ ] **Performance Tracking**: Simple logging for all evolution and evaluation operations
+
+### **Educational Integration**
+- [ ] **Clear Examples**: Simple examples using canonical `create()` method for Eureka
+- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in automated engineering context
+- [ ] **Best Practices**: Demonstration of SUPREME_RULES in advanced automated systems
+- [ ] **Learning Value**: Easy to understand canonical patterns regardless of automation complexity
 
 ---
 
-**Eureka represents a revolutionary approach to reward function design, enabling the discovery of novel and effective strategies through automated LLM-based evolution. This approach can uncover reward patterns that human designers might never consider, leading to breakthrough performance in Snake Game AI while advancing our understanding of automated system design and maintaining full compliance with established GOOD_RULES standards.**
+**Eureka demonstrates the potential of AI-driven automated engineering while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
+- **`core.md`**: Base class architecture following canonical principles
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Canonical factory implementation for all systems
+
+## 📊 **Integration with Extensions**
+
+### **With Reinforcement Learning**
+```python
+# Use evolved reward functions in RL training with canonical factory patterns
+evolved_reward = EurekaAgentFactory.create("REWARD_EVOLUTION")  # Canonical create() method
+rl_agent.set_reward_function(evolved_reward)
+print(f"[Integration] Evolved reward integrated with RL agent")  # Simple logging - SUPREME_RULES
+```
+
+### **With Heuristics**
+```python
+# Validate evolved rewards against heuristic baselines with simple logging
+heuristic_performance = heuristic_agent.evaluate()
+eureka_performance = eureka_agent.evaluate()
+print(f"[Integration] Heuristic: {heuristic_performance}, Eureka: {eureka_performance}")  # Simple logging
+```
+
+## 📋 **SUPREME_RULES Implementation Checklist for Eureka**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all Eureka operations (final-decision-10.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all Eureka documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all Eureka implementations
+
+### **Eureka-Specific Standards**
+- [ ] **Evolution Systems**: Canonical factory patterns for all evolution components
+- [ ] **Reward Functions**: Canonical factory patterns for all reward function types
+- [ ] **LLM Integration**: Canonical patterns for all LLM-based generation systems
+- [ ] **Performance Tracking**: Simple logging for all evolution and evaluation operations
+
+### **Educational Integration**
+- [ ] **Clear Examples**: Simple examples using canonical `create()` method for Eureka
+- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in automated engineering context
+- [ ] **Best Practices**: Demonstration of SUPREME_RULES in advanced automated systems
+- [ ] **Learning Value**: Easy to understand canonical patterns regardless of automation complexity
+
+---
+
+**Eureka demonstrates the potential of AI-driven automated engineering while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
 

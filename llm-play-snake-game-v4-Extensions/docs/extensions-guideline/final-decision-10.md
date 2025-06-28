@@ -76,15 +76,16 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 
 **Files to keep simple:**
 
-* `app.md`
-* `kiss.md`
-* `ai-friendly.md`
-* `forbidden-import-patterns.md`
 * `agentic-llms.md`
+* `ai-friendly.md`
+* `app.md`
 * `documentation-as-first-class-citizen.md`
 * `eureka.md`
+* `forbidden-import-patterns.md`
 * `generati gymnasium.md`
 * `heuristics-as-foundation.md`
+* `heuristics-to-supervised-pipeline.md`
+* `kiss.md`
 * `llm-with-cot.md`
 * `llm-with-reasoning.md`
 * `lora.md`
@@ -92,7 +93,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `stable-baseline.md`
 * `tree-models.md`
 * `vision-language-model.md`
-
 
 
 

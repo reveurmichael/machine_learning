@@ -14,9 +14,7 @@ The "No Over-Preparation" principle ensures that extensions remain focused, main
 
 ## 🎯 **SUPREME_RULES: Flexibility & Smart OOP Design**
 
-**SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
-
-**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder is lightweight and generic. Extensions can inherit from its simple OOP base classes when specialised behaviour is required — no over-engineering upfront.
+**SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts, and exclude overused patterns like `*_utils.py` or `*_defaults.py` files (e.g., `ml_constants.py`, `metrics_utils.py`, etc.). Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
 
 ### **Core Philosophy**
 - **Educational Project**: Encourages experimentation and learning
@@ -221,7 +219,8 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(args)
         # Add only heuristic-specific needs
         self.pathfinder = PathfindingFactory.create(args.algorithm)
-        self.setup_logging("heuristics")  # Needed for debugging
+        # Simple debug output following SUPREME_RULE NO.3 (no *.log files)
+        print("[HeuristicGameManager] Initialized for debugging")
     
     # No speculative features for "future heuristic algorithms"
     # No "advanced pathfinding framework" that's not used

@@ -15,7 +15,7 @@ The model architecture demonstrates perfect base class design where generic mode
 ## 🏗️ **Model Storage Architecture**
 
 ### **Standardized Directory Structure**
-Following Final Decision 1:
+Following final-decision-1.md:
 
 ```
 logs/extensions/models/
@@ -35,7 +35,7 @@ logs/extensions/models/
 ```
 
 ### **Path Management Integration**
-Following Final Decision 6:
+Following final-decision-6.md:
 
 ```python
 from extensions.common.path_utils import get_model_path
@@ -105,7 +105,7 @@ torch.save(rl_checkpoint, model_path / 'agent.pth')
 ## 🎯 **Model Factory Pattern Integration**
 
 ### **Universal Model Loading**
-Following Final Decision 7-8 factory patterns:
+Following final-decision-7.md and final-decision-8.md factory patterns:
 
 ```python
 class ModelFactory:
@@ -247,7 +247,7 @@ class UniversalMLPAgent(BaseModel):
 
 ---
 
-**The model architecture provides a robust, scalable foundation for machine learning across all extension types while maintaining consistency with the established patterns from the Final Decision series.**
+**The model architecture provides a robust, scalable foundation for machine learning across all extension types while maintaining consistency with the established patterns from the final-decision series.**
 
 ## grid_size
 

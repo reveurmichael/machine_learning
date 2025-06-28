@@ -4,9 +4,9 @@
 
 ## 🎯 **SUPREME_RULES: Educational Flexibility & OOP Extensibility**
 
-**SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
+**SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts, and exclude overused patterns like `*_utils.py` or `*_defaults.py` files (e.g., `ml_constants.py`, `metrics_utils.py`, etc.). Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
 
-**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder remains lightweight and generic. When specialised requirements emerge, extensions can subclass or extend these simple OOP bases without altering the foundation.
+**SUPREME_RULE NO.3 (OOP Extensibility)**: The `extensions/common/` folder remains lightweight and generic. When specialised requirements emerge, extensions can subclass or extend these simple OOP bases without modifying the shared code.
 
 **Core Philosophy**: The project structure is designed to encourage experimentation, rapid prototyping, and educational exploration while maintaining clean architecture and code reusability. The OOP design enables both standard usage and specialized customization when needed.
 

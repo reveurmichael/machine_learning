@@ -1,6 +1,6 @@
 # Code Elegance Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the Final Decision Series for extension development standards.
+> **Important — Authoritative Reference:** This document supplements the final-decision series (final-decision-0.md → final-decision-10.md) for extension development standards.
 
 ## 🧹 **File Organization Philosophy**
 
@@ -212,5 +212,5 @@ def create_agent(algorithm: str, grid_size: int) -> BaseAgent:
 
 ---
 
-**These elegance guidelines ensure maintainable, educational, and scalable extension development while following the architectural decisions established in the Final Decision Series.**
+**These elegance guidelines ensure maintainable, educational, and scalable extension development while following the architectural decisions established in the final-decision series.**
 

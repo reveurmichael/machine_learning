@@ -89,7 +89,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from extensions.common.path_utils import ensure_project_root
-from extensions.common.script_utils import setup_logging, parse_common_args
+from extensions.common.script_utils import parse_common_args
 
 def main():
     """Main execution function for heuristic algorithms"""

@@ -33,18 +33,19 @@ Small, focused mixin classes that provide specific utilities:
 
 ```python
 class LoggingMixin:
-    """Simple mixin for logging capabilities (SUPREME_RULE NO.3: simple print statements)"""
+    """Simple mixin for debug output (SUPREME_RULE NO.3: simple print statements)"""
     
-    def setup_logging(self, name: str):
-        self.agent_name = name
-        print(f"[{name}] Agent initialized")
+    def debug_print(self, name: str, message: str):
+        """Simple debug output for the component"""
+        # Simple print-based output instead of complex file logging
+        print(f"[{name}] {message}")
 
 class HeuristicAgent(BaseAgent, LoggingMixin):
     """Agent with logging capabilities via mixin"""
     
     def __init__(self, name: str):
         super().__init__(name)
-        self.setup_logging(f"heuristic_{name}")
+        self.debug_print(f"heuristic_{name}", "Agent initialized")
 ```
 
 ### **2. Interface Implementation**

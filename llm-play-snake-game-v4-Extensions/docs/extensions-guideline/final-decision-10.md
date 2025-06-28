@@ -32,8 +32,6 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
 - `final-decision-0.md` through `final-decision-10.md` (Complete Final Decision Series)
 - `flask.md`
-- `Grid-Size-Directory-Structure-Compliance-Report.md` (Compliance validation)
-- `heuristics-as-foundation.md` (Heuristics extension standards)
 - `models.md` (Model management standards)
 - `naming_conventions.md` (Naming standards)
 - `project-structure-plan.md` (Master architectural blueprint)
@@ -43,14 +41,21 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `supervised.md` (Supervised learning extension standards)
 - `unified-path-management-guide.md` (Path management standards)
 - `unified-streamlit-architecture-guide.md` (Streamlit OOP architecture)
-- `vision-language-model.md` (VLM extension standards)
 
 
 ## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
 
-We have a bunch of markdown files in `./docs/extensions-guideline/` that should be kept relatively simple, because it will be just an exploration of ideas for this moment and will be updated later. Just make those markdown files relatively simple, relatively short/concise (target 300-500 lines):
+We have a bunch of markdown files in `./docs/extensions-guideline/` that should be kept relatively simple, because it will be just an exploration of ideas for this moment and will be updated later. Or they are already scattered across the project and hence no need to make it long, just a concise version of it to keep the record but no need to expand the ideas in this particular file. Just make those markdown files relatively simple, relatively short/concise (target 300-500 lines):
 
 - agentic-llms.md
+- generative-models.md
+- vision-language-model.md
+- eureka.md
+- tree-models.md
+- stable-baseline.md
+- lora.md
+- heuristics-as-foundation.md
+- documentation-as-first-class-citizen.md
 
 
 

@@ -106,7 +106,7 @@ v0.03 builds upon v0.02's multi-algorithm foundation to demonstrate:
 
 ## 🔧 **Universal v0.03 Template**
 
-Following Final Decision 5 and Final Decision 9, all v0.03 extensions follow this structure:
+Following final-decision-5.md and final-decision-9.md, all v0.03 extensions follow this structure:
 
 ```
 extensions/{algorithm}-v0.03/
@@ -139,7 +139,7 @@ extensions/{algorithm}-v0.03/
 ```
 
 ### **Key Characteristics:**
-- **Streamlit web interface** with OOP architecture (Final Decision 9)
+- **Streamlit web interface** with OOP architecture (final-decision-9.md)
 - **Dataset generation** for other extensions
 - **Replay capabilities** (PyGame + Flask web following ROOT/web architecture)
 - **Organized dashboard** components
@@ -261,7 +261,7 @@ extensions/reinforcement-v0.03/
 
 ## 🏗️ **Streamlit OOP Architecture**
 
-Following Final Decision 9, all v0.03 extensions use Object-Oriented Programming architecture.
+Following final-decision-9.md, all v0.03 extensions use Object-Oriented Programming architecture.
 ## 🌐 **Web Infrastructure & Replay Systems**
 
 > **SUPREME_RULES Reference**: All Flask integration follows `flask.md` - extensions must leverage existing ROOT/web infrastructure and follow MVC patterns.
@@ -290,7 +290,7 @@ class ExtensionController(BaseController):
 ## 📊 **Dataset Generation System**
 
 ### **Dataset Storage Structure**
-Following Final Decision 1 with standardized format:
+Following final-decision-1.md with standardized format:
 ```
 logs/extensions/datasets/
 ├── grid-size-8/
@@ -344,7 +344,7 @@ logs/extensions/datasets/
 ## 📋 **Implementation Checklist**
 
 ### **For All v0.03 Extensions:**
-- [ ] **OOP Streamlit app.py** following Final Decision 9
+- [ ] **OOP Streamlit app.py** following final-decision-9.md
 - [ ] **Dashboard folder** with organized tab components
 - [ ] **Dataset generation** scripts and CLI
 - [ ] **PyGame replay** system

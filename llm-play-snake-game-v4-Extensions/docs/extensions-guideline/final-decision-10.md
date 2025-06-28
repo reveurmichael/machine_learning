@@ -2,7 +2,7 @@
 
 > **SUPREME AUTHORITY**: This document establishes the definitive governance system for all documentation in the Snake Game AI project.
 
-## 🎯 **SUPREME_RULES: Ultimate Authority**
+## 🎯 **Important Guidelines: Ultimate Authority**
 
 SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they are like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CABINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATIONS + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + GENESIS OF BIG BANG OF THE PROJECT, and have the **FINAL SAY ON EVERYTHING**, with no exceptions.
 
@@ -10,15 +10,14 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, you **must** first read **all** existing markdown files in that directory. No modifications are permitted without full context comprehension.
 2. **SUPREME_RULE NO.2**: When citing Final Decision documents,don't use "Final Decision N", "FD-N", or "final-decision-N", instead, use the precise format `final-decision-N.md`. When citing other markdown files, don't use "RULE-DOC-A", "R-A", or "RD-A", instead, use the exact filename format `md-file-name.md`.
 3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files.
-4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**.
-   * **STEP A:** Begin with `final-decision-10.md`. Update all other markdown files to align fully with its ideas and principles.
-   * **STEP B:** Think of this as a **chain reaction of ideas**, similar to nuclear fission or fusion: each idea collides with "atoms" (markdown files in `./docs/extensions-guideline/` and Python files in `extensions/common/`), triggering further refinements and harmonization at each interaction.
-   * **STEP C:** This is an exhaustive, step-by-step, iterative process — update, revisit, propagate, and repeat — until the entire system achieves deep, unwavering internal consistency and clarity.
-   * **STEP D:** Systematically reduce redundancy by merging overlapping content and moving shared explanations (e.g., move all flask explanations to `flask.md`).
-   * **STEP E:** Define and enforce explicit linking and cross-referencing standards. Every file must link to or be linked from at least one other file, forming a coherent web. Prefer explicit inline links (`[See flask.md](flask.md)`) over loose mentions.
-   * **STEP F:** Apply gradual, iterative refinement. Do not attempt to fix all files at once. Prioritize core architecture docs first, then expand to other groups. Treat each round as a "diffusion" or "chain reaction" cycle: harmonize, propagate, revisit, and repeat.
-   * **STEP G:** After each major update cycle, conduct a dedicated "coherence sweep" as a user (not as the author): read through for flow, consistency, cross-links, and conceptual integrity. Fix obvious issues immediately and flag deeper problems for future passes.
-
+4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**:
+* **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
+* **STEP B:** Think of this process as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits new "particles" (insights, corrections, style changes), which then collide with other atoms — not necessarily within the same topic domain — propagating change across the system. Each collision refines and harmonizes both local and global structures.
+* **STEP C:** Treat this as an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, and repeat — until the entire documentation and codebase achieve deep, unwavering internal consistency, clarity, and architectural integrity.
+* **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files (e.g., centralize all Flask-related content in `flask.md`).
+* **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every file must be connected to at least one other file, forming a coherent and navigable knowledge graph. Use explicit inline links (e.g., `[See flask.md](flask.md)`) rather than vague or implied mentions.
+* **STEP F:** Refine incrementally. Don’t attempt to fix all files in one pass. Start with core architectural documents, then expand outward. Each refinement cycle should operate like a **diffusion or chain reaction**, gradually building consistency and cohesion across layers.
+* **STEP G:** After each major round of changes, conduct a **coherence sweep** from the perspective of a reader or newcomer. Read files end-to-end, checking for flow, terminology consistency, cross-link completeness, and conceptual clarity. Fix all clear issues immediately and flag deeper concerns for the next iteration.
 
 ## TEMPORARY_SUPREME_RULES
 

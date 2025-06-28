@@ -12,12 +12,13 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files.
 4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**:
 * **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
-* **STEP B:** Think of this process as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits new "particles" (insights, corrections, style changes), which then collide with other atoms — not necessarily within the same topic domain — propagating change across the system. Each collision refines and harmonizes both local and global structures.
+* **STEP B:** Approach this as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits "particles" (insights, corrections, stylistic adjustments) that collide with other atoms — not necessarily within the same topic domain — propagating change throughout the system. Each collision refines and harmonizes both local and global structures.
 * **STEP C:** Treat this as an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, and repeat — until the entire documentation and codebase achieve deep, unwavering internal consistency, clarity, and architectural integrity.
 * **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files (e.g., centralize all Flask-related content in `flask.md`).
-* **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every file must be connected to at least one other file, forming a coherent and navigable knowledge graph. Use explicit inline links (e.g., `[See flask.md](flask.md)`) rather than vague or implied mentions.
-* **STEP F:** Refine incrementally. Don’t attempt to fix all files in one pass. Start with core architectural documents, then expand outward. Each refinement cycle should operate like a **diffusion or chain reaction**, gradually building consistency and cohesion across layers.
-* **STEP G:** After each major round of changes, conduct a **coherence sweep** from the perspective of a reader or newcomer. Read files end-to-end, checking for flow, terminology consistency, cross-link completeness, and conceptual clarity. Fix all clear issues immediately and flag deeper concerns for the next iteration.
+* **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every markdown file must be connected to at least one other markdown file, forming a coherent and navigable knowledge graph. Use explicit inline links (e.g., `[See flask.md](flask.md)`) rather than vague or implied mentions. Ensure that each link is fully justified, logically necessary, and truly reinforces conceptual interconnections.
+* **STEP F:** Refine incrementally. Do not attempt to fix all files in a single pass. Start with core architectural documents, then expand outward. Each refinement cycle should operate like a **diffusion or chain reaction**, gradually building consistency and cohesion across all layers.
+* **STEP G:** After each major round of changes, conduct a **coherence sweep** from the perspective of a reader or newcomer. Read files end-to-end, checking for flow, terminology consistency, cross-link completeness, and conceptual clarity. Address clear issues immediately and flag deeper concerns for future iterations.
+
 
 ## TEMPORARY_SUPREME_RULES
 
@@ -83,11 +84,13 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `dashboard.md`
 * `eureka.md`
 * `extension-evolution-rules.md`
+* `extension-move-guidelines.md`
 * `forbidden-import-patterns.md`
 * `generati gymnasium.md`
 * `heuristics-as-foundation.md`
 * `heuristics-to-supervised-pipeline.md`
 * `kiss.md`
+* `llm-distillation.md`
 * `llm-with-cot.md`
 * `llm-with-reasoning.md`
 * `lora.md`

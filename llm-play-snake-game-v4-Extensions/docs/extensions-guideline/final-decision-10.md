@@ -45,6 +45,16 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `unified-streamlit-architecture-guide.md` (Streamlit OOP architecture)
 - `vision-language-model.md` (VLM extension standards)
 
+
+## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
+
+We have a bunch of markdown files in `./docs/extensions-guideline/` that should be kept relatively simple, because it will be just an exploration of ideas for this moment and will be updated later. Just make those markdown files relatively simple, relatively short/concise (target 300-500 lines):
+
+- agentic-llms.md
+
+
+
+
 ## 🚫 **Documentation Governance Rules**
 
 ### **Modification Restrictions**

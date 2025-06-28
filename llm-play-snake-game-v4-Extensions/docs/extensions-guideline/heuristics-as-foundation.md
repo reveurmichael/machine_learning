@@ -1,10 +1,15 @@
 # Heuristics as Foundation for ML Ecosystem
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Heuristics serve as the foundational data source following the architectural patterns established in the GOOD_RULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 ## 🎯 **Core Philosophy: Heuristics Drive the ML Ecosystem**
 
 Heuristic algorithms serve as the cornerstone of the entire machine learning pipeline, providing high-quality labeled data that powers all downstream learning approaches. This follows the multi-directional data ecosystem established in the GOOD_RULES.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for foundational heuristic implementations
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout heuristic architecture references
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
 
 ### **Design Philosophy**
 - **Ground Truth Generation**: Deterministic algorithms create perfect training labels
@@ -195,6 +200,78 @@ by heuristic algorithms for training and evaluation.
 - **Grid-Size Independence**: Works across all supported board sizes
 - **Version Compatibility**: Clear data lineage tracking
 
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all heuristic implementations
+- **`config.md`**: Uses authorized configuration hierarchies for heuristic algorithm parameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines for heuristic evolution
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Provides authoritative ground truth data for all other extensions
+- **`supervised.md`**: Supplies foundational datasets for supervised learning approaches
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Generates all major data formats (CSV, NPZ, JSONL) as the primary data source
+- **`csv-schema-1.md`** and **`csv-schema-2.md`**: Implements 16-feature tabular schema as the definitive source
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`datasets-folder.md`**: Establishes the foundational tier in the data ecosystem hierarchy
+
+### **Cross-Extension Integration**
+- **`reinforcement-learning.md`**: Provides initial datasets and baselines for RL training
+- **`fine-tuning.md`**: Supplies language-rich datasets (v0.04 JSONL) for LLM fine-tuning
+- **`tree-models.md`**: Generates optimal CSV datasets for tree-based supervised learning
+- **`stable-baseline.md`**: Provides experience initialization data for RL frameworks
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and algorithmic explanations
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all heuristic implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def generate_foundation_datasets(self, algorithms, num_games):
+    print(f"[HeuristicFoundation] Generating datasets for {len(algorithms)} algorithms")
+    
+    for algorithm in algorithms:
+        print(f"[HeuristicFoundation] Processing {algorithm} algorithm...")
+        
+        # Generate CSV for supervised learning
+        csv_dataset = self.generate_csv_dataset(algorithm, num_games)
+        print(f"[HeuristicFoundation] Generated {len(csv_dataset)} CSV samples for {algorithm}")
+        
+        # Generate JSONL for LLM fine-tuning (v0.04 only)
+        if self.version == "0.04":
+            jsonl_dataset = self.generate_jsonl_dataset(algorithm, num_games)
+            print(f"[HeuristicFoundation] Generated {len(jsonl_dataset)} JSONL samples for {algorithm}")
+        
+        print(f"[HeuristicFoundation] {algorithm} dataset generation completed")
+
+# ✅ CORRECT: Educational progress tracking
+def validate_foundation_quality(self, dataset_path):
+    print(f"[FoundationValidator] Validating dataset quality at {dataset_path}")
+    
+    # Quality metrics
+    optimality_score = self._check_path_optimality()
+    coverage_score = self._check_state_coverage()
+    consistency_score = self._check_algorithmic_consistency()
+    
+    print(f"[FoundationValidator] Optimality: {optimality_score:.3f}")
+    print(f"[FoundationValidator] Coverage: {coverage_score:.3f}")
+    print(f"[FoundationValidator] Consistency: {consistency_score:.3f}")
+    
+    overall_quality = (optimality_score + coverage_score + consistency_score) / 3
+    print(f"[FoundationValidator] Overall foundation quality: {overall_quality:.3f}")
+```
+
 ---
 
-**Heuristics provide the essential foundation for the entire machine learning ecosystem, generating high-quality labeled data that enables sophisticated learning across neural networks, reinforcement learning, and language models while maintaining the architectural consistency established in the Final Decision series.**
+**Heuristics provide the essential foundation for the entire machine learning ecosystem, generating high-quality labeled data that enables sophisticated learning across neural networks, reinforcement learning, and language models while maintaining full compliance with established GOOD_RULES standards and serving as the authoritative ground truth source.**

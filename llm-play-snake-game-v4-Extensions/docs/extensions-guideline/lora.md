@@ -1,10 +1,15 @@
 # LoRA Fine-Tuning Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. LoRA implementations follow the same architectural patterns established in the GOOD_RULES.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 ## 🎯 **Core Philosophy: Efficient LLM Adaptation**
 
 Low-Rank Adaptation (LoRA) enables efficient fine-tuning of large language models by training only a small fraction of parameters while maintaining the power of the full model. This follows the established patterns from the Final Decision series for model management and training pipelines.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for LLM fine-tuning implementations  
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout LoRA references
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
 
 ### **Design Philosophy**
 - **Parameter Efficiency**: Fine-tune 0.1-1% of original model parameters
@@ -299,6 +304,74 @@ class LLMFineTuneManager:
         return result
 ```
 
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all LoRA fine-tuned implementations
+- **`config.md`**: Uses authorized LLM configuration hierarchies for LoRA training parameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines  
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+- **`fine-tuning.md`**: Follows fine-tuning extension standards and patterns
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Uses JSONL format specifically designed for LLM fine-tuning
+- **`datasets-folder.md`**: Uses datasets from heuristics-v0.04 for language-rich training data
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`models.md`**: Follows model versioning and adapter storage standards
+
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for LoRA training interfaces
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for fine-tuning monitoring
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all LoRA implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def train_lora_adapter(self, train_dataset, eval_dataset):
+    print(f"[LoRATrainer] Starting LoRA fine-tuning...")
+    print(f"[LoRATrainer] Training samples: {len(train_dataset)}")
+    print(f"[LoRATrainer] LoRA rank: {self.config.rank}, alpha: {self.config.alpha}")
+    
+    # Apply LoRA to model
+    self.prepare_model_for_training()
+    print(f"[LoRATrainer] LoRA adapter applied to model")
+    
+    # Train with progress tracking
+    result = self.trainer.train()
+    print(f"[LoRATrainer] Training completed - Final loss: {result.training_loss:.4f}")
+    
+    # Save adapter
+    self.save_adapter()
+    print(f"[LoRATrainer] LoRA adapter saved successfully")
+
+# ✅ CORRECT: Educational progress tracking  
+def load_jsonl_dataset(self, dataset_path):
+    print(f"[DataLoader] Loading JSONL dataset from {dataset_path}")
+    
+    data = []
+    with open(dataset_path, 'r') as f:
+        for i, line in enumerate(f):
+            if i % 1000 == 0:
+                print(f"[DataLoader] Processed {i} samples...")
+            data.append(json.loads(line.strip()))
+    
+    print(f"[DataLoader] Loaded {len(data)} training examples")
+    return data
+```
+
 ---
 
-**LoRA fine-tuning provides an efficient pathway for adapting large language models to Snake Game AI reasoning tasks while following the established architectural patterns and maintaining consistency with the extension ecosystem established in the Final Decision series.**
+**LoRA fine-tuning provides parameter-efficient adaptation of large language models for Snake Game AI, enabling specialized reasoning capabilities while maintaining computational efficiency and full compliance with established GOOD_RULES standards.**

@@ -6,6 +6,11 @@
 
 Eureka represents a paradigm shift in reinforcement learning where reward functions are automatically generated and evolved using large language models (LLMs) rather than being hand-crafted by humans. This approach can discover novel and effective reward shaping strategies that might not be intuitive to human designers.
 
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns
+- **SUPREME_RULE NO.2**: References `final-decision-N.md` format consistently  
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements)
+
 ### **Design Philosophy**
 - **Automated Discovery**: Let AI discover optimal reward functions
 - **Human-AI Collaboration**: Combine human insights with AI exploration
@@ -104,6 +109,7 @@ class RewardFunctionGenerator:
         self.llm = llm_interface
         self.validator = safety_validator
         self.generation_history = []
+        print("[RewardFunctionGenerator] Initialized")  # SUPREME_RULE NO.3: Simple logging
     
     def generate_initial_population(self, population_size: int = 10):
         """Generate diverse initial reward functions"""
@@ -416,7 +422,71 @@ EUREKA_CONFIG = {
 - **Robustness Testing**: Ensure evolved rewards work across different scenarios
 - **Bias Detection**: Identify and mitigate biases in evolved reward functions
 
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all Eureka RL implementations
+- **`config.md`**: Uses authorized configuration hierarchies for evolution parameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+- **`reinforcement-learning.md`**: Follows RL extension standards and patterns
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Follows format selection criteria for evolved reward functions
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`datasets-folder.md`**: Follows standard directory structure for evolution datasets
+
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for evolution monitoring
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for interactive interfaces
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all evolution components
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def evolve_reward_function(self, parent_functions, performance_data):
+    print("[EurekaEvolution] Starting evolution process...")
+    
+    top_performers = self._select_top_performers(parent_functions, performance_data)
+    print(f"[EurekaEvolution] Selected {len(top_performers)} top performers")
+    
+    evolved_code = self.llm.generate(evolution_prompt)
+    print(f"[EurekaEvolution] Generated new reward function ({len(evolved_code)} chars)")
+    
+    if self.validator.is_safe(evolved_code):
+        print("[EurekaEvolution] Reward function passed safety validation")
+        return self._compile_reward_function(evolved_code)
+    else:
+        print("[EurekaEvolution] WARNING: Generated function failed safety check")
+        return None
+
+# ✅ CORRECT: Educational progress tracking
+def run_evolution_cycle(self, generation):
+    print(f"[EurekaEngine] Starting generation {generation}")
+    
+    for i, individual in enumerate(self.population):
+        print(f"[EurekaEngine] Evaluating individual {i+1}/{len(self.population)}")
+        performance = self.evaluator.evaluate_reward_function(individual['function'])
+        print(f"[EurekaEngine] Individual {i+1} performance: {performance['overall_score']:.3f}")
+    
+    best_score = max(ind['performance']['overall_score'] for ind in self.population)
+    print(f"[EurekaEngine] Generation {generation} best score: {best_score:.3f}")
+```
+
 ---
 
-**Eureka represents a revolutionary approach to reward function design, enabling the discovery of novel and effective strategies through automated LLM-based evolution. This approach can uncover reward patterns that human designers might never consider, leading to breakthrough performance in Snake Game AI while advancing our understanding of automated system design.**
+**Eureka represents a revolutionary approach to reward function design, enabling the discovery of novel and effective strategies through automated LLM-based evolution. This approach can uncover reward patterns that human designers might never consider, leading to breakthrough performance in Snake Game AI while advancing our understanding of automated system design and maintaining full compliance with established GOOD_RULES standards.**
 

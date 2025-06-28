@@ -1,10 +1,15 @@
 # LLM Fine-Tuning for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 ## 🎯 **Core Philosophy: Specialized LLM Training**
 
 LLM fine-tuning enables the creation of specialized language models that excel at specific tasks like Snake game playing. By training on game-specific data with reasoning patterns, these models develop deep understanding of game mechanics and strategic thinking.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for LLM fine-tuning implementations
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout fine-tuning references
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
 
 ### **Design Philosophy**
 - **Task Specialization**: Models trained specifically for Snake game excellence
@@ -331,40 +336,84 @@ python main.py --mode evaluate \
   --grid-size 10
 ```
 
-## 🔗 **Integration with Extension Ecosystem**
+## 🔗 **GOOD_RULES Integration**
 
-### **Data Sources**
-- **Primary**: JSONL datasets from `heuristics-v0.04` (language-rich explanations)
-- **Augmentation**: Synthetic data generation for edge cases
-- **Validation**: Human-annotated preference datasets
-- **Testing**: Standardized benchmarks across grid sizes
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
 
-### **Model Deployment**
-- **Inference Optimization**: Quantization, pruning for efficient deployment
-- **API Integration**: Compatible with existing LLM provider interfaces
-- **Batch Processing**: Efficient multi-game evaluation capabilities
-- **Real-time Deployment**: Low-latency inference for interactive play
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all fine-tuned LLM implementations
+- **`config.md`**: Uses authorized LLM configuration hierarchies for fine-tuning parameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
 
-### **Continuous Improvement**
-- **Feedback Loops**: Learn from deployment performance
-- **Data Flywheel**: Use model performance to generate better training data
-- **A/B Testing**: Compare model versions in live environments
-- **Transfer Learning**: Apply learned representations to new game variants
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+- **`agentic-llms.md`**: Integrates with agentic LLM patterns for enhanced reasoning
 
-## 🔮 **Future Research Directions**
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Uses JSONL format specifically designed for LLM fine-tuning
+- **`datasets-folder.md`**: Consumes language-rich datasets from heuristics-v0.04
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`models.md`**: Follows model versioning and fine-tuned model storage standards
 
-### **Advanced Architectures**
-- **Mixture of Experts**: Specialized expert networks for different game phases
-- **Retrieval-Augmented Generation**: Access to strategy databases during inference
-- **Multi-Modal Models**: Integration of visual game understanding
-- **Hierarchical Planning**: Models that plan at multiple time scales
+### **Training and Optimization**
+- **`lora.md`**: Implements parameter-efficient fine-tuning through LoRA adapters
+- **`heuristics-as-foundation.md`**: Leverages foundational JSONL datasets from heuristic reasoning
+- **`llm-with-reasoning.md`**: Enhances reasoning capabilities through fine-tuning
 
-### **Training Innovations**
-- **Meta-Learning**: Quick adaptation to new game variants or rules
-- **Few-Shot Learning**: Rapid learning from minimal examples
-- **Continual Learning**: Learning new strategies without forgetting old ones
-- **Self-Supervised Learning**: Learning game understanding from gameplay alone
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for fine-tuning interfaces
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for training monitoring
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all fine-tuning implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def fine_tune_llm(self, model_name, dataset_path, output_dir):
+    print(f"[FineTuner] Starting fine-tuning of {model_name}")
+    print(f"[FineTuner] Dataset: {dataset_path}")
+    print(f"[FineTuner] Output directory: {output_dir}")
+    
+    # Load and prepare dataset
+    dataset = self._load_jsonl_dataset(dataset_path)
+    print(f"[FineTuner] Loaded {len(dataset)} training examples")
+    
+    # Setup training
+    self.setup_model(model_name)
+    print(f"[FineTuner] Model prepared for fine-tuning")
+    
+    # Execute training
+    result = self.trainer.train()
+    print(f"[FineTuner] Training completed - Final loss: {result.training_loss:.4f}")
+    
+    # Save fine-tuned model
+    self.save_model(output_dir)
+    print(f"[FineTuner] Fine-tuned model saved to {output_dir}")
+
+# ✅ CORRECT: Educational progress tracking
+def evaluate_fine_tuned_model(self, model_path, test_dataset):
+    print(f"[FineTuneEvaluator] Evaluating fine-tuned model from {model_path}")
+    
+    # Load model and run evaluation
+    model = self.load_fine_tuned_model(model_path)
+    print(f"[FineTuneEvaluator] Model loaded successfully")
+    
+    # Performance metrics
+    accuracy = self._calculate_accuracy(model, test_dataset)
+    reasoning_quality = self._assess_reasoning_quality(model, test_dataset)
+    
+    print(f"[FineTuneEvaluator] Accuracy: {accuracy:.3f}")
+    print(f"[FineTuneEvaluator] Reasoning quality: {reasoning_quality:.3f}")
+```
 
 ---
 
-**LLM fine-tuning for Snake Game AI demonstrates how large language models can be specialized for specific domains, combining the reasoning capabilities of foundation models with task-specific expertise. This approach bridges the gap between general AI capabilities and specialized game-playing performance.**
+**LLM fine-tuning enables specialized language models for Snake Game AI that combine task-specific knowledge with enhanced reasoning capabilities, leveraging language-rich datasets while maintaining full compliance with established GOOD_RULES standards and architectural patterns.**

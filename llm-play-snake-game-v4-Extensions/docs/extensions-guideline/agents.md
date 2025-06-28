@@ -1,8 +1,13 @@
 # Agent Implementation Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `extension-evolution-rules.md`, establishing comprehensive agent implementation standards.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for agent implementation standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `extension-evolution-rules.md`.
 
 This document defines the authoritative agent naming conventions, implementation patterns, and architectural standards that ensure consistency, educational value, and maintainability across all Snake Game AI extensions.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making agent architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and agent patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining agent patterns through inheritance rather than tight coupling
 
 ## 🎯 **Standardized Naming Convention**
 

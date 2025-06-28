@@ -6,6 +6,11 @@
 
 Agentic LLMs represent the next evolution of AI systems that can reason, plan, and act autonomously in complex environments. In the Snake Game AI context, these agents leverage large language models not just for decision-making, but for sophisticated reasoning, planning, and learning.
 
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns
+- **SUPREME_RULE NO.2**: References `final-decision-N.md` format consistently  
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements)
+
 ### **Design Philosophy**
 - **Autonomous Reasoning**: LLMs that can analyze game states and develop strategies
 - **Multi-Step Planning**: Agents that plan ahead rather than just react
@@ -90,6 +95,7 @@ class ReActAgent(BaseAgent):
         super().__init__(name, grid_size)
         self.reasoning_history = []
         self.decision_history = []
+        print(f"[{name}] ReAct Agent initialized")  # SUPREME_RULE NO.3: Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using ReAct reasoning pattern"""
@@ -192,6 +198,74 @@ class ToolUsingAgent(BaseAgent):
 - Create ensemble systems
 
 ### **With Reinforcement Learning**
+- Train RL agents to mimic agentic LLM behavior
+- Use agentic LLMs as teachers for RL agents
+- Create curriculum learning with agentic guidance
+
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all agentic LLM implementations
+- **`config.md`**: Uses authorized LLM constants and configuration hierarchies
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Follows format selection criteria for agentic LLM outputs
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`datasets-folder.md`**: Follows standard directory structure for generated datasets
+
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for v0.03+ dashboards
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for interactive interfaces
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all agent implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def initialize_agentic_system(self):
+    print("[AgenticLLM] Initializing reasoning system...")
+    self.tools = self._setup_tools()
+    print(f"[AgenticLLM] Loaded {len(self.tools)} tools successfully")
+    
+    self.memory = AgenticMemory()
+    print("[AgenticLLM] Memory system initialized")
+
+# ✅ CORRECT: Educational progress tracking
+def generate_reasoning_chain(self, game_state):
+    print(f"[ReAct] Starting reasoning for step {game_state.get('step', 0)}")
+    
+    # Observation phase
+    observation = self._format_observation(game_state)
+    print(f"[ReAct] Observation: {observation[:100]}...")
+    
+    # Thought phase  
+    thought = self._generate_thought(observation)
+    print(f"[ReAct] Thought: {thought[:100]}...")
+    
+    # Action phase
+    action = self._decide_action(thought, observation)
+    print(f"[ReAct] Action: {action}")
+    
+    return action
+```
+
+---
+
+**This document demonstrates how agentic LLMs can be implemented within the Snake Game AI architecture while maintaining full compliance with established GOOD_RULES standards and educational objectives.**
 - Use RL to optimize agentic prompt strategies
 - Combine LLM reasoning with RL action selection
 - Multi-objective optimization of reasoning and performance
@@ -251,6 +325,15 @@ This whitelist ensures clear architectural boundaries and prevents leakage of Ta
 - **Vision-Language Models**: Direct processing of game visuals
 - **Audio Feedback**: Spoken explanations of decisions
 - **Gesture Control**: Natural interface integration
+
+## 🔗 **Integration with GOOD_RULES**
+
+This extension follows all established patterns:
+- **`agents.md`**: Agent implementation standards
+- **`config.md`**: Configuration access rules (LLM constants whitelist)
+- **`core.md`**: Base class inheritance
+- **`coordinate-system.md`**: Universal coordinate system
+- **`unified-path-management-guide.md`**: Path management standards
 
 ---
 

@@ -1,8 +1,13 @@
 # Single Source of Truth Principle
 
-> **Important — Authoritative Reference:** This document supplements the Final Decision Series and unified guides for extension development standards.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and serves as a GOOD_RULES authoritative reference for SSOT standards.
 
 ## 🎯 **Core Philosophy: One Truth, One Place**
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making architectural changes to ensure SSOT compliance
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout architectural references
+- **SUPREME_RULE NO.3**: Promotes lightweight common utilities with simple logging (print() statements) to maintain SSOT for logging patterns
 
 The Single Source of Truth (SSOT) principle ensures that every piece of information has exactly one authoritative location. This eliminates contradictions, reduces maintenance burden, and ensures consistency across the entire Snake Game AI ecosystem.
 

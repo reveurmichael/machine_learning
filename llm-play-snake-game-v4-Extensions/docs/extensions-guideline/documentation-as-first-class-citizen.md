@@ -1,9 +1,15 @@
 # Documentation as First-Class Citizen
 
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for documentation standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). It also follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 This document outlines the philosophy and practices that make documentation a **first-class citizen** in the Snake Game AI project, equal in importance to the code itself.
 
 ## 🎯 **Core Philosophy: Documentation-Driven Development**
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making documentation changes
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout examples
+- **SUPREME_RULE NO.3**: Advocates simple logging (print() statements) in all code examples rather than complex *.log file mechanisms
 
 In this project, documentation is not an afterthought—it's the foundation that enables:
 - **AI assistant effectiveness**: Rich context for automated code understanding

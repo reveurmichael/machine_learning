@@ -1,11 +1,17 @@
 # Configuration Architecture for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `final-decision-2.md`, establishing comprehensive configuration management standards.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration management standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `final-decision-2.md`.
 
 ## 🎯 **Configuration Philosophy: Single Source of Truth with Clear Separation**
 
 The Snake Game AI configuration architecture implements a sophisticated separation model that ensures consistency, prevents pollution, and enables scalable extension development:
 
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making configuration architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and configuration patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining configuration patterns through inheritance rather than tight coupling
+
+The configuration system implements:
 - **Universal Constants**: Core game rules and shared settings in `ROOT/config/`
 - **Extension-Specific Constants**: ML, training, and extension utilities in `extensions/common/config/`
 - **Task-0 Isolation**: LLM-specific constants properly isolated with controlled access
@@ -306,9 +312,3 @@ from config.ui_constants import COLORS, GRID_SIZE  # ✅ Universal visualization
 # ✅ Task-1 specific extensions
 HEURISTIC_ALGORITHMS = ["BFS", "A_STAR", "HAMILTONIAN"]
 ```
-
-**Note (SUPREME_RULE NO.3)**: The common config folder avoids ML/DL-specific files like `ml_constants.py`, `training_defaults.py`, or `model_registry.py` to stay lightweight and generic.
-
-
-
-

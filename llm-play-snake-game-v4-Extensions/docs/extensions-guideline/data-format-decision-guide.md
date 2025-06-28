@@ -1,12 +1,17 @@
 # Data Format Decision Guide
 
-> **Authoritative Reference**: This document is the single source of truth for all data format decisions across the Snake Game AI project.
+> **Authoritative Reference**: This document serves as a **GOOD_RULES** authoritative reference for data format decisions and is the single source of truth for all data format decisions across the Snake Game AI project.
 
 > **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
 Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**
 

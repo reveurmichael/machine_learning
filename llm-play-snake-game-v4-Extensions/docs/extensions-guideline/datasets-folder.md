@@ -1,10 +1,17 @@
 # Dataset and Model Directory Structure
 
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for dataset and model directory structure standards and supplements the _Final Decision Series_.
+
 > **SUPREME_RULES**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions.
 
 ## 🎯 **Core Design Philosophy**
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making dataset/model directory architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and directory structure patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining directory structure patterns through inheritance rather than tight coupling
 
 ### **Grid-Size Agnostic Organization**
 Directory structure is designed to be **grid-size independent** while maintaining clear separation between different grid configurations, enabling flexible experimentation across different board sizes.

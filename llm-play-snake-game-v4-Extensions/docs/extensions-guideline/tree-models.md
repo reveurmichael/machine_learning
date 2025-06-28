@@ -1,10 +1,15 @@
 # Tree-Based Models for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Tree-based models follow the same architectural patterns as other supervised learning approaches.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 ## 🌳 **Tree Models Philosophy**
 
 Tree-based models excel at learning decision patterns from tabular data, making them ideal for Snake Game AI where game states can be represented as structured feature vectors. They bridge the gap between interpretable heuristics and powerful neural networks.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for tree-based model implementations
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout tree model references
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
 
 ### **Core Advantages**
 - **Interpretability**: Decision paths provide clear reasoning insights
@@ -225,7 +230,69 @@ class LightGBMAgent(TreeAgent):
 - **Feature Transfer**: Tree-identified features for neural network training
 - **Explanation Transfer**: Tree interpretability for neural model understanding
 
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all tree-based model implementations
+- **`config.md`**: Uses authorized configuration hierarchies for tree model hyperparameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+- **`supervised.md`**: Follows supervised learning extension standards and patterns
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Uses CSV format specifically designed for tree-based models
+- **`csv-schema-1.md`** and **`csv-schema-2.md`**: Leverages 16-feature tabular schema optimized for trees
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`datasets-folder.md`**: Follows standard directory structure for tree model datasets
+
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for tree model interfaces
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for interactive tree analysis
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all tree model implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def train_tree_model(self, X_train, y_train):
+    print(f"[{self.name}] Starting tree training with {len(X_train)} samples")
+    
+    self.model.fit(X_train, y_train)
+    
+    # Feature importance analysis with simple logging
+    if hasattr(self.model, 'feature_importances_'):
+        top_features = self._get_top_features()
+        print(f"[{self.name}] Top 3 features: {top_features}")
+    
+    print(f"[{self.name}] Tree training completed successfully")
+
+# ✅ CORRECT: Educational progress tracking
+def analyze_tree_performance(self, X_test, y_test):
+    print(f"[TreeAnalysis] Evaluating model performance...")
+    
+    predictions = self.model.predict(X_test)
+    accuracy = accuracy_score(y_test, predictions)
+    print(f"[TreeAnalysis] Accuracy: {accuracy:.3f}")
+    
+    # Tree-specific analysis
+    if hasattr(self.model, 'tree_'):
+        depth = self.model.tree_.max_depth
+        print(f"[TreeAnalysis] Tree depth: {depth}")
+```
+
 ---
 
-**Tree-based models provide a perfect balance of performance, interpretability, and efficiency for Snake Game AI. They serve as both strong standalone solutions and valuable components in ensemble approaches, while offering unique insights into the decision-making process that complements other AI approaches.**
+**Tree-based models provide an optimal balance of interpretability and performance for Snake Game AI, enabling clear understanding of decision-making processes while maintaining competitive accuracy with neural approaches and full compliance with established GOOD_RULES standards.**
 

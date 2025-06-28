@@ -1,10 +1,15 @@
 # Model Architecture for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. Model components follow the same architectural patterns established in the GOOD_RULES.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for model architecture standards and supplements the _Final Decision Series_ and extension guidelines.
 
 ## 🎯 **Core Philosophy: Universal Model Foundation**
 
 The model architecture demonstrates perfect base class design where generic model interfaces provide foundation functionality while extension-specific implementations add specialized behavior for different machine learning approaches.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making model architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and model patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining model patterns through inheritance rather than tight coupling
 
 ### **Design Philosophy**
 - **Universal Base Classes**: Generic model interfaces for all extensions

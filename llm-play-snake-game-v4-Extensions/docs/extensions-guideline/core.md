@@ -1,10 +1,15 @@
 # Core Architecture Documentation
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides detailed analysis of the core architecture.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for core architecture standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 ## ✅ **Current Core Architecture Assessment**
 
 Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making core architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and core patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining core patterns through inheritance rather than tight coupling
 
 ## 🎯 **Existing Base Classes Architecture**
 

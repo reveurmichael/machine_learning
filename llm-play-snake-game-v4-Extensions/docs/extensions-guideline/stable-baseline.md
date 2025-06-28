@@ -1,10 +1,15 @@
 # Stable Baselines3 Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows established architectural patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and follows **KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES** guidelines with a target length of 300-500 lines.
 
 ## 🎯 **Core Philosophy: Production-Ready RL Framework Integration**
 
 Stable Baselines3 (SB3) provides state-of-the-art reinforcement learning algorithms with a standardized interface. In the Snake Game AI ecosystem, SB3 enables rapid prototyping and deployment of proven RL algorithms while maintaining compatibility with the native architecture.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Follows all established GOOD_RULES patterns for RL framework integration
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently throughout SB3 references
+- **SUPREME_RULE NO.3**: Uses lightweight, OOP-based common utilities with simple logging (print() statements) rather than complex *.log file mechanisms
 
 ### **Design Philosophy**
 - **Framework Integration**: Seamless integration with existing extensions architecture
@@ -460,21 +465,70 @@ class SB3ModelManager:
         return model, metadata
 ```
 
+## 🔗 **GOOD_RULES Integration**
+
+This document integrates with the following authoritative references from the **GOOD_RULES** system:
+
+### **Core Architecture Integration**
+- **`agents.md`**: Follows BaseAgent interface and factory patterns for all SB3 RL implementations
+- **`config.md`**: Uses authorized configuration hierarchies for SB3 hyperparameters
+- **`core.md`**: Inherits from base classes and follows established inheritance patterns
+
+### **Extension Development Standards**
+- **`extensions-v0.02.md`** through **`extensions-v0.04.md`**: Follows version progression guidelines
+- **`standalone.md`**: Maintains standalone principle (extension + common = self-contained)
+- **`single-source-of-truth.md`**: Avoids duplication, uses centralized utilities
+- **`reinforcement-learning.md`**: Follows RL extension standards and established RL patterns
+
+### **Data and Path Management**
+- **`data-format-decision-guide.md`**: Uses NPZ Sequential format for RL experience replay
+- **`unified-path-management-guide.md`**: Uses centralized path utilities from extensions/common/
+- **`datasets-folder.md`**: Follows standard directory structure for RL model storage
+- **`models.md`**: Follows model versioning and storage standards
+
+### **UI and Interaction Standards**
+- **`app.md`** and **`dashboard.md`**: Integrates with Streamlit architecture for SB3 training interfaces
+- **`unified-streamlit-architecture-guide.md`**: Follows OOP Streamlit patterns for RL monitoring
+
+### **Implementation Quality**
+- **`documentation-as-first-class-citizen.md`**: Maintains rich docstrings and design pattern documentation
+- **`elegance.md`**: Follows code quality and educational value standards
+- **`naming_conventions.md`**: Uses consistent naming across all SB3 implementations
+
+## 📝 **Simple Logging Examples (SUPREME_RULE NO.3)**
+
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def train_sb3_agent(self, total_timesteps: int):
+    print(f"[{self.name}] Starting SB3 training for {total_timesteps} timesteps")
+    
+    self.model.learn(
+        total_timesteps=total_timesteps,
+        log_interval=100
+    )
+    
+    print(f"[{self.name}] SB3 training completed successfully")
+    
+    # Evaluate performance with simple logging
+    mean_reward = self._evaluate_model()
+    print(f"[{self.name}] Final mean reward: {mean_reward:.2f}")
+
+# ✅ CORRECT: Educational progress tracking
+def initialize_sb3_model(self, algorithm: str, environment):
+    print(f"[SB3Factory] Initializing {algorithm} model...")
+    
+    model = self._create_model(algorithm, environment)
+    print(f"[SB3Factory] {algorithm} model created with {model.policy} policy")
+    
+    # Model configuration logging
+    if hasattr(model, 'learning_rate'):
+        print(f"[SB3Factory] Learning rate: {model.learning_rate}")
+    
+    return model
+```
+
 ---
 
-## 🚀 **Benefits and Integration Summary**
-
-### **Key Advantages of SB3 Integration**
-1. **Production-Ready Algorithms**: Battle-tested implementations
-2. **Comprehensive Monitoring**: Built-in logging and evaluation
-3. **Hyperparameter Optimization**: Easy integration with tuning libraries
-4. **Community Support**: Large ecosystem and active development
-5. **Research Reproducibility**: Standardized implementations for fair comparison
-
-### **Architectural Consistency**
-- **Factory Patterns**: Consistent with Final Decision 7-8
-- **Directory Structure**: Follows Final Decision 1 and 5
-- **Configuration Management**: Uses Final Decision 2 standards
-- **Agent Naming**: Adheres to Final Decision 4 conventions
-
-**Stable Baselines3 integration provides a professional, production-ready reinforcement learning framework while maintaining full compatibility with the Snake Game AI architecture and educational objectives.**
+**Stable Baselines3 integration provides production-ready RL algorithms for Snake Game AI, enabling rapid development and deployment of state-of-the-art reinforcement learning approaches while maintaining full compliance with established GOOD_RULES standards and educational objectives.**

@@ -1,10 +1,15 @@
 # Reinforcement Learning Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and extension guidelines. RL extensions follow the same architectural patterns as other algorithm types.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for reinforcement learning extension standards and supplements the _Final Decision Series_ and extension guidelines.
 
 ## 🎯 **RL Philosophy in Extension Architecture**
 
 Reinforcement learning extensions demonstrate how agents learn optimal policies through interaction with the Snake game environment. They follow the standardized extension evolution patterns while addressing the unique challenges of RL training and evaluation.
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making RL architectural changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and RL patterns
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining RL-specific patterns through inheritance rather than tight coupling
 
 ### **Core RL Principles**
 - **Learning Through Interaction**: Agents improve through trial and error

@@ -1,8 +1,15 @@
 # Standalone Extension Architecture for Snake Game AI
 
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for standalone architecture standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
+
 This document provides comprehensive guidelines for implementing the standalone principle across all extensions in the Snake Game AI project, ensuring modularity, independence, and clear conceptual boundaries.
 
 ## 🎯 **Core Standalone Principle**
+
+### **SUPREME_RULES Alignment**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making standalone architecture changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining standalone principle through inheritance rather than tight coupling
 
 The standalone principle is fundamental to the Snake Game AI extension architecture:
 

@@ -404,12 +404,12 @@ def process_agentic_reasoning(observation: str, tools: dict):
     return action
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-import logging
-logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
-def process_agentic_reasoning(observation: str, tools: dict):
-    logger.info(f"Starting agentic reasoning")  # FORBIDDEN - complex logging
-    # This violates final-decision-10.md SUPREME_RULES
+# def process_agentic_reasoning(observation: str, tools: dict):
+#     logger.info(f"Starting agentic reasoning")  # FORBIDDEN - complex logging
+#     # This violates final-decision-10.md SUPREME_RULES
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**

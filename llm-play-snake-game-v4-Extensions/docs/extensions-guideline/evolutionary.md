@@ -402,12 +402,12 @@ def evolve_population(population: list, fitness_scores: list):
     return mutated_offspring
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-import logging
-logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
-def evolve_population(population: list, fitness_scores: list):
-    logger.info(f"Starting evolution")  # FORBIDDEN - complex logging
-    # This violates final-decision-10.md SUPREME_RULES
+# def evolve_population(population: list, fitness_scores: list):
+#     logger.info(f"Starting evolution")  # FORBIDDEN - complex logging
+#     # This violates final-decision-10.md SUPREME_RULES
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**

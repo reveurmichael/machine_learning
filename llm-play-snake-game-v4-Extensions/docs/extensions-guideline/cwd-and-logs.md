@@ -97,10 +97,10 @@ print(f"[Agent] Selected move: {move}")
 print(f"[Game] Score: {score}")
 
 # ❌ INCORRECT: Complex logging frameworks
-import logging
-logger = logging.getLogger(__name__)
-logger.info("Starting game")
-logger.error("Game failed")
+# import logging
+# logger = logging.getLogger(__name__)
+# logger.info("Starting game")
+# logger.error("Game failed")
 ```
 
 ### **Logging Format Standards**

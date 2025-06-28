@@ -210,12 +210,12 @@ def create_instance(factory_type: str, instance_type: str):
     return instance
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-import logging
-logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
-def create_instance(factory_type: str, instance_type: str):
-    logger.info(f"Creating {instance_type}")  # FORBIDDEN - complex logging
-    # This violates final-decision-10.md SUPREME_RULES
+# def create_instance(factory_type: str, instance_type: str):
+#     logger.info(f"Creating {instance_type}")  # FORBIDDEN - complex logging
+#     # This violates final-decision-10.md SUPREME_RULES
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -261,4 +261,4 @@ def create_instance(factory_type: str, instance_type: str):
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
 - **`core.md`**: Base class architecture following canonical principles
-- **`standalone.md`**: Standalone principle and extension independence 
+- **`standalone.md`**: Standalone principle and extension independence

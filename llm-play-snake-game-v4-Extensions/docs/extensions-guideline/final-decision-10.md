@@ -80,6 +80,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `ai-friendly.md`
 * `app.md`
 * `documentation-as-first-class-citizen.md`
+* `dashboard.md`
 * `eureka.md`
 * `extension-evolution-rules.md`
 * `forbidden-import-patterns.md`

@@ -10,6 +10,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, make sure to read ALL markdown files in `./docs/extensions-guideline/` first.
 2. **SUPREME_RULE NO.2**: When citing Final Decision documents, use the precise format `final-decision-N.md`; Don't use "Final Decision N", "FD-N", or "final-decision-N".
 3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements, rather than complex *.log file logging mechanisms. We will not produce all *.log files in this whole project, not for Task-0, not for extensions.
+4. **SUPREME_RULE NO.4**: Ensure all markdown files are **coherent and aligned**. Starting with `final-decision-10.md`, its ideas must propagate and harmonize across all other markdown files. STEP_A: Update other markdown files so they align with `final-decision-10.md`. STEP_B: Think of this process as a **diffusion of ideas**, like nuclear diffusion: each idea collides with "atoms" (markdown files in `./docs/extensions-guideline/` and Python files in `extensions/common/`), bouncing back and forth, recursively refining coherence. STEP_C: This is an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, repeat — until the entire system achieves deep, internal consistency and clarity.
 
 ## 📋 **GOOD_RULES: Authoritative References**
 
@@ -48,14 +49,19 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 We have a bunch of markdown files in `./docs/extensions-guideline/` that should be kept relatively simple, because it will be just an exploration of ideas for this moment and will be updated later. Or they are already scattered across the project and hence no need to make it long, just a concise version of it to keep the record but no need to expand the ideas in this particular file. Just make those markdown files relatively simple, relatively short/concise (target 300-500 lines):
 
 - agentic-llms.md
-- generative-models.md
-- vision-language-model.md
-- eureka.md
-- tree-models.md
-- stable-baseline.md
-- lora.md
-- heuristics-as-foundation.md
 - documentation-as-first-class-citizen.md
+- eureka.md
+- generative-models.md
+- gymnasium.md
+- heuristics-as-foundation.md
+- llm-with-cot.md
+- llm-with-reasoning.md
+- lora.md
+- mutilple-inheritance.md
+- stable-baseline.md
+- tree-models.md
+- vision-language-model.md
+
 
 
 

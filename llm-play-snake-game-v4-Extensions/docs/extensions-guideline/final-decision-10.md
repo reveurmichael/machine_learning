@@ -40,17 +40,13 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 The following files in `./docs/extensions-guideline/` are designated as **GOOD_RULES** and serve as the **single source of truth**:
 
 - `agents.md` (Agent implementation standards)
-- `ai-friendly.md` (AI assistant integration guidelines)
-- `app.md` (Streamlit application architecture)
 - `config.md` (Configuration architecture)
 - `coordinate-system.md` (Universal coordinate system)
 - `core.md` (Base class architecture)
 - `csv-schema-1.md` and `csv-schema-2.md` (Data format specifications)
 - `cwd-and-logs.md` (Working directory standards)
-- `dashboard.md` (Dashboard component standards)
 - `data-format-decision-guide.md` (Format selection criteria)
 - `datasets-folder.md` (Directory structure standards)
-- `documentation-as-first-class-citizen.md` (Documentation standards)
 - `elegance.md` (Code quality standards)
 - `extensions-move-guidelines.md` (Extension development workflow)
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
@@ -64,7 +60,6 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `standalone.md` (Standalone principle enforcement)
 - `supervised.md` (Supervised learning extension standards)
 - `unified-path-management-guide.md` (Path management standards)
-- `unified-streamlit-architecture-guide.md` (Streamlit OOP architecture)
 
 
 ## KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES
@@ -75,14 +70,14 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * Or, their ideas are already scattered throughout the project.
 * Or, the concepts are relatively obvious and do not require long elaboration.
 
-**Files to keep simple:**
+**Files to keep simple (KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES):**
 
 * `agentic-llms.md`
 * `ai-friendly.md`
 * `app.md`
 * `documentation-as-first-class-citizen.md`
 * `dashboard.md`
-* `eureka.md`
+* `eureka.md` 
 * `extension-evolution-rules.md`
 * `extension-move-guidelines.md`
 * `forbidden-import-patterns.md`
@@ -98,6 +93,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `stable-baseline.md`
 * `tree-models.md`
 * `vision-language-model.md`
+* `unified-streamlit-architecture-guide.md`
 
 
 

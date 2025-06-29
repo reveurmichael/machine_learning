@@ -38,6 +38,7 @@ extensions/{extension_type}-v{version}/
 ├── scripts/                            # CLI entry points (v0.03+)
 ├── game_logic.py                       # Extension-specific logic
 ├── game_manager.py                     # Session management
+├── game_runner.py                      # Quick-play helper (RECOMMENDED)
 └── README.md                           # Documentation
 ```
 
@@ -46,6 +47,7 @@ extensions/{extension_type}-v{version}/
 - `{algorithm}`: Any algorithm following `agent_{name}.py` pattern
 - No restrictions on algorithm types or approaches
 - All factories must use canonical `create()` method per SUPREME_RULES from final-decision-10.md
+- `game_runner.py`: Extension-specific quick-play utilities (see Game Runner Pattern below)
 
 ## 🎯 **Core Design Principles**
 
@@ -343,6 +345,78 @@ Following `final-decision-10.md` SUPREME_RULES, the structure encourages:
 - **`extensions-v0.01.md`**: Foundation patterns for new extensions
 - **`config.md`**: Flexible configuration architecture
 - **`core.md`**: Base class documentation for inheritance
+
+## 🎯 **Game Runner Pattern for Extensions**
+
+### **Why Extensions Need game_runner.py**
+
+Each extension should include a `game_runner.py` module that provides:
+
+1. **Direct Agent Execution**: Run algorithms without full session overhead
+2. **Rapid Prototyping**: Quick testing and validation during development
+3. **Educational Clarity**: Clear demonstration of agent capabilities
+4. **Research Workflows**: Streamlined experimentation and benchmarking
+
+### **Extension-Specific Patterns**
+
+#### **Heuristics game_runner.py**
+```python
+# extensions/heuristics-v0.03/game_runner.py
+"""Quick-play helper for pathfinding algorithms."""
+
+from agents import BaseHeuristicAgent
+from game_logic import HeuristicGameLogic
+
+def play_heuristic(agent: BaseHeuristicAgent, **kwargs) -> List[dict]:
+    """Execute pathfinding agent and return trajectory."""
+    game = HeuristicGameLogic(use_gui=kwargs.get('render', False))
+    # Implementation specific to heuristic algorithms
+    
+def play_bfs(**kwargs):
+    """Convenience function for BFS."""
+    from agents.agent_bfs import BFSAgent
+    return play_heuristic(BFSAgent(), **kwargs)
+```
+
+#### **Machine Learning game_runner.py**
+```python
+# extensions/supervised-v0.02/game_runner.py  
+"""Quick-play helper for trained ML models."""
+
+from agents import BaseMLAgent
+from game_logic import MLGameLogic
+
+def play_ml(model_path: str, **kwargs) -> List[dict]:
+    """Execute trained model and return trajectory."""
+    game = MLGameLogic(use_gui=kwargs.get('render', False))
+    agent = load_trained_model(model_path)
+    # Implementation specific to ML inference
+```
+
+#### **Reinforcement Learning game_runner.py**
+```python
+# extensions/reinforcement-v0.02/game_runner.py
+"""Quick-play helper for RL agents."""
+
+from agents import BaseRLAgent
+from game_logic import RLGameLogic
+
+def play_rl(agent_or_path: Union[BaseRLAgent, str], **kwargs) -> List[dict]:
+    """Execute RL agent (training or inference mode)."""
+    game = RLGameLogic(use_gui=kwargs.get('render', False))
+    # Implementation specific to RL agents
+
+def train_rl(agent: BaseRLAgent, episodes: int = 1000) -> dict:
+    """Train RL agent and return statistics."""
+    # Training-specific implementation
+```
+
+### **Benefits of Extension game_runner.py**
+
+1. **Simplified Testing**: `python -c "from game_runner import play_bfs; play_bfs(render=True)"`
+2. **Clear Documentation**: Shows exactly how each agent type works
+3. **Research Efficiency**: Quick validation without complex setup
+4. **Educational Value**: Demonstrates agent capabilities clearly
 
 ---
 

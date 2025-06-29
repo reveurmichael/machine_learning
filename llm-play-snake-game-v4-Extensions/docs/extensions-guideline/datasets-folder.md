@@ -185,133 +185,41 @@ def save_npz_dataset(data_dict: dict, dataset_path: Path, format_type: str):
     print(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # Simple logging
 ```
 
-## 🚀 **Cross-Extension Dataset Usage**
+## 🎓 **Educational Applications with Canonical Patterns**
 
-### **Loading Datasets for Training**
-```python
-def load_training_dataset(extension_type: str, version: str, grid_size: int, 
-                         timestamp: str, format_type: str = "csv") -> tuple:
-    """Load dataset for training"""
-    dataset_path = get_dataset_path(extension_type, version, grid_size, timestamp)
-    
-    if format_type == "csv":
-        data_file = dataset_path / "processed_data" / f"tabular_data.csv"
-        data = pd.read_csv(data_file)
-        return data
-    elif format_type == "jsonl":
-        data_file = dataset_path / "processed_data" / f"reasoning_data.jsonl"
-        data = []
-        with open(data_file, 'r') as f:
-            for line in f:
-                data.append(json.loads(line.strip()))
-        return data
-    elif format_type == "npz":
-        data_file = dataset_path / "processed_data" / f"{format_type}_data.npz"
-        data = np.load(data_file)
-        return data
-    else:
-        raise ValueError(f"Unsupported format: {format_type}")
-```
+### **Dataset Organization Benefits**
+- **Consistency**: Same organization across all extensions
+- **Scalability**: Works with any grid size
+- **Versioning**: Clear version management
+- **Educational Value**: Learn dataset organization through consistent patterns
 
-### **Dataset Validation**
-```python
-def validate_dataset_structure(dataset_path: Path) -> bool:
-    """Validate dataset directory structure"""
-    required_dirs = ["processed_data", "game_logs", "evaluation"]
-    required_files = ["metadata.json"]
-    
-    # Check directories
-    for dir_name in required_dirs:
-        if not (dataset_path / dir_name).exists():
-            print(f"[DatasetUtils] ERROR: Missing directory: {dir_name}")  # Simple logging
-            return False
-    
-    # Check files
-    for file_name in required_files:
-        if not (dataset_path / file_name).exists():
-            print(f"[DatasetUtils] ERROR: Missing file: {file_name}")  # Simple logging
-            return False
-    
-    print(f"[DatasetUtils] Dataset structure validated: {dataset_path}")  # Simple logging
-    return True
-```
+### **Cross-Extension Benefits**
+- **Compatibility**: Datasets can be shared between extensions
+- **Reusability**: Train on one extension, test on another
+- **Comparison**: Consistent evaluation across extensions
+- **Educational Value**: Learn cross-extension compatibility
 
-## 📊 **Extension-Specific Dataset Patterns**
+## 📋 **SUPREME_RULES Implementation Checklist**
 
-### **Heuristics Extensions**
-```python
-# heuristics-v0.03: CSV format only
-dataset_path = create_dataset_directory("heuristics", "0.03", 10, timestamp)
-save_csv_dataset(tabular_data, dataset_path, "bfs")
+### **Mandatory Requirements**
+- [ ] **Grid-Size Agnostic**: Works with any grid size (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses print() statements only for all operations
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
-# heuristics-v0.04: CSV + JSONL formats
-dataset_path = create_dataset_directory("heuristics", "0.04", 10, timestamp)
-save_csv_dataset(tabular_data, dataset_path, "bfs")
-save_jsonl_dataset(reasoning_data, dataset_path, "bfs")
-```
-
-### **Supervised Learning Extensions**
-```python
-# Load datasets from heuristics-v0.03 or heuristics-v0.04 (both widely used)
-csv_data = load_training_dataset("heuristics", "0.04", 10, timestamp, "csv")
-jsonl_data = load_training_dataset("heuristics", "0.04", 10, timestamp, "jsonl")
-```
-
-### **Reinforcement Learning Extensions**
-```python
-# Save experience replay data
-dataset_path = create_dataset_directory("reinforcement", "0.02", 10, timestamp)
-save_npz_dataset(experience_data, dataset_path, "sequential")
-```
-
-### **Evolutionary Extensions**
-```python
-# Save evolutionary population data
-dataset_path = create_dataset_directory("evolutionary", "0.02", 10, timestamp)
-save_npz_dataset(evolutionary_data, dataset_path, "evolutionary")
-```
-
-## 📋 **Implementation Checklist**
-
-### **Directory Structure**
-- [ ] **Grid-Size Organization**: Proper grid-size directory structure
-- [ ] **Extension Naming**: Consistent extension naming convention
-- [ ] **Timestamp Usage**: Proper timestamp format (YYYYMMDD_HHMMSS)
-- [ ] **Subdirectory Creation**: All required subdirectories created
-
-### **Data Formats**
-- [ ] **CSV Support**: CSV format for heuristics-v0.03 and heuristics-v0.04
-- [ ] **JSONL Support**: JSONL format for heuristics-v0.04 only
-- [ ] **NPZ Support**: NPZ formats for specialized use cases
-- [ ] **Metadata**: Proper metadata file creation
-
-### **Cross-Extension Compatibility**
-- [ ] **Path Consistency**: Consistent path generation across extensions
-- [ ] **Format Validation**: Proper format validation and error handling
-- [ ] **Loading Utilities**: Standardized dataset loading utilities
-- [ ] **Error Handling**: Graceful error handling for missing datasets
-
-## 🎓 **Educational Benefits**
-
-### **Learning Objectives**
-- **Dataset Organization**: Understanding consistent dataset storage
-- **Grid-Size Independence**: Learning grid-size agnostic design
-- **Version Management**: Clear versioning and timestamping
-- **Cross-Extension Compatibility**: Enabling dataset sharing between extensions
-
-### **Best Practices**
-- **Consistency**: Consistent dataset organization across all extensions
-- **Scalability**: Grid-size agnostic design for scalability
-- **Maintainability**: Clear structure for easy maintenance
-- **Interoperability**: Standardized formats for cross-extension usage
+### **Dataset-Specific Standards**
+- [ ] **Directory Structure**: Standardized directory organization
+- [ ] **Naming Conventions**: Consistent naming patterns
+- [ ] **Metadata Management**: Proper metadata creation and storage
+- [ ] **Format Support**: Support for multiple data formats
 
 ---
 
-**The datasets folder standards ensure consistent, scalable, and interoperable dataset storage across all Snake Game AI extensions while maintaining grid-size independence and cross-extension compatibility.**
+**Datasets folder standards ensure consistent dataset organization while maintaining SUPREME_RULES compliance and educational value across all Snake Game AI extensions.**
 
 ## 🔗 **See Also**
 
 - **`data-format-decision-guide.md`**: Authoritative reference for data format decisions
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`project-structure-plan.md`**: Project structure and organization
+- **`project-structure-plan.md`**: Project structure standards
 

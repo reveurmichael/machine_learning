@@ -1,6 +1,3 @@
-# TODO: we need a lot of "pass" or "..." in the code examples in this md file.
-
-
 # Configuration Architecture for Snake Game AI Extensions
 
 > **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration architecture and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
@@ -576,5 +573,5 @@ class ConfigValidator:
 
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- [ ] **final-decision-10.md**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure and organization

@@ -198,117 +198,58 @@ logs/extensions/models/grid-size-10/supervised_v0.03_20240101_120000/
 ### **Extension Path Management**
 ```python
 # In any extension
-from extensions.common.utils.path_utils import ensure_project_root, get_logs_path
+from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
 
-def main():
-    """Main function with proper path management"""
+def setup_extension():
+    """Setup extension with proper paths"""
     # Ensure we're in project root
-    ensure_project_root()
+    project_root = ensure_project_root()
     
-    # Get paths
-    logs_path = get_logs_path()
-    print(f"[Main] Logs path: {logs_path}")  # Simple logging
+    # Get extension-specific paths
+    extension_path = get_extension_path("heuristics", "v0.03")
+    logs_path = project_root / "logs"
     
-    # Create timestamp for this run
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    print(f"[Extension] Project root: {project_root}")  # Simple logging
+    print(f"[Extension] Extension path: {extension_path}")  # Simple logging
+    print(f"[Extension] Logs path: {logs_path}")  # Simple logging
     
-    # Create output directory
-    output_dir = logs_path / "extensions" / "datasets" / f"grid-size-10" / f"heuristics_v0.03_{timestamp}"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    print(f"[Main] Output directory: {output_dir}")  # Simple logging
-    
-    # Run extension logic
-    run_extension(output_dir)
-
-def run_extension(output_dir: Path):
-    """Run extension with proper logging"""
-    print(f"[Extension] Starting execution")  # Simple logging
-    
-    try:
-        # Extension logic here
-        results = generate_data()
-        
-        # Save results
-        save_results(results, output_dir)
-        
-        print(f"[Extension] Execution completed successfully")  # Simple logging
-        
-    except Exception as e:
-        print(f"[Extension] ERROR: {e}")  # Simple logging
-        raise
+    return project_root, extension_path, logs_path
 ```
 
-### **Logging in Extensions**
-```python
-class HeuristicGameManager:
-    def __init__(self, algorithm: str):
-        self.algorithm = algorithm
-        self.component_name = f"HeuristicGameManager_{algorithm}"
-        print(f"[{self.component_name}] Initialized")  # Simple logging
-    
-    def run_games(self, num_games: int):
-        print(f"[{self.component_name}] Running {num_games} games")  # Simple logging
-        
-        results = []
-        for game_id in range(num_games):
-            print(f"[{self.component_name}] Starting game {game_id + 1}")  # Simple logging
-            
-            try:
-                game_result = self.run_single_game()
-                results.append(game_result)
-                
-                print(f"[{self.component_name}] Game {game_id + 1} completed, score: {game_result['score']}")  # Simple logging
-                
-            except Exception as e:
-                print(f"[{self.component_name}] ERROR in game {game_id + 1}: {e}")  # Simple logging
-                continue
-        
-        print(f"[{self.component_name}] All games completed, {len(results)} successful")  # Simple logging
-        return results
-```
+## 🎓 **Educational Applications with Canonical Patterns**
 
-## 📋 **Implementation Checklist**
+### **Path Management Benefits**
+- **Consistency**: Same path handling across all extensions
+- **Reliability**: Predictable file locations
+- **Debugging**: Easy debugging with consistent paths
+- **Educational Value**: Learn path management through consistent patterns
 
-### **Path Management**
-- [ ] **Project Root**: Proper project root detection
-- [ ] **Working Directory**: Consistent working directory setting
-- [ ] **Path Utilities**: Use of common path utilities
-- [ ] **Directory Creation**: Proper directory creation and management
+### **Logging Benefits**
+- **Simplicity**: Simple print statements for all logging
+- **Clarity**: Clear, readable log messages
+- **Consistency**: Standardized logging format
+- **Educational Value**: Learn logging through consistent patterns
 
-### **Logging Standards**
-- [ ] **Simple Logging**: Use of print statements only (SUPREME_RULES compliance)
-- [ ] **Component Names**: Clear component identification
-- [ ] **Log Levels**: Appropriate log level usage
-- [ ] **Error Handling**: Proper error logging
+## 📋 **SUPREME_RULES Implementation Checklist**
 
-### **File Organization**
-- [ ] **Directory Structure**: Follow standard directory structure
-- [ ] **File Naming**: Consistent file naming conventions
-- [ ] **Timestamp Usage**: Proper timestamp usage for unique directories
-- [ ] **Metadata**: Proper metadata file creation
+### **Mandatory Requirements**
+- [ ] **Simple Logging**: Uses print() statements only for all operations (final-decision-10.md compliance)
+- [ ] **Path Consistency**: All extensions use same path management utilities
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
-## 🎓 **Educational Benefits**
-
-### **Learning Objectives**
-- **Path Management**: Understanding consistent path handling
-- **Logging Standards**: Learning simple, effective logging
-- **File Organization**: Understanding file organization patterns
-- **Debugging**: Using consistent paths and logging for debugging
-
-### **Best Practices**
-- **Consistency**: Consistent path and logging patterns
-- **Simplicity**: Simple, effective logging without over-engineering
-- **Organization**: Clear file organization and naming
-- **Maintainability**: Easy to maintain and debug
+### **Path-Specific Standards**
+- [ ] **Project Root Detection**: Automatic project root detection
+- [ ] **Extension Paths**: Standardized extension path management
+- [ ] **Logs Organization**: Consistent logs directory structure
+- [ ] **File Naming**: Standardized file naming conventions
 
 ---
 
-**Working directory and logging standards ensure consistent, predictable behavior across all Snake Game AI extensions, providing clear paths and simple logging for educational value and technical excellence.**
+**Working directory and logging standards ensure consistent path management and simple logging while maintaining SUPREME_RULES compliance and educational value across all Snake Game AI extensions.**
 
 ## 🔗 **See Also**
 
 - **`standalone.md`**: Standalone principle and extension independence
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`project-structure-plan.md`**: Project structure and organization 
+- **`project-structure-plan.md`**: Project structure standards 

@@ -1,3 +1,5 @@
+# TODO: we need a lot of "pass" or "..." in the code examples in this md file. Make this one more elegant, more simpler.
+
 # Generative Models for Snake Game AI
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines generative model patterns for extensions.

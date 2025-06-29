@@ -202,54 +202,38 @@ import argparse
 from pathlib import Path
 
 def main():
-    """Train supervised learning models on heuristic datasets"""
+    """Train supervised learning models"""
     parser = argparse.ArgumentParser(description="Train supervised learning models")
     parser.add_argument("--dataset-paths", nargs="+", required=True)
     parser.add_argument("--model-types", nargs="+", default=["MLP", "XGBOOST"])
-    parser.add_argument("--grid-size", type=int, default=10)
-    parser.add_argument("--hyperparameter-tuning", action="store_true")
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--hyperparameter-tuning", action="store_true")
     
     args = parser.parse_args()
     
-    # Import training infrastructure using canonical factory patterns
+    # Use canonical factory pattern for training
     from extensions.common.utils.factory_utils import SimpleFactory
-    from training.model_trainer import ModelTrainer
-    from extensions.common.utils.dataset_utils import load_dataset_for_training
+    from extensions.common.utils.dataset_utils import DatasetLoader
     
-    # Load and prepare datasets
-    X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training(
-        dataset_paths=args.dataset_paths,
-        grid_size=args.grid_size
-    )
+    # Load datasets
+    loader = DatasetLoader(grid_size=10)
+    datasets = []
+    for path in args.dataset_paths:
+        df = loader.load_csv_dataset(path)
+        datasets.append(df)
+        print(f"Loaded dataset: {path} with {len(df)} rows")  # Simple logging - SUPREME_RULES
     
-    # Train each model type using canonical factory patterns
+    # Train models using canonical factory pattern
     factory = SimpleFactory()
     factory.register("trainer", ModelTrainer)
     
-    trainer = factory.create("trainer", args.output_dir)  # Canonical
-    
     for model_type in args.model_types:
-        print(f"Training {model_type}...")  # Simple logging - SUPREME_RULES
+        print(f"Training {model_type} model...")  # Simple logging - SUPREME_RULES
         
-        model = trainer.create(model_type, input_dim=X_train.shape[1])  # Canonical
+        trainer = factory.create("trainer", model_type, args.output_dir)  # Canonical
+        results = trainer.train(datasets, args.hyperparameter_tuning)
         
-        training_result = trainer.train_model(
-            model=model,
-            X_train=X_train, y_train=y_train,
-            X_val=X_val, y_val=y_val,
-            epochs=args.epochs,
-            batch_size=args.batch_size,
-            hyperparameter_tuning=args.hyperparameter_tuning
-        )
-        
-        # Evaluate and save
-        evaluation = trainer.evaluate_model(model, X_test, y_test)
-        trainer.save_model(model, model_type, training_result, evaluation)
-        
-        print(f"{model_type} training completed. Accuracy: {evaluation['accuracy']:.3f}")  # Simple logging
+        print(f"{model_type} training completed: {results}")  # Simple logging
 
 if __name__ == "__main__":
     main()

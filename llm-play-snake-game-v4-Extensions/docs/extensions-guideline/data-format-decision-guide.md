@@ -1,10 +1,8 @@
-# TODO: make sure the idea of this file's idea, especially concerning the evolutionary algorithm representation, diffuse to other related md files, and python files in the ./extensions/common/ folder.
-
 # Data Format Decision Guide for Snake Game AI
 
 > **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
-> **See also:** `csv-schema-1.md`, `csv-schema-2.md`, `final-decision-10.md`, `heuristics-as-foundation.md`.
+> **See also:** `csv-schema-1.md`, `csv-schema-2.md`, `final-decision-10.md`, `heuristics-as-foundation.md`, `evolutionary.md`.
 
 # Data Format Decision Guide
 
@@ -305,3 +303,11 @@ def create_evolutionary_dataset(population, fitness_scores, generation_history):
 ---
 
 **This guide ensures consistent, optimal data format selection across all Snake Game AI extensions while maintaining interoperability and performance. Both heuristics-v0.03 and heuristics-v0.04 are widely used depending on use cases.**
+
+## 🔗 **See Also**
+
+- **`csv-schema-1.md`**: Core CSV schema documentation
+- **`csv-schema-2.md`**: CSV schema utilities and implementation
+- **`evolutionary.md`**: Evolutionary algorithm data representation
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`heuristics-as-foundation.md`**: Heuristics as data foundation

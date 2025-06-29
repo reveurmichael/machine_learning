@@ -78,7 +78,9 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `extension-evolution-rules.md`
 * `extension-move-guidelines.md`
 * `forbidden-import-patterns.md`
-* `generati gymnasium.md`
+* `fine-tuning.md`
+* `generative-models.md`
+* `gymnasium.md`
 * `heuristics-as-foundation.md`
 * `heuristics-to-supervised-pipeline.md`
 * `kiss.md`

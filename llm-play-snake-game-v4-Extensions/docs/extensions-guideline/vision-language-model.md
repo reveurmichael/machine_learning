@@ -1,3 +1,5 @@
+# TODO: we need a lot of "pass" or "..." in the code examples in this md file.
+
 # Vision-Language Models for Snake Game AI
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines vision-language model patterns for extensions.
@@ -394,3 +396,14 @@ def process_vlm_request(image_data: bytes, prompt: str):
 - **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
 - **Simple Logging**: Print statements provide clear operation visibility
 - **OOP Principles**: VLM pattern demonstrates encapsulation and polymorphism
+
+---
+
+**Vision-Language Models represent the cutting edge of multimodal AI while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
+- **`core.md`**: Base class architecture following canonical principles  
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Canonical factory implementation for all systems

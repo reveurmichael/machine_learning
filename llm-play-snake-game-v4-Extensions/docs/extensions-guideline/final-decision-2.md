@@ -1,3 +1,12 @@
+# TODO: we don't need those, they are violating kiss.md and elegance.md principles:
+- cross-extension validation
+- coordinate_validation
+- config_validation
+- game_state_validation
+- Dataset quality validation (no worries about quality ! don't bother about it)
+- validate_model_artifacts (it's kind of restrictive, we don't need it)
+
+
 # Final Decision 2: Configuration, Validation, and Architectural Standards
 
 ## 🎯 **Executive Summary**

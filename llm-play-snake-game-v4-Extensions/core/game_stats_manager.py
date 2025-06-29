@@ -625,23 +625,31 @@ class GameStatsManager(BaseGameStatsManager):
         denom = max(total_rounds, 0.00001)
 
         # ---------------- Token averages ----------------
+        # Use pre-calculated averages from game data instead of recalculating
+        # The averages are already correctly calculated by dividing by LLM requests
         prim = summary["token_usage_stats"].get("primary_llm", {})
         if prim:
-            prim["avg_tokens"] = prim.get("total_tokens", 0) / denom
-            prim["avg_prompt_tokens"] = prim.get("total_prompt_tokens", 0) / denom
-            prim["avg_completion_tokens"] = prim.get("total_completion_tokens", 0) / denom
+            # Get the pre-calculated averages from the token_stats if available
+            if "token_stats" in kwargs and "primary" in kwargs["token_stats"]:
+                primary_stats = kwargs["token_stats"]["primary"]
+                if "avg_tokens" in primary_stats:
+                    prim["avg_tokens"] = primary_stats["avg_tokens"]
+                if "avg_prompt_tokens" in primary_stats:
+                    prim["avg_prompt_tokens"] = primary_stats["avg_prompt_tokens"]
+                if "avg_completion_tokens" in primary_stats:
+                    prim["avg_completion_tokens"] = primary_stats["avg_completion_tokens"]
 
         sec = summary["token_usage_stats"].get("secondary_llm", {})
         if sec:
-            sec_total = sec.get("total_tokens")
-            if sec_total is not None:
-                sec["avg_tokens"] = sec_total / denom
-            sec_prompt = sec.get("total_prompt_tokens")
-            if sec_prompt is not None:
-                sec["avg_prompt_tokens"] = sec_prompt / denom
-            sec_comp = sec.get("total_completion_tokens")
-            if sec_comp is not None:
-                sec["avg_completion_tokens"] = sec_comp / denom
+            # Get the pre-calculated averages from the token_stats if available
+            if "token_stats" in kwargs and "secondary" in kwargs["token_stats"]:
+                secondary_stats = kwargs["token_stats"]["secondary"]
+                if "avg_tokens" in secondary_stats:
+                    sec["avg_tokens"] = secondary_stats["avg_tokens"]
+                if "avg_prompt_tokens" in secondary_stats:
+                    sec["avg_prompt_tokens"] = secondary_stats["avg_prompt_tokens"]
+                if "avg_completion_tokens" in secondary_stats:
+                    sec["avg_completion_tokens"] = secondary_stats["avg_completion_tokens"]
 
         # ---------------- Response-time averages ----------------
         ts = summary.get("time_statistics", {})

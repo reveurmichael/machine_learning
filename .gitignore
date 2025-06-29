@@ -61,3 +61,12 @@ config.yml
 .pyc
 **/*.pyc
 **/test_datasets/**
+**/logs/*
+./logs/*
+./logs/**
+**/logs/**
+./logs/**/*
+./logs/**/*.json
+**/logs/**/*.json
+./logs/**/*.txt
+**/logs/**/*.txt

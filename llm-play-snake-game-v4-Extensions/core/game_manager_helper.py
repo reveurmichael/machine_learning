@@ -272,20 +272,29 @@ class GameManagerHelper(BaseGameManagerHelper):
                 token_stats["primary"] = {
                     "total_tokens": 0,
                     "total_prompt_tokens": 0,
-                    "total_completion_tokens": 0
+                    "total_completion_tokens": 0,
+                    "avg_tokens": 0,
+                    "avg_prompt_tokens": 0,
+                    "avg_completion_tokens": 0
                 }
                 
             if "secondary" not in token_stats:
                 token_stats["secondary"] = {
                     "total_tokens": 0,
                     "total_prompt_tokens": 0,
-                    "total_completion_tokens": 0
+                    "total_completion_tokens": 0,
+                    "avg_tokens": 0,
+                    "avg_prompt_tokens": 0,
+                    "avg_completion_tokens": 0
                 }
             
             # Add primary LLM token stats (flat-key schema)
             primary_total = game_token_stats.get("primary_total_tokens")
             primary_prompt = game_token_stats.get("primary_total_prompt_tokens")
             primary_completion = game_token_stats.get("primary_total_completion_tokens")
+            primary_avg_total = game_token_stats.get("primary_avg_total_tokens")
+            primary_avg_prompt = game_token_stats.get("primary_avg_prompt_tokens")
+            primary_avg_completion = game_token_stats.get("primary_avg_completion_tokens")
 
             if primary_total is not None:
                 token_stats["primary"]["total_tokens"] = token_stats["primary"].get("total_tokens", 0) + primary_total
@@ -293,11 +302,20 @@ class GameManagerHelper(BaseGameManagerHelper):
                 token_stats["primary"]["total_prompt_tokens"] = token_stats["primary"].get("total_prompt_tokens", 0) + primary_prompt
             if primary_completion is not None:
                 token_stats["primary"]["total_completion_tokens"] = token_stats["primary"].get("total_completion_tokens", 0) + primary_completion
+            if primary_avg_total is not None:
+                token_stats["primary"]["avg_tokens"] = primary_avg_total
+            if primary_avg_prompt is not None:
+                token_stats["primary"]["avg_prompt_tokens"] = primary_avg_prompt
+            if primary_avg_completion is not None:
+                token_stats["primary"]["avg_completion_tokens"] = primary_avg_completion
 
             # Add secondary LLM token stats (flat-key schema)
             secondary_total = game_token_stats.get("secondary_total_tokens")
             secondary_prompt = game_token_stats.get("secondary_total_prompt_tokens")
             secondary_completion = game_token_stats.get("secondary_total_completion_tokens")
+            secondary_avg_total = game_token_stats.get("secondary_avg_total_tokens")
+            secondary_avg_prompt = game_token_stats.get("secondary_avg_prompt_tokens")
+            secondary_avg_completion = game_token_stats.get("secondary_avg_completion_tokens")
 
             if secondary_total is not None:
                 token_stats["secondary"]["total_tokens"] = token_stats["secondary"].get("total_tokens", 0) + secondary_total
@@ -305,6 +323,12 @@ class GameManagerHelper(BaseGameManagerHelper):
                 token_stats["secondary"]["total_prompt_tokens"] = token_stats["secondary"].get("total_prompt_tokens", 0) + secondary_prompt
             if secondary_completion is not None:
                 token_stats["secondary"]["total_completion_tokens"] = token_stats["secondary"].get("total_completion_tokens", 0) + secondary_completion
+            if secondary_avg_total is not None:
+                token_stats["secondary"]["avg_tokens"] = secondary_avg_total
+            if secondary_avg_prompt is not None:
+                token_stats["secondary"]["avg_prompt_tokens"] = secondary_avg_prompt
+            if secondary_avg_completion is not None:
+                token_stats["secondary"]["avg_completion_tokens"] = secondary_avg_completion
         
         # Use the actual number of rounds that contain data to avoid the
         # off-by-one "phantom round" that appeared after a wall/self collision.

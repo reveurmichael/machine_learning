@@ -36,7 +36,7 @@ def setup_extension_environment():
     extension_path = get_extension_path(__file__)
     
     # Validate path structure
-    validate_path_structure(project_root, extension_path)
+    validate_path_structure(extension_path)
     
     return project_root, extension_path
 ```
@@ -100,26 +100,21 @@ def get_model_path(extension_type: str, version: str, grid_size: int,
 
 ### **Path Validation**
 ```python
-def validate_path_structure(project_root: Path, extension_path: Path) -> None:
+def validate_path_structure(extension_path: Path) -> bool:
     """Validate that path structure follows required patterns"""
-    # Validate project root
-    if not (project_root / "README.md").exists():
-        raise ValueError(f"Invalid project root: {project_root}")
+    print(f"[PathUtils] Validating path structure: {extension_path}")  # Simple logging - SUPREME_RULES
     
-    if not (project_root / "core").exists():
-        raise ValueError(f"Missing core/ directory in project root: {project_root}")
+    # Basic validation - extension should be in extensions/ directory
+    if "extensions" not in str(extension_path):
+        raise ValueError(f"Extension path should be in extensions/ directory: {extension_path}")
     
-    # Validate extension path
-    if not extension_path.exists():
-        raise ValueError(f"Extension path does not exist: {extension_path}")
+    # Check that extension follows naming convention
+    extension_name = extension_path.name
+    if not any(char.isdigit() for char in extension_name):
+        raise ValueError(f"Extension should have version number: {extension_name}")
     
-    # Validate extension structure
-    required_files = ["__init__.py", "game_logic.py", "game_manager.py"]
-    for file in required_files:
-        if not (extension_path / file).exists():
-            raise ValueError(f"Missing required file {file} in extension: {extension_path}")
-    
-    print(f"[PathUtils] Path structure validated successfully")  # Simple logging - SUPREME_RULES
+    print(f"[PathUtils] Path structure validation passed: {extension_path}")  # Simple logging - SUPREME_RULES
+    return True
 ```
 
 ## 🔧 **Extension Implementation Patterns**

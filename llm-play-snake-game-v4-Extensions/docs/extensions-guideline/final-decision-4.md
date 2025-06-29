@@ -226,7 +226,7 @@ import numpy as np
 
 from core.agents.base_agent import BaseAgent
 from extensions.common.utils.path_utils import get_dataset_path
-from extensions.common.validation.dataset_validator import validate_dataset_format
+from extensions.common.validation.dataset_validator import validate_dataset
 
 class {Algorithm}Agent(BaseAgent):
     """

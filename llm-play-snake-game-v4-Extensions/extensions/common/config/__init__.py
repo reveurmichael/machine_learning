@@ -23,14 +23,16 @@ from importlib import import_module
 from types import ModuleType
 from typing import List
 
-# We purposefully expose the two evergreen config modules via attribute access
+# We purposefully expose the config modules via attribute access
 # *modules* instead of wildcard ("*") import so that the public API remains
 # stable even if we decide to shuffle things internally.
 
 dataset_formats: ModuleType = import_module("extensions.common.config.dataset_formats")
 path_constants: ModuleType = import_module("extensions.common.config.path_constants")
+validation_rules: ModuleType = import_module("extensions.common.config.validation_rules")
 
 __all__: List[str] = [
     "dataset_formats",
     "path_constants",
+    "validation_rules",
 ] 

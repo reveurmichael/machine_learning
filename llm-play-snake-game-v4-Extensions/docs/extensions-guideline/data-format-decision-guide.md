@@ -205,25 +205,21 @@ dataset_path = "heuristics_v0.04_20240101_120000"  # Widely used
 
 All extensions MUST validate format compliance:
 ```python
-from extensions.common.utils.validation import validate_dataset_format
+from extensions.common.validation import validate_dataset
+from extensions.common.utils.factory_utils import DatasetFactory
 
 def generate_dataset():
-    dataset = DatasetFactory.create("standard")  # CANONICAL create() method per SUPREME_RULES
-    validate_dataset_format(
-        dataset_path=output_path,
-        extension_type="heuristics",
-        version="0.03",  # or "0.04" - both widely used
-        expected_format="csv"
-    )
+    dataset_factory = DatasetFactory()
+    loader = dataset_factory.create("CSV")  # CANONICAL create() method per SUPREME_RULES
+    result = validate_dataset(output_path)
+    if not result.is_valid:
+        raise ValueError(f"Dataset validation failed: {result.message}")
 
 def generate_evolutionary_dataset():
-    dataset = create_evolutionary_dataset()
-    validate_dataset_format(
-        dataset_path=output_path,
-        extension_type="evolutionary",
-        version="0.02",
-        expected_format="npz_raw_evolutionary"
-    )
+    evolutionary_data = create_evolutionary_dataset()
+    result = validate_dataset(output_path)
+    if not result.is_valid:
+        raise ValueError(f"Evolutionary dataset validation failed: {result.message}")
 ```
 
 ## 📚 **Implementation Guidelines**

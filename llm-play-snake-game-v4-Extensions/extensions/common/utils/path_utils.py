@@ -41,6 +41,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from pathlib import Path
 import os
+import sys
 
 if TYPE_CHECKING:  # pragma: no cover – only for static type checkers
     from pathlib import Path
@@ -163,6 +164,38 @@ def validate_path_structure(extension_path: Path) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Public helper that ensures the repository root is on the import path
+# ---------------------------------------------------------------------------
+
+def ensure_project_root_on_path() -> Path:
+    """Ensure *both* the current working directory **and** ``sys.path`` point
+    to the repository root.
+
+    Many legacy extension packages (e.g. ``heuristics-v0.01`` → ``v0.04``)
+    call this helper at import-time.  Historically it used to live in a
+    different module so it is re-introduced here to avoid breaking those
+    import statements while still honouring the *single source of truth*
+    principle.
+
+    Returns
+    -------
+    Path
+        Absolute ``Path`` object of the detected repository root.
+    """
+
+    root = ensure_project_root()  # Also prints a log line
+
+    # Add to sys.path *once* – duplicate entries are harmless but we check
+    # anyway to keep things tidy.
+    root_str = str(root)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
+        print(f"[PathUtils] Added project root to sys.path: {root}")  # Simple logging
+
+    return root
+
+
+# ---------------------------------------------------------------------------
 # Lightweight OOP façade
 # ---------------------------------------------------------------------------
 class PathManager:
@@ -219,6 +252,7 @@ __all__ = [
     "get_model_path",
     "ensure_extension_directories",
     "validate_path_structure",
+    "setup_extension_environment",
     # OOP façade
     "PathManager",
     "path_manager",
@@ -228,4 +262,36 @@ __all__ = [
 # imported – this mimics the historical behaviour so that existing extensions
 # continue to work without modification.
 
-ensure_project_root() 
+ensure_project_root()
+
+# ---------------------------------------------------------------------------
+# Backward-compatibility shim (import alias)
+# ---------------------------------------------------------------------------
+
+def setup_extension_environment():
+    """
+    Standard extension environment setup following unified-path-management-guide.md
+    
+    This function ensures proper working directory and returns the paths
+    needed for extension operation. It follows SUPREME_RULES from final-decision-10.md
+    for simple logging and OOP extensibility.
+    
+    Returns:
+        Tuple of (project_root, extension_path)
+    """
+    print("[PathUtils] Setting up extension environment")  # Simple logging
+    
+    # Ensure we're working from project root
+    project_root = ensure_project_root()
+    
+    # Get extension path from caller
+    import inspect
+    caller_frame = inspect.currentframe().f_back
+    caller_file = caller_frame.f_code.co_filename
+    extension_path = get_extension_path(caller_file)
+    
+    # Validate path structure
+    validate_path_structure(extension_path)
+    
+    print("[PathUtils] Extension environment setup complete")  # Simple logging
+    return project_root, extension_path 

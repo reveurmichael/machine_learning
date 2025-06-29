@@ -77,7 +77,7 @@ def setup_extension_environment():
     extension_path = get_extension_path(__file__)
     
     # Validate path structure
-    validate_path_structure(project_root, extension_path)
+    validate_path_structure(extension_path)
     
     return project_root, extension_path
 ```
@@ -264,7 +264,7 @@ def setup_extension_environment():
     extension_path = get_extension_path(__file__)
     
     # Validate structure
-    validate_path_structure(project_root, extension_path)
+    validate_path_structure(extension_path)
     
     print(f"[HeuristicsV001] Environment setup complete")  # Simple logging
     return project_root, extension_path
@@ -322,7 +322,7 @@ def setup_extension_environment():
     extension_path = get_extension_path(__file__)
     
     # Validate structure
-    validate_path_structure(project_root, extension_path)
+    validate_path_structure(extension_path)
     
     print(f"[HeuristicsV002] Environment setup complete")  # Simple logging
     return project_root, extension_path

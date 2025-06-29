@@ -173,6 +173,10 @@ def validate_dataset_format(dataset_path):
     print(f"[Validator] Dataset format valid: {dataset_path}")
     return True
 
+# Note: The actual implementation uses validate_dataset() function
+# This example shows the concept but extensions should use:
+# from extensions.common.validation import validate_dataset
+
 def validate_path_structure(path):
     """Simple path structure validation"""
     if not path or not path.exists():
@@ -192,6 +196,7 @@ def validate_extension_data(extension_path: str, data: dict):
     """Simple validation for extension data"""
     print(f"[Validator] Validating extension: {extension_path}")
     
+    # In actual implementation, use: validate_dataset(data.get('dataset_path', ''))
     validate_dataset_format(data.get('dataset_path', ''))
     validate_path_structure(data.get('model_path', ''))
     validate_schema_compliance(data.get('schema_data'), data.get('schema'))

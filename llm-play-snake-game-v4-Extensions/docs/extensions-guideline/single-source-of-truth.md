@@ -39,8 +39,6 @@ All data format decisions are centralized in **`data-format-decision-guide.md`**
 ```python
 # ✅ CORRECT: Single source for each type
 from config.game_constants import VALID_MOVES          # Universal
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE  # Shared
-from extensions.heuristics.config import HEURISTIC_ALGORITHMS  # Type-specific
 
 # ❌ WRONG: Duplicate definitions
 VALID_MOVES = ["UP", "DOWN", "LEFT", "RIGHT"]  # Don't redefine

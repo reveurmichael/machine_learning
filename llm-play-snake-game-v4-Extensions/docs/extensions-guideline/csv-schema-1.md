@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
-The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following `final-decision-10.md` SUPREME_RULES.
+The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following SUPREME_RULES from final-decision-10.md.
 
 **When to Use CSV**: This format is optimal for tree-based models (XGBoost, LightGBM) and simple MLPs. For other model types, see the data format decision guide.
 

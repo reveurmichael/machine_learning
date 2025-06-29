@@ -215,25 +215,8 @@ def validate_dataset_compatibility(dataset_path: str, expected_schema: str):
 ```python
 # SUPREME_RULE NO.3: Simple factory functions instead of complex classes
 def create_agent_factory():
-    """Simple agent factory creation"""
-    print(f"[Factory] Creating agent factory")
-    
-    registry = {
-        "BFS": BFSAgent,
-        "ASTAR": AStarAgent,
-        "DFS": DFSAgent,
-    }
-    
-    def create(agent_type: str, **kwargs):  # CANONICAL create() method
-        """Create agent using canonical create() method (SUPREME_RULES compliance)"""
-        agent_class = registry.get(agent_type.upper())
-        if not agent_class:
-            available = list(registry.keys())
-            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[Factory] Creating agent: {agent_type}")  # Simple logging
-        return agent_class(**kwargs)
-    
-    return create
+    """Create agent factory using canonical factory pattern"""
+    return AgentFactory.create("default")  # CANONICAL create() method
 
 def create_validator_factory():
     """Simple validator factory creation"""

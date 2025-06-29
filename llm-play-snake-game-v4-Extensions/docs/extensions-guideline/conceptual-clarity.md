@@ -57,7 +57,7 @@ from extensions.common.utils.dataset_utils import load_training_data
 # Simple model saving instead of complex utils
 def save_model_standardized(model, model_path):
     """Simple model saving function"""
-    print(f"Saving model to {model_path}")  # Simple logging
+    print(f"Saving model to {model_path}")  # SUPREME_RULES compliant logging
     model.save(model_path)
 
 from extensions.common.utils.path_utils import get_dataset_path

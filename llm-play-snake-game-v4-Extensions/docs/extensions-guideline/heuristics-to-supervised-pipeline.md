@@ -292,8 +292,8 @@ class ModelTrainer:
         for model_type in self.model_types:
             print(f"[ModelTrainer] Training {model_type} model")  # Simple logging
             
-            # Create and train model
-            model = self._create_model(model_type)
+            # Create and train model using canonical factory pattern
+            model = ModelFactory.create(model_type)  # CANONICAL create() method
             model.fit(X_train, y_train)
             
             # Evaluate model
@@ -309,23 +309,6 @@ class ModelTrainer:
             print(f"[ModelTrainer] {model_type} accuracy: {accuracy:.3f}")  # Simple logging
         
         return model_results
-    
-    def _create_model(self, model_type: str):
-        """Create model of specified type"""
-        if model_type == 'MLP':
-            from sklearn.neural_network import MLPClassifier
-            return MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=1000, random_state=42)
-        
-        elif model_type == 'XGBOOST':
-            from xgboost import XGBClassifier
-            return XGBClassifier(n_estimators=100, random_state=42)
-        
-        elif model_type == 'RANDOMFOREST':
-            from sklearn.ensemble import RandomForestClassifier
-            return RandomForestClassifier(n_estimators=100, random_state=42)
-        
-        else:
-            raise ValueError(f"Unknown model type: {model_type}")
 ```
 
 ## 📊 **Pipeline Usage Example**

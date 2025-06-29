@@ -133,8 +133,8 @@ from extensions.supervised_v0_02.agents import SupervisedAgentFactory
 model_types = ["MLP", "CNN", "LSTM", "XGBOOST", "LIGHTGBM"]
 
 for model_type in model_types:
-    # Create agent using factory pattern
-    agent = SupervisedAgentFactory.create_agent(model_type)
+    # Create agent using canonical factory pattern
+    agent = SupervisedAgentFactory.create(model_type)  # CANONICAL create() method
     
     # Train model
     trained_agent = train_model(agent, X_train, y_train, X_val, y_val)

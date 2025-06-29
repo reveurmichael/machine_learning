@@ -12,12 +12,12 @@
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
-Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following `final-decision-10.md` SUPREME_RULES.
+Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from final-decision-10.md.
 
 ### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
-- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
+- **SUPREME_RULES from final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
+- **SUPREME_RULES from final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
+- **SUPREME_RULES compliant logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**
 
@@ -208,7 +208,7 @@ All extensions MUST validate format compliance:
 from extensions.common.utils.validation import validate_dataset_format
 
 def generate_dataset():
-    dataset = create_dataset()
+    dataset = DatasetFactory.create("standard")  # CANONICAL create() method per SUPREME_RULES
     validate_dataset_format(
         dataset_path=output_path,
         extension_type="heuristics",

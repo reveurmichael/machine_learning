@@ -92,7 +92,7 @@ class BaseExtensionApp:
         self.setup_page_config()
         self.initialize_session_state()
         self.setup_sidebar()
-        print(f"[{extension_name}App] Initialized")  # Simple logging
+        print(f"[{extension_name}App] Initialized")  # SUPREME_RULES compliant logging
         
     def setup_page_config(self):
         """Configure Streamlit page settings"""
@@ -234,7 +234,7 @@ class SubprocessRunner:
     def __init__(self, extension_path: Path):
         self.extension_path = extension_path
         self.current_process = None
-        print(f"[SubprocessRunner] Initialized for {extension_path}")  # Simple logging
+        print(f"[SubprocessRunner] Initialized for {extension_path}")  # SUPREME_RULES compliant logging
         
     def run_script(self, script_name: str, arguments: Dict[str, Any]) -> subprocess.Popen:
         """Execute script with arguments and return process handle"""
@@ -258,7 +258,7 @@ class SubprocessRunner:
                 cwd=self.extension_path.parent.parent.parent  # Project root
             )
             self.current_process = process
-            print(f"[SubprocessRunner] Started process: {' '.join(cmd)}")  # Simple logging
+            print(f"[SubprocessRunner] Started process: {' '.join(cmd)}")  # SUPREME_RULES compliant logging
             return process
             
         except Exception as e:

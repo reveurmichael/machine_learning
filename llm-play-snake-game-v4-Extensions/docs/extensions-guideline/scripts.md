@@ -178,8 +178,8 @@ def main():
         manager = game_factory.create("game", game_args)  # Canonical
         results = manager.run()
         
-        # Convert to training format
-        dataset = generator.create_dataset(results, algorithm)
+        # Generate dataset using canonical factory pattern
+        dataset = DatasetGenerator.create("standard", results, algorithm)  # CANONICAL create() method
         generator.save_dataset(dataset, args.output_dir / algorithm)
         
         print(f"Dataset saved for {algorithm} at {args.output_dir / algorithm}")  # Simple logging

@@ -145,7 +145,15 @@ class GameManager:
 
 # ❌ INCORRECT: Inconsistent patterns across versions
 class AgentFactory:
-    def create_agent(self, algorithm: str, **kwargs):  # Wrong method name
+    def create_agent(self, algorithm: str, **kwargs):  # FORBIDDEN - not canonical
+        """This violates SUPREME_RULES: factory methods must be named create()"""
+        pass
+
+# ✅ CORRECT: Consistent patterns across versions
+class AgentFactory:
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical factory pattern following final-decision-10.md SUPREME_RULES."""
         pass
 ```
 

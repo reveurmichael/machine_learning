@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
-The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to `final-decision-10.md` SUPREME_RULES.
+The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to SUPREME_RULES from final-decision-10.md.
 
 ## 🔍 **Navigation Aids for AI Assistants**
 
@@ -48,7 +48,7 @@ class GameAgentFactory:
     - Centralized agent creation logic
     
     Usage:
-        agent = GameAgentFactory.create("BFS", config)  # Canonical create() method
+        agent = GameAgentFactory.create("BFS", config)  # Canonical create() method per SUPREME_RULES
     """
 ```
 
@@ -68,14 +68,6 @@ class BaseGameManager:
     RLGameManager (Task-2)
     SupervisedGameManager (Task-3)
     """
-```
-
-### **Comprehensive Type Hints**
-```python
-def create_limits_manager(
-    args: argparse.Namespace
-) -> ConsecutiveLimitsManager:
-    """Type hints make function signatures crystal clear for AI tools"""
 ```
 
 ### **Rich Docstring Standards**
@@ -181,24 +173,6 @@ All constants in `config/` directory with clear names:
 ./rm_pycache.sh   # Cleanup
 ```
 
-## 📖 **Documentation Strategy**
-
-### **1. Layered Documentation**
-- **README.md**: High-level project overview
-- **docs/**: Detailed technical documentation
-- **Inline comments**: Implementation-specific details
-- **Docstrings**: API documentation
-
-### **2. Cross-Reference System**
-- Each document references related documents
-- Clear navigation paths between concepts
-- Consistent terminology across all docs
-
-### **3. Code Examples**
-- Every concept illustrated with working code
-- Complete, runnable examples
-- Progressive complexity from simple to advanced
-
 ## 🎯 **AI-Friendly Design Principles**
 
 ### **1. Explicit Over Implicit**
@@ -220,23 +194,6 @@ All constants in `config/` directory with clear names:
 - Single responsibility principle
 - Clear interfaces
 - Minimal dependencies
-
-## 🔍 **AI Assistant Workflow Optimization**
-
-### **1. Context Preservation**
-- Clear file organization
-- Consistent import patterns
-- Explicit dependencies
-
-### **2. Error Handling**
-- Clear error messages
-- Graceful degradation
-- Helpful debugging information
-
-### **3. Testing Support**
-- Clear test structure
-- Comprehensive coverage
-- Easy test execution
 
 ---
 

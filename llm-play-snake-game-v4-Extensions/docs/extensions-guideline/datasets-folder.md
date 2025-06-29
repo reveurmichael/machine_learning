@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Organization**
 
-The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following `final-decision-10.md` SUPREME_RULES.
+The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from final-decision-10.md.
 
 ### **Educational Value**
 - **Dataset Organization**: Understanding consistent dataset storage
@@ -113,7 +113,7 @@ def create_dataset_directory(extension_type: str, version: str, grid_size: int, 
     (dataset_path / "game_logs").mkdir(exist_ok=True)
     (dataset_path / "evaluation").mkdir(exist_ok=True)
     
-    print(f"[DatasetUtils] Created dataset directory: {dataset_path}")  # Simple logging
+    print(f"[DatasetUtils] Created dataset directory: {dataset_path}")  # SUPREME_RULES compliant logging
     return dataset_path
 
 def get_dataset_path(extension_type: str, version: str, grid_size: int, timestamp: str) -> Path:
@@ -146,7 +146,7 @@ def save_dataset_metadata(metadata: dict, dataset_path: Path):
     with open(metadata_file, 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    print(f"[DatasetUtils] Saved metadata: {metadata_file}")  # Simple logging
+    print(f"[DatasetUtils] Saved metadata: {metadata_file}")  # SUPREME_RULES compliant logging
 ```
 
 ## 📋 **Dataset Format Standards**
@@ -158,7 +158,7 @@ def save_csv_dataset(data: pd.DataFrame, dataset_path: Path, algorithm: str):
     csv_file = dataset_path / "processed_data" / f"{algorithm}_data.csv"
     data.to_csv(csv_file, index=False)
     
-    print(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # Simple logging
+    print(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # SUPREME_RULES compliant logging
 ```
 
 ### **JSONL Format (heuristics-v0.04 only)**
@@ -172,7 +172,7 @@ def save_jsonl_dataset(data: list, dataset_path: Path, algorithm: str):
             json.dump(item, f)
             f.write('\n')
     
-    print(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # Simple logging
+    print(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # SUPREME_RULES compliant logging
 ```
 
 ### **NPZ Format**
@@ -182,7 +182,7 @@ def save_npz_dataset(data_dict: dict, dataset_path: Path, format_type: str):
     npz_file = dataset_path / "processed_data" / f"{format_type}_data.npz"
     np.savez(npz_file, **data_dict)
     
-    print(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # Simple logging
+    print(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -202,9 +202,9 @@ def save_npz_dataset(data_dict: dict, dataset_path: Path, format_type: str):
 ## 📋 **SUPREME_RULES Implementation Checklist**
 
 ### **Mandatory Requirements**
-- [ ] **Grid-Size Agnostic**: Works with any grid size (final-decision-10.md compliance)
+- [ ] **Grid-Size Agnostic**: Works with any grid size (SUPREME_RULES from final-decision-10.md compliance)
 - [ ] **Simple Logging**: Uses print() statements only for all operations
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all documentation
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
 ### **Dataset-Specific Standards**

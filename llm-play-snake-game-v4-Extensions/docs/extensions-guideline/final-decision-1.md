@@ -42,7 +42,7 @@ All code examples in this document follow **SUPREME_RULE NO.3** by using simple 
 ```python
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def create_dataset_directory(extension_type: str, version: str, grid_size: int):
-    """Create dataset directory with proper structure"""
+    """Create dataset directory with proper structure using canonical factory pattern"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}"
     

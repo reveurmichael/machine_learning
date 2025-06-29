@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Consistent Path Management**
 
-The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following `final-decision-10.md` SUPREME_RULES.
+The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from final-decision-10.md.
 
 ### **Educational Value**
 - **Path Management**: Understanding consistent path handling
@@ -33,12 +33,12 @@ def ensure_project_root():
     while current_dir != current_dir.parent:
         if any((current_dir / indicator).exists() for indicator in root_indicators):
             os.chdir(current_dir)
-            print(f"[PathUtils] Set working directory to: {current_dir}")  # Simple logging
+            print(f"[PathUtils] Set working directory to: {current_dir}")  # SUPREME_RULES compliant logging
             return current_dir
         current_dir = current_dir.parent
     
     # If not found, stay in current directory
-    print(f"[PathUtils] Project root not found, staying in: {Path.cwd()}")  # Simple logging
+    print(f"[PathUtils] Project root not found, staying in: {Path.cwd()}")  # SUPREME_RULES compliant logging
     return Path.cwd()
 
 def get_project_root() -> Path:
@@ -128,26 +128,26 @@ log_debug("Pathfinding", "Calculating route to apple")
 class GameManager:
     def __init__(self):
         self.component_name = "GameManager"
-        print(f"[{self.component_name}] Initialized")  # Simple logging
+        print(f"[{self.component_name}] Initialized")  # SUPREME_RULES compliant logging
     
     def start_game(self):
-        print(f"[{self.component_name}] Starting new game")  # Simple logging
+        print(f"[{self.component_name}] Starting new game")  # SUPREME_RULES compliant logging
         # Game logic here
-        print(f"[{self.component_name}] Game completed")  # Simple logging
+        print(f"[{self.component_name}] Game completed")  # SUPREME_RULES compliant logging
     
     def log_error(self, message: str):
-        print(f"[{self.component_name}] ERROR: {message}")  # Simple logging
+        print(f"[{self.component_name}] ERROR: {message}")  # SUPREME_RULES compliant logging
 
 class Agent:
     def __init__(self, name: str):
         self.component_name = f"Agent_{name}"
-        print(f"[{self.component_name}] Initialized")  # Simple logging
+        print(f"[{self.component_name}] Initialized")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: dict) -> str:
-        print(f"[{self.component_name}] Planning move")  # Simple logging
+        print(f"[{self.component_name}] Planning move")  # SUPREME_RULES compliant logging
         # Move planning logic here
         move = "UP"  # Example
-        print(f"[{self.component_name}] Selected move: {move}")  # Simple logging
+        print(f"[{self.component_name}] Selected move: {move}")  # SUPREME_RULES compliant logging
         return move
 ```
 
@@ -209,9 +209,9 @@ def setup_extension():
     extension_path = get_extension_path("heuristics", "v0.03")
     logs_path = project_root / "logs"
     
-    print(f"[Extension] Project root: {project_root}")  # Simple logging
-    print(f"[Extension] Extension path: {extension_path}")  # Simple logging
-    print(f"[Extension] Logs path: {logs_path}")  # Simple logging
+    print(f"[Extension] Project root: {project_root}")  # SUPREME_RULES compliant logging
+    print(f"[Extension] Extension path: {extension_path}")  # SUPREME_RULES compliant logging
+    print(f"[Extension] Logs path: {logs_path}")  # SUPREME_RULES compliant logging
     
     return project_root, extension_path, logs_path
 ```
@@ -233,9 +233,9 @@ def setup_extension():
 ## 📋 **SUPREME_RULES Implementation Checklist**
 
 ### **Mandatory Requirements**
-- [ ] **Simple Logging**: Uses print() statements only for all operations (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses print() statements only for all operations (SUPREME_RULES from final-decision-10.md compliance)
 - [ ] **Path Consistency**: All extensions use same path management utilities
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all documentation
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
 ### **Path-Specific Standards**

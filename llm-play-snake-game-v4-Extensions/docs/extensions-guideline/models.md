@@ -146,12 +146,15 @@ class ModelFactory:
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
 class ModelFactory:
     def create_model(self, model_type: str):  # FORBIDDEN - not canonical
+        """This violates SUPREME_RULES: factory methods must be named create()"""
         pass
     
     def build_neural_network(self, model_type: str):  # FORBIDDEN - not canonical
+        """This violates SUPREME_RULES: factory methods must be named create()"""
         pass
     
     def make_ai_model(self, model_type: str):  # FORBIDDEN - not canonical
+        """This violates SUPREME_RULES: factory methods must be named create()"""
         pass
 ```
 

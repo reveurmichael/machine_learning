@@ -4,7 +4,7 @@
 
 ## 🎯 **Dashboard Philosophy**
 
-The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in `unified-streamlit-architecture-guide.md`.
+The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in `unified-streamlit-architecture-guide.md`, strictly adhering to `final-decision-10.md` SUPREME_RULES.
 
 ## 🧠 **Separation of UI Concerns**
 

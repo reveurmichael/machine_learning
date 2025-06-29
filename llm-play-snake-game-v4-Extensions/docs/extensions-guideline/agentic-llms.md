@@ -4,14 +4,9 @@
 
 > **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
 
-## 🎯 **Core Philosophy: LLM-Powered Autonomous Agents + SUPREME_RULES**
+## 🎯 **Core Philosophy: LLM-Powered Autonomous Agents**
 
 Agentic LLMs represent the next evolution of AI systems that can reason, plan, and act autonomously in complex environments. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements** for all agentic behaviors.
-
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for autonomous agent architectures
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout agentic implementations
-- **simple logging**: Lightweight, OOP-based common utilities with simple logging (print() statements only)
 
 ### **Educational Value**
 - **Autonomous Reasoning**: Learn how LLMs reason and plan using canonical patterns
@@ -97,37 +92,6 @@ class AgenticToolFactory:
         return tool_class(**kwargs)
 ```
 
-### **Prompt Strategy Factory (CANONICAL PATTERN)**
-```python
-class AgenticPromptFactory:
-    """
-    Factory for agentic prompt strategies following SUPREME_RULES.
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Educational Value: Demonstrates canonical create() method for
-    complex reasoning prompt strategies across agentic architectures.
-    
-    Reference: final-decision-10.md SUPREME_RULES for factory implementation
-    """
-    
-    _registry = {
-        "REACT_PROMPTS": ReActPromptStrategy,
-        "COT_PROMPTS": ChainOfThoughtPromptStrategy,
-        "TOOL_PROMPTS": ToolUsePromptStrategy,
-        "PLANNING_PROMPTS": PlanningPromptStrategy,
-    }
-    
-    @classmethod
-    def create(cls, strategy_type: str, **kwargs):  # CANONICAL create() method
-        """Create prompt strategy using canonical create() method (SUPREME_RULES compliance)"""
-        strategy_class = cls._registry.get(strategy_type.upper())
-        if not strategy_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown prompt strategy: {strategy_type}. Available: {available}")
-        print(f"[AgenticPromptFactory] Creating prompt strategy: {strategy_type}")  # Simple logging
-        return strategy_class(**kwargs)
-```
-
 ## 🔧 **Implementation Patterns (SUPREME_RULES Compliant)**
 
 ### **ReAct Agent Implementation (CANONICAL PATTERNS)**
@@ -177,44 +141,6 @@ class ReActAgent(BaseAgent):
         })
         
         print(f"[{self.name}] ReAct decided: {action}")  # Simple logging
-        return action
-    
-    def _format_observation(self, game_state: dict) -> str:
-        """Format game state observation with simple logging"""
-        print(f"[{self.name}] Formatting observation")  # Simple logging
-        
-        observation = f"""
-        Snake Head: {game_state.get('head_position')}
-        Apple Position: {game_state.get('apple_position')}
-        Snake Length: {game_state.get('snake_length')}
-        Current Score: {game_state.get('score')}
-        """
-        
-        print(f"[{self.name}] Observation ready")  # Simple logging
-        return observation
-    
-    def _generate_thought(self, observation: str) -> str:
-        """Generate reasoning thought with simple logging"""
-        print(f"[{self.name}] Generating reasoning thought")  # Simple logging
-        
-        # Use canonical prompt manager
-        prompt = self.prompt_manager.create_reasoning_prompt(observation)
-        thought = self._query_llm(prompt)
-        
-        print(f"[{self.name}] Thought generated")  # Simple logging
-        return thought
-    
-    def _decide_action(self, thought: str, observation: str) -> str:
-        """Decide action based on reasoning with simple logging"""
-        print(f"[{self.name}] Making action decision")  # Simple logging
-        
-        # Use canonical prompt manager for action decision
-        action_prompt = self.prompt_manager.create_action_prompt(thought, observation)
-        action_response = self._query_llm(action_prompt)
-        
-        # Extract move from response
-        action = self._extract_move(action_response)
-        print(f"[{self.name}] Action decided: {action}")  # Simple logging
         return action
 ```
 
@@ -272,113 +198,6 @@ class ToolUsingAgent(BaseAgent):
         decision = self._generate_move_with_context(game_state, tool_results)
         print(f"[{self.name}] Tool-assisted decision: {decision}")  # Simple logging
         return decision
-    
-    def _assess_tool_needs(self, game_state: dict) -> dict:
-        """Assess which tools are needed with simple logging"""
-        print(f"[{self.name}] Assessing tool requirements")  # Simple logging
-        
-        assessments = {
-            "pathfinding": self._needs_pathfinding(game_state),
-            "analysis": self._needs_analysis(game_state),
-            "memory": self._needs_memory_lookup(game_state),
-        }
-        
-        print(f"[{self.name}] Tool needs: {assessments}")  # Simple logging
-        return assessments
-    
-    def _generate_move_with_context(self, game_state: dict, tool_results: dict) -> str:
-        """Generate move decision with tool context using canonical patterns"""
-        print(f"[{self.name}] Generating move with tool context")  # Simple logging
-        
-        # Use canonical prompt manager with tool context
-        context_prompt = self.prompt_manager.create_tool_context_prompt(game_state, tool_results)
-        response = self._query_llm(context_prompt)
-        
-        # Extract move using simple validation
-        move = self._extract_move(response)
-        print(f"[{self.name}] Context-based move: {move}")  # Simple logging
-        return move
-```
-
-### **Memory-Enhanced Agent (CANONICAL PATTERNS)**
-```python
-class MemoryEnhancedAgent(BaseAgent):
-    """
-    Agent with persistent memory following SUPREME_RULES.
-    
-    Design Pattern: Memento Pattern (Canonical Implementation)
-    Purpose: Maintains persistent memory using canonical factory patterns
-    Educational Value: Shows how canonical patterns work with
-    memory-enhanced autonomous systems while maintaining simple logging.
-    
-    Reference: final-decision-10.md for canonical memory integration
-    """
-    
-    def __init__(self, name: str, grid_size: int,
-                 memory_type: str = "MEMORY",
-                 prompt_strategy: str = "COT_PROMPTS"):
-        super().__init__(name, grid_size)
-        
-        # Use canonical factory patterns
-        self.memory_manager = AgenticToolFactory.create(memory_type, grid_size=grid_size)  # Canonical
-        self.prompt_manager = AgenticPromptFactory.create(prompt_strategy)  # Canonical
-        
-        self.game_history = []
-        self.strategy_patterns = []
-        
-        print(f"[{name}] Memory-Enhanced Agent initialized")  # Simple logging
-    
-    def plan_move(self, game_state: dict) -> str:
-        """Plan move using memory and learning with simple logging throughout"""
-        print(f"[{self.name}] Starting memory-enhanced planning")  # Simple logging
-        
-        # Retrieve relevant memories using canonical patterns
-        relevant_memories = self.memory_manager.retrieve_relevant(game_state)
-        print(f"[{self.name}] Retrieved {len(relevant_memories)} memories")  # Simple logging
-        
-        # Analyze current situation with memory context
-        analysis = self._analyze_with_memory(game_state, relevant_memories)
-        print(f"[{self.name}] Memory analysis completed")  # Simple logging
-        
-        # Make decision using canonical prompt patterns
-        move = self._decide_with_memory_context(game_state, analysis)
-        
-        # Store experience for future learning
-        self._store_experience(game_state, move, analysis)
-        print(f"[{self.name}] Experience stored for learning")  # Simple logging
-        
-        print(f"[{self.name}] Memory-enhanced decision: {move}")  # Simple logging
-        return move
-    
-    def _analyze_with_memory(self, game_state: dict, memories: list) -> dict:
-        """Analyze situation with memory context using simple logging"""
-        print(f"[{self.name}] Analyzing with memory context")  # Simple logging
-        
-        # Use canonical prompt manager for memory analysis
-        memory_prompt = self.prompt_manager.create_memory_analysis_prompt(game_state, memories)
-        analysis_response = self._query_llm(memory_prompt)
-        
-        # Parse analysis response
-        analysis = self._parse_analysis_response(analysis_response)
-        print(f"[{self.name}] Memory analysis parsed")  # Simple logging
-        return analysis
-    
-    def _store_experience(self, game_state: dict, move: str, analysis: dict) -> None:
-        """Store experience for future learning with simple logging"""
-        print(f"[{self.name}] Storing experience")  # Simple logging
-        
-        experience = {
-            'game_state': game_state,
-            'move_taken': move,
-            'analysis': analysis,
-            'timestamp': self._get_timestamp()
-        }
-        
-        # Use canonical memory manager for storage
-        self.memory_manager.store_experience(experience)
-        self.game_history.append(experience)
-        
-        print(f"[{self.name}] Experience stored successfully")  # Simple logging
 ```
 
 ## 📊 **Simple Logging Standards for Agentic Operations**

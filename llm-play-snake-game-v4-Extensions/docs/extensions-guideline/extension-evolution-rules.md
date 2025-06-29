@@ -1,153 +1,298 @@
 # Extension Evolution Rules
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension evolution rules with strict SUPREME_RULES compliance.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension evolution rules.
 
-> **See also:** `final-decision-10.md`, `factory-design-pattern.md`, `standalone.md`, `project-structure-plan.md`.
+> **See also:** `final-decision-10.md`, `standalone.md`, `conceptual-clarity.md`.
 
-## 🎯 **Core Philosophy: SUPREME_RULES Compliance**
+## 🎯 **Core Philosophy: Progressive Enhancement**
 
-Extension evolution follows the **SUPREME_RULES** established in `final-decision-10.md`, ensuring that all extensions maintain:
-- **Canonical `create()` method** for all factories
-- **Simple logging** (print statements only, no complex logging frameworks)
-- **Lightweight, OOP-based, extensible, non-over-engineered** design
-- **Standalone principle** for extensions
-- **Single source of truth** compliance
+Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Educational Value**
-- **Consistent Evolution**: All extensions follow identical evolution patterns
-- **Canonical Patterns**: Factory methods use `create()` method consistently
-- **Simple Logging**: All components use print() statements only
-- **Architectural Integrity**: Maintains project-wide consistency
+- **Incremental Learning**: Each version introduces new concepts gradually
+- **Software Evolution**: Understanding how systems evolve over time
+- **Backward Compatibility**: Learning to maintain compatibility while adding features
+- **Version Management**: Understanding versioning strategies and best practices
 
-## 🏗️ **Factory Pattern: Canonical Method is create()**
+## 📈 **Version Evolution Pattern**
 
-All extension factories MUST use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle.
-
-### **Reference Implementation**
-
-A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
-
+### **v0.01: Foundation**
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
-
-class MyExtension:
-    def __init__(self, name):
-        self.name = name
-
-factory = SimpleFactory()
-factory.register("myextension", MyExtension)
-extension = factory.create("myextension", name="TestExtension")  # CANONICAL create() method
-print(f"[Factory] Created extension: {extension.name}")  # Simple logging
+# v0.01 establishes the basic foundation
+class BasicAgent:
+    """Basic agent implementation for v0.01."""
+    
+    def __init__(self, grid_size: int):
+        self.grid_size = grid_size
+        print(f"[BasicAgent] Initialized with grid size {grid_size}")  # Simple logging
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Basic move planning."""
+        # Simple heuristic: move toward apple
+        head_pos = game_state['head_position']
+        apple_pos = game_state['apple_position']
+        
+        if apple_pos[0] > head_pos[0]:
+            return 'RIGHT'
+        elif apple_pos[0] < head_pos[0]:
+            return 'LEFT'
+        elif apple_pos[1] > head_pos[1]:
+            return 'DOWN'
+        else:
+            return 'UP'
 ```
 
-### **Example Extension Factory**
+### **v0.02: Multi-Algorithm Support**
 ```python
-class ExtensionFactory:
+# v0.02 adds multiple algorithms using canonical factory pattern
+class AgentFactory:
+    """Factory for creating different agent types."""
+    
     _registry = {
-        "HEURISTICS": HeuristicsExtension,
-        "SUPERVISED": SupervisedExtension,
-        "REINFORCEMENT": ReinforcementExtension,
+        'BFS': BFSAgent,
+        'ASTAR': AStarAgent,
+        'DFS': DFSAgent,
     }
+    
     @classmethod
-    def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method
-        extension_class = cls._registry.get(extension_type.upper())
-        if not extension_class:
-            raise ValueError(f"Unknown extension type: {extension_type}")
-        print(f"[ExtensionFactory] Creating extension: {extension_type}")  # Simple logging
-        return extension_class(**kwargs)
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical factory pattern."""
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        
+        print(f"[AgentFactory] Creating {algorithm} agent")  # Simple logging
+        return agent_class(**kwargs)
+
+class BFSAgent(BasicAgent):
+    """BFS agent extending basic agent."""
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Plan move using BFS algorithm."""
+        path = self._bfs_pathfinding(game_state)
+        if path and len(path) > 1:
+            return self._direction_from_path(path[0], path[1])
+        return super().plan_move(game_state)  # Fallback to basic behavior
 ```
 
-## 📋 **Extension Evolution Standards**
-
-### **Version Progression Rules**
-1. **v0.01**: Basic implementation with canonical factory patterns
-2. **v0.02**: Enhanced features while maintaining v0.01 compatibility
-3. **v0.03**: Streamlit dashboard integration with canonical patterns
-4. **v0.04**: Advanced capabilities (heuristics only) with canonical patterns
-
-### **Mandatory Requirements for All Versions**
-- [ ] **Canonical Factory**: All factories use `create()` method exactly
-- [ ] **Simple Logging**: Uses print() statements only for all operations
-- [ ] **SUPREME_RULES Reference**: References `final-decision-10.md` in documentation
-- [ ] **Standalone Principle**: Extension + common folder = standalone unit
-- [ ] **No Cross-Extension Dependencies**: Only share code via common folder
-
-### **Quality Standards**
-- **OOP Design**: Proper inheritance and composition patterns
-- **Educational Value**: Clear examples and explanations
-- **Extensibility**: Easy to extend without breaking existing functionality
-- **Documentation**: Comprehensive docstrings and comments
-
-## 🔧 **Implementation Guidelines**
-
-### **Extension Structure**
-```
-extensions/{algorithm}-v0.0N/
-├── __init__.py
-├── agents/                    # Agent implementations
-├── app.py                     # Streamlit app (v0.03+)
-├── dashboard/                 # UI components (v0.03+)
-├── scripts/                   # CLI entry points
-└── config.py                  # Extension-specific configuration
-```
-
-### **Common Integration**
+### **v0.03: Advanced Features**
 ```python
-# All extensions use common utilities
-from extensions.common.utils.factory_utils import SimpleFactory
-from extensions.common.utils.path_utils import get_extension_path
-
-# Simple logging throughout
-print(f"[{extension_name}] Initializing extension")  # Simple logging
+# v0.03 adds advanced features like dataset generation and evaluation
+class AdvancedAgent(BFSAgent):
+    """Advanced agent with dataset generation capabilities."""
+    
+    def __init__(self, grid_size: int, generate_dataset: bool = False):
+        super().__init__(grid_size)
+        self.generate_dataset = generate_dataset
+        self.dataset_generator = DatasetGenerator() if generate_dataset else None
+        
+        print(f"[AdvancedAgent] Initialized with dataset generation: {generate_dataset}")  # Simple logging
+    
+    def plan_move(self, game_state: dict) -> str:
+        """Plan move and optionally generate dataset."""
+        move = super().plan_move(game_state)
+        
+        if self.generate_dataset:
+            self.dataset_generator.add_game_state(game_state, move)
+        
+        return move
+    
+    def save_dataset(self, output_path: str):
+        """Save generated dataset."""
+        if self.dataset_generator:
+            self.dataset_generator.save_to_csv(output_path)
+            print(f"[AdvancedAgent] Saved dataset to {output_path}")  # Simple logging
 ```
 
-## 📊 **Evolution Compliance Checklist**
+## 🔄 **Evolution Rules**
+
+### **1. Backward Compatibility Within Family**
+```python
+# ✅ CORRECT: v0.02 extends v0.01 functionality
+class BFSAgent(BasicAgent):  # Inherits from v0.01
+    def plan_move(self, game_state: dict) -> str:
+        # Enhanced implementation
+        pass
+
+# ✅ CORRECT: v0.03 extends v0.02 functionality
+class AdvancedAgent(BFSAgent):  # Inherits from v0.02
+    def plan_move(self, game_state: dict) -> str:
+        # Further enhanced implementation
+        pass
+
+# ❌ INCORRECT: Breaking changes within same extension family
+class BFSAgent:  # Should inherit from BasicAgent
+    def plan_move(self, game_state: dict) -> str:
+        # Completely different interface
+        pass
+```
+
+### **2. Canonical Pattern Consistency**
+```python
+# ✅ CORRECT: Consistent factory pattern across versions
+class AgentFactory:
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical factory pattern."""
+        pass
+
+# ✅ CORRECT: Consistent logging pattern
+class GameManager:
+    def start_game(self):
+        print(f"[GameManager] Starting game {self.game_count}")  # Simple logging
+        # Game logic here
+        print(f"[GameManager] Game completed, score: {self.score}")  # Simple logging
+
+# ❌ INCORRECT: Inconsistent patterns across versions
+class AgentFactory:
+    def create_agent(self, algorithm: str, **kwargs):  # Wrong method name
+        pass
+```
+
+### **3. Feature Addition Strategy**
+```python
+# ✅ CORRECT: Additive feature enhancement
+class v0_01_Agent:
+    def plan_move(self, game_state: dict) -> str:
+        """Basic move planning."""
+        pass
+
+class v0_02_Agent(v0_01_Agent):
+    def plan_move(self, game_state: dict) -> str:
+        """Enhanced move planning with multiple algorithms."""
+        pass
+    
+    def get_algorithm_info(self) -> dict:
+        """New feature in v0.02."""
+        pass
+
+class v0_03_Agent(v0_02_Agent):
+    def plan_move(self, game_state: dict) -> str:
+        """Further enhanced move planning with dataset generation."""
+        pass
+    
+    def get_algorithm_info(self) -> dict:
+        """Enhanced algorithm info in v0.03."""
+        pass
+    
+    def generate_dataset(self) -> pd.DataFrame:
+        """New feature in v0.03."""
+        pass
+
+# ❌ INCORRECT: Removing features in newer versions
+class v0_03_Agent(v0_02_Agent):
+    def plan_move(self, game_state: dict) -> str:
+        """Removed get_algorithm_info method - breaks compatibility."""
+        pass
+    # Missing get_algorithm_info method
+```
+
+## 📋 **Version-Specific Requirements**
 
 ### **v0.01 Requirements**
-- [ ] Basic agent implementation with canonical factory
-- [ ] Simple logging with print() statements only
-- [ ] Standalone operation (extension + common)
-- [ ] Reference to `final-decision-10.md`
+- [ ] **Basic Functionality**: Core algorithm implementation
+- [ ] **Simple Interface**: Basic move planning interface
+- [ ] **Canonical Patterns**: Factory pattern with `create()` method
+- [ ] **Simple Logging**: Print statements only (SUPREME_RULES compliance)
 
 ### **v0.02 Requirements**
-- [ ] All v0.01 requirements maintained
-- [ ] Enhanced features with canonical patterns
-- [ ] Backward compatibility with v0.01
-- [ ] Additional agent types with canonical factory
+- [ ] **Multi-Algorithm Support**: Multiple algorithm implementations
+- [ ] **Inheritance Structure**: Extends v0.01 functionality
+- [ ] **Factory Enhancement**: Enhanced factory with multiple algorithms
+- [ ] **Backward Compatibility**: Maintains v0.01 interface
 
 ### **v0.03 Requirements**
-- [ ] All v0.02 requirements maintained
-- [ ] Streamlit dashboard with canonical patterns
-- [ ] Script integration with subprocess
-- [ ] Multi-tab interface following dashboard standards
+- [ ] **Dataset Generation**: Generate training datasets
+- [ ] **Evaluation Tools**: Performance evaluation capabilities
+- [ ] **Advanced Features**: Enhanced functionality beyond v0.02
+- [ ] **Backward Compatibility**: Maintains v0.02 interface
 
 ### **v0.04 Requirements (Heuristics Only)**
-- [ ] All v0.03 requirements maintained
-- [ ] JSONL generation capability
-- [ ] Advanced data formats with canonical patterns
-- [ ] Enhanced visualization and analysis tools
+- [ ] **JSONL Generation**: Generate JSONL datasets for LLM fine-tuning
+- [ ] **Enhanced Data Formats**: Support for multiple data formats
+- [ ] **Advanced Evaluation**: Comprehensive evaluation metrics
+- [ ] **Backward Compatibility**: Maintains v0.03 interface
 
-## 🎓 **Educational Integration**
+## 🎯 **Evolution Best Practices**
 
-### **Learning Progression**
-- **v0.01**: Learn basic canonical patterns and simple logging
-- **v0.02**: Understand extension evolution and backward compatibility
-- **v0.03**: Master Streamlit integration with canonical patterns
-- **v0.04**: Experience advanced capabilities with canonical patterns
+### **1. Incremental Enhancement**
+```python
+# ✅ CORRECT: Incremental feature addition
+class BaseAgent:
+    def plan_move(self, game_state: dict) -> str:
+        """Base move planning."""
+        pass
+
+class EnhancedAgent(BaseAgent):
+    def plan_move(self, game_state: dict) -> str:
+        """Enhanced move planning."""
+        # Call parent method for basic functionality
+        basic_move = super().plan_move(game_state)
+        # Add enhancement
+        enhanced_move = self._enhance_move(basic_move, game_state)
+        return enhanced_move
+    
+    def _enhance_move(self, basic_move: str, game_state: dict) -> str:
+        """Enhance basic move with additional logic."""
+        pass
+```
+
+### **2. Configuration Evolution**
+```python
+# ✅ CORRECT: Evolving configuration with backward compatibility
+class AgentConfig:
+    def __init__(self, **kwargs):
+        # v0.01 parameters
+        self.grid_size = kwargs.get('grid_size', 10)
+        
+        # v0.02 parameters (new)
+        self.algorithm = kwargs.get('algorithm', 'BFS')
+        
+        # v0.03 parameters (new)
+        self.generate_dataset = kwargs.get('generate_dataset', False)
+        
+        print(f"[AgentConfig] Initialized with algorithm: {self.algorithm}")  # Simple logging
+```
+
+### **3. Documentation Evolution**
+```python
+class AdvancedAgent:
+    """
+    Advanced agent with dataset generation capabilities.
+    
+    Evolution History:
+    - v0.01: Basic move planning
+    - v0.02: Multi-algorithm support with factory pattern
+    - v0.03: Dataset generation and evaluation tools
+    - v0.04: JSONL generation for LLM fine-tuning (heuristics only)
+    
+    Design Patterns:
+    - Factory Pattern: Algorithm selection and creation
+    - Template Method Pattern: Consistent move planning workflow
+    - Strategy Pattern: Pluggable algorithm implementations
+    """
+```
+
+## 🎓 **Educational Benefits**
+
+### **Learning Objectives**
+- **Software Evolution**: Understanding how software systems evolve
+- **Backward Compatibility**: Learning to maintain compatibility
+- **Version Management**: Understanding versioning strategies
+- **Incremental Development**: Learning progressive enhancement
 
 ### **Best Practices**
-- **Consistency**: Same patterns across all extensions and versions
-- **Simplicity**: Avoid over-engineering and complex logging
-- **Documentation**: Clear explanations of canonical patterns
-- **Examples**: Working code examples with canonical factory usage
+- **Additive Changes**: Add features without removing existing ones
+- **Consistent Patterns**: Maintain canonical patterns across versions
+- **Clear Documentation**: Document evolution history and changes
+- **Testing Strategy**: Test backward compatibility and new features
 
 ---
 
-**Extension evolution rules ensure consistent, educational, and maintainable development across all Snake Game AI extensions while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES.**
+**Extension evolution rules ensure progressive enhancement while maintaining backward compatibility and educational value across all Snake Game AI extensions.**
 
 ## 🔗 **See Also**
 
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`factory-design-pattern.md`**: Canonical factory implementation for all systems
 - **`standalone.md`**: Standalone principle and extension independence
-- **`project-structure-plan.md`**: Project structure and organization 
+- **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions 

@@ -212,56 +212,6 @@ class HeuristicsApp(BaseExtensionApp):
             
         with tab4:
             self.learning_analytics_tab()
-    
-    def interactive_game_tab(self):
-        """Interactive game playing interface"""
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.subheader("Game Visualization")
-            
-            # Game canvas placeholder
-            game_container = st.empty()
-            
-            # Control buttons
-            col_start, col_pause, col_reset = st.columns(3)
-            
-            with col_start:
-                if st.button("▶️ Start Game", disabled=st.session_state.running):
-                    self.start_game(game_container)
-                    
-            with col_pause:
-                if st.button("⏸️ Pause", disabled=not st.session_state.running):
-                    self.pause_game()
-                    
-            with col_reset:
-                if st.button("🔄 Reset"):
-                    self.reset_game(game_container)
-        
-        with col2:
-            st.subheader("Algorithm Info")
-            self.display_algorithm_info()
-            
-            st.subheader("Current Statistics")
-            self.display_current_stats()
-    
-    def start_game(self, container):
-        """Start game execution with visualization"""
-        st.session_state.running = True
-        
-        # Execute game subprocess
-        script_path = get_extension_path(__file__) / "scripts" / "main.py"
-        
-        process = subprocess.Popen([
-            "python", str(script_path),
-            "--algorithm", st.session_state.algorithm,
-            "--grid-size", str(st.session_state.grid_size),
-            "--max-games", str(st.session_state.max_games),
-            "--visualization", "streamlit"
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
-        # Monitor process and update visualization
-        self.monitor_game_process(process, container)
 ```
 
 ### **Supervised Learning Dashboard**
@@ -315,51 +265,6 @@ class SupervisedLearningApp(BaseExtensionApp):
         )
 ```
 
-### **Reinforcement Learning Dashboard**
-
-```python
-class ReinforcementLearningApp(BaseExtensionApp):
-    """
-    Streamlit dashboard for reinforcement learning agents
-    
-    Features:
-    - RL algorithm selection (DQN, PPO, A3C)
-    - Training episode monitoring
-    - Reward function visualization
-    - Policy analysis tools
-    """
-    
-    def __init__(self):
-        super().__init__("Reinforcement Learning")
-        self.main()
-    
-    def get_available_algorithms(self) -> List[str]:
-        return ["DQN", "PPO", "A3C", "DDPG"]
-    
-    def add_extension_controls(self):
-        """Add RL-specific controls"""
-        st.subheader("RL Training Options")
-        
-        # Training parameters
-        st.session_state.num_episodes = st.number_input(
-            "Training Episodes", 100, 50000, 1000
-        )
-        st.session_state.epsilon_start = st.number_input(
-            "Initial Epsilon", 0.1, 1.0, 0.9, format="%.2f"
-        )
-        st.session_state.epsilon_decay = st.number_input(
-            "Epsilon Decay", 0.9, 0.999, 0.995, format="%.3f"
-        )
-        
-        # Environment settings
-        st.session_state.reward_apple = st.number_input(
-            "Apple Reward", 1, 100, 10
-        )
-        st.session_state.reward_death = st.number_input(
-            "Death Penalty", -100, -1, -10
-        )
-```
-
 ## 📊 **Subprocess Integration Patterns**
 
 ### **Safe Script Execution**
@@ -410,46 +315,6 @@ class SubprocessRunner:
         except Exception as e:
             st.error(f"Failed to start process: {e}")
             raise
-    
-    def monitor_process(self, process: subprocess.Popen, progress_container) -> bool:
-        """Monitor process execution and update progress display"""
-        try:
-            # Create progress indicators
-            progress_bar = progress_container.progress(0)
-            status_text = progress_container.text("Starting...")
-            log_container = progress_container.expander("Execution Log")
-            
-            # Monitor process output
-            for line_count, line in enumerate(iter(process.stdout.readline, '')):
-                if line:
-                    log_container.text(line.strip())
-                    
-                    # Update progress based on output parsing
-                    progress = self.parse_progress_from_output(line)
-                    if progress is not None:
-                        progress_bar.progress(progress)
-                        status_text.text(f"Progress: {progress:.1%}")
-                
-                # Check if process has finished
-                if process.poll() is not None:
-                    break
-            
-            # Handle process completion
-            return_code = process.wait()
-            if return_code == 0:
-                progress_bar.progress(1.0)
-                status_text.text("✅ Completed successfully!")
-                print(f"[SubprocessRunner] Process completed successfully")  # Simple logging
-                return True
-            else:
-                error_output = process.stderr.read()
-                st.error(f"Process failed with return code {return_code}: {error_output}")
-                print(f"[SubprocessRunner] Process failed with code {return_code}")  # Simple logging
-                return False
-                
-        except Exception as e:
-            st.error(f"Error monitoring process: {e}")
-            return False
 ```
 
 ## 🎯 **User Experience Standards**
@@ -500,3 +365,10 @@ class SubprocessRunner:
 ---
 
 **Streamlit applications represent the user-facing interface of the Snake Game AI project, transforming complex algorithms into accessible, educational, and interactive experiences. They demonstrate how sophisticated technical systems can be made approachable through thoughtful interface design and educational integration.**
+
+## 🔗 **See Also**
+
+- **`scripts.md`**: Script execution and subprocess management
+- **`dashboard.md`**: Dashboard architecture and component organization
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`standalone.md`**: Standalone principle and extension independence

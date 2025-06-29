@@ -248,9 +248,28 @@ def create_instance(factory_type: str, instance_type: str):
 
 ### **Educational Integration**
 - [ ] **Clear Examples**: Simple examples using canonical `create()` method
-- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in factory context
-- [ ] **Best Practices**: Demonstration of SUPREME_RULES in factory systems
-- [ ] **Learning Value**: Easy to understand canonical patterns regardless of factory complexity
+- [ ] **Pattern Documentation**: Clear explanation of factory pattern benefits
+- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision-10.md standards
+- [ ] **Cross-Reference**: Links to related patterns and principles
+
+## 🔗 **Cross-References and Integration**
+
+### **Related Documents**
+- **`final-decision-10.md`**: SUPREME_RULES for canonical factory patterns
+- **`agents.md`**: Agent factory implementations and patterns
+- **`core.md`**: Core architecture and factory integration
+- **`standalone.md`**: Standalone extension principles with factory patterns
+
+### **Implementation Files**
+- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
+- **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
+- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+
+### **Educational Resources**
+- **Design Patterns**: Factory pattern as foundation for all object creation
+- **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
+- **Simple Logging**: Print statements provide clear operation visibility
+- **OOP Principles**: Factory pattern demonstrates encapsulation and polymorphism
 
 ---
 

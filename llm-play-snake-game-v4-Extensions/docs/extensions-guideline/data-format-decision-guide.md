@@ -1,6 +1,8 @@
+# TODO: make sure the idea of this file's idea, especially concerning the evolutionary algorithm representation, diffuse to other related md files, and python files in the ./extensions/common/ folder.
+
 # Data Format Decision Guide for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines data format decision patterns.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for data format decisions and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 > **See also:** `csv-schema-1.md`, `csv-schema-2.md`, `final-decision-10.md`, `heuristics-as-foundation.md`.
 
@@ -12,7 +14,7 @@
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
-Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types.
+Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Guidelines Alignment**
 - **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
@@ -205,7 +207,7 @@ dataset_path = "heuristics_v0.04_20240101_120000"  # Widely used
 
 All extensions MUST validate format compliance:
 ```python
-from extensions.common.validation import validate_dataset_format
+from extensions.common.utils.validation import validate_dataset_format
 
 def generate_dataset():
     dataset = create_dataset()

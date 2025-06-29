@@ -39,17 +39,17 @@ subprocess. That's why for extensions v0.03 we will have a folder "dashboard" in
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the mandatory script architecture for all v0.03 extensions.
 
-> **See also:** `app.md`, `dashboard.md`, `final-decision-10.md`, `standalone.md`.
+> **See also:** `final-decision-10.md`, `app.md`, `dashboard.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Script-Runner Architecture**
 
 The `scripts/` directory is **mandatory for all v0.03 extensions** and implements the "script-runner" architecture where Streamlit applications serve as **interactive frontends** that launch specialized scripts via subprocess. This separation ensures clean architecture and enables both CLI and web-based operation.
 
-### **Design Philosophy**
+### **Educational Value**
 - **Separation of Concerns**: UI logic separate from core algorithm implementation
 - **Dual Interface**: Same functionality available via CLI and web interface
 - **Subprocess Safety**: Isolated execution with proper error handling
-- **Educational Value**: Clear demonstration of modular architecture patterns
+- **Canonical Patterns**: Demonstrates factory patterns and simple logging throughout
 
 ## 🏗️ **Mandatory Directory Structure**
 
@@ -108,13 +108,18 @@ def main():
     
     args = parser.parse_args()
     
-    # Import and execute algorithm
+    # Import and execute algorithm using canonical factory patterns
+    from extensions.common.utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
     
-    manager = HeuristicGameManager(args)
+    # Use canonical factory pattern
+    factory = SimpleFactory()
+    factory.register("heuristic", HeuristicGameManager)
+    
+    manager = factory.create("heuristic", args)  # CANONICAL create() method - SUPREME_RULES
     results = manager.run()
     
-    print(f"Execution completed. Results: {results}")  # Simple logging
+    print(f"Execution completed. Results: {results}")  # Simple logging - SUPREME_RULES
     return results
 
 if __name__ == "__main__":
@@ -145,14 +150,18 @@ def main():
     
     args = parser.parse_args()
     
-    # Generate datasets for each algorithm
-    from game_manager import HeuristicGameManager
+    # Generate datasets for each algorithm using canonical factory patterns
+    from extensions.common.utils.factory_utils import SimpleFactory
     from extensions.common.utils.dataset_utils import DatasetGenerator
     
-    generator = DatasetGenerator(args.grid_size, args.output_format)
+    # Use canonical factory pattern
+    factory = SimpleFactory()
+    factory.register("dataset", DatasetGenerator)
+    
+    generator = factory.create("dataset", args.grid_size, args.output_format)  # Canonical
     
     for algorithm in args.algorithms:
-        print(f"Generating dataset for {algorithm}...")  # Simple logging
+        print(f"Generating dataset for {algorithm}...")  # Simple logging - SUPREME_RULES
         
         # Execute games and collect data
         game_args = argparse.Namespace(
@@ -162,7 +171,11 @@ def main():
             output_dir=args.output_dir / algorithm
         )
         
-        manager = HeuristicGameManager(game_args)
+        # Use canonical factory pattern for game manager
+        game_factory = SimpleFactory()
+        game_factory.register("game", HeuristicGameManager)
+        
+        manager = game_factory.create("game", game_args)  # Canonical
         results = manager.run()
         
         # Convert to training format
@@ -201,7 +214,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Import training infrastructure
+    # Import training infrastructure using canonical factory patterns
+    from extensions.common.utils.factory_utils import SimpleFactory
     from training.model_trainer import ModelTrainer
     from extensions.common.utils.dataset_utils import load_dataset_for_training
     
@@ -211,13 +225,16 @@ def main():
         grid_size=args.grid_size
     )
     
-    # Train each model type
-    trainer = ModelTrainer(args.output_dir)
+    # Train each model type using canonical factory patterns
+    factory = SimpleFactory()
+    factory.register("trainer", ModelTrainer)
+    
+    trainer = factory.create("trainer", args.output_dir)  # Canonical
     
     for model_type in args.model_types:
-        print(f"Training {model_type}...")  # Simple logging
+        print(f"Training {model_type}...")  # Simple logging - SUPREME_RULES
         
-        model = trainer.create(model_type, input_dim=X_train.shape[1])
+        model = trainer.create(model_type, input_dim=X_train.shape[1])  # Canonical
         
         training_result = trainer.train_model(
             model=model,

@@ -1,12 +1,12 @@
 # Universal Coordinate System for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the universal coordinate system used across all extensions.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for the universal coordinate system and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 > **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Universal Consistency**
 
-The Snake Game AI project uses a **universal coordinate system** that ensures consistency across all extensions, algorithms, and visualizations. This system provides a single source of truth for position representation and movement calculations.
+The Snake Game AI project uses a **universal coordinate system** that ensures consistency across all extensions, algorithms, and visualizations. This system provides a single source of truth for position representation and movement calculations, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Educational Value**
 - **Consistency**: Same coordinate system across all components
@@ -294,5 +294,5 @@ def game_state_to_json(game_state: dict) -> dict:
 ## 🔗 **See Also**
 
 - **`core.md`**: Base class architecture and inheritance patterns
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure and organization

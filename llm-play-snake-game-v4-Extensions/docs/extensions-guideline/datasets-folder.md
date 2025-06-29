@@ -1,158 +1,317 @@
-# Dataset and Model Directory Structure
+# Datasets Folder Standards for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for dataset and model directory structure standards and supplements the _Final Decision Series_.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for datasets folder standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
-> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
+> **See also:** `data-format-decision-guide.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
-This document defines the **standardized directory organization** for datasets and models across all Snake Game AI extensions.
+## 🎯 **Core Philosophy: Grid-Size Agnostic Organization**
 
-## 🎯 **Core Design Philosophy**
+The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following `final-decision-10.md` SUPREME_RULES.
 
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making dataset/model directory architectural changes to ensure comprehensive understanding
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and directory structure patterns
-- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining directory structure patterns through inheritance rather than tight coupling
+### **Educational Value**
+- **Dataset Organization**: Understanding consistent dataset storage
+- **Grid-Size Independence**: Learning grid-size agnostic design
+- **Version Management**: Clear versioning and timestamping
+- **Cross-Extension Compatibility**: Enabling dataset sharing between extensions
 
-### **Grid-Size Agnostic Organization**
-Directory structure is designed to be **grid-size independent** while maintaining clear separation between different grid configurations, enabling flexible experimentation across different board sizes.
+## 🏗️ **Standardized Directory Structure**
 
-### **Multi-Directional Data Ecosystem**
-Unlike traditional linear pipelines, our architecture recognizes that:
-- **All tasks generate datasets** during training/evaluation
-- **Better models create better datasets** through positive feedback loops
-- **Cross-task pollination** improves overall system performance
-- **Training produces both models AND datasets simultaneously**
-
-## 📁 **Standardized Directory Structure**
-
-### **Datasets Organization**
+### **Root Datasets Directory**
 ```
 logs/extensions/datasets/
-└── grid-size-N/                          # Grid-size specific organization
-    ├── heuristics_v0.04_{timestamp}/      # 🎯 DEFINITIVE VERSION - Use this!
-    │   ├── bfs/
-    │   │   ├── game_logs/                 # Original game data
-    │   │   └── processed_data/
-    │   │       ├── tabular_data.csv       # ✅ ACTIVE: For supervised learning
-    │   │       ├── reasoning_data.jsonl   # 🔥 NEW: For LLM fine-tuning
-    │   │       └── metadata.json
-    │   └── astar/ [same structure]
-    │
-    ├── heuristics_v0.03_{timestamp}/      # STILL SUPPORTED: Widely used in production; v0.04 recommended for new work
-    │   ├── bfs/
-    │   │   ├── game_logs/                 # Original game data
-    │   │   └── processed_data/
-    │   │       ├── tabular_data.csv       # ✅ Still valuable, but v0.04 is better
-    │   │       └── metadata.json
-    │   └── astar/ [same structure]
-    │
-    ├── supervised_v0.02_{timestamp}/      # Task 2 → Others (Improved datasets)
-    ├── reinforcement_v0.02_{timestamp}/   # Task 3 → Others (Optimal datasets)
-    ├── llm_finetune_v0.02_{timestamp}/    # Task 4 → Others (Language-grounded)
-    └── llm_distillation_v0.02_{timestamp}/ # Task 5 → Others (Efficient)
+├── grid-size-8/
+│   ├── heuristics_v0.03_20240101_120000/
+│   ├── heuristics_v0.04_20240101_120000/
+│   ├── supervised_v0.03_20240101_120000/
+│   └── reinforcement_v0.02_20240101_120000/
+├── grid-size-10/
+│   ├── heuristics_v0.03_20240101_120000/
+│   ├── heuristics_v0.04_20240101_120000/
+│   ├── supervised_v0.03_20240101_120000/
+│   └── reinforcement_v0.02_20240101_120000/
+├── grid-size-12/
+│   └── [extension]_v[version]_[timestamp]/
+├── grid-size-16/
+│   └── [extension]_v[version]_[timestamp]/
+└── grid-size-20/
+    └── [extension]_v[version]_[timestamp]/
 ```
 
-**🎯 Standardized Directory Format**: `logs/extensions/datasets/grid-size-N/{extension}_v{version}_{timestamp}/`
+### **Extension Dataset Directory Structure**
+```
+logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/
+├── metadata.json                    # Dataset metadata and configuration
+├── processed_data/                  # Processed datasets in various formats
+│   ├── tabular_data.csv            # CSV format (ACTIVE, NOT legacy)
+│   ├── reasoning_data.jsonl        # JSONL format (heuristics-v0.04 only)
+│   ├── sequential_data.npz         # NPZ Sequential format
+│   ├── spatial_data.npz            # NPZ 2D Arrays format
+│   ├── raw_data.npz                # NPZ Raw Arrays format (general)
+│   └── evolutionary_data.npz       # NPZ Raw Arrays format (evolutionary specific)
+├── game_logs/                      # Original game execution logs
+│   ├── game_1.json
+│   ├── game_2.json
+│   ├── ...
+│   ├── prompts/
+│   │   ├── game_1_round_1_prompt.txt
+│   │   ├── game_1_round_2_prompt.txt
+│   │   └── ...
+│   ├── responses/
+│   │   ├── game_1_round_1_raw_response.txt
+│   │   ├── game_1_round_2_raw_response.txt
+│   │   └── ...
+│   └── summary.json
+└── evaluation/                     # Evaluation results and metrics
+    ├── performance_metrics.json
+    ├── comparison_results.json
+    └── visualization_data.json
+```
+
+## 📊 **Naming Convention Standards**
+
+### **Grid Size Directory**
+```
+grid-size-{N}
+```
+- **N**: Grid size (8, 10, 12, 16, 20, etc.)
+- **Format**: Always use `grid-size-` prefix
+- **Examples**: `grid-size-8`, `grid-size-10`, `grid-size-16`
+
+### **Extension Dataset Directory**
+```
+{extension}_v{version}_{timestamp}
+```
+- **extension**: Extension type (heuristics, supervised, reinforcement, evolutionary)
+- **version**: Version number (0.01, 0.02, 0.03, 0.04)
+- **timestamp**: Format YYYYMMDD_HHMMSS
+- **Examples**: 
+  - `heuristics_v0.03_20240101_120000`
+  - `supervised_v0.02_20240101_120000`
+  - `reinforcement_v0.01_20240101_120000`
 
 ### **Important Guidelines: Version Selection**
-- **Prefer `heuristics-v0.04`** for new datasets: it is a strict superset of v0.03 and adds JSONL generation.
-- **`heuristics-v0.03` remains fully supported and widely used** in existing pipelines.  Continue to use it when backward-compatibility or comparison with historical results is required.
-- **CSV format is ACTIVE**: Not legacy – essential for supervised learning across both v0.03 and v0.04.
-- **JSONL format is ADDITIONAL**: Available only in v0.04 for LLM fine-tuning use-cases.
+- **For supervised learning**: Use CSV from either heuristics-v0.03 or heuristics-v0.04 (both widely used)
+- **For LLM fine-tuning**: Use JSONL from heuristics-v0.04 only
+- **For research**: Use both formats from heuristics-v0.04
+- **CSV is ACTIVE**: Not legacy - actively used for supervised learning
+- **JSONL is ADDITIONAL**: New capability for LLM fine-tuning (heuristics-v0.04 only)
 
-### **Path Validation Utilities**
+## 🔧 **Path Management Implementation**
+
+### **Path Generation Utilities**
 ```python
-def validate_dataset_path_structure(path: str) -> bool:
-    """Validate dataset path follows standardized format"""
-    import re
-    pattern = r"logs/extensions/datasets/grid-size-\d+/\w+_v\d+\.\d+_\d{8}_\d{6}/"
-    return bool(re.match(pattern, path))
+from extensions.common.utils.path_utils import get_dataset_path, get_datasets_root
 
-def enforce_path_structure(extension_type: str, version: str, grid_size: int, timestamp: str) -> str:
-    """Enforce standardized path structure"""
-    return f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/"
+def create_dataset_directory(extension_type: str, version: str, grid_size: int, timestamp: str) -> Path:
+    """Create standardized dataset directory"""
+    datasets_root = get_datasets_root()
+    dataset_path = datasets_root / f"grid-size-{grid_size}" / f"{extension_type}_v{version}_{timestamp}"
+    
+    # Create directory structure
+    dataset_path.mkdir(parents=True, exist_ok=True)
+    (dataset_path / "processed_data").mkdir(exist_ok=True)
+    (dataset_path / "game_logs").mkdir(exist_ok=True)
+    (dataset_path / "evaluation").mkdir(exist_ok=True)
+    
+    print(f"[DatasetUtils] Created dataset directory: {dataset_path}")  # Simple logging
+    return dataset_path
+
+def get_dataset_path(extension_type: str, version: str, grid_size: int, timestamp: str) -> Path:
+    """Get standardized dataset path"""
+    datasets_root = get_datasets_root()
+    return datasets_root / f"grid-size-{grid_size}" / f"{extension_type}_v{version}_{timestamp}"
 ```
 
-### **Models Organization**
-```
-logs/extensions/models/
-└── grid-size-N/
-    ├── supervised_v0.02_{timestamp}/
-    │   ├── mlp/
-    │   │   ├── model_artifacts/           # Primary model outputs
-    │   │   │   ├── model.pth
-    │   │   │   ├── model.onnx
-    │   │   │   └── config.json
-    │   │   └── training_process/
-    │   │       └── generated_datasets/    # 🔥 Datasets created during training
-    │   └── xgboost/ [same structure]
-    │
-    ├── reinforcement_v0.02_{timestamp}/
-    └── llm_finetune_v0.02_{timestamp}/
-```
-
-**🎯 Standardized Model Path Format**: `logs/extensions/models/grid-size-N/{extension}_v{version}_{timestamp}/`
-
-## 🔄 **Data Flow Benefits**
-
-### **Performance Hierarchy Integration**
-Expected progression generally follows: **Heuristics v0.04** → **Supervised** → **Reinforcement** → **LLM Fine-tuned** → **LLM Distilled**
-
-### **Cross-Task Data Enhancement**
-- **Heuristics v0.04** provide baseline datasets with algorithmic traces + language explanations
-- **Supervised** generate confidence-scored datasets with faster inference
-- **Reinforcement** create potentially optimal datasets with exploration data
-- **LLM Fine-tuned** produce language-grounded datasets with explanations
-- **LLM Distilled** generate efficient datasets optimized for deployment
-
-## 📊 **Path Management Integration**
-
-All extensions **MUST** use standardized path utilities from `unified-path-management-guide.md`:
-
+### **Metadata Management**
 ```python
-from extensions.common.path_utils import get_dataset_path, get_model_path
+def create_dataset_metadata(extension_type: str, version: str, grid_size: int, 
+                          algorithm: str, num_games: int, **kwargs) -> dict:
+    """Create standardized dataset metadata"""
+    metadata = {
+        "extension_type": extension_type,
+        "version": version,
+        "grid_size": grid_size,
+        "algorithm": algorithm,
+        "num_games": num_games,
+        "created_at": datetime.now().isoformat(),
+        "data_formats": get_supported_formats(extension_type, version),
+        "configuration": kwargs
+    }
+    
+    return metadata
 
-# Standardized path generation with validation
-dataset_path = get_dataset_path(
-    extension_type="heuristics", 
-    version="0.04",  # 🎯 Use v0.04 - it's the definitive version
-    grid_size=grid_size,  # Any supported size
-    algorithm="bfs",
-    timestamp=timestamp  # Format: YYYYMMDD_HHMMSS
-)
-# Enforced result: logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.04_{timestamp}/
+def save_dataset_metadata(metadata: dict, dataset_path: Path):
+    """Save metadata to dataset directory"""
+    metadata_file = dataset_path / "metadata.json"
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    print(f"[DatasetUtils] Saved metadata: {metadata_file}")  # Simple logging
 ```
 
-## 🎯 **Extension Compliance Requirements**
+## 📋 **Dataset Format Standards**
 
-### **All Extensions Must:**
-- Use the standardized `grid-size-N/` hierarchy
-- Generate paths using `extensions/common/path_utils.py`
-- Follow dataset format specifications from final-decision-2.md
-- Maintain version-specific naming conventions
-- Support multi-directional data consumption and generation
+### **CSV Format (heuristics-v0.03 and heuristics-v0.04)**
+```python
+def save_csv_dataset(data: pd.DataFrame, dataset_path: Path, algorithm: str):
+    """Save CSV dataset to processed_data directory"""
+    csv_file = dataset_path / "processed_data" / f"{algorithm}_data.csv"
+    data.to_csv(csv_file, index=False)
+    
+    print(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # Simple logging
+```
 
-### **Extension Guidelines (Following simple logging):**
+### **JSONL Format (heuristics-v0.04 only)**
+```python
+def save_jsonl_dataset(data: list, dataset_path: Path, algorithm: str):
+    """Save JSONL dataset to processed_data directory"""
+    jsonl_file = dataset_path / "processed_data" / f"{algorithm}_reasoning.jsonl"
+    
+    with open(jsonl_file, 'w') as f:
+        for item in data:
+            json.dump(item, f)
+            f.write('\n')
+    
+    print(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # Simple logging
+```
 
-**Educational Note (simple logging)**: We should be able to add new extensions easily and try out new ideas. Therefore, the directory structure supports flexible extension development.
+### **NPZ Format**
+```python
+def save_npz_dataset(data_dict: dict, dataset_path: Path, format_type: str):
+    """Save NPZ dataset to processed_data directory"""
+    npz_file = dataset_path / "processed_data" / f"{format_type}_data.npz"
+    np.savez(npz_file, **data_dict)
+    
+    print(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # Simple logging
+```
 
-**Current Extension Examples:**
-- **Heuristics**: v0.01, v0.02, v0.03, **v0.04 (DEFINITIVE)**
-- **Supervised**: v0.01, v0.02, v0.03
-- **Reinforcement**: v0.01, v0.02, v0.03
-- **Evolutionary**: v0.01, v0.02, v0.03
-- **LLM-based**: agentic-llms, llm-finetune, vision-language-model
-- **Custom Extensions**: Any new extension type following the naming pattern
+## 🚀 **Cross-Extension Dataset Usage**
 
-**Path Format Support**: The directory structure automatically accommodates any extension following the pattern `{extension_type}_v{version}_{timestamp}/`
+### **Loading Datasets for Training**
+```python
+def load_training_dataset(extension_type: str, version: str, grid_size: int, 
+                         timestamp: str, format_type: str = "csv") -> tuple:
+    """Load dataset for training"""
+    dataset_path = get_dataset_path(extension_type, version, grid_size, timestamp)
+    
+    if format_type == "csv":
+        data_file = dataset_path / "processed_data" / f"tabular_data.csv"
+        data = pd.read_csv(data_file)
+        return data
+    elif format_type == "jsonl":
+        data_file = dataset_path / "processed_data" / f"reasoning_data.jsonl"
+        data = []
+        with open(data_file, 'r') as f:
+            for line in f:
+                data.append(json.loads(line.strip()))
+        return data
+    elif format_type == "npz":
+        data_file = dataset_path / "processed_data" / f"{format_type}_data.npz"
+        data = np.load(data_file)
+        return data
+    else:
+        raise ValueError(f"Unsupported format: {format_type}")
+```
 
-### **Important Guidelines: Version Selection Guidelines**
-- **For heuristics**: Prefer v0.04 for new experiments, but v0.03 is still valid and maintained.
-- **For supervised learning**: Use CSV from either heuristics-v0.03 **or** heuristics-v0.04 (both widely used).
-- **For LLM fine-tuning**: Use JSONL available in heuristics-v0.04.
-- **For research & ablation studies**: Consider using **both** versions to assess the impact of language-rich explanations introduced in v0.04.
+### **Dataset Validation**
+```python
+def validate_dataset_structure(dataset_path: Path) -> bool:
+    """Validate dataset directory structure"""
+    required_dirs = ["processed_data", "game_logs", "evaluation"]
+    required_files = ["metadata.json"]
+    
+    # Check directories
+    for dir_name in required_dirs:
+        if not (dataset_path / dir_name).exists():
+            print(f"[DatasetUtils] ERROR: Missing directory: {dir_name}")  # Simple logging
+            return False
+    
+    # Check files
+    for file_name in required_files:
+        if not (dataset_path / file_name).exists():
+            print(f"[DatasetUtils] ERROR: Missing file: {file_name}")  # Simple logging
+            return False
+    
+    print(f"[DatasetUtils] Dataset structure validated: {dataset_path}")  # Simple logging
+    return True
+```
+
+## 📊 **Extension-Specific Dataset Patterns**
+
+### **Heuristics Extensions**
+```python
+# heuristics-v0.03: CSV format only
+dataset_path = create_dataset_directory("heuristics", "0.03", 10, timestamp)
+save_csv_dataset(tabular_data, dataset_path, "bfs")
+
+# heuristics-v0.04: CSV + JSONL formats
+dataset_path = create_dataset_directory("heuristics", "0.04", 10, timestamp)
+save_csv_dataset(tabular_data, dataset_path, "bfs")
+save_jsonl_dataset(reasoning_data, dataset_path, "bfs")
+```
+
+### **Supervised Learning Extensions**
+```python
+# Load datasets from heuristics-v0.03 or heuristics-v0.04 (both widely used)
+csv_data = load_training_dataset("heuristics", "0.04", 10, timestamp, "csv")
+jsonl_data = load_training_dataset("heuristics", "0.04", 10, timestamp, "jsonl")
+```
+
+### **Reinforcement Learning Extensions**
+```python
+# Save experience replay data
+dataset_path = create_dataset_directory("reinforcement", "0.02", 10, timestamp)
+save_npz_dataset(experience_data, dataset_path, "sequential")
+```
+
+### **Evolutionary Extensions**
+```python
+# Save evolutionary population data
+dataset_path = create_dataset_directory("evolutionary", "0.02", 10, timestamp)
+save_npz_dataset(evolutionary_data, dataset_path, "evolutionary")
+```
+
+## 📋 **Implementation Checklist**
+
+### **Directory Structure**
+- [ ] **Grid-Size Organization**: Proper grid-size directory structure
+- [ ] **Extension Naming**: Consistent extension naming convention
+- [ ] **Timestamp Usage**: Proper timestamp format (YYYYMMDD_HHMMSS)
+- [ ] **Subdirectory Creation**: All required subdirectories created
+
+### **Data Formats**
+- [ ] **CSV Support**: CSV format for heuristics-v0.03 and heuristics-v0.04
+- [ ] **JSONL Support**: JSONL format for heuristics-v0.04 only
+- [ ] **NPZ Support**: NPZ formats for specialized use cases
+- [ ] **Metadata**: Proper metadata file creation
+
+### **Cross-Extension Compatibility**
+- [ ] **Path Consistency**: Consistent path generation across extensions
+- [ ] **Format Validation**: Proper format validation and error handling
+- [ ] **Loading Utilities**: Standardized dataset loading utilities
+- [ ] **Error Handling**: Graceful error handling for missing datasets
+
+## 🎓 **Educational Benefits**
+
+### **Learning Objectives**
+- **Dataset Organization**: Understanding consistent dataset storage
+- **Grid-Size Independence**: Learning grid-size agnostic design
+- **Version Management**: Clear versioning and timestamping
+- **Cross-Extension Compatibility**: Enabling dataset sharing between extensions
+
+### **Best Practices**
+- **Consistency**: Consistent dataset organization across all extensions
+- **Scalability**: Grid-size agnostic design for scalability
+- **Maintainability**: Clear structure for easy maintenance
+- **Interoperability**: Standardized formats for cross-extension usage
 
 ---
 
-**This directory structure ensures consistent, scalable organization while supporting the multi-directional data ecosystem that enables continuous improvement across all algorithm types. Remember: heuristics-v0.04 is the definitive version to use.**
+**The datasets folder standards ensure consistent, scalable, and interoperable dataset storage across all Snake Game AI extensions while maintaining grid-size independence and cross-extension compatibility.**
+
+## 🔗 **See Also**
+
+- **`data-format-decision-guide.md`**: Authoritative reference for data format decisions
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`project-structure-plan.md`**: Project structure and organization
 

@@ -1,10 +1,10 @@
-> **Important — Authoritative Reference:** This utility guide complements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and the `data-format-decision-guide.md`. Conflicting details must defer to those authoritative documents.
+# CSV Schema Utilities for Snake Game Extensions
+
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for CSV schema utilities and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
-# CSV Schema Utilities for Snake Game Extensions
-
-This directory contains utilities for handling CSV datasets in the Snake game extensions. The implementation provides a flexible, grid-size-agnostic approach to feature extraction and data processing.
+This directory contains utilities for handling CSV datasets in the Snake game extensions. The implementation provides a flexible, grid-size-agnostic approach to feature extraction and data processing, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ## 🎯 Overview
 
@@ -80,7 +80,7 @@ The schema uses a fixed set of 16 engineered features that work for any grid siz
 
 ### 1. CSVSchema Class
 ```python
-from extensions.common.csv_schema import generate_csv_schema
+from extensions.common.utils.csv_schema_utils import generate_csv_schema
 
 # Generate schema for any grid size
 schema = generate_csv_schema(grid_size=10)
@@ -90,7 +90,7 @@ print(f"Columns: {schema.get_column_names()}")
 
 ### 2. TabularFeatureExtractor
 ```python
-from extensions.common.csv_schema import TabularFeatureExtractor
+from extensions.common.utils.csv_schema_utils import TabularFeatureExtractor
 
 extractor = TabularFeatureExtractor()
 features = extractor.extract_features(game_state, grid_size=10)
@@ -98,7 +98,7 @@ features = extractor.extract_features(game_state, grid_size=10)
 
 ### 3. DatasetLoader
 ```python
-from extensions.common.dataset_loader import load_dataset_for_training
+from extensions.common.utils.dataset_utils import load_dataset_for_training
 
 # Load and prepare dataset for training
 X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training(
@@ -112,7 +112,7 @@ X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training
 ### For Heuristics Extensions (Dataset Generation)
 
 ```python
-from extensions.common.csv_schema import create_csv_row
+from extensions.common.utils.csv_schema_utils import create_csv_row
 
 # During game execution, create CSV rows
 game_state = {
@@ -137,7 +137,7 @@ csv_row = create_csv_row(
 ### For Supervised Learning Extensions (Training)
 
 ```python
-from extensions.common.dataset_loader import DatasetLoader
+from extensions.common.utils.dataset_utils import DatasetLoader
 
 # Load dataset from heuristics-v0.04
 loader = DatasetLoader(grid_size=10)
@@ -162,11 +162,10 @@ for grid_size in [8, 10, 12, 16, 20]:
 ## 📁 File Structure
 
 ```
-extensions/common/
-├── csv_schema.py          # Core schema and feature extraction
-├── dataset_loader.py      # Dataset loading and preprocessing
-├── test_csv_schema.py     # Test suite
-└── README_CSV_SCHEMA.md   # This file
+extensions/common/utils/
+├── csv_schema_utils.py      # Core schema and feature extraction
+├── dataset_utils.py         # Dataset loading and preprocessing
+└── test_csv_schema.py       # Test suite
 ```
 
 ## 🧪 Testing
@@ -174,7 +173,7 @@ extensions/common/
 Run the test suite to verify functionality:
 
 ```bash
-cd extensions/common
+cd extensions/common/utils
 python test_csv_schema.py
 ```
 

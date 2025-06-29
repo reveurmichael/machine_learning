@@ -1,12 +1,12 @@
 # CSV Schema for Snake Game Extensions
 
-> **Important — Authoritative Reference:** This document is **supplementary** to `data-format-decision-guide.md` - the authoritative reference for all format decisions. For complete data format decisions, see `data-format-decision-guide.md`.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for CSV schema standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
-The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons.
+The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following `final-decision-10.md` SUPREME_RULES.
 
 **When to Use CSV**: This format is optimal for tree-based models (XGBoost, LightGBM) and simple MLPs. For other model types, see the data format decision guide.
 
@@ -71,7 +71,7 @@ The 16-feature tabular schema is **specifically designed** for certain algorithm
 Uses standardized path management from `unified-path-management-guide.md`:
 
 ```python
-from extensions.common.path_utils import get_dataset_path
+from extensions.common.utils.path_utils import get_dataset_path
 
 # Standardized path generation with enforced format
 dataset_path = get_dataset_path(
@@ -88,7 +88,7 @@ dataset_path = get_dataset_path(
 
 ### **Dataset Generation**
 ```python
-from extensions.common.csv_schema import create_csv_row
+from extensions.common.utils.csv_schema_utils import create_csv_row
 
 csv_row = create_csv_row(
     game_state=current_state,
@@ -101,7 +101,7 @@ csv_row = create_csv_row(
 
 ### **Dataset Loading**
 ```python
-from extensions.common.dataset_loader import load_dataset_for_training
+from extensions.common.utils.dataset_utils import load_dataset_for_training
 
 X_train, X_val, X_test, y_train, y_val, y_test, info = load_dataset_for_training(
     dataset_paths=["path/to/heuristics_v0.04_dataset.csv"],  # Use v0.04

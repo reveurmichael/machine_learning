@@ -1,456 +1,491 @@
-> **Important**: For authoritative data format decisions, see `data-format-decision-guide.md`.
-
-**Data Format for Evolutionary Algorithms**: Evolutionary algorithms use **Raw Arrays (NPZ format)** for population-based optimization. The 16-feature CSV schema is not suitable for genetic operators.
-
-**State Representation Decision Matrix**:
-
-| Representation Type | Best For | Why Evolutionary Needs Different |
-|-------------------|----------|--------------------------------|
-| **16-Feature Tabular** | XGBoost, Random Forest, simple MLP | ❌ Too compressed for genetic operators |
-| **Raw Board State** | **Evolutionary algorithms, GP** | ✅ Direct manipulation by genetic operators |
-| **Sequential Data** | LSTM, GRU, temporal models | ❌ Fixed temporal structure limits evolution |
-| **Spatial Arrays** | CNN, computer vision models | ✅ Good for spatial genetic operators |
-| **Graph Structures** | GNN, relationship-based models | ✅ Excellent for graph evolution algorithms |
-
-**Why Evolutionary Algorithms Need Special Representations:**
-- **Genetic Operators**: Crossover and mutation work better on raw data structures
-- **Search Space**: Full board state provides richer search landscape
-- **Phenotype Mapping**: Direct representation enables clearer genotype-phenotype mapping
-- **Population Diversity**: Raw representations support greater population diversity
-
 # Evolutionary Algorithms for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines evolutionary algorithm patterns for extensions.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for evolutionary algorithms and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
-> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`.
+> **See also:** `data-format-decision-guide.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
-## 🎯 **Core Philosophy: Population-Based Optimization + SUPREME_RULES**
+## 🎯 **Core Philosophy: Population-Based Optimization**
 
-Evolutionary algorithms represent a family of optimization techniques inspired by biological evolution. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements** for all population-based optimization systems.
-
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for evolutionary algorithm architectures
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout evolutionary implementations
-- **simple logging**: Lightweight, OOP-based common utilities with simple logging (print() statements only)
+Evolutionary algorithms use **population-based optimization** to evolve solutions through natural selection, mutation, and crossover operations. These algorithms excel at finding complex, non-linear solutions that traditional algorithms might miss, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Educational Value**
-- **Population Diversity**: Learn bio-inspired optimization using canonical patterns
-- **Adaptive Fitness**: Understand evolutionary optimization with simple logging throughout
-- **Emergent Behavior**: Experience complex emergence following SUPREME_RULES compliance
-- **Bio-Inspired AI**: See canonical patterns in nature-inspired algorithms
+- **Population Dynamics**: Understanding how populations evolve over time
+- **Genetic Operations**: Learning mutation, crossover, and selection mechanisms
+- **Fitness Landscapes**: Exploring how fitness functions guide evolution
+- **Multi-Objective Optimization**: Balancing competing objectives
 
-## 🏗️ **Evolutionary Algorithm Architecture (SUPREME_RULES Compliant)**
+## 🧬 **Evolutionary Algorithm Components**
 
-### **Factory Pattern Implementation (CANONICAL create() METHOD)**
-**CRITICAL REQUIREMENT**: All Evolutionary Algorithm factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md` SUPREME_RULES:
-
+### **1. Individual Representation**
 ```python
-class EvolutionaryAgentFactory:
+@dataclass
+class SnakeIndividual:
     """
-    Factory Pattern for Evolutionary Algorithm agents following final-decision-10.md SUPREME_RULES
+    Represents a single snake strategy as a genetic individual.
     
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Demonstrates canonical create() method for evolutionary AI agents
-    Educational Value: Shows how SUPREME_RULES apply to advanced AI systems -
-    canonical patterns work regardless of AI complexity.
-    
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
-    """
-    
-    _registry = {
-        "GENETIC": GeneticAlgorithmAgent,
-        "EVOLUTIONARY_STRATEGY": EvolutionaryStrategyAgent,
-        "NEUROEVOLUTION": NeuroEvolutionAgent,
-        "COEVOLUTION": CoEvolutionAgent,
-    }
-    
-    @classmethod
-    def create(cls, algorithm_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create Evolutionary agent using canonical create() method following final-decision-10.md"""
-        agent_class = cls._registry.get(algorithm_type.upper())
-        if not agent_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown Evolutionary algorithm: {algorithm_type}. Available: {available}")
-        print(f"[EvolutionaryAgentFactory] Creating agent: {algorithm_type}")  # Simple logging - SUPREME_RULES
-        return agent_class(**kwargs)
-
-# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class EvolutionaryAgentFactory:
-    def create_evolutionary_agent(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def build_genetic_agent(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def make_evolutionary_algorithm(self, algorithm_type: str):  # FORBIDDEN - not canonical
-        pass
-```
-
-### **Population Management Factory (CANONICAL PATTERN)**
-```python
-class PopulationManagerFactory:
-    """
-    Factory for population management strategies following SUPREME_RULES.
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Educational Value: Shows how canonical create() method enables
-    consistent population management across different evolutionary algorithms.
-    
-    Reference: final-decision-10.md for canonical factory standards
+    Design Pattern: Value Object Pattern
+    - Immutable individual representation
+    - Encapsulated genetic material
+    - Clear fitness evaluation interface
     """
     
-    _registry = {
-        "SIMPLE": SimplePopulationManager,
-        "ELITIST": ElitistPopulationManager,
-        "TOURNAMENT": TournamentPopulationManager,
-        "ROULETTE": RouletteWheelManager,
-    }
+    # Genetic material: strategy parameters
+    strategy_weights: List[float]  # Weights for different behaviors
+    mutation_rate: float           # Individual mutation rate
+    crossover_preference: float    # Crossover preference
     
-    @classmethod
-    def create(cls, manager_type: str, **kwargs):  # CANONICAL create() method
-        """Create population manager using canonical create() method (SUPREME_RULES compliance)"""
-        manager_class = cls._registry.get(manager_type.upper())
-        if not manager_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown population manager: {manager_type}. Available: {available}")
-        print(f"[PopulationManagerFactory] Creating population manager: {manager_type}")  # Simple logging
-        return manager_class(**kwargs)
-```
-
-### **Genetic Operator Factory (CANONICAL PATTERN)**
-```python
-class GeneticOperatorFactory:
-    """
-    Factory for genetic operators following SUPREME_RULES.
+    # Fitness and metadata
+    fitness_score: float = 0.0
+    generation: int = 0
+    parent_ids: List[int] = field(default_factory=list)
     
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Educational Value: Demonstrates canonical create() method for
-    genetic operators across different evolutionary algorithm types.
-    
-    Reference: final-decision-10.md SUPREME_RULES for factory implementation
-    """
-    
-    _registry = {
-        "SINGLE_POINT": SinglePointCrossover,
-        "TWO_POINT": TwoPointCrossover,
-        "UNIFORM": UniformCrossover,
-        "GAUSSIAN_MUTATION": GaussianMutation,
-        "POLYNOMIAL_MUTATION": PolynomialMutation,
-    }
-    
-    @classmethod
-    def create(cls, operator_type: str, **kwargs):  # CANONICAL create() method
-        """Create genetic operator using canonical create() method (SUPREME_RULES compliance)"""
-        operator_class = cls._registry.get(operator_type.upper())
-        if not operator_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown genetic operator: {operator_type}. Available: {available}")
-        print(f"[GeneticOperatorFactory] Creating genetic operator: {operator_type}")  # Simple logging
-        return operator_class(**kwargs)
-```
-
-## 🔧 **Implementation Patterns (SUPREME_RULES Compliant)**
-
-### **Genetic Algorithm Agent (CANONICAL PATTERNS)**
-```python
-class GeneticAlgorithmAgent(BaseAgent):
-    """
-    Genetic Algorithm agent for Snake Game following SUPREME_RULES.
-    
-    Design Pattern: Template Method Pattern (Canonical Implementation)
-    Purpose: Population-based optimization using canonical patterns
-    Educational Value: Shows how canonical factory patterns work with
-    bio-inspired optimization while maintaining simple logging.
-    
-    Reference: final-decision-10.md for canonical agent architecture
-    """
-    
-    def __init__(self, name: str, grid_size: int,
-                 population_size: int = 100,
-                 crossover_type: str = "SINGLE_POINT",
-                 mutation_type: str = "GAUSSIAN_MUTATION",
-                 selection_type: str = "TOURNAMENT"):
-        super().__init__(name, grid_size)
+    def __post_init__(self):
+        """Validate individual after initialization."""
+        if len(self.strategy_weights) == 0:
+            raise ValueError("Strategy weights cannot be empty")
+        if not (0.0 <= self.mutation_rate <= 1.0):
+            raise ValueError("Mutation rate must be between 0.0 and 1.0")
         
-        # Use canonical factory patterns
-        self.crossover_op = GeneticOperatorFactory.create(crossover_type)  # Canonical
-        self.mutation_op = GeneticOperatorFactory.create(mutation_type)  # Canonical
-        self.population_manager = PopulationManagerFactory.create(selection_type, size=population_size)  # Canonical
-        
+        print(f"[SnakeIndividual] Created individual with {len(self.strategy_weights)} weights")  # Simple logging
+```
+
+### **2. Population Management**
+```python
+class EvolutionaryPopulation:
+    """
+    Manages a population of snake individuals.
+    
+    Design Pattern: Collection Pattern
+    - Encapsulates population operations
+    - Provides iteration and access methods
+    - Manages population statistics
+    """
+    
+    def __init__(self, population_size: int, individual_length: int):
         self.population_size = population_size
+        self.individual_length = individual_length
+        self.individuals: List[SnakeIndividual] = []
         self.generation = 0
-        self.population = self._initialize_population()
         
-        print(f"[{name}] GA Agent initialized with {population_size} individuals")  # Simple logging
+        print(f"[EvolutionaryPopulation] Initialized population of size {population_size}")  # Simple logging
     
-    def evolve_population(self, fitness_scores: list) -> None:
-        """Evolve population for one generation with simple logging throughout"""
-        print(f"[{self.name}] Starting evolution generation {self.generation}")  # Simple logging
+    def initialize_random_population(self) -> None:
+        """Initialize population with random individuals."""
+        self.individuals = []
+        for i in range(self.population_size):
+            individual = self._create_random_individual()
+            individual.generation = self.generation
+            individual.parent_ids = [i]  # Self as parent for initial generation
+            self.individuals.append(individual)
         
-        # Selection phase using canonical patterns
-        parents = self.population_manager.select_parents(self.population, fitness_scores)
-        print(f"[{self.name}] Selected {len(parents)} parents")  # Simple logging
+        print(f"[EvolutionaryPopulation] Created random population of {len(self.individuals)} individuals")  # Simple logging
+    
+    def _create_random_individual(self) -> SnakeIndividual:
+        """Create a random individual."""
+        strategy_weights = [random.uniform(-1.0, 1.0) for _ in range(self.individual_length)]
+        mutation_rate = random.uniform(0.01, 0.1)
+        crossover_preference = random.uniform(0.0, 1.0)
         
-        # Crossover phase using canonical patterns
-        offspring = []
-        for i in range(0, len(parents)-1, 2):
-            child1, child2 = self.crossover_op.crossover(parents[i], parents[i+1])
-            offspring.extend([child1, child2])
-        print(f"[{self.name}] Generated {len(offspring)} offspring via crossover")  # Simple logging
+        return SnakeIndividual(
+            strategy_weights=strategy_weights,
+            mutation_rate=mutation_rate,
+            crossover_preference=crossover_preference
+        )
+```
+
+### **3. Genetic Operations**
+```python
+class GeneticOperators:
+    """
+    Implements genetic operations for evolutionary algorithms.
+    
+    Design Pattern: Strategy Pattern
+    - Pluggable genetic operations
+    - Consistent interface for different operators
+    - Easy to extend with new operators
+    """
+    
+    def mutate(self, individual: SnakeIndividual, mutation_strength: float = 0.1) -> SnakeIndividual:
+        """
+        Apply mutation to an individual.
         
-        # Mutation phase using canonical patterns
-        mutated_offspring = []
-        for individual in offspring:
-            mutated = self.mutation_op.mutate(individual)
-            mutated_offspring.append(mutated)
-        print(f"[{self.name}] Mutated {len(mutated_offspring)} offspring")  # Simple logging
+        Args:
+            individual: Individual to mutate
+            mutation_strength: Strength of mutation (0.0 to 1.0)
+            
+        Returns:
+            New mutated individual
+        """
+        # Create new individual with mutated weights
+        new_weights = []
+        for weight in individual.strategy_weights:
+            if random.random() < individual.mutation_rate:
+                # Add Gaussian noise for mutation
+                mutation = random.gauss(0, mutation_strength)
+                new_weight = weight + mutation
+                # Clamp to valid range
+                new_weight = max(-1.0, min(1.0, new_weight))
+                new_weights.append(new_weight)
+            else:
+                new_weights.append(weight)
         
-        # Replacement using canonical population manager
-        self.population = self.population_manager.replace_population(
-            self.population, mutated_offspring, fitness_scores
+        # Create new individual
+        new_individual = SnakeIndividual(
+            strategy_weights=new_weights,
+            mutation_rate=individual.mutation_rate,
+            crossover_preference=individual.crossover_preference,
+            generation=individual.generation + 1,
+            parent_ids=[id(individual)]  # Track parent for genealogy
         )
         
-        self.generation += 1
-        print(f"[{self.name}] Evolution generation {self.generation} completed")  # Simple logging
+        print(f"[GeneticOperators] Mutated individual {id(individual)}")  # Simple logging
+        return new_individual
     
-    def plan_move(self, game_state: dict) -> str:
-        """Plan move using best individual with simple logging"""
-        print(f"[{self.name}] Planning move using best individual")  # Simple logging
+    def crossover(self, parent1: SnakeIndividual, parent2: SnakeIndividual) -> Tuple[SnakeIndividual, SnakeIndividual]:
+        """
+        Perform crossover between two parents.
         
-        # Get best individual from population
-        best_individual = self.population_manager.get_best_individual(self.population)
+        Args:
+            parent1: First parent individual
+            parent2: Second parent individual
+            
+        Returns:
+            Tuple of two offspring individuals
+        """
+        # Single-point crossover
+        crossover_point = random.randint(1, len(parent1.strategy_weights) - 1)
         
-        # Decode individual to game move
-        move = self._decode_individual_to_move(best_individual, game_state)
+        # Create offspring 1
+        weights1 = parent1.strategy_weights[:crossover_point] + parent2.strategy_weights[crossover_point:]
+        offspring1 = SnakeIndividual(
+            strategy_weights=weights1,
+            mutation_rate=(parent1.mutation_rate + parent2.mutation_rate) / 2,
+            crossover_preference=(parent1.crossover_preference + parent2.crossover_preference) / 2,
+            generation=parent1.generation + 1,
+            parent_ids=[id(parent1), id(parent2)]
+        )
         
-        print(f"[{self.name}] GA decided: {move}")  # Simple logging
-        return move
-    
-    def _initialize_population(self) -> list:
-        """Initialize random population with simple logging"""
-        print(f"[{self.name}] Initializing random population")  # Simple logging
+        # Create offspring 2
+        weights2 = parent2.strategy_weights[:crossover_point] + parent1.strategy_weights[crossover_point:]
+        offspring2 = SnakeIndividual(
+            strategy_weights=weights2,
+            mutation_rate=(parent1.mutation_rate + parent2.mutation_rate) / 2,
+            crossover_preference=(parent1.crossover_preference + parent2.crossover_preference) / 2,
+            generation=parent1.generation + 1,
+            parent_ids=[id(parent1), id(parent2)]
+        )
         
-        population = []
-        for i in range(self.population_size):
-            # Create random individual (strategy encoding)
-            individual = np.random.rand(self.grid_size * self.grid_size)
-            population.append(individual)
-        
-        print(f"[{self.name}] Population initialized: {len(population)} individuals")  # Simple logging
-        return population
+        print(f"[GeneticOperators] Crossover between individuals {id(parent1)} and {id(parent2)}")  # Simple logging
+        return offspring1, offspring2
 ```
 
-### **Evolution Strategy Agent (CANONICAL PATTERNS)**
+### **4. Fitness Evaluation**
 ```python
-class EvolutionStrategyAgent(BaseAgent):
+class FitnessEvaluator:
     """
-    Evolution Strategy agent following canonical patterns.
+    Evaluates fitness of individuals through game simulation.
     
-    Design Pattern: Strategy Pattern (Canonical Implementation)
-    Educational Value: Shows how canonical factory patterns enable
-    consistent implementation across different evolutionary paradigms.
-    
-    Reference: final-decision-10.md for canonical evolutionary standards
+    Design Pattern: Strategy Pattern
+    - Pluggable fitness functions
+    - Consistent evaluation interface
+    - Support for multi-objective optimization
     """
     
-    def __init__(self, name: str, grid_size: int,
-                 mu: int = 30,  # Parent population size
-                 lambda_: int = 100,  # Offspring population size
-                 mutation_type: str = "GAUSSIAN_MUTATION"):
-        super().__init__(name, grid_size)
+    def __init__(self, grid_size: int, num_games: int = 10):
+        self.grid_size = grid_size
+        self.num_games = num_games
+        self.game_simulator = GameSimulator(grid_size)
         
-        # Use canonical factory patterns
-        self.mutation_op = GeneticOperatorFactory.create(mutation_type)  # Canonical
+        print(f"[FitnessEvaluator] Initialized with grid size {grid_size}")  # Simple logging
+    
+    def evaluate_fitness(self, individual: SnakeIndividual) -> float:
+        """
+        Evaluate fitness of an individual through game simulation.
         
-        self.mu = mu
-        self.lambda_ = lambda_
+        Args:
+            individual: Individual to evaluate
+            
+        Returns:
+            Fitness score (higher is better)
+        """
+        total_score = 0
+        total_steps = 0
+        games_won = 0
+        
+        for game_id in range(self.num_games):
+            # Create agent with individual's strategy
+            agent = self._create_agent_from_individual(individual)
+            
+            # Run game simulation
+            game_result = self.game_simulator.run_game(agent)
+            
+            total_score += game_result.score
+            total_steps += game_result.steps
+            if game_result.won:
+                games_won += 1
+        
+        # Calculate fitness as weighted combination of objectives
+        avg_score = total_score / self.num_games
+        avg_steps = total_steps / self.num_games
+        win_rate = games_won / self.num_games
+        
+        # Multi-objective fitness function
+        fitness = (
+            0.5 * avg_score +      # Primary objective: score
+            0.3 * win_rate +       # Secondary objective: win rate
+            0.2 * (1.0 / avg_steps)  # Tertiary objective: efficiency
+        )
+        
+        individual.fitness_score = fitness
+        
+        print(f"[FitnessEvaluator] Individual {id(individual)} fitness: {fitness:.3f}")  # Simple logging
+        return fitness
+    
+    def _create_agent_from_individual(self, individual: SnakeIndividual) -> SnakeAgent:
+        """Create a snake agent from individual's genetic material."""
+        return SnakeAgent(
+            strategy_weights=individual.strategy_weights,
+            grid_size=self.grid_size
+        )
+```
+
+## 🚀 **Evolutionary Algorithm Implementation**
+
+### **Main Evolutionary Loop**
+```python
+class EvolutionaryAlgorithm:
+    """
+    Main evolutionary algorithm implementation.
+    
+    Design Pattern: Template Method Pattern
+    - Defines evolutionary workflow
+    - Allows customization of specific steps
+    - Consistent algorithm structure
+    """
+    
+    def __init__(self, population_size: int, individual_length: int, grid_size: int):
+        self.population = EvolutionaryPopulation(population_size, individual_length)
+        self.fitness_evaluator = FitnessEvaluator(grid_size)
+        self.genetic_operators = GeneticOperators()
         self.generation = 0
-        self.population = self._initialize_es_population()
+        self.max_generations = 100
         
-        print(f"[{name}] ES Agent initialized: (μ={mu}, λ={lambda_})")  # Simple logging
+        print(f"[EvolutionaryAlgorithm] Initialized EA with population size {population_size}")  # Simple logging
     
-    def evolve_step(self, fitness_scores: list) -> None:
-        """Execute one evolution step with simple logging throughout"""
-        print(f"[{self.name}] Starting ES evolution step {self.generation}")  # Simple logging
+    def run_evolution(self) -> List[SnakeIndividual]:
+        """
+        Run the complete evolutionary process.
         
-        # Select μ best individuals as parents
-        parent_indices = np.argsort(fitness_scores)[-self.mu:]
-        parents = [self.population[i] for i in parent_indices]
-        print(f"[{self.name}] Selected {len(parents)} parents")  # Simple logging
+        Returns:
+            List of best individuals from each generation
+        """
+        best_individuals = []
         
-        # Generate λ offspring using canonical mutation
-        offspring = []
-        for _ in range(self.lambda_):
-            parent = random.choice(parents)
-            child = self.mutation_op.mutate(parent.copy())
-            offspring.append(child)
-        print(f"[{self.name}] Generated {len(offspring)} offspring")  # Simple logging
+        # Initialize population
+        self.population.initialize_random_population()
         
-        # Replace population with offspring (μ, λ)-ES
-        self.population = offspring
-        self.generation += 1
+        for generation in range(self.max_generations):
+            print(f"[EvolutionaryAlgorithm] Starting generation {generation + 1}")  # Simple logging
+            
+            # Evaluate fitness of all individuals
+            self._evaluate_population()
+            
+            # Select best individuals
+            best_individuals_gen = self._select_best_individuals()
+            best_individuals.append(best_individuals_gen[0])  # Keep best from each generation
+            
+            # Create next generation
+            self._create_next_generation()
+            
+            # Print generation statistics
+            self._print_generation_stats(generation)
         
-        print(f"[{self.name}] ES step {self.generation} completed")  # Simple logging
+        return best_individuals
     
-    def plan_move(self, game_state: dict) -> str:
-        """Plan move using current best strategy with simple logging"""
-        print(f"[{self.name}] Planning move with ES strategy")  # Simple logging
+    def _evaluate_population(self) -> None:
+        """Evaluate fitness of all individuals in population."""
+        for individual in self.population.individuals:
+            self.fitness_evaluator.evaluate_fitness(individual)
+    
+    def _select_best_individuals(self, selection_ratio: float = 0.2) -> List[SnakeIndividual]:
+        """Select best individuals for reproduction."""
+        # Sort by fitness (descending)
+        sorted_individuals = sorted(
+            self.population.individuals,
+            key=lambda x: x.fitness_score,
+            reverse=True
+        )
         
-        # Use first individual as current strategy (could be best from last generation)
-        strategy = self.population[0]
-        move = self._strategy_to_move(strategy, game_state)
+        # Select top individuals
+        num_selected = int(len(sorted_individuals) * selection_ratio)
+        selected = sorted_individuals[:num_selected]
         
-        print(f"[{self.name}] ES decided: {move}")  # Simple logging
-        return move
+        print(f"[EvolutionaryAlgorithm] Selected {len(selected)} best individuals")  # Simple logging
+        return selected
+    
+    def _create_next_generation(self) -> None:
+        """Create next generation through crossover and mutation."""
+        new_individuals = []
+        
+        # Elitism: keep best individual unchanged
+        best_individual = max(self.population.individuals, key=lambda x: x.fitness_score)
+        new_individuals.append(best_individual)
+        
+        # Create offspring through crossover and mutation
+        while len(new_individuals) < self.population.population_size:
+            # Select parents for crossover
+            parent1, parent2 = self._select_parents()
+            
+            # Perform crossover
+            offspring1, offspring2 = self.genetic_operators.crossover(parent1, parent2)
+            
+            # Apply mutation
+            offspring1 = self.genetic_operators.mutate(offspring1)
+            offspring2 = self.genetic_operators.mutate(offspring2)
+            
+            new_individuals.extend([offspring1, offspring2])
+        
+        # Trim to population size
+        new_individuals = new_individuals[:self.population.population_size]
+        
+        # Update population
+        self.population.individuals = new_individuals
+        self.population.generation += 1
+        
+        print(f"[EvolutionaryAlgorithm] Created new generation with {len(new_individuals)} individuals")  # Simple logging
+    
+    def _select_parents(self) -> Tuple[SnakeIndividual, SnakeIndividual]:
+        """Select two parents for crossover using tournament selection."""
+        tournament_size = 3
+        
+        # Tournament selection for parent 1
+        tournament1 = random.sample(self.population.individuals, tournament_size)
+        parent1 = max(tournament1, key=lambda x: x.fitness_score)
+        
+        # Tournament selection for parent 2
+        tournament2 = random.sample(self.population.individuals, tournament_size)
+        parent2 = max(tournament2, key=lambda x: x.fitness_score)
+        
+        return parent1, parent2
+    
+    def _print_generation_stats(self, generation: int) -> None:
+        """Print statistics for current generation."""
+        fitness_scores = [ind.fitness_score for ind in self.population.individuals]
+        avg_fitness = sum(fitness_scores) / len(fitness_scores)
+        max_fitness = max(fitness_scores)
+        min_fitness = min(fitness_scores)
+        
+        print(f"[EvolutionaryAlgorithm] Generation {generation + 1} stats: "
+              f"avg={avg_fitness:.3f}, max={max_fitness:.3f}, min={min_fitness:.3f}")  # Simple logging
 ```
 
-### **Genetic Programming Agent (CANONICAL PATTERNS)**
+## 📊 **Data Format for Evolutionary Algorithms**
+
+### **Specialized NPZ Format**
 ```python
-class GeneticProgrammingAgent(BaseAgent):
+def save_evolutionary_dataset(evolutionary_data: dict, output_path: Path):
     """
-    Genetic Programming agent following canonical patterns.
+    Save evolutionary data in specialized NPZ format.
     
-    Design Pattern: Composite Pattern (Canonical Implementation)
-    Educational Value: Demonstrates canonical create() method for
-    evolving program trees and complex decision structures.
-    
-    Reference: final-decision-10.md for canonical GP standards
+    This format is specifically designed for evolutionary algorithms
+    and includes population data, genetic history, and fitness metrics.
     """
+    np.savez(output_path, **evolutionary_data)
+    print(f"[EvolutionaryUtils] Saved evolutionary dataset: {output_path}")  # Simple logging
+
+def create_evolutionary_dataset(
+    population_history: List[List[SnakeIndividual]],
+    fitness_history: List[List[float]],
+    genetic_operations: List[dict]
+) -> dict:
+    """
+    Create specialized evolutionary dataset.
     
-    def __init__(self, name: str, grid_size: int,
-                 population_size: int = 50,
-                 max_depth: int = 6,
-                 crossover_type: str = "SUBTREE",
-                 mutation_type: str = "POINT_MUTATION"):
-        super().__init__(name, grid_size)
+    Returns:
+        Dictionary containing all evolutionary data in NPZ format
+    """
+    evolutionary_data = {
+        # Population Structure
+        'population_history': np.array([
+            [ind.strategy_weights for ind in gen] 
+            for gen in population_history
+        ]),
+        'fitness_history': np.array(fitness_history),
         
-        # Use canonical factory patterns for GP operators
-        self.tree_factory = TreeNodeFactory.create("STANDARD")  # Canonical
-        self.crossover_op = GeneticOperatorFactory.create(crossover_type)  # Canonical
-        self.mutation_op = GeneticOperatorFactory.create(mutation_type)  # Canonical
+        # Genetic Operations Data
+        'crossover_points': np.array([
+            op['crossover_point'] for op in genetic_operations 
+            if op['type'] == 'crossover'
+        ]),
+        'mutation_masks': np.array([
+            op['mutation_mask'] for op in genetic_operations 
+            if op['type'] == 'mutation'
+        ]),
         
-        self.population_size = population_size
-        self.max_depth = max_depth
-        self.generation = 0
-        self.population = self._initialize_gp_population()
+        # Fitness Landscape
+        'fitness_landscape': compute_fitness_landscape(population_history),
+        'pareto_front': compute_pareto_front(fitness_history),
         
-        print(f"[{name}] GP Agent initialized with {population_size} trees")  # Simple logging
+        # Evolutionary Metadata
+        'generation_metadata': {
+            'best_fitness': [max(gen) for gen in fitness_history],
+            'average_fitness': [sum(gen)/len(gen) for gen in fitness_history],
+            'diversity_metrics': compute_diversity_metrics(population_history),
+            'convergence_rate': compute_convergence_rate(fitness_history)
+        },
+        
+        # Game Performance Correlation
+        'game_performance': {
+            'scores': extract_game_scores(population_history),
+            'steps': extract_game_steps(population_history),
+            'efficiency': extract_efficiency_metrics(population_history),
+            'survival_rate': extract_survival_rates(population_history)
+        }
+    }
     
-    def evolve_trees(self, fitness_scores: list) -> None:
-        """Evolve program trees with simple logging throughout"""
-        print(f"[{self.name}] Starting GP evolution generation {self.generation}")  # Simple logging
-        
-        # Tournament selection
-        parents = self._tournament_selection(self.population, fitness_scores)
-        print(f"[{self.name}] Selected parents via tournament selection")  # Simple logging
-        
-        # Tree crossover using canonical patterns
-        offspring = []
-        for i in range(0, len(parents)-1, 2):
-            child1, child2 = self.crossover_op.crossover_trees(parents[i], parents[i+1])
-            offspring.extend([child1, child2])
-        print(f"[{self.name}] Generated {len(offspring)} offspring trees")  # Simple logging
-        
-        # Tree mutation using canonical patterns
-        for tree in offspring:
-            if random.random() < 0.1:  # Mutation probability
-                self.mutation_op.mutate_tree(tree)
-        print(f"[{self.name}] Applied mutations to offspring trees")  # Simple logging
-        
-        # Replace population
-        self.population = offspring[:self.population_size]
-        self.generation += 1
-        
-        print(f"[{self.name}] GP generation {self.generation} completed")  # Simple logging
-    
-    def plan_move(self, game_state: dict) -> str:
-        """Plan move using best evolved program with simple logging"""
-        print(f"[{self.name}] Evaluating best program tree")  # Simple logging
-        
-        # Get best tree from population
-        best_tree = self.population[0]  # Assuming sorted by fitness
-        
-        # Evaluate tree on current game state
-        move = self._evaluate_tree(best_tree, game_state)
-        
-        print(f"[{self.name}] GP program decided: {move}")  # Simple logging
-        return move
+    return evolutionary_data
 ```
 
-## 📊 **Simple Logging Standards for Evolutionary Operations**
+## 🎯 **Implementation Checklist**
 
-### **Required Logging Pattern (SUPREME_RULES)**
-All evolutionary operations MUST use simple print statements as established in `final-decision-10.md`:
+### **Core Components**
+- [ ] **Individual Representation**: Proper genetic material encoding
+- [ ] **Population Management**: Efficient population operations
+- [ ] **Genetic Operations**: Mutation and crossover implementations
+- [ ] **Fitness Evaluation**: Game-based fitness assessment
 
-```python
-# ✅ CORRECT: Simple logging for evolutionary operations (SUPREME_RULES compliance)
-def evolve_population(population: list, fitness_scores: list):
-    print(f"[EvolutionEngine] Starting evolution cycle")  # Simple logging - REQUIRED
-    
-    # Selection phase
-    parents = select_parents(population, fitness_scores)
-    print(f"[EvolutionEngine] Selected {len(parents)} parents")  # Simple logging
-    
-    # Genetic operators
-    offspring = apply_crossover(parents)
-    print(f"[EvolutionEngine] Generated {len(offspring)} offspring")  # Simple logging
-    
-    mutated_offspring = apply_mutation(offspring)
-    print(f"[EvolutionEngine] Applied mutations")  # Simple logging
-    
-    print(f"[EvolutionEngine] Evolution cycle completed")  # Simple logging
-    return mutated_offspring
+### **Algorithm Features**
+- [ ] **Selection Methods**: Tournament, roulette wheel, or rank-based selection
+- [ ] **Elitism**: Preserve best individuals across generations
+- [ ] **Diversity Maintenance**: Prevent premature convergence
+- [ ] **Multi-Objective Support**: Handle competing fitness objectives
 
-# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-# import logging
-# logger = logging.getLogger(__name__)
+### **Data Management**
+- [ ] **NPZ Format**: Use specialized evolutionary NPZ format
+- [ ] **Population History**: Track population evolution over time
+- [ ] **Genetic Operations**: Record crossover and mutation history
+- [ ] **Fitness Metrics**: Comprehensive fitness tracking and analysis
 
-# def evolve_population(population: list, fitness_scores: list):
-#     logger.info(f"Starting evolution")  # FORBIDDEN - complex logging
-#     # This violates final-decision-10.md SUPREME_RULES
-```
+## 🎓 **Educational Benefits**
 
-## 🎓 **Educational Applications with Canonical Patterns**
+### **Learning Objectives**
+- **Population Dynamics**: Understanding how populations evolve
+- **Genetic Operations**: Learning mutation and crossover mechanisms
+- **Fitness Landscapes**: Exploring optimization landscapes
+- **Multi-Objective Optimization**: Balancing competing objectives
 
-### **Bio-Inspired Optimization Understanding**
-- **Population Dynamics**: Learn evolutionary dynamics using canonical patterns
-- **Genetic Operators**: Understand crossover and mutation with simple logging throughout
-- **Fitness Landscapes**: Experience optimization landscapes following SUPREME_RULES compliance
-- **Emergent Intelligence**: See complex behavior emerge from canonical factory patterns
-
-### **Pattern Consistency Across Optimization Methods**
-- **Factory Patterns**: All evolutionary components use canonical `create()` method consistently
-- **Simple Logging**: Print statements provide clear visibility into evolutionary processes
-- **Educational Value**: Canonical patterns work identically across heuristics, ML, and evolutionary systems
-- **SUPREME_RULES**: Bio-inspired algorithms follow same standards as other AI approaches
-
-## 📋 **SUPREME_RULES Implementation Checklist for Evolutionary Algorithms**
-
-### **Mandatory Requirements**
-- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all evolutionary operations (final-decision-10.md compliance)
-- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all evolutionary documentation
-- [ ] **Pattern Consistency**: Follows canonical patterns across all evolutionary implementations
-
-### **Evolutionary-Specific Standards**
-- [ ] **Population Management**: Canonical factory patterns for all population components
-- [ ] **Genetic Operators**: Canonical factory patterns for all crossover and mutation systems
-- [ ] **Selection Methods**: Canonical patterns for all selection and replacement strategies
-- [ ] **Fitness Evaluation**: Simple logging for all fitness computation and evolution tracking
-
-### **Educational Integration**
-- [ ] **Clear Examples**: Simple examples using canonical `create()` method for evolutionary systems
-- [ ] **Pattern Explanation**: Clear explanation of canonical patterns in bio-inspired context
-- [ ] **Best Practices**: Demonstration of SUPREME_RULES in population-based optimization
-- [ ] **Learning Value**: Easy to understand canonical patterns regardless of evolutionary complexity
+### **Best Practices**
+- **Parameter Tuning**: Understanding evolutionary algorithm parameters
+- **Convergence Analysis**: Monitoring algorithm convergence
+- **Diversity Management**: Maintaining population diversity
+- **Performance Evaluation**: Assessing evolutionary algorithm performance
 
 ---
 
-**Evolutionary algorithms represent sophisticated bio-inspired optimization while maintaining strict compliance with `final-decision-10.md` SUPREME_RULES, proving that canonical patterns and simple logging provide robust foundations across all optimization paradigms.**
+**Evolutionary algorithms provide powerful population-based optimization for Snake Game AI, enabling discovery of complex strategies through natural selection and genetic operations.**
 
 ## 🔗 **See Also**
 
-- **`agents.md`**: Authoritative reference for agent implementation with canonical patterns
-- **`core.md`**: Base class architecture following canonical principles
+- **`data-format-decision-guide.md`**: Authoritative reference for data format decisions
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`factory-design-pattern.md`**: Canonical factory implementation for all systems
+- **`project-structure-plan.md`**: Project structure and organization

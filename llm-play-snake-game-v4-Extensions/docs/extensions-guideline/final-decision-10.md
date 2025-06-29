@@ -40,7 +40,6 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 The following files in `./docs/extensions-guideline/` are designated as **GOOD_RULES** and serve as the **single source of truth**:
 
 - `agents.md` (Agent implementation standards)
-- `config.md` (Configuration architecture)
 - `coordinate-system.md` (Universal coordinate system)
 - `core.md` (Base class architecture)
 - `csv-schema-1.md` and `csv-schema-2.md` (Data format specifications)
@@ -48,17 +47,14 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `data-format-decision-guide.md` (Format selection criteria)
 - `datasets-folder.md` (Directory structure standards)
 - `elegance.md` (Code quality standards)
-- `extensions-move-guidelines.md` (Extension development workflow)
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
 - `final-decision-0.md` through `final-decision-10.md` (Complete Final Decision Series)
 - `flask.md`
 - `models.md` (Model management standards)
 - `naming-conventions.md` (Naming standards)
 - `project-structure-plan.md` (Master architectural blueprint)
-- `reinforcement-learning.md` (RL extension standards)
 - `single-source-of-truth.md` (Architectural principles)
 - `standalone.md` (Standalone principle enforcement)
-- `supervised.md` (Supervised learning extension standards)
 - `unified-path-management-guide.md` (Path management standards)
 
 
@@ -75,8 +71,9 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `agentic-llms.md`
 * `ai-friendly.md`
 * `app.md`
-* `documentation-as-first-class-citizen.md`
+* `config.md` 
 * `dashboard.md`
+* `documentation-as-first-class-citizen.md`
 * `eureka.md` 
 * `extension-evolution-rules.md`
 * `extension-move-guidelines.md`
@@ -90,10 +87,16 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `llm-with-reasoning.md`
 * `lora.md`
 * `mutilple-inheritance.md`
+* `mvc-impact-on-extensions.md`
+* `mvc.md`
+* `npz-paquet.md`
+* `onnx.md`
+* `reinforcement-learning.md` 
 * `stable-baseline.md`
+* `supervised.md` 
 * `tree-models.md`
-* `vision-language-model.md`
 * `unified-streamlit-architecture-guide.md`
+* `vision-language-model.md`
 
 
 

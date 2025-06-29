@@ -1,414 +1,300 @@
-# Extension Integration Guidelines: Preventing System Invariant Violations
+# Extensions Move Guidelines
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides essential guidelines for extension developers.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines extension move guidelines.
 
-## 🎯 **Core Philosophy: Maintaining System Integrity**
+> **See also:** `final-decision-10.md`, `standalone.md`, `conceptual-clarity.md`.
 
-When integrating alternative planners (heuristics, reinforcement learning, supervised learning) into the Snake Game AI architecture, developers must preserve critical system invariants that ensure data integrity, logging consistency, and replay functionality across all extensions.
+## 🎯 **Core Philosophy: Standalone Independence**
 
-### **Target Audience**
-- Extension developers working on Task 1-5 implementations
-- Developers integrating new algorithms into existing extensions
-- Contributors maintaining system consistency across extension types
+Extensions must maintain **standalone independence** when moved or reorganized. Each extension should be self-contained with minimal dependencies, ensuring it can operate independently while following `final-decision-10.md` SUPREME_RULES.
 
-## 🔒 **Critical System Invariants**
+### **Educational Value**
+- **Modularity**: Understanding how to create independent modules
+- **Dependency Management**: Learning to minimize external dependencies
+- **Portability**: Creating code that can be easily moved and reused
+- **Self-Containment**: Building systems that work independently
 
-These invariants are fundamental to system integrity and must never be violated:
+## 📦 **Extension Structure Requirements**
 
-### **I-1: Round-Request Synchronization**
-**Requirement**: Every planner request corresponds to exactly one round
-**Purpose**: Maintains perfect synchronization between `round_count`, prompt/response filenames, and `RoundManager.rounds_data`
-**Impact**: Ensures consistent logging and replay functionality
-
-### **I-2: Planned Moves Authority**
-**Requirement**: The `planned_moves` queue serves as the single source of truth for future moves
-**Purpose**: Ensures UI components, replay systems, and analytics observe identical data
-**Impact**: Prevents data inconsistencies across system components
-
-### **I-3: Centralized Move Execution**
-**Requirement**: All executed moves must pass through `GameLoop._execute_next_planned_move`
-**Purpose**: Guarantees exactly-once recording in `RoundBuffer.moves`
-**Impact**: Ensures complete and accurate move tracking
-
-### **I-4: Proper Round Lifecycle Management**
-**Requirement**: `GameManager.finish_round()` must be called when plans complete
-**Purpose**: Flushes buffers and increments counters properly
-**Impact**: Maintains round boundary integrity and prevents EMPTY sentinel misclassification
-
-### **I-5: Architectural Separation**
-**Requirement**: Physics classes (controller/logic) cannot advance rounds
-**Purpose**: Only the game loop controls gameplay flow
-**Impact**: Maintains clear architectural boundaries and predictable behavior
-
-## 🚫 **Common Implementation Anti-Patterns**
-
-### **1. Duplicate Move Recording**
-**Problem**: Leaving the first element of a new plan in `planned_moves` after execution
-**Symptoms**: 
-- Duplicate first moves in JSON logs (`["RIGHT","RIGHT",...]`)
-- Inconsistent move sequences in replay systems
-- Analytics reporting inflated move counts
-
-**Solution**: Always pop moves immediately or route all execution through `_execute_next_planned_move`
-
-```python
-# ❌ INCORRECT: Potential duplicate recording
-def execute_move(self):
-    move = self.planned_moves[0]  # Gets move but doesn't remove
-    self.game_controller.execute_move(move)  # Direct execution bypasses system
-
-# ✅ CORRECT: Proper move execution
-def execute_move(self):
-    move = self._execute_next_planned_move()  # Gets and removes move properly
-    # Move is automatically recorded by the system
+### **Standalone Directory Structure**
+```
+extensions/{algorithm}-v0.0N/
+├── __init__.py                 # Extension initialization
+├── agents/                     # Agent implementations
+│   ├── __init__.py
+│   ├── base_agent.py          # Base agent class
+│   ├── bfs_agent.py           # BFS implementation
+│   ├── astar_agent.py         # A* implementation
+│   └── dfs_agent.py           # DFS implementation
+├── app.py                      # Streamlit application (v0.03+)
+├── dashboard/                  # UI components (v0.03+)
+│   ├── __init__.py
+│   ├── tab_main.py            # Main algorithm interface
+│   ├── tab_evaluation.py      # Performance analysis
+│   └── tab_visualization.py   # Results display
+├── scripts/                    # CLI entry points
+│   ├── main.py                # Core functionality
+│   ├── generate_dataset.py    # Dataset generation
+│   └── replay.py              # Replay functionality
+├── config.py                   # Extension-specific configuration
+└── requirements.txt            # Extension dependencies
 ```
 
-### **2. Excessive Round Completion**
-**Problem**: Calling `finish_round()` too frequently (e.g., after each apple collection)
-**Symptoms**:
-- Mismatch between prompt/response filenames and JSON round data
-- Inflated round counts in analytics
-- Broken replay synchronization
-
-**Solution**: Only call `finish_round()` when the plan queue is completely empty
-
+### **Common Dependencies Only**
 ```python
-# ❌ INCORRECT: Finishing rounds too often
-def handle_apple_eaten(self):
-    self.score += 1
-    self.finish_round()  # Wrong: This is not a round boundary
+# ✅ CORRECT: Only import from common utilities
+from extensions.common.utils.factory_utils import SimpleFactory
+from extensions.common.utils.path_utils import get_dataset_path
+from extensions.common.utils.csv_schema_utils import create_csv_row
 
-# ✅ CORRECT: Proper round completion
-def check_round_completion(self):
-    if not self.planned_moves:  # Only when queue is empty
-        self.finish_round()
-        self.need_new_plan = True
+# ✅ CORRECT: Extension-specific imports
+from .agents.bfs_agent import BFSAgent
+from .config import DEFAULT_CONFIG
+
+# ❌ INCORRECT: Cross-extension imports
+from extensions.heuristics_v0.03.agents import BFSAgent  # Wrong
+from extensions.supervised_v0.02.models import MLPModel  # Wrong
 ```
 
-### **3. Misclassified Round Boundaries**
-**Problem**: Treating normal round boundaries as `EMPTY` moves
-**Symptoms**:
-- False "Empty Moves occurred" warnings
-- Premature game termination
-- Incorrect consecutive move counters
+## 🔄 **Move Process Guidelines**
 
-**Solution**: Use proper round-completion path instead of `_handle_no_move()`
-
+### **1. Pre-Move Checklist**
 ```python
-# ❌ INCORRECT: Misclassifying normal boundaries
-def handle_plan_completion(self):
-    self._handle_no_move()  # Wrong: This triggers EMPTY sentinel logic
-
-# ✅ CORRECT: Proper round boundary handling
-def handle_plan_completion(self):
-    self.finish_round()  # Correct: Normal round completion
-    self.need_new_plan = True
+# ✅ CORRECT: Validate extension before moving
+def validate_extension_for_move(extension_path: Path) -> bool:
+    """Validate extension is ready for move."""
+    
+    # Check for cross-extension imports
+    cross_imports = find_cross_extension_imports(extension_path)
+    if cross_imports:
+        print(f"[MoveValidation] ERROR: Found cross-extension imports: {cross_imports}")  # Simple logging
+        return False
+    
+    # Check for missing common dependencies
+    missing_deps = check_common_dependencies(extension_path)
+    if missing_deps:
+        print(f"[MoveValidation] ERROR: Missing common dependencies: {missing_deps}")  # Simple logging
+        return False
+    
+    # Check for canonical patterns
+    if not validate_canonical_patterns(extension_path):
+        print(f"[MoveValidation] ERROR: Missing canonical patterns")  # Simple logging
+        return False
+    
+    print(f"[MoveValidation] Extension ready for move: {extension_path}")  # Simple logging
+    return True
 ```
 
-### **4. Bypassed Plan Recording**
-**Problem**: Not calling `RoundManager.record_planned_moves()`
-**Symptoms**:
-- Missing `planned_moves` in JSON logs
-- Broken replay functionality
-- Incomplete analytics data
-
-**Solution**: Always record the full plan through the system
-
+### **2. Dependency Analysis**
 ```python
-# ❌ INCORRECT: Bypassing recording system
-def set_new_plan(self, moves):
-    self.planned_moves = moves  # Direct assignment without recording
-
-# ✅ CORRECT: Proper plan recording
-def set_new_plan(self, moves):
-    self.game_state.round_manager.record_planned_moves(moves)
-    self.planned_moves = moves
+# ✅ CORRECT: Analyze dependencies before moving
+def analyze_extension_dependencies(extension_path: Path) -> dict:
+    """Analyze extension dependencies."""
+    
+    dependencies = {
+        'common_utils': [],
+        'extension_specific': [],
+        'external_packages': [],
+        'cross_extension': []  # Should be empty
+    }
+    
+    # Scan all Python files in extension
+    for py_file in extension_path.rglob("*.py"):
+        imports = extract_imports(py_file)
+        
+        for import_stmt in imports:
+            if import_stmt.startswith('extensions.common'):
+                dependencies['common_utils'].append(import_stmt)
+            elif import_stmt.startswith('extensions.'):
+                dependencies['cross_extension'].append(import_stmt)
+            elif import_stmt.startswith('.'):
+                dependencies['extension_specific'].append(import_stmt)
+            else:
+                dependencies['external_packages'].append(import_stmt)
+    
+    print(f"[DependencyAnalysis] Found {len(dependencies['cross_extension'])} cross-extension imports")  # Simple logging
+    return dependencies
 ```
 
-## 🛠️ **Recommended Implementation Pattern**
-
-### **Step 1: Extend BaseGameLoop**
-Create extension-specific game loops by inheriting from `BaseGameLoop` and overriding minimal required methods:
-
+### **3. Move Execution**
 ```python
-from core.game_loop import BaseGameLoop
+# ✅ CORRECT: Execute extension move
+def move_extension(source_path: Path, target_path: Path) -> bool:
+    """Move extension to new location."""
+    
+    print(f"[ExtensionMove] Moving extension from {source_path} to {target_path}")  # Simple logging
+    
+    # Validate source extension
+    if not validate_extension_for_move(source_path):
+        return False
+    
+    # Create target directory
+    target_path.mkdir(parents=True, exist_ok=True)
+    
+    # Copy extension files
+    copy_extension_files(source_path, target_path)
+    
+    # Update internal paths if needed
+    update_internal_paths(target_path)
+    
+    # Validate moved extension
+    if not validate_extension_for_move(target_path):
+        print(f"[ExtensionMove] ERROR: Moved extension validation failed")  # Simple logging
+        return False
+    
+    print(f"[ExtensionMove] Extension moved successfully to {target_path}")  # Simple logging
+    return True
+```
 
-class HeuristicGameLoop(BaseGameLoop):
-    """
-    Game loop for heuristic-based Snake gameplay using pathfinding algorithms
+## 🏗️ **Canonical Pattern Requirements**
+
+### **Factory Pattern Compliance**
+```python
+# ✅ CORRECT: Canonical factory pattern in moved extension
+class AgentFactory:
+    """Factory for creating agents in moved extension."""
     
-    Design Pattern: Template Method Pattern
-    - Inherits proven game loop structure from BaseGameLoop
-    - Overrides planning method for algorithm-specific logic
-    - Maintains all system invariants automatically
+    _registry = {
+        'BFS': BFSAgent,
+        'ASTAR': AStarAgent,
+        'DFS': DFSAgent,
+    }
     
-    Educational Value:
-    Demonstrates how inheritance enables code reuse while allowing
-    customization of specific behaviors without breaking system contracts.
-    """
-    
-    def __init__(self, manager, pathfinder):
-        super().__init__(manager)
-        self.pathfinder = pathfinder
-    
-    def _get_new_plan(self) -> None:
-        """Override to implement heuristic planning logic"""
-        # Implementation details below
+    @classmethod
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical factory pattern."""
+        agent_class = cls._registry.get(algorithm.upper())
+        if not agent_class:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        
+        print(f"[AgentFactory] Creating {algorithm} agent")  # Simple logging
+        return agent_class(**kwargs)
+
+# ❌ INCORRECT: Non-canonical factory pattern
+class AgentFactory:
+    def create_agent(self, algorithm: str, **kwargs):  # Wrong method name
         pass
 ```
 
-### **Step 2: Implement _get_new_plan() Correctly**
-This is the core method that must be implemented by all extensions:
-
+### **Simple Logging Compliance**
 ```python
-def _get_new_plan(self) -> None:
-    """
-    Generate new plan using heuristic algorithms
+# ✅ CORRECT: Simple logging in moved extension
+class GameManager:
+    def __init__(self, config: dict):
+        self.config = config
+        print(f"[GameManager] Initialized with config: {config}")  # Simple logging
     
-    This method implements the core planning logic while maintaining
-    all system invariants for round management and move recording.
-    """
-    manager = self.manager
+    def start_game(self):
+        print(f"[GameManager] Starting game")  # Simple logging
+        # Game logic here
+        print(f"[GameManager] Game completed")  # Simple logging
 
-    # Handle round bookkeeping (Invariant I-1)
-    if getattr(manager, "_first_plan", False):
-        manager._first_plan = False  # First round of new game
-    else:
-        manager.increment_round("heuristic planning")
-
-    # Compute the plan using algorithm-specific logic
-    current_state = manager.game.get_state_snapshot()
-    plan = self.pathfinder.find_optimal_path(current_state)  # Returns ["UP","LEFT",...]
-
-    # Record plan for logging and UI (Invariant I-2)
-    manager.game.game_state.round_manager.record_planned_moves(plan)
-    manager.game.planned_moves = plan
-
-    # Signal planning completion
-    manager.need_new_plan = False
+# ❌ INCORRECT: Complex logging in moved extension
+import logging
+logger = logging.getLogger(__name__)
+logger.info("Starting game")  # Violates SUPREME_RULES
 ```
 
-### **Step 3: Avoid Overriding run() Method**
-Unless absolutely necessary, inherit the existing `run()` implementation to maintain consistency:
+## 📋 **Move Validation Checklist**
 
+### **Pre-Move Validation**
+- [ ] **Cross-Extension Imports**: No imports from other extensions
+- [ ] **Common Dependencies**: Only imports from extensions/common
+- [ ] **Canonical Patterns**: Factory methods use `create()` name
+- [ ] **Simple Logging**: Uses print() statements only
+- [ ] **Self-Contained**: All required files present
+
+### **Post-Move Validation**
+- [ ] **Path Updates**: Internal paths updated correctly
+- [ ] **Import Resolution**: All imports resolve correctly
+- [ ] **Functionality**: Extension works in new location
+- [ ] **Pattern Compliance**: Canonical patterns maintained
+- [ ] **Logging Compliance**: Simple logging maintained
+
+### **Dependency Management**
+- [ ] **Common Utils**: Only depends on extensions/common
+- [ ] **External Packages**: Minimal external dependencies
+- [ ] **Extension Specific**: Self-contained extension code
+- [ ] **No Cross-Dependencies**: No dependencies on other extensions
+
+## 🎯 **Best Practices**
+
+### **1. Self-Contained Design**
 ```python
-class HeuristicGameLoop(BaseGameLoop):
-    # ✅ RECOMMENDED: Use inherited run() method
-    # The base implementation handles all invariants correctly
+# ✅ CORRECT: Self-contained extension design
+class ExtensionConfig:
+    """Extension-specific configuration."""
     
-    # Only override if you need fundamentally different execution flow
-    # If overriding, replicate Task-0 logic for _process_active_game
-```
-
-### **Step 4: Proper Move Execution**
-Let the inherited system handle move extraction to avoid duplication:
-
-```python
-# ✅ CORRECT: Let system handle move execution
-def process_game_step(self):
-    if self.need_new_plan:
-        self._get_new_plan()
-    
-    # System automatically calls _execute_next_planned_move()
-    # No manual move extraction needed
-```
-
-### **Step 5: Handle Round Completion**
-Implement proper round completion when the plan queue is empty:
-
-```python
-def check_plan_completion(self):
-    """Check if current plan is complete and handle accordingly"""
-    if not self.manager.game.planned_moves:  # Plan queue empty
-        self.manager.finish_round()  # Proper round completion
-        self.manager.need_new_plan = True  # Signal need for new plan
-```
-
-## 🧪 **Implementation Examples**
-
-### **Heuristics Extension Integration**
-```python
-class HeuristicGameLoop(BaseGameLoop):
-    """Heuristic pathfinding game loop with A* algorithm"""
-    
-    def __init__(self, manager, algorithm="ASTAR"):
-        super().__init__(manager)
-        self.pathfinder = self._create_pathfinder(algorithm)
-    
-    def _get_new_plan(self) -> None:
-        manager = self.manager
-
-        # Round management (Invariant I-1)
-        if getattr(manager, "_first_plan", False):
-            manager._first_plan = False
-        else:
-            manager.increment_round("heuristic planning")
-
-        # Algorithm-specific planning
-        current_state = manager.game.get_state_snapshot()
-        path = self.pathfinder.find_path(
-            start=current_state["head_position"],
-            goal=current_state["apple_position"],
-            obstacles=current_state["snake_positions"][1:]  # Exclude head
-        )
-
-        # System integration (Invariant I-2)
-        manager.game.game_state.round_manager.record_planned_moves(path)
-        manager.game.planned_moves = path
-        manager.need_new_plan = False
-```
-
-### **Reinforcement Learning Integration**
-```python
-class RLGameLoop(BaseGameLoop):
-    """Reinforcement learning game loop with DQN agent"""
-    
-    def __init__(self, manager, rl_agent):
-        super().__init__(manager)
-        self.rl_agent = rl_agent
-    
-    def _get_new_plan(self) -> None:
-        manager = self.manager
-
-        # Round management
-        if getattr(manager, "_first_plan", False):
-            manager._first_plan = False
-        else:
-            manager.increment_round("rl action selection")
-
-        # RL-specific action selection
-        state_tensor = self._convert_state_to_tensor(
-            manager.game.get_state_snapshot()
-        )
-        action = self.rl_agent.select_action(state_tensor)
+    def __init__(self):
+        # Extension-specific settings
+        self.algorithm = "BFS"
+        self.grid_size = 10
+        self.max_games = 100
         
-        # Convert single action to plan format
-        plan = [self._action_to_direction(action)]
-
-        # System integration
-        manager.game.game_state.round_manager.record_planned_moves(plan)
-        manager.game.planned_moves = plan
-        manager.need_new_plan = False
+        print(f"[ExtensionConfig] Initialized with algorithm: {self.algorithm}")  # Simple logging
+    
+    def validate(self) -> bool:
+        """Validate configuration."""
+        if self.grid_size < 5:
+            print(f"[ExtensionConfig] ERROR: Grid size too small: {self.grid_size}")  # Simple logging
+            return False
+        return True
 ```
 
-### **Supervised Learning Integration**
+### **2. Minimal Dependencies**
 ```python
-class SupervisedGameLoop(BaseGameLoop):
-    """Supervised learning game loop with trained neural network"""
-    
-    def __init__(self, manager, model):
-        super().__init__(manager)
-        self.model = model
-    
-    def _get_new_plan(self) -> None:
-        manager = self.manager
+# ✅ CORRECT: Minimal, focused dependencies
+# Only import what's needed from common utilities
+from extensions.common.utils.factory_utils import SimpleFactory
+from extensions.common.utils.path_utils import get_dataset_path
 
-        # Round management
-        if getattr(manager, "_first_plan", False):
-            manager._first_plan = False
-        else:
-            manager.increment_round("model prediction")
+# Extension-specific imports
+from .agents.bfs_agent import BFSAgent
+from .config import ExtensionConfig
 
-        # Model prediction
-        features = self._extract_features(manager.game.get_state_snapshot())
-        prediction = self.model.predict(features)
-        move = self._prediction_to_direction(prediction)
-        
-        # Single move plan
-        plan = [move]
-
-        # System integration
-        manager.game.game_state.round_manager.record_planned_moves(plan)
-        manager.game.planned_moves = plan
-        manager.need_new_plan = False
+# ❌ INCORRECT: Excessive dependencies
+from extensions.common.utils import *  # Import everything
+from extensions.heuristics_v0.03 import *  # Cross-extension import
 ```
 
-## 📋 **Implementation Validation Checklist**
-
-### **Core Requirements**
-- [ ] **Inheritance**: Extends `BaseGameLoop` appropriately
-- [ ] **Planning Method**: Implements `_get_new_plan()` with proper round management
-- [ ] **Plan Recording**: Uses `RoundManager.record_planned_moves()` for all plans
-- [ ] **Move Execution**: Relies on `_execute_next_planned_move()` for move extraction
-- [ ] **Round Completion**: Calls `finish_round()` only when plan queue is empty
-- [ ] **Buffer Integrity**: Avoids direct manipulation of `RoundBuffer.moves`
-
-### **Testing Requirements**
-- [ ] **Headless Testing**: Works with `--max-games 1 --max-steps 50 --no-gui`
-- [ ] **Log Integrity**: No duplicate moves in JSON logs
-- [ ] **Round Consistency**: Round count matches prompt/response file count
-- [ ] **Replay Functionality**: Generated logs work with replay systems
-- [ ] **Move Completeness**: All moves appear in round data
-
-### **Quality Assurance**
-- [ ] **Error Handling**: Graceful handling of algorithm failures
-- [ ] **Performance**: Reasonable execution time for planning operations
-- [ ] **Memory Management**: No memory leaks in long-running games
-- [ ] **Thread Safety**: Safe for concurrent execution if needed
-
-## 🔍 **Automated Validation Tools**
-
-### **Extension Testing Framework**
+### **3. Clear Boundaries**
 ```python
-def test_extension_system_integrity():
-    """Comprehensive test for extension system invariant compliance"""
+# ✅ CORRECT: Clear extension boundaries
+class ExtensionManager:
+    """Manages extension-specific operations."""
     
-    # Initialize extension with test configuration
-    extension = create_test_extension()
-    
-    # Run controlled test game
-    result = extension.run_game(
-        max_games=1,
-        max_steps=50,
-        headless=True
-    )
-    
-    # Load and validate generated logs
-    game_data = json.load(open(result.game_json_path))
-    
-    # Validate round integrity (Invariant I-1)
-    rounds_data = game_data["detailed_history"]["rounds_data"]
-    assert len(rounds_data) > 0, "No rounds recorded"
-    
-    for round_id, round_info in rounds_data.items():
-        moves = round_info["moves"]
+    def __init__(self, extension_type: str, version: str):
+        self.extension_type = extension_type
+        self.version = version
+        self.factory = SimpleFactory()
         
-        # Check for duplicates (Invariant I-3)
-        assert moves == list(dict.fromkeys(moves)), \
-            f"Duplicate moves found in round {round_id}: {moves}"
-        
-        # Validate move format
-        assert all(move in VALID_MOVES for move in moves), \
-            f"Invalid moves in round {round_id}: {moves}"
-        
-        # Check planned moves recording (Invariant I-2)
-        assert "planned_moves" in round_info, \
-            f"Missing planned_moves in round {round_id}"
+        print(f"[ExtensionManager] Initialized {extension_type} v{version}")  # Simple logging
     
-    # Verify round count consistency
-    expected_rounds = result.round_count
-    actual_rounds = len(rounds_data)
-    assert expected_rounds == actual_rounds, \
-        f"Round count mismatch: expected {expected_rounds}, got {actual_rounds}"
-    
-    print("✅ Extension passes all system integrity tests")
+    def create_agent(self, algorithm: str) -> BaseAgent:
+        """Create agent using canonical factory pattern."""
+        return self.factory.create(algorithm)  # CANONICAL create() method
 ```
 
+## 🎓 **Educational Benefits**
 
-## 🔗 **Integration with Extension Architecture**
+### **Learning Objectives**
+- **Modularity**: Understanding how to create independent modules
+- **Dependency Management**: Learning to minimize external dependencies
+- **Portability**: Creating code that can be easily moved and reused
+- **Self-Containment**: Building systems that work independently
 
-### **Path Management**
-Extensions must use standardized path utilities:
-```python
-from extensions.common.utils.path_utils import ensure_project_root
+### **Best Practices**
+- **Minimal Dependencies**: Only depend on what's absolutely necessary
+- **Clear Boundaries**: Define clear interfaces and boundaries
+- **Self-Containment**: Make extensions work independently
+- **Canonical Patterns**: Maintain consistent patterns across moves
 
-# Ensure proper working directory
-ensure_project_root()
-```
+---
 
-### **Configuration Management**
-Follow established configuration patterns:
-```python
-from config.game_constants import VALID_MOVES, DIRECTIONS
-from extensions.common.config.ml_constants import DEFAULT_LEARNING_RATE
-```
+**Extension move guidelines ensure that extensions remain standalone, portable, and maintainable while preserving canonical patterns and educational value.**
+
+## 🔗 **See Also**
+
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`standalone.md`**: Standalone principle and extension independence
+- **`conceptual-clarity.md`**: Conceptual clarity guidelines for extensions

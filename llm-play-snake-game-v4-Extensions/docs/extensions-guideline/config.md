@@ -1,3 +1,6 @@
+# TODO: we need a lot of "pass" or "..." in the code examples in this md file.
+
+
 # Configuration Architecture for Snake Game AI Extensions
 
 > **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for configuration architecture and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).

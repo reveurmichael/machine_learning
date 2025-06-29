@@ -2,27 +2,24 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines unified path management patterns.
 
-> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
-
-# Unified Path Management Guide
-
-> **Authoritative Reference**: This document serves as a **GOOD_RULES** authoritative reference for path management standards and establishes the definitive path management standards for all Snake Game AI extensions, following final-decision-6.md.
+> **See also:** `final-decision-10.md`, `core.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Consistent Path Resolution**
 
-All extensions **MUST** use standardized path utilities from `extensions/common/path_utils.py` to ensure reliable cross-platform operation and eliminate path-related bugs.
+All extensions **MUST** use standardized path utilities from `extensions/common/utils/path_utils.py` to ensure reliable cross-platform operation and eliminate path-related bugs.
 
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making path management architectural changes to ensure comprehensive understanding
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and path management patterns
-- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining path management patterns through inheritance rather than tight coupling
+### **Educational Value**
+- **Cross-Platform Compatibility**: Consistent behavior across Windows, macOS, and Linux
+- **Development Workflow**: Works regardless of IDE working directory
+- **Deployment Reliability**: Same code works in dev and production
+- **Canonical Patterns**: Demonstrates factory patterns and simple logging throughout
 
 ## 🛠️ **Mandatory Path Management Pattern**
 
 ### **Required Setup for All Extensions**
 ```python
 # MANDATORY USAGE PATTERN FOR ALL EXTENSIONS
-from extensions.common.path_utils import (
+from extensions.common.utils.path_utils import (
     ensure_project_root,
     get_extension_path,
     get_dataset_path,
@@ -53,9 +50,11 @@ def ensure_project_root() -> Path:
     Ensure current working directory is project root
     
     Design Pattern: Facade Pattern
-    - Provides simple interface to complex path management
-    - Handles cross-platform compatibility
-    - Manages Python path and working directory
+    Purpose: Provides simple interface to complex path management
+    Educational Value: Shows how canonical patterns work with path management
+    while maintaining simple logging throughout.
+    
+    Reference: final-decision-10.md for simple logging standards
     """
     current_file = Path(__file__).resolve()
     
@@ -71,7 +70,7 @@ def ensure_project_root() -> Path:
     # Change working directory to project root
     if os.getcwd() != str(project_root):
         os.chdir(str(project_root))
-        print(f"Changed working directory to: {project_root}")
+        print(f"[PathUtils] Changed working directory to: {project_root}")  # Simple logging - SUPREME_RULES
     
     # Ensure project root is in Python path
     if str(project_root) not in sys.path:
@@ -119,6 +118,8 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
     for file in required_files:
         if not (extension_path / file).exists():
             raise ValueError(f"Missing required file {file} in extension: {extension_path}")
+    
+    print(f"[PathUtils] Path structure validated successfully")  # Simple logging - SUPREME_RULES
 ```
 
 ## 🔧 **Extension Implementation Patterns**
@@ -126,23 +127,29 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
 ### **v0.01 Extension Pattern**
 ```python
 # extensions/heuristics-v0.01/main.py
-from extensions.common.path_utils import ensure_project_root, get_extension_path
+from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
 
 def main():
     """Main entry point for heuristics v0.01"""
     # Standard setup
     project_root, extension_path = setup_extension_environment()
     
-    # Extension-specific logic
+    # Extension-specific logic using canonical factory patterns
+    from extensions.common.utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
-    manager = HeuristicGameManager()
+    
+    # Use canonical factory pattern
+    factory = SimpleFactory()
+    factory.register("heuristic", HeuristicGameManager)
+    
+    manager = factory.create("heuristic")  # CANONICAL create() method - SUPREME_RULES
     manager.run()
 ```
 
 ### **v0.02 Extension Pattern**
 ```python
 # extensions/heuristics-v0.02/main.py
-from extensions.common.path_utils import ensure_project_root, get_extension_path, get_dataset_path
+from extensions.common.utils.path_utils import ensure_project_root, get_extension_path, get_dataset_path
 
 def main():
     """Main entry point for heuristics v0.02"""
@@ -157,126 +164,90 @@ def main():
         timestamp=timestamp
     )
     
-    # Extension logic
+    # Extension logic using canonical factory patterns
+    from extensions.common.utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
-    manager = HeuristicGameManager(dataset_path=dataset_path)
+    
+    factory = SimpleFactory()
+    factory.register("heuristic", HeuristicGameManager)
+    
+    manager = factory.create("heuristic", dataset_path=dataset_path)  # Canonical
     manager.run()
 ```
 
-### **v0.03 Extension Pattern**
-```python
-# extensions/heuristics-v0.03/app.py
-from extensions.common.path_utils import ensure_project_root, get_extension_path
+## 📊 **Simple Logging Standards for Path Operations**
 
-class HeuristicStreamlitApp(BaseExtensionApp):
-    def __init__(self):
-        # Standard setup
-        self.project_root, self.extension_path = setup_extension_environment()
-        super().__init__()
+### **Required Logging Pattern (SUPREME_RULES)**
+All path operations MUST use simple print statements as established in `final-decision-10.md`:
+
+```python
+# ✅ CORRECT: Simple logging for path operations (SUPREME_RULES compliance)
+def setup_paths(extension_type: str):
+    print(f"[PathUtils] Setting up paths for {extension_type}")  # Simple logging - REQUIRED
     
-    def launch_script(self, script_name: str, params: dict):
-        """Launch script with proper path management"""
-        script_path = self.extension_path / "scripts" / f"{script_name}.py"
-        
-        # Use subprocess with proper working directory
-        subprocess.run([
-            "python", str(script_path),
-            *[f"--{k}", str(v) for k, v in params.items()]
-        ], cwd=self.project_root)
-```
-
-## 🎯 **Benefits of Standardized Path Management**
-
-### **Cross-Platform Compatibility**
-- **Windows**: Handles backslashes and drive letters
-- **macOS/Linux**: Handles forward slashes and permissions
-- **Docker**: Works in containerized environments
-
-### **Development Workflow**
-- **IDE Independence**: Works regardless of IDE working directory
-- **Subprocess Safety**: Child processes inherit correct working directory
-- **Error Prevention**: Eliminates common path-related user errors
-
-### **Deployment Reliability**
-- **Container Compatibility**: Works seamlessly in Docker
-- **CI/CD Reliability**: Consistent behavior in automation
-- **Multi-Environment**: Same code works in dev and production
-
-## 🚫 **Anti-Patterns to Avoid**
-
-### **Manual Path Construction**
-```python
-# ❌ WRONG: Manual path construction
-import os
-dataset_path = os.path.join("logs", "extensions", "datasets", f"grid-size-{grid_size}")
-
-# ✅ CORRECT: Use standardized utilities
-from extensions.common.path_utils import get_dataset_path
-dataset_path = get_dataset_path(extension_type, version, grid_size, algorithm, timestamp)
-```
-
-### **Working Directory Assumptions**
-```python
-# ❌ WRONG: Assuming working directory
-with open("config.json", "r") as f:  # May fail if run from wrong directory
-
-# ✅ CORRECT: Use project root
-project_root = ensure_project_root()
-config_path = project_root / "config.json"
-with open(config_path, "r") as f:
-```
-
-### **Platform-Specific Paths**
-```python
-# ❌ WRONG: Platform-specific paths
-if os.name == "nt":  # Windows
-    path = "logs\\extensions\\datasets"
-else:  # Unix
-    path = "logs/extensions/datasets"
-
-# ✅ CORRECT: Use pathlib
-from pathlib import Path
-path = Path("logs/extensions/datasets")
-```
-
-## 🔍 **Validation and Testing**
-
-### **Path Validation Script**
-```python
-# extensions/common/validation/path_validator.py
-def validate_extension_paths(extension_path: Path):
-    """Validate extension follows path management standards"""
-    
-    # Check required files exist
-    required_files = ["__init__.py", "game_logic.py", "game_manager.py"]
-    for file in required_files:
-        if not (extension_path / file).exists():
-            raise ValidationError(f"Missing required file: {file}")
-    
-    # Check path utilities are used
-    main_file = extension_path / "main.py"
-    if main_file.exists():
-        with open(main_file) as f:
-            content = f.read()
-            if "ensure_project_root" not in content:
-                raise ValidationError("main.py must use ensure_project_root()")
-```
-
-### **Testing Path Management**
-```python
-def test_path_management():
-    """Test path management utilities"""
-    
-    # Test project root detection
+    # Path setup logic
     project_root = ensure_project_root()
-    assert (project_root / "README.md").exists()
-    assert (project_root / "core").exists()
     
-    # Test dataset path generation
-    dataset_path = get_dataset_path("heuristics", "0.02", 10, "bfs", "20240101_120000")
-    assert "logs/extensions/datasets/grid-size-10/heuristics_v0.02_20240101_120000/bfs" in str(dataset_path)
+    print(f"[PathUtils] Paths configured successfully")  # Simple logging
+    return project_root
+
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
+# import logging
+# logger = logging.getLogger(__name__)
+
+# def setup_paths(extension_type: str):
+#     logger.info(f"Setting up paths for {extension_type}")  # FORBIDDEN - complex logging
+#     # This violates final-decision-10.md SUPREME_RULES
 ```
 
----
+## 🎓 **Educational Applications with Canonical Patterns**
 
-**This unified path management ensures reliable, consistent, and maintainable directory operations across all extensions while eliminating platform-specific path issues.** 
+### **Path Management Benefits**
+- **Cross-Platform Compatibility**: Consistent behavior across all operating systems
+- **Development Workflow**: Works regardless of IDE working directory
+- **Deployment Reliability**: Same code works in dev and production
+- **Canonical Patterns**: Factory patterns ensure consistent path management
+
+### **Pattern Consistency**
+- **Canonical Method**: All path utilities use consistent patterns
+- **Simple Logging**: Print statements provide clear operation visibility
+- **Educational Value**: Canonical patterns enable predictable learning
+- **SUPREME_RULES**: Path management follows same standards as other components
+
+## 📋 **SUPREME_RULES Implementation Checklist for Path Management**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All path utilities use consistent patterns (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all path operations (final-decision-10.md compliance)
+- [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all path management documentation
+- [ ] **Pattern Consistency**: Follows canonical patterns across all path implementations
+
+### **Path-Specific Standards**
+- [ ] **Cross-Platform**: Works on Windows, macOS, and Linux
+- [ ] **Working Directory**: Proper working directory management
+- [ ] **Path Validation**: Consistent validation patterns
+- [ ] **Error Handling**: Simple logging for all error conditions
+
+### **Educational Integration**
+- [ ] **Clear Examples**: Simple examples using canonical patterns
+- [ ] **Pattern Documentation**: Clear explanation of path management benefits
+- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision-10.md standards
+- [ ] **Cross-Reference**: Links to related patterns and principles
+
+## 🔗 **Cross-References and Integration**
+
+### **Related Documents**
+- **`final-decision-10.md`**: SUPREME_RULES for canonical path patterns
+- **`core.md`**: Core architecture and path integration
+- **`project-structure-plan.md`**: Project structure standards
+
+### **Implementation Files**
+- **`extensions/common/utils/path_utils.py`**: Canonical path utilities
+- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
+- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+
+### **Educational Resources**
+- **Design Patterns**: Path management as foundation for cross-platform compatibility
+- **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
+- **Simple Logging**: Print statements provide clear operation visibility
+- **OOP Principles**: Path management demonstrates effective abstraction 

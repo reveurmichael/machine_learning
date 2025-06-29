@@ -4,7 +4,7 @@
 
 ## ✅ **Current Core Architecture Assessment**
 
-Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring.
+Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
@@ -41,7 +41,7 @@ class HeuristicAgentFactory:
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # simple logging
+        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # Simple logging
         return agent_class(**kwargs)
 ```
 
@@ -98,7 +98,7 @@ class HeuristicGameManager(BaseGameManager):
         # Set up pathfinding algorithms
         self.pathfinder = AStarPathfinder()
         # Simple debug output (simple logging discourages complex *.log files)
-        print("[HeuristicGameManager] Initialised pathfinder and ready to run.")  # simple logging
+        print("[HeuristicGameManager] Initialised pathfinder and ready to run.")  # Simple logging
     
     def run(self):
         # Inherits all generic game loop logic from BaseGameManager
@@ -147,7 +147,7 @@ class RLGameManager(BaseGameManager):
     def initialize(self):
         self.agent = DQNAgent()
         # Simple debug output instead of file-based logging (simple logging)
-        print("[RLGameManager] DQN agent initialised.")  # simple logging
+        print("[RLGameManager] DQN agent initialised.")  # Simple logging
     
     def run(self):
         # Inherits all session management
@@ -241,7 +241,7 @@ This architecture serves as a **perfect reference implementation** for how the e
 
 - **`agents.md`**: Authoritative reference for agent implementation standards
 - **`factory-design-pattern.md`**: Factory pattern implementation guide
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 
 ---
 

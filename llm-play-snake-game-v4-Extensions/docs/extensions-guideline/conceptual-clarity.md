@@ -118,6 +118,6 @@ from extensions.common.utils.validation import validate_model_output
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation
 

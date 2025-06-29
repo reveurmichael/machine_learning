@@ -1,12 +1,12 @@
 # Working Directory and Logging Standards
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the working directory and logging standards for all extensions.
+> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for working directory and logging standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
 
 > **See also:** `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Consistent Path Management**
 
-The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms.
+The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Educational Value**
 - **Path Management**: Understanding consistent path handling
@@ -87,16 +87,16 @@ def get_models_path() -> Path:
 
 ## 📊 **Logging Standards**
 
-### **Simple Print Logging (simple logging)**
+### **Simple Print Logging (SUPREME_RULES)**
 All logging must use simple print statements. No complex logging frameworks are allowed:
 
 ```python
-# ✅ CORRECT: Simple print logging
+# ✅ CORRECT: Simple print logging (SUPREME_RULES compliance)
 print(f"[GameManager] Starting game {game_id}")
 print(f"[Agent] Selected move: {move}")
 print(f"[Game] Score: {score}")
 
-# ❌ INCORRECT: Complex logging frameworks
+# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
 # import logging
 # logger = logging.getLogger(__name__)
 # logger.info("Starting game")
@@ -278,7 +278,7 @@ class HeuristicGameManager:
 - [ ] **Directory Creation**: Proper directory creation and management
 
 ### **Logging Standards**
-- [ ] **Simple Logging**: Use of print statements only
+- [ ] **Simple Logging**: Use of print statements only (SUPREME_RULES compliance)
 - [ ] **Component Names**: Clear component identification
 - [ ] **Log Levels**: Appropriate log level usage
 - [ ] **Error Handling**: Proper error logging
@@ -310,5 +310,5 @@ class HeuristicGameManager:
 ## 🔗 **See Also**
 
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure and organization 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document describes the elegant refactoring of consecutive move limits and sleep handling in the Snake-GTP project. The system centralizes all limit tracking into a sophisticated management architecture that follows OOP, SOLID, and DRY principles.
+This document describes the elegant refactoring of consecutive move limits and sleep handling in the Snake-GTP project. The system centralizes all limit tracking into a sophisticated management architecture that follows OOP, SOLID, and DRY principles while strictly adhering to `final-decision-10.md` SUPREME_RULES.
 
 ## Architecture
 
@@ -165,4 +165,10 @@ The architecture is designed to support future enhancements:
 - Additional limit types can be easily added to the `LimitType` enum
 - New enforcement strategies can implement the `LimitEnforcementStrategy` interface
 - Custom sleep behaviors can be plugged in via the strategy pattern
-- Advanced analytics and reporting can be added to the status tracking system 
+- Advanced analytics and reporting can be added to the status tracking system
+
+## 🔗 **See Also**
+
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`project-structure-plan.md`**: Project structure and organization 

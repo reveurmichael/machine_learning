@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines forbidden import patterns that violate the standalone principle.
 
-> **See also:** `standalone.md`, `final-decision-10.md`, `extensions-move-guidelines.md`.
+> **See also:** `final-decision-10.md`, `standalone.md`, `extensions-move-guidelines.md`.
 
 ## 🚫 **Absolutely Forbidden Import Patterns**
 
@@ -134,9 +134,9 @@ def validate_extension_imports(extension_path: str) -> bool:
     for file_path in python_files:
         violations = check_forbidden_imports(str(file_path))
         if violations:
-            print(f"Import violations in {file_path}:")  # Simple logging
+            print(f"Import violations in {file_path}:")  # Simple logging - SUPREME_RULES
             for violation in violations:
-                print(f"  - {violation}")  # Simple logging
+                print(f"  - {violation}")  # Simple logging - SUPREME_RULES
             return False
     
     return True
@@ -156,7 +156,7 @@ def validate_extension_imports(extension_path: str) -> bool:
 - **Maintenance complexity** increase
 - **Educational value** reduction
 
-## 📚 **Educational Value**
+## 🎓 **Educational Value**
 
 ### **Learning Objectives**
 - **Modular Design**: Understanding independent modules
@@ -169,6 +169,24 @@ def validate_extension_imports(extension_path: str) -> bool:
 - **Open/Closed**: Open for extension, closed for modification
 - **Dependency Inversion**: Depend on abstractions, not concretions
 - **Interface Segregation**: Clean, focused interfaces
+
+## 🔗 **Cross-References and Integration**
+
+### **Related Documents**
+- **`final-decision-10.md`**: SUPREME_RULES for import patterns
+- **`standalone.md`**: Standalone principle and extension independence
+- **`extensions-move-guidelines.md`**: Extension development workflow
+
+### **Implementation Files**
+- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
+- **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
+- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+
+### **Educational Resources**
+- **Design Patterns**: Import patterns as foundation for modular design
+- **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
+- **Simple Logging**: Print statements provide clear operation visibility
+- **OOP Principles**: Import patterns demonstrate effective module separation
 
 ---
 

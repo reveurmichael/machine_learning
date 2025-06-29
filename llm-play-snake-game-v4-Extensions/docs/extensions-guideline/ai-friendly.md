@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
-The codebase follows principles that make it highly readable and navigable for AI development assistants:
+The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to `final-decision-10.md` SUPREME_RULES.
 
 ## 🔍 **Navigation Aids for AI Assistants**
 
@@ -247,5 +247,5 @@ All constants in `config/` directory with clear names:
 - **`agents.md`**: Agent implementation standards
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`config.md`**: Configuration management
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`factory-design-pattern.md`**: Factory pattern implementation

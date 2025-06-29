@@ -1,55 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Snake Game – Live LLM Mode</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Snake Game – Live LLM Mode</h1>
-        </div>
+{% extends "base.html" %}
 
-        <!-- Loading spinner until the first state arrives -->
-        <div id="loading-message" class="loading-message">
-            <div class="spinner"></div>
-            <p>Waiting for game to start…</p>
-        </div>
+{% block page_title %}Snake Game – Live LLM Mode{% endblock %}
 
-        <!-- Main layout: canvas on left, info panel on right -->
-        <div id="game-container" class="game-container" style="display: none;">
-            <div class="game-board">
-                <canvas id="game-canvas"></canvas>
-            </div>
+{% block header_title %}Snake Game – Live LLM Mode{% endblock %}
 
-            <div class="game-sidebar">
-                <div id="finished-indicator" class="finished-indicator">SESSION FINISHED</div>
-
-                <div class="stats-section">
-                    <h2>Game Information</h2>
-                    <div class="stats-grid">
-                        <div>Score: <span id="score">0</span></div>
-                        <div>Steps: <span id="steps">0</span></div>
-                    </div>
-                </div>
-
-                <div class="moves-section">
-                    <h2>Planned Moves</h2>
-                    <div id="planned-moves" class="planned-moves"></div>
-                </div>
-
-                <div class="llm-response-section">
-                    <h2>LLM Response</h2>
-                    <pre id="llm-response" class="llm-response"></pre>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Shared helpers and live mode script -->
-    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html> 
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block page_title %}Snake Game Web{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{% block header_title %}Snake Game{% endblock %}</h1>
+        </div>
+
+        <!-- Optional loading spinner until first state arrives -->
+        <div id="loading-message" class="loading-message">
+            <div class="spinner"></div>
+            <p>{% block loading_text %}Waiting for game to start…{% endblock %}</p>
+        </div>
+
+        <!-- Main layout: canvas on left, sidebar on right -->
+        <div id="game-container" class="game-container" style="display: none;">
+            <div class="game-board">
+                <canvas id="game-canvas"></canvas>
+            </div>
+
+            <div class="game-sidebar">
+                {% block sidebar_content %}
+                <!-- Stats Section (always present) -->
+                <div class="stats-section">
+                    <h2>Game Information</h2>
+                    <div class="stats-grid">
+                        <div>Score: <span id="score">0</span></div>
+                        <div>Steps: <span id="steps">0</span></div>
+                    </div>
+                </div>
+
+                <!-- LLM Response (shown in Task-0) -->
+                <div id="llm-section" class="llm-section" style="display:none;">
+                    <h2>LLM Response</h2>
+                    <pre id="llm-response" class="llm-response"></pre>
+                </div>
+
+                <!-- Algorithm Info (heuristics extensions) -->
+                <div id="algorithm-section" class="algorithm-section" style="display:none;">
+                    <h2>Algorithm Information</h2>
+                    <div>Current: <span id="algorithm-name"></span></div>
+                    <div>Path Length: <span id="path-length"></span></div>
+                    <div>Nodes Explored: <span id="nodes-explored"></span></div>
+                </div>
+
+                <!-- Training Metrics (ML / RL extensions) -->
+                <div id="training-section" class="training-section" style="display:none;">
+                    <h2>Training Metrics</h2>
+                    <div>Episode: <span id="episode"></span></div>
+                    <div>Reward: <span id="reward"></span></div>
+                    <div>Loss: <span id="loss"></span></div>
+                </div>
+
+                <!-- Session Finished Indicator (LLM mode) -->
+                <div id="finished-indicator" class="finished-indicator" style="display:none;">SESSION FINISHED</div>
+
+                <!-- Planned Moves (LLM mode) -->
+                <div class="moves-section" id="moves-section" style="display:none;">
+                    <h2>Planned Moves</h2>
+                    <div id="planned-moves" class="planned-moves"></div>
+                </div>
+
+                <!-- Game Over indicator (human/replay) -->
+                <div id="game-over-indicator" class="paused-indicator" style="display:none;">GAME OVER</div>
+
+                <!-- End reason (human/replay) -->
+                <div id="end-reason-container" style="display:none;">End Reason: <span id="end-reason"></span></div>
+
+                <!-- Controls (human play) -->
+                <div class="controls-section" id="controls-section" style="display:none;">
+                    <h2>Controls</h2>
+                    <div class="control-info">
+                        <p>Use Arrow Keys or WASD to move the snake</p>
+                        <button id="reset-button" class="reset-button">Reset Game (R)</button>
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared helpers (DRY) -->
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html> 

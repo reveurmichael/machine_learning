@@ -1,152 +1,135 @@
 """
-Snake Game - Human Player Web Interface (MVC Architecture)
+Snake Game - Human Player Web Interface (KISS Architecture)
 --------------------
 
-Flask-based web application for human-driven Snake gameplay using the MVC framework.
-This script demonstrates how to create a clean web interface using the new MVC architecture.
+Flask-based web application for human-driven Snake gameplay using KISS principles.
+This script demonstrates how Task-0 integrates with a simple web architecture
+and serves as a foundation for Task 1-5 extensions.
 
 Features:
-- MVC architecture with role-based controllers
-- Factory pattern for component creation
-- Clean separation of concerns
-- Simplified codebase using framework components
+- Simple Flask integration without complex MVC patterns
+- Dynamic port allocation with network utilities
+- KISS principles and elegant error handling
+- Extensible foundation for future tasks
+- Simple logging following SUPREME_RULES
 
-This whole module is Task0 specific but uses the generic MVC framework.
+Design Patterns Used:
+    - Template Method Pattern: Simple Flask application lifecycle
+    - Factory Pattern: Simple factory functions
+    - Strategy Pattern: Pluggable game modes
+
+Educational Goals:
+    - Demonstrate simple web integration for Task-0
+    - Show how future extensions can reuse this pattern
+    - Illustrate KISS principles in web applications
+    - Provide canonical example of Task-0 web interface
+
+Extension Pattern for Future Tasks:
+    Task-1 (Heuristics): Replace with pathfinding algorithms
+    Task-2 (RL): Replace with RL agent and training monitoring
+    Task-3 (Supervised): Replace with ML model evaluation
+    Task-4 (Distillation): Replace with knowledge distillation
+    Task-5 (Advanced): Combine multiple AI strategies
 """
 
 import sys
 import pathlib
-import logging
 import argparse
+from typing import Optional
 
-# ------------------
-# Ensure repository root is on sys.path **before** any local imports
-# ------------------
-
+# Bootstrap repository root for consistent imports
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from utils.path_utils import ensure_project_root
+ensure_project_root()
 
-# ------------------
-# Ensure current working directory == repository root
-# ------------------
-REPO_ROOT = ensure_project_root()
-
+# Import Task-0 components
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
-# Import MVC components
-from web.factories import create_web_application
-from core.game_logic import GameLogic
-from core.game_controller import BaseGameController
-from utils.network_utils import find_free_port
+# Import simple web framework
+from web.game_flask_app import HumanGameApp, create_human_app
+from utils.network_utils import get_server_host_port
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-logging.getLogger("werkzeug").setLevel(logging.WARNING)
+# Simple logging following SUPREME_RULES
+print_log = lambda msg: print(f"[HumanWebApp] {msg}")
 
 
-class HumanGameControllerAdapter(BaseGameController):
+class HumanWebApp(HumanGameApp):
     """
-    Adapter to make GameLogic compatible with web MVC architecture for human play.
+    Task-0 Human Player Web Application.
     
-    This adapter wraps GameLogic to provide the BaseGameController interface
-    expected by the web MVC framework for human player games.
+    Extends HumanGameApp with human-specific configuration.
+    Demonstrates how to specialize the simple Flask application for different game modes.
+    
+    Design Pattern: Template Method Pattern (Flask Application Lifecycle)
+    Educational Value: Shows how to extend simple applications for specific modes
+    Extension Pattern: Future tasks can extend this for their specific needs
     """
     
-    def __init__(self, game_logic: GameLogic):
+    def __init__(self, grid_size: int = DEFAULT_GRID_SIZE, **config):
         """
-        Initialize adapter for human play web interface.
+        Initialize human player web application.
         
         Args:
-            game_logic: GameLogic instance for core game mechanics
+            grid_size: Size of the game grid
+            **config: Additional configuration options
         """
-        # Create a mock game manager for the base class
-        class MockGameManager:
-            def __init__(self, game_logic):
-                self.game = game_logic
-                self.game_active = True
-        
-        self.game_logic = game_logic
-        mock_manager = MockGameManager(game_logic)
-        super().__init__(mock_manager, use_gui=False)
-        
-        logger.info("Initialized HumanGameControllerAdapter for web interface")
+        super().__init__(
+            grid_size=grid_size,
+            **config
+        )
+        print_log(f"Initialized for human play with {grid_size}x{grid_size} grid")
     
-    def initialize_session(self) -> None:
-        """Initialize web session - handled by external web framework."""
-        logger.info("Human play web session initialization")
-    
-    def execute_main_loop(self) -> None:
-        """Execute main loop - handled by external web framework."""
-        logger.info("Main loop execution delegated to web framework")
-    
-    def make_move(self, direction: str) -> tuple[bool, bool]:
-        """
-        Execute a move through the GameLogic.
-        
-        Args:
-            direction: Movement direction (UP, DOWN, LEFT, RIGHT)
-            
-        Returns:
-            Tuple of (game_still_active, apple_eaten)
-        """
-        try:
-            return self.game_logic.make_move(direction)
-        except Exception as e:
-            logger.error(f"Move execution failed: {e}")
-            return False, False
-    
-    def reset_game(self) -> None:
-        """Reset the game to initial state."""
-        try:
-            self.game_logic.reset()
-            # Also reset the mock game manager's game_active flag
-            self.game_manager.game_active = True
-            logger.info(f"Game reset via human controller adapter. Game over: {self.game_logic.game_over}")
-        except Exception as e:
-            logger.error(f"Failed to reset game: {e}")
-            raise
-    
-    def reset(self) -> None:
-        """Reset method called by the web framework state provider."""
-        self.reset_game()
-    
-    @property
-    def game(self):
-        """Get the game logic instance."""
-        return self.game_logic
-    
-    @property
-    def head_position(self):
-        """Get snake head position."""
-        return self.game_logic.head_position
-    
-    @property
-    def snake_positions(self) -> list:
-        """Get snake positions as list."""
-        return self.game_logic.snake_positions.tolist()
-    
-    @property
-    def apple_position(self) -> tuple:
-        """Get apple position as tuple."""
-        return tuple(self.game_logic.apple_position.tolist())
-    
-    @property
-    def game_over(self) -> bool:
-        """Get game over state."""
-        return self.game_logic.game_over
+    def get_application_info(self) -> dict:
+        """Get human-specific application information."""
+        return {
+            "name": "Task-0 Human Player",
+            "task_name": "task0",
+            "game_mode": "human",
+            "grid_size": self.grid_size,
+            "url": f"http://127.0.0.1:{getattr(self, 'port', 5000)}",
+            "input_method": "keyboard",
+            "features": [
+                "Human player input",
+                "Real-time game state",
+                "Web-based interface",
+                "Keyboard controls",
+                "Score tracking"
+            ]
+        }
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
-    """Create argument parser for human play web interface."""
+    """
+    Create argument parser for human play web interface.
+    
+    Educational Value: Shows consistent argument handling across Task-0 scripts
+    Extension Pattern: Future tasks can extend this with their specific arguments
+    """
     parser = argparse.ArgumentParser(
-        description="Snake Game - Human Player Web Interface",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="Snake Game - Human Player Web Interface (Task-0 Foundation)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python scripts/human_play_web.py                    # Default settings
+  python scripts/human_play_web.py --grid-size 15     # Larger grid
+  python scripts/human_play_web.py --port 8080        # Specific port
+  python scripts/human_play_web.py --debug            # Debug mode
+
+Extension Pattern:
+  Future tasks can copy this script and modify:
+  - Replace with their algorithm/model
+  - Add task-specific arguments
+  - Maintain same elegant structure
+        """
+    )
+    
+    parser.add_argument(
+        "--grid-size",
+        type=int,
+        default=DEFAULT_GRID_SIZE,
+        help=f"Size of the game grid (default: {DEFAULT_GRID_SIZE})"
     )
     
     parser.add_argument(
@@ -164,72 +147,79 @@ def create_argument_parser() -> argparse.ArgumentParser:
     )
     
     parser.add_argument(
-        "--grid-size",
-        type=int,
-        default=DEFAULT_GRID_SIZE,
-        help=f"Size of the game grid (default: {DEFAULT_GRID_SIZE})"
-    )
-    
-    parser.add_argument(
         "--debug", 
         action="store_true",
-        help="Enable Flask debug mode"
+        help="Enable Flask debug mode for development"
     )
     
     return parser
 
 
-def main() -> None:
-    """Main entry point for human play web interface."""
+def main() -> int:
+    """
+    Main entry point for human play web interface.
+    
+    Educational Value: Shows elegant application lifecycle management
+    Extension Pattern: Future tasks can copy this exact pattern
+    
+    Returns:
+        Exit code: 0 for success, 1 for failure
+    """
     try:
-        # Parse arguments
+        # Parse command line arguments
         parser = create_argument_parser()
         args = parser.parse_args()
         
-        # Auto-detect free port if not specified
-        port = args.port or find_free_port()
+        # Get host and port using network utilities
+        host, port = get_server_host_port(default_host=args.host, default_port=args.port)
+        # Network utilities handle environment variables and port conflicts automatically
         
-        logger.info("🐍 Starting Snake Game - Human Player Web Interface (MVC)")
-        logger.info(f"Grid size: {args.grid_size}x{args.grid_size}")
-        logger.info(f"Server: http://{args.host}:{port}")
+        print_log("🐍 Starting Snake Game - Human Player Web Interface")
+        print_log(f"📊 Architecture: Task-0 KISS Framework")
+        print_log(f"🎮 Mode: Human Player")
+        print_log(f"📐 Grid: {args.grid_size}x{args.grid_size}")
+        print_log(f"🌐 Server: http://{host}:{port}")
+        print()
         
-        # Create game logic for human play
-        game_logic = GameLogic(
-            grid_size=args.grid_size,
-            use_gui=False  # Web interface, no pygame GUI
+        # Create human game application using simple architecture
+        app = HumanWebApp(
+            grid_size=args.grid_size
         )
         
-        # Create adapter to make GameLogic compatible with MVC framework
-        game_controller = HumanGameControllerAdapter(game_logic)
+        # Show application info
+        app_info = app.get_application_info()
+        print_log("🎯 Application Information:")
+        print_log(f"   Name: {app_info['name']}")
+        print_log(f"   Task: {app_info['task_name']}")
+        print_log(f"   Mode: {app_info.get('game_mode', 'unknown')}")
+        print_log(f"   URL: {app_info['url']}")
+        print()
         
-        # Create MVC web application using factory
-        app, controller = create_web_application(
-            game_controller=game_controller,
-            game_mode="human",
-            template_folder=str(REPO_ROOT / "web" / "templates"),
-            static_folder=str(REPO_ROOT / "web" / "static")
-        )
+        print_log("🎮 Controls:")
+        print_log("   Arrow Keys: Move snake")
+        print_log("   R: Reset game")
+        print_log("   Ctrl+C: Stop server")
+        print()
         
-        # Configure Flask app
-        app.config['DEBUG'] = args.debug
+        print_log("🚀 Extension Pattern:")
+        print_log("   Future tasks can copy this script structure")
+        print_log("   Replace with task-specific components")
+        print_log("   Maintain same elegant KISS architecture")
+        print()
         
-        logger.info("✅ MVC application created successfully")
-        logger.info(f"🎮 Open http://{args.host}:{port} in your browser to play!")
+        # Start the application server
+        print_log("✅ Starting web server...")
+        app.run(host=host, port=port, debug=args.debug)
         
-        # Run Flask application
-        app.run(
-            host=args.host,
-            port=port,
-            debug=args.debug,
-            threaded=True
-        )
+        return 0
         
     except KeyboardInterrupt:
-        logger.info("🛑 Server stopped by user")
+        print_log("🛑 Server stopped by user")
+        return 0
     except Exception as e:
-        logger.error(f"❌ Failed to start human play web interface: {e}")
-        sys.exit(1)
+        print_log(f"❌ Failed to start human play web interface: {e}")
+        return 1
 
 
 if __name__ == "__main__":
-    main() 
+    sys.exit(main()) 

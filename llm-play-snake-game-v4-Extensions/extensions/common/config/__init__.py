@@ -29,10 +29,8 @@ from typing import List
 
 dataset_formats: ModuleType = import_module("extensions.common.config.dataset_formats")
 path_constants: ModuleType = import_module("extensions.common.config.path_constants")
-validation_rules: ModuleType = import_module("extensions.common.config.validation_rules")
 
 __all__: List[str] = [
     "dataset_formats",
     "path_constants",
-    "validation_rules",
 ] 

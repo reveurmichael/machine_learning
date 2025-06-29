@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and enforces the KISS (Keep It Simple, Stupid) principle across all extensions.
 
-> **See also:** `elegance.md`, `final-decision-10.md`, `no-over-preparation.md`, `factory-design-pattern.md`.
+> **See also:** `final-decision-10.md`, `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`.
 
 ## 🎯 **Core Philosophy: Simplicity as Foundation**
 
@@ -193,6 +193,25 @@ def complex_operation(data):
 - **Add Complexity Only When Needed**: Don't over-engineer
 - **Clear Purpose**: Every component should have obvious purpose
 - **Educational Focus**: Prioritize learning value over cleverness
+
+## 🔗 **Cross-References and Integration**
+
+### **Related Documents**
+- **`final-decision-10.md`**: SUPREME_RULES for KISS principles
+- **`elegance.md`**: Code quality and elegance standards
+- **`no-over-preparation.md`**: Avoiding over-engineering
+- **`factory-design-pattern.md`**: Canonical factory pattern standards
+
+### **Implementation Files**
+- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
+- **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
+- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+
+### **Educational Resources**
+- **Design Patterns**: KISS principle as foundation for all design decisions
+- **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
+- **Simple Logging**: Print statements provide clear operation visibility
+- **OOP Principles**: KISS principle demonstrates effective abstraction
 
 ---
 

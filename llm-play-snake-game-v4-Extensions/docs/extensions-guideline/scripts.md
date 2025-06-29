@@ -1,3 +1,121 @@
+# Script Architecture: Task-0 Foundations & v0.03 Extensions
+
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines script architecture patterns for Task-0 and all v0.03 extensions.
+
+> **See also:** `final-decision-10.md`, `app.md`, `dashboard.md`, `standalone.md`.
+
+## 🎯 **Core Philosophy: Perfect Task-0 Foundations + Extension Framework**
+
+Task-0 provides **three exemplary web script foundations** that demonstrate perfect MVC integration and serve as **canonical templates** for Task 1-5 extensions. These scripts embody KISS principles, SUPREME_RULES compliance, and elegant extensibility patterns.
+
+### **Task-0 Foundation Scripts (Perfect Templates)**
+- **`scripts/human_play_web.py`**: Human player web interface foundation
+- **`scripts/main_web.py`**: LLM player web interface foundation  
+- **`scripts/replay_web.py`**: Replay web interface foundation
+
+### **Educational Value**
+- **Copy-Paste Learning**: Future tasks can copy scripts exactly and modify core components
+- **Architectural Consistency**: Same MVC patterns across all tasks
+- **Extension Templates**: Clear substitution patterns for different AI approaches
+- **Design Pattern Mastery**: Template Method, Factory, Strategy, and Observer patterns
+
+## 🚀 **Task-0 Foundation Script Excellence**
+
+### **1. scripts/human_play_web.py - Human Player Foundation**
+
+**Perfect Implementation for Simple Gameplay:**
+```python
+class HumanGameApp(Task0FlaskApp):
+    """Task-0 Human Player Web Application - Foundation Excellence."""
+    
+    def setup_mvc_components(self) -> None:
+        """Set up MVC components for human gameplay."""
+        # Create game logic for human play
+        game_logic = GameLogic(grid_size=self.grid_size, use_gui=False)
+        
+        # Use factory to create MVC application
+        app, controller = create_web_application(
+            game_controller=self.game_controller,
+            game_mode="human"
+        )
+```
+
+**Extension Pattern - Copy & Replace:**
+- **Task-1**: Copy → Replace `GameLogic` with `HeuristicEngine(algorithm="BFS")`
+- **Task-3**: Copy → Replace `GameLogic` with `MLModel(model_type="XGBoost")`
+
+### **2. scripts/main_web.py - LLM Player Foundation**
+
+**Perfect Implementation for Complex Managers:**
+```python
+class LLMGameApp(Task0LLMFlaskApp):
+    """Task-0 LLM Game Web Application - Foundation Excellence."""
+    
+    def setup_mvc_components(self) -> None:
+        """Set up MVC components for LLM gameplay."""
+        # Create GameManager for Task-0
+        self.game_manager = GameManager(self.game_args)
+        self.game_manager.agent = SnakeAgent(
+            self.game_manager,
+            provider=self.game_args.provider,
+            model=self.game_args.model
+        )
+```
+
+**Extension Pattern - Copy & Replace:**
+- **Task-2**: Copy → Replace `GameManager` with `RLTrainingManager(agents=["DQN", "PPO"])`
+- **Task-4**: Copy → Replace with `DistillationManager(teacher_model, student_model)`
+
+### **3. scripts/replay_web.py - Replay Foundation**
+
+**Perfect Implementation for Replay Functionality:**
+```python
+class ReplayGameApp(BaseFlaskApp):
+    """Task-0 Replay Web Application - Foundation Excellence."""
+    
+    def setup_mvc_components(self) -> None:
+        """Set up MVC components for replay."""
+        # Create replay engine
+        self.replay_engine = ReplayEngine(log_dir=self.log_dir)
+        
+        # Use factory to create MVC application
+        app, controller = create_web_application(
+            replay_engine=self.replay_engine
+        )
+```
+
+**Extension Pattern - Universal Replay:**
+- **All Tasks**: Copy → Add task-specific replay engines and visualization
+
+## 🎓 **Extension Learning Pattern**
+
+### **Copy-Paste Workflow for Future Tasks**
+```bash
+# Task-1 Example: Copy human_play_web.py for heuristic algorithms
+cp scripts/human_play_web.py extensions/heuristics-v0.03/scripts/heuristic_web.py
+
+# Modify the copy:
+# 1. Change class name: HumanGameApp → HeuristicGameApp
+# 2. Replace component: GameLogic → HeuristicEngine
+# 3. Update game_mode: "human" → "heuristic"
+# 4. Maintain identical structure and patterns
+```
+
+### **Component Substitution Guide**
+| Task | Base Script | Replace Component | With Component |
+|------|-------------|------------------|----------------|
+| **Task-1** | `human_play_web.py` | `GameLogic` | `HeuristicEngine(algorithm)` |
+| **Task-2** | `main_web.py` | `GameManager` | `RLTrainingManager(agent_type)` |
+| **Task-3** | `human_play_web.py` | `GameLogic` | `MLModelManager(model_types)` |
+| **Task-4** | `main_web.py` | `GameManager` | `DistillationManager(models)` |
+| **Task-5** | `main_web.py` | `GameManager` | `MultiStrategyManager(strategies)` |
+
+---
+
+## 📜 **v0.03 Extension Script Architecture**
+
+> **Note**: The following section describes the mandatory script architecture for v0.03 extensions, which builds upon the Task-0 foundation patterns above.
+
 Each extension folder of v0.03 (not for v0.01, not for v0.02), will have a folder named "scripts".
 
 For v0.03, it's really important because streamlit app.py will call those scripts extensively. 

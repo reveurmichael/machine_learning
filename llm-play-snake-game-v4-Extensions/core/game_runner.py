@@ -1,4 +1,4 @@
-"""Quick-play helper for rolling out a :class:`core.game_agents.`.
+"""Quick-play helper for rolling out a :class:`core.game_agents.BaseAgent`.
 
 The module lives inside *core* so that both first- and second-citizen tasks can
 perform ad-hoc roll-outs without adding an extra dependency layer.  It remains
@@ -6,7 +6,7 @@ LLM-agnostic and depends only on other core modules plus generic utilities.
 
 Example
 -------
->>> from core.game_agents import 
+>>> from core.game_agents import BaseAgent
 >>> from core.game_runner import play
 >>> trajectory = play(my_agent, max_steps=500, render=True, seed=123)
 """
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from core.game_agents import 
+from core.game_agents import BaseAgent
 from core.game_logic import GameLogic
 
 # Optional reproducibility helper (non-core dependency is acceptable)
@@ -25,7 +25,7 @@ __all__ = ["play"]
 
 
 def play(
-    agent: ,
+    agent: BaseAgent,
     max_steps: int = 1_000,
     render: bool = False,
     *,
@@ -36,7 +36,7 @@ def play(
     Parameters
     ----------
     agent
-        Policy implementing the :class:`` protocol.
+        Policy implementing the :class:`BaseAgent` protocol.
     max_steps
         Safety cap to stop the simulation after *max_steps* even if the game
         would continue.

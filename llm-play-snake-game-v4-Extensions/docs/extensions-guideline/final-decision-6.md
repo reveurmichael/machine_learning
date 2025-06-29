@@ -1,8 +1,18 @@
-# Final Decision: Path Management Standardization
+# Final Decision 6: Path Management Standardization
+
+> **SUPREME AUTHORITY**: This document establishes the definitive path management standards for all Snake Game AI extensions.
+
+> **See also:** `unified-path-management-guide.md` (Path standards), `cwd-and-logs.md` (Working directory), `standalone.md` (Extension independence), `final-decision-10.md` (SUPREME_RULES).
 
 ## 🎯 **Executive Summary**
 
-This document establishes **mandatory path management standards** for all Snake Game AI extensions, requiring consistent use of `extensions/common/path_utils.py` utilities. This ensures reliable cross-platform operation, consistent working directory management, and eliminates path-related bugs across all extension types.
+This document establishes **mandatory path management standards** for all Snake Game AI extensions, requiring consistent use of `extensions/common/path_utils.py` utilities. This ensures reliable cross-platform operation, consistent working directory management, and eliminates path-related bugs across all extension types, strictly following `final-decision-10.md` SUPREME_RULES.
+
+### **SUPREME_RULES Integration**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making path management changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining path patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
@@ -10,6 +20,30 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`cwd-and-logs.md`**: Authoritative reference for working directory and log organization
 - **`single-source-of-truth.md`**: Ensures path consistency across all extensions
 - **`standalone.md`**: Maintains extension independence through proper path management
+
+### **Simple Logging Examples (SUPREME_RULE NO.3)**
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+
+```python
+# ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
+def ensure_project_root() -> Path:
+    """Ensure current working directory is project root"""
+    current_file = Path(__file__).resolve()
+    project_root = find_project_root(current_file)
+    
+    if os.getcwd() != str(project_root):
+        os.chdir(str(project_root))
+        print(f"[PathUtils] Changed working directory to: {project_root}")  # SUPREME_RULE NO.3
+    
+    return project_root
+
+def get_dataset_path(extension_type: str, version: str, grid_size: int, algorithm: str) -> Path:
+    """Get standardized dataset path"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / f"{extension_type}_v{version}_{timestamp}" / algorithm
+    print(f"[PathUtils] Generated dataset path: {path}")  # SUPREME_RULE NO.3
+    return path
+```
 
 ## 🛠️ **Mandatory Path Management Pattern**
 
@@ -58,6 +92,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Optional
+from datetime import datetime
 
 def ensure_project_root() -> Path:
     """
@@ -88,7 +123,7 @@ def ensure_project_root() -> Path:
     # Change working directory to project root
     if os.getcwd() != str(project_root):
         os.chdir(str(project_root))
-        print(f"Changed working directory to: {project_root}")
+        print(f"[PathUtils] Changed working directory to: {project_root}")  # Simple logging
     
     # Ensure project root is in Python path
     if str(project_root) not in sys.path:
@@ -106,14 +141,16 @@ def get_extension_path(current_file: str) -> Path:
     Returns:
         Path: Extension directory path
     """
-    return Path(current_file).resolve().parent
+    extension_path = Path(current_file).resolve().parent
+    print(f"[PathUtils] Extension path: {extension_path}")  # Simple logging
+    return extension_path
 ```
 
 ### **2. Dataset and Model Path Management**
 
 ```python
 def get_dataset_path(extension_type: str, version: str, grid_size: int, 
-                    algorithm: str, timestamp: str) -> Path:
+                    algorithm: str, timestamp: str = None) -> Path:
     """
     Get standardized dataset path following final-decision-1.md structure
     
@@ -122,16 +159,21 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int,
         version: Extension version (0.01, 0.02, 0.03, etc.)
         grid_size: Grid size used for training/generation
         algorithm: Algorithm name (bfs, astar, mlp, etc.)
-        timestamp: Session timestamp
+        timestamp: Session timestamp (auto-generated if None)
         
     Returns:
         Path: Dataset directory path
     """
+    if timestamp is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
     session_name = f"{extension_type}_v{version}_{timestamp}"
-    return Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / session_name / algorithm
+    path = Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / session_name / algorithm
+    print(f"[PathUtils] Generated dataset path: {path}")  # Simple logging
+    return path
 
 def get_model_path(extension_type: str, version: str, grid_size: int,
-                  model_name: str, timestamp: str) -> Path:
+                  model_name: str, timestamp: str = None) -> Path:
     """
     Get standardized model path following final-decision-1.md structure
     
@@ -140,13 +182,18 @@ def get_model_path(extension_type: str, version: str, grid_size: int,
         version: Extension version
         grid_size: Grid size used for training
         model_name: Model name (mlp, dqn, lora, etc.)
-        timestamp: Session timestamp
+        timestamp: Session timestamp (auto-generated if None)
         
     Returns:
         Path: Model directory path
     """
+    if timestamp is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
     session_name = f"{extension_type}_v{version}_{timestamp}"
-    return Path("logs/extensions/models") / f"grid-size-{grid_size}" / session_name / model_name
+    path = Path("logs/extensions/models") / f"grid-size-{grid_size}" / session_name / model_name
+    print(f"[PathUtils] Generated model path: {path}")  # Simple logging
+    return path
 
 def validate_path_structure(project_root: Path, extension_path: Path) -> None:
     """
@@ -159,6 +206,8 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
     Raises:
         ValueError: If path structure is invalid
     """
+    print(f"[PathUtils] Validating path structure")  # Simple logging
+    
     # Validate project root
     if not (project_root / "README.md").exists():
         raise ValueError(f"Invalid project root: {project_root}")
@@ -175,6 +224,8 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
     for file in required_files:
         if not (extension_path / file).exists():
             raise ValueError(f"Missing required file {file} in extension: {extension_path}")
+    
+    print(f"[PathUtils] Path structure validation passed")  # Simple logging
 ```
 
 ## 🔧 **Extension Implementation Patterns**
@@ -203,13 +254,20 @@ def main():
     manager.run()
 
 def setup_extension_environment():
-    """Standard setup for heuristics v0.01"""
+    """Standard extension environment setup"""
+    print(f"[HeuristicsV001] Setting up extension environment")  # Simple logging
+    
+    # Ensure project root
     project_root = ensure_project_root()
+    
+    # Get extension path
     extension_path = get_extension_path(__file__)
+    
+    # Validate structure
+    validate_path_structure(project_root, extension_path)
+    
+    print(f"[HeuristicsV001] Environment setup complete")  # Simple logging
     return project_root, extension_path
-
-if __name__ == "__main__":
-    main()
 ```
 
 ### **v0.02 Extension Pattern**
@@ -217,359 +275,125 @@ if __name__ == "__main__":
 ```python
 # extensions/heuristics-v0.02/main.py
 import argparse
-from pathlib import Path
-
-# MANDATORY: Use common path utilities
 from extensions.common.path_utils import (
     ensure_project_root, 
-    get_extension_path,
+    get_extension_path, 
+    get_dataset_path,
     validate_path_structure
 )
 
 def main():
     """Main entry point for heuristics v0.02"""
-    # Parse arguments
-    parser = argparse.ArgumentParser(description="Heuristic Snake Game AI v0.02")
-    parser.add_argument("--algorithm", choices=["BFS", "ASTAR", "DFS"], default="BFS")
-    parser.add_argument("--max-games", type=int, default=10)
-    parser.add_argument("--grid-size", type=int, default=10)
+    parser = argparse.ArgumentParser(description="Heuristics Snake Game AI v0.02")
+    parser.add_argument("--algorithm", default="bfs", help="Algorithm to use")
+    parser.add_argument("--grid-size", type=int, default=10, help="Grid size")
     args = parser.parse_args()
     
     # Standard setup
     project_root, extension_path = setup_extension_environment()
     
+    # Get dataset path for this run
+    dataset_path = get_dataset_path(
+        extension_type="heuristics",
+        version="0.02",
+        grid_size=args.grid_size,
+        algorithm=args.algorithm
+    )
+    
     # Extension-specific logic
     from game_manager import HeuristicGameManager
-    from agents import create_heuristic_agent
+    from agents import AgentFactory
     
-    # Initialize with path-aware configuration
-    agent = create_heuristic_agent(args.algorithm, grid_size=args.grid_size)
-    manager = HeuristicGameManager(args, extension_path)
+    # Create agent using factory pattern
+    agent = AgentFactory.create(args.algorithm, grid_size=args.grid_size)
+    
+    # Initialize and run
+    manager = HeuristicGameManager(agent=agent, dataset_path=dataset_path)
     manager.run()
 
 def setup_extension_environment():
-    """Standard setup for heuristics v0.02"""
+    """Standard extension environment setup"""
+    print(f"[HeuristicsV002] Setting up extension environment")  # Simple logging
+    
+    # Ensure project root
     project_root = ensure_project_root()
+    
+    # Get extension path
     extension_path = get_extension_path(__file__)
+    
+    # Validate structure
     validate_path_structure(project_root, extension_path)
-    return project_root, extension_path
-
-if __name__ == "__main__":
-    main()
-```
-
-### **v0.03 Extension Pattern**
-
-```python
-# extensions/heuristics-v0.03/app.py
-import streamlit as st
-from pathlib import Path
-
-# MANDATORY: Use common path utilities
-from extensions.common.path_utils import (
-    ensure_project_root,
-    get_extension_path,
-    get_dataset_path,
-    validate_path_structure
-)
-
-class HeuristicSnakeApp:
-    """Streamlit app for heuristics v0.03"""
     
-    def __init__(self):
-        # Standard setup
-        self.project_root, self.extension_path = setup_extension_environment()
-        self.setup_page_config()
-        self.main()
-    
-    def setup_extension_environment(self):
-        """Standard setup for heuristics v0.03"""
-        project_root = ensure_project_root()
-        extension_path = get_extension_path(__file__)
-        validate_path_structure(project_root, extension_path)
-        return project_root, extension_path
-    
-    def generate_dataset(self, algorithm: str, max_games: int, grid_size: int):
-        """Generate dataset using standardized paths"""
-        from datetime import datetime
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        dataset_path = get_dataset_path(
-            extension_type="heuristics",
-            version="0.03",
-            grid_size=grid_size,
-            algorithm=algorithm.lower(),
-            timestamp=timestamp
-        )
-        
-        # Create dataset directory
-        dataset_path.mkdir(parents=True, exist_ok=True)
-        
-        # Generate dataset using standardized path
-        self._generate_csv_dataset(dataset_path, algorithm, max_games, grid_size)
-    
-    def _generate_csv_dataset(self, dataset_path: Path, algorithm: str, 
-                            max_games: int, grid_size: int):
-        """Generate CSV dataset with grid-size agnostic features"""
-        # Implementation using standardized paths
-        print(f"[DatasetGenerator] Generating CSV dataset for {algorithm}")  # SUPREME_RULE NO.3
-        
-        # Create dataset directory
-        dataset_path.mkdir(parents=True, exist_ok=True)
-        
-        # Generate game data
-        game_data = []
-        for game_id in range(max_games):
-            game_result = self._run_single_game(algorithm, grid_size)
-            game_data.extend(self._extract_features(game_result, game_id))
-        
-        # Save to CSV
-        csv_path = dataset_path / f"{algorithm}_data.csv"
-        self._save_to_csv(game_data, csv_path)
-        
-        print(f"[DatasetGenerator] CSV dataset saved to {csv_path}")  # SUPREME_RULE NO.3
-    
-    def main(self):
-        """Main Streamlit interface"""
-        st.title("Heuristic Snake AI - v0.03")
-        
-        # Setup sidebar controls
-        with st.sidebar:
-            st.header("Configuration")
-            algorithm = st.selectbox("Algorithm", ["BFS", "A*", "DFS", "Hamiltonian"])
-            grid_size = st.slider("Grid Size", 8, 20, 10)
-            max_games = st.number_input("Max Games", 1, 100, 10)
-        
-        # Main content area
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.subheader(f"{algorithm} Algorithm")
-            
-            # Algorithm controls
-            if st.button("Run Algorithm"):
-                self.run_algorithm(algorithm, grid_size, max_games)
-            
-            if st.button("Generate Dataset"):
-                self.generate_dataset(algorithm, grid_size, max_games)
-        
-        with col2:
-            st.subheader("Results")
-            # Results display area
-
-if __name__ == "__main__":
-    HeuristicSnakeApp()
-```
-
-## 🚫 **Forbidden Patterns**
-
-### **❌ Manual Path Construction**
-
-```python
-# FORBIDDEN: Manual path construction
-import os
-import sys
-
-# ❌ Don't do this
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.join(current_dir, "..", "..")
-sys.path.insert(0, project_root)
-os.chdir(project_root)
-```
-
-### **❌ Hardcoded Paths**
-
-```python
-# FORBIDDEN: Hardcoded paths
-# ❌ Don't do this
-dataset_path = "logs/extensions/datasets/grid-size-10/heuristics_v0.03_20250625_143022/bfs/processed_data/"
-model_path = "logs/extensions/models/grid-size-10/supervised_v0.02_20250625_143022/mlp/model_artifacts/"
-```
-
-### **❌ Relative Path Assumptions**
-
-```python
-# FORBIDDEN: Assumptions about working directory
-# ❌ Don't do this
-with open("config.json", "r") as f:  # Assumes working directory
-    config = json.load(f)
-```
-
-## ✅ **Required Migration Steps**
-
-### **For Existing Extensions**
-
-1. **Update imports**:
-```python
-# OLD
-import os
-import sys
-from pathlib import Path
-
-# NEW
-from extensions.common.path_utils import ensure_project_root, get_extension_path
-```
-
-2. **Replace setup code**:
-```python
-# OLD
-def find_project_root():
-    current = Path(__file__).resolve()
-    while current.parent != current:
-        if (current / "README.md").exists():
-            return current
-        current = current.parent
-    raise RuntimeError("Could not find project root")
-
-project_root = find_project_root()
-os.chdir(project_root)
-sys.path.insert(0, str(project_root))
-
-# NEW
-project_root, extension_path = setup_extension_environment()
-```
-
-3. **Update path construction**:
-```python
-# OLD
-dataset_path = f"logs/extensions/datasets/grid-size-{grid_size}/{session_name}/"
-
-# NEW
-dataset_path = get_dataset_path(extension_type, version, grid_size, algorithm, timestamp)
-```
-
-### **For New Extensions**
-
-1. **Always start with standard setup**:
-```python
-from extensions.common.path_utils import ensure_project_root, get_extension_path
-
-def setup_extension_environment():
-    project_root = ensure_project_root()
-    extension_path = get_extension_path(__file__)
+    print(f"[HeuristicsV002] Environment setup complete")  # Simple logging
     return project_root, extension_path
 ```
 
-2. **Use standardized path functions**:
+## 🏭 **Factory Pattern Integration**
+
+### **Path Factory Pattern**
 ```python
-from extensions.common.path_utils import get_dataset_path, get_model_path
-
-# For dataset generation
-dataset_path = get_dataset_path("heuristics", "0.03", 10, "bfs", timestamp)
-
-# For model saving
-model_path = get_model_path("supervised", "0.02", 10, "mlp", timestamp)
-```
-
-## 🧪 **Validation and Testing**
-
-### **Path Compliance Checker**
-
-```python
-# scripts/validate_path_compliance.py
-import subprocess
-import sys
-from pathlib import Path
-
-def validate_extension_paths():
-    """Validate that all extensions use standardized path management"""
-    extensions_dir = Path("extensions")
+# extensions/common/utils/path_factory.py
+class PathFactory:
+    """
+    Factory for creating path objects
     
-    for extension in extensions_dir.glob("*"):
-        if extension.is_dir() and extension.name != "common":
-            validate_extension(extension)
-
-def validate_extension(extension_path: Path):
-    """Validate single extension path compliance"""
-    python_files = list(extension_path.rglob("*.py"))
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create appropriate path objects based on type and context
+    Educational Value: Shows how canonical factory patterns work with path management
     
-    for py_file in python_files:
-        with open(py_file, 'r') as f:
-            content = f.read()
-            
-        # Check for forbidden patterns
-        if "os.chdir(" in content and "ensure_project_root" not in content:
-            print(f"WARNING: {py_file} uses manual os.chdir() without ensure_project_root()")
-        
-        # Check for hardcoded paths
-        if "logs/extensions/" in content and "get_dataset_path" not in content:
-            print(f"WARNING: {py_file} uses hardcoded extension paths")
-            
-        # Check for relative path assumptions
-        if "open(" in content and "Path(" not in content:
-            print(f"WARNING: {py_file} may use relative path assumptions")
-            
-        if "sys.path.insert" in content and "ensure_project_root" not in content:
-            print(f"WARNING: {py_file} uses manual sys.path.insert() without ensure_project_root()")
-            
-        # Check for required imports
-        if "from extensions.common.path_utils import" not in content:
-            print(f"WARNING: {py_file} does not import from extensions.common.path_utils")
-
-if __name__ == "__main__":
-    validate_extension_paths()
+    Reference: final-decision-10.md for canonical method naming
+    """
+    
+    _registry = {
+        "DATASET": get_dataset_path,
+        "MODEL": get_model_path,
+        "EXTENSION": get_extension_path,
+        "PROJECT_ROOT": ensure_project_root,
+    }
+    
+    @classmethod
+    def create(cls, path_type: str, **kwargs):  # CANONICAL create() method
+        """Create path using canonical create() method (SUPREME_RULES compliance)"""
+        path_func = cls._registry.get(path_type.upper())
+        if not path_func:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown path type: {path_type}. Available: {available}")
+        print(f"[PathFactory] Creating path: {path_type}")  # Simple logging
+        return path_func(**kwargs)
 ```
 
-## 📋 **Compliance Checklist**
+## 🎓 **Educational Value and Learning Path**
 
-### **All Extensions Must**:
-- [ ] Import from `extensions.common.path_utils`
-- [ ] Use `ensure_project_root()` for working directory management
-- [ ] Use `get_extension_path(__file__)` for extension-specific paths
-- [ ] Use `get_dataset_path()` and `get_model_path()` for data paths
-- [ ] Call `validate_path_structure()` in setup functions
-- [ ] Avoid manual path construction or hardcoded paths
-- [ ] Avoid assumptions about working directory
+### **Learning Objectives**
+- **Path Management**: Understanding cross-platform path handling
+- **Working Directory**: Learning to manage working directories properly
+- **Factory Patterns**: Understanding canonical factory pattern implementation
+- **Extension Independence**: Learning to create standalone extensions
 
-### **Validation Commands**:
-```bash
-# Run path compliance validation
-python scripts/validate_path_compliance.py
+### **Implementation Examples**
+- **Extension Setup**: How to set up extensions with proper path management
+- **Path Generation**: How to generate consistent paths across extensions
+- **Validation**: How to validate path structures
+- **Factory Integration**: How to integrate path management with factory patterns
 
-# Test extension in isolation
-cd /tmp
-python /path/to/extension/main.py  # Should work from any directory
-```
+## 🔗 **Integration with Other Documentation**
 
-## 🎯 **Benefits of Standardized Path Management**
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`unified-path-management-guide.md`**: Detailed path management standards
+- **`cwd-and-logs.md`**: Working directory and log organization
+- **`standalone.md`**: Extension independence principles
+- **`single-source-of-truth.md`**: Architectural principles
 
-### **1. Cross-Platform Compatibility**
-- **Windows, macOS, Linux**: Consistent behavior across all platforms
-- **Path separators**: Automatic handling of `/` vs `\`
-- **Working directory**: Reliable operation regardless of launch location
-
-### **2. Extension Isolation**
-- **Independent operation**: Each extension can run from any directory
-- **No side effects**: Changes to working directory are contained
-- **Predictable behavior**: Consistent path resolution across all extensions
-
-### **3. Maintainability**
-- **Single source of truth**: All path logic in common utilities
-- **Easy updates**: Path changes only need to be made in one place
-- **Consistent patterns**: Same approach across all extensions
-
-### **4. Educational Value**
-- **Best practices**: Demonstrates proper path management
-- **Design patterns**: Shows Facade and Template Method patterns
-- **Error prevention**: Eliminates common path-related bugs
-
-## 🚀 **Implementation Timeline**
-
-### **Phase 1: Core Infrastructure**
-1. Implement `extensions/common/path_utils.py` with all required functions
-2. Create validation script for path compliance
-3. Update documentation with usage examples
-
-### **Phase 2: Extension Migration**
-1. Update all existing extensions to use new pattern
-2. Test each extension from different working directories
-3. Validate cross-platform compatibility
-
-### **Phase 3: Enforcement**
-1. Add path compliance checks to CI/CD pipeline
-2. Create automated testing for path management
-3. Document migration guide for future extensions
+### **Extension Guidelines**
+This path management system supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All extension versions (v0.01, v0.02, v0.03)
+- Cross-platform compatibility
+- Consistent path organization across all extensions
 
 ---
 
-**This standardized path management system ensures reliable, maintainable, and cross-platform extension development while eliminating common path-related bugs and providing a consistent development experience across all Snake Game AI extensions.** 
+**This path management standardization ensures reliable, consistent, and cross-platform path handling across all Snake Game AI extensions while maintaining SUPREME_RULES compliance.**
+
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project. 

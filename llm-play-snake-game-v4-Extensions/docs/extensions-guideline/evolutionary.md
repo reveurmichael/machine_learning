@@ -14,6 +14,54 @@ Evolutionary algorithms use **population-based optimization** to evolve solution
 - **Fitness Landscapes**: Exploring how fitness functions guide evolution
 - **Multi-Objective Optimization**: Balancing competing objectives
 
+## 🏗️ **Factory Pattern: Canonical Method is create()**
+
+All evolutionary algorithm factories must use the canonical method name `create()` for instantiation, not `create_individual()`, `create_population()`, or any other variant. This ensures consistency and aligns with the KISS principle.
+
+### **Evolutionary Factory Implementation (SUPREME_RULES Compliant)**
+```python
+class EvolutionaryFactory:
+    """
+    Factory Pattern for Evolutionary Algorithm components following final-decision-10.md SUPREME_RULES
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for evolutionary AI components
+    Educational Value: Shows how SUPREME_RULES apply to population-based AI systems -
+    canonical patterns work regardless of AI complexity.
+    
+    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    """
+    
+    _registry = {
+        "INDIVIDUAL": SnakeIndividual,
+        "POPULATION": EvolutionaryPopulation,
+        "GENETIC_OPERATORS": GeneticOperators,
+        "FITNESS_EVALUATOR": FitnessEvaluator,
+        "EVOLUTIONARY_ALGORITHM": EvolutionaryAlgorithm,
+    }
+    
+    @classmethod
+    def create(cls, component_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
+        """Create evolutionary component using canonical create() method following final-decision-10.md"""
+        component_class = cls._registry.get(component_type.upper())
+        if not component_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown evolutionary component: {component_type}. Available: {available}")
+        print(f"[EvolutionaryFactory] Creating component: {component_type}")  # Simple logging - SUPREME_RULES
+        return component_class(**kwargs)
+
+# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
+class EvolutionaryFactory:
+    def create_individual(self, component_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def build_population(self, component_type: str):  # FORBIDDEN - not canonical
+        pass
+    
+    def make_evolutionary_component(self, component_type: str):  # FORBIDDEN - not canonical
+        pass
+```
+
 ## 🧬 **Evolutionary Algorithm Components**
 
 ### **1. Individual Representation**
@@ -73,15 +121,15 @@ class EvolutionaryPopulation:
         """Initialize population with random individuals."""
         self.individuals = []
         for i in range(self.population_size):
-            individual = self._create_random_individual()
+            individual = self._generate_random_individual()  # Updated method name
             individual.generation = self.generation
             individual.parent_ids = [i]  # Self as parent for initial generation
             self.individuals.append(individual)
         
         print(f"[EvolutionaryPopulation] Created random population of {len(self.individuals)} individuals")  # Simple logging
     
-    def _create_random_individual(self) -> SnakeIndividual:
-        """Create a random individual."""
+    def _generate_random_individual(self) -> SnakeIndividual:  # Updated method name
+        """Generate a random individual."""
         strategy_weights = [random.uniform(-1.0, 1.0) for _ in range(self.individual_length)]
         mutation_rate = random.uniform(0.01, 0.1)
         crossover_preference = random.uniform(0.0, 1.0)
@@ -214,7 +262,7 @@ class FitnessEvaluator:
         
         for game_id in range(self.num_games):
             # Create agent with individual's strategy
-            agent = self._create_agent_from_individual(individual)
+            agent = self._generate_agent_from_individual(individual)  # Updated method name
             
             # Run game simulation
             game_result = self.game_simulator.run_game(agent)
@@ -241,8 +289,8 @@ class FitnessEvaluator:
         print(f"[FitnessEvaluator] Individual {id(individual)} fitness: {fitness:.3f}")  # Simple logging
         return fitness
     
-    def _create_agent_from_individual(self, individual: SnakeIndividual) -> SnakeAgent:
-        """Create a snake agent from individual's genetic material."""
+    def _generate_agent_from_individual(self, individual: SnakeIndividual) -> SnakeAgent:  # Updated method name
+        """Generate a snake agent from individual's genetic material."""
         return SnakeAgent(
             strategy_weights=individual.strategy_weights,
             grid_size=self.grid_size
@@ -294,8 +342,8 @@ class EvolutionaryAlgorithm:
             best_individuals_gen = self._select_best_individuals()
             best_individuals.append(best_individuals_gen[0])  # Keep best from each generation
             
-            # Create next generation
-            self._create_next_generation()
+            # Generate next generation
+            self._generate_next_generation()  # Updated method name
             
             # Print generation statistics
             self._print_generation_stats(generation)
@@ -323,15 +371,15 @@ class EvolutionaryAlgorithm:
         print(f"[EvolutionaryAlgorithm] Selected {len(selected)} best individuals")  # Simple logging
         return selected
     
-    def _create_next_generation(self) -> None:
-        """Create next generation through crossover and mutation."""
+    def _generate_next_generation(self) -> None:  # Updated method name
+        """Generate next generation through crossover and mutation."""
         new_individuals = []
         
         # Elitism: keep best individual unchanged
         best_individual = max(self.population.individuals, key=lambda x: x.fitness_score)
         new_individuals.append(best_individual)
         
-        # Create offspring through crossover and mutation
+        # Generate offspring through crossover and mutation
         while len(new_individuals) < self.population.population_size:
             # Select parents for crossover
             parent1, parent2 = self._select_parents()
@@ -352,7 +400,7 @@ class EvolutionaryAlgorithm:
         self.population.individuals = new_individuals
         self.population.generation += 1
         
-        print(f"[EvolutionaryAlgorithm] Created new generation with {len(new_individuals)} individuals")  # Simple logging
+        print(f"[EvolutionaryAlgorithm] Generated new generation with {len(new_individuals)} individuals")  # Simple logging
     
     def _select_parents(self) -> Tuple[SnakeIndividual, SnakeIndividual]:
         """Select two parents for crossover using tournament selection."""

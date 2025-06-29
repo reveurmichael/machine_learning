@@ -2,9 +2,24 @@
 
 > **SUPREME AUTHORITY**: This document establishes the definitive agent naming conventions and implementation standards for the Snake Game AI project.
 
+> **See also:** `agents.md` (Agent implementation standards), `naming-conventions.md` (Naming standards), `factory-design-pattern.md` (Factory patterns), `final-decision-10.md` (SUPREME_RULES).
+
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive naming conventions** for agent files and classes across all Snake Game AI extensions. It standardizes the file naming pattern, class naming pattern, and directory organization to ensure consistency, clarity, and maintainability across all algorithm types and extension versions.
+This document establishes the **definitive naming conventions** for agent files and classes across all Snake Game AI extensions. It standardizes the file naming pattern, class naming pattern, and directory organization to ensure consistency, clarity, and maintainability across all algorithm types and extension versions, strictly following `final-decision-10.md` SUPREME_RULES.
+
+### **SUPREME_RULES Integration**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making agent naming changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining agent patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
+
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`agents.md`**: Authoritative reference for agent implementation standards
+- **`naming-conventions.md`**: Authoritative reference for naming standards
+- **`factory-design-pattern.md`**: Authoritative reference for factory pattern implementation
+- **`single-source-of-truth.md`**: Ensures naming consistency across all extensions
 
 ## 📁 **DECISION: Standardized Agent Naming Pattern**
 
@@ -198,50 +213,38 @@ following the standardized agent interface and naming conventions.
 Classes:
     {Algorithm}Agent: Main agent implementation
     
-Dependencies:
-    - BaseAgent from core.game_agents
-    - Algorithm-specific libraries and utilities
-    
-Usage:
-    from agents.agent_{algorithm} import {Algorithm}Agent
-    
-    agent = {Algorithm}Agent(grid_size=10)
-    move = agent.plan_move(game_state)
+Design Pattern: Strategy Pattern
+Purpose: Implements {Algorithm} algorithm for Snake game decision making
+Educational Value: Demonstrates {Algorithm} implementation with canonical patterns
+
+Reference: final-decision-10.md for SUPREME_RULES compliance
 """
 
-from typing import Dict, List, Tuple, Any, Optional
-from core.game_agents import BaseAgent
+from abc import ABC, abstractmethod
+from typing import Dict, Any, List, Tuple
+import numpy as np
+
+from core.agents.base_agent import BaseAgent
+from extensions.common.utils.path_utils import get_dataset_path
+from extensions.common.validation.dataset_validator import validate_dataset_format
 
 class {Algorithm}Agent(BaseAgent):
     """
     {Algorithm} agent for Snake Game AI.
     
-    This class implements the {Algorithm} algorithm for Snake game playing,
-    providing optimal/near-optimal pathfinding and decision making.
+    Design Pattern: Strategy Pattern (Canonical Implementation)
+    Purpose: Implements {Algorithm} algorithm for Snake game decision making
+    Educational Value: Shows how {Algorithm} works with canonical factory patterns
     
-    Attributes:
-        algorithm_name (str): Name of the algorithm ("ALGORITHM_NAME")
-        grid_size (int): Size of the game grid
-        performance_stats (dict): Algorithm performance statistics
-        
-    Example:
-        >>> agent = {Algorithm}Agent(grid_size=10)
-        >>> move = agent.plan_move(game_state)
-        >>> print(f"Next move: {move}")
+    Reference: final-decision-10.md for canonical method naming
     """
     
-    def __init__(self, grid_size: int, **kwargs):
-        """
-        Initialize {Algorithm} agent.
-        
-        Args:
-            grid_size: Size of the game grid (NxN)
-            **kwargs: Additional algorithm-specific parameters
-        """
-        super().__init__(name="{ALGORITHM_NAME}", grid_size=grid_size)
-        self.algorithm_name = "{ALGORITHM_NAME}"
-        # Algorithm-specific initialization
-        
+    def __init__(self, name: str, grid_size: int, **kwargs):
+        super().__init__(name, grid_size)
+        self.algorithm_name = "{Algorithm}"
+        self.config = kwargs
+        print(f"[{Algorithm}Agent] Initialized {name} agent")  # Simple logging
+    
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """
         Plan next move using {Algorithm} algorithm.
@@ -250,194 +253,96 @@ class {Algorithm}Agent(BaseAgent):
             game_state: Current game state dictionary
             
         Returns:
-            Next move direction ('UP', 'DOWN', 'LEFT', 'RIGHT')
-            
-        Raises:
-            ValueError: If game state is invalid
-            RuntimeError: If no valid move can be found
+            Move direction ('UP', 'DOWN', 'LEFT', 'RIGHT')
         """
-        # Algorithm-specific implementation
-        print(f"[{self.algorithm_name}] Planning move")  # SUPREME_RULE NO.3
+        print(f"[{self.name}] Planning move using {self.algorithm_name}")  # Simple logging
         
-        # Extract game state components
-        head_pos = game_state.get('snake_positions', [[]])[0]
-        apple_pos = game_state.get('apple_position', [])
+        # {Algorithm} implementation here
+        # This is where the specific algorithm logic goes
         
-        # Algorithm-specific logic here
-        move = self._calculate_move(head_pos, apple_pos, game_state)
-        
-        print(f"[{self.algorithm_name}] Selected move: {move}")  # SUPREME_RULE NO.3
+        move = self._implement_{algorithm_lower}(game_state)
+        print(f"[{self.name}] {self.algorithm_name} decided: {move}")  # Simple logging
         return move
-        
-    def reset(self) -> None:
-        """Reset agent state for new game"""
-        # Algorithm-specific reset logic
-        print(f"[{self.algorithm_name}] Resetting agent state")  # SUPREME_RULE NO.3
-        # Reset algorithm-specific state variables
+    
+    def _implement_{algorithm_lower}(self, game_state: Dict[str, Any]) -> str:
+        """Implement {Algorithm} algorithm logic"""
+        # Algorithm-specific implementation
+        # This method contains the core {Algorithm} logic
+        pass
+```
 
-### **Agent Factory Integration**
+### **Factory Pattern Integration**
 ```python
-# agents/__init__.py - Factory pattern implementation
-"""
-Agent factory for creating algorithm instances.
-
-This module provides a centralized factory for creating agent instances
-following the standardized naming conventions.
-"""
-
-from typing import Dict, Type, Any
-from .agent_bfs import BFSAgent
-from .agent_astar import AStarAgent
-from .agent_hamiltonian import HamiltonianAgent
-# Import all other agents following the pattern
-
+# agent_factory.py
 class AgentFactory:
     """
-    Factory for creating agent instances using standardized naming.
+    Factory for creating agent instances
     
-    Design Patterns:
-    - Factory Pattern: Centralized agent creation
-    - Registry Pattern: Algorithm name to class mapping
-    - Strategy Pattern: Pluggable algorithm implementations
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create appropriate agent instances based on algorithm type
+    Educational Value: Shows how canonical factory patterns work with agent naming
+    
+    Reference: final-decision-10.md for canonical method naming
     """
     
-    # Registry follows naming convention: algorithm_name -> AgentClass
-    _agents: Dict[str, Type[BaseAgent]] = {
-        'BFS': BFSAgent,
-        'ASTAR': AStarAgent,
-        'A*': AStarAgent,  # Alias
-        'HAMILTONIAN': HamiltonianAgent,
-        'HAM': HamiltonianAgent,  # Alias
-        'MLP': MLPAgent,
-        'CNN': CNNAgent,
-        'LSTM': LSTMAgent,
-        'XGBOOST': XGBoostAgent,
-        'LIGHTGBM': LightGBMAgent,
-        'DQN': DQNAgent,
-        'PPO': PPOAgent,
-        'LORA': LoRAAgent,
-        'DISTILLED': DistilledAgent,
+    _registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
+        "HAMILTONIAN": HamiltonianAgent,
+        "MLP": MLPAgent,
+        "CNN": CNNAgent,
+        "LSTM": LSTMAgent,
+        "XGBOOST": XGBoostAgent,
+        "DQN": DQNAgent,
+        "PPO": PPOAgent,
+        "LORA": LoRAAgent,
+        "DISTILLED": DistilledAgent,
     }
     
     @classmethod
-    def create(cls, algorithm: str, grid_size: int, **kwargs) -> BaseAgent:
-        """
-        Create agent instance by algorithm name.
-        
-        Args:
-            algorithm: Algorithm name (case-insensitive)
-            grid_size: Game grid size
-            **kwargs: Algorithm-specific parameters
-            
-        Returns:
-            Initialized agent instance
-            
-        Raises:
-            ValueError: If algorithm is not supported
-            
-        Example:
-            >>> agent = AgentFactory.create("BFS", grid_size=10)
-            >>> agent = AgentFactory.create("MLP", grid_size=10, hidden_size=128)
-        """
-        algorithm_upper = algorithm.upper()
-        
-        if algorithm_upper not in cls._agents:
-            available = ', '.join(sorted(cls._agents.keys()))
-            raise ValueError(f"Unknown algorithm '{algorithm}'. Available: {available}")
-        
-        agent_class = cls._agents[algorithm_upper]
-        return agent_class(grid_size=grid_size, **kwargs)
-    
-    @classmethod
-    def get_available_algorithms(cls) -> List[str]:
-        """Get list of available algorithm names"""
-        return sorted(list(cls._agents.keys()))
-    
-    @classmethod
-    def register_agent(cls, name: str, agent_class: Type[BaseAgent]) -> None:
-        """
-        Register new agent class.
-        
-        Args:
-            name: Algorithm name (will be uppercased)
-            agent_class: Agent class following naming convention
-        """
-        cls._agents[name.upper()] = agent_class
-
-# Convenience function following naming convention
-def create_agent(algorithm: str, grid_size: int, **kwargs) -> BaseAgent:
-    """Create agent instance - convenience function"""
-    return AgentFactory.create(algorithm, grid_size, **kwargs)
+    def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical create() method (SUPREME_RULES compliance)"""
+        agent_class = cls._registry.get(agent_type.upper())
+        if not agent_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
+        print(f"[AgentFactory] Creating agent: {agent_type}")  # Simple logging
+        return agent_class(**kwargs)
 ```
 
-### **Import Patterns**
-```python
-# ✅ STANDARDIZED IMPORT PATTERNS:
+## 🎓 **Educational Value and Learning Path**
 
-# From specific agent file
-from agents.agent_bfs import BFSAgent
-from agents.agent_astar import AStarAgent
-from agents.agent_mlp import MLPAgent
+### **Learning Objectives**
+- **Naming Conventions**: Understanding the importance of consistent naming
+- **File Organization**: Learning to organize code with clear patterns
+- **Factory Patterns**: Understanding canonical factory pattern implementation
+- **Code Maintainability**: Learning to write maintainable, predictable code
 
-# From factory (recommended for dynamic creation)
-from agents import AgentFactory, create_agent
+### **Implementation Examples**
+- **Agent Creation**: How to create agents following naming conventions
+- **Factory Integration**: How to integrate agents with factory patterns
+- **File Organization**: How to organize agent files consistently
+- **Naming Compliance**: How to follow established naming conventions
 
-# Extension-level imports
-from extensions.heuristics_v0_03.agents.agent_bfs import BFSAgent
-from extensions.supervised_v0_02.models.neural_networks.agent_mlp import MLPAgent
+## 🔗 **Integration with Other Documentation**
 
-# Factory usage
-agent = AgentFactory.create("BFS", grid_size=10)
-agent = create_agent("MLP", grid_size=10, hidden_size=256)
-```
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`agents.md`**: Detailed agent implementation standards
+- **`naming-conventions.md`**: Comprehensive naming standards
+- **`factory-design-pattern.md`**: Factory pattern implementation
+- **`single-source-of-truth.md`**: Architectural principles
 
-## 🔍 **Special Naming Cases**
+### **Extension Guidelines**
+This naming convention supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All algorithm types (pathfinding, ML, RL, LLM)
+- Consistent file and class organization
+- Predictable import and usage patterns
 
-### **Multi-Word Algorithms**
-```
+---
 
-### **Algorithm Variants and Inheritance**
-```python
-# ✅ INHERITANCE PATTERNS following naming convention:
+**This agent naming convention ensures consistent, clear, and maintainable agent organization across all Snake Game AI extensions while maintaining SUPREME_RULES compliance.**
 
-# Base algorithm
-class BFSAgent(BaseAgent):
-    """Base BFS implementation"""
-    def __init__(self, grid_size: int):
-        super().__init__(name="BFS", grid_size=grid_size)
-        print(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULE NO.3
-    
-    def _calculate_move(self, head_pos, apple_pos, game_state):
-        """BFS pathfinding implementation"""
-        # BFS algorithm logic here
-        return "UP"  # Default move
-
-# Enhanced variants inherit from base
-class BFSSafeGreedyAgent(BFSAgent):
-    """BFS with safety checks and greedy optimization"""
-    def __init__(self, grid_size: int):
-        super().__init__(grid_size)
-        self.safety_threshold = 0.8
-        print(f"[BFSSafeGreedyAgent] Initialized with safety checks")  # SUPREME_RULE NO.3
-
-class BFSHamiltonianAgent(BFSSafeGreedyAgent):
-    """BFS with Hamiltonian path concepts"""
-    def __init__(self, grid_size: int):
-        super().__init__(grid_size)
-        self.hamiltonian_cycle = self._generate_hamiltonian_cycle()
-        print(f"[BFSHamiltonianAgent] Initialized with Hamiltonian cycle")  # SUPREME_RULE NO.3
-
-# Independent but related algorithms
-class AStarAgent(BaseAgent):
-    """A* pathfinding algorithm"""
-    def __init__(self, grid_size: int):
-        super().__init__(name="A*", grid_size=grid_size)
-        print(f"[AStarAgent] Initialized A* agent")  # SUPREME_RULE NO.3
-
-class AStarHamiltonianAgent(AStarAgent):
-    """A* with Hamiltonian optimization"""
-    def __init__(self, grid_size: int):
-        super().__init__(grid_size)
-        self.hamiltonian_weight = 0.3
-        print(f"[AStarHamiltonianAgent] Initialized with Hamiltonian optimization")  # SUPREME_RULE NO.3
-```
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.

@@ -2,12 +2,17 @@
 
 > **SUPREME AUTHORITY**: This document establishes the definitive standards for simple utility functions following SUPREME_RULE NO.3.
 
+> **See also:** `utils.md` (Utility standards), `elegance.md` (Code quality), `no-over-preparation.md` (Simplicity principles), `final-decision-10.md` (SUPREME_RULES).
+
 ## 🎯 **Core Philosophy: Lightweight, OOP-Based Common Utilities**
 
-### **Guidelines Alignment**
+The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered, strictly following `final-decision-10.md` SUPREME_RULES.
+
+### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making utility architectural changes to ensure comprehensive understanding
 - **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
 - **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining utility patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
@@ -41,8 +46,6 @@ def register_validator(data_type: str, validator_func):
     _validators[data_type] = validator_func
 ```
 
-The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered.
-
 ## 🎯 **Executive Summary**
 
 This document establishes **lightweight utility functions** for the Snake Game AI project following **SUPREME_RULE NO.3**: "The extensions/common/ folder should stay lightweight and generic." Complex singleton patterns have been simplified to simple, easy-to-understand functions.
@@ -72,10 +75,6 @@ The project includes a robust singleton implementation in `ROOT/utils/singleton_
 
 #### **1. Simple Path Management Functions**
 ```python
-from abc import ABC, abstractmethod
-from utils.singleton_utils import SingletonABCMeta
-
-# SUPREME_RULE NO.3: Simple path functions instead of complex managers
 from datetime import datetime
 from pathlib import Path
 
@@ -105,7 +104,7 @@ def validate_grid_size(grid_size: int):
     print(f"[Path] Grid size {grid_size} is valid")
 ```
 
-#### **2. ConfigurationManager**
+#### **2. Simple Configuration Access**
 ```python
 # SUPREME_RULE NO.3: Simple configuration access instead of complex singletons
 def get_universal_config(module: str, key: str):
@@ -137,7 +136,7 @@ def get_extension_config(module: str, key: str, default=None):
     return local_config.get(key, default)
 ```
 
-#### **3. ValidationRegistry**
+#### **3. Simple Validation Functions**
 ```python
 # SUPREME_RULE NO.3: Simple validation functions instead of complex registries
 _validators = {}  # Simple module-level registry
@@ -169,7 +168,7 @@ def get_schema(schema_type: str, version: str = "latest"):
     return []
 ```
 
-#### **4. DatasetSchemaManager**
+#### **4. Simple Schema Management**
 ```python
 # SUPREME_RULE NO.3: Simple schema functions instead of complex managers
 def get_csv_schema(grid_size: int, version: str = "v1"):
@@ -198,256 +197,98 @@ def extract_features(game_state, grid_size: int):
     return features
 
 def validate_dataset_compatibility(dataset_path: str, expected_schema: str):
-    """Simple dataset validation"""
-    print(f"[Validation] Checking dataset {dataset_path} against {expected_schema}")
-    # Simple validation without complex class hierarchies
-    return True  # Flexible validation following SUPREME_RULE NO.3
+    """Simple dataset compatibility validation"""
+    print(f"[Validation] Validating dataset compatibility: {dataset_path}")
+    
+    # Simple validation without complex classes
+    if not dataset_path.endswith('.csv'):
+        print(f"[Validation] Dataset must be CSV format")
+        return False
+    
+    print(f"[Validation] Dataset compatibility validated")
+    return True
 ```
 
-## ❌ **NON-SINGLETON CLASSES**
+## 🏭 **Factory Pattern Integration**
 
-### **Classes That Should NOT Be Singletons**
-
-#### **1. Game-Specific Classes**
+### **Simple Factory Functions**
 ```python
-# ❌ NOT SINGLETONS - Need multiple instances
+# SUPREME_RULE NO.3: Simple factory functions instead of complex classes
+def create_agent_factory():
+    """Simple agent factory creation"""
+    print(f"[Factory] Creating agent factory")
+    
+    registry = {
+        "BFS": BFSAgent,
+        "ASTAR": AStarAgent,
+        "DFS": DFSAgent,
+    }
+    
+    def create(agent_type: str, **kwargs):  # CANONICAL create() method
+        """Create agent using canonical create() method (SUPREME_RULES compliance)"""
+        agent_class = registry.get(agent_type.upper())
+        if not agent_class:
+            available = list(registry.keys())
+            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
+        print(f"[Factory] Creating agent: {agent_type}")  # Simple logging
+        return agent_class(**kwargs)
+    
+    return create
 
-class GameManager:
-    """
-    Manages individual game sessions.
+def create_validator_factory():
+    """Simple validator factory creation"""
+    print(f"[Factory] Creating validator factory")
     
-    Why NOT Singleton:
-    - Multiple games can run simultaneously
-    - Each game has independent state and lifecycle
-    - Comparison experiments need separate game instances
-    - Parallel processing requires separate managers
-    """
-    def __init__(self, game_config):
-        # Individual game session initialization
-        self.config = game_config
-        self.game_state = {}
-        self.is_running = False
-        print(f"[GameManager] Initialized with config: {game_config}")  # SUPREME_RULE NO.3
+    registry = {
+        "DATASET": DatasetValidator,
+        "PATH": PathValidator,
+        "SCHEMA": SchemaValidator,
+    }
     
-    def run_game(self):
-        # Game execution logic
-        print(f"[GameManager] Starting game execution")  # SUPREME_RULE NO.3
-        self.is_running = True
-        # Game loop implementation here
-        print(f"[GameManager] Game execution completed")  # SUPREME_RULE NO.3
-
-class GameData:
-    """
-    Stores data for individual games.
+    def create(validator_type: str, **kwargs):  # CANONICAL create() method
+        """Create validator using canonical create() method (SUPREME_RULES compliance)"""
+        validator_class = registry.get(validator_type.upper())
+        if not validator_class:
+            available = list(registry.keys())
+            raise ValueError(f"Unknown validator type: {validator_type}. Available: {available}")
+        print(f"[Factory] Creating validator: {validator_type}")  # Simple logging
+        return validator_class(**kwargs)
     
-    Why NOT Singleton:
-    - Each game has unique data (score, steps, moves)
-    - Historical analysis requires multiple game data instances
-    - Concurrent games need separate data containers
-    - Memory efficiency requires data cleanup after games
-    """
-    def __init__(self):
-        self.score = 0
-        self.steps = 0
-        self.moves = []
-        self.snake_positions = []
-        self.apple_positions = []
-        print(f"[GameData] Initialized new game data")  # SUPREME_RULE NO.3
-
-class GameController:
-    """
-    Controls individual game logic and state.
-    
-    Why NOT Singleton:
-    - Multiple games with different rules/settings
-    - A/B testing requires separate controllers
-    - Extension-specific game logic variations
-    - Independent game state management
-    """
-    def __init__(self, grid_size):
-        self.grid_size = grid_size
-        self.current_state = {}
-        self.game_rules = {}
-        print(f"[GameController] Initialized for grid size {grid_size}")  # SUPREME_RULE NO.3
+    return create
 ```
 
-#### **2. Agent Classes**
-```python
-# ❌ NOT SINGLETONS - Need multiple instances for comparison
+## 🎓 **Educational Value and Learning Path**
 
-class BFSAgent:
-    """
-    Breadth-First Search agent implementation.
-    
-    Why NOT Singleton:
-    - Multiple agents for comparison experiments
-    - Different parameter configurations for same algorithm
-    - Parallel agent execution
-    - Independent agent state and performance tracking
-    """
-    def __init__(self, grid_size):
-        self.grid_size = grid_size
-        self.visited = set()
-        self.queue = []
-        print(f"[BFSAgent] Initialized BFS agent for grid size {grid_size}")  # SUPREME_RULE NO.3
-    
-    def plan_move(self, game_state):
-        # BFS pathfinding logic
-        print(f"[BFSAgent] Planning move using BFS")  # SUPREME_RULE NO.3
-        # BFS implementation here
-        return "UP"  # Default move
+### **Learning Objectives**
+- **Simple Functions**: Understanding when to use simple functions vs complex classes
+- **Utility Design**: Learning to design lightweight, reusable utilities
+- **Factory Patterns**: Understanding canonical factory pattern implementation
+- **Code Simplicity**: Learning to avoid over-engineering
 
-class MLPAgent:
-    """
-    Multi-Layer Perceptron agent implementation.
-    
-    Why NOT Singleton:
-    - Multiple model instances with different architectures
-    - Ensemble methods require multiple agent instances
-    - Different training states and checkpoints
-    - A/B testing different model configurations
-    """
-    def __init__(self, input_size, hidden_size):
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.model = self._build_model()
-        self.optimizer = None
-        print(f"[MLPAgent] Initialized MLP agent")  # SUPREME_RULE NO.3
+### **Implementation Examples**
+- **Path Management**: How to create simple path utilities
+- **Configuration Access**: How to safely access configuration constants
+- **Validation**: How to build simple validation systems
+- **Schema Management**: How to handle data schemas efficiently
 
-class DQNAgent:
-    """
-    Deep Q-Network agent implementation.
-    
-    Why NOT Singleton:
-    - Multiple agents with different network architectures
-    - Target vs main network instances
-    - Population-based training methods
-    - Independent exploration and exploitation strategies
-    """
-    def __init__(self, state_size, action_size):
-        self.state_size = state_size
-        self.action_size = action_size
-        self.q_network = self._build_q_network()
-        self.target_network = self._build_q_network()
-        print(f"[DQNAgent] Initialized DQN agent")  # SUPREME_RULE NO.3
-```
+## 🔗 **Integration with Other Documentation**
 
-#### **3. Training Classes**
-```python
-# ❌ NOT SINGLETONS - Need separate instances for different experiments
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`utils.md`**: Detailed utility function standards
+- **`elegance.md`**: Code quality and simplicity principles
+- **`no-over-preparation.md`**: Avoiding over-engineering
+- **`single-source-of-truth.md`**: Architectural principles
 
-class TrainingManager:
-    """
-    Manages training processes for ML models.
-    
-    Why NOT Singleton:
-    - Multiple simultaneous training sessions
-    - Different algorithms training in parallel
-    - Independent training state and progress tracking
-    - Experiment isolation and reproducibility
-    """
-    def __init__(self, model_type: str, config: dict):
-        self.model_type = model_type
-        self.config = config
-        self.training_history = []
-        print(f"[TrainingManager] Initialized for {model_type}")  # SUPREME_RULE NO.3
-    
-    def start_training(self):
-        """Start training process"""
-        print(f"[TrainingManager] Starting {self.model_type} training")  # SUPREME_RULE NO.3
-        # Training implementation here
+### **Extension Guidelines**
+This utility architecture supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All utility needs (paths, configuration, validation, schemas)
+- Simple, lightweight implementations
+- Consistent patterns across all extensions
 
-class ModelTrainer:
-    """
-    Handles specific model training workflows.
-    
-    Why NOT Singleton:
-    - Different models training simultaneously
-    - Independent training configurations
-    - Separate validation and checkpoint management
-    - Parallel hyperparameter optimization
-    """
-    def __init__(self, model, optimizer, loss_fn):
-        self.model = model
-        self.optimizer = optimizer
-        self.loss_fn = loss_fn
-        self.epoch = 0
-        print(f"[ModelTrainer] Initialized trainer")  # SUPREME_RULE NO.3
-    
-    def train_epoch(self, dataloader):
-        """Train for one epoch"""
-        print(f"[ModelTrainer] Training epoch {self.epoch}")  # SUPREME_RULE NO.3
-        # Epoch training implementation here
+---
 
-class DatasetLoader:
-    """
-    Loads and preprocesses datasets for training.
-    
-    Why NOT Singleton:
-    - Different datasets for different experiments
-    - Independent data preprocessing pipelines
-    - Memory management and batch loading
-    - Concurrent data loading for parallel training
-    """
-    def __init__(self, dataset_path: str, batch_size: int):
-        self.dataset_path = dataset_path
-        self.batch_size = batch_size
-        self.data = None
-        print(f"[DatasetLoader] Initialized for {dataset_path}")  # SUPREME_RULE NO.3
-    
-    def load_data(self):
-        """Load dataset from path"""
-        print(f"[DatasetLoader] Loading dataset")  # SUPREME_RULE NO.3
-        # Data loading implementation here
-```
+**This simple utility functions architecture ensures lightweight, reusable, and educational utilities across all Snake Game AI extensions while maintaining SUPREME_RULES compliance.**
 
-## 🏗️ **Singleton Implementation Standards**
-
-### **Singleton Implementation Reference**
-
-**Note**: Robust singleton implementation already exists in `ROOT/utils/singleton_utils.py`:
-
-```python
-# Reference: ROOT/utils/singleton_utils.py (already implemented)
-from utils.singleton_utils import SingletonABCMeta
-
-class MyManager(metaclass=SingletonABCMeta):
-    """Use existing singleton implementation when truly needed"""
-    def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        # Actual initialization code here
-        self.config = {}
-        self.resources = []
-        print(f"[MyManager] Singleton initialized")  # SUPREME_RULE NO.3
-```
-
-### **Usage Pattern Example**
-```python
-# Example: Using singleton in extension
-from utils.singleton_utils import SingletonABCMeta
-
-class HeuristicPathManager(metaclass=SingletonABCMeta):
-    """Extension-specific path manager inheriting singleton behavior"""
-    
-    def __init__(self):
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        
-        # Extension-specific initialization
-        self.heuristic_algorithms = ["BFS", "ASTAR", "HAMILTONIAN"]
-        print(f"[HeuristicPathManager] Initialized singleton")  # SUPREME_RULE NO.3
-    
-    def get_algorithm_dataset_path(self, algorithm: str, grid_size: int) -> Path:
-        """Get dataset path for specific heuristic algorithm"""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        path = Path(f"logs/extensions/datasets/grid-size-{grid_size}/heuristics_v0.03_{timestamp}/{algorithm}")
-        print(f"[HeuristicPathManager] Generated path: {path}")  # SUPREME_RULE NO.3
-        return path
-
-# Usage in heuristics extension
-path_manager = HeuristicPathManager()  # Always returns same instance
-dataset_path = path_manager.get_algorithm_dataset_path("BFS", 10)
-```
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.

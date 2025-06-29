@@ -1,9 +1,28 @@
 # Final Decision 5: Extension Directory Structure & Evolution Standards
 
+> **SUPREME AUTHORITY**: This document establishes the definitive directory structure templates and evolution standards for all Snake Game AI extensions.
+
+> **See also:** `project-structure-plan.md` (Master blueprint), `extension-evolution-rules.md` (Evolution guidelines), `extensions-move-guidelines.md` (Move standards), `final-decision-10.md` (SUPREME_RULES).
 
 ## 🎯 **Core Philosophy: Progressive Extension Evolution**
 
+The extension directory structure implements a sophisticated evolution model that ensures consistency, educational progression, and maintainability across all Snake Game AI extensions, strictly following `final-decision-10.md` SUPREME_RULES.
 
+### **SUPREME_RULES Integration**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making extension structure changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining extension patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
+
+### **GOOD_RULES Integration**
+This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
+- **`project-structure-plan.md`**: Authoritative reference for overall project structure
+- **`extension-evolution-rules.md`**: Authoritative reference for extension evolution patterns
+- **`extensions-move-guidelines.md`**: Authoritative reference for extension move standards
+- **`single-source-of-truth.md`**: Ensures structure consistency across all extensions
+
+### **Simple Logging Examples (SUPREME_RULE NO.3)**
+All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
 
 ```python
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
@@ -41,8 +60,6 @@ def create_extension_directory(extension_type: str, version: str):
     
     return extension_path
 ```
-
-The extension directory structure implements a sophisticated evolution model that ensures consistency, educational progression, and maintainability across all Snake Game AI extensions.
 
 ## 🎯 **Executive Summary**
 
@@ -113,7 +130,6 @@ extensions/supervised-v0.01/
 └── README.md
 ```
 
-
 #### **Reinforcement v0.01**
 ```
 extensions/reinforcement-v0.01/
@@ -152,7 +168,6 @@ extensions/{algorithm}-v0.02/
 - **Organized agents/ folder** with factory patterns
 - **Enhanced base class usage** with more sophisticated patterns
 - **No GUI yet** - still CLI only
-
 
 ## 🌐 **v0.03 Template: Web Interface & Dataset Generation**
 
@@ -194,244 +209,85 @@ extensions/{algorithm}-v0.03/
 - **Enhanced configuration** management
 - **Agents folder exactly copied** from v0.02 (no changes to algorithm implementations)
 
-### **Web Interface Pattern**:
+## 🏭 **Factory Pattern Integration**
 
-#### **Streamlit App Structure (OOP)**
+### **Extension Factory Pattern**
 ```python
-# app.py - Universal pattern for all extensions
-import streamlit as st
-from abc import ABC, abstractmethod
-from typing import List
-
-class BaseExtensionApp(ABC):
+# extensions/common/utils/extension_factory.py
+class ExtensionFactory:
     """
-    Base class for all extension Streamlit applications
+    Factory for creating extension instances
     
-    Design Patterns:
-    - Template Method Pattern: Defines common app structure
-    - Strategy Pattern: Algorithm-specific implementations
-    - Factory Pattern: Tab creation based on algorithms
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create appropriate extension instances based on type and version
+    Educational Value: Shows how canonical factory patterns work with extensions
+    
+    Reference: final-decision-10.md for canonical method naming
     """
-    
-    def __init__(self):
-        self.setup_page_config()
-        self.main()
-    
-    def setup_page_config(self):
-        """Configure Streamlit page settings"""
-        st.set_page_config(
-            page_title=f"{self.get_extension_name()} Snake AI",
-            page_icon="🐍",
-            layout="wide"
-        )
-    
-    @abstractmethod
-    def get_extension_name(self) -> str:
-        """Return extension name for display"""
-        raise NotImplementedError("Subclasses must implement get_extension_name")
-    
-    @abstractmethod
-    def get_algorithms(self) -> List[str]:
-        """Return list of available algorithms"""
-        raise NotImplementedError("Subclasses must implement get_algorithms")
-    
-    def main(self):
-        """Main application flow"""
-        st.title(f"{self.get_extension_name()} Snake Game AI - v0.03")
-        
-        # Create tabs for each algorithm
-        algorithms = self.get_algorithms()
-        tabs = st.tabs(algorithms)
-        
-        for tab, algorithm in zip(tabs, algorithms):
-            with tab:
-                self.render_algorithm_interface(algorithm)
-    
-    @abstractmethod
-    def render_algorithm_interface(self, algorithm: str):
-        """Render interface for specific algorithm"""
-        raise NotImplementedError("Subclasses must implement render_algorithm_interface")
-    
-    def render_common_controls(self, algorithm: str):
-        """Common controls for all algorithms"""
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            max_games = st.slider("Max Games", 1, 100, 10, key=f"{algorithm}_games")
-        with col2:
-            grid_size = st.selectbox("Grid Size", [8, 10, 12, 16, 20], index=1, key=f"{algorithm}_grid")
-        with col3:
-            verbose = st.checkbox("Verbose Output", key=f"{algorithm}_verbose")
-        
-        return max_games, grid_size, verbose
-
-# Extension-specific implementations
-class HeuristicSnakeApp(BaseExtensionApp):
-    def get_extension_name(self) -> str:
-        return "Heuristic"
-    
-    def get_algorithms(self) -> List[str]:
-        return ["BFS", "BFS Safe Greedy", "BFS Hamiltonian", "DFS", "A*", "A* Hamiltonian", "Hamiltonian"]
-    
-    def render_algorithm_interface(self, algorithm: str):
-        st.subheader(f"{algorithm} Algorithm")
-        max_games, grid_size, verbose = self.render_common_controls(algorithm)
-        
-        # Algorithm-specific controls
-        if algorithm.startswith("A*"):
-            heuristic = st.selectbox("Heuristic Function", ["Manhattan", "Euclidean"], key=f"{algorithm}_heuristic")
-        
-        # Action buttons
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            if st.button(f"Run {algorithm}", key=f"{algorithm}_run"):
-                self.run_algorithm(algorithm, max_games, grid_size, verbose)
-        with col2:
-            if st.button(f"Generate Dataset", key=f"{algorithm}_dataset"):
-                self.generate_dataset(algorithm, max_games, grid_size)
-        with col3:
-            if st.button(f"Replay (PyGame)", key=f"{algorithm}_pygame"):
-                self.replay_pygame(algorithm, grid_size)
-        with col4:
-            if st.button(f"Replay (Web)", key=f"{algorithm}_web"):
-                self.replay_web(algorithm, grid_size)
-
-if __name__ == "__main__":
-    HeuristicSnakeApp()
-```
-
-### **Examples**:
-
-#### **Heuristics v0.03**
-```
-extensions/heuristics-v0.03/
-├── __init__.py
-├── app.py                         # HeuristicSnakeApp(BaseExtensionApp)
-├── heuristic_config.py            # Heuristic-specific configuration
-├── game_logic.py                  # Enhanced with CSV dataset generation
-├── game_manager.py                # Enhanced manager
-├── game_data.py                   # Enhanced data with export capabilities
-├── replay_engine.py               # Heuristic replay processing
-├── replay_gui.py                  # PyGame heuristic visualization
-├── agents/                        # Exact copy from v0.02
-│   ├── __init__.py
-│   ├── agent_bfs.py
-│   ├── agent_bfs_safe_greedy.py
-│   ├── agent_bfs_hamiltonian.py
-│   ├── agent_dfs.py
-│   ├── agent_astar.py
-│   ├── agent_astar_hamiltonian.py
-│   └── agent_hamiltonian.py
-├── dashboard/
-│   ├── __init__.py
-│   ├── tab_bfs.py
-│   ├── tab_astar.py
-│   ├── tab_hamiltonian.py
-│   └── tab_comparison.py
-├── scripts/
-│   ├── __init__.py
-│   ├── main.py                    # Enhanced CLI from v0.02
-│   ├── generate_dataset.py        # CSV/NPZ/Parquet generation
-│   ├── replay.py                  # PyGame replay script
-│   └── replay_web.py              # Flask web replay
-└── README.md
-```
-
-## 📋 **Template Implementation Guidelines**
-
-### **1. Version Evolution Rules**
-
-- **v0.01**: Keep it simple, single algorithm, proof of concept
-- **v0.02**: Add algorithm diversity, organized structure, no GUI
-- **v0.03**: Add web interface, dataset generation, replay capabilities
-
-### **2. File Naming Conventions**
-
-- **Agent files**: `agent_{algorithm}.py` (e.g., `agent_bfs.py`, `agent_mlp.py`)
-- **Config files**: `{extension}_config.py` (e.g., `heuristic_config.py`, `supervised_config.py`)
-- **Main entry**: Always `main.py` for CLI, `app.py` for Streamlit
-- **Core files**: `game_logic.py`, `game_manager.py`, `game_data.py` (consistent across all)
-
-### **3. Inheritance Patterns**
-
-All extensions must extend base classes:
-```python
-# Required base class extensions
-class {Algorithm}GameLogic(BaseGameLogic):
-    """Algorithm-specific game logic"""
-    def plan_next_moves(self):
-        # Algorithm-specific planning logic
-        print(f"[{Algorithm}GameLogic] Planning next moves")  # SUPREME_RULE NO.3
-        
-        # Get current game state
-        current_state = self.get_state_snapshot()
-        
-        # Algorithm-specific pathfinding
-        path = self._calculate_path(current_state)
-        
-        # Update planned moves
-        self.planned_moves = path
-        print(f"[{Algorithm}GameLogic] Planned {len(path)} moves")  # SUPREME_RULE NO.3
-
-class {Algorithm}GameManager(BaseGameManager):
-    """Algorithm-specific game manager"""
-    GAME_LOGIC_CLS = {Algorithm}GameLogic  # Factory pattern
-    
-    def initialize_task_specific_components(self):
-        # Extension-specific initialization
-        print(f"[{Algorithm}GameManager] Initializing task-specific components")  # SUPREME_RULE NO.3
-        
-        # Initialize algorithm-specific components
-        self.algorithm_config = self._load_algorithm_config()
-        self.performance_tracker = self._create_performance_tracker()
-        
-        print(f"[{Algorithm}GameManager] Task-specific components initialized")  # SUPREME_RULE NO.3
-
-class {Algorithm}GameData(BaseGameData):
-    """Algorithm-specific data handling"""
-    def __init__(self):
-        super().__init__()
-        # Add algorithm-specific data fields
-        self.algorithm_metrics = {}
-        self.performance_history = []
-        print(f"[{Algorithm}GameData] Initialized with algorithm-specific fields")  # SUPREME_RULE NO.3
-```
-
-### **4. Factory Pattern Implementation**
-
-Each extension must implement agent factories:
-```python
-# agents/__init__.py - Universal pattern
-from typing import Dict, Type
-from core.game_agents import BaseAgent
-
-class {Algorithm}AgentFactory:
-    """Factory for {Algorithm} agents"""
     
     _registry = {
-        'TYPE1': Agent1Class,
-        'TYPE2': Agent2Class,
-        'TYPE3': Agent3Class,
+        "HEURISTICS": {
+            "0.01": HeuristicsV001Extension,
+            "0.02": HeuristicsV002Extension,
+            "0.03": HeuristicsV003Extension,
+        },
+        "SUPERVISED": {
+            "0.01": SupervisedV001Extension,
+            "0.02": SupervisedV002Extension,
+            "0.03": SupervisedV003Extension,
+        },
+        "REINFORCEMENT": {
+            "0.01": ReinforcementV001Extension,
+            "0.02": ReinforcementV002Extension,
+            "0.03": ReinforcementV003Extension,
+        },
     }
     
     @classmethod
-    def create(cls, algorithm: str, **kwargs) -> BaseAgent:
-        """Create agent by algorithm name"""
-        if algorithm.upper() not in cls._registry:
-            available = ', '.join(cls._registry.keys())
-            raise ValueError(f"Unknown algorithm '{algorithm}'. Available: {available}")
-        
-        agent_class = cls._registry[algorithm.upper()]
-        print(f"[{Algorithm}AgentFactory] Creating agent: {algorithm}")  # SUPREME_RULE NO.3
-        return agent_class(**kwargs)
-    
-    @classmethod
-    def get_available_algorithms(cls) -> List[str]:
-        """Get list of available algorithm names"""
-        return list(cls._registry.keys())
-
-# Convenience function
-def create_agent(algorithm: str, **kwargs) -> BaseAgent:
-    """Create {algorithm} agent - convenience function"""
-    return {Algorithm}AgentFactory.create(algorithm, **kwargs)
+    def create(cls, extension_type: str, version: str, **kwargs):  # CANONICAL create() method
+        """Create extension using canonical create() method (SUPREME_RULES compliance)"""
+        extension_class = cls._registry.get(extension_type.upper(), {}).get(version)
+        if not extension_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown extension type: {extension_type} v{version}. Available: {available}")
+        print(f"[ExtensionFactory] Creating extension: {extension_type} v{version}")  # Simple logging
+        return extension_class(**kwargs)
 ```
+
+## 🎓 **Educational Value and Learning Path**
+
+### **Learning Objectives**
+- **Extension Evolution**: Understanding how extensions evolve from simple to complex
+- **Directory Organization**: Learning to organize code with clear progression
+- **Factory Patterns**: Understanding canonical factory pattern implementation
+- **Version Management**: Learning to manage multiple versions of extensions
+
+### **Implementation Examples**
+- **Extension Creation**: How to create extensions following evolution patterns
+- **Version Migration**: How to migrate from one version to the next
+- **Directory Organization**: How to organize extension files consistently
+- **Factory Integration**: How to integrate extensions with factory patterns
+
+## 🔗 **Integration with Other Documentation**
+
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`project-structure-plan.md`**: Detailed project structure standards
+- **`extension-evolution-rules.md`**: Extension evolution patterns
+- **`extensions-move-guidelines.md`**: Extension move standards
+- **`single-source-of-truth.md`**: Architectural principles
+
+### **Extension Guidelines**
+This directory structure supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All evolution stages (v0.01, v0.02, v0.03)
+- Consistent file and directory organization
+- Predictable extension progression patterns
+
+---
+
+**This extension directory structure ensures consistent, progressive, and maintainable extension organization across all Snake Game AI extensions while maintaining SUPREME_RULES compliance.**
+
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.
+
+

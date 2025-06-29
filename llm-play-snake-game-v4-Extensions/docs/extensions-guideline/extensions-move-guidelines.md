@@ -4,294 +4,306 @@
 
 > **See also:** `final-decision-10.md`, `standalone.md`, `conceptual-clarity.md`.
 
-## 🎯 **Core Philosophy: Standalone Independence**
+## �� **Core Philosophy: Clean Extension Transitions**
 
-Extensions must maintain **standalone independence** when moved or reorganized. Each extension should be self-contained with minimal dependencies, ensuring it can operate independently while following `final-decision-10.md` SUPREME_RULES.
+Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies.
 
 ### **Educational Value**
-- **Modularity**: Understanding how to create independent modules
-- **Dependency Management**: Learning to minimize external dependencies
-- **Portability**: Creating code that can be easily moved and reused
-- **Self-Containment**: Building systems that work independently
+- **Clean Transitions**: Learn how to move code between versions systematically
+- **Architecture Preservation**: Maintain clean architecture during moves
+- **Dependency Management**: Understand proper dependency handling
+- **Version Control**: Learn systematic version management
 
-## 📦 **Extension Structure Requirements**
+## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-### **Standalone Directory Structure**
-```
-extensions/{algorithm}-v0.0N/
-├── __init__.py                 # Extension initialization
-├── agents/                     # Agent implementations
-│   ├── __init__.py
-│   ├── base_agent.py          # Base agent class
-│   ├── bfs_agent.py           # BFS implementation
-│   ├── astar_agent.py         # A* implementation
-│   └── dfs_agent.py           # DFS implementation
-├── app.py                      # Streamlit application (v0.03+)
-├── dashboard/                  # UI components (v0.03+)
-│   ├── __init__.py
-│   ├── tab_main.py            # Main algorithm interface
-│   ├── tab_evaluation.py      # Performance analysis
-│   └── tab_visualization.py   # Results display
-├── scripts/                    # CLI entry points
-│   ├── main.py                # Core functionality
-│   ├── generate_dataset.py    # Dataset generation
-│   └── replay.py              # Replay functionality
-├── config.py                   # Extension-specific configuration
-└── requirements.txt            # Extension dependencies
-```
+All factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle.
 
-### **Common Dependencies Only**
+### **Extension Move Factory**
 ```python
-# ✅ CORRECT: Only import from common utilities
-from extensions.common.utils.factory_utils import SimpleFactory
-from extensions.common.utils.path_utils import get_dataset_path
-from extensions.common.utils.csv_schema_utils import create_csv_row
-
-# ✅ CORRECT: Extension-specific imports
-from .agents.bfs_agent import BFSAgent
-from .config import DEFAULT_CONFIG
-
-# ❌ INCORRECT: Cross-extension imports
-from extensions.heuristics_v0.03.agents import BFSAgent  # Wrong
-from extensions.supervised_v0.02.models import MLPModel  # Wrong
-```
-
-## 🔄 **Move Process Guidelines**
-
-### **1. Pre-Move Checklist**
-```python
-# ✅ CORRECT: Validate extension before moving
-def validate_extension_for_move(extension_path: Path) -> bool:
-    """Validate extension is ready for move."""
+class ExtensionMoveFactory:
+    """
+    Factory for managing extension moves following SUPREME_RULES.
     
-    # Check for cross-extension imports
-    cross_imports = find_cross_extension_imports(extension_path)
-    if cross_imports:
-        print(f"[MoveValidation] ERROR: Found cross-extension imports: {cross_imports}")  # Simple logging
-        return False
-    
-    # Check for missing common dependencies
-    missing_deps = check_common_dependencies(extension_path)
-    if missing_deps:
-        print(f"[MoveValidation] ERROR: Missing common dependencies: {missing_deps}")  # Simple logging
-        return False
-    
-    # Check for canonical patterns
-    if not validate_canonical_patterns(extension_path):
-        print(f"[MoveValidation] ERROR: Missing canonical patterns")  # Simple logging
-        return False
-    
-    print(f"[MoveValidation] Extension ready for move: {extension_path}")  # Simple logging
-    return True
-```
-
-### **2. Dependency Analysis**
-```python
-# ✅ CORRECT: Analyze dependencies before moving
-def analyze_extension_dependencies(extension_path: Path) -> dict:
-    """Analyze extension dependencies."""
-    
-    dependencies = {
-        'common_utils': [],
-        'extension_specific': [],
-        'external_packages': [],
-        'cross_extension': []  # Should be empty
-    }
-    
-    # Scan all Python files in extension
-    for py_file in extension_path.rglob("*.py"):
-        imports = extract_imports(py_file)
-        
-        for import_stmt in imports:
-            if import_stmt.startswith('extensions.common'):
-                dependencies['common_utils'].append(import_stmt)
-            elif import_stmt.startswith('extensions.'):
-                dependencies['cross_extension'].append(import_stmt)
-            elif import_stmt.startswith('.'):
-                dependencies['extension_specific'].append(import_stmt)
-            else:
-                dependencies['external_packages'].append(import_stmt)
-    
-    print(f"[DependencyAnalysis] Found {len(dependencies['cross_extension'])} cross-extension imports")  # Simple logging
-    return dependencies
-```
-
-### **3. Move Execution**
-```python
-# ✅ CORRECT: Execute extension move
-def move_extension(source_path: Path, target_path: Path) -> bool:
-    """Move extension to new location."""
-    
-    print(f"[ExtensionMove] Moving extension from {source_path} to {target_path}")  # Simple logging
-    
-    # Validate source extension
-    if not validate_extension_for_move(source_path):
-        return False
-    
-    # Create target directory
-    target_path.mkdir(parents=True, exist_ok=True)
-    
-    # Copy extension files
-    copy_extension_files(source_path, target_path)
-    
-    # Update internal paths if needed
-    update_internal_paths(target_path)
-    
-    # Validate moved extension
-    if not validate_extension_for_move(target_path):
-        print(f"[ExtensionMove] ERROR: Moved extension validation failed")  # Simple logging
-        return False
-    
-    print(f"[ExtensionMove] Extension moved successfully to {target_path}")  # Simple logging
-    return True
-```
-
-## 🏗️ **Canonical Pattern Requirements**
-
-### **Factory Pattern Compliance**
-```python
-# ✅ CORRECT: Canonical factory pattern in moved extension
-class AgentFactory:
-    """Factory for creating agents in moved extension."""
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Manages systematic extension transitions
+    Educational Value: Shows how canonical patterns work in extension management
+    """
     
     _registry = {
-        'BFS': BFSAgent,
-        'ASTAR': AStarAgent,
-        'DFS': DFSAgent,
+        "HEURISTICS": HeuristicsMoveManager,
+        "SUPERVISED": SupervisedMoveManager,
+        "REINFORCEMENT": ReinforcementMoveManager,
     }
     
     @classmethod
-    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
-        """Create agent using canonical factory pattern."""
-        agent_class = cls._registry.get(algorithm.upper())
-        if not agent_class:
-            raise ValueError(f"Unknown algorithm: {algorithm}")
-        
-        print(f"[AgentFactory] Creating {algorithm} agent")  # Simple logging
-        return agent_class(**kwargs)
-
-# ❌ INCORRECT: Non-canonical factory pattern
-class AgentFactory:
-    def create_agent(self, algorithm: str, **kwargs):  # Wrong method name
-        pass
+    def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method
+        """Create move manager using canonical create() method (SUPREME_RULES compliance)"""
+        manager_class = cls._registry.get(extension_type.upper())
+        if not manager_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown extension type: {extension_type}. Available: {available}")
+        print(f"[ExtensionMoveFactory] Creating move manager: {extension_type}")  # Simple logging
+        return manager_class(**kwargs)
 ```
 
-### **Simple Logging Compliance**
+## 📁 **Extension Move Process**
+
+### **Standard Directory Structure**
+```
+extensions/{algorithm}-v0.0N/
+├── app.py                         # Main application entry point
+├── dashboard/                     # Dashboard components (v0.03+)
+│   ├── __init__.py
+│   ├── components/                # Reusable UI components
+│   ├── pages/                     # Multi-page application structure
+│   └── utils/                     # Dashboard-specific utilities
+├── scripts/                       # Backend execution scripts
+│   ├── main.py                    # Core algorithm execution
+│   ├── generate_dataset.py        # Dataset generation
+│   └── replay.py                  # Replay functionality
+└── agents/                        # Algorithm implementations
+    └── [agent files]
+```
+
+### **Move Process Steps**
 ```python
-# ✅ CORRECT: Simple logging in moved extension
-class GameManager:
-    def __init__(self, config: dict):
-        self.config = config
-        print(f"[GameManager] Initialized with config: {config}")  # Simple logging
+class ExtensionMoveManager:
+    """
+    Manages systematic extension moves following SUPREME_RULES.
     
-    def start_game(self):
-        print(f"[GameManager] Starting game")  # Simple logging
-        # Game logic here
-        print(f"[GameManager] Game completed")  # Simple logging
-
-# ❌ INCORRECT: Complex logging in moved extension
-import logging
-logger = logging.getLogger(__name__)
-logger.info("Starting game")  # Violates SUPREME_RULES
+    Design Pattern: Template Method Pattern
+    Purpose: Provides consistent move process across all extensions
+    Educational Value: Shows systematic approach to code transitions
+    """
+    
+    def __init__(self, source_version: str, target_version: str):
+        self.source_version = source_version
+        self.target_version = target_version
+        print(f"[ExtensionMoveManager] Initialized move: {source_version} → {target_version}")  # Simple logging
+    
+    def execute_move(self):
+        """Execute systematic extension move"""
+        print(f"[ExtensionMoveManager] Starting move process")  # Simple logging
+        
+        # Step 1: Validate source extension
+        self._validate_source()
+        
+        # Step 2: Create target directory structure
+        self._create_target_structure()
+        
+        # Step 3: Copy and adapt code
+        self._copy_and_adapt_code()
+        
+        # Step 4: Update dependencies
+        self._update_dependencies()
+        
+        # Step 5: Validate target extension
+        self._validate_target()
+        
+        print(f"[ExtensionMoveManager] Move completed successfully")  # Simple logging
+    
+    def _validate_source(self):
+        """Validate source extension structure"""
+        # Validation logic here
+        print(f"[ExtensionMoveManager] Source validation completed")  # Simple logging
+    
+    def _create_target_structure(self):
+        """Create target directory structure"""
+        # Structure creation logic here
+        print(f"[ExtensionMoveManager] Target structure created")  # Simple logging
+    
+    def _copy_and_adapt_code(self):
+        """Copy and adapt code for target version"""
+        # Code adaptation logic here
+        print(f"[ExtensionMoveManager] Code copied and adapted")  # Simple logging
+    
+    def _update_dependencies(self):
+        """Update dependencies for target version"""
+        # Dependency update logic here
+        print(f"[ExtensionMoveManager] Dependencies updated")  # Simple logging
+    
+    def _validate_target(self):
+        """Validate target extension"""
+        # Target validation logic here
+        print(f"[ExtensionMoveManager] Target validation completed")  # Simple logging
 ```
 
-## 📋 **Move Validation Checklist**
+## 🔧 **Code Adaptation Patterns**
 
-### **Pre-Move Validation**
-- [ ] **Cross-Extension Imports**: No imports from other extensions
-- [ ] **Common Dependencies**: Only imports from extensions/common
-- [ ] **Canonical Patterns**: Factory methods use `create()` name
-- [ ] **Simple Logging**: Uses print() statements only
-- [ ] **Self-Contained**: All required files present
+### **Import Statement Updates**
+```python
+# ✅ CORRECT: Use common utilities (SUPREME_RULES compliance)
+from extensions.common.utils.csv_schema_utils import create_csv_row
+
+# ❌ FORBIDDEN: Cross-extension imports (violates SUPREME_RULES)
+# from extensions.heuristics_v0.03.agents import BFSAgent  # Wrong
+# from extensions.heuristics_v0.03 import *  # Cross-extension import
+```
+
+### **Configuration Updates**
+```python
+class MoveConfiguration:
+    """Configuration for extension moves"""
+    
+    def __init__(self, source_version: str, target_version: str):
+        self.source_version = source_version
+        self.target_version = target_version
+        self.adaptations = self._get_adaptations()
+        print(f"[MoveConfiguration] Configured for {source_version} → {target_version}")  # Simple logging
+    
+    def _get_adaptations(self) -> dict:
+        """Get required adaptations for move"""
+        adaptations = {
+            'imports': self._get_import_adaptations(),
+            'dependencies': self._get_dependency_adaptations(),
+            'structure': self._get_structure_adaptations()
+        }
+        return adaptations
+    
+    def _get_import_adaptations(self) -> list:
+        """Get import statement adaptations"""
+        return [
+            # Update import paths to use common utilities
+            ('from extensions.heuristics_v0.03.agents import BFSAgent', 
+             'from extensions.common.utils.factory_utils import SimpleFactory'),
+            # Add new imports for target version
+            ('', 'from extensions.common.utils.csv_schema_utils import create_csv_row')
+        ]
+    
+    def _get_dependency_adaptations(self) -> list:
+        """Get dependency adaptations"""
+        return [
+            # Update dependencies for target version
+            ('streamlit==1.28.0', 'streamlit==1.29.0'),
+            # Add new dependencies
+            ('', 'pandas>=2.0.0')
+        ]
+    
+    def _get_structure_adaptations(self) -> list:
+        """Get directory structure adaptations"""
+        return [
+            # Add new directories for target version
+            ('', 'dashboard/'),
+            ('', 'dashboard/components/'),
+            ('', 'dashboard/pages/'),
+            ('', 'dashboard/utils/')
+        ]
+```
+
+## 📊 **Move Validation Standards**
+
+### **Source Validation**
+```python
+def validate_source_extension(extension_path: Path) -> bool:
+    """Validate source extension before move"""
+    required_files = [
+        'app.py',
+        'scripts/main.py',
+        'agents/__init__.py'
+    ]
+    
+    for file_path in required_files:
+        if not (extension_path / file_path).exists():
+            print(f"[Validation] Missing required file: {file_path}")  # Simple logging
+            return False
+    
+    print(f"[Validation] Source extension validated")  # Simple logging
+    return True
+```
+
+### **Target Validation**
+```python
+def validate_target_extension(extension_path: Path) -> bool:
+    """Validate target extension after move"""
+    # Check directory structure
+    required_dirs = [
+        'dashboard',
+        'scripts',
+        'agents'
+    ]
+    
+    for dir_path in required_dirs:
+        if not (extension_path / dir_path).exists():
+            print(f"[Validation] Missing required directory: {dir_path}")  # Simple logging
+            return False
+    
+    # Check for forbidden patterns
+    forbidden_patterns = [
+        'from extensions.heuristics_v0.03',
+        'import logging',
+        'logger = logging.getLogger'
+    ]
+    
+    for pattern in forbidden_patterns:
+        if contains_pattern(extension_path, pattern):
+            print(f"[Validation] Found forbidden pattern: {pattern}")  # Simple logging
+            return False
+    
+    print(f"[Validation] Target extension validated")  # Simple logging
+    return True
+```
+
+## 🎯 **Move Automation**
+
+### **Automated Move Script**
+```python
+def automate_extension_move(source_version: str, target_version: str):
+    """Automate extension move process"""
+    print(f"[Automation] Starting automated move: {source_version} → {target_version}")  # Simple logging
+    
+    # Create move manager
+    move_manager = ExtensionMoveFactory.create("HEURISTICS", 
+                                              source_version=source_version,
+                                              target_version=target_version)
+    
+    # Execute move
+    move_manager.execute_move()
+    
+    # Validate result
+    if validate_target_extension(Path(f"extensions/heuristics-{target_version}")):
+        print(f"[Automation] Move completed successfully")  # Simple logging
+    else:
+        print(f"[Automation] Move validation failed")  # Simple logging
+```
+
+## 📋 **Implementation Checklist**
+
+### **Pre-Move Requirements**
+- [ ] **Source Validation**: Validate source extension structure
+- [ ] **Dependency Analysis**: Identify required dependencies
+- [ ] **Import Analysis**: Identify import statement changes
+- [ ] **Structure Planning**: Plan target directory structure
+
+### **Move Execution**
+- [ ] **Directory Creation**: Create target directory structure
+- [ ] **Code Copying**: Copy code with adaptations
+- [ ] **Import Updates**: Update import statements
+- [ ] **Dependency Updates**: Update dependencies
+- [ ] **Configuration Updates**: Update configuration files
 
 ### **Post-Move Validation**
-- [ ] **Path Updates**: Internal paths updated correctly
-- [ ] **Import Resolution**: All imports resolve correctly
-- [ ] **Functionality**: Extension works in new location
-- [ ] **Pattern Compliance**: Canonical patterns maintained
-- [ ] **Logging Compliance**: Simple logging maintained
-
-### **Dependency Management**
-- [ ] **Common Utils**: Only depends on extensions/common
-- [ ] **External Packages**: Minimal external dependencies
-- [ ] **Extension Specific**: Self-contained extension code
-- [ ] **No Cross-Dependencies**: No dependencies on other extensions
-
-## 🎯 **Best Practices**
-
-### **1. Self-Contained Design**
-```python
-# ✅ CORRECT: Self-contained extension design
-class ExtensionConfig:
-    """Extension-specific configuration."""
-    
-    def __init__(self):
-        # Extension-specific settings
-        self.algorithm = "BFS"
-        self.grid_size = 10
-        self.max_games = 100
-        
-        print(f"[ExtensionConfig] Initialized with algorithm: {self.algorithm}")  # Simple logging
-    
-    def validate(self) -> bool:
-        """Validate configuration."""
-        if self.grid_size < 5:
-            print(f"[ExtensionConfig] ERROR: Grid size too small: {self.grid_size}")  # Simple logging
-            return False
-        return True
-```
-
-### **2. Minimal Dependencies**
-```python
-# ✅ CORRECT: Minimal, focused dependencies
-# Only import what's needed from common utilities
-from extensions.common.utils.factory_utils import SimpleFactory
-from extensions.common.utils.path_utils import get_dataset_path
-
-# Extension-specific imports
-from .agents.bfs_agent import BFSAgent
-from .config import ExtensionConfig
-
-# ❌ INCORRECT: Excessive dependencies
-from extensions.common.utils import *  # Import everything
-from extensions.heuristics_v0.03 import *  # Cross-extension import
-```
-
-### **3. Clear Boundaries**
-```python
-# ✅ CORRECT: Clear extension boundaries
-class ExtensionManager:
-    """Manages extension-specific operations."""
-    
-    def __init__(self, extension_type: str, version: str):
-        self.extension_type = extension_type
-        self.version = version
-        self.factory = SimpleFactory()
-        
-        print(f"[ExtensionManager] Initialized {extension_type} v{version}")  # Simple logging
-    
-    def create_agent(self, algorithm: str) -> BaseAgent:
-        """Create agent using canonical factory pattern."""
-        return self.factory.create(algorithm)  # CANONICAL create() method
-```
+- [ ] **Structure Validation**: Validate target directory structure
+- [ ] **Import Validation**: Check for forbidden imports
+- [ ] **Dependency Validation**: Verify dependency compatibility
+- [ ] **Functionality Testing**: Test basic functionality
 
 ## 🎓 **Educational Benefits**
 
 ### **Learning Objectives**
-- **Modularity**: Understanding how to create independent modules
-- **Dependency Management**: Learning to minimize external dependencies
-- **Portability**: Creating code that can be easily moved and reused
-- **Self-Containment**: Building systems that work independently
+- **Systematic Transitions**: Learn systematic approach to code moves
+- **Architecture Preservation**: Understand how to maintain clean architecture
+- **Dependency Management**: Learn proper dependency handling
+- **Validation Processes**: Understand validation and testing
 
 ### **Best Practices**
-- **Minimal Dependencies**: Only depend on what's absolutely necessary
-- **Clear Boundaries**: Define clear interfaces and boundaries
-- **Self-Containment**: Make extensions work independently
-- **Canonical Patterns**: Maintain consistent patterns across moves
+- **Automated Processes**: Use automation for consistency
+- **Validation**: Always validate before and after moves
+- **Documentation**: Document move processes and changes
+- **Testing**: Test functionality after moves
 
 ---
 
-**Extension move guidelines ensure that extensions remain standalone, portable, and maintainable while preserving canonical patterns and educational value.**
+**Extension move guidelines ensure clean, systematic transitions between extension versions while maintaining educational value and SUPREME_RULES compliance.**
 
 ## 🔗 **See Also**
 

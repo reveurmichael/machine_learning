@@ -1,8 +1,18 @@
 # Final Decision 2: Configuration, Validation, and Architectural Standards
 
+> **SUPREME AUTHORITY**: This document establishes the definitive architectural standards for configuration organization, validation systems, and structural decisions across all Snake Game AI extensions.
+
+> **See also:** `config.md` (Configuration standards), `validation.md` (Validation patterns), `naming-conventions.md` (Naming standards), `final-decision-10.md` (SUPREME_RULES).
+
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive architectural standards** for configuration organization, validation systems, singleton patterns, file naming conventions, and other critical structural decisions across all Snake Game AI extensions. These decisions resolve all major TODOs and provide concrete implementation guidelines.
+This document establishes the **definitive architectural standards** for configuration organization, validation systems, singleton patterns, file naming conventions, and other critical structural decisions across all Snake Game AI extensions. These decisions resolve all major TODOs and provide concrete implementation guidelines, strictly following `final-decision-10.md` SUPREME_RULES.
+
+### **SUPREME_RULES Integration**
+- **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making configuration changes to ensure comprehensive understanding
+- **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
+- **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining configuration patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
@@ -44,6 +54,7 @@ def get_universal_config(module: str, key: str):
     value = config_map.get(key)
     print(f"[Config] Retrieved {module}.{key} = {value}")  # SUPREME_RULE NO.3
     return value
+```
 
 ## 🔧 **DECISION 1: Configuration Organization**
 
@@ -88,6 +99,35 @@ from extensions.common.config.dataset_formats import CSV_SCHEMA_VERSION
 # ❌ Task-0 only (extensions should NOT import these)
 # from config.llm_constants import AVAILABLE_PROVIDERS  # 🚫 Forbidden for non-LLM extensions
 # from config.prompt_templates import SYSTEM_PROMPT     # 🚫 Forbidden for non-LLM extensions
+```
+
+### **Configuration Factory Pattern**
+```python
+class ConfigFactory:
+    """
+    Factory for creating configuration objects
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create appropriate configuration objects based on extension type
+    Educational Value: Shows how canonical factory patterns work with configuration
+    """
+    
+    _registry = {
+        "HEURISTIC": HeuristicConfig,
+        "SUPERVISED": SupervisedConfig,
+        "REINFORCEMENT": ReinforcementConfig,
+        "LLM": LLMConfig,
+    }
+    
+    @classmethod
+    def create(cls, config_type: str, **kwargs):  # CANONICAL create() method
+        """Create configuration using canonical create() method (SUPREME_RULES compliance)"""
+        config_class = cls._registry.get(config_type.upper())
+        if not config_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown config type: {config_type}. Available: {available}")
+        print(f"[ConfigFactory] Creating config: {config_type}")  # Simple logging
+        return config_class(**kwargs)
 ```
 
 ### **Rationale**
@@ -160,6 +200,34 @@ def validate_extension_data(extension_path: str, data: dict):
     return True
 ```
 
+### **Validation Factory Pattern**
+```python
+class ValidationFactory:
+    """
+    Factory for creating validation objects
+    
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Create appropriate validation objects based on data type
+    Educational Value: Shows how canonical factory patterns work with validation
+    """
+    
+    _registry = {
+        "DATASET": DatasetValidator,
+        "PATH": PathValidator,
+        "SCHEMA": SchemaValidator,
+    }
+    
+    @classmethod
+    def create(cls, validator_type: str, **kwargs):  # CANONICAL create() method
+        """Create validator using canonical create() method (SUPREME_RULES compliance)"""
+        validator_class = cls._registry.get(validator_type.upper())
+        if not validator_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown validator type: {validator_type}. Available: {available}")
+        print(f"[ValidationFactory] Creating validator: {validator_type}")  # Simple logging
+        return validator_class(**kwargs)
+```
+
 ### **Rationale**
 - **Essential Coverage**: Focus on core validation needs
 - **Extensible**: Easy to add new validation types
@@ -198,93 +266,77 @@ def validate_extension_structure(extension_path):
 # class PathManager:
 #     _instance = None
 #     def __new__(cls):
-#         if cls._instance is None:
-#             cls._instance = super().__new__(cls)
-#         return cls._instance
 ```
 
-### **Rationale**
-- **Simplicity**: Lightweight functions instead of complex classes
-- **Flexibility**: Easy to modify and extend
-- **Educational**: Clear, understandable code
-- **Performance**: No singleton overhead
-
-## 🏗️ **DECISION 4: File Naming Conventions**
+## 🎯 **DECISION 4: File Naming Conventions**
 
 ### **Finalized Standards**
 
+| Component Type | File Pattern | Class Pattern | Example |
+|----------------|--------------|---------------|---------|
+| **Agents** | `agent_*.py` | `*Agent` | `agent_bfs.py` → `BFSAgent` |
+| **Game Logic** | `game_*.py` | `*GameLogic` | `game_heuristic.py` → `HeuristicGameLogic` |
+| **Controllers** | `*_controller.py` | `*Controller` | `game_controller.py` → `GameController` |
+| **Managers** | `*_manager.py` | `*Manager` | `game_manager.py` → `GameManager` |
+| **Validators** | `*_validator.py` | `*Validator` | `dataset_validator.py` → `DatasetValidator` |
+| **Factories** | `*_factory.py` | `*Factory` | `agent_factory.py` → `AgentFactory` |
+
+### **Implementation Example**
+
+```python
+# ✅ CORRECT: Following naming conventions
+# File: agent_bfs.py
+class BFSAgent(BaseAgent):
+    """Breadth-First Search agent implementation"""
+    pass
+
+# File: game_heuristic.py
+class HeuristicGameLogic(BaseGameLogic):
+    """Heuristic-based game logic implementation"""
+    pass
+
+# File: dataset_validator.py
+class DatasetValidator:
+    """Dataset validation implementation"""
+    pass
+
+# ❌ FORBIDDEN: Inconsistent naming
+# File: bfs_agent.py (should be agent_bfs.py)
+# File: heuristic_game.py (should be game_heuristic.py)
 ```
-# Core files (ROOT/)
-game_*.py                  # Game-related functionality
-llm_*.py                   # LLM-specific functionality
-web_*.py                   # Web interface functionality
-app.py                     # Main application entry point
 
-# Extension files (extensions/)
-{extension_type}-v{version}/  # Extension directories
-├── agents/                   # Agent implementations
-├── config.py                 # Extension-specific configuration
-├── main.py                   # Extension entry point
-└── app.py                    # Streamlit application (v0.03+)
+## 🎓 **Educational Value and Learning Path**
 
-# Common utilities (extensions/common/)
-utils/                        # Utility functions
-├── factory_utils.py          # Factory pattern utilities
-├── path_utils.py             # Path management utilities
-├── dataset_utils.py          # Dataset handling utilities
-└── csv_schema_utils.py       # CSV schema utilities
+### **Learning Objectives**
+- **Configuration Management**: Understanding hierarchical configuration organization
+- **Validation Systems**: Learning to build robust validation frameworks
+- **Naming Conventions**: Understanding the importance of consistent naming
+- **Design Patterns**: Learning factory patterns and strategy patterns
 
-validation/                   # Validation functions
-├── dataset_validator.py      # Dataset validation
-├── path_validator.py         # Path validation
-└── schema_validator.py       # Schema validation
+### **Implementation Examples**
+- **Configuration Access**: How to safely access configuration constants
+- **Validation Integration**: How to integrate validation into extensions
+- **Utility Functions**: How to create simple, reusable utility functions
+- **Naming Compliance**: How to follow consistent naming conventions
 
-config/                       # Configuration constants
-├── dataset_formats.py        # Data format specifications
-├── path_constants.py         # Path templates
-└── validation_rules.py       # Validation rules
-```
+## 🔗 **Integration with Other Documentation**
 
-### **Rationale**
-- **Consistency**: Clear, predictable naming patterns
-- **Discoverability**: Easy to find relevant files
-- **Scalability**: Works for any number of extensions
-- **Educational**: Demonstrates good file organization practices
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`config.md`**: Detailed configuration management standards
+- **`validation.md`**: Validation system implementation patterns
+- **`naming-conventions.md`**: Comprehensive naming standards
+- **`single-source-of-truth.md`**: Architectural principles
 
-## 📋 **Implementation Checklist**
-
-### **Configuration Standards**
-- [ ] **Universal Constants**: All extensions use `config/game_constants.py` and `config/ui_constants.py`
-- [ ] **Extension-Specific**: Each extension defines its own constants locally
-- [ ] **LLM Constants**: Only LLM-focused extensions import `config/llm_constants.py`
-- [ ] **Import Safety**: No accidental imports of task-specific constants
-
-### **Validation Standards**
-- [ ] **Simple Functions**: Use lightweight validation functions (SUPREME_RULE NO.3)
-- [ ] **Essential Coverage**: Focus on core validation needs
-- [ ] **Reusable**: Shared validation logic across extensions
-- [ ] **Educational**: Demonstrate design patterns clearly
-
-### **Utility Standards**
-- [ ] **Simple Functions**: Lightweight utility functions instead of complex classes
-- [ ] **Flexibility**: Easy to modify and extend
-- [ ] **Performance**: No unnecessary overhead
-- [ ] **Clarity**: Clear, understandable code
-
-### **Naming Standards**
-- [ ] **Consistency**: Follow established naming conventions
-- [ ] **Predictability**: Clear, logical file organization
-- [ ] **Scalability**: Works for any number of extensions
-- [ ] **Educational**: Demonstrate good practices
+### **Extension Guidelines**
+This configuration and validation system supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All configuration scenarios (universal, extension-specific, task-specific)
+- All validation needs (data, paths, schemas)
+- Consistent naming and organization across all extensions
 
 ---
 
-**This document establishes the definitive architectural standards for the Snake Game AI project, ensuring consistency, clarity, and educational value across all extensions while following SUPREME_RULES compliance.**
+**This configuration and validation architecture ensures consistent, safe, and educational configuration management across all Snake Game AI extensions while maintaining SUPREME_RULES compliance.**
 
-## 🔗 **See Also**
-
-- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`config.md`**: Configuration management standards
-- **`validation.md`**: Validation system standards
-- **`naming-conventions.md`**: Naming standards
-- **`single-source-of-truth.md`**: Architectural principles
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.

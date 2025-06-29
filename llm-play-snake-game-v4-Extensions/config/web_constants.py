@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Final
 
 # Repository root path discovery
-REPO_ROOT: Final[Path] = Path(__file__).parent.parent #TODO: this one is not correct. 
+REPO_ROOT: Final[Path] = Path(__file__).parent.parent
 
 # Flask application configuration
 FLASK_STATIC_FOLDER: Final[str] = str(REPO_ROOT / "web" / "static")

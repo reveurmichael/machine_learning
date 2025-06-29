@@ -2,12 +2,21 @@
 
 > **SUPREME AUTHORITY**: This document establishes the definitive directory structure and data organization standards for the Snake Game AI project.
 
+> **See also:** `datasets-folder.md` (Dataset organization), `data-format-decision-guide.md` (Format selection), `unified-path-management-guide.md` (Path standards), `final-decision-10.md` (SUPREME_RULES).
+
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Multi-Directional Data Ecosystem**
 
-### **Guidelines Alignment**
+The directory structure implements a sophisticated **multi-directional data ecosystem** where:
+- **All tasks generate datasets** during training/evaluation
+- **Better models create better datasets** through positive feedback loops
+- **Cross-task pollination** improves overall system performance
+- **Training produces both models AND datasets simultaneously**
+
+### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making directory structure changes to ensure comprehensive understanding
 - **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
 - **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining directory structure patterns through inheritance rather than tight coupling
+- **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
@@ -15,12 +24,6 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`data-format-decision-guide.md`**: Authoritative reference for format selection criteria
 - **`unified-path-management-guide.md`**: Authoritative reference for path management standards
 - **`single-source-of-truth.md`**: Ensures no duplication across extension guidelines
-
-The directory structure implements a sophisticated **multi-directional data ecosystem** where:
-- **All tasks generate datasets** during training/evaluation
-- **Better models create better datasets** through positive feedback loops
-- **Cross-task pollination** improves overall system performance
-- **Training produces both models AND datasets simultaneously**
 
 ## 🚫 **CRITICAL: NO singleton_utils.py in extensions/common/**
 
@@ -31,7 +34,7 @@ The directory structure implements a sophisticated **multi-directional data ecos
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models.
+This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
 All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
@@ -111,8 +114,8 @@ logs/extensions/datasets/
     │   ├── bfs/
     │   │   ├── game_logs/                     # Original game_N.json, summary.json
     │   │   └── processed_data/
-    │   │       ├── tabular_data.csv           # Legacy format
-    │   │       ├── reasoning_data.jsonl       # 🔥 For LLM fine-tuning
+    │   │       ├── tabular_data.csv           # Active format for supervised learning
+    │   │       ├── reasoning_data.jsonl       # LLM fine-tuning format
     │   │       └── metadata.json
     │   └── astar/ [same structure]
     │
@@ -198,330 +201,239 @@ logs/extensions/models/
     │   │   │   ├── policy_network.pth             # Primary RL model
     │   │   │   ├── target_network.pth             # Target network
     │   │   │   ├── config.json                    # RL hyperparameters
-    │   │   │   └── final_policy.onnx              # Deployment format
+    │   │   │   └── training_metrics.json
     │   │   ├── training_process/
     │   │   │   ├── training_history/
-    │   │   │   │   ├── episode_rewards.json       # Training metrics
-    │   │   │   │   ├── loss_curves.json           # Q-learning losses
-    │   │   │   │   ├── exploration_stats.json     # Epsilon decay, etc.
-    │   │   │   │   └── checkpoints/
-    │   │   │   └── generated_datasets/            # 🔥 Experience + Evaluation data
-    │   │   │       ├── experience_replay/
-    │   │   │       │   ├── transitions.npz        # (s,a,r,s',done) tuples
-    │   │   │       │   ├── episode_data.json      # Episode statistics
-    │   │   │       │   └── exploration_heatmaps.npz
-    │   │   │       ├── evaluation_games/
-    │   │   │       │   ├── game_N.json            # Games from evaluation episodes
-    │   │   │       │   ├── summary.json
-    │   │   │       │   └── q_value_traces.npz     # Q-values at each step
-    │   │   │       ├── policy_datasets/
-    │   │   │       │   ├── tabular_data.csv       # State-action features
-    │   │   │       │   ├── action_probabilities.npz
-    │   │   │       │   └── value_estimates.npz
+    │   │   │   │   ├── loss_curves.json
+    │   │   │   │   ├── reward_curves.json
+    │   │   │   │   └── exploration_metrics.json
+    │   │   │   └── generated_datasets/            # 🔥 High-quality RL datasets
+    │   │   │       ├── optimal_games/
+    │   │   │       │   ├── game_N.json            # Games with optimal policy
+    │   │   │       │   └── summary.json
+    │   │   │       ├── experience_datasets/
+    │   │   │       │   ├── transitions.npz        # State-action-reward tuples
+    │   │   │       │   ├── q_values.npz           # Q-value annotations
+    │   │   │       │   └── policy_distributions.npz
     │   │   │       └── dataset_metadata.json
     │   │   └── deployment_ready/
-    │   │       ├── optimized_policy.onnx
+    │   │       ├── optimized_policy.onnx          # Production-ready
     │   │       └── inference_config.json
     │   └── ppo/ [same structure]
     │
     ├── llm_finetune_v0.02_{timestamp}/
-    │   ├── lora_adapters/
+    │   ├── lora/
     │   │   ├── model_artifacts/
-    │   │   │   ├── adapter_model.bin              # LoRA weights
-    │   │   │   ├── adapter_config.json            # LoRA configuration
-    │   │   │   ├── base_model_info.json           # Base model reference
-    │   │   │   └── merged_model/                  # Optional merged weights
-    │   │   │       ├── pytorch_model.bin
-    │   │   │       └── config.json
+    │   │   │   ├── adapter_model.safetensors      # LoRA adapter weights
+    │   │   │   ├── base_model_config.json         # Base model configuration
+    │   │   │   ├── lora_config.json               # LoRA-specific config
+    │   │   │   └── training_metrics.json
     │   │   ├── training_process/
     │   │   │   ├── training_history/
-    │   │   │   │   ├── training_loss.json         # Fine-tuning losses
-    │   │   │   │   ├── validation_metrics.json    # Perplexity, BLEU, etc.
-    │   │   │   │   ├── snake_performance.json     # Game performance during training
-    │   │   │   │   └── checkpoints/
-    │   │   │   └── generated_datasets/            # 🔥 LLM-generated reasoning data
-    │   │   │       ├── training_games/
-    │   │   │       │   ├── game_N.json            # Games during fine-tuning
+    │   │   │   │   ├── loss_curves.json
+    │   │   │   │   ├── learning_rate_schedule.json
+    │   │   │   │   └── validation_metrics.json
+    │   │   │   └── generated_datasets/            # 🔥 Language-grounded datasets
+    │   │   │       ├── reasoning_games/
+    │   │   │       │   ├── game_N.json            # Games with explanations
     │   │   │       │   └── summary.json
-    │   │   │       ├── reasoning_datasets/
-    │   │   │       │   ├── reasoning_data.jsonl   # Rich explanations generated
-    │   │   │       │   ├── prompt_completion_pairs.jsonl
-    │   │   │       │   ├── quality_scores.json    # Reasoning quality metrics
-    │   │   │       │   └── language_features.npz  # Embedding representations
-    │   │   │       ├── evaluation_datasets/
-    │   │   │       │   ├── zero_shot_games.json   # Games without further training
-    │   │   │       │   ├── few_shot_games.json    # Games with examples
-    │   │   │       │   └── reasoning_quality.json
+    │   │   │       ├── language_datasets/
+    │   │   │       │   ├── reasoning_data.jsonl   # Rich explanations
+    │   │   │       │   ├── language_features.npz  # Embedding-based features
+    │   │   │       │   └── explanation_quality.csv
     │   │   │       └── dataset_metadata.json
     │   │   └── deployment_ready/
-    │   │       ├── optimized_adapter.bin          # Quantized/optimized
+    │   │       ├── merged_model.safetensors        # Production-ready
     │   │       └── inference_config.json
-    │   └── full_finetune/ [same structure]
+    │   └── full_model/ [same structure]
     │
     └── llm_distillation_v0.02_{timestamp}/
-        ├── student_models/
+        ├── student/
         │   ├── model_artifacts/
-        │   │   ├── distilled_model.bin            # Compressed student model
-        │   │   ├── config.json                    # Student architecture
-        │   │   ├── teacher_reference.json         # Teacher model info
-        │   │   └── compression_stats.json         # Size/speed improvements
+        │   │   ├── student_model.pth               # Distilled student model
+        │   │   ├── teacher_model.pth               # Reference teacher model
+        │   │   ├── config.json                     # Distillation config
+        │   │   └── efficiency_metrics.json
         │   ├── training_process/
         │   │   ├── training_history/
-        │   │   │   ├── distillation_loss.json     # KL divergence, etc.
-        │   │   │   ├── student_performance.json   # Student vs teacher metrics
-        │   │   │   ├── compression_metrics.json   # Speed/memory improvements
-        │   │   │   └── checkpoints/
-        │   │   └── generated_datasets/            # 🔥 Distillation comparison data
-        │   │       ├── comparison_games/
-        │   │       │   ├── teacher_games.json     # Teacher-generated games
-        │   │       │   ├── student_games.json     # Student-generated games
-        │   │       │   └── comparison_analysis.json
+        │   │   │   ├── distillation_loss.json
+        │   │   │   ├── efficiency_curves.json
+        │   │   │   └── quality_metrics.json
+        │   │   └── generated_datasets/            # 🔥 Efficient datasets
+        │   │       ├── efficient_games/
+        │   │       │   ├── game_N.json            # Games with efficiency focus
+        │   │       │   └── summary.json
         │   │       ├── efficiency_datasets/
         │   │       │   ├── reasoning_data.jsonl   # Compressed explanations
         │   │       │   ├── efficiency_metrics.csv # Speed/quality trade-offs
-        │   │       │   └── knowledge_transfer.npz # What knowledge was preserved
-        │   │       ├── ablation_datasets/
-        │   │       │   ├── component_analysis.json # Which parts matter most
-        │   │       │   └── performance_degradation.csv
+        │   │       │   └── compression_analysis.npz
         │   │       └── dataset_metadata.json
         │   └── deployment_ready/
-        │       ├── production_model.bin           # Final optimized model
-        │       ├── inference_config.json
-        │       └── deployment_guide.md
-        └── ensemble_models/ [same structure]
+        │       ├── optimized_student.onnx          # Production-ready
+        │       └── inference_config.json
+        └── ensemble/ [same structure]
 ```
 
-## 🔄 **Cross-Task Data Ecosystem**
+## 🔄 **Multi-Directional Data Flow Implementation**
 
-### **Dataset Consumption Patterns**
-
+### **Data Generation During Training**
 ```python
-DATASET_CONSUMPTION = {
-    'supervised_training': {
-        'preferred_sources': ['reinforcement_generated', 'heuristics_v0.03', 'heuristics_v0.04', 'supervised_generated'],
-        'reason': 'High-quality labeled data for training better models'
-    },
-    'rl_training': {
-        'preferred_sources': ['heuristics_v0.03', 'heuristics_v0.04', 'supervised_generated'],
-        'reason': 'Initial policy/value function, curriculum learning'
-    },
-    'llm_finetuning': {
-        'preferred_sources': ['heuristics_v0.04', 'llm_finetune_generated'],
-        'reason': 'Language-rich explanations for reasoning'
-    },
-    'llm_distillation': {
-        'preferred_sources': ['llm_finetune_generated'],
-        'reason': 'Teacher model outputs for student training'
-    },
-    'comparative_analysis': {
-        'preferred_sources': ['all_sources'],
-        'reason': 'Performance benchmarking across approaches'
-    }
-}
-```
-
-### **Training Session Outputs**
-
-Each training session produces **dual outputs**:
-
-1. **Primary Output**: The trained model with deployment artifacts
-2. **Secondary Output**: High-quality datasets from evaluation/gameplay
-3. **Process Artifacts**: Training logs, metrics, checkpoints
-
-### **Dataset Quality Evolution**
-
-```python
-TRAINING_DATASET_EVOLUTION = {
-    'early_training': {
-        'model_quality': 'poor',
-        'dataset_quality': 'low',
-        'use_case': 'debugging, architecture validation'
-    },
-    'mid_training': {
-        'model_quality': 'improving', 
-        'dataset_quality': 'medium',
-        'use_case': 'curriculum learning, intermediate benchmarks'
-    },
-    'final_model': {
-        'model_quality': 'best',
-        'dataset_quality': 'highest',
-        'use_case': 'training next generation models, research datasets'
-    }
-}
-```
-
-## 🛠️ **Implementation Framework**
-
-### **Path Manager Implementation**
-
-```python
-# extensions/common/task_aware_path_manager.py
-class TaskAwarePathManager:
+class TrainingDataGenerator:
     """
-    Centralized path management for task-aware directory structure
+    Generate datasets during model training
     
-    Design Patterns:
-    - Facade Pattern: Simplifies complex path management
-    - Factory Pattern: Creates appropriate structures per task type
-    - Strategy Pattern: Different path strategies for different tasks
+    Design Pattern: Observer Pattern
+    Purpose: Automatically create datasets during training process
+    Educational Value: Shows how training and dataset generation are integrated
     """
     
-    TASK_DATA_TYPES = {
-        'heuristics': ['tabular_data.csv', 'sequential_data.npz', 'reasoning_data.jsonl'],
-        'supervised': ['model.pth', 'model.onnx', 'config.json', 'confidence_scores.csv'],
-        'reinforcement': ['policy_network.pth', 'transitions.npz', 'q_values.npz'],
-        'llm_finetune': ['adapter_model.bin', 'reasoning_data.jsonl', 'language_features.npz'],
-        'llm_distillation': ['distilled_model.bin', 'efficiency_metrics.csv']
-    }
+    def __init__(self, output_path: str):
+        self.output_path = output_path
+        self.generated_data = []
+        print(f"[TrainingDataGenerator] Initialized for {output_path}")  # Simple logging
     
-    def __init__(self, extension_type: str, version: str, grid_size: int):
-        self.extension_type = extension_type
-        self.version = version
-        self.grid_size = grid_size
-        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.session_name = f"{extension_type}_v{version}_{self.timestamp}"
-    
-    def get_dataset_structure(self, algorithm: str) -> Dict[str, Path]:
-        """Create dataset directory structure"""
-        base_path = Path("logs/extensions/datasets") / f"grid-size-{self.grid_size}" / self.session_name / algorithm
+    def on_training_step(self, model_output: dict, game_state: dict):
+        """Record data during training step"""
+        # Extract features and predictions
+        features = self._extract_features(game_state)
+        predictions = self._extract_predictions(model_output)
         
-        return {
-            'base': base_path,
-            'game_logs': base_path / 'game_logs',
-            'processed_data': base_path / 'processed_data'
-        }
-    
-    def get_model_structure(self, model_name: str) -> Dict[str, Path]:
-        """Create model directory structure with integrated dataset generation"""
-        base_path = Path("logs/extensions/models") / f"grid-size-{self.grid_size}" / self.session_name / model_name
+        # Store for dataset generation
+        self.generated_data.append({
+            'features': features,
+            'predictions': predictions,
+            'game_state': game_state
+        })
         
-        return {
-            'base': base_path,
-            'model_artifacts': base_path / 'model_artifacts',
-            'training_process': base_path / 'training_process',
-            'training_history': base_path / 'training_process' / 'training_history',
-            'generated_datasets': base_path / 'training_process' / 'generated_datasets',
-            'deployment_ready': base_path / 'deployment_ready'
+        print(f"[TrainingDataGenerator] Recorded training step {len(self.generated_data)}")  # Simple logging
+    
+    def save_generated_dataset(self):
+        """Save accumulated data as dataset"""
+        if not self.generated_data:
+            print(f"[TrainingDataGenerator] No data to save")  # Simple logging
+            return
+        
+        # Convert to appropriate format
+        dataset = self._convert_to_dataset_format(self.generated_data)
+        
+        # Save to directory structure
+        self._save_to_directory_structure(dataset)
+        
+        print(f"[TrainingDataGenerator] Saved dataset with {len(self.generated_data)} samples")  # Simple logging
+```
+
+### **Cross-Task Dataset Consumption**
+```python
+class DatasetConsumer:
+    """
+    Consume datasets from other tasks
+    
+    Design Pattern: Strategy Pattern
+    Purpose: Load and use datasets from different task types
+    Educational Value: Shows how tasks can benefit from each other's data
+    """
+    
+    def __init__(self, task_type: str):
+        self.task_type = task_type
+        self.dataset_loaders = {
+            'tabular': self._load_tabular_data,
+            'sequential': self._load_sequential_data,
+            'reasoning': self._load_reasoning_data
         }
+        print(f"[DatasetConsumer] Initialized for {task_type}")  # Simple logging
+    
+    def load_best_dataset(self, grid_size: int, source_task: str = None):
+        """Load the best available dataset for this task"""
+        # Find best dataset based on task requirements
+        dataset_path = self._find_best_dataset(grid_size, source_task)
+        
+        # Load using appropriate strategy
+        dataset = self._load_dataset(dataset_path)
+        
+        print(f"[DatasetConsumer] Loaded dataset from {dataset_path}")  # Simple logging
+        return dataset
+    
+    def _find_best_dataset(self, grid_size: int, source_task: str) -> str:
+        """Find the best dataset for current task"""
+        # Implementation to find optimal dataset
+        # Considers performance, interpretability, and task requirements
+        pass
 ```
 
-### **Usage Examples**
+## 📊 **Metadata and Quality Tracking**
 
+### **Dataset Metadata Standards**
 ```python
-# Heuristics v0.04 - generating language-rich datasets
-path_manager = TaskAwarePathManager("heuristics", "0.04", grid_size=10)
-paths = path_manager.get_dataset_structure("bfs")
-
-# Save reasoning data for LLM fine-tuning
-reasoning_path = paths['processed_data'] / 'reasoning_data.jsonl'
-with open(reasoning_path, 'w') as f:
-    for step in game_steps:
-        f.write(json.dumps({
-            "prompt": f"Snake head at {step.head}, apple at {step.apple}. Plan move:",
-            "completion": f"Move {step.action} because {step.reasoning}"
-        }) + '\n')
-
-# Reinforcement Learning - saving experience + evaluation data
-rl_manager = TaskAwarePathManager("reinforcement", "0.02", grid_size=10)
-model_paths = rl_manager.get_model_structure("dqn")
-
-# Save model
-torch.save(policy_net.state_dict(), model_paths['model_artifacts'] / 'policy_network.pth')
-
-# Save generated datasets during training
-np.savez(model_paths['generated_datasets'] / 'experience_replay' / 'transitions.npz',
-         states=states, actions=actions, rewards=rewards, next_states=next_states, dones=dones)
+@dataclass
+class DatasetMetadata:
+    """Standardized metadata for all datasets"""
+    
+    # Basic information
+    extension_type: str
+    version: str
+    grid_size: int
+    timestamp: str
+    algorithm: str
+    
+    # Quality metrics
+    num_samples: int
+    performance_score: float
+    interpretability_score: float
+    speed_score: float
+    
+    # Generation information
+    source_task: str
+    generation_method: str
+    training_epochs: int
+    
+    # Format information
+    data_formats: List[str]
+    feature_count: int
+    
+    # Cross-references
+    parent_dataset: Optional[str] = None
+    derived_datasets: List[str] = field(default_factory=list)
+    
+    def save(self, path: str):
+        """Save metadata to JSON file"""
+        metadata_file = os.path.join(path, "metadata.json")
+        with open(metadata_file, 'w') as f:
+            json.dump(asdict(self), f, indent=2)
+        print(f"[DatasetMetadata] Saved metadata to {metadata_file}")  # Simple logging
 ```
 
-## 📊 **Data Format Standards**
+## 🎓 **Educational Value and Learning Path**
 
-### **Grid-Size Agnostic CSV Schema**
+### **Learning Objectives**
+- **Data Organization**: Understanding hierarchical data organization patterns
+- **Multi-Directional Flow**: Learning how data flows between different tasks
+- **Quality Tracking**: Understanding how to track and compare dataset quality
+- **Cross-Task Integration**: Learning how tasks can benefit from each other's data
 
-To enable models to generalize across different grid sizes, all tabular datasets use **normalized features** that remain consistent regardless of board dimensions:
+### **Implementation Examples**
+- **Dataset Generation**: How to automatically generate datasets during training
+- **Quality Assessment**: How to evaluate and compare dataset quality
+- **Cross-Task Consumption**: How to use datasets from different task types
+- **Metadata Management**: How to track dataset lineage and quality
 
-```python
-# Standardized 16-feature schema for all grid sizes
-GRID_SIZE_AGNOSTIC_FEATURES = [
-    # Metadata columns (2)
-    'game_id',                # Unique game session identifier
-    'step_in_game',          # Step number within the game
-    
-    # Normalized position features (4)
-    'head_x_normalized',     # head_x / grid_size (0.0 to 1.0)
-    'head_y_normalized',     # head_y / grid_size (0.0 to 1.0)
-    'apple_x_normalized',    # apple_x / grid_size (0.0 to 1.0)
-    'apple_y_normalized',    # apple_y / grid_size (0.0 to 1.0)
-    
-    # Game state (1)
-    'snake_length',          # Current snake length (absolute)
-    
-    # Relative direction features (4) - grid-size independent
-    'apple_dir_up',          # 1 if apple is above snake head, else 0
-    'apple_dir_down',        # 1 if apple is below snake head, else 0
-    'apple_dir_left',        # 1 if apple is left of snake head, else 0
-    'apple_dir_right',       # 1 if apple is right of snake head, else 0
-    
-    # Immediate danger features (3) - grid-size independent
-    'danger_straight',       # 1 if collision ahead, else 0
-    'danger_left',           # 1 if collision to left, else 0
-    'danger_right',          # 1 if collision to right, else 0
-    
-    # Proportional free space features (4)
-    'free_space_up_ratio',   # free_space_up / grid_size (0.0 to 1.0)
-    'free_space_down_ratio', # free_space_down / grid_size (0.0 to 1.0)
-    'free_space_left_ratio', # free_space_left / grid_size (0.0 to 1.0)
-    'free_space_right_ratio',# free_space_right / grid_size (0.0 to 1.0)
-    
-    # Target column (1)
-    'target_move'            # Next move (UP, DOWN, LEFT, RIGHT)
-]
+## 🔗 **Integration with Other Documentation**
 
-# Total: 19 columns (2 metadata + 16 features + 1 target)
-```
+### **GOOD_RULES Alignment**
+This document aligns with:
+- **`datasets-folder.md`**: Detailed dataset organization standards
+- **`data-format-decision-guide.md`**: Format selection criteria
+- **`unified-path-management-guide.md`**: Path management standards
+- **`single-source-of-truth.md`**: Architectural principles
 
-### **Normalization Benefits**
+### **Extension Guidelines**
+This directory structure supports:
+- All extension types (heuristics, supervised, reinforcement, LLM)
+- All grid sizes (8x8, 10x10, 12x12, 16x16, 20x20)
+- All data formats (CSV, NPZ, JSONL)
+- Cross-extension data sharing and reuse
 
-| Feature Type | Original (Grid-Dependent) | Normalized (Grid-Agnostic) | Benefit |
-|--------------|--------------------------|----------------------------|---------|
-| **Positions** | `head_x=5` (on 10×10) | `head_x_normalized=0.5` | Model learns relative positions |
-| **Free Space** | `free_space_up=3` (on 10×10) | `free_space_up_ratio=0.3` | Proportional space awareness |
-| **Directions** | `apple_dir_up=1` | `apple_dir_up=1` | Already grid-agnostic |
-| **Dangers** | `danger_straight=1` | `danger_straight=1` | Already grid-agnostic |
+---
 
-### **Cross-Grid Training Examples**
+**This directory structure ensures consistent, scalable, and educational data organization across all Snake Game AI extensions while enabling the multi-directional data ecosystem that drives continuous improvement.**
 
-```python
-# Example: Training on mixed grid sizes
-training_data = [
-    # 8×8 grid example
-    {'head_x_normalized': 0.625, 'apple_x_normalized': 0.25, 'free_space_up_ratio': 0.375, 'target_move': 'LEFT'},
-    
-    # 10×10 grid example  
-    {'head_x_normalized': 0.6, 'apple_x_normalized': 0.2, 'free_space_up_ratio': 0.3, 'target_move': 'LEFT'},
-    
-    # 16×16 grid example
-    {'head_x_normalized': 0.5625, 'apple_x_normalized': 0.1875, 'free_space_up_ratio': 0.3125, 'target_move': 'LEFT'}
-]
-
-# Model sees consistent feature ranges regardless of original grid size
-# All normalized features range from 0.0 to 1.0
-# Model can generalize from small grids to large grids and vice versa
-```
-
-### **Task-Specific Formats**
-
-| Task Type | Primary Data Format | Secondary Formats | Special Features |
-|-----------|-------------------|------------------|------------------|
-| **Heuristics** | CSV (tabular) | NPZ (sequential), JSONL (reasoning) | Algorithm traces, search paths, **grid-size normalized** |
-| **Supervised** | CSV (features) | ONNX (deployment), NPZ (predictions) | Confidence scores, feature importance, **cross-grid compatibility** |
-| **Reinforcement** | NPZ (experience) | JSON (episodes), CSV (metrics) | Q-values, policy distributions, **normalized state representations** |
-| **LLM Fine-tuning** | JSONL (reasoning) | NPZ (embeddings), JSON (metadata) | Prompt-completion pairs, quality scores |
-| **LLM Distillation** | BIN (models) | JSON (comparisons), CSV (efficiency) | Compression analysis, knowledge transfer |
-
-### **Metadata Standards**
-
-Each dataset/model directory includes:
-- **`metadata.json`**: Generation parameters, model info, performance metrics
-- **`dataset_metadata.json`**: Data characteristics, quality scores, usage notes
-- **Training logs**: Complete training history and metrics
-- **Deployment configs**: Production-ready configuration files
+> **SUPREME_RULES COMPLIANCE**: This document strictly follows the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.

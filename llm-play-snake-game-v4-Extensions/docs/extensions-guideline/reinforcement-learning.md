@@ -1,6 +1,6 @@
-# Reinforcement Learning for Snake Game AI
+# Reinforcement Learning Standards for Snake Game AI Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines reinforcement learning patterns for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines reinforcement learning standards.
 
 > **Guidelines Alignment:**
 > - This document is governed by the guidelines in `final-decision-10.md`.
@@ -11,90 +11,51 @@
 
 > **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`, `stable-baseline.md`.
 
-# Reinforcement Learning for Snake Game AI
+## 🎯 **Core Philosophy: Learning Through Experience**
 
-## 🎯 **Core Philosophy: Learning Through Experience + SUPREME_RULES**
-
-Reinforcement learning enables agents to learn optimal Snake game strategies through trial and error. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements** for all learning-based systems.
-
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for reinforcement learning architectures
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently throughout RL implementations
-- **simple logging**: Lightweight, OOP-based common utilities with simple logging (print() statements only)
+Reinforcement learning in the Snake Game AI project enables **autonomous learning** through trial and error, where agents learn optimal strategies by interacting with the game environment and receiving rewards. This approach creates adaptive, intelligent agents that improve over time, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **Educational Value**
-- **Trial-and-Error Learning**: Understand autonomous learning using canonical patterns
-- **Policy Optimization**: Experience gradient-based learning with simple logging throughout
-- **Value Function Learning**: Learn temporal difference methods following SUPREME_RULES compliance
-- **Exploration vs Exploitation**: See canonical patterns in learning-exploration trade-offs
+- **Reinforcement Learning**: Understanding RL principles and algorithms
+- **Environment Interaction**: Learning how agents interact with environments
+- **Reward Design**: Understanding reward function design and optimization
+- **Policy Learning**: Experience with different policy learning approaches
 
-## 🏗️ **Extension Structure**
+## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-### **Directory Layout**
-```
-extensions/reinforcement-v0.02/
-├── __init__.py
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_dqn.py              # Deep Q-Network
-│   ├── agent_ppo.py              # Proximal Policy Optimization
-│   ├── agent_a3c.py              # Asynchronous Advantage Actor-Critic
-│   └── agent_ddpg.py             # Deep Deterministic Policy Gradient
-├── environments/
-│   ├── __init__.py
-│   ├── snake_env.py              # Snake game environment
-│   └── env_wrapper.py            # Environment wrapper
-├── models/
-│   ├── __init__.py
-│   ├── neural_networks.py        # Neural network architectures
-│   └── model_manager.py          # Model management
-├── training/
-│   ├── __init__.py
-│   ├── trainer.py                # Training pipeline
-│   └── experience_replay.py      # Experience replay buffer
-├── game_logic.py                 # RL game logic
-├── game_manager.py               # RL manager
-└── main.py                       # CLI interface
-```
+All extension factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
 
-## 🔧 **Implementation Patterns**
-
-### **RL Agent Factory (SUPREME_RULES Compliant)**
-**CRITICAL REQUIREMENT**: All RL factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md` SUPREME_RULES:
-
+### **Reinforcement Learning Factory Implementation**
 ```python
-class RLAgentFactory:
+class ReinforcementLearningFactory:
     """
-    Factory Pattern for Reinforcement Learning agents following final-decision-10.md SUPREME_RULES
+    Factory for reinforcement learning agents following SUPREME_RULES.
     
     Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Demonstrates canonical create() method for RL AI agents
-    Educational Value: Shows how SUPREME_RULES apply to advanced AI systems -
-    canonical patterns work regardless of AI complexity.
-    
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    Purpose: Create RL agents with canonical patterns
+    Educational Value: Shows how canonical factory patterns work with RL systems
     """
     
     _registry = {
         "DQN": DQNAgent,
         "PPO": PPOAgent,
-        "A2C": A2CAgent,
+        "A3C": A3CAgent,
+        "DDPG": DDPGAgent,
         "SAC": SACAgent,
-        "TD3": TD3Agent,
     }
     
     @classmethod
-    def create(cls, algorithm_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create RL agent using canonical create() method following final-decision-10.md"""
+    def create(cls, algorithm_type: str, **kwargs):  # CANONICAL create() method
+        """Create RL agent using canonical create() method (SUPREME_RULES compliance)"""
         agent_class = cls._registry.get(algorithm_type.upper())
         if not agent_class:
             available = list(cls._registry.keys())
-            raise ValueError(f"Unknown RL algorithm: {algorithm_type}. Available: {available}")
-        print(f"[RLAgentFactory] Creating agent: {algorithm_type}")  # Simple logging - SUPREME_RULES
+            raise ValueError(f"Unknown algorithm type: {algorithm_type}. Available: {available}")
+        print(f"[ReinforcementLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class RLAgentFactory:
+class ReinforcementLearningFactory:
     def create_rl_agent(self, algorithm_type: str):  # FORBIDDEN - not canonical
         pass
     
@@ -105,268 +66,489 @@ class RLAgentFactory:
         pass
 ```
 
-### **DQN Agent Implementation (CANONICAL PATTERNS)**
+## 🧠 **Reinforcement Learning Architecture Patterns**
+
+### **Deep Q-Network (DQN) Agent**
 ```python
 class DQNAgent(BaseAgent):
     """
-    Deep Q-Network agent for Snake Game following SUPREME_RULES.
+    Deep Q-Network agent for reinforcement learning.
     
-    Design Pattern: Strategy Pattern (Canonical Implementation)
-    Purpose: Deep reinforcement learning using canonical patterns
-    Educational Value: Shows how canonical factory patterns work with
-    neural network learning while maintaining simple logging.
-    
-    Reference: final-decision-10.md for canonical agent architecture
+    Design Pattern: Strategy Pattern
+    Purpose: Uses Q-learning with deep neural networks
+    Educational Value: Shows how to implement DQN for game AI
     """
     
-    def __init__(self, name: str, grid_size: int,
-                 network_type: str = "MLP",
-                 buffer_type: str = "EXPERIENCE_REPLAY"):
-        super().__init__(name, grid_size)
-        
-        # Use canonical factory patterns for RL components
-        self.q_network = NeuralNetworkFactory.create(network_type, input_dim=grid_size*grid_size)  # Canonical
-        self.target_network = NeuralNetworkFactory.create(network_type, input_dim=grid_size*grid_size)  # Canonical
-        self.replay_buffer = ReplayBufferFactory.create(buffer_type, capacity=10000)  # Canonical
-        
-        self.epsilon = 1.0
-        self.episode_count = 0
-        
-        print(f"[{name}] DQN Agent initialized with {network_type} network")  # Simple logging
+    def __init__(self, config: Dict[str, Any] = None):
+        super().__init__("DQN", config)
+        self.q_network = None
+        self.target_network = None
+        self.replay_buffer = []
+        self.epsilon = self.config.get('epsilon_start', 0.9)
+        self.epsilon_decay = self.config.get('epsilon_decay', 0.995)
+        self.epsilon_min = self.config.get('epsilon_min', 0.01)
+        self._build_networks()
+        print(f"[DQNAgent] Initialized DQN agent")  # Simple logging
     
-    def plan_move(self, game_state: dict) -> str:
-        """Plan move using DQN policy with simple logging throughout"""
-        print(f"[{self.name}] Starting DQN decision process")  # Simple logging
+    def _build_networks(self):
+        """Build Q-networks"""
+        input_size = self.config.get('input_size', 16)
+        hidden_size = self.config.get('hidden_size', 64)
+        output_size = 4  # 4 directions
         
-        state = self._preprocess_state(game_state)
-        print(f"[{self.name}] State preprocessed")  # Simple logging
+        self.q_network = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, output_size)
+        )
         
-        # Epsilon-greedy action selection using simple logic
+        self.target_network = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, output_size)
+        )
+        
+        # Copy weights from Q-network to target network
+        self.target_network.load_state_dict(self.q_network.state_dict())
+        
+        self.optimizer = optim.Adam(self.q_network.parameters(), lr=self.config.get('learning_rate', 0.001))
+        print(f"[DQNAgent] Built Q-networks")  # Simple logging
+    
+    def plan_move(self, game_state: Dict[str, Any]) -> str:
+        """Plan move using DQN algorithm"""
+        # Epsilon-greedy exploration
         if random.random() < self.epsilon:
-            action = random.choice(['UP', 'DOWN', 'LEFT', 'RIGHT'])
-            print(f"[{self.name}] Random action: {action} (epsilon: {self.epsilon:.3f})")  # Simple logging
+            # Random exploration
+            directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+            move = random.choice(directions)
+            print(f"[DQNAgent] Random exploration: {move}")  # Simple logging
         else:
-            q_values = self.q_network.predict(state)
-            action_idx = np.argmax(q_values)
-            action = ['UP', 'DOWN', 'LEFT', 'RIGHT'][action_idx]
-            print(f"[{self.name}] Greedy action: {action} (Q-value: {np.max(q_values):.3f})")  # Simple logging
+            # Exploitation using Q-network
+            state_vector = self._state_to_vector(game_state)
+            with torch.no_grad():
+                q_values = self.q_network(torch.FloatTensor(state_vector))
+                move_idx = torch.argmax(q_values).item()
+            
+            directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+            move = directions[move_idx]
+            print(f"[DQNAgent] Q-network exploitation: {move}")  # Simple logging
         
-        print(f"[{self.name}] DQN decided: {action}")  # Simple logging
-        return action
+        return move
     
-    def train_step(self, batch_size: int = 32) -> None:
-        """Execute one training step with simple logging"""
-        print(f"[{self.name}] Starting DQN training step")  # Simple logging
+    def store_experience(self, state: Dict[str, Any], action: str, reward: float, 
+                        next_state: Dict[str, Any], done: bool):
+        """Store experience in replay buffer"""
+        experience = {
+            'state': state,
+            'action': action,
+            'reward': reward,
+            'next_state': next_state,
+            'done': done
+        }
+        self.replay_buffer.append(experience)
         
+        # Limit buffer size
+        if len(self.replay_buffer) > self.config.get('buffer_size', 10000):
+            self.replay_buffer.pop(0)
+    
+    def train(self, batch_size: int = 32):
+        """Train the Q-network"""
         if len(self.replay_buffer) < batch_size:
-            print(f"[{self.name}] Insufficient experience for training")  # Simple logging
             return
         
-        # Sample batch using canonical buffer
-        batch = self.replay_buffer.sample(batch_size)
-        print(f"[{self.name}] Sampled batch of {batch_size} experiences")  # Simple logging
+        # Sample batch from replay buffer
+        batch = random.sample(self.replay_buffer, batch_size)
         
-        # Compute targets and update network
-        loss = self._update_q_network(batch)
-        print(f"[{self.name}] Q-network updated, loss: {loss:.4f}")  # Simple logging
+        # Prepare batch data
+        states = torch.FloatTensor([self._state_to_vector(exp['state']) for exp in batch])
+        actions = torch.LongTensor([self._action_to_index(exp['action']) for exp in batch])
+        rewards = torch.FloatTensor([exp['reward'] for exp in batch])
+        next_states = torch.FloatTensor([self._state_to_vector(exp['next_state']) for exp in batch])
+        dones = torch.BoolTensor([exp['done'] for exp in batch])
         
-        # Update target network periodically
-        if self.episode_count % 100 == 0:
-            self._update_target_network()
-            print(f"[{self.name}] Target network updated")  # Simple logging
+        # Compute current Q-values
+        current_q_values = self.q_network(states).gather(1, actions.unsqueeze(1))
+        
+        # Compute target Q-values
+        with torch.no_grad():
+            next_q_values = self.target_network(next_states).max(1)[0]
+            target_q_values = rewards + (self.config.get('gamma', 0.99) * next_q_values * ~dones)
+        
+        # Compute loss and update
+        loss = nn.MSELoss()(current_q_values.squeeze(), target_q_values)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        
+        print(f"[DQNAgent] Training loss: {loss.item():.4f}")  # Simple logging
     
-    def update_epsilon(self, episode: int, total_episodes: int) -> None:
-        """Update exploration rate with simple logging"""
-        old_epsilon = self.epsilon
-        self.epsilon = max(0.01, 1.0 - episode / (total_episodes * 0.8))
-        self.episode_count = episode
-        
-        print(f"[{self.name}] Epsilon updated: {old_epsilon:.3f} → {self.epsilon:.3f}")  # Simple logging
+    def update_target_network(self):
+        """Update target network"""
+        self.target_network.load_state_dict(self.q_network.state_dict())
+        print(f"[DQNAgent] Updated target network")  # Simple logging
     
-    def store_experience(self, state, action, reward, next_state, done) -> None:
-        """Store experience in replay buffer with simple logging"""
-        self.replay_buffer.add(state, action, reward, next_state, done)
-        print(f"[{self.name}] Experience stored, buffer size: {len(self.replay_buffer)}")  # Simple logging
+    def update_epsilon(self):
+        """Update exploration rate"""
+        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
+        print(f"[DQNAgent] Updated epsilon to {self.epsilon:.3f}")  # Simple logging
+    
+    def _state_to_vector(self, game_state: Dict[str, Any]) -> List[float]:
+        """Convert game state to vector"""
+        # Similar to supervised learning feature extraction
+        features = []
+        head_pos = game_state['snake_positions'][0]
+        apple_pos = game_state['apple_position']
+        
+        # Position features
+        features.extend([head_pos[0], head_pos[1], apple_pos[0], apple_pos[1]])
+        
+        # Game state features
+        features.append(len(game_state['snake_positions']))
+        
+        # Direction features
+        features.extend(self._get_direction_features(head_pos, apple_pos))
+        
+        # Danger features
+        features.extend(self._get_danger_features(game_state))
+        
+        # Free space features
+        features.extend(self._get_free_space_features(game_state))
+        
+        return features
+    
+    def _action_to_index(self, action: str) -> int:
+        """Convert action string to index"""
+        actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+        return actions.index(action)
+    
+    def _get_direction_features(self, head_pos: tuple, apple_pos: tuple) -> List[float]:
+        """Get direction features"""
+        dx = apple_pos[0] - head_pos[0]
+        dy = apple_pos[1] - head_pos[1]
+        
+        return [
+            1.0 if dy < 0 else 0.0,  # apple_dir_up
+            1.0 if dy > 0 else 0.0,  # apple_dir_down
+            1.0 if dx < 0 else 0.0,  # apple_dir_left
+            1.0 if dx > 0 else 0.0,  # apple_dir_right
+        ]
+    
+    def _get_danger_features(self, game_state: Dict[str, Any]) -> List[float]:
+        """Get danger features"""
+        head_pos = game_state['snake_positions'][0]
+        grid_size = game_state['grid_size']
+        
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        danger_features = []
+        
+        for dx, dy in directions:
+            new_pos = (head_pos[0] + dx, head_pos[1] + dy)
+            is_danger = (
+                new_pos in game_state['snake_positions'] or
+                not (0 <= new_pos[0] < grid_size and 0 <= new_pos[1] < grid_size)
+            )
+            danger_features.append(1.0 if is_danger else 0.0)
+        
+        return danger_features[:3]  # Only straight, left, right
+    
+    def _get_free_space_features(self, game_state: Dict[str, Any]) -> List[float]:
+        """Get free space features"""
+        head_pos = game_state['snake_positions'][0]
+        grid_size = game_state['grid_size']
+        snake_positions = set(game_state['snake_positions'])
+        
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        free_space_features = []
+        
+        for dx, dy in directions:
+            free_count = 0
+            current_pos = head_pos
+            
+            for _ in range(grid_size):
+                current_pos = (current_pos[0] + dx, current_pos[1] + dy)
+                if (0 <= current_pos[0] < grid_size and 
+                    0 <= current_pos[1] < grid_size and 
+                    current_pos not in snake_positions):
+                    free_count += 1
+                else:
+                    break
+            
+            free_space_features.append(free_count)
+        
+        return free_space_features
 ```
 
-## 📊 **Environment Integration**
-
-### **Snake Environment**
-```python
-class SnakeEnvironment:
-    """
-    Snake game environment for RL training
-    
-    Design Pattern: Adapter Pattern
-    - Adapts Snake game to RL environment interface
-    - Provides standardized observation and reward
-    - Enables easy integration with RL frameworks
-    """
-    
-    def __init__(self, grid_size: int = 10):
-        self.grid_size = grid_size
-        self.reset()
-        print(f"[SnakeEnvironment] Initialized {grid_size}x{grid_size} environment")
-    
-    def reset(self):
-        """Reset environment to initial state"""
-        self.snake_positions = [(5, 5)]
-        self.apple_position = self._generate_apple()
-        self.direction = 'NONE'
-        self.score = 0
-        self.steps = 0
-        self.done = False
-        print("[SnakeEnvironment] Environment reset")
-        return self._get_observation()
-    
-    def step(self, action: str):
-        """Execute action and return (observation, reward, done, info)"""
-        if self.done:
-            return self._get_observation(), 0, True, {}
-        
-        # Execute action
-        old_score = self.score
-        self._execute_action(action)
-        
-        # Calculate reward
-        reward = self._calculate_reward(old_score)
-        
-        # Check termination
-        self.done = self._check_termination()
-        
-        print(f"[SnakeEnvironment] Action: {action}, Reward: {reward}, Score: {self.score}")
-        return self._get_observation(), reward, self.done, {}
-```
-
-## 🚀 **Advanced Features**
-
-### **Experience Replay**
-```python
-class ExperienceReplayBuffer:
-    """
-    Experience replay buffer for stable learning
-    
-    Design Pattern: Decorator Pattern
-    - Adds replay functionality to base learning
-    - Improves sample efficiency and stability
-    - Enables batch learning from past experiences
-    """
-    
-    def __init__(self, capacity: int = 10000):
-        self.capacity = capacity
-        self.buffer = []
-        self.position = 0
-        print(f"[ExperienceReplayBuffer] Initialized with capacity: {capacity}")
-    
-    def add(self, state, action, reward, next_state, done):
-        """Add experience to buffer"""
-        experience = (state, action, reward, next_state, done)
-        
-        if len(self.buffer) < self.capacity:
-            self.buffer.append(experience)
-        else:
-            self.buffer[self.position] = experience
-        
-        self.position = (self.position + 1) % self.capacity
-    
-    def sample(self, batch_size: int):
-        """Sample batch of experiences"""
-        batch = random.sample(self.buffer, min(batch_size, len(self.buffer)))
-        print(f"[ExperienceReplayBuffer] Sampled {len(batch)} experiences")
-        return batch
-```
-
-### **PPO Implementation**
+### **Proximal Policy Optimization (PPO) Agent**
 ```python
 class PPOAgent(BaseAgent):
     """
-    Proximal Policy Optimization agent
+    Proximal Policy Optimization agent for reinforcement learning.
     
     Design Pattern: Strategy Pattern
-    - Implements PPO algorithm for policy optimization
-    - Uses clipped objective for stable updates
-    - Maintains separate policy and value networks
+    Purpose: Uses PPO algorithm for policy optimization
+    Educational Value: Shows how to implement PPO for game AI
     """
     
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.policy_network = self._build_policy_network()
-        self.value_network = self._build_value_network()
-        self.clip_ratio = 0.2
-        print(f"[PPOAgent] Initialized PPO agent: {name}")
+    def __init__(self, config: Dict[str, Any] = None):
+        super().__init__("PPO", config)
+        self.policy_network = None
+        self.value_network = None
+        self.optimizer = None
+        self._build_networks()
+        print(f"[PPOAgent] Initialized PPO agent")  # Simple logging
+    
+    def _build_networks(self):
+        """Build policy and value networks"""
+        input_size = self.config.get('input_size', 16)
+        hidden_size = self.config.get('hidden_size', 64)
+        
+        # Policy network
+        self.policy_network = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, 4)  # 4 actions
+        )
+        
+        # Value network
+        self.value_network = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, 1)  # Value estimate
+        )
+        
+        # Optimizer
+        self.optimizer = optim.Adam(
+            list(self.policy_network.parameters()) + list(self.value_network.parameters()),
+            lr=self.config.get('learning_rate', 0.0003)
+        )
+        
+        print(f"[PPOAgent] Built policy and value networks")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using PPO policy"""
-        state = self._preprocess_state(game_state)
-        action_probs = self.policy_network.predict(state)
-        action_idx = np.random.choice(4, p=action_probs)
-        action = ['UP', 'DOWN', 'LEFT', 'RIGHT'][action_idx]
-        print(f"[PPOAgent] Selected action: {action} (prob: {action_probs[action_idx]:.3f})")
-        return action
+        state_vector = self._state_to_vector(game_state)
+        
+        # Get action probabilities
+        with torch.no_grad():
+            action_logits = self.policy_network(torch.FloatTensor(state_vector))
+            action_probs = torch.softmax(action_logits, dim=0)
+            
+            # Sample action
+            action_dist = torch.distributions.Categorical(action_probs)
+            action_idx = action_dist.sample().item()
+        
+        directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+        move = directions[action_idx]
+        
+        print(f"[PPOAgent] Selected move: {move}")  # Simple logging
+        return move
+    
+    def get_action_log_prob(self, state: Dict[str, Any], action: str) -> float:
+        """Get log probability of action"""
+        state_vector = self._state_to_vector(state)
+        action_logits = self.policy_network(torch.FloatTensor(state_vector))
+        action_probs = torch.softmax(action_logits, dim=0)
+        action_dist = torch.distributions.Categorical(action_probs)
+        
+        action_idx = self._action_to_index(action)
+        return action_dist.log_prob(torch.tensor(action_idx)).item()
+    
+    def get_value(self, state: Dict[str, Any]) -> float:
+        """Get value estimate for state"""
+        state_vector = self._state_to_vector(state)
+        with torch.no_grad():
+            value = self.value_network(torch.FloatTensor(state_vector))
+        return value.item()
+    
+    def _state_to_vector(self, game_state: Dict[str, Any]) -> List[float]:
+        """Convert game state to vector"""
+        # Similar to DQN agent
+        features = []
+        head_pos = game_state['snake_positions'][0]
+        apple_pos = game_state['apple_position']
+        
+        features.extend([head_pos[0], head_pos[1], apple_pos[0], apple_pos[1]])
+        features.append(len(game_state['snake_positions']))
+        features.extend(self._get_direction_features(head_pos, apple_pos))
+        features.extend(self._get_danger_features(game_state))
+        features.extend(self._get_free_space_features(game_state))
+        
+        return features
+    
+    def _action_to_index(self, action: str) -> int:
+        """Convert action string to index"""
+        actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+        return actions.index(action)
+    
+    def _get_direction_features(self, head_pos: tuple, apple_pos: tuple) -> List[float]:
+        """Get direction features"""
+        dx = apple_pos[0] - head_pos[0]
+        dy = apple_pos[1] - head_pos[1]
+        
+        return [
+            1.0 if dy < 0 else 0.0,  # apple_dir_up
+            1.0 if dy > 0 else 0.0,  # apple_dir_down
+            1.0 if dx < 0 else 0.0,  # apple_dir_left
+            1.0 if dx > 0 else 0.0,  # apple_dir_right
+        ]
+    
+    def _get_danger_features(self, game_state: Dict[str, Any]) -> List[float]:
+        """Get danger features"""
+        head_pos = game_state['snake_positions'][0]
+        grid_size = game_state['grid_size']
+        
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        danger_features = []
+        
+        for dx, dy in directions:
+            new_pos = (head_pos[0] + dx, head_pos[1] + dy)
+            is_danger = (
+                new_pos in game_state['snake_positions'] or
+                not (0 <= new_pos[0] < grid_size and 0 <= new_pos[1] < grid_size)
+            )
+            danger_features.append(1.0 if is_danger else 0.0)
+        
+        return danger_features[:3]  # Only straight, left, right
+    
+    def _get_free_space_features(self, game_state: Dict[str, Any]) -> List[float]:
+        """Get free space features"""
+        head_pos = game_state['snake_positions'][0]
+        grid_size = game_state['grid_size']
+        snake_positions = set(game_state['snake_positions'])
+        
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        free_space_features = []
+        
+        for dx, dy in directions:
+            free_count = 0
+            current_pos = head_pos
+            
+            for _ in range(grid_size):
+                current_pos = (current_pos[0] + dx, current_pos[1] + dy)
+                if (0 <= current_pos[0] < grid_size and 
+                    0 <= current_pos[1] < grid_size and 
+                    current_pos not in snake_positions):
+                    free_count += 1
+                else:
+                    break
+            
+            free_space_features.append(free_count)
+        
+        return free_space_features
 ```
 
-## 📋 **Configuration and Usage**
+## 📊 **Training Pipeline Standards**
 
-### **RL Configuration**
+### **Reinforcement Learning Training Pipeline**
 ```python
-RL_CONFIG = {
-    'dqn': {
-        'learning_rate': 0.001,
-        'gamma': 0.99,
-        'epsilon_start': 1.0,
-        'epsilon_end': 0.01,
-        'epsilon_decay': 0.995,
-        'batch_size': 32
-    },
-    'ppo': {
-        'learning_rate': 0.0003,
-        'gamma': 0.99,
-        'clip_ratio': 0.2,
-        'batch_size': 64,
-        'epochs_per_update': 10
-    },
-    'a3c': {
-        'learning_rate': 0.001,
-        'gamma': 0.99,
-        'entropy_beta': 0.01,
-        'num_workers': 4
-    }
-}
+class RLTrainingPipeline:
+    """
+    Training pipeline for reinforcement learning agents.
+    
+    Design Pattern: Template Method Pattern
+    Purpose: Provides consistent training workflow
+    Educational Value: Shows how to train different RL algorithms
+    """
+    
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.agent = None
+        self.environment = None
+        print(f"[RLTrainingPipeline] Initialized training pipeline")  # Simple logging
+    
+    def setup_environment(self, grid_size: int = 10):
+        """Setup training environment"""
+        self.environment = SnakeGameEnvironment(grid_size)
+        print(f"[RLTrainingPipeline] Environment setup complete")  # Simple logging
+    
+    def setup_agent(self, algorithm_type: str):
+        """Setup RL agent"""
+        self.agent = ReinforcementLearningFactory.create(algorithm_type, **self.config)
+        print(f"[RLTrainingPipeline] Agent setup complete")  # Simple logging
+    
+    def train(self, num_episodes: int):
+        """Train the agent"""
+        print(f"[RLTrainingPipeline] Starting training for {num_episodes} episodes")  # Simple logging
+        
+        for episode in range(num_episodes):
+            episode_reward = self._train_episode()
+            
+            if episode % 100 == 0:
+                print(f"[RLTrainingPipeline] Episode {episode+1}/{num_episodes} - "
+                      f"Reward: {episode_reward:.2f}")  # Simple logging
+    
+    def _train_episode(self) -> float:
+        """Train for one episode"""
+        state = self.environment.reset()
+        total_reward = 0.0
+        done = False
+        
+        while not done:
+            # Agent selects action
+            action = self.agent.plan_move(state)
+            
+            # Environment step
+            next_state, reward, done, _ = self.environment.step(action)
+            
+            # Store experience (for algorithms that use replay buffer)
+            if hasattr(self.agent, 'store_experience'):
+                self.agent.store_experience(state, action, reward, next_state, done)
+            
+            # Train agent (for algorithms that train online)
+            if hasattr(self.agent, 'train'):
+                self.agent.train()
+            
+            state = next_state
+            total_reward += reward
+        
+        return total_reward
+    
+    def save_agent(self, agent_path: str):
+        """Save trained agent"""
+        if hasattr(self.agent, 'save_model'):
+            self.agent.save_model(agent_path)
+        else:
+            torch.save(self.agent.state_dict(), agent_path)
+        print(f"[RLTrainingPipeline] Agent saved to {agent_path}")  # Simple logging
 ```
 
-### **Training Commands**
-```bash
-python main.py --agent DQN --episodes 1000 --epsilon-decay 0.995
-python main.py --agent PPO --episodes 500 --batch-size 64
-python main.py --agent A3C --episodes 2000 --workers 4
-```
+## 📋 **Implementation Checklist**
 
-## 🔗 **Integration with Other Extensions**
+### **Required Components**
+- [ ] **Factory Pattern**: Uses canonical `create()` method
+- [ ] **Agent Architecture**: Implements appropriate RL algorithm
+- [ ] **Environment Interface**: Proper environment interaction
+- [ ] **Training Pipeline**: Standardized training workflow
+- [ ] **Simple Logging**: Uses print() statements for debugging
 
-### **With Heuristics Extensions**
-- Use heuristic performance as baseline for RL training
-- Compare learned vs. algorithmic approaches
-- Analyze exploration vs. exploitation strategies
+### **Quality Standards**
+- [ ] **Agent Performance**: Meets performance benchmarks
+- [ ] **Learning Efficiency**: Efficient learning process
+- [ ] **Exploration Strategy**: Appropriate exploration mechanisms
+- [ ] **Documentation**: Clear documentation of agent capabilities
 
-### **With Supervised Learning**
-- RL complements supervised approaches
-- Provides autonomous learning capabilities
-- Enables continuous improvement through experience
-
-## 🎓 **Educational Applications**
-
-### **Learning Algorithms**
-- **Q-Learning**: Value-based learning with function approximation
-- **Policy Gradient**: Direct policy optimization
-- **Actor-Critic**: Combined value and policy learning
-- **Multi-Agent**: Cooperative and competitive learning
-
-### **Performance Analysis**
-- **Sample Efficiency**: Learning speed and data requirements
-- **Exploration**: Balancing exploration and exploitation
-- **Generalization**: Performance on unseen scenarios
-- **Stability**: Training stability and convergence
+### **Integration Requirements**
+- [ ] **Environment Compatibility**: Works with standard game environment
+- [ ] **Factory Integration**: Compatible with agent factory patterns
+- [ ] **Configuration**: Supports standard configuration system
+- [ ] **Evaluation**: Integrates with evaluation framework
 
 ---
 
-**Reinforcement learning provides autonomous learning capabilities for Snake game AI, enabling agents to discover sophisticated strategies through experience while maintaining full compliance with established GOOD_RULES standards.**
+**Reinforcement learning standards ensure consistent, high-quality RL implementations across all Snake Game AI extensions. By following these standards, developers can create robust, educational, and adaptive agents that integrate seamlessly with the overall framework.**
+
+## 🔗 **See Also**
+
+- **`agents.md`**: Agent implementation standards
+- **`core.md`**: Base class architecture and inheritance patterns
+- **`config.md`**: Configuration management
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
+- **`factory-design-pattern.md`**: Factory pattern implementation

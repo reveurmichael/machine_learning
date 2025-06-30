@@ -4,47 +4,56 @@
 
 {% block header_title %}Snake Game – Replay Viewer{% endblock %}
 
-{% block extra_scripts %}
-<script src="{{ url_for('static', filename='js/replay.js') }}"></script>
+{% block sidebar_content %}
+<!-- Stats Section (always present) -->
+<div class="stats-section">
+    <h2>Game Information</h2>
+    <div class="stats-grid">
+        <div>Game: <span id="game-number">1</span></div>
+        <div>Score: <span id="score">0</span></div>
+        <div id="end-reason-container">End Reason: <span id="end-reason">-</span></div>
+    </div>
+</div>
+
+<!-- Progress Section (replay mode) -->
+<div class="progress-section" id="progress-section">
+    <h2>Progress <span id="progress">0/0</span></h2>
+    <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+    </div>
+</div>
+
+<!-- Replay Controls -->
+<div class="controls-section" id="replay-controls-section">
+    <h2>Controls</h2>
+    <div class="controls-grid">
+        <button id="prev-game">&lt;&lt; Prev</button>
+        <button id="restart">Restart</button>
+        <button id="play-pause">Play</button>
+        <button id="next-game">Next &gt;&gt;</button>
+    </div>
+    <div class="speed-controls">
+        <span>Pause:</span>
+        <button id="speed-down" title="Slow down">↓</button>
+        <span id="speed-value">1.0s</span>
+        <button id="speed-up" title="Speed up">↑</button>
+    </div>
+</div>
+
+<!-- LLM Information (replay mode) -->
+<div class="llm-info-section" id="llm-info-section">
+    <h2>LLM Information</h2>
+    <div>Primary: <span id="primary-llm">Unknown</span></div>
+    <div>Parser: <span id="secondary-llm">None</span></div>
+</div>
+
+<!-- Game Over indicator (replay) -->
+<div id="game-over-indicator" class="status-indicator game-over-status" style="display:none;">GAME OVER</div>
+
+<!-- Paused Indicator (replay mode) -->
+<div id="paused-indicator" class="status-indicator paused-status" style="display:none;">PAUSED</div>
 {% endblock %}
 
-<div class="game-sidebar">
-    <!-- Status indicator (if applicable) -->
-    <div class="stats-section">
-        <h2>Game Information</h2>
-        <div class="stats-grid">
-            <div>Game: <span id="game-number">1</span></div>
-            <div>Score: <span id="score">0</span></div>
-            <div id="end-reason-container">End Reason: <span id="end-reason"></span></div>
-        </div>
-    </div>
-
-    <div class="progress-section">
-        <h2>Progress <span id="progress">0/0</span></h2>
-        <div class="progress-bar-container">
-            <div id="progress-bar" class="progress-bar"></div>
-        </div>
-    </div>
-
-    <!-- Controls now before LLM Info -->
-    <div class="controls-section">
-        <h2>Controls</h2>
-        <div class="controls-grid">
-            <button id="prev-game">&lt;&lt; Prev</button>
-            <button id="restart">Restart</button>
-            <button id="play-pause">Play</button>
-            <button id="next-game">Next &gt;&gt;</button>
-        </div>
-        <div class="speed-controls">
-            <button id="speed-down">&#8595;</button>
-            <span id="speed-value">1.0s</span>
-            <button id="speed-up">&#8593;</button>
-        </div>
-    </div>
-
-    <div class="llm-info-section">
-        <h2>LLM Information</h2>
-        <div>Primary: <span id="primary-llm">-</span></div>
-        <div>Parser: <span id="secondary-llm">-</span></div>
-    </div>
-</div> 
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/replay.js') }}"></script>
+{% endblock %} 

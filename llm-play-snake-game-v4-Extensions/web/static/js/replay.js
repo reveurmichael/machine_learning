@@ -167,12 +167,10 @@ class ReplayView {
         }
         // End Reason
         if (this.elements.endReasonElement && this.elements.endReasonContainer) {
-            if (state.end_reason) {
-                this.elements.endReasonElement.textContent = state.end_reason;
-                this.elements.endReasonContainer.style.display = 'block';
-            } else {
-                this.elements.endReasonContainer.style.display = 'none';
-            }
+            // Always show the end reason container
+            this.elements.endReasonContainer.style.display = 'block';
+            // Set the text content to the state value or fallback to "-"
+            this.elements.endReasonElement.textContent = state.end_reason || '-';
         }
     }
     

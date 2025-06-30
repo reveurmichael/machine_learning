@@ -97,6 +97,7 @@ class ReplayView {
             gameNumberElement: document.getElementById('game-number'),
             scoreElement: document.getElementById('score'),
             endReasonElement: document.getElementById('end-reason'),
+            endReasonContainer: document.getElementById('end-reason-container'),
             
             // Sections containers
             progressSection: document.getElementById('progress-section'),
@@ -152,9 +153,6 @@ class ReplayView {
     }
     
     updateGameInfo(state) {
-        // === DEBUG: Log game number info ===
-        console.log('[ReplayView] Game number:', state.game_number, 'of', state.total_games);
-        // === END DEBUG ===
         // Game number
         if (this.elements.gameNumberElement) {
             if (state.total_games && state.total_games > 0) {
@@ -162,18 +160,19 @@ class ReplayView {
             } else {
                 this.elements.gameNumberElement.textContent = state.game_number;
             }
-        } else {
-            console.warn('[ReplayView] game-number element not found in DOM!');
         }
-        
         // Score
         if (this.elements.scoreElement) {
-            this.elements.scoreElement.textContent = state.score || 0;
+            this.elements.scoreElement.textContent = state.score;
         }
-        
-        // End Reason (now part of Game Information)
-        if (this.elements.endReasonElement) {
-            this.elements.endReasonElement.textContent = state.end_reason || '-';
+        // End Reason
+        if (this.elements.endReasonElement && this.elements.endReasonContainer) {
+            if (state.end_reason) {
+                this.elements.endReasonElement.textContent = state.end_reason;
+                this.elements.endReasonContainer.style.display = 'block';
+            } else {
+                this.elements.endReasonContainer.style.display = 'none';
+            }
         }
     }
     

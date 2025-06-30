@@ -565,8 +565,9 @@ class ReplayGameApp(SimpleFlaskApp):
             # Add web-specific fields
             total_moves = len(self.replay_engine.moves) if hasattr(self.replay_engine, 'moves') else 0
             is_at_end = self.replay_engine.move_index >= total_moves
-            is_engine_over = not self.replay_engine.running or self.replay_engine.game_end_reason is not None
-            game_over = is_at_end or is_engine_over
+            # Game is over only if we're at the end of moves OR the replay engine is not running
+            # Having a game_end_reason doesn't mean the game is over during replay
+            game_over = is_at_end or not self.replay_engine.running
             state.update({
                 'mode': 'replay',
                 'log_dir': self.log_dir,

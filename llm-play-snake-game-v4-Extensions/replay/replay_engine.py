@@ -532,6 +532,10 @@ class ReplayEngine(BaseReplayEngine):
             if self.use_gui and self.gui and hasattr(self.gui, "move_history"):
                 self.gui.move_history = []
 
+            # Ensure replay is running and not paused at the start of a new game
+            self.running = True
+            self.paused = False
+
             print(f"Game {game_number} loaded successfully")
             return game_data
 

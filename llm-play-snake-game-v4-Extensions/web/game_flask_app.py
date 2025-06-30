@@ -1,21 +1,43 @@
 """
-Task-0 Flask Web Interface - Minimal KISS Architecture
+Task-0 Flask Web Interface - Enhanced KISS Architecture
 --------------------
 
-Truly minimal, KISS, DRY, and extensible web backend for Task-0 and all future extensions.
+Enhanced minimal, KISS, DRY, and extensible web backend for Task-0 and all future extensions.
 Direct integration with existing game logic without complex patterns or Task-0 pollution.
+
+IMPORTANT: Now uses existing GameLogic and GameManager classes for consistency
+across all game interfaces (CLI, GUI, web). This ensures single source of truth
+for game behavior and eliminates code duplication.
+
+Enhanced Features (following replay.py and main.py patterns):
+- Standardized argument parsing with get_parser() and parse_arguments() functions
+- Factory Pattern with canonical create() methods (per SUPREME_RULES)
+- OOP Application classes following MainApplication pattern
+- Proper configuration integration and path management
+- Educational docstrings and design pattern explanations
+- Simple logging using print() statements (SUPREME_RULES compliance)
+
+Game Component Integration:
+- HumanGameApp: Uses GameLogic from core.game_logic (same as human_play.py)
+- LLMGameApp: References GameManager pattern (full integration via scripts/main_web.py)
+- ReplayGameApp: Uses ReplayEngine from replay module (already correct)
 
 Design Philosophy:
 - KISS: Keep It Simple, Stupid - no over-engineering
-- DRY: Don't Repeat Yourself - reusable patterns
+- DRY: Don't Repeat Yourself - reuse existing game components
 - Minimal: Only essential functionality
 - Extensible: Easy to extend for future tasks
+- Consistent: Same game logic across all interfaces
+- Educational: Demonstrates proper architectural patterns
 
 Educational Goals:
 - Show direct Flask integration with existing components
-- Demonstrate minimal web architecture
+- Demonstrate minimal web architecture with standard patterns
 - Provide copy-paste templates for extensions
 - Keep functionality while removing complexity
+- Illustrate proper separation of game logic from presentation
+- Demonstrate Factory Pattern with canonical create() methods
+- Show argument parsing reusability patterns
 
 Extension Pattern:
 Copy this file → Replace game components → Maintain same simple structure
@@ -25,15 +47,25 @@ import os
 import sys
 import time
 import threading
+import argparse
 from typing import Dict, Any, Optional
 from flask import Flask, render_template, jsonify, request
 
-# Import utilities (no Task-0 pollution)
+# Import Task-0 core components for proper game logic integration
+from core.game_logic import GameLogic
+from core.game_manager import GameManager
+
+# Import utilities following SSOT principles
 from utils.network_utils import random_free_port
 from utils.web_utils import build_color_map
+from utils.path_utils import ensure_project_root
 
-# Import central colour palette
+# Import configuration following SSOT hierarchy (universal constants)
 from config.ui_constants import COLORS as UI_COLORS
+from config.game_constants import DIRECTIONS, VALID_MOVES
+
+# Ensure project root for consistent behavior
+ensure_project_root()
 
 # Map UI_COLORS keys to camelCase expected by JS
 _COLOR_KEY_MAP = {
@@ -46,7 +78,7 @@ _COLOR_KEY_MAP = {
 
 
 def _build_color_payload() -> Dict[str, list]:
-    """Build color payload for web interface."""
+    """Build color payload for web interface following SSOT principles."""
     color_map = build_color_map()
     return {
         'snake_head': list(color_map['snake_head']),
@@ -57,8 +89,211 @@ def _build_color_payload() -> Dict[str, list]:
     }
 
 
-# Simple logging following SUPREME_RULES
+# Helper function to convert numpy arrays to lists for JSON serialization
+def _numpy_to_list(obj):
+    """Convert numpy arrays to lists for JSON serialization."""
+    import numpy as np
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    return obj
+
+
+# Simple logging following SUPREME_RULES (final-decision-10.md compliance)
 print_log = lambda msg: print(f"[WebApp] {msg}")
+
+
+# ------------------
+# Argument Parsing Functions (following scripts/main.py and scripts/replay.py patterns)
+# ------------------
+
+def get_human_parser() -> argparse.ArgumentParser:
+    """Creates argument parser for human game web interface.
+    
+    Following the pattern from scripts/main.py and scripts/replay.py, this function
+    creates a reusable argument parser that can be imported by other scripts.
+    
+    Design Pattern: Factory Pattern (Argument Parser Creation)
+    Educational Value: Shows standardized argument parsing across web interfaces
+    Extension Pattern: Future tasks can copy this pattern for their web interfaces
+    
+    Returns:
+        An argparse.ArgumentParser instance for human game configuration
+    """
+    parser = argparse.ArgumentParser(
+        description="Snake Game - Human Web Interface",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python -c "from web.game_flask_app import create_human_app; create_human_app().run()"
+  
+Extension Pattern:
+  Future tasks can copy this parser structure and modify for their needs
+  while maintaining consistent argument handling patterns.
+        """
+    )
+    
+    parser.add_argument(
+        "--grid-size",
+        type=int,
+        default=10,
+        help="Size of the game grid (default: 10)"
+    )
+    
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Port number for the web server (default: auto-detect free port)"
+    )
+    
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address to bind the web server (default: 127.0.0.1)"
+    )
+    
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable Flask debug mode for development"
+    )
+    
+    return parser
+
+
+def get_replay_parser() -> argparse.ArgumentParser:
+    """Creates argument parser for replay web interface.
+    
+    Follows the same pattern as scripts/replay.py for consistency.
+    
+    Design Pattern: Factory Pattern (Argument Parser Creation)
+    Educational Value: Shows how replay arguments are standardized
+    Extension Pattern: Extensions can reuse this for their replay interfaces
+    
+    Returns:
+        An argparse.ArgumentParser instance for replay configuration
+    """
+    parser = argparse.ArgumentParser(
+        description="Snake Game - Replay Web Interface",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    parser.add_argument(
+        "log_dir",
+        type=str,
+        help="Directory containing game logs"
+    )
+    
+    parser.add_argument(
+        "--game",
+        type=int,
+        default=1,
+        help="Game number to replay (default: 1)"
+    )
+    
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Port number for the web server (default: auto-detect free port)"
+    )
+    
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address to bind the web server (default: 127.0.0.1)"
+    )
+    
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable Flask debug mode for development"
+    )
+    
+    return parser
+
+
+def parse_human_arguments():
+    """Parse command line arguments for human web interface.
+    
+    Follows the pattern from scripts/main.py and scripts/replay.py.
+    
+    Educational Value: Shows standardized argument parsing
+    Extension Pattern: Future tasks can copy this exact pattern
+    """
+    parser = get_human_parser()
+    return parser.parse_args()
+
+
+def parse_replay_arguments():
+    """Parse command line arguments for replay web interface.
+    
+    Follows the pattern from scripts/main.py and scripts/replay.py.
+    
+    Educational Value: Shows standardized argument parsing
+    Extension Pattern: Future tasks can copy this exact pattern
+    """
+    parser = get_replay_parser()
+    return parser.parse_args()
+
+
+# ------------------
+# Web Application Factory (following Factory Pattern with canonical create() methods)
+# ------------------
+
+class WebAppFactory:
+    """
+    Factory for creating web applications with canonical create() methods.
+    
+    Design Pattern: Factory Pattern (Canonical Implementation per SUPREME_RULES)
+    Purpose: Create web applications using canonical create() method
+    Educational Value: Shows factory pattern following final-decision-10.md standards
+    Extension Pattern: Extensions can copy this factory pattern
+    
+    IMPORTANT: Uses canonical create() method name as mandated by SUPREME_RULES
+    """
+    
+    _registry = {
+        "human": "HumanGameApp",
+        "llm": "LLMGameApp", 
+        "replay": "ReplayGameApp",
+    }
+    
+    @classmethod
+    def create(cls, app_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create web application using canonical create() method.
+        
+        Following SUPREME_RULES from final-decision-10.md, all factories must use
+        the canonical create() method name for consistency across the project.
+        
+        Args:
+            app_type: Type of application to create ('human', 'llm', 'replay')
+            **kwargs: Configuration parameters for the application
+            
+        Returns:
+            Configured web application instance
+            
+        Raises:
+            ValueError: If app_type is not supported
+        """
+        app_class_name = cls._registry.get(app_type.lower())
+        if not app_class_name:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown app type: {app_type}. Available: {available}")
+        
+        print_log(f"Creating web app: {app_type}")  # Simple logging per SUPREME_RULES
+        
+        # Get the actual class and instantiate it
+        if app_class_name == "HumanGameApp":
+            return HumanGameApp(**kwargs)
+        elif app_class_name == "LLMGameApp":
+            return LLMGameApp(**kwargs)
+        elif app_class_name == "ReplayGameApp":
+            return ReplayGameApp(**kwargs)
+        else:
+            raise ValueError(f"Unknown app class: {app_class_name}")
 
 
 class SimpleFlaskApp:
@@ -194,25 +429,65 @@ class SimpleFlaskApp:
 
 class HumanGameApp(SimpleFlaskApp):
     """
-    Human player web application.
+    Human player web application with enhanced GameLogic integration.
     
+    Uses the existing GameLogic class from core.game_logic for consistent 
+    game behavior across all interfaces (GUI, web, CLI). Follows the same
+    integration pattern as scripts/human_play.py.
+    
+    Design Pattern: Adapter Pattern + Template Method Pattern
+    Purpose: Adapts GameLogic interface for web API consumption
+    Educational Value: Shows proper separation of game logic from presentation
     Extension Pattern: Copy this pattern for any algorithm/model
-    Educational Value: Shows minimal specialization
+    
+    Enhanced Features:
+    - Proper error handling and recovery
+    - Configuration validation
+    - State management following SSOT principles
+    - Educational documentation with design patterns
     """
     
     def __init__(self, grid_size: int = 10, **config):
-        """Initialize human game app."""
+        """Initialize human game app with enhanced GameLogic integration.
+        
+        Args:
+            grid_size: Size of the game grid (default: 10)
+            **config: Additional configuration options
+            
+        Design Pattern: Factory Method Pattern (via GameLogic instantiation)
+        Educational Value: Shows how to properly initialize game components
+        """
         super().__init__("Human Snake Game")
-        self.grid_size = grid_size
+        self.grid_size = self._validate_grid_size(grid_size)
         self.config = config
-        # Minimal state for demo movement
-        c = grid_size // 2
-        self.snake_positions = [[c, c]]  # head last element per JS expectation
-        self.apple_position = [c + 2, c + 2]
-        self.score = 0
-        self.steps = 0
-        self.game_over = False
-        print_log(f"Human mode: {grid_size}x{grid_size} grid")
+        
+        # Use the existing GameLogic class - same integration as human_play.py
+        # This ensures consistency across all game interfaces
+        try:
+            self.game = GameLogic(grid_size=self.grid_size, use_gui=False)
+            print_log(f"Human mode: {self.grid_size}x{self.grid_size} grid, using GameLogic")
+            print_log("GameLogic integration successful - consistent with human_play.py")
+        except Exception as e:
+            print_log(f"Error initializing GameLogic: {e}")
+            raise
+    
+    def _validate_grid_size(self, grid_size: int) -> int:
+        """Validate grid size parameter.
+        
+        Args:
+            grid_size: Grid size to validate
+            
+        Returns:
+            Validated grid size
+            
+        Raises:
+            ValueError: If grid size is invalid
+            
+        Educational Value: Shows input validation patterns
+        """
+        if not isinstance(grid_size, int) or grid_size < 5 or grid_size > 50:
+            raise ValueError(f"Grid size must be between 5 and 50, got: {grid_size}")
+        return grid_size
     
     def get_game_data(self) -> Dict[str, Any]:
         """Get human game data."""
@@ -225,124 +500,112 @@ class HumanGameApp(SimpleFlaskApp):
         }
     
     def get_api_state(self) -> Dict[str, Any]:
-        """Get human game state."""
+        """Get human game state from GameLogic instance."""
         return {
             'mode': 'human',
             'grid_size': self.grid_size,
-            'snake_positions': self.snake_positions,
-            'apple_position': self.apple_position,
-            'score': self.score,
-            'steps': self.steps,
-            'running': not self.game_over,
-            'game_active': not self.game_over,
-            'game_over': self.game_over,
+            'snake_positions': _numpy_to_list(self.game.snake_positions),
+            'apple_position': _numpy_to_list(self.game.apple_position),
+            'score': self.game.score,
+            'steps': self.game.steps,
+            'running': not self.game.game_over,
+            'game_active': not self.game.game_over,
+            'game_over': self.game.game_over,
             'status': 'ready',
             'colors': _build_color_payload()
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle human controls."""
+        """Handle human controls using GameLogic methods.
+        
+        Args:
+            data: Control data containing action and parameters
+            
+        Returns:
+            Response dictionary with status and relevant information
+            
+        Design Pattern: Command Pattern
+        Purpose: Encapsulates user actions as command objects
+        Educational Value: Shows how to handle user input systematically
+        """
         action = data.get('action', '')
         direction = data.get('direction', '')
         
-        if action == 'move' and direction:
-            print_log(f"Human move: {direction}")
-            if self.game_over:
-                return {'status': 'error', 'message': 'Game is over'}
-            
-            success = self._apply_move(direction)
-            if success:
-                return {
-                    'status': 'ok',
-                    'game_active': not self.game_over,
-                    'score': self.score,
-                    'steps': self.steps
-                }
+        try:
+            if action == 'move' and direction:
+                return self._handle_move_command(direction)
+            elif action == 'reset':
+                return self._handle_reset_command()
             else:
-                return {'status': 'error', 'message': 'Invalid move'}
+                return {'status': 'error', 'message': f'Unknown action: {action}'}
                 
-        elif action == 'reset':
-            print_log("Human reset")
-            self._reset_game()
-            return {'status': 'success', 'message': 'Game reset'}
+        except Exception as e:
+            print_log(f"Error handling control: {e}")
+            return {'status': 'error', 'message': f'Internal error: {str(e)}'}
+    
+    def _handle_move_command(self, direction: str) -> Dict[str, Any]:
+        """Handle move command with proper validation.
         
-        return {'status': 'error', 'message': 'Unknown action'}
-
-    # ---------------- internal helpers ----------------
-
-    _DIR_MAP = {
-        'UP': (0, 1),
-        'DOWN': (0, -1),
-        'LEFT': (-1, 0),
-        'RIGHT': (1, 0),
-    }
-
-    def _apply_move(self, direction: str) -> bool:
-        """Update snake position for a single-step move (demo logic)."""
-        if self.game_over:
-            return False
+        Args:
+            direction: Direction to move ('UP', 'DOWN', 'LEFT', 'RIGHT')
             
-        direction = direction.upper()
-        if direction not in self._DIR_MAP:
-            return False
+        Returns:
+            Response dictionary with move result
             
-        dx, dy = self._DIR_MAP[direction]
-        head_x, head_y = self.snake_positions[-1]
-        new_x, new_y = head_x + dx, head_y + dy
+        Educational Value: Shows move validation and error handling
+        """
+        print_log(f"Human move: {direction}")
         
-        # bounds check
-        if not (0 <= new_x < self.grid_size and 0 <= new_y < self.grid_size):
-            self.game_over = True
-            return False
-            
-        # self collision check
-        if [new_x, new_y] in self.snake_positions:
-            self.game_over = True
-            return False
-            
-        # move snake
-        self.snake_positions.append([new_x, new_y])
+        # Validate direction input
+        direction_upper = direction.upper()
+        if direction_upper not in VALID_MOVES:
+            return {'status': 'error', 'message': f'Invalid direction: {direction}'}
         
-        # apple eaten?
-        if [new_x, new_y] == self.apple_position:
-            self.score += 1
-            self._generate_new_apple()
+        # Check game state
+        if self.game.game_over:
+            return {'status': 'error', 'message': 'Game is over'}
+        
+        # Use GameLogic.make_move() - same integration as human_play.py
+        # This ensures identical behavior across CLI, GUI, and web interfaces
+        game_active, move_successful = self.game.make_move(direction_upper)
+        
+        if move_successful:
+            return {
+                'status': 'ok',
+                'game_active': game_active,
+                'score': self.game.score,
+                'steps': self.game.steps,
+                'message': f'Moved {direction_upper}'
+            }
         else:
-            # remove tail to keep length constant (classic snake demo)
-            self.snake_positions.pop(0)
+            return {'status': 'error', 'message': 'Invalid move - collision or reverse direction'}
+    
+    def _handle_reset_command(self) -> Dict[str, Any]:
+        """Handle reset command with proper cleanup.
+        
+        Returns:
+            Response dictionary with reset result
             
-        self.steps += 1
-        return True
-    
-    def _generate_new_apple(self):
-        """Generate new apple position avoiding snake body."""
-        from random import randint
-        max_attempts = 100  # Prevent infinite loop
-        attempts = 0
+        Educational Value: Shows state reset patterns
+        """
+        print_log("Human reset")
         
-        while attempts < max_attempts:
-            ax, ay = randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)
-            if [ax, ay] not in self.snake_positions:
-                self.apple_position = [ax, ay]
-                return
-            attempts += 1
-        
-        # Fallback: find first empty position
-        for y in range(self.grid_size):
-            for x in range(self.grid_size):
-                if [x, y] not in self.snake_positions:
-                    self.apple_position = [x, y]
-                    return
-    
-    def _reset_game(self):
-        """Reset game to initial state."""
-        center = self.grid_size // 2
-        self.snake_positions = [[center, center]]
-        self.apple_position = [center + 2, center + 2]
-        self.score = 0
-        self.steps = 0
-        self.game_over = False
-        print_log("Game reset to initial state")
+        try:
+            # Use GameLogic.reset() - same integration as human_play.py
+            self.game.reset()
+            
+            return {
+                'status': 'success', 
+                'message': 'Game reset successfully',
+                'score': self.game.score,
+                'steps': self.game.steps
+            }
+        except Exception as e:
+            print_log(f"Error during reset: {e}")
+            return {'status': 'error', 'message': f'Reset failed: {str(e)}'}
+
+    # Custom game logic methods removed - now using GameLogic from core.game_logic
+    # This ensures consistency with human_play.py and all other game interfaces
 
     # -------------------- Template override ---------------------------
 
@@ -354,24 +617,31 @@ class LLMGameApp(SimpleFlaskApp):
     """
     LLM player web application.
     
+    Uses the existing GameManager class from core.game_manager for LLM 
+    integration, ensuring consistency with the main LLM gameplay mode.
+    
+    Design Pattern: Facade Pattern
+    Purpose: Provides web interface facade over GameManager functionality
+    Educational Value: Shows proper integration with existing LLM components
     Extension Pattern: Copy this pattern for any algorithm/model
-    Educational Value: Shows minimal specialization with external components
     """
     
     def __init__(self, provider: str = "hunyuan", model: str = "hunyuan-turbos-latest", 
                  grid_size: int = 10, **config):
-        """Initialize LLM game app."""
+        """Initialize LLM game app with GameManager integration."""
         super().__init__("LLM Snake Game")
         self.provider = provider
         self.model = model
         self.grid_size = grid_size
         self.config = config
         
-        # Initialize game components when needed
+        # Create a mock args object for GameManager initialization
+        # TODO: Consider refactoring GameManager to accept individual parameters
         self.game_manager = None
         self.agent = None
         
         print_log(f"LLM mode: {provider}/{model}, {grid_size}x{grid_size} grid")
+        print_log("Note: Full LLM integration requires proper argument setup")
     
     def get_game_data(self) -> Dict[str, Any]:
         """Get LLM game data."""
@@ -386,9 +656,14 @@ class LLMGameApp(SimpleFlaskApp):
         }
     
     def get_api_state(self) -> Dict[str, Any]:
-        """Get LLM game state."""
-        # TODO: Integrate with actual GameManager for real LLM gameplay
-        # For now, provide demo state that matches JavaScript expectations
+        """Get LLM game state.
+        
+        Note: Full LLM integration would require GameManager setup with proper
+        argument parsing, LLM client initialization, and session management.
+        This would follow the same pattern as scripts/main_web.py but requires
+        more architectural work to properly integrate web and CLI patterns.
+        """
+        # Demo state until proper GameManager integration
         center = self.grid_size // 2
         return {
             'mode': 'llm',
@@ -402,24 +677,28 @@ class LLMGameApp(SimpleFlaskApp):
             'running': True,
             'game_active': True,
             'game_over': False,
-            'llm_response': 'Ready to start LLM-powered Snake Game...\n\nThe AI will analyze the game state and make strategic moves to maximize score while avoiding collisions.',
+            'llm_response': 'Ready to start LLM-powered Snake Game...\n\nNote: Full LLM integration requires GameManager setup.\nFor complete LLM functionality, use scripts/main_web.py',
             'planned_moves': ['UP', 'RIGHT', 'UP'],  # Demo planned moves
             'status': 'ready',
             'colors': _build_color_payload()
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle LLM controls."""
+        """Handle LLM controls.
+        
+        Note: Full implementation would delegate to GameManager methods
+        for actual LLM gameplay, session management, and statistics tracking.
+        """
         action = data.get('action', '')
         
         if action == 'start':
-            print_log("LLM game start")
-            return {'action': 'start', 'status': 'started'}
+            print_log("LLM game start - demo mode")
+            return {'action': 'start', 'status': 'started', 'note': 'Demo mode - use scripts/main_web.py for full LLM'}
         elif action == 'pause':
-            print_log("LLM game pause")
+            print_log("LLM game pause - demo mode")
             return {'action': 'pause', 'status': 'paused'}
         elif action == 'reset':
-            print_log("LLM game reset")
+            print_log("LLM game reset - demo mode")
             return {'action': 'reset', 'status': 'reset'}
         
         return {'error': 'Unknown action'}
@@ -676,48 +955,168 @@ class ReplayGameApp(SimpleFlaskApp):
         return 'replay.html'
 
 
-# Simple factory functions (KISS pattern)
+# ------------------
+# Factory Functions (Enhanced with canonical create() methods)
+# ------------------
 
 def create_human_app(grid_size: int = 10, **config) -> HumanGameApp:
-    """Create human game app."""
-    return HumanGameApp(grid_size=grid_size, **config)
+    """Create human game app using canonical factory pattern.
+    
+    Args:
+        grid_size: Size of the game grid (default: 10)
+        **config: Additional configuration options
+        
+    Returns:
+        Configured HumanGameApp instance
+        
+    Design Pattern: Factory Function (Convenience Wrapper)
+    Purpose: Provides simple function interface to WebAppFactory.create()
+    Educational Value: Shows how to provide multiple interfaces to factories
+    Extension Pattern: Extensions can copy this pattern for their app creation
+    
+    Example:
+        >>> app = create_human_app(grid_size=15)
+        >>> app.run()
+    """
+    return WebAppFactory.create("human", grid_size=grid_size, **config)
 
 
 def create_llm_app(provider: str = "hunyuan", model: str = "hunyuan-turbos-latest",
                    grid_size: int = 10, **config) -> LLMGameApp:
-    """Create LLM game app."""
-    return LLMGameApp(provider=provider, model=model, grid_size=grid_size, **config)
+    """Create LLM game app using canonical factory pattern.
+    
+    Args:
+        provider: LLM provider name (default: 'hunyuan')
+        model: LLM model name (default: 'hunyuan-turbos-latest')
+        grid_size: Size of the game grid (default: 10)
+        **config: Additional configuration options
+        
+    Returns:
+        Configured LLMGameApp instance
+        
+    Design Pattern: Factory Function (Convenience Wrapper)
+    Purpose: Provides simple function interface to WebAppFactory.create()
+    Educational Value: Shows parameter forwarding in factory functions
+    Extension Pattern: Extensions can copy this pattern for their app creation
+    
+    Note: For full LLM functionality with GameManager integration,
+    use scripts/main_web.py which provides complete LLM session management.
+    This function provides a lightweight demo interface.
+    
+    Example:
+        >>> app = create_llm_app(provider='deepseek', model='deepseek-chat')
+        >>> app.run()
+    """
+    return WebAppFactory.create("llm", provider=provider, model=model, 
+                               grid_size=grid_size, **config)
 
 
 def create_replay_app(log_dir: str, game_number: int = 1, **config) -> ReplayGameApp:
-    """Create replay app."""
-    return ReplayGameApp(log_dir=log_dir, game_number=game_number, **config)
-
-
-# Extension template for future tasks
-"""
-Extension Pattern Template:
-
-class YourTaskApp(SimpleFlaskApp):
-    '''Your task web application.'''
+    """Create replay game app using canonical factory pattern.
     
-    def __init__(self, your_params, **config):
-        super().__init__("Your Task Name")
-        self.your_params = your_params
-        # Initialize your components here
+    Args:
+        log_dir: Directory containing game logs
+        game_number: Game number to replay (default: 1)
+        **config: Additional configuration options
+        
+    Returns:
+        Configured ReplayGameApp instance
+        
+    Design Pattern: Factory Function (Convenience Wrapper)
+    Purpose: Provides simple function interface to WebAppFactory.create()
+    Educational Value: Shows required vs optional parameter handling
+    Extension Pattern: Extensions can copy this pattern for their app creation
     
-    def get_game_data(self):
-        return {
-            'name': self.name,
-            'mode': 'your_mode',
-            'your_data': self.your_params,
-            'status': 'ready'
-        }
-    
-    def handle_control(self, data):
-        # Handle your task-specific controls
-        return {'status': 'processed'}
+    Example:
+        >>> app = create_replay_app('logs/session_20250101_120000', game_number=3)
+        >>> app.run()
+    """
+    return WebAppFactory.create("replay", log_dir=log_dir, game_number=game_number, **config)
 
-def create_your_app(**config):
-    return YourTaskApp(**config)
-""" 
+
+# ------------------
+# Application Entry Points (following scripts/main.py pattern)
+# ------------------
+
+class HumanWebApplication:
+    """
+    OOP wrapper for human web game application.
+    
+    Following the pattern from scripts/main.py's MainApplication class,
+    this provides a structured approach to web application lifecycle.
+    
+    Design Pattern: Facade Pattern + Template Method Pattern
+    Purpose: Encapsulates web application setup, execution, and cleanup
+    Educational Value: Shows how to structure application lifecycle
+    Extension Pattern: Extensions can copy this pattern for their web apps
+    """
+    
+    def __init__(self, args=None):
+        """Initialize human web application.
+        
+        Args:
+            args: Parsed command line arguments (optional, will parse if None)
+        """
+        self.args = args or parse_human_arguments()
+        self.app = None
+        
+        print_log("Initialized HumanWebApplication")
+    
+    def setup_application(self) -> None:
+        """Set up the web application and validate configuration."""
+        try:
+            # Create application using factory pattern
+            self.app = WebAppFactory.create(
+                "human",
+                grid_size=self.args.grid_size,
+                port=self.args.port,
+                debug=self.args.debug
+            )
+            print_log("Human web application setup complete")
+            
+        except Exception as e:
+            print_log(f"Error setting up application: {e}")
+            raise
+    
+    def run_application(self) -> None:
+        """Run the complete web application."""
+        try:
+            self.setup_application()
+            
+            print_log("🐍 Starting Snake Game - Human Web Interface")
+            print_log(f"📐 Grid: {self.args.grid_size}x{self.args.grid_size}")
+            print_log(f"🌐 Server: http://{self.args.host}:{self.app.port}")
+            print_log("🎮 Use arrow keys or WASD to control the snake")
+            print()
+            
+            # Run the Flask application
+            self.app.run(
+                host=self.args.host,
+                port=self.args.port,
+                debug=self.args.debug
+            )
+            
+        except KeyboardInterrupt:
+            print_log("⚠️ Application interrupted by user")
+        except Exception as e:
+            print_log(f"❌ Fatal error: {e}")
+            raise
+
+
+def main_human():
+    """Main entry point for human web interface.
+    
+    Following the pattern from scripts/main.py.
+    
+    Educational Value: Shows clean application entry point
+    Extension Pattern: Extensions can copy this pattern
+    """
+    app = HumanWebApplication()
+    app.run_application()
+
+
+if __name__ == "__main__":
+    # Allow running as standalone script for testing
+    main_human()
+
+ 

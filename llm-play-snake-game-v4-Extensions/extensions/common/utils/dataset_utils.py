@@ -39,9 +39,8 @@ import json
 
 # Import basic format specifications
 from ..config.dataset_formats import (
-    CSV_BASIC_COLUMNS, JSONL_BASIC_KEYS, COMMON_DATASET_EXTENSIONS
+    COMMON_DATASET_EXTENSIONS
 )
-from .path_utils import ensure_project_root_on_path
 
 
 def load_csv_dataset(file_path: Union[str, Path]) -> pd.DataFrame:
@@ -379,7 +378,7 @@ class DatasetLoader:
         Returns:
             Tuple of (features, targets).
         """
-        print(f"[DatasetLoader] Preparing features and targets.")
+        print("[DatasetLoader] Preparing features and targets.")
         X = df.drop(columns=["target_move"]).values
         y = df["target_move"].values
         if scale_features:

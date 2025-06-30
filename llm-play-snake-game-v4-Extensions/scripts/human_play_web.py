@@ -35,7 +35,6 @@ Extension Pattern for Future Tasks:
 import sys
 import pathlib
 import argparse
-from typing import Optional
 
 # Bootstrap repository root for consistent imports
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -48,7 +47,7 @@ ensure_project_root()
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
 # Import simple web framework
-from web.game_flask_app import HumanGameApp, create_human_app
+from web.game_flask_app import HumanGameApp
 from utils.network_utils import get_server_host_port
 
 # Simple logging following SUPREME_RULES
@@ -175,8 +174,8 @@ def main() -> int:
         # Network utilities handle environment variables and port conflicts automatically
         
         print_log("🐍 Starting Snake Game - Human Player Web Interface")
-        print_log(f"📊 Architecture: Task-0 KISS Framework")
-        print_log(f"🎮 Mode: Human Player")
+        print_log("📊 Architecture: Task-0 KISS Framework")
+        print_log("🎮 Mode: Human Player")
         print_log(f"📐 Grid: {args.grid_size}x{args.grid_size}")
         print_log(f"🌐 Server: http://{host}:{port}")
         print()

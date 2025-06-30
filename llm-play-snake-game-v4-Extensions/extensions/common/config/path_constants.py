@@ -14,7 +14,7 @@ Demonstrates how to create maintainable path management systems with
 proper separation of concerns and reusable templates.
 """
 
-from typing import Dict, List
+from typing import Dict
 
 # =============================================================================
 # Base Path Templates

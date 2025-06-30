@@ -95,6 +95,12 @@ class SimpleFlaskApp:
             """Health check."""
             return jsonify({'status': 'healthy', 'app': self.name})
         
+        @self.app.route('/favicon.ico')
+        def favicon():
+            """Serve favicon to prevent 404 errors."""
+            from flask import send_from_directory
+            return send_from_directory('static', 'favicon.ico')
+        
         print_log("Routes configured")
     
     def get_game_data(self) -> Dict[str, Any]:
@@ -116,10 +122,12 @@ class SimpleFlaskApp:
         action = data.get('action', 'unknown')
         return {'action': action, 'status': 'processed'}
     
-    def run(self, host: str = "127.0.0.1", debug: bool = False):
+    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = False):
         """Run Flask application."""
-        print_log(f"Starting {self.name} on http://{host}:{self.port}")
-        self.app.run(host=host, port=self.port, debug=debug)
+        # Use provided port or fall back to instance port
+        actual_port = port if port is not None else self.port
+        print_log(f"Starting {self.name} on http://{host}:{actual_port}")
+        self.app.run(host=host, port=actual_port, debug=debug)
 
 
 class HumanGameApp(SimpleFlaskApp):
@@ -149,9 +157,17 @@ class HumanGameApp(SimpleFlaskApp):
     
     def get_api_state(self) -> Dict[str, Any]:
         """Get human game state."""
+        # Initialize a simple game state for human play
+        center = self.grid_size // 2
         return {
             'mode': 'human',
             'grid_size': self.grid_size,
+            'snake_positions': [[center, center]],  # Snake starts in center
+            'apple_position': [center + 2, center + 2],  # Apple nearby
+            'score': 0,
+            'steps': 0,
+            'running': True,
+            'game_active': True,
             'status': 'ready'
         }
     
@@ -207,11 +223,21 @@ class LLMGameApp(SimpleFlaskApp):
     
     def get_api_state(self) -> Dict[str, Any]:
         """Get LLM game state."""
+        # Initialize a simple game state for LLM play
+        center = self.grid_size // 2
         return {
             'mode': 'llm',
             'provider': self.provider,
             'model': self.model,
             'grid_size': self.grid_size,
+            'snake_positions': [[center, center]],  # Snake starts in center
+            'apple_position': [center + 2, center + 2],  # Apple nearby
+            'score': 0,
+            'steps': 0,
+            'running': True,
+            'game_active': True,
+            'llm_response': 'Ready to start playing...',
+            'planned_moves': [],
             'status': 'ready'
         }
     
@@ -262,11 +288,52 @@ class ReplayGameApp(SimpleFlaskApp):
     
     def get_api_state(self) -> Dict[str, Any]:
         """Get replay state."""
+        # Try to load actual game data from log files
+        try:
+            import json
+            from pathlib import Path
+            
+            # Look for game log file
+            log_path = Path(self.log_dir)
+            game_file = log_path / f"game_{self.game_number}.json"
+            
+            if game_file.exists():
+                with open(game_file, 'r') as f:
+                    game_data = json.load(f)
+                
+                # Extract game state from log data
+                if 'snake_positions' in game_data and 'apple_position' in game_data:
+                    return {
+                        'mode': 'replay',
+                        'grid_size': game_data.get('grid_size', 10),
+                        'snake_positions': game_data['snake_positions'],
+                        'apple_position': game_data['apple_position'],
+                        'score': game_data.get('final_score', 0),
+                        'steps': game_data.get('total_steps', 0),
+                        'running': False,  # Replay is static
+                        'game_active': False,
+                        'end_reason': game_data.get('end_reason', 'Game completed'),
+                        'log_dir': self.log_dir,
+                        'game_number': self.game_number,
+                        'status': 'loaded'
+                    }
+        except Exception as e:
+            print_log(f"Error loading game data: {e}")
+        
+        # Fallback to demo state if no log data available
         return {
             'mode': 'replay',
+            'grid_size': 10,
+            'snake_positions': [[5, 5], [5, 4], [5, 3]],  # Demo snake
+            'apple_position': [7, 7],  # Demo apple
+            'score': 3,
+            'steps': 15,
+            'running': False,
+            'game_active': False,
+            'end_reason': 'Demo replay data',
             'log_dir': self.log_dir,
             'game_number': self.game_number,
-            'status': 'ready'
+            'status': 'demo'
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:

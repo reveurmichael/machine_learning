@@ -112,7 +112,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
             details=missing_keys,
         )
 
-    print(f"[DatasetValidator] JSONL validation passed")  # final-decision-10.md Guideline 3: Simple logging
+    print("[DatasetValidator] JSONL validation passed")  # final-decision-10.md Guideline 3: Simple logging
     return ValidationResult(
         is_valid=True,
         level=ValidationLevel.INFO,

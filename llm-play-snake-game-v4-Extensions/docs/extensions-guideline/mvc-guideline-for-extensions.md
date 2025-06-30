@@ -1,6 +1,6 @@
 # MVC Architecture & Game Runner Guidelines for Extensions
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and `flask.md`. It provides comprehensive guidance on implementing both web interfaces and game runners for extensions (Tasks 1-5).
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and provides comprehensive guidance on implementing both web interfaces and game runners for extensions (Tasks 1-5).
 
 > **See also:** `final-decision-10.md`, `flask.md`, `scripts.md`, `core.md`.
 
@@ -10,456 +10,351 @@ Extensions must implement **two complementary interfaces**:
 1. **Web Interface**: Flask-based web applications using the minimal KISS architecture
 2. **Game Runner**: Simple programmatic interface for testing and automation
 
-Both follow the same principles: **KISS, DRY, extensible, and educational**.
-
 ### **Design Philosophy**
-- **Minimal Flask Apps**: Simple, direct integration without complex MVC patterns
-- **Copy-Paste Templates**: Extensions copy Task-0 patterns and modify core components
-- **Dual Interfaces**: Same functionality available via web and programmatic APIs
-- **Educational Value**: Clear examples demonstrating different AI approaches
+- **KISS Principles**: Keep web interfaces simple and focused
+- **Copy-Paste Templates**: Extensions can copy Task-0 web scripts exactly
+- **Dual Interface**: Same functionality available via web and programmatic APIs
+- **Extensible Foundation**: Simple patterns that scale to complex algorithms
 
-## 🌐 **Web Interface Architecture**
+## 🌐 **Web Interface Architecture: Minimal Flask Apps**
 
-### **Task-0 Foundation: Minimal Flask Apps**
+Task-0 provides three **perfect foundation scripts** that demonstrate minimal Flask integration:
 
-Task-0 provides **three perfect web application templates** in `ROOT/web/game_flask_app.py`:
-
-```python
-# ROOT/web/game_flask_app.py - Foundation Templates
-
-class SimpleFlaskApp:
-    """Minimal Flask application foundation for all tasks"""
-    # Template Method Pattern: configure_app() → setup_routes() → run()
-
-class HumanGameApp(SimpleFlaskApp):
-    """Human player web application template"""
-    # Override: get_game_data(), get_api_state(), handle_control()
-
-class LLMGameApp(SimpleFlaskApp):
-    """LLM player web application template"""
-    # Override: get_game_data(), get_api_state(), handle_control()
-
-class ReplayGameApp(SimpleFlaskApp):
-    """Replay web application template"""
-    # Override: get_game_data(), get_api_state(), handle_control()
+### **Foundation Templates (Copy-Paste Ready)**
+```
+ROOT/scripts/
+├── human_play_web.py     # Human player web interface foundation
+├── main_web.py           # LLM player web interface foundation  
+└── replay_web.py         # Replay web interface foundation
 ```
 
-### **Extension Web Implementation Pattern**
+### **Extension Pattern: Copy → Replace → Extend**
 
-**Step 1: Copy Template**
+**Step 1: Copy Foundation Script**
 ```bash
-# Copy appropriate Task-0 web script
+# Task-1 Example: Copy human_play_web.py for heuristic algorithms
 cp scripts/human_play_web.py extensions/heuristics-v0.03/scripts/heuristic_web.py
 ```
 
-**Step 2: Create Extension Flask App**
+**Step 2: Replace Core Components**
 ```python
-# extensions/heuristics-v0.03/web/heuristic_flask_app.py
-from web.game_flask_app import SimpleFlaskApp
+# Original (Task-0): Human input
+class HumanWebApp(HumanGameApp):
+    def __init__(self, grid_size: int = 10):
+        super().__init__(grid_size=grid_size)
 
+# Extension (Task-1): Heuristic algorithms
+class HeuristicWebApp(HeuristicGameApp):
+    def __init__(self, algorithm: str = "BFS", grid_size: int = 10):
+        super().__init__(algorithm=algorithm, grid_size=grid_size)
+        self.pathfinder = PathfindingFactory.create(algorithm)
+```
+
+**Step 3: Extend with Algorithm-Specific Features**
+```python
+# Add heuristic-specific application info
+def get_application_info(self) -> dict:
+    return {
+        "name": "Task-1 Heuristic Player",
+        "task_name": "task1",
+        "algorithm": self.algorithm,
+        "pathfinding_type": self.pathfinder.get_type(),
+        "features": [
+            "Optimal pathfinding",
+            "Algorithm comparison",
+            "Performance metrics",
+            "Path visualization"
+        ]
+    }
+```
+
+## 🏗️ **Minimal Flask App Structure**
+
+### **SimpleFlaskApp Base Class (ROOT/web/game_flask_app.py)**
+```python
+class SimpleFlaskApp:
+    """
+    Minimal Flask application following KISS principles.
+    
+    Educational Value: Shows how to create simple, extensible web apps
+    Extension Pattern: All tasks inherit from this foundation
+    """
+    
+    def __init__(self, name: str = "SnakeGame", port: Optional[int] = None):
+        self.name = name
+        self.port = port or self._get_random_port()
+        self.app = Flask(__name__)
+        self.configure_app()
+        self.setup_routes()
+    
+    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = False):
+        """Run Flask application with proper port handling."""
+        actual_port = port if port is not None else self.port
+        self.app.run(host=host, port=actual_port, debug=debug)
+```
+
+### **Task-Specific Specializations**
+```python
+# Task-0: Human Game App
+class HumanGameApp(SimpleFlaskApp):
+    def __init__(self, grid_size: int = 10):
+        super().__init__("Human Snake Game")
+        self.grid_size = grid_size
+
+# Task-1: Heuristic Game App (Extension Example)
 class HeuristicGameApp(SimpleFlaskApp):
-    """
-    Heuristic algorithms web application.
-    
-    Extension Pattern: Copy SimpleFlaskApp → Override 3 methods
-    Educational Value: Shows pathfinding algorithm integration
-    """
-    
-    def __init__(self, algorithm: str = "BFS", grid_size: int = 10, **config):
-        super().__init__(f"Heuristic Snake - {algorithm}")
+    def __init__(self, algorithm: str = "BFS", grid_size: int = 10):
+        super().__init__("Heuristic Snake Game")
         self.algorithm = algorithm
         self.grid_size = grid_size
-        
-        # Initialize algorithm-specific components
-        from agents import AgentFactory
-        self.pathfinder = AgentFactory.create(algorithm, grid_size)
-        print_log(f"Heuristic mode: {algorithm} on {grid_size}x{grid_size} grid")
+        self.pathfinder = PathfindingFactory.create(algorithm)
+
+# Task-2: RL Game App (Extension Example)  
+class RLGameApp(SimpleFlaskApp):
+    def __init__(self, agent_type: str = "DQN", grid_size: int = 10):
+        super().__init__("RL Snake Game")
+        self.agent_type = agent_type
+        self.grid_size = grid_size
+        self.rl_agent = RLAgentFactory.create(agent_type)
+```
+
+## 🎮 **Game Runner Implementation**
+
+Each extension must also provide a **programmatic game runner** for testing and automation.
+
+### **BaseGameRunner Interface**
+```python
+# Location: core/game_runner.py
+class BaseGameRunner:
+    """
+    Base class for programmatic game execution.
     
-    def get_game_data(self) -> Dict[str, Any]:
-        """Get heuristic-specific game data for template rendering."""
+    Educational Value: Shows how to create testable, automatable interfaces
+    Extension Pattern: All tasks implement this interface
+    """
+    
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.results = []
+    
+    def run_single_game(self) -> Dict[str, Any]:
+        """Run a single game and return results."""
+        raise NotImplementedError("Subclasses must implement run_single_game")
+    
+    def run_multiple_games(self, num_games: int) -> List[Dict[str, Any]]:
+        """Run multiple games and return aggregated results."""
+        results = []
+        for i in range(num_games):
+            result = self.run_single_game()
+            result['game_number'] = i + 1
+            results.append(result)
+        return results
+    
+    def get_statistics(self) -> Dict[str, Any]:
+        """Get statistical summary of all runs."""
+        if not self.results:
+            return {}
+        
+        scores = [r.get('score', 0) for r in self.results]
         return {
-            'name': self.name,
-            'mode': 'heuristic',
-            'algorithm': self.algorithm,
-            'grid_size': self.grid_size,
-            'features': [
-                f"{self.algorithm} pathfinding",
-                "Real-time visualization",
-                "Step-by-step analysis",
-                "Performance metrics"
-            ],
-            'status': 'ready'
+            'total_games': len(self.results),
+            'average_score': sum(scores) / len(scores),
+            'max_score': max(scores),
+            'min_score': min(scores)
         }
+```
+
+### **Extension Game Runner Examples**
+
+**Task-1: Heuristic Game Runner**
+```python
+# Location: extensions/heuristics-v0.03/game_runner.py
+class HeuristicGameRunner(BaseGameRunner):
+    """
+    Programmatic interface for running heuristic algorithms.
     
-    def get_api_state(self) -> Dict[str, Any]:
-        """Get current algorithm state via API."""
+    Educational Value: Shows how to wrap algorithms for automation
+    Extension Pattern: Copy this pattern for any algorithm-based task
+    """
+    
+    def __init__(self, algorithm: str, grid_size: int = 10, **config):
+        super().__init__(config)
+        self.algorithm = algorithm
+        self.grid_size = grid_size
+        self.pathfinder = PathfindingFactory.create(algorithm)
+    
+    def run_single_game(self) -> Dict[str, Any]:
+        """Run single heuristic game."""
+        game_logic = HeuristicGameLogic(
+            algorithm=self.algorithm,
+            grid_size=self.grid_size
+        )
+        
+        result = game_logic.play_game()
         return {
-            'mode': 'heuristic',
             'algorithm': self.algorithm,
-            'grid_size': self.grid_size,
-            'path_length': len(self.pathfinder.current_path) if hasattr(self.pathfinder, 'current_path') else 0,
-            'nodes_explored': getattr(self.pathfinder, 'nodes_explored', 0),
-            'status': 'running' if self.pathfinder.is_active() else 'ready'
+            'score': result.get('score', 0),
+            'steps': result.get('steps', 0),
+            'path_length': len(result.get('path', [])),
+            'success': result.get('success', False)
         }
-    
-    def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle algorithm-specific controls."""
-        action = data.get('action', '')
-        
-        if action == 'step':
-            move = self.pathfinder.get_next_move()
-            return {'action': 'move', 'direction': move, 'status': 'processed'}
-        elif action == 'reset':
-            self.pathfinder.reset()
-            return {'action': 'reset', 'status': 'processed'}
-        elif action == 'change_algorithm':
-            new_algorithm = data.get('algorithm', self.algorithm)
-            self.algorithm = new_algorithm
-            self.pathfinder = AgentFactory.create(new_algorithm, self.grid_size)
-            return {'action': 'algorithm_changed', 'algorithm': new_algorithm, 'status': 'processed'}
-        
-        return {'error': 'Unknown action'}
 
-# Factory function following SUPREME_RULES canonical create() pattern
-def create_heuristic_app(algorithm: str = "BFS", grid_size: int = 10, **config) -> HeuristicGameApp:
-    """Canonical create() method for heuristic web applications."""
-    return HeuristicGameApp(algorithm=algorithm, grid_size=grid_size, **config)
+# Usage Example
+runner = HeuristicGameRunner(algorithm="BFS", grid_size=10)
+results = runner.run_multiple_games(100)
+stats = runner.get_statistics()
 ```
 
-**Step 3: Create Web Script**
+**Task-2: RL Game Runner**
 ```python
-# extensions/heuristics-v0.03/scripts/heuristic_web.py
-from web.heuristic_flask_app import HeuristicGameApp
-from utils.network_utils import get_server_host_port
-
-class HeuristicWebApp(HeuristicGameApp):
-    """Web script wrapper for heuristic algorithms."""
-    
-    def __init__(self, algorithm: str = "BFS", grid_size: int = 10, **config):
-        super().__init__(algorithm=algorithm, grid_size=grid_size, **config)
-
-def main():
-    """Main entry point for heuristic web interface."""
-    parser = create_argument_parser()
-    args = parser.parse_args()
-    
-    host, port = get_server_host_port(default_host=args.host, default_port=args.port)
-    
-    app = HeuristicWebApp(
-        algorithm=args.algorithm,
-        grid_size=args.grid_size
-    )
-    
-    app.run(host=host, debug=args.debug)
-```
-
-## 🎮 **Game Runner Architecture**
-
-### **Task-0 Foundation: core/game_runner.py**
-
-Task-0 provides the foundational game runner pattern in `core/game_runner.py`:
-
-```python
-# core/game_runner.py - Foundation Pattern
-def play(agent: BaseAgent, max_steps: int = 1_000, render: bool = False, 
-         *, seed: Optional[int] = None) -> List[dict]:
-    """Execute a game and return trajectory as state dictionaries."""
-    # Template implementation for all extensions
-```
-
-### **Extension Game Runner Implementation**
-
-**Each extension MUST implement `game_runner.py`** following this pattern:
-
-```python
-# extensions/heuristics-v0.03/game_runner.py
-"""
-Heuristic algorithms game runner - Simple programmatic interface.
-
-This module provides simple functions for running heuristic algorithms
-programmatically, useful for testing, automation, and integration.
-
-Design Philosophy:
-- Simple function interface (no classes unless necessary)
-- Direct algorithm access without web overhead
-- Consistent with core/game_runner.py patterns
-- Educational value through clear examples
-"""
-
-from typing import List, Dict, Optional, Any
-from pathlib import Path
-import sys
-
-# Ensure project root access
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from core.game_runner import play as core_play
-from agents import AgentFactory
-
-# Simple logging following SUPREME_RULES
-print_log = lambda msg: print(f"[HeuristicRunner] {msg}")
-
-
-def play_bfs(grid_size: int = 10, max_steps: int = 1000, render: bool = False, 
-             seed: Optional[int] = None) -> List[Dict[str, Any]]:
+# Location: extensions/reinforcement-v0.03/game_runner.py
+class RLGameRunner(BaseGameRunner):
     """
-    Run BFS pathfinding algorithm.
+    Programmatic interface for running RL agents.
     
-    Args:
-        grid_size: Size of the game grid
-        max_steps: Maximum steps before timeout
-        render: Whether to show visual interface
-        seed: Random seed for reproducibility
-        
-    Returns:
-        List of game state dictionaries (trajectory)
+    Educational Value: Shows how to wrap RL training/evaluation
+    Extension Pattern: Copy this pattern for any ML-based task
     """
-    print_log(f"Running BFS on {grid_size}x{grid_size} grid")
     
-    agent = AgentFactory.create("BFS", grid_size)
-    trajectory = core_play(agent, max_steps=max_steps, render=render, seed=seed)
-    
-    print_log(f"BFS completed: {len(trajectory)} steps, score: {trajectory[-1].get('score', 0)}")
-    return trajectory
-
-
-def play_astar(grid_size: int = 10, max_steps: int = 1000, render: bool = False,
-               seed: Optional[int] = None) -> List[Dict[str, Any]]:
-    """Run A* pathfinding algorithm."""
-    print_log(f"Running A* on {grid_size}x{grid_size} grid")
-    
-    agent = AgentFactory.create("ASTAR", grid_size)
-    trajectory = core_play(agent, max_steps=max_steps, render=render, seed=seed)
-    
-    print_log(f"A* completed: {len(trajectory)} steps, score: {trajectory[-1].get('score', 0)}")
-    return trajectory
-
-
-def play_hamiltonian(grid_size: int = 10, max_steps: int = 1000, render: bool = False,
-                     seed: Optional[int] = None) -> List[Dict[str, Any]]:
-    """Run Hamiltonian cycle algorithm."""
-    print_log(f"Running Hamiltonian on {grid_size}x{grid_size} grid")
-    
-    agent = AgentFactory.create("HAMILTONIAN", grid_size)
-    trajectory = core_play(agent, max_steps=max_steps, render=render, seed=seed)
-    
-    print_log(f"Hamiltonian completed: {len(trajectory)} steps, score: {trajectory[-1].get('score', 0)}")
-    return trajectory
-
-
-def play_heuristic(algorithm: str, grid_size: int = 10, max_steps: int = 1000, 
-                   render: bool = False, seed: Optional[int] = None) -> List[Dict[str, Any]]:
-    """
-    Run any heuristic algorithm by name.
-    
-    Args:
-        algorithm: Algorithm name ("BFS", "ASTAR", "DFS", "HAMILTONIAN")
-        grid_size: Size of the game grid
-        max_steps: Maximum steps before timeout
-        render: Whether to show visual interface
-        seed: Random seed for reproducibility
+    def __init__(self, agent_type: str, model_path: str = None, **config):
+        super().__init__(config)
+        self.agent_type = agent_type
+        self.model_path = model_path
+        self.rl_agent = RLAgentFactory.create(agent_type)
         
-    Returns:
-        List of game state dictionaries (trajectory)
-    """
-    print_log(f"Running {algorithm} on {grid_size}x{grid_size} grid")
+        if model_path:
+            self.rl_agent.load_model(model_path)
     
-    agent = AgentFactory.create(algorithm.upper(), grid_size)
-    trajectory = core_play(agent, max_steps=max_steps, render=render, seed=seed)
-    
-    final_score = trajectory[-1].get('score', 0) if trajectory else 0
-    print_log(f"{algorithm} completed: {len(trajectory)} steps, score: {final_score}")
-    return trajectory
-
-
-def compare_algorithms(algorithms: List[str], grid_size: int = 10, max_steps: int = 1000,
-                      seed: Optional[int] = None) -> Dict[str, Dict[str, Any]]:
-    """
-    Compare multiple heuristic algorithms.
-    
-    Args:
-        algorithms: List of algorithm names to compare
-        grid_size: Size of the game grid
-        max_steps: Maximum steps before timeout
-        seed: Random seed for reproducibility
+    def run_single_game(self) -> Dict[str, Any]:
+        """Run single RL game."""
+        env = SnakeEnvironment(grid_size=self.config.get('grid_size', 10))
         
-    Returns:
-        Dictionary mapping algorithm names to performance metrics
-    """
-    print_log(f"Comparing algorithms: {algorithms}")
-    
-    results = {}
-    
-    for algorithm in algorithms:
-        print_log(f"Running {algorithm}...")
-        trajectory = play_heuristic(algorithm, grid_size, max_steps, render=False, seed=seed)
+        state = env.reset()
+        total_reward = 0
+        steps = 0
         
-        if trajectory:
-            final_state = trajectory[-1]
-            results[algorithm] = {
-                'steps': len(trajectory),
-                'score': final_state.get('score', 0),
-                'success': final_state.get('game_active', False) == False and final_state.get('score', 0) > 0,
-                'trajectory_length': len(trajectory)
-            }
-        else:
-            results[algorithm] = {
-                'steps': 0,
-                'score': 0,
-                'success': False,
-                'trajectory_length': 0
-            }
-    
-    print_log(f"Comparison complete: {results}")
-    return results
-
-
-# Convenience aliases for interactive use
-play = play_heuristic  # Default function
-quick_bfs = lambda: play_bfs(render=True)
-quick_astar = lambda: play_astar(render=True)
-quick_hamiltonian = lambda: play_hamiltonian(render=True)
-
-
-if __name__ == "__main__":
-    """Demo usage when run directly."""
-    print_log("Heuristic Game Runner Demo")
-    print_log("Running BFS with visualization...")
-    
-    trajectory = play_bfs(grid_size=10, render=True, seed=42)
-    print_log(f"Demo complete: {len(trajectory)} steps")
-```
-
-## 🔗 **Integration Patterns**
-
-### **Web + Game Runner Integration**
-
-Extensions should integrate both interfaces seamlessly:
-
-```python
-# extensions/heuristics-v0.03/scripts/main.py
-"""Main CLI interface that uses game_runner.py internally."""
-
-import argparse
-from game_runner import play_heuristic, compare_algorithms
-
-def main():
-    parser = argparse.ArgumentParser(description="Heuristic algorithms CLI")
-    parser.add_argument("--algorithm", default="BFS", choices=["BFS", "ASTAR", "DFS", "HAMILTONIAN"])
-    parser.add_argument("--grid-size", type=int, default=10)
-    parser.add_argument("--render", action="store_true")
-    parser.add_argument("--compare", nargs="+", help="Compare multiple algorithms")
-    
-    args = parser.parse_args()
-    
-    if args.compare:
-        results = compare_algorithms(args.compare, args.grid_size)
-        print("Comparison Results:")
-        for algo, metrics in results.items():
-            print(f"  {algo}: {metrics['score']} score, {metrics['steps']} steps")
-    else:
-        trajectory = play_heuristic(args.algorithm, args.grid_size, render=args.render)
-        print(f"Final score: {trajectory[-1].get('score', 0)}")
-
-if __name__ == "__main__":
-    main()
-```
-
-### **Streamlit Integration Pattern**
-
-```python
-# extensions/heuristics-v0.03/dashboard/tab_main.py
-"""Streamlit tab that launches both web interface and game runner."""
-
-import streamlit as st
-import subprocess
-from game_runner import play_heuristic
-
-class MainTab:
-    def render(self, session_state):
-        st.header("🎮 Heuristic Algorithms")
+        while not env.done:
+            action = self.rl_agent.select_action(state)
+            state, reward, done, info = env.step(action)
+            total_reward += reward
+            steps += 1
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Quick Play")
-            algorithm = st.selectbox("Algorithm", ["BFS", "ASTAR", "DFS", "HAMILTONIAN"])
-            
-            if st.button("🚀 Run Algorithm"):
-                with st.spinner("Running algorithm..."):
-                    trajectory = play_heuristic(algorithm, render=False)
-                    st.success(f"Completed! Score: {trajectory[-1].get('score', 0)}")
-        
-        with col2:
-            st.subheader("Web Interface")
-            if st.button("🌐 Launch Web Interface"):
-                subprocess.Popen(["python", "scripts/heuristic_web.py", "--algorithm", algorithm])
-                st.info("Web interface launched in background")
+        return {
+            'agent_type': self.agent_type,
+            'total_reward': total_reward,
+            'steps': steps,
+            'score': env.score,
+            'success': env.score > 0
+        }
+
+# Usage Example
+runner = RLGameRunner(agent_type="DQN", model_path="models/best_dqn.pth")
+results = runner.run_multiple_games(50)
+stats = runner.get_statistics()
 ```
 
 ## 📋 **Extension Implementation Checklist**
 
 ### **Web Interface Requirements**
-- [ ] **Copy Task-0 template** from appropriate web script
-- [ ] **Create extension Flask app** inheriting from `SimpleFlaskApp`
-- [ ] **Override 3 methods**: `get_game_data()`, `get_api_state()`, `handle_control()`
-- [ ] **Add factory function** with canonical `create()` method name
-- [ ] **Create web script** with argument parsing and network utilities
-- [ ] **Test web interface** with `python scripts/extension_web.py --help`
+- [ ] **Copy foundation script** from Task-0 (`human_play_web.py`, `main_web.py`, or `replay_web.py`)
+- [ ] **Replace core components** with extension-specific algorithms/models
+- [ ] **Extend application info** with task-specific metadata
+- [ ] **Add custom routes** for algorithm-specific functionality (optional)
+- [ ] **Maintain same argument structure** for consistency
 
 ### **Game Runner Requirements**
-- [ ] **Create game_runner.py** in extension root directory
-- [ ] **Implement algorithm-specific functions** (e.g., `play_bfs()`, `play_dqn()`)
-- [ ] **Add generic play function** accepting algorithm parameter
-- [ ] **Include comparison function** for multiple algorithms/models
-- [ ] **Add convenience aliases** for interactive use
-- [ ] **Test game runner** with `python -c "from game_runner import play; play('BFS', render=True)"`
+- [ ] **Inherit from BaseGameRunner** for consistent interface
+- [ ] **Implement run_single_game()** with algorithm-specific logic
+- [ ] **Return standardized results** with task-specific metrics
+- [ ] **Support configuration** via constructor parameters
+- [ ] **Provide usage examples** and documentation
 
 ### **Integration Requirements**
-- [ ] **CLI scripts use game_runner** internally
-- [ ] **Streamlit tabs integrate both** web and programmatic interfaces
-- [ ] **Documentation includes examples** for both interfaces
-- [ ] **Factory patterns consistent** across web and game runner
-- [ ] **Error handling graceful** in both interfaces
+- [ ] **Web and runner consistency** - same algorithms/models available in both
+- [ ] **Shared configuration** - same parameters work for web and programmatic interfaces
+- [ ] **Result compatibility** - web interface can display runner results
+- [ ] **Testing coverage** - both interfaces thoroughly tested
 
 ## 🎯 **Extension Examples by Task**
 
-### **Task-1 (Heuristics)**
+### **Task-1 (Heuristics) Implementation**
 ```python
-# Web: HeuristicGameApp(algorithm="BFS")
-# Runner: play_bfs(), play_astar(), play_hamiltonian()
-# Integration: CLI → game_runner → web interface launch
+# Web Interface: extensions/heuristics-v0.03/scripts/heuristic_web.py
+class HeuristicWebApp(HeuristicGameApp):
+    def __init__(self, algorithm: str = "BFS", grid_size: int = 10):
+        super().__init__(algorithm=algorithm, grid_size=grid_size)
+
+# Game Runner: extensions/heuristics-v0.03/game_runner.py
+class HeuristicGameRunner(BaseGameRunner):
+    def run_single_game(self) -> Dict[str, Any]:
+        # Pathfinding algorithm execution
+        pass
+
+# Factory Integration
+def create_heuristic_web_app(algorithm: str, **config) -> HeuristicWebApp:
+    return HeuristicWebApp(algorithm=algorithm, **config)
+
+def create_heuristic_runner(algorithm: str, **config) -> HeuristicGameRunner:
+    return HeuristicGameRunner(algorithm=algorithm, **config)
 ```
 
-### **Task-2 (Reinforcement Learning)**
+### **Task-2 (Reinforcement Learning) Implementation**
 ```python
-# Web: RLGameApp(agent_type="DQN")
-# Runner: play_dqn(), play_ppo(), train_agent()
-# Integration: Training monitoring via web + programmatic evaluation
+# Web Interface: extensions/reinforcement-v0.03/scripts/rl_web.py
+class RLWebApp(RLGameApp):
+    def __init__(self, agent_type: str = "DQN", model_path: str = None):
+        super().__init__(agent_type=agent_type)
+        self.model_path = model_path
+
+# Game Runner: extensions/reinforcement-v0.03/game_runner.py
+class RLGameRunner(BaseGameRunner):
+    def run_single_game(self) -> Dict[str, Any]:
+        # RL agent execution
+        pass
+
+# Factory Integration
+def create_rl_web_app(agent_type: str, **config) -> RLWebApp:
+    return RLWebApp(agent_type=agent_type, **config)
+
+def create_rl_runner(agent_type: str, **config) -> RLGameRunner:
+    return RLGameRunner(agent_type=agent_type, **config)
 ```
 
-### **Task-3 (Supervised Learning)**
+### **Task-3 (Supervised Learning) Implementation**
 ```python
-# Web: MLGameApp(model_type="XGBoost")
-# Runner: play_xgboost(), play_neural_net(), evaluate_model()
-# Integration: Model comparison via web + batch evaluation
+# Web Interface: extensions/supervised-v0.03/scripts/ml_web.py
+class MLWebApp(MLGameApp):
+    def __init__(self, model_type: str = "XGBoost", model_path: str = None):
+        super().__init__(model_type=model_type)
+        self.model_path = model_path
+
+# Game Runner: extensions/supervised-v0.03/game_runner.py
+class MLGameRunner(BaseGameRunner):
+    def run_single_game(self) -> Dict[str, Any]:
+        # ML model execution
+        pass
 ```
 
-### **Task-4 (LLM Fine-tuning)**
-```python
-# Web: FineTuningApp(model_name="snake-gpt")
-# Runner: play_finetuned(), compare_models(), evaluate_reasoning()
-# Integration: Fine-tuning monitoring + model comparison
-```
+## 🚀 **Benefits of Dual Interface Architecture**
 
-### **Task-5 (Advanced)**
-```python
-# Web: MultiStrategyApp(strategies=["heuristic", "rl", "supervised"])
-# Runner: play_ensemble(), compare_strategies(), analyze_performance()
-# Integration: Strategy comparison dashboard + automated benchmarking
-```
+### **Development Benefits**
+- **Consistent Patterns**: Same structure across all extensions
+- **Easy Testing**: Programmatic interface enables automated testing
+- **Flexible Usage**: Choose web interface for interaction, runner for automation
+- **Copy-Paste Learning**: Clear templates for rapid extension development
+
+### **Educational Benefits**
+- **Pattern Recognition**: Students see consistent architectural patterns
+- **Interface Design**: Learn how to create both interactive and programmatic interfaces
+- **Separation of Concerns**: Web presentation separate from core algorithm logic
+- **Scalability**: Patterns that work for simple algorithms and complex ML models
+
+### **Operational Benefits**
+- **Automation Ready**: Game runners enable batch processing and evaluation
+- **Web Accessible**: Flask interfaces provide remote access and visualization
+- **Performance Testing**: Easy to benchmark algorithms across multiple runs
+- **Integration Friendly**: Both interfaces work with external tools and frameworks
 
 ---
 
-**This architecture ensures that every extension provides both user-friendly web interfaces and powerful programmatic APIs, following KISS principles while maintaining educational value and extensibility.** 
+**This dual interface architecture ensures that extensions are both user-friendly (web interface) and automation-friendly (game runner), following KISS principles while providing maximum flexibility for different use cases.** 

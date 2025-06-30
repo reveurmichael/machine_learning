@@ -35,9 +35,8 @@ This module follows the principles from final-decision-10.md.
 Reference: docs/extensions-guideline/final-decision-10.md
 """
 
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
-import numpy as np
 from dataclasses import dataclass
 
 # Import configuration constants

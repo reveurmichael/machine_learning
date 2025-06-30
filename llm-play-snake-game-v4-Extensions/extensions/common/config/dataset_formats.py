@@ -10,7 +10,7 @@ Design Philosophy: Keep it Simple and Generic
 - Extensions can add their own specific requirements
 """
 
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict
 
 # =============================================================================
 # Basic CSV Format (16-Feature Tabular) - Commonly Used

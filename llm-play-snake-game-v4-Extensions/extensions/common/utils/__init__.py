@@ -115,12 +115,12 @@ def validate_dataset_compatibility(dataset_path: str, expected_format: str) -> b
         print(f"[CommonUtils] Extension mismatch: expected {expected_ext}, got {path.suffix}")
         return False
     
-    print(f"[CommonUtils] Dataset compatibility validated")
+    print("[CommonUtils] Dataset compatibility validated")
     return True
 
 def extract_features_from_game_state(game_state, feature_extractor=None):
     """Extract features from game state using specified extractor."""
-    print(f"[CommonUtils] Extracting features from game state")
+    print("[CommonUtils] Extracting features from game state")
     
     if feature_extractor is None:
         feature_extractor = TabularFeatureExtractor()
@@ -138,7 +138,7 @@ def generate_csv_schema(grid_size: int = 10):
 
 def validate_csv_schema(df, expected_columns=None):
     """Simple CSV schema validation."""
-    print(f"[CommonUtils] Validating CSV schema")
+    print("[CommonUtils] Validating CSV schema")
     
     if expected_columns is None:
         from ..config.dataset_formats import CSV_BASIC_COLUMNS
@@ -149,5 +149,5 @@ def validate_csv_schema(df, expected_columns=None):
         print(f"[CommonUtils] Missing columns: {missing}")
         return False
     
-    print(f"[CommonUtils] CSV schema validation passed")
+    print("[CommonUtils] CSV schema validation passed")
     return True 

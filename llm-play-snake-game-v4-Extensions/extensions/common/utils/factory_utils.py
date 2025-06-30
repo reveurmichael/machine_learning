@@ -11,7 +11,6 @@ Reference: docs/extensions-guideline/final-decision-10.md
 """
 
 from typing import Dict, Type, Any, List
-from abc import ABC, abstractmethod
 
 class SimpleFactory:
     """
@@ -201,7 +200,7 @@ class FeatureExtractorFactory:
 
 def create_simple_factory() -> SimpleFactory:
     """Create a simple factory instance"""
-    print(f"[FactoryUtils] Creating simple factory")  # Simple logging
+    print("[FactoryUtils] Creating simple factory")  # Simple logging
     return SimpleFactory()
 
 def validate_factory_registry(factory: SimpleFactory, required_types: List[str]) -> bool:
@@ -213,27 +212,27 @@ def validate_factory_registry(factory: SimpleFactory, required_types: List[str])
         print(f"[FactoryUtils] WARNING: Missing types: {missing}")  # Simple logging
         return False
     
-    print(f"[FactoryUtils] Factory validation passed")  # Simple logging
+    print("[FactoryUtils] Factory validation passed")  # Simple logging
     return True
 
 def create_dataset_factory():
     """Create dataset factory using canonical pattern"""
-    print(f"[FactoryUtils] Creating dataset factory")  # Simple logging
+    print("[FactoryUtils] Creating dataset factory")  # Simple logging
     return DatasetFactory()
 
 def create_path_factory():
     """Create path factory using canonical pattern"""
-    print(f"[FactoryUtils] Creating path factory")  # Simple logging
+    print("[FactoryUtils] Creating path factory")  # Simple logging
     return PathFactory()
 
 def create_validation_factory():
     """Create validation factory using canonical pattern"""
-    print(f"[FactoryUtils] Creating validation factory")  # Simple logging
+    print("[FactoryUtils] Creating validation factory")  # Simple logging
     return ValidationFactory()
 
 def create_feature_extractor_factory():
     """Create feature extractor factory using canonical pattern"""
-    print(f"[FactoryUtils] Creating feature extractor factory")  # Simple logging
+    print("[FactoryUtils] Creating feature extractor factory")  # Simple logging
     return FeatureExtractorFactory()
 
 # Example usage for documentation and educational value

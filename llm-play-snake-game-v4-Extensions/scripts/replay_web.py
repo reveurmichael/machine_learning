@@ -37,7 +37,6 @@ Extension Pattern for Future Tasks:
 import sys
 import pathlib
 import argparse
-from typing import Optional
 
 # Bootstrap repository root for consistent imports
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -47,10 +46,9 @@ from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import replay components
-from replay.replay_engine import ReplayEngine
 
 # Import simple web framework
-from web.game_flask_app import ReplayGameApp, create_replay_app
+from web.game_flask_app import ReplayGameApp
 from utils.network_utils import get_server_host_port
 
 # Simple logging following SUPREME_RULES
@@ -193,8 +191,8 @@ def main() -> int:
         # Network utilities handle environment variables and port conflicts automatically
         
         print_log("🎬 Starting Snake Game - Replay Web Interface")
-        print_log(f"📊 Architecture: Task-0 MVC Framework")
-        print_log(f"🎮 Mode: Game Replay")
+        print_log("📊 Architecture: Task-0 MVC Framework")
+        print_log("🎮 Mode: Game Replay")
         print_log(f"📁 Log Directory: {args.log_dir}")
         print_log(f"🎯 Starting Game: {args.game}")
         print_log(f"🌐 Server: http://{host}:{port}")
@@ -241,7 +239,7 @@ def main() -> int:
         
         # Start the application server
         print_log("✅ Starting web server...")
-        app.run(host=host, debug=args.debug)
+        app.run(host=host, port=port, debug=args.debug)
         
         return 0
         

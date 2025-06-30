@@ -37,9 +37,6 @@ Extension Pattern for Future Tasks:
 import sys
 import pathlib
 import argparse
-import threading
-import time
-from typing import Optional
 
 # Bootstrap repository root for consistent imports
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -49,12 +46,10 @@ from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import Task-0 LLM components
-from core.game_manager import GameManager
-from llm.agent_llm import SnakeAgent
 from scripts.main import parse_arguments
 
 # Import simple web framework
-from web.game_flask_app import LLMGameApp, create_llm_app
+from web.game_flask_app import LLMGameApp
 from utils.network_utils import get_server_host_port
 
 # Simple logging following SUPREME_RULES
@@ -194,7 +189,7 @@ def main() -> int:
         # Network utilities handle environment variables and port conflicts automatically
         
         print_log("🐍 Starting Snake Game - LLM Web Interface")
-        print_log(f"📊 Architecture: Task-0 MVC Framework")
+        print_log("📊 Architecture: Task-0 MVC Framework")
         print_log(f"🤖 LLM: {game_args.provider}/{game_args.model}")
         print_log(f"📐 Grid: {getattr(game_args, 'grid_size', 10)}x{getattr(game_args, 'grid_size', 10)}")
         print_log(f"🌐 Server: http://{host}:{port}")
@@ -202,9 +197,7 @@ def main() -> int:
         
         # Create LLM game application using elegant architecture
         app = LLMWebApp(
-            provider=game_args.provider,
-            model=game_args.model,
-            grid_size=getattr(game_args, 'grid_size', 10)
+            game_args
         )
         
         # Show application info
@@ -248,7 +241,7 @@ def main() -> int:
         
         # Start the web application server
         print_log("✅ Starting web server...")
-        app.run(host=host, debug=web_args.debug)
+        app.run(host=host, port=port, debug=web_args.debug)
         
         return 0
         

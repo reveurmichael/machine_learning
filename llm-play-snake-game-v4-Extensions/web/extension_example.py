@@ -81,10 +81,10 @@ class HeuristicWebApp(SimpleFlaskApp):
                 'status': 'path_found'
             }
         elif action == 'step':
-            print(f"[HeuristicWeb] Step execution")
+            print("[HeuristicWeb] Step execution")
             return {'action': 'step', 'status': 'stepped'}
         elif action == 'reset':
-            print(f"[HeuristicWeb] Reset")
+            print("[HeuristicWeb] Reset")
             self.path_length = 0
             self.nodes_explored = 0
             return {'action': 'reset', 'status': 'reset'}
@@ -159,7 +159,7 @@ class RLWebApp(SimpleFlaskApp):
             prediction = {'move': 'UP', 'confidence': 0.85}
             return {'action': 'predict', 'prediction': prediction, 'status': 'predicted'}
         elif action == 'reset':
-            print(f"[RLWeb] Reset training")
+            print("[RLWeb] Reset training")
             self.episode = 0
             self.reward = 0.0
             self.loss = 0.0
@@ -225,7 +225,7 @@ class ComparisonWebApp(SimpleFlaskApp):
                     'status': 'switched'
                 }
         elif action == 'run_comparison':
-            print(f"[ComparisonWeb] Running comparison between all agents")
+            print("[ComparisonWeb] Running comparison between all agents")
             # Simulate comparison
             self.results = {
                 'BFS': {'score': 8.2, 'time': 0.15},
@@ -239,7 +239,7 @@ class ComparisonWebApp(SimpleFlaskApp):
                 'status': 'completed'
             }
         elif action == 'reset':
-            print(f"[ComparisonWeb] Reset comparison")
+            print("[ComparisonWeb] Reset comparison")
             self.results = {}
             self.current_agent = 0
             return {'action': 'reset', 'status': 'reset'}

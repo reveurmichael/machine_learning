@@ -27,6 +27,8 @@ let isFetching = false;
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
+    // Initialize sidebar for human play mode
+    initializeSidebar('human');
     setupEventListeners();
     startPolling();
 }
@@ -116,23 +118,13 @@ async function fetchGameState() {
 function updateUI() {
     if (!gameState) return;
     
-    // Update score and steps
-    scoreElement.textContent = gameState.score;
-    stepsElement.textContent = gameState.steps;
+    // Use the sidebar manager to update all UI elements
+    if (sidebarManager) {
+        sidebarManager.updateWithGameState(gameState);
+    }
     
     // Update document title
     document.title = `Snake Game - Score: ${gameState.score}`;
-    
-    // Update game over state
-    gameOverIndicator.style.display = gameState.game_over ? 'block' : 'none';
-    
-    // Update end reason if available
-    if (gameState.game_end_reason) {
-        endReasonElement.textContent = gameState.game_end_reason;
-        endReasonContainer.style.display = 'block';
-    } else {
-        endReasonContainer.style.display = 'none';
-    }
 }
 
 function drawGame() {
@@ -231,8 +223,8 @@ function handleKeyDown(event) {
 
 async function makeMove(direction) {
     try {
-        // Use MVC API endpoint /api/control with command parameter
-        const result = await sendApiRequest('/api/control', 'POST', { command: direction });
+        // Use direct move API endpoint following pre-MVC working architecture
+        const result = await sendApiRequest('/api/move', 'POST', { direction: direction });
         
         if (result.status === 'error') {
             console.error('Move failed:', result.message);

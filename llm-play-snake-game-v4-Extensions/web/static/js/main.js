@@ -32,6 +32,8 @@ let lastRenderedStep = -1;
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
+    // Initialize sidebar for LLM mode
+    initializeSidebar('llm');
     startPolling();
     window.addEventListener('resize', () => {
         if (gameState) drawGame();
@@ -98,24 +100,10 @@ function handleError(msg) {
 function updateUI() {
     if (!gameState) return;
 
-    // Basic info
-    scoreElement.textContent = gameState.score;
-    stepsElement.textContent = gameState.steps;
-
-    // Session finished flag
-    if (finishedIndicator) {
-        finishedIndicator.style.display = gameState.running ? 'none' : 'block';
+    // Use the sidebar manager to update all UI elements
+    if (sidebarManager) {
+        sidebarManager.updateWithGameState(gameState);
     }
-
-    // Planned moves list – show commas separated, default empty
-    if (Array.isArray(gameState.planned_moves)) {
-        plannedMovesEl.textContent = gameState.planned_moves.join(', ');
-    } else {
-        plannedMovesEl.textContent = '';
-    }
-
-    // LLM response – possibly long; use innerText to preserve line breaks
-    llmResponseEl.innerText = gameState.llm_response || '';
 
     // Update page title
     document.title = `Snake ${gameState.score} pts – ${gameState.steps} steps`;

@@ -28,6 +28,29 @@ from flask import Flask, render_template, jsonify, request
 # Import utilities (no Task-0 pollution)
 from utils.network_utils import random_free_port
 
+# Import central colour palette
+from config.ui_constants import COLORS as UI_COLORS
+
+# Map UI_COLORS keys to camelCase expected by JS
+_COLOR_KEY_MAP = {
+    'SNAKE_HEAD': 'snake_head',
+    'SNAKE_BODY': 'snake_body',
+    'APPLE': 'apple',
+    'BACKGROUND': 'background',
+    'GRID': 'grid',
+}
+
+
+def _build_color_payload() -> Dict[str, list]:
+    """Return colour palette as {key: [r,g,b]} expected by front-end JS."""
+    payload: Dict[str, list] = {}
+    for k_ui, k_js in _COLOR_KEY_MAP.items():
+        rgb = UI_COLORS.get(k_ui)
+        if rgb is not None:
+            payload[k_js] = list(rgb)
+    return payload
+
+
 # Simple logging following SUPREME_RULES
 print_log = lambda msg: print(f"[WebApp] {msg}")
 
@@ -75,20 +98,40 @@ class SimpleFlaskApp:
         @self.app.route('/')
         def index():
             """Main interface."""
-            return render_template('base.html', 
-                                 app_name=self.name,
-                                 game_data=self.get_game_data())
+            return render_template(self.get_template_name(),
+                                   app_name=self.name,
+                                   game_data=self.get_game_data())
         
         @self.app.route('/api/state')
         def get_state():
             """Get current state."""
             return jsonify(self.get_api_state())
         
+        @self.app.route('/api/move', methods=['POST'])
+        def make_move():
+            """Handle move requests (for human play)."""
+            data = request.get_json() or {}
+            direction = data.get('direction', '')
+            
+            if not direction:
+                return jsonify({'status': 'error', 'message': 'No direction provided'})
+            
+            # Convert to control format and delegate
+            control_data = {'action': 'move', 'direction': direction}
+            result = self.handle_control(control_data)
+            return jsonify(result)
+        
         @self.app.route('/api/control', methods=['POST'])
         def control():
             """Handle controls."""
             data = request.get_json() or {}
             return jsonify(self.handle_control(data))
+        
+        @self.app.route('/api/reset', methods=['POST'])
+        def reset():
+            """Handle reset requests."""
+            result = self.handle_control({'action': 'reset'})
+            return jsonify(result)
         
         @self.app.route('/api/health')
         def health():
@@ -122,12 +165,25 @@ class SimpleFlaskApp:
         action = data.get('action', 'unknown')
         return {'action': action, 'status': 'processed'}
     
-    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = False):
+    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = True):
         """Run Flask application."""
         # Use provided port or fall back to instance port
         actual_port = port if port is not None else self.port
         print_log(f"Starting {self.name} on http://{host}:{actual_port}")
         self.app.run(host=host, port=actual_port, debug=debug)
+
+    # ------------------------------------------------------------------
+    # Template selection helpers
+    # ------------------------------------------------------------------
+
+    def get_template_name(self) -> str:
+        """Return the Jinja2 template to render for the index route.
+
+        Sub-classes override this to supply their mode-specific template
+        (e.g. ``human_play.html``).  Default is ``base.html`` so that
+        existing behaviour keeps working for quick experiments.
+        """
+        return 'base.html'
 
 
 class HumanGameApp(SimpleFlaskApp):
@@ -143,6 +199,13 @@ class HumanGameApp(SimpleFlaskApp):
         super().__init__("Human Snake Game")
         self.grid_size = grid_size
         self.config = config
+        # Minimal state for demo movement
+        c = grid_size // 2
+        self.snake_positions = [[c, c]]  # head last element per JS expectation
+        self.apple_position = [c + 2, c + 2]
+        self.score = 0
+        self.steps = 0
+        self.game_over = False
         print_log(f"Human mode: {grid_size}x{grid_size} grid")
     
     def get_game_data(self) -> Dict[str, Any]:
@@ -157,18 +220,18 @@ class HumanGameApp(SimpleFlaskApp):
     
     def get_api_state(self) -> Dict[str, Any]:
         """Get human game state."""
-        # Initialize a simple game state for human play
-        center = self.grid_size // 2
         return {
             'mode': 'human',
             'grid_size': self.grid_size,
-            'snake_positions': [[center, center]],  # Snake starts in center
-            'apple_position': [center + 2, center + 2],  # Apple nearby
-            'score': 0,
-            'steps': 0,
-            'running': True,
-            'game_active': True,
-            'status': 'ready'
+            'snake_positions': self.snake_positions,
+            'apple_position': self.apple_position,
+            'score': self.score,
+            'steps': self.steps,
+            'running': not self.game_over,
+            'game_active': not self.game_over,
+            'game_over': self.game_over,
+            'status': 'ready',
+            'colors': _build_color_payload()
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -178,12 +241,107 @@ class HumanGameApp(SimpleFlaskApp):
         
         if action == 'move' and direction:
             print_log(f"Human move: {direction}")
-            return {'action': 'move', 'direction': direction, 'status': 'processed'}
+            if self.game_over:
+                return {'status': 'error', 'message': 'Game is over'}
+            
+            success = self._apply_move(direction)
+            if success:
+                return {
+                    'status': 'ok',
+                    'game_active': not self.game_over,
+                    'score': self.score,
+                    'steps': self.steps
+                }
+            else:
+                return {'status': 'error', 'message': 'Invalid move'}
+                
         elif action == 'reset':
             print_log("Human reset")
-            return {'action': 'reset', 'status': 'processed'}
+            self._reset_game()
+            return {'status': 'success', 'message': 'Game reset'}
         
-        return {'error': 'Unknown action'}
+        return {'status': 'error', 'message': 'Unknown action'}
+
+    # ---------------- internal helpers ----------------
+
+    _DIR_MAP = {
+        'UP': (0, 1),
+        'DOWN': (0, -1),
+        'LEFT': (-1, 0),
+        'RIGHT': (1, 0),
+    }
+
+    def _apply_move(self, direction: str) -> bool:
+        """Update snake position for a single-step move (demo logic)."""
+        if self.game_over:
+            return False
+            
+        direction = direction.upper()
+        if direction not in self._DIR_MAP:
+            return False
+            
+        dx, dy = self._DIR_MAP[direction]
+        head_x, head_y = self.snake_positions[-1]
+        new_x, new_y = head_x + dx, head_y + dy
+        
+        # bounds check
+        if not (0 <= new_x < self.grid_size and 0 <= new_y < self.grid_size):
+            self.game_over = True
+            return False
+            
+        # self collision check
+        if [new_x, new_y] in self.snake_positions:
+            self.game_over = True
+            return False
+            
+        # move snake
+        self.snake_positions.append([new_x, new_y])
+        
+        # apple eaten?
+        if [new_x, new_y] == self.apple_position:
+            self.score += 1
+            self._generate_new_apple()
+        else:
+            # remove tail to keep length constant (classic snake demo)
+            self.snake_positions.pop(0)
+            
+        self.steps += 1
+        return True
+    
+    def _generate_new_apple(self):
+        """Generate new apple position avoiding snake body."""
+        from random import randint
+        max_attempts = 100  # Prevent infinite loop
+        attempts = 0
+        
+        while attempts < max_attempts:
+            ax, ay = randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)
+            if [ax, ay] not in self.snake_positions:
+                self.apple_position = [ax, ay]
+                return
+            attempts += 1
+        
+        # Fallback: find first empty position
+        for y in range(self.grid_size):
+            for x in range(self.grid_size):
+                if [x, y] not in self.snake_positions:
+                    self.apple_position = [x, y]
+                    return
+    
+    def _reset_game(self):
+        """Reset game to initial state."""
+        center = self.grid_size // 2
+        self.snake_positions = [[center, center]]
+        self.apple_position = [center + 2, center + 2]
+        self.score = 0
+        self.steps = 0
+        self.game_over = False
+        print_log("Game reset to initial state")
+
+    # -------------------- Template override ---------------------------
+
+    def get_template_name(self) -> str:
+        return 'human_play.html'
 
 
 class LLMGameApp(SimpleFlaskApp):
@@ -223,7 +381,8 @@ class LLMGameApp(SimpleFlaskApp):
     
     def get_api_state(self) -> Dict[str, Any]:
         """Get LLM game state."""
-        # Initialize a simple game state for LLM play
+        # TODO: Integrate with actual GameManager for real LLM gameplay
+        # For now, provide demo state that matches JavaScript expectations
         center = self.grid_size // 2
         return {
             'mode': 'llm',
@@ -236,9 +395,11 @@ class LLMGameApp(SimpleFlaskApp):
             'steps': 0,
             'running': True,
             'game_active': True,
-            'llm_response': 'Ready to start playing...',
-            'planned_moves': [],
-            'status': 'ready'
+            'game_over': False,
+            'llm_response': 'Ready to start LLM-powered Snake Game...\n\nThe AI will analyze the game state and make strategic moves to maximize score while avoiding collisions.',
+            'planned_moves': ['UP', 'RIGHT', 'UP'],  # Demo planned moves
+            'status': 'ready',
+            'colors': _build_color_payload()
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -256,6 +417,9 @@ class LLMGameApp(SimpleFlaskApp):
             return {'action': 'reset', 'status': 'reset'}
         
         return {'error': 'Unknown action'}
+
+    def get_template_name(self) -> str:
+        return 'main.html'
 
 
 class ReplayGameApp(SimpleFlaskApp):
@@ -298,25 +462,67 @@ class ReplayGameApp(SimpleFlaskApp):
             game_file = log_path / f"game_{self.game_number}.json"
             
             if game_file.exists():
-                with open(game_file, 'r') as f:
+                with open(game_file, 'r', encoding='utf-8') as f:
                     game_data = json.load(f)
                 
-                # Extract game state from log data
-                if 'snake_positions' in game_data and 'apple_position' in game_data:
-                    return {
-                        'mode': 'replay',
-                        'grid_size': game_data.get('grid_size', 10),
-                        'snake_positions': game_data['snake_positions'],
-                        'apple_position': game_data['apple_position'],
-                        'score': game_data.get('final_score', 0),
-                        'steps': game_data.get('total_steps', 0),
-                        'running': False,  # Replay is static
-                        'game_active': False,
-                        'end_reason': game_data.get('end_reason', 'Game completed'),
-                        'log_dir': self.log_dir,
-                        'game_number': self.game_number,
-                        'status': 'loaded'
-                    }
+                # Extract final game state from log data
+                final_snake_positions = []
+                final_apple_position = [5, 5]  # Default fallback
+                
+                # Try to get final positions from detailed_history
+                detailed = game_data.get('detailed_history', {})
+                if detailed:
+                    # Get final snake position (reconstruct from moves)
+                    moves = detailed.get('moves', [])
+                    apple_positions = detailed.get('apple_positions', [])
+                    
+                    if apple_positions:
+                        last_apple = apple_positions[-1]  # Last apple position
+                        # Handle both formats: {x: 5, y: 4} or [5, 4]
+                        if isinstance(last_apple, dict) and 'x' in last_apple and 'y' in last_apple:
+                            final_apple_position = [last_apple['x'], last_apple['y']]
+                        elif isinstance(last_apple, (list, tuple)) and len(last_apple) >= 2:
+                            final_apple_position = [last_apple[0], last_apple[1]]
+                        else:
+                            print_log(f"Unexpected apple position format: {last_apple}")
+                            final_apple_position = [5, 5]
+                    
+                    # Reconstruct final snake position (simplified)
+                    grid_size = game_data.get('grid_size', 10)
+                    center = grid_size // 2
+                    final_snake_positions = [[center, center]]  # Start position
+                    
+                    # Apply some moves to show snake progression (demo)
+                    if moves and len(moves) > 3:
+                        # Show snake with some length based on score
+                        score = game_data.get('final_score', 0)
+                        snake_length = min(score + 1, 5)  # Limit demo length
+                        for i in range(snake_length):
+                            x = center + i
+                            y = center
+                            if 0 <= x < grid_size:
+                                final_snake_positions.append([x, y])
+                
+                return {
+                    'mode': 'replay',
+                    'grid_size': game_data.get('grid_size', 10),
+                    'snake_positions': final_snake_positions or [[5, 5]],
+                    'apple_position': final_apple_position,
+                    'score': game_data.get('final_score', 0),
+                    'steps': game_data.get('total_steps', 0),
+                    'running': False,  # Replay is static
+                    'game_active': False,
+                    'game_over': True,
+                    'end_reason': game_data.get('game_end_reason', 'Game completed'),
+                    'log_dir': self.log_dir,
+                    'game_number': self.game_number,
+                    'status': 'loaded',
+                    'colors': _build_color_payload(),
+                    # Add replay-specific info
+                    'timestamp': game_data.get('timestamp', ''),
+                    'primary_llm': game_data.get('primary_llm', ''),
+                    'parser_llm': game_data.get('parser_llm', '')
+                }
         except Exception as e:
             print_log(f"Error loading game data: {e}")
         
@@ -330,10 +536,12 @@ class ReplayGameApp(SimpleFlaskApp):
             'steps': 15,
             'running': False,
             'game_active': False,
-            'end_reason': 'Demo replay data',
+            'game_over': True,
+            'end_reason': 'Demo replay data - no log files found',
             'log_dir': self.log_dir,
             'game_number': self.game_number,
-            'status': 'demo'
+            'status': 'demo',
+            'colors': _build_color_payload()
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -352,6 +560,9 @@ class ReplayGameApp(SimpleFlaskApp):
             return {'action': 'step', 'direction': direction, 'status': 'stepped'}
         
         return {'error': 'Unknown action'}
+
+    def get_template_name(self) -> str:
+        return 'replay.html'
 
 
 # Simple factory functions (KISS pattern)

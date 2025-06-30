@@ -33,18 +33,22 @@ let isFetching = false;
 
 // Initialize
 function init() {
+    // Initialize sidebar for replay mode
+    initializeSidebar('replay');
     setupEventListeners();
     startPolling();
     document.addEventListener('keydown', handleKeyDown);
 }
 
 function setupEventListeners() {
-    playPauseButton.addEventListener('click', togglePlayPause);
-    prevGameButton.addEventListener('click', () => sendCommand('prev_game'));
-    nextGameButton.addEventListener('click', () => sendCommand('next_game'));
-    restartButton.addEventListener('click', () => sendCommand('restart_game'));
-    movePauseDecreaseButton.addEventListener('click', () => sendCommand('speed_up'));
-    movePauseIncreaseButton.addEventListener('click', () => sendCommand('speed_down'));
+    const safeAdd = (el, evt, fn) => { if (el) el.addEventListener(evt, fn); };
+
+    safeAdd(playPauseButton, 'click', togglePlayPause);
+    safeAdd(prevGameButton, 'click', () => sendCommand('prev_game'));
+    safeAdd(nextGameButton, 'click', () => sendCommand('next_game'));
+    safeAdd(restartButton, 'click', () => sendCommand('restart_game'));
+    safeAdd(movePauseDecreaseButton, 'click', () => sendCommand('speed_up'));
+    safeAdd(movePauseIncreaseButton, 'click', () => sendCommand('speed_down'));
 }
 
 function startPolling() {
@@ -121,53 +125,43 @@ function rgbArrayToHex(rgbArray) {
 function updateUI() {
     if (!gameState) return;
     
-    // Update game info
-    if (gameState.total_games && gameState.total_games > 0) {
-        gameNumber.textContent = `${gameState.game_number}/${gameState.total_games}`;
-    } else {
-        gameNumber.textContent = gameState.game_number;
+    // Use the sidebar manager to update all UI elements
+    if (sidebarManager) {
+        sidebarManager.updateWithGameState(gameState);
     }
-    scoreElement.textContent = gameState.score;
     
+    const safeSet = (el, val) => { if (el) el.textContent = val; };
+    const safeShow = (el, show) => { if (el) el.style.display = show ? 'block' : 'none'; };
+
     // Update document title
-    document.title = `Snake Game ${gameState.game_number} - Score: ${gameState.score}`;
+    document.title = `Snake Game ${gameState.game_number || 1} - Score: ${gameState.score || 0}`;
     
     // Update progress
-    progressElement.textContent = `${gameState.move_index}/${gameState.total_moves}`;
+    safeSet(progressElement, `${gameState.move_index || 0}/${gameState.total_moves || 0}`);
     
     // Update progress bar
-    if (gameState.total_moves > 0) {
-        const progressPercent = (gameState.move_index / gameState.total_moves) * 100;
+    if (progressBar && gameState.total_moves > 0) {
+        const progressPercent = ((gameState.move_index || 0) / gameState.total_moves) * 100;
         progressBar.style.width = `${progressPercent}%`;
     } else {
-        progressBar.style.width = '0%';
-    }
-    
-    // Update end reason if available
-    if (gameState.game_end_reason) {
-        endReasonElement.textContent = gameState.game_end_reason;
-        endReasonContainer.style.display = 'block';
-    } else {
-        endReasonContainer.style.display = 'none';
+        if (progressBar) progressBar.style.width = '0%';
     }
     
     // Update paused indicator
-    pausedIndicator.style.display = gameState.paused ? 'block' : 'none';
-    
-    // Update LLM info
-    primaryLlmElement.textContent = gameState.primary_llm || 'Unknown';
-    secondaryLlmElement.textContent = gameState.secondary_llm || 'None';
+    safeShow(pausedIndicator, gameState.paused);
     
     // Update play/pause button
-    playPauseButton.textContent = gameState.paused ? 'Play' : 'Pause';
+    safeSet(playPauseButton, gameState.paused ? 'Play' : 'Pause');
     
     // Update move pause display in seconds
-    if (gameState.pause_between_moves) {
+    if (movePauseValueElement && gameState.pause_between_moves) {
         movePauseValueElement.textContent = `${gameState.pause_between_moves.toFixed(1)}s`;
     } else {
         // Fallback to calculating from speed if pause_between_moves is not provided
-        const pauseTime = gameState.speed > 0 ? 1.0 / gameState.speed : 1.0;
-        movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
+        if (movePauseValueElement) {
+            const pauseTime = gameState.speed > 0 ? 1.0 / gameState.speed : 1.0;
+            movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
+        }
     }
 }
 

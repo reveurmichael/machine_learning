@@ -81,6 +81,41 @@
                         <button id="reset-button" class="reset-button">Reset Game (R)</button>
                     </div>
                 </div>
+
+                <!-- Progress Section (replay mode) -->
+                <div class="progress-section" id="progress-section" style="display:none;">
+                    <h2>Progress <span id="progress">0/0</span></h2>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- LLM Information (replay mode) -->
+                <div class="llm-info-section" id="llm-info-section" style="display:none;">
+                    <h2>LLM Information</h2>
+                    <div>Primary: <span id="primary-llm">Unknown</span></div>
+                    <div>Parser: <span id="secondary-llm">None</span></div>
+                </div>
+
+                <!-- Replay Controls -->
+                <div class="replay-controls-section" id="replay-controls-section" style="display:none;">
+                    <h2>Controls</h2>
+                    <div class="control-buttons">
+                        <button id="prev-game">&lt;&lt; Prev</button>
+                        <button id="restart">Restart</button>
+                        <button id="play-pause">Play</button>
+                        <button id="next-game">Next &gt;&gt;</button>
+                    </div>
+                    <div class="speed-controls">
+                        <span>Pause:</span>
+                        <button id="speed-down" title="Slow down">↓</button>
+                        <span id="speed-value">1.0s</span>
+                        <button id="speed-up" title="Speed up">↑</button>
+                    </div>
+                </div>
+
+                <!-- Paused Indicator (replay mode) -->
+                <div id="paused-indicator" class="paused-indicator" style="display:none;">PAUSED</div>
                 {% endblock %}
             </div>
         </div>

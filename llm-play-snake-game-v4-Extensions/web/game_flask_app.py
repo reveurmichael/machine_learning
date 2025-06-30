@@ -22,11 +22,15 @@ Copy this file → Replace game components → Maintain same simple structure
 """
 
 import os
+import sys
+import time
+import threading
 from typing import Dict, Any, Optional
 from flask import Flask, render_template, jsonify, request
 
 # Import utilities (no Task-0 pollution)
 from utils.network_utils import random_free_port
+from utils.web_utils import build_color_map
 
 # Import central colour palette
 from config.ui_constants import COLORS as UI_COLORS
@@ -42,13 +46,15 @@ _COLOR_KEY_MAP = {
 
 
 def _build_color_payload() -> Dict[str, list]:
-    """Return colour palette as {key: [r,g,b]} expected by front-end JS."""
-    payload: Dict[str, list] = {}
-    for k_ui, k_js in _COLOR_KEY_MAP.items():
-        rgb = UI_COLORS.get(k_ui)
-        if rgb is not None:
-            payload[k_js] = list(rgb)
-    return payload
+    """Build color payload for web interface."""
+    color_map = build_color_map()
+    return {
+        'snake_head': list(color_map['snake_head']),
+        'snake_body': list(color_map['snake_body']),
+        'apple': list(color_map['apple']),
+        'background': list(color_map['background']),
+        'grid': list(color_map['grid']),
+    }
 
 
 # Simple logging following SUPREME_RULES
@@ -437,7 +443,91 @@ class ReplayGameApp(SimpleFlaskApp):
         self.game_number = game_number
         self.config = config
         
+        # Initialize the actual replay engine (like pygame version)
+        from replay.replay_engine import ReplayEngine
+        self.replay_engine = ReplayEngine(
+            log_dir=log_dir,
+            pause_between_moves=1.0,
+            auto_advance=False,
+            use_gui=False  # No GUI for web mode
+        )
+        
+        # Set initial game number
+        self.replay_engine.game_number = game_number
+        
+        # Load the initial game data
+        if not self.replay_engine.load_game_data(game_number):
+            print_log(f"Warning: Could not load game {game_number} from {log_dir}")
+        else:
+            print_log(f"Successfully loaded game {game_number}")
+            print_log(f"DEBUG: After load_game_data, game_end_reason = {getattr(self.replay_engine, 'game_end_reason', 'NOT_SET')}")
+            print_log(f"DEBUG: After load_game_data, hasattr = {hasattr(self.replay_engine, 'game_end_reason')}")
+        
+        # Start **unpaused** so replay begins immediately
+        self.replay_engine.paused = False
+        
+        # Start background thread for replay updates
+        self.replay_thread = None
+        self.replay_running = True
+        self._start_replay_thread()
+        
         print_log(f"Replay mode: {log_dir}, starting game {game_number}")
+    
+    def _start_replay_thread(self):
+        """Start background thread for replay updates."""
+        def replay_update_loop():
+            """Background loop to update replay engine state."""
+            while self.replay_running:
+                try:
+                    if hasattr(self, 'replay_engine') and self.replay_engine:
+                        # Update replay engine (like pygame version)
+                        if not self.replay_engine.paused and self.replay_engine.running:
+                            # Check if it's time for the next move
+                            current_time = time.time()
+                            if current_time - self.replay_engine.last_move_time >= self.replay_engine.pause_between_moves:
+                                # Execute next move
+                                if self.replay_engine.move_index < len(self.replay_engine.moves):
+                                    next_move = self.replay_engine.moves[self.replay_engine.move_index]
+                                    game_continues = self.replay_engine.execute_replay_move(next_move)
+                                    self.replay_engine.move_index += 1
+                                    self.replay_engine.last_move_time = current_time
+                                    
+                                    if not game_continues:
+                                        print_log(f"Game {self.replay_engine.game_number} ended")
+                                        # Use the actual end reason from the game data, not hardcoded text
+                                        if hasattr(self.replay_engine, 'game_end_reason') and self.replay_engine.game_end_reason:
+                                            # Keep the original end reason from the game data
+                                            pass
+                                        else:
+                                            # Fallback to a generic reason if none exists
+                                            self.replay_engine.game_end_reason = "Game ended"
+                                        self.replay_engine.running = False
+                                else:
+                                    # All moves completed - use the actual end reason from game data
+                                    if hasattr(self.replay_engine, 'game_end_reason') and self.replay_engine.game_end_reason:
+                                        # Keep the original end reason from the game data
+                                        pass
+                                    else:
+                                        # Fallback if no end reason exists
+                                        self.replay_engine.game_end_reason = "All moves completed"
+                                    self.replay_engine.running = False
+                    
+                    # Sleep to avoid busy loop
+                    time.sleep(0.1)  # 100ms update rate
+                    
+                except Exception as e:
+                    print_log(f"Error in replay update loop: {e}")
+                    time.sleep(0.1)
+        
+        self.replay_thread = threading.Thread(target=replay_update_loop, daemon=True)
+        self.replay_thread.start()
+        print_log("Started replay update thread")
+    
+    def __del__(self):
+        """Cleanup when app is destroyed."""
+        self.replay_running = False
+        if self.replay_thread and self.replay_thread.is_alive():
+            self.replay_thread.join(timeout=1.0)
     
     def get_game_data(self) -> Dict[str, Any]:
         """Get replay data."""
@@ -451,82 +541,59 @@ class ReplayGameApp(SimpleFlaskApp):
         }
     
     def get_api_state(self) -> Dict[str, Any]:
-        """Get replay state."""
-        # Try to load actual game data from log files
-        try:
-            import json
-            from pathlib import Path
-            
-            # Look for game log file
-            log_path = Path(self.log_dir)
-            game_file = log_path / f"game_{self.game_number}.json"
-            
-            if game_file.exists():
-                with open(game_file, 'r', encoding='utf-8') as f:
-                    game_data = json.load(f)
-                
-                # Extract final game state from log data
-                final_snake_positions = []
-                final_apple_position = [5, 5]  # Default fallback
-                
-                # Try to get final positions from detailed_history
-                detailed = game_data.get('detailed_history', {})
-                if detailed:
-                    # Get final snake position (reconstruct from moves)
-                    moves = detailed.get('moves', [])
-                    apple_positions = detailed.get('apple_positions', [])
-                    
-                    if apple_positions:
-                        last_apple = apple_positions[-1]  # Last apple position
-                        # Handle both formats: {x: 5, y: 4} or [5, 4]
-                        if isinstance(last_apple, dict) and 'x' in last_apple and 'y' in last_apple:
-                            final_apple_position = [last_apple['x'], last_apple['y']]
-                        elif isinstance(last_apple, (list, tuple)) and len(last_apple) >= 2:
-                            final_apple_position = [last_apple[0], last_apple[1]]
-                        else:
-                            print_log(f"Unexpected apple position format: {last_apple}")
-                            final_apple_position = [5, 5]
-                    
-                    # Reconstruct final snake position (simplified)
-                    grid_size = game_data.get('grid_size', 10)
-                    center = grid_size // 2
-                    final_snake_positions = [[center, center]]  # Start position
-                    
-                    # Apply some moves to show snake progression (demo)
-                    if moves and len(moves) > 3:
-                        # Show snake with some length based on score
-                        score = game_data.get('final_score', 0)
-                        snake_length = min(score + 1, 5)  # Limit demo length
-                        for i in range(snake_length):
-                            x = center + i
-                            y = center
-                            if 0 <= x < grid_size:
-                                final_snake_positions.append([x, y])
-                
-                return {
-                    'mode': 'replay',
-                    'grid_size': game_data.get('grid_size', 10),
-                    'snake_positions': final_snake_positions or [[5, 5]],
-                    'apple_position': final_apple_position,
-                    'score': game_data.get('final_score', 0),
-                    'steps': game_data.get('total_steps', 0),
-                    'running': False,  # Replay is static
-                    'game_active': False,
-                    'game_over': True,
-                    'end_reason': game_data.get('game_end_reason', 'Game completed'),
-                    'log_dir': self.log_dir,
-                    'game_number': self.game_number,
-                    'status': 'loaded',
-                    'colors': _build_color_payload(),
-                    # Add replay-specific info
-                    'timestamp': game_data.get('timestamp', ''),
-                    'primary_llm': game_data.get('primary_llm', ''),
-                    'parser_llm': game_data.get('parser_llm', '')
-                }
-        except Exception as e:
-            print_log(f"Error loading game data: {e}")
+        """Get replay state from the actual replay engine."""
+        if not hasattr(self, 'replay_engine') or self.replay_engine is None:
+            return self._get_fallback_state()
         
-        # Fallback to demo state if no log data available
+        try:
+            # Get state from the replay engine (like pygame version)
+            state = self.replay_engine._build_state_base()
+            
+            # Convert numpy arrays to lists for JSON serialization
+            if 'snake_positions' in state and state['snake_positions'] is not None:
+                state['snake_positions'] = state['snake_positions'].tolist()
+            if 'apple_position' in state and state['apple_position'] is not None:
+                state['apple_position'] = state['apple_position'].tolist()
+            
+            # Always show the canonical end reason for the loaded game
+            end_reason = getattr(self.replay_engine, 'game_end_reason', None)
+            
+            # Debug logging
+            print_log(f"DEBUG: replay_engine.game_end_reason = {end_reason}")
+            print_log(f"DEBUG: hasattr(replay_engine, 'game_end_reason') = {hasattr(self.replay_engine, 'game_end_reason')}")
+            
+            # Add web-specific fields
+            total_moves = len(self.replay_engine.moves) if hasattr(self.replay_engine, 'moves') else 0
+            is_at_end = self.replay_engine.move_index >= total_moves
+            is_engine_over = not self.replay_engine.running or self.replay_engine.game_end_reason is not None
+            game_over = is_at_end or is_engine_over
+            state.update({
+                'mode': 'replay',
+                'log_dir': self.log_dir,
+                'game_number': self.replay_engine.game_number,
+                'status': 'loaded',
+                'colors': _build_color_payload(),
+                'paused': self.replay_engine.paused,
+                'move_index': self.replay_engine.move_index,
+                'total_moves': total_moves,
+                'pause_between_moves': self.replay_engine.pause_between_moves,
+                'running': self.replay_engine.running,
+                'game_active': self.replay_engine.running and not game_over,
+                'game_over': game_over,
+                'end_reason': end_reason,
+                'primary_llm': getattr(self.replay_engine, 'primary_llm', ''),
+                'parser_llm': getattr(self.replay_engine, 'secondary_llm', ''),
+                'timestamp': getattr(self.replay_engine, 'game_timestamp', '')
+            })
+            
+            return state
+            
+        except Exception as e:
+            print_log(f"Error getting replay state: {e}")
+            return self._get_fallback_state()
+    
+    def _get_fallback_state(self) -> Dict[str, Any]:
+        """Fallback state if replay engine is not available."""
         return {
             'mode': 'replay',
             'grid_size': 10,
@@ -537,7 +604,7 @@ class ReplayGameApp(SimpleFlaskApp):
             'running': False,
             'game_active': False,
             'game_over': True,
-            'end_reason': 'Demo replay data - no log files found',
+            'end_reason': 'Demo replay data - replay engine not available',
             'log_dir': self.log_dir,
             'game_number': self.game_number,
             'status': 'demo',
@@ -545,22 +612,65 @@ class ReplayGameApp(SimpleFlaskApp):
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle replay controls."""
-        action = data.get('action', '')
+        """Handle replay controls using the actual replay engine."""
+        if not hasattr(self, 'replay_engine') or self.replay_engine is None:
+            return {'error': 'Replay engine not available'}
         
-        if action == 'play':
-            print_log("Replay play")
-            return {'action': 'play', 'status': 'playing'}
-        elif action == 'pause':
-            print_log("Replay pause")
-            return {'action': 'pause', 'status': 'paused'}
-        elif action == 'step':
-            direction = data.get('direction', 'forward')
-            print_log(f"Replay step {direction}")
-            return {'action': 'step', 'direction': direction, 'status': 'stepped'}
+        action = data.get('action', '')
+        command = data.get('command', '')
+        
+        try:
+            if action == 'play' or command == 'play':
+                print_log("Replay play")
+                self.replay_engine.paused = False
+                return {'action': 'play', 'status': 'playing'}
+                
+            elif action == 'pause' or command == 'pause':
+                print_log("Replay pause")
+                self.replay_engine.paused = True
+                return {'action': 'pause', 'status': 'paused'}
+                
+            elif command == 'next_game':
+                print_log("Next game")
+                self.replay_engine.game_number += 1
+                if not self.replay_engine.load_game_data(self.replay_engine.game_number):
+                    self.replay_engine.game_number -= 1
+                    return {'status': 'error', 'message': 'No next game'}
+                # Auto-play new game
+                self.replay_engine.paused = False
+                return {'status': 'ok'}
+                
+            elif command == 'prev_game':
+                print_log("Previous game")
+                if self.replay_engine.game_number > 1:
+                    self.replay_engine.game_number -= 1
+                    self.replay_engine.load_game_data(self.replay_engine.game_number)
+                    self.replay_engine.paused = False
+                    return {'status': 'ok'}
+                return {'status': 'error', 'message': 'Already at first game'}
+                
+            elif command == 'restart_game':
+                print_log("Restart game")
+                self.replay_engine.load_game_data(self.replay_engine.game_number)
+                self.replay_engine.paused = False
+                return {'status': 'ok'}
+                
+            elif command == 'speed_up':
+                print_log("Speed up")
+                self.replay_engine.pause_between_moves = max(0.1, self.replay_engine.pause_between_moves * 0.75)
+                return {'status': 'ok', 'move_pause': self.replay_engine.pause_between_moves}
+                
+            elif command == 'speed_down':
+                print_log("Speed down")
+                self.replay_engine.pause_between_moves = min(3.0, self.replay_engine.pause_between_moves * 1.25)
+                return {'status': 'ok', 'move_pause': self.replay_engine.pause_between_moves}
+            
+        except Exception as e:
+            print_log(f"Error handling replay control: {e}")
+            return {'error': f'Control error: {e}'}
         
         return {'error': 'Unknown action'}
-
+    
     def get_template_name(self) -> str:
         return 'replay.html'
 

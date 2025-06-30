@@ -366,6 +366,31 @@ class SidebarManager {
             element.style.display = 'none';
         }
     }
+    
+    /**
+     * Show error message
+     */
+    showErrorMessage(message) {
+        const loadingMessage = document.getElementById('loading-message');
+        if (loadingMessage) {
+            loadingMessage.innerHTML = `<p class="error-message">${message}</p>`;
+        }
+    }
+    
+    /**
+     * Show game container and hide loading message
+     */
+    showGameContainer() {
+        const loadingMessage = document.getElementById('loading-message');
+        const gameContainer = document.getElementById('game-container');
+        
+        if (loadingMessage && loadingMessage.style.display !== 'none') {
+            loadingMessage.style.display = 'none';
+        }
+        if (gameContainer) {
+            gameContainer.style.display = 'flex';
+        }
+    }
 }
 
 // Global sidebar manager instance

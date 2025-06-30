@@ -31,8 +31,9 @@
                 <div class="stats-section">
                     <h2>Game Information</h2>
                     <div class="stats-grid">
+                        <div>Game: <span id="game-number">1</span></div>
                         <div>Score: <span id="score">0</span></div>
-                        <div>Steps: <span id="steps">0</span></div>
+                        <div>End Reason: <span id="end-reason">-</span></div>
                     </div>
                 </div>
 
@@ -68,10 +69,10 @@
                 </div>
 
                 <!-- Game Over indicator (human/replay) -->
-                <div id="game-over-indicator" class="paused-indicator" style="display:none;">GAME OVER</div>
+                <div id="game-over-indicator" class="status-indicator game-over-status" style="display:none;">GAME OVER</div>
 
                 <!-- End reason (human/replay) -->
-                <div id="end-reason-container" style="display:none;">End Reason: <span id="end-reason"></span></div>
+                <!-- <div id="end-reason-container" style="display:none;">End Reason: <span id="end-reason"></span></div> -->
 
                 <!-- Controls (human play) -->
                 <div class="controls-section" id="controls-section" style="display:none;">
@@ -115,7 +116,7 @@
                 </div>
 
                 <!-- Paused Indicator (replay mode) -->
-                <div id="paused-indicator" class="paused-indicator" style="display:none;">PAUSED</div>
+                <div id="paused-indicator" class="status-indicator paused-status" style="display:none;">PAUSED</div>
                 {% endblock %}
             </div>
         </div>

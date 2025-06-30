@@ -54,16 +54,42 @@ body {
     to { transform: rotate(360deg); }
 }
 
+/* Base status indicator styles */
+.status-indicator {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 4px;
+    display: none;
+    z-index: 10;
+}
+
+/* Paused status - blue background */
+.paused-status {
+    background-color: #e63946; /* same red as game-over */
+    color: white;
+}
+
+/* Game over status - red background */
+.game-over-status {
+    background-color: #e63946;
+    color: white;
+}
+
+/* Legacy paused indicator (keep for backward compatibility) */
 .paused-indicator {
     position: absolute;
     top: 5px;
     right: 10px;
     padding: 5px 10px;
-    background-color: #e63946;
+    background-color: #3498db;  /* Changed to blue to distinguish from game over */
     color: white;
     font-weight: bold;
     border-radius: 4px;
     display: none;
+    z-index: 10;
 }
 
 /* Session finished indicator – same look as paused but distinct id */
@@ -77,6 +103,7 @@ body {
     font-weight: bold;
     border-radius: 4px;
     display: none;
+    z-index: 10;
 }
 
 .game-container {

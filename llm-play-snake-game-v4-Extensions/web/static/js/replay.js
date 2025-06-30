@@ -1,276 +1,512 @@
 // COLORS is defined in common.js; no need to redeclare here.
 
-// DOM elements
-const loadingMessage = document.getElementById('loading-message');
-const gameContainer = document.getElementById('game-container');
-const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
-const gameNumber = document.getElementById('game-number');
-const scoreElement = document.getElementById('score');
-const progressElement = document.getElementById('progress');
-const endReasonElement = document.getElementById('end-reason');
-const endReasonContainer = document.getElementById('end-reason-container');
-const primaryLlmElement = document.getElementById('primary-llm');
-const secondaryLlmElement = document.getElementById('secondary-llm');
-const playPauseButton = document.getElementById('play-pause');
-const prevGameButton = document.getElementById('prev-game');
-const nextGameButton = document.getElementById('next-game');
-const restartButton = document.getElementById('restart');
-// Note: These elements control the *pause* between moves (lower pause = faster playback)
-const movePauseDecreaseButton = document.getElementById('speed-up');      // Decreases pause time (faster)
-const movePauseIncreaseButton = document.getElementById('speed-down');    // Increases pause time (slower)
-const movePauseValueElement = document.getElementById('speed-value');     // Displays pause in seconds
-const progressBar = document.getElementById('progress-bar');
-const pausedIndicator = document.getElementById('paused-indicator');
+// Fresh MVC Architecture for Replay Mode
+// Completely self-contained system with no legacy dependencies
 
-// Game state
-let gameState = null;
-let pixelSize = 0;
-let updateInterval = null;
-let retryCount = 0;
-const MAX_RETRIES = 10;
-let isFetching = false;
-
-// Initialize
-function init() {
-    // Initialize sidebar for replay mode
-    initializeSidebar('replay');
-    setupEventListeners();
-    startPolling();
-    document.addEventListener('keydown', handleKeyDown);
-}
-
-function setupEventListeners() {
-    const safeAdd = (el, evt, fn) => { if (el) el.addEventListener(evt, fn); };
-
-    safeAdd(playPauseButton, 'click', togglePlayPause);
-    safeAdd(prevGameButton, 'click', () => sendCommand('prev_game'));
-    safeAdd(nextGameButton, 'click', () => sendCommand('next_game'));
-    safeAdd(restartButton, 'click', () => sendCommand('restart_game'));
-    safeAdd(movePauseDecreaseButton, 'click', () => sendCommand('speed_up'));
-    safeAdd(movePauseIncreaseButton, 'click', () => sendCommand('speed_down'));
-}
-
-function startPolling() {
-    // Poll every 100 ms; avoid overlapping requests.
-    updateInterval = setInterval(fetchGameState, 100);
-}
-
-async function fetchGameState() {
-    if (isFetching) return;
-    isFetching = true;
-    try {
-        const response = await fetch('/api/state');
-        const data = await response.json();
-        
-        if (data.error) {
-            console.error(data.error);
+// ===== MODEL =====
+class ReplayModel {
+    constructor() {
+        this.state = null;
+        this.listeners = [];
+        this.isPolling = false;
+        this.pollInterval = null;
+    }
+    
+    addListener(callback) {
+        this.listeners.push(callback);
+    }
+    
+    notifyListeners() {
+        this.listeners.forEach(callback => callback(this.state));
+    }
+    
+    async fetchState() {
+        try {
+            const response = await fetch('/api/state');
+            const data = await response.json();
             
-            if (!gameState && retryCount < MAX_RETRIES) {
-                retryCount++;
-                return;
+            if (data.error) {
+                console.error('API Error:', data.error);
+                return false;
             }
             
-            if (!gameState && retryCount >= MAX_RETRIES) {
-                loadingMessage.innerHTML = `<p class="error-message">Error loading game data: ${data.error}</p>`;
-                clearInterval(updateInterval);
-                return;
+            this.state = data;
+            this.notifyListeners();
+            return true;
+        } catch (error) {
+            console.error('Network Error:', error);
+            return false;
+        }
+    }
+    
+    async sendCommand(command) {
+        try {
+            const response = await fetch('/api/control', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                console.error('Command Error:', data.error);
+                return false;
             }
             
-            return;
+            // Refresh state after command
+            await this.fetchState();
+            return true;
+        } catch (error) {
+            console.error('Command Network Error:', error);
+            return false;
         }
+    }
+    
+    startPolling() {
+        if (this.isPolling) return;
         
-        gameState = data;
-        
-        if (loadingMessage.style.display !== 'none') {
-            loadingMessage.style.display = 'none';
-            gameContainer.style.display = 'flex';
+        this.isPolling = true;
+        this.pollInterval = setInterval(() => {
+            this.fetchState();
+        }, 100);
+    }
+    
+    stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
         }
-        
-        if (gameState.colors) {
-            COLORS.SNAKE_HEAD = rgbArrayToHex(gameState.colors.snake_head) || COLORS.SNAKE_HEAD;
-            COLORS.SNAKE_BODY = rgbArrayToHex(gameState.colors.snake_body) || COLORS.SNAKE_BODY;
-            COLORS.APPLE = rgbArrayToHex(gameState.colors.apple) || COLORS.APPLE;
-            COLORS.BACKGROUND = rgbArrayToHex(gameState.colors.background) || COLORS.BACKGROUND;
-            COLORS.GRID = rgbArrayToHex(gameState.colors.grid) || COLORS.GRID;
-        }
-        
-        updateUI();
-        drawGame();
-    } catch (error) {
-        console.error('Error fetching game state:', error);
-        
-        if (!gameState && retryCount < MAX_RETRIES) {
-            retryCount++;
-            return;
-        }
-        
-        if (!gameState && retryCount >= MAX_RETRIES) {
-            loadingMessage.innerHTML = `<p class="error-message">Error connecting to server: ${error.message}</p>`;
-            clearInterval(updateInterval);
-            return;
-        }
-    } finally {
-        isFetching = false;
+        this.isPolling = false;
     }
 }
 
-function rgbArrayToHex(rgbArray) {
-    if (!Array.isArray(rgbArray) || rgbArray.length < 3) {
-        return null;
-    }
-    return `#${rgbArray[0].toString(16).padStart(2, '0')}${rgbArray[1].toString(16).padStart(2, '0')}${rgbArray[2].toString(16).padStart(2, '0')}`;
-}
-
-function updateUI() {
-    if (!gameState) return;
-    
-    // Use the sidebar manager to update all UI elements
-    if (sidebarManager) {
-        sidebarManager.updateWithGameState(gameState);
+// ===== VIEW =====
+class ReplayView {
+    constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas?.getContext('2d');
+        this.elements = this.initializeElements();
+        this.showGameContainer();
+        this.showReplaySections();
     }
     
-    const safeSet = (el, val) => { if (el) el.textContent = val; };
-    const safeShow = (el, show) => { if (el) el.style.display = show ? 'block' : 'none'; };
-
-    // Update document title
-    document.title = `Snake Game ${gameState.game_number || 1} - Score: ${gameState.score || 0}`;
-    
-    // Update progress
-    safeSet(progressElement, `${gameState.move_index || 0}/${gameState.total_moves || 0}`);
-    
-    // Update progress bar
-    if (progressBar && gameState.total_moves > 0) {
-        const progressPercent = ((gameState.move_index || 0) / gameState.total_moves) * 100;
-        progressBar.style.width = `${progressPercent}%`;
-    } else {
-        if (progressBar) progressBar.style.width = '0%';
+    initializeElements() {
+        return {
+            // Game info
+            gameNumberElement: document.getElementById('game-number'),
+            scoreElement: document.getElementById('score'),
+            endReasonElement: document.getElementById('end-reason'),
+            
+            // Sections containers
+            progressSection: document.getElementById('progress-section'),
+            llmInfoSection: document.getElementById('llm-info-section'),
+            replayControlsSection: document.getElementById('replay-controls-section'),
+            
+            // Progress
+            progressElement: document.getElementById('progress'),
+            progressBar: document.getElementById('progress-bar'),
+            
+            // Status indicators
+            pausedIndicator: document.getElementById('paused-indicator'),
+            gameOverIndicator: document.getElementById('game-over-indicator'),
+            
+            // Controls
+            playPauseButton: document.getElementById('play-pause'),
+            prevGameButton: document.getElementById('prev-game'),
+            nextGameButton: document.getElementById('next-game'),
+            restartButton: document.getElementById('restart'),
+            speedUpButton: document.getElementById('speed-up'),
+            speedDownButton: document.getElementById('speed-down'),
+            speedValueElement: document.getElementById('speed-value'),
+            
+            // LLM info
+            primaryLlmElement: document.getElementById('primary-llm'),
+            secondaryLlmElement: document.getElementById('secondary-llm')
+        };
     }
     
-    // Update paused indicator
-    safeShow(pausedIndicator, gameState.paused);
+    update(state) {
+        if (!state) return;
+        
+        // Update game information
+        this.updateGameInfo(state);
+        
+        // Update progress
+        this.updateProgress(state);
+        
+        // Update status indicators
+        this.updateStatusIndicators(state);
+        
+        // Update controls
+        this.updateControls(state);
+        
+        // Update LLM information
+        this.updateLlmInfo(state);
+        
+        // Update document title
+        document.title = `Snake Game ${state.game_number || 1} - Score: ${state.score || 0}`;
+        
+        // Redraw game canvas
+        this.drawGame(state);
+    }
     
-    // Update play/pause button
-    safeSet(playPauseButton, gameState.paused ? 'Play' : 'Pause');
-    
-    // Update move pause display in seconds
-    if (movePauseValueElement && gameState.pause_between_moves) {
-        movePauseValueElement.textContent = `${gameState.pause_between_moves.toFixed(1)}s`;
-    } else {
-        // Fallback to calculating from speed if pause_between_moves is not provided
-        if (movePauseValueElement) {
-            const pauseTime = gameState.speed > 0 ? 1.0 / gameState.speed : 1.0;
-            movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
+    updateGameInfo(state) {
+        // === DEBUG: Log game number info ===
+        console.log('[ReplayView] Game number:', state.game_number, 'of', state.total_games);
+        // === END DEBUG ===
+        // Game number
+        if (this.elements.gameNumberElement) {
+            if (state.total_games && state.total_games > 0) {
+                this.elements.gameNumberElement.textContent = `${state.game_number}/${state.total_games}`;
+            } else {
+                this.elements.gameNumberElement.textContent = state.game_number;
+            }
+        } else {
+            console.warn('[ReplayView] game-number element not found in DOM!');
+        }
+        
+        // Score
+        if (this.elements.scoreElement) {
+            this.elements.scoreElement.textContent = state.score || 0;
+        }
+        
+        // End Reason (now part of Game Information)
+        if (this.elements.endReasonElement) {
+            this.elements.endReasonElement.textContent = state.end_reason || '-';
         }
     }
-}
-
-function drawGame() {
-    if (!gameState) return;
     
-    const gridSize = gameState.grid_size || 10;
-    const maxSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.7);
-    
-    // Calculate pixel size to ensure a perfect fit
-    pixelSize = Math.floor(maxSize / gridSize);
-    
-    // Canvas sizing
-    canvas.width  = pixelSize * gridSize;
-    canvas.height = pixelSize * gridSize;
-
-    // Clear background
-    ctx.fillStyle = COLORS.BACKGROUND;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Grid
-    drawGrid(ctx, gridSize, pixelSize);
-
-    // Snake
-    if (Array.isArray(gameState.snake_positions) && gameState.snake_positions.length) {
-        // Body
-        for (let i = 0; i < gameState.snake_positions.length - 1; i++) {
-            const [x, yGame] = gameState.snake_positions[i];
-            drawRect(ctx, x, (gridSize - 1) - yGame, COLORS.SNAKE_BODY, pixelSize);
+    updateProgress(state) {
+        // Progress text
+        if (this.elements.progressElement) {
+            this.elements.progressElement.textContent = 
+                `${state.move_index || 0}/${state.total_moves || 0}`;
         }
-        // Head
-        const [hx, hyGame] = gameState.snake_positions[gameState.snake_positions.length - 1];
-        drawRect(ctx, hx, (gridSize - 1) - hyGame, COLORS.SNAKE_HEAD, pixelSize);
+        
+        // Progress bar
+        if (this.elements.progressBar && state.total_moves > 0) {
+            const progressPercent = ((state.move_index || 0) / state.total_moves) * 100;
+            this.elements.progressBar.style.width = `${progressPercent}%`;
+        }
     }
-
-    // Apple
-    if (Array.isArray(gameState.apple_position) && gameState.apple_position.length === 2) {
-        const [ax, ayGame] = gameState.apple_position;
-        drawRect(ctx, ax, (gridSize - 1) - ayGame, COLORS.APPLE, pixelSize);
+    
+    updateStatusIndicators(state) {
+        if (!this.elements.pausedIndicator || !this.elements.gameOverIndicator) return;
+        
+        // Hide both indicators initially
+        this.elements.pausedIndicator.style.display = 'none';
+        this.elements.gameOverIndicator.style.display = 'none';
+        
+        // Check if game is over
+        const isGameOver = state.game_over;
+        
+        if (isGameOver) {
+            this.elements.gameOverIndicator.style.display = 'block';
+        } else if (state.paused) {
+            this.elements.pausedIndicator.style.display = 'block';
+        }
+    }
+    
+    updateControls(state) {
+        // Play/pause button
+        if (this.elements.playPauseButton) {
+            this.elements.playPauseButton.textContent = state.paused ? 'Play' : 'Pause';
+        }
+        
+        // Speed display
+        if (this.elements.speedValueElement) {
+            if (state.pause_between_moves) {
+                this.elements.speedValueElement.textContent = 
+                    `${state.pause_between_moves.toFixed(1)}s`;
+            } else if (state.speed) {
+                const pauseTime = state.speed > 0 ? 1.0 / state.speed : 1.0;
+                this.elements.speedValueElement.textContent = 
+                    `${pauseTime.toFixed(1)}s`;
+            }
+        }
+    }
+    
+    updateLlmInfo(state) {
+        // Primary LLM
+        if (this.elements.primaryLlmElement && state.primary_llm) {
+            this.elements.primaryLlmElement.textContent = state.primary_llm;
+        }
+        
+        // Secondary LLM
+        if (this.elements.secondaryLlmElement) {
+            const secondaryLlm = state.parser_llm || state.secondary_llm || 'None';
+            this.elements.secondaryLlmElement.textContent = secondaryLlm;
+        }
+    }
+    
+    drawGame(state) {
+        if (!this.canvas || !this.ctx || !state) return;
+        
+        const gridSize = state.grid_size || 10;
+        const maxSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.7);
+        const pixelSize = Math.floor(maxSize / gridSize);
+        
+        // Canvas sizing
+        this.canvas.width = pixelSize * gridSize;
+        this.canvas.height = pixelSize * gridSize;
+        
+        // === DEBUG: Log color info ===
+        if (state.colors) {
+            console.log('[ReplayView] Received colors from backend:', state.colors);
+        } else {
+            console.warn('[ReplayView] No colors field in state!');
+        }
+        // Update colors if provided, with strict mapping
+        if (state.colors) {
+            const colorKeys = ['snake_head', 'snake_body', 'apple', 'background', 'grid'];
+            colorKeys.forEach(key => {
+                if (!(key in state.colors)) {
+                    console.warn(`[ReplayView] Missing color key from backend: ${key}`);
+                }
+            });
+            COLORS.SNAKE_HEAD = rgbArrayToHex(state.colors.snake_head) || COLORS.SNAKE_HEAD;
+            COLORS.SNAKE_BODY = rgbArrayToHex(state.colors.snake_body) || COLORS.SNAKE_BODY;
+            COLORS.APPLE = rgbArrayToHex(state.colors.apple) || COLORS.APPLE;
+            COLORS.BACKGROUND = rgbArrayToHex(state.colors.background) || COLORS.BACKGROUND;
+            COLORS.GRID = rgbArrayToHex(state.colors.grid) || COLORS.GRID;
+        }
+        // === END DEBUG ===
+        
+        // Clear background
+        this.ctx.fillStyle = COLORS.BACKGROUND;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Draw grid
+        drawGrid(this.ctx, gridSize, pixelSize);
+        
+        // Draw snake
+        if (Array.isArray(state.snake_positions) && state.snake_positions.length) {
+            // Body
+            for (let i = 0; i < state.snake_positions.length - 1; i++) {
+                const [x, yGame] = state.snake_positions[i];
+                drawRect(this.ctx, x, (gridSize - 1) - yGame, COLORS.SNAKE_BODY, pixelSize);
+            }
+            // Head
+            const [hx, hyGame] = state.snake_positions[state.snake_positions.length - 1];
+            drawRect(this.ctx, hx, (gridSize - 1) - hyGame, COLORS.SNAKE_HEAD, pixelSize);
+        }
+        
+        // Draw apple
+        if (Array.isArray(state.apple_position) && state.apple_position.length === 2) {
+            const [ax, ayGame] = state.apple_position;
+            drawRect(this.ctx, ax, (gridSize - 1) - ayGame, COLORS.APPLE, pixelSize);
+        }
+    }
+    
+    showGameContainer() {
+        const loadingMessage = document.getElementById('loading-message');
+        const gameContainer = document.getElementById('game-container');
+        
+        if (loadingMessage) loadingMessage.style.display = 'none';
+        if (gameContainer) gameContainer.style.display = 'flex';
+    }
+    
+    showError(message) {
+        const loadingMessage = document.getElementById('loading-message');
+        if (loadingMessage) {
+            loadingMessage.innerHTML = `<p class="error-message">${message}</p>`;
+        }
+    }
+    
+    setButtonLoading(button, loading) {
+        if (!button) return;
+        
+        button.disabled = loading;
+        button.style.opacity = loading ? '0.6' : '1';
+    }
+    
+    setAllButtonsLoading(loading) {
+        const buttons = [
+            this.elements.playPauseButton,
+            this.elements.prevGameButton,
+            this.elements.nextGameButton,
+            this.elements.restartButton,
+            this.elements.speedUpButton,
+            this.elements.speedDownButton
+        ];
+        
+        buttons.forEach(button => this.setButtonLoading(button, loading));
+    }
+    
+    showReplaySections() {
+        const safeShow = (el) => { if (el) el.style.display = 'block'; };
+        safeShow(this.elements.progressSection);
+        safeShow(this.elements.llmInfoSection);
+        safeShow(this.elements.replayControlsSection);
     }
 }
 
-function togglePlayPause() {
-    if (!gameState) return;
-    const command = gameState.paused ? 'play' : 'pause';
-    sendCommand(command);
-}
-
-async function sendCommand(command) {
-    try {
-        const response = await fetch('/api/control', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ command })
+// ===== CONTROLLER =====
+class ReplayController {
+    constructor(model, view) {
+        this.model = model;
+        this.view = view;
+        this.isLoading = false;
+        
+        // Bind model updates to view
+        this.model.addListener((state) => this.view.update(state));
+        
+        // Setup event listeners
+        this.setupEventListeners();
+    }
+    
+    setupEventListeners() {
+        // Button controls
+        const safeAdd = (el, evt, fn) => { if (el) el.addEventListener(evt, fn); };
+        
+        safeAdd(this.view.elements.playPauseButton, 'click', () => this.togglePlayPause());
+        safeAdd(this.view.elements.prevGameButton, 'click', () => this.navigateGame('prev'));
+        safeAdd(this.view.elements.nextGameButton, 'click', () => this.navigateGame('next'));
+        safeAdd(this.view.elements.restartButton, 'click', () => this.restartGame());
+        safeAdd(this.view.elements.speedUpButton, 'click', () => this.speedUp());
+        safeAdd(this.view.elements.speedDownButton, 'click', () => this.speedDown());
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (event) => this.handleKeyDown(event));
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            if (this.model.state) {
+                this.view.drawGame(this.model.state);
+            }
         });
+    }
+    
+    async start() {
+        // Start polling for state updates
+        this.model.startPolling();
         
-        const data = await response.json();
+        // Initial state fetch
+        await this.model.fetchState();
+    }
+    
+    async togglePlayPause() {
+        if (this.isLoading) return;
         
-        if (data.error) {
-            console.error(data.error);
+        this.isLoading = true;
+        this.view.setAllButtonsLoading(true);
+        
+        const command = this.model.state?.paused ? 'play' : 'pause';
+        await this.model.sendCommand(command);
+        
+        this.isLoading = false;
+        this.view.setAllButtonsLoading(false);
+    }
+    
+    async navigateGame(direction) {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.view.setAllButtonsLoading(true);
+        
+        const command = direction === 'next' ? 'next_game' : 'prev_game';
+        await this.model.sendCommand(command);
+        
+        this.isLoading = false;
+        this.view.setAllButtonsLoading(false);
+    }
+    
+    async restartGame() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.view.setAllButtonsLoading(true);
+        
+        await this.model.sendCommand('restart_game');
+        
+        this.isLoading = false;
+        this.view.setAllButtonsLoading(false);
+    }
+    
+    async speedUp() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.view.setAllButtonsLoading(true);
+        
+        await this.model.sendCommand('speed_up');
+        
+        this.isLoading = false;
+        this.view.setAllButtonsLoading(false);
+    }
+    
+    async speedDown() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.view.setAllButtonsLoading(true);
+        
+        await this.model.sendCommand('speed_down');
+        
+        this.isLoading = false;
+        this.view.setAllButtonsLoading(false);
+    }
+    
+    handleKeyDown(event) {
+        // Prevent default behavior for all arrow keys and space
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(event.key)) {
+            event.preventDefault();
         }
         
-        // Update move pause display based on response
-        if (data.pause_between_moves) {
-            movePauseValueElement.textContent = `${data.pause_between_moves.toFixed(1)}s`;
-        } else if (data.speed) {
-            // Fallback to calculating from speed if pause_between_moves is not provided
-            const pauseTime = data.speed > 0 ? 1.0 / data.speed : 1.0;
-            movePauseValueElement.textContent = `${pauseTime.toFixed(1)}s`;
+        switch (event.key) {
+            case ' ':
+                this.togglePlayPause();
+                break;
+            case 'ArrowLeft':
+                this.navigateGame('prev');
+                break;
+            case 'ArrowRight':
+                this.navigateGame('next');
+                break;
+            case 'r':
+            case 'R':
+                this.restartGame();
+                break;
+            case 'ArrowUp':
+                this.speedUp();
+                break;
+            case 'ArrowDown':
+                this.speedDown();
+                break;
         }
-    } catch (error) {
-        console.error('Error sending command:', error);
+    }
+    
+    stop() {
+        this.model.stopPolling();
     }
 }
 
-function handleKeyDown(event) {
-    switch (event.key) {
-        case ' ': // Space
-            togglePlayPause();
-            event.preventDefault();
-            break;
-        case 'ArrowLeft':
-            sendCommand('prev_game');
-            event.preventDefault();
-            break;
-        case 'ArrowRight':
-            sendCommand('next_game');
-            event.preventDefault();
-            break;
-        case 'r':
-        case 'R':
-            sendCommand('restart_game');
-            event.preventDefault();
-            break;
-        case 'ArrowUp':
-            sendCommand('speed_up'); // Up key - speed up (decrease pause time)
-            event.preventDefault(); // Prevent page scrolling
-            break;
-        case 'ArrowDown':
-            sendCommand('speed_down'); // Down key - slow down (increase pause time)
-            event.preventDefault(); // Prevent page scrolling
-            break;
+// ===== APPLICATION =====
+class ReplayApplication {
+    constructor() {
+        this.model = new ReplayModel();
+        this.view = new ReplayView();
+        this.controller = new ReplayController(this.model, this.view);
+    }
+    
+    async start() {
+        await this.controller.start();
+    }
+    
+    stop() {
+        this.controller.stop();
     }
 }
 
-// Handle window resize
-window.addEventListener('resize', drawGame);
+// ===== GLOBAL INSTANCE =====
+let replayApp = null;
+
+// ===== INITIALIZATION =====
+function init() {
+    replayApp = new ReplayApplication();
+    replayApp.start();
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', init);

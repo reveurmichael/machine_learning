@@ -1,257 +1,266 @@
 """
-Snake Game - Task-0 LLM Web Interface (MVC Architecture)
---------------------
+Snake Game - LLM Web Interface Script (Enhanced Architecture)
+============================================================
 
-Flask-based web application for LLM-driven Snake gameplay using the MVC framework.
-This script demonstrates how Task-0 integrates with the excellent web MVC architecture
-and serves as a foundation for Task 1-5 extensions.
+Flask-based web application for LLM-controlled Snake gameplay using the enhanced
+layered web infrastructure. This script demonstrates Task-0's modern LLM web
+architecture and serves as the canonical template for all future extension LLM
+web interfaces.
 
-Features:
-- Clean MVC architecture using web.factories
-- LLM integration with multiple providers
-- Dynamic port allocation with network utilities
-- KISS principles and elegant error handling
-- Extensible foundation for future tasks
-- Simple logging following SUPREME_RULES
+Enhanced Features:
+- Layered Web Infrastructure: BaseWebApp → SimpleFlaskApp → LLMWebGameApp
+- Enhanced Naming: Clear, explicit naming throughout the LLM application stack
+- Universal Factory Utilities: Uses factory_utils from ROOT/utils/ following SSOT
+- Dynamic Port Allocation: Network utilities with conflict resolution
+- LLM Integration: Multiple providers with enhanced configuration management
+- Future-Proof Design: Template for Task 1-5 extension LLM interfaces
 
-Design Patterns Used:
-    - Factory Pattern: Uses web.factories for consistent component creation
-    - Template Method Pattern: Leverages BaseFlaskApp lifecycle
-    - Strategy Pattern: Pluggable LLM providers and game strategies
-    - Observer Pattern: Real-time updates via MVC framework
+Design Patterns (Enhanced):
+    - Template Method Pattern: Layered LLM application lifecycle
+    - Factory Pattern: Universal factory utilities with canonical create() method
+    - Strategy Pattern: Pluggable LLM providers with enhanced configuration
+    - Facade Pattern: Simplified LLM application launcher interface
 
 Educational Goals:
-    - Demonstrate clean web MVC integration for Task-0 LLM
-    - Show how future extensions can reuse this pattern
-    - Illustrate LLM integration in web applications
-    - Provide canonical example of Task-0 LLM web interface
+    - Demonstrate enhanced LLM web architecture for Task-0
+    - Show layered inheritance patterns for LLM functionality
+    - Illustrate LLM provider integration with web infrastructure
+    - Provide canonical template for extension LLM interfaces
 
-Extension Pattern for Future Tasks:
-    Task-1 (Heuristics): Replace LLM with pathfinding algorithms
-    Task-2 (RL): Replace with RL agent and training monitoring
-    Task-3 (Supervised): Replace with ML model evaluation
-    Task-4 (Distillation): Replace with knowledge distillation
-    Task-5 (Advanced): Combine multiple AI strategies
+Extension Template for Future Tasks:
+    Task-1 (Heuristics): Copy this structure, replace with HeuristicLLMWebGameApp
+    Task-2 (Supervised): Copy this structure, replace with SupervisedLLMWebGameApp
+    Task-3 (RL): Copy this structure, replace with RLLLMWebGameApp
+    Task-4 (LLM Fine-tuning): Copy this structure, replace with LLMFinetuningWebGameApp
+    Task-5 (Distillation): Copy this structure, replace with DistillationLLMWebGameApp
+
+Reference: docs/extensions-guideline/mvc-flask-factory.md for comprehensive patterns
 """
 
 import sys
-import pathlib
 import argparse
+from pathlib import Path
+from typing import Optional
 
-# Bootstrap repository root for consistent imports
-REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+# Ensure project root for consistent imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.path_utils import ensure_project_root
-ensure_project_root()
+# Import enhanced web infrastructure with layered architecture
+from web import LLMWebGameApp, LLMWebAppLauncher
+from web.factories import create_llm_web_game_app
 
-# Import Task-0 LLM components
-from scripts.main import parse_arguments
+# Import universal utilities following SSOT principles
+from utils.validation_utils import validate_llm_web_arguments
+from utils.print_utils import create_logger
+from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
-# Import simple web framework
-from web.game_flask_app import LLMGameApp
-from utils.network_utils import get_server_host_port
-
-# Simple logging following SUPREME_RULES
-print_log = lambda msg: print(f"[LLMWebApp] {msg}")
-
-
-class LLMWebApp(LLMGameApp):
-    """
-    Task-0 LLM Game Web Application.
-    
-    Extends LLMGameApp with specialized LLM game configuration.
-    Demonstrates how to integrate Task-0 GameManager with simple web architecture.
-    
-    Design Pattern: Template Method Pattern (Flask Application Lifecycle)
-    Educational Value: Shows how to extend simple applications for LLM gameplay
-    Extension Pattern: Future tasks can extend this for their AI-specific needs
-    """
-    
-    def __init__(self, game_args, **config):
-        """
-        Initialize LLM game web application.
-        
-        Args:
-            game_args: Parsed arguments from scripts.main
-            **config: Additional configuration options
-        """
-        super().__init__(
-            llm_provider=game_args.provider,
-            grid_size=getattr(game_args, 'grid_size', 10),
-            **config
-        )
-        self.game_args = game_args
-        self.game_manager = None
-        print_log(f"Initialized for LLM play with {game_args.provider}/{game_args.model}")
-    
-    def get_application_info(self) -> dict:
-        """Get LLM-specific application information."""
-        return {
-            "name": "Task-0 LLM Player",
-            "task_name": "task0",
-            "game_mode": "llm",
-            "llm_provider": self.game_args.provider,
-            "llm_model": self.game_args.model,
-            "grid_size": getattr(self.game_args, 'grid_size', 10),
-            "url": f"http://127.0.0.1:{getattr(self, 'port', 5000)}",
-            "features": [
-                "LLM-driven gameplay",
-                "Real-time state updates",
-                "Game statistics tracking",
-                "Pause/resume controls",
-                "Performance monitoring",
-                "Multiple LLM providers"
-            ]
-        }
+# Enhanced logging with consistent naming
+print_log = create_logger("LLMWebScript")
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
-    Create argument parser for LLM web interface.
+    Create argument parser for LLM web game interface.
     
-    Educational Value: Shows how to combine existing argument parsing with web-specific options
-    Extension Pattern: Future tasks can extend this pattern for their specific arguments
+    Educational Value: Shows consistent argument handling with enhanced naming
+    Extension Template: Copy this exact pattern for all extension LLM scripts
+    
+    Returns:
+        Configured argument parser with LLM-specific options
     """
     parser = argparse.ArgumentParser(
-        description="Snake Game - LLM Web Interface (Task-0 Foundation)",
+        description="Snake Game - LLM Web Game Interface (Enhanced Architecture)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python scripts/main_web.py                              # Default LLM settings
-  python scripts/main_web.py --provider hunyuan          # Specific LLM provider
-  python scripts/main_web.py --model gpt-4 --port 8080   # Custom model and port
-  python scripts/main_web.py --debug                     # Debug mode
+Enhanced Examples:
+  python scripts/main_web.py                             # Default enhanced LLM settings
+  python scripts/main_web.py --provider hunyuan         # Specific LLM provider with validation
+  python scripts/main_web.py --model gpt-4 --port 8080  # Custom model and port with conflict detection
+  python scripts/main_web.py --grid-size 15 --debug     # Larger grid with debug mode
 
-Extension Pattern:
-  Future tasks can copy this script and modify:
-  - Replace GameManager with their algorithm/model manager
-  - Add task-specific LLM integration
-  - Customize web interface for their needs
-  - Maintain same elegant MVC structure
+Extension Template Pattern:
+  Future extensions should copy this LLM script structure:
+  1. Import enhanced LLM infrastructure: {ExtensionType}LLMWebGameApp
+  2. Use universal factory functions: create_{extension}_llm_web_game_app()
+  3. Apply enhanced naming conventions throughout
+  4. Leverage universal validation utilities
+  5. Maintain same elegant LLM launcher pattern
+
+LLM Architecture Benefits:
+  - Layered inheritance: BaseWebApp → SimpleFlaskApp → LLMWebGameApp
+  - Enhanced naming: Clear domain indication (LLM + Web + Game + App)
+  - Multi-provider support: Hunyuan, OpenAI, Anthropic, local models
+  - Educational clarity: Self-documenting enhanced LLM architecture
 
 LLM Providers:
-  - hunyuan: Tencent Hunyuan models
-  - openai: OpenAI GPT models  
+  - hunyuan: Tencent Hunyuan models (default)
+  - openai: OpenAI GPT models
   - anthropic: Anthropic Claude models
+  - deepseek: DeepSeek models
   - local: Local/self-hosted models
         """
+    )
+    
+    parser.add_argument(
+        "--provider",
+        type=str,
+        default="hunyuan",
+        help="LLM provider with enhanced configuration (default: hunyuan)"
+    )
+    
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="hunyuan-turbos-latest",
+        help="LLM model name with provider validation (default: hunyuan-turbos-latest)"
+    )
+    
+    parser.add_argument(
+        "--grid-size",
+        type=int,
+        default=DEFAULT_GRID_SIZE,
+        help=f"Size of the game grid with validation (default: {DEFAULT_GRID_SIZE})"
     )
     
     parser.add_argument(
         "--host",
         type=str,
         default="127.0.0.1",
-        help="Host address to bind the web server (default: 127.0.0.1)"
+        help="Host address for the web server (default: 127.0.0.1)"
     )
     
     parser.add_argument(
         "--port",
         type=int,
         default=None,
-        help="Port number for the web server (default: auto-detect free port)"
+        help="Port number with conflict detection (default: auto-detect free port)"
     )
     
     parser.add_argument(
         "--debug",
         action="store_true",
-        help="Enable Flask debug mode for development"
+        help="Enable Flask debug mode with enhanced logging"
     )
     
     return parser
 
 
+def create_llm_web_application(args) -> LLMWebGameApp:
+    """
+    Create LLM web game application using enhanced factory function.
+    
+    Args:
+        args: Validated command line arguments
+        
+    Returns:
+        Configured LLM web game application
+        
+    Educational Value: Shows enhanced factory pattern usage for LLM applications
+    Extension Template: Copy this creation pattern for all extension LLM applications
+    """
+    print_log("Creating LLM web game application using enhanced factory...")
+    
+    # Use enhanced factory function with universal utilities
+    app = create_llm_web_game_app(
+        provider=args.provider,
+        model=args.model,
+        grid_size=args.grid_size,
+        port=args.port
+    )
+    
+    print_log(f"LLM web game app created: {app.name} on port {app.port}")
+    return app
+
+
+def display_application_info(app: LLMWebGameApp, host: str) -> None:
+    """
+    Display enhanced application information with clear formatting.
+    
+    Args:
+        app: LLM web game application
+        host: Server host address
+        
+    Educational Value: Shows enhanced naming and information display for LLM
+    Extension Template: Copy this display pattern for all extension LLM applications
+    """
+    print_log("🎯 Enhanced LLM Application Information:")
+    print_log(f"   Application: {app.name}")
+    print_log(f"   Architecture: Enhanced Layered Web Infrastructure")
+    print_log(f"   Type: LLM Web Game App")
+    print_log(f"   LLM Provider: {app.provider}")
+    print_log(f"   LLM Model: {app.model}")
+    print_log(f"   Grid Size: {app.grid_size}x{app.grid_size}")
+    print_log(f"   Port: {app.port} (with conflict detection)")
+    print_log(f"   URL: http://{host}:{app.port}")
+    print_log("")
+    
+    print_log("🤖 Enhanced LLM Features:")
+    print_log("   AI-driven gameplay with advanced reasoning")
+    print_log("   Real-time LLM decision visualization")
+    print_log("   Multi-provider support with seamless switching")
+    print_log("   Game state analysis and strategy display")
+    print_log("   Performance monitoring and statistics")
+    print_log("   Ctrl+C: Stop server")
+    print_log("")
+    
+    print_log("🏗️ LLM Architecture Layers:")
+    print_log("   BaseWebApp → SimpleFlaskApp → LLMWebGameApp")
+    print_log("   LLM provider integration with enhanced configuration")
+    print_log("   Universal utilities from ROOT/utils/ (SSOT compliance)")
+    print_log("   Enhanced naming for educational clarity")
+    print_log("")
+
+
 def main() -> int:
     """
-    Main entry point for Task-0 LLM web interface.
+    Main entry point for LLM web game interface script.
     
-    Educational Value: Shows elegant integration of existing CLI args with web interface
-    Extension Pattern: Future tasks can copy this exact pattern
+    Educational Value: Shows elegant LLM application launcher lifecycle
+    Extension Template: Copy this exact main() pattern for all extension LLM scripts
     
     Returns:
         Exit code: 0 for success, 1 for failure
     """
     try:
-        # Parse web-specific arguments first
-        web_parser = create_argument_parser()
-        web_args, remaining_argv = web_parser.parse_known_args()
+        print_log("🤖 Starting Snake Game - LLM Web Interface (Enhanced)")
+        print_log("📊 Architecture: Enhanced Layered Web Infrastructure")
+        print_log("🎯 Mode: LLM Player with Enhanced Naming")
+        print_log("")
         
-        # Parse game arguments using existing main.py parser
-        argv_backup = sys.argv.copy()
-        sys.argv = [sys.argv[0]] + remaining_argv
-        try:
-            game_args = parse_arguments()
-        finally:
-            sys.argv = argv_backup
+        # Parse and validate command line arguments
+        parser = create_argument_parser()
+        args = parser.parse_args()
+        validate_llm_web_arguments(args)
         
-        # Get host and port using network utilities
-        host, port = get_server_host_port(default_host=web_args.host, default_port=web_args.port)
-        # Network utilities handle environment variables and port conflicts automatically
+        # Create enhanced LLM web application
+        app = create_llm_web_application(args)
         
-        print_log("🐍 Starting Snake Game - LLM Web Interface")
-        print_log("📊 Architecture: Task-0 MVC Framework")
-        print_log(f"🤖 LLM: {game_args.provider}/{game_args.model}")
-        print_log(f"📐 Grid: {getattr(game_args, 'grid_size', 10)}x{getattr(game_args, 'grid_size', 10)}")
-        print_log(f"🌐 Server: http://{host}:{port}")
-        print()
+        # Display enhanced application information
+        display_application_info(app, args.host)
         
-        # Create LLM game application using elegant architecture
-        app = LLMWebApp(
-            game_args
-        )
+        print_log("🚀 Extension Template Information:")
+        print_log("   This script demonstrates enhanced LLM web architecture")
+        print_log("   Copy this structure for all extension LLM interfaces")
+        print_log("   Replace LLMWebGameApp with {Extension}LLMWebGameApp")
+        print_log("   Maintain enhanced naming and layered LLM architecture")
+        print_log("")
         
-        # Show application info
-        app_info = app.get_application_info()
-        print_log("🎯 Application Information:")
-        print_log(f"   Name: {app_info['name']}")
-        print_log(f"   Task: {app_info['task_name']}")
-        print_log(f"   Mode: {app_info.get('game_mode', 'unknown')}")
-        print_log(f"   Provider: {app_info.get('llm_provider', 'unknown')}")
-        print_log(f"   Model: {app_info.get('llm_model', 'unknown')}")
-        print_log(f"   URL: {app_info['url']}")
-        print()
-        
-        print_log("🎯 MVC Components:")
-        mvc_info = app_info.get('mvc_components', {})
-        print_log(f"   Controller: {mvc_info.get('controller', 'Unknown')}")
-        print_log(f"   Model: {mvc_info.get('model', 'Unknown')}")
-        print_log(f"   View: {mvc_info.get('view_renderer', 'Unknown')}")
-        print()
-        
-        print_log("📡 API Endpoints:")
-        print_log("   GET  /                 - Main game interface")
-        print_log("   GET  /api/state        - Current game state")
-        print_log("   POST /api/control      - Game commands (pause/resume)")
-        print_log("   POST /api/reset        - Reset game")
-        print_log("   GET  /api/health       - System health check")
-        print()
-        
-        print_log("🎮 Controls:")
-        print_log("   Web Interface: Real-time LLM gameplay")
-        print_log("   Pause/Resume: Available via web controls")
-        print_log("   Ctrl+C: Stop server")
-        print()
-        
-        print_log("🚀 Extension Pattern:")
-        print_log("   Future tasks can copy this script structure")
-        print_log("   Replace GameManager with task-specific managers")
-        print_log("   Integrate different AI approaches seamlessly")
-        print_log("   Maintain same elegant MVC architecture")
-        print()
-        
-        # Start the web application server
-        print_log("✅ Starting web server...")
-        app.run(host=host, port=port, debug=web_args.debug)
+        # Start the enhanced LLM web application
+        print_log("✅ Starting enhanced LLM web server...")
+        app.run(host=args.host, port=app.port, debug=args.debug)
         
         return 0
         
     except KeyboardInterrupt:
-        print_log("🛑 Server stopped by user")
+        print_log("🛑 LLM server stopped by user")
         return 0
     except Exception as e:
         print_log(f"❌ Failed to start LLM web interface: {e}")
+        print_log("   Check enhanced error handling and LLM validation")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    exit_code = main()
+    sys.exit(exit_code) 

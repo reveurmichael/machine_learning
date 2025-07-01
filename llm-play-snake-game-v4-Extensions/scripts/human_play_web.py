@@ -1,126 +1,96 @@
 """
-Snake Game - Human Player Web Interface (KISS Architecture)
---------------------
+Snake Game - Human Web Interface Script (Enhanced Architecture)
+=============================================================
 
-Flask-based web application for human-driven Snake gameplay using KISS principles.
-This script demonstrates how Task-0 integrates with a simple web architecture
-and serves as a foundation for Task 1-5 extensions.
+Flask-based web application for human-controlled Snake gameplay using the enhanced
+layered web infrastructure. This script demonstrates Task-0's modern web architecture
+and serves as the canonical template for all future extension web interfaces.
 
-Features:
-- Simple Flask integration without complex MVC patterns
-- Dynamic port allocation with network utilities
-- KISS principles and elegant error handling
-- Extensible foundation for future tasks
-- Simple logging following SUPREME_RULES
+Enhanced Features:
+- Layered Web Infrastructure: BaseWebApp → SimpleFlaskApp → HumanWebGameApp
+- Enhanced Naming: Clear, explicit naming throughout the application stack
+- Universal Factory Utilities: Uses factory_utils from ROOT/utils/ following SSOT
+- Dynamic Port Allocation: Network utilities with conflict resolution
+- KISS Principles: Simple, elegant error handling and clean code structure
+- Future-Proof Design: Template for Task 1-5 extension web interfaces
 
-Design Patterns Used:
-    - Template Method Pattern: Simple Flask application lifecycle
-    - Factory Pattern: Simple factory functions
-    - Strategy Pattern: Pluggable game modes
+Design Patterns (Enhanced):
+    - Template Method Pattern: Layered Flask application lifecycle
+    - Factory Pattern: Universal factory utilities with canonical create() method
+    - Strategy Pattern: Pluggable game modes with enhanced naming
+    - Facade Pattern: Simplified web application launcher interface
 
 Educational Goals:
-    - Demonstrate simple web integration for Task-0
-    - Show how future extensions can reuse this pattern
-    - Illustrate KISS principles in web applications
-    - Provide canonical example of Task-0 web interface
+    - Demonstrate enhanced web architecture for Task-0
+    - Show layered inheritance patterns for educational value
+    - Illustrate enhanced naming conventions for clarity
+    - Provide canonical template for extension web interfaces
 
-Extension Pattern for Future Tasks:
-    Task-1 (Heuristics): Replace with pathfinding algorithms
-    Task-2 (RL): Replace with RL agent and training monitoring
-    Task-3 (Supervised): Replace with ML model evaluation
-    Task-4 (Distillation): Replace with knowledge distillation
-    Task-5 (Advanced): Combine multiple AI strategies
+Extension Template for Future Tasks:
+    Task-1 (Heuristics): Copy this structure, replace with HeuristicWebGameApp
+    Task-2 (Supervised): Copy this structure, replace with SupervisedWebGameApp
+    Task-3 (RL): Copy this structure, replace with RLWebGameApp
+    Task-4 (LLM Fine-tuning): Copy this structure, replace with LLMFinetuningWebGameApp
+    Task-5 (Distillation): Copy this structure, replace with DistillationWebGameApp
+
+Reference: docs/extensions-guideline/mvc-flask-factory.md for comprehensive patterns
 """
 
 import sys
-import pathlib
 import argparse
+from pathlib import Path
+from typing import Optional
 
-# Bootstrap repository root for consistent imports
-REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+# Ensure project root for consistent imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.path_utils import ensure_project_root
-ensure_project_root()
+# Import enhanced web infrastructure with layered architecture
+from web import HumanWebGameApp, HumanWebAppLauncher
+from web.factories import create_human_web_game_app
 
-# Import Task-0 components
+# Import universal utilities following SSOT principles
+from utils.validation_utils import validate_human_web_arguments
+from utils.print_utils import create_logger
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
-# Import simple web framework
-from web.game_flask_app import HumanGameApp
-from utils.network_utils import get_server_host_port
-
-# Simple logging following SUPREME_RULES
-print_log = lambda msg: print(f"[HumanWebApp] {msg}")
-
-
-class HumanWebApp(HumanGameApp):
-    """
-    Task-0 Human Player Web Application.
-    
-    Extends HumanGameApp with human-specific configuration.
-    Demonstrates how to specialize the simple Flask application for different game modes.
-    
-    Design Pattern: Template Method Pattern (Flask Application Lifecycle)
-    Educational Value: Shows how to extend simple applications for specific modes
-    Extension Pattern: Future tasks can extend this for their specific needs
-    """
-    
-    def __init__(self, grid_size: int = DEFAULT_GRID_SIZE, **config):
-        """
-        Initialize human player web application.
-        
-        Args:
-            grid_size: Size of the game grid
-            **config: Additional configuration options
-        """
-        super().__init__(
-            grid_size=grid_size,
-            **config
-        )
-        print_log(f"Initialized for human play with {grid_size}x{grid_size} grid")
-    
-    def get_application_info(self) -> dict:
-        """Get human-specific application information."""
-        return {
-            "name": "Task-0 Human Player",
-            "task_name": "task0",
-            "game_mode": "human",
-            "grid_size": self.grid_size,
-            "url": f"http://127.0.0.1:{getattr(self, 'port', 5000)}",
-            "input_method": "keyboard",
-            "features": [
-                "Human player input",
-                "Real-time game state",
-                "Web-based interface",
-                "Keyboard controls",
-                "Score tracking"
-            ]
-        }
+# Enhanced logging with consistent naming
+print_log = create_logger("HumanWebScript")
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
-    Create argument parser for human play web interface.
+    Create argument parser for human web game interface.
     
-    Educational Value: Shows consistent argument handling across Task-0 scripts
-    Extension Pattern: Future tasks can extend this with their specific arguments
+    Educational Value: Shows consistent argument handling with enhanced naming
+    Extension Template: Copy this exact pattern for all extension web scripts
+    
+    Returns:
+        Configured argument parser with human-specific options
     """
     parser = argparse.ArgumentParser(
-        description="Snake Game - Human Player Web Interface (Task-0 Foundation)",
+        description="Snake Game - Human Web Game Interface (Enhanced Architecture)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python scripts/human_play_web.py                    # Default settings
-  python scripts/human_play_web.py --grid-size 15     # Larger grid
-  python scripts/human_play_web.py --port 8080        # Specific port
-  python scripts/human_play_web.py --debug            # Debug mode
+Enhanced Examples:
+  python scripts/human_play_web.py                      # Default enhanced settings
+  python scripts/human_play_web.py --grid-size 15       # Larger grid with validation
+  python scripts/human_play_web.py --port 8080          # Specific port with conflict detection
+  python scripts/human_play_web.py --debug              # Debug mode with enhanced logging
 
-Extension Pattern:
-  Future tasks can copy this script and modify:
-  - Replace with their algorithm/model
-  - Add task-specific arguments
-  - Maintain same elegant structure
+Extension Template Pattern:
+  Future extensions should copy this script structure:
+  1. Import enhanced web infrastructure: {ExtensionType}WebGameApp
+  2. Use universal factory functions: create_{extension}_web_game_app()
+  3. Apply enhanced naming conventions throughout
+  4. Leverage universal validation utilities
+  5. Maintain same elegant launcher pattern
+
+Web Architecture Benefits:
+  - Layered inheritance: BaseWebApp → SimpleFlaskApp → HumanWebGameApp
+  - Enhanced naming: Clear domain indication (Human + Web + Game + App)
+  - Universal utilities: Validation, logging, factory patterns from SSOT
+  - Educational clarity: Self-documenting enhanced architecture
         """
     )
     
@@ -128,87 +98,128 @@ Extension Pattern:
         "--grid-size",
         type=int,
         default=DEFAULT_GRID_SIZE,
-        help=f"Size of the game grid (default: {DEFAULT_GRID_SIZE})"
+        help=f"Size of the game grid with validation (default: {DEFAULT_GRID_SIZE})"
     )
     
     parser.add_argument(
         "--host", 
         type=str, 
         default="127.0.0.1",
-        help="Host address to bind the web server (default: 127.0.0.1)"
+        help="Host address for the web server (default: 127.0.0.1)"
     )
     
     parser.add_argument(
         "--port", 
         type=int, 
         default=None,
-        help="Port number for the web server (default: auto-detect free port)"
+        help="Port number with conflict detection (default: auto-detect free port)"
     )
     
     parser.add_argument(
         "--debug", 
         action="store_true",
-        help="Enable Flask debug mode for development"
+        help="Enable Flask debug mode with enhanced logging"
     )
     
     return parser
 
 
+def create_human_web_application(args) -> HumanWebGameApp:
+    """
+    Create human web game application using enhanced factory function.
+    
+    Args:
+        args: Validated command line arguments
+        
+    Returns:
+        Configured human web game application
+        
+    Educational Value: Shows enhanced factory pattern usage with universal utilities
+    Extension Template: Copy this creation pattern for all extension applications
+    """
+    print_log("Creating human web game application using enhanced factory...")
+    
+    # Use enhanced factory function with universal utilities
+    app = create_human_web_game_app(
+        grid_size=args.grid_size,
+        port=args.port
+    )
+    
+    print_log(f"Human web game app created: {app.name} on port {app.port}")
+    return app
+
+
+def display_application_info(app: HumanWebGameApp, host: str) -> None:
+    """
+    Display enhanced application information with clear formatting.
+    
+    Args:
+        app: Human web game application
+        host: Server host address
+        
+    Educational Value: Shows enhanced naming and information display patterns
+    Extension Template: Copy this display pattern for all extension applications
+    """
+    print_log("🎯 Enhanced Application Information:")
+    print_log(f"   Application: {app.name}")
+    print_log(f"   Architecture: Enhanced Layered Web Infrastructure")
+    print_log(f"   Type: Human Web Game App")
+    print_log(f"   Grid Size: {app.grid_size}x{app.grid_size}")
+    print_log(f"   Port: {app.port} (with conflict detection)")
+    print_log(f"   URL: http://{host}:{app.port}")
+    print_log("")
+    
+    print_log("🎮 Enhanced Web Controls:")
+    print_log("   Arrow Keys: Move snake")
+    print_log("   R: Reset game")  
+    print_log("   Space: Pause/Resume")
+    print_log("   Ctrl+C: Stop server")
+    print_log("")
+    
+    print_log("🏗️ Architecture Layers:")
+    print_log("   BaseWebApp → SimpleFlaskApp → HumanWebGameApp")
+    print_log("   Universal utilities from ROOT/utils/ (SSOT compliance)")
+    print_log("   Enhanced naming for educational clarity")
+    print_log("")
+
+
 def main() -> int:
     """
-    Main entry point for human play web interface.
+    Main entry point for human web game interface script.
     
-    Educational Value: Shows elegant application lifecycle management
-    Extension Pattern: Future tasks can copy this exact pattern
+    Educational Value: Shows elegant application launcher lifecycle with enhanced architecture
+    Extension Template: Copy this exact main() pattern for all extension web scripts
     
     Returns:
         Exit code: 0 for success, 1 for failure
     """
     try:
-        # Parse command line arguments
+        print_log("🐍 Starting Snake Game - Human Web Interface (Enhanced)")
+        print_log("📊 Architecture: Enhanced Layered Web Infrastructure")
+        print_log("🎯 Mode: Human Player with Enhanced Naming")
+        print_log("")
+        
+        # Parse and validate command line arguments
         parser = create_argument_parser()
         args = parser.parse_args()
+        validate_human_web_arguments(args)
         
-        # Get host and port using network utilities
-        host, port = get_server_host_port(default_host=args.host, default_port=args.port)
-        # Network utilities handle environment variables and port conflicts automatically
+        # Create enhanced human web application
+        app = create_human_web_application(args)
         
-        print_log("🐍 Starting Snake Game - Human Player Web Interface")
-        print_log("📊 Architecture: Task-0 KISS Framework")
-        print_log("🎮 Mode: Human Player")
-        print_log(f"📐 Grid: {args.grid_size}x{args.grid_size}")
-        print_log(f"🌐 Server: http://{host}:{port}")
-        print()
+        # Display enhanced application information
+        display_application_info(app, args.host)
         
-        # Create human game application using simple architecture
-        app = HumanWebApp(
-            grid_size=args.grid_size
-        )
+        print_log("🚀 Extension Template Information:")
+        print_log("   This script demonstrates enhanced web architecture")
+        print_log("   Copy this structure for all extension web interfaces")
+        print_log("   Replace HumanWebGameApp with {Extension}WebGameApp")
+        print_log("   Maintain enhanced naming and layered architecture")
+        print_log("")
         
-        # Show application info
-        app_info = app.get_application_info()
-        print_log("🎯 Application Information:")
-        print_log(f"   Name: {app_info['name']}")
-        print_log(f"   Task: {app_info['task_name']}")
-        print_log(f"   Mode: {app_info.get('game_mode', 'unknown')}")
-        print_log(f"   URL: {app_info['url']}")
-        print()
-        
-        print_log("🎮 Controls:")
-        print_log("   Arrow Keys: Move snake")
-        print_log("   R: Reset game")
-        print_log("   Ctrl+C: Stop server")
-        print()
-        
-        print_log("🚀 Extension Pattern:")
-        print_log("   Future tasks can copy this script structure")
-        print_log("   Replace with task-specific components")
-        print_log("   Maintain same elegant KISS architecture")
-        print()
-        
-        # Start the application server
-        print_log("✅ Starting web server...")
-        app.run(host=host, port=port, debug=args.debug)
+        # Start the enhanced web application
+        print_log("✅ Starting enhanced web server...")
+        app.run(host=args.host, port=app.port, debug=args.debug)
         
         return 0
         
@@ -216,9 +227,11 @@ def main() -> int:
         print_log("🛑 Server stopped by user")
         return 0
     except Exception as e:
-        print_log(f"❌ Failed to start human play web interface: {e}")
+        print_log(f"❌ Failed to start human web interface: {e}")
+        print_log("   Check enhanced error handling and universal validation")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    exit_code = main()
+    sys.exit(exit_code) 

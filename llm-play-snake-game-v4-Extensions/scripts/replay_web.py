@@ -1,143 +1,107 @@
 """
-Snake Game - Replay Web Interface (MVC Architecture)
---------------------
+Snake Game - Replay Web Interface Script (Enhanced Architecture)
+==============================================================
 
-Flask-based web application for game replay using the MVC framework.
-This script demonstrates how Task-0 integrates with the excellent web MVC architecture
-for replay functionality and serves as a foundation for Task 1-5 extensions.
+Flask-based web application for game replay using the enhanced layered web
+infrastructure. This script demonstrates Task-0's modern replay architecture
+and serves as the canonical template for all future extension replay interfaces.
 
-Features:
-- Clean MVC architecture using web.factories
-- Game replay with navigation controls
-- Dynamic port allocation with network utilities
-- KISS principles and elegant error handling
-- Extensible foundation for future tasks
-- Simple logging following SUPREME_RULES
+Enhanced Features:
+- Layered Web Infrastructure: BaseWebApp → BaseReplayApp → ReplayWebGameApp
+- Enhanced Naming: Clear, explicit naming throughout the replay application stack
+- Universal Factory Utilities: Uses factory_utils from ROOT/utils/ following SSOT
+- Dynamic Port Allocation: Network utilities with conflict resolution
+- Replay Engine Integration: Same ReplayEngine as CLI scripts for consistency
+- Future-Proof Design: Template for Task 1-5 extension replay interfaces
 
-Design Patterns Used:
-    - Factory Pattern: Uses web.factories for consistent component creation
-    - Template Method Pattern: Leverages BaseFlaskApp lifecycle
-    - Strategy Pattern: Pluggable replay engines
-    - Observer Pattern: Real-time updates via MVC framework
+Design Patterns (Enhanced):
+    - Template Method Pattern: Layered replay application lifecycle
+    - Factory Pattern: Universal factory utilities with canonical create() method
+    - Adapter Pattern: ReplayEngine integration with web interface
+    - Facade Pattern: Simplified replay application launcher interface
 
 Educational Goals:
-    - Demonstrate clean web MVC integration for Task-0 replay
-    - Show how future extensions can reuse this pattern
-    - Illustrate replay functionality in web applications
-    - Provide canonical example of Task-0 replay interface
+    - Demonstrate enhanced replay architecture for Task-0
+    - Show layered inheritance patterns for replay functionality
+    - Illustrate ReplayEngine integration with web infrastructure
+    - Provide canonical template for extension replay interfaces
 
-Extension Pattern for Future Tasks:
-    Task-1 (Heuristics): Replay pathfinding algorithm decisions
-    Task-2 (RL): Replay RL agent training and decision process
-    Task-3 (Supervised): Replay ML model predictions
-    Task-4 (Distillation): Replay knowledge distillation process
-    Task-5 (Advanced): Replay complex AI strategy comparisons
+Extension Template for Future Tasks:
+    Task-1 (Heuristics): Copy this structure, replace with HeuristicReplayWebGameApp
+    Task-2 (Supervised): Copy this structure, replace with SupervisedReplayWebGameApp
+    Task-3 (RL): Copy this structure, replace with RLReplayWebGameApp
+    Task-4 (LLM Fine-tuning): Copy this structure, replace with LLMFinetuningReplayWebGameApp
+    Task-5 (Distillation): Copy this structure, replace with DistillationReplayWebGameApp
+
+Reference: docs/extensions-guideline/mvc-flask-factory.md for comprehensive patterns
 """
 
 import sys
-import pathlib
 import argparse
+from pathlib import Path
+from typing import Optional
 
-# Bootstrap repository root for consistent imports
-REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
+# Ensure project root for consistent imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.path_utils import ensure_project_root
-ensure_project_root()
+# Import enhanced web infrastructure with layered architecture
+from web import ReplayWebGameApp, ReplayWebAppLauncher
+from web.factories import create_replay_web_game_app
 
-# Import replay components
+# Import universal utilities following SSOT principles
+from utils.validation_utils import validate_replay_web_arguments
+from utils.print_utils import create_logger
 
-# Import simple web framework
-from web.game_flask_app import ReplayGameApp
-from utils.network_utils import get_server_host_port
-
-# Simple logging following SUPREME_RULES
-print_log = lambda msg: print(f"[ReplayWebApp] {msg}")
-
-
-class ReplayWebApp(ReplayGameApp):
-    """
-    Task-0 Replay Web Application.
-    
-    Extends ReplayGameApp with replay-specific configuration.
-    Demonstrates how to specialize the simple Flask application for replay mode.
-    
-    Design Pattern: Template Method Pattern (Flask Application Lifecycle)
-    Educational Value: Shows how to extend simple applications for replay functionality
-    Extension Pattern: Future tasks can extend this for their replay needs
-    """
-    
-    def __init__(self, log_dir: str, game_number: int = 1, **config):
-        """
-        Initialize replay web application.
-        
-        Args:
-            log_dir: Directory containing game logs to replay
-            game_number: Game number to start replay from
-            **config: Additional configuration options
-        """
-        super().__init__(
-            log_dir=log_dir,
-            game_number=game_number,
-            **config
-        )
-        print_log(f"Initialized for replay from {log_dir}, starting game {game_number}")
-    
-    def get_application_info(self) -> dict:
-        """Get replay-specific application information."""
-        return {
-            "name": "Task-0 Replay Viewer",
-            "task_name": "task0",
-            "game_mode": "replay",
-            "log_directory": self.log_dir,
-            "current_game": self.game_number,
-            "url": f"http://127.0.0.1:{getattr(self, 'port', 5000)}",
-            "features": [
-                "Game replay viewer",
-                "Navigation controls",
-                "Step-by-step playback",
-                "Game state analysis",
-                "Performance metrics"
-            ]
-        }
+# Enhanced logging with consistent naming
+print_log = create_logger("ReplayWebScript")
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
-    Create argument parser for replay web interface.
+    Create argument parser for replay web game interface.
     
-    Educational Value: Shows consistent argument handling across Task-0 scripts
-    Extension Pattern: Future tasks can extend this with their replay-specific arguments
+    Educational Value: Shows consistent argument handling with enhanced naming
+    Extension Template: Copy this exact pattern for all extension replay scripts
+    
+    Returns:
+        Configured argument parser with replay-specific options
     """
     parser = argparse.ArgumentParser(
-        description="Snake Game - Replay Web Interface (Task-0 Foundation)",
+        description="Snake Game - Replay Web Game Interface (Enhanced Architecture)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  python scripts/replay_web.py --log-dir logs/session_20250101  # Basic replay
-  python scripts/replay_web.py --log-dir logs/session_20250101 --game 5  # Start from game 5
-  python scripts/replay_web.py --log-dir logs/session_20250101 --port 8080  # Custom port
-  python scripts/replay_web.py --log-dir logs/session_20250101 --debug  # Debug mode
+Enhanced Examples:
+  python scripts/replay_web.py logs/session_20250101          # Basic enhanced replay
+  python scripts/replay_web.py logs/session_20250101 --game 5 # Start from game 5 with validation
+  python scripts/replay_web.py logs/session_20250101 --port 8080 # Specific port with conflict detection
+  python scripts/replay_web.py logs/session_20250101 --debug  # Debug mode with enhanced logging
 
-Extension Pattern:
-  Future tasks can copy this script and modify:
-  - Add task-specific replay data formats
-  - Customize replay visualization
-  - Add algorithm-specific analysis
-  - Maintain same elegant MVC structure
+Extension Template Pattern:
+  Future extensions should copy this replay script structure:
+  1. Import enhanced replay infrastructure: {ExtensionType}ReplayWebGameApp
+  2. Use universal factory functions: create_{extension}_replay_web_game_app()
+  3. Apply enhanced naming conventions throughout
+  4. Leverage universal validation utilities
+  5. Maintain same elegant replay launcher pattern
+
+Replay Architecture Benefits:
+  - Layered inheritance: BaseWebApp → BaseReplayApp → ReplayWebGameApp
+  - Enhanced naming: Clear domain indication (Replay + Web + Game + App)
+  - ReplayEngine integration: Same engine as CLI scripts for consistency
+  - Educational clarity: Self-documenting enhanced replay architecture
 
 Replay Features:
-  - Step-by-step game playback
-  - Navigation controls (play/pause/seek)
-  - Game state inspection
-  - Performance analysis
+  - Step-by-step game playback with enhanced controls
+  - Navigation controls (play/pause/seek) with improved UX
+  - Game state inspection with detailed information
+  - Performance analysis with enhanced metrics
         """
     )
     
     parser.add_argument(
-        "--log-dir",
+        "log_dir",
         type=str,
-        required=True,
         help="Directory containing game logs to replay"
     )
     
@@ -152,104 +116,138 @@ Replay Features:
         "--host",
         type=str,
         default="127.0.0.1",
-        help="Host address to bind the web server (default: 127.0.0.1)"
+        help="Host address for the web server (default: 127.0.0.1)"
     )
     
     parser.add_argument(
         "--port",
         type=int,
         default=None,
-        help="Port number for the web server (default: auto-detect free port)"
+        help="Port number with conflict detection (default: auto-detect free port)"
     )
     
     parser.add_argument(
         "--debug",
         action="store_true",
-        help="Enable Flask debug mode for development"
+        help="Enable Flask debug mode with enhanced logging"
     )
     
     return parser
 
 
+def create_replay_web_application(args) -> ReplayWebGameApp:
+    """
+    Create replay web game application using enhanced factory function.
+    
+    Args:
+        args: Validated command line arguments
+        
+    Returns:
+        Configured replay web game application
+        
+    Educational Value: Shows enhanced factory pattern usage for replay applications
+    Extension Template: Copy this creation pattern for all extension replay applications
+    """
+    print_log("Creating replay web game application using enhanced factory...")
+    
+    # Use enhanced factory function with universal utilities
+    app = create_replay_web_game_app(
+        log_dir=args.log_dir,
+        game_number=args.game,
+        port=args.port
+    )
+    
+    print_log(f"Replay web game app created: {app.name} on port {app.port}")
+    return app
+
+
+def display_application_info(app: ReplayWebGameApp, host: str) -> None:
+    """
+    Display enhanced application information with clear formatting.
+    
+    Args:
+        app: Replay web game application
+        host: Server host address
+        
+    Educational Value: Shows enhanced naming and information display for replay
+    Extension Template: Copy this display pattern for all extension replay applications
+    """
+    print_log("🎯 Enhanced Replay Application Information:")
+    print_log(f"   Application: {app.name}")
+    print_log(f"   Architecture: Enhanced Layered Replay Infrastructure")
+    print_log(f"   Type: Replay Web Game App")
+    print_log(f"   Log Directory: {app.log_dir}")
+    print_log(f"   Starting Game: {app.game_number}")
+    print_log(f"   Port: {app.port} (with conflict detection)")
+    print_log(f"   URL: http://{host}:{app.port}")
+    print_log("")
+    
+    print_log("🎮 Enhanced Replay Controls:")
+    print_log("   Play/Pause: Control replay playback")
+    print_log("   Previous/Next: Navigate between games")
+    print_log("   Step Forward/Back: Frame-by-frame navigation")
+    print_log("   Speed Control: Adjust playback speed")
+    print_log("   Reset: Restart current game replay")
+    print_log("   Ctrl+C: Stop server")
+    print_log("")
+    
+    print_log("🏗️ Replay Architecture Layers:")
+    print_log("   BaseWebApp → BaseReplayApp → ReplayWebGameApp")
+    print_log("   ReplayEngine integration (same as CLI scripts)")
+    print_log("   Universal utilities from ROOT/utils/ (SSOT compliance)")
+    print_log("   Enhanced naming for educational clarity")
+    print_log("")
+
+
 def main() -> int:
     """
-    Main entry point for replay web interface.
+    Main entry point for replay web game interface script.
     
-    Educational Value: Shows elegant application lifecycle management for replay
-    Extension Pattern: Future tasks can copy this exact pattern for their replay needs
+    Educational Value: Shows elegant replay application launcher lifecycle
+    Extension Template: Copy this exact main() pattern for all extension replay scripts
     
     Returns:
         Exit code: 0 for success, 1 for failure
     """
     try:
-        # Parse command line arguments
+        print_log("🎬 Starting Snake Game - Replay Web Interface (Enhanced)")
+        print_log("📊 Architecture: Enhanced Layered Replay Infrastructure")
+        print_log("🎯 Mode: Game Replay with Enhanced Naming")
+        print_log("")
+        
+        # Parse and validate command line arguments
         parser = create_argument_parser()
         args = parser.parse_args()
+        validate_replay_web_arguments(args)
         
-        # Get host and port using network utilities
-        host, port = get_server_host_port(default_host=args.host, default_port=args.port)
-        # Network utilities handle environment variables and port conflicts automatically
+        # Create enhanced replay web application
+        app = create_replay_web_application(args)
         
-        print_log("🎬 Starting Snake Game - Replay Web Interface")
-        print_log("📊 Architecture: Task-0 MVC Framework")
-        print_log("🎮 Mode: Game Replay")
-        print_log(f"📁 Log Directory: {args.log_dir}")
-        print_log(f"🎯 Starting Game: {args.game}")
-        print_log(f"🌐 Server: http://{host}:{port}")
-        print()
+        # Display enhanced application information
+        display_application_info(app, args.host)
         
-        # Create replay application using elegant architecture
-        app = ReplayWebApp(
-            log_dir=args.log_dir,
-            game_number=args.game
-        )
+        print_log("🚀 Extension Template Information:")
+        print_log("   This script demonstrates enhanced replay architecture")
+        print_log("   Copy this structure for all extension replay interfaces")
+        print_log("   Replace ReplayWebGameApp with {Extension}ReplayWebGameApp")
+        print_log("   Maintain enhanced naming and layered replay architecture")
+        print_log("")
         
-        # Show application info
-        app_info = app.get_application_info()
-        print_log("🎯 Application Information:")
-        print_log(f"   Name: {app_info['name']}")
-        print_log(f"   Task: {app_info['task_name']}")
-        print_log(f"   Mode: {app_info.get('game_mode', 'unknown')}")
-        print_log(f"   Log Dir: {app_info.get('log_directory', 'unknown')}")
-        print_log(f"   Current Game: {app_info.get('current_game', 'unknown')}")
-        print_log(f"   URL: {app_info['url']}")
-        print()
-        
-        print_log("🎮 Replay Controls:")
-        print_log("   Play/Pause: Control replay playback")
-        print_log("   Step Forward/Back: Navigate frame by frame")
-        print_log("   Game Selection: Switch between different games")
-        print_log("   Speed Control: Adjust playback speed")
-        print_log("   Ctrl+C: Stop server")
-        print()
-        
-        print_log("📊 Replay Features:")
-        print_log("   Real-time state inspection")
-        print_log("   Game statistics display")
-        print_log("   Move-by-move analysis")
-        print_log("   Performance metrics")
-        print()
-        
-        print_log("🚀 Extension Pattern:")
-        print_log("   Future tasks can copy this script structure")
-        print_log("   Add task-specific replay visualizations")
-        print_log("   Integrate algorithm-specific analysis")
-        print_log("   Maintain same elegant MVC architecture")
-        print()
-        
-        # Start the application server
-        print_log("✅ Starting web server...")
-        app.run(host=host, port=port, debug=args.debug)
+        # Start the enhanced replay web application
+        print_log("✅ Starting enhanced replay web server...")
+        app.run(host=args.host, port=app.port, debug=args.debug)
         
         return 0
         
     except KeyboardInterrupt:
-        print_log("🛑 Server stopped by user")
+        print_log("🛑 Replay server stopped by user")
         return 0
     except Exception as e:
         print_log(f"❌ Failed to start replay web interface: {e}")
+        print_log("   Check enhanced error handling and replay validation")
         return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit_code = main()
+    sys.exit(exit_code)

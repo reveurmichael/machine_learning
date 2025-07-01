@@ -19,13 +19,19 @@ __all__ = [
     "random_free_port",
     "get_server_host_port",
     "get_ws_handler",
+    "get_http_host_port",
 ]
 
 
 DEFAULT_MIN_PORT: int = 8000  # lowest port considered when picking at random
 
+# Global open range for all Flask applications
+DEFAULT_MAX_PORT: int = 16_000  # upper bound for random port selection
 
-def find_free_port(start: int = DEFAULT_MIN_PORT, max_port: int = 65_535) -> int:
+
+def find_free_port(
+    start: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_MAX_PORT
+) -> int:
     """Return the first **free** TCP port ``>= start``.
 
     Parameters
@@ -68,7 +74,7 @@ def ensure_free_port(port: int) -> int:
     return port if is_port_free(port) else find_free_port(max(port + 1, 1_024))
 
 
-def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = 9_000) -> int:
+def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_MAX_PORT) -> int:
     """Return a *random* free port within ``[min_port, max_port]``.
 
     Useful for dashboard defaults so multiple widgets don't all suggest 8000.
@@ -145,4 +151,15 @@ def get_ws_handler(game_instance):  # noqa: ANN001 – generic game object
     async def _handler(websocket, _path):  # noqa: D401, ANN001 – websockets API
         await game_instance.register(websocket)
 
-    return _handler 
+    return _handler
+
+
+# ---------------------------------------------------------------------------
+# Alias – HTTP & WebSocket share the same selection semantics so we simply
+# forward to *get_server_host_port* for naming clarity when used by Flask apps.
+# ---------------------------------------------------------------------------
+
+def get_http_host_port(default_host: str = "127.0.0.1", default_port: int | None = None) -> tuple[str, int]:
+    """HTTP-friendly wrapper around :pyfunc:`get_server_host_port`."""
+
+    return get_server_host_port(default_host, default_port) 

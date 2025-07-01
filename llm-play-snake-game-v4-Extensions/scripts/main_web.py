@@ -169,13 +169,12 @@ def create_llm_web_application(args) -> LLMWebGameApp:
     return app
 
 
-def display_application_info(app: LLMWebGameApp, host: str) -> None:
+def display_application_info(app: LLMWebGameApp) -> None:
     """
     Display enhanced application information with clear formatting.
     
     Args:
         app: LLM web game application
-        host: Server host address
         
     Educational Value: Shows enhanced naming and information display for LLM
     Extension Template: Copy this display pattern for all extension LLM applications
@@ -188,7 +187,7 @@ def display_application_info(app: LLMWebGameApp, host: str) -> None:
     print_log(f"   LLM Model: {app.model}")
     print_log(f"   Grid Size: {app.grid_size}x{app.grid_size}")
     print_log(f"   Port: {app.port} (with conflict detection)")
-    print_log(f"   URL: http://{host}:{app.port}")
+    print_log(f"   URL: {app.url}")
     print_log("")
     
     print_log("🤖 Enhanced LLM Features:")
@@ -233,7 +232,7 @@ def main() -> int:
         app = create_llm_web_application(args)
         
         # Display enhanced application information
-        display_application_info(app, args.host)
+        display_application_info(app)
         
         print_log("🚀 Extension Template Information:")
         print_log("   This script demonstrates enhanced LLM web architecture")

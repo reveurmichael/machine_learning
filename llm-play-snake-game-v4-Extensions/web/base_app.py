@@ -32,7 +32,7 @@ from typing import Dict, Any, Optional
 from flask import Flask, render_template, jsonify, request
 
 # Import utilities following SSOT principles
-from utils.network_utils import random_free_port
+from utils.network_utils import ensure_free_port, get_http_host_port
 from utils.print_utils import create_logger
 from config.web_constants import FLASK_DEBUG_MODE
 
@@ -66,17 +66,31 @@ class BaseWebApp:
     BaseWebApp → BaseReplayApp (universal replay)
     """
     
-    def __init__(self, name: str = "SnakeGameWebApp", port: Optional[int] = None):
+    def __init__(self, name: str = "SnakeGameWebApp", host: str | None = None, port: Optional[int] = None):
         """Initialize universal web application foundation.
         
         Args:
             name: Application name for display and logging
+            host: Host to bind to (None for auto-detection)
             port: Port number (None for auto-detection)
             
         Educational Value: Shows universal initialization patterns
         """
-        self.name = name
-        self.port = port or random_free_port()
+        # Resolve host/port using centralised network utilities.  Environment
+        # variables *WS_HOST* / *WS_PORT* are honoured here which makes the
+        # behaviour consistent across Docker, CI pipelines and local runs.
+        resolved_host, resolved_port = get_http_host_port(
+            default_host=host or "127.0.0.1",
+            default_port=port,
+        )
+
+        # Guarantee the chosen port is free *right now* – if not, fall back to
+        # the next available one so we never crash with "Address already in use".
+        resolved_port = ensure_free_port(resolved_port)
+
+        self.name: str = name
+        self.host: str = resolved_host
+        self.port: int = resolved_port
         
         # Initialize Flask app with universal settings
         self.app = Flask(__name__)
@@ -87,7 +101,7 @@ class BaseWebApp:
         # Set up universal routes (template method)
         self.setup_routes()
         
-        print_log(f"BaseWebApp initialized: {name} on port {self.port}")
+        print_log(f"BaseWebApp initialized: {self.name} on http://{self.host}:{self.port}")
     
     def configure_app(self) -> None:
         """Configure Flask application with universal settings.
@@ -158,7 +172,12 @@ class BaseWebApp:
         """
         return 'base.html'  # Universal base template
     
-    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = FLASK_DEBUG_MODE):
+    def run(
+        self,
+        host: str | None = None,
+        port: Optional[int] = None,
+        debug: bool = FLASK_DEBUG_MODE,
+    ):
         """Run the Flask application.
         
         Args:
@@ -168,9 +187,31 @@ class BaseWebApp:
             
         Educational Value: Shows universal Flask application execution
         """
-        actual_port = port or self.port
-        print_log(f"Starting {self.name} on {host}:{actual_port}")
-        self.app.run(host=host, port=actual_port, debug=debug)
+        actual_host = host or self.host
+        desired_port = port or self.port
+
+        # Final safety check – make sure *desired_port* is still free.  If not
+        # we transparently fall back to the next available one so the user
+        # never has to guess what went wrong.
+        final_port = ensure_free_port(desired_port)
+
+        # Update internal state for consistency.
+        self.host = actual_host
+        self.port = final_port
+
+        print_log(f"Starting {self.name} on http://{self.host}:{self.port}")
+
+        self.app.run(host=self.host, port=self.port, debug=debug)
+
+    # ------------------------------------------------------------------
+    # Convenience helpers
+    # ------------------------------------------------------------------
+
+    @property
+    def url(self) -> str:  # noqa: D401
+        """Return *http://host:port* for this Flask application."""
+
+        return f"http://{self.host}:{self.port}"
 
 
 class SimpleFlaskApp(BaseWebApp):
@@ -204,7 +245,7 @@ class SimpleFlaskApp(BaseWebApp):
             
         Educational Value: Shows task-specific initialization over universal base
         """
-        super().__init__(name, port)
+        super().__init__(name, None, port)
         print_log(f"SimpleFlaskApp initialized: {name}")
     
     def setup_routes(self) -> None:
@@ -333,7 +374,7 @@ class BaseReplayApp(BaseWebApp):
             
         Educational Value: Shows universal replay initialization patterns
         """
-        super().__init__(name, config.get('port'))
+        super().__init__(name, config.get('host'), config.get('port'))
         self.log_dir = log_dir
         self.config = config
         self.replay_engine = None

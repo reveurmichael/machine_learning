@@ -145,13 +145,12 @@ def create_human_web_application(args) -> HumanWebGameApp:
     return app
 
 
-def display_application_info(app: HumanWebGameApp, host: str) -> None:
+def display_application_info(app: HumanWebGameApp) -> None:
     """
     Display enhanced application information with clear formatting.
     
     Args:
         app: Human web game application
-        host: Server host address
         
     Educational Value: Shows enhanced naming and information display patterns
     Extension Template: Copy this display pattern for all extension applications
@@ -162,7 +161,7 @@ def display_application_info(app: HumanWebGameApp, host: str) -> None:
     print_log(f"   Type: Human Web Game App")
     print_log(f"   Grid Size: {app.grid_size}x{app.grid_size}")
     print_log(f"   Port: {app.port} (with conflict detection)")
-    print_log(f"   URL: http://{host}:{app.port}")
+    print_log(f"   URL: {app.url}")
     print_log("")
     
     print_log("🎮 Enhanced Web Controls:")
@@ -204,7 +203,7 @@ def main() -> int:
         app = create_human_web_application(args)
         
         # Display enhanced application information
-        display_application_info(app, args.host)
+        display_application_info(app)
         
         print_log("🚀 Extension Template Information:")
         print_log("   This script demonstrates enhanced web architecture")

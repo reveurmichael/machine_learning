@@ -16,11 +16,6 @@ from config.network_constants import (
     DEFAULT_HOST,
     DEFAULT_PORT_RANGE_START,
     DEFAULT_PORT_RANGE_END,
-    HOST_ENV_VAR,
-    PORT_ENV_VAR,
-    SOCKET_REUSE_ADDR,
-    MIN_SAFE_PORT,
-    MAX_PORT_ATTEMPTS,
 )
 
 __all__ = [
@@ -47,7 +42,7 @@ def find_free_port(
 
     for port in range(start, max_port + 1):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 # Bind to *localhost* to avoid conflicts with services bound to
                 # 0.0.0.0 but not 127.0.0.1.
@@ -63,7 +58,7 @@ def is_port_free(port: int) -> bool:
     """Return *True* iff the given TCP ``port`` is currently unused."""
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind(("", port))
             return True
@@ -74,17 +69,17 @@ def is_port_free(port: int) -> bool:
 def ensure_free_port(port: int) -> int:
     """Return ``port`` if free, otherwise the next available one."""
 
-    return port if is_port_free(port) else find_free_port(max(port + 1, MIN_SAFE_PORT))
+    return port if is_port_free(port) else find_free_port(max(port + 1, 1024))
 
 
 def random_free_port(min_port: int = DEFAULT_PORT_RANGE_START, max_port: int = DEFAULT_PORT_RANGE_END) -> int:
     """Return a *random* free port within ``[min_port, max_port]``.
 
     Useful for dashboard defaults so multiple widgets don't all suggest 8000.
-    Falls back to :func:`find_free_port` if unlucky after MAX_PORT_ATTEMPTS attempts.
+    Falls back to :func:`find_free_port` if unlucky after 1000 attempts.
     """
 
-    for _ in range(MAX_PORT_ATTEMPTS):
+    for _ in range(1000):
         candidate = random.randint(min_port, max_port)
         if is_port_free(candidate):
             return candidate
@@ -109,8 +104,8 @@ def get_server_host_port(default_host: str = DEFAULT_HOST, default_port: int | N
     variables because that is convenient for Docker / CI pipelines.
     """
 
-    host = _os.getenv(HOST_ENV_VAR, default_host)
-    port_env = _os.getenv(PORT_ENV_VAR)
+    host = _os.getenv("HOST", default_host)
+    port_env = _os.getenv("PORT")
 
     # 1. Determine the *candidate* port ---------------------
     if port_env is not None and port_env.isdigit():
@@ -123,7 +118,7 @@ def get_server_host_port(default_host: str = DEFAULT_HOST, default_port: int | N
     #    missed when we probe "0.0.0.0" (which would otherwise succeed and
     #    later raise the very same OSError we are trying to avoid).
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as _sock:
-        _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
+        _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             _sock.bind((host, candidate))
             # Success → port is genuinely free for **that** host.
@@ -131,6 +126,6 @@ def get_server_host_port(default_host: str = DEFAULT_HOST, default_port: int | N
         except OSError:
             # Busy → fallback to the generic helper starting *above* the
             # original request so we don't re-test the same port.
-            port = ensure_free_port(max(candidate + 1, MIN_SAFE_PORT))
+            port = ensure_free_port(max(candidate + 1, 1024))
 
     return host, port 

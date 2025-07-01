@@ -357,6 +357,37 @@ if __name__ == "__main__":
 - **Extension Factories**: Extension-specific factory implementations
 - **Extension Documentation**: Extension-specific MVC documentation and patterns
 
+## 🐍 **Debug Mode Centralization and Propagation**
+
+### **Single Source of Truth for Debug Mode**
+
+The project now centralizes Flask debug mode configuration in `config/web_constants.py`:
+
+```python
+# config/web_constants.py
+FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug behavior
+```
+
+- **Server-side**: All Flask apps (via `BaseWebApp.run`) use this value as the default for the `debug` argument.
+- **CLI/Web Scripts**: All argument parsers default their `--debug` flag to this value, ensuring consistent behavior.
+- **Frontend/JS**: The value is injected into all rendered templates as `debug_mode` and made available to JavaScript as `window.FLASK_DEBUG_MODE`.
+- **Templates**: You can use `{{ debug_mode }}` in Jinja2 templates to conditionally show debug information.
+
+### **Usage Patterns**
+- **Backend**: Controls Flask's debug mode, error reporting, and hot reloading.
+- **Frontend**: Enables/disables verbose JS logging, error overlays, and debug UI elements.
+- **API Responses**: Can include extra error details in debug mode.
+
+### **How it Works**
+- The `BaseWebApp` injects `debug_mode=FLASK_DEBUG_MODE` into every template context.
+- The base HTML template sets `window.FLASK_DEBUG_MODE` for all JS code.
+- All web scripts and factories use the same constant for their default debug state.
+
+### **Benefits**
+- **SSOT**: One place to change debug mode for the entire stack.
+- **Consistency**: No more mismatched debug settings between backend and frontend.
+- **Extensibility**: Extensions and new web apps inherit this pattern automatically.
+
 ---
 
 **This MVC Flask factory architecture provides a comprehensive, educational, and scalable foundation for web interfaces across all Snake Game AI tasks and extensions, following enhanced naming conventions and universal design patterns.**

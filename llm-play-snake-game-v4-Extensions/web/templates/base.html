@@ -124,6 +124,10 @@
 
     <!-- Shared helpers (DRY) -->
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script>
+        // Injected from Flask config.web_constants
+        window.FLASK_DEBUG_MODE = {{ debug_mode|tojson }};
+    </script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html> 

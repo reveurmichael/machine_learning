@@ -35,6 +35,9 @@ from web.factories import create_human_web_game_app, create_llm_web_game_app, cr
 from utils.validation_utils import validate_grid_size, validate_port
 from utils.print_utils import create_logger
 
+# Import configuration constants
+from config.web_constants import DEFAULT_HOST, DEFAULT_PORT_RANGE_START, DEFAULT_PORT_RANGE_END, FLASK_DEBUG_MODE
+
 # Create logger for this module  
 print_log = create_logger("WebAppLaunchers")
 
@@ -54,7 +57,7 @@ def parse_human_arguments() -> Any:
     parser.add_argument("--grid-size", type=int, default=10, help="Size of the game grid (default: 10)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
-    parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
+    parser.add_argument("--debug", action="store_true", default=FLASK_DEBUG_MODE, help="Enable Flask debug mode (default: %(default)s)")
     return parser.parse_args()
 
 
@@ -72,7 +75,7 @@ def parse_llm_arguments() -> Any:
     parser.add_argument("--grid-size", type=int, default=10, help="Size of the game grid (default: 10)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
-    parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
+    parser.add_argument("--debug", action="store_true", default=FLASK_DEBUG_MODE, help="Enable Flask debug mode (default: %(default)s)")
     return parser.parse_args()
 
 
@@ -89,7 +92,7 @@ def parse_replay_arguments() -> Any:
     parser.add_argument("--game", type=int, default=1, help="Game number to replay (default: 1)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
-    parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode")
+    parser.add_argument("--debug", action="store_true", default=FLASK_DEBUG_MODE, help="Enable Flask debug mode (default: %(default)s)")
     return parser.parse_args()
 
 

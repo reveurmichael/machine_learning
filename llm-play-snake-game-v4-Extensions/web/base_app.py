@@ -34,6 +34,7 @@ from flask import Flask, render_template, jsonify, request
 # Import utilities following SSOT principles
 from utils.network_utils import random_free_port
 from utils.print_utils import create_logger
+from config.web_constants import FLASK_DEBUG_MODE
 
 # Create logger for this module
 print_log = create_logger("WebApp")
@@ -109,7 +110,7 @@ class BaseWebApp:
             """Universal main page route."""
             template_name = self.get_template_name()
             app_data = self.get_app_data()
-            return render_template(template_name, **app_data)
+            return render_template(template_name, debug_mode=FLASK_DEBUG_MODE, **app_data)
         
         @self.app.route('/api/health')
         def health():
@@ -157,7 +158,7 @@ class BaseWebApp:
         """
         return 'base.html'  # Universal base template
     
-    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = True):
+    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = FLASK_DEBUG_MODE):
         """Run the Flask application.
         
         Args:

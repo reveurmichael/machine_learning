@@ -30,7 +30,7 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
-- The entire content of `flask.md`.
+-  Nothing for this moment. 
 
 
 

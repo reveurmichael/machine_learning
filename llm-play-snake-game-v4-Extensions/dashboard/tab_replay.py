@@ -12,7 +12,6 @@ from typing import Sequence
 
 from core.game_file_manager import FileManager
 from utils.session_utils import run_replay, run_web_replay
-from utils.network_utils import random_free_port
 from config.network_constants import HOST_CHOICES
 
 # Initialize file manager for dashboard operations
@@ -78,21 +77,19 @@ def render_replay_web_tab(log_folders: Sequence[str]) -> None:
             label_visibility="collapsed"
         )
 
-    col1, col2 = st.columns(2)
-    with col1:
-        host = st.selectbox(
-            "Host",
-            HOST_CHOICES,
-            index=0,
-            key="replay_web_host",
-        )
-    with col2:
-        default_port = random_free_port()
-        port = st.number_input("Port", 1024, 65535, default_port, key="replay_web_port")
+    st.info("🌐 **Dynamic Port Allocation**: The web application will automatically find an available port.")
+    
+    host = st.selectbox(
+        "Host",
+        HOST_CHOICES,
+        index=0,
+        key="replay_web_host",
+        help="Host address for the web server"
+    )
 
     if game_num in games:
         with st.expander(f"Show game_{game_num}.json"):
             st.code(json.dumps(games[game_num], indent=2), language="json")
 
     if st.button("Start Web Replay", key="start_replay_web"):
-        run_web_replay(exp, game_num, host, port) 
+        run_web_replay(exp, game_num, host) 

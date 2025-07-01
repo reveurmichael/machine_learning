@@ -43,10 +43,9 @@ def run_replay(log_folder: str, game_num: int):
         st.error(f"Error running replay: {exc}")
 
 
-def run_web_replay(log_folder: str, game_num: int, host: str, port: int):
-    """Launch web-based replay using the new MVC architecture."""
+def run_web_replay(log_folder: str, game_num: int, host: str):
+    """Launch web-based replay using the new MVC architecture with dynamic port allocation."""
     try:
-        port = ensure_free_port(port)
         cmd = [
             "python",
             os.path.join("scripts", "replay_web.py"),
@@ -56,11 +55,11 @@ def run_web_replay(log_folder: str, game_num: int, host: str, port: int):
             str(game_num),
             "--host",
             host,
-            "--port",
-            str(port),
+            # No --port parameter - uses automatic dynamic allocation
         ]
         subprocess.Popen(cmd)
-        st.info(f"Web replay started for Game {game_num} at http://{host}:{port}.")
+        st.info(f"🌐 **Web replay started for Game {game_num}** – check the terminal output for the actual URL (dynamic port allocation).")
+        st.info(f"💡 **Tip**: The web application will automatically find an available port and display the URL in the terminal.")
     except Exception as exc:
         st.error(f"Error running web replay: {exc}")
 
@@ -83,8 +82,8 @@ def continue_game(log_folder: str, max_games: int, no_gui: bool):
         st.error(f"Error continuing game: {exc}")
 
 
-def run_main_web(max_games: int, host: str, port: int):
-    """Launch main_web.py with full CLI options using the new MVC architecture.
+def run_main_web(max_games: int, host: str):
+    """Launch main_web.py with full CLI options using the new MVC architecture with dynamic port allocation.
 
     The Streamlit tab already stored all user inputs in session_state.  To
     keep the tab code minimal, we harvest those values here and construct the
@@ -92,8 +91,6 @@ def run_main_web(max_games: int, host: str, port: int):
     arguments are added.
     """
     try:
-        port = ensure_free_port(port)
-
         cmd: list[str] = [
             "python",
             os.path.join("scripts", "main_web.py"),
@@ -101,8 +98,7 @@ def run_main_web(max_games: int, host: str, port: int):
             str(max_games),
             "--host",
             host,
-            "--port",
-            str(port),
+            # No --port parameter - uses automatic dynamic allocation
         ]
 
         # ---------------------
@@ -159,7 +155,8 @@ def run_main_web(max_games: int, host: str, port: int):
 
         # ---------------------
         subprocess.Popen(cmd)
-        st.info(f"Web main session started at http://{host}:{port}.")
+        st.info(f"🌐 **Web main session started** – check the terminal output for the actual URL (dynamic port allocation).")
+        st.info(f"💡 **Tip**: The web application will automatically find an available port and display the URL in the terminal.")
     except Exception as exc:
         st.error(f"Error launching web main session: {exc}")
 
@@ -168,13 +165,11 @@ def continue_game_web(
     log_folder: str,
     max_games: int,
     host: str,
-    port: int,
     sleep_before: float = 0.0,
     no_gui: bool = False,
 ):
-    """Launch web-based game continuation using the new MVC architecture."""
+    """Launch web-based game continuation using the new MVC architecture with dynamic port allocation."""
     try:
-        port = ensure_free_port(port)
         cmd = [
             "python",
             os.path.join("scripts", "main_web.py"),
@@ -184,8 +179,7 @@ def continue_game_web(
             str(max_games),
             "--host",
             host,
-            "--port",
-            str(port),
+            # No --port parameter - uses automatic dynamic allocation
         ]
         if sleep_before and float(sleep_before) > 0:
             _append_arg(cmd, "--sleep-before-launching", sleep_before)
@@ -193,8 +187,9 @@ def continue_game_web(
             cmd.append("--no-gui")
         subprocess.Popen(cmd)
         st.info(
-            f"Continuation (web) started for '{_file_manager.get_folder_display_name(log_folder)}' at http://{host}:{port}."
+            f"🌐 **Continuation (web) started for '{_file_manager.get_folder_display_name(log_folder)}'** – check the terminal output for the actual URL (dynamic port allocation)."
         )
+        st.info(f"💡 **Tip**: The web application will automatically find an available port and display the URL in the terminal.")
     except Exception as exc:
         st.error(f"Error starting web continuation: {exc}")
 
@@ -213,22 +208,19 @@ def run_human_play():
         st.error(f"Error starting human play: {exc}")
 
 
-def run_human_play_web(host: str, port: int):
-    """Launch web human play mode using the new MVC architecture."""
+def run_human_play_web(host: str):
+    """Launch web human play mode using the new MVC architecture with dynamic port allocation."""
     try:
-        # Don't pass port - let the script use dynamic allocation
         cmd = [
             "python",
             os.path.join("scripts", "human_play_web.py"),
             "--host",
             host,
-            # Remove --port to use dynamic allocation
+            # No --port parameter - uses automatic dynamic allocation
         ]
         subprocess.Popen(cmd)
-        # Note: The actual port will be dynamically allocated by the script
-        # and shown in the script output. User should check the terminal output
-        # for the actual URL.
-        st.info(f"Web Human Play started – check terminal output for the actual URL (dynamic port allocation).")
+        st.info(f"🌐 **Web Human Play started** – check the terminal output for the actual URL (dynamic port allocation).")
+        st.info(f"💡 **Tip**: The web application will automatically find an available port and display the URL in the terminal.")
     except Exception as exc:
         st.error(f"Error starting web human play: {exc}")
 

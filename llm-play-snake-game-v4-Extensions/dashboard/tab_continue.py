@@ -15,7 +15,6 @@ import os
 
 from config.game_constants import MAX_GAMES_ALLOWED 
 from core.game_file_manager import FileManager
-from utils.network_utils import random_free_port
 from utils.session_utils import continue_game_web
 from config.network_constants import HOST_CHOICES
 
@@ -165,16 +164,17 @@ def render_continue_web_tab(log_folders: Sequence[str]) -> None:
             "Sleep Before Launch (minutes)", 0.0, 600.0, 0.0, 0.5, key="cont_web_sleep"
         )
 
-    colh, colp = st.columns(2)
-    with colh:
-        host = st.selectbox("Host", HOST_CHOICES, index=0, key="cont_web_host")
-    with colp:
-        default_port = random_free_port()
-        port = st.number_input("Port", 1024, 65535, default_port, key="cont_web_port")
+    st.info("🌐 **Dynamic Port Allocation**: The web application will automatically find an available port.")
+    
+    host = st.selectbox(
+        "Host", 
+        HOST_CHOICES, 
+        index=0, 
+        key="cont_web_host",
+        help="Host address for the web server"
+    )
 
     no_gui = st.checkbox("Disable GUI", value=False, key="cont_web_no_gui")
 
     if st.button("Start Continuation (Web)", key="start_cont_web"):
-        continue_game_web(exp, max_games, host, port, sleep_before, no_gui)
-        url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
-        st.success(f"Continuation (web) started – open {url} to watch.") 
+        continue_game_web(exp, max_games, host, sleep_before, no_gui) 

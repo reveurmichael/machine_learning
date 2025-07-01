@@ -1,0 +1,185 @@
+indeed, there is no need to choose a port on those streamlit pages.
+
+There should be a folder "web" in the folder "extensions/common/" folder. Currently, we are really over-preparing for the future in task0. 
+
+
+
+
+
+Python files in "extensions/common/" folder are expected to be generic and reusable across all extensions, and not restrictive. Generally, they should not be too much ML/DL/RL specific. No need for logging into *.log files; we rely on print statements and files in the "logs/" folder, instead of *.log files.
+According to the rules set in `standalone.md`, we should not have such python files in the "extensions/common/" folder as : 
+ml_constants.py, 
+metrics_utils.py, 
+test_utils.py, 
+factory_utils.py, 
+model_registry.py,
+training_defaults.py, 
+extension_utils.py
+model_validator.py
+extension_validator.py
+config_validator.py
+validation_types.py
+I have already removed those files from the "extensions/common/" folder. 
+But it is good to have:
+dataset_formats.py,
+dataset_utils.py (maybe need to make it a little bit simpler? or maybe not), 
+csv_schema_utils.py, 
+path_utils.py (VERY GOOD, I LIKE IT), 
+path_validator.py (overly complex, not good, simplify or remove it), 
+validation_rules.py (#TODO the content seems to overlap a lot with dataset_formats.py; please check.)
+path_constants.py (VERY GOOD, I LIKE IT), 
+For other python files, it's up to you to decide.
+Also, after second thoughts, I think there is no real need to force agents to use factory pattern, though it's up to extensions themselves to decide. 
+## Bottom line
+It's good to have things in the "extensions/common/" folder that are generic and reusable across all extensions, not restrictive, and really simple or relatively simple. Even for thing like validators , validate a little bit, and that's it. Don't be too restrictive, don't be too complex, don't be too ML/DL/RL specific, don't be too harsh.
+
+
+
+
+
+
+
+I have added a new rule in the final-decision-10.md file:
+3. **SUPREME_RULE NO.3**: We should be able to add new extensions easily and try out new ideas. Therefore, code in the "extensions/common/" folder should NOT be too restrictive.
+
+Make sure this rule is reflected in the code and in other related md files in the docs/extensions-guideline/ folder.
+
+
+
+
+
+
+
+
+
+
+
+among all those claims/guidelines/rules in those md files, including GOOD_RULES, and consideration only current version of all those md files, which claims/guidelines/rules are obviously contradicting what other md files say, will not be contributing to this whole project in a meaningful way, and hence should be removed? List 40 of them.
+
+
+
+
+
+
+
+
+
+Updte only those 11 md files of final-decision-N.md (N=0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10). Don't modify other md files. In case of ambiguete, maybe System-Prompt.md can help (though, conceptually, System-Prompt.md is less important than the final-decision-N.md files; other non-final-decision-N.md files and non-System-Prompt.md files are even less important than the final-decision-N.md files and the System-Prompt.md file).
+
+
+
+
+For each of the agents in heuristics-v0.04, run a max-game of 100 and generate datasets (json and csv and jsonl) and save them in the ./extensions/datasets folder.
+
+
+Check the whole pipeline of heuristics generates csv data and supervised learning using the data from training and saves the mode. I have already pytorch installed. Make sure at least for some of those models, the porformance of trained supervised agents are good.
+
+
+Check the whole pipeline of heuristics generates csv data and supervised learning using the data from training and saves the mode. I have already pytorch installed. Make sure at least for some of those models, the porformance of trained supervised agents are good. At least, you should leave extensive and detailded docstring/comments everywhere related. Also, write on this topic an md in ROOT/docs/
+
+
+
+
+
+
+
+
+Write an extension heuristics-supervised-integration-v0.02.
+
+
+Write an extension heuristics-supervised-integration-v0.03.
+
+
+
+
+Write an extension heuristics-llm-fine-tuning-integration-v0.01.
+
+Write an extension heuristics-llm-fine-tuning-integration-v0.02.
+
+
+Write an extension heuristics-llm-fine-tuning-integration-v0.03. 
+
+Write/improve the extension supervised-v0.03. Make sure everything is great
+
+
+Make sure you put a lot of common functions of reinforcement learning (non-essential, not so much machine learning deep learning reinforcement learning related, the core idea of ML/DL RL should be very visible in the extension code of blabla-v0.0N) into the common folder.
+
+
+Make sure you put a lot of common functions of supervised learning (non-essential, not so much machine learning deep learning reinforcement learning related, the core idea of ML/DL RL should be very visible in the extension code of blabla-v0.0N) into the common folder.
+
+Make sure you put a lot of common functions of heuristics  (non-essential, not so much heuristics related, the core idea of heuristics should be very visible in the extension code of blabla-v0.0N) into the common folder.
+
+Make sure the folder of common is really well organized, and the code is really clean, elegant, and in the correct place, with good python file naming and function naming. Maybe this one use/adapts extensively the ROOT/utils/ folder python files.
+
+Make sure everything in the folder "extensions/" is great.
+
+Make sure all those reinforcement learning extensions agents are having good network architecture, and good parameters and hyperparameters.
+
+documentation/docstring/comments are very Important for me. You really lose a lot of them when doing the refactoring. Put them back, but intelligently, maybe for things that can easily got wrong, add more details. 
+
+
+heuristcs are really fundamental and vital and important. Because they are the basics of supervised learning, and the basics of fine turing. Make this very clear in docstrings and comments of heuristics extensions and supervised learning extensions. Write a md file in the ROOT/docs folder.
+
+
+write code for llm-distillation-v0.01.
+
+
+make sure you did not change functionalities for task0, did not reduce the size of comments and docstring (yes, we want good and detailed comments and docstring), for the following previous working code before refactoring: 
+
+ 
+
+make sure you don't change any functionality for task0. Make sure code is clean and elegant.
+
+
+make the code in continuation_utils.py really elegant and clear  great. No functionality change please, it's important. Make things more clear and readable. Make the code type-hinted, but only when you are really sure about the type. Don't change any functionality.
+
+
+make the code in the folder "llm" really elegant and clear  great. No functionality change please, it's important. Make things more clear and readable. Make the code type-hinted, but only when you are really sure about the type. Don't change any functionality.
+
+
+
+Make sure for task0, everything related to web mode (main_web.py, replay_web.py, human_play_web.py) will be great, code clean, elegant, well documented, well typed, and in the correct place. make sure those python files are having good naming.
+
+
+
+
+I want to has a sleep of 500s after taking an EMPTY step (importantly, the reason is not NO_PATH_FOUND. If the reason is NO_PATH_FOUND, the sleep will be 0s hence no sleep), but only in main mode (pygame and web). hence main.py should have option --sleep-after-empty-step. What about config.game_constants.py ? a constant SLEEP_AFTER_EMPTY_STEP_IF_NOT_NO_PATH_FOUND should be there, and then used by main.py . Also, what about game_N.json and summary.json ? what about the continuation mode (pygame and web)? Now do --sleep-after-empty-step for the app.py main mode (PyGame and Web), so that the option will be shown on the streamlit page. Check session_utils.py as well.
+
+
+
+Make everything really elegant for things related to --max-consecutive-empty-moves-allowed
+
+Make everything really elegant for things related to --max-consecutive-no-path-found-allowed
+
+
+Make everything really elegant for things related to  SOMETHING_IS_WRONG
+
+Make everything really elegant for things related to --max-consecutive-something-is-wrong-allowed and SOMETHING_IS_WRONG, with good comments and docstrings.
+
+Make everything really elegant for things related to --sleep-after-empty-step in app.py main mode (PyGame and Web).
+
+
+Make sure single source of truth for almost all stats/options/constants/etc. Make sure the for things that can be confusing, the docstrings/comments reflect that.
+
+Make sure tab_overview.py great and code elegant.
+
+
+Make sure everything related to game_N.json and summary.json great and code elegant.
+
+
+Make sure everything related to --sleep-before-launching is great and code elegant.
+
+
+enforce_launch_sleep should only happen after llm health check. very important. fix code. and make good comments and docstring about that in your code
+
+Make sure ./llm/parsing_utils.py great and code elegant.
+
+
+With all those changes, make sure game_N.json and summary.json are updated and loaded  correctly, stats great, for main mode, replay mode and continue mode.
+
+with all those updates, make sure app.py streamlit pages/tabs is working correctly and code elegant.
+
+In comments or docstrings related to enforce_launch_sleep --sleep-before-launching, make sure don't use the word "optional" because it can be misleading.
+
+
+

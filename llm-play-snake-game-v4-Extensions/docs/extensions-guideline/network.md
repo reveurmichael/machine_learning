@@ -41,6 +41,52 @@ Flask WebSocket Server → Real-time Streaming → Frontend WebSocket Client
 - **AJAX Polling**: Frontend polls server for updates
 - **Static Assets**: CSS, JavaScript, images served via HTTP
 
+## 🎯 **Default Random Port Behavior**
+
+### **Automatic Port Allocation**
+**DEFAULT BEHAVIOR**: All web applications automatically use `random_free_port()` when no port is specified:
+
+```python
+# ✅ DEFAULT BEHAVIOR: Automatic random port allocation
+app = BaseWebApp(name="MyApp")  # port=None → random_free_port() automatically used
+app = create_llm_web_game_app()  # port=None → random_free_port() automatically used
+app = create_human_web_game_app()  # port=None → random_free_port() automatically used
+
+# ✅ EXPLICIT PORT: Override when needed
+app = BaseWebApp(name="MyApp", port=8080)  # Use specific port
+app = create_llm_web_game_app(port=8080)  # Use specific port
+```
+
+### **Script Command Line Interface**
+All web scripts follow the same pattern:
+
+```bash
+# ✅ DEFAULT BEHAVIOR: Automatic random port allocation
+python scripts/main_web.py                    # Uses random_free_port() automatically
+python scripts/human_play_web.py              # Uses random_free_port() automatically  
+python scripts/replay_web.py logs/session_1   # Uses random_free_port() automatically
+
+# ✅ EXPLICIT PORT: Override when needed
+python scripts/main_web.py --port 8080        # Use specific port
+python scripts/human_play_web.py --port 8080  # Use specific port
+```
+
+### **Future Extensions**
+Extensions **do NOT need to specify ports** - the default behavior handles everything:
+
+```python
+# ✅ EXTENSION PATTERN: Automatic random port allocation
+class HeuristicWebApp(BaseWebApp):
+    def __init__(self, algorithm: str):
+        # DEFAULT BEHAVIOR: port=None triggers random_free_port()
+        super().__init__(name=f"Heuristic-{algorithm}")  # No port needed!
+
+# ✅ EXTENSION SCRIPT: Automatic random port allocation  
+def main():
+    app = create_heuristic_web_game_app()  # port=None → random_free_port() automatically
+    app.run()  # No port conflicts, no manual management needed
+```
+
 ## 🏗️ **Random Port Implementation**
 
 ### **Core Network Utilities**
@@ -111,6 +157,7 @@ class BaseWebApp:
     
     def __init__(self, name: str, port: int | None = None):
         self.app = Flask(name)
+        # DEFAULT BEHAVIOR: random_free_port() is automatically used when port=None
         self.port = port or random_free_port()
         print(f"[BaseWebApp] Initialized {name} on port {self.port}")  # Simple logging
     
@@ -128,30 +175,31 @@ class BaseWebApp:
 ```python
 # Multiple developers can run simultaneously
 # Developer A: Task-0 on random port 8234
-python scripts/main_web.py  # Automatically finds free port
+python scripts/main_web.py  # Automatically finds free port (DEFAULT BEHAVIOR)
 
 # Developer B: Task-1 Heuristics on random port 8567
 cd extensions/heuristics-v0.03
-python scripts/replay_web.py  # Different random port, no conflicts
+python scripts/replay_web.py  # Different random port, no conflicts (DEFAULT BEHAVIOR)
 
 # Developer C: Task-2 RL on random port 8891
 cd extensions/reinforcement-v0.03
-python app.py  # Another random port, seamless parallel development
+python app.py  # Another random port, seamless parallel development (DEFAULT BEHAVIOR)
 ```
 
 ### **2. Multi-Instance Support**
 ```python
 # Run multiple game instances for comparison
-# Instance 1: BFS algorithm on port 8123
+# Instance 1: BFS algorithm on random port (DEFAULT BEHAVIOR)
 python scripts/main_web.py --algorithm BFS
 
-# Instance 2: A* algorithm on port 8456  
+# Instance 2: A* algorithm on random port (DEFAULT BEHAVIOR)
 python scripts/main_web.py --algorithm ASTAR
 
-# Instance 3: Hamiltonian on port 8789
+# Instance 3: Hamiltonian on random port (DEFAULT BEHAVIOR)
 python scripts/main_web.py --algorithm HAMILTONIAN
 
 # All running simultaneously for performance comparison
+# No need to specify ports - automatic conflict-free allocation
 ```
 
 ### **3. CI/CD and Testing Benefits**
@@ -163,7 +211,7 @@ def test_concurrent_flask_apps():
     
     # Start multiple Flask apps for testing
     for i in range(5):
-        app = BaseWebApp(f"test_app_{i}")
+        app = BaseWebApp(f"test_app_{i}")  # DEFAULT BEHAVIOR: automatic random port
         apps.append(app)
         # Each gets a different random port automatically
     
@@ -188,12 +236,12 @@ docker run -p 0:8000 snake-game-task2  # Another random external port
 ### **Task-0 (LLM Snake Game)**
 ```python
 # scripts/main_web.py
-from utils.network_utils import random_free_port
 from web.applications import create_llm_web_game_app
 
 def main():
-    """Launch Task-0 web interface with random port."""
-    app = create_llm_web_game_app(port=random_free_port())
+    """Launch Task-0 web interface with automatic random port allocation."""
+    # DEFAULT BEHAVIOR: No need to specify port - random_free_port() is automatic
+    app = create_llm_web_game_app()  # port=None triggers random_free_port()
     print(f"[Task0] Starting LLM Snake Game on port {app.port}")  # Simple logging
     app.run()
 ```
@@ -201,12 +249,12 @@ def main():
 ### **Task-1 (Heuristics) Extension**
 ```python
 # extensions/heuristics-v0.03/scripts/replay_web.py
-from utils.network_utils import random_free_port
 from web.applications import create_replay_web_game_app
 
 def main():
-    """Launch heuristic replay web interface."""
-    app = create_replay_web_game_app(port=random_free_port())
+    """Launch heuristic replay web interface with automatic random port allocation."""
+    # DEFAULT BEHAVIOR: No need to specify port - random_free_port() is automatic
+    app = create_replay_web_game_app()  # port=None triggers random_free_port()
     print(f"[Task1] Starting Heuristic Replay on port {app.port}")  # Simple logging
     app.run()
 ```
@@ -214,22 +262,21 @@ def main():
 ### **Task-2 (Reinforcement Learning) Extension**
 ```python
 # extensions/reinforcement-v0.03/scripts/training_web.py
-from utils.network_utils import random_free_port
+from web.base_app import BaseWebApp
 
 def main():
-    """Launch RL training monitoring web interface."""
-    port = random_free_port()
+    """Launch RL training monitoring web interface with automatic random port allocation."""
+    # DEFAULT BEHAVIOR: No need to specify port - random_free_port() is automatic
+    app = BaseWebApp(name="RLTrainingMonitor")  # port=None triggers random_free_port()
     
-    app = Flask(__name__)
-    
-    @app.route('/training/<agent_type>')
+    @app.app.route('/training/<agent_type>')
     def monitor_training(agent_type):
         """Monitor RL agent training progress."""
         # Implementation here
         pass
     
-    print(f"[Task2] Starting RL Training Monitor on port {port}")  # Simple logging
-    app.run(host="127.0.0.1", port=port)
+    print(f"[Task2] Starting RL Training Monitor on port {app.port}")  # Simple logging
+    app.run()
 ```
 
 ## 🎯 **Port Range Strategy**
@@ -292,7 +339,8 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
 
 ### **For All Tasks and Extensions**
 - [ ] **Use `utils/network_utils.py`** for port allocation
-- [ ] **Implement random port selection** in Flask applications
+- [ ] **DEFAULT BEHAVIOR**: `random_free_port()` is automatic when `port=None`
+- [ ] **No need to specify ports** - automatic conflict-free allocation
 - [ ] **Use non-restrictive port ranges** for maximum flexibility
 - [ ] **Support environment variable overrides** for production
 - [ ] **Include simple logging** for port allocation events
@@ -300,6 +348,7 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
 
 ### **Flask Application Standards**
 - [ ] **Inherit from `BaseWebApp`** for consistent behavior
+- [ ] **DEFAULT BEHAVIOR**: `port=None` automatically uses `random_free_port()`
 - [ ] **Check port availability** before starting server
 - [ ] **Handle port conflicts gracefully** with fallback allocation
 - [ ] **Log server startup information** with host and port

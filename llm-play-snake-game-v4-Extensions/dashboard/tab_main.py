@@ -14,7 +14,6 @@ import os
 
 import streamlit as st
 
-from utils.network_utils import random_free_port
 from utils.session_utils import run_main_web
 from llm.providers import get_available_models
 from config.network_constants import HOST_CHOICES
@@ -288,12 +287,15 @@ def render_main_web_tab() -> None:
         st.number_input("Max Consecutive NO_PATH_FOUND", 0, 50, MAX_CONSECUTIVE_NO_PATH_FOUND_ALLOWED, 1, key="main_web_max_no_path")
 
     # Server details
-    colh, colp = st.columns(2)
-    with colh:
-        host = st.selectbox("Host", HOST_CHOICES, index=0, key="main_web_host")
-    with colp:
-        default_port = random_free_port(8000, 9000)
-        port = st.number_input("Port", 1024, 65535, default_port, key="main_web_port")
+    st.info("🌐 **Dynamic Port Allocation**: The web application will automatically find an available port.")
+    
+    host = st.selectbox(
+        "Host", 
+        HOST_CHOICES, 
+        index=0, 
+        key="main_web_host",
+        help="Host address for the web server"
+    )
 
     # Headless option – runs with --no-gui so move pauses are skipped, useful for
     # speed-oriented batch runs.  Replay mode ignores this flag.
@@ -301,8 +303,6 @@ def render_main_web_tab() -> None:
 
     if st.button("Start Main Session (Web)", key="start_main_web"):
         selected_max_games = int(st.session_state.get("main_web_max_games", MAX_GAMES_ALLOWED))
-        run_main_web(selected_max_games, host, port)
-        url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
-        st.success(f"Web session started – open {url} in your browser.")
+        run_main_web(selected_max_games, host)
 
 

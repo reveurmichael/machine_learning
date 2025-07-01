@@ -78,9 +78,9 @@ class BaseWebApp:
         Educational Value: Shows universal initialization patterns
         """
         # Resolve host/port using centralised network utilities.  Environment
-        # variables *WS_HOST* / *WS_PORT* are honoured here which makes the
+        # variables *HOST* / *PORT* are honoured here which makes the
         # behaviour consistent across Docker, CI pipelines and local runs.
-        resolved_host, resolved_port = self._get_server_host_port(host)
+        resolved_host, resolved_port = self._get_server_host_port(host, port)
 
         # Guarantee the chosen port is free *right now* – if not, fall back to
         # the next available one so we never crash with "Address already in use".
@@ -211,11 +211,11 @@ class BaseWebApp:
 
         return f"http://{self.host}:{self.port}"
 
-    def _get_server_host_port(self, host: str | None = None) -> tuple[str, int]:
+    def _get_server_host_port(self, host: str | None = None, port: Optional[int] = None) -> tuple[str, int]:
         """Get host and port for server startup with conflict resolution."""
         return get_server_host_port(
             default_host=host or DEFAULT_HOST,
-            default_port=self.port
+            default_port=port
         )
 
 

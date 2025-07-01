@@ -24,10 +24,11 @@ from web.human_app import HumanWebApp
 from web.llm_app import LLMWebApp
 from web.replay_app import ReplayWebApp
 
-# Simple factory functions
-from web.factories import (
+# Factory functions from centralized factory utilities
+from utils.factory_utils import (
+    WebAppFactory,
     create_human_web_app,
-    create_llm_web_app, 
+    create_llm_web_app,
     create_replay_web_app
 )
 
@@ -43,6 +44,7 @@ __all__ = [
     'ReplayWebApp',
     
     # Simple factory functions
+    'WebAppFactory',
     'create_human_web_app',
     'create_llm_web_app',
     'create_replay_web_app'

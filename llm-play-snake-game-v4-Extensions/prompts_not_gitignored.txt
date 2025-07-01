@@ -1,6 +1,5 @@
-indeed, there is no need to choose a port on those streamlit pages.
+make sure things factory factory_utils.py is great for task0  and extensiable for task1-5. what about all the  web scripts in the folders "scripts" as well as related utils python in folder "utils" great as well as related tab_*.py in dashboard folder.
 
-There should be a folder "web" in the folder "extensions/common/" folder. Currently, we are really over-preparing for the future in task0. 
 
 
 

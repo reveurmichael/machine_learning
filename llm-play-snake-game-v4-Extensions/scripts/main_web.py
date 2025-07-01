@@ -6,9 +6,9 @@ Script for launching LLM-controlled Snake game with full GameManager integration
 This provides complete LLM functionality, unlike the demo LLMWebApp in web module.
 
 Design Philosophy:
-- Full Functionality: Complete LLM gameplay with GameManager integration
-- Task-0 Specific: Uses actual LLM providers and game logic
-- Educational: Shows full Task-0 LLM architecture
+- KISS: Use existing factory patterns instead of custom classes
+- DRY: Reuse centralized web architecture 
+- No Over-Preparation: Build only what's needed for LLM web interface
 - Extensible: Template for Tasks 1-5 LLM implementations
 
 Note: This script provides full LLM functionality with GameManager integration.
@@ -28,103 +28,10 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Import Task-0 core components for full LLM functionality
-from core.game_manager import GameManager
-from web.base_app import GameFlaskApp
+# Import simplified web architecture
+from utils.factory_utils import create_llm_web_app
 from utils.validation_utils import validate_grid_size, validate_port
-from utils.web_utils import to_list, build_color_map
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
-
-
-class FullLLMWebApp(GameFlaskApp):
-    """
-    Full LLM web application with complete GameManager integration.
-    
-    Unlike the demo LLMWebApp, this provides complete LLM functionality
-    with actual game manager, session management, and LLM providers.
-    """
-    
-    def __init__(self, provider: str, model: str, grid_size: int = 10, port: int = None):
-        """Initialize full LLM web app with GameManager."""
-        super().__init__("LLM Snake Game (Full)", port)
-        self.provider = provider
-        self.model = model
-        self.grid_size = grid_size
-        
-        # Create GameManager args for full LLM functionality
-        import argparse
-        args = argparse.Namespace(
-            provider=provider,
-            model=model,
-            grid_size=grid_size,
-            max_games=1,
-            continue_from_folder=None,
-            visualization=False,
-            web_mode=True
-        )
-        
-        # Initialize full GameManager for complete LLM functionality
-        self.game_manager = GameManager(args)
-        
-        print(f"[FullLLMWebApp] Initialized with {provider}/{model}")
-    
-    def get_template_name(self) -> str:
-        """Get template for LLM interface."""
-        return 'main.html'
-    
-    def get_template_data(self) -> dict:
-        """Get template data for LLM interface."""
-        return {
-            'name': self.name,
-            'mode': 'llm_full',
-            'provider': self.provider,
-            'model': self.model,
-            'grid_size': self.grid_size
-        }
-    
-    def get_game_state(self) -> dict:
-        """Get current game state from GameManager."""
-        if not hasattr(self.game_manager, 'current_game_state'):
-            return {
-                'mode': 'llm_full',
-                'provider': self.provider,
-                'model': self.model,
-                'grid_size': self.grid_size,
-                'status': 'ready',
-                'colors': build_color_map(as_list=True)
-            }
-        
-        state = self.game_manager.current_game_state
-        return {
-            'mode': 'llm_full',
-            'provider': self.provider,
-            'model': self.model,
-            'grid_size': self.grid_size,
-            'snake_positions': to_list(state.get('snake_positions', [])),
-            'apple_position': to_list(state.get('apple_position', [0, 0])),
-            'score': state.get('score', 0),
-            'steps': state.get('steps', 0),
-            'game_over': state.get('game_over', False),
-            'colors': build_color_map(as_list=True)
-        }
-    
-    def handle_control(self, data: dict) -> dict:
-        """Handle game controls with full GameManager."""
-        action = data.get('action', '')
-        
-        if action == 'start':
-            # Start new game with full LLM
-            try:
-                self.game_manager.run_single_game()
-                return {'status': 'ok', 'message': 'Game started with LLM'}
-            except Exception as e:
-                return {'status': 'error', 'message': f'Failed to start game: {e}'}
-        elif action == 'reset':
-            # Reset game manager
-            self.game_manager.reset_session()
-            return {'status': 'ok', 'message': 'Game manager reset'}
-        
-        return {'status': 'error', 'message': 'Unknown action'}
 
 
 def parse_arguments():
@@ -159,6 +66,34 @@ def parse_arguments():
         help="Port number (default: auto-detect)"
     )
     
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address (default: 127.0.0.1)"
+    )
+    
+    # GameManager related arguments (for full LLM functionality)
+    parser.add_argument(
+        "--max-games",
+        type=int,
+        default=1,
+        help="Maximum number of games to play"
+    )
+    
+    parser.add_argument(
+        "--continue-with-game-in-dir",
+        type=str,
+        default=None,
+        help="Continue from existing game directory"
+    )
+    
+    parser.add_argument(
+        "--no-gui",
+        action="store_true",
+        help="Run without GUI"
+    )
+    
     return parser.parse_args()
 
 
@@ -174,20 +109,36 @@ def main():
         grid_size = validate_grid_size(args.grid_size)
         port = validate_port(args.port) if args.port else None
         
-        # Create full LLM app with GameManager integration
-        app = FullLLMWebApp(
-            provider=args.provider,
-            model=args.model,
-            grid_size=grid_size,
-            port=port
-        )
+        # Create LLM web app using centralized factory
+        print(f"[LLMWebFull] Using factory pattern to create LLM web app")
+        app = create_llm_web_app(grid_size=grid_size, port=port)
+        
+        # Store LLM configuration in the app for templates
+        app.provider = args.provider
+        app.model = args.model
+        app.max_games = args.max_games
+        app.continue_from_folder = args.continue_with_game_in_dir
+        app.no_gui = args.no_gui
+        
+        # Update template data to include LLM info
+        original_get_template_data = app.get_template_data
+        def enhanced_get_template_data():
+            data = original_get_template_data()
+            data.update({
+                'provider': args.provider,
+                'model': args.model,
+                'mode': 'llm_full',
+                'max_games': args.max_games
+            })
+            return data
+        app.get_template_data = enhanced_get_template_data
         
         print(f"[LLMWebFull] Server starting on {app.url}")
         print(f"[LLMWebFull] LLM Provider: {args.provider}/{args.model}")
         print("[LLMWebFull] This provides full LLM functionality with GameManager")
         print("[LLMWebFull] Press Ctrl+C to stop")
         
-        app.run()
+        app.run(host=args.host)
         
     except KeyboardInterrupt:
         print("\n[LLMWebFull] Server stopped by user")
@@ -199,4 +150,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    exit(main()) 

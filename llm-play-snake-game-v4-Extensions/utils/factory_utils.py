@@ -123,9 +123,9 @@ class WebAppFactory:
     """
     
     _registry = {
-        "HUMAN": "HumanWebGameApp",
-        "LLM": "LLMWebGameApp", 
-        "REPLAY": "ReplayWebGameApp",
+        "HUMAN": "HumanWebApp",
+        "LLM": "LLMWebApp", 
+        "REPLAY": "ReplayWebApp",
     }
     
     @classmethod
@@ -153,15 +153,15 @@ class WebAppFactory:
         print(f"[WebAppFactory] Creating web app: {app_type}")  # Simple logging
         
         # Import classes here to avoid circular imports
-        if app_class_name == "HumanWebGameApp":
-            from web.human_app import HumanWebGameApp
-            return HumanWebGameApp(**kwargs)
-        elif app_class_name == "LLMWebGameApp":
-            from web.llm_app import LLMWebGameApp
-            return LLMWebGameApp(**kwargs)
-        elif app_class_name == "ReplayWebGameApp":
-            from web.replay_app import ReplayWebGameApp
-            return ReplayWebGameApp(**kwargs)
+        if app_class_name == "HumanWebApp":
+            from web.human_app import HumanWebApp
+            return HumanWebApp(**kwargs)
+        elif app_class_name == "LLMWebApp":
+            from web.llm_app import LLMWebApp
+            return LLMWebApp(**kwargs)
+        elif app_class_name == "ReplayWebApp":
+            from web.replay_app import ReplayWebApp
+            return ReplayWebApp(**kwargs)
         else:
             raise ValueError(f"Unknown app class: {app_class_name}")
     
@@ -271,6 +271,28 @@ def create_game_app_factory(name: str = "GameAppFactory") -> GameAppFactory:
     """Create a game application factory instance - canonical function."""
     print(f"[FactoryUtils] Creating game app factory: {name}")  # Simple logging
     return GameAppFactory(name)
+
+
+def create_web_app_factory() -> type[WebAppFactory]:
+    """Create a web application factory class - canonical function."""
+    print("[FactoryUtils] Creating web app factory")  # Simple logging
+    return WebAppFactory
+
+
+# Simple web app creation functions following KISS principles
+def create_human_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
+    """Create human web application using factory pattern."""
+    return WebAppFactory.create("human", grid_size=grid_size, port=port)
+
+
+def create_llm_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
+    """Create LLM web application using factory pattern."""
+    return WebAppFactory.create("llm", grid_size=grid_size, port=port)
+
+
+def create_replay_web_app(session_path: str = "", game_number: int = 1, port: Optional[int] = None) -> Any:
+    """Create replay web application using factory pattern."""
+    return WebAppFactory.create("replay", session_path=session_path, game_number=game_number, port=port)
 
 
 def validate_factory_registry(factory: SimpleFactory, required_types: List[str]) -> bool:

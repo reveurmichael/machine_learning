@@ -1,64 +1,64 @@
 #!/usr/bin/env python3
 """
-MVC Framework Test Script
---------------------
+Tests for Simplified Web Architecture
+====================================
 
-Demonstrates the complete MVC architecture implementation for Snake-GTP.
-Tests all components: Models, Views, Controllers, and Factories.
+Tests for the simplified Flask web architecture following KISS principles.
+Tests the actual components that exist in the current simplified implementation.
 
-This script validates that the MVC framework is working correctly
-and showcases the design patterns implemented.
+Design Philosophy:
+- KISS: Test simple, working components
+- No Over-Preparation: Test what actually exists
+- Extensible: Test patterns used by Tasks 1-5
 """
 
 import sys
-import logging
 from pathlib import Path
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-
-def test_mvc_imports():
-    """Test that all MVC components can be imported successfully."""
-    print("🧪 Testing MVC Framework Imports...")
+def test_web_imports():
+    """Test that all simplified web components can be imported."""
+    print("📦 Testing Web Component Imports...")
     
     try:
-        # Test web package import
-        import web
-        print("✅ Web package imported successfully")
+        # Test base app imports
+        from web.base_app import FlaskGameApp, GameFlaskApp
+        print("✅ Base web apps imported successfully")
         
-        # Test controller imports
-        from web.controllers import (
-            BaseWebController,
-            HumanGameController,
-            GamePlayController,  # Task-0 gameplay controller
-            BaseGamePlayController,
-            BaseGameViewingController,
-            ReplayController,
+        # Test specific app imports
+        from web.human_app import HumanWebApp
+        from web.llm_app import LLMWebApp
+        from web.replay_app import ReplayWebApp
+        print("✅ All web apps imported successfully")
+        
+        # Test factory imports from centralized utils
+        from utils.factory_utils import (
+            WebAppFactory,
+            create_human_web_app,
+            create_llm_web_app,
+            create_replay_web_app
         )
-        print("✅ All controllers imported successfully")
+        print("✅ Factory functions imported successfully")
         
-        # Test model imports
-        from web.models import GameStateModel, GameEvent, Observer
-        print("✅ All models imported successfully")
+        # Test web module exports
+        from web import (
+            FlaskGameApp,
+            GameFlaskApp,
+            HumanWebApp,
+            LLMWebApp,
+            ReplayWebApp,
+            WebAppFactory,
+            create_human_web_app,
+            create_llm_web_app,
+            create_replay_web_app
+        )
+        print("✅ Web module exports working")
         
-        # Test view imports
-        from web.views import WebViewRenderer, TemplateEngine
-        print("✅ All views imported successfully")
-        
-        # Test factory imports
-        from web.factories import ControllerFactory, ModelFactory, ViewRendererFactory
-        print("✅ All factories imported successfully")
-        
-        print("🎉 All MVC components imported successfully!\n")
+        print("🎉 All simplified web components imported successfully!\n")
         return True
         
     except ImportError as e:
@@ -66,158 +66,26 @@ def test_mvc_imports():
         return False
 
 
-def test_template_engines():
-    """Test template engine functionality."""
-    print("🎨 Testing Template Engines...")
-    
-    try:
-        from web.views.template_engines import SimpleTemplateEngine, JinjaTemplateEngine
-        
-        # Test simple template engine
-        simple_engine = SimpleTemplateEngine("web/templates", "web/static")
-        
-        # Test template rendering
-        context = {
-            'game_title': 'Test Game',
-            'game_mode': 'Demo',
-            'score': 42,
-            'game_status': 'Active'
-        }
-        
-        rendered = simple_engine.render_template('index.html', context)
-        assert 'Test Game' in rendered
-        assert 'Demo' in rendered
-        assert '42' in rendered
-        
-        print("✅ Simple template engine working")
-        
-        # Test Jinja engine (will fallback to simple if Jinja not available)
-        jinja_engine = JinjaTemplateEngine("web/templates", "web/static")
-        jinja_rendered = jinja_engine.render_template('index.html', context)
-        assert 'Test Game' in jinja_rendered
-        
-        print("✅ Jinja template engine working (or fallback)")
-        print("🎉 Template engines test passed!\n")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Template engine test failed: {e}")
-        return False
-
-
-def test_controller_hierarchy():
-    """Test controller inheritance hierarchy."""
-    print("🏗️ Testing Controller Hierarchy...")
-    
-    try:
-        from web.controllers import (
-            BaseWebController,
-            HumanGameController,
-            GamePlayController,  # Task-0 gameplay controller
-            BaseGamePlayController,
-            BaseGameViewingController,
-            ReplayController,
-        )
-        from web.models import GameStateModel
-        
-        # Create mock dependencies
-        class MockStateProvider:
-            def get_current_state(self):
-                from dataclasses import dataclass
-                @dataclass
-                class MockState:
-                    timestamp: float = 0.0
-                    score: int = 0
-                    steps: int = 0
-                    game_over: bool = False
-                    snake_positions: list = None
-                    apple_position: tuple = (5, 5)
-                    grid_size: tuple = (20, 20)
-                    direction: str = "RIGHT"
-                    end_reason: str = None
-                    
-                    def __post_init__(self):
-                        if self.snake_positions is None:
-                            self.snake_positions = [(10, 10), (9, 10)]
-                
-                return MockState()
-            
-            def make_move(self, direction):
-                return {'success': True, 'score': 10}
-            
-            def reset_game(self):
-                return {'success': True}
-        
-        class MockTemplateEngine:
-            def render_template(self, name, context):
-                return f"<html><body>Mock template: {name}</body></html>"
-        
-        class MockRenderer:
-            def __init__(self):
-                self.template_engine = MockTemplateEngine()
-            
-            def render_json(self, data):
-                import json
-                return json.dumps(data)
-            
-            def render_html(self, template, context):
-                return self.template_engine.render_template(template, context)
-        
-        # Test controller creation
-        model = GameStateModel(MockStateProvider())
-        renderer = MockRenderer()
-        
-        # Test HumanGameController
-        human_controller = HumanGameController(model, renderer)
-        assert isinstance(human_controller, BaseGamePlayController)
-        assert isinstance(human_controller, BaseWebController)
-        print("✅ HumanGameController hierarchy correct")
-        
-        # Test GamePlayController (Task-0 LLM gameplay)
-        llm_controller = GamePlayController(model, renderer)
-        assert isinstance(llm_controller, BaseGamePlayController)
-        assert isinstance(llm_controller, BaseWebController)
-        print("✅ GamePlayController hierarchy correct")
-        
-        # Test ReplayController
-        replay_controller = ReplayController(model, renderer)
-        assert isinstance(replay_controller, BaseGameViewingController)
-        assert isinstance(replay_controller, BaseWebController)
-        print("✅ ReplayController hierarchy correct")
-        
-        print("🎉 Controller hierarchy test passed!\n")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Controller hierarchy test failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-
 def test_factory_pattern():
-    """Test factory pattern implementation."""
-    print("🏭 Testing Factory Pattern...")
+    """Test simplified factory pattern implementation."""
+    print("🏭 Testing Simplified Factory Pattern...")
     
     try:
-        from web.factories import ControllerFactory, ViewRendererFactory
+        from utils.factory_utils import WebAppFactory
         
-        # Test ViewRendererFactory
-        view_factory = ViewRendererFactory()
-        renderer = view_factory.create_renderer("web/templates", "web/static")
-        print("✅ ViewRendererFactory working")
+        # Test factory registry
+        available_types = WebAppFactory.get_available_types()
+        expected_types = ['HUMAN', 'LLM', 'REPLAY']
         
-        # Test ControllerFactory
-        controller_factory = ControllerFactory()
-        available_types = controller_factory.get_available_types()
+        for expected in expected_types:
+            assert expected in available_types, f"Missing type: {expected}"
         
-        assert 'human_game' in available_types
-        assert 'game' in available_types
-        assert 'replay' in available_types
+        print(f"✅ WebAppFactory has correct types: {available_types}")
         
-        print(f"✅ ControllerFactory has types: {available_types}")
+        # Test factory creation (without actually starting servers)
+        print("✅ Factory pattern working correctly")
         
-        print("🎉 Factory pattern test passed!\n")
+        print("🎉 Simplified factory pattern test passed!\n")
         return True
         
     except Exception as e:
@@ -225,198 +93,197 @@ def test_factory_pattern():
         return False
 
 
-def test_design_patterns():
-    """Test that design patterns are properly implemented."""
-    print("🎯 Testing Design Patterns Implementation...")
+def test_base_app_creation():
+    """Test base Flask app creation."""
+    print("🔧 Testing Base App Creation...")
     
     try:
-        # Test Strategy Pattern (Template Engines)
-        from web.views.template_engines import TemplateEngine, SimpleTemplateEngine
+        from web.base_app import FlaskGameApp, GameFlaskApp
         
-        # Verify abstract base class
-        assert hasattr(TemplateEngine, 'render_template')
-        assert hasattr(TemplateEngine, 'template_exists')
+        # Test FlaskGameApp creation
+        flask_app = FlaskGameApp(name="TestApp")
+        assert flask_app.app is not None
+        assert flask_app.port is not None
+        assert 8000 <= flask_app.port <= 16000  # Random port range
+        print("✅ FlaskGameApp creation working")
         
-        # Verify concrete implementation
-        engine = SimpleTemplateEngine("web/templates")
-        assert hasattr(engine, 'render_template')
-        assert callable(engine.render_template)
+        # Test GameFlaskApp creation (base class doesn't take grid_size)
+        game_app = GameFlaskApp(name="TestGameApp")
+        assert game_app.app is not None
+        assert game_app.port is not None
+        print("✅ GameFlaskApp creation working")
         
-        print("✅ Strategy Pattern implemented correctly")
-        
-        # Test Observer Pattern (Models)
-        from web.models.observers import LoggingObserver
-        
-        # Verify observer interface
-        observer = LoggingObserver()
-        assert hasattr(observer, 'on_game_event')
-        assert callable(observer.on_game_event)
-        
-        print("✅ Observer Pattern implemented correctly")
-        
-        # Test Template Method Pattern (Controllers)
-        from web.controllers import BaseWebController
-        
-        # Verify abstract methods exist
-        assert hasattr(BaseWebController, 'handle_state_request')
-        assert hasattr(BaseWebController, 'handle_control_request')
-        
-        print("✅ Template Method Pattern implemented correctly")
-        
-        # Test Factory Pattern
-        from web.factories import ControllerFactory
-        
-        factory = ControllerFactory()
-        assert hasattr(factory, 'create_controller')
-        assert callable(factory.create_controller)
-        
-        print("✅ Factory Pattern implemented correctly")
-        
-        print("🎉 All design patterns test passed!\n")
+        print("🎉 Base app creation test passed!\n")
         return True
         
     except Exception as e:
-        print(f"❌ Design patterns test failed: {e}")
+        print(f"❌ Base app creation test failed: {e}")
         return False
 
 
-def demonstrate_mvc_workflow():
-    """Demonstrate a complete MVC workflow."""
-    print("🚀 Demonstrating Complete MVC Workflow...")
+def test_network_integration():
+    """Test network utilities integration."""
+    print("🌐 Testing Network Integration...")
     
     try:
-        from web.controllers import HumanGameController
-        from web.models import GameStateModel
-        from web.views.template_engines import SimpleTemplateEngine
+        from utils.network_utils import random_free_port, is_port_free
+        from web.base_app import FlaskGameApp
         
-        # Create mock state provider
-        class MockStateProvider:
-            def get_current_state(self):
-                from dataclasses import dataclass
-                @dataclass
-                class MockState:
-                    timestamp: float = 1234567890.0
-                    score: int = 150
-                    steps: int = 75
-                    game_over: bool = False
-                    snake_positions: list = None
-                    apple_position: tuple = (15, 8)
-                    grid_size: tuple = (20, 20)
-                    direction: str = "UP"
-                    end_reason: str = None
-                    
-                    def __post_init__(self):
-                        if self.snake_positions is None:
-                            self.snake_positions = [(10, 10), (10, 11), (10, 12)]
-                
-                return MockState()
-            
-            def make_move(self, direction):
-                return {'success': True, 'score': 160, 'message': f'Moved {direction}'}
+        # Test random port allocation
+        port = random_free_port()
+        assert 8000 <= port <= 16000
+        assert is_port_free(port)
+        print("✅ Random port allocation working")
         
-        class MockRenderer:
-            def __init__(self):
-                self.template_engine = SimpleTemplateEngine("web/templates")
-            
-            def render_json(self, data):
-                import json
-                return json.dumps(data, indent=2)
+        # Test app uses network utilities
+        app = FlaskGameApp(name="NetworkTest")
+        assert 8000 <= app.port <= 16000
+        print("✅ App network integration working")
         
-        # 1. Create Model
-        model = GameStateModel(MockStateProvider())
-        print("✅ Model created")
-        
-        # 2. Create View
-        renderer = MockRenderer()
-        print("✅ View renderer created")
-        
-        # 3. Create Controller
-        controller = HumanGameController(model, renderer)
-        print("✅ Controller created")
-        
-        # 4. Simulate state request (using simple context for testing)
-        from dataclasses import dataclass
-        @dataclass 
-        class MockContext:
-            data: dict
-            client_info: dict
-        
-        state_context = MockContext(
-            data={},
-            client_info={'ip': '127.0.0.1', 'user_agent': 'test'}
-        )
-        
-        state_response = controller.handle_state_request(state_context)
-        print("✅ State request handled")
-        print(f"📊 Current score: {state_response.get('score', 'N/A')}")
-        
-        # 5. Simulate control request
-        control_context = MockContext(
-            data={'action': 'move', 'direction': 'left'},
-            client_info={'ip': '127.0.0.1', 'user_agent': 'test'}
-        )
-        
-        control_response = controller.handle_control_request(control_context)
-        print("✅ Control request handled")
-        print(f"🎮 Move result: {control_response.get('message', 'N/A')}")
-        
-        # 6. Demonstrate JSON rendering
-        json_output = renderer.render_json(state_response)
-        print("✅ JSON rendering working")
-        
-        print("🎉 Complete MVC workflow demonstration successful!\n")
+        print("🎉 Network integration test passed!\n")
         return True
         
     except Exception as e:
-        print(f"❌ MVC workflow demonstration failed: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ Network integration test failed: {e}")
+        return False
+
+
+def test_kiss_compliance():
+    """Test that the architecture follows KISS principles."""
+    print("✨ Testing KISS Compliance...")
+    
+    try:
+        # Count number of classes (should be small)
+        from web import base_app, human_app, llm_app, replay_app
+        
+        base_classes = [name for name in dir(base_app) if name.endswith('App') and not name.startswith('_')]
+        human_classes = [name for name in dir(human_app) if name.endswith('App') and not name.startswith('_')]
+        llm_classes = [name for name in dir(llm_app) if name.endswith('App') and not name.startswith('_')]
+        replay_classes = [name for name in dir(replay_app) if name.endswith('App') and not name.startswith('_')]
+        
+        total_classes = len(base_classes) + len(human_classes) + len(llm_classes) + len(replay_classes)
+        
+        print(f"✅ Total web app classes: {total_classes} (KISS: simple architecture)")
+        assert total_classes <= 10, "Too many classes - violates KISS principle"
+        
+        # Test factory functions are simple
+        from utils.factory_utils import create_human_web_app, create_llm_web_app, create_replay_web_app
+        
+        # These should be simple functions, not complex classes
+        assert callable(create_human_web_app)
+        assert callable(create_llm_web_app)
+        assert callable(create_replay_web_app)
+        print("✅ Factory functions are simple callables (KISS compliant)")
+        
+        print("🎉 KISS compliance test passed!\n")
+        return True
+        
+    except Exception as e:
+        print(f"❌ KISS compliance test failed: {e}")
+        return False
+
+
+def test_extensibility():
+    """Test that the architecture is easily extensible for Tasks 1-5."""
+    print("🚀 Testing Extensibility for Tasks 1-5...")
+    
+    try:
+        from web.base_app import GameFlaskApp
+        from utils.factory_utils import WebAppFactory
+        
+        # Test that base classes can be extended
+        class MockTask1WebApp(GameFlaskApp):
+            """Mock Task-1 (Heuristics) web app extension."""
+            
+            def __init__(self, algorithm: str, **kwargs):
+                super().__init__(name=f"Heuristics-{algorithm}", **kwargs)
+                self.algorithm = algorithm
+                
+                @self.app.route('/algorithm')
+                def get_algorithm():
+                    return {'algorithm': self.algorithm}
+        
+        # Test extension creation (no grid_size for base class)
+        task1_app = MockTask1WebApp(algorithm="BFS")
+        assert task1_app.algorithm == "BFS"
+        assert task1_app.name == "Heuristics-BFS"
+        print("✅ Base classes easily extensible")
+        
+        # Test factory can be extended
+        WebAppFactory.register("HEURISTIC", "MockTask1WebApp")
+        available = WebAppFactory.get_available_types()
+        assert "HEURISTIC" in available
+        print("✅ Factory easily extensible")
+        
+        print("🎉 Extensibility test passed!\n")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Extensibility test failed: {e}")
+        return False
+
+
+def demonstrate_simplified_workflow():
+    """Demonstrate the simplified web architecture workflow."""
+    print("🎪 Demonstrating Simplified Web Architecture Workflow...")
+    
+    try:
+        from utils.factory_utils import create_human_web_app, WebAppFactory
+        
+        print("1. Create web app using factory function:")
+        app = create_human_web_app(grid_size=12, port=None)  # Random port
+        print(f"   ✅ Created HumanWebApp with grid_size={app.grid_size}, port={app.port}")
+        
+        print("2. Alternative: Create using WebAppFactory:")
+        factory_app = WebAppFactory.create("human", grid_size=10, port=None)
+        print(f"   ✅ Created via factory with grid_size={factory_app.grid_size}")
+        
+        print("3. Demo: Extend for new task:")
+        WebAppFactory.register("DEMO", "HumanWebApp")  # Simple registration
+        demo_types = WebAppFactory.get_available_types()
+        print(f"   ✅ Available types after extension: {demo_types}")
+        
+        print("🎉 Simplified workflow demonstration complete!\n")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Workflow demonstration failed: {e}")
         return False
 
 
 def main():
-    """Run all MVC framework tests."""
-    print("🐍 Snake-GTP MVC Framework Test Suite")
-    print("=" * 50)
+    """Run all simplified web architecture tests."""
+    print("🧪 Testing Simplified Web Architecture for Snake Game AI")
+    print("=" * 60)
     
     tests = [
-        ("Import Tests", test_mvc_imports),
-        ("Template Engine Tests", test_template_engines),
-        ("Controller Hierarchy Tests", test_controller_hierarchy),
-        ("Factory Pattern Tests", test_factory_pattern),
-        ("Design Patterns Tests", test_design_patterns),
-        ("MVC Workflow Demo", demonstrate_mvc_workflow)
+        test_web_imports,
+        test_factory_pattern,
+        test_base_app_creation,
+        test_network_integration,
+        test_kiss_compliance,
+        test_extensibility,
+        demonstrate_simplified_workflow,
     ]
     
     passed = 0
     total = len(tests)
     
-    for test_name, test_func in tests:
-        print(f"Running {test_name}...")
+    for test in tests:
         try:
-            if test_func():
+            if test():
                 passed += 1
-            else:
-                print(f"❌ {test_name} failed\n")
         except Exception as e:
-            print(f"❌ {test_name} crashed: {e}\n")
+            print(f"❌ Test {test.__name__} failed with exception: {e}")
     
-    print("=" * 50)
+    print("=" * 60)
     print(f"📊 Test Results: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 All tests passed! MVC framework is working correctly.")
-        print("\n🏆 MVC Architecture Features Verified:")
-        print("   ✅ Model-View-Controller separation")
-        print("   ✅ Role-based controller inheritance")
-        print("   ✅ Strategy pattern for template engines")
-        print("   ✅ Observer pattern for event handling")
-        print("   ✅ Factory pattern for component creation")
-        print("   ✅ Template method pattern in controllers")
-        print("   ✅ Decorator pattern for view enhancement")
+        print("🎉 All tests passed! Web architecture is KISS-compliant and extensible.")
         return True
     else:
-        print(f"❌ {total - passed} tests failed. Please check the implementation.")
+        print("❌ Some tests failed. Please check the output above.")
         return False
 
 

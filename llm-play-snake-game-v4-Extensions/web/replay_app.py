@@ -34,8 +34,8 @@ class ReplayWebApp(GameFlaskApp):
         self.log_dir = log_dir
         self.game_number = game_number
         
-        # Use existing ReplayEngine
-        self.replay_engine = ReplayEngine()
+        # Use existing ReplayEngine with log_dir parameter
+        self.replay_engine = ReplayEngine(log_dir=log_dir, use_gui=False)
         self.replay_data = None
         self.current_step = 0
         

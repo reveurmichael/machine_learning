@@ -78,6 +78,8 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `extension-evolution-rules.md`
 * `extension-move-guidelines.md`
 * `forbidden-import-patterns.md`
+* `forward-looking-architecture.md`
+* `flask.md`
 * `fine-tuning.md`
 * `generative-models.md`
 * `gymnasium.md`
@@ -92,6 +94,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `mvc-impact-on-extensions.md`
 * `mvc.md`
 * `npz-paquet.md`
+* `network.md`
 * `onnx.md`
 * `reinforcement-learning.md` 
 * `stable-baseline.md`

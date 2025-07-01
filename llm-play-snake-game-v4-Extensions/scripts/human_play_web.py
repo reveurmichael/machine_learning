@@ -53,6 +53,7 @@ from web.factories import create_human_web_game_app
 from utils.validation_utils import validate_human_web_arguments
 from utils.print_utils import create_logger
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
+from config.network_constants import DEFAULT_HOST
 
 # Enhanced logging with consistent naming
 print_log = create_logger("HumanWebScript")
@@ -104,8 +105,8 @@ Web Architecture Benefits:
     parser.add_argument(
         "--host", 
         type=str, 
-        default="127.0.0.1",
-        help="Host address for the web server (default: 127.0.0.1)"
+        default=DEFAULT_HOST,
+        help=f"Host address for the web server (default: {DEFAULT_HOST})"
     )
     
     parser.add_argument(

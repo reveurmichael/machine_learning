@@ -12,6 +12,17 @@ import random
 import socket
 import os as _os
 
+from config.network_constants import (
+    DEFAULT_HOST,
+    DEFAULT_PORT_RANGE_START,
+    DEFAULT_PORT_RANGE_END,
+    HOST_ENV_VAR,
+    PORT_ENV_VAR,
+    SOCKET_REUSE_ADDR,
+    MIN_SAFE_PORT,
+    MAX_PORT_ATTEMPTS,
+)
+
 __all__ = [
     "find_free_port",
     "is_port_free",
@@ -21,14 +32,8 @@ __all__ = [
 ]
 
 
-DEFAULT_MIN_PORT: int = 8000  # lowest port considered when picking at random
-
-# Global open range for all Flask applications
-DEFAULT_MAX_PORT: int = 16_000  # upper bound for random port selection
-
-
 def find_free_port(
-    start: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_MAX_PORT
+    start: int = DEFAULT_PORT_RANGE_START, max_port: int = DEFAULT_PORT_RANGE_END
 ) -> int:
     """Return the first **free** TCP port ``>= start``.
 
@@ -42,11 +47,11 @@ def find_free_port(
 
     for port in range(start, max_port + 1):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
             try:
                 # Bind to *localhost* to avoid conflicts with services bound to
                 # 0.0.0.0 but not 127.0.0.1.
-                sock.bind(("127.0.0.1", port))
+                sock.bind((DEFAULT_HOST, port))
                 return port
             except OSError:
                 continue
@@ -58,7 +63,7 @@ def is_port_free(port: int) -> bool:
     """Return *True* iff the given TCP ``port`` is currently unused."""
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
         try:
             sock.bind(("", port))
             return True
@@ -69,17 +74,17 @@ def is_port_free(port: int) -> bool:
 def ensure_free_port(port: int) -> int:
     """Return ``port`` if free, otherwise the next available one."""
 
-    return port if is_port_free(port) else find_free_port(max(port + 1, 1_024))
+    return port if is_port_free(port) else find_free_port(max(port + 1, MIN_SAFE_PORT))
 
 
-def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_MAX_PORT) -> int:
+def random_free_port(min_port: int = DEFAULT_PORT_RANGE_START, max_port: int = DEFAULT_PORT_RANGE_END) -> int:
     """Return a *random* free port within ``[min_port, max_port]``.
 
     Useful for dashboard defaults so multiple widgets don't all suggest 8000.
-    Falls back to :func:`find_free_port` if unlucky after 1000 attempts.
+    Falls back to :func:`find_free_port` if unlucky after MAX_PORT_ATTEMPTS attempts.
     """
 
-    for _ in range(1_000):
+    for _ in range(MAX_PORT_ATTEMPTS):
         candidate = random.randint(min_port, max_port)
         if is_port_free(candidate):
             return candidate
@@ -88,37 +93,37 @@ def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_M
     return find_free_port(min_port)
 
 
-def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | None = None) -> tuple[str, int]:
-    """Return a tuple *(host, port)* suitable for :pyfunc:`websockets.serve`.
+def get_server_host_port(default_host: str = DEFAULT_HOST, default_port: int | None = None) -> tuple[str, int]:
+    """Return a tuple *(host, port)* suitable for server binding.
 
     Parameters
     ----------
     default_host
-        Bind address to use when ``WS_HOST`` environment variable is absent.
+        Bind address to use when ``HOST`` environment variable is absent.
     default_port
-        Port to bind when ``WS_PORT`` env-var is absent.  If *None* we will
-        pick a free one starting from :pydata:`DEFAULT_MIN_PORT`.
+        Port to bind when ``PORT`` env-var is absent.  If *None* we will
+        pick a free one starting from :pydata:`DEFAULT_PORT_RANGE_START`.
 
     The helper centralises the "pick a free port" logic so every script does
     not have to duplicate it.  It first honours explicit environment
     variables because that is convenient for Docker / CI pipelines.
     """
 
-    host = _os.getenv("WS_HOST", default_host)
-    port_env = _os.getenv("WS_PORT")
+    host = _os.getenv(HOST_ENV_VAR, default_host)
+    port_env = _os.getenv(PORT_ENV_VAR)
 
     # 1. Determine the *candidate* port ---------------------
     if port_env is not None and port_env.isdigit():
         candidate = int(port_env)
     else:
-        candidate = default_port or DEFAULT_MIN_PORT
+        candidate = default_port or DEFAULT_PORT_RANGE_START
 
     # 2. Check if the (host, candidate) tuple is free.  We bind *exactly* to
     #    that host so that a process listening on 127.0.0.1 does not get
     #    missed when we probe "0.0.0.0" (which would otherwise succeed and
     #    later raise the very same OSError we are trying to avoid).
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as _sock:
-        _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, SOCKET_REUSE_ADDR)
         try:
             _sock.bind((host, candidate))
             # Success → port is genuinely free for **that** host.
@@ -126,6 +131,6 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
         except OSError:
             # Busy → fallback to the generic helper starting *above* the
             # original request so we don't re-test the same port.
-            port = ensure_free_port(max(candidate + 1, 1_024))
+            port = ensure_free_port(max(candidate + 1, MIN_SAFE_PORT))
 
     return host, port 

@@ -36,7 +36,7 @@ from utils.validation_utils import validate_grid_size, validate_port
 from utils.print_utils import create_logger
 
 # Import configuration constants
-from config.web_constants import DEFAULT_HOST, DEFAULT_PORT_RANGE_START, DEFAULT_PORT_RANGE_END
+from config.network_constants import DEFAULT_HOST, DEFAULT_PORT_RANGE_START, DEFAULT_PORT_RANGE_END
 
 # Create logger for this module  
 print_log = create_logger("WebAppLaunchers")
@@ -56,7 +56,7 @@ def parse_human_arguments() -> Any:
     )
     parser.add_argument("--grid-size", type=int, default=10, help="Size of the game grid (default: 10)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
+    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help=f"Host address (default: {DEFAULT_HOST})")
     return parser.parse_args()
 
 
@@ -73,7 +73,7 @@ def parse_llm_arguments() -> Any:
     parser.add_argument("--model", type=str, default="hunyuan-turbos-latest", help="LLM model")
     parser.add_argument("--grid-size", type=int, default=10, help="Size of the game grid (default: 10)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
+    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help=f"Host address (default: {DEFAULT_HOST})")
     return parser.parse_args()
 
 
@@ -89,7 +89,7 @@ def parse_replay_arguments() -> Any:
     parser.add_argument("log_dir", type=str, help="Directory containing game logs")
     parser.add_argument("--game", type=int, default=1, help="Game number to replay (default: 1)")
     parser.add_argument("--port", type=int, default=None, help="Port number (default: auto-detect)")
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host address (default: 127.0.0.1)")
+    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help=f"Host address (default: {DEFAULT_HOST})")
     return parser.parse_args()
 
 

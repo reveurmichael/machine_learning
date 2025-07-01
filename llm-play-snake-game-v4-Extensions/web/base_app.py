@@ -35,6 +35,7 @@ from flask import Flask, render_template, jsonify, request
 from utils.network_utils import ensure_free_port, get_server_host_port
 from utils.print_utils import create_logger
 from config.web_constants import FLASK_DEBUG_MODE
+from config.network_constants import DEFAULT_HOST
 
 # Create logger for this module
 print_log = create_logger("WebApp")
@@ -79,10 +80,7 @@ class BaseWebApp:
         # Resolve host/port using centralised network utilities.  Environment
         # variables *WS_HOST* / *WS_PORT* are honoured here which makes the
         # behaviour consistent across Docker, CI pipelines and local runs.
-        resolved_host, resolved_port = get_server_host_port(
-            default_host=host or "127.0.0.1",
-            default_port=port,
-        )
+        resolved_host, resolved_port = self._get_server_host_port(host)
 
         # Guarantee the chosen port is free *right now* – if not, fall back to
         # the next available one so we never crash with "Address already in use".
@@ -212,6 +210,13 @@ class BaseWebApp:
         """Return *http://host:port* for this Flask application."""
 
         return f"http://{self.host}:{self.port}"
+
+    def _get_server_host_port(self, host: str | None = None) -> tuple[str, int]:
+        """Get host and port for server startup with conflict resolution."""
+        return get_server_host_port(
+            default_host=host or DEFAULT_HOST,
+            default_port=self.port
+        )
 
 
 class SimpleFlaskApp(BaseWebApp):

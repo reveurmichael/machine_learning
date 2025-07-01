@@ -1,392 +1,445 @@
-# MVC Flask Factory Architecture for Snake Game AI
+# MVC Flask Factory Architecture Guide
 
-> **Important — Authoritative Reference:** This document defines the comprehensive MVC Flask factory architecture used throughout the Snake Game AI project and all extensions (Tasks 1-5).
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ and defines the enhanced MVC Flask architecture with universal factory patterns.
 
-> **See also:** `task0.md`, `flask.md`, `network.md`, `kiss.md`, `factory-design-pattern.md`.
+> **See also:** `final-decision-10.md`, `flask.md`, `network.md`, `kiss.md`.
 
-## 🎯 **Core Philosophy: Layered MVC with Universal Factory Patterns**
+## 🎯 **Core Philosophy: Enhanced Layered Architecture**
 
-The Snake Game AI project implements a sophisticated **layered MVC architecture** combined with **universal factory patterns** to provide a scalable, educational, and maintainable web infrastructure. This architecture serves as the foundation for Task-0 and the template for all future extensions.
+The Snake Game AI project implements a **sophisticated MVC Flask architecture** with **universal factory patterns** that demonstrates educational excellence while providing a **canonical template** for all future extensions (Task 1-5). This architecture follows KISS principles while delivering enterprise-grade extensibility.
 
 ### **Educational Value**
-- **Design Pattern Mastery**: Comprehensive demonstration of MVC, Factory, Template Method, and Facade patterns
-- **Layered Architecture**: Clear inheritance hierarchy with educational benefits
-- **Universal Utilities**: SSOT compliance with factory_utils from ROOT/utils/
-- **Enhanced Naming**: Self-documenting code with explicit domain indication
+- **Layered Inheritance**: Demonstrates sophisticated OOP patterns with clear separation of concerns
+- **Factory Patterns**: Universal factory utilities with canonical `create()` methods
+- **Single Source of Truth**: Centralized configuration and utilities following SSOT principles
+- **Future-Proof Design**: Template for all extension web interfaces
+- **Enhanced Naming**: Self-documenting architecture with clear domain indication
 
-## 🏗️ **Layered MVC Architecture Overview**
+## 🏗️ **Architecture Overview**
 
-### **Three-Layer Web Infrastructure**
+### **Layered Inheritance Hierarchy**
 ```
-Layer 1: BaseWebApp (Universal Foundation)
-├── Universal Flask configuration
-├── Common routing patterns
-├── Shared utilities and middleware
-└── Base application lifecycle
-
-Layer 2: SimpleFlaskApp (Game-Specific)
-├── Game-oriented conveniences
-├── Common game API patterns
-├── Standardized response formats
-└── Game state management
-
-Layer 3: BaseReplayApp (Replay-Specific)
-├── Replay infrastructure patterns
-├── Universal replay utilities
-├── ReplayEngine integration
-└── Replay-specific lifecycle
+BaseWebApp (Abstract Base)
+    ↓
+SimpleFlaskApp (Concrete Base)
+    ↓
+Task-Specific Apps (HumanWebGameApp, LLMWebGameApp, ReplayWebGameApp)
 ```
 
-### **Enhanced Naming Convention**
+### **Universal Factory Pattern**
 ```python
-# Enhanced Naming Pattern: {Domain}{Type}{Purpose}{Layer}
-BaseWebApp              # Universal base for all web applications
-SimpleFlaskApp          # Game-specific Flask application layer
-BaseReplayApp           # Universal replay application layer
-
-HumanWebGameApp         # Human + Web + Game + App
-LLMWebGameApp           # LLM + Web + Game + App  
-ReplayWebGameApp        # Replay + Web + Game + App
-
-HumanWebAppLauncher     # Human + Web + App + Launcher
-LLMWebAppLauncher       # LLM + Web + App + Launcher
-ReplayWebAppLauncher    # Replay + Web + App + Launcher
+# Universal factory utilities in ROOT/utils/factory_utils.py
+class SimpleFactory:
+    """Universal factory with canonical create() method (SUPREME_RULES compliance)"""
+    
+    def create(self, app_type: str, **kwargs):
+        """Canonical create() method - single entry point for all app creation"""
+        # Implementation follows KISS principles
 ```
 
-## 🎨 **MVC Architecture Components**
+## 📁 **File Organization**
 
-### **Model Layer (Enhanced)**
+### **Core Web Infrastructure (`ROOT/web/`)**
+```
+web/
+├── __init__.py                 # Enhanced web module exports
+├── base_app.py                # Abstract base classes with layered architecture
+├── applications.py            # Task-specific Flask applications
+├── factories.py               # Universal factory functions
+├── static/                    # CSS, JavaScript, images
+├── templates/                 # HTML templates with debug mode integration
+└── controllers/               # MVC controllers (future extension)
+```
+
+### **Universal Utilities (`ROOT/utils/`)**
+```
+utils/
+├── factory_utils.py           # Universal factory patterns
+├── network_utils.py           # Dynamic port allocation
+├── validation_utils.py        # Argument validation
+├── print_utils.py             # Simple logging (SUPREME_RULES)
+└── web_utils.py               # Web state utilities
+```
+
+### **Configuration (`ROOT/config/`)**
+```
+config/
+├── web_constants.py           # Flask/JS/HTML/CSS constants
+├── network_constants.py       # Network/host/port constants
+└── ui_constants.py            # UI/grid/visualization constants
+```
+
+## 🎨 **Design Patterns Implementation**
+
+### **1. Template Method Pattern (Layered Architecture)**
 ```python
-# Base Model with Universal Utilities
-class BaseWebModel:
+class BaseWebApp(ABC):
     """
-    Universal base model for all web applications.
+    Abstract base class for all web applications.
     
-    Design Pattern: Template Method Pattern (Model Layer)
-    Purpose: Provides consistent data management across all applications
-    Educational Value: Shows universal model patterns with enhanced naming
+    Design Pattern: Template Method Pattern
+    Purpose: Defines the skeleton of web application lifecycle
+    Educational Value: Shows how to create extensible base classes
     """
     
-    def __init__(self, **config):
-        self.config = config
-        self.state = {}
-        print_log = create_logger("BaseWebModel")
-        print_log("Base web model initialized with universal utilities")
+    def __init__(self, name: str, port: int | None = None):
+        self.name = name
+        self.port = port or random_free_port()
+        self.app = Flask(name)
+        self._setup_routes()
     
-    def get_app_data(self) -> Dict[str, Any]:
-        """Get application data for template rendering."""
-        return {
-            'name': self.__class__.__name__,
-            'type': self._get_app_type(),
-            'config': self.config,
-            'timestamp': datetime.now().isoformat()
-        }
+    @abstractmethod
+    def _setup_routes(self) -> None:
+        """Subclasses must implement route configuration."""
+        pass
     
-    def _get_app_type(self) -> str:
-        """Get application type with enhanced naming."""
-        class_name = self.__class__.__name__
-        if 'Human' in class_name:
-            return 'human_web_game_app'
-        elif 'LLM' in class_name:
-            return 'llm_web_game_app'
-        elif 'Replay' in class_name:
-            return 'replay_web_game_app'
-        return 'base_web_app'
+    def run(self, host: str | None = None, debug: bool = FLASK_DEBUG_MODE) -> None:
+        """Template method - consistent startup across all apps."""
+        resolved_host, resolved_port = self._get_server_host_port(host)
+        print(f"[{self.name}] Starting on http://{resolved_host}:{resolved_port}")
+        self.app.run(host=resolved_host, port=resolved_port, debug=debug)
 ```
 
-
-### **View Layer (Enhanced Templates)**
+### **2. Factory Pattern (Universal Creation)**
 ```python
-# Base View Renderer with Universal Templates
-class BaseWebViewRenderer:
-    """Universal base view renderer for all web applications."""
+# Universal factory utilities
+def create_human_web_game_app(grid_size: int = 10, port: int | None = None) -> HumanWebGameApp:
+    """
+    Factory function for human web game applications.
     
-    def __init__(self, template_dir: str = "templates"):
-        self.template_dir = template_dir
-        self.template_env = self._setup_template_environment()
-    
-    def render_app_template(self, template_name: str, **context) -> str:
-        """Render application template with enhanced context."""
-        enhanced_context = self._enhance_template_context(context)
-        template = self.template_env.get_template(template_name)
-        return template.render(**enhanced_context)
+    Design Pattern: Factory Pattern (Universal Implementation)
+    Purpose: Centralized app creation with validation
+    Educational Value: Shows canonical factory pattern usage
+    """
+    validate_human_web_arguments(grid_size, port)
+    return HumanWebGameApp(grid_size=grid_size, port=port)
+
+def create_llm_web_game_app(grid_size: int = 10, port: int | None = None) -> LLMWebGameApp:
+    """Factory function for LLM web game applications."""
+    validate_llm_web_arguments(grid_size, port)
+    return LLMWebGameApp(grid_size=grid_size, port=port)
 ```
 
-### **Controller Layer (Enhanced API)**
+### **3. Strategy Pattern (Pluggable Game Modes)**
 ```python
-# Base Controller with Universal API Patterns
-class BaseWebController:
-    """Universal base controller for all web applications."""
+class HumanWebGameApp(SimpleFlaskApp):
+    """
+    Human-controlled web game application.
     
-    def __init__(self, model: BaseWebModel, view: BaseWebViewRenderer):
-        self.model = model
-        self.view = view
+    Design Pattern: Strategy Pattern
+    Purpose: Pluggable game mode implementation
+    Educational Value: Shows how to specialize base classes
+    """
     
-    def handle_index_request(self) -> str:
-        """Handle index page request with enhanced rendering."""
-        app_data = self.model.get_app_data()
-        return self.view.render_app_template('index.html', **app_data)
-    
-    def handle_api_state_request(self) -> Dict[str, Any]:
-        """Handle API state request with enhanced response."""
-        state = self.model.get_app_data()
-        return build_success_response(state)
+    def _setup_routes(self) -> None:
+        """Configure human-specific routes."""
+        self.app.add_url_rule('/', 'index', self._human_game_index)
+        self.app.add_url_rule('/game', 'game', self._human_game_play, methods=['GET', 'POST'])
+        self.app.add_url_rule('/api/move', 'move', self._handle_human_move, methods=['POST'])
 ```
 
-## 🏭 **Universal Factory Architecture**
-
-### **Multi-Layer Factory Pattern**
+### **4. Facade Pattern (Simplified Interface)**
 ```python
-# Universal Factory Utilities (ROOT/utils/factory_utils.py)
-class WebAppFactory(SimpleFactory):
-    """Universal web application factory following SSOT principles."""
+class HumanWebAppLauncher:
+    """
+    Simplified launcher for human web applications.
     
-    _registry = {}
+    Design Pattern: Facade Pattern
+    Purpose: Provides simple interface to complex web setup
+    Educational Value: Shows how to hide complexity behind simple interfaces
+    """
     
-    @classmethod
-    def create(cls, app_type: str, **kwargs) -> BaseWebApp:
-        """Create web application using canonical create() method."""
-        app_class = cls._registry.get(app_type.lower())
-        if not app_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown app type: {app_type}. Available: {available}")
-        
-        print_log = create_logger("WebAppFactory")
-        print_log(f"Creating web application: {app_type}")
-        
-        return app_class(**kwargs)
-
-# Enhanced Factory Functions
-def create_human_web_game_app(grid_size: int = 10, port: Optional[int] = None, **kwargs):
-    """Create human web game application using enhanced factory function."""
-    print_log = create_logger("GameWebFactory")
-    print_log(f"Creating human web game app with grid_size={grid_size}")
-    
-    return GameWebAppFactory.create('human', grid_size=grid_size, port=port, **kwargs)
+    @staticmethod
+    def launch(grid_size: int = 10, port: int | None = None) -> None:
+        """Launch human web game with minimal configuration."""
+        app = create_human_web_game_app(grid_size=grid_size, port=port)
+        app.run()
 ```
 
-## 🚀 **Extension Template Architecture**
+## 🔧 **Configuration Architecture**
 
-### **Universal Extension Pattern**
+### **Single Source of Truth (SSOT)**
 ```python
-# Extension Template: extensions/{extension-type}-v0.03/web/
-# Example: extensions/heuristics-v0.03/web/heuristic_web_app.py
+# config/web_constants.py - Flask/JS/HTML/CSS constants
+FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug behavior
 
-from web.base_app import SimpleFlaskApp
-from utils.factory_utils import SimpleFactory
-from utils.text_utils import create_logger
+# config/network_constants.py - Network/host/port constants  
+DEFAULT_HOST: Final[str] = "127.0.0.1"
+DEFAULT_PORT_RANGE_START: Final[int] = 8000
+DEFAULT_PORT_RANGE_END: Final[int] = 16000
 
-class HeuristicWebGameApp(SimpleFlaskApp):
-    """Heuristic web game application with enhanced naming."""
-    
-    def __init__(self, algorithm: str = "BFS", grid_size: int = 10, **config):
-        super().__init__(f"Heuristic Snake Web Game ({algorithm})")
-        self.algorithm = algorithm
-        self.grid_size = grid_size
-        self.config = config
-        
-        # Initialize heuristic-specific components
-        self.pathfinder = self._create_pathfinder()
-    
-    def get_app_data(self) -> Dict[str, Any]:
-        """Get heuristic application data with enhanced naming."""
-        return {
-            'name': self.name,
-            'mode': 'heuristic_web',
-            'app_type': 'heuristic_web_game_app',
-            'algorithm': self.algorithm,
-            'grid_size': self.grid_size,
-            'status': 'ready'
-        }
+# config/ui_constants.py - UI/grid/visualization constants
+GRID_SIZE: Final[int] = 10
+WINDOW_WIDTH: Final[int] = 800
+WINDOW_HEIGHT: Final[int] = 600
 ```
 
-## 📝 **Script Template Architecture**
-
-### **Enhanced Script Pattern**
+### **Environment Variable Support**
 ```python
-# Extension Script Template: extensions/{extension-type}-v0.03/scripts/web_interface.py
+# Environment variables for deployment flexibility
+HOST_ENV_VAR: Final[str] = "HOST"      # Override default host
+PORT_ENV_VAR: Final[str] = "PORT"      # Override random port allocation
+```
 
-"""
-{Extension} Web Interface Script (Enhanced Architecture)
-======================================================
+## 🚀 **Dynamic Port Allocation**
 
-Flask-based web application for {extension} algorithms using the enhanced layered web
-infrastructure. This script demonstrates the extension's modern web architecture
-and follows the canonical template established by Task-0.
-
-Extension Template: Copy from scripts/human_play_web.py and customize for {extension}
-"""
-
-import sys
-import argparse
-from pathlib import Path
-
-# Ensure project root for consistent imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-# Import enhanced web infrastructure (Extension-Specific)
-from web import {Extension}WebGameApp, {Extension}WebAppLauncher
-from web.factories import create_{extension}_web_game_app
-
-# Import universal utilities following SSOT principles
-from utils.validation_utils import validate_grid_size, validate_port
-from utils.text_utils import create_logger
-
-def create_argument_parser() -> argparse.ArgumentParser:
-    """Create argument parser for {extension} web game interface."""
-    parser = argparse.ArgumentParser(
-        description="Snake Game - {Extension} Web Game Interface (Enhanced Architecture)",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Enhanced Examples:
-  python scripts/web_interface.py                    # Default {extension} settings
-  python scripts/web_interface.py --algorithm BFS    # Specific algorithm
-  python scripts/web_interface.py --grid-size 15     # Larger grid with validation
-  python scripts/web_interface.py                    # Default {extension} settings
-
-Extension Architecture:
-  - Layered inheritance: BaseWebApp → SimpleFlaskApp → {Extension}WebGameApp
-  - Enhanced naming: Clear domain indication ({Extension} + Web + Game + App)
-  - Universal utilities: Validation, logging, factory patterns from SSOT
-  - Algorithm integration: {Extension}-specific algorithms and strategies
-        """
-    )
+### **Random Port Strategy**
+```python
+def random_free_port(min_port: int = DEFAULT_PORT_RANGE_START, 
+                    max_port: int = DEFAULT_PORT_RANGE_END) -> int:
+    """
+    Return a random free port within specified range.
     
-    # Extension-specific arguments
-    parser.add_argument("--algorithm", type=str, default="BFS",
-                       help="{Extension} algorithm to use (default: BFS)")
-    parser.add_argument("--grid-size", type=int, default=10,
-                       help="Size of the game grid with validation (default: 10)")
-    parser.add_argument("--host", type=str, default="127.0.0.1",
-                       help="Host address for the web server (default: 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=None,
-                       help="Port number with conflict detection (default: auto-detect)")
-
+    Design Pattern: Strategy Pattern (Port Allocation)
+    Purpose: Provides conflict-free port allocation
+    Educational Value: Shows robust resource management
+    """
+    for _ in range(MAX_PORT_ATTEMPTS):
+        candidate = random.randint(min_port, max_port)
+        if is_port_free(candidate):
+            return candidate
     
-    return parser
+    # Fallback to sequential search
+    return find_free_port(min_port)
+```
 
+### **Benefits of Random Ports**
+- ✅ **Parallel Development**: Multiple developers can work simultaneously
+- ✅ **No Port Conflicts**: Automatic conflict resolution
+- ✅ **CI/CD Friendly**: Works seamlessly in automated environments
+- ✅ **Container Compatible**: Perfect for Docker/Kubernetes deployment
+
+## 🎮 **Task-Specific Implementations**
+
+### **Task-0 (LLM Snake Game)**
+```python
+# scripts/main_web.py
 def main() -> int:
-    """Main entry point for {extension} web interface script."""
+    """Main entry point for LLM web game interface."""
     try:
-        print_log = create_logger("{Extension}WebScript")
-        print_log("🚀 Starting Snake Game - {Extension} Web Interface (Enhanced)")
-        print_log("📊 Architecture: Enhanced Layered Web Infrastructure")
-        print_log("🎯 Mode: {Extension} Algorithms with Enhanced Naming")
+        print_log("🐍 Starting Snake Game - LLM Web Interface (Enhanced)")
         
         # Parse and validate arguments
         parser = create_argument_parser()
         args = parser.parse_args()
+        validate_llm_web_arguments(args)
         
-        # Validate using universal utilities
-        args.grid_size = validate_grid_size(args.grid_size)
-        args.port = validate_port(args.port)
-        
-        # Create enhanced {extension} web application
-        app = create_{extension}_web_game_app(
-            algorithm=args.algorithm,
+        # Create application using factory pattern
+        app = create_llm_web_game_app(
             grid_size=args.grid_size,
             port=args.port
         )
         
         # Display application information
-        print_log(f"✅ {Extension} web app created: {app.name}")
-        print_log(f"   Algorithm: {app.algorithm}")
-        print_log(f"   Grid Size: {app.grid_size}x{app.grid_size}")
-        print_log(f"   URL: http://{args.host}:{app.port}")
+        display_application_info(app)
         
-        # Start enhanced web application
-        app.run(host=args.host, port=app.port)
+        # Launch application
+        app.run(host=args.host)
         return 0
         
     except Exception as e:
-        print_log(f"❌ Failed to start {extension} web interface: {e}")
+        print_log(f"❌ Error: {e}")
         return 1
-
-if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
 ```
+
+### **Task-1 (Heuristics) Extension Template**
+```python
+# extensions/heuristics-v0.03/scripts/replay_web.py
+def main() -> int:
+    """Main entry point for heuristic replay web interface."""
+    try:
+        print_log("🔍 Starting Heuristic Replay Web Interface (Enhanced)")
+        
+        # Parse and validate arguments
+        parser = create_heuristic_argument_parser()
+        args = parser.parse_args()
+        validate_heuristic_web_arguments(args)
+        
+        # Create application using factory pattern
+        app = create_heuristic_replay_app(
+            algorithm=args.algorithm,
+            port=args.port
+        )
+        
+        # Display application information
+        display_heuristic_application_info(app)
+        
+        # Launch application
+        app.run(host=args.host)
+        return 0
+        
+    except Exception as e:
+        print_log(f"❌ Error: {e}")
+        return 1
+```
+
+## 🎯 **Enhanced Naming Conventions**
+
+### **Domain-Indicated Naming**
+```python
+# ✅ CORRECT: Clear domain indication
+HumanWebGameApp      # Human + Web + Game + App
+LLMWebGameApp        # LLM + Web + Game + App  
+ReplayWebGameApp     # Replay + Web + Game + App
+HeuristicReplayApp   # Heuristic + Replay + App
+
+# ❌ AVOID: Generic naming
+WebApp               # Too generic
+GameApp              # Unclear domain
+App                  # No domain indication
+```
+
+### **Factory Function Naming**
+```python
+# ✅ CORRECT: Consistent factory naming
+create_human_web_game_app()
+create_llm_web_game_app()
+create_replay_web_game_app()
+create_heuristic_replay_app()
+
+# ❌ AVOID: Inconsistent naming
+make_human_app()
+build_llm_game()
+new_replay_interface()
+```
+
+## 🔍 **Debug Mode Integration**
+
+### **Server-Side Debug Mode**
+```python
+# config/web_constants.py - Single source of truth
+FLASK_DEBUG_MODE: Final[bool] = True
+
+# web/base_app.py - Server-side integration
+def run(self, host: str | None = None, debug: bool = FLASK_DEBUG_MODE) -> None:
+    """Run Flask application with centralized debug mode."""
+    resolved_host, resolved_port = self._get_server_host_port(host)
+    self.app.run(host=resolved_host, port=resolved_port, debug=debug)
+```
+
+### **Client-Side Debug Mode**
+```python
+# web/base_app.py - Template integration
+def render_template(self, template_name: str, **app_data) -> str:
+    """Render template with debug mode injection."""
+    return render_template(template_name, debug_mode=FLASK_DEBUG_MODE, **app_data)
+
+# templates/base.html - Client-side integration
+<script>
+    const DEBUG_MODE = {{ debug_mode|tojson }};
+    
+    if (DEBUG_MODE) {
+        console.log('[Debug] Application initialized');
+        console.log('[Debug] Game state:', gameState);
+    }
+</script>
+```
+
+## 📊 **Validation Architecture**
+
+### **Universal Validation Utilities**
+```python
+# utils/validation_utils.py
+def validate_human_web_arguments(args) -> None:
+    """Validate human web game arguments."""
+    if args.grid_size < 5 or args.grid_size > 50:
+        raise ValueError("Grid size must be between 5 and 50")
+    
+    if args.port is not None and (args.port < 1024 or args.port > 65535):
+        raise ValueError("Port must be between 1024 and 65535")
+
+def validate_llm_web_arguments(args) -> None:
+    """Validate LLM web game arguments."""
+    validate_human_web_arguments(args)  # Reuse validation logic
+    # Add LLM-specific validation if needed
+```
+
+## 🎓 **Educational Benefits**
+
+### **Learning Objectives**
+- **Design Patterns**: Comprehensive demonstration of OOP patterns
+- **Architecture**: Layered inheritance and separation of concerns
+- **Factory Patterns**: Universal creation patterns with canonical methods
+- **Configuration**: Single source of truth principles
+- **Debugging**: Integrated debug mode across full stack
+
+### **Extension Development**
+- **Template Reuse**: Copy structure for new extensions
+- **Consistent Patterns**: Same architecture across all tasks
+- **Minimal Effort**: Leverage existing infrastructure
+- **Guaranteed Compatibility**: All extensions interoperate seamlessly
+
+## 🔮 **Future Extensibility**
+
+### **Extension Points**
+```python
+# Easy extension for new tasks
+class SupervisedWebGameApp(SimpleFlaskApp):
+    """Supervised learning web game application."""
+    
+    def _setup_routes(self) -> None:
+        """Configure supervised learning routes."""
+        self.app.add_url_rule('/', 'index', self._supervised_index)
+        self.app.add_url_rule('/training', 'training', self._training_interface)
+        self.app.add_url_rule('/api/predict', 'predict', self._model_prediction)
+
+# Factory function for new extensions
+def create_supervised_web_game_app(grid_size: int = 10, port: int | None = None) -> SupervisedWebGameApp:
+    """Factory function for supervised learning web applications."""
+    validate_supervised_web_arguments(grid_size, port)
+    return SupervisedWebGameApp(grid_size=grid_size, port=port)
+```
+
+### **Integration Guidelines**
+1. **Inherit from SimpleFlaskApp**: Use existing infrastructure
+2. **Implement _setup_routes()**: Define task-specific routes
+3. **Create factory function**: Follow canonical factory pattern
+4. **Add validation**: Use universal validation utilities
+5. **Follow naming conventions**: Use domain-indicated naming
 
 ## 📋 **Implementation Checklist**
 
-### **Universal Requirements**
-- [ ] **Enhanced Naming**: All classes use {Domain}{Type}{Purpose}{Layer} pattern
-- [ ] **Layered Architecture**: Proper inheritance from BaseWebApp → SimpleFlaskApp → SpecificApp
-- [ ] **Universal Utilities**: Uses factory_utils, validation_utils, text_utils from SSOT
-- [ ] **Canonical Methods**: All factories use canonical create() method
-- [ ] **Educational Documentation**: Comprehensive docstrings with design patterns
+### **For All Web Applications**
+- [ ] **Inherit from SimpleFlaskApp**: Leverage existing infrastructure
+- [ ] **Use factory functions**: Follow canonical creation patterns
+- [ ] **Implement validation**: Use universal validation utilities
+- [ ] **Follow naming conventions**: Use domain-indicated naming
+- [ ] **Support debug mode**: Integrate with centralized debug configuration
+- [ ] **Use random ports**: Leverage dynamic port allocation
+- [ ] **Include simple logging**: Follow SUPREME_RULES for logging
 
-### **MVC Component Standards**
-- [ ] **Model Layer**: BaseWebModel with enhanced naming and universal utilities
-- [ ] **View Layer**: BaseWebViewRenderer with enhanced templates and context
-- [ ] **Controller Layer**: BaseWebController with enhanced API patterns
-- [ ] **Integration**: Proper integration between MVC components
-
-### **Factory Pattern Standards**
-- [ ] **Universal Factory**: WebAppFactory in ROOT/utils/factory_utils.py
-- [ ] **Game Factory**: GameWebAppFactory with enhanced naming
-- [ ] **Extension Factories**: Extension-specific factories with canonical create() method
-- [ ] **Convenience Functions**: Factory functions with enhanced naming
-
-### **Extension Template Standards**
-- [ ] **Script Templates**: Enhanced script patterns in scripts/ folder
-- [ ] **Application Classes**: Enhanced web app classes with layered inheritance
-- [ ] **Factory Integration**: Proper factory pattern usage with canonical methods
-- [ ] **Documentation**: Comprehensive documentation with extension guidance
-
-## 🔗 **Cross-References and Integration**
-
-### **Related Documents**
-- **`task0.md`**: Task-0 foundational architecture and base class patterns
-- **`flask.md`**: Flask integration patterns for extensions
-- **`network.md`**: Dynamic port allocation and networking architecture
-- **`kiss.md`**: KISS principles and canonical method naming
-- **`factory-design-pattern.md`**: Universal factory pattern implementation
-
-### **Implementation Files**
-- **`ROOT/utils/factory_utils.py`**: Universal factory utilities and patterns
-- **`ROOT/web/base_app.py`**: Layered web infrastructure foundation
-- **`ROOT/web/factories.py`**: Game-specific factory implementations
-- **`ROOT/scripts/{type}_web.py`**: Enhanced script templates
-
-### **Extension Integration**
-- **Extensions Web Structure**: `extensions/{type}-v0.03/web/` for extension web apps
-- **Extension Scripts**: `extensions/{type}-v0.03/scripts/` for extension web scripts
-- **Extension Factories**: Extension-specific factory implementations
-- **Extension Documentation**: Extension-specific MVC documentation and patterns
-
-## 🐍 **Debug Mode Centralization and Propagation**
-
-### **Single Source of Truth for Debug Mode**
-
-The project now centralizes Flask debug mode configuration in `config/web_constants.py`:
-
-```python
-# config/web_constants.py
-FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug behavior
-```
-
-- **Server-side**: All Flask apps (via `BaseWebApp.run`) use this value as the default for the `debug` argument.
-- **CLI/Web Scripts**: Debug mode is centralized and no longer requires command-line arguments.
-- **Frontend/JS**: The value is injected into all rendered templates as `debug_mode` and made available to JavaScript as `window.FLASK_DEBUG_MODE`.
-- **Templates**: You can use `{{ debug_mode }}` in Jinja2 templates to conditionally show debug information.
-
-### **Usage Patterns**
-- **Backend**: Controls Flask's debug mode, error reporting, and hot reloading.
-- **Frontend**: Enables/disables verbose JS logging, error overlays, and debug UI elements.
-- **API Responses**: Can include extra error details in debug mode.
-
-### **How it Works**
-- The `BaseWebApp` injects `debug_mode=FLASK_DEBUG_MODE` into every template context.
-- The base HTML template sets `window.FLASK_DEBUG_MODE` for all JS code.
-- All web scripts and factories use the centralized debug mode configuration.
-
-### **Benefits**
-- **SSOT**: One place to change debug mode for the entire stack.
-- **Consistency**: No more mismatched debug settings between backend and frontend.
-- **Extensibility**: Extensions and new web apps inherit this pattern automatically.
+### **For New Extensions**
+- [ ] **Copy template structure**: Use existing scripts as templates
+- [ ] **Create task-specific app class**: Inherit from SimpleFlaskApp
+- [ ] **Implement factory function**: Follow canonical factory pattern
+- [ ] **Add validation functions**: Use universal validation utilities
+- [ ] **Update documentation**: Document extension-specific features
+- [ ] **Test integration**: Ensure compatibility with existing infrastructure
 
 ---
 
-**This MVC Flask factory architecture provides a comprehensive, educational, and scalable foundation for web interfaces across all Snake Game AI tasks and extensions, following enhanced naming conventions and universal design patterns.**
+**The MVC Flask Factory architecture demonstrates the power of careful design patterns and layered inheritance. By providing a sophisticated yet simple foundation, it enables rapid extension development while maintaining consistency and educational value across all AI approaches.**
+
+## 🔗 **Cross-References**
+
+### **Related Documents**
+- **`final-decision-10.md`**: SUPREME_RULES for canonical patterns
+- **`flask.md`**: Flask integration patterns for extensions
+- **`network.md`**: Network architecture and port allocation
+- **`kiss.md`**: KISS principles and simple design
+
+### **Implementation Files**
+- **`web/base_app.py`**: Abstract base classes and layered architecture
+- **`web/applications.py`**: Task-specific Flask applications
+- **`web/factories.py`**: Universal factory functions
+- **`utils/factory_utils.py`**: Universal factory utilities
+- **`utils/network_utils.py`**: Dynamic port allocation
+- **`config/web_constants.py`**: Flask/JS/HTML/CSS constants
+- **`config/network_constants.py`**: Network/host/port constants
+
+### **Educational Resources**
+- **Design Patterns**: Template Method, Factory, Strategy, Facade patterns
+- **OOP Principles**: Inheritance, abstraction, encapsulation, polymorphism
+- **Architecture**: Layered design and separation of concerns
+- **Configuration**: Single source of truth and centralized management
+

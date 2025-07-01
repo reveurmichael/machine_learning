@@ -52,6 +52,7 @@ from web.factories import create_replay_web_game_app
 # Import universal utilities following SSOT principles
 from utils.validation_utils import validate_replay_web_arguments
 from utils.print_utils import create_logger
+from config.network_constants import DEFAULT_HOST
 
 # Enhanced logging with consistent naming
 print_log = create_logger("ReplayWebScript")
@@ -115,8 +116,8 @@ Replay Features:
     parser.add_argument(
         "--host",
         type=str,
-        default="127.0.0.1",
-        help="Host address for the web server (default: 127.0.0.1)"
+        default=DEFAULT_HOST,
+        help=f"Host address for the web server (default: {DEFAULT_HOST})"
     )
     
     parser.add_argument(

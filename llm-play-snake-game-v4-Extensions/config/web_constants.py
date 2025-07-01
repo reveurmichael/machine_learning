@@ -33,17 +33,5 @@ REPO_ROOT: Final[Path] = Path(__file__).parent.parent
 FLASK_STATIC_FOLDER: Final[str] = str(REPO_ROOT / "web" / "static")
 FLASK_TEMPLATE_FOLDER: Final[str] = str(REPO_ROOT / "web" / "templates")
 
-# Default web server settings
-DEFAULT_HOST: Final[str] = "127.0.0.1"
-DEFAULT_PORT_RANGE_START: Final[int] = 8000
-DEFAULT_PORT_RANGE_END: Final[int] = 20000
-
 # Debug mode configuration (SINGLE SOURCE OF TRUTH)
 FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug behavior
-
-# Debug mode constants for client-side JavaScript
-DEBUG_MODE_ENABLED: Final[bool] = FLASK_DEBUG_MODE
-DEBUG_MODE_DISABLED: Final[bool] = not FLASK_DEBUG_MODE
-
-# Debug mode string representation for template rendering
-DEBUG_MODE_STRING: Final[str] = str(FLASK_DEBUG_MODE).lower()  # "true" or "false"

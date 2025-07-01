@@ -53,6 +53,13 @@ def parse_arguments():
         help="Port number (default: auto-detect)"
     )
     
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address (default: 127.0.0.1)"
+    )
+    
     return parser.parse_args()
 
 
@@ -79,11 +86,11 @@ def main():
             port=port
         )
         
-        print(f"[ReplayWeb] Server starting on {app.url}")
+        print(f"[ReplayWeb] Server starting on http://{args.host}:{app.port}")
         print(f"[ReplayWeb] Replaying game {args.game} from {args.log_dir}")
         print("[ReplayWeb] Press Ctrl+C to stop")
         
-        app.run()
+        app.run(host=args.host)
         
     except KeyboardInterrupt:
         print("\n[ReplayWeb] Server stopped by user")

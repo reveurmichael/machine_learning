@@ -290,9 +290,9 @@ def create_llm_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
     return WebAppFactory.create("llm", grid_size=grid_size, port=port)
 
 
-def create_replay_web_app(session_path: str = "", game_number: int = 1, port: Optional[int] = None) -> Any:
+def create_replay_web_app(log_dir: str = "", game_number: int = 1, port: Optional[int] = None) -> Any:
     """Create replay web application using factory pattern."""
-    return WebAppFactory.create("replay", session_path=session_path, game_number=game_number, port=port)
+    return WebAppFactory.create("replay", log_dir=log_dir, game_number=game_number, port=port)
 
 
 def validate_factory_registry(factory: SimpleFactory, required_types: List[str]) -> bool:

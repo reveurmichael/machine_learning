@@ -44,15 +44,14 @@ def run_replay(log_folder: str, game_num: int):
 
 
 def run_web_replay(log_folder: str, game_num: int, host: str):
-    """Launch web-based replay using the new MVC architecture with dynamic port allocation."""
+    """Launch replay_web.py with dynamic port allocation and show URL."""
     try:
         port: int = ensure_free_port(random_free_port())
 
         cmd = [
             "python",
             os.path.join("scripts", "replay_web.py"),
-            "--log-dir",
-            log_folder,
+            log_folder,  # Positional argument - log directory
             "--game",
             str(game_num),
             "--host",

@@ -47,6 +47,13 @@ def parse_arguments():
         help="Port number (default: auto-detect)"
     )
     
+    parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host address (default: 127.0.0.1)"
+    )
+    
     return parser.parse_args()
 
 
@@ -65,11 +72,11 @@ def main():
         # Create and run app
         app = create_human_web_app(grid_size=grid_size, port=port)
         
-        print(f"[HumanWebPlay] Server starting on {app.url}")
+        print(f"[HumanWebPlay] Server starting on http://{args.host}:{app.port}")
         print("[HumanWebPlay] Use arrow keys to control snake")
         print("[HumanWebPlay] Press Ctrl+C to stop")
         
-        app.run()
+        app.run(host=args.host)
         
     except KeyboardInterrupt:
         print("\n[HumanWebPlay] Server stopped by user")

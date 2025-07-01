@@ -18,8 +18,6 @@ __all__ = [
     "ensure_free_port",
     "random_free_port",
     "get_server_host_port",
-    "get_ws_handler",
-    "get_http_host_port",
 ]
 
 
@@ -90,10 +88,6 @@ def random_free_port(min_port: int = DEFAULT_MIN_PORT, max_port: int = DEFAULT_M
     return find_free_port(min_port)
 
 
-# ---------------------
-# WebSocket helpers (used by scripts/human_play_web.py)
-# ---------------------
-
 def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | None = None) -> tuple[str, int]:
     """Return a tuple *(host, port)* suitable for :pyfunc:`websockets.serve`.
 
@@ -134,32 +128,4 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
             # original request so we don't re-test the same port.
             port = ensure_free_port(max(candidate + 1, 1_024))
 
-    return host, port
-
-
-def get_ws_handler(game_instance):  # noqa: ANN001 – generic game object
-    """Return the coroutine handler expected by :pyfunc:`websockets.serve`.
-
-    The returned **async** function internally forwards every connection to
-    ``game_instance.register()`` which must implement the coro‐signature
-    ``async def register(websocket): ...``.  This tiny indirection keeps the
-    public surface of *utils.network_utils* minimal while allowing each game
-    script to pass its own *game_instance* without writing the wrapper over
-    and over again.
-    """
-
-    async def _handler(websocket, _path):  # noqa: D401, ANN001 – websockets API
-        await game_instance.register(websocket)
-
-    return _handler
-
-
-# ---------------------------------------------------------------------------
-# Alias – HTTP & WebSocket share the same selection semantics so we simply
-# forward to *get_server_host_port* for naming clarity when used by Flask apps.
-# ---------------------------------------------------------------------------
-
-def get_http_host_port(default_host: str = "127.0.0.1", default_port: int | None = None) -> tuple[str, int]:
-    """HTTP-friendly wrapper around :pyfunc:`get_server_host_port`."""
-
-    return get_server_host_port(default_host, default_port) 
+    return host, port 

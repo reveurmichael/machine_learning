@@ -32,7 +32,7 @@ from typing import Dict, Any, Optional
 from flask import Flask, render_template, jsonify, request
 
 # Import utilities following SSOT principles
-from utils.network_utils import ensure_free_port, get_http_host_port
+from utils.network_utils import ensure_free_port, get_server_host_port
 from utils.print_utils import create_logger
 from config.web_constants import FLASK_DEBUG_MODE
 
@@ -79,7 +79,7 @@ class BaseWebApp:
         # Resolve host/port using centralised network utilities.  Environment
         # variables *WS_HOST* / *WS_PORT* are honoured here which makes the
         # behaviour consistent across Docker, CI pipelines and local runs.
-        resolved_host, resolved_port = get_http_host_port(
+        resolved_host, resolved_port = get_server_host_port(
             default_host=host or "127.0.0.1",
             default_port=port,
         )

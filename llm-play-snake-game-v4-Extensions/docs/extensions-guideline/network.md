@@ -2,8 +2,6 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines network architecture patterns for Task-0 and all extensions.
 
-> **See also:** `final-decision-10.md`, `mvc.md`, `flask.md`, `core.md`.
-
 ## 🎯 **Core Philosophy: Dynamic Port Allocation**
 
 The Snake Game AI project uses **dynamic random port allocation** for all Flask applications to ensure **conflict-free deployment**, **multi-instance support**, and **development flexibility**. This approach follows KISS principles while providing robust networking capabilities for Task-0 and all extensions (Task 1-5).
@@ -367,12 +365,6 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
 **Random port allocation ensures conflict-free, scalable, and development-friendly networking across all tasks and extensions while maintaining simplicity and educational value. The architecture explicitly avoids WebSocket complexity in favor of simple HTTP/Flask patterns.**
 
 ## 🔗 **Cross-References**
-
-### **Related Documents**
-- **`final-decision-10.md`**: SUPREME_RULES for canonical networking patterns
-- **`mvc.md`**: MVC architecture integration with Flask
-- **`flask.md`**: Flask integration patterns for extensions
-- **`core.md`**: Core architecture and networking integration
 
 ### **Implementation Files**
 - **`utils/network_utils.py`**: Core network utilities and port management

@@ -264,7 +264,6 @@ extensions/reinforcement-v0.03/
 Following final-decision-9.md, all v0.03 extensions use Object-Oriented Programming architecture.
 ## 🌐 **Web Infrastructure & Replay Systems**
 
-> **Important Reference**: All Flask integration follows `flask.md` - extensions must leverage existing ROOT/web infrastructure and follow MVC patterns.
 
 ### **Common Web Components**
 - **Streamlit frontend**: Interactive parameter control and visualization

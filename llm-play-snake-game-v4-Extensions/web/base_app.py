@@ -1,547 +1,166 @@
 """
-Layered Web Infrastructure for Snake Game AI Project
-===================================================
+Simple Flask Base Application for Snake Game AI
+===============================================
 
-This module provides the foundational web infrastructure used across all tasks and extensions.
-It implements a layered architecture with clear inheritance hierarchy and enhanced naming
-for maximum clarity and extensibility.
-
-Architecture Layers:
-1. BaseWebApp: Universal foundation for all Snake Game web applications
-2. SimpleFlaskApp: Task-0 focused application with common conveniences  
-3. BaseReplayApp: Universal base for all replay applications across the project
+Provides minimal, KISS-compliant Flask foundation for Task-0 and all extensions.
+Follows no-over-preparation principle: builds only what's needed now.
 
 Design Philosophy:
-- Universal Foundation: BaseWebApp works for Task-0 and all extensions
-- Clear Hierarchy: Each layer adds specific functionality while maintaining compatibility
-- Enhanced Naming: Clear, explicit naming that indicates purpose and scope
-- Educational Value: Demonstrates layered architecture and inheritance patterns
-- Extensibility: Easy for extensions to inherit and customize
+- KISS: Simple, straightforward Flask application base
+- DRY: Single base class, no complex inheritance hierarchy  
+- No Over-Preparation: Only implements features actually used
+- Extensible: Easy for Tasks 1-5 to inherit and extend
+
+Educational Value:
+- Shows simple, clean Flask application patterns
+- Demonstrates minimal viable web infrastructure
+- Provides extensible base without over-engineering
 
 Extension Pattern:
-Extensions inherit from these base classes to create specialized web applications:
-- extensions/heuristics/web/ → inherits from BaseReplayApp for pathfinding visualization
-- extensions/supervised/web/ → inherits from BaseReplayApp for training metrics
-- extensions/reinforcement/web/ → inherits from BaseReplayApp for reward visualization
-
-Reference: docs/extensions-guideline/final-decision-10.md for SUPREME_RULES
+Tasks 1-5 inherit from FlaskGameApp and override methods as needed.
 """
 
 import os
 from typing import Dict, Any, Optional
 from flask import Flask, render_template, jsonify, request
 
-# Import utilities following SSOT principles
-from utils.network_utils import ensure_free_port, get_server_host_port
-from utils.print_utils import create_logger
+from utils.network_utils import random_free_port, ensure_free_port
 from config.web_constants import FLASK_DEBUG_MODE
-from config.network_constants import DEFAULT_HOST
-
-# Create logger for this module
-print_log = create_logger("WebApp")
 
 
-class BaseWebApp:
+class FlaskGameApp:
     """
-    Universal base class for all Snake Game web applications.
+    Simple Flask application base for Snake Game AI.
     
-    This is the foundational class that provides core Flask infrastructure
-    used by both Task-0 applications and all extension web applications.
-    It focuses on universal functionality while remaining task-agnostic.
+    Provides minimal Flask infrastructure needed by Task-0 and extensions.
+    Uses KISS principle: simple, direct, no unnecessary abstraction.
     
-    Design Pattern: Template Method Pattern (Universal Web Foundation)
-    Purpose: Provides universal Flask infrastructure for entire project
-    Educational Value: Shows how to create truly universal base classes
-    Usage: Base class for all web applications across all tasks and extensions
-    
-    Key Features:
-    - Task-agnostic: No Task-0 specific functionality
-    - Universal: Works for all tasks and extensions
-    - Minimal: Only core Flask setup and routing
-    - Extensible: Easy to inherit and customize
-    - Educational: Clear base class design patterns
-    
-    Inheritance Hierarchy:
-    BaseWebApp → SimpleFlaskApp (Task-0)
-    BaseWebApp → ExtensionWebApp (extensions/common/web/)
-    BaseWebApp → BaseReplayApp (universal replay)
+    Design Pattern: Template Method Pattern (Simple Implementation)
+    Purpose: Minimal Flask foundation with extension points
+    Educational Value: Shows clean, simple Flask application design
     """
     
-    def __init__(self, name: str = "SnakeGameWebApp", host: str | None = None, port: Optional[int] = None):
-        """Initialize universal web application foundation.
+    def __init__(self, name: str = "Snake Game", port: Optional[int] = None):
+        """Initialize Flask application with automatic port allocation."""
+        self.name = name
+        self.port = port or random_free_port()
         
-        Args:
-            name: Application name for display and logging
-            host: Host to bind to (None for auto-detection)
-            port: Port number (None for auto-detection)
-            
-        Educational Value: Shows universal initialization patterns
-        """
-        # Resolve host/port using centralised network utilities.  Environment
-        # variables *HOST* / *PORT* are honoured here which makes the
-        # behaviour consistent across Docker, CI pipelines and local runs.
-        resolved_host, resolved_port = self._get_server_host_port(host, port)
-
-        # Guarantee the chosen port is free *right now* – if not, fall back to
-        # the next available one so we never crash with "Address already in use".
-        resolved_port = ensure_free_port(resolved_port)
-
-        self.name: str = name
-        self.host: str = resolved_host
-        self.port: int = resolved_port
-        
-        # Initialize Flask app with universal settings
+        # Simple Flask setup
         self.app = Flask(__name__)
-        
-        # Configure the application (template method)
-        self.configure_app()
-        
-        # Set up universal routes (template method)
-        self.setup_routes()
-        
-        print_log(f"BaseWebApp initialized: {self.name} on http://{self.host}:{self.port}")
-    
-    def configure_app(self) -> None:
-        """Configure Flask application with universal settings.
-        
-        Template Method: Subclasses can override for additional configuration
-        Educational Value: Shows universal Flask configuration patterns
-        """
         self.app.config['SECRET_KEY'] = os.urandom(24)
         self.app.config['TEMPLATES_AUTO_RELOAD'] = True
-        print_log("Universal Flask configuration applied")
+        
+        # Setup routes
+        self.setup_routes()
+        
+        print(f"[{self.name}] Initialized on port {self.port}")
     
     def setup_routes(self) -> None:
-        """Set up universal Flask routes used by all applications.
-        
-        Template Method: Common routes that all applications need
-        Educational Value: Shows universal routing patterns for web applications
-        """
+        """Setup basic Flask routes. Override in subclasses for specific functionality."""
         @self.app.route('/')
         def index():
-            """Universal main page route."""
-            template_name = self.get_template_name()
-            app_data = self.get_app_data()
-            return render_template(template_name, debug_mode=FLASK_DEBUG_MODE, **app_data)
+            """Main page route."""
+            return render_template(
+                self.get_template_name(), 
+                debug_mode=FLASK_DEBUG_MODE,
+                **self.get_template_data()
+            )
         
         @self.app.route('/api/health')
         def health():
-            """Universal health check endpoint."""
-            return jsonify({
-                'status': 'healthy', 
-                'app': self.name,
-                'type': 'BaseWebApp'
-            })
+            """Health check endpoint."""
+            return jsonify({'status': 'healthy', 'app': self.name})
         
         @self.app.route('/favicon.ico')
         def favicon():
-            """Universal favicon route."""
+            """Favicon route."""
             return self.app.send_static_file('favicon.ico')
-        
-        print_log("Universal routes configured")
-    
-    # Template methods that subclasses should implement
-    
-    def get_app_data(self) -> Dict[str, Any]:
-        """Get application data for template rendering.
-        
-        Template Method: Subclasses must implement this
-        
-        Returns:
-            Dictionary with application data for template rendering
-            
-        Educational Value: Shows template method pattern implementation
-        """
-        return {
-            'name': self.name, 
-            'status': 'ready',
-            'type': 'universal'
-        }
     
     def get_template_name(self) -> str:
-        """Get template name for main page.
-        
-        Template Method: Subclasses can override for custom templates
-        
-        Returns:
-            Template filename
-            
-        Educational Value: Shows template selection patterns
-        """
-        return 'base.html'  # Universal base template
+        """Get template name. Override in subclasses."""
+        return 'base.html'
     
-    def run(
-        self,
-        host: str | None = None,
-        port: Optional[int] = None,
-        debug: bool = FLASK_DEBUG_MODE,
-    ):
-        """Run the Flask application.
+    def get_template_data(self) -> Dict[str, Any]:
+        """Get template data. Override in subclasses."""
+        return {'name': self.name, 'status': 'ready'}
+    
+    def run(self, host: str = "127.0.0.1", port: Optional[int] = None, debug: bool = FLASK_DEBUG_MODE):
+        """Run Flask application."""
+        actual_port = ensure_free_port(port or self.port)
+        self.port = actual_port
         
-        Args:
-            host: Host to bind to
-            port: Port to bind to (uses self.port if None)
-            debug: Enable debug mode
-            
-        Educational Value: Shows universal Flask application execution
-        """
-        actual_host = host or self.host
-        desired_port = port or self.port
-
-        # Final safety check – make sure *desired_port* is still free.  If not
-        # we transparently fall back to the next available one so the user
-        # never has to guess what went wrong.
-        final_port = ensure_free_port(desired_port)
-
-        # Update internal state for consistency.
-        self.host = actual_host
-        self.port = final_port
-
-        print_log(f"Starting {self.name} on http://{self.host}:{self.port}")
-
-        self.app.run(host=self.host, port=self.port, debug=debug)
-
-    # ------------------------------------------------------------------
-    # Convenience helpers
-    # ------------------------------------------------------------------
-
+        print(f"[{self.name}] Starting on http://{host}:{actual_port}")
+        self.app.run(host=host, port=actual_port, debug=debug)
+    
     @property
-    def url(self) -> str:  # noqa: D401
-        """Return *http://host:port* for this Flask application."""
-
-        return f"http://{self.host}:{self.port}"
-
-    def _get_server_host_port(self, host: str | None = None, port: Optional[int] = None) -> tuple[str, int]:
-        """Get host and port for server startup with conflict resolution."""
-        return get_server_host_port(
-            default_host=host or DEFAULT_HOST,
-            default_port=port
-        )
+    def url(self) -> str:
+        """Get application URL."""
+        return f"http://127.0.0.1:{self.port}"
 
 
-class SimpleFlaskApp(BaseWebApp):
+class GameFlaskApp(FlaskGameApp):
     """
-    Simple Flask application for Task-0 applications.
+    Flask application with game-specific routes.
     
-    Extends BaseWebApp with Task-0 specific conveniences while maintaining
-    compatibility with extension requirements. This class adds game-specific
-    functionality that Task-0 applications commonly need.
-    
-    Design Pattern: Template Method Pattern (Task-0 Specific Layer)
-    Purpose: Provides Task-0 conveniences while maintaining universal compatibility
-    Educational Value: Shows how to add task-specific functionality to universal base
-    Usage: Used by Task-0 web applications (human, LLM, basic replay)
-    
-    Key Features:
-    - Game-specific: Adds common game functionality
-    - API endpoints: Standard game control and state endpoints
-    - Backwards compatible: Maintains compatibility with existing Task-0 code
-    - Educational: Shows layered architecture implementation
-    
-    Inheritance: BaseWebApp → SimpleFlaskApp → Specific Game Apps
+    Adds game control API routes needed by Task-0.
+    Extensions can inherit and override methods as needed.
     """
     
-    def __init__(self, name: str = "SnakeGame", port: Optional[int] = None):
-        """Initialize simple Flask application for games.
-        
-        Args:
-            name: Application name for display
-            port: Port number (None for auto-detection)
-            
-        Educational Value: Shows task-specific initialization over universal base
-        """
-        super().__init__(name, None, port)
-        print_log(f"SimpleFlaskApp initialized: {name}")
-    
-    def setup_routes(self) -> None:
-        """Set up routes including universal routes plus game-specific routes.
-        
-        Educational Value: Shows how to extend universal routes with specific functionality
-        """
-        # Set up universal routes first
-        super().setup_routes()
-        
-        # Add game-specific routes
+    def __init__(self, name: str = "Snake Game", port: Optional[int] = None):
+        """Initialize game Flask application."""
+        super().__init__(name, port)
         self.setup_game_routes()
-        
-        print_log("Game-specific routes added to universal routes")
     
     def setup_game_routes(self) -> None:
-        """Set up game-specific Flask routes.
-        
-        Template Method: Game-specific routes that Task-0 applications use
-        Educational Value: Shows game-specific routing patterns
-        """
+        """Setup game-specific API routes."""
         @self.app.route('/api/state')
         def get_state():
-            """API endpoint for game state."""
-            state = self.get_api_state()
-            return jsonify(state)
+            """Get current game state."""
+            return jsonify(self.get_game_state())
         
         @self.app.route('/api/move', methods=['POST'])
         def make_move():
-            """API endpoint for making moves."""
-            try:
-                data = request.get_json() or {}
-                # Add move action for backward compatibility
-                if 'direction' in data and 'action' not in data:
-                    data['action'] = 'move'
-                response = self.handle_control(data)
-                return jsonify(response)
-            except Exception as e:
-                print_log(f"Error in move endpoint: {e}")
-                return jsonify({'status': 'error', 'message': str(e)}), 500
+            """Handle game moves."""
+            data = request.get_json() or {}
+            result = self.handle_move(data)
+            return jsonify(result)
         
         @self.app.route('/api/control', methods=['POST'])
         def control():
-            """API endpoint for game controls."""
-            try:
-                data = request.get_json() or {}
-                response = self.handle_control(data)
-                return jsonify(response)
-            except Exception as e:
-                print_log(f"Error in control endpoint: {e}")
-                return jsonify({'status': 'error', 'message': str(e)}), 500
+            """Handle game controls."""
+            data = request.get_json() or {}
+            result = self.handle_control(data)
+            return jsonify(result)
         
         @self.app.route('/api/reset', methods=['POST'])
         def reset():
-            """API endpoint for game reset."""
-            try:
-                response = self.handle_control({'action': 'reset'})
-                return jsonify(response)
-            except Exception as e:
-                print_log(f"Error in reset endpoint: {e}")
-                return jsonify({'status': 'error', 'message': str(e)}), 500
-        
-        print_log("Game-specific API routes configured")
+            """Reset game."""
+            result = self.handle_reset()
+            return jsonify(result)
     
-    # Template methods that game applications should implement
+    def get_game_state(self) -> Dict[str, Any]:
+        """Get game state. Override in subclasses."""
+        return {'status': 'no game state'}
     
-    def get_api_state(self) -> Dict[str, Any]:
-        """Get current game state for API.
-        
-        Template Method: Game applications must implement this
-        
-        Returns:
-            Dictionary with current game state
-            
-        Educational Value: Shows game state API patterns
-        """
-        return {'status': 'ready', 'type': 'simple_flask_app'}
+    def handle_move(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle move. Override in subclasses."""
+        return {'status': 'not implemented'}
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle game control commands.
-        
-        Template Method: Game applications must implement this
-        
-        Args:
-            data: Control data from client
-            
-        Returns:
-            Response dictionary
-            
-        Educational Value: Shows game control handling patterns
-        """
-        return {'status': 'not_implemented', 'type': 'simple_flask_app'}
+        """Handle control. Override in subclasses."""
+        return {'status': 'not implemented'}
+    
+    def handle_reset(self) -> Dict[str, Any]:
+        """Handle reset. Override in subclasses."""
+        return {'status': 'not implemented'}
 
 
-class BaseReplayApp(BaseWebApp):
-    """
-    Universal base class for all replay applications across the project.
-    
-    Provides common replay functionality that can be extended by:
-    - Task-0 basic replay (ROOT/web/replay_app.py)
-    - Heuristic replay with pathfinding visualization (extensions/heuristics/web/)
-    - ML replay with training metrics (extensions/supervised/web/)
-    - RL replay with reward visualization (extensions/reinforcement/web/)
-    
-    Design Pattern: Template Method Pattern (Universal Replay Foundation)
-    Purpose: Provides universal replay infrastructure with specialization points
-    Educational Value: Shows how to create extensible replay system architecture
-    Usage: Base class for all replay applications across all tasks and extensions
-    
-    Key Features:
-    - Universal Replay: Core replay functionality for all tasks
-    - Specialization Points: Clear extension points for task-specific features
-    - Data Management: Consistent replay data handling patterns
-    - API Consistency: Standard replay API across all extensions
-    
-    Inheritance: BaseWebApp → BaseReplayApp → Specific Replay Apps
-    """
-    
-    def __init__(self, name: str = "SnakeGameReplay", log_dir: str = "", **config):
-        """Initialize universal replay application.
-        
-        Args:
-            name: Application name for display
-            log_dir: Directory containing game logs
-            **config: Additional configuration options
-            
-        Educational Value: Shows universal replay initialization patterns
-        """
-        super().__init__(name, config.get('host'), config.get('port'))
-        self.log_dir = log_dir
-        self.config = config
-        self.replay_engine = None
-        
-        # Initialize replay infrastructure (template method)
-        self.setup_replay_infrastructure()
-        
-        print_log(f"BaseReplayApp initialized: {name} with log_dir: {log_dir}")
-    
-    def setup_routes(self) -> None:
-        """Set up routes including universal routes plus replay-specific routes.
-        
-        Educational Value: Shows how to extend universal routes with replay functionality
-        """
-        # Set up universal routes first
-        super().setup_routes()
-        
-        # Add replay-specific routes
-        self.setup_replay_routes()
-        
-        print_log("Replay-specific routes added to universal routes")
-    
-    def setup_replay_routes(self) -> None:
-        """Set up replay-specific Flask routes.
-        
-        Template Method: Universal replay routes that all replay apps use
-        Educational Value: Shows universal replay routing patterns
-        """
-        @self.app.route('/api/replay/state')
-        def get_replay_state():
-            """API endpoint for replay state."""
-            state = self.get_replay_state()
-            return jsonify(state)
-        
-        @self.app.route('/api/replay/control', methods=['POST'])
-        def replay_control():
-            """API endpoint for replay controls."""
-            try:
-                data = request.get_json() or {}
-                response = self.handle_replay_control(data)
-                return jsonify(response)
-            except Exception as e:
-                print_log(f"Error in replay control endpoint: {e}")
-                return jsonify({'status': 'error', 'message': str(e)}), 500
-        
-        @self.app.route('/api/replay/info')
-        def replay_info():
-            """API endpoint for replay information."""
-            info = self.get_replay_info()
-            return jsonify(info)
-        
-        print_log("Universal replay API routes configured")
-    
-    def setup_replay_infrastructure(self) -> None:
-        """Setup common replay infrastructure.
-        
-        Template Method: Subclasses can override for specialized replay setup
-        Educational Value: Shows universal replay infrastructure patterns
-        """
-        print_log("Universal replay infrastructure initialized")
-    
-    # Template methods that replay applications should implement
-    
-    def get_replay_state(self) -> Dict[str, Any]:
-        """Get current replay state.
-        
-        Template Method: Replay applications must implement this
-        
-        Returns:
-            Dictionary with current replay state
-            
-        Educational Value: Shows replay state management patterns
-        """
-        return {
-            'log_dir': self.log_dir,
-            'status': 'ready',
-            'type': 'base_replay_app'
-        }
-    
-    def handle_replay_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle replay control commands.
-        
-        Template Method: Replay applications must implement this
-        
-        Args:
-            data: Control data from client
-            
-        Returns:
-            Response dictionary
-            
-        Educational Value: Shows replay control handling patterns
-        """
-        return {
-            'status': 'not_implemented',
-            'type': 'base_replay_app'
-        }
-    
-    def get_replay_info(self) -> Dict[str, Any]:
-        """Get replay information and metadata.
-        
-        Template Method: Replay applications can override for additional info
-        
-        Returns:
-            Dictionary with replay information
-            
-        Educational Value: Shows replay metadata patterns
-        """
-        return {
-            'log_dir': self.log_dir,
-            'config': self.config,
-            'type': 'base_replay_app'
-        }
+# Simple factory functions (no complex factory classes)
+def create_flask_app(name: str = "Snake Game", port: Optional[int] = None) -> FlaskGameApp:
+    """Create basic Flask application."""
+    return FlaskGameApp(name, port)
 
 
-# =============================================================================
-# Convenience Functions for Enhanced Developer Experience
-# =============================================================================
-
-def create_base_web_app(name: str = "SnakeGameWebApp", **config) -> BaseWebApp:
-    """Create a universal base web application.
-    
-    Args:
-        name: Application name
-        **config: Configuration options
-        
-    Returns:
-        BaseWebApp instance
-        
-    Educational Value: Shows factory function patterns for base classes
-    """
-    print_log(f"Creating base web app: {name}")
-    return BaseWebApp(name, **config)
-
-
-def create_simple_flask_app(name: str = "SnakeGame", **config) -> SimpleFlaskApp:
-    """Create a simple Flask application for Task-0.
-    
-    Args:
-        name: Application name
-        **config: Configuration options
-        
-    Returns:
-        SimpleFlaskApp instance
-        
-    Educational Value: Shows factory function patterns for Task-0 apps
-    """
-    print_log(f"Creating simple Flask app: {name}")
-    return SimpleFlaskApp(name, **config)
-
-
-def create_base_replay_app(name: str = "SnakeGameReplay", log_dir: str = "", **config) -> BaseReplayApp:
-    """Create a universal base replay application.
-    
-    Args:
-        name: Application name
-        log_dir: Directory containing game logs
-        **config: Configuration options
-        
-    Returns:
-        BaseReplayApp instance
-        
-    Educational Value: Shows factory function patterns for replay apps
-    """
-    print_log(f"Creating base replay app: {name} with log_dir: {log_dir}")
-    return BaseReplayApp(name, log_dir, **config) 
+def create_game_app(name: str = "Snake Game", port: Optional[int] = None) -> GameFlaskApp:
+    """Create game Flask application."""
+    return GameFlaskApp(name, port) 

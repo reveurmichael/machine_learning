@@ -14,8 +14,8 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 * **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
 * **STEP B:** Approach this as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits "particles" (insights, corrections, stylistic adjustments) that collide with other atoms — not necessarily within the same topic domain — propagating change throughout the system. Each collision refines and harmonizes both local and global structures.
 * **STEP C:** Treat this as an **exhaustive, step-by-step, iterative process** — update, revisit, propagate, and repeat — until the entire documentation and codebase achieve deep, unwavering internal consistency, clarity, and architectural integrity.
-* **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files (e.g., centralize all Flask-related content in `flask.md`).
-* **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every markdown file must be connected to at least one other markdown file, forming a coherent and navigable knowledge graph. Use explicit inline links (e.g., `[See flask.md](flask.md)`) rather than vague or implied mentions. Ensure that each link is fully justified, logically necessary, and truly reinforces conceptual interconnections.
+* **STEP D:** Actively reduce redundancy. Consolidate overlapping content and relocate shared explanations into their designated files.
+* **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every markdown file must be connected to at least one other markdown file, forming a coherent and navigable knowledge graph. Use explicit inline links rather than vague or implied mentions. Ensure that each link is fully justified, logically necessary, and truly reinforces conceptual interconnections.
 * **STEP F:** Refine incrementally. Do not attempt to fix all files in a single pass. Start with core architectural documents, then expand outward. Each refinement cycle should operate like a **diffusion or chain reaction**, gradually building consistency and cohesion across all layers.
 * **STEP G:** After each major round of changes, conduct a **coherence sweep** from the perspective of a reader or newcomer. Read files end-to-end, checking for flow, terminology consistency, cross-link completeness, and conceptual clarity. Address clear issues immediately and flag deeper concerns for future iterations.
 
@@ -49,7 +49,6 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `elegance.md` (Code quality standards)
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
 - `final-decision-0.md` through `final-decision-10.md` (Complete Final Decision Series)
-- `flask.md`
 - `models.md` (Model management standards)
 - `naming-conventions.md` (Naming standards)
 - `project-structure-plan.md` (Master architectural blueprint)
@@ -79,7 +78,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `extension-move-guidelines.md`
 * `forbidden-import-patterns.md`
 * `forward-looking-architecture.md`
-* `flask.md`
 * `fine-tuning.md`
 * `generative-models.md`
 * `gymnasium.md`

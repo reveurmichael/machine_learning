@@ -77,7 +77,8 @@ class LLMWebGameApp(SimpleFlaskApp):
         Educational Value: Shows LLM component initialization patterns with enhanced naming
         Extension Pattern: Extensions can copy this setup for their LLM apps
         """
-        super().__init__("LLM Snake Web Game")
+        port = config.pop('port', None)
+        super().__init__("LLM Snake Web Game", port=port)
         self.provider = provider
         self.model = model
         self.grid_size = grid_size

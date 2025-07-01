@@ -77,8 +77,10 @@ class ReplayWebGameApp(BaseReplayApp):
         Educational Value: Shows proper validation and error handling with enhanced naming
         Extension Pattern: Extensions can copy this validation pattern
         """
-        super().__init__("Snake Game Web Replay", log_dir, **config)
+        port = config.pop('port', None)
+        super().__init__("SnakeGameReplay", log_dir=log_dir, port=port)
         self.game_number = game_number
+        self.config = config
         
         # Validate log directory exists
         if not os.path.isdir(log_dir):

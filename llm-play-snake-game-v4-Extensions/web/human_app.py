@@ -71,7 +71,9 @@ class HumanWebGameApp(SimpleFlaskApp):
         Educational Value: Shows proper dependency injection and setup with enhanced naming
         Extension Pattern: Extensions can copy this initialization pattern
         """
-        super().__init__("Human Snake Web Game")
+        # Extract port if provided
+        port = config.pop('port', None)
+        super().__init__("Human Snake Web Game", port=port)
         self.grid_size = grid_size
         self.config = config
         

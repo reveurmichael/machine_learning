@@ -75,7 +75,7 @@ Enhanced Examples:
   python scripts/replay_web.py logs/session_20250101          # Basic enhanced replay
   python scripts/replay_web.py logs/session_20250101 --game 5 # Start from game 5 with validation
   python scripts/replay_web.py logs/session_20250101 --port 8080 # Specific port with conflict detection
-  python scripts/replay_web.py logs/session_20250101 --debug  # Debug mode with enhanced logging
+  python scripts/replay_web.py logs/session_20250101          # Basic enhanced replay
 
 Extension Template Pattern:
   Future extensions should copy this replay script structure:
@@ -126,11 +126,7 @@ Replay Features:
         help="Port number with conflict detection (default: auto-detect free port)"
     )
     
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable Flask debug mode with enhanced logging"
-    )
+
     
     return parser
 
@@ -235,7 +231,7 @@ def main() -> int:
         
         # Start the enhanced replay web application
         print_log("✅ Starting enhanced replay web server...")
-        app.run(host=args.host, port=app.port, debug=args.debug)
+        app.run(host=args.host, port=app.port)
         
         return 0
         

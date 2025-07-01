@@ -76,7 +76,7 @@ Enhanced Examples:
   python scripts/human_play_web.py                      # Default enhanced settings
   python scripts/human_play_web.py --grid-size 15       # Larger grid with validation
   python scripts/human_play_web.py --port 8080          # Specific port with conflict detection
-  python scripts/human_play_web.py --debug              # Debug mode with enhanced logging
+  python scripts/human_play_web.py                      # Default enhanced settings
 
 Extension Template Pattern:
   Future extensions should copy this script structure:
@@ -115,11 +115,7 @@ Web Architecture Benefits:
         help="Port number with conflict detection (default: auto-detect free port)"
     )
     
-    parser.add_argument(
-        "--debug", 
-        action="store_true",
-        help="Enable Flask debug mode with enhanced logging"
-    )
+
     
     return parser
 
@@ -219,7 +215,7 @@ def main() -> int:
         
         # Start the enhanced web application
         print_log("✅ Starting enhanced web server...")
-        app.run(host=args.host, port=app.port, debug=args.debug)
+        app.run(host=args.host, port=app.port)
         
         return 0
         

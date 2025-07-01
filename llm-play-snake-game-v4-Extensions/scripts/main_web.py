@@ -77,7 +77,7 @@ Enhanced Examples:
   python scripts/main_web.py                             # Default enhanced LLM settings
   python scripts/main_web.py --provider hunyuan         # Specific LLM provider with validation
   python scripts/main_web.py --model gpt-4 --port 8080  # Custom model and port with conflict detection
-  python scripts/main_web.py --grid-size 15 --debug     # Larger grid with debug mode
+  python scripts/main_web.py --grid-size 15             # Larger grid
 
 Extension Template Pattern:
   Future extensions should copy this LLM script structure:
@@ -137,11 +137,7 @@ LLM Providers:
         help="Port number with conflict detection (default: auto-detect free port)"
     )
     
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable Flask debug mode with enhanced logging"
-    )
+
     
     return parser
 
@@ -248,7 +244,7 @@ def main() -> int:
         
         # Start the enhanced LLM web application
         print_log("✅ Starting enhanced LLM web server...")
-        app.run(host=args.host, port=app.port, debug=args.debug)
+        app.run(host=args.host, port=app.port)
         
         return 0
         

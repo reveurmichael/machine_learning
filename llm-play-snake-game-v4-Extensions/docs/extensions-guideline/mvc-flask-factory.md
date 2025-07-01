@@ -243,7 +243,7 @@ Enhanced Examples:
   python scripts/web_interface.py                    # Default {extension} settings
   python scripts/web_interface.py --algorithm BFS    # Specific algorithm
   python scripts/web_interface.py --grid-size 15     # Larger grid with validation
-  python scripts/web_interface.py --debug            # Debug mode with enhanced logging
+  python scripts/web_interface.py                    # Default {extension} settings
 
 Extension Architecture:
   - Layered inheritance: BaseWebApp → SimpleFlaskApp → {Extension}WebGameApp
@@ -262,8 +262,7 @@ Extension Architecture:
                        help="Host address for the web server (default: 127.0.0.1)")
     parser.add_argument("--port", type=int, default=None,
                        help="Port number with conflict detection (default: auto-detect)")
-    parser.add_argument("--debug", action="store_true",
-                       help="Enable Flask debug mode with enhanced logging")
+
     
     return parser
 
@@ -297,7 +296,7 @@ def main() -> int:
         print_log(f"   URL: http://{args.host}:{app.port}")
         
         # Start enhanced web application
-        app.run(host=args.host, port=app.port, debug=args.debug)
+        app.run(host=args.host, port=app.port)
         return 0
         
     except Exception as e:
@@ -369,7 +368,7 @@ FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug be
 ```
 
 - **Server-side**: All Flask apps (via `BaseWebApp.run`) use this value as the default for the `debug` argument.
-- **CLI/Web Scripts**: All argument parsers default their `--debug` flag to this value, ensuring consistent behavior.
+- **CLI/Web Scripts**: Debug mode is centralized and no longer requires command-line arguments.
 - **Frontend/JS**: The value is injected into all rendered templates as `debug_mode` and made available to JavaScript as `window.FLASK_DEBUG_MODE`.
 - **Templates**: You can use `{{ debug_mode }}` in Jinja2 templates to conditionally show debug information.
 
@@ -381,7 +380,7 @@ FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug be
 ### **How it Works**
 - The `BaseWebApp` injects `debug_mode=FLASK_DEBUG_MODE` into every template context.
 - The base HTML template sets `window.FLASK_DEBUG_MODE` for all JS code.
-- All web scripts and factories use the same constant for their default debug state.
+- All web scripts and factories use the centralized debug mode configuration.
 
 ### **Benefits**
 - **SSOT**: One place to change debug mode for the entire stack.

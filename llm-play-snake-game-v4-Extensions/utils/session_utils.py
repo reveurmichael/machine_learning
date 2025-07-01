@@ -216,18 +216,19 @@ def run_human_play():
 def run_human_play_web(host: str, port: int):
     """Launch web human play mode using the new MVC architecture."""
     try:
-        port = ensure_free_port(port)
+        # Don't pass port - let the script use dynamic allocation
         cmd = [
             "python",
             os.path.join("scripts", "human_play_web.py"),
             "--host",
             host,
-            "--port",
-            str(port),
+            # Remove --port to use dynamic allocation
         ]
         subprocess.Popen(cmd)
-        url = f"http://{host if host != '0.0.0.0' else 'localhost'}:{port}"
-        st.info(f"Web Human Play started – open {url} in your browser.")
+        # Note: The actual port will be dynamically allocated by the script
+        # and shown in the script output. User should check the terminal output
+        # for the actual URL.
+        st.info(f"Web Human Play started – check terminal output for the actual URL (dynamic port allocation).")
     except Exception as exc:
         st.error(f"Error starting web human play: {exc}")
 

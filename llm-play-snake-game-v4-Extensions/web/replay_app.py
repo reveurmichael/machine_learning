@@ -21,6 +21,7 @@ from web.base_app import GameFlaskApp
 from config.game_constants import PAUSE_BETWEEN_MOVES_SECONDS
 from replay.replay_engine import ReplayEngine
 from utils.web_utils import to_list, build_color_map, translate_end_reason
+from core.game_file_manager import FileManager
 
 
 class ReplayWebApp(GameFlaskApp):
@@ -51,6 +52,9 @@ class ReplayWebApp(GameFlaskApp):
         self.steps: list[str] = []
         self.current_step = 0
         
+        # Initialize file manager for accessing game data
+        self.file_manager = FileManager()
+        
         # --- Auto-play (background loop) state --------------------------------
         # Whether the background replay loop should advance the step index.
         # Starts in a paused state – the front-end can switch to "play".
@@ -65,6 +69,30 @@ class ReplayWebApp(GameFlaskApp):
         threading.Thread(target=self._replay_loop, daemon=True).start()
         
         print(f"[ReplayWebApp] Loaded game {game_number} from {log_dir}")
+    
+    def _get_max_score(self) -> int:
+        """Get maximum score from actual game data using existing FileManager utilities.
+        
+        This method follows DRY principles by reusing existing FileManager methods
+        to load game data and calculate the maximum score from the actual game_N.json files.
+        
+        Returns:
+            Maximum score achieved across all games in the log directory.
+        """
+        try:
+            # Use existing FileManager method to load all game data
+            games_data = self.file_manager.load_game_data(self.log_dir)
+            
+            if not games_data:
+                return 0
+            
+            # Calculate max score from actual game data
+            max_score = max(game_data.get('score', 0) for game_data in games_data.values())
+            return max_score
+            
+        except Exception as e:
+            print(f"[ReplayWebApp] Error calculating max score: {e}")
+            return 0
     
     def load_replay_data(self) -> bool:
         """Load replay data from log directory."""
@@ -144,11 +172,15 @@ class ReplayWebApp(GameFlaskApp):
         raw_reason = self.replay_data.get('game_end_reason') or self.replay_data.get('end_reason')
         end_reason = translate_end_reason(raw_reason) if raw_reason else None
         
+        # Get max score from actual game data using existing FileManager utilities
+        max_score = self._get_max_score()
+        
         return {
             'mode': 'replay',
             'log_dir': self.log_dir,
             'game_number': self.game_number,
             'total_games': self.replay_engine.total_games,
+            'max_score': max_score,
             'current_step': self.current_step,
             'total_steps': len(steps),
             'move_index': self.current_step,

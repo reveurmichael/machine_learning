@@ -161,9 +161,13 @@ class ReplayView {
                 this.elements.gameNumberElement.textContent = state.game_number;
             }
         }
-        // Score
+        // Score - display in "X/Y" format if max_score is available
         if (this.elements.scoreElement) {
-            this.elements.scoreElement.textContent = state.score;
+            if (state.max_score && state.max_score > 0) {
+                this.elements.scoreElement.textContent = `${state.score}/${state.max_score}`;
+            } else {
+                this.elements.scoreElement.textContent = state.score;
+            }
         }
         // End Reason
         if (this.elements.endReasonElement && this.elements.endReasonContainer) {

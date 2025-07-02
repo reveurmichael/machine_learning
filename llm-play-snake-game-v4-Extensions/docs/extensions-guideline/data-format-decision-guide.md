@@ -191,15 +191,6 @@ ga_agent.evolve(csv_population)  # Loses genetic structure
 ga_agent.evolve(raw_population)  # Preserves genetic representation
 ```
 
-### **Using Deprecated Versions**
-```python
-# ❌ WRONG: Using heuristics-v0.01 or v0.02 when v0.03/v0.04 are available
-dataset_path = "heuristics_v0.01_20240101_120000"  # Deprecated
-
-# ✅ CORRECT: Using heuristics-v0.03 or heuristics-v0.04 (both widely used)
-dataset_path = "heuristics_v0.03_20240101_120000"  # Widely used
-dataset_path = "heuristics_v0.04_20240101_120000"  # Widely used
-```
 
 ## 🔍 **Validation Requirements**
 

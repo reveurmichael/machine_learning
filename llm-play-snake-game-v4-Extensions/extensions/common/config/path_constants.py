@@ -41,6 +41,10 @@ DATASET_PATH_TEMPLATE: str = "{root_dir}/{extensions_dir}/{datasets_dir}/grid-si
 """Template for dataset directory paths.
 Example: logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000"""
 
+ALGORITHM_DATASET_PATH_TEMPLATE: str = "{root_dir}/{extensions_dir}/{datasets_dir}/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}"
+"""Template for algorithm-specific dataset directory paths.
+Example: logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/bfs"""
+
 MODEL_PATH_TEMPLATE: str = "{root_dir}/{extensions_dir}/{models_dir}/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}"
 """Template for model directory paths.
 Example: logs/extensions/models/grid-size-10/supervised_v0.02_20240101_120000"""
@@ -93,7 +97,7 @@ TIMESTAMP_PATTERN: str = r"\d{8}_\d{6}"
 
 DATASET_FILE_PATTERNS: Dict[str, str] = {
     "csv": "{algorithm}_dataset.csv",
-    "jsonl": "{algorithm}_reasoning.jsonl", 
+    "jsonl": "{algorithm}_dataset.jsonl", 
     "npz_sequential": "{algorithm}_sequences.npz",
     "npz_spatial": "{algorithm}_spatial.npz",
     "npz_raw": "{algorithm}_raw.npz",

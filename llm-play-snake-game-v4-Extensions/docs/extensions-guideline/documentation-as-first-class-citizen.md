@@ -202,8 +202,19 @@ class GameController:
     This class demonstrates several important design patterns:
     
     1. State Pattern: Manages different game states (playing, paused, game_over)
+       - Why: Clean state transitions and state-specific behavior
+       - Benefits: Easy to add new states, clear state logic
+       - Trade-offs: Additional complexity for simple state machines
+    
     2. Command Pattern: Encapsulates move commands for undo/redo functionality
+       - Why: Enables command history and reversible operations
+       - Benefits: Easy to implement undo/redo, testable commands
+       - Trade-offs: Memory overhead for command storage
+    
     3. Observer Pattern: Notifies UI components of state changes
+       - Why: Loose coupling between game logic and UI
+       - Benefits: Multiple UI components can observe same game state
+       - Trade-offs: Potential performance impact with many observers
     
     Educational Benefits:
     - Shows how patterns work together in real applications

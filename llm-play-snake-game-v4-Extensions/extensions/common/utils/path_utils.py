@@ -99,6 +99,17 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int, algorith
     return path
 
 
+def get_datasets_root() -> Path:
+    """
+    Get the standardized datasets root directory.
+    Returns:
+        Path to the datasets root directory.
+    """
+    path = Path("logs/extensions/datasets")
+    print(f"[PathUtils] Datasets root: {path}")  # Simple logging
+    return path
+
+
 def get_model_path(extension_type: str, version: str, grid_size: int, algorithm: str, timestamp: str) -> Path:
     """
     Generate standardized model path.
@@ -249,6 +260,7 @@ __all__ = [
     "setup_extension_paths",
     "get_extension_path",
     "get_dataset_path",
+    "get_datasets_root",
     "get_model_path",
     "ensure_extension_directories",
     "validate_path_structure",

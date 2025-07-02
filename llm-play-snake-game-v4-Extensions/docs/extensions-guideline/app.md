@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Streamlit application architecture patterns.
 
-> **See also:** `scripts.md`, `dashboard.md`, `final-decision-10.md`, `standalone.md`.
+> **See also:** `scripts.md`, `final-decision-10.md`, `standalone.md`.
 
 ## 🎯 **Core Philosophy: Script Launcher Interface**
 
@@ -308,6 +308,6 @@ class SubprocessRunner:
 ## 🔗 **See Also**
 
 - **`scripts.md`**: Script execution and subprocess management
-- **`dashboard.md`**: Dashboard architecture and component organization
 - **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
-- **`standalone.md`**: Standalone principle and extension independence 
+- **`standalone.md`**: Standalone principle and extension independence
+

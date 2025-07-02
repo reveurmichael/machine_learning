@@ -57,7 +57,7 @@ class DFSAgent:
             "backtracking. May find longer paths than BFS but uses less memory. "
             "Included for educational comparison with BFS."
         )
-        self.max_depth = 50  # Prevent infinite recursion
+        self.max_depth = 150  # Prevent infinite recursion; increased for larger grids
         
     def get_move(self, game: HeuristicGameLogic) -> str | None:
         """
@@ -71,7 +71,7 @@ class DFSAgent:
         """
         move, _ = self.get_move_with_explanation(game)
         return move
-        
+    
     def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, str]:
         """
         Get next move using DFS pathfinding with detailed explanation.
@@ -96,48 +96,57 @@ class DFSAgent:
             path = self._dfs_pathfind(head_pos, apple_pos, snake_positions, grid_size)
             
             if not path or len(path) < 2:
-                # No path found - try any safe move
-                for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                    dx, dy = DIRECTIONS[direction]
-                    next_pos = (head_pos[0] + dx, head_pos[1] + dy)
-                    
-                    # Check if position is valid and not in obstacles
-                    if (0 <= next_pos[0] < grid_size and 
-                        0 <= next_pos[1] < grid_size and 
-                        next_pos not in snake_positions):
-                        explanation = (
-                            f"DFS could not find a direct path to apple at {apple_pos}. "
-                            f"Choosing safe move {direction} to avoid obstacles and continue exploration."
-                        )
-                        return direction, explanation
-                        
-                # Absolutely no safe move found
-                explanation = "DFS found no safe moves available. All adjacent positions are blocked."
-                return "NO_PATH_FOUND", explanation
+                # No path found, try a fallback safe move
+                safe_move, explanation = self._find_safe_move_with_explanation(head_pos, snake_positions, grid_size)
+                return safe_move, explanation
                 
             # Get first move in path
-            next_pos = path[1]  # path[0] is current head position
+            next_pos = path[1]
             direction = position_to_direction(head_pos, next_pos)
             
-            # Validate the direction is not a reverse move
-            if direction and direction != "NO_PATH_FOUND":
-                path_length = len(path) - 1
+            # Generate explanation for this move
+            explanation = self._generate_move_explanation(head_pos, path, direction)
+            
+            return direction, explanation
+            
+        except Exception as e:
+            error_explanation = f"DFS agent encountered an error: {str(e)}. Unable to compute safe path."
+            print(f"DFS Agent error: {e}")
+            return "NO_PATH_FOUND", error_explanation
+    
+    def _generate_move_explanation(self, head_pos: Tuple[int, int], path: List[Tuple[int, int]], direction: str) -> str:
+        """Generates a detailed explanation for a successful DFS-based move."""
+        path_length = len(path) - 1
+        explanation = (
+            f"DFS found a valid path of length {path_length} from {head_pos} to the apple. "
+            f"As an educational algorithm, DFS explores deeply, which can result in non-optimal (longer) paths compared to BFS. "
+            f"The first step on this path is to move {direction}."
+        )
+        return explanation
+
+    def _find_safe_move_with_explanation(self, head_pos: Tuple[int, int], snake_positions: set, grid_size: int) -> Tuple[str, str]:
+        """Finds any valid move and provides an explanation for this fallback strategy."""
+        for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            dx, dy = DIRECTIONS[direction]
+            next_pos = (head_pos[0] + dx, head_pos[1] + dy)
+            
+            if (0 <= next_pos[0] < grid_size and 
+                0 <= next_pos[1] < grid_size and 
+                next_pos not in snake_positions):
+                
                 explanation = (
-                    f"DFS found a path of length {path_length} from {head_pos} to apple at {apple_pos}. "
-                    f"Moving {direction} as the first step in the depth-first exploration path. "
-                    f"DFS explores deeply before backtracking, which may result in longer paths than BFS."
+                    "DFS could not find a direct path to the apple. "
+                    "This is common for DFS in constrained spaces as it may explore dead-end paths first. "
+                    f"As a fallback, a safe move ({direction}) is chosen to avoid immediate collision and continue searching."
                 )
                 return direction, explanation
-            
-            # If direction is invalid, return NO_PATH_FOUND
-            explanation = "DFS path calculation resulted in invalid direction."
-            return "NO_PATH_FOUND", explanation
+        
+        explanation = (
+            "DFS found no path to the apple and no safe fallback moves are available. "
+            "All adjacent positions are blocked by the snake's body or a wall, leading to a game over."
+        )
+        return "NO_PATH_FOUND", explanation
 
-        except Exception as e:
-            explanation = f"DFS Agent encountered an error: {str(e)}"
-            print(f"DFS Agent error: {e}")
-            return "NO_PATH_FOUND", explanation
-    
     def _dfs_pathfind(self, start: Tuple[int, int], goal: Tuple[int, int], 
                      obstacles: Set[Tuple[int, int]], grid_size: int) -> List[Tuple[int, int]]:
         """

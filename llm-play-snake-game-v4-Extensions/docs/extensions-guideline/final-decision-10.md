@@ -34,6 +34,7 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 * extensions.common.utils.path_utils.py is still used for extensions. It is there and should be used. Although, for task0, it has its own "utils/path_utils.py"
 * `factory_utils.py` is now located in `ROOT/utils` folder instead of `extensions/common/utils`.
+* extensions produced datasets are stored in `./logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/{algorithm}/`, both game_N.json and summary.json are stored in this same folder, as well as the csv and jsonl files.
 * For all extensions, `app.py` must serve one and only one purpose: launching scripts with adjustable parameters. It must not display statistics or any other information, nor introduce over-complicated structures or features.
   Concretely, it must **never** include or refer to things like:
   * `st.session_state.visualization_speed`
@@ -94,7 +95,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `ai-friendly.md`
 * `app.md`
 * `config.md` 
-* `dashboard.md`
 * `documentation-as-first-class-citizen.md`
 * `elegance.md` 
 * `eureka.md` 
@@ -108,7 +108,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `gui-pygame.md`
 * `gymnasium.md`
 * `heuristics-as-foundation.md`
-* `heuristics-to-supervised-pipeline.md`
 * `kiss.md`
 * `llm-distillation.md`
 * `llm-with-cot.md`
@@ -129,7 +128,6 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `tree-models.md`
 * `type-hint.md`
 * `unified-streamlit-architecture-guide.md`
-* `vision-language-model.md`
 
 
 ## 🚫 **Documentation Governance Rules**

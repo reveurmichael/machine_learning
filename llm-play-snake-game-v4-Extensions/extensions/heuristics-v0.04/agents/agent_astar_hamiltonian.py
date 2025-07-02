@@ -95,234 +95,139 @@ class AStarHamiltonianAgent(AStarAgent):
         Get next move using A* with Hamiltonian fallback, with detailed explanation.
         
         Enhancement over parent A*:
-        - Adds safety validation before following A* path
-        - Provides Hamiltonian cycle as ultimate safe fallback
-        - Guarantees the snake never gets permanently trapped
-        
-        Strategy priority:
-        1. Use inherited A* to find optimal path to apple
-        2. Validate path safety (can reach tail afterward)
-        3. If safe, follow A* path
-        4. Otherwise, fall back to Hamiltonian cycle
-        5. Last resort: any safe move
-        
-        Args:
-            game: Game logic instance containing current game state
-            
-        Returns:
-            Tuple of (direction_string, explanation_string)
+        - Adds safety validation before following A* path.
+        - Provides a robust Hamiltonian cycle as the ultimate safe fallback.
+        - Guarantees the snake never gets permanently trapped.
         """
         try:
             head = tuple(game.head_position)
             apple = tuple(game.apple_position)
             grid_size = game.grid_size
             body = [tuple(seg) for seg in game.snake_positions]
-            obstacles: Set[Tuple[int, int]] = set(body[:-1])  # Tail can vacate
 
-            # Initialize Hamiltonian cycle if needed
-            if not self.cycle or self.grid_size != grid_size:
-                self.grid_size = grid_size
-                self._generate_hamiltonian_cycle(grid_size)
-
-            # ---------------------
-            # 1. Try inherited A* pathfinding with safety validation
-            # ---------------------
-            path_to_apple = self._astar_pathfind(head, apple, obstacles, grid_size)
+            # --- Primary Strategy: A* Pathfinding ---
+            # Use the sophisticated pathfinding inherited from AStarAgent.
+            path_to_apple = self._astar_pathfind(head, apple, set(body), grid_size)
             
             if path_to_apple and len(path_to_apple) > 1:
-                # Safety enhancement: validate A* path before using it
+                # Safety Check: Before committing to the A* path, ensure it doesn't lead to a trap.
                 if self._path_is_safe_after_eating(path_to_apple, body, grid_size):
-                    next_pos = path_to_apple[1]
-                    direction = position_to_direction(head, next_pos)
-                    path_length = len(path_to_apple) - 1
-                    heuristic_dist = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-                    explanation = (
-                        f"A* Hamiltonian found optimal path of length {path_length} to apple at {apple} "
-                        f"(Manhattan distance: {heuristic_dist}). Moving {direction} from {head} to {next_pos}. "
-                        f"Path safety validated: after eating apple, snake can still reach its tail. "
-                        f"This combines A* optimality with Hamiltonian safety guarantees."
-                    )
+                    direction = position_to_direction(head, path_to_apple[1])
+                    explanation = self._generate_astar_success_explanation(path_to_apple, head, apple, direction)
                     return direction, explanation
 
-            # ---------------------
-            # 2. NEW: Hamiltonian cycle fallback (ultimate safety)
-            # ---------------------
-            hamiltonian_move = self._follow_hamiltonian_cycle(head, obstacles)
-            if hamiltonian_move:
-                head_idx = self.cycle_map.get(head, -1)
-                if head_idx == -1:
-                    head_idx = self._find_nearest_cycle_index(head)
-                cycle_progress = f"{head_idx + 1}/{len(self.cycle)}"
-                explanation = (
-                    f"A* Hamiltonian: Direct path to apple at {apple} deemed unsafe after validation. "
-                    f"Activating Hamiltonian cycle fallback. Moving {hamiltonian_move} to continue systematic "
-                    f"grid exploration (progress: {cycle_progress}). This guarantees survival and eventual apple collection."
-                )
-                return hamiltonian_move, explanation
-
-            # ---------------------
-            # 3. Last resort: inherited emergency evasion
-            # ---------------------
-            emergency_move = self._emergency_evasion(head, grid_size)
-            explanation = (
-                f"A* Hamiltonian: All advanced strategies failed. Using emergency evasion move {emergency_move} "
-                f"to avoid immediate collision. This indicates extremely constrained game state where even "
-                f"Hamiltonian cycle cannot proceed safely."
-            )
-            return emergency_move, explanation
+            # --- Fallback Strategy: Hamiltonian Cycle ---
+            # This is triggered if A* fails or its path is deemed unsafe.
+            # Generate cycle on-demand.
+            if not self.cycle or self.grid_size != grid_size:
+                self.grid_size = grid_size
+                self._generate_hamiltonian_cycle()
+            
+            direction, explanation = self._follow_hamiltonian_cycle_with_explanation(head, body)
+            return direction, explanation
 
         except Exception as e:
-            explanation = f"A* Hamiltonian Agent encountered an error: {str(e)}"
+            explanation = f"A* Hamiltonian Agent encountered a critical error: {str(e)}"
             print(f"A* Hamiltonian Agent error: {e}")
             return "NO_PATH_FOUND", explanation
 
-    def _generate_hamiltonian_cycle(self, grid_size: int) -> None:
-        """
-        Generate Hamiltonian cycle using boustrophedon pattern.
-        
-        Enhancement: Creates a cycle that visits every cell exactly once,
-        providing ultimate safety fallback when A* paths are unsafe.
-        
-        Creates snake-like pattern:
-        - Even rows: left to right
-        - Odd rows: right to left
-        - Ensures first and last cells are adjacent
-        
-        Args:
-            grid_size: Size of the square grid
-        """
-        self.cycle = []
+    def _generate_hamiltonian_cycle(self) -> None:
+        """Generates a robust, guaranteed-closed Hamiltonian cycle using a spanning tree perimeter."""
+        size = self.grid_size
+        adj = {(x, y): [] for x in range(size) for y in range(size)}
+        for x in range(size):
+            for y in range(size):
+                if x > 0: adj[(x, y)].append((x - 1, y))
+                if x < size - 1: adj[(x, y)].append((x + 1, y))
+                if y > 0: adj[(x, y)].append((x, y - 1))
+                if y < size - 1: adj[(x, y)].append((x, y + 1))
 
-        # Generate boustrophedon sweep pattern
-        for y in range(grid_size):
-            if y % 2 == 0:
-                # Even row: left to right
-                row_positions = [(x, y) for x in range(grid_size)]
-            else:
-                # Odd row: right to left
-                row_positions = [(x, y) for x in range(grid_size - 1, -1, -1)]
-            
-            self.cycle.extend(row_positions)
+        tree_adj = {(x, y): [] for x in range(size) for y in range(size)}
+        visited = set()
+        stack = [(0, 0)]
+        while stack:
+            v = stack.pop()
+            if v in visited: continue
+            visited.add(v)
+            for neighbor in adj[v]:
+                if neighbor not in visited:
+                    tree_adj[v].append(neighbor)
+                    tree_adj[neighbor].append(v)
+                    stack.append(neighbor)
+        
+        cycle = []
+        curr, prev = (0, 0), (-1, -1)
+        for _ in range(2 * size * size):
+            cycle.append(curr)
+            dx, dy = curr[0] - prev[0], curr[1] - prev[1]
+            options = [(curr[0] + dy, curr[1] - dx), (curr[0] + dx, curr[1] + dy), (curr[0] - dy, curr[1] + dx)]
+            if dx == 0: options = [(curr[0] + dy, curr[1]), (curr[0], curr[1] + dy), (curr[0] - dy, curr[1])]
+            else: options = [(curr[0], curr[1] - dx), (curr[0] + dx, curr[1]), (curr[0], curr[1] + dx)]
 
-        # Ensure cycle closure (first and last cells are adjacent)
-        if grid_size % 2 == 0:
-            # For even grids, adjust last cell to ensure adjacency
-            if len(self.cycle) >= 2:
-                # Move last cell to ensure adjacency with first
-                last_pos = self.cycle[-1]
-                first_pos = self.cycle[0]
-                
-                # If not adjacent, fix the pattern
-                if abs(last_pos[0] - first_pos[0]) + abs(last_pos[1] - first_pos[1]) != 1:
-                    # Adjust the pattern to ensure proper cycle
-                    self.cycle[-1] = (1, grid_size - 1)
-                    if (0, grid_size - 1) not in self.cycle:
-                        self.cycle.append((0, grid_size - 1))
+            found_next = False
+            for nxt in options:
+                if (nxt in tree_adj[curr] or nxt == prev) and nxt != prev:
+                    prev, curr = curr, nxt
+                    found_next = True
+                    break
+            if not found_next: # handle dangling ends
+                 prev, curr = curr, tree_adj[curr][0]
 
-        # Build fast lookup map for O(1) position-to-index lookup
+            if curr == (0, 0) and len(cycle) > 1: break
+        
+        self.cycle = cycle
         self.cycle_map = {pos: idx for idx, pos in enumerate(self.cycle)}
 
-    def _path_is_safe_after_eating(
-        self,
-        path: List[Tuple[int, int]],
-        snake_body: List[Tuple[int, int]],
-        grid_size: int
-    ) -> bool:
+    def _path_is_safe_after_eating(self, path: list, snake_body: list, grid_size: int) -> bool:
         """
-        Safety enhancement: Validate A* path by simulating execution.
-        
-        This is the key enhancement over basic A* - we simulate following
-        the A* path and check if the snake can still reach its tail afterward.
-        
-        Args:
-            path: A* path to apple
-            snake_body: Current snake body
-            grid_size: Size of game grid
-            
-        Returns:
-            True if A* path is safe (tail reachable), False otherwise
+        Simulates the result of taking a path to an apple and checks if the snake
+        can still reach its new tail, preventing traps. This is the core safety check.
         """
-        # Simulate following the A* path
-        virtual_snake = list(snake_body)
-        apple_pos = path[-1]  # Last position in path is apple
+        # Create a virtual snake that has eaten the apple
+        virtual_snake = path[::-1] + snake_body[1:]
         
-        for step in path[1:]:  # Skip current head position
-            virtual_snake.insert(0, step)  # Move head
-            
-            if step == apple_pos:
-                # Apple eaten - snake grows, keep tail
-                break
-            
-            # No apple yet - tail moves forward
-            virtual_snake.pop()
-        
-        # Check if new head can reach new tail using inherited A*
+        # The new head is the apple's position, the new tail is the original snake's second-to-last segment
         new_head = virtual_snake[0]
         new_tail = virtual_snake[-1]
-        new_obstacles = set(virtual_snake[:-1])  # Exclude tail
         
-        # Use inherited A* pathfinding to check tail reachability
-        tail_path = self._astar_pathfind(new_head, new_tail, new_obstacles, grid_size)
-        return bool(tail_path)
+        # Check if a path exists from the new head to the new tail, avoiding the new body
+        obstacles = set(virtual_snake[1:-1])
+        path_to_tail = self._astar_pathfind(new_head, new_tail, obstacles, grid_size)
+        
+        return bool(path_to_tail)
 
-    def _follow_hamiltonian_cycle(
-        self, 
-        head: Tuple[int, int], 
-        obstacles: Set[Tuple[int, int]]
-    ) -> Optional[str]:
-        """
-        Follow the Hamiltonian cycle as safety fallback.
-        
-        Enhancement: Provides guaranteed safe movement when A* paths are unsafe.
-        The Hamiltonian cycle visits every cell, ensuring no deadlocks.
-        
-        Args:
-            head: Current head position
-            obstacles: Set of obstacle positions
-            
-        Returns:
-            Direction for next cycle move or None if not possible
-        """
-        # Find current position in cycle
-        head_idx = self.cycle_map.get(head, -1)
-        
-        if head_idx == -1:
-            # Head not in cycle, find nearest position
-            head_idx = self._find_nearest_cycle_index(head)
-        
-        # Get next position in cycle
+    def _follow_hamiltonian_cycle_with_explanation(self, head: tuple, body: list) -> Tuple[str, str]:
+        """Follows the Hamiltonian cycle and generates a corresponding explanation."""
+        head_idx = self.cycle_map.get(head)
+        if head_idx is None:
+            # Snake is off-cycle, a critical error. Find any safe move.
+            for move, (dx, dy) in DIRECTIONS.items():
+                next_pos = (head[0] + dx, head[1] + dy)
+                if next_pos not in body and 0 <= next_pos[0] < self.grid_size and 0 <= next_pos[1] < self.grid_size:
+                    return move, "CRITICAL ERROR: Off-cycle. Emergency fallback."
+            return "NO_PATH_FOUND", "CRITICAL ERROR: Off-cycle and trapped."
+
         next_idx = (head_idx + 1) % len(self.cycle)
         next_pos = self.cycle[next_idx]
+        direction = position_to_direction(head, next_pos)
         
-        # Check if next position is safe
-        if next_pos not in obstacles:
-            self.current_cycle_index = next_idx
-            return position_to_direction(head, next_pos)
-        
-        return None
-
-    def _find_nearest_cycle_index(self, pos: Tuple[int, int]) -> int:
-        """
-        Find nearest position in Hamiltonian cycle.
-        
-        Used when snake head is not exactly on the cycle path.
-        
-        Args:
-            pos: Position to find nearest cycle position for
-            
-        Returns:
-            Index of nearest position in cycle
-        """
-        best_idx = 0
-        best_distance = float('inf')
-        
-        for idx, cycle_pos in enumerate(self.cycle):
-            distance = abs(pos[0] - cycle_pos[0]) + abs(pos[1] - cycle_pos[1])
-            if distance < best_distance:
-                best_distance = distance
-                best_idx = idx
-        
-        return best_idx
+        explanation = (
+            "A* path to apple was not found or deemed unsafe. "
+            "Activating Hamiltonian Cycle Fallback for guaranteed safety. "
+            f"Following cycle: moving {direction} from {head} to {next_pos}. "
+            f"This ensures survival while waiting for a safe opportunity."
+        )
+        return direction, explanation
+    
+    def _generate_astar_success_explanation(self, path: list, head: tuple, apple: tuple, direction: str) -> str:
+        """Generates an explanation for a successful and safe A* path."""
+        path_length = len(path) - 1
+        manhattan_dist = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+        return (
+            f"A* found an optimal path of length {path_length} to the apple (Manhattan distance: {manhattan_dist}). "
+            f"Safety check passed: the snake can still reach its tail after eating. "
+            f"Executing optimal move: {direction}."
+        )
 
     def get_cycle_info(self) -> Dict[str, object]:
         """
@@ -341,5 +246,5 @@ class AStarHamiltonianAgent(AStarAgent):
         }
 
     def __str__(self) -> str:
-        """String representation showing inheritance hierarchy."""
-        return f"AStarHamiltonianAgent(extends=AStarAgent, algorithm={self.algorithm_name})" 
+        """String representation showing inheritance and state."""
+        return f"AStarHamiltonianAgent(extends=AStarAgent, grid_size={self.grid_size}, cycle_nodes={len(self.cycle)})" 

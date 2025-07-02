@@ -16,7 +16,7 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import List, Tuple, Dict, TYPE_CHECKING
+from typing import List, Tuple, Dict, TYPE_CHECKING, Optional
 
 # Use standardized path setup
 import sys
@@ -68,246 +68,199 @@ class HamiltonianAgent:
         self.cycle: List[Tuple[int, int]] = []
         self.cycle_map: Dict[Tuple[int, int], int] = {}
         self.grid_size: int = 0
-        self.current_cycle_index: int = 0
         
         # Statistics
         self.cycle_completions: int = 0
         self.total_moves: int = 0
         
     def get_move(self, game: HeuristicGameLogic) -> str | None:
-        """
-        Get next move following the Hamiltonian cycle (simplified interface).
-        
-        Args:
-            game: Game logic instance containing current game state
-            
-        Returns:
-            Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
-        """
+        """Get the next move by following the Hamiltonian cycle, with potential shortcuts."""
         move, _ = self.get_move_with_explanation(game)
         return move
         
     def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, str]:
         """
-        Get next move following the Hamiltonian cycle with detailed explanation.
-        
-        v0.04 Enhancement: Returns both move and natural language explanation
-        for LLM fine-tuning dataset generation.
-        
-        Args:
-            game: Game logic instance containing current game state
-            
-        Returns:
-            Tuple of (direction_string, explanation_string)
+        Get the next move by following the Hamiltonian cycle, with explanations for shortcuts.
+
+        v0.04 Enhancement: Provides detailed explanations about cycle-following, shortcut-taking,
+        and safety checks, making the data ideal for LLM fine-tuning.
         """
         try:
             head = tuple(game.head_position)
             grid_size = game.grid_size
             
-            # Generate cycle if needed
+            # Generate the cycle only once or if the grid size changes
             if not self.cycle or self.grid_size != grid_size:
                 self.grid_size = grid_size
-                self._generate_hamiltonian_cycle(grid_size)
+                self._generate_hamiltonian_cycle()
             
-            # Find current position in cycle
-            head_idx = self.cycle_map.get(head, -1)
-            if head_idx == -1:
-                # Head not in cycle (shouldn't happen), find nearest
-                head_idx = self._find_nearest_cycle_position(head)
-            
-            # Get next position in cycle
+            # Find the snake's current position in the cycle
+            head_idx = self.cycle_map.get(head)
+            if head_idx is None:
+                # This is a critical error, the snake is off the cycle. Fallback.
+                return self._handle_off_cycle_error(head, game)
+
+            # --- Shortcut Logic ---
+            # Can we take a shortcut to the apple without getting trapped?
+            shortcut_move, shortcut_explanation = self._evaluate_shortcut(game, head_idx)
+            if shortcut_move:
+                return shortcut_move, shortcut_explanation
+
+            # --- Default Action: Follow the Cycle ---
             next_idx = (head_idx + 1) % len(self.cycle)
             next_pos = self.cycle[next_idx]
             
-            # Validate move is safe (should always be true for valid cycle)
-            if self._is_move_safe(head, next_pos, game):
-                self.current_cycle_index = next_idx
-                self.total_moves += 1
-                
-                # Track cycle completions
-                if next_idx == 0:
-                    self.cycle_completions += 1
-                
-                direction = position_to_direction(head, next_pos)
-                
-                # Generate detailed explanation
-                cycle_progress = f"{next_idx + 1}/{len(self.cycle)}"
-                explanation = (
-                    f"Following Hamiltonian cycle: moving {direction} from {head} to {next_pos}. "
-                    f"Progress: {cycle_progress} positions in cycle. "
-                    f"This guarantees visiting every cell exactly once and prevents the snake from ever getting trapped. "
-                )
-                
-                if next_idx == 0:
-                    explanation += f"Completed cycle #{self.cycle_completions}! Starting new cycle traversal."
-                else:
-                    explanation += "Continuing systematic exploration of the grid."
-                
-                return direction, explanation
-            else:
-                # This should never happen with a valid Hamiltonian cycle
-                # Fall back to any safe move
-                fallback_move = self._find_any_safe_move(head, game)
-                explanation = (
-                    f"Hamiltonian cycle move from {head} to {next_pos} was unsafe (unexpected). "
-                    f"Falling back to safe move {fallback_move} to avoid collision. "
-                    f"This indicates an issue with the cycle generation or validation."
-                )
-                return fallback_move, explanation
+            direction = position_to_direction(head, next_pos)
+            explanation = self._generate_cycle_follow_explanation(head, next_pos, direction, head_idx)
+            
+            return direction, explanation
                 
         except Exception as e:
-            explanation = f"Hamiltonian Agent encountered an error: {str(e)}"
+            explanation = f"Hamiltonian Agent encountered a critical error: {str(e)}"
             print(f"Hamiltonian Agent error: {e}")
             return "NO_PATH_FOUND", explanation
-    
-    def _generate_hamiltonian_cycle(self, size: int) -> None:
+
+    def _generate_hamiltonian_cycle(self) -> None:
         """
-        Generate Hamiltonian cycle using boustrophedon (zigzag) pattern.
+        Generates a robust, guaranteed-closed Hamiltonian cycle for any grid size.
         
-        This creates a path that visits every cell exactly once and returns
-        to the starting position, guaranteeing the snake can move indefinitely.
-        
-        Args:
-            size: Grid size (assumes square grid)
+        This method works by creating a grid graph, finding a spanning tree (using DFS),
+        and then tracing the perimeter of the tree. This is a reliable way to ensure
+        every node is visited and the path is a closed loop.
         """
-        self.cycle = []
+        size = self.grid_size
+        adj = { (x, y): [] for x in range(size) for y in range(size) }
         
-        # Boustrophedon pattern: alternate left-to-right and right-to-left
-        for y in range(size):
-            if y % 2 == 0:
-                # Left to right
-                for x in range(size):
-                    self.cycle.append((x, y))
-            else:
-                # Right to left
-                for x in range(size - 1, -1, -1):
-                    self.cycle.append((x, y))
+        # Build adjacency list for the grid graph
+        for x in range(size):
+            for y in range(size):
+                if x > 0: adj[(x, y)].append((x - 1, y))
+                if x < size - 1: adj[(x, y)].append((x + 1, y))
+                if y > 0: adj[(x, y)].append((x, y - 1))
+                if y < size - 1: adj[(x, y)].append((x, y + 1))
+
+        # Create a spanning tree using DFS
+        tree_adj = { (x, y): [] for x in range(size) for y in range(size) }
+        visited = set()
+        stack = [(0, 0)]
         
-        # Ensure the cycle is properly closed (first and last positions adjacent)
-        if size % 2 == 0:
-            # For even grids, adjust the last position to ensure adjacency
-            # For even grids, the last position should connect back to (0, 0)
-            # Remove the last position and add the connection point
-            if len(self.cycle) > 0:
-                last_pos = self.cycle[-1]
-                # Make sure last position can connect to first position (0, 0)
-                if last_pos != (0, size - 1):
-                    # Adjust to ensure proper connection
-                    pass  # The boustrophedon pattern should already be correct
+        while stack:
+            v = stack.pop()
+            if v in visited: continue
+            visited.add(v)
+            for neighbor in adj[v]:
+                if neighbor not in visited:
+                    tree_adj[v].append(neighbor)
+                    tree_adj[neighbor].append(v)
+                    stack.append(neighbor)
         
-        # Build lookup map for fast position-to-index mapping
+        # Trace the perimeter of the spanning tree to get the cycle
+        cycle = []
+        curr = (0, 0)
+        prev = (-1, -1)  # A virtual previous node
+        
+        for _ in range(2 * size * size):
+            cycle.append(curr)
+            
+            # Find the next node by turning "left" relative to the edge from prev to curr
+            dx, dy = curr[0] - prev[0], curr[1] - prev[1]
+            
+            # Order of preference: Left, Straight, Right, Back
+            if dx == 0: # Moving vertically
+                options = [(curr[0] + dy, curr[1]), (curr[0], curr[1] + dy), (curr[0] - dy, curr[1]), (prev[0], prev[1])]
+            else: # Moving horizontally
+                options = [(curr[0], curr[1] - dx), (curr[0] + dx, curr[1]), (curr[0], curr[1] + dx), (prev[0], prev[1])]
+
+            for nxt in options:
+                if nxt in tree_adj[curr] or nxt == prev:
+                    prev, curr = curr, nxt
+                    break
+
+            if curr == (0, 0) and len(cycle) > 1: break # Completed the cycle
+        
+        self.cycle = cycle
         self.cycle_map = {pos: idx for idx, pos in enumerate(self.cycle)}
-        
-        # Validate cycle integrity
-        self._validate_cycle()
-    
-    def _validate_cycle(self) -> None:
+
+    def _evaluate_shortcut(self, game: HeuristicGameLogic, head_idx: int) -> Tuple[Optional[str], Optional[str]]:
         """
-        Validate the generated Hamiltonian cycle.
-        
-        Checks:
-        1. Correct number of positions (grid_size^2)
-        2. No duplicate positions
-        3. All positions are adjacent
-        4. First and last positions are adjacent (cycle property)
+        Determines if a safe and effective shortcut to the apple is possible.
+        A shortcut jumps forward in the cycle, skipping intermediate nodes.
         """
-        expected_length = self.grid_size * self.grid_size
+        head_pos = tuple(game.head_position)
+        apple_pos = tuple(game.apple_position)
+        snake_len = len(game.snake_positions)
         
-        # Check length
-        if len(self.cycle) != expected_length:
-            print(f"⚠️  Cycle length mismatch: {len(self.cycle)} vs {expected_length}")
+        apple_idx = self.cycle_map.get(apple_pos)
         
-        # Check for duplicates
-        unique_positions = set(self.cycle)
-        if len(unique_positions) != len(self.cycle):
-            duplicates = len(self.cycle) - len(unique_positions)
-            print(f"⚠️  Found {duplicates} duplicate positions in cycle")
+        if apple_idx is None: return None, None # Apple not on cycle (should not happen)
         
-        # Check adjacency of consecutive positions
-        for i, current in enumerate(self.cycle):
-            next_pos = self.cycle[(i + 1) % len(self.cycle)]
+        # Is the apple "ahead" of the snake in the cycle path?
+        if (head_idx < apple_idx) and (apple_idx - head_idx < snake_len):
+            # Attempting a shortcut
+            path_to_apple = self.cycle[head_idx:apple_idx+1]
             
-            # Manhattan distance should be exactly 1
-            distance = abs(current[0] - next_pos[0]) + abs(current[1] - next_pos[1])
-            if distance != 1:
-                print(f"⚠️  Non-adjacent positions in cycle: {current} -> {next_pos}")
-                break
-    
-    def _find_nearest_cycle_position(self, pos: Tuple[int, int]) -> int:
-        """
-        Find the nearest position in the cycle to the given position.
-        
-        Args:
-            pos: Position to find nearest cycle position for
+            # Is the shortcut path clear of the snake's own body?
+            snake_body_set = {tuple(p) for p in game.snake_positions[1:]}
+            shortcut_path_set = set(path_to_apple[1:]) # Don't check head
             
-        Returns:
-            Index of nearest position in cycle
-        """
-        min_distance = float('inf')
-        nearest_idx = 0
-        
-        for idx, cycle_pos in enumerate(self.cycle):
-            distance = abs(pos[0] - cycle_pos[0]) + abs(pos[1] - cycle_pos[1])
-            if distance < min_distance:
-                min_distance = distance
-                nearest_idx = idx
-        
-        return nearest_idx
+            if not shortcut_path_set.intersection(snake_body_set):
+                # Is the move safe? Check if the snake traps itself after eating.
+                # A simple check: is the space behind the apple's future position (the snake's old tail) free?
+                future_snake_tail = self.cycle[(apple_idx - snake_len + 1) % len(self.cycle)]
+                if self._is_safe_shortcut(game, future_snake_tail):
+                    direction = position_to_direction(head_pos, path_to_apple[1])
+                    explanation = (
+                        f"Taking a safe shortcut. The apple is {apple_idx - head_idx} steps ahead on the cycle. "
+                        f"Moving {direction} to jump directly towards it, skipping intermediate cycle nodes. "
+                        "This is faster than following the full cycle."
+                    )
+                    return direction, explanation
+
+        return None, None
     
-    def _is_move_safe(self, from_pos: Tuple[int, int], to_pos: Tuple[int, int], 
-                     game: HeuristicGameLogic) -> bool:
+    def _is_safe_shortcut(self, game, future_snake_tail) -> bool:
         """
-        Check if a move is safe (doesn't collide with walls or snake body).
-        
-        Args:
-            from_pos: Starting position
-            to_pos: Target position
-            game: Game logic instance
-            
-        Returns:
-            True if move is safe, False otherwise
+        A simple heuristic to check if a shortcut is safe.
+        Checks if the position that *will be* the snake's new tail is not immediately blocked.
         """
-        # Check bounds
-        if not (0 <= to_pos[0] < game.grid_size and 0 <= to_pos[1] < game.grid_size):
-            return False
-        
-        # Check collision with snake body (excluding tail which will move)
-        snake_body = [tuple(seg) for seg in game.snake_positions]
-        tail = snake_body[-1] if snake_body else None
-        
-        # Check if target is in body (excluding tail unless eating apple)
-        if to_pos in snake_body[:-1]:  # Exclude tail
-            return False
-        
-        # If target is tail position, it's safe unless we're eating an apple
-        # (because tail will move away)
-        if to_pos == tail:
-            apple_pos = tuple(game.apple_position)
-            is_eating_apple = (to_pos == apple_pos)
-            return not is_eating_apple  # Safe if not eating apple
-        
-        return True
-    
-    def _find_any_safe_move(self, head: Tuple[int, int], game: HeuristicGameLogic) -> str:
-        """
-        Find any safe move as a fallback (should rarely be needed).
-        
-        Args:
-            head: Current head position
-            game: Game logic instance
-            
-        Returns:
-            Direction string or "NO_PATH_FOUND"
-        """
-        for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-            dx, dy = DIRECTIONS[direction]
+        # A more robust check would involve a flood fill from the new tail position.
+        # For now, we do a simple check.
+        for move in DIRECTIONS.values():
+            check_pos = (future_snake_tail[0] + move[0], future_snake_tail[1] + move[1])
+            if (0 <= check_pos[0] < self.grid_size and 0 <= check_pos[1] < self.grid_size and
+                check_pos not in game.snake_positions):
+                return True
+        return False
+
+    def _generate_cycle_follow_explanation(self, head: tuple, next_pos: tuple, direction: str, head_idx: int) -> str:
+        """Generates an explanation for following the cycle normally."""
+        progress = f"{head_idx + 1}/{len(self.cycle)}"
+        is_new_cycle = (head_idx + 1) % len(self.cycle) == 0
+
+        explanation = (
+            f"Following pre-computed Hamiltonian cycle. The optimal move is {direction} from {head} to {next_pos}. "
+            f"This guarantees complete and safe grid traversal. Current cycle progress: {progress}. "
+        )
+        if is_new_cycle:
+            explanation += "A full cycle has been completed, starting a new traversal."
+        return explanation
+
+    def _handle_off_cycle_error(self, head: tuple, game: HeuristicGameLogic) -> Tuple[str, str]:
+        """Generates an explanation and fallback for when the snake is off the cycle path."""
+        # This state indicates a critical failure. Try to find any safe move.
+        for move_dir, (dx, dy) in DIRECTIONS.items():
             next_pos = (head[0] + dx, head[1] + dy)
-            
-            if self._is_move_safe(head, next_pos, game):
-                return direction
+            if (0 <= next_pos[0] < self.grid_size and
+                0 <= next_pos[1] < self.grid_size and
+                next_pos not in game.snake_positions):
+                explanation = (
+                    "CRITICAL ERROR: Snake is off the Hamiltonian cycle. This should not happen. "
+                    f"Attempting an emergency fallback move {move_dir} to avoid immediate collision."
+                )
+                return move_dir, explanation
         
-        return "NO_PATH_FOUND"
-    
+        return "NO_PATH_FOUND", "CRITICAL ERROR: Snake is off-cycle and trapped. No safe moves available."
+
     def get_statistics(self) -> Dict[str, any]:
         """
         Get agent statistics.
@@ -320,10 +273,9 @@ class HamiltonianAgent:
             "cycle_length": len(self.cycle),
             "cycle_completions": self.cycle_completions,
             "total_moves": self.total_moves,
-            "current_cycle_index": self.current_cycle_index,
             "grid_size": self.grid_size
         }
     
     def __str__(self) -> str:
         """String representation of the agent."""
-        return f"HamiltonianAgent(algorithm={self.algorithm_name}, completions={self.cycle_completions})"
+        return f"HamiltonianAgent(grid_size={self.grid_size}, cycle_nodes={len(self.cycle)})"

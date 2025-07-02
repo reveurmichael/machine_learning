@@ -8,6 +8,7 @@ import numpy as np
 import pygame
 
 from config.ui_constants import COLORS
+from config.game_constants import END_REASON_MAP
 from gui.base_gui import BaseGUI
 
 
@@ -74,6 +75,7 @@ class ReplayGUI(BaseGUI):
         timestamp = replay_data.get('timestamp', 'Unknown')
         game_end_reason = replay_data.get('game_end_reason', None)
         final_score = replay_data.get('final_score', None)
+        total_games = replay_data.get('total_games', None)
 
         # Fill background
         self.screen.fill(COLORS['BACKGROUND'])
@@ -115,7 +117,8 @@ class ReplayGUI(BaseGUI):
             game_timestamp=timestamp,
             paused=paused,
             llm_response=llm_response,
-            final_score=final_score
+            final_score=final_score,
+            total_games=total_games
         )
 
         # Update display
@@ -163,6 +166,7 @@ class ReplayGUI(BaseGUI):
         paused: bool = False,
         llm_response: str | None = None,
         final_score: int | None = None,
+        total_games: int | None = None,
     ) -> None:
         """Draw replay information panel.
         
@@ -204,8 +208,13 @@ class ReplayGUI(BaseGUI):
         if final_score is not None:
             score_display = f"- Score: {score}/{final_score}"
         
+        # Game number display - show "1/N" format if total_games is available
+        game_display = f"- Game: {game_number}"
+        if total_games and total_games > 0:
+            game_display = f"- Game: {game_number}/{total_games}"
+        
         stats_text = [
-            f"- Game: {game_number}",
+            game_display,
             score_display,
             f"- Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)"
         ]
@@ -217,9 +226,10 @@ class ReplayGUI(BaseGUI):
             self.screen.blit(text_surface, (self.height + 30, y_offset))
             y_offset += 30
 
-        # Add game end reason if available
+        # Add game end reason if available - use mapped value for single source of truth
         if game_end_reason:
-            end_reason_text = game_end_reason
+            # Use the mapped value from END_REASON_MAP for consistency
+            end_reason_text = END_REASON_MAP.get(game_end_reason, game_end_reason)
             reason_text = font.render(f"- End Reason: {end_reason_text}", True, COLORS['BLACK'])
             self.screen.blit(reason_text, (self.height + 30, y_offset))
             y_offset += 30

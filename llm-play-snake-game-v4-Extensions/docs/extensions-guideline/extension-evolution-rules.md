@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Progressive Enhancement**
 
-Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family, strictly following `final-decision-10.md` SUPREME_RULES.
+Extension evolution follows a **progressive enhancement** model where each version builds upon the previous one, adding new capabilities while maintaining backward compatibility within the same extension family, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Incremental Learning**: Each version introduces new concepts gradually
@@ -24,7 +24,7 @@ class BasicAgent:
     
     def __init__(self, grid_size: int):
         self.grid_size = grid_size
-        print(f"[BasicAgent] Initialized with grid size {grid_size}")  # Simple logging
+        print(f"[BasicAgent] Initialized with grid size {grid_size}")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: dict) -> str:
         """Basic move planning."""
@@ -55,13 +55,13 @@ class AgentFactory:
     }
     
     @classmethod
-    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
-        """Create agent using canonical factory pattern."""
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision-10.md."""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
         
-        print(f"[AgentFactory] Creating {algorithm} agent")  # Simple logging
+        print(f"[AgentFactory] Creating {algorithm} agent")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 
 class BFSAgent(BasicAgent):
@@ -86,7 +86,7 @@ class AdvancedAgent(BFSAgent):
         self.generate_dataset = generate_dataset
         self.dataset_generator = DatasetGenerator() if generate_dataset else None
         
-        print(f"[AdvancedAgent] Initialized with dataset generation: {generate_dataset}")  # Simple logging
+        print(f"[AdvancedAgent] Initialized with dataset generation: {generate_dataset}")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: dict) -> str:
         """Plan move and optionally generate dataset."""
@@ -101,7 +101,7 @@ class AdvancedAgent(BFSAgent):
         """Save generated dataset."""
         if self.dataset_generator:
             self.dataset_generator.save_to_csv(output_path)
-            print(f"[AdvancedAgent] Saved dataset to {output_path}")  # Simple logging
+            print(f"[AdvancedAgent] Saved dataset to {output_path}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🔄 **Evolution Rules**
@@ -139,9 +139,9 @@ class AgentFactory:
 # ✅ CORRECT: Consistent logging pattern
 class GameManager:
     def start_game(self):
-        print(f"[GameManager] Starting game {self.game_count}")  # Simple logging
+        print(f"[GameManager] Starting game {self.game_count}")  # SUPREME_RULES compliant logging
         # Game logic here
-        print(f"[GameManager] Game completed, score: {self.score}")  # Simple logging
+        print(f"[GameManager] Game completed, score: {self.score}")  # SUPREME_RULES compliant logging
 
 # ❌ INCORRECT: Inconsistent patterns across versions
 class AgentFactory:
@@ -152,8 +152,8 @@ class AgentFactory:
 # ✅ CORRECT: Consistent patterns across versions
 class AgentFactory:
     @classmethod
-    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method
-        """Create agent using canonical factory pattern following final-decision-10.md SUPREME_RULES."""
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create agent using canonical factory pattern following SUPREME_RULES from final-decision-10.md."""
         pass
 ```
 
@@ -259,7 +259,7 @@ class AgentConfig:
         # v0.03 parameters (new)
         self.generate_dataset = kwargs.get('generate_dataset', False)
         
-        print(f"[AgentConfig] Initialized with algorithm: {self.algorithm}")  # Simple logging
+        print(f"[AgentConfig] Initialized with algorithm: {self.algorithm}")  # SUPREME_RULES compliant logging
 ```
 
 ### **3. Documentation Evolution**

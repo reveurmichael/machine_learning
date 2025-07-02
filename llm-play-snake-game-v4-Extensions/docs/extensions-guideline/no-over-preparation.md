@@ -4,7 +4,7 @@
 
 ## 🎯 **Core Philosophy: Build What You Need, When You Need It**
 
-The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs.
+The "No Over-Preparation" principle ensures that extensions remain focused, maintainable, and educational by avoiding unnecessary complexity and premature optimization. Extensions should solve actual problems rather than hypothetical future needs, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Design Philosophy**
 - **Present-Focused Development**: Build for current requirements, not speculative futures
@@ -242,10 +242,10 @@ Extensions should evolve naturally based on actual needs:
 - Introduce shared utilities when duplication appears
 - Expand only based on real requirements
 
-**v0.03: Web Interface Integration**
-- Add dashboard components when user interface is needed
+**v0.03: Script Launcher Interface Integration (SUPREME_RULE NO.5)**
+- Add Streamlit script launcher when parameter adjustment is needed
 - Integrate with existing infrastructure
-- No speculative UI features
+- No speculative UI features beyond script launching
 
 ### **Feature Development Checklist**
 Before adding any feature, ask:

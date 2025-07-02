@@ -25,6 +25,8 @@ Task-0 provides **three exemplary web script foundations** that demonstrate perf
 
 **Perfect Implementation for Simple Gameplay:**
 ```python
+from utils.factory_utils import SimpleFactory
+
 class HumanGameApp(Task0FlaskApp):
     """Task-0 Human Player Web Application - Foundation Excellence."""
     
@@ -48,6 +50,8 @@ class HumanGameApp(Task0FlaskApp):
 
 **Perfect Implementation for Complex Managers:**
 ```python
+from utils.factory_utils import SimpleFactory
+
 class LLMGameApp(Task0LLMFlaskApp):
     """Task-0 LLM Game Web Application - Foundation Excellence."""
     
@@ -70,6 +74,8 @@ class LLMGameApp(Task0LLMFlaskApp):
 
 **Perfect Implementation for Replay Functionality:**
 ```python
+from utils.factory_utils import SimpleFactory
+
 class ReplayGameApp(BaseFlaskApp):
     """Task-0 Replay Web Application - Foundation Excellence."""
     
@@ -227,7 +233,7 @@ def main():
     args = parser.parse_args()
     
     # Import and execute algorithm using canonical factory patterns
-    from extensions.common.utils.factory_utils import SimpleFactory
+    from utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
     
     # Use canonical factory pattern
@@ -269,7 +275,7 @@ def main():
     args = parser.parse_args()
     
     # Generate datasets for each algorithm using canonical factory patterns
-    from extensions.common.utils.factory_utils import SimpleFactory
+    from utils.factory_utils import SimpleFactory
     from extensions.common.utils.dataset_utils import DatasetGenerator
     
     # Use canonical factory pattern
@@ -330,7 +336,7 @@ def main():
     args = parser.parse_args()
     
     # Use canonical factory pattern for training
-    from extensions.common.utils.factory_utils import SimpleFactory
+    from utils.factory_utils import SimpleFactory
     from extensions.common.utils.dataset_utils import DatasetLoader
     
     # Load datasets

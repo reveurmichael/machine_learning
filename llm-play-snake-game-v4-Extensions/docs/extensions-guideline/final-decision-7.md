@@ -51,7 +51,7 @@ All extension factories must use the canonical method name `create()` for instan
 A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
 
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 
 class MyAgent:
     def __init__(self, name):

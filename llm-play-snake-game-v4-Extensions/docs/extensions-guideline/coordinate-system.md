@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Universal Consistency**
 
-The Snake Game AI project uses a **universal coordinate system** that ensures consistency across all extensions, algorithms, and visualizations. This system provides a single source of truth for position representation and movement calculations, strictly following SUPREME_RULES from final-decision-10.md.
+The Snake Game AI project uses a **universal coordinate system** that ensures consistency across all extensions, algorithms, and visualizations. This system provides a single source of truth for position representation and movement calculations, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Consistency**: Same coordinate system across all components

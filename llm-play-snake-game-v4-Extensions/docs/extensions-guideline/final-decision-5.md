@@ -13,6 +13,7 @@ The extension directory structure implements a sophisticated evolution model tha
 - **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
 - **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining extension patterns through inheritance rather than tight coupling
 - **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
+- **SUPREME_RULE NO.5**: By default, there is no requirement for GUI/PyGame/Flask/Web mode for any extension. This is intentional: extension modes can vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and unnecessary. And rarely will it be useful, with very few exceptions. That said, it is not forbidden to include a GUI/PyGame/Flask/Web mode for an extension if the developer deems it useful or essential for their specific use case. As many extensions will produce game_N.json and summary.json, we will reuse the replay engine of Task0 for the replaying of those json log files. On the contrary, each extension of v0.03+ will have a streamlit app.py, whose sole purpose is to launch scripts with adjustable parameters.
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:
@@ -80,7 +81,7 @@ extensions/{algorithm}-v{version}/
 ├── game_data.py                   # Algorithm-specific data handling (v0.02+)
 ├── {algorithm}_config.py          # Extension-specific configuration (v0.03+)
 ├── replay_engine.py               # Replay processing (v0.03+)
-├── replay_gui.py                  # PyGame replay interface (v0.03+)
+├── replay_gui.py                  # PyGame replay interface (optional, v0.03+) - GUI optional per SUPREME_RULE NO.5
 └── [version-specific additions]    # See detailed templates below
 ```
 
@@ -101,7 +102,7 @@ extensions/{algorithm}-v0.01/
 ### **Characteristics**:
 - **Single algorithm only** (e.g., BFS for heuristics, MLP for supervised)
 - **No command-line arguments** for algorithm selection
-- **No GUI components** - console output only
+- **No GUI components by default** - console output only (GUI optional per SUPREME_RULE NO.5)
 - **Direct file placement** - no organized subfolders
 - **Proof of concept** - demonstrates base class integration
 
@@ -167,22 +168,22 @@ extensions/{algorithm}-v0.02/
 - **`--algorithm` command-line argument** for selection
 - **Organized agents/ folder** with factory patterns
 - **Enhanced base class usage** with more sophisticated patterns
-- **No GUI yet** - still CLI only
+- **No GUI by default** - still CLI only (GUI optional per SUPREME_RULE NO.5)
 
 ## 🌐 **v0.03 Template: Web Interface & Dataset Generation**
 
-### **Purpose**: Streamlit web interface, dataset generation, replay capabilities
+### **Purpose**: Streamlit app.py for script launching, dataset generation, optional replay capabilities (SUPREME_RULE NO.5)
 
 ```
 extensions/{algorithm}-v0.03/
 ├── __init__.py                    # Package initialization
-├── app.py                         # ✨ NEW: Streamlit web interface
+├── app.py                         # ✨ NEW: Streamlit app for launching scripts with adjustable parameters (SUPREME_RULE NO.5)
 ├── {algorithm}_config.py          # ✨ NEW: Renamed from config.py for clarity
 ├── game_logic.py                  # Enhanced with dataset generation
 ├── game_manager.py                # Enhanced manager
 ├── game_data.py                   # Enhanced data handling
 ├── replay_engine.py               # ✨ NEW: Replay processing engine
-├── replay_gui.py                  # ✨ NEW: PyGame replay interface
+├── replay_gui.py                  # ✨ NEW: PyGame replay interface (optional) - GUI optional per SUPREME_RULE NO.5
 ├── agents/                        # ✨ COPIED: Exact copy from v0.02
 │   ├── __init__.py               # Same as v0.02
 │   ├── agent_{type1}.py          # Same as v0.02
@@ -197,15 +198,15 @@ extensions/{algorithm}-v0.03/
 │   ├── __init__.py
 │   ├── main.py                   # Moved from root (enhanced CLI)
 │   ├── generate_dataset.py       # Dataset generation CLI
-│   ├── replay.py                 # PyGame replay script
-│   └── replay_web.py             # Flask web replay
+│   ├── replay.py                 # PyGame replay script (optional) - GUI optional per SUPREME_RULE NO.5
+│   └── replay_web.py             # Flask web replay (optional) - GUI optional per SUPREME_RULE NO.5
 └── README.md                      # Comprehensive documentation
 ```
 
 ### **Characteristics**:
-- **Streamlit app.py** with algorithm tabs for launching scripts with adjustable parameters
+- **Streamlit app.py** with algorithm tabs for launching scripts with adjustable parameters (SUPREME_RULE NO.5)
 - **Dataset generation** capabilities for other extensions to consume
-- **PyGame + Flask web replay** systems
+- **Optional PyGame + Flask web replay** systems (not required by default, GUI optional per SUPREME_RULE NO.5)
 - **Enhanced configuration** management
 - **Agents folder exactly copied** from v0.02 (no changes to algorithm implementations)
 

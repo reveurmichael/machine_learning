@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: LLM-Powered Autonomous Agents**
 
-Agentic LLMs represent the next evolution of AI systems that can reason, plan, and act autonomously in complex environments. **This extension strictly follows the SUPREME_RULES** established in SUPREME_RULES from final-decision-10.md, particularly the **canonical `create()` method patterns and simple logging requirements** for all agentic behaviors.
+Agentic LLMs represent the next evolution of AI systems that can reason, plan, and act autonomously in complex environments. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements** for all agentic behaviors.
 
 ### **Educational Value**
 - **Autonomous Reasoning**: Learn how LLMs reason and plan using canonical patterns
@@ -17,7 +17,7 @@ Agentic LLMs represent the next evolution of AI systems that can reason, plan, a
 ## 🧠 **Agentic Architecture Components (CANONICAL PATTERNS)**
 
 ### **Agentic LLM Factory (SUPREME_RULES Compliant)**
-**CRITICAL REQUIREMENT**: All agentic LLM factories MUST use the canonical `create()` method exactly as specified in SUPREME_RULES from final-decision-10.md:
+**CRITICAL REQUIREMENT**: All agentic LLM factories MUST use the canonical `create()` method exactly as specified in SUPREME_RULES from `final-decision-10.md`:
 
 ```python
 class AgenticLLMFactory:
@@ -103,7 +103,7 @@ class ReActAgent(BaseAgent):
 ## 📊 **Simple Logging Standards for Agentic Operations**
 
 ### **Required Logging Pattern (SUPREME_RULES)**
-All agentic operations MUST use simple print statements as established in SUPREME_RULES from final-decision-10.md:
+All agentic operations MUST use simple print statements as established in SUPREME_RULES from `final-decision-10.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for agentic operations (SUPREME_RULES compliance)
@@ -141,13 +141,13 @@ def process_agentic_reasoning(observation: str, tools: dict):
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all agentic operations (SUPREME_RULES from final-decision-10.md compliance)
-- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all agentic documentation
+- [ ] **Simple Logging**: Uses print() statements only for all agentic operations (SUPREME_RULES from `final-decision-10.md` compliance)
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from `final-decision-10.md` in all agentic documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all agentic implementations
 
 ---
 
-**Agentic LLMs represent the pinnacle of autonomous AI systems while maintaining strict compliance with SUPREME_RULES from final-decision-10.md, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
+**Agentic LLMs represent the pinnacle of autonomous AI systems while maintaining strict compliance with SUPREME_RULES from `final-decision-10.md`, proving that canonical patterns and simple logging provide consistent foundations across all AI complexity levels.**
 
 ## 🔗 **See Also**
 

@@ -6,7 +6,7 @@
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive naming conventions** for agent files and classes across all Snake Game AI extensions. It standardizes the file naming pattern, class naming pattern, and directory organization to ensure consistency, clarity, and maintainability across all algorithm types and extension versions, strictly following `final-decision-10.md` SUPREME_RULES.
+This document establishes the **definitive naming conventions** for agent files and classes across all Snake Game AI extensions. It standardizes the file naming pattern, class naming pattern, and directory organization to ensure consistency, clarity, and maintainability across all algorithm types and extension versions, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making agent naming changes to ensure comprehensive understanding
@@ -217,7 +217,7 @@ Design Pattern: Strategy Pattern
 Purpose: Implements {Algorithm} algorithm for Snake game decision making
 Educational Value: Demonstrates {Algorithm} implementation with canonical patterns
 
-Reference: final-decision-10.md for SUPREME_RULES compliance
+Reference: `final-decision-10.md` for SUPREME_RULES compliance
 """
 
 from abc import ABC, abstractmethod

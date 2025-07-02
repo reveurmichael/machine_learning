@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the foundation patterns for all v0.01 extensions.
 
-> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
+> **See also:** `core.md`, `standalone.md`, SUPREME_RULES from `final-decision-10.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Proof of Concept**
 
@@ -42,7 +42,7 @@ class HeuristicAgentFactory:
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # Simple logging
+        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 
@@ -62,7 +62,7 @@ class BFSAgent(BaseAgent):
     
     def __init__(self, name: str = "BFS"):
         super().__init__(name)
-        print(f"[BFSAgent] Initialized BFS agent")  # Simple logging
+        print(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: dict) -> str:
         """Plan next move using BFS"""
@@ -147,7 +147,7 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(grid_size=grid_size)
         self.algorithm = algorithm
         self.agent = self.create(algorithm)
-        print(f"[HeuristicGameManager] Initialized with {algorithm}")  # Simple logging
+        print(f"[HeuristicGameManager] Initialized with {algorithm}")  # SUPREME_RULES compliant logging
     
     def create(self, algorithm: str):
         """Create agent using simple factory"""
@@ -187,7 +187,7 @@ class HeuristicGameManager(BaseGameManager):
         self.apple_position = self._generate_apple()
         self.score = 0
         self.steps = 0
-        print(f"[HeuristicGameManager] Game initialized")  # Simple logging
+        print(f"[HeuristicGameManager] Game initialized")  # SUPREME_RULES compliant logging
     
     def _get_game_state(self) -> dict:
         """Get current game state"""
@@ -326,7 +326,7 @@ v0.01 extensions serve as the foundation for v0.02 extensions, which will:
 
 - **`core.md`**: Base class architecture and inheritance patterns
 - **`standalone.md`**: Standalone principle and extension independence
-- **`final-decision-10.md`**: final-decision-10.md governance system
+- **`final-decision-10.md`**: SUPREME_RULES governance system and canonical standards
 - **`project-structure-plan.md`**: Project structure and organization
 
 

@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Explicit is Better Than Implicit**
 
-The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to SUPREME_RULES from final-decision-10.md.
+The codebase follows principles that make it highly readable and navigable for AI development assistants, strictly adhering to SUPREME_RULES from `final-decision-10.md`.
 
 ## 🔍 **Navigation Aids for AI Assistants**
 
@@ -31,7 +31,7 @@ ROOT/
 # Clear, hierarchical imports
 from core.game_manager import BaseGameManager
 from config.game_constants import VALID_MOVES, DIRECTIONS
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 ```
 
 ### **Design Pattern Documentation**

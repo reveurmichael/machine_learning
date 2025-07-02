@@ -4,7 +4,7 @@
 
 ## ✅ **Current Core Architecture Assessment**
 
-Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following SUPREME_RULES from final-decision-10.md.
+Based on comprehensive analysis of the `core` folder, the architecture is excellently designed and perfectly prepared for future extensions. The core demonstrates exemplary SOLID principles and requires no refactoring, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ## 🎯 **Game Runner Pattern for Extensions**
 
@@ -169,14 +169,14 @@ def train_rl(
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-All extension factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from final-decision-10.md. Factories should be simple, dictionary-based, and avoid over-engineering.
+All extension factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision-10.md`. Factories should be simple, dictionary-based, and avoid over-engineering.
 
 ### Reference Implementation
 
-A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
 
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 
 class MyAgent:
     def __init__(self, name):
@@ -193,7 +193,7 @@ print(agent.name)  # Output: TestAgent
 ```python
 class HeuristicAgentFactory:
     """
-    Factory following SUPREME_RULES from final-decision-10.md
+    Factory following SUPREME_RULES from `final-decision-10.md`
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Create heuristic agents using canonical create() method
@@ -208,7 +208,7 @@ class HeuristicAgentFactory:
     
     @classmethod
     def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create heuristic agent using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create heuristic agent using canonical create() method following SUPREME_RULES from `final-decision-10.md`"""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             available = list(cls._registry.keys())
@@ -248,7 +248,7 @@ class HeuristicAgentFactory:
 
 ## 🏗️ **Perfect Inheritance Hierarchy**
 
-The inheritance structure demonstrates ideal software architecture following SUPREME_RULES from final-decision-10.md:
+The inheritance structure demonstrates ideal software architecture following SUPREME_RULES from `final-decision-10.md`:
 
 ```
 BaseGameManager → GameManager (Task-0 adds LLM features)
@@ -268,7 +268,7 @@ class HeuristicGameManager(BaseGameManager):
     
     Design Pattern: Template Method Pattern
     Purpose: Extends base functionality with heuristic-specific features
-    Educational Value: Shows clean inheritance following SUPREME_RULES from final-decision-10.md
+    Educational Value: Shows clean inheritance following SUPREME_RULES from `final-decision-10.md`
     """
     GAME_LOGIC_CLS = HeuristicGameLogic  # Factory pattern
     
@@ -292,7 +292,7 @@ class HeuristicGameData(BaseGameData):
     
     Design Pattern: Decorator Pattern
     Purpose: Extends base data with heuristic-specific tracking
-    Educational Value: Shows how to extend base classes following SUPREME_RULES from final-decision-10.md
+    Educational Value: Shows how to extend base classes following SUPREME_RULES from `final-decision-10.md`
     """
     # Inherits: consecutive_invalid_reversals, consecutive_no_path_found
     # Does NOT inherit: consecutive_empty_steps, consecutive_something_is_wrong
@@ -311,11 +311,11 @@ class HeuristicGameLogic(BaseGameLogic):
     
     Design Pattern: Strategy Pattern  
     Purpose: Implements heuristic decision-making strategies
-    Educational Value: Shows algorithmic strategy implementation following SUPREME_RULES from final-decision-10.md
+    Educational Value: Shows algorithmic strategy implementation following SUPREME_RULES from `final-decision-10.md`
     """
     GAME_DATA_CLS = HeuristicGameData  # Factory pattern
     
-    def __init__(self, grid_size=10, use_gui=True):
+    def __init__(self, grid_size=10, use_gui=True):  # GUI is optional per SUPREME_RULE NO.5
         super().__init__(grid_size, use_gui)
         # Inherits: planned_moves, get_next_planned_move()
         self.pathfinder = PathfindingFactory.create("ASTAR")  # CANONICAL create() method per SUPREME_RULES
@@ -338,7 +338,7 @@ class RLGameManager(BaseGameManager):
     
     Design Pattern: Observer Pattern
     Purpose: Manages RL training with episode tracking
-    Educational Value: Shows RL integration following SUPREME_RULES from final-decision-10.md
+    Educational Value: Shows RL integration following SUPREME_RULES from `final-decision-10.md`
     """
     GAME_LOGIC_CLS = RLGameLogic
     
@@ -462,6 +462,8 @@ This architecture serves as a **perfect reference implementation** for how the e
 ---
 
 **This core architecture ensures educational value, technical consistency, and scalable development across all Snake Game AI extensions while maintaining strict `final-decision-10.md` SUPREME_RULES compliance.**
+
+from utils.factory_utils import SimpleFactory
 
 
 

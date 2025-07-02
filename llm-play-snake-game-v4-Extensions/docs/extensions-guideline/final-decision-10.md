@@ -9,7 +9,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 ### **SUPREME_RULES Hierarchy**
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, you **must** first read **all** existing markdown files in that directory. No modifications are permitted without full context comprehension.
 2. **SUPREME_RULE NO.2**: When citing Final Decision documents,don't use "Final Decision N", "FD-N", or "final-decision-N", instead, use the precise format `final-decision-N.md`. When citing other markdown files, don't use "RULE-DOC-A", "R-A", or "RD-A", instead, use the exact filename format `md-file-name.md`.
-3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files.
+3. **SUPREME_RULE NO.3**: The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered. This allows developers to easily add new extensions and adapt to future needs without friction. While the folder is designed to be generic, shared, and non-restrictive, exceptions may arise for specific extensions. In such cases, the design should enable clean inheritance and extension of classes, so custom behaviors can be added without breaking the core. Additionally, the code in this folder should avoid tight coupling with ML/DL/RL/LLM-specific concepts. Logging should be kept simple—use print() or colorama print() statements only when absolutely necessary, rather than complex *.log file logging mechanisms. The entire project — including Task-0 and all extensions — must **never** produce `.log` files (though they generally produce `.json` files, like game_N.json, summary.json, etc.).
 4. **SUPREME_RULE NO.4**: All markdown files must be **coherent and aligned**:
 * **STEP A:** Begin with `final-decision-10.md` as the foundational reference. Update all other markdown files to fully align with its core ideas and guiding principles.
 * **STEP B:** Approach this as a **chain reaction of ideas**, inspired by nuclear fission and fusion: each conceptual "atom" (a markdown file or Python module) emits "particles" (insights, corrections, stylistic adjustments) that collide with other atoms — not necessarily within the same topic domain — propagating change throughout the system. Each collision refines and harmonizes both local and global structures.
@@ -30,9 +30,28 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
-- factory_utils.py is located in ROOT/utils folder, instead of extensions/common/utils folder.
-- for extensions, app.py has the sole purpose of launching scripts with adjustable parameters. It will not be showing statistics, or any other information, or any over-complications stuffs.
-
+* `factory_utils.py` must be located in the `ROOT/utils` folder instead of `extensions/common/utils`.
+* For all extensions, `app.py` must serve one and only one purpose: launching scripts with adjustable parameters. It must not display statistics or any other information, nor introduce over-complicated structures or features.
+  Concretely, it must **never** include or refer to:
+  * `st.session_state.visualization_speed`
+  * `performance_analysis_tab`
+  * `algorithm_comparison_tab`
+  * `learning_analytics_tab`
+  * `interactive_game_tab`
+  * `tab_evaluation`
+  * `tab_replay`
+  * `performance_metrics.json`
+  * `comparison_results.json`
+  * `visualization_data.json`
+  * `self.visualization`
+  * Real-time visualization of agent reasoning processes
+  * Real-time progress displays
+  * Game state visualizations
+  * Snake move visualizations
+* In short, Streamlit `app.py` is **NOT** for:
+  * Game state visualization
+  * Real-time progress display
+  * Snake move visualization
 
 
 

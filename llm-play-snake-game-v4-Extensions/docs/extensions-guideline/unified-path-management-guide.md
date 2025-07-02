@@ -123,6 +123,7 @@ def validate_path_structure(extension_path: Path) -> bool:
 ```python
 # extensions/heuristics-v0.01/main.py
 from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
+from utils.factory_utils import SimpleFactory
 
 def main():
     """Main entry point for heuristics v0.01"""
@@ -130,7 +131,6 @@ def main():
     project_root, extension_path = setup_extension_environment()
     
     # Extension-specific logic using canonical factory patterns
-    from extensions.common.utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
     
     # Use canonical factory pattern
@@ -145,6 +145,7 @@ def main():
 ```python
 # extensions/heuristics-v0.02/main.py
 from extensions.common.utils.path_utils import ensure_project_root, get_extension_path, get_dataset_path
+from utils.factory_utils import SimpleFactory
 
 def main():
     """Main entry point for heuristics v0.02"""
@@ -160,7 +161,6 @@ def main():
     )
     
     # Extension logic using canonical factory patterns
-    from extensions.common.utils.factory_utils import SimpleFactory
     from game_manager import HeuristicGameManager
     
     factory = SimpleFactory()

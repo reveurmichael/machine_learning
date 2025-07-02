@@ -4,7 +4,7 @@
 
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
-This directory contains utilities for handling CSV datasets in the Snake game extensions. The implementation provides a flexible, grid-size-agnostic approach to feature extraction and data processing, strictly following SUPREME_RULES from final-decision-10.md.
+This directory contains utilities for handling CSV datasets in the Snake game extensions. The implementation provides a flexible, grid-size-agnostic approach to feature extraction and data processing, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ## 🎯 Overview
 

@@ -16,20 +16,22 @@ Evolutionary algorithms use **population-based optimization** to evolve solution
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-All evolutionary algorithm factories must use the canonical method name `create()` for instantiation, not `create_individual()`, `create_population()`, or any other variant. This ensures consistency and aligns with the KISS principle.
+All evolutionary algorithm factories must use the canonical method name `create()` for instantiation, not `create_individual()`, `create_population()`, or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision-10.md`.
 
 ### **Evolutionary Factory Implementation (SUPREME_RULES Compliant)**
 ```python
+from utils.factory_utils import SimpleFactory
+
 class EvolutionaryFactory:
     """
-    Factory Pattern for Evolutionary Algorithm components following final-decision-10.md SUPREME_RULES
+    Factory Pattern for Evolutionary Algorithm components following SUPREME_RULES from final-decision-10.md
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Demonstrates canonical create() method for evolutionary AI components
     Educational Value: Shows how SUPREME_RULES apply to population-based AI systems -
     canonical patterns work regardless of AI complexity.
     
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    Reference: SUPREME_RULES from final-decision-10.md for canonical method naming
     """
     
     _registry = {
@@ -41,13 +43,13 @@ class EvolutionaryFactory:
     }
     
     @classmethod
-    def create(cls, component_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create evolutionary component using canonical create() method following final-decision-10.md"""
+    def create(cls, component_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create evolutionary component using canonical create() method following SUPREME_RULES from final-decision-10.md"""
         component_class = cls._registry.get(component_type.upper())
         if not component_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown evolutionary component: {component_type}. Available: {available}")
-        print(f"[EvolutionaryFactory] Creating component: {component_type}")  # Simple logging - SUPREME_RULES
+        print(f"[EvolutionaryFactory] Creating component: {component_type}")  # SUPREME_RULES compliant logging
         return component_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -94,7 +96,7 @@ class SnakeIndividual:
         if not (0.0 <= self.mutation_rate <= 1.0):
             raise ValueError("Mutation rate must be between 0.0 and 1.0")
         
-        print(f"[SnakeIndividual] Created individual with {len(self.strategy_weights)} weights")  # Simple logging
+        print(f"[SnakeIndividual] Created individual with {len(self.strategy_weights)} weights")  # SUPREME_RULES compliant logging
 ```
 
 ### **2. Population Management**
@@ -115,7 +117,7 @@ class EvolutionaryPopulation:
         self.individuals: List[SnakeIndividual] = []
         self.generation = 0
         
-        print(f"[EvolutionaryPopulation] Initialized population of size {population_size}")  # Simple logging
+        print(f"[EvolutionaryPopulation] Initialized population of size {population_size}")  # SUPREME_RULES compliant logging
     
     def initialize_random_population(self) -> None:
         """Initialize population with random individuals."""
@@ -126,7 +128,7 @@ class EvolutionaryPopulation:
             individual.parent_ids = [i]  # Self as parent for initial generation
             self.individuals.append(individual)
         
-        print(f"[EvolutionaryPopulation] Created random population of {len(self.individuals)} individuals")  # Simple logging
+        print(f"[EvolutionaryPopulation] Created random population of {len(self.individuals)} individuals")  # SUPREME_RULES compliant logging
     
     def _generate_random_individual(self) -> SnakeIndividual:  # Updated method name
         """Generate a random individual."""
@@ -186,7 +188,7 @@ class GeneticOperators:
             parent_ids=[id(individual)]  # Track parent for genealogy
         )
         
-        print(f"[GeneticOperators] Mutated individual {id(individual)}")  # Simple logging
+        print(f"[GeneticOperators] Mutated individual {id(individual)}")  # SUPREME_RULES compliant logging
         return new_individual
     
     def crossover(self, parent1: SnakeIndividual, parent2: SnakeIndividual) -> Tuple[SnakeIndividual, SnakeIndividual]:
@@ -223,7 +225,7 @@ class GeneticOperators:
             parent_ids=[id(parent1), id(parent2)]
         )
         
-        print(f"[GeneticOperators] Crossover between individuals {id(parent1)} and {id(parent2)}")  # Simple logging
+        print(f"[GeneticOperators] Crossover between individuals {id(parent1)} and {id(parent2)}")  # SUPREME_RULES compliant logging
         return offspring1, offspring2
 ```
 
@@ -244,7 +246,7 @@ class FitnessEvaluator:
         self.num_games = num_games
         self.game_simulator = GameSimulator(grid_size)
         
-        print(f"[FitnessEvaluator] Initialized with grid size {grid_size}")  # Simple logging
+        print(f"[FitnessEvaluator] Initialized with grid size {grid_size}")  # SUPREME_RULES compliant logging
     
     def evaluate_fitness(self, individual: SnakeIndividual) -> float:
         """
@@ -286,7 +288,7 @@ class FitnessEvaluator:
         
         individual.fitness_score = fitness
         
-        print(f"[FitnessEvaluator] Individual {id(individual)} fitness: {fitness:.3f}")  # Simple logging
+        print(f"[FitnessEvaluator] Individual {id(individual)} fitness: {fitness:.3f}")  # SUPREME_RULES compliant logging
         return fitness
     
     def _generate_agent_from_individual(self, individual: SnakeIndividual) -> SnakeAgent:  # Updated method name
@@ -318,7 +320,7 @@ class EvolutionaryAlgorithm:
         self.generation = 0
         self.max_generations = 100
         
-        print(f"[EvolutionaryAlgorithm] Initialized EA with population size {population_size}")  # Simple logging
+        print(f"[EvolutionaryAlgorithm] Initialized EA with population size {population_size}")  # SUPREME_RULES compliant logging
     
     def run_evolution(self) -> List[SnakeIndividual]:
         """
@@ -333,7 +335,7 @@ class EvolutionaryAlgorithm:
         self.population.initialize_random_population()
         
         for generation in range(self.max_generations):
-            print(f"[EvolutionaryAlgorithm] Starting generation {generation + 1}")  # Simple logging
+            print(f"[EvolutionaryAlgorithm] Starting generation {generation + 1}")  # SUPREME_RULES compliant logging
             
             # Evaluate fitness of all individuals
             self._evaluate_population()
@@ -368,7 +370,7 @@ class EvolutionaryAlgorithm:
         num_selected = int(len(sorted_individuals) * selection_ratio)
         selected = sorted_individuals[:num_selected]
         
-        print(f"[EvolutionaryAlgorithm] Selected {len(selected)} best individuals")  # Simple logging
+        print(f"[EvolutionaryAlgorithm] Selected {len(selected)} best individuals")  # SUPREME_RULES compliant logging
         return selected
     
     def _generate_next_generation(self) -> None:  # Updated method name
@@ -400,7 +402,7 @@ class EvolutionaryAlgorithm:
         self.population.individuals = new_individuals
         self.population.generation += 1
         
-        print(f"[EvolutionaryAlgorithm] Generated new generation with {len(new_individuals)} individuals")  # Simple logging
+        print(f"[EvolutionaryAlgorithm] Generated new generation with {len(new_individuals)} individuals")  # SUPREME_RULES compliant logging
     
     def _select_parents(self) -> Tuple[SnakeIndividual, SnakeIndividual]:
         """Select two parents for crossover using tournament selection."""
@@ -424,7 +426,7 @@ class EvolutionaryAlgorithm:
         min_fitness = min(fitness_scores)
         
         print(f"[EvolutionaryAlgorithm] Generation {generation + 1} stats: "
-              f"avg={avg_fitness:.3f}, max={max_fitness:.3f}, min={min_fitness:.3f}")  # Simple logging
+              f"avg={avg_fitness:.3f}, max={max_fitness:.3f}, min={min_fitness:.3f}")  # SUPREME_RULES compliant logging
 ```
 
 ## 📊 **Data Format for Evolutionary Algorithms**
@@ -439,7 +441,7 @@ def save_evolutionary_dataset(evolutionary_data: dict, output_path: Path):
     and includes population data, genetic history, and fitness metrics.
     """
     np.savez(output_path, **evolutionary_data)
-    print(f"[EvolutionaryUtils] Saved evolutionary dataset: {output_path}")  # Simple logging
+    print(f"[EvolutionaryUtils] Saved evolutionary dataset: {output_path}")  # SUPREME_RULES compliant logging
 
 def create_evolutionary_dataset(
     population_history: List[List[SnakeIndividual]],

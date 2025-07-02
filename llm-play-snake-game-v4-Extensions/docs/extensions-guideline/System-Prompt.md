@@ -183,14 +183,16 @@ Models trained by ML/DL/RL are stored in:
 ./logs/extensions/models/grid-size-N/{algorithm}_v0.0N_{timestamp}/
 ```
 
-## 🎨 **Streamlit App Philosophy**
+## 🎨 **Streamlit App Philosophy (SUPREME_RULE NO.5)**
 
 Streamlit `app.py` is **NOT** for:
 - Game state visualization
 - Real-time progress display
 - Snake move visualization
 
-Its primary purpose is to launch scripts in the "scripts" folder with adjustable parameters using subprocess. This is why extensions v0.03 have a "dashboard" folder.
+Its **sole purpose** is to launch scripts in the "scripts" folder with adjustable parameters using subprocess, as mandated by SUPREME_RULE NO.5 from `final-decision-10.md`. This is why extensions v0.03 have a "dashboard" folder.
+
+**GUI Philosophy**: By default, there is no requirement for GUI/PyGame/Flask/Web mode for any extension. This is intentional: extension modes can vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and unnecessary. And rarely will it be useful, with very few exceptions. That said, it is not forbidden to include a GUI/PyGame/Flask/Web mode for an extension if the developer deems it useful or essential for their specific use case.
 
 ## 🔒 **Final Decision Protection**
 

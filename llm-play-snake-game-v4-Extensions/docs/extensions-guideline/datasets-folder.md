@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Organization**
 
-The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from final-decision-10.md.
+The datasets folder uses a **grid-size agnostic organization** that ensures consistent dataset storage across all extensions and grid sizes. This system provides predictable dataset locations and enables cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Dataset Organization**: Understanding consistent dataset storage

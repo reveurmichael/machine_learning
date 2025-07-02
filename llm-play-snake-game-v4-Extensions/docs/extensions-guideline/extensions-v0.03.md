@@ -1,12 +1,12 @@
-> **Important — Authoritative Reference:** This guidance supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`). Where conflicts exist, defer to the Final Decision documents.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the v0.03 extension standards.
 
 > **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
 
-# Extensions v0.03: Web Interface & Dataset Generation
+# Extensions v0.03: Script Launcher Interface & Dataset Generation (SUPREME_RULES NO.5)
 
-## 🎯 **Core Philosophy: User-Friendly Interface + Data Generation**
+## 🎯 **Core Philosophy: Script Launcher Interface + Data Generation (SUPREME_RULES NO.5)**
 
-v0.03 represents the transition from command-line tools to **user-friendly web interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern web technologies.
+v0.03 represents the transition from command-line tools to **Streamlit script launcher interfaces** while adding **dataset generation capabilities** for other extensions. This version demonstrates how to build upon stable algorithmic foundations (v0.02) with modern script launching technologies, following SUPREME_RULES NO.5 from `final-decision-10.md`. The Streamlit app.py serves the sole purpose of launching scripts with adjustable parameters, and GUI components are optional per SUPREME_RULES NO.5.
 
 ## 🏗️ **Architectural Transformation: UI, Scripts, and Stability**
 
@@ -29,7 +29,7 @@ extensions/{algorithm_type}-v0.03/
 
 ### **Key Architectural Changes**
 
-1.  **`app.py` is the New Entry Point:** The primary way to interact with a `v0.03` extension is through the Streamlit web application. It **must** follow the OOP architecture defined in `final-decision-9.md`.
+1.  **`app.py` is the Script Launcher:** The primary way to interact with a `v0.03` extension is through the Streamlit script launcher application. It **must** follow the OOP architecture defined in `final-decision-9.md` and serve the sole purpose of launching scripts with adjustable parameters (SUPREME_RULES NO.5). GUI components are optional per SUPREME_RULES NO.5.
 2.  **`scripts/` Consolidates CLI Tools:** All command-line functionality is moved into the `scripts/` folder. These scripts are self-contained and can be run independently of the UI.
 3.  **`dashboard/` Organizes the UI:** All UI components used by `app.py` are organized into the `dashboard/` folder for modularity and clarity.
 4.  **The `agents/` Folder is Stable:** The `agents/` directory contains the same core algorithms from `v0.02`. This is a critical principle, demonstrating that the core agent logic is stable and can be reused without modification.
@@ -65,9 +65,9 @@ New agents can be added in v0.03 **only** if they:
 3. **Maintain interface compatibility** with existing factory patterns
 4. **Follow naming conventions** (`agent_{algorithm}_{enhancement}.py`)
 
-## 🔧 **The "UI as a Script-Runner" Pattern**
+## 🔧 **The "UI as a Script-Runner" Pattern (SUPREME_RULES NO.5)**
 
-The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.**
+The single most important concept in `v0.03` is that the **Streamlit application's main purpose is to be a user-friendly frontend for the scripts in the `scripts/` folder.** This is mandated by SUPREME_RULES NO.5 from `final-decision-10.md`.
 
 The UI should not re-implement any core logic. Instead, it should:
 1.  Use interactive widgets (sliders, buttons) to gather parameters from the user.
@@ -91,7 +91,7 @@ A `v0.03` extension is considered complete and successful if it meets these crit
 - [ ] Is the `agents/` folder an identical copy of the one from `v0.02`?
 - [ ] Does the Streamlit UI function primarily as a "script-runner" using `subprocess`?
 - [ ] Does it include a `scripts/generate_dataset.py` for data production?
-- [ ] **Flask web replay** system (extends ROOT/web infrastructure)
+- [ ] **Optional Flask web replay** system (extends ROOT/web infrastructure, not required by default)
 
 ---
 
@@ -180,7 +180,7 @@ extensions/heuristics-v0.03/
     ├── main.py                   # CLI interface
     ├── generate_dataset.py       # CSV dataset generation
     ├── replay.py                 # PyGame replay
-    └── replay_web.py             # Flask web replay (extends ROOT/web infrastructure)
+    └── replay_web.py             # Optional Flask web replay (extends ROOT/web infrastructure)
 ```
 
 ### **Supervised v0.03**
@@ -221,7 +221,7 @@ extensions/supervised-v0.03/
     ├── train.py                  # CLI training interface
     ├── evaluate.py               # Model evaluation
     ├── replay.py                 # PyGame model replay
-    └── replay_web.py             # Flask model replay (extends ROOT/web infrastructure)
+    └── replay_web.py             # Optional Flask model replay (extends ROOT/web infrastructure)
 ```
 
 ### **Reinforcement v0.03**
@@ -256,7 +256,7 @@ extensions/reinforcement-v0.03/
     ├── train.py                  # CLI RL training
     ├── evaluate.py               # RL evaluation
     ├── replay.py                 # PyGame RL replay
-    └── replay_web.py             # Flask RL replay (extends ROOT/web infrastructure)
+    └── replay_web.py             # Optional Flask RL replay (extends ROOT/web infrastructure)
 ```
 
 ## 🏗️ **Streamlit OOP Architecture**
@@ -320,7 +320,7 @@ logs/extensions/datasets/
 
 **All Extensions (Heuristics, Supervised, Reinforcement):**
 - ✅ **CLI only** → **Streamlit web application**
-- ✅ **No replay** → **PyGame + Flask web replay (following ROOT/web patterns)**
+- ✅ **No replay** → **Optional PyGame + Flask web replay (following ROOT/web patterns)**
 - ✅ **Basic logging** → **Dataset generation with standardized paths**
 - 🔒 **Core algorithms** → **Stable (copied exactly from v0.02)**
 - ➕ **Web enhancements** → **Allowed additions for UI integration**
@@ -347,7 +347,7 @@ logs/extensions/datasets/
 - [ ] **Dashboard folder** with organized tab components
 - [ ] **Dataset generation** scripts and CLI
 - [ ] **PyGame replay** system
-- [ ] **Flask web replay** system (extends ROOT/web infrastructure)
+- [ ] **Optional Flask web replay** system (extends ROOT/web infrastructure, not required by default)
 - [ ] **Agent/model folder** copied exactly from v0.02
 - [ ] **Configuration renamed** to avoid conflicts
 
@@ -389,3 +389,5 @@ logs/extensions/datasets/
 ---
 
 **Remember**: v0.03 is about **user experience** and **data production**. Create polished interfaces that make algorithms/models accessible and generate high-quality datasets for the ML ecosystem. However, for heuristics specifically, prefer v0.04 as it provides everything v0.03 does and more.
+
+> **See also:** `core.md`, `standalone.md`, SUPREME_RULES from `final-decision-10.md`, `dashboard.md`, `factory-design-pattern.md`.

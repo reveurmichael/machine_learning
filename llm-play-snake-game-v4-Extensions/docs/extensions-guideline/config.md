@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Flexible Configuration Management**
 
-Configuration in the Snake Game AI project follows a hierarchical, extensible architecture that supports both simple parameter management and complex multi-extension configurations. The system is designed to be lightweight, educational, and maintainable while supporting the diverse needs of different algorithm types.
+Configuration in the Snake Game AI project follows a hierarchical, extensible architecture that supports both simple parameter management and complex multi-extension configurations. The system is designed to be lightweight, educational, and maintainable while supporting the diverse needs of different algorithm types, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Configuration Patterns**: Demonstrates best practices for parameter management
@@ -16,14 +16,14 @@ Configuration in the Snake Game AI project follows a hierarchical, extensible ar
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-All configuration factories must use the canonical method name `create()` for instantiation, not `create_config()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from final-decision-10.md.
+All configuration factories must use the canonical method name `create()` for instantiation, not `create_config()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision-10.md`.
 
 ### Reference Implementation
 
-A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
 
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 
 class MyConfig:
     def __init__(self, name):
@@ -56,20 +56,14 @@ class ConfigFactory:
 ## 🏗️ **Configuration Hierarchy**
 
 ### **1. Global Configuration (ROOT/config/)**
-```python
-# config/game_constants.py
-GRID_SIZE_DEFAULT = 10
-MAX_GAMES_DEFAULT = 1
-VISUALIZATION_DEFAULT = True
 
-# config/llm_constants.py (Task-0 specific)
-LLM_PROVIDERS = ["hunyuan", "deepseek", "mistral"]
-MAX_TOKENS_DEFAULT = 1000
+TODO: list 
+TODO: list 
+TODO: list 
+TODO: list 
+TODO: list 
+TODO: list 
 
-# config/network_constants.py
-HOST_DEFAULT = "localhost"
-PORT_DEFAULT = 8000
-```
 
 ### **2. Extension-Specific Configuration**
 ```python

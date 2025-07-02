@@ -12,11 +12,11 @@
 
 ## 🎯 **Core Philosophy: Format Follows Function**
 
-Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from final-decision-10.md.
+Data formats are chosen based on **algorithm requirements**, not convenience. Each format serves specific use cases and enables optimal performance for particular model types, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Guidelines Alignment**
-- **SUPREME_RULES from final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
-- **SUPREME_RULES from final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
+- **SUPREME_RULES from `final-decision-10.md` Guideline 1**: Enforces reading all GOOD_RULES before making data format architectural changes to ensure comprehensive understanding
+- **SUPREME_RULES from `final-decision-10.md` Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and data format patterns
 - **SUPREME_RULES compliant logging**: Enables lightweight common utilities with OOP extensibility while maintaining data format patterns through inheritance rather than tight coupling
 
 ## 📊 **Format Selection Matrix**

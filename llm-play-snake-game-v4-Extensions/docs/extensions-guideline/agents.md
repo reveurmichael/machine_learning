@@ -6,23 +6,23 @@
 
 ## 🎯 **Core Philosophy: Algorithmic Decision Making**
 
-Agents in the Snake Game AI project represent the core decision-making components that determine how the snake moves through the game environment. Each agent implements a specific algorithm or approach to solving the pathfinding and decision-making challenges of the Snake game, strictly following SUPREME_RULES from final-decision-10.md.
+Agents in the Snake Game AI project represent the core decision-making components that determine how the snake moves through the game environment. Each agent implements a specific algorithm or approach to solving the pathfinding and decision-making challenges of the Snake game, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Algorithm Implementation**: Clear examples of different algorithmic approaches
 - **Design Pattern Demonstration**: Factory patterns, strategy patterns, and inheritance
 - **Comparative Analysis**: Easy comparison between different agent types
 - **Extensibility**: Framework for implementing new algorithms
-- **SUPREME_RULES Compliance**: Professional software engineering standards from final-decision-10.md
+- **SUPREME_RULES Compliance**: Professional software engineering standards from `final-decision-10.md`
 
 ## 🏗️ **Factory Pattern: Canonical Method is create()**
 
-All agent factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from final-decision-10.md.
+All agent factories must use the canonical method name `create()` for instantiation, not `create_agent()` or any other variant. This ensures consistency and aligns with the KISS principle and SUPREME_RULES from `final-decision-10.md`.
 
 ### Reference Implementation
 
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 
 class MyAgent:
     def __init__(self, name):
@@ -200,7 +200,7 @@ All agents should track and report these standard metrics:
 - [ ] **Documentation**: Clear docstrings and comments
 - [ ] **SUPREME_RULES Logging**: Uses print() statements for debugging
 
-### **Quality Standards (final-decision-10.md Compliance)**
+### **Quality Standards (`final-decision-10.md` Compliance)**
 - [ ] **Algorithm Correctness**: Implements algorithm accurately
 - [ ] **Performance**: Meets performance benchmarks
 - [ ] **Robustness**: Handles edge cases gracefully

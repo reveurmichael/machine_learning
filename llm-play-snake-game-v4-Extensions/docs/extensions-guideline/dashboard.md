@@ -2,9 +2,9 @@
 
 > **Important — Authoritative Reference:** This document supplements `unified-streamlit-architecture-guide.md` (Streamlit OOP) and `final-decision-5.md` (Directory Structure).
 
-## 🎯 **Dashboard Philosophy**
+## 🎯 **Dashboard Philosophy (SUPREME_RULE NO.5)**
 
-The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in `unified-streamlit-architecture-guide.md`, strictly adhering to SUPREME_RULES from final-decision-10.md.
+The `dashboard/` directory is **mandatory for all v0.03+ extensions** and serves as the organizational hub for modular UI components following the Object-Oriented Streamlit architecture established in `unified-streamlit-architecture-guide.md`, strictly adhering to SUPREME_RULES from final-decision-10.md. This implements SUPREME_RULE NO.5, which requires v0.03+ extensions to have a Streamlit app.py for launching scripts with adjustable parameters.
 
 ## 🧠 **Separation of UI Concerns**
 

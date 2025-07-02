@@ -2,11 +2,11 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines factory design pattern implementation with strict SUPREME_RULES compliance.
 
-> **See also:** `final-decision-10.md`, `agents.md`, `core.md`, `standalone.md`.
+> **See also:** `agents.md`, `core.md`, `standalone.md`, `final-decision-10.md`.
 
 ## 🎯 **Core Philosophy: Canonical Factory Patterns + SUPREME_RULES**
 
-The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES** established in `final-decision-10.md`, ensuring:
+The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES** established in SUPREME_RULES from `final-decision-10.md`, ensuring:
 - **Canonical `create()` method** for all factories (never `create_agent()`, `create_model()`, etc.)
 - **Simple logging** (print statements only, no complex logging frameworks)
 - **Lightweight, OOP-based, extensible, non-over-engineered** design
@@ -24,7 +24,7 @@ The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES*
 
 ### **Reference Implementation**
 
-A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:  # TODO: double check if task0 mode and task1-5 mode are using this factory_utils.py, and if things are coherent.
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
 
 ```python
 class SimpleFactory:
@@ -36,30 +36,30 @@ class SimpleFactory:
     Educational Value: Shows how SUPREME_RULES enable consistent patterns
     across simple heuristics and complex AI systems.
     
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    Reference: `final-decision-10.md` SUPREME_RULES for canonical method naming
     """
     
     def __init__(self):
         self._registry = {}
-        print(f"[SimpleFactory] Initialized")  # Simple logging - SUPREME_RULES
+        print(f"[SimpleFactory] Initialized")  # SUPREME_RULES compliant logging
     
     def register(self, name: str, cls):
         """Register a class with the factory"""
         self._registry[name] = cls
-        print(f"[SimpleFactory] Registered: {name}")  # Simple logging
+        print(f"[SimpleFactory] Registered: {name}")  # SUPREME_RULES compliant logging
     
     def create(self, name: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create instance using canonical create() method following final-decision-10.md"""
+        """Create instance using canonical create() method following `final-decision-10.md`"""
         if name not in self._registry:
             available = list(self._registry.keys())
             raise ValueError(f"Unknown type: {name}. Available: {available}")
-        print(f"[SimpleFactory] Creating: {name}")  # Simple logging - SUPREME_RULES
+        print(f"[SimpleFactory] Creating: {name}")  # SUPREME_RULES compliant logging
         return self._registry[name](**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class SimpleFactory:
-    def create_agent(self, name: str):  # FORBIDDEN - not canonical
-        pass
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
+def create_agent(self, name: str):  # FORBIDDEN - not canonical
+    pass
     
     def build_model(self, name: str):  # FORBIDDEN - not canonical
         pass
@@ -70,7 +70,7 @@ class SimpleFactory:
 
 ### **Usage Example**
 ```python
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 
 class MyAgent:
     def __init__(self, name):
@@ -82,7 +82,7 @@ factory.register("myagent", MyAgent)
 
 # Use canonical create() method
 agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method
-print(f"Created agent: {agent.name}")  # Simple logging
+print(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🔧 **Factory Pattern Implementation Examples**
@@ -122,7 +122,7 @@ print(f"Created agent: {agent.name}")  # Simple logging
 ### **Educational Integration**
 - [ ] **Clear Examples**: Simple examples using canonical `create()` method
 - [ ] **Pattern Documentation**: Clear explanation of factory pattern benefits
-- [ ] **SUPREME_RULES Compliance**: All examples follow final-decision-10.md standards
+- [ ] **SUPREME_RULES Compliance**: All examples follow `final-decision-10.md` standards
 - [ ] **Cross-Reference**: Links to related patterns and principles
 
 ## 🔗 **Cross-References and Integration**
@@ -134,7 +134,7 @@ print(f"Created agent: {agent.name}")  # Simple logging
 - **`standalone.md`**: Standalone extension principles with factory patterns
 
 ### **Implementation Files**
-- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
+- **`utils/factory_utils.py`**: Canonical factory utilities
 - **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
 - **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
 

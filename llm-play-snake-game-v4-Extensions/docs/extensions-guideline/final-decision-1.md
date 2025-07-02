@@ -34,7 +34,7 @@ This document integrates with the **GOOD_RULES** governance system established i
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models, strictly following `final-decision-10.md` SUPREME_RULES.
+This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
 All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:

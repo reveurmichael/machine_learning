@@ -6,7 +6,7 @@
 
 ## �� **Core Philosophy: Clean Extension Transitions**
 
-Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies.
+Extension moves involve transferring code between different extension versions while maintaining **clean architecture, educational value, and SUPREME_RULES compliance**. This process ensures that extensions evolve systematically without breaking existing functionality or creating inconsistencies, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Clean Transitions**: Learn how to move code between versions systematically
@@ -36,13 +36,13 @@ class ExtensionMoveFactory:
     }
     
     @classmethod
-    def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method
-        """Create move manager using canonical create() method (SUPREME_RULES compliance)"""
+    def create(cls, extension_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create move manager using canonical create() method following SUPREME_RULES from final-decision-10.md"""
         manager_class = cls._registry.get(extension_type.upper())
         if not manager_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown extension type: {extension_type}. Available: {available}")
-        print(f"[ExtensionMoveFactory] Creating move manager: {extension_type}")  # Simple logging
+        print(f"[ExtensionMoveFactory] Creating move manager: {extension_type}")  # SUPREME_RULES compliant logging
         return manager_class(**kwargs)
 ```
 
@@ -79,11 +79,11 @@ class ExtensionMoveManager:
     def __init__(self, source_version: str, target_version: str):
         self.source_version = source_version
         self.target_version = target_version
-        print(f"[ExtensionMoveManager] Initialized move: {source_version} → {target_version}")  # Simple logging
+        print(f"[ExtensionMoveManager] Initialized move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     def execute_move(self):
         """Execute systematic extension move"""
-        print(f"[ExtensionMoveManager] Starting move process")  # Simple logging
+        print(f"[ExtensionMoveManager] Starting move process")  # SUPREME_RULES compliant logging
         
         # Step 1: Validate source extension
         self._validate_source()
@@ -100,32 +100,32 @@ class ExtensionMoveManager:
         # Step 5: Validate target extension
         self._validate_target()
         
-        print(f"[ExtensionMoveManager] Move completed successfully")  # Simple logging
+        print(f"[ExtensionMoveManager] Move completed successfully")  # SUPREME_RULES compliant logging
     
     def _validate_source(self):
         """Validate source extension structure"""
         # Validation logic here
-        print(f"[ExtensionMoveManager] Source validation completed")  # Simple logging
+        print(f"[ExtensionMoveManager] Source validation completed")  # SUPREME_RULES compliant logging
     
     def _create_target_structure(self):
         """Create target directory structure"""
         # Structure creation logic here
-        print(f"[ExtensionMoveManager] Target structure created")  # Simple logging
+        print(f"[ExtensionMoveManager] Target structure created")  # SUPREME_RULES compliant logging
     
     def _copy_and_adapt_code(self):
         """Copy and adapt code for target version"""
         # Code adaptation logic here
-        print(f"[ExtensionMoveManager] Code copied and adapted")  # Simple logging
+        print(f"[ExtensionMoveManager] Code copied and adapted")  # SUPREME_RULES compliant logging
     
     def _update_dependencies(self):
         """Update dependencies for target version"""
         # Dependency update logic here
-        print(f"[ExtensionMoveManager] Dependencies updated")  # Simple logging
+        print(f"[ExtensionMoveManager] Dependencies updated")  # SUPREME_RULES compliant logging
     
     def _validate_target(self):
         """Validate target extension"""
         # Target validation logic here
-        print(f"[ExtensionMoveManager] Target validation completed")  # Simple logging
+        print(f"[ExtensionMoveManager] Target validation completed")  # SUPREME_RULES compliant logging
 ```
 
 ## 🔧 **Code Adaptation Patterns**
@@ -149,7 +149,7 @@ class MoveConfiguration:
         self.source_version = source_version
         self.target_version = target_version
         self.adaptations = self._get_adaptations()
-        print(f"[MoveConfiguration] Configured for {source_version} → {target_version}")  # Simple logging
+        print(f"[MoveConfiguration] Configured for {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     def _get_adaptations(self) -> dict:
         """Get required adaptations for move"""
@@ -164,8 +164,7 @@ class MoveConfiguration:
         """Get import statement adaptations"""
         return [
             # Update import paths to use common utilities
-            ('from extensions.heuristics_v0.03.agents import BFSAgent', 
-             'from extensions.common.utils.factory_utils import SimpleFactory'),
+            ('from utils.factory_utils import SimpleFactory'),
             # Add new imports for target version
             ('', 'from extensions.common.utils.csv_schema_utils import create_csv_row')
         ]
@@ -204,10 +203,10 @@ def validate_source_extension(extension_path: Path) -> bool:
     
     for file_path in required_files:
         if not (extension_path / file_path).exists():
-            print(f"[Validation] Missing required file: {file_path}")  # Simple logging
+            print(f"[Validation] Missing required file: {file_path}")  # SUPREME_RULES compliant logging
             return False
     
-    print(f"[Validation] Source extension validated")  # Simple logging
+    print(f"[Validation] Source extension validated")  # SUPREME_RULES compliant logging
     return True
 ```
 
@@ -224,7 +223,7 @@ def validate_target_extension(extension_path: Path) -> bool:
     
     for dir_path in required_dirs:
         if not (extension_path / dir_path).exists():
-            print(f"[Validation] Missing required directory: {dir_path}")  # Simple logging
+            print(f"[Validation] Missing required directory: {dir_path}")  # SUPREME_RULES compliant logging
             return False
     
     # Check for forbidden patterns
@@ -236,10 +235,10 @@ def validate_target_extension(extension_path: Path) -> bool:
     
     for pattern in forbidden_patterns:
         if contains_pattern(extension_path, pattern):
-            print(f"[Validation] Found forbidden pattern: {pattern}")  # Simple logging
+            print(f"[Validation] Found forbidden pattern: {pattern}")  # SUPREME_RULES compliant logging
             return False
     
-    print(f"[Validation] Target extension validated")  # Simple logging
+    print(f"[Validation] Target extension validated")  # SUPREME_RULES compliant logging
     return True
 ```
 
@@ -249,7 +248,7 @@ def validate_target_extension(extension_path: Path) -> bool:
 ```python
 def automate_extension_move(source_version: str, target_version: str):
     """Automate extension move process"""
-    print(f"[Automation] Starting automated move: {source_version} → {target_version}")  # Simple logging
+    print(f"[Automation] Starting automated move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     # Create move manager
     move_manager = ExtensionMoveFactory.create("HEURISTICS", 
@@ -261,9 +260,9 @@ def automate_extension_move(source_version: str, target_version: str):
     
     # Validate result
     if validate_target_extension(Path(f"extensions/heuristics-{target_version}")):
-        print(f"[Automation] Move completed successfully")  # Simple logging
+        print(f"[Automation] Move completed successfully")  # SUPREME_RULES compliant logging
     else:
-        print(f"[Automation] Move validation failed")  # Simple logging
+        print(f"[Automation] Move validation failed")  # SUPREME_RULES compliant logging
 ```
 
 ## 📋 **Implementation Checklist**

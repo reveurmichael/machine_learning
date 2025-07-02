@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines replay system patterns for extensions.
 
-> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+> **See also:** `core.md`, SUPREME_RULES from `final-decision-10.md`, `project-structure-plan.md`.
 
 
 ### **1. ✅ BaseReplayEngine (Generic for Tasks 0-5) - Perfect**

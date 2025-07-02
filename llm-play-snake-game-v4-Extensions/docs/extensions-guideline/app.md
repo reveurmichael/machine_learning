@@ -4,26 +4,26 @@
 
 > **See also:** `scripts.md`, `dashboard.md`, `final-decision-10.md`, `standalone.md`.
 
-## 🎯 **Core Philosophy: Interactive Algorithm Exploration**
+## 🎯 **Core Philosophy: Script Launcher Interface**
 
-Streamlit applications in Snake Game AI extensions serve as **interactive dashboards** that enable researchers, students, and developers to explore algorithm behavior, compare performance, and understand the decision-making processes of different AI approaches.
+Streamlit applications in Snake Game AI extensions serve as **script launcher interfaces** that enable researchers, students, and developers to launch backend scripts with adjustable parameters. This follows SUPREME_RULE NO.5 from `final-decision-10.md`, which states that v0.03+ extensions must have a Streamlit app.py whose sole purpose is to launch scripts with adjustable parameters.
 
 ### **Educational Value**
-- **Algorithm Visualization**: Real-time observation of decision-making processes
-- **Interactive Parameter Tuning**: Dynamic exploration of algorithm behavior
-- **Comparative Analysis**: Side-by-side algorithm performance evaluation
-- **Learning Analytics**: Progress tracking and performance insights
+- **Script Parameter Management**: Easy adjustment of algorithm parameters through UI
+- **Backend Script Integration**: Seamless launching of CLI scripts with user-defined parameters
+- **Parameter Validation**: User-friendly validation of script parameters
+- **Execution Monitoring**: Simple monitoring of script execution progress
 
 ## 🏗️ **Streamlit Architecture Patterns**
 
-### **Universal v0.03 Requirements**
+### **Universal v0.03 Requirements (SUPREME_RULE NO.5)**
 
-All extensions v0.03 must implement Streamlit applications following these standards:
+All extensions v0.03 must implement Streamlit applications following these standards per SUPREME_RULE NO.5:
 
 #### **Application Structure**
 ```
 extensions/{algorithm}-v0.03/
-├── app.py                          # 🎯 Main Streamlit application entry point
+├── app.py                          # 🎯 Main Streamlit script launcher (SUPREME_RULE NO.5)
 ├── dashboard/                      # 📁 Dashboard component modules
 │   ├── __init__.py                 # Dashboard package initialization
 │   ├── components/                 # 📁 Reusable UI components

@@ -2,11 +2,11 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines KISS principle standards.
 
-> **See also:** `final-decision-10.md`, `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`.
+> **See also:** `elegance.md`, `no-over-preparation.md`, `factory-design-pattern.md`, `final-decision-10.md`.
 
 ## 🎯 **Core Philosophy: Simplicity Over Complexity**
 
-The KISS principle emphasizes **simple, clear, and maintainable solutions** over complex, over-engineered approaches. In the Snake Game AI project, this means choosing straightforward implementations that are easy to understand, debug, and extend, strictly following `final-decision-10.md` SUPREME_RULES.
+The KISS principle emphasizes **simple, clear, and maintainable solutions** over complex, over-engineered approaches. In the Snake Game AI project, this means choosing straightforward implementations that are easy to understand, debug, and extend, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Readability**: Simple code is easier to read and understand
@@ -46,15 +46,13 @@ class SimpleAgentFactory:
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class ComplexAgentFactory:
-    def create_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def build_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def make_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
+def create_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+    pass
+def build_agent(self, agent_type: str):  # FORBIDDEN - not canonical
+    pass
+def make_agent(self, agent_type: str):   # FORBIDDEN - not canonical
+    pass
 ```
 
 ## 🎨 **Simple Code Patterns**
@@ -81,7 +79,7 @@ class SimpleGameState:
         self.snake_positions = [(grid_size // 2, grid_size // 2)]
         self.apple_position = self._generate_apple()
         self.score = 0
-        print(f"[SimpleGameState] Initialized {grid_size}x{grid_size} game")  # Simple logging
+        print(f"[SimpleGameState] Initialized {grid_size}x{grid_size} game")  # SUPREME_RULES compliant logging
     
     def _generate_apple(self) -> tuple:
         """Generate random apple position."""
@@ -124,14 +122,14 @@ class SimpleConfig:
         self.grid_size = 10
         self.max_games = 1
         self.visualization = True
-        print(f"[SimpleConfig] Default config loaded")  # Simple logging
+        print(f"[SimpleConfig] Default config loaded")  # SUPREME_RULES compliant logging
     
     def update(self, **kwargs):
         """Update configuration with new values."""
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-                print(f"[SimpleConfig] Updated {key} = {value}")  # Simple logging
+                print(f"[SimpleConfig] Updated {key} = {value}")  # SUPREME_RULES compliant logging
 ```
 
 ### **Simple Error Handling**
@@ -139,7 +137,7 @@ class SimpleConfig:
 def safe_divide(a: float, b: float) -> float:
     """Safely divide two numbers."""
     if b == 0:
-        print(f"[MathUtils] Division by zero attempted")  # Simple logging
+        print(f"[MathUtils] Division by zero attempted")  # SUPREME_RULES compliant logging
         return 0.0
     return a / b
 
@@ -147,7 +145,7 @@ def validate_position(position: tuple, grid_size: int) -> bool:
     """Validate position is within grid bounds."""
     x, y = position
     if not (0 <= x < grid_size and 0 <= y < grid_size):
-        print(f"[Validation] Position {position} out of bounds")  # Simple logging
+        print(f"[Validation] Position {position} out of bounds")  # SUPREME_RULES compliant logging
         return False
     return True
 ```

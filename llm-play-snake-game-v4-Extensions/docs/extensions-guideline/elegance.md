@@ -46,11 +46,13 @@ class ElegantAgentFactory:
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
+# Only use create() as the canonical factory method name per SUPREME_RULES from `final-decision-10.md`.
 class InelegantAgentFactory:
-    def create_agent(self, agent_type: str, **kwargs):  # Wrong method name
+    def create_agent(self, agent_type: str, **kwargs):  # FORBIDDEN - not canonical
         pass
-    
-    def build_agent(self, agent_type: str, **kwargs):   # Wrong method name
+    def build_agent(self, agent_type: str, **kwargs):   # FORBIDDEN - not canonical
+        pass
+    def make_agent(self, agent_type: str, **kwargs):    # FORBIDDEN - not canonical
         pass
 ```
 

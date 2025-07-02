@@ -5,7 +5,7 @@
 # Vision-Language Models for Snake Game AI
 
 > **Guidelines Alignment:**
-> - This document is governed by the guidelines in `final-decision-10.md`.
+> - This document is governed by the guidelines in SUPREME_RULES from `final-decision-10.md`.
 > - All agent factories must use the canonical method name `create()` (never `create_agent`, `create_model`, etc.).
 > - All code must use simple print logging (simple logging).
 > - Reference: `extensions/common/utils/factory_utils.py` for the canonical `SimpleFactory` implementation.
@@ -14,7 +14,7 @@
 
 ## 🎯 **Core Philosophy: Multimodal AI + SUPREME_RULES Compliance**
 
-Vision-Language Models (VLMs) represent a cutting-edge approach that combines visual understanding with natural language processing for Snake Game AI. **This extension strictly follows the SUPREME_RULES** established in `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements**.
+Vision-Language Models (VLMs) represent a cutting-edge approach that combines visual understanding with natural language processing for Snake Game AI. **This extension strictly follows the SUPREME_RULES** established in SUPREME_RULES from `final-decision-10.md`, particularly the **canonical `create()` method patterns and simple logging requirements**.
 
 ### **Guidelines Alignment**
 - **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns for multimodal AI integration
@@ -30,19 +30,19 @@ Vision-Language Models (VLMs) represent a cutting-edge approach that combines vi
 ## 🏗️ **VLM Extension Architecture (SUPREME_RULES Compliant)**
 
 ### **Factory Pattern Implementation (CANONICAL create() METHOD)**
-**CRITICAL REQUIREMENT**: All VLM factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md` SUPREME_RULES:
+**CRITICAL REQUIREMENT**: All VLM factories MUST use the canonical `create()` method exactly as specified in SUPREME_RULES from `final-decision-10.md`:
 
 ```python
 class VLMAgentFactory:
     """
-    Factory Pattern for VLM agents following final-decision-10.md SUPREME_RULES
+    Factory Pattern for VLM agents following SUPREME_RULES from `final-decision-10.md`.
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Demonstrates canonical create() method for multimodal AI agents
     Educational Value: Shows how SUPREME_RULES apply to advanced AI systems -
     canonical patterns work regardless of AI complexity.
     
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    Reference: SUPREME_RULES from `final-decision-10.md` for canonical method naming
     """
     
     _registry = {
@@ -54,7 +54,7 @@ class VLMAgentFactory:
     
     @classmethod
     def create(cls, model_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create VLM agent using canonical create() method following final-decision-10.md"""
+        """Create VLM agent using canonical create() method following SUPREME_RULES from `final-decision-10.md`"""
         agent_class = cls._registry.get(model_type.upper())
         if not agent_class:
             available = list(cls._registry.keys())
@@ -84,7 +84,7 @@ class VisionRendererFactory:
     Educational Value: Shows how canonical create() method enables
     consistent visual processing across different VLM providers.
     
-    Reference: final-decision-10.md for canonical factory standards
+    Reference: SUPREME_RULES from `final-decision-10.md` for canonical factory standards
     """
     
     _registry = {
@@ -115,7 +115,7 @@ class VLMPromptFactory:
     Educational Value: Demonstrates canonical create() method for
     multimodal prompt engineering across different VLM architectures.
     
-    Reference: final-decision-10.md SUPREME_RULES for factory implementation
+    Reference: SUPREME_RULES from `final-decision-10.md` for factory implementation
     """
     
     _registry = {
@@ -149,7 +149,7 @@ class GameStateRenderer:
     Educational Value: Shows how simple logging and canonical patterns
     work together in complex visual processing pipelines.
     
-    Reference: final-decision-10.md for simple logging standards
+    Reference: SUPREME_RULES from `final-decision-10.md` for simple logging standards
     """
     
     def __init__(self, grid_size: int = 10, renderer_type: str = "HIGH_CONTRAST"):
@@ -183,7 +183,7 @@ class GameStateRenderer:
 ```python
 class BaseVLMAgent(BaseAgent):
     """
-    Base class for VLM agents following final-decision-10.md SUPREME_RULES.
+    Base class for VLM agents following SUPREME_RULES from `final-decision-10.md`.
     
     Design Pattern: Template Method Pattern (Canonical Implementation)
     Educational Value: Inherits from BaseAgent to maintain consistency

@@ -25,6 +25,7 @@ Streamlit applications in v0.03+ extensions follow:
 import streamlit as st
 import subprocess
 from abc import ABC, abstractmethod
+from utils.factory_utils import SimpleFactory
 
 class BaseExtensionApp(ABC):
     """
@@ -101,7 +102,7 @@ class BaseExtensionApp(ABC):
 from extensions.common.utils.path_utils import ensure_project_root
 ensure_project_root()
 
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 from extensions.common.app_utils import BaseExtensionApp
 
 class HeuristicStreamlitApp(BaseExtensionApp):

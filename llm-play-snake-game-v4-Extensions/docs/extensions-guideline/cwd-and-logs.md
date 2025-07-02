@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Consistent Path Management**
 
-The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from final-decision-10.md.
+The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Path Management**: Understanding consistent path handling

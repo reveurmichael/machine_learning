@@ -21,7 +21,7 @@ ROOT/                                    # Task-0 (LLM-based Snake AI)
 └── docs/                               # Documentation
 ```
 
-**Architectural Note**: Extensions can be any algorithm type - heuristics, ML, RL, evolutionary, custom approaches, experimental ideas, or novel research directions, all following SUPREME_RULES from final-decision-10.md.
+**Architectural Note**: Extensions can be any algorithm type - heuristics, ML, RL, evolutionary, custom approaches, experimental ideas, or novel research directions, all following SUPREME_RULES from `final-decision-10.md`.
 
 ## 📁 **Extension Structure Template (Flexible)**
 
@@ -46,7 +46,7 @@ extensions/{extension_type}-v{version}/
 - `{extension_type}`: Any descriptive name (heuristics, supervised, custom, experimental)
 - `{algorithm}`: Any algorithm following `agent_{name}.py` pattern
 - No restrictions on algorithm types or approaches
-- All factories must use canonical `create()` method per SUPREME_RULES from final-decision-10.md
+- All factories must use canonical `create()` method per SUPREME_RULES from `final-decision-10.md`
 - `game_runner.py`: Extension-specific quick-play utilities (see Game Runner Pattern below)
 
 ## 🎯 **Core Design Principles**
@@ -76,13 +76,13 @@ BaseAgent → YourCustomAgent
 
 ### **3. Shared Utilities (SUPREME_RULES Compliant)**
 ```python
-# extensions/common/ - Following SUPREME_RULES from final-decision-10.md
+# extensions/common/ - Following SUPREME_RULES from `final-decision-10.md`
 
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 from extensions.common.utils.path_utils import get_dataset_path
 from extensions.common.utils.dataset_utils import load_dataset_for_training
 
-# SUPREME_RULES Compliance (final-decision-10.md):
+# SUPREME_RULES Compliance (`final-decision-10.md`):
 # - Lightweight, reusable foundation for all extensions
 # - Simple, preferably OOP but never over-engineered
 # - Supports experimentation and flexibility
@@ -120,7 +120,7 @@ class NovelAlgorithmAgent(BaseAgent):
     - Hybrid methods
     - Your own novel ideas
     
-    All implementations must follow SUPREME_RULES from final-decision-10.md.
+    All implementations must follow SUPREME_RULES from `final-decision-10.md`.
     """
     
     def __init__(self, name: str, config: dict = None):
@@ -137,7 +137,7 @@ class NovelAlgorithmAgent(BaseAgent):
 ```python
 class CustomAgentFactory:
     """
-    Factory following SUPREME_RULES from final-decision-10.md
+    Factory following SUPREME_RULES from `final-decision-10.md`
     
     Design Pattern: Factory Pattern (Canonical Implementation)
     Purpose: Create agents using the canonical create() method
@@ -152,7 +152,7 @@ class CustomAgentFactory:
     
     @classmethod
     def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        """Create agent using canonical create() method following SUPREME_RULES from `final-decision-10.md`"""
         agent_class = cls._registry.get(agent_type.upper())
         if not agent_class:
             available = list(cls._registry.keys())
@@ -280,7 +280,7 @@ class ComponentFactory:
 ### **Common Utilities Integration (SUPREME_RULES)**
 ```python
 # SUPREME_RULES compliant common utilities
-from extensions.common.utils.factory_utils import SimpleFactory
+from utils.factory_utils import SimpleFactory
 from extensions.common.utils.path_utils import get_extension_path
 from extensions.common.utils.dataset_utils import load_dataset_for_training
 

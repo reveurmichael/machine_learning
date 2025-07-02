@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Documentation-Driven Development**
 
-Documentation is treated as a **first-class citizen** in the Snake Game AI project, with comprehensive docstrings, comments, and educational explanations that make the codebase accessible to learners and maintainable for developers, strictly following `final-decision-10.md` SUPREME_RULES.
+Documentation is treated as a **first-class citizen** in the Snake Game AI project, with comprehensive docstrings, comments, and educational explanations that make the codebase accessible to learners and maintainable for developers, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Learning**: Rich documentation enables self-directed learning
@@ -47,7 +47,7 @@ class GameManager:
         self.game_count = 0
         self.total_score = 0
         self.game_active = False
-        print("[GameManager] Initialized with default settings")  # Simple logging
+        print("[GameManager] Initialized with default settings")  # SUPREME_RULES compliant logging
 ```
 
 ### **Method Documentation**
@@ -86,7 +86,7 @@ def plan_next_moves(self, game_state: dict) -> list:
     # Plan moves using current strategy
     moves = self.strategy.plan(game_state)
     
-    print(f"[GameLogic] Planned {len(moves)} moves")  # Simple logging
+    print(f"[GameLogic] Planned {len(moves)} moves")  # SUPREME_RULES compliant logging
     return moves
 ```
 
@@ -133,7 +133,7 @@ class AgentFactory:
             raise ValueError(f"Unsupported agent type: {agent_type}")
         
         agent_class = cls._registry[agent_type]
-        print(f"[AgentFactory] Creating {agent_type} agent")  # Simple logging
+        print(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 

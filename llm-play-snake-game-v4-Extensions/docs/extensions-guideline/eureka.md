@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Insight-Driven Development**
 
-Eureka moments represent **breakthrough insights** that lead to elegant solutions and architectural improvements. These moments often reveal simple, beautiful patterns that make the codebase more educational and maintainable, strictly following `final-decision-10.md` SUPREME_RULES.
+Eureka moments represent **breakthrough insights** that lead to elegant solutions and architectural improvements. These moments often reveal simple, beautiful patterns that make the codebase more educational and maintainable, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Pattern Recognition**: Identifying elegant solutions to complex problems
@@ -27,7 +27,7 @@ class AgentFactory:
         if not agent_class:
             raise ValueError(f"Unknown agent type: {agent_type}")
         
-        print(f"[AgentFactory] Creating {agent_type} agent")  # Simple logging
+        print(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 
 # This insight led to:
@@ -45,9 +45,9 @@ class AgentFactory:
 # ✅ ELEGANT: Simple logging (SUPREME_RULES compliance)
 class GameManager:
     def start_game(self):
-        print(f"[GameManager] Starting game {self.game_count}")  # Simple logging
+        print(f"[GameManager] Starting game {self.game_count}")  # SUPREME_RULES compliant logging
         # Game logic here
-        print(f"[GameManager] Game completed, score: {self.score}")  # Simple logging
+        print(f"[GameManager] Game completed, score: {self.score}")  # SUPREME_RULES compliant logging
 
 # This insight led to:
 # - Removal of complex logging frameworks
@@ -117,7 +117,7 @@ class HeuristicGameManager(BaseGameManager):
     
     def _create_pathfinder(self):
         """Create pathfinder using canonical factory pattern."""
-        return PathfinderFactory.create(self.config["algorithm"])  # CANONICAL create()
+        return PathfinderFactory.create(self.config["algorithm"])  # CANONICAL create() method per SUPREME_RULES
 
 # This insight led to:
 # - Clear separation between extensions

@@ -26,9 +26,6 @@ Usage:
 
 import sys
 import argparse
-import threading
-import time
-import os
 from pathlib import Path
 
 # Ensure project root in sys.path early
@@ -44,16 +41,11 @@ TEMPLATE_DIR, STATIC_DIR = get_web_dirs()
 # Project root already in sys.path
 
 # Import main.py components for full feature parity
-from scripts.main import get_parser, parse_arguments
-from core.game_manager import GameManager
-from llm.agent_llm import SnakeAgent
-from utils.web_utils import translate_end_reason, build_color_map, build_state_dict
-from utils.network_utils import find_free_port
+from scripts.main import parse_arguments
 from utils.validation_utils import validate_port
 from config.ui_constants import GRID_SIZE
 
 # Flask imports
-from flask import Flask, render_template, jsonify, request
 
 # Import MainWebApp from web/main_app.py
 from web.main_app import MainWebApp

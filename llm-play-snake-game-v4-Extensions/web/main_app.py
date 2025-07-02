@@ -24,17 +24,13 @@ Integration Architecture:
 """
 
 import threading
-import time
-import json
-import os
 from typing import Dict, Any, Optional
 
 from core.game_manager import GameManager
 from core.game_controller import GameControllerAdapter
 from llm.agent_llm import SnakeAgent
 from web.base_app import GameFlaskApp
-from utils.web_utils import to_list, build_color_map, translate_end_reason, build_state_dict
-from config.ui_constants import GRID_SIZE
+from utils.web_utils import build_state_dict
 from core.game_file_manager import FileManager
 
 
@@ -130,7 +126,7 @@ class MainWebApp(GameFlaskApp):
             # Start GameManager in background thread
             self._start_game_manager_thread()
             
-            print(f"[MainWebApp] Model layer initialized successfully")
+            print("[MainWebApp] Model layer initialized successfully")
             
         except Exception as e:
             print(f"[MainWebApp] Error setting up Model layer: {e}")
@@ -158,7 +154,7 @@ class MainWebApp(GameFlaskApp):
                     if k in original_cfg:
                         setattr(self.game_manager.args, k, original_cfg[k])
                         
-                print(f"[MainWebApp] Loaded continuation config from summary.json")
+                print("[MainWebApp] Loaded continuation config from summary.json")
         except Exception as e:
             print(f"[MainWebApp] Warning: Could not load continuation config: {e}")
     
@@ -171,7 +167,7 @@ class MainWebApp(GameFlaskApp):
                 daemon=True
             )
             self.game_thread.start()
-            print(f"[MainWebApp] GameManager thread started")
+            print("[MainWebApp] GameManager thread started")
     
     def _game_manager_worker(self, gm: GameManager) -> None:
         """Background worker for running the game."""

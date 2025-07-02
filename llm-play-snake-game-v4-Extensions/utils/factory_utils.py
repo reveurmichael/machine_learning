@@ -18,7 +18,7 @@ Design Philosophy:
 Reference: docs/extensions-guideline/final-decision-10.md
 """
 
-from typing import Dict, Type, Any, List, Optional, Union
+from typing import Dict, Type, Any, List, Optional
 
 
 class SimpleFactory:

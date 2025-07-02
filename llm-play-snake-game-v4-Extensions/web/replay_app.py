@@ -13,7 +13,6 @@ Design Philosophy:
 """
 
 from typing import Dict, Any
-import os
 import threading
 import time
 
@@ -168,7 +167,6 @@ class ReplayWebApp(GameFlaskApp):
         engine_state['apple_position'] = to_list(engine_state.get('apple_position', [0, 0]))
         
         # Get end reason from the replay data (not from individual steps)
-        from utils.web_utils import translate_end_reason
         raw_reason = self.replay_data.get('game_end_reason') or self.replay_data.get('end_reason')
         end_reason = translate_end_reason(raw_reason) if raw_reason else None
         

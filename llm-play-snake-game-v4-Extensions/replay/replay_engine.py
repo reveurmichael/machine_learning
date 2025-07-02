@@ -469,7 +469,7 @@ class ReplayEngine(BaseReplayEngine):
                         self.load_next_game()
                     else:
                         # Enhanced user feedback for manual control
-                        print(f"Replay paused at game end. Controls: SPACE=pause/resume, R=restart, LEFT/RIGHT=navigate, ESC=quit")
+                        print("Replay paused at game end. Controls: SPACE=pause/resume, R=restart, LEFT/RIGHT=navigate, ESC=quit")
 
                 # Immediate redraw so the GUI stays responsive
                 if self.use_gui and self.gui:

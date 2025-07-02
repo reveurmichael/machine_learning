@@ -35,6 +35,7 @@ from llm.agent_llm import SnakeAgent
 from web.base_app import GameFlaskApp
 from utils.web_utils import to_list, build_color_map, translate_end_reason, build_state_dict
 from config.ui_constants import GRID_SIZE
+from core.game_file_manager import FileManager
 
 
 class MainWebApp(GameFlaskApp):
@@ -141,10 +142,8 @@ class MainWebApp(GameFlaskApp):
             return
             
         try:
-            summary_path = os.path.join(self.continue_from_folder, "summary.json")
-            if os.path.exists(summary_path):
-                with open(summary_path, "r", encoding="utf-8") as f:
-                    summary = json.load(f)
+            summary = FileManager().load_summary_data(self.continue_from_folder)
+            if summary:
                 original_cfg = summary.get("configuration", {})
                 
                 # Update GameManager args with original configuration
@@ -159,7 +158,7 @@ class MainWebApp(GameFlaskApp):
                     if k in original_cfg:
                         setattr(self.game_manager.args, k, original_cfg[k])
                         
-                print(f"[MainWebApp] Loaded continuation config from {summary_path}")
+                print(f"[MainWebApp] Loaded continuation config from summary.json")
         except Exception as e:
             print(f"[MainWebApp] Warning: Could not load continuation config: {e}")
     
@@ -179,7 +178,10 @@ class MainWebApp(GameFlaskApp):
         try:
             if self.continue_from_folder:
                 # Continue from existing session
-                gm.continue_from_session(self.continue_from_folder, 1)  # Start from game 1
+                # The GameManager instance `gm` is already configured for continuation
+                # by GameManager.continue_from_directory in _setup_model.
+                # We just need to run it.
+                gm.run()
             else:
                 # Start new game session
                 gm.run()

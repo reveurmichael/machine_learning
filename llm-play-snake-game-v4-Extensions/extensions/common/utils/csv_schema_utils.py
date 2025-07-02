@@ -518,8 +518,8 @@ class CSVValidator:
         errors = []
         
         # Check column count
-        if len(df.columns) != CSV_EXPECTED_COLUMNS:
-            errors.append(f"Expected {CSV_EXPECTED_COLUMNS} columns, got {len(df.columns)}")
+        if len(df.columns) != len(CSV_EXPECTED_COLUMNS):
+            errors.append(f"Expected {len(CSV_EXPECTED_COLUMNS)} columns, got {len(df.columns)}")
         
         # Check column names
         missing_columns = set(CSV_COLUMN_NAMES) - set(df.columns)

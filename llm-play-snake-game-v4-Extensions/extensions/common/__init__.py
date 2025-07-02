@@ -32,8 +32,13 @@ config: ModuleType = import_module("extensions.common.config")
 utils: ModuleType = import_module("extensions.common.utils")
 validation: ModuleType = import_module("extensions.common.validation")
 
+# Import specific constants for easier access
+from .config import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
+
 __all__: List[str] = [
     "config",
     "utils",
     "validation",
+    "EXTENSIONS_LOGS_DIR",
+    "HEURISTICS_LOG_PREFIX",
 ] 

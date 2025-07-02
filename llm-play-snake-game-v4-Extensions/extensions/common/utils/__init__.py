@@ -150,4 +150,7 @@ def validate_csv_schema(df, expected_columns=None):
         return False
     
     print("[CommonUtils] CSV schema validation passed")
-    return True 
+    return True
+
+# Dataset generation CLI utilities
+from .dataset_generator_cli import DatasetGenerator, main as dataset_cli_main 

@@ -49,16 +49,16 @@ This document integrates with the **GOOD_RULES** governance system established i
 The following architectural principles are maintained consistently across **all** Final Decision documents:
 
 ### **Core Architecture Pillars**
-1. **🗂️ Directory Structure**: Grid-size hierarchies (`logs/extensions/{datasets|models}/grid-size-N/...`) with multi-directional data flow (final-decision-1.md)
-2. **⚙️ Configuration Management**: Universal constants in `ROOT/config/`, extension configs in `extensions/common/config/` (final-decision-2.md)
-3. **🔧 Simple Utilities**: Lightweight utility functions following SUPREME_RULE NO.3 (final-decision-3.md)
-4. **🎯 Naming Standards**: Strict `agent_*.py` → `*Agent` class patterns across all extensions (final-decision-4.md)
+1. **🗂️ Directory Structure**: Grid-size hierarchies (`logs/extensions/{datasets|models}/grid-size-N/...`) with multi-directional data flow (`final-decision-1.md`)
+2. **⚙️ Configuration Management**: Universal constants in `ROOT/config/`, extension configs in `extensions/common/config/` (`final-decision-2.md`)
+3. **🔧 Simple Utilities**: Lightweight utility functions following SUPREME_RULE NO.3 (`final-decision-3.md`)
+4. **🎯 Naming Standards**: Strict `agent_*.py` → `*Agent` class patterns across all extensions (`final-decision-4.md`)
 
 ### **Implementation Standards**
-5. **📁 Extension Evolution**: v0.01→v0.04 progression with stability rules and breaking change controls (final-decision-5.md)
-6. **🛣️ Path Management**: Mandatory use of `extensions/common/path_utils.py` for cross-platform reliability (final-decision-6.md)
-7. **🏭 Factory Patterns**: Standardized agent creation with canonical `create()` method (final-decision-7.md, final-decision-8.md)
-8. **🌐 Streamlit Architecture**: OOP-based dashboard patterns with base/extension app hierarchy (final-decision-9.md)
+5. **📁 Extension Evolution**: v0.01→v0.04 progression with stability rules and breaking change controls (`final-decision-5.md`)
+6. **🛣️ Path Management**: Mandatory use of `extensions/common/path_utils.py` for cross-platform reliability (`final-decision-6.md`)
+7. **🏭 Factory Patterns**: Standardized agent creation with canonical `create()` method (`final-decision-7.md`, `final-decision-8.md`)
+8. **🌐 Streamlit Architecture**: OOP-based dashboard patterns with base/extension app hierarchy (`final-decision-9.md`)
 
 ### **Data and Integration Standards**
 9. **📊 Schema Consistency**: Grid-size agnostic CSV schemas with 16 normalized features for universal compatibility
@@ -124,10 +124,10 @@ Empty markdown files in `ROOT/docs/extensions-guideline/` should be ignored duri
 
 ### **GOOD_RULES Alignment**
 All Final Decision documents align with the GOOD_RULES system:
-- **`agents.md`**: Agent implementation standards referenced in final-decision-4.md and final-decision-7.md
+- **`agents.md`**: Agent implementation standards referenced in `final-decision-4.md` and `final-decision-7.md`
 - **`core.md`**: Base architecture referenced throughout the series
-- **`factory-design-pattern.md`**: Factory patterns detailed in final-decision-7.md
-- **`project-structure-plan.md`**: Master blueprint referenced in final-decision-1.md
+- **`factory-design-pattern.md`**: Factory patterns detailed in `final-decision-7.md`
+- **`project-structure-plan.md`**: Master blueprint referenced in `final-decision-1.md`
 
 ### **Extension Guidelines**
 Final Decision documents provide the foundation for:
@@ -139,6 +139,6 @@ Final Decision documents provide the foundation for:
 
 ## 🏛️ **Architectural Authority Statement**
 
-> **DEFINITIVE RULE**: The Final Decision Series (final-decision-0.md through final-decision-10.md) constitutes the supreme architectural authority for the Snake Game AI project. When conflicts arise between these documents and any other documentation, the Final Decision Series takes precedence. Only newer Final Decision documents with higher numbers can override previous decisions in the series.
+> **DEFINITIVE RULE**: The Final Decision Series (`final-decision-0.md` through `final-decision-10.md`) constitutes the supreme architectural authority for the Snake Game AI project. When conflicts arise between these documents and any other documentation, the Final Decision Series takes precedence. Only newer Final Decision documents with higher numbers can override previous decisions in the series.
 
 > **SUPREME_RULES COMPLIANCE**: This document and the entire Final Decision Series strictly follow the SUPREME_RULES established in `final-decision-10.md`, ensuring coherence, educational value, and architectural integrity across the entire project.

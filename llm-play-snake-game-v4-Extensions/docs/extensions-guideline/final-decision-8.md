@@ -156,24 +156,20 @@ class RuntimeConfig:
     def _load_extension_config(self):
         """Load extension-specific configuration"""
         if self.extension_type == 'heuristics':
-            from extensions.heuristics_v0_03.heuristic_config import (
-                HEURISTIC_ALGORITHMS, PATHFINDING_TIMEOUT, VISUALIZATION_SPEED
-            )
+            # Extension-specific configs should be defined locally, not imported
             self.config.update({
-                'algorithms': HEURISTIC_ALGORITHMS,
-                'pathfinding_timeout': PATHFINDING_TIMEOUT,
-                'visualization_speed': VISUALIZATION_SPEED
+                'algorithms': ['BFS', 'AStar', 'DFS', 'Hamiltonian'],
+                'pathfinding_timeout': 30,
+                'visualization_speed': 1.0
             })
             print(f"[RuntimeConfig] Loaded heuristics configuration")  # Simple logging
         elif self.extension_type == 'supervised':
-            from extensions.supervised_v0_03.supervised_config import (
-                SUPERVISED_MODELS, DEFAULT_LEARNING_RATE, DEFAULT_BATCH_SIZE, DEFAULT_EPOCHS
-            )
+            # Extension-specific configs should be defined locally, not imported
             self.config.update({
-                'models': SUPERVISED_MODELS,
-                'learning_rate': DEFAULT_LEARNING_RATE,
-                'batch_size': DEFAULT_BATCH_SIZE,
-                'epochs': DEFAULT_EPOCHS
+                'models': ['MLP', 'CNN', 'LSTM', 'XGBoost'],
+                'learning_rate': 0.001,
+                'batch_size': 32,
+                'epochs': 100
             })
             print(f"[RuntimeConfig] Loaded supervised configuration")  # Simple logging
     
@@ -195,7 +191,7 @@ class RuntimeConfig:
 
 ### **Configuration Factory Pattern**
 ```python
-# extensions/common/utils/config_factory.py
+# utils/config_factory.py
 class ConfigFactory:
     """
     Factory for creating configuration objects
@@ -225,38 +221,6 @@ class ConfigFactory:
         return config_class(**kwargs)
 ```
 
-### **Validation Factory Pattern**
-```python
-# extensions/common/utils/validation_factory.py
-class ValidationFactory:
-    """
-    Factory for creating validation objects
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Create appropriate validation objects based on data type
-    Educational Value: Shows how canonical factory patterns work with validation
-    
-    Reference: final-decision-10.md for canonical method naming
-    """
-    
-    _registry = {
-        "DATASET": DatasetValidator,
-        "PATH": PathValidator,
-        "SCHEMA": SchemaValidator,
-        "CONFIG": ConfigValidator,
-    }
-    
-    @classmethod
-    def create(cls, validator_type: str, **kwargs):  # CANONICAL create() method
-        """Create validator using canonical create() method (SUPREME_RULES compliance)"""
-        validator_class = cls._registry.get(validator_type.upper())
-        if not validator_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown validator type: {validator_type}. Available: {available}")
-        print(f"[ValidationFactory] Creating validator: {validator_type}")  # Simple logging
-        return validator_class(**kwargs)
-```
-
 ## 🎓 **Educational Value and Learning Path**
 
 ### **Learning Objectives**
@@ -269,7 +233,6 @@ class ValidationFactory:
 - **Configuration Loading**: How to load configuration from multiple sources
 - **Validation Integration**: How to integrate validation into extensions
 - **Runtime Overrides**: How to handle runtime configuration changes
-- **Factory Integration**: How to integrate configuration with factory patterns
 
 ## 🔗 **Integration with Other Documentation**
 

@@ -6,7 +6,7 @@
 
 ## 🎯 **Executive Summary**
 
-This document establishes **mandatory path management standards** for all Snake Game AI extensions, requiring consistent use of `extensions/common/path_utils.py` utilities. This ensures reliable cross-platform operation, consistent working directory management, and eliminates path-related bugs across all extension types, strictly following `final-decision-10.md` SUPREME_RULES.
+This document establishes **mandatory path management standards** for all Snake Game AI extensions, requiring consistent use of `extensions/common/utils/path_utils.py` utilities. This ensures reliable cross-platform operation, consistent working directory management, and eliminates path-related bugs across all extension types, strictly following `final-decision-10.md` SUPREME_RULES.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making path management changes to ensure comprehensive understanding
@@ -49,11 +49,11 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int, algorith
 
 ### **Core Requirement: Use Common Path Utilities**
 
-All extensions **MUST** use the standardized path management utilities from `extensions/common/path_utils.py` instead of manual path construction or working directory manipulation.
+All extensions **MUST** use the standardized path management utilities from `extensions/common/utils/path_utils.py` instead of manual path construction or working directory manipulation.
 
 ```python
 # MANDATORY USAGE PATTERN FOR ALL EXTENSIONS
-from extensions.common.path_utils import (
+from extensions.common.utils.path_utils import (
     ensure_project_root,
     get_extension_path,
     get_dataset_path,
@@ -87,7 +87,7 @@ def setup_extension_environment():
 ### **1. Project Root Management**
 
 ```python
-# extensions/common/path_utils.py
+# extensions/common/utils/path_utils.py
 import os
 import sys
 from pathlib import Path
@@ -238,7 +238,7 @@ import sys
 from pathlib import Path
 
 # MANDATORY: Use common path utilities
-from extensions.common.path_utils import ensure_project_root, get_extension_path
+from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
 
 def main():
     """Main entry point for heuristics v0.01"""
@@ -275,7 +275,7 @@ def setup_extension_environment():
 ```python
 # extensions/heuristics-v0.02/main.py
 import argparse
-from extensions.common.path_utils import (
+from extensions.common.utils.path_utils import (
     ensure_project_root, 
     get_extension_path, 
     get_dataset_path,
@@ -326,40 +326,6 @@ def setup_extension_environment():
     
     print(f"[HeuristicsV002] Environment setup complete")  # Simple logging
     return project_root, extension_path
-```
-
-## 🏭 **Factory Pattern Integration**
-
-### **Path Factory Pattern**
-```python
-# extensions/common/utils/path_factory.py
-class PathFactory:
-    """
-    Factory for creating path objects
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Create appropriate path objects based on type and context
-    Educational Value: Shows how canonical factory patterns work with path management
-    
-    Reference: final-decision-10.md for canonical method naming
-    """
-    
-    _registry = {
-        "DATASET": get_dataset_path,
-        "MODEL": get_model_path,
-        "EXTENSION": get_extension_path,
-        "PROJECT_ROOT": ensure_project_root,
-    }
-    
-    @classmethod
-    def create(cls, path_type: str, **kwargs):  # CANONICAL create() method
-        """Create path using canonical create() method (SUPREME_RULES compliance)"""
-        path_func = cls._registry.get(path_type.upper())
-        if not path_func:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown path type: {path_type}. Available: {available}")
-        print(f"[PathFactory] Creating path: {path_type}")  # Simple logging
-        return path_func(**kwargs)
 ```
 
 ## 🎓 **Educational Value and Learning Path**

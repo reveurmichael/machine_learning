@@ -48,7 +48,7 @@ All extension factories must use the canonical method name `create()` for instan
 
 ### **Reference Implementation**
 
-A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
 
 ```python
 from utils.factory_utils import SimpleFactory
@@ -290,7 +290,7 @@ class LLMAgentFactory(BaseAgentFactory):
 
 ### **Simple Factory Implementation**
 ```python
-# extensions/common/utils/factory_utils.py
+# utils/factory_utils.py
 class SimpleFactory:
     """
     Simple, generic factory implementation.

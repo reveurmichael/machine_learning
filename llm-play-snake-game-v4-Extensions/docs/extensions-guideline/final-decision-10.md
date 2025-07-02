@@ -32,9 +32,10 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
-* `factory_utils.py` must be located in the `ROOT/utils` folder instead of `extensions/common/utils`.
+* extensions.common.utils.path_utils.py is still used for extensions. It is there and should be used. Although, for task0, it has its own "utils/path_utils.py"
+* `factory_utils.py` is now located in `ROOT/utils` folder instead of `extensions/common/utils`.
 * For all extensions, `app.py` must serve one and only one purpose: launching scripts with adjustable parameters. It must not display statistics or any other information, nor introduce over-complicated structures or features.
-  Concretely, it must **never** include or refer to:
+  Concretely, it must **never** include or refer to things like:
   * `st.session_state.visualization_speed`
   * `performance_analysis_tab`
   * `algorithm_comparison_tab`

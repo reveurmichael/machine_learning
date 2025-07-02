@@ -12,3 +12,7 @@ No pollution from extensions (Task 1-5) into the ROOT folder. Extension-specific
 Let future tasks implement their own required code/functions. Avoid overkill and over-preparation in the ROOT folder.
 
 
+
+
+Note that, during our previous refactoring, a lot of python file names, class names, function names, attribute names, might have been changed.
+

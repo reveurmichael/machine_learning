@@ -14,6 +14,9 @@ from typing import Optional
 from config.game_constants import END_REASON_MAP
 from config.ui_constants import COLORS
 
+from utils.path_utils import ensure_project_root
+from pathlib import Path
+
 __all__ = [
     "build_color_map",
     "translate_end_reason", 
@@ -22,6 +25,7 @@ __all__ = [
     "build_error_response",
     "build_success_response",
     "build_color_payload",
+    "get_web_dirs",
 ]
 
 
@@ -169,3 +173,22 @@ def build_color_payload() -> dict[str, list[int]]:  # noqa: D401 – simple wrap
 
 if "build_color_payload" not in __all__:
     __all__.append("build_color_payload")
+
+# Additional helper for template/static directories
+def get_web_dirs() -> tuple[Path, Path]:
+    """Return absolute paths to ``web/templates`` and ``web/static``.
+
+    Ensures the current working directory is the project root via
+    :pyfunc:`utils.path_utils.ensure_project_root` so that relative paths in
+    Flask initialisation work whether scripts are launched from ``scripts/`` or
+    directly from the repository root.
+
+    Returns
+    -------
+    tuple
+        ``(TEMPLATE_DIR, STATIC_DIR)`` as ``pathlib.Path`` objects.
+    """
+    root = ensure_project_root()
+    template_dir = root / "web" / "templates"
+    static_dir = root / "web" / "static"
+    return template_dir, static_dir

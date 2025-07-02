@@ -22,8 +22,15 @@ import argparse
 import os
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Ensure project root is on sys.path before importing project modules
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils.web_utils import get_web_dirs  # Ensures project root on sys.path
+
+# Ensure project root and prepare template/static dirs (even if not directly used here)
+TEMPLATE_DIR, STATIC_DIR = get_web_dirs()
 
 from web import create_replay_web_app
 from utils.validation_utils import validate_port

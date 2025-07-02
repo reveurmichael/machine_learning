@@ -31,8 +31,17 @@ import time
 import os
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Ensure project root in sys.path early
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Now import shared web utility for template/static dirs
+from utils.web_utils import get_web_dirs
+
+TEMPLATE_DIR, STATIC_DIR = get_web_dirs()
+
+# Project root already in sys.path
 
 # Import main.py components for full feature parity
 from scripts.main import get_parser, parse_arguments
@@ -194,7 +203,7 @@ def main():
         os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
         
         # Create Flask app
-        app = Flask(__name__, static_folder='web/static', template_folder='web/templates')
+        app = Flask(__name__, static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR))
         
         # Store the actual port that will be used (for URL display)
         actual_port = port

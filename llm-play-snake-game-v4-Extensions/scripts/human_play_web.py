@@ -21,8 +21,14 @@ import sys
 import argparse
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Ensure project root in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from utils.web_utils import get_web_dirs
+
+TEMPLATE_DIR, STATIC_DIR = get_web_dirs()
 
 from web import create_human_web_app
 from utils.validation_utils import validate_grid_size, validate_port

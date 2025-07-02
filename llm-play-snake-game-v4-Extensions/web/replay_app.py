@@ -148,6 +148,7 @@ class ReplayWebApp(GameFlaskApp):
             'mode': 'replay',
             'log_dir': self.log_dir,
             'game_number': self.game_number,
+            'total_games': self.replay_engine.total_games,
             'current_step': self.current_step,
             'total_steps': len(steps),
             'move_index': self.current_step,
@@ -190,22 +191,25 @@ class ReplayWebApp(GameFlaskApp):
             self.replay_engine.pause_between_moves = self.move_pause
             return {'status': 'ok', 'move_pause': self.move_pause}
         elif action == 'next_game':
-            # Load next game if available
-            self.game_number += 1
+            # Try to load next game, clamp to reasonable range
+            self.game_number = min(self.game_number + 1, self.replay_engine.total_games)
             if self.load_replay_data():
                 self.current_step = 0
                 return {'status': 'ok', 'game_number': self.game_number}
             else:
                 # Roll back if load failed
-                self.game_number -= 1
+                self.game_number = max(1, self.game_number - 1)
                 return {'status': 'error', 'message': 'No next game'}
         elif action == 'prev_game':
-            if self.game_number > 1:
-                self.game_number -= 1
-                self.load_replay_data()
+            # Try to load previous game, clamp to reasonable range
+            self.game_number = max(1, self.game_number - 1)
+            if self.load_replay_data():
                 self.current_step = 0
                 return {'status': 'ok', 'game_number': self.game_number}
-            return {'status': 'error', 'message': 'Already at first game'}
+            else:
+                # Roll back if load failed
+                self.game_number = min(self.game_number + 1, self.replay_engine.total_games)
+                return {'status': 'error', 'message': 'Already at first game'}
         elif action == 'restart_game':
             self.load_replay_data()
             self.current_step = 0

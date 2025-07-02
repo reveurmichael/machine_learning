@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Progressive Extension Evolution**
 
-The extension directory structure implements a sophisticated evolution model that ensures consistency, educational progression, and maintainability across all Snake Game AI extensions, strictly following `final-decision-10.md` SUPREME_RULES.
+The extension directory structure implements a sophisticated evolution model that ensures consistency, educational progression, and maintainability across all Snake Game AI extensions, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making extension structure changes to ensure comprehensive understanding

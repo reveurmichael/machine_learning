@@ -6,7 +6,7 @@
 
 ## 🎯 **Executive Summary**
 
-This document establishes the **definitive architectural standards** for configuration organization, validation systems, singleton patterns, file naming conventions, and other critical structural decisions across all Snake Game AI extensions. These decisions resolve all major TODOs and provide concrete implementation guidelines, strictly following `final-decision-10.md` SUPREME_RULES.
+This document establishes the **definitive architectural standards** for configuration organization, validation systems, singleton patterns, file naming conventions, and other critical structural decisions across all Snake Game AI extensions. These decisions resolve all major TODOs and provide concrete implementation guidelines, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making configuration changes to ensure comprehensive understanding

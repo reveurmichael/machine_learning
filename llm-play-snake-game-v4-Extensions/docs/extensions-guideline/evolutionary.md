@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Population-Based Optimization**
 
-Evolutionary algorithms use **population-based optimization** to evolve solutions through natural selection, mutation, and crossover operations. These algorithms excel at finding complex, non-linear solutions that traditional algorithms might miss, strictly following `final-decision-10.md` SUPREME_RULES.
+Evolutionary algorithms use **population-based optimization** to evolve solutions through natural selection, mutation, and crossover operations. These algorithms excel at finding complex, non-linear solutions that traditional algorithms might miss, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Educational Value**
 - **Population Dynamics**: Understanding how populations evolve over time

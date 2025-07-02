@@ -6,7 +6,7 @@
 
 ## 🎯 **Core Philosophy: Lightweight, OOP-Based Common Utilities**
 
-The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered, strictly following `final-decision-10.md` SUPREME_RULES.
+The `extensions/common/` folder should serve as a lightweight, reusable foundation for all extensions, supporting experimentation and flexibility. Its code must be simple, preferably object-oriented (OOP) but never over-engineered, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making utility architectural changes to ensure comprehensive understanding

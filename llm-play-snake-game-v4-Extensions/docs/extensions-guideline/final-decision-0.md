@@ -6,7 +6,7 @@
 
 ## 🎯 **Purpose and Authority**
 
-The **Final Decision Series (0-10)** establishes definitive architectural standards for the Snake Game AI project. These documents collectively form the authoritative reference that supersedes all other documentation when conflicts arise. Each decision is carefully designed to be self-contained while maintaining coherence with the entire series, strictly following `final-decision-10.md` SUPREME_RULES.
+The **Final Decision Series (0-10)** establishes definitive architectural standards for the Snake Game AI project. These documents collectively form the authoritative reference that supersedes all other documentation when conflicts arise. Each decision is carefully designed to be self-contained while maintaining coherence with the entire series, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **SUPREME_RULES Integration**
 - **SUPREME_RULE NO.1**: Enforces reading all GOOD_RULES before making architectural changes to ensure comprehensive understanding

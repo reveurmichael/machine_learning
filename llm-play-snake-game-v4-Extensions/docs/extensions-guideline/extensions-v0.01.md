@@ -2,7 +2,7 @@
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the foundation patterns for all v0.01 extensions.
 
-> **See also:** `core.md`, `standalone.md`, SUPREME_RULES from `final-decision-10.md`, `project-structure-plan.md`.
+> **See also:** `core.md`, `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
 ## 🎯 **Core Philosophy: Proof of Concept**
 
@@ -38,7 +38,8 @@ class HeuristicAgentFactory:
     }
     
     @classmethod
-    def create(cls, algorithm: str, **kwargs):
+    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create agent using canonical create() method following SUPREME_RULES from final-decision-10.md"""
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")

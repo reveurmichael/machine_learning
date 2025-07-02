@@ -47,10 +47,8 @@ class ReplayWebApp(GameFlaskApp):
             use_gui=False,
         )
         self.replay_data = None
-        # List of per-step dictionaries representing the replay timeline
-        self.steps = []  # type: list[dict[str, Any]]
-        # Indicates whether self.steps contains full snapshot dicts (True) or raw move strings (False).
-        self._steps_are_snapshots: bool = False
+        # Sequence of raw move strings parsed from *game_N.json*
+        self.steps: list[str] = []
         self.current_step = 0
         
         # --- Auto-play (background loop) state --------------------------------
@@ -78,9 +76,8 @@ class ReplayWebApp(GameFlaskApp):
                 print(f"[ReplayWebApp] No replay data found for game {self.game_number}")
                 return False
 
-            # Always use moves from the ReplayEngine
+            # Always use moves from the ReplayEngine (single-source of truth)
             self.steps = self.replay_engine.moves
-            self._steps_are_snapshots = False
             
             # Reset both indices to start from the beginning
             self.current_step = 0

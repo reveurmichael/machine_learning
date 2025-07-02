@@ -119,24 +119,20 @@ class RuntimeConfig:
     def _load_extension_config(self):
         """Load extension-specific configuration"""
         if self.extension_type == 'heuristics':
-            from extensions.heuristics_v0_03.config import HEURISTIC_ALGORITHMS
             self.config.update({
-                'algorithms': HEURISTIC_ALGORITHMS,
-                'pathfinding_timeout': 5.0,
-                'visualization_speed': 1.0
+                'algorithms': ['BFS', 'AStar', 'DFS', 'Hamiltonian'],
+                'pathfinding_timeout': 5.0
             })
         elif self.extension_type == 'supervised':
-            from extensions.supervised_v0_03.config import SUPERVISED_MODELS
             self.config.update({
-                'models': SUPERVISED_MODELS,
+                'models': ['MLP', 'CNN', 'LSTM', 'XGBoost'],
                 'learning_rate': 0.001,
                 'batch_size': 32,
                 'epochs': 100
             })
         elif self.extension_type == 'reinforcement':
-            from extensions.reinforcement_v0_03.config import RL_ALGORITHMS
             self.config.update({
-                'algorithms': RL_ALGORITHMS,
+                'algorithms': ['DQN', 'PPO', 'A3C'],
                 'epsilon_start': 0.9,
                 'epsilon_decay': 0.995,
                 'reward_apple': 10,
@@ -191,9 +187,7 @@ class HeuristicConfig:
         self.algorithm = algorithm.upper()
         self.grid_size = kwargs.get('grid_size', 10)
         self.max_games = kwargs.get('max_games', 1)
-        self.visualization = kwargs.get('visualization', True)
         self.pathfinding_timeout = kwargs.get('pathfinding_timeout', 5.0)
-        self.visualization_speed = kwargs.get('visualization_speed', 1.0)
         
         # Algorithm-specific parameters
         if self.algorithm == "ASTAR":
@@ -224,9 +218,7 @@ class HeuristicConfig:
             'algorithm': self.algorithm,
             'grid_size': self.grid_size,
             'max_games': self.max_games,
-            'visualization': self.visualization,
             'pathfinding_timeout': self.pathfinding_timeout,
-            'visualization_speed': self.visualization_speed,
             'heuristic_weight': getattr(self, 'heuristic_weight', None),
             'cycle_type': getattr(self, 'cycle_type', None)
         }

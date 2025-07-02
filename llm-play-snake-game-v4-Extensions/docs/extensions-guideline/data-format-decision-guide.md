@@ -206,7 +206,7 @@ dataset_path = "heuristics_v0.04_20240101_120000"  # Widely used
 All extensions MUST validate format compliance:
 ```python
 from extensions.common.validation import validate_dataset
-from extensions.common.utils.factory_utils import DatasetFactory
+from utils.factory_utils import DatasetFactory # TODO: maybe DatasetFactory should be in one of the files (or a new python file) in the extensions/common folder.
 
 def generate_dataset():
     dataset_factory = DatasetFactory()

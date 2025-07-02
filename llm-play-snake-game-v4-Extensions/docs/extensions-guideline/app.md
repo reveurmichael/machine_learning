@@ -174,16 +174,6 @@ class HeuristicsApp(BaseExtensionApp):
         """Add heuristics-specific controls"""
         st.subheader("Pathfinding Options")
         
-        # Visualization speed
-        st.session_state.visualization_speed = st.slider(
-            "Visualization Speed", 0.1, 2.0, 1.0, 0.1
-        )
-        
-        # Show search process
-        st.session_state.show_search = st.checkbox(
-            "Show Search Process", value=True
-        )
-        
         # Path optimization
         st.session_state.optimize_path = st.checkbox(
             "Optimize Path", value=True
@@ -193,25 +183,25 @@ class HeuristicsApp(BaseExtensionApp):
         """Main application interface"""
         st.title("🧠 Heuristic Pathfinding Dashboard")
         
-        # Create tabs for different functionalities
-        tab1, tab2, tab3, tab4 = st.tabs([
-            "🎮 Interactive Game", 
-            "📊 Performance Analysis", 
-            "🔄 Algorithm Comparison",
-            "📈 Learning Analytics"
-        ])
+        # Launch scripts with adjustable parameters
+        st.subheader("Launch Scripts")
         
-        with tab1:
-            self.interactive_game_tab()
-            
-        with tab2:
-            self.performance_analysis_tab()
-            
-        with tab3:
-            self.algorithm_comparison_tab()
-            
-        with tab4:
-            self.learning_analytics_tab()
+        # Algorithm selection
+        algorithm = st.selectbox("Algorithm", self.get_available_algorithms())
+        
+        # Grid size
+        grid_size = st.slider("Grid Size", 5, 25, 10)
+        
+        # Max games
+        max_games = st.number_input("Max Games", 1, 100, 1)
+        
+        # Launch button
+        if st.button("Launch Heuristic Script"):
+            self.launch_script("main.py", {
+                "algorithm": algorithm,
+                "grid_size": grid_size,
+                "max_games": max_games
+            })
 ```
 
 ## 📊 **Subprocess Integration Patterns**

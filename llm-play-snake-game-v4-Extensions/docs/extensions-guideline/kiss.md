@@ -121,7 +121,6 @@ class SimpleConfig:
     def __init__(self):
         self.grid_size = 10
         self.max_games = 1
-        self.visualization = True
         print(f"[SimpleConfig] Default config loaded")  # SUPREME_RULES compliant logging
     
     def update(self, **kwargs):

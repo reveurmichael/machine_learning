@@ -57,8 +57,8 @@ class ReplayWebApp(GameFlaskApp):
         
         # --- Auto-play (background loop) state --------------------------------
         # Whether the background replay loop should advance the step index.
-        # Starts in a paused state – the front-end can switch to "play".
-        self.paused: bool = True
+        # Starts in playing state by default – the front-end can switch to "pause".
+        self.paused: bool = False
         
         # Load replay data and start background loop
         self.load_replay_data()
@@ -206,12 +206,9 @@ class ReplayWebApp(GameFlaskApp):
         
         if action == 'play':
             self.paused = False
-            # Sync with underlying engine when using move-based playback
-            self.replay_engine.paused = False
             return {'status': 'ok', 'message': 'Playing'}
         elif action == 'pause':
             self.paused = True
-            self.replay_engine.paused = True
             return {'status': 'ok', 'message': 'Paused'}
         elif action == 'speed_up':
             # Decrease pause duration but keep a sensible lower bound

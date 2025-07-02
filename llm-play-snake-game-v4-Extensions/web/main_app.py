@@ -205,29 +205,48 @@ class MainWebApp(GameFlaskApp):
     
     def get_game_state(self) -> Dict[str, Any]:
         """Controller: Transform Model state for View consumption."""
-        if not self.controller or not self.game_manager:
-            return {
-                'mode': 'main',
-                'error': 'Model not initialized',
-                'provider': self.provider,
-                'model': self.model
-            }
-        
         try:
-            # Use the full build_state_dict function for complete state
-            state_dict = build_state_dict(self.game_manager)
-            
-            # Add web-specific state
-            state_dict.update({
+            # If GameManager or current game is not yet initialised, return placeholder state
+            if not self.game_manager or self.game_manager.game is None:
+                return {
+                    'mode': 'main',
+                    'status': 'initialising',
+                    'provider': self.provider,
+                    'model': self.model
+                }
+
+            game = self.game_manager.game
+
+            # Translate end-reason for readability
+            from utils.web_utils import translate_end_reason, build_state_dict
+
+            reason_code = getattr(game.game_state, 'game_end_reason', None)
+            end_reason_readable = translate_end_reason(reason_code)
+
+            extra_state = {
                 'mode': 'main',
                 'provider': self.provider,
                 'model': self.model,
-                'is_running': self.game_manager.running if self.game_manager else False,
-                'session_finished': not self.game_manager.game_active if self.game_manager else False
-            })
-            
-            return state_dict
-            
+                'game_number': self.game_manager.game_count + 1,
+                'round_count': self.game_manager.round_count,
+                'running': self.game_manager.running,
+                'game_active': self.game_manager.game_active,
+                'planned_moves': getattr(game, 'planned_moves', []),
+                'llm_response': getattr(game, 'processed_response', ''),
+                'move_pause': self.game_manager.get_pause_between_moves(),
+                'game_end_reason': end_reason_readable,
+                'session_finished': not self.game_manager.game_active,
+            }
+
+            return build_state_dict(
+                snake_positions=game.snake_positions,
+                apple_position=game.apple_position,
+                score=game.score,
+                steps=game.steps,
+                grid_size=self.grid_size,
+                extra=extra_state,
+            )
+
         except Exception as e:
             print(f"[MainWebApp] Error getting game state: {e}")
             return {

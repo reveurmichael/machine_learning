@@ -172,8 +172,11 @@ class ReplayWebApp(GameFlaskApp):
         raw_reason = self.replay_data.get('game_end_reason') or self.replay_data.get('end_reason')
         end_reason = translate_end_reason(raw_reason) if raw_reason else None
         
-        # Get max score from actual game data using existing FileManager utilities
-        max_score = self._get_max_score()
+        # Use final score of current game as max_score for display
+        max_score = self.replay_data.get('score', 0)
+        
+        # Use current replay progress score, not final score from original game data
+        current_score = engine_state.get('score', 0)
         
         return {
             'mode': 'replay',
@@ -190,7 +193,7 @@ class ReplayWebApp(GameFlaskApp):
             'pause_between_moves': self.move_pause,
             'snake_positions': engine_state.get('snake_positions', []),
             'apple_position': engine_state.get('apple_position', [0, 0]),
-            'score': engine_state.get('score', 0),
+            'score': current_score,  # Use current replay progress score
             'colors': build_color_map(as_list=True),
             'game_end_reason': end_reason
         }

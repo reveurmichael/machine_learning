@@ -73,6 +73,7 @@ class ReplayGUI(BaseGUI):
         paused = replay_data.get('paused', False)
         timestamp = replay_data.get('timestamp', 'Unknown')
         game_end_reason = replay_data.get('game_end_reason', None)
+        final_score = replay_data.get('final_score', None)
 
         # Fill background
         self.screen.fill(COLORS['BACKGROUND'])
@@ -113,7 +114,8 @@ class ReplayGUI(BaseGUI):
             secondary_llm=secondary_llm,
             game_timestamp=timestamp,
             paused=paused,
-            llm_response=llm_response
+            llm_response=llm_response,
+            final_score=final_score
         )
 
         # Update display
@@ -160,6 +162,7 @@ class ReplayGUI(BaseGUI):
         game_timestamp: str | None = None,
         paused: bool = False,
         llm_response: str | None = None,
+        final_score: int | None = None,
     ) -> None:
         """Draw replay information panel.
         
@@ -197,9 +200,13 @@ class ReplayGUI(BaseGUI):
         self.screen.blit(stats_title, (self.height + 20, 50))
 
         # Stats without direction
+        score_display = f"- Score: {score}"
+        if final_score is not None:
+            score_display = f"- Score: {score}/{final_score}"
+        
         stats_text = [
             f"- Game: {game_number}",
-            f"- Score: {score}",
+            score_display,
             f"- Progress: {move_index}/{total_moves} ({int(move_index/max(1, total_moves)*100)}%)"
         ]
 

@@ -331,7 +331,7 @@ class BaseReplayEngine(GameLogic):
             "snake_positions": self.snake_positions,
             "apple_position": self.apple_position,
             "game_number": self.game_number,
-            "score": self.score,
+            "score": self.score,  # Use current replay progress score
             "steps": self.steps,
             "move_index": self.move_index,
             "total_moves": len(self.moves),
@@ -414,6 +414,7 @@ class ReplayEngine(BaseReplayEngine):
         self.game_timestamp: Optional[str] = None
         self.llm_response: Optional[str] = None
         self.total_games: int = _file_manager.get_total_games(log_dir)
+        self.final_score: int = 0  # Store final score from original game data
 
     # ---------------------
     # Drawing
@@ -485,6 +486,9 @@ class ReplayEngine(BaseReplayEngine):
     def load_game_data(
         self, game_number: int
     ) -> Optional[Dict[str, Any]]:  # noqa: D401 – simple loader
+        # Ensure OOP consistency: engine state always matches loaded game
+        self.game_number = game_number
+        
         game_file, game_data = load_game_json(self.log_dir, game_number)
         if game_data is None:
             return None
@@ -515,6 +519,7 @@ class ReplayEngine(BaseReplayEngine):
             self.game_stats = parsed.full_json
 
             loaded_score = game_data.get("score", 0)
+            self.final_score = loaded_score  # Store final score for display
             print(
                 f"Game {game_number}: Score: {loaded_score}, Steps: {len(self.moves)}, "
                 f"End reason: {self.game_end_reason}, LLM: {self.primary_llm}"
@@ -655,6 +660,7 @@ class ReplayEngine(BaseReplayEngine):
                 "primary_llm": self.primary_llm,
                 "secondary_llm": self.secondary_llm,
                 "timestamp": self.game_timestamp,
+                "final_score": self.final_score,  # Add final score for display
             }
         )
 

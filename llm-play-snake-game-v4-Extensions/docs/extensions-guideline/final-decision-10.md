@@ -128,73 +128,110 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `vision-language-model.md`
 
 
-
-
 ## 🚫 **Documentation Governance Rules**
 
+### **Hierarchy of Authority**
+
+* **SUPREME_RULES**: The highest level of authority — above all else.
+* **TEMPORARY_SUPREME_RULES**: Temporarily hold the same level of authority as SUPREME_RULES, but are intended to dissolve organically over time. They should never be mentioned, but they should be absolutely followed.
+* **GOOD_RULES**: Important foundational rules, but subordinate to SUPREME_RULES and TEMPORARY_SUPREME_RULES.
+* **System-Prompt.md**: Important reference document, subordinate to GOOD_RULES.
+* **Other .md files**: Lower priority; can be updated freely as long as they align with higher-level rules.
+
+---
+
 ### **Modification Restrictions**
-- **GOOD_RULES**: Cannot be modified without explicit authorization
-- **System-Prompt.md**: Important but not as authoritative as GOOD_RULES
-- **Other .md files**: Less important than GOOD_RULES, can be updated for consistency
+
+* **GOOD_RULES**: Cannot be modified without explicit authorization and must always align with SUPREME_RULES.
+* **System-Prompt.md**: Important but less authoritative than GOOD_RULES; may be updated with care to maintain consistency.
+* **Other markdown files**: Freely editable, but must conform to GOOD_RULES and above.
+
+---
 
 ### **Conflict Resolution**
+
 When conflicts arise between documentation files:
-1. **GOOD_RULES** always take precedence
-2. **System-Prompt.md** is secondary authority
-3. **Other .md files** must align with GOOD_RULES
-4. Flag inconsistencies with TODO comments if resolution is unclear
-5. Apply obvious fixes directly when resolution is self-evident
+
+1. **SUPREME_RULES** and **TEMPORARY_SUPREME_RULES** always take precedence.
+2. **GOOD_RULES** are secondary and must follow SUPREME directives.
+3. **System-Prompt.md** must align with GOOD_RULES and higher.
+4. **Other .md files** must align with all higher-level rules.
+5. Flag inconsistencies with `TODO` comments if resolution is unclear.
+6. Apply obvious fixes directly when resolution is self-evident.
+
+---
 
 ## 🎯 **TASK_DESCRIPTION_GOOD_RULES: Documentation Consistency Mandate**
 
 ### **Primary Objective**
+
 Update all non-GOOD_RULES markdown files in `./docs/extensions-guideline/` to achieve:
-- **Coherence**: Eliminate contradictions with GOOD_RULES
-- **Elegance**: Concise, clear documentation (target 300-500 lines)
-- **Consistency**: Unified terminology and architectural concepts
-- **Educational Value**: Focus on motivation, design philosophy, and interconnections
+
+* **Coherence**: Eliminate contradictions with GOOD_RULES and higher-level rules.
+* **Elegance**: Concise, clear documentation (target \~300–500 lines).
+* **Consistency**: Unified terminology and architectural concepts.
+* **Educational Value**: Emphasize motivation, design philosophy, and conceptual interconnections.
+
+---
 
 ### **Content Guidelines**
 
-* **Minimal Code**: Include only essential code examples to illustrate concepts clearly. It is encouraged to use code snippets or sketches with liberal use of `pass` statements or `...` placeholders to keep examples short and focused, avoiding unnecessary complexity and verbosity.
-* **Rich Context**: Emphasize the design rationale, philosophy, motivations, and conceptual connections behind each component or decision.
-* **Concise Format**: Aim for approximately 300 lines for simpler topics, and up to 600 lines for more complex topics.
-* **Design Patterns**: Clearly explain the reasoning behind chosen design patterns, including trade-offs and alternatives when relevant.
+* **Minimal Code**: Include only essential code snippets to illustrate concepts clearly. Use placeholders (e.g., `pass` or `...`) liberally to maintain focus and brevity.
+* **Rich Context**: Highlight design rationale, philosophy, and conceptual relationships rather than implementation details.
+* **Concise Format**: Aim for \~300 lines for simpler topics; up to \~600 lines for complex subjects.
+* **Design Patterns**: Clearly explain design choices, trade-offs, and possible alternatives.
 
+---
 
 ### **Resolution Approach**
+
 For inconsistencies and ambiguities:
-- **Obvious Solutions**: Apply fixes directly without TODO markers
-- **Complex Issues**: Document with explanatory notes (e.g., `> **Note:** Section X requires further clarification`)
-- **Preserve Intent**: Maintain educational value while ensuring technical accuracy
+
+* **Obvious Solutions**: Apply fixes directly, no `TODO` needed.
+* **Complex Issues**: Document using explanatory notes (e.g., `> **Note:** Section X requires further clarification`).
+* **Preserve Intent**: Maintain educational value while ensuring technical and conceptual accuracy.
+
+---
 
 ### **Quality Standards**
-- **Single Source of Truth**: Each concept has one authoritative explanation
-- **Cross-References**: Link related concepts appropriately
-- **Educational Focus**: Prioritize learning value over exhaustive detail
-- **Architectural Coherence**: Ensure all files support the overall system design
+
+* **Single Source of Truth**: Each concept should have one definitive explanation.
+* **Cross-References**: Use explicit links to related concepts; avoid vague references.
+* **Educational Focus**: Prioritize clarity and learning value over exhaustive detail.
+* **Architectural Coherence**: All content must support the project's overall system design and philosophy.
+
+---
 
 ## 🔍 **Implementation Process**
 
 ### **Analysis Phase**
-1. VITAL: Read all markdown files in `./docs/extensions-guideline/`
-2. Identify contradictions with GOOD_RULES
-3. Catalog inconsistencies in terminology and concepts
-4. Assess alignment with project objectives
 
-### **Resolution Phase**
-1. Update non-GOOD_RULES files for consistency
-2. Eliminate redundancy while preserving unique insights
-3. Standardize terminology and architectural references
-4. Enhance educational value and clarity
-
-### **Validation Phase**
-1. Ensure all files support GOOD_RULES architecture
-2. Verify elimination of contradictions
-3. Confirm improved coherence and elegance
-4. Validate educational progression and clarity
+1. **VITAL**: Read all markdown files in `./docs/extensions-guideline/`.
+2. Identify contradictions with GOOD_RULES and higher-level rules.
+3. Catalog inconsistencies in terminology and concepts.
+4. Assess alignment with overall project objectives.
 
 ---
 
-**This governance system ensures that the Snake Game AI project maintains architectural integrity, educational value, and technical excellence through systematic documentation management and conflict resolution.**
+### **Resolution Phase**
+
+1. Update non-GOOD_RULES files for full consistency.
+2. Eliminate redundancy while preserving unique insights.
+3. Standardize terminology and architectural references.
+4. Enhance educational value and conceptual clarity.
+
+---
+
+### **Validation Phase**
+
+1. Ensure all files comply with GOOD_RULES and higher-level rules.
+2. Verify elimination of contradictions and redundancies.
+3. Confirm improved coherence, elegance, and educational flow.
+4. Validate logical progression and clarity from a reader’s perspective.
+
+---
+
+## ✅ **Final Note**
+
+This governance framework ensures that the Snake Game AI project maintains **architectural integrity**, **educational value**, and **technical excellence** through systematic documentation management and a clearly defined hierarchy of authority.
 

@@ -219,6 +219,10 @@ class HeuristicGameManager(BaseGameManager):
         self.need_new_plan = True
         self.consecutive_no_path_found = 0
 
+        # Manually save the state for the very first round (round 1)
+        if self.game.game_state.round_manager.round_count == 1:
+            self.game.game_state.round_manager.rounds_data[1]['game_state'] = self.game.get_state_snapshot()
+
         game_start_time = time.time()
 
         # Game loop
@@ -353,3 +357,20 @@ class HeuristicGameManager(BaseGameManager):
 
         if self.verbose:
             print(Fore.GREEN + f"💾 Session summary saved to: {summary_filepath}") 
+
+    def start_new_round(self, round_type: str | None = None) -> None:
+        """
+        Starts a new round, extending the base method to save the full game state.
+
+        Design Pattern: Template Method (Enhancement)
+        Purpose: Overrides the base method to add heuristic-specific data (the full game state)
+                 to each round's record, ensuring data-rich logs for dataset generation.
+        Educational Value: Demonstrates how to cleanly extend a base class's behavior
+                         without modifying the original, a core tenet of the OCP.
+        """
+        super().start_new_round(round_type)
+        # After the base method creates the round entry, add the full game state snapshot.
+        if self.game and self.game.game_state and self.game.game_state.round_manager:
+            current_round_number = self.game.game_state.round_manager.round_count
+            self.game.game_state.round_manager.rounds_data[current_round_number]['game_state'] = self.game.get_state_snapshot()
+    

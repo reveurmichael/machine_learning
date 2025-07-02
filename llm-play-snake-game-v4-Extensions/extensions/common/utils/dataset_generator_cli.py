@@ -178,376 +178,174 @@ class DatasetGenerator:
         self.grid_size = grid_size
         self.csv_rows = []
         self.jsonl_records = []
+        self.output_dir = None
         
         print(f"[DatasetGenerator] Initialized for {algorithm} (grid size: {grid_size})")
     
-    def generate_from_games(self, games_data: List[Dict[str, Any]]) -> None:
+    def generate_from_logs(self, log_files: List[str], formats: List[str]) -> None:
         """
-        Generate dataset records from game session data.
-        
-        Args:
-            games_data: List of game dictionaries with moves and states
+        Generates datasets by processing a list of log files.
+
+        This is the main entry point for the generator logic. It sets up file
+        writers based on the requested formats and then iterates through each
+        log file to process it.
         """
-        print(f"[DatasetGenerator] Processing {len(games_data)} games...")
-        
-        for game_idx, game_data in enumerate(games_data, 1):
-            self._process_single_game(game_data, game_idx)
-        
-        print(f"[DatasetGenerator] Generated {len(self.csv_rows)} CSV rows")
-        print(f"[DatasetGenerator] Generated {len(self.jsonl_records)} JSONL records")
-    
-    def _process_single_game(self, game_data: Dict[str, Any], game_id: int) -> None:
-        """Process a single game and extract features/explanations."""
-        rounds = game_data.get('rounds', [])
-        
-        if rounds:
-            for round_data in rounds:
-                # Extract CSV features (16-feature format)
-                csv_row = self._extract_csv_features(round_data, game_id)
-                if csv_row:
-                    self.csv_rows.append(csv_row)
-                
-                # Extract JSONL language-rich data
-                jsonl_record = self._extract_jsonl_record(round_data, game_id)
-                if jsonl_record:
-                    self.jsonl_records.append(jsonl_record)
-        else:
-            # Fallback: use moves + move_explanations from detailed_history
-            dh = game_data.get('detailed_history', {})
-            moves = dh.get('moves', [])
-            explanations = dh.get('move_explanations', [])
-            apple_positions = dh.get('apple_positions', [])
-            for idx, move in enumerate(moves):
-                explanation = explanations[idx] if idx < len(explanations) else ""
-                apple_pos = apple_positions[idx//len(apple_positions)] if apple_positions else [0,0]
-                round_data = {
-                    'round': idx+1,
-                    'move': move,
-                    'game_state': {
-                        'snake': [],
-                        'apple': apple_pos,
-                        'score': game_data.get('score',0)
-                    },
-                    'algorithm_decision': {'reasoning': explanation}
-                }
-                jsonl_record = self._extract_jsonl_record(round_data, game_id)
-                if jsonl_record:
-                    self.jsonl_records.append(jsonl_record)
-    
-    def _extract_csv_features(self, round_data: Dict[str, Any], game_id: int) -> Optional[Dict[str, Any]]:
-        """Extract 16 standardized CSV features from round data."""
+        # Create a temporary directory for output files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            writers = {}
+            if 'jsonl' in formats:
+                jsonl_path = Path(temp_dir) / "data.jsonl"
+                writers['jsonl'] = open(jsonl_path, 'w', encoding='utf-8')
+            if 'csv' in formats:
+                csv_path = Path(temp_dir) / "data.csv"
+                # Setup CSV writer
+                csv_file = open(csv_path, 'w', newline='', encoding='utf-8')
+                self.csv_headers = CSV_BASIC_COLUMNS
+                writers['csv'] = csv.DictWriter(csv_file, fieldnames=self.csv_headers)
+                writers['csv'].writeheader()
+
+            self.jsonl_writer = writers.get('jsonl')
+            self.csv_writer = writers.get('csv')
+
+            print(f"[DatasetGenerator] Processing {len(log_files)} game log files...")
+            for game_file in log_files:
+                self._process_single_game(game_file)
+            
+            # Close file handlers
+            for writer in writers.values():
+                writer.close()
+
+            # Move completed files to final destination
+            if self.output_dir:
+                if 'jsonl' in formats:
+                    final_jsonl_path = self.output_dir / f"{self.algorithm.lower()}_dataset.jsonl"
+                    Path(jsonl_path).rename(final_jsonl_path)
+                    print(f"[DatasetGenerator] JSONL dataset saved to {final_jsonl_path}")
+                if 'csv' in formats:
+                    final_csv_path = self.output_dir / f"{self.algorithm.lower()}_dataset.csv"
+                    Path(csv_path).rename(final_csv_path)
+                    print(f"[DatasetGenerator] CSV dataset saved to {final_csv_path}")
+
+    def _process_single_game(self, game_file: str) -> None:
+        """Processes a single game log file (game_N.json)."""
         try:
-            game_state = round_data.get('game_state', {})
-            snake = game_state.get('snake', [])
-            apple = game_state.get('apple', [0, 0])
-            move = round_data.get('move')
-            round_num = round_data.get('round', 0)
+            with open(game_file, 'r') as f:
+                game_data = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            print(f"Warning: Could not read or parse {game_file}. Skipping.")
+            return
+
+        print(f"Processing game file: {game_file}")
+        
+        rounds_data_dict = game_data.get('detailed_history', {}).get('rounds_data', {})
+        
+        if not rounds_data_dict:
+            print(f"Warning: No rounds_data found in {game_file}. Skipping.")
+            return
+
+        moves_history = game_data.get('detailed_history', {}).get('moves', [])
+        explanations = game_data.get('detailed_history', {}).get('move_explanations', [])
+        
+        while len(explanations) < len(moves_history):
+            explanations.append("No explanation provided.")
+
+        for i, move in enumerate(moves_history):
+            round_number_str = str(i + 1)
+            round_data = rounds_data_dict.get(round_number_str, {})
             
-            if not snake or not move:
-                return None
-            
-            head = snake[0]
-            head_x, head_y = head[0], head[1]
-            apple_x, apple_y = apple[0], apple[1]
-            snake_length = len(snake)
-            
-            # Calculate apple direction features (binary)
-            apple_dir_up = 1 if apple_y > head_y else 0
-            apple_dir_down = 1 if apple_y < head_y else 0
-            apple_dir_right = 1 if apple_x > head_x else 0
-            apple_dir_left = 1 if apple_x < head_x else 0
-            
-            # Calculate danger detection features (based on actual game logic)
-            danger_straight = self._detect_danger_direction(head, snake[1:], self._get_current_direction(round_data))
-            danger_left = self._detect_danger_direction(head, snake[1:], self._turn_left(self._get_current_direction(round_data)))
-            danger_right = self._detect_danger_direction(head, snake[1:], self._turn_right(self._get_current_direction(round_data)))
-            
-            # Calculate free space features
-            free_space_up = self._count_free_space_direction(head, snake, (0, 1))
-            free_space_down = self._count_free_space_direction(head, snake, (0, -1))
-            free_space_left = self._count_free_space_direction(head, snake, (-1, 0))
-            free_space_right = self._count_free_space_direction(head, snake, (1, 0))
-            
-            return {
-                # Metadata
-                'game_id': game_id,
-                'step_in_game': round_num,
-                
-                # Position features
-                'head_x': head_x,
-                'head_y': head_y,
-                'apple_x': apple_x,
-                'apple_y': apple_y,
-                
-                # Game state
-                'snake_length': snake_length,
-                
-                # Apple direction features
-                'apple_dir_up': apple_dir_up,
-                'apple_dir_down': apple_dir_down,
-                'apple_dir_left': apple_dir_left,
-                'apple_dir_right': apple_dir_right,
-                
-                # Danger features
-                'danger_straight': danger_straight,
-                'danger_left': danger_left,
-                'danger_right': danger_right,
-                
-                # Free space features
-                'free_space_up': free_space_up,
-                'free_space_down': free_space_down,
-                'free_space_left': free_space_left,
-                'free_space_right': free_space_right,
-                
-                # Target
-                'target_move': move
-            }
-            
-        except Exception as e:
-            print(f"[DatasetGenerator] Error extracting CSV features: {e}")
-            return None
-    
-    def _extract_jsonl_record(self, round_data: Dict[str, Any], game_id: int) -> Optional[Dict[str, Any]]:
-        """Extract JSONL record with natural language explanations."""
-        try:
-            game_state = round_data.get('game_state', {})
-            move = round_data.get('move')
-            round_num = round_data.get('round', 0)
-            
-            # Get algorithm reasoning if available
-            reasoning = round_data.get('algorithm_decision', {}).get('reasoning', '')
-            path_found = round_data.get('algorithm_decision', {}).get('path_found', True)
-            
-            if not move:
-                return None
-            
-            # Generate prompt describing the game state
-            prompt = self._generate_state_prompt(game_state, round_num)
-            
-            # Generate completion with algorithm reasoning
-            completion = self._generate_reasoning_completion(move, reasoning, game_state, path_found)
-            
+            game_state = round_data.get('game_state')
+            if not game_state:
+                print(f"Warning: No game_state found for round {round_number_str} in {game_file}. Skipping step.")
+                continue
+
             record = {
-                'prompt': prompt,
-                'completion': completion,
-                'game_id': game_id,
-                'step_in_game': round_num,
-                'algorithm': self.algorithm,
-                'move': move
+                "game_state": game_state,
+                "move": move,
+                "explanation": explanations[i]
             }
+
+            if self.jsonl_writer:
+                jsonl_record = self._extract_jsonl_record(record)
+                self.jsonl_writer.write(json.dumps(jsonl_record) + '\\n')
             
-            # Add metadata if available
-            metadata = {}
-            if reasoning:
-                metadata['original_reasoning'] = reasoning
-            if 'algorithm_decision' in round_data:
-                metadata['algorithm_decision'] = round_data['algorithm_decision']
-            
-            if metadata:
-                record['metadata'] = metadata
-            
-            return record
-            
-        except Exception as e:
-            print(f"[DatasetGenerator] Error extracting JSONL record: {e}")
-            return None
-    
-    def _generate_state_prompt(self, game_state: Dict[str, Any], round_num: int) -> str:
-        """Generate natural language description of game state."""
-        snake = game_state.get('snake', [])
-        apple = game_state.get('apple', [0, 0])
-        score = game_state.get('score', 0)
-        
-        if not snake:
-            return "Game state unavailable."
-        
-        head = snake[0]
-        body = snake[1:] if len(snake) > 1 else []
-        
-        prompt = f"""You are an AI playing Snake on a {self.grid_size}x{self.grid_size} grid. This is step {round_num} of the game.
+            if self.csv_writer:
+                csv_record = self._extract_csv_features(record)
+                self.csv_writer.writerow(csv_record)
 
-Current game state:
-- Snake head position: ({head[0]}, {head[1]})
-- Apple position: ({apple[0]}, {apple[1]})
-- Snake length: {len(snake)}
-- Current score: {score}"""
-
-        if body:
-            prompt += f"\n- Snake body positions: {body}"
-        else:
-            prompt += "\n- Snake body: None (just the head)"
-
-        # Add strategic context
-        distance_to_apple = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        prompt += f"\n- Manhattan distance to apple: {distance_to_apple}"
+    def _extract_jsonl_record(self, record: dict) -> dict:
+        """Creates a JSONL record with a natural language prompt and completion."""
+        game_state = record['game_state']
+        prompt = self._format_prompt(game_state)
         
-        # Add constraints
-        prompt += f"""
-
-Constraints:
-- Grid boundaries: (0,0) to ({self.grid_size-1},{self.grid_size-1})
-- Cannot move into walls or snake body
-- Goal: Reach the apple safely while planning future moves
-
-What move should you choose next? Analyze the situation and select from: UP, DOWN, LEFT, RIGHT"""
-        
-        return prompt
-    
-    def _generate_reasoning_completion(self, move: str, reasoning: str, game_state: Dict[str, Any], path_found: bool = True) -> str:
-        """Generate natural language explanation for the chosen move."""
-        snake = game_state.get('snake', [])
-        apple = game_state.get('apple', [0, 0])
-        score = game_state.get('score', 0)
-        
-        if not snake:
-            return f"I choose {move}."
-        
-        head = snake[0]
-        
-        # Start with the algorithm's reasoning if available
-        completion = ""
-        
-        if reasoning:
-            completion += f"Algorithm analysis: {reasoning}\n\n"
-        elif not path_found:
-            completion += f"Algorithm analysis: No direct path found to apple. Making safety move.\n\n"
-        else:
-            completion += f"Algorithm analysis: {self.algorithm} pathfinding from ({head[0]}, {head[1]}) to ({apple[0]}, {apple[1]})\n\n"
-        
-        # Add strategic explanation
-        completion += f"Decision: I choose to move {move}. "
-        
-        # Explain the strategic reasoning based on the actual game state
-        apple_direction = self._get_apple_direction(head, apple)
-        move_towards_apple = move in apple_direction
-        
-        if move_towards_apple:
-            completion += f"This move brings me closer to the apple at ({apple[0]}, {apple[1]}). "
-        else:
-            completion += f"Although this doesn't directly approach the apple, it's necessary for safe pathfinding. "
-        
-        # Add safety considerations
-        if not path_found:
-            completion += "The algorithm detected potential risks with direct apple approaches, so this move prioritizes safety. "
-        
-        # Add algorithm-specific context
-        if self.algorithm == "BFS":
-            completion += "The BFS algorithm ensures optimal pathfinding by exploring all possible safe routes systematically."
-        elif self.algorithm == "ASTAR":
-            completion += "The A* algorithm uses heuristic guidance to find efficient paths while avoiding obstacles."
-        elif self.algorithm == "DFS":
-            completion += "The DFS algorithm explores deep paths to find creative solutions to complex board states."
-        elif "HAMILTONIAN" in self.algorithm:
-            completion += "The Hamiltonian approach seeks to create cycles that cover the entire board systematically."
-        else:
-            completion += f"The {self.algorithm} algorithm balances efficiency and safety in pathfinding decisions."
-        
-        return completion
-    
-    # Helper methods for better feature extraction
-    def _get_current_direction(self, round_data: Dict[str, Any]) -> str:
-        """Get current movement direction from round data."""
-        move = round_data.get('move', 'UP')
-        return move
-    
-    def _turn_left(self, direction: str) -> str:
-        """Get the left turn direction."""
-        turns = {"UP": "LEFT", "LEFT": "DOWN", "DOWN": "RIGHT", "RIGHT": "UP"}
-        return turns.get(direction, "UP")
-    
-    def _turn_right(self, direction: str) -> str:
-        """Get the right turn direction."""
-        turns = {"UP": "RIGHT", "RIGHT": "DOWN", "DOWN": "LEFT", "LEFT": "UP"}
-        return turns.get(direction, "UP")
-    
-    def _detect_danger_direction(self, head: List[int], body: List[List[int]], direction: str) -> int:
-        """Detect if moving in a direction would cause collision."""
-        direction_map = {
-            "UP": (0, 1),
-            "DOWN": (0, -1),
-            "LEFT": (-1, 0),
-            "RIGHT": (1, 0)
+        completion = {
+            "move": record['move'],
+            "explanation": record['explanation'],
+            "algorithm": game_state.get('algorithm', 'unknown')
         }
         
-        dx, dy = direction_map.get(direction, (0, 0))
-        new_x, new_y = head[0] + dx, head[1] + dy
+        return {"prompt": prompt, "completion": json.dumps(completion)}
+
+    def _extract_csv_features(self, record: dict) -> dict:
+        """
+        Extracts features for a CSV record from the game state.
         
-        # Check wall collision
-        if new_x < 0 or new_x >= self.grid_size or new_y < 0 or new_y >= self.grid_size:
-            return 1
+        Note: This is a placeholder. For full functionality, this should be
+        updated to extract the 16 grid-agnostic features.
+        """
+        game_state = record.get('game_state', {})
+        if not game_state:
+            return {header: None for header in self.csv_headers}
+
+        return {
+            "move": record.get('move'),
+            "score": game_state.get('score'),
+            "steps": game_state.get('steps'),
+            "snake_length": len(game_state.get('snake_positions', [])),
+            "apple_x": game_state.get('apple_position', [None, None])[0],
+            "apple_y": game_state.get('apple_position', [None, None])[1],
+            # Placeholder for remaining CSV columns
+            **{k: None for k in self.csv_headers if k not in ['move', 'score', 'steps', 'snake_length', 'apple_x', 'apple_y']}
+        }
+
+    def _format_prompt(self, game_state: dict) -> str:
+        """Formats the game state into a language-rich prompt."""
+        if not game_state:
+            return "Current game state is not available."
+
+        grid_size = game_state.get('grid_size', 10)
+        snake_positions = game_state.get('snake_positions', [])
+        apple_position = game_state.get('apple_position', [])
+        score = game_state.get('score', 0)
+        steps = game_state.get('steps', 0)
+
+        board = [['.' for _ in range(grid_size)] for _ in range(grid_size)]
+        if apple_position:
+            board[apple_position[1]][apple_position[0]] = 'A'
+        for i, pos in enumerate(snake_positions):
+            if i == 0:
+                board[pos[1]][pos[0]] = 'H'
+            else:
+                board[pos[1]][pos[0]] = 'S'
         
-        # Check body collision
-        if [new_x, new_y] in body:
-            return 1
-        
-        return 0
-    
-    def _count_free_space_direction(self, head: List[int], snake: List[List[int]], direction: tuple) -> int:
-        """Count free spaces in a given direction."""
-        x, y = head[0], head[1]
-        dx, dy = direction
-        count = 0
-        snake_set = set(tuple(pos) for pos in snake)
-        
-        while True:
-            x += dx
-            y += dy
-            
-            # Check boundaries
-            if x < 0 or x >= self.grid_size or y < 0 or y >= self.grid_size:
-                break
-            
-            # Check snake collision
-            if (x, y) in snake_set:
-                break
-            
-            count += 1
-            
-            # Limit count to prevent infinite loops
-            if count > self.grid_size * 2:
-                break
-        
-        return count
-    
-    def _get_apple_direction(self, head: List[int], apple: List[int]) -> List[str]:
-        """Get list of directions that lead toward the apple."""
-        directions = []
-        
-        if apple[0] > head[0]:  # Apple is to the right
-            directions.append("RIGHT")
-        elif apple[0] < head[0]:  # Apple is to the left
-            directions.append("LEFT")
-        
-        if apple[1] > head[1]:  # Apple is above
-            directions.append("UP")
-        elif apple[1] < head[1]:  # Apple is below
-            directions.append("DOWN")
-        
-        return directions
-    
-    def save_csv(self, filepath: str) -> None:
-        """Save CSV dataset to file."""
-        if not self.csv_rows:
-            print("[DatasetGenerator] No CSV data to save")
-            return
-        
-        import pandas as pd
-        df = pd.DataFrame(self.csv_rows)
-        
-        # Ensure columns are in correct order
-        df = df.reindex(columns=CSV_BASIC_COLUMNS)
-        
-        save_csv_dataset(df, filepath)
-        print(f"[DatasetGenerator] CSV saved: {filepath} ({len(df)} rows)")
-    
-    def save_jsonl(self, filepath: str) -> None:
-        """Save JSONL dataset to file."""
-        if not self.jsonl_records:
-            print("[DatasetGenerator] No JSONL data to save")
-            return
-        
-        save_jsonl_dataset(self.jsonl_records, filepath)
-        print(f"[DatasetGenerator] JSONL saved: {filepath} ({len(self.jsonl_records)} records)")
+        board_str = "\n".join(" ".join(row) for row in board)
+
+        return f"""You are an expert snake game AI. Analyze the current game state and decide the next optimal move.
+
+Current Board ({grid_size}x{grid_size}):
+{board_str}
+
+Game Status:
+- Score: {score}
+- Steps Taken: {steps}
+- Snake Length: {len(snake_positions)}
+
+Your task is to determine the single best move ('UP', 'DOWN', 'LEFT', or 'RIGHT').
+Provide the move and a brief explanation of your strategy.
+"""
+
+    def close(self) -> None:
+        """Closes any open file writers."""
+        # ... existing code ...
 
 # =============================================================================
 # Command Line Interface
@@ -682,27 +480,28 @@ def main() -> None:
                 print(f"[CLI] ⚠️  No game data loaded for {algorithm}, skipping...")
                 continue
             
-            # Create dataset generator
+            # Create dataset generator and define output directory
             generator = DatasetGenerator(algorithm, args.grid_size)
-            generator.generate_from_games(games_data)
-            
-            # Create output directory
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             if args.output_dir:
                 output_dir = Path(args.output_dir)
             else:
-                output_dir = Path(EXTENSIONS_LOGS_DIR) / f"datasets" / f"grid-size-{args.grid_size}" / f"heuristics-{algorithm.lower()}_{timestamp}"
-            
+                output_dir = Path(EXTENSIONS_LOGS_DIR) / "datasets" / f"grid-size-{args.grid_size}" / f"heuristics-{algorithm.lower()}_{timestamp}"
             output_dir.mkdir(parents=True, exist_ok=True)
+            generator.output_dir = output_dir
+
+            # Get the list of actual game log files to process
+            log_files = [game['log_file'] for game in games_data]
             
-            # Save datasets
+            # Determine formats to generate
+            formats_to_generate = []
             if args.format in ["csv", "both"]:
-                csv_path = output_dir / f"{algorithm.lower()}_dataset.csv"
-                generator.save_csv(str(csv_path))
-            
+                formats_to_generate.append("csv")
             if args.format in ["jsonl", "both"]:
-                jsonl_path = output_dir / f"{algorithm.lower()}_dataset.jsonl"
-                generator.save_jsonl(str(jsonl_path))
+                formats_to_generate.append("jsonl")
+
+            # Generate datasets from the logs
+            generator.generate_from_logs(log_files, formats_to_generate)
             
             print(f"[CLI] ✅ Completed dataset generation for {algorithm}")
             print(f"[CLI] 📁 Output directory: {output_dir}")

@@ -286,9 +286,13 @@ class SidebarManager {
      * Update replay specific sections
      */
     updateReplaySections(gameState) {
-        // Game number
+        // Game number - show as X/N if total_games is available
         if (gameState.game_number) {
-            this.safeSet(this.elements.gameNumberElement, gameState.game_number);
+            if (gameState.total_games) {
+                this.safeSet(this.elements.gameNumberElement, `${gameState.game_number}/${gameState.total_games}`);
+            } else {
+                this.safeSet(this.elements.gameNumberElement, gameState.game_number);
+            }
         }
         
         // LLM info

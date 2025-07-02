@@ -81,6 +81,10 @@ class ReplayWebApp(GameFlaskApp):
             # Always use moves from the ReplayEngine
             self.steps = self.replay_engine.moves
             self._steps_are_snapshots = False
+            
+            # Reset both indices to start from the beginning
+            self.current_step = 0
+            self.replay_engine.move_index = 0
 
             print(f"[ReplayWebApp] Loaded {len(self.steps)} moves")
             return True
@@ -126,13 +130,10 @@ class ReplayWebApp(GameFlaskApp):
                 'total_steps': 0
             }
 
-        if self.current_step >= len(steps):
-            return {
-                'mode': 'replay',
-                'error': 'No steps available',
-                'current_step': self.current_step,
-                'total_steps': len(steps)
-            }
+        # Allow *exactly* len(steps) to represent "finished" state so progress
+        # can show N/N. Only clamp when we somehow overshoot.
+        if self.current_step > len(steps):
+            self.current_step = len(steps)
         
         # Get current state from the ReplayEngine (which computes state from moves)
         engine_state = self.replay_engine._build_state_base()
@@ -243,12 +244,25 @@ class ReplayWebApp(GameFlaskApp):
                 time.sleep(self.move_pause)
                 continue
 
-            # Use ReplayEngine's update method which handles move processing
-            # and automatically advances move_index when appropriate
-            self.replay_engine.update()
-            
-            # Sync our current_step with the engine's move_index
-            self.current_step = self.replay_engine.move_index
+            # Check if we've reached the end of moves
+            if self.current_step >= len(self.steps):
+                # Stay at the last valid step
+                time.sleep(self.move_pause)
+                continue
+
+            # Manually advance the step and apply the move
+            if self.current_step < len(self.steps):
+                # Get the move for this step
+                move = self.steps[self.current_step]
+                
+                # Apply the move to the ReplayEngine
+                self.replay_engine.execute_replay_move(move)
+                
+                # Advance to next step
+                self.current_step += 1
+                
+                # Update the ReplayEngine's move_index to match
+                self.replay_engine.move_index = self.current_step
 
             # Sleep based on current move_pause
             time.sleep(self.move_pause)

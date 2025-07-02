@@ -1,10 +1,14 @@
+Check attached md files.
+
 Now, make python files in extensions/heuristics-v0.04 work. Most importantly:
 - Keep the behaviour of the agents/algorithms unchanged.
 - We might be using now a lot of functions in the folder "extensions/common/"
 - For this moment, no need for streamlit app.py , no need for replay mode no need for pygame no need for web no need for gui. 
-- The VITAL goal, the GRAND GOAL, is to generate jsonl files .
+- The VITAL goal, the GRAND GOAL, is to generate jsonl files . Of course, we will be generating game_N.json and summary.json files as well, just like for Task0. This generating game_N.json and summary.json files  functionality should already be very well provided by core folder or game manager. 
 
 Keep in mind: 
+
+
 
 
 

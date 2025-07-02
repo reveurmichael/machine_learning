@@ -21,6 +21,8 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import subprocess
+import tempfile
 
 from ..config import (
     EXTENSIONS_LOGS_DIR,
@@ -36,6 +38,124 @@ from ..config.dataset_formats import (
 )
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
 from .path_utils import setup_extension_paths
+
+# =============================================================================
+# Game Session Runner Integration
+# =============================================================================
+
+def run_heuristic_games(algorithm: str, max_games: int, max_steps: int, grid_size: int, verbose: bool = False) -> List[str]:
+    """
+    Run actual heuristic games and return list of log directories.
+    
+    This function runs the actual heuristic games using the existing
+    game infrastructure and returns the paths to generated log files.
+    """
+    print(f"[GameRunner] Running {max_games} games with {algorithm} algorithm...")
+    
+    log_paths = []
+    
+    for game_num in range(max_games):
+        if verbose:
+            print(f"[GameRunner] Starting game {game_num + 1}/{max_games}")
+        
+        try:
+            # Run a single game using the heuristics main script
+            cmd = [
+                sys.executable, "scripts/main.py",
+                "--algorithm", algorithm,
+                "--max-games", "1",
+                "--max-steps", str(max_steps),
+                "--grid-size", str(grid_size)
+            ]
+            
+            if verbose:
+                cmd.append("--verbose")
+            
+            # Change to heuristics-v0.04 directory for execution
+            heuristics_dir = Path(__file__).parent.parent.parent / "heuristics-v0.04"
+            
+            # Run the game
+            result = subprocess.run(
+                cmd,
+                cwd=str(heuristics_dir),
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout per game
+            )
+            
+            if result.returncode == 0:
+                # Parse output to find log directory
+                output_lines = result.stdout.split('\n')
+                for line in output_lines:
+                    if "📂 Logs:" in line:
+                        log_path = line.split("📂 Logs: ")[1].strip()
+                        log_paths.append(log_path)
+                        if verbose:
+                            print(f"[GameRunner] Game {game_num + 1} completed: {log_path}")
+                        break
+                else:
+                    if verbose:
+                        print(f"[GameRunner] Warning: Could not parse log path from game {game_num + 1}")
+            else:
+                if verbose:
+                    print(f"[GameRunner] Error in game {game_num + 1}: {result.stderr}")
+                
+        except subprocess.TimeoutExpired:
+            print(f"[GameRunner] Game {game_num + 1} timed out")
+        except Exception as e:
+            print(f"[GameRunner] Error running game {game_num + 1}: {e}")
+    
+    print(f"[GameRunner] Completed: {len(log_paths)} successful games out of {max_games}")
+    return log_paths
+
+
+def load_game_logs(log_paths: List[str], verbose: bool = False) -> List[Dict[str, Any]]:
+    """
+    Load game data from log directories.
+    
+    Args:
+        log_paths: List of paths to game log directories
+        verbose: Enable verbose logging
+        
+    Returns:
+        List of game data dictionaries
+    """
+    games_data = []
+    
+    for i, log_path in enumerate(log_paths, 1):
+        if verbose:
+            print(f"[LogLoader] Loading game {i}/{len(log_paths)}: {log_path}")
+        
+        try:
+            log_dir = Path(log_path)
+            
+            # Look for game JSON files
+            game_files = list(log_dir.glob("game_*.json"))
+            
+            for game_file in game_files:
+                with open(game_file, 'r') as f:
+                    game_data = json.load(f)
+                    
+                # Add metadata
+                game_data['log_path'] = str(log_path)
+                game_data['log_file'] = str(game_file)
+                
+                games_data.append(game_data)
+                
+                if verbose:
+                    rounds_count = len(game_data.get('rounds', []))
+                    score = game_data.get('final_score', 0)
+                    print(f"[LogLoader] Loaded game: {rounds_count} rounds, score {score}")
+            
+            if not game_files:
+                if verbose:
+                    print(f"[LogLoader] Warning: No game files found in {log_path}")
+                
+        except Exception as e:
+            print(f"[LogLoader] Error loading {log_path}: {e}")
+    
+    print(f"[LogLoader] Successfully loaded {len(games_data)} games")
+    return games_data
 
 # =============================================================================
 # Dataset Generation Core
@@ -80,16 +200,39 @@ class DatasetGenerator:
         """Process a single game and extract features/explanations."""
         rounds = game_data.get('rounds', [])
         
-        for round_data in rounds:
-            # Extract CSV features (16-feature format)
-            csv_row = self._extract_csv_features(round_data, game_id)
-            if csv_row:
-                self.csv_rows.append(csv_row)
-            
-            # Extract JSONL language-rich data
-            jsonl_record = self._extract_jsonl_record(round_data, game_id)
-            if jsonl_record:
-                self.jsonl_records.append(jsonl_record)
+        if rounds:
+            for round_data in rounds:
+                # Extract CSV features (16-feature format)
+                csv_row = self._extract_csv_features(round_data, game_id)
+                if csv_row:
+                    self.csv_rows.append(csv_row)
+                
+                # Extract JSONL language-rich data
+                jsonl_record = self._extract_jsonl_record(round_data, game_id)
+                if jsonl_record:
+                    self.jsonl_records.append(jsonl_record)
+        else:
+            # Fallback: use moves + move_explanations from detailed_history
+            dh = game_data.get('detailed_history', {})
+            moves = dh.get('moves', [])
+            explanations = dh.get('move_explanations', [])
+            apple_positions = dh.get('apple_positions', [])
+            for idx, move in enumerate(moves):
+                explanation = explanations[idx] if idx < len(explanations) else ""
+                apple_pos = apple_positions[idx//len(apple_positions)] if apple_positions else [0,0]
+                round_data = {
+                    'round': idx+1,
+                    'move': move,
+                    'game_state': {
+                        'snake': [],
+                        'apple': apple_pos,
+                        'score': game_data.get('score',0)
+                    },
+                    'algorithm_decision': {'reasoning': explanation}
+                }
+                jsonl_record = self._extract_jsonl_record(round_data, game_id)
+                if jsonl_record:
+                    self.jsonl_records.append(jsonl_record)
     
     def _extract_csv_features(self, round_data: Dict[str, Any], game_id: int) -> Optional[Dict[str, Any]]:
         """Extract 16 standardized CSV features from round data."""
@@ -114,13 +257,12 @@ class DatasetGenerator:
             apple_dir_right = 1 if apple_x > head_x else 0
             apple_dir_left = 1 if apple_x < head_x else 0
             
-            # Calculate danger detection features (simplified)
-            # This would ideally be more sophisticated based on the actual game logic
-            danger_straight = 1 if self._would_collide_straight(head, snake[1:]) else 0
-            danger_left = 1 if self._would_collide_left(head, snake[1:]) else 0
-            danger_right = 1 if self._would_collide_right(head, snake[1:]) else 0
+            # Calculate danger detection features (based on actual game logic)
+            danger_straight = self._detect_danger_direction(head, snake[1:], self._get_current_direction(round_data))
+            danger_left = self._detect_danger_direction(head, snake[1:], self._turn_left(self._get_current_direction(round_data)))
+            danger_right = self._detect_danger_direction(head, snake[1:], self._turn_right(self._get_current_direction(round_data)))
             
-            # Calculate free space features (simplified count)
+            # Calculate free space features
             free_space_up = self._count_free_space_direction(head, snake, (0, 1))
             free_space_down = self._count_free_space_direction(head, snake, (0, -1))
             free_space_left = self._count_free_space_direction(head, snake, (-1, 0))
@@ -171,16 +313,19 @@ class DatasetGenerator:
             game_state = round_data.get('game_state', {})
             move = round_data.get('move')
             round_num = round_data.get('round', 0)
-            reasoning = round_data.get('reasoning', '')
+            
+            # Get algorithm reasoning if available
+            reasoning = round_data.get('algorithm_decision', {}).get('reasoning', '')
+            path_found = round_data.get('algorithm_decision', {}).get('path_found', True)
             
             if not move:
                 return None
             
             # Generate prompt describing the game state
-            prompt = self._generate_state_prompt(game_state)
+            prompt = self._generate_state_prompt(game_state, round_num)
             
             # Generate completion with algorithm reasoning
-            completion = self._generate_reasoning_completion(move, reasoning, game_state)
+            completion = self._generate_reasoning_completion(move, reasoning, game_state, path_found)
             
             record = {
                 'prompt': prompt,
@@ -192,8 +337,14 @@ class DatasetGenerator:
             }
             
             # Add metadata if available
+            metadata = {}
             if reasoning:
-                record['metadata'] = {'original_reasoning': reasoning}
+                metadata['original_reasoning'] = reasoning
+            if 'algorithm_decision' in round_data:
+                metadata['algorithm_decision'] = round_data['algorithm_decision']
+            
+            if metadata:
+                record['metadata'] = metadata
             
             return record
             
@@ -201,7 +352,7 @@ class DatasetGenerator:
             print(f"[DatasetGenerator] Error extracting JSONL record: {e}")
             return None
     
-    def _generate_state_prompt(self, game_state: Dict[str, Any]) -> str:
+    def _generate_state_prompt(self, game_state: Dict[str, Any], round_num: int) -> str:
         """Generate natural language description of game state."""
         snake = game_state.get('snake', [])
         apple = game_state.get('apple', [0, 0])
@@ -211,30 +362,42 @@ class DatasetGenerator:
             return "Game state unavailable."
         
         head = snake[0]
+        body = snake[1:] if len(snake) > 1 else []
         
-        prompt = f"""You are playing Snake on a {self.grid_size}x{self.grid_size} grid.
+        prompt = f"""You are an AI playing Snake on a {self.grid_size}x{self.grid_size} grid. This is step {round_num} of the game.
 
 Current game state:
 - Snake head position: ({head[0]}, {head[1]})
 - Apple position: ({apple[0]}, {apple[1]})
 - Snake length: {len(snake)}
-- Current score: {score}
+- Current score: {score}"""
 
-The snake body occupies positions: {snake[1:] if len(snake) > 1 else 'None (just head)'}
+        if body:
+            prompt += f"\n- Snake body positions: {body}"
+        else:
+            prompt += "\n- Snake body: None (just the head)"
 
-What move should the snake make next? Consider:
-1. Moving toward the apple
-2. Avoiding collisions with walls and snake body
-3. Maintaining a safe path for future moves
+        # Add strategic context
+        distance_to_apple = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+        prompt += f"\n- Manhattan distance to apple: {distance_to_apple}"
+        
+        # Add constraints
+        prompt += f"""
 
-Choose from: UP, DOWN, LEFT, RIGHT"""
+Constraints:
+- Grid boundaries: (0,0) to ({self.grid_size-1},{self.grid_size-1})
+- Cannot move into walls or snake body
+- Goal: Reach the apple safely while planning future moves
+
+What move should you choose next? Analyze the situation and select from: UP, DOWN, LEFT, RIGHT"""
         
         return prompt
     
-    def _generate_reasoning_completion(self, move: str, reasoning: str, game_state: Dict[str, Any]) -> str:
+    def _generate_reasoning_completion(self, move: str, reasoning: str, game_state: Dict[str, Any], path_found: bool = True) -> str:
         """Generate natural language explanation for the chosen move."""
         snake = game_state.get('snake', [])
         apple = game_state.get('apple', [0, 0])
+        score = game_state.get('score', 0)
         
         if not snake:
             return f"I choose {move}."
@@ -242,57 +405,85 @@ Choose from: UP, DOWN, LEFT, RIGHT"""
         head = snake[0]
         
         # Start with the algorithm's reasoning if available
+        completion = ""
+        
         if reasoning:
-            completion = f"Algorithm reasoning: {reasoning}\n\n"
+            completion += f"Algorithm analysis: {reasoning}\n\n"
+        elif not path_found:
+            completion += f"Algorithm analysis: No direct path found to apple. Making safety move.\n\n"
         else:
-            completion = ""
+            completion += f"Algorithm analysis: {self.algorithm} pathfinding from ({head[0]}, {head[1]}) to ({apple[0]}, {apple[1]})\n\n"
         
         # Add strategic explanation
-        completion += f"I choose to move {move}. "
+        completion += f"Decision: I choose to move {move}. "
         
-        # Explain the strategic reasoning
-        if move == "UP":
-            if apple[1] > head[1]:
-                completion += "This moves toward the apple which is above the snake head. "
-            else:
-                completion += "This moves away from potential dangers below. "
-        elif move == "DOWN":
-            if apple[1] < head[1]:
-                completion += "This moves toward the apple which is below the snake head. "
-            else:
-                completion += "This moves away from potential dangers above. "
-        elif move == "LEFT":
-            if apple[0] < head[0]:
-                completion += "This moves toward the apple which is to the left of the snake head. "
-            else:
-                completion += "This moves away from potential dangers on the right. "
-        elif move == "RIGHT":
-            if apple[0] > head[0]:
-                completion += "This moves toward the apple which is to the right of the snake head. "
-            else:
-                completion += "This moves away from potential dangers on the left. "
+        # Explain the strategic reasoning based on the actual game state
+        apple_direction = self._get_apple_direction(head, apple)
+        move_towards_apple = move in apple_direction
         
-        completion += f"This {self.algorithm} algorithm ensures safe pathfinding while maximizing score."
+        if move_towards_apple:
+            completion += f"This move brings me closer to the apple at ({apple[0]}, {apple[1]}). "
+        else:
+            completion += f"Although this doesn't directly approach the apple, it's necessary for safe pathfinding. "
+        
+        # Add safety considerations
+        if not path_found:
+            completion += "The algorithm detected potential risks with direct apple approaches, so this move prioritizes safety. "
+        
+        # Add algorithm-specific context
+        if self.algorithm == "BFS":
+            completion += "The BFS algorithm ensures optimal pathfinding by exploring all possible safe routes systematically."
+        elif self.algorithm == "ASTAR":
+            completion += "The A* algorithm uses heuristic guidance to find efficient paths while avoiding obstacles."
+        elif self.algorithm == "DFS":
+            completion += "The DFS algorithm explores deep paths to find creative solutions to complex board states."
+        elif "HAMILTONIAN" in self.algorithm:
+            completion += "The Hamiltonian approach seeks to create cycles that cover the entire board systematically."
+        else:
+            completion += f"The {self.algorithm} algorithm balances efficiency and safety in pathfinding decisions."
         
         return completion
     
-    # Simplified collision and space calculation helpers
-    def _would_collide_straight(self, head: List[int], body: List[List[int]]) -> bool:
-        """Simplified collision detection for straight movement."""
-        # This is a placeholder - real implementation would consider current direction
-        return False  # Simplified for now
+    # Helper methods for better feature extraction
+    def _get_current_direction(self, round_data: Dict[str, Any]) -> str:
+        """Get current movement direction from round data."""
+        move = round_data.get('move', 'UP')
+        return move
     
-    def _would_collide_left(self, head: List[int], body: List[List[int]]) -> bool:
-        """Simplified collision detection for left turn."""
-        return False  # Simplified for now
+    def _turn_left(self, direction: str) -> str:
+        """Get the left turn direction."""
+        turns = {"UP": "LEFT", "LEFT": "DOWN", "DOWN": "RIGHT", "RIGHT": "UP"}
+        return turns.get(direction, "UP")
     
-    def _would_collide_right(self, head: List[int], body: List[List[int]]) -> bool:
-        """Simplified collision detection for right turn."""
-        return False  # Simplified for now
+    def _turn_right(self, direction: str) -> str:
+        """Get the right turn direction."""
+        turns = {"UP": "RIGHT", "RIGHT": "DOWN", "DOWN": "LEFT", "LEFT": "UP"}
+        return turns.get(direction, "UP")
+    
+    def _detect_danger_direction(self, head: List[int], body: List[List[int]], direction: str) -> int:
+        """Detect if moving in a direction would cause collision."""
+        direction_map = {
+            "UP": (0, 1),
+            "DOWN": (0, -1),
+            "LEFT": (-1, 0),
+            "RIGHT": (1, 0)
+        }
+        
+        dx, dy = direction_map.get(direction, (0, 0))
+        new_x, new_y = head[0] + dx, head[1] + dy
+        
+        # Check wall collision
+        if new_x < 0 or new_x >= self.grid_size or new_y < 0 or new_y >= self.grid_size:
+            return 1
+        
+        # Check body collision
+        if [new_x, new_y] in body:
+            return 1
+        
+        return 0
     
     def _count_free_space_direction(self, head: List[int], snake: List[List[int]], direction: tuple) -> int:
         """Count free spaces in a given direction."""
-        # Simplified implementation - count until hitting boundary or snake
         x, y = head[0], head[1]
         dx, dy = direction
         count = 0
@@ -317,6 +508,22 @@ Choose from: UP, DOWN, LEFT, RIGHT"""
                 break
         
         return count
+    
+    def _get_apple_direction(self, head: List[int], apple: List[int]) -> List[str]:
+        """Get list of directions that lead toward the apple."""
+        directions = []
+        
+        if apple[0] > head[0]:  # Apple is to the right
+            directions.append("RIGHT")
+        elif apple[0] < head[0]:  # Apple is to the left
+            directions.append("LEFT")
+        
+        if apple[1] > head[1]:  # Apple is above
+            directions.append("UP")
+        elif apple[1] < head[1]:  # Apple is below
+            directions.append("DOWN")
+        
+        return directions
     
     def save_csv(self, filepath: str) -> None:
         """Save CSV dataset to file."""
@@ -431,52 +638,6 @@ def find_available_algorithms() -> List[str]:
     return ["BFS", "ASTAR", "DFS", "HAMILTONIAN", "BFS-SAFE-GREEDY", "ASTAR-HAMILTONIAN", "BFS-HAMILTONIAN"]
 
 
-def generate_games_for_algorithm(algorithm: str, max_games: int, max_steps: int, grid_size: int, verbose: bool) -> List[Dict[str, Any]]:
-    """
-    Generate game data for a specific algorithm.
-    
-    This function would ideally integrate with the actual game runner,
-    but for now it provides a placeholder that shows the expected structure.
-    """
-    print(f"[CLI] Generating {max_games} games for {algorithm}...")
-    
-    # Placeholder: In real implementation, this would run the actual games
-    # For now, return mock data structure
-    games_data = []
-    
-    for game_num in range(1, max_games + 1):
-        # Mock game data structure
-        game_data = {
-            'game_id': game_num,
-            'algorithm': algorithm,
-            'grid_size': grid_size,
-            'final_score': 5,  # Mock score
-            'total_rounds': 25,  # Mock rounds
-            'rounds': []
-        }
-        
-        # Mock some rounds
-        for round_num in range(1, min(26, max_steps + 1)):
-            round_data = {
-                'round': round_num,
-                'game_state': {
-                    'snake': [[5, 5], [5, 4], [5, 3]],  # Mock snake
-                    'apple': [7, 8],  # Mock apple
-                    'score': round_num // 5,  # Mock score
-                },
-                'move': ['UP', 'DOWN', 'LEFT', 'RIGHT'][round_num % 4],
-                'reasoning': f"{algorithm} pathfinding from ({5}, {5}) to ({7}, {8})"
-            }
-            game_data['rounds'].append(round_data)
-        
-        games_data.append(game_data)
-        
-        if verbose:
-            print(f"[CLI] Generated game {game_num}/{max_games}")
-    
-    return games_data
-
-
 def main() -> None:
     """Main entry point for dataset generation CLI."""
     setup_extension_paths()
@@ -485,8 +646,8 @@ def main() -> None:
     args = parser.parse_args()
     
     if args.verbose:
-        print("Dataset Generation CLI v0.04")
-        print("=" * 40)
+        print("Dataset Generation CLI v0.04 (Real Game Integration)")
+        print("=" * 50)
         print(f"Format: {args.format}")
         print(f"Max games: {args.max_games}")
         print(f"Grid size: {args.grid_size}")
@@ -505,10 +666,21 @@ def main() -> None:
         print(f"\n[CLI] Starting dataset generation for {algorithm}")
         
         try:
-            # Generate games data
-            games_data = generate_games_for_algorithm(
+            # Run actual games to generate data
+            log_paths = run_heuristic_games(
                 algorithm, args.max_games, args.max_steps, args.grid_size, args.verbose
             )
+            
+            if not log_paths:
+                print(f"[CLI] ⚠️  No successful games for {algorithm}, skipping...")
+                continue
+            
+            # Load game data from logs
+            games_data = load_game_logs(log_paths, args.verbose)
+            
+            if not games_data:
+                print(f"[CLI] ⚠️  No game data loaded for {algorithm}, skipping...")
+                continue
             
             # Create dataset generator
             generator = DatasetGenerator(algorithm, args.grid_size)

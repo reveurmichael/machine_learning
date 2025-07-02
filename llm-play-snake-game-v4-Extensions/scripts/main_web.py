@@ -89,8 +89,12 @@ def manager_thread_fn(gm: GameManager, args):
         # Handle continuation mode
         cont_dir = getattr(args, "continue_with_game_in_dir", None)
         if cont_dir:
+            # Determine next game number for continuation
+            from utils.file_utils import get_next_game_number
+            next_game = get_next_game_number(cont_dir)
+            
             # Load existing game session
-            gm.continue_from_session(cont_dir, 1)  # Start from game 1
+            gm.continue_from_session(cont_dir, next_game)
         else:
             # Start new game session
             gm.run()

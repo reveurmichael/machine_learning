@@ -49,8 +49,9 @@ class ReplayModel {
             
             const data = await response.json();
             
-            if (data.error) {
-                console.error('Command Error:', data.error);
+            // Handle API response format: {status: 'ok'|'error', message: '...'}
+            if (data.status === 'error') {
+                console.error('Command Error:', data.message || data.error || 'Unknown error');
                 return false;
             }
             

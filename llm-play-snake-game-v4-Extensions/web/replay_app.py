@@ -223,25 +223,33 @@ class ReplayWebApp(GameFlaskApp):
             self.replay_engine.pause_between_moves = self.move_pause
             return {'status': 'ok', 'move_pause': self.move_pause}
         elif action == 'next_game':
-            # Try to load next game, clamp to reasonable range
-            self.game_number = min(self.game_number + 1, self.replay_engine.total_games)
+            # Check boundary first before attempting to load
+            if self.game_number >= self.replay_engine.total_games:
+                return {'status': 'error', 'message': 'Already at last game'}
+            
+            # Try to load next game
+            self.game_number += 1
             if self.load_replay_data():
                 self.current_step = 0
                 return {'status': 'ok', 'game_number': self.game_number}
             else:
                 # Roll back if load failed
-                self.game_number = max(1, self.game_number - 1)
+                self.game_number -= 1
                 return {'status': 'error', 'message': 'No next game'}
         elif action == 'prev_game':
-            # Try to load previous game, clamp to reasonable range
-            self.game_number = max(1, self.game_number - 1)
+            # Check boundary first before attempting to load
+            if self.game_number <= 1:
+                return {'status': 'error', 'message': 'Already at first game'}
+            
+            # Try to load previous game
+            self.game_number -= 1
             if self.load_replay_data():
                 self.current_step = 0
                 return {'status': 'ok', 'game_number': self.game_number}
             else:
                 # Roll back if load failed
-                self.game_number = min(self.game_number + 1, self.replay_engine.total_games)
-                return {'status': 'error', 'message': 'Already at first game'}
+                self.game_number += 1
+                return {'status': 'error', 'message': 'No previous game'}
         elif action == 'restart_game':
             self.load_replay_data()
             self.current_step = 0

@@ -587,12 +587,17 @@ class ReplayEngine(BaseReplayEngine):
                     print(f"Restarting game {self.game_number}")
                     redraw_needed = True
                 elif event.key in (pygame.K_RIGHT, pygame.K_n):
-                    self.game_number += 1
-                    if not self.load_game_data(self.game_number):
-                        print("No more games to load. Staying on current game.")
-                        self.game_number -= 1
+                    # Next game - check boundary first
+                    if self.game_number >= self.total_games:
+                        print("Already at the last game")
+                    else:
+                        self.game_number += 1
+                        if not self.load_game_data(self.game_number):
+                            print("No more games to load. Staying on current game.")
+                            self.game_number -= 1
                     redraw_needed = True
                 elif event.key in (pygame.K_LEFT, pygame.K_p):
+                    # Previous game - check boundary first
                     if self.game_number > 1:
                         self.game_number -= 1
                         self.load_game_data(self.game_number)

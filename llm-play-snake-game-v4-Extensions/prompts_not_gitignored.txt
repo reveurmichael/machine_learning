@@ -1,4 +1,24 @@
-make sure things factory factory_utils.py is great for task0  and extensiable for task1-5. what about all the  web scripts in the folders "scripts" as well as related utils python in folder "utils" great as well as related tab_*.py in dashboard folder.
+Pre-MVC: 
+The PAUSE_PREVIEW_BEFORE_MAKING_FIRST_MOVE_SECONDS = 3.0 constant you mentioned doesn't actually exist as a named constant in the codebase. Instead, there's a hardcoded 3-second delay implemented directly in the game loop.
+Location and Implementation
+The 3-second pause is implemented in core/game_loop.py:
+)
+When It's Applied
+This pause occurs in the _request_and_execute_first_move() function, which is called when:
+The LLM provides a new plan (after getting a response)
+The first move from that plan is about to be executed
+Only when game_manager.use_gui is True
+How It Differs Between main.py and main_web.py
+main.py Mode
+GUI mode (--no-gui not specified): use_gui = True → 3-second pause applies
+No-GUI mode (--no-gui specified): use_gui = False → No pause
+
+
+
+
+
+
+
 
 
 

@@ -21,14 +21,14 @@ from web.base_app import FlaskGameApp, GameFlaskApp
 
 # Specific application implementations
 from web.human_app import HumanWebApp
-from web.llm_app import LLMWebApp
+from web.main_app import MainWebApp
 from web.replay_app import ReplayWebApp
 
 # Factory functions from centralized factory utilities
 from utils.factory_utils import (
     WebAppFactory,
     create_human_web_app,
-    create_llm_web_app,
+    create_main_web_app,
     create_replay_web_app
 )
 
@@ -40,12 +40,12 @@ __all__ = [
     
     # Task-0 specific apps
     'HumanWebApp',
-    'LLMWebApp',
+    'MainWebApp',
     'ReplayWebApp',
     
     # Simple factory functions
     'WebAppFactory',
     'create_human_web_app',
-    'create_llm_web_app',
+    'create_main_web_app',
     'create_replay_web_app'
 ] 

@@ -1,7 +1,6 @@
 /**
  * Snake Game – Live LLM Mode
  * Polls /api/state to render the game board and update sidebar information.
- * Provides controls for starting/stopping/resetting LLM gameplay.
  * Reuses helper functions from common.js
  */
 
@@ -15,11 +14,6 @@ const stepsElement   = document.getElementById('steps');
 const plannedMovesEl = document.getElementById('planned-moves');
 const llmResponseEl  = document.getElementById('llm-response');
 const finishedIndicator = document.getElementById('finished-indicator');
-
-// Control elements
-const startButton = document.getElementById('start-button');
-const stopButton = document.getElementById('stop-button');
-const resetButton = document.getElementById('reset-button');
 
 // Game state
 let gameState = null;
@@ -38,78 +32,10 @@ let lastRenderedStep = -1;
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-    // Initialize sidebar for LLM mode
-    initializeSidebar('llm');
-    
-    // Initialize control buttons
-    initializeControls();
-    
     startPolling();
     window.addEventListener('resize', () => {
         if (gameState) drawGame();
     });
-}
-
-function initializeControls() {
-    // Add event listeners for control buttons
-    if (startButton) {
-        startButton.addEventListener('click', () => sendControl('start'));
-    }
-    if (stopButton) {
-        stopButton.addEventListener('click', () => sendControl('stop'));
-    }
-    if (resetButton) {
-        resetButton.addEventListener('click', () => sendControl('reset'));
-    }
-}
-
-async function sendControl(action) {
-    try {
-        const response = await sendApiRequest('/api/control', 'POST', { action });
-        console.log(`Control action '${action}':`, response);
-        
-        // Show feedback to user
-        if (response.status === 'ok') {
-            showMessage(`Game ${action}ed successfully`, 'success');
-        } else {
-            showMessage(`Failed to ${action} game: ${response.message}`, 'error');
-        }
-    } catch (error) {
-        console.error(`Error sending control action '${action}':`, error);
-        showMessage(`Error: ${error.message}`, 'error');
-    }
-}
-
-function showMessage(message, type = 'info') {
-    // Create or update message element
-    let messageEl = document.getElementById('control-message');
-    if (!messageEl) {
-        messageEl = document.createElement('div');
-        messageEl.id = 'control-message';
-        messageEl.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            transition: opacity 0.3s;
-        `;
-        document.body.appendChild(messageEl);
-    }
-    
-    // Set message content and style
-    messageEl.textContent = message;
-    messageEl.style.backgroundColor = type === 'success' ? '#28a745' : 
-                                    type === 'error' ? '#dc3545' : '#17a2b8';
-    
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-        messageEl.style.opacity = '0';
-        setTimeout(() => messageEl.remove(), 300);
-    }, 3000);
 }
 
 function startPolling() {
@@ -172,111 +98,84 @@ function handleError(msg) {
 function updateUI() {
     if (!gameState) return;
 
-    // Use the sidebar manager to update all UI elements
-    if (sidebarManager) {
-        sidebarManager.updateWithGameState(gameState);
+    // Update basic game information
+    if (scoreElement) {
+        scoreElement.textContent = gameState.score || 0;
+    }
+    
+    if (stepsElement) {
+        stepsElement.textContent = gameState.steps || 0;
     }
 
-    // Update control button states
-    updateControlButtons();
+    // Update planned moves
+    if (plannedMovesEl) {
+        if (gameState.planned_moves && gameState.planned_moves.length > 0) {
+            plannedMovesEl.textContent = gameState.planned_moves.join(' → ');
+        } else {
+            plannedMovesEl.textContent = 'No moves planned yet';
+        }
+    }
 
-    // Update LLM-specific information
-    updateLLMInfo();
+    // Update LLM response
+    if (llmResponseEl) {
+        if (gameState.llm_response) {
+            llmResponseEl.textContent = gameState.llm_response;
+        } else {
+            llmResponseEl.textContent = 'Waiting for LLM response...';
+        }
+    }
+
+    // Update finished indicator
+    if (finishedIndicator) {
+        if (gameState.session_finished) {
+            finishedIndicator.style.display = 'block';
+        } else {
+            finishedIndicator.style.display = 'none';
+        }
+    }
 
     // Update page title
     document.title = `Snake ${gameState.score} pts – ${gameState.steps} steps`;
 }
 
-function updateControlButtons() {
-    if (!gameState) return;
-    
-    const isRunning = gameState.is_running || false;
-    
-    if (startButton) {
-        startButton.disabled = isRunning;
-        startButton.textContent = isRunning ? 'Running...' : 'Start Game';
-    }
-    
-    if (stopButton) {
-        stopButton.disabled = !isRunning;
-        stopButton.textContent = isRunning ? 'Stop Game' : 'Stopped';
-    }
-    
-    if (resetButton) {
-        resetButton.disabled = isRunning;
-        resetButton.textContent = isRunning ? 'Reset (Stop First)' : 'Reset Game';
-    }
-}
-
-function updateLLMInfo() {
-    if (!gameState) return;
-    
-    // Update LLM response display
-    if (llmResponseEl && gameState.llm_response) {
-        llmResponseEl.textContent = gameState.llm_response;
-        llmResponseEl.style.display = 'block';
-    } else if (llmResponseEl) {
-        llmResponseEl.style.display = 'none';
-    }
-    
-    // Update planned moves display
-    if (plannedMovesEl && gameState.llm_planned_moves && gameState.llm_planned_moves.length > 0) {
-        plannedMovesEl.textContent = `Planned: ${gameState.llm_planned_moves.join(', ')}`;
-        plannedMovesEl.style.display = 'block';
-    } else if (plannedMovesEl) {
-        plannedMovesEl.style.display = 'none';
-    }
-    
-    // Update game progress
-    if (gameState.current_game && gameState.max_games) {
-        const progressEl = document.getElementById('game-progress');
-        if (progressEl) {
-            progressEl.textContent = `Game ${gameState.current_game}/${gameState.max_games}`;
-        }
-    }
-    
-    // Update game end reason
-    if (gameState.game_end_reason && gameState.game_over) {
-        const endReasonEl = document.getElementById('end-reason');
-        if (endReasonEl) {
-            endReasonEl.textContent = `Game Over: ${gameState.game_end_reason}`;
-            endReasonEl.style.display = 'block';
-        }
-    }
-}
-
 function drawGame() {
-    if (!gameState) return;
+    if (!gameState || !canvas) return;
 
     const gridSize = gameState.grid_size || 10;
     const maxSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.8);
     pixelSize = Math.floor(maxSize / gridSize);
 
-    canvas.width  = pixelSize * gridSize;
-    canvas.height = pixelSize * gridSize;
+    // Set canvas size
+    const canvasSize = pixelSize * gridSize;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
 
     // Clear canvas
     ctx.fillStyle = COLORS.BACKGROUND;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
 
     // Draw grid
     drawGrid(ctx, gridSize, pixelSize);
 
-    // Draw snake body first
+    // Draw snake
     if (gameState.snake_positions && gameState.snake_positions.length > 0) {
+        // Draw snake body first
         for (let i = 0; i < gameState.snake_positions.length - 1; i++) {
             const [x, yGame] = gameState.snake_positions[i];
-            const yCanvas = (gridSize - 1) - yGame;
+            const yCanvas = (gridSize - 1) - yGame;  // Flip Y-axis: Python (0,0) at bottom-left → Canvas (0,0) at top-left
             drawRect(ctx, x, yCanvas, COLORS.SNAKE_BODY, pixelSize);
         }
-        // Head
+        
+        // Draw snake head
         const [hx, hyGame] = gameState.snake_positions[gameState.snake_positions.length - 1];
-        drawRect(ctx, hx, (gridSize - 1) - hyGame, COLORS.SNAKE_HEAD, pixelSize);
+        const yCanvas = (gridSize - 1) - hyGame;  // Flip Y-axis for head too
+        drawRect(ctx, hx, yCanvas, COLORS.SNAKE_HEAD, pixelSize);
     }
 
     // Draw apple
-    if (gameState.apple_position && gameState.apple_position.length === 2) {
+    if (gameState.apple_position) {
         const [ax, ayGame] = gameState.apple_position;
-        drawRect(ctx, ax, (gridSize - 1) - ayGame, COLORS.APPLE, pixelSize);
+        const yCanvas = (gridSize - 1) - ayGame;  // Flip Y-axis for apple too
+        drawRect(ctx, ax, yCanvas, COLORS.APPLE, pixelSize);
     }
 } 

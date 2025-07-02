@@ -52,14 +52,14 @@ class ReplayGameStateProvider:
         self.replay_engine = replay_engine
     
     def record_game_end(self, reason: str) -> None:
-        """Record game end reason and stop replay."""
+        """Record game end reason and stop current game (not the entire replay)."""
         self.replay_engine.game_end_reason = reason
-        self.replay_engine.running = False
+        self.replay_engine.game_active = False  # Only stop current game, not the replay loop
         print(f"🎮 Replay: Game ended with reason: {reason}")
     
     def is_game_active(self) -> bool:
-        """Check if replay is still running."""
-        return self.replay_engine.running
+        """Check if current game is still active."""
+        return self.replay_engine.game_active
 
 # ---------------------
 # Generic, headless-capable replay skeleton (LLM-agnostic).
@@ -190,6 +190,7 @@ class BaseReplayEngine(GameLogic):
         # Generic replay flags ---------------------
         self.running: bool = True
         self.paused: bool = False
+        self.game_active: bool = True  # Controls current game progress (separate from replay loop)
 
         # Game-over meta-data – may stay *None* for subclasses that do not use them.
         self.game_end_reason: Optional[str] = None
@@ -336,6 +337,7 @@ class BaseReplayEngine(GameLogic):
             "total_moves": len(self.moves),
             "planned_moves": getattr(self, "planned_moves", []),
             "paused": self.paused,
+            "game_active": self.game_active,  # Include game_active flag for consistency
             "speed": (
                 1.0 / self.pause_between_moves if self.pause_between_moves else 1.0
             ),
@@ -426,7 +428,7 @@ class ReplayEngine(BaseReplayEngine):
     # ---------------------
 
     def update(self) -> None:  # type: ignore[override]
-        if self.paused:
+        if self.paused or not self.game_active:
             return
 
         current_time = time.time()
@@ -455,7 +457,8 @@ class ReplayEngine(BaseReplayEngine):
                     print(
                         f"Game {self.game_number} over. Score: {self.score}, Steps: {self.steps}, End reason: {self.game_end_reason}"
                     )
-                    self.move_index = len(self.moves)
+                    self.game_active = False  # Stop current game logic
+                    self.move_index = len(self.moves)  # Prevent further moves
 
                     if self.auto_advance:
                         if self._pygame:
@@ -463,6 +466,9 @@ class ReplayEngine(BaseReplayEngine):
                         else:
                             time.sleep(1)
                         self.load_next_game()
+                    else:
+                        # Enhanced user feedback for manual control
+                        print(f"Replay paused at game end. Controls: SPACE=pause/resume, R=restart, LEFT/RIGHT=navigate, ESC=quit")
 
                 # Immediate redraw so the GUI stays responsive
                 if self.use_gui and self.gui:
@@ -535,6 +541,7 @@ class ReplayEngine(BaseReplayEngine):
             # Ensure replay is running and not paused at the start of a new game
             self.running = True
             self.paused = False
+            self.game_active = True  # Reset game active flag for new game
 
             print(f"Game {game_number} loaded successfully")
             return game_data

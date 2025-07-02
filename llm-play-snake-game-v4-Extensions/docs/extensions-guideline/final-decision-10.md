@@ -48,14 +48,12 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `cwd-and-logs.md` (Working directory standards)
 - `data-format-decision-guide.md` (Format selection criteria)
 - `datasets-folder.md` (Directory structure standards)
-- `elegance.md` (Code quality standards)
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
 - `final-decision-0.md` through `final-decision-10.md` (Complete Final Decision Series)
 - `models.md` (Model management standards)
 - `naming-conventions.md` (Naming standards)
 - `project-structure-plan.md` (Master architectural blueprint)
 - `single-source-of-truth.md` (Architectural principles)
-- `standalone.md` (Standalone principle enforcement)
 - `unified-path-management-guide.md` (Path management standards)
 
 
@@ -75,12 +73,14 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `config.md` 
 * `dashboard.md`
 * `documentation-as-first-class-citizen.md`
+* `elegance.md` 
 * `eureka.md` 
 * `extension-evolution-rules.md`
 * `extension-move-guidelines.md`
+* `factory-design-pattern.md`
+* `fine-tuning.md`
 * `forbidden-import-patterns.md`
 * `forward-looking-architecture.md`
-* `fine-tuning.md`
 * `generative-models.md`
 * `gymnasium.md`
 * `heuristics-as-foundation.md`
@@ -93,10 +93,11 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `mutilple-inheritance.md`
 * `mvc-impact-on-extensions.md`
 * `mvc.md`
-* `npz-paquet.md`
 * `network.md`
+* `npz-paquet.md`
 * `onnx.md`
 * `reinforcement-learning.md` 
+* `standalone.md`
 * `stable-baseline.md`
 * `supervised.md` 
 * `tree-models.md`

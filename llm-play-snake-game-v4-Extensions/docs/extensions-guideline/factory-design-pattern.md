@@ -24,7 +24,7 @@ The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES*
 
 ### **Reference Implementation**
 
-A generic, educational `SimpleFactory` is provided in `extensions/common/utils/factory_utils.py`:
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:  # TODO: double check if task0 mode and task1-5 mode are using this factory_utils.py, and if things are coherent.
 
 ```python
 class SimpleFactory:
@@ -88,105 +88,8 @@ print(f"Created agent: {agent.name}")  # Simple logging
 ## 🔧 **Factory Pattern Implementation Examples**
 
 ### **Agent Factory (Canonical Implementation)**
-```python
-class AgentFactory:
-    """
-    Factory for creating different types of agents following SUPREME_RULES.
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Demonstrates canonical create() method for agent creation
-    Educational Value: Shows how canonical patterns work with
-    different agent types while maintaining simple logging.
-    
-    Reference: final-decision-10.md for canonical agent architecture
-    """
-    
-    _registry = {
-        "BFS": BFSAgent,
-        "ASTAR": AStarAgent,
-        "DFS": DFSAgent,
-        "HAMILTONIAN": HamiltonianAgent,
-    }
-    
-    @classmethod
-    def create(cls, agent_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create agent using canonical create() method following final-decision-10.md"""
-        agent_class = cls._registry.get(agent_type.upper())
-        if not agent_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[AgentFactory] Creating agent: {agent_type}")  # Simple logging - SUPREME_RULES
-        return agent_class(**kwargs)
 
-# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class AgentFactory:
-    def create_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def build_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
-    
-    def make_agent(self, agent_type: str):  # FORBIDDEN - not canonical
-        pass
-```
-
-### **Model Factory (Canonical Implementation)**
-```python
-class ModelFactory:
-    """
-    Factory for creating different types of models following SUPREME_RULES.
-    
-    Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Demonstrates canonical create() method for model creation
-    Educational Value: Shows how canonical patterns work with
-    different model types while maintaining simple logging.
-    
-    Reference: final-decision-10.md for canonical model architecture
-    """
-    
-    _registry = {
-        "MLP": MLPModel,
-        "CNN": CNNModel,
-        "LSTM": LSTMModel,
-        "XGBOOST": XGBoostModel,
-    }
-    
-    @classmethod
-    def create(cls, model_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create model using canonical create() method following final-decision-10.md"""
-        model_class = cls._registry.get(model_type.upper())
-        if not model_class:
-            available = list(cls._registry.keys())
-            raise ValueError(f"Unknown model type: {model_type}. Available: {available}")
-        print(f"[ModelFactory] Creating model: {model_type}")  # Simple logging - SUPREME_RULES
-        return model_class(**kwargs)
-```
-
-
-## 📊 **Simple Logging Standards for Factory Operations**
-
-### **Required Logging Pattern (SUPREME_RULES)**
-All factory operations MUST use simple print statements as established in `final-decision-10.md`:
-
-```python
-# ✅ CORRECT: Simple logging for factory operations (SUPREME_RULES compliance)
-def create_instance(factory_type: str, instance_type: str):
-    print(f"[Factory] Creating {instance_type} using {factory_type}")  # Simple logging - REQUIRED
-    
-    # Factory creation logic
-    instance = factory.create(instance_type)
-    
-    print(f"[Factory] Successfully created {instance_type}")  # Simple logging
-    return instance
-
-# ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-# import logging
-# logger = logging.getLogger(__name__)
-
-# def create_instance(factory_type: str, instance_type: str):
-#     logger.info(f"Creating {instance_type}")  # FORBIDDEN - complex logging
-#     # This violates final-decision-10.md SUPREME_RULES
-```
+# TODO
 
 ## 🎓 **Educational Applications with Canonical Patterns**
 

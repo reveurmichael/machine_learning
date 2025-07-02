@@ -89,6 +89,11 @@ class FlaskGameApp:
         actual_port = ensure_free_port(port or self.port)
         self.port = actual_port
         
+        # Silence noisy Werkzeug request logs when not debugging
+        if not debug:
+            import logging
+            logging.getLogger("werkzeug").setLevel(logging.WARNING)
+        
         print(f"[{self.name}] Starting on http://{host}:{actual_port}")
         self.app.run(host=host, port=actual_port, debug=debug)
     

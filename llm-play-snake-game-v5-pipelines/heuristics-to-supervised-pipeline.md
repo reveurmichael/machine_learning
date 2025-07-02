@@ -1,3 +1,5 @@
+# TODO: please keep this file VERY simple and concise.
+
 # Heuristics to Supervised Learning Pipeline
 
 > **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines the pipeline for converting heuristic data to supervised learning datasets.

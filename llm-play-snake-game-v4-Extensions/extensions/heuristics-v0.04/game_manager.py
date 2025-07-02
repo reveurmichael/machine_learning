@@ -117,25 +117,22 @@ class HeuristicGameManager(BaseGameManager):
 
         CRITICAL: All heuristic extensions write their outputs under:
 
-            ROOT/logs/extensions/<experiment_folder>/
+            ROOT/logs/extensions/datasets/grid-size-N/<extension>_v<version>_<timestamp>/
 
-        This keeps extension logs separate from the main Task-0 logs while
-        still living under a single top-level ``logs/`` folder, making backup
-        and analytics scripts much simpler.
-
-        Task-0 logs go to: ROOT/logs/<model>_<timestamp>/
-        Extension logs go to: ROOT/logs/extensions/<task>-<algorithm>_<timestamp>/
+        This follows the standardized dataset folder structure defined in
+        docs/extensions-guideline/datasets-folder.md for consistency across
+        all extensions and grid sizes.
 
         Directory pattern:
-            logs/extensions/heuristics-<algorithm>_<timestamp>/
+            logs/extensions/datasets/grid-size-{N}/heuristics-v0.04_v0.04_{timestamp}/
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        algo_name = self.algorithm_name.lower()
-        # CRITICAL: Extension logs go to ROOT/logs/extensions/
-        # This separates experimental extensions from production Task-0 logs
-        # Use common configuration constant instead of hardcoded path
-        experiment_folder = f"{HEURISTICS_LOG_PREFIX}{algo_name}_{timestamp}"
-        self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, experiment_folder)
+        grid_size = getattr(self.args, "grid_size", 10)
+        
+        # Follow standardized dataset folder structure
+        # Reference: docs/extensions-guideline/datasets-folder.md
+        dataset_folder = f"heuristics-v0.04_v0.04_{timestamp}"
+        self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, "datasets", f"grid-size-{grid_size}", dataset_folder)
         os.makedirs(self.log_dir, exist_ok=True)
 
     def _setup_agent(self) -> None:
@@ -307,7 +304,12 @@ class HeuristicGameManager(BaseGameManager):
                 }
             }
 
-        game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
+        # Create algorithm-specific subdirectory following dataset folder standards
+        # Reference: docs/extensions-guideline/datasets-folder.md
+        algorithm_dir = os.path.join(self.log_dir, self.algorithm_name.lower())
+        os.makedirs(algorithm_dir, exist_ok=True)
+        
+        game_filepath = os.path.join(algorithm_dir, f"game_{self.game_count}.json")
         with open(game_filepath, 'w', encoding='utf-8') as f:
             json.dump(game_data, f, indent=2, default=str)  # Handle numpy types
 
@@ -351,7 +353,9 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.GREEN + f"⚡ Score per step: {summary_data['statistics']['score_per_step']:.3f}")
         print(Fore.GREEN + f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
 
-        summary_filepath = os.path.join(self.log_dir, "summary.json")
+        # Save summary to algorithm-specific subdirectory
+        algorithm_dir = os.path.join(self.log_dir, self.algorithm_name.lower())
+        summary_filepath = os.path.join(algorithm_dir, "summary.json")
         with open(summary_filepath, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, indent=2, default=str)  # Handle numpy types
 

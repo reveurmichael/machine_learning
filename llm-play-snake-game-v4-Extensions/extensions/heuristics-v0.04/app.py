@@ -20,7 +20,8 @@ else:
     project_root = ensure_project_root_on_path()
 
 # Ensure we run everything from project root so that relative paths work
-os.chdir(project_root)
+# Note: We don't change directory here to avoid Streamlit path issues
+# The path setup above ensures imports work correctly
 
 # ---------------------------------------------------------------------------
 # Import helper from unified dataset CLI to retrieve available algorithms

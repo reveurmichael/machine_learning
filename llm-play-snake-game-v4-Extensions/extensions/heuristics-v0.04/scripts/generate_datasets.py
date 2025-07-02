@@ -41,8 +41,8 @@ for path in [str(project_root), str(common_dir)]:
     if path not in sys.path:
         sys.path.insert(0, path)
 
-# Change to project root for consistent relative paths
-os.chdir(str(project_root))
+# Note: We don't change directory here to avoid path issues
+# The path setup above ensures imports work correctly
 
 # Import and delegate to the unified CLI
 try:

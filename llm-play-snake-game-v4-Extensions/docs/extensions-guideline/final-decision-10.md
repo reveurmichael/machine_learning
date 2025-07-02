@@ -4,7 +4,7 @@
 
 ## 🎯 **Important Guidelines: Ultimate Authority**
 
-SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they are like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CABINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATIONS + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + GENESIS OF BIG BANG OF THE PROJECT, and have the **FINAL SAY ON EVERYTHING**, with no exceptions.
+SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they are like the SUPREME COURT + PRESIDENT + CONGRESS + SENATE + HOUSE OF REPRESENTATIVES + PREMIER MINISTER + SECRETARY OF STATE + ALL 50 GOVERNORS + ALL CABINET SECRETARIES + ALL MINISTERS + PRESIDENT OF THE UNITED NATIONS + LEADERS OF ALL RELIGIONS + COMMANDER OF THE UNIVERSE + THE GENESIS OF THE BIG BANG OF THE PROJECT, and have the **FINAL SAY ON EVERYTHING**, with no exceptions.
 
 ### **SUPREME_RULES Hierarchy**
 1. **SUPREME_RULE NO.1**: When updating markdown files in `./docs/extensions-guideline/`, you **must** first read **all** existing markdown files in that directory. No modifications are permitted without full context comprehension.
@@ -18,7 +18,7 @@ SUPREME_RULES represent the **ABSOLUTE AUTHORITY** for the entire project - they
 * **STEP E:** Define and enforce strict **linking and cross-referencing standards**. Every markdown file must be connected to at least one other markdown file, forming a coherent and navigable knowledge graph. Use explicit inline links rather than vague or implied mentions. Ensure that each link is fully justified, logically necessary, and truly reinforces conceptual interconnections.
 * **STEP F:** Refine incrementally. Do not attempt to fix all files in a single pass. Start with core architectural documents, then expand outward. Each refinement cycle should operate like a **diffusion or chain reaction**, gradually building consistency and cohesion across all layers.
 * **STEP G:** After each major round of changes, conduct a **coherence sweep** from the perspective of a reader or newcomer. Read files end-to-end, checking for flow, terminology consistency, cross-link completeness, and conceptual clarity. Address clear issues immediately and flag deeper concerns for future iterations.
-5. **SUPREME_RULE NO.5**: By default, there is no default requirement for a GUI/PyGame/Flask/Web mode for any extension. This is intentional: extension modes can vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and unnecessary. And rarely will it be useful, with very few exceptions. That said, it is not forbidden to include a GUI/PyGame/Flask/Web mode for an extension if the developer deems it useful or essential for their specific use case. As many extensions will produce game_N.json and summary.json, we will reuse the replay engine of Task0 for the replaying of those json log files. On the contrary, each extension of v0.03+ will have a streamlit app.py, whose sole purpose is to launch scripts with adjustable parameters.
+5. **SUPREME_RULE NO.5**:  By default, there is no requirement for a GUI, PyGame, Flask, or Web mode in any extension. This is intentional: extensions vary widely in design and purpose, and enforcing a unified GUI requirement is impractical and often unnecessary. Nonetheless, GUI/Web modes are allowed if the developer finds them useful or essential for their specific use case. Since many extensions produce game_N.json and summary.json, the Task-0 replay engine (and Task0 app.py) can be reused to replay these JSON log files. By contrast, every extension in v0.03+ must include a streamlit app.py, whose sole purpose is to launch scripts with adjustable parameters.
 
 ## TEMPORARY_SUPREME_RULES
 
@@ -30,7 +30,9 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 
 **TEMPORARY_SUPREME_RULES:**
 
--  Nothing for this moment. 
+- factory_utils.py is located in ROOT/utils folder, instead of extensions/common/utils folder.
+- for extensions, app.py has the sole purpose of launching scripts with adjustable parameters. It will not be showing statistics, or any other information, or any over-complications stuffs.
+
 
 
 
@@ -80,6 +82,7 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `forbidden-import-patterns.md`
 * `forward-looking-architecture.md`
 * `generative-models.md`
+* `gui-pygame.md`
 * `gymnasium.md`
 * `heuristics-as-foundation.md`
 * `heuristics-to-supervised-pipeline.md`
@@ -95,10 +98,13 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 * `npz-paquet.md`
 * `onnx.md`
 * `reinforcement-learning.md` 
-* `standalone.md`
+* `replay.md`
+* `scripts.md`
 * `stable-baseline.md`
+* `standalone.md`
 * `supervised.md` 
 * `tree-models.md`
+* `type-hint.md`
 * `unified-streamlit-architecture-guide.md`
 * `vision-language-model.md`
 

@@ -1,3 +1,7 @@
+According to the rules set in `final-decision-10.md`, update the final-decision-N.md files.
+
+
+
 Python files in "extensions/common/" folder are expected to be generic and reusable across all extensions, and not restrictive. Generally, they should not be too much ML/DL/RL specific. No need for logging into *.log files; we rely on print statements and files in the "logs/" folder, instead of *.log files.
 According to the rules set in `standalone.md`, we should not have such python files in the "extensions/common/" folder as : 
 ml_constants.py, 

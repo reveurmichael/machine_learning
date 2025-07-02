@@ -1,277 +1,127 @@
-# Fine-tuning for Snake Game AI
+# Fine-Tuning LLMs for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines fine-tuning patterns for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines fine-tuning standards for LLM extensions.
 
-> **See also:** `agents.md`, `core.md`, `final-decision-10.md`, `factory-design-pattern.md`, `config.md`, `lora.md`.
+> **See also:** `heuristics-as-foundation.md`, `llm-distillation.md`, `supervised.md`, SUPREME_RULES from `final-decision-10.md`, `data-format-decision-guide.md`.
 
-# Fine-tuning for Snake Game AI
+## 🎯 **Core Philosophy: LLM Fine-Tuning with Heuristic Foundation**
 
-## 🎯 **Core Philosophy: Specialized Model Adaptation**
+Fine-tuning large language models for Snake game AI leverages **high-quality heuristic datasets** to create intelligent reasoning agents. This approach combines the algorithmic precision of heuristics with the natural language understanding of LLMs, strictly following SUPREME_RULES from `final-decision-10.md`.
 
-Fine-tuning enables large language models to specialize in Snake game reasoning by adapting pre-trained knowledge to game-specific patterns. This approach leverages the rich language capabilities of LLMs while focusing on game-playing expertise.
+### **Educational Value**
+- **Transfer Learning**: Understanding how to adapt pre-trained models
+- **Reasoning Enhancement**: Teaching LLMs structured problem-solving
+- **Data Quality**: Learning the importance of high-quality training data
+- **Canonical Patterns**: All implementations use canonical `create()` method per SUPREME_RULES
 
-## 🏗️ **Extension Structure**
+## 🏗️ **Fine-Tuning Architecture (CANONICAL PATTERNS)**
 
-### **Directory Layout**
-```
-extensions/fine-tuning-v0.02/
-├── __init__.py
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_finetuned.py        # Fine-tuned agent
-│   └── agent_instruction.py      # Instruction-tuned agent
-├── training/
-│   ├── __init__.py
-│   ├── trainer.py                # Training pipeline
-│   ├── data_processor.py         # Data preprocessing
-│   └── metrics.py                # Training metrics
-├── models/
-│   ├── __init__.py
-│   ├── model_manager.py          # Model management
-│   └── checkpoint_handler.py     # Checkpoint utilities
-├── game_logic.py                 # Fine-tuning game logic
-├── game_manager.py               # Fine-tuning manager
-└── main.py                       # CLI interface
-```
-
-## 🔧 **Implementation Patterns**
-
-### **Fine-tuning Agent Factory**
+### **LLM Factory (SUPREME_RULES Compliant)**
 ```python
-class FineTuningAgentFactory:
+from utils.factory_utils import SimpleFactory
+
+class LLMFineTuningFactory:
     """
-    Simple factory for fine-tuned agents
+    Factory Pattern for LLM fine-tuning following SUPREME_RULES from final-decision-10.md
     
-    Design Pattern: Factory Pattern
-    - Simple dictionary-based registry
-    - Canonical create() method
-    - Easy extension for new fine-tuning approaches
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for LLM fine-tuning systems
+    Educational Value: Shows how SUPREME_RULES apply to advanced LLM operations
     """
     
     _registry = {
-        "FINETUNED": FineTunedAgent,
-        "INSTRUCTION": InstructionTunedAgent,
-        "LORA": LoRATunedAgent,
+        "OPENAI_GPT": OpenAIFineTuner,
+        "HUGGINGFACE": HuggingFaceFineTuner,
+        "LOCAL_MODEL": LocalFineTuner,
     }
     
     @classmethod
-    def create(cls, agent_type: str, **kwargs):
-        """Create fine-tuned agent by type (canonical: create())"""
-        agent_class = cls._registry.get(agent_type.upper())
-        if not agent_class:
+    def create(cls, model_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create LLM fine-tuner using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        tuner_class = cls._registry.get(model_type.upper())
+        if not tuner_class:
             available = list(cls._registry.keys())
-            raise ValueError(f"Unknown agent: {agent_type}. Available: {available}")
-        print(f"[FineTuningAgentFactory] Creating: {agent_type}")  # Simple logging
-        return agent_class(**kwargs)
+            raise ValueError(f"Unknown model type: {model_type}. Available: {available}")
+        print(f"[LLMFineTuningFactory] Creating tuner: {model_type}")  # SUPREME_RULES compliant logging
+        return tuner_class(**kwargs)
 ```
 
-### **Fine-tuned Agent Implementation**
-```python
-class FineTunedAgent(BaseAgent):
-    """
-    Fine-tuned LLM agent for Snake game
-    
-    Design Pattern: Adapter Pattern
-    - Wraps fine-tuned model with game interface
-    - Maintains consistent agent interface
-    - Provides specialized game reasoning
-    """
-    
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.model = None
-        self.tokenizer = None
-        print(f"[FineTunedAgent] Initialized fine-tuned agent: {name}")
-    
-    def load_model(self, model_path: str):
-        """Load fine-tuned model"""
-        self.model = self._load_finetuned_model(model_path)
-        self.tokenizer = self._load_tokenizer(model_path)
-        print(f"[FineTunedAgent] Loaded model from: {model_path}")
-    
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move using fine-tuned model"""
-        if self.model is None:
-            print("[FineTunedAgent] Model not loaded, using random move")
-            return random.choice(['UP', 'DOWN', 'LEFT', 'RIGHT'])
-        
-        prompt = self._format_game_state(game_state)
-        response = self._generate_response(prompt)
-        move = self._parse_response(response)
-        print(f"[FineTunedAgent] Generated move: {move}")
-        return move
-```
-
-## 📊 **Training Integration**
-
-### **Fine-tuning Pipeline**
-```python
-class FineTuningTrainer:
-    """
-    Fine-tuning pipeline for Snake game AI
-    
-    Design Pattern: Template Method Pattern
-    - Standardized training workflow
-    - Customizable training parameters
-    - Efficient model adaptation
-    """
-    
-    def __init__(self, base_model_name: str):
-        self.base_model_name = base_model_name
-        self.trainer = None
-        print(f"[FineTuningTrainer] Initialized for {base_model_name}")
-    
-    def train(self, training_data, training_config: Dict[str, Any]):
-        """Train fine-tuned model on Snake game data"""
-        print(f"[FineTuningTrainer] Starting fine-tuning with {len(training_data)} samples")
-        
-        # Setup training configuration
-        training_config.update({
-            'learning_rate': training_config.get('learning_rate', 5e-5),
-            'batch_size': training_config.get('batch_size', 4),
-            'epochs': training_config.get('epochs', 3)
-        })
-        
-        # Train model
-        self.trainer = self._setup_trainer(training_config)
-        self.trainer.train(training_data)
-        
-        print(f"[FineTuningTrainer] Fine-tuning completed successfully")
-```
-
-## 🚀 **Advanced Features**
-
-### **Instruction Tuning**
-```python
-class InstructionTunedAgent(FineTunedAgent):
-    """
-    Instruction-tuned agent for better reasoning
-    
-    Design Pattern: Decorator Pattern
-    - Adds instruction-following capabilities
-    - Improves reasoning and explanation
-    - Maintains base fine-tuning functionality
-    """
-    
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.instruction_template = self._load_instruction_template()
-        print(f"[InstructionTunedAgent] Initialized instruction-tuned agent")
-    
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move with instruction following"""
-        instruction = self._format_instruction(game_state)
-        response = self._generate_instruction_response(instruction)
-        move = self._parse_instruction_response(response)
-        print(f"[InstructionTunedAgent] Instruction-based move: {move}")
-        return move
-```
-
-### **LoRA Fine-tuning Integration**
-```python
-class LoRATunedAgent(FineTunedAgent):
-    """
-    LoRA fine-tuned agent for efficiency
-    
-    Design Pattern: Strategy Pattern
-    - Uses LoRA for efficient fine-tuning
-    - Maintains performance with fewer parameters
-    - Enables rapid adaptation
-    """
-    
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        self.lora_config = self._load_lora_config()
-        print(f"[LoRATunedAgent] Initialized LoRA-tuned agent")
-    
-    def setup_lora(self, r: int = 16, alpha: int = 32):
-        """Setup LoRA adaptation layers"""
-        self.lora_adapter = self._create_lora_adapter(r, alpha)
-        print(f"[LoRATunedAgent] LoRA setup complete: r={r}, alpha={alpha}")
-```
-
-## 📈 **Data Pipeline Integration**
-
-### **Training Data Preparation**
+### **Data Preparation Pipeline**
 ```python
 class FineTuningDataProcessor:
     """
-    Process training data for fine-tuning
+    Processes heuristic datasets for LLM fine-tuning following SUPREME_RULES.
     
     Design Pattern: Pipeline Pattern
-    - Sequential data processing steps
-    - Configurable preprocessing options
-    - Quality validation and filtering
+    Purpose: Transform heuristic data into LLM training format
+    Educational Value: Shows data transformation with canonical patterns
     """
     
     def __init__(self):
-        self.processors = []
-        print("[FineTuningDataProcessor] Initialized")
+        print("[FineTuningDataProcessor] Initialized")  # SUPREME_RULES compliant logging
     
-    def add_processor(self, processor):
-        """Add data processing step"""
-        self.processors.append(processor)
-        print(f"[FineTuningDataProcessor] Added processor: {processor.__class__.__name__}")
-    
-    def process(self, raw_data):
-        """Process data through pipeline"""
-        processed_data = raw_data
-        for processor in self.processors:
-            processed_data = processor.process(processed_data)
-        print(f"[FineTuningDataProcessor] Processed {len(processed_data)} samples")
-        return processed_data
+    def prepare_training_data(self, heuristic_datasets: list) -> list:
+        """Convert heuristic datasets to fine-tuning format"""
+        training_data = []
+        
+        for dataset_path in heuristic_datasets:
+            print(f"[FineTuningDataProcessor] Processing: {dataset_path}")  # SUPREME_RULES compliant logging
+            dataset_data = self._load_heuristic_data(dataset_path)
+            llm_data = self._convert_to_llm_format(dataset_data)
+            training_data.extend(llm_data)
+        
+        print(f"[FineTuningDataProcessor] Generated {len(training_data)} training examples")  # SUPREME_RULES compliant logging
+        return training_data
 ```
 
-## 🎯 **Integration with Other Extensions**
+## 📊 **Simple Logging for Fine-Tuning Operations**
 
-### **Heuristics Integration**
-- **Training Data**: Use heuristics-v0.04 JSONL datasets for fine-tuning
-- **Baseline Comparison**: Compare fine-tuned performance with heuristic algorithms
-- **Hybrid Approaches**: Combine fine-tuned reasoning with heuristic pathfinding
+All fine-tuning operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
 
-### **Supervised Learning Integration**
-- **Feature Engineering**: Use supervised learning insights for prompt engineering
-- **Performance Validation**: Validate fine-tuned models against supervised baselines
-- **Ensemble Methods**: Combine fine-tuned and supervised approaches
-
-### **Reinforcement Learning Integration**
-- **Reward Shaping**: Use RL insights to improve fine-tuning objectives
-- **Policy Distillation**: Distill RL policies into fine-tuned models
-- **Multi-Modal Learning**: Combine RL exploration with fine-tuned reasoning
-
-## 📊 **Performance Monitoring**
-
-### **Training Metrics**
-- **Loss Tracking**: Monitor training and validation loss
-- **Game Performance**: Track game-specific metrics (score, survival time)
-- **Reasoning Quality**: Evaluate explanation quality and consistency
-- **Computational Efficiency**: Monitor training time and resource usage
-
-### **Evaluation Framework**
 ```python
-class FineTuningEvaluator:
-    """
-    Comprehensive evaluation of fine-tuned models
+# ✅ CORRECT: Simple logging for fine-tuning (SUPREME_RULES compliance)
+def fine_tune_model(model_config: dict, training_data: list):
+    print(f"[FineTuner] Starting fine-tuning with {len(training_data)} examples")  # SUPREME_RULES compliant logging
     
-    Design Pattern: Strategy Pattern
-    - Multiple evaluation strategies
-    - Configurable evaluation metrics
-    - Comparative analysis capabilities
-    """
+    # Training process
+    for epoch in range(model_config['epochs']):
+        loss = train_epoch(training_data)
+        print(f"[FineTuner] Epoch {epoch}: loss={loss:.4f}")  # SUPREME_RULES compliant logging
     
-    def __init__(self):
-        self.metrics = {}
-        print("[FineTuningEvaluator] Initialized")
-    
-    def evaluate_model(self, model, test_data):
-        """Evaluate fine-tuned model performance"""
-        results = {}
-        for metric_name, metric_func in self.metrics.items():
-            results[metric_name] = metric_func(model, test_data)
-        print(f"[FineTuningEvaluator] Evaluation completed: {results}")
-        return results
+    print(f"[FineTuner] Fine-tuning completed")  # SUPREME_RULES compliant logging
+    return fine_tuned_model
 ```
+
+## 🎓 **Educational Applications with Canonical Patterns**
+
+### **LLM Training Understanding**
+- **Transfer Learning**: Adapting pre-trained models using canonical factory patterns
+- **Data Quality**: Understanding importance of high-quality heuristic data
+- **Evaluation**: Measuring LLM performance with simple logging throughout
+- **Reasoning**: Teaching structured problem-solving following SUPREME_RULES
+
+### **Heuristics to LLM Pipeline**
+- **Data Source**: Use heuristic-v0.04 datasets for JSONL format (SUPREME_RULES requirement)
+- **Preprocessing**: Convert structured decisions to natural language explanations
+- **Training**: Fine-tune models using canonical patterns
+- **Evaluation**: Test reasoning capabilities with simple logging
+
+## 📋 **SUPREME_RULES Implementation Checklist for Fine-Tuning**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all fine-tuning operations (SUPREME_RULES compliance)
+- [ ] **GOOD_RULES Reference**: References SUPREME_RULES from `final-decision-10.md` in all documentation
+- [ ] **Data Source**: Uses heuristics-v0.04 JSONL datasets (SUPREME_RULES compliant format)
 
 ---
 
-**Fine-tuning represents a powerful approach to adapting large language models for specialized Snake game reasoning, combining the flexibility of LLMs with the precision of game-specific training. This extension enables sophisticated reasoning capabilities while maintaining the educational value of the project.**
+**Fine-tuning LLMs for Snake Game AI demonstrates how canonical patterns and simple logging provide consistent foundations for advanced AI training while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance.**
+
+## 🔗 **See Also**
+
+- **`heuristics-as-foundation.md`**: Foundation datasets for fine-tuning
+- **`llm-distillation.md`**: Alternative LLM training approaches
+- **`supervised.md`**: Traditional ML approaches following canonical patterns
+- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **`data-format-decision-guide.md`**: Authoritative data format selection

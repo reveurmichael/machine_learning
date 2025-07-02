@@ -1,288 +1,214 @@
-# Gymnasium Environment Integration for Snake Game AI
+# Gymnasium Integration for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Gymnasium environment integration patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines Gymnasium integration standards.
 
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
+> **See also:** `reinforcement-learning.md`, `stable-baseline.md`, SUPREME_RULES from `final-decision-10.md`, `standalone.md`.
 
-## 🎯 **Core Philosophy: Standardized RL Interface**
+## 🎯 **Core Philosophy: Standard RL Environment**
 
-Gymnasium provides a standardized API for reinforcement learning environments, enabling seamless integration with popular RL libraries while maintaining compatibility with the native Snake Game architecture.
+Gymnasium integration provides **standard reinforcement learning environment** for Snake Game AI, enabling compatibility with popular RL libraries and algorithms. This integration follows the Gymnasium API standards while maintaining SUPREME_RULES from `final-decision-10.md` compliance.
 
-### **Design Philosophy**
-- **Dual Implementation Strategy**: Native + Gymnasium environments coexist
-- **Library Compatibility**: Works with Stable-Baselines3, Ray RLlib, and other frameworks
-- **Consistent Interface**: Unified API across all RL implementations
-- **Educational Value**: Demonstrates standard RL environment patterns
+### **Educational Value**
+- **RL Standards**: Understanding Gymnasium API and RL environment design
+- **Algorithm Compatibility**: Learning to work with popular RL libraries
+- **Environment Design**: Creating proper RL environments with canonical patterns
+- **Integration**: Seamless integration with RL frameworks following SUPREME_RULES
 
-## 🏗️ **Integration Architecture**
+## 🏗️ **Gymnasium Environment Factory (CANONICAL)**
 
-### **Environment Factory Pattern**
-Following established factory patterns:
-
+### **Environment Factory (SUPREME_RULES Compliant)**
 ```python
-class SnakeEnvironmentFactory:
-    """Factory for creating Snake game environments"""
+from utils.factory_utils import SimpleFactory
+import gymnasium as gym
+
+class SnakeGymnasiumFactory:
+    """
+    Factory Pattern for Gymnasium environments following SUPREME_RULES from final-decision-10.md
     
-    _env_registry = {
-        "native": NativeSnakeEnvironment,
-        "gymnasium": GymnasiumSnakeEnvironment,
-        "vectorized": VectorizedSnakeEnvironment,
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for RL environments
+    Educational Value: Shows how SUPREME_RULES apply to RL environment creation
+    """
+    
+    _registry = {
+        "SNAKE_V0": SnakeEnvV0,
+        "SNAKE_V1": SnakeEnvV1,
+        "SNAKE_DISCRETE": SnakeDiscreteEnv,
+        "SNAKE_CONTINUOUS": SnakeContinuousEnv,
     }
     
     @classmethod
-    def create(cls, env_type: str, grid_size: int = 10, **kwargs):
-        """Create environment by type"""
-        env_class = cls._env_registry.get(env_type)
+    def create(cls, env_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create Gymnasium environment using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        env_class = cls._registry.get(env_type.upper())
         if not env_class:
-            raise ValueError(f"Unknown environment type: {env_type}")
-        print(f"[SnakeEnvironmentFactory] Creating {env_type} environment")  # Simple logging
-        return env_class(grid_size=grid_size, **kwargs)
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown environment type: {env_type}. Available: {available}")
+        print(f"[SnakeGymnasiumFactory] Creating environment: {env_type}")  # SUPREME_RULES compliant logging
+        return env_class(**kwargs)
 ```
 
-### **Gymnasium Environment Implementation**
+### **Basic Snake Environment Implementation**
 ```python
-import gymnasium as gym
-from gymnasium import spaces
-import numpy as np
-
-class SnakeGameEnvironment(gym.Env):
-    """Gymnasium-compatible Snake game environment"""
+class SnakeEnvV0(gym.Env):
+    """
+    Basic Snake environment following SUPREME_RULES.
+    
+    Design Pattern: Template Method Pattern
+    Purpose: Provides standard Gymnasium interface for Snake game
+    Educational Value: Shows RL environment implementation with canonical patterns
+    """
     
     def __init__(self, grid_size: int = 10):
         super().__init__()
         self.grid_size = grid_size
-        print(f"[SnakeGameEnvironment] Initialized for {grid_size}x{grid_size} grid")  # Simple logging
-        
-        # Action space: UP, DOWN, LEFT, RIGHT
-        self.action_space = spaces.Discrete(4)
-        
-        # Observation space: Grid-size agnostic features (16 features)
-        self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(16,), dtype=np.float32
+        self.action_space = gym.spaces.Discrete(4)  # UP, DOWN, LEFT, RIGHT
+        self.observation_space = gym.spaces.Box(
+            low=0, high=1, shape=(grid_size, grid_size, 3), dtype=np.float32
         )
-        
-        # Initialize game logic using existing architecture
-        from core.game_logic import BaseGameLogic
-        self.game_logic = BaseGameLogic(grid_size=grid_size)
-        
+        self.game_state = None
+        print(f"[SnakeEnvV0] Initialized {grid_size}x{grid_size} environment")  # SUPREME_RULES compliant logging
+    
     def reset(self, seed=None, options=None):
         """Reset environment to initial state"""
         super().reset(seed=seed)
-        self.game_logic.reset_game()
+        self.game_state = self._create_initial_state()
         observation = self._get_observation()
         info = self._get_info()
+        print("[SnakeEnvV0] Environment reset")  # SUPREME_RULES compliant logging
         return observation, info
-        
+    
     def step(self, action):
-        """Execute one environment step"""
-        direction = self._action_to_direction(action)
+        """Take action and return next state"""
+        # Execute action
+        reward, done, truncated = self._execute_action(action)
         
-        # Execute move using existing game logic
-        success = self.game_logic.move_snake(direction)
-        
+        # Get new observation
         observation = self._get_observation()
-        reward = self._calculate_reward(success)
-        terminated = self.game_logic.game_over
-        truncated = False  # No time limits in basic version
         info = self._get_info()
         
-        return observation, reward, terminated, truncated, info
+        print(f"[SnakeEnvV0] Action {action} - Reward: {reward}, Done: {done}")  # SUPREME_RULES compliant logging
+        return observation, reward, done, truncated, info
 ```
 
-## 🔧 **RL Algorithm Integration**
+## 📊 **Simple Logging for Gymnasium Operations**
 
-### **Supported Algorithms**
-Following the extension architecture patterns:
+All Gymnasium operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
 
-| Algorithm | Native Implementation | Gymnasium Environment | Primary Framework |
-|-----------|----------------------|----------------------|-------------------|
-| **DQN** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
-| **PPO** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
-| **A3C** | ✅ Direct integration | ✅ Ray RLlib | PyTorch |
-| **SAC** | ✅ Direct integration | ✅ Stable-Baselines3 | PyTorch |
-
-### **Framework Integration Examples**
 ```python
-# Stable-Baselines3 integration
-from stable_baselines3 import DQN, PPO
-from extensions.common.gymnasium_env import SnakeGameEnvironment
-
-env = SnakeGameEnvironment(grid_size=10)
-model = DQN('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=100000)
-
-# Ray RLlib integration
-import ray
-from ray.rllib.algorithms.ppo import PPOConfig
-
-config = PPOConfig().environment(SnakeGameEnvironment).build()
-algo = config.build()
-```
-
-## 🎯 **Benefits of Dual Implementation**
-
-### **Native Implementation Benefits**
-- **Direct Control**: Full access to game state and custom reward functions
-- **Performance**: No environment wrapper overhead
-- **Custom Features**: Snake-specific optimizations and debugging tools
-- **Educational Value**: Clear understanding of RL algorithm internals
-
-### **Gymnasium Implementation Benefits**
-- **Library Compatibility**: Works with existing RL frameworks
-- **Standardized Interface**: Consistent API across different projects
-- **Community Support**: Access to pre-built algorithms and tools
-- **Benchmarking**: Easy comparison with other environments
-
-### **Cross-Compatibility Strategy**
-Both implementations share the same core components:
-- Same feature extraction (16 grid-size agnostic features)
-- Same reward calculation logic
-- Same action space and observation space
-- Same game rules and physics
-
-## 🚀 **Integration with Extension Architecture**
-
-### **Reinforcement Learning Extensions**
-```python
-# extensions/reinforcement-v0.02/environments/
-class RLEnvironmentManager:
-    """Manages different environment types for RL extensions"""
+# ✅ CORRECT: Simple logging for Gymnasium (SUPREME_RULES compliance)
+def train_with_gymnasium(env, agent, episodes: int = 1000):
+    print(f"[GymnasiumTrainer] Starting training with {episodes} episodes")  # SUPREME_RULES compliant logging
     
-    def __init__(self, env_type: str = "native", grid_size: int = 10):
-        self.env_type = env_type
-        self.grid_size = grid_size
+    for episode in range(episodes):
+        obs, info = env.reset()
+        total_reward = 0
         
-        # Create environment based on type
-        if env_type == "gymnasium":
-            self.env = SnakeGameEnvironment(grid_size=grid_size)
-        else:
-            self.env = NativeSnakeEnvironment(grid_size=grid_size)
-        print(f"[RLEnvironmentManager] Created {env_type} environment")  # Simple logging
+        while True:
+            action = agent.predict(obs)
+            obs, reward, done, truncated, info = env.step(action)
+            total_reward += reward
             
-    def create_vectorized_env(self, n_envs: int = 4):
-        """Create vectorized environment for parallel training"""
-        if self.env_type == "gymnasium":
-            from stable_baselines3.common.vec_env import DummyVecEnv
-            return DummyVecEnv([lambda: SnakeGameEnvironment(self.grid_size) 
-                               for _ in range(n_envs)])
-```
-
-### **Training Pipeline Integration**
-```python
-# Compatible with existing training scripts
-def train_agent(algorithm: str, env_type: str = "gymnasium", **kwargs):
-    """Train RL agent with specified environment type"""
-    
-    # Create environment
-    env_factory = SnakeEnvironmentFactory()
-    env = env_factory.create(env_type, **kwargs)
-    
-    # Create agent using existing factory pattern
-    agent_factory = RLAgentFactory()
-    agent = agent_factory.create(algorithm, env=env)
-    
-    # Train using existing training pipeline
-    trainer = AgentTrainer(agent, env)
-    return trainer.train()
-```
-
-## 🎓 **Educational Applications**
-
-### **Environment Design Patterns**
-- **Adapter Pattern**: Wraps native environment with Gymnasium interface
-- **Factory Pattern**: Creates different environment types
-- **Strategy Pattern**: Different environment implementations
-- **Observer Pattern**: Environment state monitoring
-
-### **Learning Objectives**
-- **Standard RL Interfaces**: Understand Gymnasium API design
-- **Environment Wrapping**: Learn to adapt custom environments
-- **Library Integration**: Work with popular RL frameworks
-- **Performance Comparison**: Compare native vs. standardized implementations
-
-## 📊 **Implementation Guidelines**
-
-### **Environment Registration**
-```python
-# Register custom environment with Gymnasium
-from gymnasium.envs.registration import register
-
-register(
-    id='SnakeGame-v0',
-    entry_point='extensions.common.gymnasium_env:SnakeGameEnvironment',
-    max_episode_steps=1000,
-)
-```
-
-### **Feature Extraction Standardization**
-```python
-def _get_observation(self):
-    """Extract standardized 16-feature observation"""
-    # Grid-size agnostic features for consistent interface
-    features = [
-        # Snake position features (4)
-        self.snake_head_x / self.grid_size,
-        self.snake_head_y / self.grid_size,
-        self.apple_x / self.grid_size,
-        self.apple_y / self.grid_size,
+            if done or truncated:
+                break
         
-        # Direction features (4)
-        self.direction_up,
-        self.direction_down,
-        self.direction_left,
-        self.direction_right,
-        
-        # Game state features (4)
-        self.snake_length / (self.grid_size * self.grid_size),
-        self.distance_to_apple / (self.grid_size * 2),
-        self.danger_ahead,
-        self.danger_left,
-        
-        # Additional features (4)
-        self.danger_right,
-        self.danger_behind,
-        self.game_over,
-        self.score / 100.0,
-    ]
-    return np.array(features, dtype=np.float32)
+        if episode % 100 == 0:
+            print(f"[GymnasiumTrainer] Episode {episode}: reward={total_reward}")  # SUPREME_RULES compliant logging
+    
+    print("[GymnasiumTrainer] Training completed")  # SUPREME_RULES compliant logging
 ```
 
-### **Reward Function Consistency**
+## 🎯 **Environment Variants**
+
+### **Discrete Action Space**
 ```python
-def _calculate_reward(self, success: bool) -> float:
-    """Calculate reward consistent across implementations"""
-    reward = 0.0
+class SnakeDiscreteEnv(SnakeEnvV0):
+    """
+    Discrete action space environment following SUPREME_RULES.
     
-    if self.game_logic.apple_eaten:
-        reward += 10.0
-    elif self.game_logic.game_over:
-        reward -= 10.0
-    elif success:
-        reward += 0.1  # Small positive reward for successful moves
+    Design Pattern: Strategy Pattern
+    Purpose: Provides discrete action space for traditional RL algorithms
+    Educational Value: Shows discrete environment design with canonical patterns
+    """
     
-    return reward
+    def __init__(self, grid_size: int = 10):
+        super().__init__(grid_size)
+        self.action_space = gym.spaces.Discrete(4)  # 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
+        self.action_meanings = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+        print("[SnakeDiscreteEnv] Initialized discrete environment")  # SUPREME_RULES compliant logging
+    
+    def _execute_action(self, action):
+        """Execute discrete action"""
+        action_name = self.action_meanings[action]
+        print(f"[SnakeDiscreteEnv] Executing action: {action_name}")  # SUPREME_RULES compliant logging
+        # Action execution logic here
+        return reward, done, truncated
 ```
 
-## 🔗 **Integration with Other Extensions**
+### **Continuous Action Space**
+```python
+class SnakeContinuousEnv(SnakeEnvV0):
+    """
+    Continuous action space environment following SUPREME_RULES.
+    
+    Design Pattern: Adapter Pattern
+    Purpose: Provides continuous action space for advanced RL algorithms
+    Educational Value: Shows continuous environment design with canonical patterns
+    """
+    
+    def __init__(self, grid_size: int = 10):
+        super().__init__(grid_size)
+        self.action_space = gym.spaces.Box(
+            low=-1, high=1, shape=(2,), dtype=np.float32
+        )  # Continuous direction vector
+        print("[SnakeContinuousEnv] Initialized continuous environment")  # SUPREME_RULES compliant logging
+    
+    def _execute_action(self, action):
+        """Execute continuous action"""
+        direction = self._continuous_to_discrete(action)
+        print(f"[SnakeContinuousEnv] Continuous action {action} -> direction {direction}")  # SUPREME_RULES compliant logging
+        # Action execution logic here
+        return reward, done, truncated
+```
 
-### **With Heuristics**
-- Use heuristic algorithms to validate Gymnasium environment behavior
-- Compare performance between native and Gymnasium implementations
-- Generate training data using both environment types
+## 🎓 **Educational Applications with Canonical Patterns**
 
-### **With Supervised Learning**
-- Train models on data from both environment types
-- Use supervised learning to validate environment consistency
-- Create environment comparison tools
+### **RL Environment Understanding**
+- **Gymnasium API**: Learning standard RL environment interface using canonical factory methods
+- **Action Spaces**: Understanding discrete vs continuous action spaces with simple logging
+- **Observation Spaces**: Designing proper state representations following SUPREME_RULES
+- **Reward Design**: Creating effective reward functions with canonical patterns
 
-### **With Reinforcement Learning**
-- Enable seamless switching between environment types
-- Provide consistent training pipelines across implementations
-- Support algorithm comparison studies
+### **Integration Benefits**
+- **Algorithm Compatibility**: Works with popular RL libraries using canonical patterns
+- **Standard Interface**: Follows Gymnasium standards for broad compatibility
+- **Performance**: Optimized for RL training with simple logging throughout
+- **Extensibility**: Easy to extend with new environment variants following SUPREME_RULES
+
+## 📋 **SUPREME_RULES Implementation Checklist for Gymnasium**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all Gymnasium operations (SUPREME_RULES compliance)
+- [ ] **Gymnasium Compliance**: Follows Gymnasium API standards
+- [ ] **Pattern Consistency**: Follows canonical patterns across all environment implementations
+
+### **Environment-Specific Standards**
+- [ ] **Action Space**: Properly defined action spaces (discrete/continuous)
+- [ ] **Observation Space**: Correctly shaped observation spaces
+- [ ] **Reset Method**: Proper environment reset with canonical patterns
+- [ ] **Step Method**: Correct step implementation following SUPREME_RULES
 
 ---
 
-**Gymnasium integration provides a standardized interface for reinforcement learning while maintaining compatibility with the native Snake Game architecture. This dual implementation strategy enables both educational clarity and practical library integration.**
+**Gymnasium integration provides standard RL environment for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
+
+## 🔗 **See Also**
+
+- **`reinforcement-learning.md`**: RL algorithm standards
+- **`stable-baseline.md`**: Stable Baselines integration
+- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **`standalone.md`**: Standalone principle implementation
 
 
 

@@ -1,273 +1,273 @@
-# Model Architecture for Extensions
+# Models for Snake Game AI
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for model architecture standards and supplements the _Final Decision Series_ and extension guidelines.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines model standards.
 
-## 🎯 **Core Philosophy: Universal Model Foundation**
+> **See also:** `supervised.md`, `reinforcement-learning.md`, SUPREME_RULES from `final-decision-10.md`, `data-format-decision-guide.md`.
 
-The model architecture demonstrates perfect base class design where generic model interfaces provide foundation functionality while extension-specific implementations add specialized behavior for different machine learning approaches.
+## 🎯 **Core Philosophy: Model Architecture Standards**
 
-### **Guidelines Alignment**
-- **final-decision-10.md Guideline 1**: Enforces reading all GOOD_RULES before making model architectural changes to ensure comprehensive understanding
-- **final-decision-10.md Guideline 2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions and model patterns
-- **simple logging**: Enables lightweight common utilities with OOP extensibility while maintaining model patterns through inheritance rather than tight coupling
+Models for Snake Game AI provide **standardized model architectures** across different learning approaches. This system follows SUPREME_RULES from `final-decision-10.md` and uses canonical `create()` methods throughout.
 
-### **Design Philosophy**
-- **Universal Base Classes**: Generic model interfaces for all extensions
-- **Framework Agnostic**: Support multiple ML frameworks with consistent patterns
-- **Cross-Platform Compatibility**: Reliable model saving/loading across all platforms
-- **Grid-Size Independence**: Models work across different board configurations
+### **Educational Value**
+- **Model Architecture**: Understanding different model architectures and their applications
+- **Learning Approaches**: Learning how different models work for different tasks
+- **Performance Comparison**: Comparing model performance with canonical factory methods
+- **Canonical Patterns**: All implementations use canonical `create()` method per SUPREME_RULES
 
-## 🏗️ **Model Storage Architecture**
+## 🏗️ **Model Factory (CANONICAL)**
 
-### **Standardized Directory Structure**
-Following final-decision-1.md:
-
-```
-logs/extensions/models/
-└── grid-size-N/                          # Grid-size specific organization
-    ├── supervised_v0.02_{timestamp}/      # Supervised learning models
-    │   ├── mlp/
-    │   │   ├── model_artifacts/           # Primary model outputs
-    │   │   │   ├── model.pth             # PyTorch format
-    │   │   │   ├── model.onnx            # Cross-platform format
-    │   │   │   └── config.json           # Model configuration
-    │   │   └── training_process/
-    │   │       └── generated_datasets/    # Datasets created during training
-    │   └── xgboost/ [same structure]
-    │
-    ├── reinforcement_v0.02_{timestamp}/   # RL agent models
-    └── llm_finetune_v0.02_{timestamp}/    # Fine-tuned language models
-```
-
-### **Path Management Integration**
-Following final-decision-6.md:
-
+### **Model Factory (SUPREME_RULES Compliant)**
 ```python
-from extensions.common.path_utils import get_model_path
+from utils.factory_utils import SimpleFactory
 
-# Grid-size agnostic model path generation
-model_path = get_model_path(
-    extension_type="supervised", 
-    version="0.02",
-    grid_size=grid_size,  # Any supported size
-    algorithm="mlp",
-    timestamp=timestamp
-)
-```
-
-## 🔧 **Cross-Platform Model Format Standards**
-
-### **PyTorch Models**
-Following professional model persistence patterns:
-
-```python
-# ✅ Save state_dict with metadata (cross-platform)
-torch.save({
-    'model_state': model.state_dict(),
-    'epoch': epoch,
-    'optimizer_state': optimizer.state_dict(),
-    'meta': {
-        'torch_version': torch.__version__,
-        'model_class': 'MLPAgent',
-        'grid_size': grid_size,
-        'timestamp': datetime.utcnow().isoformat(),
-        'git_sha': get_git_sha()
-    }
-}, model_path / 'model.pth')
-
-# ✅ Export to ONNX for framework-agnostic inference
-torch.onnx.export(model, dummy_input, model_path / 'model.onnx',
-                  input_names=['input'], output_names=['output'],
-                  opset_version=11)
-```
-
-### **Tree-Based Models**
-Using stable, human-readable formats:
-
-```python
-# ✅ XGBoost - JSON format (version-stable)
-bst.get_booster().save_model(model_path / 'model.json')
-
-# ✅ LightGBM - Text format (human-readable)
-gbm.save_model(model_path / 'model.txt')
-```
-
-### **Reinforcement Learning Models**
-Supporting multiple RL frameworks:
-
-```python
-# ✅ Save RL agent with full context
-rl_checkpoint = {
-    'policy_state': agent.policy.state_dict(),
-    'optimizer_state': agent.optimizer.state_dict(),
-    'replay_buffer': agent.replay_buffer.get_state(),
-    'training_metrics': agent.get_training_metrics(),
-    'hyperparameters': agent.config
-}
-torch.save(rl_checkpoint, model_path / 'agent.pth')
-```
-
-## 🏗️ **Model Architecture (SUPREME_RULES Compliant)**
-
-### **Factory Pattern Implementation (CANONICAL create() METHOD)**
-**CRITICAL REQUIREMENT**: All Model factories MUST use the canonical `create()` method exactly as specified in `final-decision-10.md` SUPREME_RULES:
-
-```python
 class ModelFactory:
     """
-    Factory Pattern for AI models following final-decision-10.md SUPREME_RULES
+    Factory Pattern for models following SUPREME_RULES from final-decision-10.md
     
     Design Pattern: Factory Pattern (Canonical Implementation)
-    Purpose: Demonstrates canonical create() method for AI model creation
-    Educational Value: Shows how SUPREME_RULES apply to advanced AI systems -
-    canonical patterns work regardless of AI complexity.
-    
-    Reference: final-decision-10.md SUPREME_RULES for canonical method naming
+    Purpose: Demonstrates canonical create() method for model systems
+    Educational Value: Shows how SUPREME_RULES apply to model architecture
     """
     
     _registry = {
         "MLP": MLPModel,
         "CNN": CNNModel,
-        "LSTM": LSTMModel,
+        "TRANSFORMER": TransformerModel,
         "XGBOOST": XGBoostModel,
         "RANDOM_FOREST": RandomForestModel,
     }
     
     @classmethod
-    def create(cls, model_type: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
-        """Create model using canonical create() method following final-decision-10.md"""
+    def create(cls, model_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create model using canonical create() method following SUPREME_RULES from final-decision-10.md"""
         model_class = cls._registry.get(model_type.upper())
         if not model_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown model type: {model_type}. Available: {available}")
-        print(f"[ModelFactory] Creating model: {model_type}")  # Simple logging - SUPREME_RULES
+        print(f"[ModelFactory] Creating model: {model_type}")  # SUPREME_RULES compliant logging
         return model_class(**kwargs)
-
-# ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
-class ModelFactory:
-    def create_model(self, model_type: str):  # FORBIDDEN - not canonical
-        """This violates SUPREME_RULES: factory methods must be named create()"""
-        pass
-    
-    def build_neural_network(self, model_type: str):  # FORBIDDEN - not canonical
-        """This violates SUPREME_RULES: factory methods must be named create()"""
-        pass
-    
-    def make_ai_model(self, model_type: str):  # FORBIDDEN - not canonical
-        """This violates SUPREME_RULES: factory methods must be named create()"""
-        pass
 ```
 
-## 🧠 **Design Patterns for Model Management**
-
-### **Template Method Pattern**
-Base model classes define consistent loading/saving workflow:
-
+### **MLP Model Implementation**
 ```python
-class BaseModel:
-    """Template method pattern for model persistence"""
+class MLPModel:
+    """
+    Multi-Layer Perceptron model following SUPREME_RULES.
     
-    def save_model(self, model_path: Path) -> None:
-        """Template method defining model saving workflow"""
-        # Step 1: Validate model state
-        self.validate_model_state()
+    Design Pattern: Strategy Pattern
+    Purpose: Implements MLP for Snake game decision making
+    Educational Value: Shows MLP implementation with canonical patterns
+    """
+    
+    def __init__(self, input_size: int, hidden_sizes: list, output_size: int = 4):
+        self.input_size = input_size
+        self.hidden_sizes = hidden_sizes
+        self.output_size = output_size
+        self.model = self._build_model()
+        print(f"[MLPModel] Initialized with {len(hidden_sizes)} hidden layers")  # SUPREME_RULES compliant logging
+    
+    def _build_model(self):
+        """Build MLP model architecture"""
+        layers = []
+        prev_size = self.input_size
         
-        # Step 2: Prepare metadata (generic)
-        metadata = self.prepare_metadata()
+        for hidden_size in self.hidden_sizes:
+            layers.extend([
+                nn.Linear(prev_size, hidden_size),
+                nn.ReLU(),
+                nn.Dropout(0.2)
+            ])
+            prev_size = hidden_size
         
-        # Step 3: Save model weights (hook for extensions)
-        self.save_weights(model_path)
+        layers.append(nn.Linear(prev_size, self.output_size))
+        return nn.Sequential(*layers)
+    
+    def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
+        """Train MLP model"""
+        print(f"[MLPModel] Starting training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
         
-        # Step 4: Save configuration (generic)
-        self.save_configuration(model_path, metadata)
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         
-        # Step 5: Export to standard formats (hook for extensions)
-        self.export_standard_formats(model_path)
+        for epoch in range(epochs):
+            optimizer.zero_grad()
+            outputs = self.model(X_train)
+            loss = criterion(outputs, y_train)
+            loss.backward()
+            optimizer.step()
+            
+            if epoch % 20 == 0:
+                print(f"[MLPModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
         
-    # Hook methods for model-specific implementation
-    def save_weights(self, model_path: Path) -> None:
-        """Override for model-specific weight saving"""
-        raise NotImplementedError
-        
-    def export_standard_formats(self, model_path: Path) -> None:
-        """Override for format-specific exports (ONNX, etc.)"""
-        pass  # Optional for some model types
+        print(f"[MLPModel] Training completed")  # SUPREME_RULES compliant logging
+        return {'final_loss': loss.item(), 'epochs': epochs}
 ```
 
-### **Strategy Pattern for Format Support**
+## 📊 **Simple Logging for Model Operations**
+
+All model operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
+
 ```python
-class ModelFormatStrategy:
-    """Strategy interface for different model formats"""
+# ✅ CORRECT: Simple logging for models (SUPREME_RULES compliance)
+def train_model_pipeline(model_type: str, X_train: torch.Tensor, y_train: torch.Tensor):
+    print(f"[ModelRunner] Starting {model_type} training")  # SUPREME_RULES compliant logging
     
-    def save(self, model, path: Path) -> None:
-        """Save model in specific format"""
-        raise NotImplementedError
-        
-    def load(self, path: Path):
-        """Load model from specific format"""
-        raise NotImplementedError
-        
-class PyTorchFormatStrategy(ModelFormatStrategy):
-    """PyTorch model format implementation"""
+    model = ModelFactory.create(model_type, input_size=X_train.shape[1])  # CANONICAL create() method per SUPREME_RULES
+    results = model.train(X_train, y_train)
     
-    def save(self, model, path: Path) -> None:
-        torch.save(model.state_dict(), path / 'model.pth')
-        
-class ONNXFormatStrategy(ModelFormatStrategy):
-    """ONNX export format implementation"""
-    
-    def save(self, model, path: Path) -> None:
-        torch.onnx.export(model, dummy_input, path / 'model.onnx')
+    print(f"[ModelRunner] Model training completed with loss: {results['final_loss']:.4f}")  # SUPREME_RULES compliant logging
+    return results
 ```
 
-## 🚀 **Grid-Size Independence**
+## 🎯 **Model Types**
 
-### **Scalable Model Architecture**
-Models designed to work across different grid sizes:
-
+### **CNN Model**
 ```python
-class UniversalMLPAgent(BaseModel):
-    """Grid-size agnostic MLP model"""
+class CNNModel:
+    """
+    Convolutional Neural Network model following SUPREME_RULES.
     
-    def __init__(self, grid_size: int = 10):
-        # Universal feature extraction (16 features regardless of grid size)
-        self.feature_extractor = TabularFeatureExtractor()
-        self.input_size = 16  # Fixed feature count
-        
-        # Scalable network architecture
-        self.network = nn.Sequential(
-            nn.Linear(self.input_size, 128),
+    Design Pattern: Template Method Pattern
+    Purpose: Implements CNN for spatial game state processing
+    Educational Value: Shows CNN implementation with canonical patterns
+    """
+    
+    def __init__(self, grid_size: int = 10, num_channels: int = 3):
+        self.grid_size = grid_size
+        self.num_channels = num_channels
+        self.model = self._build_cnn()
+        print(f"[CNNModel] Initialized for {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
+    
+    def _build_cnn(self):
+        """Build CNN model architecture"""
+        return nn.Sequential(
+            nn.Conv2d(self.num_channels, 32, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.Linear(128, 64),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.Linear(64, 4)  # UP, DOWN, LEFT, RIGHT
+            nn.MaxPool2d(2),
+            nn.Flatten(),
+            nn.Linear(64 * (self.grid_size // 4) ** 2, 128),
+            nn.ReLU(),
+            nn.Linear(128, 4)
+        )
+    
+    def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
+        """Train CNN model"""
+        print(f"[CNNModel] Starting CNN training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
+        
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        
+        for epoch in range(epochs):
+            optimizer.zero_grad()
+            outputs = self.model(X_train)
+            loss = criterion(outputs, y_train)
+            loss.backward()
+            optimizer.step()
+            
+            if epoch % 20 == 0:
+                print(f"[CNNModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
+        
+        print(f"[CNNModel] CNN training completed")  # SUPREME_RULES compliant logging
+        return {'final_loss': loss.item(), 'epochs': epochs}
+```
+
+### **Transformer Model**
+```python
+class TransformerModel:
+    """
+    Transformer model following SUPREME_RULES.
+    
+    Design Pattern: Strategy Pattern
+    Purpose: Implements transformer for sequence-based game state processing
+    Educational Value: Shows transformer implementation with canonical patterns
+    """
+    
+    def __init__(self, input_size: int, d_model: int = 128, nhead: int = 8):
+        self.input_size = input_size
+        self.d_model = d_model
+        self.nhead = nhead
+        self.model = self._build_transformer()
+        print(f"[TransformerModel] Initialized with d_model={d_model}, nhead={nhead}")  # SUPREME_RULES compliant logging
+    
+    def _build_transformer(self):
+        """Build transformer model architecture"""
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=self.d_model,
+            nhead=self.nhead,
+            dim_feedforward=512,
+            dropout=0.1
         )
         
-    def extract_features(self, game_state: Dict[str, Any]) -> torch.Tensor:
-        """Extract grid-size independent features"""
-        return self.feature_extractor.extract_features(game_state, self.grid_size)
+        transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
+        
+        return nn.Sequential(
+            nn.Linear(self.input_size, self.d_model),
+            transformer_encoder,
+            nn.Linear(self.d_model, 4)
+        )
+    
+    def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
+        """Train transformer model"""
+        print(f"[TransformerModel] Starting transformer training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
+        
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(self.model.parameters(), lr=0.0001)
+        
+        for epoch in range(epochs):
+            optimizer.zero_grad()
+            outputs = self.model(X_train)
+            loss = criterion(outputs, y_train)
+            loss.backward()
+            optimizer.step()
+            
+            if epoch % 20 == 0:
+                print(f"[TransformerModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
+        
+        print(f"[TransformerModel] Transformer training completed")  # SUPREME_RULES compliant logging
+        return {'final_loss': loss.item(), 'epochs': epochs}
 ```
 
-## 🎯 **Extension Integration Benefits**
+## 🎓 **Educational Applications with Canonical Patterns**
 
-### **Supervised Learning Extensions**
-- Consistent model interfaces across all ML frameworks
-- Standardized saving/loading for reproducible experiments
-- Cross-format compatibility for deployment flexibility
+### **Model Understanding**
+- **Architecture Design**: Understanding different model architectures using canonical factory methods
+- **Learning Approaches**: Learning how different models work for different tasks with simple logging
+- **Performance Comparison**: Comparing model performance using canonical patterns
+- **Model Selection**: Choosing appropriate models for specific tasks following SUPREME_RULES
 
-### **Reinforcement Learning Extensions**
-- Complete agent state persistence including replay buffers
-- Training progress tracking and resumption capabilities
-- Hyperparameter configuration management
+### **Model Benefits**
+- **Standardization**: Standardized model architectures that follow SUPREME_RULES
+- **Performance**: High-performance models with canonical factory methods
+- **Flexibility**: Flexible model selection for different tasks
+- **Educational Value**: Clear examples of model implementation following SUPREME_RULES
 
-### **LLM Fine-tuning Extensions**
-- Adapter-based model storage for efficient fine-tuning
-- Version control for different model variants
-- Integration with existing model loading infrastructure
+## 📋 **SUPREME_RULES Implementation Checklist for Models**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all model operations (SUPREME_RULES compliance)
+- [ ] **Model Integration**: Proper integration with training and evaluation systems
+- [ ] **Pattern Consistency**: Follows canonical patterns across all model implementations
+
+### **Model-Specific Standards**
+- [ ] **Architecture Design**: Well-designed model architectures with canonical factory methods
+- [ ] **Performance**: High-performance models for Snake game tasks
+- [ ] **Flexibility**: Flexible model selection for different learning approaches
+- [ ] **Documentation**: Clear model explanations following SUPREME_RULES
 
 ---
 
-**The model architecture provides a robust, scalable foundation for machine learning across all extension types while maintaining consistency with the established patterns from the final-decision series.**
+**Models provide standardized architectures for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
+
+## 🔗 **See Also**
+
+- **`supervised.md`**: Supervised learning standards
+- **`reinforcement-learning.md`**: Reinforcement learning standards
+- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **`data-format-decision-guide.md`**: Data format standards
 
 ## grid_size
 

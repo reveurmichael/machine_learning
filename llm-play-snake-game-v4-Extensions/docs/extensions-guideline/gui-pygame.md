@@ -1,251 +1,194 @@
-# Pygame GUI Architecture for Snake Game AI
+# PyGame GUI for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines pygame GUI architecture patterns for extensions.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines PyGame GUI standards.
 
-> **See also:** `core.md`, SUPREME_RULES from `final-decision-10.md`, `project-structure-plan.md`.
+> **See also:** `no-gui.md`, `app.md`, SUPREME_RULES from `final-decision-10.md`, `standalone.md`.
 
+## 🎯 **Core Philosophy: Optional Visualization**
 
+PyGame GUI provides **optional visualization** for Snake Game AI extensions, enabling real-time game state visualization and debugging. GUI is not required by default per SUPREME_RULE NO.5, but can be enabled when useful for specific use cases, strictly following SUPREME_RULES from `final-decision-10.md`.
 
-## **🏗️ Perfect Base Class Architecture Already in Place**
+### **Educational Value**
+- **Visual Debugging**: Understanding game state through visualization
+- **Real-time Monitoring**: Learning to monitor AI behavior visually
+- **Optional Integration**: Understanding when GUI adds value
+- **Canonical Patterns**: All implementations use canonical `create()` method per SUPREME_RULES
 
-### **1. ✅ BaseGUI (Generic for Tasks 0-5) - Perfect**
+## 🏗️ **GUI Factory (CANONICAL)**
 
-**Location:** `gui/base_gui.py`
-
-**✅ Contains EXACTLY the attributes you specified:**
+### **PyGame Factory (SUPREME_RULES Compliant)**
 ```python
-class BaseGUI:
-    """Base class for UI setup."""
+from utils.factory_utils import SimpleFactory
+
+class PyGameGUIFactory:
+    """
+    Factory Pattern for PyGame GUI following SUPREME_RULES from final-decision-10.md
     
-    def __init__(self):
-        # ✅ Generic GUI attributes (used by ALL tasks)
-        self.width = WINDOW_WIDTH                    # ✅ Generic window dimensions
-        self.height = WINDOW_HEIGHT                  # ✅ Generic window dimensions
-        self.grid_size = GRID_SIZE                   # ✅ Your specified attribute
-        self.pixel = max(1, self.height // max(self.grid_size, 1))  # ✅ Generic scaling
-        self.show_grid = False                       # ✅ Generic grid overlay (RL visualisation)
-        
-    def init_display(self, title: str = "Snake Game"):
-        # ✅ Generic display setup
-        self.screen = pygame.display.set_mode(...)  # ✅ Generic pygame surface
-        self.font = pygame.font.Font(None, 36)      # ✅ Generic fonts
-        self.clock = pygame.time.Clock()            # ✅ Generic timing
-        self.extra_panels = []                      # ✅ Plugin system for second-citizens
-```
-
-**✅ Generic methods for ALL tasks:**
-```python
-def set_gui(self, gui_instance):                    # ✅ Your specified method
-def draw_apple(self, apple_position, flip_y=False): # ✅ Generic apple drawing
-def clear_game_area(self):                          # ✅ Generic board clearing
-def clear_info_panel(self):                         # ✅ Generic panel clearing
-def render_text_area(self, text, x, y, width, height): # ✅ Generic text rendering
-def draw_game_info(self, game_info):                # ✅ Your specified method (hook)
-def resize(self, grid_size: int):                   # ✅ Generic grid resizing for RL
-def toggle_grid(self, show: bool | None = None):    # ✅ Generic grid overlay for RL
-def get_rgb_array(self):                            # ✅ Generic video capture for RL
-def draw_snake_segment(self, x, y, is_head, flip_y): # ✅ Generic snake drawing
-def draw_square(self, x, y, color, flip_y):         # ✅ Generic square drawing
-```
-
-**✅ Perfect attribute separation - NO LLM-specific code:**
-```python
-# ❌ NOT in BaseGUI (LLM-specific):
-# self.llm_response ❌
-# self.primary_llm ❌  
-# self.secondary_llm ❌
-# self.planned_moves ❌ (only in task-specific GUIs)
-
-# ✅ IN BaseGUI (Generic):
-# self.grid_size ✅
-# self.use_gui ✅ (inherited from controllers)
-# self.screen ✅
-# self.font ✅
-# def set_gui() ✅
-# def draw_game_info() ✅
-# def clear_game_area() ✅
-# def clear_info_panel() ✅
-```
-
-### **2. ✅ Perfect Plugin System for Second-Citizen Tasks**
-
-**Location:** `gui/base_gui.py`
-
-**✅ InfoPanel Protocol (Perfect for Extensions):**
-```python
-class InfoPanel(Protocol):
-    """Small widget that draws additional info next to the board."""
-    def draw(self, surface: pygame.Surface, game: "core.GameLogic") -> None:
-        ...
-
-# ✅ Global registry for second-citizen tasks
-GLOBAL_PANELS: List["InfoPanel"] = []
-
-def register_panel(panel: "InfoPanel") -> None:
-    """Register *panel* for all future GUIs."""
-    if panel not in GLOBAL_PANELS:
-        GLOBAL_PANELS.append(panel)
-```
-
-**✅ Automatic Plugin Integration:**
-```python
-def draw_game_info(self, game_info):
-    # ✅ Hook for subclasses; default implementation iterates plug-ins
-    for panel in self.extra_panels:
-        panel.draw(self.screen, game_info.get("game"))
-```
-
-**✅ Perfect Design for Second-Citizens:**
-- **Task-1 (Heuristics):** Can register pathfinding visualization panels
-- **Task-2 (Supervised):** Can register prediction confidence panels  
-- **Task-3 (RL):** Can register Q-value heatmap panels
-- **Task-4/5 (LLM):** Can register model comparison panels
-
-### **3. ✅ Task-0 GUI Extensions (LLM-Specific Only) - Perfect**
-
-**Location:** `gui/game_gui.py` and `gui/replay_gui.py`
-
-**✅ GameGUI (Task-0 Specific):**
-```python
-class GameGUI(BaseGUI):
-    """Simple PyGame GUI used by the *interactive* game loop."""
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for GUI systems
+    Educational Value: Shows how SUPREME_RULES apply to visualization components
+    """
     
-    def __init__(self) -> None:
-        super().__init__()
-        self.init_display("LLM Snake Agent")  # ✅ LLM-specific title
-        
-    def draw_game_info(self, game_info: dict[str, Any]) -> None:
-        # ✅ LLM-specific information display
-        planned_moves = game_info.get('planned_moves')    # ✅ LLM-specific
-        llm_response = game_info.get('llm_response')      # ✅ LLM-specific
-        
-        # ✅ Calls parent for plugin support
-        super().draw_game_info(game_info)
+    _registry = {
+        "BASIC": BasicPyGameGUI,
+        "DEBUG": DebugPyGameGUI,
+        "ANIMATED": AnimatedPyGameGUI,
+        "NONE": NoGUI,  # No GUI option per SUPREME_RULE NO.5
+    }
+    
+    @classmethod
+    def create(cls, gui_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create GUI using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        gui_class = cls._registry.get(gui_type.upper())
+        if not gui_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown GUI type: {gui_type}. Available: {available}")
+        print(f"[PyGameGUIFactory] Creating GUI: {gui_type}")  # SUPREME_RULES compliant logging
+        return gui_class(**kwargs)
 ```
 
-**✅ ReplayGUI (Task-0 Specific):**
+### **Basic PyGame GUI Implementation**
 ```python
-class ReplayGUI(BaseGUI):
-    """PyGame-based overlay used by the offline *replay* mode."""
+class BasicPyGameGUI:
+    """
+    Basic PyGame GUI following SUPREME_RULES.
     
-    def __init__(self) -> None:
-        super().__init__()
-        # ✅ LLM-specific replay attributes
-        self.primary_llm = "Unknown/Unknown"     # ✅ LLM-specific
-        self.secondary_llm = "Unknown/Unknown"   # ✅ LLM-specific
-        self.llm_response = ""                   # ✅ LLM-specific
-        self.init_display("Snake Game Replay")
+    Design Pattern: Strategy Pattern
+    Purpose: Provides simple game state visualization
+    Educational Value: Shows GUI implementation with canonical patterns
+    """
+    
+    def __init__(self, grid_size: int = 10, cell_size: int = 30):
+        self.grid_size = grid_size
+        self.cell_size = cell_size
+        self.screen = None
+        self.colors = {
+            'background': (0, 0, 0),
+            'snake': (0, 255, 0),
+            'apple': (255, 0, 0),
+            'grid': (50, 50, 50)
+        }
+        print(f"[BasicPyGameGUI] Initialized {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
+    
+    def initialize(self):
+        """Initialize PyGame display"""
+        import pygame
+        pygame.init()
+        width = self.grid_size * self.cell_size
+        height = self.grid_size * self.cell_size
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Snake Game AI")
+        print("[BasicPyGameGUI] PyGame initialized")  # SUPREME_RULES compliant logging
+    
+    def draw_game_state(self, game_state: dict):
+        """Draw current game state"""
+        if self.screen is None:
+            return
+        
+        # Clear screen
+        self.screen.fill(self.colors['background'])
+        
+        # Draw grid
+        self._draw_grid()
+        
+        # Draw snake
+        self._draw_snake(game_state['snake_positions'])
+        
+        # Draw apple
+        self._draw_apple(game_state['apple_position'])
+        
+        # Update display
+        pygame.display.flip()
+        print(f"[BasicPyGameGUI] Drew game state - Score: {game_state.get('score', 0)}")  # SUPREME_RULES compliant logging
 ```
+
+## 📊 **Simple Logging for GUI Operations**
+
+All GUI operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
+
+```python
+# ✅ CORRECT: Simple logging for GUI (SUPREME_RULES compliance)
+def update_gui_display(gui, game_state: dict):
+    print(f"[GUI] Updating display for score: {game_state.get('score', 0)}")  # SUPREME_RULES compliant logging
+    
+    gui.draw_game_state(game_state)
+    
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            print("[GUI] User requested quit")  # SUPREME_RULES compliant logging
+            return False
+    
+    return True
+```
+
+## 🎯 **No GUI Option (SUPREME_RULE NO.5)**
+
+### **No GUI Implementation**
+```python
+class NoGUI:
+    """
+    No GUI implementation following SUPREME_RULE NO.5.
+    
+    Design Pattern: Null Object Pattern
+    Purpose: Provides no-op GUI for headless operation
+    Educational Value: Shows how to implement optional GUI per SUPREME_RULES
+    """
+    
+    def __init__(self, **kwargs):
+        print("[NoGUI] Initialized - no visualization")  # SUPREME_RULES compliant logging
+    
+    def initialize(self):
+        """No-op initialization"""
+        print("[NoGUI] No initialization needed")  # SUPREME_RULES compliant logging
+    
+    def draw_game_state(self, game_state: dict):
+        """No-op drawing"""
+        # Do nothing - no visualization
+        pass
+    
+    def update(self):
+        """No-op update"""
+        # Do nothing - no visualization
+        pass
+```
+
+## 🎓 **Educational Applications with Canonical Patterns**
+
+### **GUI Understanding**
+- **Optional Integration**: Learning when GUI adds value using canonical factory methods
+- **Visual Debugging**: Understanding game state through visualization with simple logging
+- **Performance Impact**: Measuring GUI overhead with canonical patterns
+- **User Experience**: Designing effective visualizations following SUPREME_RULES
+
+### **Implementation Benefits**
+- **Debugging**: Visual inspection of AI behavior using canonical patterns
+- **Demonstration**: Showing AI performance to stakeholders with simple logging
+- **Development**: Faster iteration with visual feedback following SUPREME_RULES
+- **Education**: Teaching AI concepts through visualization
+
+## 📋 **SUPREME_RULES Implementation Checklist for PyGame GUI**
+
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all GUI operations (SUPREME_RULES compliance)
+- [ ] **Optional GUI**: No GUI required by default per SUPREME_RULE NO.5
+- [ ] **Pattern Consistency**: Follows canonical patterns across all GUI implementations
+
+### **GUI-Specific Standards**
+- [ ] **No GUI Option**: Implements NoGUI class for headless operation
+- [ ] **Performance**: GUI operations don't significantly impact performance
+- [ ] **Error Handling**: Graceful handling of PyGame initialization failures
+- [ ] **Cleanup**: Proper PyGame cleanup on exit
 
 ---
 
-## **🎯 How Tasks 1-5 Use This Perfect Architecture**
+**PyGame GUI provides optional visualization for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
 
-### **Task-1 (Heuristics) - Already Working Perfectly**
+## 🔗 **See Also**
 
-**Current Implementation:** `extensions/heuristics/gui_heuristics.py`
-
-```python
-class HeuristicGUI(BaseGUI):
-    """✅ Inherits ALL generic functionality from BaseGUI"""
-    
-    def __init__(self, algorithm: str = "BFS"):
-        super().__init__()  # ✅ Gets all generic GUI setup
-        self.init_display(f"Heuristic Snake Agent - {algorithm}")
-        self.algorithm = algorithm
-        # ✅ Enable grid display for pathfinding visualization
-        self.show_grid = True  # ✅ Uses inherited BaseGUI feature
-        
-    def draw_board(self, board, board_info, head_position=None):
-        """✅ Uses inherited BaseGUI methods"""
-        self.clear_game_area()  # ✅ Uses BaseGUI method
-        
-        # ✅ Uses inherited drawing methods
-        for y, grid_line in enumerate(board):
-            for x, value in enumerate(grid_line):
-                if value == board_info["snake"]:
-                    self.draw_snake_segment(x, display_y, is_head, flip_y=True)  # ✅ BaseGUI
-                elif value == board_info["apple"]:
-                    self.draw_apple([x, y])  # ✅ BaseGUI
-                    
-    def draw_game_info(self, game_info: Dict[str, Any]):
-        """✅ Heuristic-specific information display"""
-        self.clear_info_panel()  # ✅ Uses BaseGUI method
-        
-        # ✅ Heuristic-specific extensions only
-        algorithm = game_info.get('algorithm', self.algorithm)
-        search_time = stats.get('last_search_time', 0.0)
-        nodes_explored = stats.get('nodes_explored', 0)
-        
-        # ✅ Uses inherited font and screen
-        algo_text = self.font.render(f"Algorithm: {algorithm}", True, COLORS['BLACK'])
-        self.screen.blit(algo_text, (self.height + 20, 80))
-        
-        # ✅ Calls parent for plugin support
-        super().draw_game_info(game_info)
-```
-
-### **Task-2 (Supervised Learning) - Future Implementation**
-
-```python
-class SupervisedGUI(BaseGUI):
-    """✅ GUI for supervised learning with prediction visualization"""
-    
-    def __init__(self, model_name: str = "MLP"):
-        super().__init__()  # ✅ Gets all generic GUI setup
-        self.init_display(f"Supervised Snake Agent - {model_name}")
-        self.model_name = model_name
-        # ✅ Enable grid for prediction heatmaps
-        self.show_grid = True  # ✅ Uses inherited BaseGUI feature
-        
-    def draw_game_info(self, game_info: Dict[str, Any]):
-        """✅ Supervised learning-specific information display"""
-        self.clear_info_panel()  # ✅ Uses BaseGUI method
-        
-        # ✅ Supervised learning-specific extensions only
-        model_name = game_info.get('model_name', self.model_name)
-        prediction_confidence = game_info.get('prediction_confidence', [])
-        training_accuracy = game_info.get('training_accuracy', 0.0)
-        
-        # ✅ Uses inherited font and screen
-        model_text = self.font.render(f"Model: {model_name}", True, COLORS['BLACK'])
-        acc_text = self.font.render(f"Accuracy: {training_accuracy:.2f}%", True, COLORS['BLACK'])
-        
-        self.screen.blit(model_text, (self.height + 20, 80))
-        self.screen.blit(acc_text, (self.height + 20, 110))
-        
-        # ✅ Calls parent for plugin support
-        super().draw_game_info(game_info)
-```
-
-
-## **🎯 Perfect No-GUI Optimization for Training**
-
-### **✅ Performance-Critical Training Support:**
-
-**BaseGUI handles no-GUI mode gracefully:**
-```python
-def get_rgb_array(self):
-    """Return an RGB array of the current screen or ``None`` in headless mode."""
-    if self.screen is None:
-        return None  # ✅ Graceful degradation for --no-gui mode
-
-def draw_game_info(self, game_info):
-    # ✅ Safe plugin iteration even without screen
-    for panel in self.extra_panels:
-        panel.draw(self.screen, game_info.get("game"))
-```
-
-**Perfect for RL Training:**
-```python
-# ✅ Million-episode training with zero GUI overhead
-class RLGameManager(BaseGameManager):
-    def __init__(self, args):
-        super().__init__(args)  # ✅ Inherits --no-gui optimization
-        
-    def run(self):
-        for episode in range(1000000):
-            self.setup_game()  # ✅ No GUI overhead when --no-gui
-            # ... training loop runs at maximum speed ...
-```
+- **`no-gui.md`**: Headless operation standards
+- **`app.md`**: Streamlit application architecture
+- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **`standalone.md`**: Standalone principle implementation
 

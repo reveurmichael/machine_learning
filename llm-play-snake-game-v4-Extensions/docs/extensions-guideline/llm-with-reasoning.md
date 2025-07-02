@@ -1,266 +1,295 @@
-# LLM with Advanced Reasoning for Snake Game AI
+# LLM with Reasoning for Snake Game AI
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines LLM with advanced reasoning patterns.
+> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines LLM with reasoning standards.
 
-> **See also:** `agents.md`, `core.md`, `config.md`, `final-decision-10.md`, `factory-design-pattern.md`.
+> **See also:** `llm-with-cot.md`, `agentic-llms.md`, SUPREME_RULES from `final-decision-10.md`, `standalone.md`.
 
-## 🎯 **Core Philosophy: Comprehensive Reasoning Capabilities**
+## 🎯 **Core Philosophy: Intelligent Reasoning**
 
-Advanced reasoning in LLMs encompasses a broad spectrum of cognitive capabilities beyond basic chain-of-thought, including analogical reasoning, causal inference, probabilistic reasoning, and metacognitive awareness. In the Snake Game AI context, these capabilities enable sophisticated decision-making that adapts to complex, uncertain, and novel situations.
+LLM with reasoning enables **intelligent decision-making** for Snake Game AI through advanced reasoning capabilities. This approach follows SUPREME_RULES from `final-decision-10.md` and uses canonical `create()` methods throughout.
 
-### **Design Philosophy**
-- **Multi-Modal Reasoning**: Combine different reasoning approaches as needed
-- **Adaptive Intelligence**: Adjust reasoning complexity based on situation demands
-- **Metacognitive Awareness**: Reason about reasoning itself
-- **Uncertainty Handling**: Make decisions under incomplete information
+### **Educational Value**
+- **Intelligent Reasoning**: Understanding how to implement advanced reasoning systems
+- **Decision Making**: Learning to make intelligent decisions with clear logic
+- **Problem Solving**: Solving complex game situations through reasoning
+- **Canonical Patterns**: All implementations use canonical `create()` method per SUPREME_RULES
 
-## 🧠 **Advanced Reasoning Architecture**
+## 🏗️ **Reasoning Factory (CANONICAL)**
 
-### **Reasoning Capability Spectrum**
-
-#### **Logical Reasoning**
-- **Deductive Reasoning**: Draw specific conclusions from general principles
-- **Inductive Reasoning**: Form general principles from specific observations
-- **Abductive Reasoning**: Find the best explanation for observations
-- **Analogical Reasoning**: Apply patterns from familiar to novel situations
-
-#### **Probabilistic Reasoning**
-- **Bayesian Inference**: Update beliefs based on new evidence
-- **Risk Assessment**: Evaluate probabilities and expected outcomes
-- **Decision Theory**: Optimize decisions under uncertainty
-- **Causal Reasoning**: Understand cause-and-effect relationships
-
-#### **Metacognitive Reasoning**
-- **Strategy Selection**: Choose appropriate reasoning strategies
-- **Confidence Assessment**: Evaluate certainty of conclusions
-- **Error Detection**: Recognize and correct reasoning mistakes
-- **Learning Transfer**: Apply lessons across different contexts
-
-### **Integration Architecture**
-- **Reasoning Orchestrator**: Coordinate different reasoning modules
-- **Context Analyzer**: Determine which reasoning approaches to use
-- **Confidence Monitor**: Track uncertainty and reliability
-- **Learning Engine**: Improve reasoning through experience
-
-## 🏗️ **Extension Structure**
-
-### **Directory Layout**
-```
-extensions/llm-with-reasoning-v0.02/
-├── __init__.py
-├── agents/
-│   ├── __init__.py               # Agent factory
-│   ├── agent_multi_reasoning.py  # Integrated reasoning agent
-│   ├── agent_probabilistic.py    # Probabilistic reasoning
-│   ├── agent_analogical.py       # Analogical reasoning
-│   └── agent_metacognitive.py    # Self-aware reasoning
-├── reasoning_modules/
-│   ├── __init__.py
-│   ├── logical_reasoning.py      # Deductive/inductive logic
-│   ├── probabilistic_reasoning.py # Bayesian inference
-│   ├── analogical_reasoning.py   # Pattern matching and transfer
-│   ├── causal_reasoning.py       # Cause-effect analysis
-│   └── metacognitive_engine.py   # Reasoning about reasoning
-├── orchestration/
-│   ├── __init__.py
-│   ├── reasoning_orchestrator.py # Coordinate reasoning modules
-│   ├── context_analyzer.py       # Determine reasoning needs
-│   ├── strategy_selector.py      # Choose reasoning approaches
-│   └── confidence_monitor.py     # Track reasoning quality
-├── knowledge_base/
-│   ├── __init__.py
-│   ├── game_patterns.py          # Known game patterns
-│   ├── strategy_library.py       # Stored strategies
-│   ├── causal_models.py          # Game cause-effect models
-│   └── analogies_database.py     # Analogical knowledge
-├── learning/
-│   ├── __init__.py
-│   ├── pattern_learning.py       # Learn new patterns
-│   ├── strategy_adaptation.py    # Adapt strategies
-│   └── meta_learning.py          # Learn to learn
-├── game_logic.py                # Reasoning-aware game logic
-├── game_manager.py              # Multi-reasoning management
-└── main.py                      # CLI interface
-```
-
-## 🔧 **Implementation Patterns**
-
-### **Multi-Reasoning Agent**
+### **Reasoning Factory (SUPREME_RULES Compliant)**
 ```python
-class MultiReasoningAgent(BaseAgent):
+from utils.factory_utils import SimpleFactory
+
+class ReasoningFactory:
     """
-    Advanced reasoning agent integrating multiple reasoning capabilities
+    Factory Pattern for LLM reasoning following SUPREME_RULES from final-decision-10.md
     
-    Design Pattern: Strategy Pattern + Facade Pattern
-    - Strategy pattern for different reasoning approaches
-    - Facade pattern for simple interface to complex reasoning system
-    - Observer pattern for learning from reasoning outcomes
-    
-    Educational Value:
-    Demonstrates how multiple reasoning approaches can be combined
-    to create more robust and adaptable AI systems.
+    Design Pattern: Factory Pattern (Canonical Implementation)
+    Purpose: Demonstrates canonical create() method for reasoning systems
+    Educational Value: Shows how SUPREME_RULES apply to intelligent reasoning
     """
     
-    def __init__(self, name: str, grid_size: int):
-        super().__init__(name, grid_size)
-        
-        # Initialize reasoning modules
-        self.logical_reasoner = LogicalReasoning()
-        self.probabilistic_reasoner = ProbabilisticReasoning()
-        self.analogical_reasoner = AnalogicalReasoning()
-        self.causal_reasoner = CausalReasoning()
-        self.metacognitive_engine = MetacognitiveEngine()
-        
-        # Orchestration components
-        self.reasoning_orchestrator = ReasoningOrchestrator()
-        self.context_analyzer = ContextAnalyzer()
-        self.confidence_monitor = ConfidenceMonitor()
-        
-        # Knowledge and learning
-        self.knowledge_base = GameKnowledgeBase()
-        self.pattern_learner = PatternLearning()
-        
-        # Reasoning history for learning
-        self.reasoning_history = []
-        print(f"[MultiReasoningAgent] Initialized advanced reasoning agent: {name}")
+    _registry = {
+        "LOGICAL": LogicalReasoning,
+        "SPATIAL": SpatialReasoning,
+        "STRATEGIC": StrategicReasoning,
+        "ADAPTIVE": AdaptiveReasoning,
+    }
     
-    def plan_move(self, game_state: Dict[str, Any]) -> str:
-        """Plan move using integrated advanced reasoning"""
-        
-        # 1. Analyze context to determine reasoning needs
-        context_analysis = self.context_analyzer.analyze(game_state)
-        
-        # 2. Select appropriate reasoning strategies
-        reasoning_strategies = self.reasoning_orchestrator.select_strategies(
-            context_analysis, self.knowledge_base
-        )
-        
-        # 3. Execute multiple reasoning approaches
-        reasoning_results = self._execute_reasoning_strategies(
-            game_state, reasoning_strategies
-        )
-        
-        # 4. Integrate reasoning results
-        integrated_decision = self._integrate_reasoning_results(
-            reasoning_results, context_analysis
-        )
-        
-        # 5. Monitor confidence and decide if additional reasoning needed
-        confidence_assessment = self.confidence_monitor.assess(
-            integrated_decision, reasoning_results
-        )
-        
-        if confidence_assessment.confidence < self.config.confidence_threshold:
-            # Use metacognitive reasoning to improve decision
-            meta_reasoning = self.metacognitive_engine.reason_about_reasoning(
-                reasoning_results, confidence_assessment
-            )
-            final_decision = self._apply_meta_reasoning(integrated_decision, meta_reasoning)
-            print(f"[MultiReasoningAgent] Applied meta-reasoning, confidence: {confidence_assessment.confidence}")
-        else:
-            final_decision = integrated_decision
-        
-        # 6. Learn from reasoning process
-        self._learn_from_reasoning(
-            game_state, reasoning_strategies, reasoning_results, final_decision
-        )
-        
-        return final_decision.move
+    @classmethod
+    def create(cls, reasoning_type: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
+        """Create reasoning system using canonical create() method following SUPREME_RULES from final-decision-10.md"""
+        reasoning_class = cls._registry.get(reasoning_type.upper())
+        if not reasoning_class:
+            available = list(cls._registry.keys())
+            raise ValueError(f"Unknown reasoning type: {reasoning_type}. Available: {available}")
+        print(f"[ReasoningFactory] Creating reasoning: {reasoning_type}")  # SUPREME_RULES compliant logging
+        return reasoning_class(**kwargs)
 ```
 
-### **Probabilistic Reasoning Module**
+### **Logical Reasoning Implementation**
 ```python
-class ProbabilisticReasoning:
+class LogicalReasoning:
     """
-    Probabilistic reasoning module for handling uncertainty
+    Logical reasoning following SUPREME_RULES.
     
     Design Pattern: Strategy Pattern
-    - Different probabilistic reasoning strategies
-    - Bayesian inference for belief updating
-    - Decision theory for optimal choices under uncertainty
+    Purpose: Implements logical reasoning for game decisions
+    Educational Value: Shows logical reasoning with canonical patterns
     """
     
-    def __init__(self):
-        self.prior_beliefs = self._initialize_priors()
-        self.evidence_history = []
-        self.uncertainty_threshold = 0.3
-        print("[ProbabilisticReasoning] Initialized probabilistic reasoning module")
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self.logical_rules = self._initialize_logical_rules()
+        print(f"[LogicalReasoning] Initialized with {len(self.logical_rules)} rules")  # SUPREME_RULES compliant logging
     
-    def reason(self, game_state: Dict[str, Any]) -> ProbabilisticResult:
-        """Perform probabilistic reasoning on game state"""
+    def reason_about_move(self, game_state: dict) -> dict:
+        """Apply logical reasoning to determine the best move"""
+        print(f"[LogicalReasoning] Starting logical reasoning")  # SUPREME_RULES compliant logging
         
-        # Update beliefs based on current evidence
-        updated_beliefs = self._update_beliefs(game_state)
+        # Apply logical rules
+        rule_results = []
+        for rule_name, rule_func in self.logical_rules.items():
+            result = rule_func(game_state)
+            rule_results.append({
+                'rule': rule_name,
+                'result': result,
+                'confidence': self._calculate_rule_confidence(result)
+            })
         
-        # Calculate probabilities for different actions
-        action_probabilities = self._calculate_action_probabilities(
-            game_state, updated_beliefs
-        )
+        # Synthesize results
+        final_decision = self._synthesize_logical_results(rule_results)
+        print(f"[LogicalReasoning] Logical reasoning completed: {final_decision}")  # SUPREME_RULES compliant logging
         
-        # Assess risk and uncertainty
-        risk_assessment = self._assess_risk(game_state, action_probabilities)
+        return {
+            'reasoning_type': 'logical',
+            'rule_results': rule_results,
+            'final_move': final_decision,
+            'confidence': self._calculate_overall_confidence(rule_results)
+        }
+    
+    def _initialize_logical_rules(self) -> dict:
+        """Initialize logical reasoning rules"""
+        return {
+            'avoid_collision': self._rule_avoid_collision,
+            'seek_apple': self._rule_seek_apple,
+            'maintain_space': self._rule_maintain_space,
+            'follow_path': self._rule_follow_path,
+        }
+    
+    def _rule_avoid_collision(self, game_state: dict) -> dict:
+        """Logical rule: avoid collision with walls and self"""
+        head = game_state['snake_positions'][0]
+        grid_size = game_state['grid_size']
         
-        # Make decision under uncertainty
-        optimal_action = self._optimize_decision(action_probabilities, risk_assessment)
+        # Check wall collision
+        if head[0] < 0 or head[0] >= grid_size or head[1] < 0 or head[1] >= grid_size:
+            return {'valid': False, 'reason': 'wall_collision'}
         
-        return ProbabilisticResult(
-            action=optimal_action,
-            confidence=risk_assessment.confidence,
-            uncertainty=risk_assessment.uncertainty
-        )
+        # Check self collision
+        if head in game_state['snake_positions'][1:]:
+            return {'valid': False, 'reason': 'self_collision'}
+        
+        return {'valid': True, 'reason': 'no_collision'}
 ```
 
-## 🚀 **Advanced Capabilities**
+## 📊 **Simple Logging for Reasoning Operations**
 
-### **Analogical Reasoning**
-- **Pattern Recognition**: Identify similarities between game situations
-- **Transfer Learning**: Apply successful strategies to new contexts
-- **Creative Problem Solving**: Generate novel solutions through analogy
-- **Knowledge Generalization**: Extract general principles from specific cases
+All reasoning operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
 
-### **Causal Reasoning**
-- **Cause-Effect Analysis**: Understand how actions lead to outcomes
-- **Counterfactual Reasoning**: Consider what would happen with different actions
-- **Intervention Planning**: Design actions to achieve desired effects
-- **Explanation Generation**: Provide causal explanations for decisions
+```python
+# ✅ CORRECT: Simple logging for reasoning (SUPREME_RULES compliance)
+def run_reasoning_pipeline(reasoning_type: str, game_state: dict):
+    print(f"[ReasoningRunner] Starting {reasoning_type} reasoning")  # SUPREME_RULES compliant logging
+    
+    reasoning_system = ReasoningFactory.create(reasoning_type)  # CANONICAL create() method per SUPREME_RULES
+    result = reasoning_system.reason_about_move(game_state)
+    
+    print(f"[ReasoningRunner] Reasoning completed with confidence: {result['confidence']:.3f}")  # SUPREME_RULES compliant logging
+    return result
+```
 
-### **Metacognitive Reasoning**
-- **Strategy Evaluation**: Assess effectiveness of reasoning approaches
-- **Confidence Calibration**: Accurately estimate decision reliability
-- **Error Correction**: Identify and fix reasoning mistakes
-- **Learning Optimization**: Improve reasoning through self-reflection
+## 🎯 **Reasoning Types**
 
-## 🎓 **Educational Applications**
+### **Spatial Reasoning**
+```python
+class SpatialReasoning:
+    """
+    Spatial reasoning following SUPREME_RULES.
+    
+    Design Pattern: Template Method Pattern
+    Purpose: Implements spatial reasoning for game navigation
+    Educational Value: Shows spatial reasoning with canonical patterns
+    """
+    
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self.spatial_analysis = SpatialAnalysis()
+        print(f"[SpatialReasoning] Initialized spatial reasoning")  # SUPREME_RULES compliant logging
+    
+    def reason_about_move(self, game_state: dict) -> dict:
+        """Apply spatial reasoning to determine the best move"""
+        print(f"[SpatialReasoning] Starting spatial reasoning")  # SUPREME_RULES compliant logging
+        
+        # Analyze spatial relationships
+        spatial_analysis = self.spatial_analysis.analyze_spatial_relationships(game_state)
+        
+        # Calculate distances and directions
+        distance_analysis = self._analyze_distances(game_state)
+        
+        # Determine optimal spatial path
+        spatial_path = self._determine_spatial_path(spatial_analysis, distance_analysis)
+        
+        print(f"[SpatialReasoning] Spatial reasoning completed")  # SUPREME_RULES compliant logging
+        
+        return {
+            'reasoning_type': 'spatial',
+            'spatial_analysis': spatial_analysis,
+            'distance_analysis': distance_analysis,
+            'spatial_path': spatial_path,
+            'final_move': spatial_path['next_move'],
+            'confidence': spatial_path['confidence']
+        }
+    
+    def _analyze_distances(self, game_state: dict) -> dict:
+        """Analyze distances between game elements"""
+        head = game_state['snake_positions'][0]
+        apple = game_state['apple_position']
+        
+        # Calculate Manhattan distance to apple
+        apple_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+        
+        # Calculate distances to walls
+        wall_distances = {
+            'up': head[1],
+            'down': game_state['grid_size'] - 1 - head[1],
+            'left': head[0],
+            'right': game_state['grid_size'] - 1 - head[0]
+        }
+        
+        return {
+            'apple_distance': apple_distance,
+            'wall_distances': wall_distances
+        }
+```
 
-### **Cognitive Architecture**
-- **Multi-Modal Intelligence**: Understand how different reasoning types work together
-- **Uncertainty Management**: Learn to make decisions with incomplete information
-- **Adaptive Systems**: Study how AI can adjust reasoning based on context
-- **Metacognitive Skills**: Develop awareness of reasoning processes
+### **Strategic Reasoning**
+```python
+class StrategicReasoning:
+    """
+    Strategic reasoning following SUPREME_RULES.
+    
+    Design Pattern: Strategy Pattern
+    Purpose: Implements strategic reasoning for long-term planning
+    Educational Value: Shows strategic reasoning with canonical patterns
+    """
+    
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self.strategy_planner = StrategyPlanner()
+        print(f"[StrategicReasoning] Initialized strategic reasoning")  # SUPREME_RULES compliant logging
+    
+    def reason_about_move(self, game_state: dict) -> dict:
+        """Apply strategic reasoning to determine the best move"""
+        print(f"[StrategicReasoning] Starting strategic reasoning")  # SUPREME_RULES compliant logging
+        
+        # Analyze current strategy
+        current_strategy = self._analyze_current_strategy(game_state)
+        
+        # Plan long-term strategy
+        long_term_strategy = self.strategy_planner.plan_long_term_strategy(game_state)
+        
+        # Determine immediate tactical move
+        tactical_move = self._determine_tactical_move(game_state, current_strategy, long_term_strategy)
+        
+        print(f"[StrategicReasoning] Strategic reasoning completed")  # SUPREME_RULES compliant logging
+        
+        return {
+            'reasoning_type': 'strategic',
+            'current_strategy': current_strategy,
+            'long_term_strategy': long_term_strategy,
+            'tactical_move': tactical_move,
+            'final_move': tactical_move['move'],
+            'confidence': tactical_move['confidence']
+        }
+    
+    def _analyze_current_strategy(self, game_state: dict) -> dict:
+        """Analyze the current strategic situation"""
+        snake_length = len(game_state['snake_positions'])
+        available_space = self._calculate_available_space(game_state)
+        apple_position = game_state['apple_position']
+        
+        # Determine strategic phase
+        if snake_length < 5:
+            strategy_phase = 'growth'
+        elif available_space < 0.3:
+            strategy_phase = 'survival'
+        else:
+            strategy_phase = 'optimization'
+        
+        return {
+            'phase': strategy_phase,
+            'snake_length': snake_length,
+            'available_space': available_space,
+            'apple_position': apple_position
+        }
+```
 
-### **Research Applications**
-- **Reasoning Quality**: Evaluate effectiveness of different reasoning approaches
-- **Integration Strategies**: Study how to combine multiple reasoning types
-- **Performance Metrics**: Measure reasoning accuracy and efficiency
-- **Learning Dynamics**: Understand how reasoning improves over time
+## 🎓 **Educational Applications with Canonical Patterns**
 
-## 🔗 **Integration with Other Extensions**
+### **Reasoning Understanding**
+- **Intelligent Reasoning**: Understanding how to implement advanced reasoning systems using canonical factory methods
+- **Decision Making**: Learning to make intelligent decisions with clear logic and simple logging
+- **Problem Solving**: Solving complex game situations through reasoning using canonical patterns
+- **Strategy Development**: Developing strategic thinking following SUPREME_RULES
 
-### **With Chain-of-Thought**
-- **Enhanced CoT**: Add probabilistic and analogical reasoning to CoT
-- **Multi-Stage Reasoning**: Combine explicit steps with advanced reasoning
-- **Confidence Assessment**: Add uncertainty quantification to CoT
+### **Reasoning Benefits**
+- **Intelligence**: Advanced reasoning capabilities that follow SUPREME_RULES
+- **Adaptability**: Can adapt reasoning to different game situations
+- **Transparency**: Clear reasoning process with canonical factory methods
+- **Educational Value**: Clear examples of intelligent reasoning following SUPREME_RULES
 
-### **With Heuristics**
-- **Hybrid Approaches**: Combine algorithmic and reasoning-based methods
-- **Validation**: Use heuristics to verify reasoning quality
-- **Baseline Comparison**: Compare advanced reasoning against heuristics
+## 📋 **SUPREME_RULES Implementation Checklist for Reasoning**
 
-### **With Reinforcement Learning**
-- **Reasoning-Guided RL**: Use reasoning to improve RL exploration
-- **Policy Explanation**: Provide reasoning explanations for RL decisions
-- **Hybrid Systems**: Combine reasoning with RL for robust decision-making
+### **Mandatory Requirements**
+- [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
+- [ ] **Simple Logging**: Uses print() statements only for all reasoning operations (SUPREME_RULES compliance)
+- [ ] **Reasoning Integration**: Proper integration with LLM systems
+- [ ] **Pattern Consistency**: Follows canonical patterns across all reasoning implementations
+
+### **Reasoning-Specific Standards**
+- [ ] **Intelligent Reasoning**: Advanced reasoning capabilities with canonical factory methods
+- [ ] **Decision Making**: Clear, logical decision-making process
+- [ ] **Strategy Development**: Long-term strategic thinking
+- [ ] **Documentation**: Clear reasoning explanations following SUPREME_RULES
 
 ---
 
-**Advanced reasoning represents the cutting edge of AI decision-making, enabling sophisticated problem-solving that adapts to complexity and uncertainty. This approach demonstrates how multiple reasoning capabilities can be integrated to create more intelligent and adaptable AI systems.**
+**LLM with reasoning enables intelligent decision-making for Snake Game AI while maintaining strict SUPREME_RULES from `final-decision-10.md` compliance and educational value.**
+
+## 🔗 **See Also**
+
+- **`llm-with-cot.md`**: Chain-of-Thought reasoning standards
+- **`agentic-llms.md`**: Agentic LLM standards
+- **SUPREME_RULES from `final-decision-10.md`**: Governance system and canonical standards
+- **`standalone.md`**: Standalone principle implementation

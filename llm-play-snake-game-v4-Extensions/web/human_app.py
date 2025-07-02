@@ -21,7 +21,7 @@ from typing import Dict, Any
 
 from core.game_logic import GameLogic
 from web.base_app import GameFlaskApp
-from utils.web_utils import to_list, build_color_map
+from utils.web_utils import to_list, build_color_map, translate_end_reason
 
 
 class HumanWebApp(GameFlaskApp):
@@ -64,6 +64,7 @@ class HumanWebApp(GameFlaskApp):
             'score': self.game.score,
             'steps': self.game.steps,
             'game_over': self.game.game_over,
+            'game_end_reason': translate_end_reason(self.game.game_state.game_end_reason),
             'colors': build_color_map(as_list=True)
         }
     

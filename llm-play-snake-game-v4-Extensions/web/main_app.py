@@ -34,7 +34,7 @@ from core.game_controller import GameControllerAdapter
 from llm.agent_llm import SnakeAgent
 from web.base_app import GameFlaskApp
 from utils.web_utils import to_list, build_color_map, translate_end_reason, build_state_dict
-from config.game_constants import GRID_SIZE
+from config.ui_constants import GRID_SIZE
 
 
 class MainWebApp(GameFlaskApp):

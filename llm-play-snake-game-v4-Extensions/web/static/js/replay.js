@@ -170,7 +170,8 @@ class ReplayView {
             // Always show the end reason container
             this.elements.endReasonContainer.style.display = 'block';
             // Set the text content to the state value or fallback to "-"
-            this.elements.endReasonElement.textContent = state.end_reason || '-';
+            const reason = state.game_end_reason || state.end_reason || '-';
+            this.elements.endReasonElement.textContent = reason;
         }
     }
     
@@ -212,15 +213,9 @@ class ReplayView {
         }
         
         // Speed display
-        if (this.elements.speedValueElement) {
-            if (state.pause_between_moves) {
-                this.elements.speedValueElement.textContent = 
-                    `${state.pause_between_moves.toFixed(1)}s`;
-            } else if (state.speed) {
-                const pauseTime = state.speed > 0 ? 1.0 / state.speed : 1.0;
-                this.elements.speedValueElement.textContent = 
-                    `${pauseTime.toFixed(1)}s`;
-            }
+        const pause = state.pause_between_moves ?? state.move_pause;
+        if (pause) {
+            this.elements.speedValueElement.textContent = `${pause.toFixed(1)}s`;
         }
     }
     

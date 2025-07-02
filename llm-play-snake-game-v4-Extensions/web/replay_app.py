@@ -18,8 +18,9 @@ import threading
 import time
 
 from web.base_app import GameFlaskApp
+from config.game_constants import PAUSE_BETWEEN_MOVES_SECONDS
 from replay.replay_engine import ReplayEngine
-from utils.web_utils import to_list, build_color_map
+from utils.web_utils import to_list, build_color_map, translate_end_reason
 
 
 class ReplayWebApp(GameFlaskApp):
@@ -36,8 +37,15 @@ class ReplayWebApp(GameFlaskApp):
         self.log_dir = log_dir
         self.game_number = game_number
         
-        # Use existing ReplayEngine with log_dir parameter
-        self.replay_engine = ReplayEngine(log_dir=log_dir, use_gui=False)
+        # Default pause between moves comes from central game constants
+        self.move_pause: float = PAUSE_BETWEEN_MOVES_SECONDS
+        
+        # Use existing ReplayEngine, passing default pause value
+        self.replay_engine = ReplayEngine(
+            log_dir=log_dir,
+            pause_between_moves=self.move_pause,
+            use_gui=False,
+        )
         self.replay_data = None
         # List of per-step dictionaries representing the replay timeline
         self.steps = []  # type: list[dict[str, Any]]
@@ -49,8 +57,6 @@ class ReplayWebApp(GameFlaskApp):
         # Whether the background replay loop should advance the step index.
         # Starts in a paused state – the front-end can switch to "play".
         self.paused: bool = True
-        # Sleep time (seconds) between automatic step advances.
-        self.move_pause: float = 1.0
         
         # Load replay data and start background loop
         self.load_replay_data()
@@ -68,32 +74,22 @@ class ReplayWebApp(GameFlaskApp):
             # Use ReplayEngine to load data (engine already knows log_dir)
             self.replay_data = self.replay_engine.load_game_data(self.game_number)
 
-            # Normalise steps list – fall back to ReplayEngine.moves if the JSON
-            # contains no per-step snapshots (legacy logs).
-            steps_field = []
-            if self.replay_data:
-                steps_field = self.replay_data.get('steps', [])
-                if not isinstance(steps_field, list):
-                    steps_field = []
+            if not self.replay_data:
+                print(f"[ReplayWebApp] No replay data found for game {self.game_number}")
+                return False
 
-            if steps_field and isinstance(steps_field[0], dict):
-                # JSON already contains per-step snapshots – prefer these.
-                self.steps = steps_field
-                self._steps_are_snapshots = True
-            else:
-                # Fall back to raw moves sequence – we'll drive the original
-                # ReplayEngine to compute dynamic states.
-                self.steps = self.replay_engine.moves
-                self._steps_are_snapshots = False
+            # Always use moves from the ReplayEngine
+            self.steps = self.replay_engine.moves
+            self._steps_are_snapshots = False
 
-            print(f"[ReplayWebApp] Loaded {len(self.steps)} steps")
+            print(f"[ReplayWebApp] Loaded {len(self.steps)} moves")
+            return True
+            
         except Exception as e:
             print(f"[ReplayWebApp] Error loading replay data: {e}")
             self.replay_data = None
             self.steps = []
             return False
-
-        return bool(self.replay_data)
     
     def get_template_name(self) -> str:
         """Get template for replay interface."""
@@ -112,54 +108,23 @@ class ReplayWebApp(GameFlaskApp):
     def get_game_state(self) -> Dict[str, Any]:
         """Get current replay state."""
         if not self.replay_data:
-            # Attempt to return live engine state instead of erroring out so UI can still display.
-            if self.replay_engine.moves:
-                engine_state = self.replay_engine._build_state_base()
-                engine_state['snake_positions'] = to_list(engine_state.get('snake_positions', []))
-                engine_state['apple_position'] = to_list(engine_state.get('apple_position', [0, 0]))
-                engine_state.update({
-                    'mode': 'replay',
-                    'log_dir': self.log_dir,
-                    'game_number': self.game_number,
-                    'current_step': self.replay_engine.move_index,
-                    'total_steps': len(self.replay_engine.moves),
-                    'colors': build_color_map(as_list=True),
-                })
-                return engine_state
-            else:
-                return {
-                    'mode': 'replay',
-                    'error': 'No replay data loaded',
-                    'log_dir': self.log_dir,
-                    'game_number': self.game_number
-                }
+            return {
+                'mode': 'replay',
+                'error': 'No replay data loaded',
+                'log_dir': self.log_dir,
+                'game_number': self.game_number
+            }
         
         steps = self.steps
         
-        # Improved fallback: only error if both steps and moves are empty
-        if not steps or not isinstance(steps[0], dict):
-            if self.replay_engine.moves:
-                engine_state = self.replay_engine._build_state_base()
-                # Convert NumPy arrays to lists for JSON serialisation
-                engine_state['snake_positions'] = to_list(engine_state.get('snake_positions', []))
-                engine_state['apple_position'] = to_list(engine_state.get('apple_position', [0, 0]))
-                # Enrich with replay-specific metadata expected by the front-end
-                engine_state.update({
-                    'mode': 'replay',
-                    'log_dir': self.log_dir,
-                    'game_number': self.game_number,
-                    'current_step': self.replay_engine.move_index,
-                    'total_steps': len(self.replay_engine.moves),
-                    'colors': build_color_map(as_list=True),
-                })
-                return engine_state
-            else:
-                return {
-                    'mode': 'replay',
-                    'error': 'No steps available',
-                    'current_step': self.current_step,
-                    'total_steps': 0
-                }
+        # Since JSON schema is always consistent, we always have moves
+        if not steps:
+            return {
+                'mode': 'replay',
+                'error': 'No moves available',
+                'current_step': self.current_step,
+                'total_steps': 0
+            }
 
         if self.current_step >= len(steps):
             return {
@@ -169,7 +134,18 @@ class ReplayWebApp(GameFlaskApp):
                 'total_steps': len(steps)
             }
         
-        current_data = steps[self.current_step]
+        # Get current state from the ReplayEngine (which computes state from moves)
+        engine_state = self.replay_engine._build_state_base()
+        
+        # Convert numpy arrays to lists for JSON serialization
+        engine_state['snake_positions'] = to_list(engine_state.get('snake_positions', []))
+        engine_state['apple_position'] = to_list(engine_state.get('apple_position', [0, 0]))
+        
+        # Get end reason from the replay data (not from individual steps)
+        from utils.web_utils import translate_end_reason
+        raw_reason = self.replay_data.get('game_end_reason') or self.replay_data.get('end_reason')
+        end_reason = translate_end_reason(raw_reason) if raw_reason else None
+        
         return {
             'mode': 'replay',
             'log_dir': self.log_dir,
@@ -181,10 +157,11 @@ class ReplayWebApp(GameFlaskApp):
             'paused': self.paused,
             'move_pause': self.move_pause,
             'pause_between_moves': self.move_pause,
-            'snake_positions': to_list(current_data.get('snake_positions', [])),
-            'apple_position': to_list(current_data.get('apple_position', [0, 0])),
-            'score': current_data.get('score', 0),
-            'colors': build_color_map(as_list=True)
+            'snake_positions': engine_state.get('snake_positions', []),
+            'apple_position': engine_state.get('apple_position', [0, 0]),
+            'score': engine_state.get('score', 0),
+            'colors': build_color_map(as_list=True),
+            'game_end_reason': end_reason
         }
     
     def handle_control(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -208,9 +185,11 @@ class ReplayWebApp(GameFlaskApp):
         elif action == 'speed_up':
             # Decrease pause duration but keep a sensible lower bound
             self.move_pause = max(0.05, self.move_pause - 0.1)
+            self.replay_engine.pause_between_moves = self.move_pause
             return {'status': 'ok', 'move_pause': self.move_pause}
         elif action == 'speed_down':
             self.move_pause += 0.1
+            self.replay_engine.pause_between_moves = self.move_pause
             return {'status': 'ok', 'move_pause': self.move_pause}
         elif action == 'next_game':
             # Load next game if available
@@ -259,17 +238,18 @@ class ReplayWebApp(GameFlaskApp):
         avoid hogging CPU resources.
         """
         while True:
-            # Guard: do nothing if paused or we have reached the last frame.
+            # Guard: sleep when paused
             if self.paused:
                 time.sleep(self.move_pause)
                 continue
 
-            if self._steps_are_snapshots:
-                if self.current_step < max(len(self.steps) - 1, 0):
-                    self.current_step += 1
-            else:
-                # Drive original update loop which mutates replay_engine state
-                self.replay_engine.update()
-            # Sleep regardless (even when paused) to relinquish the GIL.
+            # Use ReplayEngine's update method which handles move processing
+            # and automatically advances move_index when appropriate
+            self.replay_engine.update()
+            
+            # Sync our current_step with the engine's move_index
+            self.current_step = self.replay_engine.move_index
+
+            # Sleep based on current move_pause
             time.sleep(self.move_pause)
 

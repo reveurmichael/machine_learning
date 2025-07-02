@@ -1,24 +1,26 @@
 """
-LLM Web Script - Full GameManager Integration
+Main Web Script - Full GameManager Integration
 ============================================
 
 Script for launching LLM-controlled Snake game with full GameManager integration.
-This provides complete LLM functionality, unlike the demo LLMWebApp in web module.
+This provides complete LLM functionality with real-time web interface.
 
 Design Philosophy:
 - KISS: Use existing factory patterns instead of custom classes
 - DRY: Reuse centralized web architecture 
-- No Over-Preparation: Build only what's needed for LLM web interface
+- No Over-Preparation: Build only what's needed for main web interface
 - Extensible: Template for Tasks 1-5 LLM implementations
 
-Note: This script provides full LLM functionality with GameManager integration.
-The simplified LLMWebApp in the web module is just a demo interface.
-For actual LLM gameplay, use this script.
+Educational Value:
+- Shows proper integration of Flask with GameManager
+- Demonstrates real-time LLM game state synchronization
+- Provides template for extension web interfaces
 
 Usage:
     python scripts/main_web.py                          # Default LLM settings
     python scripts/main_web.py --provider deepseek      # Different LLM provider  
     python scripts/main_web.py --model gpt-4 --port 8080  # Custom model and port
+    python scripts/main_web.py --max-games 3            # Play multiple games
 """
 
 import sys
@@ -28,8 +30,8 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Import simplified web architecture
-from utils.factory_utils import create_llm_web_app
+# Import web architecture
+from utils.factory_utils import WebAppFactory
 from utils.validation_utils import validate_grid_size, validate_port
 from config.ui_constants import GRID_SIZE as DEFAULT_GRID_SIZE
 
@@ -100,7 +102,7 @@ def parse_arguments():
 def main():
     """Main entry point for full LLM web interface."""
     try:
-        print("[LLMWebFull] Starting Snake Game - Full LLM Web Interface")
+        print("[MainWebFull] Starting Snake Game - Full LLM Web Interface")
         
         # Parse arguments
         args = parse_arguments()
@@ -109,41 +111,34 @@ def main():
         grid_size = validate_grid_size(args.grid_size)
         port = validate_port(args.port) if args.port else None
         
-        # Create LLM web app using centralized factory
-        print(f"[LLMWebFull] Using factory pattern to create LLM web app")
-        app = create_llm_web_app(grid_size=grid_size, port=port)
+        # Create main web app using factory with full GameManager integration
+        print(f"[MainWebFull] Creating main web app with GameManager integration")
+        app = WebAppFactory.create(
+            "main",
+            provider=args.provider,
+            model=args.model,
+            grid_size=grid_size,
+            max_games=args.max_games,
+            port=port,
+            continue_from_folder=args.continue_with_game_in_dir,
+            no_gui=args.no_gui
+        )
         
-        # Store LLM configuration in the app for templates
-        app.provider = args.provider
-        app.model = args.model
-        app.max_games = args.max_games
-        app.continue_from_folder = args.continue_with_game_in_dir
-        app.no_gui = args.no_gui
-        
-        # Update template data to include LLM info
-        original_get_template_data = app.get_template_data
-        def enhanced_get_template_data():
-            data = original_get_template_data()
-            data.update({
-                'provider': args.provider,
-                'model': args.model,
-                'mode': 'llm_full',
-                'max_games': args.max_games
-            })
-            return data
-        app.get_template_data = enhanced_get_template_data
-        
-        print(f"[LLMWebFull] Server starting on {app.url}")
-        print(f"[LLMWebFull] LLM Provider: {args.provider}/{args.model}")
-        print("[LLMWebFull] This provides full LLM functionality with GameManager")
-        print("[LLMWebFull] Press Ctrl+C to stop")
+        print(f"[MainWebFull] Server starting on {app.url}")
+        print(f"[MainWebFull] LLM Provider: {args.provider}/{args.model}")
+        print(f"[MainWebFull] Max Games: {args.max_games}")
+        if args.continue_with_game_in_dir:
+            print(f"[MainWebFull] Continuing from: {args.continue_with_game_in_dir}")
+        print("[MainWebFull] This provides full LLM functionality with GameManager")
+        print("[MainWebFull] Use the web interface to start/stop/reset the game")
+        print("[MainWebFull] Press Ctrl+C to stop")
         
         app.run(host=args.host)
         
     except KeyboardInterrupt:
-        print("\n[LLMWebFull] Server stopped by user")
+        print("\n[MainWebFull] Server stopped by user")
     except Exception as e:
-        print(f"[LLMWebFull] Error: {e}")
+        print(f"[MainWebFull] Error: {e}")
         return 1
     
     return 0

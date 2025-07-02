@@ -1,6 +1,7 @@
 /**
  * Snake Game – Live LLM Mode
  * Polls /api/state to render the game board and update sidebar information.
+ * Provides controls for starting/stopping/resetting LLM gameplay.
  * Reuses helper functions from common.js
  */
 
@@ -14,6 +15,11 @@ const stepsElement   = document.getElementById('steps');
 const plannedMovesEl = document.getElementById('planned-moves');
 const llmResponseEl  = document.getElementById('llm-response');
 const finishedIndicator = document.getElementById('finished-indicator');
+
+// Control elements
+const startButton = document.getElementById('start-button');
+const stopButton = document.getElementById('stop-button');
+const resetButton = document.getElementById('reset-button');
 
 // Game state
 let gameState = null;
@@ -34,10 +40,76 @@ document.addEventListener('DOMContentLoaded', init);
 function init() {
     // Initialize sidebar for LLM mode
     initializeSidebar('llm');
+    
+    // Initialize control buttons
+    initializeControls();
+    
     startPolling();
     window.addEventListener('resize', () => {
         if (gameState) drawGame();
     });
+}
+
+function initializeControls() {
+    // Add event listeners for control buttons
+    if (startButton) {
+        startButton.addEventListener('click', () => sendControl('start'));
+    }
+    if (stopButton) {
+        stopButton.addEventListener('click', () => sendControl('stop'));
+    }
+    if (resetButton) {
+        resetButton.addEventListener('click', () => sendControl('reset'));
+    }
+}
+
+async function sendControl(action) {
+    try {
+        const response = await sendApiRequest('/api/control', 'POST', { action });
+        console.log(`Control action '${action}':`, response);
+        
+        // Show feedback to user
+        if (response.status === 'ok') {
+            showMessage(`Game ${action}ed successfully`, 'success');
+        } else {
+            showMessage(`Failed to ${action} game: ${response.message}`, 'error');
+        }
+    } catch (error) {
+        console.error(`Error sending control action '${action}':`, error);
+        showMessage(`Error: ${error.message}`, 'error');
+    }
+}
+
+function showMessage(message, type = 'info') {
+    // Create or update message element
+    let messageEl = document.getElementById('control-message');
+    if (!messageEl) {
+        messageEl = document.createElement('div');
+        messageEl.id = 'control-message';
+        messageEl.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        `;
+        document.body.appendChild(messageEl);
+    }
+    
+    // Set message content and style
+    messageEl.textContent = message;
+    messageEl.style.backgroundColor = type === 'success' ? '#28a745' : 
+                                    type === 'error' ? '#dc3545' : '#17a2b8';
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        messageEl.style.opacity = '0';
+        setTimeout(() => messageEl.remove(), 300);
+    }, 3000);
 }
 
 function startPolling() {
@@ -105,8 +177,72 @@ function updateUI() {
         sidebarManager.updateWithGameState(gameState);
     }
 
+    // Update control button states
+    updateControlButtons();
+
+    // Update LLM-specific information
+    updateLLMInfo();
+
     // Update page title
     document.title = `Snake ${gameState.score} pts – ${gameState.steps} steps`;
+}
+
+function updateControlButtons() {
+    if (!gameState) return;
+    
+    const isRunning = gameState.is_running || false;
+    
+    if (startButton) {
+        startButton.disabled = isRunning;
+        startButton.textContent = isRunning ? 'Running...' : 'Start Game';
+    }
+    
+    if (stopButton) {
+        stopButton.disabled = !isRunning;
+        stopButton.textContent = isRunning ? 'Stop Game' : 'Stopped';
+    }
+    
+    if (resetButton) {
+        resetButton.disabled = isRunning;
+        resetButton.textContent = isRunning ? 'Reset (Stop First)' : 'Reset Game';
+    }
+}
+
+function updateLLMInfo() {
+    if (!gameState) return;
+    
+    // Update LLM response display
+    if (llmResponseEl && gameState.llm_response) {
+        llmResponseEl.textContent = gameState.llm_response;
+        llmResponseEl.style.display = 'block';
+    } else if (llmResponseEl) {
+        llmResponseEl.style.display = 'none';
+    }
+    
+    // Update planned moves display
+    if (plannedMovesEl && gameState.llm_planned_moves && gameState.llm_planned_moves.length > 0) {
+        plannedMovesEl.textContent = `Planned: ${gameState.llm_planned_moves.join(', ')}`;
+        plannedMovesEl.style.display = 'block';
+    } else if (plannedMovesEl) {
+        plannedMovesEl.style.display = 'none';
+    }
+    
+    // Update game progress
+    if (gameState.current_game && gameState.max_games) {
+        const progressEl = document.getElementById('game-progress');
+        if (progressEl) {
+            progressEl.textContent = `Game ${gameState.current_game}/${gameState.max_games}`;
+        }
+    }
+    
+    // Update game end reason
+    if (gameState.game_end_reason && gameState.game_over) {
+        const endReasonEl = document.getElementById('end-reason');
+        if (endReasonEl) {
+            endReasonEl.textContent = `Game Over: ${gameState.game_end_reason}`;
+            endReasonEl.style.display = 'block';
+        }
+    }
 }
 
 function drawGame() {

@@ -124,7 +124,7 @@ class WebAppFactory:
     
     _registry = {
         "HUMAN": "HumanWebApp",
-        "LLM": "LLMWebApp", 
+        "MAIN": "MainWebApp", 
         "REPLAY": "ReplayWebApp",
     }
     
@@ -136,7 +136,7 @@ class WebAppFactory:
         the canonical create() method name for consistency across the project.
         
         Args:
-            app_type: Type of application to create ('human', 'llm', 'replay')
+            app_type: Type of application to create ('human', 'main', 'replay')
             **kwargs: Configuration parameters for the application
             
         Returns:
@@ -156,9 +156,9 @@ class WebAppFactory:
         if app_class_name == "HumanWebApp":
             from web.human_app import HumanWebApp
             return HumanWebApp(**kwargs)
-        elif app_class_name == "LLMWebApp":
-            from web.llm_app import LLMWebApp
-            return LLMWebApp(**kwargs)
+        elif app_class_name == "MainWebApp":
+            from web.main_app import MainWebApp
+            return MainWebApp(**kwargs)
         elif app_class_name == "ReplayWebApp":
             from web.replay_app import ReplayWebApp
             return ReplayWebApp(**kwargs)
@@ -202,13 +202,13 @@ class AgentFactory:
         print(f"[{self.name}] Registered agent: {agent_type} -> {agent_class.__name__}")
     
     def create(self, agent_type: str, **kwargs) -> Any:  # CANONICAL create() method
-        """Create agent using canonical create() method (SUPREME_RULES compliance)."""
+        """Create agent instance using canonical create() method."""
         agent_class = self._registry.get(agent_type.upper())
         if not agent_class:
             available = list(self._registry.keys())
             raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
         
-        print(f"[{self.name}] Creating agent: {agent_type}")  # Simple logging
+        print(f"[{self.name}] Creating agent: {agent_type}")
         return agent_class(**kwargs)
     
     def list_available(self) -> List[str]:
@@ -218,12 +218,12 @@ class AgentFactory:
 
 class GameAppFactory:
     """
-    Universal game application factory.
+    Universal game app factory for all tasks and extensions.
     
     Design Pattern: Factory Pattern (Canonical Implementation for Game Apps)
-    Purpose: Create game applications (CLI, web, GUI) using canonical create()
-    Educational Value: Shows universal factory pattern for different app types
-    Usage: Used across all tasks for consistent application creation
+    Purpose: Create game applications using canonical create() method
+    Educational Value: Shows game app factory patterns used across all extensions
+    Usage: Used by Task-0 and all extensions for consistent game app creation
     """
     
     def __init__(self, name: str = "GameAppFactory"):
@@ -232,119 +232,111 @@ class GameAppFactory:
         print(f"[{self.name}] Game app factory initialized")  # Simple logging
     
     def register(self, app_type: str, app_class: Type) -> None:
-        """Register an application class."""
+        """Register a game app class."""
         self._registry[app_type.upper()] = app_class
-        print(f"[{self.name}] Registered app: {app_type} -> {app_class.__name__}")
+        print(f"[{self.name}] Registered game app: {app_type} -> {app_class.__name__}")
     
     def create(self, app_type: str, **kwargs) -> Any:  # CANONICAL create() method
-        """Create application using canonical create() method (SUPREME_RULES compliance)."""
+        """Create game app instance using canonical create() method."""
         app_class = self._registry.get(app_type.upper())
         if not app_class:
             available = list(self._registry.keys())
-            raise ValueError(f"Unknown app type: {app_type}. Available: {available}")
+            raise ValueError(f"Unknown game app type: {app_type}. Available: {available}")
         
-        print(f"[{self.name}] Creating app: {app_type}")  # Simple logging
+        print(f"[{self.name}] Creating game app: {app_type}")
         return app_class(**kwargs)
     
     def list_available(self) -> List[str]:
-        """List all available application types."""
+        """List all available game app types."""
         return list(self._registry.keys())
 
 
 # =============================================================================
-# Convenience Functions Following SUPREME_RULES
+# Factory Creation Functions (Simple Factory Pattern)
 # =============================================================================
 
 def create_simple_factory(name: str = "SimpleFactory") -> SimpleFactory:
-    """Create a simple factory instance - canonical function."""
-    print(f"[FactoryUtils] Creating simple factory: {name}")  # Simple logging
+    """Create a simple factory instance."""
     return SimpleFactory(name)
 
 
 def create_agent_factory(name: str = "AgentFactory") -> AgentFactory:
-    """Create an agent factory instance - canonical function."""
-    print(f"[FactoryUtils] Creating agent factory: {name}")  # Simple logging
+    """Create an agent factory instance."""
     return AgentFactory(name)
 
 
 def create_game_app_factory(name: str = "GameAppFactory") -> GameAppFactory:
-    """Create a game application factory instance - canonical function."""
-    print(f"[FactoryUtils] Creating game app factory: {name}")  # Simple logging
+    """Create a game app factory instance."""
     return GameAppFactory(name)
 
 
 def create_web_app_factory() -> type[WebAppFactory]:
-    """Create a web application factory class - canonical function."""
-    print("[FactoryUtils] Creating web app factory")  # Simple logging
+    """Create a web app factory class."""
     return WebAppFactory
 
 
-# Simple web app creation functions following KISS principles
+# =============================================================================
+# Convenience Functions for Web App Creation
+# =============================================================================
+
 def create_human_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
-    """Create human web application using factory pattern."""
+    """Create human web application."""
     return WebAppFactory.create("human", grid_size=grid_size, port=port)
 
 
-def create_llm_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
-    """Create LLM web application using factory pattern."""
-    return WebAppFactory.create("llm", grid_size=grid_size, port=port)
+def create_main_web_app(grid_size: int = 10, port: Optional[int] = None) -> Any:
+    """Create main web application."""
+    return WebAppFactory.create("main", grid_size=grid_size, port=port)
 
 
 def create_replay_web_app(log_dir: str = "", game_number: int = 1, port: Optional[int] = None) -> Any:
-    """Create replay web application using factory pattern."""
+    """Create replay web application."""
     return WebAppFactory.create("replay", log_dir=log_dir, game_number=game_number, port=port)
 
 
+# =============================================================================
+# Validation and Utility Functions
+# =============================================================================
+
 def validate_factory_registry(factory: SimpleFactory, required_types: List[str]) -> bool:
-    """Validate that factory has required types registered."""
+    """Validate that factory has all required types registered."""
     available = factory.list_available()
     missing = [t for t in required_types if t.upper() not in available]
     
     if missing:
-        print(f"[FactoryUtils] WARNING: Missing types: {missing}")  # Simple logging
+        print(f"[FactoryValidation] Missing required types: {missing}")
+        print(f"[FactoryValidation] Available types: {available}")
         return False
     
-    print("[FactoryUtils] Factory validation passed")  # Simple logging
+    print(f"[FactoryValidation] All required types registered: {required_types}")
     return True
 
 
 # =============================================================================
-# Educational Examples and Usage Patterns
+# Example Usage and Testing
 # =============================================================================
 
 def example_usage():
-    """
-    Educational examples showing how to use factory utilities.
+    """Example usage of factory patterns."""
     
-    This function demonstrates the canonical patterns used throughout
-    the Snake Game AI project for consistent object creation.
-    """
-    print("[FactoryUtils] Running educational examples...")  # Simple logging
-    
-    # Example 1: Simple Factory Usage
+    # Example agent class
     class DemoAgent:
         def __init__(self, name: str):
             self.name = name
-            print(f"[DemoAgent] Created: {name}")
+            print(f"Created demo agent: {name}")
     
     # Create and use simple factory
     factory = create_simple_factory("DemoFactory")
-    factory.register("demo", DemoAgent)
-    agent = factory.create("demo", name="TestAgent")  # CANONICAL create() method
-    print(f"[Example] Agent name: {agent.name}")
+    factory.register("agent", DemoAgent)
     
-    # Example 2: Agent Factory Usage
-    agent_factory = create_agent_factory()
-    agent_factory.register("demo", DemoAgent)
-    demo_agent = agent_factory.create("demo", name="AgentDemo")  # CANONICAL create()
+    # Create agent instance
+    agent = factory.create("agent", name="test_agent")
+    print(f"Agent name: {agent.name}")
     
-    # Example 3: Factory Validation
-    is_valid = validate_factory_registry(factory, ["demo"])
-    print(f"[Example] Factory validation result: {is_valid}")
-    
-    print("[FactoryUtils] Educational examples completed")  # Simple logging
+    # Create web app factory
+    web_factory = create_web_app_factory()
+    print(f"Available web app types: {web_factory.get_available_types()}")
 
 
 if __name__ == "__main__":
-    # Run educational examples when script is executed directly
     example_usage() 

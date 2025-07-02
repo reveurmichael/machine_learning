@@ -34,4 +34,4 @@ FLASK_STATIC_FOLDER: Final[str] = str(REPO_ROOT / "web" / "static")
 FLASK_TEMPLATE_FOLDER: Final[str] = str(REPO_ROOT / "web" / "templates")
 
 # Debug mode configuration (SINGLE SOURCE OF TRUTH)
-FLASK_DEBUG_MODE: Final[bool] = True  # Controls both server and client debug behavior
+FLASK_DEBUG_MODE: Final[bool] = False  # Controls both server and client debug behavior

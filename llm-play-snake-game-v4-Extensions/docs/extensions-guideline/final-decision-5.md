@@ -13,7 +13,6 @@ The extension directory structure implements a sophisticated evolution model tha
 - **SUPREME_RULE NO.2**: Uses precise `final-decision-N.md` format consistently when referencing architectural decisions
 - **SUPREME_RULE NO.3**: Enables lightweight common utilities with OOP extensibility while maintaining extension patterns through inheritance rather than tight coupling
 - **SUPREME_RULE NO.4**: Ensures all markdown files are coherent and aligned through nuclear diffusion infusion process
-- **SUPREME_RULE NO.5**: By default, there is no requirement for GUI/PyGame/Flask/Web mode for any extension. This is intentional: extension modes can vary widely in design and purpose, and enforcing a unified GUI requirement for all would be impractical and unnecessary. And rarely will it be useful, with very few exceptions. That said, it is not forbidden to include a GUI/PyGame/Flask/Web mode for an extension if the developer deems it useful or essential for their specific use case. As many extensions will produce game_N.json and summary.json, we will reuse the replay engine of Task0 for the replaying of those json log files. On the contrary, each extension of v0.03+ will have a streamlit app.py, whose sole purpose is to launch scripts with adjustable parameters.
 
 ### **GOOD_RULES Integration**
 This document integrates with the **GOOD_RULES** governance system established in `final-decision-10.md`:

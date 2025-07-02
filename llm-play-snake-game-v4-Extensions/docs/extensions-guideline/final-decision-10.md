@@ -71,7 +71,6 @@ The following files in `./docs/extensions-guideline/` are designated as **GOOD_R
 - `data-format-decision-guide.md` (Format selection criteria)
 - `datasets-folder.md` (Directory structure standards)
 - `extensions-v0.01.md` through `extensions-v0.04.md` (Extension evolution guidelines)
-- `final-decision-0.md` through `final-decision-10.md` (Complete Final Decision Series)
 - `models.md` (Model management standards)
 - `naming-conventions.md` (Naming standards)
 - `project-structure-plan.md` (Master architectural blueprint)
@@ -89,6 +88,8 @@ Certain markdown files in `./docs/extensions-guideline/` must remain **relativel
 
 **Files to keep simple (KEEP_THOSE_MARKDOWN_FILES_SIMPLE_RULES):**
 
+* `final-decision-0.md` through `final-decision-9.md` 
+* `final-decision-N.md` 
 * `agentic-llms.md`
 * `ai-friendly.md`
 * `app.md`

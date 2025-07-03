@@ -1,4 +1,8 @@
 from __future__ import annotations
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 """
 Heuristic Game Manager 
 --------------------
@@ -376,4 +380,3 @@ class HeuristicGameManager(BaseGameManager):
         if self.game and self.game.game_state and self.game.game_state.round_manager:
             current_round_number = self.game.game_state.round_manager.round_count
             self.game.game_state.round_manager.rounds_data[current_round_number]['game_state'] = self.game.get_state_snapshot()
-    

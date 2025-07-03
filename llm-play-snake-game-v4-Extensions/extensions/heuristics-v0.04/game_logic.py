@@ -14,8 +14,12 @@ Design Patterns:
 - Strategy Pattern: Different heuristic algorithms can be plugged in
 - Observer Pattern: Game state changes notify interested components
 """
-
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 import time
 from typing import TYPE_CHECKING, List, Optional
 

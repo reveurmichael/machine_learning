@@ -11,8 +11,12 @@ Design Philosophy:
 - Maintains same JSON output format as Task-0 for compatibility
 - Uses BaseGameStatistics instead of LLM-specific GameStatistics
 """
-
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 
 from utils.path_utils import ensure_project_root
 ensure_project_root()

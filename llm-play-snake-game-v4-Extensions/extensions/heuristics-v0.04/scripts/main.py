@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Heuristics v0.04 CLI Entry Point
 --------------------
@@ -12,8 +11,6 @@ Usage:
     python scripts/main.py --algorithm astar --verbose
     python scripts/main.py --help
 
-Note: For the modern web interface, use: streamlit run app.py
-
 Features:
 - Extends BaseGameManager for session management
 - Multiple heuristic algorithms: BFS, BFS-Safe-Greedy, BFS-Hamiltonian, DFS, A*, A*-Hamiltonian, Hamiltonian
@@ -23,28 +20,12 @@ Features:
 """
 
 import sys
-import os
-import pathlib
-
-def _find_repo_root(start: pathlib.Path) -> pathlib.Path:
-    current = start.resolve()
-    for _ in range(10):
-        if (current / "config").is_dir():
-            return current
-        if current.parent == current:
-            break
-        current = current.parent
-    raise RuntimeError("Could not locate repository root containing 'config/' folder")
-
-# Set working directory to project root and ensure it's in sys.path
-project_root = _find_repo_root(pathlib.Path(__file__))
-sys.path.insert(0, str(project_root))
-os.chdir(str(project_root))
-
-# Now we can use absolute imports from project root
-import argparse
 from pathlib import Path
-from utils.print_utils import print_info, print_warning, print_error
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+import argparse
+from utils.path_utils import ensure_project_root
+from utils.print_utils import print_error, print_info, print_warning
 
 # Import the extension components using relative imports (extension-specific)
 # Add parent directory to sys.path to enable relative imports
@@ -214,4 +195,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    ensure_project_root()
     main() 

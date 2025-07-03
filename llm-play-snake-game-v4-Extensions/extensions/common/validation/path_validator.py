@@ -7,8 +7,13 @@ Checks only for the most obvious issues:
 
 Anything more sophisticated is intentionally left to individual extensions.
 """
-
 from __future__ import annotations
+
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 
 from pathlib import Path
 from typing import Union

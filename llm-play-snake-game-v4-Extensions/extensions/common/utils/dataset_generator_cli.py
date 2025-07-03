@@ -10,8 +10,10 @@ Design Philosophy:
 - Simple logging: Uses print() statements for all operations
 """
 
-import argparse
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+import argparse
 from typing import List
 
 from .dataset_game_runner import run_heuristic_games, load_game_logs

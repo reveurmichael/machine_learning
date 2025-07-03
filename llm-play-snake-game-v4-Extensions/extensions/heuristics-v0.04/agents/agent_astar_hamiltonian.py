@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 """
 A* Hamiltonian Hybrid Agent - Advanced Pathfinding with Safety Guarantee
 --------------------
@@ -19,7 +26,6 @@ Design Patterns:
 - Composite Pattern: Combines optimal search with safety guarantee
 """
 
-from __future__ import annotations
 from typing import Dict, List, Tuple, TYPE_CHECKING
 from .agent_astar import AStarAgent
 

@@ -1,3 +1,9 @@
+from __future__ import annotations
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 """
 Pure Hamiltonian Cycle Agent - Guaranteed Snake Solution
 --------------------
@@ -15,7 +21,6 @@ Design Patterns:
 - Failsafe Pattern: Guaranteed safety through mathematical properties
 """
 
-from __future__ import annotations
 from typing import List, Tuple, Dict, TYPE_CHECKING, Optional
 
 # Ensure project root is set and properly configured

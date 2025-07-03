@@ -5,9 +5,6 @@ from typing import List
 
 import streamlit as st
 
-# ---------------------------------------------------------------------------
-# Path setup (Single Source of Truth via extensions.common.utils.path_utils)
-# ---------------------------------------------------------------------------
 
 try:
     from utils.path_utils import ensure_project_root

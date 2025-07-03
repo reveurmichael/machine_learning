@@ -16,10 +16,14 @@ Design Philosophy:
 - Simple logging with print() statements (final-decision-10.md Guideline 3)
 - Enables easy addition of new extensions without friction
 """
-
 from __future__ import annotations
 
+
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
 from typing import Union, List, Dict, Any
 import json
 

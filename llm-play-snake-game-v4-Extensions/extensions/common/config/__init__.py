@@ -13,8 +13,10 @@ Design Philosophy:
 Reference: docs/extensions-guideline/final-decision-10.md
 """
 
+import sys
 import os
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from .path_constants import *
 
 # =============================================================================

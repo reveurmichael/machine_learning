@@ -1,3 +1,8 @@
+from __future__ import annotations
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 """
 BFS Agent - Breadth-First Search pathfinding for Snake Game v0.04
 --------------------
@@ -16,7 +21,6 @@ Design Patterns:
 - Protocol Pattern: Implements BaseAgent interface for compatibility
 """
 
-from __future__ import annotations
 from collections import deque
 from typing import List, Tuple, TYPE_CHECKING
 

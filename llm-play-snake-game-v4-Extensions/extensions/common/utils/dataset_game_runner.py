@@ -12,10 +12,11 @@ Design Philosophy:
 - Simple logging: Uses print() statements for all operations
 """
 
-import subprocess
 import sys
-import json
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+import subprocess
+import json
 from typing import List, Dict, Any
 from utils.print_utils import print_info, print_warning, print_error, print_success
 

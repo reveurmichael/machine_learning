@@ -20,8 +20,12 @@ Design Patterns:
 - Inheritance: Progressive enhancement through class hierarchy
 - Strategy Pattern: Interchangeable algorithms
 """
-
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root

@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 """
 A* Pathfinding Agent for Snake Game v0.04
 --------------------
@@ -26,7 +33,6 @@ Design Patterns:
 - Template Method: Consistent agent interface
 """
 
-from __future__ import annotations
 from typing import List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 import heapq
 

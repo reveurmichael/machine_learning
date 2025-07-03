@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
 """
 BFS Safe Greedy Agent - Enhanced BFS with Safety Validation for Snake Game v0.04
 ---------------------------------------------------------------------------------
@@ -20,7 +26,6 @@ Design Patterns:
 - Protocol Pattern: Implements BaseAgent interface for compatibility
 """
 
-from __future__ import annotations
 from typing import List, Tuple, TYPE_CHECKING
 
 # Ensure project root is set and properly configured

@@ -21,7 +21,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
 
-from ..config.dataset_formats import CSV_BASIC_COLUMNS
+from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
 from utils.print_utils import print_info, print_warning, print_success
 
 __all__ = ["DatasetGenerator"]

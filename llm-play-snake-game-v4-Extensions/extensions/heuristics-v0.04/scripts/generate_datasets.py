@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Heuristics v0.04 Dataset Generation Script
 
@@ -30,19 +29,14 @@ Usage Examples:
 
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 # ---------------------------------------------------------------------------
 # Ensure project root and common utilities are on sys.path BEFORE any imports
 # ---------------------------------------------------------------------------
 
-current_file = Path(__file__).resolve()
-project_root = current_file.parent.parent.parent.parent  # navigate to repo root
-common_dir = project_root / "extensions" / "common"
-
-for path in (project_root, common_dir):
-    path_str = str(path)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 # Now that paths are set up we can safely import project modules
 from utils.print_utils import print_info, print_error

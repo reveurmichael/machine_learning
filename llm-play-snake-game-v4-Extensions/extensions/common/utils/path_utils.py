@@ -25,8 +25,13 @@ Design Philosophy:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+
+from typing import TYPE_CHECKING
 from utils.print_utils import print_info
 
 if TYPE_CHECKING:  # pragma: no cover – only for static type checkers
@@ -76,9 +81,6 @@ def get_model_path(extension_type: str, version: str, grid_size: int, algorithm:
     path = Path(f"logs/extensions/models/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}/")
     print_info(f"[PathUtils] Model path: {path}")  # Simple logging
     return path
-
-
-
 
 
 # ---------------------------------------------------------------------------

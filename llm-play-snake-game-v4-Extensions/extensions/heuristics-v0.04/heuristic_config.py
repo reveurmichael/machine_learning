@@ -26,8 +26,12 @@ Design Patterns
 Remember: if a constant becomes universally useful, promote it upstream to
 `/config` and re-export it here – never the other way around.
 """
-
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 
 from utils.path_utils import ensure_project_root
 ensure_project_root()
@@ -53,7 +57,6 @@ __all__: list[str] = [
     "HOST_CHOICES",
     # Heuristic-specific additions (below)
     "MAX_HEURISTIC_STEPS",
-    "DEFAULT_MOVE_INTERVAL_MS",
 ]
 
 # ---------------------
@@ -62,6 +65,3 @@ __all__: list[str] = [
 
 # Fallback hard cap so runaway agents never freeze the replay.
 MAX_HEURISTIC_STEPS: int = 5000  # steps per game (override via CLI if needed)
-
-# Default delay between moves in the web replay (milliseconds)
-DEFAULT_MOVE_INTERVAL_MS: int = 400 

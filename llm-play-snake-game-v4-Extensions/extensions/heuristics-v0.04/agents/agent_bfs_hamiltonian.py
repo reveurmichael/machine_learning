@@ -1,55 +1,43 @@
 """
-BFS Hamiltonian Agent - Enhanced BFS with Hamiltonian Cycle Fallback
---------------------
+BFS Hamiltonian Agent - BFS with Hamiltonian cycle fallback for Snake Game v0.04
+---------------------------------------------------------------------------------
 
-This module implements a sophisticated agent that extends BFS Safe Greedy
-with Hamiltonian cycle capabilities. It represents the evolution from basic
-BFS → BFS-Safe-Greedy → BFS-Hamiltonian.
+This module implements a hybrid agent that combines BFS pathfinding with
+Hamiltonian cycle following as a safety fallback mechanism.
 
-Inheritance Hierarchy:
-- BFSAgent (basic pathfinding)
-  └── BFSSafeGreedyAgent (adds safety validation)
-      └── BFSHamiltonianAgent (adds Hamiltonian cycle fallback)
+v0.04 Enhancement: Generates natural language explanations for each move
+to create rich datasets for LLM fine-tuning.
 
-This demonstrates progressive enhancement: each level adds new capabilities
-while reusing the proven functionality of its parent.
+Strategy:
+1. Try BFS pathfinding to apple (shortest path)
+2. If BFS fails or leads to unsafe positions, follow Hamiltonian cycle
+3. Generate detailed explanations for strategy selection
+
+The Hamiltonian cycle ensures the snake can always move safely by following
+a predetermined path that visits every cell exactly once.
 
 Design Patterns:
-- Inheritance: Extends BFSSafeGreedyAgent with Hamiltonian cycle logic
-- Template Method: Overrides get_move() while reusing safety validation
-- Strategy Pattern: Hamiltonian cycle as ultimate fallback strategy
-- Composite Pattern: Combines multiple pathfinding strategies
+- Strategy Pattern: Multiple pathfinding strategies
+- Fallback Pattern: Safe fallback when primary strategy fails
+- Protocol Pattern: Implements BaseAgent interface for compatibility
 """
 
 from __future__ import annotations
-from typing import List, Tuple, Optional, Set, TYPE_CHECKING, Dict
-from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
+from collections import deque
+from typing import List, Tuple, Set, Optional, TYPE_CHECKING
 
 # Ensure project root is set and properly configured
-import sys
-import os
-from pathlib import Path
-
-def _ensure_project_root():
-    """Ensure we're working from project root"""
-    current = Path(__file__).resolve()
-    # Navigate up to find project root (contains config/ directory)
-    for _ in range(10):
-        if (current / "config").is_dir():
-            if str(current) not in sys.path:
-                sys.path.insert(0, str(current))
-            os.chdir(str(current))
-            return current
-        if current.parent == current:
-            break
-        current = current.parent
-    raise RuntimeError("Could not locate project root containing 'config/' folder")
-
-_ensure_project_root()
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 # Import from project root using absolute imports
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
+
+# Import extension-specific components using relative imports
+from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
+
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
 

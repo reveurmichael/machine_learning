@@ -11,6 +11,9 @@ a consistent execution environment across the entire project. It handles:
 
 These utilities prevent code duplication across script files and provide
 a standardized way to bootstrap the project environment.
+
+Single Source of Truth: This module provides the canonical implementation
+of project root detection and path management for ALL extensions.
 """
 
 from __future__ import annotations
@@ -44,12 +47,6 @@ __all__ = [
 # - __file__ = /path/to/project/utils/path_utils.py
 # - .parent = /path/to/project/utils/  
 # - .parent.parent = /path/to/project/ (project root)
-#
-# This approach is preferred over config folder because:
-# 1. Path utilities are infrastructure, not configuration
-# 2. Config folder should contain settings, not path detection logic
-# 3. This module needs to work before config is loaded
-# 4. Keeps path resolution logic centralized in utils
 _PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 
 
@@ -60,17 +57,45 @@ def get_project_root() -> Path:
     This is a pure function with no side effects, suitable for situations
     where you only need the path without changing the working directory.
     
+    Project root is identified by the presence of three required directories:
+    core/, llm/, and extensions/
+    
     Returns:
         The absolute pathlib.Path to the project root directory.
+        
+    Raises:
+        RuntimeError: If project root cannot be found within 10 levels
     """
-    return _PROJECT_ROOT
+    # First check if the static _PROJECT_ROOT is valid
+    required_dirs = ["core", "llm", "extensions"]
+    if all((_PROJECT_ROOT / dir_name).is_dir() for dir_name in required_dirs):
+        return _PROJECT_ROOT
+    
+    # Search upward from current file location
+    current = Path(__file__).resolve()
+    for _ in range(10):
+        if all((current / dir_name).is_dir() for dir_name in required_dirs):
+            return current
+        if current.parent == current:  # Reached filesystem root
+            break
+        current = current.parent
+    
+    raise RuntimeError(
+        f"Could not locate project root containing 'core/', 'llm/', and 'extensions/' directories "
+        f"within 10 levels from {Path(__file__).resolve()}"
+    )
 
 
-# IMPORTANT: this one is very important for scripts in the folder "scripts" and hence for all web modes (human play web mode, replay web mode, main web mode, continue web mode)
 def ensure_project_root() -> Path:
     """
     Ensures the current working directory is the project root and that the
     root directory is in sys.path for absolute imports.
+
+    This function validates the project root by checking for required directories
+    (core/, llm/, extensions/) and searches upward if needed.
+
+    Single Source of Truth: This is the ONLY function that should be used
+    for project root detection across ALL extensions and scripts.
 
     This function has intentional side effects:
     - Changes the current working directory (os.chdir)
@@ -85,18 +110,19 @@ def ensure_project_root() -> Path:
         >>> root = ensure_project_root()
         >>> print(f"Project running from: {root}")
     """
+    project_root = get_project_root()
     current_dir = Path.cwd()
     
-    if current_dir != _PROJECT_ROOT:
-        print(f"Changing working directory to project root: {_PROJECT_ROOT}")
-        os.chdir(_PROJECT_ROOT)
+    if current_dir != project_root:
+        print(f"[PathUtils] Changing working directory to project root: {project_root}")
+        os.chdir(project_root)
     
     # Ensure the project root is at the beginning of sys.path for import precedence
-    root_str = str(_PROJECT_ROOT)
+    root_str = str(project_root)
     if root_str not in sys.path:
         sys.path.insert(0, root_str)
     
-    return _PROJECT_ROOT
+    return project_root
 
 
 def enable_headless_pygame() -> None:
@@ -147,10 +173,10 @@ def get_logs_dir_path(base_dir: Union[str, Path, None] = None) -> Path:
 
 def create_session_dir_path(model_name: str, timestamp: str, base_dir: Union[str, Path, None] = None) -> Path:
     """
-    Create a standardized session directory path with model name and timestamp.
+    Create path for session directory using model name and timestamp.
     
     Args:
-        model_name: Name of the model/provider
+        model_name: Name/identifier of the model
         timestamp: Timestamp string for the session
         base_dir: Optional base directory (defaults to current working directory)
         
@@ -158,8 +184,8 @@ def create_session_dir_path(model_name: str, timestamp: str, base_dir: Union[str
         Path object pointing to the session directory
         
     Example:
-        >>> create_session_dir_path("deepseek-r1", "20250118_143022")
-        Path("logs/deepseek-r1_20250118_143022")
+        >>> create_session_dir_path("gpt-4", "20240101_120000")
+        Path("logs/gpt-4_20240101_120000")
     """
     logs_dir = get_logs_dir_path(base_dir)
     session_name = f"{model_name}_{timestamp}"
@@ -168,17 +194,17 @@ def create_session_dir_path(model_name: str, timestamp: str, base_dir: Union[str
 
 def ensure_logs_dir(base_dir: Union[str, Path, None] = None) -> Path:
     """
-    Ensure logs directory exists, creating it if necessary.
+    Ensure logs directory exists and return its path.
     
     Args:
         base_dir: Optional base directory (defaults to current working directory)
         
     Returns:
-        Path object pointing to the logs directory (guaranteed to exist)
+        Path object pointing to the created logs directory
         
     Example:
-        >>> logs_dir = ensure_logs_dir()
-        # Directory is created if it doesn't exist
+        >>> logs_path = ensure_logs_dir()
+        >>> print(f"Logs directory: {logs_path}")
     """
     logs_dir = get_logs_dir_path(base_dir)
     logs_dir.mkdir(parents=True, exist_ok=True)
@@ -187,9 +213,7 @@ def ensure_logs_dir(base_dir: Union[str, Path, None] = None) -> Path:
 
 def get_default_logs_root() -> str:
     """
-    Get the default logs root directory name as a string.
-    
-    Returns the plain-string name for code that prefers str over Path.
+    Get the default logs root directory name.
     
     Returns:
         String name of the logs directory
@@ -198,55 +222,55 @@ def get_default_logs_root() -> str:
         >>> get_default_logs_root()
         "logs"
     """
-    return LOGS_DIR_NAME 
+    return LOGS_DIR_NAME
 
 
 def get_summary_json_path(base_dir: Union[str, Path, None] = None) -> Path:
     """
-    Get the standardized summary JSON file path.
+    Get path for summary JSON file.
     
     Args:
         base_dir: Optional base directory (defaults to current working directory)
         
     Returns:
-        Path object pointing to the summary JSON file
+        Path object pointing to the summary.json file
         
     Example:
         >>> get_summary_json_path()
-        Path("logs/summary.json")
-        >>> get_summary_json_path("/project")  
-        Path("/project/logs/summary.json")
+        Path("summary.json")
     """
-    return get_logs_dir_path(base_dir) / SUMMARY_JSON_FILENAME
+    if base_dir is None:
+        return Path(SUMMARY_JSON_FILENAME)
+    return Path(base_dir) / SUMMARY_JSON_FILENAME
 
 
 def get_game_json_path(game_number: int, base_dir: Union[str, Path, None] = None) -> Path:
     """
-    Get the standardized game JSON file path for a specific game number.
+    Get path for specific game JSON file.
     
     Args:
-        game_number: The game number
+        game_number: Game number for the filename
         base_dir: Optional base directory (defaults to current working directory)
         
     Returns:
-        Path object pointing to the specific game JSON file
+        Path object pointing to the game_N.json file
         
     Example:
         >>> get_game_json_path(1)
-        Path("logs/game_1.json")
-        >>> get_game_json_path(5, "/project")  
-        Path("/project/logs/game_5.json")
+        Path("game_1.json")
     """
-    filename = GAME_JSON_FILENAME_PATTERN.format(game_number)
-    return get_logs_dir_path(base_dir) / filename
+    filename = GAME_JSON_FILENAME_PATTERN.format(game_number=game_number)
+    if base_dir is None:
+        return Path(filename)
+    return Path(base_dir) / filename
 
 
 def get_summary_json_filename() -> str:
     """
-    Get the summary JSON filename as a string.
+    Get the standard filename for summary JSON files.
     
     Returns:
-        String name of the summary JSON file
+        String filename for summary JSON
         
     Example:
         >>> get_summary_json_filename()
@@ -257,16 +281,16 @@ def get_summary_json_filename() -> str:
 
 def get_game_json_filename(game_number: int) -> str:
     """
-    Get the game JSON filename as a string for a specific game number.
+    Get the standard filename for game JSON files.
     
     Args:
-        game_number: The game number
+        game_number: Game number for the filename
         
     Returns:
-        String name of the game JSON file
+        String filename for game JSON
         
     Example:
         >>> get_game_json_filename(1)
         "game_1.json"
     """
-    return GAME_JSON_FILENAME_PATTERN.format(game_number) 
+    return GAME_JSON_FILENAME_PATTERN.format(game_number=game_number) 

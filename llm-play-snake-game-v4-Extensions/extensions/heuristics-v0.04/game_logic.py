@@ -1,48 +1,40 @@
 """
-Heuristic Game Logic - Game logic for heuristic algorithms
---------------------
+Heuristic Game Logic - Core game mechanics for heuristic algorithms v0.04
+--------------------------------------------------------------------------
 
-This module extends BaseGameLogic to provide heuristic-specific game logic
-while maintaining compatibility with the base game engine.
+This module implements the game logic specifically designed for heuristic
+algorithms, extending the base game logic with features needed for
+pathfinding algorithms.
 
-Design Philosophy:
-- Extends BaseGameLogic (inherits all core game mechanics)
-- Uses HeuristicGameData for data tracking
-- Integrates heuristic agents (BFS, DFS, etc.)
-- No GUI dependencies (headless by default)
+v0.04 Enhancement: Supports explanation generation for LLM fine-tuning
+datasets while maintaining compatibility with existing heuristic agents.
+
+Design Patterns:
+- Inheritance: Extends BaseGameLogic from core framework
+- Strategy Pattern: Different heuristic algorithms can be plugged in
+- Observer Pattern: Game state changes notify interested components
 """
 
 from __future__ import annotations
+import copy
+import time
+from typing import TYPE_CHECKING, List, Tuple, Optional, Any
 
 # Ensure project root is set and properly configured
-import sys
-import os
-from pathlib import Path
-
-def _ensure_project_root():
-    """Ensure we're working from project root"""
-    current = Path(__file__).resolve()
-    # Navigate up to find project root (contains config/ directory)
-    for _ in range(10):
-        if (current / "config").is_dir():
-            if str(current) not in sys.path:
-                sys.path.insert(0, str(current))
-            os.chdir(str(current))
-            return current
-        if current.parent == current:
-            break
-        current = current.parent
-    raise RuntimeError("Could not locate project root containing 'config/' folder")
-
-_ensure_project_root()
-
-import time
-from typing import List, Optional, TYPE_CHECKING
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 # Import from project root using absolute imports
-from config.ui_constants import GRID_SIZE
 from core.game_logic import BaseGameLogic
-from utils.print_utils import print_error
+from config.game_constants import DIRECTIONS
+from config.ui_constants import GRID_SIZE
+from utils.moves_utils import position_to_direction
+from utils.collision_utils import check_collision
+from utils.board_utils import generate_random_apple
+from utils.print_utils import print_info, print_error
+
+if TYPE_CHECKING:
+    from game_manager import HeuristicGameManager
 
 # Import extension-specific components using relative imports
 from game_data import HeuristicGameData

@@ -24,9 +24,9 @@ from pathlib import Path
 # --------------------------------------------------------------------------- #
 # 1. Ensure repository root on sys.path and find template/static directories  #
 # --------------------------------------------------------------------------- #
-REPO_ROOT = Path(__file__).resolve().parent.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+from utils.path_utils import ensure_project_root
+
+REPO_ROOT = ensure_project_root()
 
 from utils.web_utils import get_web_dirs  # noqa: E402
 

@@ -4,195 +4,149 @@
 
 > **See also:** `final-decision-10.md`, `core.md`, `project-structure-plan.md`.
 
-## 🎯 **Core Philosophy: Consistent Path Resolution**
+## �� **Core Philosophy: Single Source of Truth**
 
-All extensions **MUST** use standardized path utilities from `extensions/common/utils/path_utils.py` to ensure reliable cross-platform operation and eliminate path-related bugs.
+All extensions **MUST** use the canonical `ensure_project_root()` function from `utils.path_utils` to ensure reliable cross-platform operation and eliminate path-related bugs. This function is the **ONLY** implementation that should be used across ALL extensions and scripts.
 
 ### **Educational Value**
 - **Cross-Platform Compatibility**: Consistent behavior across Windows, macOS, and Linux
 - **Development Workflow**: Works regardless of IDE working directory
 - **Deployment Reliability**: Same code works in dev and production
-- **Canonical Patterns**: Demonstrates factory patterns and simple logging throughout
+- **Single Source of Truth**: One canonical implementation eliminates duplication
 
 ## 🛠️ **Mandatory Path Management Pattern**
 
 ### **Required Setup for All Extensions**
 ```python
 # MANDATORY USAGE PATTERN FOR ALL EXTENSIONS
-from extensions.common.utils.path_utils import (
-    ensure_project_root,
-    get_extension_path,
-    get_dataset_path,
-    get_model_path,
-    validate_path_structure
-)
+from utils.path_utils import ensure_project_root
 
-def setup_extension_environment():
-    """Standard setup for all extensions"""
-    # Ensure we're working from project root
-    project_root = ensure_project_root()
-    
-    # Get extension-specific paths
-    extension_path = get_extension_path(__file__)
-    
-    # Validate path structure
-    validate_path_structure(extension_path)
-    
-    return project_root, extension_path
+# Ensure project root is set and properly configured
+ensure_project_root()
+
+# Now you can use absolute imports
+from config.game_constants import DIRECTIONS
+from core.game_logic import BaseGameLogic
+from utils.moves_utils import position_to_direction
+```
+
+### **❌ FORBIDDEN: Custom _ensure_project_root() Implementations**
+```python
+# ❌ FORBIDDEN: Do NOT create custom implementations
+def _ensure_project_root():
+    """Custom implementation - FORBIDDEN"""
+    # Any custom implementation violates single source of truth
+    pass
+
+# ❌ FORBIDDEN: Do NOT duplicate path management logic
+import sys
+import os
+from pathlib import Path
+
+current = Path(__file__).resolve()
+# ... custom path finding logic ... FORBIDDEN
 ```
 
 ## 📁 **Core Path Utilities**
 
 ### **Project Root Management**
 ```python
+def get_project_root() -> Path:
+    """
+    Returns the absolute path to the project root directory.
+    
+    This is a pure function with no side effects, suitable for situations
+    where you only need the path without changing the working directory.
+    
+    Project root is identified by the presence of three required directories:
+    core/, llm/, and extensions/
+    
+    Returns:
+        The absolute pathlib.Path to the project root directory.
+        
+    Raises:
+        RuntimeError: If project root cannot be found within 10 levels
+    """
+
 def ensure_project_root() -> Path:
     """
-    Ensure current working directory is project root
-    
-    Design Pattern: Facade Pattern
-    Purpose: Provides simple interface to complex path management
-    Educational Value: Shows how canonical patterns work with path management
-    while maintaining simple logging throughout.
-    
-    Reference: final-decision-10.md for simple logging standards
+    Ensures the current working directory is the project root and that the
+    root directory is in sys.path for absolute imports.
+
+    This function validates the project root by checking for required directories
+    (core/, llm/, extensions/) and searches upward if needed.
+
+    Single Source of Truth: This is the ONLY function that should be used
+    for project root detection across ALL extensions and scripts.
+
+    This function has intentional side effects:
+    - Changes the current working directory (os.chdir)
+    - Modifies sys.path to enable absolute imports
+    - Prints a message if the directory is changed
+
+    Returns:
+        The absolute pathlib.Path to the project root directory.
     """
-    current_file = Path(__file__).resolve()
-    
-    # Find project root (contains README.md and core/ folder)
-    project_root = current_file
-    while project_root.parent != project_root:
-        if (project_root / "README.md").exists() and (project_root / "core").exists():
-            break
-        project_root = project_root.parent
-    else:
-        raise RuntimeError("Could not find project root directory")
-    
-    # Change working directory to project root
-    if os.getcwd() != str(project_root):
-        os.chdir(str(project_root))
-        print(f"[PathUtils] Changed working directory to: {project_root}")  # Simple logging - SUPREME_RULES
-    
-    # Ensure project root is in Python path
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-    
-    return project_root
-```
-
-### **Extension Path Management**
-```python
-def get_extension_path(current_file: str) -> Path:
-    """Get the extension directory path from current file"""
-    return Path(current_file).resolve().parent
-
-def get_dataset_path(extension_type: str, version: str, grid_size: int, 
-                    algorithm: str, timestamp: str) -> Path:
-    """Get standardized dataset path following final-decision-1.md structure"""
-    session_name = f"{extension_type}_v{version}_{timestamp}"
-    return Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / session_name / algorithm
-
-def get_model_path(extension_type: str, version: str, grid_size: int,
-                  model_name: str, timestamp: str) -> Path:
-    """Get standardized model path following final-decision-1.md structure"""
-    session_name = f"{extension_type}_v{version}_{timestamp}"
-    return Path("logs/extensions/models") / f"grid-size-{grid_size}" / session_name / model_name
-```
-
-### **Path Validation**
-```python
-def validate_path_structure(extension_path: Path) -> bool:
-    """Validate that path structure follows required patterns"""
-    print(f"[PathUtils] Validating path structure: {extension_path}")  # Simple logging - SUPREME_RULES
-    
-    # Basic validation - extension should be in extensions/ directory
-    if "extensions" not in str(extension_path):
-        raise ValueError(f"Extension path should be in extensions/ directory: {extension_path}")
-    
-    # Check that extension follows naming convention
-    extension_name = extension_path.name
-    if not any(char.isdigit() for char in extension_name):
-        raise ValueError(f"Extension should have version number: {extension_name}")
-    
-    print(f"[PathUtils] Path structure validation passed: {extension_path}")  # Simple logging - SUPREME_RULES
-    return True
 ```
 
 ## 🔧 **Extension Implementation Patterns**
 
-### **v0.01 Extension Pattern**
+### **Standard Extension Pattern**
 ```python
-# extensions/heuristics-v0.01/main.py
-from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
-from utils.factory_utils import SimpleFactory
+# extensions/heuristics-v0.04/agents/agent_bfs.py
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
-def main():
-    """Main entry point for heuristics v0.01"""
-    # Standard setup
-    project_root, extension_path = setup_extension_environment()
+# Now you can safely use absolute imports
+from config.game_constants import DIRECTIONS
+from utils.moves_utils import position_to_direction
+from utils.print_utils import print_error
+
+class BFSAgent:
+    def __init__(self):
+        self.algorithm_name = "BFS"
     
-    # Extension-specific logic using canonical factory patterns
-    from game_manager import HeuristicGameManager
-    
-    # Use canonical factory pattern
-    factory = SimpleFactory()
-    factory.register("heuristic", HeuristicGameManager)
-    
-    manager = factory.create("heuristic")  # CANONICAL create() method - SUPREME_RULES
-    manager.run()
+    def get_move(self, game) -> str:
+        # Agent implementation here
+        pass
 ```
 
-### **v0.02 Extension Pattern**
+### **Extension Entry Point Pattern**
 ```python
-# extensions/heuristics-v0.02/main.py
-from extensions.common.utils.path_utils import ensure_project_root, get_extension_path, get_dataset_path
-from utils.factory_utils import SimpleFactory
+# extensions/heuristics-v0.04/scripts/main.py
+from utils.path_utils import ensure_project_root
+ensure_project_root()
+
+# Import extension-specific components using relative imports
+from ..game_manager import HeuristicGameManager
+from ..agents import AgentFactory
 
 def main():
-    """Main entry point for heuristics v0.02"""
-    project_root, extension_path = setup_extension_environment()
-    
-    # Use standardized dataset paths
-    dataset_path = get_dataset_path(
-        extension_type="heuristics",
-        version="0.02",
-        grid_size=args.grid_size,
-        algorithm=args.algorithm,
-        timestamp=timestamp
-    )
-    
-    # Extension logic using canonical factory patterns
-    from game_manager import HeuristicGameManager
-    
-    factory = SimpleFactory()
-    factory.register("heuristic", HeuristicGameManager)
-    
-    manager = factory.create("heuristic", dataset_path=dataset_path)  # Canonical
-    manager.run()
+    """Main entry point for heuristics v0.04"""
+    # Extension logic here
+    pass
 ```
 
 ## 📊 **Simple Logging Standards for Path Operations**
 
 ### **Required Logging Pattern (SUPREME_RULES)**
-All path operations MUST use simple print statements as established in `final-decision-10.md`:
+All path operations use simple print statements as established in `final-decision-10.md`:
 
 ```python
 # ✅ CORRECT: Simple logging for path operations (SUPREME_RULES compliance)
-def setup_paths(extension_type: str):
-    print(f"[PathUtils] Setting up paths for {extension_type}")  # Simple logging - REQUIRED
+def ensure_project_root() -> Path:
+    project_root = get_project_root()
+    current_dir = Path.cwd()
     
-    # Path setup logic
-    project_root = ensure_project_root()
+    if current_dir != project_root:
+        print(f"[PathUtils] Changing working directory to project root: {project_root}")
+        os.chdir(project_root)
     
-    print(f"[PathUtils] Paths configured successfully")  # Simple logging
     return project_root
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
-# import logging
-# logger = logging.getLogger(__name__)
-
-# def setup_paths(extension_type: str):
-#     logger.info(f"Setting up paths for {extension_type}")  # FORBIDDEN - complex logging
-#     # This violates final-decision-10.md SUPREME_RULES
+# import logging  # FORBIDDEN
+# logger = logging.getLogger(__name__)  # FORBIDDEN
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -201,18 +155,18 @@ def setup_paths(extension_type: str):
 - **Cross-Platform Compatibility**: Consistent behavior across all operating systems
 - **Development Workflow**: Works regardless of IDE working directory
 - **Deployment Reliability**: Same code works in dev and production
-- **Canonical Patterns**: Factory patterns ensure consistent path management
+- **Single Source of Truth**: One canonical implementation eliminates confusion
 
 ### **Pattern Consistency**
-- **Canonical Method**: All path utilities use consistent patterns
+- **Canonical Method**: All extensions use identical path management
 - **Simple Logging**: Print statements provide clear operation visibility
-- **Educational Value**: Canonical patterns enable predictable learning
+- **Educational Value**: Predictable patterns enable easier learning
 - **SUPREME_RULES**: Path management follows same standards as other components
 
 ## 📋 **SUPREME_RULES Implementation Checklist for Path Management**
 
 ### **Mandatory Requirements**
-- [ ] **Canonical Method**: All path utilities use consistent patterns (SUPREME_RULES requirement)
+- [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
 - [ ] **Simple Logging**: Uses print() statements only for all path operations (final-decision-10.md compliance)
 - [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all path management documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all path implementations
@@ -220,7 +174,7 @@ def setup_paths(extension_type: str):
 ### **Path-Specific Standards**
 - [ ] **Cross-Platform**: Works on Windows, macOS, and Linux
 - [ ] **Working Directory**: Proper working directory management
-- [ ] **Path Validation**: Consistent validation patterns
+- [ ] **Path Validation**: Validates presence of core/, llm/, extensions/ directories
 - [ ] **Error Handling**: Simple logging for all error conditions
 
 ### **Educational Integration**
@@ -237,12 +191,11 @@ def setup_paths(extension_type: str):
 - **`project-structure-plan.md`**: Project structure standards
 
 ### **Implementation Files**
-- **`extensions/common/utils/path_utils.py`**: Canonical path utilities
-- **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
-- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+- **`utils/path_utils.py`**: Canonical path utilities (SINGLE SOURCE OF TRUTH)
+- **All extensions**: Use `from utils.path_utils import ensure_project_root`
 
 ### **Educational Resources**
-- **Design Patterns**: Path management as foundation for cross-platform compatibility
+- **Single Source of Truth**: Path management demonstrates importance of avoiding duplication
 - **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
 - **Simple Logging**: Print statements provide clear operation visibility
-- **OOP Principles**: Path management demonstrates effective abstraction 
+- **Cross-Platform Compatibility**: Path management works reliably everywhere 

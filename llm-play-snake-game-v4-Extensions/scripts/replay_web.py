@@ -23,9 +23,9 @@ import os
 from pathlib import Path
 
 # Ensure project root is on sys.path before importing project modules
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from utils.path_utils import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root()
 
 from utils.web_utils import get_web_dirs  # Ensures project root on sys.path
 

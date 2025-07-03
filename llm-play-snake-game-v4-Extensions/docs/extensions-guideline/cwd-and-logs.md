@@ -4,85 +4,115 @@
 
 > **See also:** `standalone.md`, `final-decision-10.md`, `project-structure-plan.md`.
 
-## 🎯 **Core Philosophy: Consistent Path Management**
+## �� **Core Philosophy: Single Source of Truth**
 
-The Snake Game AI project uses a **unified path management system** that ensures consistent working directories and logging across all extensions. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from `final-decision-10.md`.
+The Snake Game AI project uses a **unified path management system** centered around the canonical `ensure_project_root()` function in `utils.path_utils`. This system provides predictable file locations and simple logging mechanisms, strictly following SUPREME_RULES from `final-decision-10.md`.
+
+**Critical Rule**: All extensions MUST use `from utils.path_utils import ensure_project_root` - NO custom implementations are allowed.
 
 ### **Educational Value**
 - **Path Management**: Understanding consistent path handling
 - **Logging Standards**: Learning simple, effective logging
-- **File Organization**: Clear file organization patterns
+- **Single Source of Truth**: Avoiding code duplication and inconsistency
 - **Debugging Support**: Easy debugging with consistent paths
 
 ## 🏗️ **Working Directory Standards**
 
-### **Project Root Detection**
+### **Canonical Project Root Detection**
 ```python
-# extensions/common/utils/path_utils.py
+# utils/path_utils.py - SINGLE SOURCE OF TRUTH
+def get_project_root() -> Path:
+    """
+    Returns the absolute path to the project root directory.
+    
+    Project root is identified by the presence of three required directories:
+    core/, llm/, and extensions/
+    
+    Returns:
+        The absolute pathlib.Path to the project root directory.
+        
+    Raises:
+        RuntimeError: If project root cannot be found within 10 levels
+    """
+    # First check if the static _PROJECT_ROOT is valid
+    required_dirs = ["core", "llm", "extensions"]
+    if all((_PROJECT_ROOT / dir_name).is_dir() for dir_name in required_dirs):
+        return _PROJECT_ROOT
+    
+    # Search upward from current file location
+    current = Path(__file__).resolve()
+    for _ in range(10):
+        if all((current / dir_name).is_dir() for dir_name in required_dirs):
+            return current
+        if current.parent == current:  # Reached filesystem root
+            break
+        current = current.parent
+    
+    raise RuntimeError(
+        f"Could not locate project root containing 'core/', 'llm/', and 'extensions/' directories "
+        f"within 10 levels from {Path(__file__).resolve()}"
+    )
+
+def ensure_project_root() -> Path:
+    """
+    Single Source of Truth: This is the ONLY function that should be used
+    for project root detection across ALL extensions and scripts.
+
+    This function has intentional side effects:
+    - Changes the current working directory (os.chdir)
+    - Modifies sys.path to enable absolute imports
+    - Prints a message if the directory is changed
+
+    Returns:
+        The absolute pathlib.Path to the project root directory.
+    """
+    project_root = get_project_root()
+    current_dir = Path.cwd()
+    
+    if current_dir != project_root:
+        print(f"[PathUtils] Changing working directory to project root: {project_root}")
+        os.chdir(project_root)
+    
+    # Ensure the project root is at the beginning of sys.path for import precedence
+    root_str = str(project_root)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
+    
+    return project_root
+```
+
+### **✅ MANDATORY Usage Pattern**
+```python
+# ALL extensions MUST use this exact pattern
+from utils.path_utils import ensure_project_root
+ensure_project_root()
+
+# Now you can safely use absolute imports
+from config.game_constants import DIRECTIONS
+from core.game_logic import BaseGameLogic
+from utils.moves_utils import position_to_direction
+```
+
+### **❌ FORBIDDEN: Custom Implementations**
+```python
+# ❌ FORBIDDEN: Do NOT create custom _ensure_project_root() functions
+def _ensure_project_root():
+    """FORBIDDEN - violates single source of truth"""
+    current = Path(__file__).resolve()
+    # ... any custom path finding logic is FORBIDDEN
+    pass
+
+# ❌ FORBIDDEN: Manual path management
+import sys
 import os
 from pathlib import Path
 
-def ensure_project_root():
-    """Ensure working directory is set to project root"""
-    current_dir = Path.cwd()
-    
-    # Look for project root indicators
-    root_indicators = ['app.py', 'README.md', 'config/']
-    
-    # Navigate up until we find project root
-    while current_dir != current_dir.parent:
-        if any((current_dir / indicator).exists() for indicator in root_indicators):
-            os.chdir(current_dir)
-            print(f"[PathUtils] Set working directory to: {current_dir}")  # SUPREME_RULES compliant logging
-            return current_dir
-        current_dir = current_dir.parent
-    
-    # If not found, stay in current directory
-    print(f"[PathUtils] Project root not found, staying in: {Path.cwd()}")  # SUPREME_RULES compliant logging
-    return Path.cwd()
-
-def get_project_root() -> Path:
-    """Get project root path"""
-    current_dir = Path.cwd()
-    
-    # Look for project root indicators
-    root_indicators = ['app.py', 'README.md', 'config/']
-    
-    # Navigate up until we find project root
-    while current_dir != current_dir.parent:
-        if any((current_dir / indicator).exists() for indicator in root_indicators):
-            return current_dir
-        current_dir = current_dir.parent
-    
-    return Path.cwd()
-```
-
-### **Extension Path Management**
-```python
-def get_extension_path(extension_type: str, version: str) -> Path:
-    """Get path for specific extension"""
-    project_root = get_project_root()
-    extension_path = project_root / "extensions" / f"{extension_type}-{version}"
-    
-    if not extension_path.exists():
-        raise ValueError(f"Extension path not found: {extension_path}")
-    
-    return extension_path
-
-def get_logs_path() -> Path:
-    """Get logs directory path"""
-    project_root = get_project_root()
-    return project_root / "logs"
-
-def get_datasets_path() -> Path:
-    """Get datasets directory path"""
-    project_root = get_project_root()
-    return project_root / "extensions" / "datasets"
-
-def get_models_path() -> Path:
-    """Get models directory path"""
-    project_root = get_project_root()
-    return project_root / "extensions" / "models"
+current = Path(__file__).resolve()
+for _ in range(10):
+    if (current / "config").is_dir():  # FORBIDDEN pattern
+        os.chdir(str(current))
+        break
+    current = current.parent
 ```
 
 ## 📊 **Logging Standards**
@@ -180,40 +210,58 @@ logs/
 
 ### **Extension Logs Structure**
 ```
-logs/extensions/datasets/grid-size-10/heuristics_v0.03_20240101_120000/
-├── bfs_data.csv
-├── astar_data.csv
-├── dfs_data.csv
+logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/
+├── bfs/
+│   ├── game_1.json
+│   ├── game_2.json
+│   ├── summary.json
+│   ├── bfs_dataset.csv
+│   └── bfs_dataset.jsonl
+├── astar/
+│   ├── game_1.json
+│   ├── summary.json
+│   ├── astar_dataset.csv
+│   └── astar_dataset.jsonl
 └── metadata.json
-
-logs/extensions/models/grid-size-10/supervised_v0.03_20240101_120000/
-├── mlp_model.pth
-├── xgboost_model.pkl
-├── training_results.json
-└── evaluation_results.json
 ```
 
 ## 📋 **Implementation Examples**
 
 ### **Extension Path Management**
 ```python
-# In any extension
-from extensions.common.utils.path_utils import ensure_project_root, get_extension_path
+# In any extension - MANDATORY PATTERN
+from utils.path_utils import ensure_project_root
+ensure_project_root()
+
+# Now you can safely use absolute imports
+from config.game_constants import DIRECTIONS
+from core.game_manager import BaseGameManager
+from utils.print_utils import print_info
 
 def setup_extension():
     """Setup extension with proper paths"""
-    # Ensure we're in project root
-    project_root = ensure_project_root()
+    print(f"[Extension] Project root ensured")  # SUPREME_RULES compliant logging
     
-    # Get extension-specific paths
-    extension_path = get_extension_path("heuristics", "v0.03")
-    logs_path = project_root / "logs"
+    # Extension logic here
+    pass
+```
+
+### **Script Entry Points**
+```python
+# extensions/heuristics-v0.04/scripts/main.py
+from utils.path_utils import ensure_project_root
+ensure_project_root()
+
+# Import extension-specific components using relative imports
+from ..game_manager import HeuristicGameManager
+from ..agents import AgentFactory
+
+def main():
+    """Main entry point for heuristics v0.04"""
+    print(f"[HeuristicsV04] Starting main script")  # SUPREME_RULES compliant logging
     
-    print(f"[Extension] Project root: {project_root}")  # SUPREME_RULES compliant logging
-    print(f"[Extension] Extension path: {extension_path}")  # SUPREME_RULES compliant logging
-    print(f"[Extension] Logs path: {logs_path}")  # SUPREME_RULES compliant logging
-    
-    return project_root, extension_path, logs_path
+    # Extension logic here
+    pass
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -221,7 +269,7 @@ def setup_extension():
 ### **Path Management Benefits**
 - **Consistency**: Same path handling across all extensions
 - **Reliability**: Predictable file locations
-- **Debugging**: Easy debugging with consistent paths
+- **Single Source of Truth**: One canonical implementation
 - **Educational Value**: Learn path management through consistent patterns
 
 ### **Logging Benefits**
@@ -233,20 +281,20 @@ def setup_extension():
 ## 📋 **SUPREME_RULES Implementation Checklist**
 
 ### **Mandatory Requirements**
+- [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
 - [ ] **Simple Logging**: Uses print() statements only for all operations (SUPREME_RULES from final-decision-10.md compliance)
-- [ ] **Path Consistency**: All extensions use same path management utilities
 - [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 
 ### **Path-Specific Standards**
-- [ ] **Project Root Detection**: Automatic project root detection
-- [ ] **Extension Paths**: Standardized extension path management
-- [ ] **Logs Organization**: Consistent logs directory structure
-- [ ] **File Naming**: Standardized file naming conventions
+- [ ] **No Custom Implementations**: NO custom _ensure_project_root() functions anywhere
+- [ ] **Canonical Import**: ALL files use `from utils.path_utils import ensure_project_root`
+- [ ] **Project Root Validation**: Validates presence of core/, llm/, extensions/ directories
+- [ ] **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ---
 
-**Working directory and logging standards ensure consistent path management and simple logging while maintaining SUPREME_RULES compliance and educational value across all Snake Game AI extensions.**
+**Working directory and logging standards ensure consistent path management and simple logging while maintaining SUPREME_RULES compliance and single source of truth across all Snake Game AI extensions.**
 
 ## 🔗 **See Also**
 

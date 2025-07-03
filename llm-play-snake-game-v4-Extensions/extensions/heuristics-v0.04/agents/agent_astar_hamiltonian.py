@@ -24,30 +24,17 @@ from typing import Dict, List, Optional, Tuple, Set, TYPE_CHECKING
 from .agent_astar import AStarAgent
 
 # Ensure project root is set and properly configured
-import sys
-import os
-from pathlib import Path
-
-def _ensure_project_root():
-    """Ensure we're working from project root"""
-    current = Path(__file__).resolve()
-    # Navigate up to find project root (contains config/ directory)
-    for _ in range(10):
-        if (current / "config").is_dir():
-            if str(current) not in sys.path:
-                sys.path.insert(0, str(current))
-            os.chdir(str(current))
-            return current
-        if current.parent == current:
-            break
-        current = current.parent
-    raise RuntimeError("Could not locate project root containing 'config/' folder")
-
-_ensure_project_root()
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 # Import from project root using absolute imports
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
+
+# Import extension-specific components using relative imports
+from .agent_astar import AStarAgent
+
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
 

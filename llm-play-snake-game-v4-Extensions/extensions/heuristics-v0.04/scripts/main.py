@@ -8,12 +8,11 @@ web-based interface as the primary entry point.
 
 Usage:
     python scripts/main.py --algorithm bfs --max-games 5
-    python scripts/main.py --algorithm astar --verbose
     python scripts/main.py --help
 
 Features:
 - Extends BaseGameManager for session management
-- Multiple heuristic algorithms: BFS, BFS-Safe-Greedy, BFS-Hamiltonian, DFS, A*, A*-Hamiltonian, Hamiltonian
+- Multiple heuristic algorithms: BFS, BFS-Safe-Greedy
 - Generates game_N.json and summary.json files
 - No GUI dependencies (headless by default)
 - Organized code structure with agents/ package
@@ -46,26 +45,8 @@ def create_argument_parser() -> argparse.ArgumentParser:
         Configured argument parser
     """
     parser = argparse.ArgumentParser(
-        description="Heuristics v0.02 - Multi-Algorithm Snake Game Agents",
+        description="Heuristics v0.04 - Multi-Algorithm Snake Game Agents",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-    # Run 5 games with BFS algorithm (same as v0.01)
-    python -m extensions.heuristics-v0.02.main --algorithm BFS --max-games 5
-    
-    # Try the improved BFS with safety checks
-    python -m extensions.heuristics-v0.02.main --algorithm BFS-SAFE-GREEDY --max-games 3
-    
-    # Test A* pathfinding with verbose output
-    python -m extensions.heuristics-v0.02.main --algorithm ASTAR --verbose --max-games 2
-    
-    # Compare algorithms (run separately)
-    python -m extensions.heuristics-v0.02.main --algorithm BFS --max-games 10
-    python -m extensions.heuristics-v0.02.main --algorithm ASTAR --max-games 10
-    
-    # Quick test of Hamiltonian cycle approach
-    python -m extensions.heuristics-v0.02.main --algorithm HAMILTONIAN --max-games 1
-        """
     )
     
     # Core game settings

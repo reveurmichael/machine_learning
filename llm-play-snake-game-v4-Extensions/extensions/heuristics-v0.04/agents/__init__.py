@@ -8,11 +8,6 @@ It demonstrates software evolution through inheritance and encapsulation.
 Available Algorithms:
 1. BFS - Basic breadth-first search
 2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation (inherits from BFS)
-3. BFS-HAMILTONIAN - BFS with Hamiltonian cycle fallback (inherits from BFS-Safe-Greedy)
-4. DFS - Depth-first search (educational comparison)
-5. ASTAR - A* pathfinding with Manhattan heuristic
-6. ASTAR-HAMILTONIAN - A* with Hamiltonian fallback (inherits from A*)
-7. HAMILTONIAN - Pure Hamiltonian cycle (guaranteed safety)
 
 Design Patterns:
 - Factory Pattern: create_agent() function for instantiation
@@ -36,25 +31,12 @@ from typing import Dict, Type, Optional, List, Any
 # Import all agent classes
 from .agent_bfs import BFSAgent
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
-from .agent_bfs_hamiltonian import BFSHamiltonianAgent
-from .agent_dfs import DFSAgent
-from .agent_astar import AStarAgent
-from .agent_astar_hamiltonian import AStarHamiltonianAgent
-from .agent_hamiltonian import HamiltonianAgent
 
 # Algorithm registry mapping names to classes
 ALGORITHM_REGISTRY: Dict[str, Type] = {
     "BFS": BFSAgent,
     "BFS-SAFE-GREEDY": BFSSafeGreedyAgent,
-    "BFS-HAMILTONIAN": BFSHamiltonianAgent,
-    "DFS": DFSAgent,
-    "ASTAR": AStarAgent,
-    "ASTAR-HAMILTONIAN": AStarHamiltonianAgent,
-    "HAMILTONIAN": HamiltonianAgent,
 }
-
-# Aliases for convenience
-ALGORITHM_REGISTRY["A*"] = AStarAgent  # A* is an alias for ASTAR
 
 # After ALGORITHM_REGISTRY definition
 DEFAULT_ALGORITHM: str = "BFS"
@@ -131,11 +113,6 @@ def _get_algorithm_complexity(algorithm_name: str) -> str:
     complexities = {
         "BFS": "O(V + E) - Optimal for shortest path",
         "BFS-SAFE-GREEDY": "O(V + E) - BFS + safety validation",
-        "BFS-HAMILTONIAN": "O(V + E) - BFS + Hamiltonian cycle",
-        "DFS": "O(V + E) - May find longer paths",
-        "ASTAR": "O(V log V) - Optimal with heuristic",
-        "ASTAR-HAMILTONIAN": "O(V log V) - A* + Hamiltonian cycle",
-        "HAMILTONIAN": "O(1) - Pre-computed cycle",
     }
     return complexities.get(algorithm_name, "Unknown complexity")
 
@@ -144,11 +121,6 @@ def _get_algorithm_category(algorithm_name: str) -> str:
     categories = {
         "BFS": "Basic Search",
         "BFS-SAFE-GREEDY": "Enhanced Search",
-        "BFS-HAMILTONIAN": "Hybrid Search",
-        "DFS": "Educational",
-        "ASTAR": "Informed Search",
-        "ASTAR-HAMILTONIAN": "Advanced Hybrid",
-        "HAMILTONIAN": "Mathematical",
     }
     return categories.get(algorithm_name, "Unknown category")
 
@@ -157,12 +129,7 @@ __all__ = [
     # Agent classes
     "BFSAgent",
     "BFSSafeGreedyAgent", 
-    "BFSHamiltonianAgent",
-    "DFSAgent",
-    "AStarAgent",
-    "AStarHamiltonianAgent",
-    "HamiltonianAgent",
-    
+
     # Factory functions
     "create_agent",
     "get_available_algorithms",

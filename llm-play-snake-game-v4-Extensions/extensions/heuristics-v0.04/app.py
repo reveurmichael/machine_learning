@@ -29,12 +29,7 @@ except Exception:
     # Safe-fallback list in case of import issues – keeps UI usable.
     find_available_algorithms = lambda: [  # type: ignore
         "BFS",
-        "ASTAR",
-        "DFS",
-        "HAMILTONIAN",
         "BFS-SAFE-GREEDY",
-        "ASTAR-HAMILTONIAN",
-        "BFS-HAMILTONIAN",
     ]
 
 # ---------------------------------------------------------------------------

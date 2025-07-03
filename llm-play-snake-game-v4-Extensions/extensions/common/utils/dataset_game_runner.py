@@ -85,14 +85,17 @@ def run_heuristic_games(
         cmd,
         cwd=str(heuristics_dir),
         capture_output=True,
-        text=True,
+        text=False,  # Capture as raw bytes to sidestep system encoding issues
         env=env,
         timeout=timeout_sec
     )
 
+    stdout_decoded = result.stdout.decode("utf-8", errors="replace") if result.stdout else ""
+    stderr_decoded = result.stderr.decode("utf-8", errors="replace") if result.stderr else ""
+
     log_dirs: List[str] = []
-    if result.returncode == 0:
-        for line in result.stdout.splitlines():
+    if result.returncode == 0 and stdout_decoded:
+        for line in stdout_decoded.splitlines():
             if "📂 Logs:" in line:
                 log_path = line.split("📂 Logs: ")[1].strip()
                 log_dirs.append(log_path)
@@ -101,7 +104,7 @@ def run_heuristic_games(
         else:
             print_warning("Could not parse log directory from output")
     else:
-        print_error(f"Error running games: {result.stderr}")
+        print_error(f"Error running games: {stderr_decoded}")
 
     print_info(f"Completed run – log directory count: {len(log_dirs)}", "GameRunner")
     return log_dirs

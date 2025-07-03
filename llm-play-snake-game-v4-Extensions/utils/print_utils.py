@@ -13,11 +13,13 @@ from colorama import Fore, Style, init as _colorama_init
 # Initialize Colorama (auto-reset to avoid manual Style.RESET_ALL)
 _colorama_init(autoreset=True)
 
-# Emoji constants for consistent usage
-EMOJI_SUCCESS = "✅"
-EMOJI_WARNING = "⚠️"
-EMOJI_ERROR   = "❌"
-EMOJI_IMPORTANT = "🔔"
+# Default emoji constants for consistent usage
+# These can be overridden by passing custom emoji to print functions
+DEFAULT_EMOJI_SUCCESS = "✅"
+DEFAULT_EMOJI_WARNING = "⚠️"
+DEFAULT_EMOJI_ERROR   = "❌"
+DEFAULT_EMOJI_IMPORTANT = "🔔"
+
 
 __all__ = [
     "print_info",
@@ -25,6 +27,11 @@ __all__ = [
     "print_error",
     "print_success",
     "print_important",
+    # Default emoji constants
+    "DEFAULT_EMOJI_SUCCESS",
+    "DEFAULT_EMOJI_WARNING", 
+    "DEFAULT_EMOJI_ERROR",
+    "DEFAULT_EMOJI_IMPORTANT",
 ]
 
 
@@ -41,49 +48,53 @@ def print_info(message: str, prefix: str = "INFO") -> None:
     print(Fore.CYAN + f"[{prefix}] {message}" + Style.RESET_ALL)
 
 
-def print_warning(message: str) -> None:
+def print_warning(message: str, emoji: str = DEFAULT_EMOJI_WARNING) -> None:
     """Print warning message with standardized format and yellow color.
     
     Args:
         message: Warning message to print
+        emoji: Custom emoji to use (default: ⚠️)
         
     Educational Value: Shows standardized warning message formatting
     Extension Pattern: Extensions can use for consistent warning display
     """
-    print(Fore.YELLOW + f"{EMOJI_WARNING} {message}" + Style.RESET_ALL)
+    print(Fore.YELLOW + f"{emoji} {message}" + Style.RESET_ALL)
 
 
-def print_error(message: str) -> None:
+def print_error(message: str, emoji: str = DEFAULT_EMOJI_ERROR) -> None:
     """Print error message with standardized format and red color.
     
     Args:
         message: Error message to print
+        emoji: Custom emoji to use (default: ❌)
         
     Educational Value: Shows standardized error message formatting
     Extension Pattern: Extensions can use for consistent error display
     """
-    print(Fore.RED + f"{EMOJI_ERROR} {message}" + Style.RESET_ALL)
+    print(Fore.RED + f"{emoji} {message}" + Style.RESET_ALL)
 
 
-def print_success(message: str) -> None:
+def print_success(message: str, emoji: str = DEFAULT_EMOJI_SUCCESS) -> None:
     """Print success message with standardized format and green color.
     
     Args:
         message: Success message to print
+        emoji: Custom emoji to use (default: ✅)
         
     Educational Value: Shows standardized success message formatting
     Extension Pattern: Extensions can use for consistent success display
     """
-    print(Fore.GREEN + f"{EMOJI_SUCCESS} {message}" + Style.RESET_ALL)
+    print(Fore.GREEN + f"{emoji} {message}" + Style.RESET_ALL)
 
 
-def print_important(message: str) -> None:
+def print_important(message: str, emoji: str = DEFAULT_EMOJI_IMPORTANT) -> None:
     """Print important message with standardized format and magenta color.
     
     Args:
         message: Important message to print
+        emoji: Custom emoji to use (default: 🔔)
         
     Educational Value: Shows standardized important message formatting
     Extension Pattern: Extensions can use for consistent important message display
     """
-    print(Fore.MAGENTA + f"{EMOJI_IMPORTANT} {message}" + Style.RESET_ALL)
+    print(Fore.MAGENTA + f"{emoji} {message}" + Style.RESET_ALL)

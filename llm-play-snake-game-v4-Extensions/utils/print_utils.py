@@ -5,22 +5,6 @@ Print and Display Utilities for Snake Game AI
 This module centralizes print-related utilities including logging, colorama support,
 and display formatting. It provides a single source of truth for all print-related
 functionality across the project.
-
-Design Philosophy:
-- Centralized print utilities: All print-related functions in one place
-- Colorama integration: Colored output for better user experience
-- Simple logging: Lightweight logging patterns following SUPREME_RULES
-- Universal utilities: Used across Task-0 and all extensions
-
-Educational Value:
-- Shows centralized utility patterns
-- Demonstrates simple logging without complex frameworks
-- Provides foundation for enhanced terminal output
-
-Future Extensions:
-- Progress bars and status indicators
-- Formatted table output
-- Terminal clearing and cursor management
 """
 
 from typing import Callable
@@ -33,12 +17,14 @@ _colorama_init(autoreset=True)
 EMOJI_SUCCESS = "✅"
 EMOJI_WARNING = "⚠️"
 EMOJI_ERROR   = "❌"
+EMOJI_IMPORTANT = "🔔"
 
 __all__ = [
     "print_info",
     "print_warning", 
     "print_error",
     "print_success",
+    "print_important",
 ]
 
 
@@ -90,3 +76,14 @@ def print_success(message: str) -> None:
     """
     print(Fore.GREEN + f"{EMOJI_SUCCESS} {message}" + Style.RESET_ALL)
 
+
+def print_important(message: str) -> None:
+    """Print important message with standardized format and magenta color.
+    
+    Args:
+        message: Important message to print
+        
+    Educational Value: Shows standardized important message formatting
+    Extension Pattern: Extensions can use for consistent important message display
+    """
+    print(Fore.MAGENTA + f"{EMOJI_IMPORTANT} {message}" + Style.RESET_ALL)

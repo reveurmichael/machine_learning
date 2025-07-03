@@ -30,7 +30,7 @@ ensure_project_root()
 import argparse
 import time
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Dict, Any
 import json
 import os
 
@@ -279,38 +279,49 @@ class HeuristicGameManager(BaseGameManager):
         """Finalize game and save simplified results with proper Task-0 compatibility."""
         # Ensure game end is properly recorded with correct reason
         if not self.game.game_state.game_over:
-            # Determine end reason based on game state
-            end_reason = "UNKNOWN"  # default fallback
-            
-            # Check for collision types first
-            if hasattr(self.game, 'last_collision_type') and self.game.last_collision_type:
-                end_reason = self.game.last_collision_type
-            # Check if game ended due to max steps
-            elif self.game.game_state.steps >= self.args.max_steps:
-                end_reason = "MAX_STEPS_REACHED"
-            # Check if game ended due to consecutive no path found
-            elif self.consecutive_no_path_found >= 5:
-                end_reason = "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED"
-            
-            # Record the game end with proper reason
+            end_reason = self._determine_game_end_reason()
             self.game.game_state.record_game_end(end_reason)
         
-        # Update session stats
+        # Update session statistics
+        self._update_session_stats(game_duration)
+        
+        # Generate and save game data
+        game_data = self._generate_game_data(game_duration)
+        self._save_game_data(game_data)
+        
+        # Display results
+        self._display_game_results(game_duration)
+    
+    def _determine_game_end_reason(self) -> str:
+        """Determine the reason why the game ended."""
+        # Check for collision types first
+        if hasattr(self.game, 'last_collision_type') and self.game.last_collision_type:
+            return self.game.last_collision_type
+        
+        # Check if game ended due to max steps
+        if self.game.game_state.steps >= self.args.max_steps:
+            return "MAX_STEPS_REACHED"
+        
+        # Check if game ended due to consecutive no path found
+        if self.consecutive_no_path_found >= 5:
+            return "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED"
+        
+        return "UNKNOWN"
+    
+    def _update_session_stats(self, game_duration: float) -> None:
+        """Update session-level statistics."""
         self.total_score += self.game.game_state.score
-
         self.game_scores.append(self.game.game_state.score)
-        self.game_steps.append(self.game.game_state.steps)  # Track steps for efficiency metrics
-        self.game_rounds.append(self.round_count)  # Track rounds for round analysis
-
-        # Use HeuristicGameData.generate_game_summary for v0.04 explanation support
+        self.game_steps.append(self.game.game_state.steps)
+        self.game_rounds.append(self.round_count)
+    
+    def _generate_game_data(self, game_duration: float) -> Dict[str, Any]:
+        """Generate game data for JSON output."""
         if hasattr(self.game.game_state, 'generate_game_summary'):
             # Ensure correct grid_size before generating summary
             self.game.game_state.grid_size = self.args.grid_size
             
-            # Use proper game data generation (includes v0.04 explanations)
-            game_data = self.game.game_state.generate_game_summary(
-                primary_provider=self.algorithm_name.lower(),
-                primary_model=self.algorithm_name,
+            return self.game.game_state.generate_game_summary(
                 metadata={
                     "game_number": self.game_count,
                     "round_count": self.round_count,
@@ -318,33 +329,39 @@ class HeuristicGameManager(BaseGameManager):
                 }
             )
         else:
-            # Fallback to manual construction for older versions
-            game_data = {
-                "algorithm": self.algorithm_name,
-                "score": self.game.game_state.score,
-                "steps": self.game.game_state.steps,
-                "round_count": self.round_count,
-                "snake_length": len(self.game.snake_positions),
-                "duration_seconds": round(game_duration, 2),
-                "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'UNKNOWN'),
-                "detailed_history": {
-                    "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
-                    "moves": getattr(self.game.game_state, 'moves', []),
-                    "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {},
-                },
-                "metadata": {
-                    "timestamp": getattr(self.game.game_state, 'timestamp', ''),
-                    "game_number": self.game_count,
-                    "round_count": self.round_count
-                }
+            # Fallback for older versions
+            return self._generate_fallback_game_data(game_duration)
+    
+    def _generate_fallback_game_data(self, game_duration: float) -> Dict[str, Any]:
+        """Generate fallback game data for older versions."""
+        return {
+            "algorithm": self.algorithm_name,
+            "score": self.game.game_state.score,
+            "steps": self.game.game_state.steps,
+            "round_count": self.round_count,
+            "snake_length": len(self.game.snake_positions),
+            "duration_seconds": round(game_duration, 2),
+            "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'UNKNOWN'),
+            "detailed_history": {
+                "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
+                "moves": getattr(self.game.game_state, 'moves', []),
+                "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {},
+            },
+            "metadata": {
+                "timestamp": getattr(self.game.game_state, 'timestamp', ''),
+                "game_number": self.game_count,
+                "round_count": self.round_count
             }
-
-        # self.log_dir 已经是算法目录
+        }
+    
+    def _save_game_data(self, game_data: Dict[str, Any]) -> None:
+        """Save game data to JSON file."""
         game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_filepath, 'w', encoding='utf-8') as f:
-            json.dump(game_data, f, indent=2, default=str)  # Handle numpy types
-
-        # Show results
+            json.dump(game_data, f, indent=2, default=str)
+    
+    def _display_game_results(self, game_duration: float) -> None:
+        """Display game completion results."""
         if self.verbose:
             print_info(f"📊 Game {self.game_count} completed:")
             print_info(f"   Algorithm: {self.algorithm_name}")

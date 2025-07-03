@@ -10,6 +10,7 @@ Design Philosophy:
 - Adds heuristic-specific metrics (algorithm name, path calculations)
 - Maintains same JSON output format as Task-0 for compatibility
 - Uses BaseGameStatistics instead of LLM-specific GameStatistics
+- Custom TimeStats without LLM pollution
 """
 from __future__ import annotations
 
@@ -22,9 +23,35 @@ from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 from typing import Dict, Any, Optional
+from dataclasses import dataclass
+import time
+from datetime import datetime
 
 from core.game_data import BaseGameData
 from core.game_stats_manager import NumPyJSONEncoder
+
+
+@dataclass
+class HeuristicTimeStats:
+    """Time statistics for heuristic algorithms without LLM pollution.
+    
+    This class provides the same timing functionality as TimeStats but
+    excludes LLM-specific fields like llm_communication_time.
+    """
+    start_time: float
+    
+    def record_end_time(self) -> None:
+        """Record the end time."""
+        self.end_time = time.time()
+    
+    def asdict(self) -> dict:
+        """Convert to dictionary for JSON serialization."""
+        end = getattr(self, 'end_time', None) or time.time()
+        return {
+            "start_time": datetime.fromtimestamp(self.start_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": datetime.fromtimestamp(end).strftime("%Y-%m-%d %H:%M:%S"),
+            "total_duration_seconds": end - self.start_time,
+        }
 
 
 class HeuristicGameData(BaseGameData):
@@ -42,6 +69,9 @@ class HeuristicGameData(BaseGameData):
     def __init__(self) -> None:
         """Initialize heuristic game data tracking."""
         super().__init__()
+        
+        # Override time_stats to use heuristic-specific version without LLM pollution
+        self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
         
         # Heuristic-specific tracking
         self.algorithm_name: str = "BFS"  # Default algorithm
@@ -66,6 +96,9 @@ class HeuristicGameData(BaseGameData):
     def reset(self) -> None:
         """Reset game data for new game."""
         super().reset()
+        
+        # Ensure we use heuristic-specific time stats without LLM pollution
+        self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
         
         # Reset heuristic-specific counters
         self.path_calculations = 0
@@ -195,63 +228,64 @@ class HeuristicGameData(BaseGameData):
         - Added grid_size field
         - Fixed step_stats to show correct values
         - Ensured planned_moves matches moves in rounds_data
+        - Fixed game_over and game_end_reason to be accurate
         """
-        # Clean rounds data to remove game_state and ensure planned_moves matches moves
+        # Clean rounds data: remove game_state and ensure planned_moves matches moves
         cleaned_rounds_data = {}
-        original_rounds_data = self.round_manager.get_ordered_rounds_data()
-        
-        for round_key, round_data in original_rounds_data.items():
+        for round_key, round_data in self.round_manager.get_ordered_rounds_data().items():
             cleaned_round = {
                 "round": round_data.get("round", int(round_key)),
                 "apple_position": round_data.get("apple_position", [0, 0])
             }
             
-            # Add moves if present
+            # Add moves if present, with planned_moves matching moves for heuristics
             if "moves" in round_data:
                 cleaned_round["moves"] = round_data["moves"]
-                # Set planned_moves to be the same as moves for heuristics
-                cleaned_round["planned_moves"] = round_data["moves"]
+                cleaned_round["planned_moves"] = round_data["moves"]  # Heuristics: planned = actual
             
             cleaned_rounds_data[round_key] = cleaned_round
         
-        # Create clean time_stats without llm_communication_time
-        time_stats_clean = self.stats.time_stats.asdict()
-        if "llm_communication_time" in time_stats_clean:
-            del time_stats_clean["llm_communication_time"]
+        # Game state (single termination point ensures consistency)
+        game_over = self.game_over
+        game_end_reason = self.game_end_reason
         
-        summary = {
-            # Outcome ---------------------
+        # Time stats (heuristics never have llm_communication_time)
+        time_stats_clean = self.stats.time_stats.asdict()
+        
+        return {
+            # Core outcome data
             "score": self.score,
             "steps": self.steps,
             "snake_length": self.snake_length,
-            "game_over": self.game_over,
-            "game_end_reason": self.game_end_reason,
+            "game_over": game_over,
+            "game_end_reason": game_end_reason,
             "round_count": self.round_manager.round_count,
-            # Grid size for heuristics (Task-0 assumes 10x10)
+            
+            # Heuristic-specific data
             "grid_size": self.grid_size,
-            # Heuristic provenance (simplified, no provider/model)
             "heuristic_info": {
                 "algorithm": self.algorithm_name,
             },
-            # Timings (no LLM communication time)
+            
+            # Statistics
             "time_stats": time_stats_clean,
-            # Step stats (corrected to show actual values)
             "step_stats": self.stats.step_stats.asdict(),
-            # Misc metadata
+            
+            # Metadata
             "metadata": {
                 "timestamp": self.timestamp,
                 "game_number": self.game_number,
                 "round_count": self.round_manager.round_count,
                 **kwargs.get("metadata", {}),
             },
-            # Replay data (cleaned, no game_state or move_explanations)
+            
+            # Replay data (cleaned for Task-0 compatibility)
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
                 "rounds_data": cleaned_rounds_data,
             },
         }
-        return summary
 
     # ---------------------
     # Serialisation helper – mirrors core.GameData.save_game_summary
@@ -277,8 +311,9 @@ class HeuristicGameData(BaseGameData):
         """Record a move and update relevant statistics for heuristics.
         
         This method ensures step_stats are correctly updated for heuristic algorithms.
+        The base class doesn't update step_stats, so we need to do it here.
         """
-        # Call base class method
+        # Call base class method which handles basic move recording
         super().record_move(move, apple_eaten)
         
         # Update step statistics based on move type

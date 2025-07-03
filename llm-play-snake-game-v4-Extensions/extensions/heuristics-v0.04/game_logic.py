@@ -119,59 +119,61 @@ class HeuristicGameLogic(BaseGameLogic):
             # Record start time for performance tracking
             start_time = time.time()
             
-            # Get move from heuristic agent (try v0.04 method first, fallback to v0.03)
-            if hasattr(self.agent, 'get_move_with_explanation'):
-                move, explanation = self.agent.get_move_with_explanation(self)
-                # Store explanation for JSONL dataset generation
-                if isinstance(self.game_state, HeuristicGameData):
-                    self.game_state.record_move_explanation(explanation)
-
-                    # If the explanation is a dictionary with a metrics key,
-                    # extract it so that dataset generation can access a
-                    # *flat* metrics list without reparsing the explanation.
-                    metrics_payload = {}
-                    if isinstance(explanation, dict):
-                        # New schema – metrics stored separately inside dict
-                        metrics_payload = explanation.get("metrics", {})
-                    self.game_state.record_move_metrics(metrics_payload)
-            else:
-                # Fallback for agents that don't support explanations yet
-                move = self.agent.get_move(self)
-                if isinstance(self.game_state, HeuristicGameData):
-                    fallback_explanation = f"Move {move} chosen by {self.algorithm_name} algorithm."
-                    self.game_state.record_move_explanation(fallback_explanation)
-                    self.game_state.record_move_metrics({})
+            # Get move from heuristic agent with explanation support
+            move = self._get_agent_move()
             
-            # Record search time
+            # Record search performance
             search_time = time.time() - start_time
-            
-            # Track pathfinding attempt
-            if isinstance(self.game_state, HeuristicGameData):
-                success = move not in [None, "NO_PATH_FOUND"]
-                path_length = 1 if success else 0  # Heuristics typically return single moves
-                
-                self.game_state.record_pathfinding_attempt(
-                    success=success,
-                    path_length=path_length,
-                    search_time=search_time,
-                    nodes_explored=1  # Simplified - could be enhanced with actual node count
-                )
+            self._record_pathfinding_attempt(move, search_time)
             
             # Return planned moves
-            if move is None or move == "NO_PATH_FOUND":
-                return ["NO_PATH_FOUND"]
-            else:
-                return [move]
+            return [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
                 
         except Exception as e:
             print_error(f"Heuristic planning error: {e}")
-            
-            # Track failed attempt
-            if isinstance(self.game_state, HeuristicGameData):
-                self.game_state.record_pathfinding_attempt(success=False)
-                self.game_state.last_move_explanation = f"Error in {self.algorithm_name}: {str(e)}"
-                
+            self._record_pathfinding_attempt("NO_PATH_FOUND", 0.0, error=str(e))
             return ["NO_PATH_FOUND"]
+    
+    def _get_agent_move(self) -> str:
+        """Get move from agent with explanation support."""
+        if hasattr(self.agent, 'get_move_with_explanation'):
+            move, explanation = self.agent.get_move_with_explanation(self)
+            self._store_explanation(explanation)
+            return move
+        else:
+            # Fallback for agents without explanation support
+            move = self.agent.get_move(self)
+            self._store_explanation(f"Move {move} chosen by {self.algorithm_name} algorithm.")
+            return move
+    
+    def _store_explanation(self, explanation) -> None:
+        """Store move explanation and metrics for dataset generation."""
+        if not isinstance(self.game_state, HeuristicGameData):
+            return
+            
+        self.game_state.record_move_explanation(explanation)
+        
+        # Extract metrics if explanation is a dictionary
+        metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
+        self.game_state.record_move_metrics(metrics)
+    
+    def _record_pathfinding_attempt(self, move: str, search_time: float, error: str = None) -> None:
+        """Record pathfinding attempt for statistics."""
+        if not isinstance(self.game_state, HeuristicGameData):
+            return
+            
+        success = move not in [None, "NO_PATH_FOUND"]
+        path_length = 1 if success else 0
+        
+        self.game_state.record_pathfinding_attempt(
+            success=success,
+            path_length=path_length,
+            search_time=search_time,
+            nodes_explored=1  # Simplified - could be enhanced with actual node count
+        )
+        
+        if error:
+            self.game_state.last_move_explanation = f"Error in {self.algorithm_name}: {error}"
     
     def get_next_planned_move(self) -> str:
         """

@@ -181,7 +181,6 @@ The `scripts/` directory is **mandatory for all v0.03 extensions** and implement
 ```
 extensions/{algorithm}-v0.03/
 ├── app.py                      # Streamlit application (launches scripts)
-├── dashboard/                  # UI components (orchestrates script execution)
 ├── scripts/                    # 🎯 MANDATORY: Backend execution scripts
 │   ├── __init__.py
 │   ├── main.py                 # Primary algorithm execution
@@ -227,7 +226,6 @@ def main():
     parser.add_argument("--grid-size", type=int, default=10)
     parser.add_argument("--max-games", type=int, default=1)
     parser.add_argument("--output-dir", type=Path, default=None)
-    parser.add_argument("--visualization", action="store_true")
     parser.add_argument("--verbose", action="store_true")
     
     args = parser.parse_args()

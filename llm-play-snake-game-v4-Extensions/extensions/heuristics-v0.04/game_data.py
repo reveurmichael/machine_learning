@@ -54,6 +54,9 @@ class HeuristicGameData(BaseGameData):
         self.total_search_time: float = 0.0
         self.nodes_explored: int = 0
         
+        # Grid size (will be set by game logic)
+        self.grid_size: int = 10  # Default, will be overridden
+        
         # v0.04 Enhancement: Store move explanations for JSONL dataset generation
         self.last_move_explanation: str = ""
         self.move_explanations: list[str] = []  # Store all explanations for this game
@@ -183,7 +186,39 @@ class HeuristicGameData(BaseGameData):
         prompt/response timings, etc.) are **omitted** here while retaining
         identical keys for the shared data blocks (time_stats, step_stats,
         detailed_history, …).
+        
+        Changes for Task-0 compatibility:
+        - Removed heuristic_info->primary_provider and primary_model 
+        - Removed time_stats->llm_communication_time
+        - Removed detailed_history->rounds_data->N->game_state
+        - Removed detailed_history->move_explanations
+        - Added grid_size field
+        - Fixed step_stats to show correct values
+        - Ensured planned_moves matches moves in rounds_data
         """
+        # Clean rounds data to remove game_state and ensure planned_moves matches moves
+        cleaned_rounds_data = {}
+        original_rounds_data = self.round_manager.get_ordered_rounds_data()
+        
+        for round_key, round_data in original_rounds_data.items():
+            cleaned_round = {
+                "round": round_data.get("round", int(round_key)),
+                "apple_position": round_data.get("apple_position", [0, 0])
+            }
+            
+            # Add moves if present
+            if "moves" in round_data:
+                cleaned_round["moves"] = round_data["moves"]
+                # Set planned_moves to be the same as moves for heuristics
+                cleaned_round["planned_moves"] = round_data["moves"]
+            
+            cleaned_rounds_data[round_key] = cleaned_round
+        
+        # Create clean time_stats without llm_communication_time
+        time_stats_clean = self.stats.time_stats.asdict()
+        if "llm_communication_time" in time_stats_clean:
+            del time_stats_clean["llm_communication_time"]
+        
         summary = {
             # Outcome ---------------------
             "score": self.score,
@@ -192,30 +227,28 @@ class HeuristicGameData(BaseGameData):
             "game_over": self.game_over,
             "game_end_reason": self.game_end_reason,
             "round_count": self.round_manager.round_count,
-            # Heuristic provenance -------------
+            # Grid size for heuristics (Task-0 assumes 10x10)
+            "grid_size": self.grid_size,
+            # Heuristic provenance (simplified, no provider/model)
             "heuristic_info": {
                 "algorithm": self.algorithm_name,
-                "primary_provider": primary_provider,
-                "primary_model": primary_model,
             },
-            # Timings / generic stats ----------
-            "time_stats": self.stats.time_stats.asdict(),
+            # Timings (no LLM communication time)
+            "time_stats": time_stats_clean,
+            # Step stats (corrected to show actual values)
             "step_stats": self.stats.step_stats.asdict(),
-            # Misc metadata --------------------
+            # Misc metadata
             "metadata": {
                 "timestamp": self.timestamp,
                 "game_number": self.game_number,
+                "round_count": self.round_manager.round_count,
                 **kwargs.get("metadata", {}),
             },
-            # Replay data ---------------------
+            # Replay data (cleaned, no game_state or move_explanations)
             "detailed_history": {
                 "apple_positions": self.apple_positions,
                 "moves": self.moves,
-                "rounds_data": self.round_manager.get_ordered_rounds_data(),
-                # v0.04 Enhancement: Include move explanations for JSONL dataset generation
-                "move_explanations": self.move_explanations,
-                # v0.04 Enhancement: Include structured metrics per move
-                "move_metrics": self.move_metrics,
+                "rounds_data": cleaned_rounds_data,
             },
         }
         return summary
@@ -238,4 +271,31 @@ class HeuristicGameData(BaseGameData):
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=2)
 
-        return summary_dict 
+        return summary_dict
+
+    def record_move(self, move: str, apple_eaten: bool = False) -> None:
+        """Record a move and update relevant statistics for heuristics.
+        
+        This method ensures step_stats are correctly updated for heuristic algorithms.
+        """
+        # Call base class method
+        super().record_move(move, apple_eaten)
+        
+        # Update step statistics based on move type
+        if move == "INVALID_REVERSAL":
+            self.stats.step_stats.invalid_reversals += 1
+        elif move == "NO_PATH_FOUND":
+            self.stats.step_stats.no_path_found += 1
+        else:
+            # Valid move (UP, DOWN, LEFT, RIGHT)
+            self.stats.step_stats.valid += 1
+
+    def record_game_end(self, reason: str) -> None:
+        """Record the end of a game with proper heuristic timing.
+        
+        Args:
+            reason: The reason the game ended (from END_REASON_MAP)
+        """
+        if not self.game_over:
+            self.stats.time_stats.record_end_time()
+        super().record_game_end(reason) 

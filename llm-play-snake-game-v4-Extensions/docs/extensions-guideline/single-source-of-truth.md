@@ -19,8 +19,7 @@ The Single Source of Truth (SSOT) principle ensures that every piece of informat
 | Level | Location | Purpose | Example |
 |-------|----------|---------|---------|
 | **Universal** | `config/` | Core game rules, UI, coordinate system | `VALID_MOVES`, `DIRECTIONS` |
-| **Shared Extension** | `extensions/common/config/` | Cross-extension settings | `DEFAULT_LEARNING_RATE` |
-| **Type-Specific** | `extensions/{type}/config/` | Algorithm-specific settings | `HEURISTIC_ALGORITHMS` |
+| **Shared Extension** | `extensions/common/config/` | Cross-extension settings |  ???? |
 | **Experiment** | Local to script | Runtime parameters | CLI flags, YAML configs |
 
 ### **Path Management SSOT**
@@ -131,31 +130,6 @@ save_dataset(data, algorithm, model_type)  # Centralized decision
 - **Clear Learning Path**: One place to learn each concept
 - **Reduced Confusion**: No contradictory information
 - **Focused Documentation**: Each document has one clear purpose
-
-## 🔍 **SSOT Validation**
-
-### **Automated Checks**
-```python
-# extensions/common/validation/ssot_validator.py
-
-def validate_configuration_ssot():
-    """Ensure no configuration duplication"""
-    # Check for duplicate constant definitions
-    # Validate all imports point to authoritative sources
-    # Verify no local redefinitions
-
-def validate_path_ssot():
-    """Ensure path logic is centralized"""
-    # Check for manual path construction
-    # Validate use of path utilities
-    # Verify no duplicate path logic
-
-def validate_format_ssot():
-    """Ensure format decisions are centralized"""
-    # Check for local format decisions
-    # Validate use of centralized format utilities
-    # Verify adherence to format guide
-```
 
 ### **Manual Review Checklist**
 - [ ] No duplicate constant definitions

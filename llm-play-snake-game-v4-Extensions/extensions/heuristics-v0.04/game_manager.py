@@ -109,6 +109,9 @@ class HeuristicGameManager(BaseGameManager):
         # Configure game with agent
         if isinstance(self.game, HeuristicGameLogic) and self.agent:
             self.game.set_agent(self.agent)
+            # Ensure grid_size is set correctly
+            if hasattr(self.game.game_state, 'grid_size'):
+                self.game.game_state.grid_size = self.args.grid_size
 
         print_success(f"🤖 Heuristics v0.04 initialized with {self.algorithm_name} algorithm")
         if self.verbose and self.agent:
@@ -218,6 +221,9 @@ class HeuristicGameManager(BaseGameManager):
         self.setup_game()
         if isinstance(self.game, HeuristicGameLogic) and self.agent:
             self.game.set_agent(self.agent)
+            # Ensure grid_size is set correctly
+            if hasattr(self.game.game_state, 'grid_size'):
+                self.game.game_state.grid_size = self.args.grid_size
 
         # Reset game manager state for new game
         self.game_active = True
@@ -270,7 +276,25 @@ class HeuristicGameManager(BaseGameManager):
         self._finalize_game(game_duration)
 
     def _finalize_game(self, game_duration: float) -> None:
-        """Finalize game and save simplified results (no Task-0 compatibility)."""
+        """Finalize game and save simplified results with proper Task-0 compatibility."""
+        # Ensure game end is properly recorded with correct reason
+        if not self.game.game_state.game_over:
+            # Determine end reason based on game state
+            end_reason = "UNKNOWN"  # default fallback
+            
+            # Check for collision types first
+            if hasattr(self.game, 'last_collision_type') and self.game.last_collision_type:
+                end_reason = self.game.last_collision_type
+            # Check if game ended due to max steps
+            elif self.game.game_state.steps >= self.args.max_steps:
+                end_reason = "MAX_STEPS_REACHED"
+            # Check if game ended due to consecutive no path found
+            elif self.consecutive_no_path_found >= 5:
+                end_reason = "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED"
+            
+            # Record the game end with proper reason
+            self.game.game_state.record_game_end(end_reason)
+        
         # Update session stats
         self.total_score += self.game.game_state.score
 
@@ -280,6 +304,9 @@ class HeuristicGameManager(BaseGameManager):
 
         # Use HeuristicGameData.generate_game_summary for v0.04 explanation support
         if hasattr(self.game.game_state, 'generate_game_summary'):
+            # Ensure correct grid_size before generating summary
+            self.game.game_state.grid_size = self.args.grid_size
+            
             # Use proper game data generation (includes v0.04 explanations)
             game_data = self.game.game_state.generate_game_summary(
                 primary_provider=self.algorithm_name.lower(),

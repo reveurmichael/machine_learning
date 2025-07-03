@@ -62,27 +62,30 @@ class HeuristicGameLogic(BaseGameLogic):
     game_state: HeuristicGameData
     planned_moves: List[str]
     
-    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = False) -> None:
+    def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
         """
-        Initialize heuristic game logic.
+        Initialize heuristic game logic with pathfinding capabilities.
         
         Args:
-            grid_size: Size of the game grid
-            use_gui: Whether to use GUI (default False for heuristics)
+            grid_size: Size of the game grid (default from config)
+            use_gui: Whether to use GUI (default True, can be disabled for headless)
         """
-        # Heuristics are headless by default
         super().__init__(grid_size=grid_size, use_gui=use_gui)
         
-        # Heuristic-specific initialization
+        # Heuristic-specific attributes
         self.agent: Optional[BFSAgent] = None
         # Default algorithm name before an agent is set
         self.algorithm_name: str = "BFS-Safe-Greedy"
         
-        # Ensure we have the correct data type
+        # Ensure we have the correct data type and grid_size is set
         # Note: game_state is initialized in super().__init__(), so we can safely access it here
         if not isinstance(self.game_state, HeuristicGameData):
             self.game_state = HeuristicGameData()
             self.game_state.reset()
+        
+        # Ensure game_state has grid_size for JSON output
+        if isinstance(self.game_state, HeuristicGameData):
+            self.game_state.grid_size = grid_size
     
     def set_agent(self, agent: BFSAgent) -> None:
         """
@@ -94,9 +97,10 @@ class HeuristicGameLogic(BaseGameLogic):
         self.agent = agent
         self.algorithm_name = getattr(agent, 'algorithm_name', 'Unknown')
         
-        # Update game data with algorithm info
+        # Update game data with algorithm info and grid_size
         if isinstance(self.game_state, HeuristicGameData):
             self.game_state.algorithm_name = self.algorithm_name
+            self.game_state.grid_size = self.grid_size  # Set actual grid size
     
     def plan_next_moves(self) -> List[str]:
         """

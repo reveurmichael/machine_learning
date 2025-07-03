@@ -7,10 +7,33 @@ and display formatting. It provides a single source of truth for all print-relat
 functionality across the project.
 """
 
+# -------------------------------------------------------------
+# Colour / encoding helpers
+# -------------------------------------------------------------
+import sys
 from colorama import Fore, Style, init as _colorama_init
 
 # Initialize Colorama (auto-reset to avoid manual Style.RESET_ALL)
 _colorama_init(autoreset=True)
+
+# Detect whether the active stdout encoding reliably supports emoji.
+# On Windows with non-UTF code pages (e.g. GBK) printing emoji triggers
+# `UnicodeEncodeError`.  We therefore strip emoji in such environments.
+
+_ENCODING_IS_UTF = bool(sys.stdout.encoding and 'utf' in sys.stdout.encoding.lower())
+
+def _safe_text(text: str) -> str:
+    """Return *text* unchanged if console encoding is UTF-capable; otherwise
+    replace characters that cannot be encoded.
+    """
+    if _ENCODING_IS_UTF:
+        return text
+    try:
+        text.encode(sys.stdout.encoding)  # type: ignore[arg-type]
+        return text  # No error → safe
+    except UnicodeEncodeError:
+        # Fallback: replace un-encodable characters
+        return text.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding)
 
 # Default emoji constants for consistent usage
 # These can be overridden by passing custom emoji to print functions
@@ -44,7 +67,8 @@ def print_info(message: str, prefix: str = "INFO") -> None:
     Educational Value: Shows standardized info message formatting
     Extension Pattern: Extensions can use for consistent info display
     """
-    print(Fore.CYAN + f"[{prefix}] {message}" + Style.RESET_ALL)
+    text = _safe_text(f"[{prefix}] {message}")
+    print(Fore.CYAN + text + Style.RESET_ALL)
 
 
 def print_warning(message: str, emoji: str = DEFAULT_EMOJI_WARNING) -> None:
@@ -57,7 +81,8 @@ def print_warning(message: str, emoji: str = DEFAULT_EMOJI_WARNING) -> None:
     Educational Value: Shows standardized warning message formatting
     Extension Pattern: Extensions can use for consistent warning display
     """
-    print(Fore.YELLOW + f"{emoji} {message}" + Style.RESET_ALL)
+    text = _safe_text(f"{emoji} {message}")
+    print(Fore.YELLOW + text + Style.RESET_ALL)
 
 
 def print_error(message: str, emoji: str = DEFAULT_EMOJI_ERROR) -> None:
@@ -70,7 +95,8 @@ def print_error(message: str, emoji: str = DEFAULT_EMOJI_ERROR) -> None:
     Educational Value: Shows standardized error message formatting
     Extension Pattern: Extensions can use for consistent error display
     """
-    print(Fore.RED + f"{emoji} {message}" + Style.RESET_ALL)
+    text = _safe_text(f"{emoji} {message}")
+    print(Fore.RED + text + Style.RESET_ALL)
 
 
 def print_success(message: str, emoji: str = DEFAULT_EMOJI_SUCCESS) -> None:
@@ -83,7 +109,8 @@ def print_success(message: str, emoji: str = DEFAULT_EMOJI_SUCCESS) -> None:
     Educational Value: Shows standardized success message formatting
     Extension Pattern: Extensions can use for consistent success display
     """
-    print(Fore.GREEN + f"{emoji} {message}" + Style.RESET_ALL)
+    text = _safe_text(f"{emoji} {message}")
+    print(Fore.GREEN + text + Style.RESET_ALL)
 
 
 def print_important(message: str, emoji: str = DEFAULT_EMOJI_IMPORTANT) -> None:
@@ -96,4 +123,5 @@ def print_important(message: str, emoji: str = DEFAULT_EMOJI_IMPORTANT) -> None:
     Educational Value: Shows standardized important message formatting
     Extension Pattern: Extensions can use for consistent important message display
     """
-    print(Fore.MAGENTA + f"{emoji} {message}" + Style.RESET_ALL)
+    text = _safe_text(f"{emoji} {message}")
+    print(Fore.MAGENTA + text + Style.RESET_ALL)

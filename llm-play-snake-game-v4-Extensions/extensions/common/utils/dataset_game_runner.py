@@ -60,12 +60,26 @@ def run_heuristic_games(
     # Get heuristics-v0.04 directory path
     heuristics_dir = Path(__file__).resolve().parents[2] / "heuristics-v0.04"
     
+    # ------------------------------------------------------------------
+    # Compute a **safe** timeout value.
+    # Windows `subprocess` uses a C long for thread join which overflows for
+    # very large floats (see CPython issue #31044).  Empirically, anything
+    # above ~2^31-1 milliseconds (~24 days) will raise *OverflowError* on
+    # Windows when `process.communicate()` calls `thread.join()`.
+    #
+    # We therefore clamp the timeout to a *reasonable* upper bound while still
+    # preserving the original heuristic of *30 seconds per game*.
+    # ------------------------------------------------------------------
+    calculated_timeout = max(300, max_games * 30)  # (seconds)
+    SAFE_TIMEOUT_CEILING = 24 * 60 * 60  # 24 hours in seconds
+    timeout_sec = min(calculated_timeout, SAFE_TIMEOUT_CEILING)
+
     result = subprocess.run(
         cmd,
         cwd=str(heuristics_dir),
         capture_output=True,
         text=True,
-        timeout=max(300, max_games * 30)  # Rough timeout: 30s per game
+        timeout=timeout_sec
     )
 
     log_dirs: List[str] = []

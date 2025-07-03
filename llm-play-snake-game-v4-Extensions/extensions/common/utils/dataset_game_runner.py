@@ -19,6 +19,7 @@ import subprocess
 import json
 from typing import List, Dict, Any
 from utils.print_utils import print_info, print_warning, print_error, print_success
+import os
 
 __all__ = ["run_heuristic_games", "load_game_logs"]
 
@@ -74,11 +75,18 @@ def run_heuristic_games(
     SAFE_TIMEOUT_CEILING = 24 * 60 * 60  # 24 hours in seconds
     timeout_sec = min(calculated_timeout, SAFE_TIMEOUT_CEILING)
 
+    env = os.environ.copy()
+    # Force UTF-8 for stdout/stderr of the child process so emoji prints do
+    # not hit "UnicodeEncodeError: 'gbk' codec can't encode character …" on
+    # Windows consoles using legacy code pages.
+    env.setdefault("PYTHONIOENCODING", "utf-8")
+
     result = subprocess.run(
         cmd,
         cwd=str(heuristics_dir),
         capture_output=True,
         text=True,
+        env=env,
         timeout=timeout_sec
     )
 

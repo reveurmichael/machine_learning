@@ -19,9 +19,13 @@ Usage:
 
 import sys
 import argparse
+import pathlib
 from pathlib import Path
 
-# Ensure project root in sys.path
+# Ensure project root in sys.path for imports
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
+# Now we can import from utils
 from utils.path_utils import ensure_project_root
 
 PROJECT_ROOT = ensure_project_root()

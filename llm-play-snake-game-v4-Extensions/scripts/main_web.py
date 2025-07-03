@@ -19,11 +19,16 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import pathlib
 from pathlib import Path
 
 # --------------------------------------------------------------------------- #
 # 1. Ensure repository root on sys.path and find template/static directories  #
 # --------------------------------------------------------------------------- #
+# Ensure project root in sys.path for imports
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
+# Now we can import from utils
 from utils.path_utils import ensure_project_root
 
 REPO_ROOT = ensure_project_root()

@@ -21,7 +21,7 @@ Stable Baselines3 (SB3) provides state-of-the-art reinforcement learning algorit
 ### **Guidelines Alignment**
 - **final-decision-10.md Guideline 1**: Follows all established GOOD_RULES patterns
 - **final-decision-10.md Guideline 2**: References `final-decision-N.md` format consistently  
-- **simple logging**: Uses lightweight, OOP-based common utilities with simple logging (print() statements)
+- **simple logging**: Uses lightweight, OOP-based common utilities with simple logging using only the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`). Never use raw print().
 
 ### **Design Philosophy**
 - **Framework Integration**: Seamless integration with existing extensions architecture

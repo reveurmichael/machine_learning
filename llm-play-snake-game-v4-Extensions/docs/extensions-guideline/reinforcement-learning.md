@@ -533,7 +533,7 @@ class RLTrainingPipeline:
             self.agent.save_model(agent_path)
         else:
             torch.save(self.agent.state_dict(), agent_path)
-        print(f"[RLTrainingPipeline] Agent saved to {agent_path}")  # Simple logging
+        print_success(f"[RLTrainingPipeline] Agent saved to {agent_path}")  # SUPREME_RULES compliant logging
 ```
 
 ## 📋 **Implementation Checklist**
@@ -543,7 +543,7 @@ class RLTrainingPipeline:
 - [ ] **Agent Architecture**: Implements appropriate RL algorithm
 - [ ] **Environment Interface**: Proper environment interaction
 - [ ] **Training Pipeline**: Standardized training workflow
-- [ ] **Simple Logging**: Uses print() statements for debugging
+- [ ] **Simple Logging**: Uses only print_utils functions (print_info, print_warning, print_success, print_error) for all logging, never raw print().
 
 ### **Quality Standards**
 - [ ] **Agent Performance**: Meets performance benchmarks

@@ -11,6 +11,7 @@ The "No Over-Preparation" principle ensures that extensions remain focused, main
 - **Educational Clarity**: Avoid complexity that obscures learning objectives
 - **Iterative Enhancement**: Add features when actually needed, not preemptively
 - **Concrete Implementation**: Prefer working solutions over abstract frameworks
+- **Simple Logging**: All logging must use the print functions from `ROOT/utils/print_utils.py` (such as `print_info`, `print_warning`, `print_success`, `print_error`, `print_important`). Never use raw print(). Strictly follow SUPREME_RULES from `final-decision-10.md`.
 
 ### **Core Philosophy**
 - **Educational Project**: Encourages experimentation and learning

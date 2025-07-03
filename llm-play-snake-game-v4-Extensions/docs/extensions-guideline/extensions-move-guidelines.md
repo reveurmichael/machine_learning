@@ -151,6 +151,8 @@ from extensions.common.utils.csv_schema_utils import create_csv_row
 
 ### **Configuration Updates**
 ```python
+from utils.print_utils import print_info, print_warning, print_success, print_error
+
 class MoveConfiguration:
     """Configuration for extension moves"""
     
@@ -158,7 +160,7 @@ class MoveConfiguration:
         self.source_version = source_version
         self.target_version = target_version
         self.adaptations = self._get_adaptations()
-        print(f"[MoveConfiguration] Configured for {source_version} → {target_version}")  # SUPREME_RULES compliant logging
+        print_info(f"[MoveConfiguration] Configured for {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     def _get_adaptations(self) -> dict:
         """Get required adaptations for move"""
@@ -212,10 +214,10 @@ def validate_source_extension(extension_path: Path) -> bool:
     
     for file_path in required_files:
         if not (extension_path / file_path).exists():
-            print(f"[Validation] Missing required file: {file_path}")  # SUPREME_RULES compliant logging
+            print_warning(f"[Validation] Missing required file: {file_path}")  # SUPREME_RULES compliant logging
             return False
     
-    print(f"[Validation] Source extension validated")  # SUPREME_RULES compliant logging
+    print_success(f"[Validation] Source extension validated")  # SUPREME_RULES compliant logging
     return True
 ```
 
@@ -232,7 +234,7 @@ def validate_target_extension(extension_path: Path) -> bool:
     
     for dir_path in required_dirs:
         if not (extension_path / dir_path).exists():
-            print(f"[Validation] Missing required directory: {dir_path}")  # SUPREME_RULES compliant logging
+            print_warning(f"[Validation] Missing required directory: {dir_path}")  # SUPREME_RULES compliant logging
             return False
     
     # Check for forbidden patterns
@@ -244,10 +246,10 @@ def validate_target_extension(extension_path: Path) -> bool:
     
     for pattern in forbidden_patterns:
         if contains_pattern(extension_path, pattern):
-            print(f"[Validation] Found forbidden pattern: {pattern}")  # SUPREME_RULES compliant logging
+            print_error(f"[Validation] Found forbidden pattern: {pattern}")  # SUPREME_RULES compliant logging
             return False
     
-    print(f"[Validation] Target extension validated")  # SUPREME_RULES compliant logging
+    print_success(f"[Validation] Target extension validated")  # SUPREME_RULES compliant logging
     return True
 ```
 
@@ -257,7 +259,7 @@ def validate_target_extension(extension_path: Path) -> bool:
 ```python
 def automate_extension_move(source_version: str, target_version: str):
     """Automate extension move process"""
-    print(f"[Automation] Starting automated move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
+    print_info(f"[Automation] Starting automated move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     # Create move manager
     move_manager = ExtensionMoveFactory.create("HEURISTICS", 
@@ -269,9 +271,9 @@ def automate_extension_move(source_version: str, target_version: str):
     
     # Validate result
     if validate_target_extension(Path(f"extensions/heuristics-{target_version}")):
-        print(f"[Automation] Move completed successfully")  # SUPREME_RULES compliant logging
+        print_success(f"[Automation] Move completed successfully")  # SUPREME_RULES compliant logging
     else:
-        print(f"[Automation] Move validation failed")  # SUPREME_RULES compliant logging
+        print_error(f"[Automation] Move validation failed")  # SUPREME_RULES compliant logging
 ```
 
 ## 📋 **Implementation Checklist**

@@ -37,22 +37,25 @@ extensions/{algorithm}-v0.02/
 All v0.02 extensions must use the canonical method name `create()` for instantiation:
 
 ```python
+from utils.print_utils import print_info
+
 class HeuristicAgentFactory:
-    _registry = {
+    """Simple factory for current needs"""
+    
+    _agents = {
         "BFS": BFSAgent,
         "ASTAR": AStarAgent,
-        "DFS": DFSAgent,
-        "HAMILTONIAN": HamiltonianAgent,
+        "DFS": DFSAgent
     }
     
     @classmethod
-    def create(cls, algorithm: str, **kwargs):  # CANONICAL create() method per SUPREME_RULES
-        """Create agent using canonical create() method following SUPREME_RULES from final-decision-10.md"""
-        agent_class = cls._registry.get(algorithm.upper())
+    def create(cls, algorithm: str, grid_size: int) -> BaseAgent:
+        """Create agent directly without over-engineering"""
+        agent_class = cls._agents.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
-        return agent_class(**kwargs)
+        print_info(f"[HeuristicAgentFactory] Creating agent: {algorithm}")
+        return agent_class(algorithm, grid_size)
 ```
 
 ## 🚀 **Implementation Examples**
@@ -61,13 +64,14 @@ class HeuristicAgentFactory:
 ```python
 # agents/agent_bfs.py
 from core.game_agents import BaseAgent
+from utils.print_utils import print_info
 
 class BFSAgent(BaseAgent):
     """Breadth-First Search agent for v0.02."""
     
     def __init__(self, name: str = "BFS"):
         super().__init__(name)
-        print(f"[BFSAgent] Initialized BFS agent")  # Simple logging
+        print_info(f"[BFSAgent] Initialized BFS agent")
     
     def plan_move(self, game_state: dict) -> str:
         """Plan next move using BFS"""
@@ -106,7 +110,8 @@ class AStarAgent(BaseAgent):
     
     def __init__(self, name: str = "ASTAR"):
         super().__init__(name)
-        print(f"[AStarAgent] Initialized A* agent")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[AStarAgent] Initialized A* agent")
     
     def plan_move(self, game_state: dict) -> str:
         """Plan next move using A*"""
@@ -160,7 +165,8 @@ class DFSAgent(BaseAgent):
     
     def __init__(self, name: str = "DFS"):
         super().__init__(name)
-        print(f"[DFSAgent] Initialized DFS agent")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DFSAgent] Initialized DFS agent")
     
     def plan_move(self, game_state: dict) -> str:
         """Plan next move using DFS"""
@@ -207,6 +213,7 @@ from .agents.agent_bfs import BFSAgent
 from .agents.agent_astar import AStarAgent
 from .agents.agent_dfs import DFSAgent
 from .agents.agent_hamiltonian import HamiltonianAgent
+from utils.print_utils import print_info
 
 class HeuristicGameManager(BaseGameManager):
     """
@@ -220,7 +227,7 @@ class HeuristicGameManager(BaseGameManager):
         self.algorithm = algorithm
         self.max_games = max_games
         self.agent = self.create(algorithm)
-        print(f"[HeuristicGameManager] Initialized with {algorithm}")  # Simple logging
+        print_info(f"[HeuristicGameManager] Initialized with {algorithm}")
     
     def create(self, algorithm: str):
         """Create agent using factory pattern"""
@@ -238,12 +245,12 @@ class HeuristicGameManager(BaseGameManager):
     
     def run_comparison(self, algorithms: list) -> dict:
         """Run comparison between multiple algorithms"""
-        print(f"[HeuristicGameManager] Running comparison for {algorithms}")  # Simple logging
+        print_info(f"[HeuristicGameManager] Running comparison for {algorithms}")
         
         comparison_results = {}
         
         for algorithm in algorithms:
-            print(f"[HeuristicGameManager] Testing {algorithm}")  # Simple logging
+            print_info(f"[HeuristicGameManager] Testing {algorithm}")
             
             # Create agent for this algorithm
             self.agent = self.create(algorithm)
@@ -256,6 +263,7 @@ class HeuristicGameManager(BaseGameManager):
     
     def run_multiple_games(self) -> dict:
         """Run multiple games with current agent"""
+        from utils.print_utils import print_info, print_warning
         results = {
             'algorithm': self.agent.name,
             'games_played': 0,
@@ -266,7 +274,7 @@ class HeuristicGameManager(BaseGameManager):
         }
         
         for game_id in range(self.max_games):
-            print(f"[HeuristicGameManager] Running game {game_id + 1} with {self.agent.name}")  # Simple logging
+            print_info(f"[HeuristicGameManager] Running game {game_id + 1} with {self.agent.name}")
             
             try:
                 game_result = self.run_single_game()
@@ -276,10 +284,10 @@ class HeuristicGameManager(BaseGameManager):
                 if game_result['success']:
                     results['successful_games'] += 1
                 
-                print(f"[HeuristicGameManager] Game {game_id + 1} completed, score: {game_result['score']}")  # Simple logging
+                print_info(f"[HeuristicGameManager] Game {game_id + 1} completed, score: {game_result['score']}")
                 
             except Exception as e:
-                print(f"[HeuristicGameManager] ERROR in game {game_id + 1}: {e}")  # Simple logging
+                print_warning(f"[HeuristicGameManager] ERROR in game {game_id + 1}: {e}")
                 continue
         
         # Calculate averages
@@ -310,6 +318,7 @@ sys.path.insert(0, str(project_root))
 
 from extensions.common.utils.path_utils import ensure_project_root
 from game_manager import HeuristicGameManager
+from utils.print_utils import print_info
 
 def main():
     """Main execution function with algorithm comparison"""
@@ -339,26 +348,26 @@ def main():
         results = manager.run_comparison(algorithms_to_test)
         
         # Print comparison results
-        print(f"\nAlgorithm Comparison Results:")
-        print(f"  Grid Size: {args.grid_size}x{args.grid_size}")
-        print(f"  Games per Algorithm: {args.max_games}")
-        print(f"  {'Algorithm':<12} {'Avg Score':<10} {'Success Rate':<12}")
-        print(f"  {'-'*12} {'-'*10} {'-'*12}")
+        print_info(f"\nAlgorithm Comparison Results:")
+        print_info(f"  Grid Size: {args.grid_size}x{args.grid_size}")
+        print_info(f"  Games per Algorithm: {args.max_games}")
+        print_info(f"  {'Algorithm':<12} {'Avg Score':<10} {'Success Rate':<12}")
+        print_info(f"  {'-'*12} {'-'*10} {'-'*12}")
         
         for algorithm, result in results.items():
-            print(f"  {algorithm:<12} {result['average_score']:<10.2f} {result['success_rate']:<12.2%}")
+            print_info(f"  {algorithm:<12} {result['average_score']:<10.2f} {result['success_rate']:<12.2%}")
         
     else:
         # Run single algorithm
         results = manager.run_multiple_games()
         
         # Print single algorithm results
-        print(f"\nSingle Algorithm Results:")
-        print(f"  Algorithm: {results['algorithm']}")
-        print(f"  Grid Size: {args.grid_size}x{args.grid_size}")
-        print(f"  Games Played: {results['games_played']}")
-        print(f"  Average Score: {results['average_score']:.2f}")
-        print(f"  Success Rate: {results['success_rate']:.2%}")
+        print_info(f"\nSingle Algorithm Results:")
+        print_info(f"  Algorithm: {results['algorithm']}")
+        print_info(f"  Grid Size: {args.grid_size}x{args.grid_size}")
+        print_info(f"  Games Played: {results['games_played']}")
+        print_info(f"  Average Score: {results['average_score']:.2f}")
+        print_info(f"  Success Rate: {results['success_rate']:.2%}")
     
     return results
 

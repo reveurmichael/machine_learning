@@ -116,10 +116,15 @@ class DatasetGenerator:
 
         moves_history = game_data.get('detailed_history', {}).get('moves', [])
         explanations = game_data.get('detailed_history', {}).get('move_explanations', [])
+        metrics_list = game_data.get('detailed_history', {}).get('move_metrics', [])
         
         # Pad explanations if needed
         while len(explanations) < len(moves_history):
             explanations.append("No explanation provided.")
+
+        # Pad metrics list if needed
+        while len(metrics_list) < len(moves_history):
+            metrics_list.append({})
 
         print_info(f"Processing game with {len(moves_history)} moves...", "DatasetGenerator")
 
@@ -135,7 +140,8 @@ class DatasetGenerator:
             record = {
                 "game_state": game_state,
                 "move": move,
-                "explanation": explanations[i]
+                "explanation": explanations[i],
+                "metrics": metrics_list[i]
             }
 
             # Write to JSONL
@@ -161,13 +167,17 @@ class DatasetGenerator:
         game_state = record['game_state']
         prompt = self._format_prompt(game_state)
         
+        explanation = record.get('explanation', "")
+        algorithm = game_state.get('algorithm', self.algorithm)
+
         completion = {
             "move": record['move'],
-            "explanation": record['explanation'],
-            "algorithm": game_state.get('algorithm', self.algorithm)
+            "algorithm": algorithm,
+            "metrics": record.get('metrics', {}),
+            "explanation": explanation
         }
-        
-        return {"prompt": prompt, "completion": json.dumps(completion)}
+
+        return {"prompt": prompt, "completion": json.dumps(completion, ensure_ascii=False)}
 
     def _extract_csv_features(self, record: dict) -> dict:
         """

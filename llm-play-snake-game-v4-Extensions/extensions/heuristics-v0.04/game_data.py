@@ -57,6 +57,8 @@ class HeuristicGameData(BaseGameData):
         # v0.04 Enhancement: Store move explanations for JSONL dataset generation
         self.last_move_explanation: str = ""
         self.move_explanations: list[str] = []  # Store all explanations for this game
+        # v0.04 Enhancement: Store structured metrics per move
+        self.move_metrics: list[dict] = []
         
     def reset(self) -> None:
         """Reset game data for new game."""
@@ -73,6 +75,7 @@ class HeuristicGameData(BaseGameData):
         # Reset v0.04 explanation tracking
         self.last_move_explanation = ""
         self.move_explanations = []
+        self.move_metrics = []
     
     def record_pathfinding_attempt(self, success: bool, path_length: int = 0, 
                                  search_time: float = 0.0, nodes_explored: int = 0) -> None:
@@ -110,6 +113,10 @@ class HeuristicGameData(BaseGameData):
         """
         self.move_explanations.append(explanation)
         self.last_move_explanation = explanation
+    
+    def record_move_metrics(self, metrics: dict) -> None:
+        """Record structured metrics for the current move."""
+        self.move_metrics.append(metrics)
     
     def get_heuristic_stats(self) -> Dict[str, Any]:
         """
@@ -207,6 +214,8 @@ class HeuristicGameData(BaseGameData):
                 "rounds_data": self.round_manager.get_ordered_rounds_data(),
                 # v0.04 Enhancement: Include move explanations for JSONL dataset generation
                 "move_explanations": self.move_explanations,
+                # v0.04 Enhancement: Include structured metrics per move
+                "move_metrics": self.move_metrics,
             },
         }
         return summary

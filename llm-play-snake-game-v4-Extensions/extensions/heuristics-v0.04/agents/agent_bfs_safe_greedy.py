@@ -94,81 +94,207 @@ class BFSSafeGreedyAgent(BFSAgent):
         move, _ = self.get_move_with_explanation(game)
         return move
         
-    def get_move_with_explanation(self, game: "HeuristicGameLogic") -> Tuple[str, str]:
+    def get_move_with_explanation(self, game: "HeuristicGameLogic") -> Tuple[str, dict]:
         """
-        Get next move using safe BFS pathfinding with detailed explanation.
-        
-        v0.04 Enhancement: Returns both move and natural language explanation
-        for LLM fine-tuning dataset generation.
-        
-        Enhancement over parent BFS:
-        - Adds safety validation before following apple path
-        - Implements tail-chasing fallback strategy
-        - Provides last-resort non-crashing move selection
-        
-        Args:
-            game: Game logic instance containing current game state
-            
-        Returns:
-            Tuple of (direction_string, explanation_string)
+        Compute next move *and* a structured explanation object.
+
+        The returned tuple now contains:
+        1. ``move`` – one of {UP, DOWN, LEFT, RIGHT, NO_PATH_FOUND}
+        2. ``explanation`` – **dictionary** with the following schema::
+
+            {
+              "strategy_phase": "APPLE_PATH | TAIL_CHASE | LAST_RESORT",
+              "metrics": {        # quantitative data used for teaching LLMs
+                  "manhattan_distance": int,
+                  "apple_path_length": int | null,
+                  "tail_path_length": int | null,
+                  "valid_moves": list[str],
+                  "apple_path_safe": bool,
+                  "fallback_used": bool,
+                  "final_chosen_direction": str,
+                  "head_position": [x, y],
+                  "apple_position": [x, y],
+                  "snake_length": int,
+                  "grid_size": int,
+                  "remaining_free_cells": int
+              },
+              "explanation_steps": list[str],   # numbered reasoning chain
+              "natural_language_summary": str   # short human-readable TL;DR
+            }
+
+        The richer structure is required by *v0.04 JSONL* datasets so that
+        downstream fine-tuning pipelines receive **machine-parsable** as well
+        as **human-friendly** supervision.  For backward compatibility the
+        surrounding infrastructure (``HeuristicGameLogic`` → ``GameData`` →
+        ``DatasetGenerator``) has been updated to gracefully handle either a
+        *plain string* **or** a *dict* as ``move_explanation``.
         """
         try:
+            # -------------------------------------------------- Common prelude
             head = tuple(game.head_position)
             apple = tuple(game.apple_position)
             snake = [tuple(seg) for seg in game.snake_positions]
             grid_size = game.grid_size
-            obstacles = set(snake[:-1])  # Exclude tail (can vacate)
+            obstacles = set(snake[:-1])  # Tail can vacate → not an obstacle
 
-            # ---------------------
-            # 1. Try shortest safe path to apple (using inherited BFS)
-            # ---------------------
+            # Helper metrics that are independent of strategy branch
+            manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+            valid_moves = self._get_valid_moves(head, set(snake), grid_size)
+            remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
+
+            # ------------------------------------------------ Apple path first
             path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
-            
+            apple_path_safe = False
             if path_to_apple and len(path_to_apple) > 1:
-                # Safety enhancement: validate path before using it
-                if self._path_is_safe(path_to_apple, snake, apple, grid_size):
-                    next_pos = path_to_apple[1]
-                    direction = position_to_direction(head, next_pos)
-                    path_length = len(path_to_apple) - 1
-                    explanation = (
-                        f"BFS Safe Greedy found a safe shortest path of length {path_length} to apple at {apple}. "
-                        f"Moving {direction} from {head} to {next_pos}. "
-                        f"Path safety verified: snake can reach its tail after collecting the apple, avoiding traps."
-                    )
-                    return direction, explanation
+                apple_path_safe = self._path_is_safe(path_to_apple, snake, apple, grid_size)
 
-            # ---------------------
-            # 2. Fallback: Chase tail (always safe)
-            # ---------------------
+            if path_to_apple and len(path_to_apple) > 1 and apple_path_safe:
+                # Use the safe apple path
+                next_pos = path_to_apple[1]
+                direction = position_to_direction(head, next_pos)
+                strategy_phase = "APPLE_PATH"
+                fallback_used = False
+                apple_path_length = len(path_to_apple) - 1
+                tail_path_length = None
+
+                # Explanatory chain-of-thought (cot)
+                explanation_steps = [
+                    f"Step 1️⃣: Evaluate immediate valid moves: {valid_moves}.",
+                    f"Step 2️⃣: Use BFS to find shortest path to apple at {apple}; path length found: {apple_path_length}.",
+                    "Step 3️⃣: Validate safety by checking if snake can still reach its tail after eating apple — result: safe.",
+                    "Step 4️⃣: Confirm strategy phase as 'APPLE_PATH' since apple path is safe.",
+                    f"Step 5️⃣: Select first move in safe apple path, which is '{direction}'.",
+                    "Conclusion: Moving " + direction + " safely advances toward the apple while avoiding traps."
+                ]
+
+                natural_language_summary = (
+                    f"BFS Safe Greedy found a safe shortest path of length {apple_path_length} to apple at {apple}. "
+                    f"Moving {direction} from {head} to {next_pos}. Path safety verified: snake can reach its tail afterward, avoiding traps."
+                )
+
+                metrics = {
+                    "manhattan_distance": manhattan_distance,
+                    "apple_path_length": apple_path_length,
+                    "tail_path_length": tail_path_length,
+                    "valid_moves": valid_moves,
+                    "apple_path_safe": apple_path_safe,
+                    "fallback_used": fallback_used,
+                    "final_chosen_direction": direction,
+                    "head_position": list(head),
+                    "apple_position": list(apple),
+                    "snake_length": len(snake),
+                    "grid_size": grid_size,
+                    "remaining_free_cells": remaining_free_cells,
+                }
+
+                explanation_dict = {
+                    "strategy_phase": strategy_phase,
+                    "metrics": metrics,
+                    "explanation_steps": explanation_steps,
+                    "natural_language_summary": natural_language_summary,
+                }
+
+                return direction, explanation_dict
+
+            # ---------------------------------------- Fallback – tail chasing
             tail = snake[-1]
             path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
-            
             if path_to_tail and len(path_to_tail) > 1:
                 next_pos = path_to_tail[1]
                 direction = position_to_direction(head, next_pos)
+                strategy_phase = "TAIL_CHASE"
+                fallback_used = True
                 tail_path_length = len(path_to_tail) - 1
-                explanation = (
-                    f"BFS Safe Greedy: Direct path to apple at {apple} deemed unsafe. "
-                    f"Falling back to tail-chasing strategy. Moving {direction} toward tail at {tail} "
-                    f"(distance: {tail_path_length}). This guarantees survival while waiting for safer apple opportunity."
-                )
-                return direction, explanation
+                apple_path_length = len(path_to_apple) - 1 if path_to_apple else None
 
-            # ---------------------
-            # 3. Last resort: any non-crashing move
-            # ---------------------
+                explanation_steps = [
+                    f"Step 1️⃣: Direct apple path deemed unsafe (apple_path_safe={apple_path_safe}).",
+                    "Step 2️⃣: Switch to tail-chasing fallback strategy to guarantee survival.",
+                    f"Step 3️⃣: BFS path to tail at {tail} has length {tail_path_length}.",
+                    f"Step 4️⃣: Select first move '{direction}' to move towards tail.",
+                    "Conclusion: Tail-chasing keeps options open until a safe apple path appears."
+                ]
+
+                natural_language_summary = (
+                    f"BFS Safe Greedy: Direct path to apple at {apple} deemed unsafe. "
+                    f"Falling back to tail-chasing strategy. Moving {direction} toward tail at {tail} (distance: {tail_path_length})."
+                )
+
+                metrics = {
+                    "manhattan_distance": manhattan_distance,
+                    "apple_path_length": apple_path_length,
+                    "tail_path_length": tail_path_length,
+                    "valid_moves": valid_moves,
+                    "apple_path_safe": apple_path_safe,
+                    "fallback_used": fallback_used,
+                    "final_chosen_direction": direction,
+                    "head_position": list(head),
+                    "apple_position": list(apple),
+                    "snake_length": len(snake),
+                    "grid_size": grid_size,
+                    "remaining_free_cells": remaining_free_cells,
+                }
+
+                explanation_dict = {
+                    "strategy_phase": strategy_phase,
+                    "metrics": metrics,
+                    "explanation_steps": explanation_steps,
+                    "natural_language_summary": natural_language_summary,
+                }
+
+                return direction, explanation_dict
+
+            # ----------------------------------------- Last resort scenario
             last_resort_move = self._get_safe_move(head, obstacles, grid_size)
-            explanation = (
+            strategy_phase = "LAST_RESORT"
+            fallback_used = True
+
+            explanation_steps = [
+                "Step 1️⃣: No safe path to apple or tail could be found.",
+                f"Step 2️⃣: Select any non-crashing move as last resort: '{last_resort_move}'.",
+                "Conclusion: This move maximises immediate survival chances in a constrained state."
+            ]
+
+            natural_language_summary = (
                 f"BFS Safe Greedy: No safe path to apple at {apple} and no path to tail. "
-                f"Using last resort move {last_resort_move} to avoid immediate collision. "
-                f"This indicates a very constrained game state."
+                f"Using last resort move {last_resort_move} to avoid immediate collision."
             )
-            return last_resort_move, explanation
-            
+
+            metrics = {
+                "manhattan_distance": manhattan_distance,
+                "apple_path_length": None,
+                "tail_path_length": None,
+                "valid_moves": valid_moves,
+                "apple_path_safe": False,
+                "fallback_used": fallback_used,
+                "final_chosen_direction": last_resort_move,
+                "head_position": list(head),
+                "apple_position": list(apple),
+                "snake_length": len(snake),
+                "grid_size": grid_size,
+                "remaining_free_cells": remaining_free_cells,
+            }
+
+            explanation_dict = {
+                "strategy_phase": strategy_phase,
+                "metrics": metrics,
+                "explanation_steps": explanation_steps,
+                "natural_language_summary": natural_language_summary,
+            }
+
+            return last_resort_move, explanation_dict
+
         except Exception as e:
-            explanation = f"BFS Safe Greedy Agent encountered an error: {str(e)}"
-            print_error(f"BFS Safe Greedy Agent error: {e}")
-            return "NO_PATH_FOUND", explanation
+            # ------------------------------------------------ Error fallback
+            error_summary = f"BFS Safe Greedy Agent encountered an error: {str(e)}"
+            print_error(error_summary)
+            explanation_dict = {
+                "strategy_phase": "ERROR",
+                "metrics": {},
+                "explanation_steps": [error_summary],
+                "natural_language_summary": error_summary,
+            }
+            return "NO_PATH_FOUND", explanation_dict
 
     def _path_is_safe(
         self,

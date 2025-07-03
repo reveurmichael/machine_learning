@@ -63,7 +63,7 @@ with st.sidebar:
     )
 
     grid_size: int = st.slider("Grid size", min_value=5, max_value=25, value=10)
-    max_games: int = st.number_input("Max games", min_value=1, max_value=100, value=10)
+    max_games: int = st.number_input("Max games", min_value=1, max_value=1000000000000, value=10)
     max_steps: int = st.number_input("Max steps per game", min_value=100, max_value=10000, value=500)
     verbose: bool = st.checkbox("Verbose output", value=False)
 

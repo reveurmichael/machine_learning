@@ -23,10 +23,27 @@ Design Patterns:
 
 from __future__ import annotations
 
-# Use standardized path setup
+# Ensure project root is set and properly configured
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+from pathlib import Path
+
+def _ensure_project_root():
+    """Ensure we're working from project root"""
+    current = Path(__file__).resolve()
+    # Navigate up to find project root (contains config/ directory)
+    for _ in range(10):
+        if (current / "config").is_dir():
+            if str(current) not in sys.path:
+                sys.path.insert(0, str(current))
+            os.chdir(str(current))
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate project root containing 'config/' folder")
+
+_ensure_project_root()
 
 from typing import Dict, Type, Optional, List, Any
 

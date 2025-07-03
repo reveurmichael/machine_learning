@@ -36,26 +36,21 @@ def _find_repo_root(start: pathlib.Path) -> pathlib.Path:
         current = current.parent
     raise RuntimeError("Could not locate repository root containing 'config/' folder")
 
+# Set working directory to project root and ensure it's in sys.path
 project_root = _find_repo_root(pathlib.Path(__file__))
 sys.path.insert(0, str(project_root))
 os.chdir(str(project_root))
 
-from extensions.common.utils.path_utils import setup_extension_paths
-setup_extension_paths()
-
+# Now we can use absolute imports from project root
 import argparse
-import sys
 from pathlib import Path
+from utils.print_utils import print_info, print_warning, print_error
 
-# Add parent directory (heuristics-v0.03) to Python path
+# Import the extension components using relative imports (extension-specific)
+# Add parent directory to sys.path to enable relative imports
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
 
-# Add root directory to Python path for base classes
-root_dir = Path(__file__).parent.parent.parent.parent
-sys.path.insert(0, str(root_dir))
-
-# Import the components
 from game_manager import HeuristicGameManager
 from agents import get_available_algorithms, DEFAULT_ALGORITHM
 
@@ -192,8 +187,8 @@ def main() -> None:
         
         # Show algorithm selection (v0.02 enhancement)
         if args.verbose:
-            print(f"🔍 Selected algorithm: {args.algorithm}")
-            print(f"📊 Will run {args.max_games} games with max {args.max_steps} steps each")
+            print_info(f"🔍 Selected algorithm: {args.algorithm}")
+            print_info(f"📊 Will run {args.max_games} games with max {args.max_steps} steps each")
         
         # Create and initialize game manager
         game_manager = HeuristicGameManager(args)
@@ -203,15 +198,15 @@ def main() -> None:
         game_manager.run()
         
     except KeyboardInterrupt:
-        print("\n⚠️  Execution interrupted by user")
+        print_warning("\n⚠️  Execution interrupted by user")
         sys.exit(1)
         
     except ValueError as e:
-        print(f"❌ Argument error: {e}")
+        print_error(f"❌ Argument error: {e}")
         sys.exit(1)
         
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print_error(f"❌ Unexpected error: {e}")
         if 'args' in locals() and args.verbose:
             import traceback
             traceback.print_exc()

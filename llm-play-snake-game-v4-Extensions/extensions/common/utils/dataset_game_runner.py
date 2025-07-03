@@ -17,6 +17,7 @@ import sys
 import json
 from pathlib import Path
 from typing import List, Dict, Any
+from utils.print_utils import print_info, print_warning, print_error, print_success
 
 __all__ = ["run_heuristic_games", "load_game_logs"]
 
@@ -42,7 +43,7 @@ def run_heuristic_games(
     Returns:
         List of log directory paths (typically single path for v0.04)
     """
-    print(f"[GameRunner] Starting single run for {max_games} games with {algorithm}...")
+    print_info(f"Starting single run for {max_games} games with {algorithm}...", "GameRunner")
     
     cmd = [
         sys.executable, "scripts/main.py",
@@ -72,14 +73,14 @@ def run_heuristic_games(
             if "📂 Logs:" in line:
                 log_path = line.split("📂 Logs: ")[1].strip()
                 log_dirs.append(log_path)
-                print(f"[GameRunner] Found log directory: {log_path}")
+                print_info(f"Found log directory: {log_path}", "GameRunner")
                 break  # Only one directory expected for v0.04
         else:
-            print("[GameRunner] Warning: Could not parse log directory from output")
+            print_warning("Could not parse log directory from output")
     else:
-        print(f"[GameRunner] Error running games: {result.stderr}")
+        print_error(f"Error running games: {result.stderr}")
 
-    print(f"[GameRunner] Completed run – log directory count: {len(log_dirs)}")
+    print_info(f"Completed run – log directory count: {len(log_dirs)}", "GameRunner")
     return log_dirs
 
 
@@ -98,7 +99,7 @@ def load_game_logs(log_dirs: List[str], verbose: bool = False) -> List[Dict[str,
     
     for i, log_dir in enumerate(log_dirs, 1):
         if verbose:
-            print(f"[LogLoader] Loading games from directory {i}/{len(log_dirs)}: {log_dir}")
+            print_info(f"Loading games from directory {i}/{len(log_dirs)}: {log_dir}", "LogLoader")
         
         try:
             log_path = Path(log_dir)
@@ -121,18 +122,18 @@ def load_game_logs(log_dirs: List[str], verbose: bool = False) -> List[Dict[str,
                     if verbose:
                         rounds_count = len(game_data.get('rounds', []))
                         score = game_data.get('final_score', 0)
-                        print(f"[LogLoader] Loaded game: {rounds_count} rounds, score {score}")
+                        print_info(f"Loaded game: {rounds_count} rounds, score {score}", "LogLoader")
                         
                 except Exception as e:
                     if verbose:
-                        print(f"[LogLoader] Failed to read {game_file}: {e}")
+                        print_error(f"Failed to read {game_file}: {e}")
             
             if not game_files:
                 if verbose:
-                    print(f"[LogLoader] Warning: No game files found in {log_dir}")
+                    print_warning(f"No game files found in {log_dir}")
                     
         except Exception as e:
-            print(f"[LogLoader] Error loading {log_dir}: {e}")
+            print_error(f"Error loading {log_dir}: {e}")
     
-    print(f"[LogLoader] Successfully loaded {len(games)} games")
+    print_success(f"Successfully loaded {len(games)} games")
     return games 

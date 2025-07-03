@@ -25,7 +25,7 @@ import argparse
 from pathlib import Path
 from typing import Optional
 
-from utils.print_utils import create_logger
+from utils.print_utils import print_info
 
 
 def validate_grid_size(grid_size: int) -> int:
@@ -228,18 +228,16 @@ def validate_human_web_arguments(args: argparse.Namespace) -> None:
     Educational Value: Shows centralized validation for human web scripts
     Extension Pattern: Extensions can copy this pattern for validation
     """
-    print_log = create_logger("HumanWebValidation")
-    
     # Validate grid size
     args.grid_size = validate_grid_size(args.grid_size)
-    print_log(f"Grid size validated: {args.grid_size}x{args.grid_size}")
+    print_info(f"[HumanWebValidation] Grid size validated: {args.grid_size}x{args.grid_size}")
     
     # Validate port
     args.port = validate_port(args.port)
     if args.port:
-        print_log(f"Port validated: {args.port}")
+        print_info(f"[HumanWebValidation] Port validated: {args.port}")
     else:
-        print_log("Port will be auto-detected (dynamic allocation)")
+        print_info("[HumanWebValidation] Port will be auto-detected (dynamic allocation)")
 
 
 def validate_llm_web_arguments(args: argparse.Namespace) -> None:
@@ -251,26 +249,24 @@ def validate_llm_web_arguments(args: argparse.Namespace) -> None:
     Educational Value: Shows centralized validation for LLM web scripts
     Extension Pattern: Extensions can copy this pattern for LLM validation
     """
-    print_log = create_logger("LLMWebValidation")
-    
     # Validate grid size
     args.grid_size = validate_grid_size(args.grid_size)
-    print_log(f"Grid size validated: {args.grid_size}x{args.grid_size}")
+    print_info(f"[LLMWebValidation] Grid size validated: {args.grid_size}x{args.grid_size}")
     
     # Validate LLM provider
     args.provider = validate_llm_provider(args.provider)
-    print_log(f"LLM provider validated: {args.provider}")
+    print_info(f"[LLMWebValidation] LLM provider validated: {args.provider}")
     
     # Validate LLM model
     args.model = validate_llm_model(args.model)
-    print_log(f"LLM model validated: {args.model}")
+    print_info(f"[LLMWebValidation] LLM model validated: {args.model}")
     
     # Validate port
     args.port = validate_port(args.port)
     if args.port:
-        print_log(f"Port validated: {args.port}")
+        print_info(f"[LLMWebValidation] Port validated: {args.port}")
     else:
-        print_log("Port will be auto-detected (dynamic allocation)")
+        print_info("[LLMWebValidation] Port will be auto-detected (dynamic allocation)")
 
 
 def validate_replay_web_arguments(args: argparse.Namespace) -> None:
@@ -282,19 +278,17 @@ def validate_replay_web_arguments(args: argparse.Namespace) -> None:
     Educational Value: Shows centralized validation for replay web scripts
     Extension Pattern: Extensions can copy this pattern for replay validation
     """
-    print_log = create_logger("ReplayWebValidation")
-    
     # Validate log directory
     args.log_dir = validate_log_directory(args.log_dir)
-    print_log(f"Log directory validated: {args.log_dir}")
+    print_info(f"[ReplayWebValidation] Log directory validated: {args.log_dir}")
     
     # Validate game number
     args.game = validate_game_number(args.game)
-    print_log(f"Game number validated: {args.game}")
+    print_info(f"[ReplayWebValidation] Game number validated: {args.game}")
     
     # Validate port
     args.port = validate_port(args.port)
     if args.port:
-        print_log(f"Port validated: {args.port}")
+        print_info(f"[ReplayWebValidation] Port validated: {args.port}")
     else:
-        print_log("Port will be auto-detected (dynamic allocation)") 
+        print_info("[ReplayWebValidation] Port will be auto-detected (dynamic allocation)") 

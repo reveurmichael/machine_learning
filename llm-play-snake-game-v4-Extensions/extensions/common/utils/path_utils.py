@@ -42,6 +42,7 @@ from typing import TYPE_CHECKING
 from pathlib import Path
 import os
 import sys
+from utils.print_utils import print_info
 
 if TYPE_CHECKING:  # pragma: no cover – only for static type checkers
     from pathlib import Path
@@ -55,7 +56,7 @@ def ensure_project_root() -> Path:
     """
     root = Path(__file__).parent.parent.parent.parent.resolve()
     os.chdir(root)
-    print(f"[PathUtils] Changed working directory to project root: {root}")  # Simple logging
+    print_info(f"[PathUtils] Changed working directory to project root: {root}")  # Simple logging
     return root
 
 
@@ -64,9 +65,9 @@ def setup_extension_paths() -> None:  # noqa: D401 – historical name retained
     
     Simple logging with print() statements.
     """
-    print("[PathUtils] Setting up extension paths...")  # Simple logging
+    print_info("[PathUtils] Setting up extension paths...")  # Simple logging
     ensure_project_root()
-    print("[PathUtils] Extension paths setup complete")  # Simple logging
+    print_info("[PathUtils] Extension paths setup complete")  # Simple logging
 
 
 def get_extension_path(file: str) -> Path:
@@ -78,7 +79,7 @@ def get_extension_path(file: str) -> Path:
         Path to the extension directory.
     """
     path = Path(file).parent.resolve()
-    print(f"[PathUtils] Extension path: {path}")  # Simple logging
+    print_info(f"[PathUtils] Extension path: {path}")  # Simple logging
     return path
 
 
@@ -95,7 +96,7 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int, algorith
         Path to the dataset directory.
     """
     path = Path(f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}/")
-    print(f"[PathUtils] Dataset path: {path}")  # Simple logging
+    print_info(f"[PathUtils] Dataset path: {path}")  # Simple logging
     return path
 
 
@@ -106,7 +107,7 @@ def get_datasets_root() -> Path:
         Path to the datasets root directory.
     """
     path = Path("logs/extensions/datasets")
-    print(f"[PathUtils] Datasets root: {path}")  # Simple logging
+    print_info(f"[PathUtils] Datasets root: {path}")  # Simple logging
     return path
 
 
@@ -123,7 +124,7 @@ def get_model_path(extension_type: str, version: str, grid_size: int, algorithm:
         Path to the model directory.
     """
     path = Path(f"logs/extensions/models/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}/")
-    print(f"[PathUtils] Model path: {path}")  # Simple logging
+    print_info(f"[PathUtils] Model path: {path}")  # Simple logging
     return path
 
 
@@ -140,7 +141,7 @@ def ensure_extension_directories(path: Path) -> Path:
     Simple logging with print() statements.
     """
     path.mkdir(parents=True, exist_ok=True)
-    print(f"[PathUtils] Extension directories ensured: {path}")  # Simple logging
+    print_info(f"[PathUtils] Extension directories ensured: {path}")  # Simple logging
     return path
 
 
@@ -159,7 +160,7 @@ def validate_path_structure(extension_path: Path) -> bool:
         
     Simple logging with print() statements.
     """
-    print(f"[PathUtils] Validating path structure: {extension_path}")  # Simple logging
+    print_info(f"[PathUtils] Validating path structure: {extension_path}")  # Simple logging
     
     # Basic validation - extension should be in extensions/ directory
     if "extensions" not in str(extension_path):
@@ -170,7 +171,7 @@ def validate_path_structure(extension_path: Path) -> bool:
     if not any(char.isdigit() for char in extension_name):
         raise ValueError(f"Extension should have version number: {extension_name}")
     
-    print(f"[PathUtils] Path structure validation passed: {extension_path}")  # Simple logging
+    print_info(f"[PathUtils] Path structure validation passed: {extension_path}")  # Simple logging
     return True
 
 
@@ -201,7 +202,7 @@ def ensure_project_root_on_path() -> Path:
     root_str = str(root)
     if root_str not in sys.path:
         sys.path.insert(0, root_str)
-        print(f"[PathUtils] Added project root to sys.path: {root}")  # Simple logging
+        print_info(f"[PathUtils] Added project root to sys.path: {root}")  # Simple logging
 
     return root
 
@@ -291,7 +292,7 @@ def setup_extension_environment():
     Returns:
         Tuple of (project_root, extension_path)
     """
-    print("[PathUtils] Setting up extension environment")  # Simple logging
+    print_info("[PathUtils] Setting up extension environment")  # Simple logging
     
     # Ensure we're working from project root
     project_root = ensure_project_root()
@@ -305,5 +306,5 @@ def setup_extension_environment():
     # Validate path structure
     validate_path_structure(extension_path)
     
-    print("[PathUtils] Extension environment setup complete")  # Simple logging
+    print_info("[PathUtils] Extension environment setup complete")  # Simple logging
     return project_root, extension_path 

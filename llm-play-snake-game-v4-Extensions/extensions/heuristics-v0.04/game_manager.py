@@ -19,27 +19,44 @@ Design Philosophy:
 Evolution from v0.03: Adds language-rich move explanations and JSONL dataset generation while retaining multi-algorithm flexibility.
 """
 
-from extensions.common.utils.path_utils import setup_extension_paths
-setup_extension_paths()
+# Ensure project root is set and properly configured
+import sys
+import os
+from pathlib import Path
+
+def _ensure_project_root():
+    """Ensure we're working from project root"""
+    current = Path(__file__).resolve()
+    # Navigate up to find project root (contains config/ directory)
+    for _ in range(10):
+        if (current / "config").is_dir():
+            if str(current) not in sys.path:
+                sys.path.insert(0, str(current))
+            os.chdir(str(current))
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate project root containing 'config/' folder")
+
+_ensure_project_root()
 
 import argparse
-import os
 import time
 from datetime import datetime
 from typing import Optional, Union, List
 import json
 
 from colorama import Fore
-
+# Import from project root using absolute imports
+from utils.print_utils import print_info, print_warning, print_error, print_success
 from core.game_manager import BaseGameManager
 from core.game_agents import BaseAgent
+from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
 
-# Import heuristic-specific components
+# Import heuristic-specific components using relative imports
 from game_logic import HeuristicGameLogic
 from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
-
-# Import common extension configuration
-from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
 
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
@@ -107,10 +124,10 @@ class HeuristicGameManager(BaseGameManager):
         if isinstance(self.game, HeuristicGameLogic) and self.agent:
             self.game.set_agent(self.agent)
 
-        print(Fore.GREEN + f"🤖 Heuristics v0.04 initialized with {self.algorithm_name} algorithm")
+        print_success(f"🤖 Heuristics v0.04 initialized with {self.algorithm_name} algorithm")
         if self.verbose and self.agent:
-            print(Fore.CYAN + f"🔍 Agent: {self.agent}")
-        print(Fore.CYAN + f"📂 Logs: {self.log_dir}")
+            print_info(f"🔍 Agent: {self.agent}")
+        print_info(f"📂 Logs: {self.log_dir}")
 
     def _setup_logging(self) -> None:
         """Setup logging directory for **extension mode**.
@@ -155,7 +172,7 @@ class HeuristicGameManager(BaseGameManager):
             raise ValueError(f"Unknown algorithm: {self.algorithm_name}. Available: {available_algorithms}")
 
         if self.verbose:
-            print(Fore.CYAN + f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
+            print_info(f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
 
     def run(self) -> None:
         """
@@ -165,12 +182,12 @@ class HeuristicGameManager(BaseGameManager):
         and better algorithm-specific messaging.
         """
         try:
-            print(Fore.GREEN + "🚀 Starting heuristics v0.04 session...")
-            print(Fore.CYAN + f"📊 Target games: {self.args.max_games}")
-            print(Fore.CYAN + f"🧠 Algorithm: {self.algorithm_name}")
+            print_success("🚀 Starting heuristics v0.04 session...")
+            print_info(f"📊 Target games: {self.args.max_games}")
+            print_info(f"🧠 Algorithm: {self.algorithm_name}")
 
             if self.verbose and self.agent:
-                print(Fore.CYAN + f"🔍 Agent details: {getattr(self.agent, 'description', 'No description available')}")
+                print_info(f"🔍 Agent details: {getattr(self.agent, 'description', 'No description available')}")
 
             # Main game loop
             while self.game_count < self.args.max_games and self.running:
@@ -179,18 +196,18 @@ class HeuristicGameManager(BaseGameManager):
             # Save session summary
             self._save_session_summary()
 
-            print(Fore.GREEN + "✅ Heuristics v0.04 session completed!")
-            print(Fore.CYAN + f"📊 Games played: {self.game_count}")
-            print(Fore.CYAN + f"🏆 Total score: {self.total_score}")
+            print_success("✅ Heuristics v0.04 session completed!")
+            print_info(f"📊 Games played: {self.game_count}")
+            print_info(f"🏆 Total score: {self.total_score}")
             if self.game_count > 0:
                 avg_score = self.total_score / self.game_count
-                print(Fore.CYAN + f"📈 Average score: {avg_score:.1f}")
+                print_info(f"📈 Average score: {avg_score:.1f}")
 
         except KeyboardInterrupt:
-            print(Fore.YELLOW + "\n⚠️  Session interrupted by user")
+            print_warning("\n⚠️  Session interrupted by user")
             self._save_session_summary()
         except Exception as e:
-            print(Fore.RED + f"❌ Session error: {e}")
+            print_error(f"❌ Session error: {e}")
             if self.verbose:
                 import traceback
                 traceback.print_exc()
@@ -207,9 +224,9 @@ class HeuristicGameManager(BaseGameManager):
         self.round_count = 1
 
         if self.verbose:
-            print(Fore.BLUE + f"\n🎮 Starting Game {self.game_count} with {self.algorithm_name}")
+            print_info(f"\n🎮 Starting Game {self.game_count} with {self.algorithm_name}")
         else:
-            print(Fore.BLUE + f"\n🎮 Game {self.game_count}")
+            print_info(f"\n🎮 Game {self.game_count}")
 
         # Reset game state
         self.setup_game()
@@ -239,10 +256,10 @@ class HeuristicGameManager(BaseGameManager):
             if planned_move == "NO_PATH_FOUND":
                 self.consecutive_no_path_found += 1
                 if self.verbose:
-                    print(Fore.YELLOW + f"⚠️  No path found (attempt {self.consecutive_no_path_found})")
+                    print_warning(f"⚠️  No path found (attempt {self.consecutive_no_path_found})")
 
                 if self.consecutive_no_path_found >= 5:
-                    print(Fore.RED + f"❌ Too many consecutive pathfinding failures with {self.algorithm_name}")
+                    print_error(f"❌ Too many consecutive pathfinding failures with {self.algorithm_name}")
                     self.game_active = False
                     break
             else:
@@ -254,10 +271,10 @@ class HeuristicGameManager(BaseGameManager):
                 # Show apple eaten in verbose mode
                 if apple_eaten and self.verbose:
                     current_score = self.game.game_state.score
-                    print(Fore.GREEN + f"🍎 Apple eaten! Score: {current_score}")
+                    print_success(f"🍎 Apple eaten! Score: {current_score}")
                 elif apple_eaten:
                     current_score = self.game.game_state.score
-                    print(Fore.GREEN + f"🍎 Score: {current_score}")
+                    print_success(f"🍎 Score: {current_score}")
 
                 if not game_continues:
                     self.game_active = False
@@ -316,13 +333,13 @@ class HeuristicGameManager(BaseGameManager):
 
         # Show results
         if self.verbose:
-            print(Fore.CYAN + f"📊 Game {self.game_count} completed:")
-            print(Fore.CYAN + f"   Algorithm: {self.algorithm_name}")
-            print(Fore.CYAN + f"   Score: {self.game.game_state.score}")
-            print(Fore.CYAN + f"   Steps: {self.game.game_state.steps}")
-            print(Fore.CYAN + f"   Duration: {game_duration:.2f}s")
+            print_info(f"📊 Game {self.game_count} completed:")
+            print_info(f"   Algorithm: {self.algorithm_name}")
+            print_info(f"   Score: {self.game.game_state.score}")
+            print_info(f"   Steps: {self.game.game_state.steps}")
+            print_info(f"   Duration: {game_duration:.2f}s")
         else:
-            print(Fore.CYAN + f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
+            print_info(f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
 
     def _save_session_summary(self) -> None:
         """Save simplified session summary (no Task-0 compatibility as requested)."""
@@ -344,15 +361,15 @@ class HeuristicGameManager(BaseGameManager):
                 "score_per_round": self.total_score / max(sum(self.game_rounds), 1)
             }
         }
-        print(Fore.MAGENTA + f"🧠 Algorithm: {summary_data['algorithm']}")
-        print(Fore.CYAN + f"🎮 Total games: {summary_data['total_games']}")
-        print(Fore.CYAN + f"🔄 Total rounds: {summary_data['total_rounds']}")
-        print(Fore.CYAN + f"🏆 Total score: {summary_data['total_score']}")
-        print(Fore.YELLOW + f"📈 Scores: {summary_data['scores']}")
-        print(Fore.YELLOW + f"🔢 Round counts: {summary_data['round_counts']}")
-        print(Fore.MAGENTA + f"📊 Average score: {summary_data['statistics']['average_score']:.1f}")
-        print(Fore.GREEN + f"⚡ Score per step: {summary_data['statistics']['score_per_step']:.3f}")
-        print(Fore.GREEN + f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
+        print_info(f"🧠 Algorithm: {summary_data['algorithm']}")
+        print_info(f"🎮 Total games: {summary_data['total_games']}")
+        print_info(f"🔄 Total rounds: {summary_data['total_rounds']}")
+        print_info(f"🏆 Total score: {summary_data['total_score']}")
+        print_info(f"📈 Scores: {summary_data['scores']}")
+        print_info(f"🔢 Round counts: {summary_data['round_counts']}")
+        print_info(f"📊 Average score: {summary_data['statistics']['average_score']:.1f}")
+        print_info(f"⚡ Score per step: {summary_data['statistics']['score_per_step']:.3f}")
+        print_info(f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
 
         # self.log_dir 已经是算法目录
         summary_filepath = os.path.join(self.log_dir, "summary.json")
@@ -360,7 +377,7 @@ class HeuristicGameManager(BaseGameManager):
             json.dump(summary_data, f, indent=2, default=str)  # Handle numpy types
 
         if self.verbose:
-            print(Fore.GREEN + f"💾 Session summary saved to: {summary_filepath}") 
+            print_success(f"💾 Session summary saved to: {summary_filepath}") 
 
     def start_new_round(self, round_type: str | None = None) -> None:
         """

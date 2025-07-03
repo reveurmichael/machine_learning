@@ -17,14 +17,32 @@ Design Patterns:
 from __future__ import annotations
 from typing import List, Tuple, Set, TYPE_CHECKING
 
-# Use standardized path setup
+# Ensure project root is set and properly configured
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+from pathlib import Path
 
-from config import DIRECTIONS
+def _ensure_project_root():
+    """Ensure we're working from project root"""
+    current = Path(__file__).resolve()
+    # Navigate up to find project root (contains config/ directory)
+    for _ in range(10):
+        if (current / "config").is_dir():
+            if str(current) not in sys.path:
+                sys.path.insert(0, str(current))
+            os.chdir(str(current))
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate project root containing 'config/' folder")
+
+_ensure_project_root()
+
+# Import from project root using absolute imports
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
-
+from utils.print_utils import print_error
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
 
@@ -111,7 +129,7 @@ class DFSAgent:
             
         except Exception as e:
             error_explanation = f"DFS agent encountered an error: {str(e)}. Unable to compute safe path."
-            print(f"DFS Agent error: {e}")
+            print_error(f"DFS Agent error: {e}")
             return "NO_PATH_FOUND", error_explanation
     
     def _generate_move_explanation(self, head_pos: Tuple[int, int], path: List[Tuple[int, int]], direction: str) -> str:

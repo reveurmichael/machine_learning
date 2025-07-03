@@ -25,13 +25,31 @@ from __future__ import annotations
 from typing import List, Tuple, Optional, Set, TYPE_CHECKING, Dict
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
 
-# Use standardized path setup
+# Ensure project root is set and properly configured
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)))
+from pathlib import Path
 
+def _ensure_project_root():
+    """Ensure we're working from project root"""
+    current = Path(__file__).resolve()
+    # Navigate up to find project root (contains config/ directory)
+    for _ in range(10):
+        if (current / "config").is_dir():
+            if str(current) not in sys.path:
+                sys.path.insert(0, str(current))
+            os.chdir(str(current))
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate project root containing 'config/' folder")
+
+_ensure_project_root()
+
+# Import from project root using absolute imports
 from utils.moves_utils import position_to_direction
-
+from utils.print_utils import print_error
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
 
@@ -97,7 +115,7 @@ class BFSHamiltonianAgent(BFSSafeGreedyAgent):
             
         except Exception as e:
             explanation = f"BFS Hamiltonian Agent encountered a critical error: {str(e)}"
-            print(f"BFS Hamiltonian Agent error: {e}")
+            print_error(f"BFS Hamiltonian Agent error: {e}")
             return "NO_PATH_FOUND", explanation
 
     def _generate_hamiltonian_cycle(self) -> None:

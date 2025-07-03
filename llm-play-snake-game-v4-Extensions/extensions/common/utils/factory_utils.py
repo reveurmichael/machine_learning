@@ -15,6 +15,7 @@ Reference: docs/extensions-guideline/final-decision-10.md
 """
 
 from typing import Any, Dict, Type, Callable
+from utils.print_utils import print_info
 
 
 class SimpleFactory:
@@ -29,12 +30,12 @@ class SimpleFactory:
     def __init__(self):
         """Initialize empty factory registry."""
         self._registry: Dict[str, Type] = {}
-        print("[SimpleFactory] Initialized factory registry")
+        print_info("[SimpleFactory] Initialized factory registry")
     
     def register(self, name: str, cls: Type) -> None:
         """Register a class with the factory."""
         self._registry[name.upper()] = cls
-        print(f"[SimpleFactory] Registered: {name} -> {cls.__name__}")
+        print_info(f"[SimpleFactory] Registered: {name} -> {cls.__name__}")
     
     def create(self, name: str, **kwargs) -> Any:  # CANONICAL create() method per SUPREME_RULES
         """Create instance using canonical create() method following SUPREME_RULES from final-decision-10.md"""
@@ -44,7 +45,7 @@ class SimpleFactory:
             raise ValueError(f"Unknown item: {name}. Available: {available}")
         
         cls = self._registry[name]
-        print(f"[SimpleFactory] Creating instance: {name} ({cls.__name__})")
+        print_info(f"[SimpleFactory] Creating instance: {name} ({cls.__name__})")
         return cls(**kwargs)
     
     def list_available(self) -> list[str]:

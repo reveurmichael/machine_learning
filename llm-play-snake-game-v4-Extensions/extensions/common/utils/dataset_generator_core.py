@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
 
 from ..config.dataset_formats import CSV_BASIC_COLUMNS
+from utils.print_utils import print_info, print_warning, print_error, print_success
 
 __all__ = ["DatasetGenerator"]
 
@@ -52,7 +53,7 @@ class DatasetGenerator:
         self._jsonl_fh = None
         self.csv_headers = CSV_BASIC_COLUMNS
         
-        print(f"[DatasetGenerator] Initialized for {algorithm} (output: {output_dir})")
+        print_info(f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator")
 
     # ------------------------------------------------------------------ CSV
     def _open_csv(self):
@@ -62,14 +63,14 @@ class DatasetGenerator:
         writer = csv.DictWriter(fh, fieldnames=self.csv_headers)
         writer.writeheader()
         self._csv_writer = (writer, fh)
-        print(f"[DatasetGenerator] Opened CSV file: {csv_path}")
+        print_info(f"Opened CSV file: {csv_path}", "DatasetGenerator")
 
     # -------------------------------------------------------------- JSONL
     def _open_jsonl(self):
         """Open JSONL file for writing."""
         jsonl_path = self.output_dir / f"{self.algorithm}_dataset.jsonl"
         self._jsonl_fh = jsonl_path.open("w", encoding="utf-8")
-        print(f"[DatasetGenerator] Opened JSONL file: {jsonl_path}")
+        print_info(f"Opened JSONL file: {jsonl_path}", "DatasetGenerator")
 
     # ------------------------------------------------------------ PUBLIC
     def generate(self, games: List[Dict[str, Any]], formats: List[str] = ["csv", "jsonl"]):
@@ -80,7 +81,7 @@ class DatasetGenerator:
             games: List of game data dictionaries
             formats: List of formats to generate ("csv", "jsonl", or both)
         """
-        print(f"[DatasetGenerator] Processing {len(games)} games...")
+        print_info(f"Processing {len(games)} games...", "DatasetGenerator")
         
         # Open output files
         if "csv" in formats:
@@ -95,10 +96,10 @@ class DatasetGenerator:
         # Close handles
         if self._csv_writer:
             self._csv_writer[1].close()
-            print(f"[DatasetGenerator] ✅ CSV dataset saved")
+            print_success("CSV dataset saved")
         if self._jsonl_fh:
             self._jsonl_fh.close()
-            print(f"[DatasetGenerator] ✅ JSONL dataset saved")
+            print_success("JSONL dataset saved")
 
     # ---------------------------------------------------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
@@ -111,7 +112,7 @@ class DatasetGenerator:
         rounds_data_dict = game_data.get('detailed_history', {}).get('rounds_data', {})
         
         if not rounds_data_dict:
-            print(f"[DatasetGenerator] Warning: No rounds_data found in game. Skipping.")
+            print_warning("No rounds_data found in game. Skipping.")
             return
 
         moves_history = game_data.get('detailed_history', {}).get('moves', [])
@@ -121,7 +122,7 @@ class DatasetGenerator:
         while len(explanations) < len(moves_history):
             explanations.append("No explanation provided.")
 
-        print(f"[DatasetGenerator] Processing game with {len(moves_history)} moves...")
+        print_info(f"Processing game with {len(moves_history)} moves...", "DatasetGenerator")
 
         for i, move in enumerate(moves_history):
             round_number_str = str(i + 1)
@@ -129,7 +130,7 @@ class DatasetGenerator:
             
             game_state = round_data.get('game_state')
             if not game_state:
-                print(f"[DatasetGenerator] Warning: No game_state found for round {round_number_str}. Skipping step.")
+                print_warning(f"No game_state found for round {round_number_str}. Skipping step.")
                 continue
 
             record = {

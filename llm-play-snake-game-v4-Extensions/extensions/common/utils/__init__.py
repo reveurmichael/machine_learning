@@ -21,6 +21,7 @@ from .dataset_generator_cli import create_argument_parser, find_available_algori
 from .path_utils import setup_extension_paths
 from .csv_schema_utils import CSVValidator, TabularFeatureExtractor
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
+from utils.print_utils import print_info
 
 __all__ = [
     # Core dataset generation
@@ -41,7 +42,7 @@ __all__ = [
     "save_jsonl_dataset",
 ]
 
-print("[common.utils] Imported common utilities (final-decision-10.md Guideline 3)")
+print_info("[common.utils] Imported common utilities (final-decision-10.md Guideline 3)")
 
 # Core factory pattern utilities
 from .factory_utils import SimpleFactory
@@ -86,11 +87,11 @@ from .csv_schema_utils import (
 # Simple utility functions following SUPREME_RULES from final-decision-10.md
 def print_extension_info(extension_name: str, version: str):
     """Simple extension information logging (SUPREME_RULES compliant)."""
-    print(f"[CommonUtils] Extension: {extension_name} v{version}")
+    print_info(f"[CommonUtils] Extension: {extension_name} v{version}")
 
 def get_common_config():
     """Simple common configuration access (SUPREME_RULES compliant)."""
-    print("[CommonUtils] Accessing common configuration")
+    print_info("[CommonUtils] Accessing common configuration")
     return {
         "default_grid_size": 10,
         "max_grid_size": 50,
@@ -100,7 +101,7 @@ def get_common_config():
 # Additional utility functions referenced in documentation
 def load_dataset_for_training(dataset_path: str, format_type: str = "csv"):
     """Load dataset for training using appropriate format."""
-    print(f"[CommonUtils] Loading dataset: {dataset_path} (format: {format_type})")
+    print_info(f"[CommonUtils] Loading dataset: {dataset_path} (format: {format_type})")
     
     if format_type.lower() == "csv":
         return load_csv_dataset(dataset_path)
@@ -113,7 +114,7 @@ def load_dataset_for_training(dataset_path: str, format_type: str = "csv"):
 
 def save_dataset_standardized(data, dataset_path: str, format_type: str = "csv"):
     """Save dataset using standardized format."""
-    print(f"[CommonUtils] Saving dataset: {dataset_path} (format: {format_type})")
+    print_info(f"[CommonUtils] Saving dataset: {dataset_path} (format: {format_type})")
     
     if format_type.lower() == "csv":
         save_csv_dataset(data, dataset_path)
@@ -126,14 +127,14 @@ def save_dataset_standardized(data, dataset_path: str, format_type: str = "csv")
 
 def validate_dataset_compatibility(dataset_path: str, expected_format: str) -> bool:
     """Simple dataset compatibility validation."""
-    print(f"[CommonUtils] Validating dataset compatibility: {dataset_path}")
+    print_info(f"[CommonUtils] Validating dataset compatibility: {dataset_path}")
     
     # Basic validation - check file extension matches expected format
     from pathlib import Path
     path = Path(dataset_path)
     
     if not path.exists():
-        print(f"[CommonUtils] Dataset file not found: {dataset_path}")
+        print_info(f"[CommonUtils] Dataset file not found: {dataset_path}")
         return False
     
     expected_extensions = {
@@ -144,33 +145,33 @@ def validate_dataset_compatibility(dataset_path: str, expected_format: str) -> b
     
     expected_ext = expected_extensions.get(expected_format.lower())
     if expected_ext and path.suffix.lower() != expected_ext:
-        print(f"[CommonUtils] Extension mismatch: expected {expected_ext}, got {path.suffix}")
+        print_info(f"[CommonUtils] Extension mismatch: expected {expected_ext}, got {path.suffix}")
         return False
     
-    print("[CommonUtils] Dataset compatibility validated")
+    print_info("[CommonUtils] Dataset compatibility validated")
     return True
 
 def extract_features_from_game_state(game_state, feature_extractor=None):
     """Extract features from game state using specified extractor."""
-    print("[CommonUtils] Extracting features from game state")
+    print_info("[CommonUtils] Extracting features from game state")
     
     if feature_extractor is None:
         feature_extractor = TabularFeatureExtractor()
     
     features = feature_extractor.extract_features(game_state)
-    print(f"[CommonUtils] Extracted {len(features)} features")
+    print_info(f"[CommonUtils] Extracted {len(features)} features")
     return features
 
 def generate_csv_schema(grid_size: int = 10):
     """Generate CSV schema for specified grid size."""
-    print(f"[CommonUtils] Generating CSV schema for grid size {grid_size}")
+    print_info(f"[CommonUtils] Generating CSV schema for grid size {grid_size}")
     
     from ..config.dataset_formats import CSV_BASIC_COLUMNS
     return CSV_BASIC_COLUMNS.copy()
 
 def validate_csv_schema(df, expected_columns=None):
     """Simple CSV schema validation."""
-    print("[CommonUtils] Validating CSV schema")
+    print_info("[CommonUtils] Validating CSV schema")
     
     if expected_columns is None:
         from ..config.dataset_formats import CSV_BASIC_COLUMNS
@@ -178,10 +179,10 @@ def validate_csv_schema(df, expected_columns=None):
     
     missing = set(expected_columns) - set(df.columns)
     if missing:
-        print(f"[CommonUtils] Missing columns: {missing}")
+        print_info(f"[CommonUtils] Missing columns: {missing}")
         return False
     
-    print("[CommonUtils] CSV schema validation passed")
+    print_info("[CommonUtils] CSV schema validation passed")
     return True
 
 # Dataset generation CLI utilities removed in modular refactor (v0.04) 

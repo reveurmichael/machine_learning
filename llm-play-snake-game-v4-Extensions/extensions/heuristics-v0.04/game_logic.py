@@ -14,18 +14,41 @@ Design Philosophy:
 
 from __future__ import annotations
 
-from extensions.common.utils.path_utils import setup_extension_paths
-setup_extension_paths()
+# Ensure project root is set and properly configured
+import sys
+import os
+from pathlib import Path
+
+def _ensure_project_root():
+    """Ensure we're working from project root"""
+    current = Path(__file__).resolve()
+    # Navigate up to find project root (contains config/ directory)
+    for _ in range(10):
+        if (current / "config").is_dir():
+            if str(current) not in sys.path:
+                sys.path.insert(0, str(current))
+            os.chdir(str(current))
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    raise RuntimeError("Could not locate project root containing 'config/' folder")
+
+_ensure_project_root()
 
 import time
 from typing import List, Optional, TYPE_CHECKING
 
+# Import from project root using absolute imports
 from config.ui_constants import GRID_SIZE
 from core.game_logic import BaseGameLogic
+from utils.print_utils import print_error
+
+# Import extension-specific components using relative imports
 from game_data import HeuristicGameData
 
 if TYPE_CHECKING:
-    from bfs_agent import BFSAgent
+    from agents.agent_bfs import BFSAgent
 
 
 class HeuristicGameLogic(BaseGameLogic):
@@ -136,7 +159,7 @@ class HeuristicGameLogic(BaseGameLogic):
                 return [move]
                 
         except Exception as e:
-            print(f"Heuristic planning error: {e}")
+            print_error(f"Heuristic planning error: {e}")
             
             # Track failed attempt
             if isinstance(self.game_state, HeuristicGameData):

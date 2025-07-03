@@ -19,6 +19,9 @@ from .dataset_generator_core import DatasetGenerator
 from .path_utils import setup_extension_paths
 from ..config import DEFAULT_GRID_SIZE, DEFAULT_MAX_GAMES, DEFAULT_MAX_STEPS
 
+# Unified CLI logging helpers (Emoji + Color)
+from utils.print_utils import print_info, print_success, print_warning, print_error
+
 __all__ = ["create_argument_parser", "find_available_algorithms", "main"]
 
 
@@ -115,24 +118,24 @@ def main() -> None:
     args = parser.parse_args()
     
     if args.verbose:
-        print("Dataset Generation CLI v0.04 (Modular Architecture)")
-        print("=" * 50)
-        print(f"Format: {args.format}")
-        print(f"Max games: {args.max_games}")
-        print(f"Grid size: {args.grid_size}")
-        print()
+        print_info("Dataset Generation CLI v0.04 (Modular Architecture)")
+        print_info("=" * 50)
+        print_info(f"Format: {args.format}")
+        print_info(f"Max games: {args.max_games}")
+        print_info(f"Grid size: {args.grid_size}")
+        print_info("")
     
     # Determine algorithms to process
     if args.all_algorithms:
         algorithms = find_available_algorithms()
-        print(f"[CLI] Processing all algorithms: {algorithms}")
+        print_info(f"Processing all algorithms: {algorithms}")
     else:
         algorithms = [args.algorithm]
-        print(f"[CLI] Processing algorithm: {args.algorithm}")
+        print_info(f"Processing algorithm: {args.algorithm}")
     
     # Generate datasets for each algorithm
     for algorithm in algorithms:
-        print(f"\n[CLI] Starting dataset generation for {algorithm}")
+        print_info(f"Starting dataset generation for {algorithm}")
         
         try:
             # Step 1: Run games to generate logs
@@ -141,41 +144,41 @@ def main() -> None:
             )
             
             if not log_dirs:
-                print(f"[CLI] ⚠️  No successful games for {algorithm}, skipping...")
+                print_warning(f"No successful games for {algorithm}, skipping…")
                 continue
             
             # Step 2: Load game data from logs
             games = load_game_logs(log_dirs, args.verbose)
             
             if not games:
-                print(f"[CLI] ⚠️  No game data loaded for {algorithm}, skipping...")
+                print_warning(f"No game data loaded for {algorithm}, skipping…")
                 continue
             
             # Step 3: Determine output directory
             if args.output_dir:
                 output_dir = Path(args.output_dir)
                 output_dir.mkdir(parents=True, exist_ok=True)
-                print(f"[CLI] 📁 Using custom output directory: {output_dir}")
+                print_info(f"📁 Using custom output directory: {output_dir}")
             else:
                 # Use the shared log directory for unified output
                 output_dir = Path(log_dirs[0])
-                print(f"[CLI] 📁 Using shared log directory: {output_dir}")
+                print_info(f"📁 Using shared log directory: {output_dir}")
 
             # Step 4: Generate datasets
             generator = DatasetGenerator(algorithm, output_dir)
             formats = {"csv", "jsonl"} if args.format == "both" else {args.format}
             generator.generate(games, list(formats))
             
-            print(f"[CLI] ✅ Completed dataset generation for {algorithm}")
-            print(f"[CLI] 📁 Dataset files created in: {output_dir}")
+            print_success(f"Completed dataset generation for {algorithm}")
+            print_info(f"📁 Dataset files created in: {output_dir}")
             
         except Exception as e:
-            print(f"[CLI] ❌ Failed to generate dataset for {algorithm}: {e}")
+            print_error(f"Failed to generate dataset for {algorithm}: {e}")
             if args.verbose:
                 import traceback
                 traceback.print_exc()
     
-    print("\n[CLI] ✅ Dataset generation completed!")
+    print_success("Dataset generation completed!")
 
 
 if __name__ == "__main__":

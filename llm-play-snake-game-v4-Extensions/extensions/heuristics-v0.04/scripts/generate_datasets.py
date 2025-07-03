@@ -32,35 +32,39 @@ import sys
 import os
 from pathlib import Path
 
-# Add project root and common to Python path
+# ---------------------------------------------------------------------------
+# Ensure project root and common utilities are on sys.path BEFORE any imports
+# ---------------------------------------------------------------------------
+
 current_file = Path(__file__).resolve()
-project_root = current_file.parent.parent.parent.parent
+project_root = current_file.parent.parent.parent.parent  # navigate to repo root
 common_dir = project_root / "extensions" / "common"
 
-for path in [str(project_root), str(common_dir)]:
-    if path not in sys.path:
-        sys.path.insert(0, path)
+for path in (project_root, common_dir):
+    path_str = str(path)
+    if path_str not in sys.path:
+        sys.path.insert(0, path_str)
 
-# Note: We don't change directory here to avoid path issues
-# The path setup above ensures imports work correctly
+# Now that paths are set up we can safely import project modules
+from utils.print_utils import print_info, print_error
 
 # Import and delegate to the unified CLI
 try:
     from extensions.common.utils.dataset_generator_cli import main as cli_main
     
     if __name__ == "__main__":
-        print("Heuristics v0.04 Dataset Generator")
-        print("=" * 40)
-        print("Delegating to unified CLI in common folder...")
-        print()
+        print_info("Heuristics v0.04 Dataset Generator")
+        print_info("=" * 40)
+        print_info("Delegating to unified CLI in common folder...")
+        print_info("")
         
         # Simply delegate to the unified CLI
         cli_main()
         
 except ImportError as e:
-    print(f"Error: Could not import unified CLI: {e}")
-    print("Make sure you're running from the project root and common utilities are available.")
+    print_error(f"Error: Could not import unified CLI: {e}")
+    print_error("Make sure you're running from the project root and common utilities are available.")
     sys.exit(1)
 except Exception as e:
-    print(f"Dataset generation failed: {e}")
+    print_error(f"Dataset generation failed: {e}")
     sys.exit(1) 

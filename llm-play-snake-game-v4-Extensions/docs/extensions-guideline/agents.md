@@ -59,7 +59,7 @@ class HeuristicAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 
@@ -87,7 +87,7 @@ class BaseAgent(ABC):
         self.name = name
         self.config = config or {}
         self.stats = {}
-        print(f"[BaseAgent] Initialized {name} agent")  # SUPREME_RULES compliant logging
+        print_info(f"[BaseAgent] Initialized {name} agent")  # SUPREME_RULES compliant logging
     
     @abstractmethod
     def plan_move(self, game_state: Dict[str, Any]) -> str:
@@ -119,7 +119,7 @@ class BaseAgent(ABC):
                 self.stats['games_lost'] = 0
             self.stats['games_lost'] += 1
         
-        print(f"[{self.name}] Stats updated: {result}")  # SUPREME_RULES compliant logging
+        print_info(f"[{self.name}] Stats updated: {result}")  # SUPREME_RULES compliant logging
     
     def get_stats(self) -> Dict[str, Any]:
         """Get current agent statistics"""
@@ -128,7 +128,7 @@ class BaseAgent(ABC):
     def reset_stats(self):
         """Reset agent statistics"""
         self.stats = {}
-        print(f"[BaseAgent] Reset stats for {self.name}")  # SUPREME_RULES compliant logging
+        print_info(f"[BaseAgent] Reset stats for {self.name}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🚀 **Agent Implementation Examples**
@@ -152,7 +152,7 @@ class BFSAgent(BaseAgent):
     def __init__(self, config: Dict[str, Any] = None):
         super().__init__("BFS", config)
         self.path = []
-        print(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
+        print_info(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan next move using BFS pathfinding"""
@@ -160,7 +160,7 @@ class BFSAgent(BaseAgent):
         apple_position = game_state['apple_position']
         grid_size = game_state['grid_size']
         
-        print(f"[BFSAgent] Planning move from {snake_positions[0]} to {apple_position}")  # SUPREME_RULES compliant logging
+        print_info(f"[BFSAgent] Planning move from {snake_positions[0]} to {apple_position}")  # SUPREME_RULES compliant logging
         
         # Find path to apple using BFS
         path = self._bfs_pathfinding(snake_positions[0], apple_position, snake_positions, grid_size)
@@ -169,12 +169,12 @@ class BFSAgent(BaseAgent):
             self.path = path
             next_pos = path[1] if len(path) > 1 else path[0]
             move = self._get_direction(snake_positions[0], next_pos)
-            print(f"[BFSAgent] Selected move: {move}")  # SUPREME_RULES compliant logging
+            print_info(f"[BFSAgent] Selected move: {move}")  # SUPREME_RULES compliant logging
             return move
         else:
             # No path found, use fallback strategy
             fallback_move = self._fallback_move(snake_positions, grid_size)
-            print(f"[BFSAgent] No path found, using fallback: {fallback_move}")  # SUPREME_RULES compliant logging
+            print_warning(f"[BFSAgent] No path found, using fallback: {fallback_move}")  # SUPREME_RULES compliant logging
             return fallback_move
 ```
 

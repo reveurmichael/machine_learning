@@ -22,9 +22,11 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`standalone.md`**: Maintains extension independence through proper path management
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def ensure_project_root() -> Path:
     """Ensure current working directory is project root"""
@@ -33,7 +35,7 @@ def ensure_project_root() -> Path:
     
     if os.getcwd() != str(project_root):
         os.chdir(str(project_root))
-        print(f"[PathUtils] Changed working directory to: {project_root}")  # SUPREME_RULE NO.3
+        print_info(f"[PathUtils] Changed working directory to: {project_root}")  # SUPREME_RULE NO.3
     
     return project_root
 
@@ -41,7 +43,7 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int, algorith
     """Get standardized dataset path"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / f"{extension_type}_v{version}_{timestamp}" / algorithm
-    print(f"[PathUtils] Generated dataset path: {path}")  # SUPREME_RULE NO.3
+    print_info(f"[PathUtils] Generated dataset path: {path}")  # SUPREME_RULE NO.3
     return path
 ```
 
@@ -123,7 +125,7 @@ def ensure_project_root() -> Path:
     # Change working directory to project root
     if os.getcwd() != str(project_root):
         os.chdir(str(project_root))
-        print(f"[PathUtils] Changed working directory to: {project_root}")  # Simple logging
+        print_info(f"[PathUtils] Changed working directory to: {project_root}")  # Simple logging
     
     # Ensure project root is in Python path
     if str(project_root) not in sys.path:
@@ -142,7 +144,7 @@ def get_extension_path(current_file: str) -> Path:
         Path: Extension directory path
     """
     extension_path = Path(current_file).resolve().parent
-    print(f"[PathUtils] Extension path: {extension_path}")  # Simple logging
+    print_info(f"[PathUtils] Extension path: {extension_path}")  # Simple logging
     return extension_path
 ```
 
@@ -169,7 +171,7 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int,
     
     session_name = f"{extension_type}_v{version}_{timestamp}"
     path = Path("logs/extensions/datasets") / f"grid-size-{grid_size}" / session_name / algorithm
-    print(f"[PathUtils] Generated dataset path: {path}")  # Simple logging
+    print_info(f"[PathUtils] Generated dataset path: {path}")  # Simple logging
     return path
 
 def get_model_path(extension_type: str, version: str, grid_size: int,
@@ -192,7 +194,7 @@ def get_model_path(extension_type: str, version: str, grid_size: int,
     
     session_name = f"{extension_type}_v{version}_{timestamp}"
     path = Path("logs/extensions/models") / f"grid-size-{grid_size}" / session_name / model_name
-    print(f"[PathUtils] Generated model path: {path}")  # Simple logging
+    print_info(f"[PathUtils] Generated model path: {path}")  # Simple logging
     return path
 
 def validate_path_structure(project_root: Path, extension_path: Path) -> None:
@@ -206,7 +208,7 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
     Raises:
         ValueError: If path structure is invalid
     """
-    print(f"[PathUtils] Validating path structure")  # Simple logging
+    print_info(f"[PathUtils] Validating path structure")  # Simple logging
     
     # Validate project root
     if not (project_root / "README.md").exists():
@@ -225,7 +227,7 @@ def validate_path_structure(project_root: Path, extension_path: Path) -> None:
         if not (extension_path / file).exists():
             raise ValueError(f"Missing required file {file} in extension: {extension_path}")
     
-    print(f"[PathUtils] Path structure validation passed")  # Simple logging
+    print_success(f"[PathUtils] Path structure validation passed")  # Simple logging
 ```
 
 ## 🔧 **Extension Implementation Patterns**
@@ -255,7 +257,7 @@ def main():
 
 def setup_extension_environment():
     """Standard extension environment setup"""
-    print(f"[HeuristicsV001] Setting up extension environment")  # Simple logging
+    print_info(f"[HeuristicsV001] Setting up extension environment")  # Simple logging
     
     # Ensure project root
     project_root = ensure_project_root()
@@ -266,7 +268,7 @@ def setup_extension_environment():
     # Validate structure
     validate_path_structure(extension_path)
     
-    print(f"[HeuristicsV001] Environment setup complete")  # Simple logging
+    print_success(f"[HeuristicsV001] Environment setup complete")  # Simple logging
     return project_root, extension_path
 ```
 
@@ -313,7 +315,7 @@ def main():
 
 def setup_extension_environment():
     """Standard extension environment setup"""
-    print(f"[HeuristicsV002] Setting up extension environment")  # Simple logging
+    print_info(f"[HeuristicsV002] Setting up extension environment")  # Simple logging
     
     # Ensure project root
     project_root = ensure_project_root()
@@ -324,7 +326,7 @@ def setup_extension_environment():
     # Validate structure
     validate_path_structure(extension_path)
     
-    print(f"[HeuristicsV002] Environment setup complete")  # Simple logging
+    print_success(f"[HeuristicsV002] Environment setup complete")  # Simple logging
     return project_root, extension_path
 ```
 

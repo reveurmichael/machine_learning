@@ -22,23 +22,25 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`single-source-of-truth.md`**: Ensures configuration consistency across all extensions
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def validate_grid_size(grid_size: int) -> bool:
     """Simple grid size validation"""
     if grid_size < 5 or grid_size > 50:
-        print(f"[Validator] Invalid grid size: {grid_size} (must be 5-50)")  # SUPREME_RULE NO.3
+        print_error(f"[Validator] Invalid grid size: {grid_size} (must be 5-50)")  # SUPREME_RULE NO.3
         return False
-    print(f"[Validator] Grid size {grid_size} is valid")  # SUPREME_RULE NO.3
+    print_success(f"[Validator] Grid size {grid_size} is valid")  # SUPREME_RULE NO.3
     return True
 
 def load_config(extension_type: str):
     """Load configuration for extension"""
-    print(f"[Config] Loading configuration for {extension_type}")  # SUPREME_RULE NO.3
+    print_info(f"[Config] Loading configuration for {extension_type}")  # SUPREME_RULE NO.3
     # Configuration loading logic here
-    print(f"[Config] Configuration loaded successfully")  # SUPREME_RULE NO.3
+    print_success(f"[Config] Configuration loaded successfully")  # SUPREME_RULE NO.3
 ```
 
 ## 🏗️ **Configuration Architecture**

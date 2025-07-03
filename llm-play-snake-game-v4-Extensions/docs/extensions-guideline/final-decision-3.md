@@ -22,27 +22,29 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`no-over-preparation.md`**: Prevents over-engineering of utility functions
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def get_dataset_path(extension_type: str, version: str, grid_size: int, algorithm: str) -> str:
     """Simple dataset path generation"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}"
-    print(f"[Path] Generated dataset path: {path}")  # SUPREME_RULE NO.3
+    print_info(f"[Path] Generated dataset path: {path}")  # SUPREME_RULE NO.3
     return path
 
 def validate_grid_size(grid_size: int):
     """Simple grid size validation"""
     if grid_size < 5 or grid_size > 50:
-        print(f"[Validator] Invalid grid size: {grid_size} (must be 5-50)")  # SUPREME_RULE NO.3
+        print_error(f"[Validator] Invalid grid size: {grid_size} (must be 5-50)")  # SUPREME_RULE NO.3
         raise ValueError(f"Grid size should be reasonable (5-50), got {grid_size}")
-    print(f"[Validator] Grid size {grid_size} is valid")  # SUPREME_RULE NO.3
+    print_success(f"[Validator] Grid size {grid_size} is valid")  # SUPREME_RULE NO.3
 
 def register_validator(data_type: str, validator_func):
     """Simple validator registration"""
-    print(f"[Registry] Registering validator for {data_type}")  # SUPREME_RULE NO.3
+    print_info(f"[Registry] Registering validator for {data_type}")  # SUPREME_RULE NO.3
     _validators[data_type] = validator_func
 ```
 
@@ -82,26 +84,26 @@ def get_dataset_path(extension_type: str, version: str, grid_size: int, algorith
     """Simple dataset path generation"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{algorithm}"
-    print(f"[Path] Generated dataset path: {path}")
+    print_info(f"[Path] Generated dataset path: {path}")
     return path
 
 def get_model_path(extension_type: str, version: str, grid_size: int, model_name: str) -> str:
     """Simple model path generation"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = f"logs/extensions/models/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}/{model_name}"
-    print(f"[Path] Generated model path: {path}")
+    print_info(f"[Path] Generated model path: {path}")
     return path
 
 def ensure_directory_exists(path: str):
     """Simple directory creation"""
     Path(path).mkdir(parents=True, exist_ok=True)
-    print(f"[Path] Ensured directory exists: {path}")
+    print_info(f"[Path] Ensured directory exists: {path}")
 
 def validate_grid_size(grid_size: int):
     """Simple grid size validation"""
     if grid_size < 5 or grid_size > 50:
         raise ValueError(f"Grid size should be reasonable (5-50), got {grid_size}")
-    print(f"[Path] Grid size {grid_size} is valid")
+    print_success(f"[Path] Grid size {grid_size} is valid")
 ```
 
 #### **2. Simple Configuration Access**
@@ -109,7 +111,7 @@ def validate_grid_size(grid_size: int):
 # SUPREME_RULE NO.3: Simple configuration access instead of complex singletons
 def get_universal_config(module: str, key: str):
     """Simple universal configuration access"""
-    print(f"[Config] Accessing universal config: {module}.{key}")
+    print_info(f"[Config] Accessing universal config: {module}.{key}")
     
     # Direct imports - simple and clear
     if module == "game":
@@ -125,7 +127,7 @@ def get_universal_config(module: str, key: str):
 
 def get_extension_config(module: str, key: str, default=None):
     """Simple extension configuration access"""
-    print(f"[Config] Accessing extension config: {module}.{key}")
+    print_info(f"[Config] Accessing extension config: {module}.{key}")
     
     # Extension-specific constants defined locally (SUPREME_RULE NO.3)
     if module == "dataset":
@@ -143,7 +145,7 @@ _validators = {}  # Simple module-level registry
 
 def register_validator(data_type: str, validator_func):
     """Simple validator registration"""
-    print(f"[Validation] Registering validator for {data_type}")
+    print_info(f"[Validation] Registering validator for {data_type}")
     _validators[data_type] = validator_func
 
 def validate_data(data_type: str, data):
@@ -151,15 +153,15 @@ def validate_data(data_type: str, data):
     validator = _validators.get(data_type, lambda x: True)  # Default: always valid
     try:
         result = validator(data)
-        print(f"[Validation] {data_type} validation: {'PASS' if result else 'FAIL'}")
+        print_success(f"[Validation] {data_type} validation: {'PASS' if result else 'FAIL'}")
         return result
     except Exception as e:
-        print(f"[Validation] {data_type} validation error: {e}")
+        print_error(f"[Validation] {data_type} validation error: {e}")
         return False
 
 def get_schema(schema_type: str, version: str = "latest"):
     """Simple schema retrieval"""
-    print(f"[Schema] Getting {schema_type} schema v{version}")
+    print_info(f"[Schema] Getting {schema_type} schema v{version}")
     
     # Simple schema definitions without complex caching
     if schema_type == "csv":
@@ -173,7 +175,7 @@ def get_schema(schema_type: str, version: str = "latest"):
 # SUPREME_RULE NO.3: Simple schema functions instead of complex managers
 def get_csv_schema(grid_size: int, version: str = "v1"):
     """Simple CSV schema retrieval - grid-size agnostic"""
-    print(f"[Schema] Getting CSV schema v{version} for grid {grid_size}x{grid_size}")
+    print_info(f"[Schema] Getting CSV schema v{version} for grid {grid_size}x{grid_size}")
     
     # Standard 16-feature schema works for any grid size
     return [
@@ -186,7 +188,7 @@ def get_csv_schema(grid_size: int, version: str = "v1"):
 
 def extract_features(game_state, grid_size: int):
     """Simple feature extraction function"""
-    print(f"[Features] Extracting features for grid {grid_size}x{grid_size}")
+    print_info(f"[Features] Extracting features for grid {grid_size}x{grid_size}")
     
     # Simple feature extraction without complex classes
     features = {
@@ -198,14 +200,14 @@ def extract_features(game_state, grid_size: int):
 
 def validate_dataset_compatibility(dataset_path: str, expected_schema: str):
     """Simple dataset compatibility validation"""
-    print(f"[Validation] Validating dataset compatibility: {dataset_path}")
+    print_info(f"[Validation] Validating dataset compatibility: {dataset_path}")
     
     # Simple validation without complex classes
     if not dataset_path.endswith('.csv'):
-        print(f"[Validation] Dataset must be CSV format")
+        print_error(f"[Validation] Dataset must be CSV format")
         return False
     
-    print(f"[Validation] Dataset compatibility validated")
+    print_success(f"[Validation] Dataset compatibility validated")
     return True
 ```
 
@@ -220,7 +222,7 @@ def create_agent_factory():
 
 def create_validator_factory():
     """Simple validator factory creation"""
-    print(f"[Factory] Creating validator factory")
+    print_info(f"[Factory] Creating validator factory")
     
     registry = {
         "DATASET": DatasetValidator,
@@ -234,7 +236,7 @@ def create_validator_factory():
         if not validator_class:
             available = list(registry.keys())
             raise ValueError(f"Unknown validator type: {validator_type}. Available: {available}")
-        print(f"[Factory] Creating validator: {validator_type}")  # Simple logging
+        print_info(f"[Factory] Creating validator: {validator_type}")  # Simple logging
         return validator_class(**kwargs)
     
     return create

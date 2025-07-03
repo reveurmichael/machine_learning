@@ -22,27 +22,29 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`single-source-of-truth.md`**: Ensures structure consistency across all extensions
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def setup_extension_environment(extension_path: str, version: str):
     """Setup extension environment with proper structure"""
-    print(f"[ExtensionManager] Setting up {extension_path} v{version}")  # SUPREME_RULE NO.3
+    print_info(f"[ExtensionManager] Setting up {extension_path} v{version}")  # SUPREME_RULE NO.3
     
     # Validate extension structure
     required_files = ["__init__.py", "game_logic.py", "game_manager.py"]
     for file in required_files:
         if not os.path.exists(os.path.join(extension_path, file)):
-            print(f"[ExtensionManager] Missing required file: {file}")  # SUPREME_RULE NO.3
+            print_error(f"[ExtensionManager] Missing required file: {file}")  # SUPREME_RULE NO.3
             return False
     
     # Version-specific validation
     if version == "0.02" and not os.path.exists(os.path.join(extension_path, "agents")):
-        print(f"[ExtensionManager] v0.02 requires agents/ directory")  # SUPREME_RULE NO.3
+        print_error(f"[ExtensionManager] v0.02 requires agents/ directory")  # SUPREME_RULE NO.3
         return False
     
-    print(f"[ExtensionManager] Extension structure validated successfully")  # SUPREME_RULE NO.3
+    print_success(f"[ExtensionManager] Extension structure validated successfully")  # SUPREME_RULE NO.3
     return True
 
 def create_extension_directory(extension_type: str, version: str):
@@ -51,12 +53,12 @@ def create_extension_directory(extension_type: str, version: str):
     extension_path = f"extensions/{extension_name}"
     
     os.makedirs(extension_path, exist_ok=True)
-    print(f"[ExtensionManager] Created extension directory: {extension_path}")  # SUPREME_RULE NO.3
+    print_info(f"[ExtensionManager] Created extension directory: {extension_path}")  # SUPREME_RULE NO.3
     
     # Create version-specific structure
     if version == "0.02":
         os.makedirs(os.path.join(extension_path, "agents"), exist_ok=True)
-        print(f"[ExtensionManager] Created agents/ directory for v0.02")  # SUPREME_RULE NO.3
+        print_info(f"[ExtensionManager] Created agents/ directory for v0.02")  # SUPREME_RULE NO.3
     
     return extension_path
 ```

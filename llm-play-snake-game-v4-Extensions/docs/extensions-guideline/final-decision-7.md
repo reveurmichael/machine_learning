@@ -22,9 +22,11 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`single-source-of-truth.md`**: Ensures factory consistency across all extensions
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 class AgentFactory:
     @classmethod
@@ -33,12 +35,12 @@ class AgentFactory:
         agent_class = cls._registry.get(agent_type.upper())
         if not agent_class:
             raise ValueError(f"Unknown agent type: {agent_type}")
-        print(f"[AgentFactory] Creating agent: {agent_type}")  # SUPREME_RULE NO.3
+        print_info(f"[AgentFactory] Creating agent: {agent_type}")  # SUPREME_RULE NO.3
         return agent_class(**kwargs)
 
 def register_agent(agent_type: str, agent_class):
     """Register agent with factory"""
-    print(f"[Factory] Registering agent: {agent_type}")  # SUPREME_RULE NO.3
+    print_info(f"[Factory] Registering agent: {agent_type}")  # SUPREME_RULE NO.3
     _registry[agent_type.upper()] = agent_class
 ```
 
@@ -77,7 +79,7 @@ class HeuristicAgentFactory:
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # Simple logging
+        print_info(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # Simple logging
         return agent_class(**kwargs)
 ```
 
@@ -161,7 +163,7 @@ class HeuristicAgentFactory(BaseAgentFactory):
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm: {agent_type}. Available: {available}")
         
-        print(f"[HeuristicAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
+        print_info(f"[HeuristicAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
         return agent_class(grid_size=grid_size)
     
     @classmethod
@@ -179,7 +181,7 @@ class HeuristicAgentFactory(BaseAgentFactory):
             agent_class: Agent class to register
         """
         cls._registry[name.upper()] = agent_class
-        print(f"[HeuristicAgentFactory] Registered algorithm: {name}")  # Simple logging
+        print_info(f"[HeuristicAgentFactory] Registered algorithm: {name}")  # Simple logging
 ```
 
 ## 🎯 **Extension-Specific Factory Implementations**
@@ -215,7 +217,7 @@ class SupervisedAgentFactory(BaseAgentFactory):
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown model: {agent_type}. Available: {available}")
         
-        print(f"[SupervisedAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
+        print_info(f"[SupervisedAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
         return agent_class(grid_size=grid_size, **kwargs)
 ```
 

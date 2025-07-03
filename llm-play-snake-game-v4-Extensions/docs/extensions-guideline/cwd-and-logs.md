@@ -70,7 +70,7 @@ def ensure_project_root() -> Path:
     current_dir = Path.cwd()
     
     if current_dir != project_root:
-        print(f"[PathUtils] Changing working directory to project root: {project_root}")
+        print_info(f"[PathUtils] Changing working directory to project root: {project_root}")
         os.chdir(project_root)
     
     # Ensure the project root is at the beginning of sys.path for import precedence
@@ -122,9 +122,11 @@ All logging must use simple print statements. No complex logging frameworks are 
 
 ```python
 # ✅ CORRECT: Simple print logging (SUPREME_RULES compliance)
-print(f"[GameManager] Starting game {game_id}")
-print(f"[Agent] Selected move: {move}")
-print(f"[Game] Score: {score}")
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
+print_info(f"[GameManager] Starting game {game_id}")
+print_info(f"[Agent] Selected move: {move}")
+print_info(f"[Game] Score: {score}")
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
 # import logging
@@ -133,53 +135,6 @@ print(f"[Game] Score: {score}")
 # logger.error("Game failed")
 ```
 
-### **Logging Format Standards**
-```python
-def log_info(component: str, message: str):
-    """Standard info logging format"""
-    print(f"[{component}] {message}")
-
-def log_error(component: str, message: str):
-    """Standard error logging format"""
-    print(f"[{component}] ERROR: {message}")
-
-def log_debug(component: str, message: str):
-    """Standard debug logging format"""
-    print(f"[{component}] DEBUG: {message}")
-
-# Usage examples
-log_info("GameManager", "Starting new game")
-log_error("Agent", "Invalid move detected")
-log_debug("Pathfinding", "Calculating route to apple")
-```
-
-### **Component-Specific Logging**
-```python
-class GameManager:
-    def __init__(self):
-        self.component_name = "GameManager"
-        print(f"[{self.component_name}] Initialized")  # SUPREME_RULES compliant logging
-    
-    def start_game(self):
-        print(f"[{self.component_name}] Starting new game")  # SUPREME_RULES compliant logging
-        # Game logic here
-        print(f"[{self.component_name}] Game completed")  # SUPREME_RULES compliant logging
-    
-    def log_error(self, message: str):
-        print(f"[{self.component_name}] ERROR: {message}")  # SUPREME_RULES compliant logging
-
-class Agent:
-    def __init__(self, name: str):
-        self.component_name = f"Agent_{name}"
-        print(f"[{self.component_name}] Initialized")  # SUPREME_RULES compliant logging
-    
-    def plan_move(self, game_state: dict) -> str:
-        print(f"[{self.component_name}] Planning move")  # SUPREME_RULES compliant logging
-        # Move planning logic here
-        move = "UP"  # Example
-        print(f"[{self.component_name}] Selected move: {move}")  # SUPREME_RULES compliant logging
-        return move
-```
 
 ## 🚀 **File Organization Standards**
 
@@ -223,45 +178,6 @@ logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/
 │   ├── astar_dataset.csv
 │   └── astar_dataset.jsonl
 └── metadata.json
-```
-
-## 📋 **Implementation Examples**
-
-### **Extension Path Management**
-```python
-# In any extension - MANDATORY PATTERN
-from utils.path_utils import ensure_project_root
-ensure_project_root()
-
-# Now you can safely use absolute imports
-from config.game_constants import DIRECTIONS
-from core.game_manager import BaseGameManager
-from utils.print_utils import print_info
-
-def setup_extension():
-    """Setup extension with proper paths"""
-    print(f"[Extension] Project root ensured")  # SUPREME_RULES compliant logging
-    
-    # Extension logic here
-    pass
-```
-
-### **Script Entry Points**
-```python
-# extensions/heuristics-v0.04/scripts/main.py
-from utils.path_utils import ensure_project_root
-ensure_project_root()
-
-# Import extension-specific components using relative imports
-from ..game_manager import HeuristicGameManager
-from ..agents import AgentFactory
-
-def main():
-    """Main entry point for heuristics v0.04"""
-    print(f"[HeuristicsV04] Starting main script")  # SUPREME_RULES compliant logging
-    
-    # Extension logic here
-    pass
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**

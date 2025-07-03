@@ -213,7 +213,7 @@ class HeuristicAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 
@@ -275,7 +275,7 @@ class HeuristicGameManager(BaseGameManager):
     def initialize(self):
         # Set up pathfinding algorithms using canonical patterns
         self.pathfinder = PathfindingFactory.create("ASTAR")  # CANONICAL create() method per SUPREME_RULES
-        print("[HeuristicGameManager] Initialized pathfinder and ready to run")  # SUPREME_RULES compliant logging
+        print_info("[HeuristicGameManager] Initialized pathfinder and ready to run")  # SUPREME_RULES compliant logging
     
     def run(self):
         # Inherits all generic game loop logic from BaseGameManager
@@ -303,7 +303,7 @@ class HeuristicGameData(BaseGameData):
         # Add heuristic-specific extensions
         self.algorithm_name = "A*"
         self.path_calculations = 0
-        print("[HeuristicGameData] Initialized heuristic data tracking")  # SUPREME_RULES compliant logging
+        print_info("[HeuristicGameData] Initialized heuristic data tracking")  # SUPREME_RULES compliant logging
 
 class HeuristicGameLogic(BaseGameLogic):
     """
@@ -319,14 +319,14 @@ class HeuristicGameLogic(BaseGameLogic):
         super().__init__(grid_size, use_gui)
         # Inherits: planned_moves, get_next_planned_move()
         self.pathfinder = PathfindingFactory.create("ASTAR")  # CANONICAL create() method per SUPREME_RULES
-        print(f"[HeuristicGameLogic] Initialized with {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicGameLogic] Initialized with {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
     
     def plan_next_moves(self):
         # Use inherited get_state_snapshot()
         current_state = self.get_state_snapshot()
         path = self.pathfinder.find_path(current_state)
         self.planned_moves = path  # Inherited attribute
-        print(f"[HeuristicGameLogic] Planned {len(path)} moves")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicGameLogic] Planned {len(path)} moves")  # SUPREME_RULES compliant logging
 ```
 
 ### **Task 2 (Reinforcement Learning) Integration**
@@ -344,7 +344,7 @@ class RLGameManager(BaseGameManager):
     
     def initialize(self):
         self.agent = AgentFactory.create("DQN")  # CANONICAL create() method per SUPREME_RULES
-        print("[RLGameManager] DQN agent initialized")  # SUPREME_RULES compliant logging
+        print_info("[RLGameManager] DQN agent initialized")  # SUPREME_RULES compliant logging
     
     def run(self):
         # Inherits all session management
@@ -368,7 +368,7 @@ class RLGameData(BaseGameData):
         super().__init__()
         self.episode_rewards = []
         self.action_history = []
-        print("[RLGameData] Initialized RL data tracking")  # SUPREME_RULES logging
+        print_info("[RLGameData] Initialized RL data tracking")  # SUPREME_RULES logging
 
 class RLGameLogic(BaseGameLogic):
     """
@@ -383,7 +383,7 @@ class RLGameLogic(BaseGameLogic):
     def get_observation(self):
         # Use inherited state snapshot
         state = self.get_state_snapshot()
-        print(f"[RLGameLogic] Generated observation")  # SUPREME_RULES logging
+        print_info(f"[RLGameLogic] Generated observation")  # SUPREME_RULES logging
         return state
 ```
 

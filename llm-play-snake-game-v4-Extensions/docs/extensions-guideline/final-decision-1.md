@@ -37,9 +37,11 @@ This document integrates with the **GOOD_RULES** governance system established i
 This document establishes the **definitive directory structure** for organizing datasets and models in the `./logs/extensions/` folder across all Snake Game AI tasks (1-5). The structure reflects the **multi-directional data ecosystem** where all tasks can both **consume and generate** high-quality datasets and models, strictly following SUPREME_RULES from `final-decision-10.md`.
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def create_dataset_directory(extension_type: str, version: str, grid_size: int):
     """Create dataset directory with proper structure using canonical factory pattern"""
@@ -47,23 +49,23 @@ def create_dataset_directory(extension_type: str, version: str, grid_size: int):
     path = f"logs/extensions/datasets/grid-size-{grid_size}/{extension_type}_v{version}_{timestamp}"
     
     os.makedirs(path, exist_ok=True)
-    print(f"[DatasetManager] Created dataset directory: {path}")  # SUPREME_RULE NO.3
+    print_info(f"[DatasetManager] Created dataset directory: {path}")  # SUPREME_RULE NO.3
     
     return path
 
 def validate_directory_structure(path: str):
     """Validate directory follows required structure"""
     if not os.path.exists(path):
-        print(f"[Validator] Directory does not exist: {path}")  # SUPREME_RULE NO.3
+        print_error(f"[Validator] Directory does not exist: {path}")  # SUPREME_RULE NO.3
         return False
     
     required_files = ["processed_data", "game_logs"]
     for file in required_files:
         if not os.path.exists(os.path.join(path, file)):
-            print(f"[Validator] Missing required directory: {file}")  # SUPREME_RULE NO.3
+            print_error(f"[Validator] Missing required directory: {file}")  # SUPREME_RULE NO.3
             return False
     
-    print(f"[Validator] Directory structure is valid: {path}")  # SUPREME_RULE NO.3
+    print_success(f"[Validator] Directory structure is valid: {path}")  # SUPREME_RULE NO.3
     return True
 ```
 

@@ -42,7 +42,7 @@ class SimpleAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[SimpleAgentFactory] Creating agent: {agent_type}")  # Simple logging
+        print_info(f"[SimpleAgentFactory] Creating agent: {agent_type}")  # Simple logging
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -79,7 +79,7 @@ class SimpleGameState:
         self.snake_positions = [(grid_size // 2, grid_size // 2)]
         self.apple_position = self._generate_apple()
         self.score = 0
-        print(f"[SimpleGameState] Initialized {grid_size}x{grid_size} game")  # SUPREME_RULES compliant logging
+        print_info(f"[SimpleGameState] Initialized {grid_size}x{grid_size} game")  # SUPREME_RULES compliant logging
     
     def _generate_apple(self) -> tuple:
         """Generate random apple position."""
@@ -100,9 +100,11 @@ class SimpleGameState:
 ### **Simple Logging (SUPREME_RULES)**
 ```python
 # ✅ CORRECT: Simple print logging (SUPREME_RULES compliance)
-print(f"[GameManager] Starting game {game_id}")
-print(f"[Agent] Selected move: {move}")
-print(f"[Game] Score: {score}")
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
+print_info(f"[GameManager] Starting game {game_id}")
+print_info(f"[Agent] Selected move: {move}")
+print_info(f"[Game] Score: {score}")
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
 # import logging
@@ -121,14 +123,14 @@ class SimpleConfig:
     def __init__(self):
         self.grid_size = 10
         self.max_games = 1
-        print(f"[SimpleConfig] Default config loaded")  # SUPREME_RULES compliant logging
+        print_info(f"[SimpleConfig] Default config loaded")  # SUPREME_RULES compliant logging
     
     def update(self, **kwargs):
         """Update configuration with new values."""
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-                print(f"[SimpleConfig] Updated {key} = {value}")  # SUPREME_RULES compliant logging
+                print_info(f"[SimpleConfig] Updated {key} = {value}")  # SUPREME_RULES compliant logging
 ```
 
 ### **Simple Error Handling**
@@ -136,7 +138,7 @@ class SimpleConfig:
 def safe_divide(a: float, b: float) -> float:
     """Safely divide two numbers."""
     if b == 0:
-        print(f"[MathUtils] Division by zero attempted")  # SUPREME_RULES compliant logging
+        print_error(f"[MathUtils] Division by zero attempted")  # SUPREME_RULES compliant logging
         return 0.0
     return a / b
 
@@ -144,7 +146,7 @@ def validate_position(position: tuple, grid_size: int) -> bool:
     """Validate position is within grid bounds."""
     x, y = position
     if not (0 <= x < grid_size and 0 <= y < grid_size):
-        print(f"[Validation] Position {position} out of bounds")  # SUPREME_RULES compliant logging
+        print_error(f"[Validation] Position {position} out of bounds")  # SUPREME_RULES compliant logging
         return False
     return True
 ```

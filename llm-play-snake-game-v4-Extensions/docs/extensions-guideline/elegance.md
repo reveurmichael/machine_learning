@@ -42,7 +42,7 @@ class ElegantAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[ElegantAgentFactory] Creating agent: {agent_type}")  # Simple logging
+        print_info(f"[ElegantAgentFactory] Creating agent: {agent_type}")  # Simple logging
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -76,7 +76,7 @@ def make_move(game_state: GameState, direction: str) -> GameState:
     new_state = game_state.copy()
     new_state.apply_move(direction)
     
-    print(f"[GameState] Applied move: {direction}")  # Simple logging
+            print_info(f"[GameState] Applied move: {direction}")  # Simple logging
     return new_state
 ```
 
@@ -95,13 +95,13 @@ class ElegantGameManager:
         self.agent_factory = agent_factory
         self.game_state = None
         self.agent = None
-        print(f"[ElegantGameManager] Initialized")  # Simple logging
+        print_info(f"[ElegantGameManager] Initialized")  # Simple logging
     
     def setup_game(self, agent_type: str, grid_size: int = 10):
         """Setup game with elegant simplicity"""
         self.agent = self.agent_factory.create(agent_type, grid_size=grid_size)  # Canonical
         self.game_state = GameState(grid_size)
-        print(f"[ElegantGameManager] Game setup complete")  # Simple logging
+        print_success(f"[ElegantGameManager] Game setup complete")  # Simple logging
     
     def run_game(self) -> GameResult:
         """Run game with elegant flow"""
@@ -110,7 +110,7 @@ class ElegantGameManager:
             self.game_state = make_move(self.game_state, move)
         
         result = GameResult(self.game_state)
-        print(f"[ElegantGameManager] Game completed: {result.score}")  # Simple logging
+        print_success(f"[ElegantGameManager] Game completed: {result.score}")  # Simple logging
         return result
 ```
 
@@ -168,7 +168,7 @@ class ElegantErrorHandler:
     
     def handle_agent_error(self, error: Exception, context: str) -> str:
         """Handle agent errors elegantly"""
-        print(f"[ElegantErrorHandler] Handling {type(error).__name__}: {error}")  # Simple logging
+        print_error(f"[ElegantErrorHandler] Handling {type(error).__name__}: {error}")  # Simple logging
         
         if isinstance(error, ValueError):
             return self._handle_validation_error(error, context)

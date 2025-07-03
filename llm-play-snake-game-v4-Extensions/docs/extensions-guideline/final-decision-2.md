@@ -22,25 +22,27 @@ This document integrates with the **GOOD_RULES** governance system established i
 - **`single-source-of-truth.md`**: Ensures configuration consistency across all extensions
 
 ### **Simple Logging Examples (SUPREME_RULE NO.3)**
-All code examples in this document follow **SUPREME_RULE NO.3** by using simple print() statements rather than complex logging mechanisms:
+All code examples in this document follow **SUPREME_RULE NO.3** by using ROOT/utils/print_utils.py functions rather than complex logging mechanisms:
 
 ```python
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 # ✅ CORRECT: Simple logging as per SUPREME_RULE NO.3
 def validate_config_access(extension_type: str, imported_modules: List[str]):
     """Validate extension configuration access compliance"""
-    print(f"[ConfigValidator] Validating {extension_type} extension")  # SUPREME_RULE NO.3
+    print_info(f"[ConfigValidator] Validating {extension_type} extension")  # SUPREME_RULE NO.3
     
     for module in imported_modules:
         if module.startswith('config.llm_constants'):
             if not extension_type.startswith(('agentic-llms', 'llm', 'vision-language-model')):
-                print(f"[ConfigValidator] WARNING: {extension_type} accessing forbidden LLM constants")  # SUPREME_RULE NO.3
+                print_warning(f"[ConfigValidator] WARNING: {extension_type} accessing forbidden LLM constants")  # SUPREME_RULE NO.3
                 raise ImportError(f"LLM constants forbidden for {extension_type}")
     
-    print(f"[ConfigValidator] Configuration access validated for {extension_type}")  # SUPREME_RULE NO.3
+    print_success(f"[ConfigValidator] Configuration access validated for {extension_type}")  # SUPREME_RULE NO.3
 
 def get_universal_config(module: str, key: str):
     """Simple universal configuration access"""
-    print(f"[Config] Accessing universal config: {module}.{key}")  # SUPREME_RULE NO.3
+    print_info(f"[Config] Accessing universal config: {module}.{key}")  # SUPREME_RULE NO.3
     
     if module == "game":
         from config.game_constants import VALID_MOVES, DIRECTIONS
@@ -52,7 +54,7 @@ def get_universal_config(module: str, key: str):
         config_map = {}
     
     value = config_map.get(key)
-    print(f"[Config] Retrieved {module}.{key} = {value}")  # SUPREME_RULE NO.3
+    print_info(f"[Config] Retrieved {module}.{key} = {value}")  # SUPREME_RULE NO.3
     return value
 ```
 
@@ -126,7 +128,7 @@ class ConfigFactory:
         if not config_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown config type: {config_type}. Available: {available}")
-        print(f"[ConfigFactory] Creating config: {config_type}")  # Simple logging
+        print_info(f"[ConfigFactory] Creating config: {config_type}")  # Simple logging
         return config_class(**kwargs)
 ```
 
@@ -170,7 +172,7 @@ def validate_dataset_format(dataset_path):
     """Simple dataset format validation"""
     if not dataset_path.endswith('.csv'):
         raise ValueError("Expected CSV format")
-    print(f"[Validator] Dataset format valid: {dataset_path}")
+    print_success(f"[Validator] Dataset format valid: {dataset_path}")
     return True
 
 # Note: The actual implementation uses validate_dataset() function
@@ -181,27 +183,27 @@ def validate_path_structure(path):
     """Simple path structure validation"""
     if not path or not path.exists():
         raise ValueError("Invalid path structure")
-    print(f"[Validator] Path structure valid: {path}")
+    print_success(f"[Validator] Path structure valid: {path}")
     return True
 
 def validate_schema_compliance(data, schema):
     """Simple schema compliance validation"""
     if not data or not schema:
         raise ValueError("Invalid data or schema")
-    print(f"[Validator] Schema compliance valid")
+    print_success(f"[Validator] Schema compliance valid")
     return True
 
 # Usage in extensions - simple function calls
 def validate_extension_data(extension_path: str, data: dict):
     """Simple validation for extension data"""
-    print(f"[Validator] Validating extension: {extension_path}")
+    print_info(f"[Validator] Validating extension: {extension_path}")
     
     # In actual implementation, use: validate_dataset(data.get('dataset_path', ''))
     validate_dataset_format(data.get('dataset_path', ''))
     validate_path_structure(data.get('model_path', ''))
     validate_schema_compliance(data.get('schema_data'), data.get('schema'))
     
-    print("[Validator] All validations passed")
+    print_success("[Validator] All validations passed")
     return True
 ```
 
@@ -229,7 +231,7 @@ class ValidationFactory:
         if not validator_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown validator type: {validator_type}. Available: {available}")
-        print(f"[ValidationFactory] Creating validator: {validator_type}")  # Simple logging
+        print_info(f"[ValidationFactory] Creating validator: {validator_type}")  # Simple logging
         return validator_class(**kwargs)
 ```
 
@@ -251,19 +253,19 @@ Following **SUPREME_RULE NO.3**, complex singleton managers have been simplified
 # ✅ SIMPLIFIED UTILITY FUNCTIONS (SUPREME_RULE NO.3):
 def get_project_root():
     """Get project root directory"""
-    print("[PathUtils] Getting project root")  # Simple logging
+    print_info("[PathUtils] Getting project root")  # Simple logging
     # Implementation here
     return project_root
 
 def get_extension_path(extension_type: str, version: str):
     """Get extension directory path"""
-    print(f"[PathUtils] Getting path for {extension_type}-{version}")  # Simple logging
+    print_info(f"[PathUtils] Getting path for {extension_type}-{version}")  # Simple logging
     # Implementation here
     return extension_path
 
 def validate_extension_structure(extension_path):
     """Validate extension directory structure"""
-    print(f"[Validator] Validating structure: {extension_path}")  # Simple logging
+    print_info(f"[Validator] Validating structure: {extension_path}")  # Simple logging
     # Implementation here
     return True
 

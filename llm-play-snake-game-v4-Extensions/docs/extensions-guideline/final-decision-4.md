@@ -243,7 +243,7 @@ class {Algorithm}Agent(BaseAgent):
         super().__init__(name, grid_size)
         self.algorithm_name = "{Algorithm}"
         self.config = kwargs
-        print(f"[{Algorithm}Agent] Initialized {name} agent")  # Simple logging
+        print_info(f"[{Algorithm}Agent] Initialized {name} agent")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """
@@ -255,13 +255,13 @@ class {Algorithm}Agent(BaseAgent):
         Returns:
             Move direction ('UP', 'DOWN', 'LEFT', 'RIGHT')
         """
-        print(f"[{self.name}] Planning move using {self.algorithm_name}")  # Simple logging
+        print_info(f"[{self.name}] Planning move using {self.algorithm_name}")  # Simple logging
         
         # {Algorithm} implementation here
         # This is where the specific algorithm logic goes
         
         move = self._implement_{algorithm_lower}(game_state)
-        print(f"[{self.name}] {self.algorithm_name} decided: {move}")  # Simple logging
+        print_info(f"[{self.name}] {self.algorithm_name} decided: {move}")  # Simple logging
         return move
     
     def _implement_{algorithm_lower}(self, game_state: Dict[str, Any]) -> str:
@@ -307,7 +307,7 @@ class AgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[AgentFactory] Creating agent: {agent_type}")  # Simple logging
+        print_info(f"[AgentFactory] Creating agent: {agent_type}")  # Simple logging
         return agent_class(**kwargs)
 ```
 

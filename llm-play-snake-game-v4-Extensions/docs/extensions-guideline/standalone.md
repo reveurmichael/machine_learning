@@ -212,7 +212,7 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(grid_size=grid_size)
         
         # Simple logging
-        print(f"[HeuristicGameManager] Initializing with algorithm: {algorithm}, grid: {grid_size}x{grid_size}")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicGameManager] Initializing with algorithm: {algorithm}, grid: {grid_size}x{grid_size}")  # SUPREME_RULES compliant logging
         
         # Create agent using extension-specific factory
         self.agent = self.create(algorithm)
@@ -245,7 +245,7 @@ class HeuristicGameManager(BaseGameManager):
         csv_file = f"{output_path}/tabular_{self.agent.name.lower()}_data.csv"
         csv_data.to_csv(csv_file, index=False)
         
-        print(f"[HeuristicGameManager] Dataset saved to: {csv_file}")  # SUPREME_RULES compliant logging
+        print_success(f"[HeuristicGameManager] Dataset saved to: {csv_file}")  # SUPREME_RULES compliant logging
         return csv_file
 ```
 
@@ -292,7 +292,7 @@ class SupervisedGameManager(BaseGameManager):
         super().__init__(grid_size=grid_size)
         
         # Simple logging
-        print(f"[SupervisedGameManager] Initializing {model_type} model for {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
+        print_info(f"[SupervisedGameManager] Initializing {model_type} model for {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
         
         # Load training data using common utilities
         self.dataset_loader = DatasetLoader(grid_size)
@@ -315,7 +315,7 @@ class SupervisedGameManager(BaseGameManager):
         model_path = f"{base_path}/grid-size-{self.grid_size}/supervised_v0.03_{timestamp}"
         
         self.model.save(f"{model_path}/{self.model.name}_model.pkl")
-        print(f"[SupervisedGameManager] Model saved to: {model_path}")  # SUPREME_RULES compliant logging
+        print_success(f"[SupervisedGameManager] Model saved to: {model_path}")  # SUPREME_RULES compliant logging
 ```
 
 ## 📊 **Standalone Validation**
@@ -326,7 +326,7 @@ Each extension must pass the standalone validation:
 ```python
 def validate_extension_standalone(extension_path: str) -> bool:
     """Simple validation function for standalone principles"""
-    print(f"[Validator] Checking extension: {extension_path}")  # SUPREME_RULES compliant logging
+            print_info(f"[Validator] Checking extension: {extension_path}")  # SUPREME_RULES compliant logging
     
     # Simple checks using basic file operations
     python_files = [f for f in os.listdir(extension_path) if f.endswith('.py')]
@@ -339,10 +339,10 @@ def validate_extension_standalone(extension_path: str) -> bool:
             forbidden_patterns = ['heuristics_v0_', 'supervised_v0_', 'reinforcement_v0_']
             for pattern in forbidden_patterns:
                 if pattern in content:
-                    print(f"[Validator] Found forbidden import: {pattern} in {file_path}")  # SUPREME_RULES compliant logging
+                    print_error(f"[Validator] Found forbidden import: {pattern} in {file_path}")  # SUPREME_RULES compliant logging
                     return False
     
-    print(f"[Validator] Extension {extension_path} is standalone compliant")  # SUPREME_RULES compliant logging
+            print_success(f"[Validator] Extension {extension_path} is standalone compliant")  # SUPREME_RULES compliant logging
     return True
 ```
 

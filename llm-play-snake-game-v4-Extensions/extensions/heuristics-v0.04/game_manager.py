@@ -131,8 +131,13 @@ class HeuristicGameManager(BaseGameManager):
         
         # Follow standardized dataset folder structure
         # Reference: docs/extensions-guideline/datasets-folder.md
-        dataset_folder = f"heuristics-v0.04_v0.04_{timestamp}"
-        self.log_dir = os.path.join(EXTENSIONS_LOGS_DIR, "datasets", f"grid-size-{grid_size}", dataset_folder)
+        dataset_folder = f"heuristics_v0.04_{timestamp}"
+        base_dir = os.path.join(EXTENSIONS_LOGS_DIR, "datasets", f"grid-size-{grid_size}", dataset_folder)
+
+        # Algorithm-specific subdirectory (all files for one run live here)
+        self.log_dir = os.path.join(base_dir, self.algorithm_name.lower())
+
+        # Create directories
         os.makedirs(self.log_dir, exist_ok=True)
 
     def _setup_agent(self) -> None:
@@ -304,12 +309,8 @@ class HeuristicGameManager(BaseGameManager):
                 }
             }
 
-        # Create algorithm-specific subdirectory following dataset folder standards
-        # Reference: docs/extensions-guideline/datasets-folder.md
-        algorithm_dir = os.path.join(self.log_dir, self.algorithm_name.lower())
-        os.makedirs(algorithm_dir, exist_ok=True)
-        
-        game_filepath = os.path.join(algorithm_dir, f"game_{self.game_count}.json")
+        # self.log_dir 已经是算法目录
+        game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_filepath, 'w', encoding='utf-8') as f:
             json.dump(game_data, f, indent=2, default=str)  # Handle numpy types
 
@@ -353,9 +354,8 @@ class HeuristicGameManager(BaseGameManager):
         print(Fore.GREEN + f"⚡ Score per step: {summary_data['statistics']['score_per_step']:.3f}")
         print(Fore.GREEN + f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
 
-        # Save summary to algorithm-specific subdirectory
-        algorithm_dir = os.path.join(self.log_dir, self.algorithm_name.lower())
-        summary_filepath = os.path.join(algorithm_dir, "summary.json")
+        # self.log_dir 已经是算法目录
+        summary_filepath = os.path.join(self.log_dir, "summary.json")
         with open(summary_filepath, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, indent=2, default=str)  # Handle numpy types
 

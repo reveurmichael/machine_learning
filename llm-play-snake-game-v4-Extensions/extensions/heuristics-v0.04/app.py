@@ -49,10 +49,6 @@ st.set_page_config(page_title="Heuristics v0.04 Dataset Generator", page_icon="�
 
 st.title("🐍 Heuristics v0.04 Dataset Generator")
 """Launch `generate_datasets.py` with adjustable parameters.
-
-Compliance: SUPREME_RULE NO.5 – Streamlit `app.py` must *only* launch
-backend scripts. No real-time game visualisation, progress dashboards or
-complex UI components are included.
 """
 
 # Sidebar – parameter selection ------------------------------------------------

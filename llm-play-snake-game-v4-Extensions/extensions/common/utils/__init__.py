@@ -1,13 +1,45 @@
 """
-Common utilities package for Snake Game AI extensions.
+Common utilities for extensions.
 
-This package is governed by final-decision-10.md governance system.
-- Exports all utility modules with canonical patterns
-- Simple logging with print() statements only
-- OOP extensibility with inheritance support
+This package provides shared utilities that can be used across different
+extension types (heuristics, supervised, reinforcement learning, etc.).
 
-Reference: docs/extensions-guideline/final-decision-10.md
+Design Philosophy:
+- Reusable across extensions
+- Single responsibility per module
+- Clear separation of concerns
 """
+
+# Re-export core dataset generation classes for backward compatibility
+from .dataset_generator_core import DatasetGenerator
+from .dataset_game_runner import run_heuristic_games, load_game_logs
+
+# Re-export CLI functions
+from .dataset_generator_cli import create_argument_parser, find_available_algorithms, main
+
+# Re-export other utilities
+from .path_utils import setup_extension_paths
+from .csv_schema_utils import CSVValidator, TabularFeatureExtractor
+from .dataset_utils import save_csv_dataset, save_jsonl_dataset
+
+__all__ = [
+    # Core dataset generation
+    "DatasetGenerator",
+    "run_heuristic_games", 
+    "load_game_logs",
+    
+    # CLI functions
+    "create_argument_parser",
+    "find_available_algorithms", 
+    "main",
+    
+    # Other utilities
+    "setup_extension_paths",
+    "CSVValidator",
+    "TabularFeatureExtractor", 
+    "save_csv_dataset",
+    "save_jsonl_dataset",
+]
 
 print("[common.utils] Imported common utilities (final-decision-10.md Guideline 3)")
 
@@ -152,5 +184,4 @@ def validate_csv_schema(df, expected_columns=None):
     print("[CommonUtils] CSV schema validation passed")
     return True
 
-# Dataset generation CLI utilities
-from .dataset_generator_cli import DatasetGenerator, main as dataset_cli_main 
+# Dataset generation CLI utilities removed in modular refactor (v0.04) 

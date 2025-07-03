@@ -20,7 +20,6 @@ import argparse
 import os
 import sys
 import pathlib
-from pathlib import Path
 
 # --------------------------------------------------------------------------- #
 # 1. Ensure repository root on sys.path and find template/static directories  #

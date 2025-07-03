@@ -20,7 +20,7 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Tuple, Set, TYPE_CHECKING
+from typing import Dict, List, Tuple, TYPE_CHECKING
 from .agent_astar import AStarAgent
 
 # Ensure project root is set and properly configured
@@ -33,7 +33,6 @@ from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
 
 # Import extension-specific components using relative imports
-from .agent_astar import AStarAgent
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic

@@ -18,12 +18,11 @@ import json
 
 # Add project root to path to allow absolute imports
 import sys
-from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
 
 from ..config.dataset_formats import CSV_BASIC_COLUMNS
-from utils.print_utils import print_info, print_warning, print_error, print_success
+from utils.print_utils import print_info, print_warning, print_success
 
 __all__ = ["DatasetGenerator"]
 

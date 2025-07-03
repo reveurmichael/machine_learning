@@ -16,9 +16,8 @@ Design Patterns:
 """
 
 from __future__ import annotations
-import copy
 import time
-from typing import TYPE_CHECKING, List, Tuple, Optional, Any
+from typing import TYPE_CHECKING, List, Optional
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -26,15 +25,11 @@ ensure_project_root()
 
 # Import from project root using absolute imports
 from core.game_logic import BaseGameLogic
-from config.game_constants import DIRECTIONS
 from config.ui_constants import GRID_SIZE
-from utils.moves_utils import position_to_direction
-from utils.collision_utils import check_collision
-from utils.board_utils import generate_random_apple
-from utils.print_utils import print_info, print_error
+from utils.print_utils import print_error
 
 if TYPE_CHECKING:
-    from game_manager import HeuristicGameManager
+    pass
 
 # Import extension-specific components using relative imports
 from game_data import HeuristicGameData

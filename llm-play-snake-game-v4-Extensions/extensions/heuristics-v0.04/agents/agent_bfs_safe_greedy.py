@@ -21,8 +21,7 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from collections import deque
-from typing import List, Tuple, Set, Optional, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root

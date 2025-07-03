@@ -23,15 +23,13 @@ Design Patterns:
 """
 
 from __future__ import annotations
-from collections import deque
-from typing import List, Tuple, Set, Optional, TYPE_CHECKING
+from typing import List, Tuple, Optional, TYPE_CHECKING
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import from project root using absolute imports
-from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
 

@@ -34,7 +34,7 @@ import os
 from utils.print_utils import print_info, print_warning, print_error, print_success
 from core.game_manager import BaseGameManager
 from core.game_agents import BaseAgent
-from extensions.common import EXTENSIONS_LOGS_DIR, HEURISTICS_LOG_PREFIX
+from extensions.common import EXTENSIONS_LOGS_DIR
 
 # Import heuristic-specific components using relative imports
 from game_logic import HeuristicGameLogic

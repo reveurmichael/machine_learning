@@ -7,7 +7,6 @@ and display formatting. It provides a single source of truth for all print-relat
 functionality across the project.
 """
 
-from typing import Callable
 from colorama import Fore, Style, init as _colorama_init
 
 # Initialize Colorama (auto-reset to avoid manual Style.RESET_ALL)

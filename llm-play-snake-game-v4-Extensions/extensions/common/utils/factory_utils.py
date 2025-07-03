@@ -14,7 +14,7 @@ Design Philosophy:
 Reference: docs/extensions-guideline/final-decision-10.md
 """
 
-from typing import Any, Dict, Type, Callable
+from typing import Any, Dict, Type
 from utils.print_utils import print_info
 
 

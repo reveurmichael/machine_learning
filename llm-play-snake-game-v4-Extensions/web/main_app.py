@@ -30,7 +30,6 @@ from core.game_manager import GameManager
 from core.game_controller import GameControllerAdapter
 from llm.agent_llm import SnakeAgent
 from web.base_app import GameFlaskApp
-from utils.web_utils import build_state_dict
 from core.game_file_manager import FileManager
 
 

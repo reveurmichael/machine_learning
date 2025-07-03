@@ -32,12 +32,13 @@ ensure_project_root()
 from config.game_constants import DIRECTIONS, VALID_MOVES
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
+from core.game_agents import BaseAgent
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
 
 
-class BFSAgent:
+class BFSAgent(BaseAgent):
     """
     Breadth-First Search agent for Snake game with explanation generation.
     
@@ -58,11 +59,11 @@ class BFSAgent:
     - Strategy Pattern: BFS pathfinding strategy
     - Template Method: Generic pathfinding with BFS implementation
     """
-    
+
     def __init__(self):
         """Initialize BFS agent."""
         self.algorithm_name = "BFS"
-        
+
     def get_move(self, game: HeuristicGameLogic) -> str | None:
         """
         Get next move using BFS pathfinding (simplified interface).
@@ -75,7 +76,7 @@ class BFSAgent:
         """
         move, _ = self.get_move_with_explanation(game)
         return move
-        
+
     def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, dict]:
         """
         Get next move using BFS pathfinding with detailed explanation.
@@ -97,16 +98,16 @@ class BFSAgent:
             apple_pos = tuple(game.apple_position)
             snake_positions = {tuple(pos) for pos in game.snake_positions}
             grid_size = game.grid_size
-            
+
             # ------------------------ Extra metrics for v0.04 JSONL ------------------------
             valid_moves = self._get_valid_moves(head_pos, snake_positions, grid_size)
             remaining_free_cells = self._count_remaining_free_cells(snake_positions, grid_size)
             manhattan_distance = abs(apple_pos[0] - head_pos[0]) + abs(apple_pos[1] - head_pos[1])
             # --------------------------------------------------------------------------------
-            
+
             # Find path using BFS
             path = self._bfs_pathfind(head_pos, apple_pos, snake_positions, grid_size)
-            
+
             if not path or len(path) < 2:
                 natural_language_summary = self._generate_no_path_explanation(
                     head_pos, apple_pos, snake_positions, grid_size
@@ -127,11 +128,11 @@ class BFSAgent:
                     "natural_language_summary": natural_language_summary,
                 }
                 return "NO_PATH_FOUND", explanation_dict
-                
+
             # Get first move in path
             next_pos = path[1]  # path[0] is current head position
             direction = position_to_direction(head_pos, next_pos)
-            
+
             # Generate explanation for this move
             explanation_steps_text = self._generate_move_explanation(
                 head_pos=head_pos,
@@ -143,7 +144,7 @@ class BFSAgent:
                 manhattan_distance=manhattan_distance,
                 remaining_free_cells=remaining_free_cells
             )
-            
+
             # ----------------------- Structured metrics -----------------------
             metrics = {
                 "manhattan_distance": manhattan_distance,
@@ -162,7 +163,7 @@ class BFSAgent:
             }
 
             return direction, explanation_dict
-            
+
         except Exception as e:
             error_explanation = f"BFS agent encountered an error: {str(e)}. Unable to compute safe path."
             print_error(f"BFS Agent error: {e}")
@@ -173,7 +174,7 @@ class BFSAgent:
                 "natural_language_summary": error_explanation,
             }
             return "NO_PATH_FOUND", explanation_dict
-    
+
     def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
                                  snake_positions: set, path: List[Tuple[int, int]], 
                                  direction: str,
@@ -224,7 +225,7 @@ class BFSAgent:
         ]
 
         return "\n".join(explanation_parts)
-    
+
     def _generate_no_path_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int],
                                     snake_positions: set, grid_size: int) -> str:
         """
@@ -241,53 +242,53 @@ class BFSAgent:
         """
         body_count = len(snake_positions)
         manhattan_distance = abs(apple_pos[0] - head_pos[0]) + abs(apple_pos[1] - head_pos[1])
-        
+
         # Check if apple is blocked by body
         apple_neighbors = self._get_neighbors(apple_pos, grid_size)
         blocked_neighbors = sum(1 for pos in apple_neighbors if pos in snake_positions)
-        
+
         explanation_parts = [
             f"BFS could not find any path from {head_pos} to apple at {apple_pos}."
         ]
-        
+
         if blocked_neighbors == len(apple_neighbors):
             explanation_parts.append("The apple is completely surrounded by snake body segments.")
         elif body_count > (grid_size * grid_size) // 2:
             explanation_parts.append(f"Snake body ({body_count} segments) has created too many obstacles.")
         else:
             explanation_parts.append("Available space is insufficient to reach the apple safely.")
-        
+
         explanation_parts.append(f"Manhattan distance to apple is {manhattan_distance}, but path is blocked.")
         explanation_parts.append("Need to find alternative strategy or wait for tail to move.")
-        
+
         return " ".join(explanation_parts)
-    
+
     def _get_apple_direction(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
         """Get relative direction description of apple from head."""
         dx = apple_pos[0] - head_pos[0]
         dy = apple_pos[1] - head_pos[1]
-        
+
         if dx == 0 and dy == 0:
             return "at the same position as"
-        
+
         directions = []
         if dy < 0:
             directions.append("above")
         elif dy > 0:
             directions.append("below")
-            
+
         if dx > 0:
             directions.append("to the right")
         elif dx < 0:
             directions.append("to the left")
-        
+
         if len(directions) == 2:
             return f"{directions[0]} and {directions[1]}"
         elif len(directions) == 1:
             return directions[0]
         else:
             return "at the same position as"
-    
+
     def _count_obstacles_in_path(self, path: List[Tuple[int, int]], snake_positions: set) -> int:
         """Count how many snake body segments are near the path."""
         obstacles_near_path = 0
@@ -298,7 +299,7 @@ class BFSAgent:
                 if adjacent_pos in snake_positions:
                     obstacles_near_path += 1
         return obstacles_near_path
-    
+
     def _get_neighbors(self, pos: Tuple[int, int], grid_size: int) -> List[Tuple[int, int]]:
         """Get valid neighboring positions."""
         neighbors = []
@@ -307,7 +308,7 @@ class BFSAgent:
             if 0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size:
                 neighbors.append(neighbor)
         return neighbors
-    
+
     def _bfs_pathfind(self, start: Tuple[int, int], goal: Tuple[int, int], 
                      obstacles: set, grid_size: int) -> List[Tuple[int, int]]:
         """
@@ -324,41 +325,41 @@ class BFSAgent:
         """
         if start == goal:
             return [start]
-            
+
         # BFS initialization
         queue = deque([(start, [start])])
         visited = {start}
-        
+
         while queue:
             current_pos, path = queue.popleft()
-            
+
             # Check all adjacent positions
             for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
                 dx, dy = DIRECTIONS[direction]
                 next_pos = (current_pos[0] + dx, current_pos[1] + dy)
-                
+
                 # Skip if out of bounds
                 if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
                     continue
-                    
+
                 # Skip if obstacle or already visited
                 if next_pos in obstacles or next_pos in visited:
                     continue
-                    
+
                 # Create new path
                 new_path = path + [next_pos]
-                
+
                 # Check if we reached the goal
                 if next_pos == goal:
                     return new_path
-                    
+
                 # Add to queue for further exploration
                 queue.append((next_pos, new_path))
                 visited.add(next_pos)
-        
+
         # No path found
         return []
-    
+
     # --------------------------------------------------------------------------
     # Helper utilities (v0.04 additions)
     # --------------------------------------------------------------------------

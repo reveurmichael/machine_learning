@@ -25,6 +25,7 @@ import json
 
 import pandas as pd
 
+from utils.print_utils import print_info, print_error
 from ..config.dataset_formats import CSV_BASIC_COLUMNS, JSONL_BASIC_KEYS
 from . import ValidationResult, ValidationLevel
 
@@ -39,12 +40,12 @@ def _validate_csv(path: Path) -> ValidationResult:
     
     Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
     """
-    print(f"[DatasetValidator] Validating CSV: {path}")  # final-decision-10.md Guideline 3: Simple logging
+    print_info(f"Validating CSV: {path}", "DatasetValidator")
     
     try:
         df = pd.read_csv(path)
     except Exception as exc:
-        print(f"[DatasetValidator] CSV validation failed: {exc}")  # final-decision-10.md Guideline 3: Simple logging
+        print_error(f"CSV validation failed: {exc}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
@@ -53,7 +54,7 @@ def _validate_csv(path: Path) -> ValidationResult:
 
     missing = set(CSV_BASIC_COLUMNS) - set(df.columns)
     if missing:
-        print(f"[DatasetValidator] CSV missing columns: {missing}")  # final-decision-10.md Guideline 3: Simple logging
+        print_error(f"CSV missing columns: {missing}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
@@ -61,7 +62,7 @@ def _validate_csv(path: Path) -> ValidationResult:
             details={"expected": CSV_BASIC_COLUMNS, "found": list(df.columns)},
         )
 
-    print(f"[DatasetValidator] CSV validation passed: {len(df)} rows")  # final-decision-10.md Guideline 3: Simple logging
+    print_info(f"CSV validation passed: {len(df)} rows", "DatasetValidator")
     return ValidationResult(
         is_valid=True,
         level=ValidationLevel.INFO,
@@ -75,7 +76,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
     
     Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
     """
-    print(f"[DatasetValidator] Validating JSONL: {path}")  # final-decision-10.md Guideline 3: Simple logging
+    print_info(f"Validating JSONL: {path}", "DatasetValidator")
     
     missing_keys: Dict[int, List[str]] = {}
     try:
@@ -86,7 +87,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
                 try:
                     obj: Dict[str, Any] = json.loads(line)
                 except json.JSONDecodeError as exc:
-                    print(f"[DatasetValidator] JSONL validation failed: line {idx} - {exc}")  # final-decision-10.md Guideline 3: Simple logging
+                    print_error(f"JSONL validation failed: line {idx} - {exc}")
                     return ValidationResult(
                         is_valid=False,
                         level=ValidationLevel.ERROR,
@@ -96,7 +97,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
                 if missing:
                     missing_keys[idx] = sorted(missing)
     except Exception as exc:
-        print(f"[DatasetValidator] JSONL validation failed: {exc}")  # final-decision-10.md Guideline 3: Simple logging
+        print_error(f"JSONL validation failed: {exc}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
@@ -104,7 +105,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
         )
 
     if missing_keys:
-        print(f"[DatasetValidator] JSONL missing keys: {missing_keys}")  # final-decision-10.md Guideline 3: Simple logging
+        print_error(f"JSONL missing keys: {missing_keys}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
@@ -112,7 +113,7 @@ def _validate_jsonl(path: Path) -> ValidationResult:
             details=missing_keys,
         )
 
-    print("[DatasetValidator] JSONL validation passed")  # final-decision-10.md Guideline 3: Simple logging
+    print_info("JSONL validation passed", "DatasetValidator")
     return ValidationResult(
         is_valid=True,
         level=ValidationLevel.INFO,
@@ -130,10 +131,10 @@ def validate_dataset(file_path: Union[str, Path]) -> ValidationResult:
     Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
     """
     path = Path(file_path)
-    print(f"[DatasetValidator] Starting validation: {path}")  # final-decision-10.md Guideline 3: Simple logging
+    print_info(f"Starting validation: {path}", "DatasetValidator")
 
     if not path.exists():
-        print(f"[DatasetValidator] File not found: {path}")  # final-decision-10.md Guideline 3: Simple logging
+        print_error(f"File not found: {path}")
         return ValidationResult(
             is_valid=False,
             level=ValidationLevel.ERROR,
@@ -148,7 +149,7 @@ def validate_dataset(file_path: Union[str, Path]) -> ValidationResult:
         return _validate_jsonl(path)
 
     # Unknown or unsupported file type – accept by default.
-    print(f"[DatasetValidator] Unknown file type, accepting by default: {suffix}")  # final-decision-10.md Guideline 3: Simple logging
+    print_info(f"Unknown file type, accepting by default: {suffix}", "DatasetValidator")
     return ValidationResult(
         is_valid=True,
         level=ValidationLevel.INFO,

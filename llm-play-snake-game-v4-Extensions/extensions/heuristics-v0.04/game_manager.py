@@ -30,7 +30,6 @@ from typing import Optional, Union, List
 import json
 import os
 
-from colorama import Fore
 # Import from project root using absolute imports
 from utils.print_utils import print_info, print_warning, print_error, print_success
 from core.game_manager import BaseGameManager

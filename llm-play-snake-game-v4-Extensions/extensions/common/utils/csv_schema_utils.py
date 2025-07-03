@@ -322,7 +322,8 @@ def create_csv_row(
     metadata to create complete training examples that can be used
     across different machine learning frameworks.
     """
-    print(f"[CSVSchemaUtils] Creating CSV row for game_id={game_id}, step={step_in_game}")
+    from utils.print_utils import print_info
+    print_info(f"Creating CSV row for game_id={game_id}, step={step_in_game}", "CSVSchemaUtils")
     # Validate target move
     if target_move not in CSV_VALID_MOVES:
         raise ValueError(f"Invalid target move: {target_move}. Must be one of {CSV_VALID_MOVES}")

@@ -37,6 +37,8 @@ import pandas as pd
 import numpy as np
 import json
 
+from utils.print_utils import print_info
+
 # Import basic format specifications
 from ..config.dataset_formats import (
     COMMON_DATASET_EXTENSIONS
@@ -60,14 +62,14 @@ def load_csv_dataset(file_path: Union[str, Path]) -> pd.DataFrame:
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Loading CSV dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Loading CSV dataset: {file_path}", "DatasetUtils")
     
     if not file_path.exists():
         raise FileNotFoundError(f"CSV file not found: {file_path}")
     
     try:
         df = pd.read_csv(file_path)
-        print(f"[DatasetUtils] CSV loaded successfully: {len(df)} rows, {len(df.columns)} columns")  # simple logging: Simple logging
+        print_info(f"CSV loaded successfully: {len(df)} rows, {len(df.columns)} columns", "DatasetUtils")
         return df
     except pd.errors.EmptyDataError:
         raise pd.errors.EmptyDataError(f"Empty CSV file: {file_path}")
@@ -90,7 +92,7 @@ def load_jsonl_dataset(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Loading JSONL dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Loading JSONL dataset: {file_path}", "DatasetUtils")
     
     if not file_path.exists():
         raise FileNotFoundError(f"JSONL file not found: {file_path}")
@@ -108,7 +110,7 @@ def load_jsonl_dataset(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
                         e.doc, e.pos
                     )
     
-    print(f"[DatasetUtils] JSONL loaded successfully: {len(records)} records")  # simple logging: Simple logging
+    print_info(f"JSONL loaded successfully: {len(records)} records", "DatasetUtils")
     return records
 
 
@@ -128,14 +130,14 @@ def load_npz_dataset(file_path: Union[str, Path]) -> Dict[str, np.ndarray]:
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Loading NPZ dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Loading NPZ dataset: {file_path}", "DatasetUtils")
     
     if not file_path.exists():
         raise FileNotFoundError(f"NPZ file not found: {file_path}")
     
     npz_file = np.load(file_path)
     arrays = dict(npz_file)
-    print(f"[DatasetUtils] NPZ loaded successfully: {len(arrays)} arrays")  # simple logging: Simple logging
+    print_info(f"NPZ loaded successfully: {len(arrays)} arrays", "DatasetUtils")
     return arrays
 
 
@@ -150,13 +152,13 @@ def save_csv_dataset(data: pd.DataFrame, file_path: Union[str, Path]) -> None:
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Saving CSV dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Saving CSV dataset: {file_path}", "DatasetUtils")
     
     # Ensure directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
     
     data.to_csv(file_path, index=False)
-    print(f"[DatasetUtils] CSV saved successfully: {len(data)} rows")  # simple logging: Simple logging
+    print_info(f"CSV saved successfully: {len(data)} rows", "DatasetUtils")
 
 
 def save_jsonl_dataset(data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:
@@ -170,7 +172,7 @@ def save_jsonl_dataset(data: List[Dict[str, Any]], file_path: Union[str, Path]) 
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Saving JSONL dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Saving JSONL dataset: {file_path}", "DatasetUtils")
     
     # Ensure directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -179,7 +181,7 @@ def save_jsonl_dataset(data: List[Dict[str, Any]], file_path: Union[str, Path]) 
         for record in data:
             f.write(json.dumps(record) + '\n')
     
-    print(f"[DatasetUtils] JSONL saved successfully: {len(data)} records")  # simple logging: Simple logging
+    print_info(f"JSONL saved successfully: {len(data)} records", "DatasetUtils")
 
 
 def save_npz_dataset(data: Dict[str, np.ndarray], file_path: Union[str, Path]) -> None:
@@ -193,13 +195,13 @@ def save_npz_dataset(data: Dict[str, np.ndarray], file_path: Union[str, Path]) -
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Saving NPZ dataset: {file_path}")  # simple logging: Simple logging
+    print_info(f"Saving NPZ dataset: {file_path}", "DatasetUtils")
     
     # Ensure directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
     
     np.savez(file_path, **data)
-    print(f"[DatasetUtils] NPZ saved successfully: {len(data)} arrays")  # simple logging: Simple logging
+    print_info(f"NPZ saved successfully: {len(data)} arrays", "DatasetUtils")
 
 
 def get_dataset_info(file_path: Union[str, Path]) -> Dict[str, Any]:
@@ -215,7 +217,7 @@ def get_dataset_info(file_path: Union[str, Path]) -> Dict[str, Any]:
     Follows simple logging: Simple logging with print() statements.
     """
     file_path = Path(file_path)
-    print(f"[DatasetUtils] Getting dataset info: {file_path}")  # simple logging: Simple logging
+    print_info(f"Getting dataset info: {file_path}", "DatasetUtils")
     
     if not file_path.exists():
         return {"exists": False, "error": f"File not found: {file_path}"}
@@ -250,7 +252,7 @@ def get_dataset_info(file_path: Union[str, Path]) -> Dict[str, Any]:
     except Exception as e:
         info["error"] = str(e)
     
-    print(f"[DatasetUtils] Dataset info retrieved: {info.get('rows', info.get('records', 'unknown'))} items")  # simple logging: Simple logging
+    print_info(f"Dataset info retrieved: {info.get('rows', info.get('records', 'unknown'))} items", "DatasetUtils")
     return info
 
 
@@ -354,7 +356,7 @@ class DatasetLoader:
     """
     def __init__(self, grid_size: int):
         self.grid_size = grid_size
-        print(f"[DatasetLoader] Initialized for grid size: {grid_size}")
+        print_info(f"Initialized for grid size: {grid_size}", "DatasetLoader")
 
     def load_csv_dataset(self, path: str) -> pd.DataFrame:
         """
@@ -364,9 +366,9 @@ class DatasetLoader:
         Returns:
             DataFrame with loaded data.
         """
-        print(f"[DatasetLoader] Loading CSV dataset from: {path}")
+        print_info(f"Loading CSV dataset from: {path}", "DatasetLoader")
         df = pd.read_csv(path)
-        print(f"[DatasetLoader] Loaded {len(df)} rows.")
+        print_info(f"Loaded {len(df)} rows.", "DatasetLoader")
         return df
 
     def prepare_features_and_targets(self, df: pd.DataFrame, scale_features: bool = False) -> Tuple[Any, Any]:
@@ -378,11 +380,11 @@ class DatasetLoader:
         Returns:
             Tuple of (features, targets).
         """
-        print("[DatasetLoader] Preparing features and targets.")
+        print_info("Preparing features and targets.", "DatasetLoader")
         X = df.drop(columns=["target_move"]).values
         y = df["target_move"].values
         if scale_features:
-            print("[DatasetLoader] Scaling features (not implemented, placeholder).")
+            print_info("Scaling features (not implemented, placeholder).", "DatasetLoader")
             # Implement scaling if needed
         return X, y
 
@@ -397,11 +399,11 @@ class DatasetLoader:
         Returns:
             Tuple of (X_train, X_val, X_test, y_train, y_val, y_test).
         """
-        print(f"[DatasetLoader] Splitting dataset: val_ratio={val_ratio}, test_ratio={test_ratio}")
+        print_info(f"Splitting dataset: val_ratio={val_ratio}, test_ratio={test_ratio}", "DatasetLoader")
         n = len(X)
         n_val = int(n * val_ratio)
         n_test = int(n * test_ratio)
         X_train, X_val, X_test = X[:n-n_val-n_test], X[n-n_val-n_test:n-n_test], X[n-n_test:]
         y_train, y_val, y_test = y[:n-n_val-n_test], y[n-n_val-n_test:n-n_test], y[n-n_test:]
-        print(f"[DatasetLoader] Split sizes: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}")
+        print_info(f"Split sizes: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}", "DatasetLoader")
         return X_train, X_val, X_test, y_train, y_val, y_test 

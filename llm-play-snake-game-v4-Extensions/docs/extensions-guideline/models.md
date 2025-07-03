@@ -44,7 +44,7 @@ class ModelFactory:
         if not model_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown model type: {model_type}. Available: {available}")
-        print(f"[ModelFactory] Creating model: {model_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[ModelFactory] Creating model: {model_type}")  # SUPREME_RULES compliant logging
         return model_class(**kwargs)
 ```
 
@@ -64,7 +64,7 @@ class MLPModel:
         self.hidden_sizes = hidden_sizes
         self.output_size = output_size
         self.model = self._build_model()
-        print(f"[MLPModel] Initialized with {len(hidden_sizes)} hidden layers")  # SUPREME_RULES compliant logging
+        print_info(f"[MLPModel] Initialized with {len(hidden_sizes)} hidden layers")  # SUPREME_RULES compliant logging
     
     def _build_model(self):
         """Build MLP model architecture"""
@@ -84,7 +84,7 @@ class MLPModel:
     
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
         """Train MLP model"""
-        print(f"[MLPModel] Starting training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
+        print_info(f"[MLPModel] Starting training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
         
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=0.001)
@@ -97,9 +97,9 @@ class MLPModel:
             optimizer.step()
             
             if epoch % 20 == 0:
-                print(f"[MLPModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
+                print_info(f"[MLPModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
         
-        print(f"[MLPModel] Training completed")  # SUPREME_RULES compliant logging
+        print_info(f"[MLPModel] Training completed")  # SUPREME_RULES compliant logging
         return {'final_loss': loss.item(), 'epochs': epochs}
 ```
 
@@ -108,14 +108,15 @@ class MLPModel:
 All model operations must use simple print statements as mandated by SUPREME_RULES from `final-decision-10.md`:
 
 ```python
-# ✅ CORRECT: Simple logging for models (SUPREME_RULES compliance)
+from utils.print_utils import print_info, print_warning, print_error, print_success
+
 def train_model_pipeline(model_type: str, X_train: torch.Tensor, y_train: torch.Tensor):
-    print(f"[ModelRunner] Starting {model_type} training")  # SUPREME_RULES compliant logging
+    print_info(f"[ModelRunner] Starting {model_type} training")  # SUPREME_RULES compliant logging
     
     model = ModelFactory.create(model_type, input_size=X_train.shape[1])  # CANONICAL create() method per SUPREME_RULES
     results = model.train(X_train, y_train)
     
-    print(f"[ModelRunner] Model training completed with loss: {results['final_loss']:.4f}")  # SUPREME_RULES compliant logging
+    print_info(f"[ModelRunner] Model training completed with loss: {results['final_loss']:.4f}")  # SUPREME_RULES compliant logging
     return results
 ```
 
@@ -136,7 +137,7 @@ class CNNModel:
         self.grid_size = grid_size
         self.num_channels = num_channels
         self.model = self._build_cnn()
-        print(f"[CNNModel] Initialized for {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
+        print_info(f"[CNNModel] Initialized for {grid_size}x{grid_size} grid")  # SUPREME_RULES compliant logging
     
     def _build_cnn(self):
         """Build CNN model architecture"""
@@ -155,7 +156,7 @@ class CNNModel:
     
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
         """Train CNN model"""
-        print(f"[CNNModel] Starting CNN training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
+        print_info(f"[CNNModel] Starting CNN training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
         
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=0.001)
@@ -168,9 +169,9 @@ class CNNModel:
             optimizer.step()
             
             if epoch % 20 == 0:
-                print(f"[CNNModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
+                print_info(f"[CNNModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
         
-        print(f"[CNNModel] CNN training completed")  # SUPREME_RULES compliant logging
+        print_info(f"[CNNModel] CNN training completed")  # SUPREME_RULES compliant logging
         return {'final_loss': loss.item(), 'epochs': epochs}
 ```
 
@@ -190,7 +191,7 @@ class TransformerModel:
         self.d_model = d_model
         self.nhead = nhead
         self.model = self._build_transformer()
-        print(f"[TransformerModel] Initialized with d_model={d_model}, nhead={nhead}")  # SUPREME_RULES compliant logging
+        print_info(f"[TransformerModel] Initialized with d_model={d_model}, nhead={nhead}")  # SUPREME_RULES compliant logging
     
     def _build_transformer(self):
         """Build transformer model architecture"""
@@ -211,7 +212,7 @@ class TransformerModel:
     
     def train(self, X_train: torch.Tensor, y_train: torch.Tensor, epochs: int = 100) -> dict:
         """Train transformer model"""
-        print(f"[TransformerModel] Starting transformer training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
+        print_info(f"[TransformerModel] Starting transformer training with {len(X_train)} samples")  # SUPREME_RULES compliant logging
         
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=0.0001)
@@ -224,9 +225,9 @@ class TransformerModel:
             optimizer.step()
             
             if epoch % 20 == 0:
-                print(f"[TransformerModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
+                print_info(f"[TransformerModel] Epoch {epoch}, Loss: {loss.item():.4f}")  # SUPREME_RULES compliant logging
         
-        print(f"[TransformerModel] Transformer training completed")  # SUPREME_RULES compliant logging
+        print_info(f"[TransformerModel] Transformer training completed")  # SUPREME_RULES compliant logging
         return {'final_loss': loss.item(), 'epochs': epochs}
 ```
 

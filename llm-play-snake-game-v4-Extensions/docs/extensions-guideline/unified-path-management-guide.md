@@ -20,6 +20,7 @@ All extensions **MUST** use the canonical `ensure_project_root()` function from 
 ```python
 # MANDATORY USAGE PATTERN FOR ALL EXTENSIONS
 from utils.path_utils import ensure_project_root
+from utils.print_utils import print_info, print_warning, print_error, print_success
 
 # Ensure project root is set and properly configured
 ensure_project_root()
@@ -87,6 +88,14 @@ def ensure_project_root() -> Path:
     Returns:
         The absolute pathlib.Path to the project root directory.
     """
+    project_root = get_project_root()
+    current_dir = Path.cwd()
+    
+    if current_dir != project_root:
+        print_info(f"[PathUtils] Changing working directory to project root: {project_root}")
+        os.chdir(project_root)
+    
+    return project_root
 ```
 
 ## 🔧 **Extension Implementation Patterns**
@@ -139,7 +148,7 @@ def ensure_project_root() -> Path:
     current_dir = Path.cwd()
     
     if current_dir != project_root:
-        print(f"[PathUtils] Changing working directory to project root: {project_root}")
+        print_info(f"[PathUtils] Changing working directory to project root: {project_root}")
         os.chdir(project_root)
     
     return project_root
@@ -198,4 +207,5 @@ def ensure_project_root() -> Path:
 - **Single Source of Truth**: Path management demonstrates importance of avoiding duplication
 - **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
 - **Simple Logging**: Print statements provide clear operation visibility
-- **Cross-Platform Compatibility**: Path management works reliably everywhere 
+- **Cross-Platform Compatibility**: Path management works reliably everywhere
+

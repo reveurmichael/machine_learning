@@ -43,7 +43,7 @@ class LoRAFactory:
         if not lora_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown LoRA type: {lora_type}. Available: {available}")
-        print(f"[LoRAFactory] Creating LoRA: {lora_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[LoRAFactory] Creating LoRA: {lora_type}")  # SUPREME_RULES compliant logging
         return lora_class(**kwargs)
 ```
 
@@ -63,23 +63,23 @@ class StandardLoRA:
         self.rank = rank
         self.alpha = alpha
         self.lora_layers = {}
-        print(f"[StandardLoRA] Initialized with rank {rank}, alpha {alpha}")  # SUPREME_RULES compliant logging
+        print_info(f"[StandardLoRA] Initialized with rank {rank}, alpha {alpha}")  # SUPREME_RULES compliant logging
     
     def adapt_model(self, target_task: str) -> dict:
         """Adapt model using LoRA for target task"""
-        print(f"[StandardLoRA] Starting adaptation for {target_task}")  # SUPREME_RULES compliant logging
+        print_info(f"[StandardLoRA] Starting adaptation for {target_task}")  # SUPREME_RULES compliant logging
         
         # Initialize LoRA layers
         self._initialize_lora_layers()
-        print(f"[StandardLoRA] Initialized {len(self.lora_layers)} LoRA layers")  # SUPREME_RULES compliant logging
+        print_info(f"[StandardLoRA] Initialized {len(self.lora_layers)} LoRA layers")  # SUPREME_RULES compliant logging
         
         # Train LoRA parameters
         training_results = self._train_lora_parameters(target_task)
-        print(f"[StandardLoRA] LoRA training completed")  # SUPREME_RULES compliant logging
+        print_success(f"[StandardLoRA] LoRA training completed")  # SUPREME_RULES compliant logging
         
         # Evaluate adaptation
         evaluation_results = self._evaluate_adaptation(target_task)
-        print(f"[StandardLoRA] Adaptation evaluation completed")  # SUPREME_RULES compliant logging
+        print_success(f"[StandardLoRA] Adaptation evaluation completed")  # SUPREME_RULES compliant logging
         
         return {
             'task': target_task,
@@ -109,12 +109,12 @@ All LoRA operations must use simple print statements as mandated by SUPREME_RULE
 ```python
 # ✅ CORRECT: Simple logging for LoRA (SUPREME_RULES compliance)
 def run_lora_adaptation(lora_type: str, base_model: str, target_task: str):
-    print(f"[LoRARunner] Starting {lora_type} adaptation for {target_task}")  # SUPREME_RULES compliant logging
+            print_info(f"[LoRARunner] Starting {lora_type} adaptation for {target_task}")  # SUPREME_RULES compliant logging
     
     lora_system = LoRAFactory.create(lora_type, base_model=base_model)  # CANONICAL create() method per SUPREME_RULES
     results = lora_system.adapt_model(target_task)
     
-    print(f"[LoRARunner] LoRA adaptation completed with {results['parameter_count']} parameters")  # SUPREME_RULES compliant logging
+    print_success(f"[LoRARunner] LoRA adaptation completed with {results['parameter_count']} parameters")  # SUPREME_RULES compliant logging
     return results
 ```
 
@@ -135,15 +135,15 @@ class AdaptiveLoRA:
         self.base_model = base_model
         self.min_rank = min_rank
         self.max_rank = max_rank
-        print(f"[AdaptiveLoRA] Initialized with rank range {min_rank}-{max_rank}")  # SUPREME_RULES compliant logging
+        print_info(f"[AdaptiveLoRA] Initialized with rank range {min_rank}-{max_rank}")  # SUPREME_RULES compliant logging
     
     def adapt_model(self, target_task: str) -> dict:
         """Adapt model using adaptive LoRA"""
-        print(f"[AdaptiveLoRA] Starting adaptive adaptation for {target_task}")  # SUPREME_RULES compliant logging
+        print_info(f"[AdaptiveLoRA] Starting adaptive adaptation for {target_task}")  # SUPREME_RULES compliant logging
         
         # Determine optimal rank
         optimal_rank = self._determine_optimal_rank(target_task)
-        print(f"[AdaptiveLoRA] Optimal rank determined: {optimal_rank}")  # SUPREME_RULES compliant logging
+        print_info(f"[AdaptiveLoRA] Optimal rank determined: {optimal_rank}")  # SUPREME_RULES compliant logging
         
         # Create LoRA with optimal rank
         lora_layer = StandardLoRA(self.base_model, rank=optimal_rank)
@@ -183,11 +183,11 @@ class HierarchicalLoRA:
         self.base_model = base_model
         self.hierarchy_levels = hierarchy_levels
         self.hierarchical_layers = {}
-        print(f"[HierarchicalLoRA] Initialized with {hierarchy_levels} levels")  # SUPREME_RULES compliant logging
+        print_info(f"[HierarchicalLoRA] Initialized with {hierarchy_levels} levels")  # SUPREME_RULES compliant logging
     
     def adapt_model(self, target_task: str) -> dict:
         """Adapt model using hierarchical LoRA"""
-        print(f"[HierarchicalLoRA] Starting hierarchical adaptation for {target_task}")  # SUPREME_RULES compliant logging
+        print_info(f"[HierarchicalLoRA] Starting hierarchical adaptation for {target_task}")  # SUPREME_RULES compliant logging
         
         adaptation_results = []
         
@@ -199,7 +199,7 @@ class HierarchicalLoRA:
             level_results = self._train_level_parameters(level_lora, level, target_task)
             adaptation_results.append(level_results)
             
-            print(f"[HierarchicalLoRA] Completed level {level + 1}")  # SUPREME_RULES compliant logging
+            print_info(f"[HierarchicalLoRA] Completed level {level + 1}")  # SUPREME_RULES compliant logging
         
         return {
             'task': target_task,
@@ -237,7 +237,7 @@ class HierarchicalLoRA:
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all LoRA operations (SUPREME_RULES compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all LoRA operations (SUPREME_RULES compliance)
 - [ ] **Model Integration**: Proper integration with base models
 - [ ] **Pattern Consistency**: Follows canonical patterns across all LoRA implementations
 

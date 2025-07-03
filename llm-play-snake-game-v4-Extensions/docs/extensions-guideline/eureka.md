@@ -27,7 +27,7 @@ class AgentFactory:
         if not agent_class:
             raise ValueError(f"Unknown agent type: {agent_type}")
         
-        print(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
+        print_info(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 
 # This insight led to:
@@ -45,9 +45,9 @@ class AgentFactory:
 # ✅ ELEGANT: Simple logging (SUPREME_RULES compliance)
 class GameManager:
     def start_game(self):
-        print(f"[GameManager] Starting game {self.game_count}")  # SUPREME_RULES compliant logging
+        print_info(f"[GameManager] Starting game {self.game_count}")  # SUPREME_RULES compliant logging
         # Game logic here
-        print(f"[GameManager] Game completed, score: {self.score}")  # SUPREME_RULES compliant logging
+        print_success(f"[GameManager] Game completed, score: {self.score}")  # SUPREME_RULES compliant logging
 
 # This insight led to:
 # - Removal of complex logging frameworks

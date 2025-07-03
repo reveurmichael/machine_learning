@@ -44,7 +44,7 @@ class SnakeGymnasiumFactory:
         if not env_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown environment type: {env_type}. Available: {available}")
-        print(f"[SnakeGymnasiumFactory] Creating environment: {env_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[SnakeGymnasiumFactory] Creating environment: {env_type}")  # SUPREME_RULES compliant logging
         return env_class(**kwargs)
 ```
 
@@ -67,7 +67,7 @@ class SnakeEnvV0(gym.Env):
             low=0, high=1, shape=(grid_size, grid_size, 3), dtype=np.float32
         )
         self.game_state = None
-        print(f"[SnakeEnvV0] Initialized {grid_size}x{grid_size} environment")  # SUPREME_RULES compliant logging
+        print_info(f"[SnakeEnvV0] Initialized {grid_size}x{grid_size} environment")  # SUPREME_RULES compliant logging
     
     def reset(self, seed=None, options=None):
         """Reset environment to initial state"""
@@ -75,7 +75,7 @@ class SnakeEnvV0(gym.Env):
         self.game_state = self._create_initial_state()
         observation = self._get_observation()
         info = self._get_info()
-        print("[SnakeEnvV0] Environment reset")  # SUPREME_RULES compliant logging
+        print_info("[SnakeEnvV0] Environment reset")  # SUPREME_RULES compliant logging
         return observation, info
     
     def step(self, action):
@@ -87,7 +87,7 @@ class SnakeEnvV0(gym.Env):
         observation = self._get_observation()
         info = self._get_info()
         
-        print(f"[SnakeEnvV0] Action {action} - Reward: {reward}, Done: {done}")  # SUPREME_RULES compliant logging
+        print_info(f"[SnakeEnvV0] Action {action} - Reward: {reward}, Done: {done}")  # SUPREME_RULES compliant logging
         return observation, reward, done, truncated, info
 ```
 
@@ -98,7 +98,7 @@ All Gymnasium operations must use simple print statements as mandated by SUPREME
 ```python
 # ✅ CORRECT: Simple logging for Gymnasium (SUPREME_RULES compliance)
 def train_with_gymnasium(env, agent, episodes: int = 1000):
-    print(f"[GymnasiumTrainer] Starting training with {episodes} episodes")  # SUPREME_RULES compliant logging
+            print_info(f"[GymnasiumTrainer] Starting training with {episodes} episodes")  # SUPREME_RULES compliant logging
     
     for episode in range(episodes):
         obs, info = env.reset()
@@ -113,9 +113,9 @@ def train_with_gymnasium(env, agent, episodes: int = 1000):
                 break
         
         if episode % 100 == 0:
-            print(f"[GymnasiumTrainer] Episode {episode}: reward={total_reward}")  # SUPREME_RULES compliant logging
+            print_info(f"[GymnasiumTrainer] Episode {episode}: reward={total_reward}")  # SUPREME_RULES compliant logging
     
-    print("[GymnasiumTrainer] Training completed")  # SUPREME_RULES compliant logging
+    print_success("[GymnasiumTrainer] Training completed")  # SUPREME_RULES compliant logging
 ```
 
 ## 🎯 **Environment Variants**
@@ -135,12 +135,12 @@ class SnakeDiscreteEnv(SnakeEnvV0):
         super().__init__(grid_size)
         self.action_space = gym.spaces.Discrete(4)  # 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
         self.action_meanings = ['UP', 'DOWN', 'LEFT', 'RIGHT']
-        print("[SnakeDiscreteEnv] Initialized discrete environment")  # SUPREME_RULES compliant logging
+        print_info("[SnakeDiscreteEnv] Initialized discrete environment")  # SUPREME_RULES compliant logging
     
     def _execute_action(self, action):
         """Execute discrete action"""
         action_name = self.action_meanings[action]
-        print(f"[SnakeDiscreteEnv] Executing action: {action_name}")  # SUPREME_RULES compliant logging
+        print_info(f"[SnakeDiscreteEnv] Executing action: {action_name}")  # SUPREME_RULES compliant logging
         # Action execution logic here
         return reward, done, truncated
 ```
@@ -161,12 +161,12 @@ class SnakeContinuousEnv(SnakeEnvV0):
         self.action_space = gym.spaces.Box(
             low=-1, high=1, shape=(2,), dtype=np.float32
         )  # Continuous direction vector
-        print("[SnakeContinuousEnv] Initialized continuous environment")  # SUPREME_RULES compliant logging
+        print_info("[SnakeContinuousEnv] Initialized continuous environment")  # SUPREME_RULES compliant logging
     
     def _execute_action(self, action):
         """Execute continuous action"""
         direction = self._continuous_to_discrete(action)
-        print(f"[SnakeContinuousEnv] Continuous action {action} -> direction {direction}")  # SUPREME_RULES compliant logging
+        print_info(f"[SnakeContinuousEnv] Continuous action {action} -> direction {direction}")  # SUPREME_RULES compliant logging
         # Action execution logic here
         return reward, done, truncated
 ```
@@ -189,7 +189,7 @@ class SnakeContinuousEnv(SnakeEnvV0):
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all Gymnasium operations (SUPREME_RULES compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all Gymnasium operations (SUPREME_RULES compliance)
 - [ ] **Gymnasium Compliance**: Follows Gymnasium API standards
 - [ ] **Pattern Consistency**: Follows canonical patterns across all environment implementations
 

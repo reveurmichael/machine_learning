@@ -157,13 +157,13 @@ class BaseWebApp:
         self.app = Flask(name)
         # DEFAULT BEHAVIOR: random_free_port() is automatically used when port=None
         self.port = port or random_free_port()
-        print(f"[BaseWebApp] Initialized {name} on port {self.port}")  # Simple logging
+        print_info(f"[BaseWebApp] Initialized {name} on port {self.port}")  # Simple logging
     
     def run(self, host: str = "127.0.0.1", debug: bool = False):
         """Run Flask application with dynamic port allocation."""
         # Ensure port is still free before starting
         final_port = ensure_free_port(self.port)
-        print(f"[BaseWebApp] Starting server on http://{host}:{final_port}")  # Simple logging
+        print_info(f"[BaseWebApp] Starting server on http://{host}:{final_port}")  # Simple logging
         self.app.run(host=host, port=final_port, debug=debug)
 ```
 
@@ -240,7 +240,7 @@ def main():
     """Launch Task-0 web interface with automatic random port allocation."""
     # DEFAULT BEHAVIOR: No need to specify port - random_free_port() is automatic
     app = create_llm_web_game_app()  # port=None triggers random_free_port()
-    print(f"[Task0] Starting LLM Snake Game on port {app.port}")  # Simple logging
+    print_info(f"[Task0] Starting LLM Snake Game on port {app.port}")  # Simple logging
     app.run()
 ```
 
@@ -253,7 +253,7 @@ def main():
     """Launch heuristic replay web interface with automatic random port allocation."""
     # DEFAULT BEHAVIOR: No need to specify port - random_free_port() is automatic
     app = create_replay_web_game_app()  # port=None triggers random_free_port()
-    print(f"[Task1] Starting Heuristic Replay on port {app.port}")  # Simple logging
+    print_info(f"[Task1] Starting Heuristic Replay on port {app.port}")  # Simple logging
     app.run()
 ```
 
@@ -273,7 +273,7 @@ def main():
         # Implementation here
         pass
     
-    print(f"[Task2] Starting RL Training Monitor on port {app.port}")  # Simple logging
+    print_info(f"[Task2] Starting RL Training Monitor on port {app.port}")  # Simple logging
     app.run()
 ```
 
@@ -305,10 +305,10 @@ def get_server_host_port(default_host: str = "127.0.0.1", default_port: int | No
     
     if port_env and port_env.isdigit():
         port = int(port_env)
-        print(f"[Network] Using environment port: {port}")  # Simple logging
+        print_info(f"[Network] Using environment port: {port}")  # Simple logging
     else:
         port = default_port or random_free_port()
-        print(f"[Network] Using random port: {port}")  # Simple logging
+        print_info(f"[Network] Using random port: {port}")  # Simple logging
     
     return host, port
 ```

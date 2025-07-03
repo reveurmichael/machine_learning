@@ -62,7 +62,8 @@ class MyAgent:
 factory = SimpleFactory()
 factory.register("myagent", MyAgent)
 agent = factory.create("myagent", name="TestAgent")
-print(agent.name)  # Output: TestAgent
+from utils.print_utils import print_info
+print_info(f"Agent name: {agent.name}")  # Output: TestAgent
 ```
 
 ### **Example Extension Factory**
@@ -251,7 +252,8 @@ class RLAgentFactory(BaseAgentFactory):
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown RL algorithm: {agent_type}. Available: {available}")
         
-        print(f"[RLAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[RLAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
         return agent_class(grid_size=grid_size, **kwargs)
 ```
 
@@ -284,7 +286,8 @@ class LLMAgentFactory(BaseAgentFactory):
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown LLM type: {agent_type}. Available: {available}")
         
-        print(f"[LLMAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[LLMAgentFactory] Creating agent: {agent_type_upper}")  # Simple logging
         return agent_class(grid_size=grid_size, **kwargs)
 ```
 
@@ -310,7 +313,8 @@ class SimpleFactory:
     def register(self, name: str, factory_func):
         """Register a factory function"""
         self._registry[name.upper()] = factory_func
-        print(f"[SimpleFactory] Registered: {name}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[SimpleFactory] Registered: {name}")  # Simple logging
     
     def create(self, name: str, **kwargs):  # CANONICAL create() method
         """Create object using registered factory function"""
@@ -319,7 +323,8 @@ class SimpleFactory:
             available = list(self._registry.keys())
             raise ValueError(f"Unknown type: {name}. Available: {available}")
         
-        print(f"[SimpleFactory] Creating: {name}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[SimpleFactory] Creating: {name}")  # Simple logging
         return factory_func(**kwargs)
     
     def list_available(self):

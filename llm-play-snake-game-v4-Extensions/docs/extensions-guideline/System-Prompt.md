@@ -2,6 +2,10 @@
 
 > **Important — Authoritative Reference:** This document establishes core principles for the Snake Game AI project. All other guideline documents must align with these foundational principles.
 
+## English
+
+DO EVERYTHING IN ENGLISH.
+
 ## 📚 **Documentation as First-Class Citizen**
 
 Documentation, docstrings, and comments are paramount in this project. Each refactoring must preserve and enhance existing documentation. Every bug fix must be recorded in related code comments and docstrings.

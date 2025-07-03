@@ -84,8 +84,8 @@ from extensions.common.utils.csv_schema_utils import generate_csv_schema
 
 # Generate schema for any grid size
 schema = generate_csv_schema(grid_size=10)
-print(f"Features: {schema.get_feature_count()}")
-print(f"Columns: {schema.get_column_names()}")
+print_info(f"Features: {schema.get_feature_count()}")
+print_info(f"Columns: {schema.get_column_names()}")
 ```
 
 ### 2. TabularFeatureExtractor
@@ -156,7 +156,7 @@ X_train, X_val, X_test, y_train, y_val, y_test = loader.split_dataset(X, y)
 # Works with any grid size
 for grid_size in [8, 10, 12, 16, 20]:
     schema = generate_csv_schema(grid_size)
-    print(f"Grid {grid_size}x{grid_size}: {schema.get_feature_count()} features")
+    print_info(f"Grid {grid_size}x{grid_size}: {schema.get_feature_count()} features")
 ```
 
 ## 📁 File Structure

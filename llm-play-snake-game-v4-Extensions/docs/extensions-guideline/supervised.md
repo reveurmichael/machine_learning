@@ -45,7 +45,7 @@ class SupervisedLearningFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm type: {algorithm_type}. Available: {available}")
-        print(f"[SupervisedLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
+        print_info(f"[SupervisedLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -78,7 +78,7 @@ class MLPAgent(BaseAgent):
         self.model = None
         self.scaler = None
         self.load_model()
-        print(f"[MLPAgent] Initialized MLP agent")  # Simple logging
+        print_info(f"[MLPAgent] Initialized MLP agent")  # Simple logging
     
     def load_model(self):
         """Load pre-trained MLP model"""
@@ -86,9 +86,9 @@ class MLPAgent(BaseAgent):
         if model_path and os.path.exists(model_path):
             self.model = torch.load(model_path)
             self.model.eval()
-            print(f"[MLPAgent] Loaded model from {model_path}")  # Simple logging
+            print_info(f"[MLPAgent] Loaded model from {model_path}")  # Simple logging
         else:
-            print(f"[MLPAgent] No model found at {model_path}")  # Simple logging
+            print_warning(f"[MLPAgent] No model found at {model_path}")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using MLP prediction"""
@@ -110,7 +110,7 @@ class MLPAgent(BaseAgent):
         directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         move = directions[move_idx]
         
-        print(f"[MLPAgent] Predicted move: {move}")  # Simple logging
+        print_info(f"[MLPAgent] Predicted move: {move}")  # Simple logging
         return move
     
     def _extract_features(self, game_state: Dict[str, Any]) -> np.ndarray:
@@ -210,7 +210,7 @@ class CNNAgent(BaseAgent):
         super().__init__("CNN", config)
         self.model = None
         self.load_model()
-        print(f"[CNNAgent] Initialized CNN agent")  # Simple logging
+        print_info(f"[CNNAgent] Initialized CNN agent")  # Simple logging
     
     def load_model(self):
         """Load pre-trained CNN model"""
@@ -218,9 +218,9 @@ class CNNAgent(BaseAgent):
         if model_path and os.path.exists(model_path):
             self.model = torch.load(model_path)
             self.model.eval()
-            print(f"[CNNAgent] Loaded model from {model_path}")  # Simple logging
+            print_info(f"[CNNAgent] Loaded model from {model_path}")  # Simple logging
         else:
-            print(f"[CNNAgent] No model found at {model_path}")  # Simple logging
+            print_warning(f"[CNNAgent] No model found at {model_path}")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using CNN prediction"""
@@ -238,7 +238,7 @@ class CNNAgent(BaseAgent):
         directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         move = directions[move_idx]
         
-        print(f"[CNNAgent] Predicted move: {move}")  # Simple logging
+        print_info(f"[CNNAgent] Predicted move: {move}")  # Simple logging
         return move
     
     def _state_to_image(self, game_state: Dict[str, Any]) -> np.ndarray:
@@ -280,7 +280,7 @@ class LSTMAgent(BaseAgent):
         self.state_history = []
         self.sequence_length = self.config.get('sequence_length', 10)
         self.load_model()
-        print(f"[LSTMAgent] Initialized LSTM agent")  # Simple logging
+        print_info(f"[LSTMAgent] Initialized LSTM agent")  # Simple logging
     
     def load_model(self):
         """Load pre-trained LSTM model"""
@@ -288,9 +288,9 @@ class LSTMAgent(BaseAgent):
         if model_path and os.path.exists(model_path):
             self.model = torch.load(model_path)
             self.model.eval()
-            print(f"[LSTMAgent] Loaded model from {model_path}")  # Simple logging
+            print_info(f"[LSTMAgent] Loaded model from {model_path}")  # Simple logging
         else:
-            print(f"[LSTMAgent] No model found at {model_path}")  # Simple logging
+            print_warning(f"[LSTMAgent] No model found at {model_path}")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using LSTM prediction"""
@@ -320,7 +320,7 @@ class LSTMAgent(BaseAgent):
         directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         move = directions[move_idx]
         
-        print(f"[LSTMAgent] Predicted move: {move}")  # Simple logging
+        print_info(f"[LSTMAgent] Predicted move: {move}")  # Simple logging
         return move
     
     def _extract_features(self, game_state: Dict[str, Any]) -> np.ndarray:
@@ -358,7 +358,7 @@ class SupervisedTrainingPipeline:
         self.train_loader = None
         self.val_loader = None
         self.test_loader = None
-        print(f"[SupervisedTrainingPipeline] Initialized training pipeline")  # Simple logging
+        print_info(f"[SupervisedTrainingPipeline] Initialized training pipeline")  # Simple logging
     
     def prepare_data(self, dataset_path: str):
         """Prepare training data"""
@@ -386,7 +386,7 @@ class SupervisedTrainingPipeline:
         self.val_loader = self._create_data_loader(X_val, y_val)
         self.test_loader = self._create_data_loader(X_test, y_test)
         
-        print(f"[SupervisedTrainingPipeline] Data preparation complete")  # Simple logging
+        print_success(f"[SupervisedTrainingPipeline] Data preparation complete")  # Simple logging
     
     def train_model(self, model_type: str):
         """Train the model"""
@@ -400,7 +400,7 @@ class SupervisedTrainingPipeline:
             val_loss = self._validate_epoch()
             
             if epoch % 10 == 0:
-                print(f"[SupervisedTrainingPipeline] Epoch {epoch+1}/{num_epochs} - "
+                print_info(f"[SupervisedTrainingPipeline] Epoch {epoch+1}/{num_epochs} - "
                       f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")  # Simple logging
     
     def _build_model(self, model_type: str):
@@ -430,7 +430,7 @@ class SupervisedTrainingPipeline:
                 layers.append(nn.Dropout(0.2))
         
         model = nn.Sequential(*layers)
-        print(f"[SupervisedTrainingPipeline] Built MLP model")  # Simple logging
+        print_info(f"[SupervisedTrainingPipeline] Built MLP model")  # Simple logging
         return model
     
     def _build_cnn_model(self):
@@ -451,7 +451,7 @@ class SupervisedTrainingPipeline:
             nn.Dropout(0.3),
             nn.Linear(256, 4)
         )
-        print(f"[SupervisedTrainingPipeline] Built CNN model")  # Simple logging
+        print_info(f"[SupervisedTrainingPipeline] Built CNN model")  # Simple logging
         return model
     
     def _build_lstm_model(self):
@@ -476,7 +476,7 @@ class SupervisedTrainingPipeline:
             nn.Linear(64, 4)
         )
         
-        print(f"[SupervisedTrainingPipeline] Built LSTM model")  # Simple logging
+        print_info(f"[SupervisedTrainingPipeline] Built LSTM model")  # Simple logging
         return (model, classifier)
     
     def _create_data_loader(self, X, y):
@@ -526,7 +526,7 @@ class SupervisedTrainingPipeline:
     def save_model(self, model_path: str):
         """Save trained model"""
         torch.save(self.model.state_dict(), model_path)
-        print(f"[SupervisedTrainingPipeline] Model saved to {model_path}")  # Simple logging
+        print_success(f"[SupervisedTrainingPipeline] Model saved to {model_path}")  # Simple logging
 ```
 
 ## 📋 **Implementation Checklist**
@@ -536,7 +536,7 @@ class SupervisedTrainingPipeline:
 - [ ] **Model Architecture**: Implements appropriate supervised learning model
 - [ ] **Data Processing**: Proper feature extraction and preprocessing
 - [ ] **Training Pipeline**: Standardized training workflow
-- [ ] **Simple Logging**: Uses print() statements for debugging
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions for debugging
 
 ### **Quality Standards**
 - [ ] **Model Performance**: Meets performance benchmarks

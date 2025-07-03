@@ -44,14 +44,16 @@ class LoggingMixin:
     def debug_print(self, name: str, message: str):
         """Simple debug output for the component"""
         # Simple print-based output instead of complex file logging
-        print(f"[{name}] {message}")
+        from utils.print_utils import print_info
+        print_info(f"[{name}] {message}")
 
 class HeuristicAgent(BaseAgent, LoggingMixin):
     """Agent with logging capabilities via mixin"""
     
     def __init__(self, name: str):
         super().__init__(name)
-        self.debug_print(f"heuristic_{name}", "Agent initialized")
+        from utils.print_utils import print_info
+        print_info(f"[heuristic_{name}] Agent initialized")
 ```
 
 ### **2. Interface Implementation**

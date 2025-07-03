@@ -42,7 +42,8 @@ class ExtensionMoveFactory:
         if not manager_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown extension type: {extension_type}. Available: {available}")
-        print(f"[ExtensionMoveFactory] Creating move manager: {extension_type}")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveFactory] Creating move manager: {extension_type}")  # SUPREME_RULES compliant logging
         return manager_class(**kwargs)
 ```
 
@@ -79,11 +80,13 @@ class ExtensionMoveManager:
     def __init__(self, source_version: str, target_version: str):
         self.source_version = source_version
         self.target_version = target_version
-        print(f"[ExtensionMoveManager] Initialized move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Initialized move: {source_version} → {target_version}")  # SUPREME_RULES compliant logging
     
     def execute_move(self):
         """Execute systematic extension move"""
-        print(f"[ExtensionMoveManager] Starting move process")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Starting move process")  # SUPREME_RULES compliant logging
         
         # Step 1: Validate source extension
         self._validate_source()
@@ -100,32 +103,38 @@ class ExtensionMoveManager:
         # Step 5: Validate target extension
         self._validate_target()
         
-        print(f"[ExtensionMoveManager] Move completed successfully")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_success
+        print_success(f"[ExtensionMoveManager] Move completed successfully")  # SUPREME_RULES compliant logging
     
     def _validate_source(self):
         """Validate source extension structure"""
         # Validation logic here
-        print(f"[ExtensionMoveManager] Source validation completed")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Source validation completed")  # SUPREME_RULES compliant logging
     
     def _create_target_structure(self):
         """Create target directory structure"""
         # Structure creation logic here
-        print(f"[ExtensionMoveManager] Target structure created")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Target structure created")  # SUPREME_RULES compliant logging
     
     def _copy_and_adapt_code(self):
         """Copy and adapt code for target version"""
         # Code adaptation logic here
-        print(f"[ExtensionMoveManager] Code copied and adapted")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Code copied and adapted")  # SUPREME_RULES compliant logging
     
     def _update_dependencies(self):
         """Update dependencies for target version"""
         # Dependency update logic here
-        print(f"[ExtensionMoveManager] Dependencies updated")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Dependencies updated")  # SUPREME_RULES compliant logging
     
     def _validate_target(self):
         """Validate target extension"""
         # Target validation logic here
-        print(f"[ExtensionMoveManager] Target validation completed")  # SUPREME_RULES compliant logging
+        from utils.print_utils import print_info
+        print_info(f"[ExtensionMoveManager] Target validation completed")  # SUPREME_RULES compliant logging
 ```
 
 ## 🔧 **Code Adaptation Patterns**

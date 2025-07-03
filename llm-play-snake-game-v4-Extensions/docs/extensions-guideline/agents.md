@@ -31,7 +31,7 @@ class MyAgent:
 factory = SimpleFactory()
 factory.register("myagent", MyAgent)
 agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method per SUPREME_RULES
-print(agent.name)  # Output: TestAgent
+print_info(f"Agent name: {agent.name}")  # SUPREME_RULES compliant logging
 ```
 
 ### Example Agent Factory
@@ -198,7 +198,7 @@ All agents should track and report these standard metrics:
 - [ ] **Configuration**: Supports configurable parameters
 - [ ] **Error Handling**: Graceful handling of edge cases
 - [ ] **Documentation**: Clear docstrings and comments
-- [ ] **SUPREME_RULES Logging**: Uses print() statements for debugging
+- [ ] **SUPREME_RULES Logging**: Uses utils/print_utils.py functions for debugging
 
 ### **Quality Standards (`final-decision-10.md` Compliance)**
 - [ ] **Algorithm Correctness**: Implements algorithm accurately

@@ -112,7 +112,7 @@ def create_dataset_directory(extension_type: str, version: str, grid_size: int,
     algorithm_path.mkdir(parents=True, exist_ok=True)
     (dataset_path / "evaluation").mkdir(exist_ok=True)
     
-    print(f"[DatasetUtils] Created dataset directory: {algorithm_path}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Created dataset directory: {algorithm_path}")  # SUPREME_RULES compliant logging
     return algorithm_path
 
 def get_dataset_path(extension_type: str, version: str, grid_size: int, 
@@ -155,7 +155,7 @@ def save_dataset_metadata(metadata: dict, dataset_path: Path):
     with open(metadata_file, 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    print(f"[DatasetUtils] Saved metadata: {metadata_file}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Saved metadata: {metadata_file}")  # SUPREME_RULES compliant logging
 ```
 
 ## 📋 **Dataset Format Standards**
@@ -167,7 +167,7 @@ def save_csv_dataset(data: pd.DataFrame, algorithm_path: Path, algorithm: str):
     csv_file = algorithm_path / f"{algorithm.lower()}_dataset.csv"
     data.to_csv(csv_file, index=False)
     
-    print(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Saved CSV dataset: {csv_file}")  # SUPREME_RULES compliant logging
 
 def save_game_logs(game_logs: List[dict], summary: dict, algorithm_path: Path):
     """Save game logs and summary to algorithm-specific directory"""
@@ -182,7 +182,7 @@ def save_game_logs(game_logs: List[dict], summary: dict, algorithm_path: Path):
     with open(summary_file, 'w') as f:
         json.dump(summary, f, indent=2)
     
-    print(f"[DatasetUtils] Saved {len(game_logs)} game logs and summary to {algorithm_path}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Saved {len(game_logs)} game logs and summary to {algorithm_path}")  # SUPREME_RULES compliant logging
 ```
 
 ### **JSONL Format (heuristics-v0.04 only)**
@@ -196,7 +196,7 @@ def save_jsonl_dataset(data: list, algorithm_path: Path, algorithm: str):
             json.dump(item, f)
             f.write('\n')
     
-    print(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Saved JSONL dataset: {jsonl_file}")  # SUPREME_RULES compliant logging
 ```
 
 ### **NPZ Format (for future extensions)**
@@ -206,7 +206,7 @@ def save_npz_dataset(data_dict: dict, algorithm_path: Path, algorithm: str, form
     npz_file = algorithm_path / f"{algorithm.lower()}_{format_type}_data.npz"
     np.savez(npz_file, **data_dict)
     
-    print(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # SUPREME_RULES compliant logging
+            print_info(f"[DatasetUtils] Saved NPZ dataset: {npz_file}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🎓 **Educational Applications with Canonical Patterns**
@@ -228,7 +228,7 @@ def save_npz_dataset(data_dict: dict, algorithm_path: Path, algorithm: str, form
 ### **Mandatory Requirements**
 - [ ] **Grid-Size Agnostic**: Works with any grid size (SUPREME_RULES from final-decision-10.md compliance)
 - [ ] **Algorithm-Specific**: Clear algorithm separation in directory structure
-- [ ] **Simple Logging**: Uses print() statements only for all operations
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations
 - [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 

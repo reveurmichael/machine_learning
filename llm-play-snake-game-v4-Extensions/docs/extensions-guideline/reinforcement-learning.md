@@ -51,7 +51,8 @@ class ReinforcementLearningFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm type: {algorithm_type}. Available: {available}")
-        print(f"[ReinforcementLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[ReinforcementLearningFactory] Creating agent: {algorithm_type}")  # Simple logging
         return agent_class(**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -88,7 +89,8 @@ class DQNAgent(BaseAgent):
         self.epsilon_decay = self.config.get('epsilon_decay', 0.995)
         self.epsilon_min = self.config.get('epsilon_min', 0.01)
         self._build_networks()
-        print(f"[DQNAgent] Initialized DQN agent")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DQNAgent] Initialized DQN agent")  # Simple logging
     
     def _build_networks(self):
         """Build Q-networks"""
@@ -116,7 +118,8 @@ class DQNAgent(BaseAgent):
         self.target_network.load_state_dict(self.q_network.state_dict())
         
         self.optimizer = optim.Adam(self.q_network.parameters(), lr=self.config.get('learning_rate', 0.001))
-        print(f"[DQNAgent] Built Q-networks")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DQNAgent] Built Q-networks")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using DQN algorithm"""
@@ -125,7 +128,8 @@ class DQNAgent(BaseAgent):
             # Random exploration
             directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
             move = random.choice(directions)
-            print(f"[DQNAgent] Random exploration: {move}")  # Simple logging
+            from utils.print_utils import print_info
+            print_info(f"[DQNAgent] Random exploration: {move}")  # Simple logging
         else:
             # Exploitation using Q-network
             state_vector = self._state_to_vector(game_state)
@@ -135,7 +139,8 @@ class DQNAgent(BaseAgent):
             
             directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
             move = directions[move_idx]
-            print(f"[DQNAgent] Q-network exploitation: {move}")  # Simple logging
+            from utils.print_utils import print_info
+            print_info(f"[DQNAgent] Q-network exploitation: {move}")  # Simple logging
         
         return move
     
@@ -184,17 +189,20 @@ class DQNAgent(BaseAgent):
         loss.backward()
         self.optimizer.step()
         
-        print(f"[DQNAgent] Training loss: {loss.item():.4f}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DQNAgent] Training loss: {loss.item():.4f}")  # Simple logging
     
     def update_target_network(self):
         """Update target network"""
         self.target_network.load_state_dict(self.q_network.state_dict())
-        print(f"[DQNAgent] Updated target network")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DQNAgent] Updated target network")  # Simple logging
     
     def update_epsilon(self):
         """Update exploration rate"""
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
-        print(f"[DQNAgent] Updated epsilon to {self.epsilon:.3f}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[DQNAgent] Updated epsilon to {self.epsilon:.3f}")  # Simple logging
     
     def _state_to_vector(self, game_state: Dict[str, Any]) -> List[float]:
         """Convert game state to vector"""
@@ -299,7 +307,8 @@ class PPOAgent(BaseAgent):
         self.value_network = None
         self.optimizer = None
         self._build_networks()
-        print(f"[PPOAgent] Initialized PPO agent")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[PPOAgent] Initialized PPO agent")  # Simple logging
     
     def _build_networks(self):
         """Build policy and value networks"""
@@ -330,7 +339,8 @@ class PPOAgent(BaseAgent):
             lr=self.config.get('learning_rate', 0.0003)
         )
         
-        print(f"[PPOAgent] Built policy and value networks")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[PPOAgent] Built policy and value networks")  # Simple logging
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using PPO policy"""
@@ -348,7 +358,8 @@ class PPOAgent(BaseAgent):
         directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         move = directions[action_idx]
         
-        print(f"[PPOAgent] Selected move: {move}")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[PPOAgent] Selected move: {move}")  # Simple logging
         return move
     
     def get_action_log_prob(self, state: Dict[str, Any], action: str) -> float:
@@ -462,28 +473,33 @@ class RLTrainingPipeline:
         self.config = config
         self.agent = None
         self.environment = None
-        print(f"[RLTrainingPipeline] Initialized training pipeline")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[RLTrainingPipeline] Initialized training pipeline")  # Simple logging
     
     def setup_environment(self, grid_size: int = 10):
         """Setup training environment"""
         self.environment = SnakeGameEnvironment(grid_size)
-        print(f"[RLTrainingPipeline] Environment setup complete")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[RLTrainingPipeline] Environment setup complete")  # Simple logging
     
     def setup_agent(self, algorithm_type: str):
         """Setup RL agent"""
         self.agent = ReinforcementLearningFactory.create(algorithm_type, **self.config)
-        print(f"[RLTrainingPipeline] Agent setup complete")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[RLTrainingPipeline] Agent setup complete")  # Simple logging
     
     def train(self, num_episodes: int):
         """Train the agent"""
-        print(f"[RLTrainingPipeline] Starting training for {num_episodes} episodes")  # Simple logging
+        from utils.print_utils import print_info
+        print_info(f"[RLTrainingPipeline] Starting training for {num_episodes} episodes")  # Simple logging
         
         for episode in range(num_episodes):
             episode_reward = self._train_episode()
             
             if episode % 100 == 0:
-                print(f"[RLTrainingPipeline] Episode {episode+1}/{num_episodes} - "
-                      f"Reward: {episode_reward:.2f}")  # Simple logging
+                from utils.print_utils import print_info
+                print_info(f"[RLTrainingPipeline] Episode {episode+1}/{num_episodes} - "
+                          f"Reward: {episode_reward:.2f}")  # Simple logging
     
     def _train_episode(self) -> float:
         """Train for one episode"""

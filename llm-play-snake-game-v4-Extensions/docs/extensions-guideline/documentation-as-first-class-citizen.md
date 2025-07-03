@@ -47,7 +47,7 @@ class GameManager:
         self.game_count = 0
         self.total_score = 0
         self.game_active = False
-        print("[GameManager] Initialized with default settings")  # SUPREME_RULES compliant logging
+        print_info("[GameManager] Initialized with default settings")  # SUPREME_RULES compliant logging
 ```
 
 ### **Method Documentation**
@@ -76,7 +76,8 @@ def plan_next_moves(self, game_state: dict) -> list:
     Example:
         >>> state = {'snake_positions': [(5, 5)], 'apple_position': (8, 8)}
         >>> moves = game_logic.plan_next_moves(state)
-        >>> print(moves)
+        >>> from utils.print_utils import print_info
+        >>> print_info(f"Planned moves: {moves}")
         ['RIGHT', 'RIGHT', 'UP', 'UP']
     """
     # Validate input
@@ -86,7 +87,7 @@ def plan_next_moves(self, game_state: dict) -> list:
     # Plan moves using current strategy
     moves = self.strategy.plan(game_state)
     
-    print(f"[GameLogic] Planned {len(moves)} moves")  # SUPREME_RULES compliant logging
+            print_info(f"[GameLogic] Planned {len(moves)} moves")  # SUPREME_RULES compliant logging
     return moves
 ```
 
@@ -133,7 +134,7 @@ class AgentFactory:
             raise ValueError(f"Unsupported agent type: {agent_type}")
         
         agent_class = cls._registry[agent_type]
-        print(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
+        print_info(f"[AgentFactory] Creating {agent_type} agent")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 

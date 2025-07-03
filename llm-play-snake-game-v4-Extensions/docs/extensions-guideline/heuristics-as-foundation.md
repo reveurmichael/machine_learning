@@ -60,7 +60,7 @@ class HeuristicAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown algorithm: {algorithm}. Available: {available}")
-        print(f"[HeuristicAgentFactory] Creating: {algorithm}")  # Simple logging
+        print_info(f"[HeuristicAgentFactory] Creating: {algorithm}")  # Simple logging
         return agent_class(**kwargs)
 ```
 
@@ -79,7 +79,7 @@ class BFSAgent(BaseAgent):
     def __init__(self, name: str, grid_size: int):
         super().__init__(name, grid_size)
         self.pathfinder = BFSPathfinder(grid_size)
-        print(f"[BFSAgent] Initialized BFS agent: {name}")
+        print_info(f"[BFSAgent] Initialized BFS agent: {name}")
     
     def plan_move(self, game_state: Dict[str, Any]) -> str:
         """Plan move using BFS pathfinding"""
@@ -92,10 +92,10 @@ class BFSAgent(BaseAgent):
         if path:
             next_pos = path[1] if len(path) > 1 else path[0]
             move = self._get_direction(head, next_pos)
-            print(f"[BFSAgent] Found path to apple, moving: {move}")
+            print_info(f"[BFSAgent] Found path to apple, moving: {move}")
             return move
         else:
-            print("[BFSAgent] No path found, using safe move")
+            print_warning("[BFSAgent] No path found, using safe move")
             return self._find_safe_move(head, snake_body)
 ```
 
@@ -132,14 +132,14 @@ class PathOptimizer:
     
     def __init__(self, base_pathfinder):
         self.base_pathfinder = base_pathfinder
-        print("[PathOptimizer] Initialized path optimizer")
+        print_info("[PathOptimizer] Initialized path optimizer")
     
     def find_optimized_path(self, start, goal, obstacles):
         """Find and optimize path"""
         base_path = self.base_pathfinder.find_path(start, goal, obstacles)
         if base_path:
             optimized_path = self._optimize_path(base_path, obstacles)
-            print(f"[PathOptimizer] Optimized path length: {len(optimized_path)}")
+            print_info(f"[PathOptimizer] Optimized path length: {len(optimized_path)}")
             return optimized_path
         return None
 ```
@@ -158,7 +158,7 @@ class CollisionDetector:
     
     def __init__(self, detection_strategy="standard"):
         self.strategy = detection_strategy
-        print(f"[CollisionDetector] Using strategy: {detection_strategy}")
+        print_info(f"[CollisionDetector] Using strategy: {detection_strategy}")
     
     def predict_collision(self, position, direction, snake_body, grid_size):
         """Predict if move will cause collision"""
@@ -166,12 +166,12 @@ class CollisionDetector:
         
         # Wall collision
         if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
-            print(f"[CollisionDetector] Wall collision predicted at {next_pos}")
+            print_warning(f"[CollisionDetector] Wall collision predicted at {next_pos}")
             return True
         
         # Snake body collision
         if next_pos in snake_body:
-            print(f"[CollisionDetector] Body collision predicted at {next_pos}")
+            print_warning(f"[CollisionDetector] Body collision predicted at {next_pos}")
             return True
         
         return False

@@ -176,7 +176,7 @@ def ensure_project_root() -> Path:
 
 ### **Mandatory Requirements**
 - [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all path operations (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all path operations (final-decision-10.md compliance)
 - [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all path management documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all path implementations
 

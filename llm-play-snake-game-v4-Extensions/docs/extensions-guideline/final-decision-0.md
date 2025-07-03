@@ -84,7 +84,7 @@ These architectural decisions are **explicitly rejected** to prevent future conf
 #### **Complex Logging**
 - ❌ **Complex logging frameworks** (logging.getLogger, file-based logging)
 - ❌ **Log files** (.log files anywhere in the project)
-- ✅ **Instead**: Simple print() statements only (SUPREME_RULE NO.3)
+- ✅ **Instead**: Simple utils/print_utils.py functions only (SUPREME_RULE NO.3)
 
 ## 📝 **Document Management Policy**
 

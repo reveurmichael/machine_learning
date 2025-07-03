@@ -82,7 +82,7 @@ Extensions get sophisticated limit tracking for free:
 def debug_extension_performance(game_manager):
     status = game_manager.limits_manager.get_status_summary()
     for limit_type, info in status.items():
-        print(f"{limit_type}: {info['current']}/{info['max']} "
+        print_info(f"{limit_type}: {info['current']}/{info['max']} "
               f"(warnings: {info['warnings_issued']})")
 ```
 
@@ -162,14 +162,14 @@ All limits operations MUST use simple print statements as established in `final-
 ```python
 # ✅ CORRECT: Simple logging for limits operations (SUPREME_RULES compliance)
 def check_limits(limit_type: str, current_count: int):
-    print(f"[LimitsManager] Checking {limit_type}: {current_count}")  # Simple logging - REQUIRED
+            print_info(f"[LimitsManager] Checking {limit_type}: {current_count}")  # Simple logging - REQUIRED
     
     # Limits checking logic
     if current_count > max_allowed:
-        print(f"[LimitsManager] Limit exceeded for {limit_type}")  # Simple logging
+        print_warning(f"[LimitsManager] Limit exceeded for {limit_type}")  # Simple logging
         return True
     
-    print(f"[LimitsManager] Limits check passed for {limit_type}")  # Simple logging
+            print_success(f"[LimitsManager] Limits check passed for {limit_type}")  # Simple logging
     return False
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
@@ -199,7 +199,7 @@ def check_limits(limit_type: str, current_count: int):
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All limits operations use consistent patterns (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all limits operations (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all limits operations (final-decision-10.md compliance)
 - [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all limits documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all limits implementations
 

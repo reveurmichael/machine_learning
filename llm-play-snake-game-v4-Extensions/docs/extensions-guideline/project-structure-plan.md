@@ -86,7 +86,7 @@ from extensions.common.utils.dataset_utils import load_dataset_for_training
 # - Lightweight, reusable foundation for all extensions
 # - Simple, preferably OOP but never over-engineered
 # - Supports experimentation and flexibility
-# - Uses print() statements only for logging (no .log files)
+# - Uses utils/print_utils.py functions only for logging (no .log files)
 
 # Example: Standard usage (most extensions)
 factory = SimpleFactory()
@@ -97,10 +97,10 @@ agent = factory.create("myagent", config=params)  # CANONICAL create() method pe
 class QuantumDatasetLoader(BaseDatasetLoader):
     def _initialize_loader_specific_settings(self):
         self.quantum_validator = QuantumValidator()
-        print(f"[QuantumLoader] Initialized quantum settings")  # SUPREME_RULES compliant logging
+        print_info(f"[QuantumLoader] Initialized quantum settings")  # SUPREME_RULES compliant logging
     
     def _generate_extension_specific_metadata(self, data, file_path):
-        print(f"[QuantumLoader] Generating quantum metadata")  # SUPREME_RULES compliant logging
+        print_info(f"[QuantumLoader] Generating quantum metadata")  # SUPREME_RULES compliant logging
         return {"quantum_entanglement_score": self._measure_entanglement(data)}
 ```
 
@@ -125,10 +125,10 @@ class NovelAlgorithmAgent(BaseAgent):
     
     def __init__(self, name: str, config: dict = None):
         super().__init__(name, config)
-        print(f"[{name}] Novel algorithm agent initialized")  # SUPREME_RULES compliant logging
+        print_info(f"[{name}] Novel algorithm agent initialized")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state):
-        print(f"[{self.name}] Planning move with novel algorithm")  # SUPREME_RULES compliant logging
+        print_info(f"[{self.name}] Planning move with novel algorithm")  # SUPREME_RULES compliant logging
         # Your creative algorithm implementation
         return self.your_innovative_approach(game_state)
 ```
@@ -157,7 +157,7 @@ class CustomAgentFactory:
         if not agent_class:
             available = list(cls._registry.keys())
             raise ValueError(f"Unknown agent type: {agent_type}. Available: {available}")
-        print(f"[CustomAgentFactory] Creating agent: {agent_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[CustomAgentFactory] Creating agent: {agent_type}")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 
@@ -259,7 +259,7 @@ class ComponentFactory:
         """
         try:
             component_class = cls._import_component_class(component_type)
-            print(f"[ComponentFactory] Creating {component_type}")  # SUPREME_RULES logging
+            print_info(f"[ComponentFactory] Creating {component_type}")  # SUPREME_RULES logging
             return component_class(**kwargs)
         except ImportError:
             # Provide helpful guidance for adding new components
@@ -289,7 +289,7 @@ def create_extension_component(component_type: str, **kwargs):
     """Simple component creation function using canonical create() method"""
     factory = SimpleFactory()
     factory.register(component_type, get_component_class(component_type))
-    print(f"[ProjectStructure] Creating {component_type} component")  # SUPREME_RULES logging
+        print_info(f"[ProjectStructure] Creating {component_type} component")  # SUPREME_RULES logging
     return factory.create(component_type, **kwargs)  # CANONICAL create() method
 
 # SUPREME_RULES Note:
@@ -304,7 +304,7 @@ def create_extension_component(component_type: str, **kwargs):
 - [ ] **Choose any algorithm approach** - no restrictions
 - [ ] **Implement agent following BaseAgent interface**
 - [ ] **Use canonical create() method in all factories**
-- [ ] **Follow SUPREME_RULES for logging (print() statements only)**
+- [ ] **Follow SUPREME_RULES for logging (utils/print_utils.py functions only)**
 - [ ] **Extend game logic for your specific needs**
 - [ ] **Use flexible common utilities from extensions/common/**
 - [ ] **Document your approach and design decisions**

@@ -243,7 +243,7 @@ def main():
     manager = factory.create("heuristic", args)  # CANONICAL create() method - SUPREME_RULES
     results = manager.run()
     
-    print(f"Execution completed. Results: {results}")  # Simple logging - SUPREME_RULES
+    print_success(f"Execution completed. Results: {results}")  # Simple logging - SUPREME_RULES
     return results
 
 if __name__ == "__main__":
@@ -285,7 +285,7 @@ def main():
     generator = factory.create("dataset", args.grid_size, args.output_format)  # Canonical
     
     for algorithm in args.algorithms:
-        print(f"Generating dataset for {algorithm}...")  # Simple logging - SUPREME_RULES
+        print_info(f"Generating dataset for {algorithm}...")  # Simple logging - SUPREME_RULES
         
         # Execute games and collect data
         game_args = argparse.Namespace(
@@ -306,7 +306,7 @@ def main():
         dataset = DatasetGenerator.create("standard", results, algorithm)  # CANONICAL create() method
         generator.save_dataset(dataset, args.output_dir / algorithm)
         
-        print(f"Dataset saved for {algorithm} at {args.output_dir / algorithm}")  # Simple logging
+        print_success(f"Dataset saved for {algorithm} at {args.output_dir / algorithm}")  # Simple logging
 
 if __name__ == "__main__":
     main()
@@ -345,19 +345,19 @@ def main():
     for path in args.dataset_paths:
         df = loader.load_csv_dataset(path)
         datasets.append(df)
-        print(f"Loaded dataset: {path} with {len(df)} rows")  # Simple logging - SUPREME_RULES
+        print_info(f"Loaded dataset: {path} with {len(df)} rows")  # Simple logging - SUPREME_RULES
     
     # Train models using canonical factory pattern
     factory = SimpleFactory()
     factory.register("trainer", ModelTrainer)
     
     for model_type in args.model_types:
-        print(f"Training {model_type} model...")  # Simple logging - SUPREME_RULES
+        print_info(f"Training {model_type} model...")  # Simple logging - SUPREME_RULES
         
         trainer = factory.create("trainer", model_type, args.output_dir)  # Canonical
         results = trainer.train(datasets, args.hyperparameter_tuning)
         
-        print(f"{model_type} training completed: {results}")  # Simple logging
+        print_success(f"{model_type} training completed: {results}")  # Simple logging
 
 if __name__ == "__main__":
     main()
@@ -404,14 +404,14 @@ def main():
     results = {}
     
     for model_file in model_files:
-        print(f"Evaluating {model_file.name}...")  # Simple logging
+        print_info(f"Evaluating {model_file.name}...")  # Simple logging
         
         model = evaluator.load_model(model_file)
         metrics = evaluator.evaluate_comprehensive(model, X_test, y_test)
         
         results[model_file.name] = metrics
-        print(f"  Accuracy: {metrics['accuracy']:.3f}")  # Simple logging
-        print(f"  F1-Score: {metrics['f1_score']:.3f}")  # Simple logging
+        print_info(f"  Accuracy: {metrics['accuracy']:.3f}")  # Simple logging
+        print_info(f"  F1-Score: {metrics['f1_score']:.3f}")  # Simple logging
     
     # Save results
     with open(args.output_dir / "evaluation_results.json", "w") as f:

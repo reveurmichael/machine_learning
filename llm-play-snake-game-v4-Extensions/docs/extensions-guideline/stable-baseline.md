@@ -88,7 +88,8 @@ class SB3AgentFactory:
         config = cls._get_default_config(algorithm)
         config.update(kwargs)
         
-        print(f"[SB3AgentFactory] Creating {algorithm} agent")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[SB3AgentFactory] Creating {algorithm} agent")  # simple logging
         return algorithm_class(env=env, **config)
 ```
 
@@ -110,7 +111,8 @@ class DQNAgentSB3(BaseRLAgent):
         self.hyperparameters = self._get_hyperparameters(**kwargs)
         self.model = None
         self.environment = None
-        print(f"[{name}] SB3 DQN agent initialized")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[{name}] SB3 DQN agent initialized")  # simple logging
         
     def initialize(self, environment):
         """Initialize DQN model with environment"""
@@ -126,14 +128,16 @@ class DQNAgentSB3(BaseRLAgent):
             gamma=self.hyperparameters['gamma'],
             verbose=1
         )
-        print(f"[{self.name}] DQN model initialized")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[{self.name}] DQN model initialized")  # simple logging
     
     def train(self, total_timesteps: int = 100000, **kwargs) -> TrainingResults:
         """Train DQN agent using SB3"""
         if not self.model:
             raise RuntimeError("Model not initialized. Call initialize() first.")
         
-        print(f"[{self.name}] Starting training for {total_timesteps} timesteps")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[{self.name}] Starting training for {total_timesteps} timesteps")  # simple logging
         
         # Train the model
         self.model.learn(total_timesteps=total_timesteps, **kwargs)
@@ -141,7 +145,8 @@ class DQNAgentSB3(BaseRLAgent):
         # Evaluate performance
         evaluation_results = self._evaluate_model()
         
-        print(f"[{self.name}] Training completed. Final reward: {evaluation_results['mean_reward']:.2f}")  # simple logging
+        from utils.print_utils import print_success
+        print_success(f"[{self.name}] Training completed. Final reward: {evaluation_results['mean_reward']:.2f}")  # simple logging
         
         return TrainingResults(
             algorithm="DQN_SB3",
@@ -172,7 +177,8 @@ class PPOAgentSB3(BaseRLAgent):
         super().__init__(name, grid_size)
         self.hyperparameters = self._get_hyperparameters(**kwargs)
         self.model = None
-        print(f"[{name}] SB3 PPO agent initialized")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[{name}] SB3 PPO agent initialized")  # simple logging
     
     def initialize(self, environment):
         """Initialize PPO model with environment"""
@@ -186,7 +192,8 @@ class PPOAgentSB3(BaseRLAgent):
             gamma=self.hyperparameters['gamma'],
             verbose=1
         )
-        print(f"[{self.name}] PPO model initialized")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[{self.name}] PPO model initialized")  # simple logging
 ```
 
 ## 🚀 **Advanced Features**
@@ -199,7 +206,8 @@ class SnakeGameEnvironment(gym.Env):
     def __init__(self, grid_size: int = 10):
         super().__init__()
         self.grid_size = grid_size
-        print(f"[SnakeGameEnvironment] Initialized for {grid_size}x{grid_size} grid")  # simple logging
+        from utils.print_utils import print_info
+        print_info(f"[SnakeGameEnvironment] Initialized for {grid_size}x{grid_size} grid")  # simple logging
         
         # Action space: UP, DOWN, LEFT, RIGHT
         self.action_space = spaces.Discrete(4)

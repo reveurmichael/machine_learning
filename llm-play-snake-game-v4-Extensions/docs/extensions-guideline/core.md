@@ -185,7 +185,7 @@ class MyAgent:
 factory = SimpleFactory()
 factory.register("myagent", MyAgent)
 agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method per SUPREME_RULES
-print(agent.name)  # Output: TestAgent
+print_info(f"Agent name: {agent.name}")  # SUPREME_RULES compliant logging
 ```
 
 ### Example Extension Factory

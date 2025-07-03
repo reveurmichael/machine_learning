@@ -43,7 +43,7 @@ class HeuristicAgentFactory:
         agent_class = cls._registry.get(algorithm.upper())
         if not agent_class:
             raise ValueError(f"Unknown algorithm: {algorithm}")
-        print(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicAgentFactory] Creating agent: {algorithm}")  # SUPREME_RULES compliant logging
         return agent_class(**kwargs)
 ```
 
@@ -63,7 +63,7 @@ class BFSAgent(BaseAgent):
     
     def __init__(self, name: str = "BFS"):
         super().__init__(name)
-        print(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
+        print_info(f"[BFSAgent] Initialized BFS agent")  # SUPREME_RULES compliant logging
     
     def plan_move(self, game_state: dict) -> str:
         """Plan next move using BFS"""
@@ -148,7 +148,7 @@ class HeuristicGameManager(BaseGameManager):
         super().__init__(grid_size=grid_size)
         self.algorithm = algorithm
         self.agent = self.create(algorithm)
-        print(f"[HeuristicGameManager] Initialized with {algorithm}")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicGameManager] Initialized with {algorithm}")  # SUPREME_RULES compliant logging
     
     def create(self, algorithm: str):
         """Create agent using simple factory"""
@@ -188,7 +188,7 @@ class HeuristicGameManager(BaseGameManager):
         self.apple_position = self._generate_apple()
         self.score = 0
         self.steps = 0
-        print(f"[HeuristicGameManager] Game initialized")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicGameManager] Game initialized")  # SUPREME_RULES compliant logging
     
     def _get_game_state(self) -> dict:
         """Get current game state"""

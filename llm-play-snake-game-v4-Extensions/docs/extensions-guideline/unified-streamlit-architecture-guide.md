@@ -40,7 +40,7 @@ class BaseExtensionApp(ABC):
     """
     
     def __init__(self):
-        print(f"[BaseExtensionApp] Initializing {self.__class__.__name__}")  # Simple logging - SUPREME_RULES
+        print_info(f"[BaseExtensionApp] Initializing {self.__class__.__name__}")  # Simple logging - SUPREME_RULES
         self.setup_page_config()
         self.main()
     
@@ -60,21 +60,21 @@ class BaseExtensionApp(ABC):
             page_title=f"{self.get_extension_name()} Dashboard",
             layout="wide"
         )
-        print(f"[BaseExtensionApp] Page config set for {self.get_extension_name()}")  # Simple logging
+        print_info(f"[BaseExtensionApp] Page config set for {self.get_extension_name()}")  # Simple logging
     
     def main(self) -> None:
         """Main application flow"""
         st.title(f"🐍 {self.get_extension_name()} Dashboard")
         self.render_sidebar()
         self.render_main_content()
-        print(f"[BaseExtensionApp] Main content rendered")  # Simple logging
+        print_info(f"[BaseExtensionApp] Main content rendered")  # Simple logging
     
     def render_sidebar(self) -> None:
         """Render sidebar with common controls"""
         with st.sidebar:
             st.selectbox("Algorithm", self.get_available_algorithms())
             st.selectbox("Grid Size", [8, 10, 12, 16, 20])
-        print(f"[BaseExtensionApp] Sidebar rendered")  # Simple logging
+        print_info(f"[BaseExtensionApp] Sidebar rendered")  # Simple logging
     
     @abstractmethod
     def render_main_content(self) -> None:
@@ -83,14 +83,14 @@ class BaseExtensionApp(ABC):
     
     def launch_script(self, script_name: str, **params):
         """Launch script via subprocess with simple logging"""
-        print(f"[BaseExtensionApp] Launching script: {script_name}")  # Simple logging - SUPREME_RULES
+        print_info(f"[BaseExtensionApp] Launching script: {script_name}")  # Simple logging - SUPREME_RULES
         
         cmd = ["python", f"scripts/{script_name}"]
         for key, value in params.items():
             cmd.extend([f"--{key}", str(value)])
         
         result = subprocess.run(cmd)
-        print(f"[BaseExtensionApp] Script completed with exit code: {result.returncode}")  # Simple logging
+        print_info(f"[BaseExtensionApp] Script completed with exit code: {result.returncode}")  # Simple logging
         return result
 ```
 
@@ -122,7 +122,7 @@ class HeuristicStreamlitApp(BaseExtensionApp):
         factory = SimpleFactory()
         factory.register("heuristic", self.__class__)
         
-        print(f"[HeuristicStreamlitApp] Initializing heuristic dashboard")  # Simple logging - SUPREME_RULES
+        print_info(f"[HeuristicStreamlitApp] Initializing heuristic dashboard")  # Simple logging - SUPREME_RULES
         super().__init__()
     
     def get_extension_name(self) -> str:
@@ -133,13 +133,13 @@ class HeuristicStreamlitApp(BaseExtensionApp):
     
     def render_main_content(self) -> None:
         """Render main content with simple logging"""
-        print(f"[HeuristicStreamlitApp] Rendering main content")  # Simple logging - SUPREME_RULES
+        print_info(f"[HeuristicStreamlitApp] Rendering main content")  # Simple logging - SUPREME_RULES
         
         tab1, tab2 = st.tabs(["Run", "Evaluate"])
         
         with tab1:
             if st.button("Run Algorithm"):
-                print(f"[HeuristicStreamlitApp] Run button clicked")  # Simple logging
+                print_info(f"[HeuristicStreamlitApp] Run button clicked")  # Simple logging
                 self.launch_script("main.py")
 
 if __name__ == "__main__":
@@ -154,12 +154,12 @@ All Streamlit operations MUST use simple print statements as established in `fin
 ```python
 # ✅ CORRECT: Simple logging for Streamlit operations (SUPREME_RULES compliance)
 def streamlit_operation(operation_type: str, parameters: dict):
-    print(f"[Streamlit] Performing {operation_type}")  # Simple logging - REQUIRED
+            print_info(f"[Streamlit] Performing {operation_type}")  # Simple logging - REQUIRED
     
     # Streamlit operation logic
     result = perform_streamlit_operation(parameters)
     
-    print(f"[Streamlit] {operation_type} completed successfully")  # Simple logging
+    print_success(f"[Streamlit] {operation_type} completed successfully")  # Simple logging
     return result
 
 # ❌ FORBIDDEN: Complex logging frameworks (violates SUPREME_RULES)
@@ -189,7 +189,7 @@ def streamlit_operation(operation_type: str, parameters: dict):
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All Streamlit components use consistent patterns (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all Streamlit operations (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all Streamlit operations (final-decision-10.md compliance)
 - [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all Streamlit documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all Streamlit implementations
 

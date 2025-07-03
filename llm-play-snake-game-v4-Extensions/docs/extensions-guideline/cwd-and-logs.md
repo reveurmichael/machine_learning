@@ -198,7 +198,7 @@ logs/extensions/datasets/grid-size-10/heuristics_v0.04_20240101_120000/
 
 ### **Mandatory Requirements**
 - [ ] **Single Source of Truth**: Uses ONLY `utils.path_utils.ensure_project_root()` (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all operations (SUPREME_RULES from final-decision-10.md compliance)
+- [ ] **Simple Logging**: Uses utils/print_utils.py functions only for all operations (SUPREME_RULES from final-decision-10.md compliance)
 - [ ] **GOOD_RULES Reference**: References SUPREME_RULES from final-decision-10.md in all documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all implementations
 

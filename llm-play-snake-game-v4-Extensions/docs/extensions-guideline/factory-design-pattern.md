@@ -8,13 +8,13 @@
 
 The Factory Design Pattern in the Snake Game AI project follows **SUPREME_RULES** established in SUPREME_RULES from `final-decision-10.md`, ensuring:
 - **Canonical `create()` method** for all factories (never `create_agent()`, `create_model()`, etc.)
-- **Simple logging** (print statements only, no complex logging frameworks)
+- **Simple logging** (use only the simple print functions from `ROOT/utils/print_utils.py` such as `print_info`, `print_warning`, `print_error`, `print_success`, `print_important` — never use raw `print()` or any complex logging frameworks)
 - **Lightweight, OOP-based, extensible, non-over-engineered** design
 - **Educational value** through clear examples and explanations
 
 ### **Educational Value**
 - **Consistent Patterns**: All factories use identical `create()` method
-- **Simple Logging**: All components use print() statements only
+- **Simple Logging**: Use only the print functions from `ROOT/utils/print_utils.py` (e.g., `print_info`, `print_warning`, etc.) for all operation visibility. Never use raw `print()`.
 - **OOP Principles**: Demonstrates inheritance, polymorphism, and encapsulation
 - **Extensibility**: Easy to add new types without modifying existing code
 
@@ -41,19 +41,19 @@ class SimpleFactory:
     
     def __init__(self):
         self._registry = {}
-        print(f"[SimpleFactory] Initialized")  # SUPREME_RULES compliant logging
+        print_info(f"[SimpleFactory] Initialized")  # SUPREME_RULES compliant logging
     
     def register(self, name: str, cls):
         """Register a class with the factory"""
         self._registry[name] = cls
-        print(f"[SimpleFactory] Registered: {name}")  # SUPREME_RULES compliant logging
+        print_info(f"[SimpleFactory] Registered: {name}")  # SUPREME_RULES compliant logging
     
     def create(self, name: str, **kwargs):  # CANONICAL create() method - SUPREME_RULES
         """Create instance using canonical create() method following `final-decision-10.md`"""
         if name not in self._registry:
             available = list(self._registry.keys())
             raise ValueError(f"Unknown type: {name}. Available: {available}")
-        print(f"[SimpleFactory] Creating: {name}")  # SUPREME_RULES compliant logging
+        print_info(f"[SimpleFactory] Creating: {name}")  # SUPREME_RULES compliant logging
         return self._registry[name](**kwargs)
 
 # ❌ FORBIDDEN: Non-canonical method names (violates SUPREME_RULES)
@@ -82,7 +82,7 @@ factory.register("myagent", MyAgent)
 
 # Use canonical create() method
 agent = factory.create("myagent", name="TestAgent")  # CANONICAL create() method
-print(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
+print_info(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ```
 
 ## 🔧 **Factory Pattern Implementation Examples**
@@ -101,7 +101,7 @@ print(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 
 ### **Pattern Consistency**
 - **Canonical Method**: All factories use `create()` method consistently
-- **Simple Logging**: Print statements provide clear operation visibility
+- **Simple Logging**: Use only the print functions from `ROOT/utils/print_utils.py` (e.g., `print_info`, `print_warning`, etc.) for all operation visibility. Never use raw `print()`.
 - **Educational Value**: Canonical patterns enable predictable learning
 - **SUPREME_RULES**: Advanced systems follow same standards as simple ones
 
@@ -109,7 +109,7 @@ print(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 
 ### **Mandatory Requirements**
 - [ ] **Canonical Method**: All factories use `create()` method exactly (SUPREME_RULES requirement)
-- [ ] **Simple Logging**: Uses print() statements only for all factory operations (final-decision-10.md compliance)
+- [ ] **Simple Logging**: Use only the print functions from `ROOT/utils/print_utils.py` (e.g., `print_info`, `print_warning`, etc.) for all operation visibility. Never use raw `print()`.
 - [ ] **GOOD_RULES Reference**: References `final-decision-10.md` in all factory documentation
 - [ ] **Pattern Consistency**: Follows canonical patterns across all factory implementations
 
@@ -141,7 +141,7 @@ print(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ### **Educational Resources**
 - **Design Patterns**: Factory pattern as foundation for all object creation
 - **SUPREME_RULES**: Canonical patterns ensure consistency across all extensions
-- **Simple Logging**: Print statements provide clear operation visibility
+- **Simple Logging**: Use only the print functions from `ROOT/utils/print_utils.py` (e.g., `print_info`, `print_warning`, etc.) for all operation visibility. Never use raw `print()`.
 - **OOP Principles**: Factory pattern demonstrates encapsulation and polymorphism
 
 ---

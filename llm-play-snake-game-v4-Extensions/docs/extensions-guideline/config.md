@@ -32,7 +32,7 @@ class MyConfig:
 factory = SimpleFactory()
 factory.register("myconfig", MyConfig)
 config = factory.create("myconfig", name="TestConfig")  # CANONICAL create() method per SUPREME_RULES
-print(config.name)  # Output: TestConfig
+print_info(f"Config name: {config.name}")  # SUPREME_RULES compliant logging
 ```
 
 ### Example Configuration Factory
@@ -49,7 +49,7 @@ class ConfigFactory:
         config_class = cls._registry.get(config_type.upper())
         if not config_class:
             raise ValueError(f"Unknown config type: {config_type}")
-        print(f"[ConfigFactory] Creating config: {config_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[ConfigFactory] Creating config: {config_type}")  # SUPREME_RULES compliant logging
         return config_class(**kwargs)
 ```
 
@@ -105,7 +105,7 @@ class RuntimeConfig:
         self._load_extension_config()
         self._load_runtime_config(kwargs)
         self._validate_config()
-        print(f"[RuntimeConfig] Initialized for {extension_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[RuntimeConfig] Initialized for {extension_type}")  # SUPREME_RULES compliant logging
     
     def _load_global_config(self):
         """Load global configuration constants"""
@@ -153,7 +153,7 @@ class RuntimeConfig:
         if self.config.get('max_games', 0) < 1:
             raise ValueError(f"Invalid max games: {self.config.get('max_games')}")
         
-        print(f"[RuntimeConfig] Configuration validated successfully")  # SUPREME_RULES compliant logging
+        print_success(f"[RuntimeConfig] Configuration validated successfully")  # SUPREME_RULES compliant logging
     
     def get(self, key: str, default=None):
         """Get configuration value"""
@@ -162,7 +162,7 @@ class RuntimeConfig:
     def set(self, key: str, value):
         """Set configuration value"""
         self.config[key] = value
-        print(f"[RuntimeConfig] Set {key} = {value}")  # SUPREME_RULES compliant logging
+        print_info(f"[RuntimeConfig] Set {key} = {value}")  # SUPREME_RULES compliant logging
     
     def to_dict(self) -> dict:
         """Convert configuration to dictionary"""
@@ -195,7 +195,7 @@ class HeuristicConfig:
         elif self.algorithm == "HAMILTONIAN":
             self.cycle_type = kwargs.get('cycle_type', 'standard')
         
-        print(f"[HeuristicConfig] Initialized {algorithm} config")  # SUPREME_RULES compliant logging
+        print_info(f"[HeuristicConfig] Initialized {algorithm} config")  # SUPREME_RULES compliant logging
     
     def validate(self) -> bool:
         """Validate configuration parameters"""
@@ -209,7 +209,7 @@ class HeuristicConfig:
         if self.max_games < 1:
             raise ValueError(f"Invalid max games: {self.max_games}")
         
-        print(f"[HeuristicConfig] Configuration validated")  # SUPREME_RULES compliant logging
+        print_success(f"[HeuristicConfig] Configuration validated")  # SUPREME_RULES compliant logging
         return True
     
     def to_dict(self) -> dict:
@@ -240,7 +240,7 @@ class ConfigLoader:
     
     def __init__(self, extension_type: str):
         self.extension_type = extension_type
-        print(f"[ConfigLoader] Initialized for {extension_type}")  # SUPREME_RULES compliant logging
+        print_info(f"[ConfigLoader] Initialized for {extension_type}")  # SUPREME_RULES compliant logging
     
     def load_from_file(self, file_path: str) -> dict:
         """Load configuration from file"""
@@ -265,7 +265,7 @@ class ConfigLoader:
                 config_key = key[len(prefix):].lower()
                 config[config_key] = self._parse_env_value(value)
         
-        print(f"[ConfigLoader] Loaded {len(config)} env vars")  # SUPREME_RULES compliant logging
+        print_info(f"[ConfigLoader] Loaded {len(config)} env vars")  # SUPREME_RULES compliant logging
         return config
 ```
 
@@ -290,7 +290,7 @@ class ConfigLoader:
 ### **Integration Requirements**
 - [ ] **Factory Pattern**: Compatible with configuration factory patterns
 - [ ] **Standalone Principle**: Configuration follows standalone principles
-- [ ] **Logging**: Uses SUPREME_RULES compliant logging (print() statements)
+- [ ] **Logging**: Uses SUPREME_RULES compliant logging (utils/print_utils.py functions)
 - [ ] **Error Recovery**: Robust error handling and recovery
 - [ ] **Serialization**: Support for configuration serialization
 

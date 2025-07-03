@@ -164,12 +164,13 @@ class BFSSafeGreedyAgent(BFSAgent):
                     "Step 3️⃣: Validate safety by checking if snake can still reach its tail after eating apple — result: safe.",
                     "Step 4️⃣: Confirm strategy phase as 'APPLE_PATH' since apple path is safe.",
                     f"Step 5️⃣: Select first move in safe apple path, which is '{direction}'.",
-                    "Conclusion: Moving " + direction + " safely advances toward the apple while avoiding traps."
+                    f"✅ Final decision: {direction}."
                 ]
 
                 natural_language_summary = (
                     f"BFS Safe Greedy found a safe shortest path of length {apple_path_length} to apple at {apple}. "
-                    f"Moving {direction} from {head} to {next_pos}. Path safety verified: snake can reach its tail afterward, avoiding traps."
+                    f"Moving {direction} from {head} to {next_pos}. Path safety verified: snake can reach its tail afterward, avoiding traps. "
+                    f"Final decision: {direction}."
                 )
 
                 metrics = {
@@ -208,16 +209,18 @@ class BFSSafeGreedyAgent(BFSAgent):
                 apple_path_length = len(path_to_apple) - 1 if path_to_apple else None
 
                 explanation_steps = [
-                    f"Step 1️⃣: Direct apple path deemed unsafe (apple_path_safe={apple_path_safe}).",
-                    "Step 2️⃣: Switch to tail-chasing fallback strategy to guarantee survival.",
-                    f"Step 3️⃣: BFS path to tail at {tail} has length {tail_path_length}.",
-                    f"Step 4️⃣: Select first move '{direction}' to move towards tail.",
-                    "Conclusion: Tail-chasing keeps options open until a safe apple path appears."
+                    f"Step 1️⃣: Evaluate immediate valid moves: {valid_moves}.",
+                    f"Step 2️⃣: Direct apple path deemed unsafe (apple_path_safe={apple_path_safe}).",
+                    "Step 3️⃣: Switch to tail-chasing fallback strategy to guarantee survival.",
+                    f"Step 4️⃣: BFS path to tail at {tail} has length {tail_path_length}.",
+                    f"Step 5️⃣: Select first move '{direction}' to move towards tail.",
+                    f"✅ Final decision: {direction}."
                 ]
 
                 natural_language_summary = (
                     f"BFS Safe Greedy: Direct path to apple at {apple} deemed unsafe. "
-                    f"Falling back to tail-chasing strategy. Moving {direction} toward tail at {tail} (distance: {tail_path_length})."
+                    f"Falling back to tail-chasing strategy. Moving {direction} toward tail at {tail} (distance: {tail_path_length}). "
+                    f"Final decision: {direction}."
                 )
 
                 metrics = {
@@ -250,14 +253,16 @@ class BFSSafeGreedyAgent(BFSAgent):
             fallback_used = True
 
             explanation_steps = [
-                "Step 1️⃣: No safe path to apple or tail could be found.",
-                f"Step 2️⃣: Select any non-crashing move as last resort: '{last_resort_move}'.",
-                "Conclusion: This move maximises immediate survival chances in a constrained state."
+                f"Step 1️⃣: Evaluate immediate valid moves: {valid_moves}.",
+                "Step 2️⃣: No safe path to apple or tail could be found.",
+                f"Step 3️⃣: Select any non-crashing move as last resort: '{last_resort_move}'.",
+                f"✅ Final decision: {last_resort_move}."
             ]
 
             natural_language_summary = (
                 f"BFS Safe Greedy: No safe path to apple at {apple} and no path to tail. "
-                f"Using last resort move {last_resort_move} to avoid immediate collision."
+                f"Using last resort move {last_resort_move} to avoid immediate collision. "
+                f"Final decision: {last_resort_move}."
             )
 
             metrics = {

@@ -117,18 +117,19 @@ class HeuristicGameLogic(BaseGameLogic):
             
             # Get move from heuristic agent (try v0.04 method first, fallback to v0.03)
             if hasattr(self.agent, 'get_move_with_explanation'):
-                result = self.agent.get_move_with_explanation(self)
-                # Backwards-compat support: older agents return (move, explanation)
-                if len(result) == 3:
-                    move, explanation, metrics = result
-                else:
-                    move, explanation = result  # type: ignore[misc]
-                    metrics = {}
+                move, explanation = self.agent.get_move_with_explanation(self)
                 # Store explanation for JSONL dataset generation
                 if isinstance(self.game_state, HeuristicGameData):
                     self.game_state.record_move_explanation(explanation)
-                    if metrics:
-                        self.game_state.record_move_metrics(metrics)
+
+                    # If the explanation is a dictionary with a metrics key,
+                    # extract it so that dataset generation can access a
+                    # *flat* metrics list without reparsing the explanation.
+                    metrics_payload = {}
+                    if isinstance(explanation, dict):
+                        # New schema – metrics stored separately inside dict
+                        metrics_payload = explanation.get("metrics", {})
+                    self.game_state.record_move_metrics(metrics_payload)
             else:
                 # Fallback for agents that don't support explanations yet
                 move = self.agent.get_move(self)

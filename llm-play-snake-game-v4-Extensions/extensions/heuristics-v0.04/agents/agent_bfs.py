@@ -73,14 +73,10 @@ class BFSAgent:
         Returns:
             Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
         """
-        # We ignore explanation/metrics in the lightweight helper and only
-        # return the direction.  `get_move_with_explanation` may return two
-        # or three values depending on agent version → safely unpack.
-        result = self.get_move_with_explanation(game)
-        move = result[0]  # Always the first element
+        move, _ = self.get_move_with_explanation(game)
         return move
         
-    def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, str, dict]:
+    def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, dict]:
         """
         Get next move using BFS pathfinding with detailed explanation.
         
@@ -91,10 +87,9 @@ class BFSAgent:
             game: Game logic instance containing current game state
             
         Returns:
-            Tuple of (move, explanation, metrics) where:
+            Tuple of (move, explanation_dict) where:
             - move: Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
-            - explanation: Natural language description of the reasoning
-            - metrics: Dictionary with quantitative metrics for structured logging
+            - explanation_dict: Dictionary with explanation and metrics
         """
         try:
             # Extract game state
@@ -113,25 +108,32 @@ class BFSAgent:
             path = self._bfs_pathfind(head_pos, apple_pos, snake_positions, grid_size)
             
             if not path or len(path) < 2:
-                explanation = self._generate_no_path_explanation(
+                natural_language_summary = self._generate_no_path_explanation(
                     head_pos, apple_pos, snake_positions, grid_size
                 )
                 metrics = {
-                    "path_length": 0,
                     "manhattan_distance": manhattan_distance,
+                    "path_length": 0,
                     "obstacles_near_path": 0,
                     "remaining_free_cells": remaining_free_cells,
                     "valid_moves": valid_moves,
-                    "chosen_direction": "NO_PATH_FOUND",
+                    "final_chosen_direction": "NO_PATH_FOUND",
                 }
-                return "NO_PATH_FOUND", explanation, metrics
+
+                explanation_dict = {
+                    "strategy_phase": "NO_PATH",
+                    "metrics": metrics,
+                    "explanation_steps": [natural_language_summary],
+                    "natural_language_summary": natural_language_summary,
+                }
+                return "NO_PATH_FOUND", explanation_dict
                 
             # Get first move in path
             next_pos = path[1]  # path[0] is current head position
             direction = position_to_direction(head_pos, next_pos)
             
             # Generate explanation for this move
-            explanation = self._generate_move_explanation(
+            explanation_steps_text = self._generate_move_explanation(
                 head_pos=head_pos,
                 apple_pos=apple_pos,
                 snake_positions=snake_positions,
@@ -144,20 +146,33 @@ class BFSAgent:
             
             # ----------------------- Structured metrics -----------------------
             metrics = {
-                "path_length": len(path) - 1,  # exclude head cell
                 "manhattan_distance": manhattan_distance,
+                "path_length": len(path) - 1,
                 "obstacles_near_path": self._count_obstacles_in_path(path, snake_positions),
                 "remaining_free_cells": remaining_free_cells,
                 "valid_moves": valid_moves,
-                "chosen_direction": direction,
+                "final_chosen_direction": direction,
             }
 
-            return direction, explanation, metrics
+            explanation_dict = {
+                "strategy_phase": "APPLE_PATH",
+                "metrics": metrics,
+                "explanation_steps": explanation_steps_text.split("\n"),
+                "natural_language_summary": f"BFS chooses {direction} as the first step in a shortest path of length {metrics['path_length']} to the apple.",
+            }
+
+            return direction, explanation_dict
             
         except Exception as e:
             error_explanation = f"BFS agent encountered an error: {str(e)}. Unable to compute safe path."
             print_error(f"BFS Agent error: {e}")
-            return "NO_PATH_FOUND", error_explanation, {}
+            explanation_dict = {
+                "strategy_phase": "ERROR",
+                "metrics": {},
+                "explanation_steps": [error_explanation],
+                "natural_language_summary": error_explanation,
+            }
+            return "NO_PATH_FOUND", explanation_dict
     
     def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
                                  snake_positions: set, path: List[Tuple[int, int]], 

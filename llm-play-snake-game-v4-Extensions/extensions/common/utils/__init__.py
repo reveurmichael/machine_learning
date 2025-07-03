@@ -18,7 +18,7 @@ from .dataset_game_runner import run_heuristic_games, load_game_logs
 from .dataset_generator_cli import create_argument_parser, find_available_algorithms, main
 
 # Re-export other utilities
-from .path_utils import setup_extension_paths
+from .path_utils import get_datasets_root, get_dataset_path, get_model_path
 from .csv_schema_utils import CSVValidator, TabularFeatureExtractor
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
 from utils.print_utils import print_info
@@ -35,7 +35,10 @@ __all__ = [
     "main",
     
     # Other utilities
-    "setup_extension_paths",
+    "get_datasets_root",
+    "get_dataset_path", 
+    "get_model_path",
+
     "CSVValidator",
     "TabularFeatureExtractor", 
     "save_csv_dataset",
@@ -49,15 +52,10 @@ from .factory_utils import SimpleFactory
 
 # Path management utilities  
 from .path_utils import (
-    ensure_project_root,
-    get_extension_path, 
     get_dataset_path,
     get_model_path,
-    validate_path_structure,
-    setup_extension_environment,
-    ensure_project_root_on_path,
-    PathManager,
-    path_manager
+    get_datasets_root,
+
 )
 
 # Dataset utilities

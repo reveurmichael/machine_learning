@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ..common.path_utils import ensure_project_root_on_path
-ensure_project_root_on_path()
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 """
 Heuristics v0.04 - Advanced Heuristic Agents with Streamlit Interface

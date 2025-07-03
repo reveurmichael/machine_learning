@@ -11,13 +11,13 @@ import streamlit as st
 # ---------------------------------------------------------------------------
 
 try:
-    from extensions.common.utils.path_utils import ensure_project_root_on_path
+    from utils.path_utils import ensure_project_root
 except ModuleNotFoundError:
     # Fallback if executed in an unusual environment – resolve root manually
     project_root = Path(__file__).resolve().parents[3]
     sys.path.insert(0, str(project_root))
 else:
-    project_root = ensure_project_root_on_path()
+    project_root = ensure_project_root()
 
 # Ensure we run everything from project root so that relative paths work
 # Note: We don't change directory here to avoid Streamlit path issues

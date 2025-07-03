@@ -14,8 +14,8 @@ Design Philosophy:
 
 from __future__ import annotations
 
-from extensions.common.utils.path_utils import setup_extension_paths
-setup_extension_paths()
+from utils.path_utils import ensure_project_root
+ensure_project_root()
 
 from typing import Dict, Any, Optional
 

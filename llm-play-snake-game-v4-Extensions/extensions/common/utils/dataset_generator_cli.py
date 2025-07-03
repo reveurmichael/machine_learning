@@ -16,7 +16,7 @@ from typing import List
 
 from .dataset_game_runner import run_heuristic_games, load_game_logs
 from .dataset_generator_core import DatasetGenerator
-from .path_utils import setup_extension_paths
+from utils.path_utils import ensure_project_root
 from ..config import DEFAULT_GRID_SIZE, DEFAULT_MAX_GAMES, DEFAULT_MAX_STEPS
 
 # Unified CLI logging helpers (Emoji + Color)
@@ -112,7 +112,7 @@ def find_available_algorithms() -> List[str]:
 
 def main() -> None:
     """Main entry point for dataset generation CLI."""
-    setup_extension_paths()
+    ensure_project_root()
     
     parser = create_argument_parser()
     args = parser.parse_args()

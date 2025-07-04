@@ -1,7 +1,7 @@
 from __future__ import annotations
 """
 Heuristic Game Logic - Game logic for heuristic algorithms
---------------------
+----------------
 
 This module extends BaseGameLogic to provide heuristic-specific game logic
 while maintaining compatibility with the base game engine.

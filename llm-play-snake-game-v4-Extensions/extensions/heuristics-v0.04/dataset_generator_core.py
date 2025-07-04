@@ -17,14 +17,14 @@ import csv
 import json
 import re
 
-# Add project root to path to allow absolute imports
 import sys
+# Add project root to path to allow absolute imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
 
 from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
 from utils.print_utils import print_info, print_warning, print_success, print_error
-from .jsonl_utils import flatten_explanation_for_jsonl  # NEW IMPORT
+from jsonl_utils import flatten_explanation_for_jsonl  # NEW IMPORT
 
 __all__ = ["DatasetGenerator"]
 
@@ -56,7 +56,7 @@ class DatasetGenerator:
         
         print_info(f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator")
 
-    # ------------------------------------------------------------------ CSV
+    # ---------------- CSV
     def _open_csv(self):
         """Open CSV file for writing."""
         csv_path = self.output_dir / f"{self.algorithm}_dataset.csv"
@@ -66,14 +66,14 @@ class DatasetGenerator:
         self._csv_writer = (writer, fh)
         print_info(f"Opened CSV file: {csv_path}", "DatasetGenerator")
 
-    # -------------------------------------------------------------- JSONL
+    # ---------------- JSONL
     def _open_jsonl(self):
         """Open JSONL file for writing."""
         jsonl_path = self.output_dir / f"{self.algorithm}_dataset.jsonl"
         self._jsonl_fh = jsonl_path.open("w", encoding="utf-8")
         print_info(f"Opened JSONL file: {jsonl_path}", "DatasetGenerator")
 
-    # ------------------------------------------------------------ PUBLIC
+    # ---------------- PUBLIC
     def generate(self, games: List[Dict[str, Any]], formats: List[str] = ["csv", "jsonl"]):
         """
         Generate datasets from game data.
@@ -102,7 +102,7 @@ class DatasetGenerator:
             self._jsonl_fh.close()
             print_success("JSONL dataset saved")
 
-    # ---------------------------------------------------------- INTERNAL
+    # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
         """
         Process a single game and extract features for CSV/JSONL.
@@ -237,10 +237,10 @@ class DatasetGenerator:
                 'valid_moves': pre_move_valid_moves  # Valid moves from pre-move position (same as prompt)
             })
         
-        # ------------------------------------------------------------------
+        # ----------------
         # Ensure the *explanation* field is a flattened, human-readable string
         # so that it never contains stale nested metrics.
-        # ------------------------------------------------------------------
+        # ----------------
         explanation_text = flatten_explanation_for_jsonl(explanation)
         
         # Update explanation text to use SSOT metrics for consistency

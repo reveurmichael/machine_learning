@@ -1,6 +1,6 @@
 """
 Heuristic Game Logic - Core game mechanics for heuristic algorithms v0.04
---------------------------------------------------------------------------
+----------------
 
 This module implements the game logic specifically designed for heuristic
 algorithms, extending the base game logic with features needed for

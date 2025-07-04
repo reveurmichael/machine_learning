@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 """
 BFS Agent - Breadth-First Search pathfinding for Snake Game v0.04
---------------------
+----------------
 
 This module implements a BFS (Breadth-First Search) agent that finds
 the shortest path to the apple while avoiding walls and its own body.
@@ -84,7 +84,7 @@ class BFSAgent(BaseAgent):
         SSOT Compliance: This method now generates explanations solely from
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
-        # -------------------------------------------------- Common prelude
+        # ---------------- Common prelude
         # Get positions from game state snapshot to ensure consistency with dataset generator
         game_state = game.get_state_snapshot()
         head = tuple(game_state["head_position"])
@@ -98,7 +98,7 @@ class BFSAgent(BaseAgent):
         valid_moves = self._get_valid_moves(head, set(snake), grid_size)
         remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
 
-        # ------------------------------------------------ Apple path first
+        # ---------------- Apple path first
         path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
             direction = position_to_direction(head, path_to_apple[1])
@@ -148,9 +148,9 @@ class BFSAgent(BaseAgent):
         # Ensure we use the correct head position from the recorded game state
         path_start = head_pos
 
-        # ------------------------------------------------------------------
+        # ----------------
         # TEMPLATE – Broken into logical sections (Instruction ↔ Analysis)
-        # ------------------------------------------------------------------
+        # ----------------
         explanation_parts = [
             "Step-by-step BFS reasoning:",
             f"Step 1: Identify valid immediate moves: {valid_moves}.",
@@ -342,9 +342,9 @@ class BFSAgent(BaseAgent):
         # No path found
         return []
 
-    # --------------------------------------------------------------------------
+    # ----------------
     # Helper utilities (v0.04 additions)
-    # --------------------------------------------------------------------------
+    # ----------------
     def _get_valid_moves(self, head_pos: Tuple[int, int], snake_positions: set, grid_size: int) -> List[str]:
         """Return list of currently valid moves based on obstacles and walls."""
         valid_moves = []

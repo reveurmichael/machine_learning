@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 """
 Heuristic Game Manager 
---------------------
+----------------
 
 Session management for multi-algorithm heuristic agents.
 
@@ -57,12 +57,12 @@ from game_logic import HeuristicGameLogic
 from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import dataset generation utilities for automatic updates
-from extensions.common.utils.dataset_generator_core import DatasetGenerator
+from dataset_generator_core import DatasetGenerator
 from extensions.common.utils.dataset_utils import save_csv_dataset
 from extensions.common.utils.csv_schema import create_csv_row
 from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
-from extensions.common.utils.dataset_format_utils import extract_dataset_records
-from extensions.common.utils.jsonl_utils import append_jsonl_records
+from dataset_format_utils import extract_dataset_records
+from jsonl_utils import append_jsonl_records
 import pandas as pd
 
 # Type alias for any heuristic agent (from agents package)

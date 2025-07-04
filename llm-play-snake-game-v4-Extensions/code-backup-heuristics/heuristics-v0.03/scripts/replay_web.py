@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristics Flask Web Replay Script
---------------------
+----------------
 
 Flask-based web replay for heuristic algorithm games.
 Follows Task-0 replay_web.py pattern with heuristic-specific enhancements.

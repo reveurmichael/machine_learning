@@ -23,9 +23,9 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import Optional, Dict
 
-# ---------------------------------------------------------------------------
+# ----------------
 # Core result data structure
-# ---------------------------------------------------------------------------
+# ----------------
 
 class ValidationLevel(str, Enum):
     INFO = "INFO"
@@ -44,9 +44,9 @@ class ValidationResult:
         return self.is_valid
 
 
-# ---------------------------------------------------------------------------
+# ----------------
 # Re-export the two lightweight validators
-# ---------------------------------------------------------------------------
+# ----------------
 from .dataset_validator import validate_dataset  # noqa: E402  (import after dataclass)
 from .path_validator import validate_extension_path  # noqa: E402
 

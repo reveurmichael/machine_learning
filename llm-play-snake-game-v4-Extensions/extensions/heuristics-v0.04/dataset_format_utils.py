@@ -11,24 +11,23 @@ Design Philosophy:
 - Single responsibility: Only handles dataset orchestration, delegates to specialized modules
 
 Usage:
-    from extensions.common.utils.dataset_format_utils import extract_dataset_records
+    # Self-referential import removed - this file contains the function
     
     # Extract records from a completed game
     jsonl_records, csv_records = extract_dataset_records(game_data, agent_name)
 """
 
+import sys
 from typing import Dict, List, Any, Tuple
 from pathlib import Path
-import sys
 
 # Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from utils.print_utils import print_info, print_warning
 
 # Import specialized modules
-from .jsonl_utils import create_jsonl_record
-from .csv_utils import create_csv_record
+from jsonl_utils import create_jsonl_record
+from extensions.common.utils.csv_utils import create_csv_record
 
 
 def extract_dataset_records(game_data: Dict[str, Any], agent_name: str) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:

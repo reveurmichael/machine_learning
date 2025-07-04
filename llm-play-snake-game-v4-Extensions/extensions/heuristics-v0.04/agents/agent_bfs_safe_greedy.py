@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 """
 BFS Safe Greedy Agent - Enhanced BFS with Safety Validation for Snake Game v0.04
----------------------------------------------------------------------------------
+----------------
 
 This module implements an enhanced BFS agent that adds safety validation
 to prevent the snake from getting trapped in dead-ends.
@@ -101,7 +101,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         SSOT Compliance: This method now generates explanations solely from
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
-        # -------------------------------------------------- Common prelude
+        # ---------------- Common prelude
         # Get positions from game state snapshot to ensure consistency with dataset generator
         game_state = game.get_state_snapshot()
         head = tuple(game_state["head_position"])
@@ -115,7 +115,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         valid_moves = self._get_valid_moves(head, set(snake), grid_size)
         remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
 
-        # ------------------------------------------------ Apple path first
+        # ---------------- Apple path first
         path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
         apple_path_safe = False
         if path_to_apple and len(path_to_apple) > 1:
@@ -172,7 +172,7 @@ class BFSSafeGreedyAgent(BFSAgent):
 
             return direction, explanation_dict
 
-        # ---------------------------------------- Fallback – tail chasing
+        # ---------------- Fallback – tail chasing
         tail = snake[-1]
         path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
         if path_to_tail and len(path_to_tail) > 1:
@@ -217,7 +217,7 @@ class BFSSafeGreedyAgent(BFSAgent):
 
             return direction, explanation_dict
 
-        # ----------------------------------------- Last resort scenario
+        # ---------------- Last resort scenario
         last_resort_move = self._get_safe_move(head, obstacles, grid_size)
         strategy_phase = "LAST_RESORT"
         fallback_used = True

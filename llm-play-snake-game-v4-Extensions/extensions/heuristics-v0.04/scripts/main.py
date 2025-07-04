@@ -1,6 +1,6 @@
 """
 Heuristics v0.04 CLI Entry Point
---------------------
+----------------
 
 CLI interface for heuristics v0.04 (moved from root to scripts/ folder).
 This provides a clean command-line interface while supporting the new

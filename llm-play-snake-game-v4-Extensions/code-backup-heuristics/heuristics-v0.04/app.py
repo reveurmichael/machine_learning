@@ -1,6 +1,6 @@
 """
 Heuristics v0.04 - Streamlit Dashboard
---------------------
+----------------
 
 Evolution from v0.03: Adding JSONL dataset generation with natural-language explanations alongside the existing web interface, game launching and replay capabilities.
 Demonstrates natural software progression by building upon the multi-algorithm foundation.

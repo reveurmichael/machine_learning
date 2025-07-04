@@ -1,6 +1,6 @@
 """
 BFS Agent - Simple Breadth-First Search Snake Agent
---------------------
+----------------
 
 Minimal BFS implementation for pathfinding to apples.
 """

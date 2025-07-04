@@ -1,6 +1,6 @@
 """
 Heuristic Game Rounds - Round management for heuristic algorithms
---------------------
+----------------
 
 This module provides heuristic-specific round management functionality
 while maintaining compatibility with the base round management system.

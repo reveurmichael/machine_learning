@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Heuristic Replay GUI
---------------------
+----------------
 
 Web-based replay interface for heuristic algorithms.
 Extends Task-0's web replay infrastructure with heuristic-specific features.

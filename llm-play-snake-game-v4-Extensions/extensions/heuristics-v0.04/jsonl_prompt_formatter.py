@@ -11,7 +11,7 @@ Design Philosophy:
 - Consistent format: Standardized prompt structure across all agents
 
 Usage:
-    from extensions.common.utils.jsonl_prompt_formatter import format_prompt_for_jsonl
+    # Self-referential import removed - this file contains the function
     
     # Format a prompt for JSONL dataset entry
     prompt = format_prompt_for_jsonl(game_state, agent_name)
@@ -20,9 +20,8 @@ Usage:
 from typing import Dict, List, Any
 from pathlib import Path
 import sys
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from utils.print_utils import print_warning
 
 
 def format_prompt_for_jsonl(game_state: Dict[str, Any], agent_name: str) -> str:
@@ -54,7 +53,6 @@ def format_prompt_for_jsonl(game_state: Dict[str, Any], agent_name: str) -> str:
             except Exception:
                 pass
         # If invalid, log warning and return [0, 0]
-        from utils.print_utils import print_warning
         print_warning(f"[PromptFormatter] Invalid {name} position: {pos}, using [0, 0]")
         return [0, 0]
     

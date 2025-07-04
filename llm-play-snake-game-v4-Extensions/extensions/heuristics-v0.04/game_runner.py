@@ -20,6 +20,7 @@ import json
 from typing import List, Dict, Any
 from utils.print_utils import print_info, print_warning, print_error, print_success
 import os
+from jsonl_utils import read_jsonl_file
 
 __all__ = ["run_heuristic_games", "load_game_logs"]
 
@@ -59,9 +60,9 @@ def run_heuristic_games(
         cmd.append("--verbose")
 
     # Get heuristics-v0.04 directory path
-    heuristics_dir = Path(__file__).resolve().parents[2] / "heuristics-v0.04"
+    heuristics_dir = Path(__file__).resolve().parent
     
-    # ------------------------------------------------------------------
+    # ----------------
     # Compute a **safe** timeout value.
     # Windows `subprocess` uses a C long for thread join which overflows for
     # very large floats (see CPython issue #31044).  Empirically, anything
@@ -70,7 +71,7 @@ def run_heuristic_games(
     #
     # We therefore clamp the timeout to a *reasonable* upper bound while still
     # preserving the original heuristic of *30 seconds per game*.
-    # ------------------------------------------------------------------
+    # ----------------
     calculated_timeout = max(300, max_games * 30)  # (seconds)
     SAFE_TIMEOUT_CEILING = 24 * 60 * 60  # 24 hours in seconds
     timeout_sec = min(calculated_timeout, SAFE_TIMEOUT_CEILING)

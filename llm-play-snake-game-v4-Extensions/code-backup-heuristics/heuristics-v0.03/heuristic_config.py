@@ -1,5 +1,5 @@
 """heuristics-v0.03 Configuration
---------------------
+----------------
 
 Second-citizen tasks (heuristics, supervised, RL, …) are **allowed** to import
 from first-citizen modules (Task-0).  The reverse dependency is forbidden.
@@ -32,9 +32,9 @@ from __future__ import annotations
 from extensions.common.path_utils import setup_extension_paths
 setup_extension_paths()
 
-# ---------------------
+# ----------------
 # Re-export first-citizen constants (Task-0 → Task-1 direction ✓)
-# ---------------------
+# ----------------
 
 from config.game_constants import (
     DIRECTIONS,
@@ -56,9 +56,9 @@ __all__: list[str] = [
     "DEFAULT_MOVE_INTERVAL_MS",
 ]
 
-# ---------------------
+# ----------------
 # Heuristic-specific settings (only used by v0.03 agents / GUI)
-# ---------------------
+# ----------------
 
 # Fallback hard cap so runaway agents never freeze the replay.
 MAX_HEURISTIC_STEPS: int = 5000  # steps per game (override via CLI if needed)

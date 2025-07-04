@@ -11,8 +11,6 @@ Design Philosophy:
 - Consistent schema: Standardized JSONL output format across all agents
 
 Usage:
-    from extensions.common.utils.jsonl_utils import create_jsonl_record
-    
     # Create a JSONL record
     jsonl_record = create_jsonl_record(game_state, move, explanation, metrics, agent_name)
 """
@@ -24,7 +22,7 @@ from pathlib import Path
 import sys
 
 # Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from utils.print_utils import print_info, print_warning, print_error
 
@@ -205,7 +203,7 @@ def create_jsonl_record(game_state: Dict[str, Any], move: str, explanation: Any,
     Returns:
         JSONL record dictionary with 'prompt' and 'completion' fields
     """
-    from .jsonl_prompt_formatter import format_prompt_for_jsonl
+    from jsonl_prompt_formatter import format_prompt_for_jsonl
     
     prompt = format_prompt_for_jsonl(game_state, agent_name)
     

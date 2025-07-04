@@ -1,6 +1,6 @@
 """
 BFS Agent - Breadth-First Search pathfinding for Snake Game v0.04
---------------------
+----------------
 
 This module implements a BFS (Breadth-First Search) agent that finds
 the shortest path to the apple while avoiding walls and its own body.

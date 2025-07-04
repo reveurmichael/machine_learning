@@ -1,6 +1,6 @@
 """
 Heuristic Game Manager - Simple session management for BFS
---------------------
+----------------
 
 Minimal extension of BaseGameManager for BFS algorithm.
 """

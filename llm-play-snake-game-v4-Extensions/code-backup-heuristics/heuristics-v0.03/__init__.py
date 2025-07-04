@@ -4,7 +4,7 @@ from ..common.path_utils import ensure_project_root_on_path
 ensure_project_root_on_path()
 
 """Heuristics v0.03 – CORE DATA GENERATORS
---------------------
+----------------
 
 Heuristic algorithms are *foundational* to the entire second-citizen
 research pipeline:

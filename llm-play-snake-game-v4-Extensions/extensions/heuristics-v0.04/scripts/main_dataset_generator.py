@@ -12,17 +12,30 @@ Design Philosophy:
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+# Add the heuristics-v0.04 directory to sys.path for imports
+current_dir = Path(__file__).resolve().parent
+heuristics_dir = current_dir.parent
+sys.path.insert(0, str(heuristics_dir))
+
+# Add the project root for utils imports
+project_root = heuristics_dir.parent.parent
+sys.path.insert(0, str(project_root))
+
+from game_runner import run_heuristic_games, load_game_logs
+from dataset_generator_core import DatasetGenerator
 import argparse
 from typing import List
 
-from .dataset_game_runner import run_heuristic_games, load_game_logs
-from .dataset_generator_core import DatasetGenerator
 from utils.path_utils import ensure_project_root
-from ..config import DEFAULT_GRID_SIZE, DEFAULT_MAX_GAMES, DEFAULT_MAX_STEPS
 
 # Unified CLI logging helpers (Emoji + Color)
 from utils.print_utils import print_info, print_success, print_warning, print_error
+
+# Default parameters for CLI
+DEFAULT_GRID_SIZE = 10
+DEFAULT_MAX_GAMES = 100
+DEFAULT_MAX_STEPS = 500
 
 __all__ = ["create_argument_parser", "find_available_algorithms", "main"]
 
@@ -35,13 +48,13 @@ def create_argument_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
     # Generate JSONL dataset for BFS algorithm
-    python generate_datasets.py --algorithm BFS --format jsonl --max-games 100
+    python main_dataset_generator.py --algorithm BFS --format jsonl --max-games 100
     
     # Generate both CSV and JSONL for all algorithms
-    python generate_datasets.py --all-algorithms --format both --max-games 50
+    python main_dataset_generator.py --all-algorithms --format both --max-games 50
     
     # Generate CSV dataset with specific grid size
-    python generate_datasets.py --algorithm ASTAR --format csv --grid-size 12
+    python main_dataset_generator.py --algorithm ASTAR --format csv --grid-size 12
         """
     )
     

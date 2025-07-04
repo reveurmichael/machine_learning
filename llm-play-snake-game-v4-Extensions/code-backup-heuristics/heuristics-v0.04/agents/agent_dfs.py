@@ -1,6 +1,6 @@
 """
 DFS Agent - Depth-First Search pathfinding for Snake Game
---------------------
+----------------
 
 This module implements a DFS (Depth-First Search) agent for educational
 comparison with BFS. DFS explores paths deeply before backtracking,

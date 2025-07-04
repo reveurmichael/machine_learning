@@ -35,9 +35,9 @@ from . import ValidationResult, ValidationLevel
 
 __all__ = ["validate_dataset"]
 
-# ---------------------------------------------------------------------------
+# ----------------
 # Internal helpers
-# ---------------------------------------------------------------------------
+# ----------------
 
 def _validate_csv(path: Path) -> ValidationResult:
     """Validate CSV dataset with basic column checks.
@@ -125,9 +125,9 @@ def _validate_jsonl(path: Path) -> ValidationResult:
     )
 
 
-# ---------------------------------------------------------------------------
+# ----------------
 # Public API
-# ---------------------------------------------------------------------------
+# ----------------
 
 def validate_dataset(file_path: Union[str, Path]) -> ValidationResult:
     """Validate a dataset file (CSV or JSONL).

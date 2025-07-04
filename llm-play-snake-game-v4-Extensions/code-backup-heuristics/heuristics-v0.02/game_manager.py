@@ -1,6 +1,6 @@
 """
 Heuristic Game Manager v0.02 - Multi-Algorithm Session Management
---------------------
+----------------
 
 Evolution from v0.01: This module demonstrates how to extend the simple
 proof-of-concept to support multiple algorithms using factory patterns.

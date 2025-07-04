@@ -1,6 +1,6 @@
 """
 Heuristics v0.03 - Streamlit Dashboard
---------------------
+----------------
 
 Evolution from v0.02: Adding comprehensive web interface with game launching and replay capabilities.
 Demonstrates natural software progression by building upon the multi-algorithm foundation.

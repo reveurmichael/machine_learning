@@ -1,6 +1,6 @@
 """
 Heuristic Game Data - Data tracking for heuristic algorithms
---------------------
+----------------
 
 This module extends BaseGameData to add heuristic-specific tracking
 while maintaining compatibility with the base game data structure.
@@ -345,9 +345,9 @@ class HeuristicGameData(BaseGameData):
         
         return summary
 
-    # ---------------------
+    # ----------------
     # Serialisation helper – mirrors core.GameData.save_game_summary
-    # ---------------------
+    # ----------------
 
     def save_game_summary(self, filepath: str, **kwargs):  # type: ignore[override]
         """Write *game_N.json* using the local `generate_game_summary()`."""

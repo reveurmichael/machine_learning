@@ -5,7 +5,7 @@ ensure_project_root_on_path()
 
 """
 Heuristics v0.04 - Advanced Heuristic Agents with Streamlit Interface
---------------------
+----------------
 
 This extension demonstrates software evolution from v0.03 to v0.04,
 adding a comprehensive Streamlit interface and enhanced replay capabilities.

@@ -1,6 +1,6 @@
 """
 Heuristic Game Logic - Simple BFS game logic
---------------------
+----------------
 
 Minimal extension of BaseGameLogic for BFS pathfinding.
 """

@@ -300,6 +300,9 @@ class HeuristicGameManager(BaseGameManager):
         # Increment game count before saving (matches Task-0 behavior)
         self.game_count += 1
         
+        # Set game number in game state (matches Task-0 behavior)
+        self.game.game_state.game_number = self.game_count
+        
         # Generate game data with explanations and metrics
         game_data = self._generate_game_data(game_duration)
         

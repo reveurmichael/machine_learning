@@ -1,9 +1,5 @@
 # CSV Schema for Snake Game Extensions
 
-> **Important — Authoritative Reference:** This document serves as a **GOOD_RULES** authoritative reference for CSV schema standards and supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`).
-
-> **Important Guidelines**: Both `heuristics-v0.03` and `heuristics-v0.04` are widely used depending on use cases and scenarios. For supervised learning and other general purposes, both versions can be used. For LLM fine-tuning, only `heuristics-v0.04` will be used. The CSV format is **NOT legacy** - it's actively used and valuable for supervised learning.
-
 ## 🎯 **Core Philosophy: Grid-Size Agnostic Design**
 
 The CSV schema uses a **fixed set of 16 engineered features** that work for any grid size (8x8, 10x10, 12x12, 16x16, 20x20, etc.), ensuring consistency across all extensions and enabling cross-grid-size comparisons, strictly following SUPREME_RULES from `final-decision-10.md`.

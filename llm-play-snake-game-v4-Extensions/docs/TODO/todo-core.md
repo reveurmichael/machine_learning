@@ -1,3 +1,12 @@
+
+
+Without changing any functionality of Task0, what would you wish to change/abstract/refactor/put-togeter/encapsulation, so that extensions (e.g. heuristics-v0.04) can be more easily added (and have good game_N.json and summary.json files)?
+
+
+
+
+
+
 ## 🎯 **核心问题诊断**
 
 当前的架构已经相当出色，但还可以在以下几个方面进一步抽象和封装，让extensions更容易开发：

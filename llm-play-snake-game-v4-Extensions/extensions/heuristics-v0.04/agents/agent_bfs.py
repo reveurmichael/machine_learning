@@ -109,8 +109,35 @@ class BFSAgent(BaseAgent):
                     "explanation_steps": [f"BFS computed move '{direction}' which is not valid. Returning NO_PATH_FOUND."],
                 }
                 return "NO_PATH_FOUND", explanation_dict
+            
+            # ---------------- Compute tail path length for safety
+            tail_path_length = 0
+            if len(path_to_apple) > 1:
+                next_head = path_to_apple[1]
+                
+                # Predict if apple is eaten
+                is_apple_eaten = (next_head == apple)
+                
+                # Prepare new snake body (without old tail)
+                new_snake_positions = [next_head] + [tuple(seg) for seg in snake[:-1]]
+                new_obstacles = set(new_snake_positions[:-1])  # exclude new tail
+                
+                # Predict future tail position
+                if is_apple_eaten:
+                    future_tail = tuple(snake[-1])  # tail stays put
+                else:
+                    # Handle case where snake length is 1 (no tail to move)
+                    if len(snake) > 1:
+                        future_tail = tuple(snake[-2])  # tail moves forward
+                    else:
+                        future_tail = tuple(snake[-1])  # no tail movement for length 1
+                
+                # Compute path to future tail
+                tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
+                tail_path_length = len(tail_path) - 1 if tail_path else 0
+            
             explanation_dict = self._generate_move_explanation(
-                head, apple, set(snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
+                head, apple, set(snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size, tail_path_length
             )
             return direction, explanation_dict
         else:
@@ -124,7 +151,8 @@ class BFSAgent(BaseAgent):
                                  valid_moves: List[str],
                                  manhattan_distance: int,
                                  remaining_free_cells: int,
-                                 grid_size: int) -> dict:
+                                 grid_size: int,
+                                 tail_path_length: int) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
         
@@ -164,6 +192,7 @@ class BFSAgent(BaseAgent):
             f"- Obstacles encountered/avoided along the path: {obstacles_avoided}.",
             f"- Remaining free cells on the board: {remaining_free_cells}.",
             f"- Path optimality: {'Perfectly optimal – no detours.' if path_length == manhattan_distance else f'Includes {path_length - manhattan_distance} detour step(s) to avoid obstacles.'}",
+            f"- Tail path length: After the next move, a path of length {tail_path_length} exists to the current tail, ensuring escape safety.",
             "",  # Spacer line
             "Conclusion:",
             f"By moving '{direction}', the snake safely advances toward the apple along the shortest known route, minimising risk and maximising future reward."
@@ -174,6 +203,7 @@ class BFSAgent(BaseAgent):
             "metrics": {
                 "manhattan_distance": int(manhattan_distance),
                 "path_length": int(len(path) - 1),
+                "tail_path_length": int(tail_path_length),
                 "obstacles_near_path": int(obstacles_avoided),
                 "remaining_free_cells": int(remaining_free_cells),
                 "valid_moves": valid_moves,

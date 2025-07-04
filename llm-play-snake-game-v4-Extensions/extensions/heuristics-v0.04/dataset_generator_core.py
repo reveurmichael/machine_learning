@@ -52,13 +52,13 @@ class DatasetGenerator:
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # CSV headers for the standard 16 features
+        # CSV headers for the standard features including tail_path_length
         self.csv_headers = [
             'game_id', 'step_in_game', 'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
             'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
             'danger_straight', 'danger_left', 'danger_right',
             'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
-            'target_move'
+            'tail_path_length', 'target_move'
         ]
         
         # File handles
@@ -242,9 +242,9 @@ class DatasetGenerator:
             path = self._bfs_pathfind(pre_move_head, apple_pos, body_set - {tuple(snake_positions[-1])}, grid_size)
             apple_path_len = len(path)-1 if path else None
 
-            # 4) tail_path_length
-            tail_path_len = None
-            if len(snake_positions) > 1:
+            # 4) tail_path_length - use agent's calculation if available, otherwise calculate
+            tail_path_len = explanation_metrics.get('tail_path_length')
+            if tail_path_len is None and len(snake_positions) > 1:
                 tail = snake_positions[-1]
                 obstacles = set(tuple(p) for p in snake_positions[:-1])
                 tail_path = self._bfs_pathfind(pre_move_head, tail, obstacles, grid_size)
@@ -538,6 +538,10 @@ class DatasetGenerator:
         free_space_left = count_free_space_in_direction(head_pos, 'LEFT')
         free_space_right = count_free_space_in_direction(head_pos, 'RIGHT')
         
+        # Extract tail_path_length from metrics if available
+        metrics = record.get('metrics', {})
+        tail_path_length = metrics.get('tail_path_length', 0)
+        
         # Return the complete CSV record
         return {
             # Metadata
@@ -569,6 +573,9 @@ class DatasetGenerator:
             'free_space_down': free_space_down,
             'free_space_left': free_space_left,
             'free_space_right': free_space_right,
+            
+            # Tail path length (safety metric)
+            'tail_path_length': tail_path_length,
             
             # Target
             'target_move': move

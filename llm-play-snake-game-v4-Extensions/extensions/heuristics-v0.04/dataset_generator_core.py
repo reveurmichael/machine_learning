@@ -12,12 +12,14 @@ Design Philosophy:
 
 from __future__ import annotations
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 import csv
 import json
 import re
-
+import os
 import sys
+from datetime import datetime
+
 # Add project root to path to allow absolute imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
@@ -40,19 +42,28 @@ class DatasetGenerator:
 
     def __init__(self, algorithm: str, output_dir: Path):
         """
-        Initialize dataset generator for specific algorithm.
+        Initialize the dataset generator.
         
         Args:
-            algorithm: Algorithm name (BFS, ASTAR, etc.)
-            output_dir: Directory to save generated datasets
+            algorithm: The algorithm name (e.g., 'bfs', 'dfs')
+            output_dir: Output directory for datasets
         """
-        self.algorithm = algorithm.lower()
-        self.output_dir = Path(output_dir)
+        self.algorithm = algorithm
+        self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
+        # CSV headers for the standard 16 features
+        self.csv_headers = [
+            'game_id', 'step_in_game', 'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
+            'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
+            'danger_straight', 'danger_left', 'danger_right',
+            'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
+            'target_move'
+        ]
+        
+        # File handles
         self._csv_writer = None
         self._jsonl_fh = None
-        self.csv_headers = CSV_BASIC_COLUMNS
         
         print_info(f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator")
 
@@ -177,65 +188,68 @@ class DatasetGenerator:
         # Format the prompt using the recorded game state
         prompt = self._format_prompt(game_state)
         
-        # Extract metrics from explanation but override position-related metrics
+        # Extract metrics from explanation but override ALL position-related metrics
         # with values from the recorded game state to ensure SSOT compliance
         explanation_metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
         
-        # Create SSOT-compliant metrics using recorded game state for positions
-        ssot_metrics = {}
-        
-        # Copy non-position metrics from explanation
-        for key, value in explanation_metrics.items():
-            if key not in ['head_position', 'apple_position', 'manhattan_distance', 'grid_size', 'snake_length']:
-                ssot_metrics[key] = value
-        
-        # Calculate post-move metrics: positions and distances after the chosen move
+        # Pull out agent-computed metrics, but drop all position fields
+        ssot_metrics = {
+            k: v for k, v in explanation_metrics.items()
+            if k not in (
+                "head_position","apple_position","manhattan_distance",
+                "grid_size","snake_length","valid_moves",
+                "apple_path_length","path_length","tail_path_length","final_chosen_direction"
+            )
+        }
+
+        # Now derive everything else from game_state alone
         if game_state:
-            # Pre-move state (for prompt)
             pre_move_head = game_state.get('head_position', [0, 0])
             apple_pos = game_state.get('apple_position', [0, 0])
             grid_size = game_state.get('grid_size', 10)
             snake_positions = game_state.get('snake_positions', [])
-            
-            # Calculate post-move head position
-            from config.game_constants import DIRECTIONS
-            if move in DIRECTIONS:
-                dx, dy = DIRECTIONS[move]
-                post_move_head = [pre_move_head[0] + dx, pre_move_head[1] + dy]
-            else:
-                # If move is invalid, use pre-move head position
-                post_move_head = pre_move_head
-            
-            # Calculate post-move Manhattan distance
-            post_move_manhattan = abs(post_move_head[0] - apple_pos[0]) + abs(post_move_head[1] - apple_pos[1])
 
-            # Always set apple_path_length equal to the post-move Manhattan distance (open board assumption)
-            apple_path_len = post_move_manhattan
+            # 1) valid_moves
+            body_set = set(tuple(p) for p in snake_positions)
+            valid_moves = [
+                d for d,(dx,dy) in DIRECTIONS.items()
+                if 0 <= pre_move_head[0]+dx < grid_size
+                and 0 <= pre_move_head[1]+dy < grid_size
+                and (pre_move_head[0]+dx, pre_move_head[1]+dy) not in body_set
+            ]
 
-            # Update path-related metrics to be consistent with post-move state
-            ssot_metrics['path_length'] = apple_path_len
-            ssot_metrics['apple_path_length'] = apple_path_len
-            if 'tail_path_length' not in ssot_metrics:
-                ssot_metrics['tail_path_length'] = None
-            
-            # Calculate valid moves from pre-move head position (same as prompt)
-            pre_move_valid_moves = []
-            for direction, (dx, dy) in DIRECTIONS.items():
-                next_pos = [pre_move_head[0] + dx, pre_move_head[1] + dy]
-                # Check if move is within bounds and doesn't collide with snake body
-                if (0 <= next_pos[0] < grid_size and 
-                    0 <= next_pos[1] < grid_size and 
-                    next_pos not in snake_positions):
-                    pre_move_valid_moves.append(direction)
-            
+            # 2) manhattan_distance
+            manhattan = abs(pre_move_head[0]-apple_pos[0]) + abs(pre_move_head[1]-apple_pos[1])
+
+            # 3) apple_path_length (real BFS)
+            path = self._bfs_pathfind(pre_move_head, apple_pos, body_set - {tuple(snake_positions[-1])}, grid_size)
+            apple_path_len = len(path)-1 if path else None
+
+            # 4) tail_path_length
+            tail_path_len = None
+            if len(snake_positions) > 1:
+                tail = snake_positions[-1]
+                obstacles = set(tuple(p) for p in snake_positions[:-1])
+                tail_path = self._bfs_pathfind(pre_move_head, tail, obstacles, grid_size)
+                tail_path_len = len(tail_path)-1 if tail_path else None
+
+            # 5) pack SSOT metrics
             ssot_metrics.update({
-                'head_position': post_move_head,  # Post-move head position
-                'apple_position': apple_pos,     # Apple position unchanged
-                'grid_size': grid_size,
-                'snake_length': len(snake_positions),
-                'manhattan_distance': post_move_manhattan,  # Post-move Manhattan distance
-                'valid_moves': pre_move_valid_moves  # Valid moves from pre-move position (same as prompt)
+                "head_position": pre_move_head,
+                "apple_position": apple_pos,
+                "grid_size": grid_size,
+                "snake_length": len(snake_positions),
+                "valid_moves": valid_moves,
+                "manhattan_distance": manhattan,
+                "apple_path_length": apple_path_len,
+                "path_length": apple_path_len,
+                "tail_path_length": tail_path_len,
+                "final_chosen_direction": move,
             })
+        
+        # Ensure tail_path_length is always present in metrics, even if None
+        if 'tail_path_length' not in ssot_metrics:
+            ssot_metrics['tail_path_length'] = None
         
         # ----------------
         # Ensure the *explanation* field is a flattened, human-readable string
@@ -245,6 +259,52 @@ class DatasetGenerator:
         
         # Update explanation text to use SSOT metrics for consistency
         explanation_text = self._update_explanation_with_ssot_metrics(explanation_text, ssot_metrics)
+        
+        # Fix coordinate references in explanation to match prompt exactly
+        if game_state:
+            pre_move_head = game_state.get('head_position', [0, 0])
+            apple_pos = game_state.get('apple_position', [0, 0])
+            
+            # Replace any coordinate references in explanation with correct ones from prompt
+            # Using named groups for more robust replacements and easier debugging
+            
+            # Apple position patterns with named groups
+            apple_patterns = [
+                r'apple at \((?P<x>\d+), (?P<y>\d+)\)',
+                r'apple at position \((?P<x>\d+), (?P<y>\d+)\)',
+                r'apple \((?P<x>\d+), (?P<y>\d+)\)',
+                r'BFS to the apple at \((?P<x>\d+), (?P<y>\d+)\)',
+                r'target at \((?P<x>\d+), (?P<y>\d+)\)'
+            ]
+            
+            # Head position patterns with named groups
+            head_patterns = [
+                r'from \((?P<x>\d+), (?P<y>\d+)\)',
+                r'head at \((?P<x>\d+), (?P<y>\d+)\)',
+                r'position \((?P<x>\d+), (?P<y>\d+)\)',
+                r'BFS discovered a shortest path of length \d+ from \((?P<x>\d+), (?P<y>\d+)\)',
+                r'at \((?P<x>\d+), (?P<y>\d+)\)'
+            ]
+            
+            # Replace apple coordinate references
+            for pattern in apple_patterns:
+                explanation_text = re.sub(
+                    pattern,
+                    f"apple at ({apple_pos[0]}, {apple_pos[1]})",
+                    explanation_text
+                )
+            
+            # Replace head coordinate references
+            for pattern in head_patterns:
+                explanation_text = re.sub(
+                    pattern,
+                    f"from ({pre_move_head[0]}, {pre_move_head[1]})",
+                    explanation_text
+                )
+        
+        # Add tail_path_length to explanation if available
+        if ssot_metrics.get('tail_path_length') is not None:
+            explanation_text += f"\n- Tail path length (BFS to tail): {ssot_metrics['tail_path_length']}"
 
         # SSOT-compliant completion with consistent metrics
         completion = {
@@ -258,6 +318,100 @@ class DatasetGenerator:
             "prompt": prompt,
             "completion": json.dumps(completion, ensure_ascii=False)
         }
+
+    def _bfs_pathfind(self, start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
+        """
+        BFS pathfinding from start to goal, avoiding obstacles.
+        
+        Args:
+            start: Starting position [x, y]
+            goal: Goal position [x, y]
+            obstacles: Set of obstacle positions as tuples (x, y)
+            grid_size: Size of the game grid
+            
+        Returns:
+            List of positions forming the path from start to goal, or None if no path exists
+        """
+        if start == goal:
+            return [start]
+        
+        # Convert to tuples for set operations
+        start_tuple = tuple(start)
+        goal_tuple = tuple(goal)
+        
+        if start_tuple in obstacles or goal_tuple in obstacles:
+            return None
+        
+        # BFS queue: (position, path)
+        queue = [(start_tuple, [start])]
+        visited = {start_tuple}
+        
+        # Direction vectors for BFS
+        directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        
+        while queue:
+            current_pos, path = queue.pop(0)
+            
+            for dx, dy in directions:
+                next_x = current_pos[0] + dx
+                next_y = current_pos[1] + dy
+                next_pos = (next_x, next_y)
+                
+                # Check bounds
+                if not (0 <= next_x < grid_size and 0 <= next_y < grid_size):
+                    continue
+                
+                # Check if visited or obstacle
+                if next_pos in visited or next_pos in obstacles:
+                    continue
+                
+                # Check if goal reached
+                if next_pos == goal_tuple:
+                    return path + [[next_x, next_y]]
+                
+                # Add to queue
+                visited.add(next_pos)
+                queue.append((next_pos, path + [[next_x, next_y]]))
+        
+        return None
+
+    def _get_next_position(self, current_pos: List[int], move: str, grid_size: int) -> List[int]:
+        """
+        Calculate the next position based on current position and move.
+        
+        Args:
+            current_pos: Current position [x, y]
+            move: Move direction (UP, DOWN, LEFT, RIGHT)
+            grid_size: Size of the game grid
+            
+        Returns:
+            Next position [x, y] if within bounds, None otherwise
+            
+        Note: 
+            Uses universal coordinate system from docs/extensions-guideline/coordinate-system.md:
+            - UP: (0, 1) - Move up (increase Y)
+            - DOWN: (0, -1) - Move down (decrease Y)
+            - LEFT: (-1, 0) - Move left (decrease X)
+            - RIGHT: (1, 0) - Move right (increase X)
+        """
+        x, y = current_pos
+        
+        if move == 'UP':
+            new_pos = [x, y + 1]  # UP increases Y (bottom-left origin)
+        elif move == 'DOWN':
+            new_pos = [x, y - 1]  # DOWN decreases Y
+        elif move == 'LEFT':
+            new_pos = [x - 1, y]  # LEFT decreases X
+        elif move == 'RIGHT':
+            new_pos = [x + 1, y]  # RIGHT increases X
+        else:
+            return None
+        
+        # Check bounds
+        if 0 <= new_pos[0] < grid_size and 0 <= new_pos[1] < grid_size:
+            return new_pos
+        else:
+            return None
 
     def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
         """

@@ -454,15 +454,24 @@ class HeuristicGameManager(BaseGameManager):
         # Save JSONL dataset
         if jsonl_records:
             jsonl_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.jsonl")
-            append_jsonl_records(jsonl_path, jsonl_records, overwrite=True)
+            append_jsonl_records(jsonl_path, jsonl_records, overwrite=False)  # Append instead of overwrite
             print_success(f"✅ [HeuristicGameManager] Updated JSONL dataset: {len(jsonl_records)} records -> {jsonl_path}")
         
         # Save CSV dataset
         if csv_records:
             csv_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.csv")
-            df = pd.DataFrame(csv_records)
-            df.to_csv(csv_path, index=False)
-            print_success(f"✅ [HeuristicGameManager] Updated CSV dataset: {len(csv_records)} records -> {csv_path}")
+            
+            # Check if CSV file already exists
+            if os.path.exists(csv_path):
+                # Append to existing CSV file
+                df_new = pd.DataFrame(csv_records)
+                df_new.to_csv(csv_path, mode='a', header=False, index=False)
+                print_success(f"✅ [HeuristicGameManager] Appended to CSV dataset: {len(csv_records)} records -> {csv_path}")
+            else:
+                # Create new CSV file with headers
+                df_new = pd.DataFrame(csv_records)
+                df_new.to_csv(csv_path, index=False)
+                print_success(f"✅ [HeuristicGameManager] Created CSV dataset: {len(csv_records)} records -> {csv_path}")
 
     def setup_game(self) -> None:
         """Create game logic and optional GUI interface with correct grid size."""

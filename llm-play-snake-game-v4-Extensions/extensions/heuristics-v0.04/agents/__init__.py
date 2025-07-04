@@ -21,10 +21,13 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-
 # Ensure project root is set and properly configured
-from utils.path_utils import ensure_project_root
-ensure_project_root()
+try:
+    from utils.path_utils import ensure_project_root
+    ensure_project_root()
+except ImportError:
+    # Fallback if utils module is not available
+    pass
 
 from typing import Dict, Type, Optional, List, Any
 

@@ -194,15 +194,22 @@ class HeuristicGameManager(BaseGameManager):
         Evolution from v0.01: Was hardcoded to BFSAgent(), now supports 7 algorithms
         using the agents package factory pattern.
         """
-        # Use agents package factory method
-        self.agent = create_agent(self.algorithm_name)
+        print_info(f"[DEBUG] Setting up agent for algorithm: {self.algorithm_name}")
         
-        if not self.agent:
-            available_algorithms = get_available_algorithms()
-            raise ValueError(f"Unknown algorithm: {self.algorithm_name}. Available: {available_algorithms}")
+        try:
+            # Use agents package factory method
+            self.agent = create_agent(self.algorithm_name)
+            print_info(f"[DEBUG] Agent created successfully: {type(self.agent)}")
+            
+            if not self.agent:
+                available_algorithms = get_available_algorithms()
+                raise ValueError(f"Unknown algorithm: {self.algorithm_name}. Available: {available_algorithms}")
 
-        if self.verbose:
-            print_info(f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
+            if self.verbose:
+                print_info(f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
+        except Exception as e:
+            print_info(f"[DEBUG] Error creating agent: {e}")
+            raise
 
     def _setup_dataset_generator(self) -> None:
         """Setup dataset generator for automatic updates."""
@@ -254,21 +261,15 @@ class HeuristicGameManager(BaseGameManager):
 
         # Game loop
         while not self.game.game_over:
+            # Sync previous round's data before starting a new round (if not the first round)
+            if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager and self.round_count > 0:
+                self.game.game_state.round_manager.sync_round_data()
+
             # Start new round for each move (heuristics plan one move at a time)
             self.start_new_round(f"{self.algorithm_name} pathfinding")
 
-            # Record game state in round manager BEFORE getting the move
-            # This ensures the agent uses the same game state for explanations as the dataset generator
-            recorded_game_state = None
-            if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-                recorded_game_state = self.game.get_state_snapshot()
-                self.game.game_state.round_manager.record_game_state(recorded_game_state)
-
-            # Get move from agent using the recorded game state for SSOT compliance
-            if recorded_game_state and hasattr(self.game, 'get_next_planned_move_with_state'):
-                move = self.game.get_next_planned_move_with_state(recorded_game_state)
-            else:
-                move = self.game.get_next_planned_move()
+            # Get move from agent using the current game state
+            move = self.game.get_next_planned_move()
                 
             if move == "NO_PATH_FOUND":
                 # Record game state for the final round before ending
@@ -280,9 +281,10 @@ class HeuristicGameManager(BaseGameManager):
             # Apply move
             self.game.make_move(move)
 
-            # Sync round data after move execution to ensure all data is persisted
+            # Record game state AFTER the move is applied for SSOT compliance
+            # This ensures the dataset shows the actual state after the move
             if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-                self.game.game_state.round_manager.sync_round_data()
+                self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
             
             # Update display if GUI is enabled
             if hasattr(self.game, 'update_display'):

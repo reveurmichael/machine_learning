@@ -49,4 +49,31 @@ class HeuristicRoundManager(RoundManager):
                        (snake position, apple position, score, etc.)
         """
         current_round_dict = self._get_or_create_round_data(self.round_buffer.number)
-        current_round_dict['game_state'] = dict(game_state)  # Store a copy to avoid mutation 
+        current_round_dict['game_state'] = dict(game_state)  # Store a copy to avoid mutation
+
+    def sync_round_data(self) -> None:
+        """
+        Synchronize the in-progress round buffer with the persistent mapping.
+        
+        Override the base method to ensure one move per round for heuristics.
+        Instead of extending the moves list, we replace it to maintain
+        the one-move-per-round principle.
+        """
+        if not self.round_buffer:
+            return
+
+        current_round_dict = self._get_or_create_round_data(self.round_buffer.number)
+        current_round_dict.update({
+            "round": self.round_buffer.number,
+            "apple_position": self.round_buffer.apple_position,
+        })
+        current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)
+        
+        # For heuristics: replace moves instead of extending (one move per round)
+        if self.round_buffer.moves:
+            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves before clear: {self.round_buffer.moves}")
+            current_round_dict["moves"] = list(self.round_buffer.moves)
+            self.round_buffer.moves.clear()
+            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves after clear: {self.round_buffer.moves}")
+        else:
+            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves is empty") 

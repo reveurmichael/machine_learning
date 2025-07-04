@@ -258,12 +258,14 @@ class HeuristicGameData(BaseGameData):
                 "apple_position": round_data.get("apple_position", [0, 0])
             }
             
-            # Add moves if present, with planned_moves only if different from moves
+            # Add moves if present
             if "moves" in round_data:
                 cleaned_round["moves"] = round_data["moves"]
-                # Only include planned_moves if it differs from moves
-                if "planned_moves" in round_data and round_data["planned_moves"] != round_data["moves"]:
-                    cleaned_round["planned_moves"] = round_data["planned_moves"]
+            
+            # Always include planned_moves for consistency with Task-0 pipeline logic
+            # This represents the planning phase, while moves represents the execution phase
+            if "planned_moves" in round_data:
+                cleaned_round["planned_moves"] = round_data["planned_moves"]
             
             cleaned_rounds_data[round_key] = cleaned_round
             
@@ -278,6 +280,39 @@ class HeuristicGameData(BaseGameData):
         # Time stats (heuristics never have llm_communication_time)
         time_stats_clean = self.stats.time_stats.asdict()
         
+        # For heuristics: use round-by-round moves and game states as SSOT
+        moves_from_rounds = []
+        dataset_game_states = {}
+        initial_state = {
+            'head_position': [self.grid_size // 2, self.grid_size // 2],
+            'snake_positions': [[self.grid_size // 2, self.grid_size // 2]],
+            'apple_position': self.apple_positions[0] if self.apple_positions else [0, 0],
+            'grid_size': self.grid_size,
+            'score': 0,
+            'steps': 0,
+            'current_direction': None,
+            'snake_length': 1
+        }
+        dataset_game_states['0'] = initial_state
+        
+        # Build moves and game states in lockstep, skipping round 0
+        ordered_rounds = self.round_manager.get_ordered_rounds_data()
+        for round_key in sorted(ordered_rounds.keys()):
+            if int(round_key) == 0:
+                continue
+            round_data = ordered_rounds[round_key]
+            if 'moves' in round_data and round_data['moves']:
+                # For heuristics, there should be exactly one move per round
+                move = round_data['moves'][0]
+                moves_from_rounds.append(move)
+                # Game state after this move
+                if 'game_state' in round_data:
+                    dataset_game_states[str(len(moves_from_rounds))] = round_data['game_state']
+                else:
+                    # Fallback: repeat last state
+                    last_state = dataset_game_states.get(str(len(moves_from_rounds)-1), initial_state)
+                    dataset_game_states[str(len(moves_from_rounds))] = last_state.copy()
+        
         summary = {
             # Core outcome data
             "score": self.score,
@@ -286,14 +321,11 @@ class HeuristicGameData(BaseGameData):
             "game_over": game_over,
             "game_end_reason": game_end_reason,
             "round_count": self.round_manager.round_count,
-            
             # Heuristic-specific data
             "grid_size": self.grid_size,
-            
             # Statistics
             "time_stats": time_stats_clean,
             "step_stats": self.stats.step_stats.asdict(),
-            
             # Metadata
             "metadata": {
                 "timestamp": self.timestamp,
@@ -301,58 +333,13 @@ class HeuristicGameData(BaseGameData):
                 "round_count": self.round_manager.round_count,
                 **kwargs.get("metadata", {}),
             },
-            
             # Replay data (cleaned for Task-0 compatibility)
             "detailed_history": {
                 "apple_positions": self.apple_positions,
-                "moves": self.moves,
+                "moves": moves_from_rounds,
                 "rounds_data": cleaned_rounds_data,
             },
         }
-        
-        # v0.04 Enhancement: Add game states for dataset generation
-        # Ensure complete mapping from move index to game state for SSOT
-        dataset_game_states = {}
-        
-        # Always include the initial state as key '0'
-        initial_state = self.round_manager.rounds_data.get(0, {}).get('game_state')
-        if initial_state:
-            dataset_game_states['0'] = initial_state
-        else:
-            # Fallback: create initial state from current game data
-            dataset_game_states['0'] = {
-                'head_position': self.head_position,
-                'snake_positions': self.snake_positions,
-                'apple_position': self.apple_position,
-                'grid_size': self.grid_size,
-                'score': 0,
-                'steps': 0,
-                'current_direction': None,
-                'snake_length': 1
-            }
-        
-        # For each move in the moves history, ensure we have a corresponding game state
-        moves_history = self.moves
-        for i, move in enumerate(moves_history):
-            move_index = i + 1  # Move 1 corresponds to index 1, etc.
-            
-            # Try to find the game state from rounds data
-            found_state = False
-            for round_key, round_data in self.round_manager.get_ordered_rounds_data().items():
-                if 'game_state' in round_data and 'moves' in round_data:
-                    moves_in_round = round_data['moves']
-                    # Check if this move is in this round
-                    if move in moves_in_round:
-                        dataset_game_states[str(move_index)] = round_data['game_state']
-                        found_state = True
-                        break
-            
-            # If not found in rounds data, create a fallback state
-            if not found_state:
-                # Use the last known state or create a basic one
-                last_state = dataset_game_states.get(str(move_index - 1), dataset_game_states['0'])
-                dataset_game_states[str(move_index)] = last_state.copy()
-        
         if dataset_game_states:
             summary["dataset_game_states"] = dataset_game_states
         
@@ -384,8 +371,11 @@ class HeuristicGameData(BaseGameData):
         This method ensures step_stats are correctly updated for heuristic algorithms.
         The base class doesn't update step_stats, so we need to do it here.
         """
+        print(f"[DEBUG][record_move] Recording move: {move}")
         # Call base class method which handles basic move recording
         super().record_move(move, apple_eaten)
+        if hasattr(self, 'round_manager') and self.round_manager and hasattr(self.round_manager, 'round_buffer'):
+            print(f"[DEBUG][record_move] Round buffer after add_move: {self.round_manager.round_buffer.moves}")
         
         # Update step statistics based on move type
         if move == "INVALID_REVERSAL":

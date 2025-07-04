@@ -197,11 +197,9 @@ class HeuristicGameLogic(BaseGameLogic):
         if self.planned_moves:
             move = self.planned_moves.pop(0)
             
-            # For heuristics, ensure the move is recorded in the round manager
-            if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
-                # Use the round buffer's add_move method
-                if hasattr(self.game_state.round_manager, 'round_buffer') and self.game_state.round_manager.round_buffer:
-                    self.game_state.round_manager.round_buffer.add_move(move)
+            # Note: The move will be recorded in the round buffer by the base make_move() method
+            # which calls game_state.record_move(), which in turn calls round_buffer.add_move()
+            # No need to duplicate this here to avoid double-recording
             
             return move
         else:
@@ -246,9 +244,8 @@ class HeuristicGameLogic(BaseGameLogic):
         # Record planned moves in round manager
         if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
             self.game_state.round_manager.record_planned_moves(planned_moves)
-            # Use the round buffer's add_move method for the actual move
-            if hasattr(self.game_state.round_manager, 'round_buffer') and self.game_state.round_manager.round_buffer:
-                self.game_state.round_manager.round_buffer.add_move(move)
+            # Note: The actual move will be recorded by the base make_move() method
+            # No need to duplicate this here to avoid double-recording
         
         # Update planned_moves
         self.planned_moves = planned_moves

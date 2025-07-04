@@ -218,18 +218,15 @@ class DatasetGenerator:
             if 'tail_path_length' not in ssot_metrics:
                 ssot_metrics['tail_path_length'] = None
             
-            # Calculate valid moves from post-move head position
-            post_move_valid_moves = []
-            # For single-segment snake, only the head position matters for collision detection
-            snake_body_positions = snake_positions[1:] if len(snake_positions) > 1 else []
-            
+            # Calculate valid moves from pre-move head position (same as prompt)
+            pre_move_valid_moves = []
             for direction, (dx, dy) in DIRECTIONS.items():
-                next_pos = [post_move_head[0] + dx, post_move_head[1] + dy]
+                next_pos = [pre_move_head[0] + dx, pre_move_head[1] + dy]
                 # Check if move is within bounds and doesn't collide with snake body
                 if (0 <= next_pos[0] < grid_size and 
                     0 <= next_pos[1] < grid_size and 
-                    next_pos not in snake_body_positions):
-                    post_move_valid_moves.append(direction)
+                    next_pos not in snake_positions):
+                    pre_move_valid_moves.append(direction)
             
             ssot_metrics.update({
                 'head_position': post_move_head,  # Post-move head position
@@ -237,7 +234,7 @@ class DatasetGenerator:
                 'grid_size': grid_size,
                 'snake_length': len(snake_positions),
                 'manhattan_distance': post_move_manhattan,  # Post-move Manhattan distance
-                'valid_moves': post_move_valid_moves  # Valid moves from new position
+                'valid_moves': pre_move_valid_moves  # Valid moves from pre-move position (same as prompt)
             })
         
         # ------------------------------------------------------------------

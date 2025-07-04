@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 import argparse
 from utils.path_utils import ensure_project_root
-from utils.print_utils import print_error, print_info, print_warning
+from utils.print_utils import print_error, print_info, print_warning, print_success
 
 # Import the extension components using relative imports (extension-specific)
 # Add parent directory to sys.path to enable relative imports
@@ -39,13 +39,13 @@ AVAILABLE_ALGORITHMS = get_available_algorithms()
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """
-    Create command line argument parser for v0.02 multi-algorithm support.
+    Create command line argument parser for v0.04 multi-algorithm support with automatic dataset updates.
     
     Returns:
         Configured argument parser
     """
     parser = argparse.ArgumentParser(
-        description="Heuristics v0.04 - Multi-Algorithm Snake Game Agents",
+        description="Heuristics v0.04 - Multi-Algorithm Snake Game Agents with Automatic Dataset Updates",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     
@@ -124,55 +124,28 @@ def validate_arguments(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    """
-    Main entry point for heuristics v0.02 extension.
+    """Main entry point for heuristics v0.04 with automatic dataset updates."""
+    # Parse command line arguments
+    parser = create_argument_parser()
+    args = parser.parse_args()
     
-    This function:
-    1. Parses command line arguments
-    2. Creates and initializes the HeuristicGameManager with selected algorithm
-    3. Runs the game session
-    4. Handles cleanup and error reporting
+    # Display configuration
+    if args.verbose:
+        print_info("Heuristics v0.04 - Multi-Algorithm Snake Game Agents")
+        print_info("=" * 50)
+        print_info(f"Algorithm: {args.algorithm}")
+        print_info(f"Grid size: {args.grid_size}x{args.grid_size}")
+        print_info(f"Max games: {args.max_games}")
+        print_info(f"Max steps per game: {args.max_steps}")
+        print_info("")
     
-    Evolution from v0.01:
-    - Multiple algorithm support (was: only BFS)
-    - Better error handling and validation
-    - Verbose mode for algorithm debugging
-    - Simplified logging (no Task-0 replay compatibility)
-    """
-    try:
-        # Parse command line arguments
-        parser = create_argument_parser()
-        args = parser.parse_args()
-        
-        # Validate arguments
-        validate_arguments(args)
-        
-        # Show algorithm selection (v0.02 enhancement)
-        if args.verbose:
-            print_info(f"🔍 Selected algorithm: {args.algorithm}")
-            print_info(f"📊 Will run {args.max_games} games with max {args.max_steps} steps each")
-        
-        # Create and initialize game manager
-        game_manager = HeuristicGameManager(args)
-        game_manager.initialize()
-        
-        # Run the game session
-        game_manager.run()
-        
-    except KeyboardInterrupt:
-        print_warning("\n⚠️  Execution interrupted by user")
-        sys.exit(1)
-        
-    except ValueError as e:
-        print_error(f"❌ Argument error: {e}")
-        sys.exit(1)
-        
-    except Exception as e:
-        print_error(f"❌ Unexpected error: {e}")
-        if 'args' in locals() and args.verbose:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+    # Create and initialize game manager
+    game_manager = HeuristicGameManager(args)
+    game_manager.initialize()
+    
+    # Run the games
+    game_manager.run()
+    print_success("Heuristics v0.04 execution completed successfully!")
 
 
 if __name__ == "__main__":

@@ -115,24 +115,27 @@ class HeuristicGameLogic(BaseGameLogic):
         if not self.agent:
             return ["NO_PATH_FOUND"]
         
-        try:
-            # Record start time for performance tracking
-            start_time = time.time()
-            
-            # Get move from heuristic agent with explanation support
-            move = self._get_agent_move()
-            
-            # Record search performance
-            search_time = time.time() - start_time
-            self._record_pathfinding_attempt(move, search_time)
-            
-            # Return planned moves
-            return [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
-                
-        except Exception as e:
-            print_error(f"Heuristic planning error: {e}")
-            self._record_pathfinding_attempt("NO_PATH_FOUND", 0.0, error=str(e))
-            return ["NO_PATH_FOUND"]
+        # Record start time for performance tracking
+        start_time = time.time()
+        
+        # Get move from heuristic agent with explanation support
+        move = self._get_agent_move()
+        
+        # Record search performance
+        search_time = time.time() - start_time
+        self._record_pathfinding_attempt(move, search_time)
+        
+        # Generate planned moves
+        planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
+        
+        # Record planned moves in round manager for proper rounds_data population
+        if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
+            self.game_state.round_manager.record_planned_moves(planned_moves)
+            # Sync round data immediately to ensure planned moves are recorded
+            self.game_state.round_manager.sync_round_data()
+        
+        # Return planned moves
+        return planned_moves
     
     def _get_agent_move(self) -> str:
         """Get move from agent with explanation support."""
@@ -141,7 +144,7 @@ class HeuristicGameLogic(BaseGameLogic):
             self._store_explanation(explanation)
             return move
         else:
-            # Fallback for agents without explanation support
+            # Standard move generation for agents without explanation support
             move = self.agent.get_move(self)
             self._store_explanation(f"Move {move} chosen by {self.algorithm_name} algorithm.")
             return move
@@ -156,7 +159,7 @@ class HeuristicGameLogic(BaseGameLogic):
         # Extract metrics if explanation is a dictionary
         metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
         self.game_state.record_move_metrics(metrics)
-    
+            
     def _record_pathfinding_attempt(self, move: str, search_time: float, error: str = None) -> None:
         """Record pathfinding attempt for statistics."""
         if not isinstance(self.game_state, HeuristicGameData):
@@ -164,14 +167,14 @@ class HeuristicGameLogic(BaseGameLogic):
             
         success = move not in [None, "NO_PATH_FOUND"]
         path_length = 1 if success else 0
-        
+                
         self.game_state.record_pathfinding_attempt(
             success=success,
             path_length=path_length,
             search_time=search_time,
             nodes_explored=1  # Simplified - could be enhanced with actual node count
         )
-        
+            
         if error:
             self.game_state.last_move_explanation = f"Error in {self.algorithm_name}: {error}"
     
@@ -192,9 +195,97 @@ class HeuristicGameLogic(BaseGameLogic):
         
         # Get next move from plan
         if self.planned_moves:
+            move = self.planned_moves.pop(0)
+            
+            # For heuristics, ensure the move is recorded in the round manager
+            if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
+                # Use the round buffer's add_move method
+                if hasattr(self.game_state.round_manager, 'round_buffer') and self.game_state.round_manager.round_buffer:
+                    self.game_state.round_manager.round_buffer.add_move(move)
+            
+            return move
+        else:
+            return "NO_PATH_FOUND"
+    
+    def get_next_planned_move_with_state(self, recorded_game_state: dict) -> str:
+        """
+        Get the next planned move using a recorded game state for SSOT compliance.
+        
+        This method ensures that the agent generates explanations using the same
+        game state that is recorded for dataset generation, eliminating coordinate mismatches.
+        
+        Args:
+            recorded_game_state: The game state that was recorded for this round
+            
+        Returns:
+            Next move direction or "NO_PATH_FOUND"
+        """
+        if not self.agent:
+            return "NO_PATH_FOUND"
+        
+        # Temporarily set the game state to the recorded state for explanation generation
+        original_snapshot = self.get_state_snapshot()
+        
+        # Create a temporary game state snapshot using the recorded state
+        temp_snapshot = self.get_recorded_state_snapshot(recorded_game_state)
+        
+        # Get move from agent using the recorded game state
+        if hasattr(self.agent, 'get_move_with_explanation'):
+            # Create a temporary game logic instance with the recorded state
+            temp_game = self._create_temp_game_logic(temp_snapshot)
+            move, explanation = self.agent.get_move_with_explanation(temp_game)
+            self._store_explanation(explanation)
+        else:
+            # Standard move generation for agents without explanation support
+            move = self.agent.get_move(self)
+            self._store_explanation(f"Move {move} chosen by {self.algorithm_name} algorithm.")
+        
+        # Generate planned moves
+        planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
+        
+        # Record planned moves in round manager
+        if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
+            self.game_state.round_manager.record_planned_moves(planned_moves)
+            # Use the round buffer's add_move method for the actual move
+            if hasattr(self.game_state.round_manager, 'round_buffer') and self.game_state.round_manager.round_buffer:
+                self.game_state.round_manager.round_buffer.add_move(move)
+        
+        # Update planned_moves
+        self.planned_moves = planned_moves
+        
+        # Get next move from plan
+        if self.planned_moves:
             return self.planned_moves.pop(0)
         else:
             return "NO_PATH_FOUND"
+    
+    def _create_temp_game_logic(self, game_state_snapshot: dict):
+        """
+        Create a temporary game logic instance with the given game state snapshot.
+        
+        This allows the agent to generate explanations using the recorded game state
+        without affecting the actual game state.
+        
+        Args:
+            game_state_snapshot: The game state snapshot to use
+            
+        Returns:
+            A temporary game logic instance with the given state
+        """
+        # Create a temporary game logic instance
+        temp_game = HeuristicGameLogic(grid_size=game_state_snapshot.get('grid_size', 10), use_gui=False)
+        
+        # Set the agent
+        if self.agent:
+            temp_game.set_agent(self.agent)
+        
+        # Override the get_state_snapshot method to return our recorded state
+        def get_recorded_snapshot():
+            return game_state_snapshot
+        
+        temp_game.get_state_snapshot = get_recorded_snapshot
+        
+        return temp_game
     
     def get_algorithm_info(self) -> dict:
         """
@@ -228,4 +319,28 @@ class HeuristicGameLogic(BaseGameLogic):
             "steps": self.game_state.steps,
             "current_direction": self.current_direction,
             "snake_length": len(self.snake_positions)
+        }
+    
+    def get_recorded_state_snapshot(self, recorded_state: dict) -> dict:
+        """
+        Get game state snapshot from recorded state for dataset consistency.
+        
+        This ensures agents use the same state that gets recorded in the dataset,
+        preventing coordinate mismatches between explanations and recorded data.
+        
+        Args:
+            recorded_state: Recorded game state from dataset_game_states
+            
+        Returns:
+            Dictionary containing recorded game state
+        """
+        return {
+            "head_position": recorded_state.get("head_position", [0, 0]),
+            "snake_positions": recorded_state.get("snake_positions", []),
+            "apple_position": recorded_state.get("apple_position", [0, 0]),
+            "grid_size": recorded_state.get("grid_size", self.grid_size),
+            "score": recorded_state.get("score", 0),
+            "steps": recorded_state.get("steps", 0),
+            "current_direction": recorded_state.get("current_direction", "UP"),
+            "snake_length": len(recorded_state.get("snake_positions", []))
         } 

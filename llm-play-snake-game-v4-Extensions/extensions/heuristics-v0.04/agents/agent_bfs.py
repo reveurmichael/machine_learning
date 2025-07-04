@@ -79,140 +79,85 @@ class BFSAgent(BaseAgent):
 
     def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, dict]:
         """
-        Get next move using BFS pathfinding with detailed explanation.
+        Compute next move *and* a structured explanation object.
         
-        v0.04 Enhancement: Returns both move and natural language explanation
-        for LLM fine-tuning dataset generation.
-        
-        Args:
-            game: Game logic instance containing current game state
-            
-        Returns:
-            Tuple of (move, explanation_dict) where:
-            - move: Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
-            - explanation_dict: Dictionary with explanation and metrics
+        SSOT Compliance: This method now generates explanations solely from
+        the recorded game state, ensuring perfect consistency with dataset generation.
         """
-        try:
-            # Extract game state
-            head_pos = tuple(game.head_position)
-            apple_pos = tuple(game.apple_position)
-            snake_positions = {tuple(pos) for pos in game.snake_positions}
-            grid_size = game.grid_size
+        # -------------------------------------------------- Common prelude
+        # Get positions from game state snapshot to ensure consistency with dataset generator
+        game_state = game.get_state_snapshot()
+        head = tuple(game_state["head_position"])
+        apple = tuple(game_state["apple_position"])
+        snake = [tuple(seg) for seg in game_state["snake_positions"]]
+        grid_size = game_state["grid_size"]
+        obstacles = set(snake[:-1])  # Tail can vacate → not an obstacle
 
-            # ------------------------ Extra metrics for v0.04 JSONL ------------------------
-            valid_moves = self._get_valid_moves(head_pos, snake_positions, grid_size)
-            remaining_free_cells = self._count_remaining_free_cells(snake_positions, grid_size)
-            manhattan_distance = abs(apple_pos[0] - head_pos[0]) + abs(apple_pos[1] - head_pos[1])
-            # --------------------------------------------------------------------------------
+        # Helper metrics that are independent of strategy branch
+        manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+        valid_moves = self._get_valid_moves(head, set(snake), grid_size)
+        remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
 
-            # Find path using BFS
-            path = self._bfs_pathfind(head_pos, apple_pos, snake_positions, grid_size)
-
-            if not path or len(path) < 2:
-                natural_language_summary = self._generate_no_path_explanation(
-                    head_pos, apple_pos, snake_positions, grid_size
-                )
-                metrics = {
-                    "manhattan_distance": manhattan_distance,
-                    "path_length": 0,
-                    "obstacles_near_path": 0,
-                    "remaining_free_cells": remaining_free_cells,
-                    "valid_moves": valid_moves,
-                    "final_chosen_direction": "NO_PATH_FOUND",
-                }
-
+        # ------------------------------------------------ Apple path first
+        path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
+        if path_to_apple and len(path_to_apple) > 1:
+            direction = position_to_direction(head, path_to_apple[1])
+            if direction not in valid_moves:
                 explanation_dict = {
-                    "strategy_phase": "NO_PATH",
-                    "metrics": metrics,
-                    "explanation_steps": [natural_language_summary],
-                    "natural_language_summary": natural_language_summary,
+                    "strategy_phase": "INVALID_MOVE",
+                    "metrics": {},
+                    "explanation_steps": [f"BFS computed move '{direction}' which is not valid. Returning NO_PATH_FOUND."],
                 }
                 return "NO_PATH_FOUND", explanation_dict
-
-            # Get first move in path
-            next_pos = path[1]  # path[0] is current head position
-            direction = position_to_direction(head_pos, next_pos)
-
-            # Generate explanation for this move
-            explanation_steps_text = self._generate_move_explanation(
-                head_pos=head_pos,
-                apple_pos=apple_pos,
-                snake_positions=snake_positions,
-                path=path,
-                direction=direction,
-                valid_moves=valid_moves,
-                manhattan_distance=manhattan_distance,
-                remaining_free_cells=remaining_free_cells
+            explanation_dict = self._generate_move_explanation(
+                head, apple, set(snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
             )
-
-            # ----------------------- Structured metrics -----------------------
-            metrics = {
-                "manhattan_distance": manhattan_distance,
-                "path_length": len(path) - 1,
-                "obstacles_near_path": self._count_obstacles_in_path(path, snake_positions),
-                "remaining_free_cells": remaining_free_cells,
-                "valid_moves": valid_moves,
-                "final_chosen_direction": direction,
-            }
-
-            explanation_dict = {
-                "strategy_phase": "APPLE_PATH",
-                "metrics": metrics,
-                "explanation_steps": explanation_steps_text.split("\n"),
-                "natural_language_summary": f"BFS chooses {direction} as the first step in a shortest path of length {metrics['path_length']} to the apple.",
-            }
-
             return direction, explanation_dict
-
-        except Exception as e:
-            error_explanation = f"BFS agent encountered an error: {str(e)}. Unable to compute safe path."
-            print_error(f"BFS Agent error: {e}")
-            explanation_dict = {
-                "strategy_phase": "ERROR",
-                "metrics": {},
-                "explanation_steps": [error_explanation],
-                "natural_language_summary": error_explanation,
-            }
-            return "NO_PATH_FOUND", explanation_dict
+        else:
+            direction = "NO_PATH_FOUND"
+            explanation_dict = self._generate_no_path_explanation(head, apple, set(snake), grid_size)
+            return direction, explanation_dict
 
     def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
                                  snake_positions: set, path: List[Tuple[int, int]], 
                                  direction: str,
                                  valid_moves: List[str],
                                  manhattan_distance: int,
-                                 remaining_free_cells: int) -> str:
+                                 remaining_free_cells: int,
+                                 grid_size: int) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
         
-        The explanation follows a **standardised template** so that downstream
-        JSONL records are consistent across all heuristic agents.  It explicitly
-        lists intermediate reasoning steps, quantitative metrics, and a final
-        conclusion section.  This improves LLM-readability while remaining
-        human-friendly.
+        SSOT Compliance: All coordinates and positions are taken directly from
+        the recorded game state, ensuring perfect consistency with dataset generation.
         
         Args:
-            head_pos: Current head position.
-            apple_pos: Apple position.
-            snake_positions: Set of snake body positions.
+            head_pos: Current head position from recorded game state.
+            apple_pos: Apple position from recorded game state.
+            snake_positions: Set of snake body positions from recorded game state.
             path: Full BFS path to the apple (including head & goal).
             direction: Chosen move direction (UP/DOWN/LEFT/RIGHT).
-            valid_moves: List of valid immediate moves.
+            valid_moves: List of valid immediate moves from recorded game state.
             manhattan_distance: Manhattan distance from head to apple.
             remaining_free_cells: Count of free cells on the board.
+            grid_size: Grid size from recorded game state.
         """
         path_length = len(path) - 1  # Exclude starting position
         obstacles_avoided = self._count_obstacles_in_path(path, snake_positions)
+
+        # Ensure we use the correct head position from the recorded game state
+        path_start = head_pos
 
         # ------------------------------------------------------------------
         # TEMPLATE – Broken into logical sections (Instruction ↔ Analysis)
         # ------------------------------------------------------------------
         explanation_parts = [
             "Step-by-step BFS reasoning:",
-            f"1️⃣ Identify valid immediate moves: {valid_moves}.",
-            "2️⃣ Discard moves leading to collisions with walls or snake body segments.",
-            f"3️⃣ For the remaining safe moves, run BFS to the apple at {apple_pos}.",
-            f"4️⃣ BFS discovered a shortest path of length {path_length} from {head_pos} to the apple.",
-            f"5️⃣ The chosen move '{direction}' is the first step on that path, bringing the snake closer to the target.",
+            f"Step 1: Identify valid immediate moves: {valid_moves}.",
+            "Step 2: Discard moves leading to collisions with walls or snake body segments.",
+            f"Step 3: For the remaining safe moves, run BFS to the apple at {apple_pos}.",
+            f"Step 4: BFS discovered a shortest path of length {path_length} from {path_start} to the apple.",
+            f"Step 5: The chosen move '{direction}' is the first step on that path, bringing the snake closer to the target.",
             "",  # Spacer line
             "Additional analysis:",
             f"- Manhattan distance to apple: {manhattan_distance}.",
@@ -224,18 +169,38 @@ class BFSAgent(BaseAgent):
             f"By moving '{direction}', the snake safely advances toward the apple along the shortest known route, minimising risk and maximising future reward."
         ]
 
-        return "\n".join(explanation_parts)
+        explanation_dict = {
+            "strategy_phase": "APPLE_PATH",
+            "metrics": {
+                "manhattan_distance": int(manhattan_distance),
+                "path_length": int(len(path) - 1),
+                "obstacles_near_path": int(obstacles_avoided),
+                "remaining_free_cells": int(remaining_free_cells),
+                "valid_moves": valid_moves,
+                "final_chosen_direction": direction,
+                "head_position": list(head_pos),
+                "apple_position": list(apple_pos),
+                "snake_length": int(len(snake_positions)),
+                "grid_size": int(grid_size),
+            },
+            "explanation_steps": explanation_parts,
+        }
+
+        return explanation_dict
 
     def _generate_no_path_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int],
-                                    snake_positions: set, grid_size: int) -> str:
+                                    snake_positions: set, grid_size: int) -> dict:
         """
         Generate explanation when no path to apple is found.
         
+        SSOT Compliance: All coordinates and positions are taken directly from
+        the recorded game state, ensuring perfect consistency with dataset generation.
+        
         Args:
-            head_pos: Current head position
-            apple_pos: Apple position
-            snake_positions: Set of snake body positions
-            grid_size: Grid size
+            head_pos: Current head position from recorded game state
+            apple_pos: Apple position from recorded game state
+            snake_positions: Set of snake body positions from recorded game state
+            grid_size: Grid size from recorded game state
             
         Returns:
             Natural language explanation of why no path exists
@@ -261,7 +226,24 @@ class BFSAgent(BaseAgent):
         explanation_parts.append(f"Manhattan distance to apple is {manhattan_distance}, but path is blocked.")
         explanation_parts.append("Need to find alternative strategy or wait for tail to move.")
 
-        return " ".join(explanation_parts)
+        explanation_dict = {
+            "strategy_phase": "NO_PATH",
+            "metrics": {
+                "manhattan_distance": int(manhattan_distance),
+                "path_length": 0,
+                "obstacles_near_path": int(body_count),
+                "remaining_free_cells": int(grid_size * grid_size - body_count),
+                "valid_moves": [],
+                "final_chosen_direction": "NO_PATH_FOUND",
+                "head_position": list(head_pos),
+                "apple_position": list(apple_pos),
+                "snake_length": int(body_count),
+                "grid_size": int(grid_size),
+            },
+            "explanation_steps": explanation_parts,
+        }
+
+        return explanation_dict
 
     def _get_apple_direction(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
         """Get relative direction description of apple from head."""

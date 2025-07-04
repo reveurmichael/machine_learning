@@ -29,6 +29,7 @@ from datetime import datetime
 
 from core.game_data import BaseGameData
 from core.game_stats_manager import NumPyJSONEncoder
+from game_rounds import HeuristicRoundManager
 
 
 @dataclass
@@ -70,6 +71,9 @@ class HeuristicGameData(BaseGameData):
         """Initialize heuristic game data tracking."""
         super().__init__()
         
+        # Override round_manager to use heuristic-specific version
+        self.round_manager = HeuristicRoundManager()
+        
         # Override time_stats to use heuristic-specific version without LLM pollution
         self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
         
@@ -97,6 +101,9 @@ class HeuristicGameData(BaseGameData):
         """Reset game data for new game."""
         super().reset()
         
+        # Ensure we use heuristic-specific round manager
+        self.round_manager = HeuristicRoundManager()
+        
         # Ensure we use heuristic-specific time stats without LLM pollution
         self.stats.time_stats = HeuristicTimeStats(start_time=time.time())
         
@@ -112,6 +119,10 @@ class HeuristicGameData(BaseGameData):
         self.last_move_explanation = ""
         self.move_explanations = []
         self.move_metrics = []
+        
+        # Record the initial game state as round 0 for SSOT
+        if hasattr(self, 'get_basic_game_state'):
+            self.round_manager.rounds_data[0] = {'game_state': self.get_basic_game_state()}
     
     def record_pathfinding_attempt(self, success: bool, path_length: int = 0, 
                                  search_time: float = 0.0, nodes_explored: int = 0) -> None:
@@ -201,6 +212,10 @@ class HeuristicGameData(BaseGameData):
         # Add heuristic stats
         data["heuristic_stats"] = self.get_heuristic_stats()
         
+        # v0.04 Enhancement: Add move explanations and metrics for dataset generation
+        data["move_explanations"] = self.move_explanations
+        data["move_metrics"] = self.move_metrics
+        
         return data
 
     def generate_game_summary(
@@ -229,21 +244,32 @@ class HeuristicGameData(BaseGameData):
         - Fixed step_stats to show correct values
         - Ensured planned_moves matches moves in rounds_data
         - Fixed game_over and game_end_reason to be accurate
+        
+        v0.04 Enhancement: Added dataset_game_states for dataset generation
+        while keeping game files clean for Task-0 compatibility.
         """
         # Clean rounds data: remove game_state and ensure planned_moves matches moves
         cleaned_rounds_data = {}
+        dataset_game_states = {}  # Store game states for dataset generation
+        
         for round_key, round_data in self.round_manager.get_ordered_rounds_data().items():
             cleaned_round = {
                 "round": round_data.get("round", int(round_key)),
                 "apple_position": round_data.get("apple_position", [0, 0])
             }
             
-            # Add moves if present, with planned_moves matching moves for heuristics
+            # Add moves if present, with planned_moves only if different from moves
             if "moves" in round_data:
                 cleaned_round["moves"] = round_data["moves"]
-                cleaned_round["planned_moves"] = round_data["moves"]  # Heuristics: planned = actual
+                # Only include planned_moves if it differs from moves
+                if "planned_moves" in round_data and round_data["planned_moves"] != round_data["moves"]:
+                    cleaned_round["planned_moves"] = round_data["planned_moves"]
             
             cleaned_rounds_data[round_key] = cleaned_round
+            
+            # Store game state for dataset generation (separate from Task-0 compatible data)
+            if "game_state" in round_data:
+                dataset_game_states[round_key] = round_data["game_state"]
         
         # Game state (single termination point ensures consistency)
         game_over = self.game_over
@@ -252,7 +278,7 @@ class HeuristicGameData(BaseGameData):
         # Time stats (heuristics never have llm_communication_time)
         time_stats_clean = self.stats.time_stats.asdict()
         
-        return {
+        summary = {
             # Core outcome data
             "score": self.score,
             "steps": self.steps,
@@ -263,9 +289,6 @@ class HeuristicGameData(BaseGameData):
             
             # Heuristic-specific data
             "grid_size": self.grid_size,
-            "heuristic_info": {
-                "algorithm": self.algorithm_name,
-            },
             
             # Statistics
             "time_stats": time_stats_clean,
@@ -286,6 +309,54 @@ class HeuristicGameData(BaseGameData):
                 "rounds_data": cleaned_rounds_data,
             },
         }
+        
+        # v0.04 Enhancement: Add game states for dataset generation
+        # Ensure complete mapping from move index to game state for SSOT
+        dataset_game_states = {}
+        
+        # Always include the initial state as key '0'
+        initial_state = self.round_manager.rounds_data.get(0, {}).get('game_state')
+        if initial_state:
+            dataset_game_states['0'] = initial_state
+        else:
+            # Fallback: create initial state from current game data
+            dataset_game_states['0'] = {
+                'head_position': self.head_position,
+                'snake_positions': self.snake_positions,
+                'apple_position': self.apple_position,
+                'grid_size': self.grid_size,
+                'score': 0,
+                'steps': 0,
+                'current_direction': None,
+                'snake_length': 1
+            }
+        
+        # For each move in the moves history, ensure we have a corresponding game state
+        moves_history = self.moves
+        for i, move in enumerate(moves_history):
+            move_index = i + 1  # Move 1 corresponds to index 1, etc.
+            
+            # Try to find the game state from rounds data
+            found_state = False
+            for round_key, round_data in self.round_manager.get_ordered_rounds_data().items():
+                if 'game_state' in round_data and 'moves' in round_data:
+                    moves_in_round = round_data['moves']
+                    # Check if this move is in this round
+                    if move in moves_in_round:
+                        dataset_game_states[str(move_index)] = round_data['game_state']
+                        found_state = True
+                        break
+            
+            # If not found in rounds data, create a fallback state
+            if not found_state:
+                # Use the last known state or create a basic one
+                last_state = dataset_game_states.get(str(move_index - 1), dataset_game_states['0'])
+                dataset_game_states[str(move_index)] = last_state.copy()
+        
+        if dataset_game_states:
+            summary["dataset_game_states"] = dataset_game_states
+        
+        return summary
 
     # ---------------------
     # Serialisation helper – mirrors core.GameData.save_game_summary
@@ -305,7 +376,7 @@ class HeuristicGameData(BaseGameData):
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary_dict, f, cls=NumPyJSONEncoder, indent=2)
 
-        return summary_dict
+        return summary_dict 
 
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
         """Record a move and update relevant statistics for heuristics.

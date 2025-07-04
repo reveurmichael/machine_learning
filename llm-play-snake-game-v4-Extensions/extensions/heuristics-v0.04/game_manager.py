@@ -21,6 +21,15 @@ Design Philosophy:
 - Simplified logging (no Task-0 replay compatibility as requested)
 
 Evolution from v0.03: Adds language-rich move explanations and JSONL dataset generation while retaining multi-algorithm flexibility.
+
+v0.04 Enhancement: Supports incremental JSONL/CSV dataset updates after each game
+to provide real-time dataset growth visibility.
+
+Design Patterns:
+- Template Method: Inherits base session management structure
+- Factory Pattern: Uses HeuristicGameLogic for game logic
+- Strategy Pattern: Pluggable heuristic algorithms
+- Observer Pattern: Game state changes trigger dataset updates
 """
 
 # Ensure project root is set and properly configured
@@ -33,16 +42,28 @@ from datetime import datetime
 from typing import Optional, Union, List, Dict, Any
 import json
 import os
+from colorama import Fore
+import numpy as np
 
 # Import from project root using absolute imports
 from utils.print_utils import print_info, print_warning, print_error, print_success
 from core.game_manager import BaseGameManager
 from core.game_agents import BaseAgent
 from extensions.common import EXTENSIONS_LOGS_DIR
+from config.game_constants import END_REASON_MAP
 
 # Import heuristic-specific components using relative imports
 from game_logic import HeuristicGameLogic
 from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
+
+# Import dataset generation utilities for automatic updates
+from extensions.common.utils.dataset_generator_core import DatasetGenerator
+from extensions.common.utils.dataset_utils import save_csv_dataset
+from extensions.common.utils.csv_schema import create_csv_row
+from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
+from extensions.common.utils.dataset_format_utils import extract_dataset_records
+from extensions.common.utils.jsonl_utils import append_jsonl_records
+import pandas as pd
 
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
@@ -55,6 +76,19 @@ HeuristicAgent = Union[
     'DFSAgent', 'AStarAgent', 'AStarHamiltonianAgent', 'HamiltonianAgent'
 ]
 
+def _to_serializable(obj):
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return float(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, (list, tuple)):
+        return [_to_serializable(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _to_serializable(v) for k, v in obj.items()}
+    return obj
+
 class HeuristicGameManager(BaseGameManager):
     """
     Multi-algorithm session manager for heuristics v0.04.
@@ -65,45 +99,55 @@ class HeuristicGameManager(BaseGameManager):
     - Improved error handling and verbose mode
     - Simplified logging without Task-0 replay compatibility
     
+    v0.04 Enhancement:
+    - Automatic JSONL/CSV/summary.json updates after each game
+    - Real-time dataset growth visibility
+    - No optional parameters - updates always happen
+    
     Design Patterns:
     - Template Method: Inherits base session management structure
     - Factory Pattern: Uses HeuristicGameLogic for game logic
     - Strategy Pattern: Pluggable heuristic algorithms (v0.02 enhancement)
     - Abstract Factory: Algorithm creation based on configuration
+    - Observer Pattern: Game state changes trigger dataset updates
     """
 
     # Use heuristic-specific game logic
     GAME_LOGIC_CLS = HeuristicGameLogic
 
     def __init__(self, args: argparse.Namespace) -> None:
-        """
-        Initialize multi-algorithm heuristic game manager.
-        
-        Args:
-            args: Command line arguments with algorithm selection
-        """
+        """Initialize heuristic game manager with automatic dataset update capabilities."""
         super().__init__(args)
 
-        # Algorithm configuration
-        self.algorithm_name = getattr(args, "algorithm", DEFAULT_ALGORITHM)
-        self.verbose = getattr(args, "verbose", False)
+        # Heuristic-specific attributes
+        self.algorithm_name: str = getattr(args, "algorithm", DEFAULT_ALGORITHM)
+        self.agent: Optional[Any] = None
+        self.verbose: bool = getattr(args, "verbose", False)
 
-        # Agent and logging
-        self.agent: Optional[BaseAgent] = None
-        self.log_dir: Optional[str] = None
-        self.session_start_time = datetime.now()
-        self.game_steps: List[int] = []  # Track steps per game for efficiency metrics
-        self.game_rounds: List[int] = []  # Track rounds per game for round analysis
+        # Session statistics for summary
+        self.total_score: int = 0
+        self.game_scores: List[int] = []
+        self.game_steps: List[int] = []
+        self.game_rounds: List[int] = []
+        self.session_start_time: datetime = datetime.now()
+        
+        # Dataset update tracking (always enabled)
+        self.dataset_generator: Optional[DatasetGenerator] = None
+        
+        print_info(f"[HeuristicGameManager] Initialized for {self.algorithm_name}")
 
     def initialize(self) -> None:
-        """Initialize the multi-algorithm heuristic game manager."""
+        """Initialize the game manager with automatic dataset update capabilities."""
         # Setup logging directory
         self._setup_logging()
 
-        # Create and configure heuristic agent using factory pattern
+        # Setup agent
         self._setup_agent()
 
-        # Initialize base components
+        # Initialize dataset generator for automatic updates
+        self._setup_dataset_generator()
+        
+        # Setup base game components
         self.setup_game()
 
         # Configure game with agent
@@ -113,10 +157,7 @@ class HeuristicGameManager(BaseGameManager):
             if hasattr(self.game.game_state, 'grid_size'):
                 self.game.game_state.grid_size = self.args.grid_size
 
-        print_success(f"🤖 Heuristics v0.04 initialized with {self.algorithm_name} algorithm")
-        if self.verbose and self.agent:
-            print_info(f"🔍 Agent: {self.agent}")
-        print_info(f"📂 Logs: {self.log_dir}")
+        print_info(f"[HeuristicGameManager] Initialization complete for {self.algorithm_name}")
 
     def _setup_logging(self) -> None:
         """Setup logging directory for **extension mode**.
@@ -163,264 +204,275 @@ class HeuristicGameManager(BaseGameManager):
         if self.verbose:
             print_info(f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
 
+    def _setup_dataset_generator(self) -> None:
+        """Setup dataset generator for automatic updates."""
+        self.dataset_generator = DatasetGenerator(self.algorithm_name, Path(self.log_dir))
+        print_info(f"[HeuristicGameManager] Dataset generator initialized for automatic updates")
+
     def run(self) -> None:
-        """
-        Run the multi-algorithm heuristic game session.
+        """Run the heuristic game session with automatic dataset updates."""
+        print_success("✅ 🚀 Starting heuristics v0.04 session...")
+        print_info(f"📊 Target games: {self.args.max_games}")
+        print_info(f"🧠 Algorithm: {self.algorithm_name}")
+        print_info("")
         
-        Evolution from v0.01: Same structure, enhanced with verbose output
-        and better algorithm-specific messaging.
-        """
-        try:
-            print_success("🚀 Starting heuristics v0.04 session...")
-            print_info(f"📊 Target games: {self.args.max_games}")
-            print_info(f"🧠 Algorithm: {self.algorithm_name}")
-
-            if self.verbose and self.agent:
-                print_info(f"🔍 Agent details: {getattr(self.agent, 'description', 'No description available')}")
-
-            # Main game loop
-            while self.game_count < self.args.max_games and self.running:
-                self._run_single_game()
-
-            # Save session summary
-            self._save_session_summary()
-
-            print_success("✅ Heuristics v0.04 session completed!")
-            print_info(f"📊 Games played: {self.game_count}")
-            print_info(f"🏆 Total score: {self.total_score}")
-            if self.game_count > 0:
-                avg_score = self.total_score / self.game_count
-                print_info(f"📈 Average score: {avg_score:.1f}")
-
-        except KeyboardInterrupt:
-            print_warning("\n⚠️  Session interrupted by user")
-            self._save_session_summary()
-        except Exception as e:
-            print_error(f"❌ Session error: {e}")
-            if self.verbose:
-                import traceback
-                traceback.print_exc()
-            raise
-
-    def _run_single_game(self) -> None:
-        """
-        Run a single game with selected heuristic algorithm.
+        # Run games
+        for game_id in range(1, self.args.max_games + 1):
+            print_info(f"🎮 Game {game_id}")
+            # Run single game
+            game_duration = self._run_single_game()
+            # Finalize game and update datasets
+            self._finalize_game(game_duration)
+            # Display results
+            self._display_game_results(game_duration)
+            # Update session statistics
+            self._update_session_stats(game_duration)
+            # Check if we should continue
+            if game_id < self.args.max_games:
+                print_info("")  # Spacer between games
         
-        Evolution from v0.01: Same structure, enhanced with verbose output
-        and algorithm-specific error handling.
-        """
-        self.game_count += 1
-        self.round_count = 1
+        # Save session summary
+        self._save_session_summary()
+        print_success("✅ ✅ Heuristics v0.04 session completed!")
+        print_info(f"🎮 Games played: {len(self.game_scores)}")
+        print_info(f"🏆 Total score: {self.total_score}")
+        print_info(f"📈 Average score: {self.total_score / len(self.game_scores) if self.game_scores else 0:.1f}")
+        print_success("✅ Heuristics v0.04 execution completed successfully!")
+        if hasattr(self, 'log_dir') and self.log_dir:
+            print_info(f"📂 Logs: {self.log_dir}")
 
-        if self.verbose:
-            print_info(f"\n🎮 Starting Game {self.game_count} with {self.algorithm_name}")
-        else:
-            print_info(f"\n🎮 Game {self.game_count}")
+    def _run_single_game(self) -> float:
+        """Run a single game and return its duration."""
+        start_time = time.time()
+        
+        # Initialize game
+        self.game.reset()
 
-        # Reset game state
-        self.setup_game()
-        if isinstance(self.game, HeuristicGameLogic) and self.agent:
-            self.game.set_agent(self.agent)
-            # Ensure grid_size is set correctly
-            if hasattr(self.game.game_state, 'grid_size'):
-                self.game.game_state.grid_size = self.args.grid_size
-
-        # Reset game manager state for new game
-        self.game_active = True
-        self.need_new_plan = True
-        self.consecutive_no_path_found = 0
-
-        # Manually save the state for the very first round (round 1)
-        if self.game.game_state.round_manager.round_count == 1:
-            self.game.game_state.round_manager.rounds_data[1]['game_state'] = self.game.get_state_snapshot()
-
-        game_start_time = time.time()
+        # Record initial game state for Round 1
+        if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
+            self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
 
         # Game loop
-        while self.game_active and self.game.game_state.steps < self.args.max_steps:
-            # Start new round for planning
+        while not self.game.game_over:
+            # Start new round for each move (heuristics plan one move at a time)
             self.start_new_round(f"{self.algorithm_name} pathfinding")
 
-            # Get next move from heuristic agent
-            planned_move = self.game.get_next_planned_move()
+            # Record game state in round manager BEFORE getting the move
+            # This ensures the agent uses the same game state for explanations as the dataset generator
+            recorded_game_state = None
+            if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
+                recorded_game_state = self.game.get_state_snapshot()
+                self.game.game_state.round_manager.record_game_state(recorded_game_state)
 
-            # Execute move
-            if planned_move == "NO_PATH_FOUND":
-                self.consecutive_no_path_found += 1
-                if self.verbose:
-                    print_warning(f"⚠️  No path found (attempt {self.consecutive_no_path_found})")
-
-                if self.consecutive_no_path_found >= 5:
-                    print_error(f"❌ Too many consecutive pathfinding failures with {self.algorithm_name}")
-                    self.game_active = False
-                    break
+            # Get move from agent using the recorded game state for SSOT compliance
+            if recorded_game_state and hasattr(self.game, 'get_next_planned_move_with_state'):
+                move = self.game.get_next_planned_move_with_state(recorded_game_state)
             else:
-                self.consecutive_no_path_found = 0
+                move = self.game.get_next_planned_move()
+                
+            if move == "NO_PATH_FOUND":
+                # Record game state for the final round before ending
+                if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
+                    self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
+                self.game.game_state.record_game_end("NO_PATH_FOUND")
+                break
+            
+            # Apply move
+            self.game.make_move(move)
 
-                # Make the move
-                game_continues, apple_eaten = self.game.make_move(planned_move)
+            # Sync round data after move execution to ensure all data is persisted
+            if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
+                self.game.game_state.round_manager.sync_round_data()
+            
+            # Update display if GUI is enabled
+            if hasattr(self.game, 'update_display'):
+                self.game.update_display()
 
-                # Show apple eaten in verbose mode
-                if apple_eaten and self.verbose:
-                    current_score = self.game.game_state.score
-                    print_success(f"🍎 Apple eaten! Score: {current_score}")
-                elif apple_eaten:
-                    current_score = self.game.game_state.score
-                    print_success(f"🍎 Score: {current_score}")
-
-                if not game_continues:
-                    self.game_active = False
-
-        # Record game completion
-        game_duration = time.time() - game_start_time
-        self._finalize_game(game_duration)
+        # Calculate duration
+        game_duration = time.time() - start_time
+        
+        return game_duration
 
     def _finalize_game(self, game_duration: float) -> None:
-        """Finalize game and save simplified results with proper Task-0 compatibility."""
-        # Ensure game end is properly recorded with correct reason
-        if not self.game.game_state.game_over:
-            end_reason = self._determine_game_end_reason()
-            self.game.game_state.record_game_end(end_reason)
+        """Finalize game and update datasets automatically."""
+        # Increment game count before saving (matches Task-0 behavior)
+        self.game_count += 1
         
-        # Update session statistics
-        self._update_session_stats(game_duration)
-        
-        # Generate and save game data
+        # Generate game data with explanations and metrics
         game_data = self._generate_game_data(game_duration)
+        
+        # Save game data
         self._save_game_data(game_data)
         
-        # Display results
-        self._display_game_results(game_duration)
-    
+        # Update datasets automatically
+        self._update_datasets_incrementally([game_data])
+
     def _determine_game_end_reason(self) -> str:
-        """Determine the reason why the game ended."""
-        # Check for collision types first
-        if hasattr(self.game, 'last_collision_type') and self.game.last_collision_type:
-            return self.game.last_collision_type
+        """Determine why the game ended and return a canonical key from END_REASON_MAP."""
+        if hasattr(self.game.game_state, 'game_end_reason'):
+            raw_reason = self.game.game_state.game_end_reason
+        else:
+            # Fallback logic
+            if self.game.game_state.steps >= self.game.game_state.max_steps:
+                raw_reason = "MAX_STEPS_REACHED"
+            elif self.game.game_state.score >= self.game.game_state.max_score:
+                raw_reason = "MAX_STEPS_REACHED"
+            else:
+                raw_reason = "SELF"
         
-        # Check if game ended due to max steps
-        if self.game.game_state.steps >= self.args.max_steps:
-            return "MAX_STEPS_REACHED"
-        
-        # Check if game ended due to consecutive no path found
-        if self.consecutive_no_path_found >= 5:
-            return "MAX_CONSECUTIVE_NO_PATH_FOUND_REACHED"
-        
-        return "UNKNOWN"
-    
+        if raw_reason not in END_REASON_MAP:
+            print_warning(f"[GameManager] Unknown end reason '{raw_reason}', defaulting to 'SELF'.")
+            return "SELF"
+        return raw_reason
+
     def _update_session_stats(self, game_duration: float) -> None:
-        """Update session-level statistics."""
+        """Update session statistics."""
         self.total_score += self.game.game_state.score
         self.game_scores.append(self.game.game_state.score)
         self.game_steps.append(self.game.game_state.steps)
         self.game_rounds.append(self.round_count)
-    
+
     def _generate_game_data(self, game_duration: float) -> Dict[str, Any]:
-        """Generate game data for JSON output."""
-        if hasattr(self.game.game_state, 'generate_game_summary'):
-            # Ensure correct grid_size before generating summary
-            self.game.game_state.grid_size = self.args.grid_size
-            
-            return self.game.game_state.generate_game_summary(
-                metadata={
-                    "game_number": self.game_count,
-                    "round_count": self.round_count,
-                    "duration_seconds": round(game_duration, 2)
-                }
-            )
-        else:
-            # Fallback for older versions
-            return self._generate_fallback_game_data(game_duration)
-    
-    def _generate_fallback_game_data(self, game_duration: float) -> Dict[str, Any]:
-        """Generate fallback game data for older versions."""
-        return {
-            "algorithm": self.algorithm_name,
-            "score": self.game.game_state.score,
-            "steps": self.game.game_state.steps,
-            "round_count": self.round_count,
-            "snake_length": len(self.game.snake_positions),
-            "duration_seconds": round(game_duration, 2),
-            "game_end_reason": getattr(self.game.game_state, 'game_end_reason', 'UNKNOWN'),
-            "detailed_history": {
-                "apple_positions": getattr(self.game.game_state, 'apple_positions', []),
-                "moves": getattr(self.game.game_state, 'moves', []),
-                "rounds_data": getattr(self.game.game_state.round_manager, 'rounds_data', {}) if hasattr(self.game.game_state, 'round_manager') else {},
-            },
-            "metadata": {
-                "timestamp": getattr(self.game.game_state, 'timestamp', ''),
-                "game_number": self.game_count,
-                "round_count": self.round_count
-            }
-        }
+        """Generate game data for logging and dataset generation."""
+        # Use the game data's generate_game_summary method for Task-0 compatible game files
+        # This ensures clean data without game_state in rounds_data and without move_metrics
+        game_summary = self.game.game_state.generate_game_summary()
+        
+        # Add algorithm name and duration for heuristics
+        game_summary["algorithm"] = self.algorithm_name
+        game_summary["duration_seconds"] = round(game_duration, 2)
+        
+        # Add explanations and metrics for dataset generation (v0.04 enhancement)
+        game_summary["move_explanations"] = getattr(self.game.game_state, 'move_explanations', [])
+        game_summary["move_metrics"] = getattr(self.game.game_state, 'move_metrics', [])
+        
+        return game_summary
     
     def _save_game_data(self, game_data: Dict[str, Any]) -> None:
-        """Save game data to JSON file."""
-        game_filepath = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-        with open(game_filepath, 'w', encoding='utf-8') as f:
-            json.dump(game_data, f, indent=2, default=str)
-    
+        """Save individual game data."""
+        # Use game_count to match Task-0 numbering (games start at 1, not 0)
+        # game_count is incremented before this method is called, so it's already correct
+        game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
+        print_info(f"[DEBUG] game_count: {self.game_count}, filename: game_{self.game_count}.json")
+        with open(game_file, 'w') as f:
+            json.dump(_to_serializable(game_data), f, indent=2)
+
     def _display_game_results(self, game_duration: float) -> None:
-        """Display game completion results."""
-        if self.verbose:
-            print_info(f"📊 Game {self.game_count} completed:")
-            print_info(f"   Algorithm: {self.algorithm_name}")
-            print_info(f"   Score: {self.game.game_state.score}")
-            print_info(f"   Steps: {self.game.game_state.steps}")
-            print_info(f"   Duration: {game_duration:.2f}s")
-        else:
-            print_info(f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
+        """Display game results."""
+        print_info(f"📊 Score: {self.game.game_state.score}, Steps: {self.game.game_state.steps}")
 
     def _save_session_summary(self) -> None:
-        """Save simplified session summary (no Task-0 compatibility as requested)."""
-        summary_data = {
-            "heuristics_version": "v0.04",
-            "timestamp": self.session_start_time.strftime("%Y-%m-%d %H:%M:%S"),
+        """Save session summary."""
+        session_duration = (datetime.now() - self.session_start_time).total_seconds()
+        
+        summary = {
+            "session_timestamp": self.session_start_time.strftime("%Y%m%d_%H%M%S"),
             "algorithm": self.algorithm_name,
-            "total_games": self.game_count,
+            "total_games": len(self.game_scores),
             "total_score": self.total_score,
-            "total_rounds": sum(self.game_rounds),
-            "scores": self.game_scores,
-            "round_counts": self.game_rounds,
+            "average_score": self.total_score / len(self.game_scores) if self.game_scores else 0,
             "total_steps": sum(self.game_steps),
-            "statistics": {
-                "average_score": self.total_score / max(self.game_count, 1),
-                "max_score": max(self.game_scores) if self.game_scores else 0,
-                "min_score": min(self.game_scores) if self.game_scores else 0,
-                "score_per_step": self.total_score / max(sum(self.game_steps), 1),
-                "score_per_round": self.total_score / max(sum(self.game_rounds), 1)
+            "total_rounds": sum(self.game_rounds),
+            "session_duration_seconds": round(session_duration, 2),
+            "score_per_step": self.total_score / sum(self.game_steps) if self.game_steps else 0,
+            "score_per_round": self.total_score / sum(self.game_rounds) if self.game_rounds else 0,
+            "game_scores": self.game_scores,
+            "game_steps": self.game_steps,
+            "round_counts": self.game_rounds,
+            "configuration": {
+                "grid_size": getattr(self.args, "grid_size", 10),
+                "max_games": getattr(self.args, "max_games", 1),
+                "verbose": getattr(self.args, "verbose", False),
             }
         }
-        print_info(f"🧠 Algorithm: {summary_data['algorithm']}")
-        print_info(f"🎮 Total games: {summary_data['total_games']}")
-        print_info(f"🔄 Total rounds: {summary_data['total_rounds']}")
-        print_info(f"🏆 Total score: {summary_data['total_score']}")
-        print_info(f"📈 Scores: {summary_data['scores']}")
-        print_info(f"🔢 Round counts: {summary_data['round_counts']}")
-        print_info(f"📊 Average score: {summary_data['statistics']['average_score']:.1f}")
-        print_info(f"⚡ Score per step: {summary_data['statistics']['score_per_step']:.3f}")
-        print_info(f"🎯 Score per round: {summary_data['statistics']['score_per_round']:.3f}")
-
-        # self.log_dir 已经是算法目录
-        summary_filepath = os.path.join(self.log_dir, "summary.json")
-        with open(summary_filepath, 'w', encoding='utf-8') as f:
-            json.dump(summary_data, f, indent=2, default=str)  # Handle numpy types
-
-        if self.verbose:
-            print_success(f"💾 Session summary saved to: {summary_filepath}") 
+        
+        # Save summary
+        summary_file = os.path.join(self.log_dir, "summary.json")
+        with open(summary_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        # Display summary
+        print_info(f"🧠 Algorithm: {self.algorithm_name}")
+        print_info(f"🎮 Total games: {len(self.game_scores)}")
+        print_info(f"🔄 Total rounds: {sum(self.game_rounds)}")
+        print_info(f"🏆 Total score: {self.total_score}")
+        print_info(f"📈 Scores: {self.game_scores}")
+        print_info(f"🔢 Round counts: {self.game_rounds}")
+        print_info(f"📊 Average score: {summary['average_score']:.1f}")
+        print_info(f"⚡ Score per step: {summary['score_per_step']:.3f}")
+        print_info(f"🎯 Score per round: {summary['score_per_round']:.3f}")
 
     def start_new_round(self, round_type: str | None = None) -> None:
-        """
-        Starts a new round, extending the base method to save the full game state.
-
-        Design Pattern: Template Method (Enhancement)
-        Purpose: Overrides the base method to add heuristic-specific data (the full game state)
-                 to each round's record, ensuring data-rich logs for dataset generation.
-        Educational Value: Demonstrates how to cleanly extend a base class's behavior
-                         without modifying the original, a core tenet of the OCP.
-        """
+        """Start a new round with automatic dataset updates."""
         super().start_new_round(round_type)
-        # After the base method creates the round entry, add the full game state snapshot.
-        if self.game and self.game.game_state and self.game.game_state.round_manager:
-            current_round_number = self.game.game_state.round_manager.round_count
-            self.game.game_state.round_manager.rounds_data[current_round_number]['game_state'] = self.game.get_state_snapshot()
+
+    def flush_buffer_with_game_state(self):
+        """Flush buffer with current game state for dataset generation."""
+        super().flush_buffer_with_game_state()
+
+    def finish_round(self, reason: str = "") -> None:
+        """Finish round with automatic dataset updates."""
+        super().finish_round(reason)
+
+    def increment_round(self, reason: str = "") -> None:
+        """Increment round with automatic dataset updates."""
+        super().increment_round(reason)
+
+    def _update_datasets_incrementally(self, games_data: List[Dict[str, Any]]) -> None:
+        """Update datasets incrementally after each game."""
+        if not self.dataset_generator:
+            return
+            
+        print_info(f"[HeuristicGameManager] Starting dataset update with {len(games_data)} games")
+        
+        # Extract dataset records from all games
+        all_jsonl_records = []
+        all_csv_records = []
+        
+        for game_data in games_data:
+            jsonl_records, csv_records = extract_dataset_records(game_data, self.algorithm_name)
+            all_jsonl_records.extend(jsonl_records)
+            all_csv_records.extend(csv_records)
+        
+        print_info(f"[HeuristicGameManager] After extraction - JSONL records: {len(all_jsonl_records)}, CSV records: {len(all_csv_records)}")
+        
+        # Save updated datasets
+        self._save_updated_datasets(all_jsonl_records, all_csv_records)
+
+    def _save_updated_datasets(self, jsonl_records: List[Dict[str, Any]], csv_records: List[Dict[str, Any]]) -> None:
+        """Save updated datasets."""
+        if not self.dataset_generator:
+            return
+        
+        print_info(f"[HeuristicGameManager] Saving datasets - JSONL: {len(jsonl_records)} records, CSV: {len(csv_records)} records")
+        
+        # Save JSONL dataset
+        if jsonl_records:
+            jsonl_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.jsonl")
+            append_jsonl_records(jsonl_path, jsonl_records, overwrite=True)
+            print_success(f"✅ [HeuristicGameManager] Updated JSONL dataset: {len(jsonl_records)} records -> {jsonl_path}")
+        
+        # Save CSV dataset
+        if csv_records:
+            csv_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.csv")
+            df = pd.DataFrame(csv_records)
+            df.to_csv(csv_path, index=False)
+            print_success(f"✅ [HeuristicGameManager] Updated CSV dataset: {len(csv_records)} records -> {csv_path}")
+
+    def setup_game(self) -> None:
+        """Create game logic and optional GUI interface with correct grid size."""
+        # Get grid size from command line arguments
+        grid_size = getattr(self.args, "grid_size", 10)
+        
+        # Use the specified game logic class with correct grid size
+        self.game = self.GAME_LOGIC_CLS(grid_size=grid_size, use_gui=self.use_gui)
+
+        # Attach GUI if visual mode is requested
+        if self.use_gui:
+            # Lazy import keeps headless extensions free of pygame.
+            from gui.game_gui import GameGUI  # noqa: WPS433 – intentional local import
+            gui = GameGUI()
+            # Ensure GUI pixel scaling matches the *actual* game grid size
+            if hasattr(self.game, "grid_size"):
+                gui.resize(self.game.grid_size)  # auto-adjust cell size & grid lines
+            self.game.set_gui(gui)

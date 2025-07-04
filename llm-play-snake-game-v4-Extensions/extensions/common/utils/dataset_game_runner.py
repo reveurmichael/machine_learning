@@ -130,8 +130,11 @@ def load_game_logs(log_dirs: List[str], verbose: bool = False) -> List[Dict[str,
         try:
             log_path = Path(log_dir)
             
-            # Look for game JSON files
+            # Look for regular game files
             game_files = list(log_path.glob("game_*.json"))
+            
+            if verbose:
+                print_info(f"Found {len(game_files)} game files", "LogLoader")
             
             for game_file in game_files:
                 try:

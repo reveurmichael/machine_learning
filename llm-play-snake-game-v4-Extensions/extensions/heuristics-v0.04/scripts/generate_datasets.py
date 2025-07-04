@@ -42,22 +42,12 @@ ensure_project_root()
 from utils.print_utils import print_info, print_error
 
 # Import and delegate to the unified CLI
-try:
-    from extensions.common.utils.dataset_generator_cli import main as cli_main
-    
-    if __name__ == "__main__":
-        print_info("Heuristics v0.04 Dataset Generator")
-        print_info("=" * 40)
-        print_info("Delegating to unified CLI in common folder...")
-        print_info("")
-        
-        # Simply delegate to the unified CLI
-        cli_main()
-        
-except ImportError as e:
-    print_error(f"Error: Could not import unified CLI: {e}")
-    print_error("Make sure you're running from the project root and common utilities are available.")
-    sys.exit(1)
-except Exception as e:
-    print_error(f"Dataset generation failed: {e}")
-    sys.exit(1) 
+from extensions.common.utils.dataset_generator_cli import main as cli_main
+
+if __name__ == "__main__":
+    print_info("Heuristics v0.04 Dataset Generator")
+    print_info("=" * 40)
+    print_info("Delegating to unified CLI in common folder...")
+    print_info("")
+    # Simply delegate to the unified CLI
+    cli_main()

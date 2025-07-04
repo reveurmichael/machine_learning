@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 import csv
 import json
+import re
 
 # Add project root to path to allow absolute imports
 import sys
@@ -22,7 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from config.game_constants import DIRECTIONS
 
 from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
-from utils.print_utils import print_info, print_warning, print_success
+from utils.print_utils import print_info, print_warning, print_success, print_error
+from .jsonl_utils import flatten_explanation_for_jsonl  # NEW IMPORT
 
 __all__ = ["DatasetGenerator"]
 
@@ -104,82 +106,163 @@ class DatasetGenerator:
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
         """
         Process a single game and extract features for CSV/JSONL.
-        
-        Args:
-            game_data: Game data dictionary from load_game_logs
+        For heuristics-v0.04, always require and use dataset_game_states. Fail fast if missing or incomplete.
         """
-        rounds_data_dict = game_data.get('detailed_history', {}).get('rounds_data', {})
-        
-        if not rounds_data_dict:
-            print_warning("No rounds_data found in game. Skipping.")
-            return
+        detailed_history = game_data.get('detailed_history', {})
+        moves_history = detailed_history.get('moves', [])
+        explanations = game_data.get('move_explanations', [])
+        metrics_list = game_data.get('move_metrics', [])
+        grid_size = game_data.get('grid_size', 10)
 
-        moves_history = game_data.get('detailed_history', {}).get('moves', [])
-        explanations = game_data.get('detailed_history', {}).get('move_explanations', [])
-        metrics_list = game_data.get('detailed_history', {}).get('move_metrics', [])
-        
-        # Pad explanations if needed
-        while len(explanations) < len(moves_history):
-            explanations.append("No explanation provided.")
+        if not moves_history:
+            raise RuntimeError("[DatasetGenerator] No moves found in game. This should never happen.")
 
-        # Pad metrics list if needed
-        while len(metrics_list) < len(moves_history):
-            metrics_list.append({})
+        # Pad explanations/metrics if needed
+        if not explanations:
+            explanations = ["No explanation provided."] * len(moves_history)
+        else:
+            while len(explanations) < len(moves_history):
+                explanations.append("No explanation provided.")
+        if not metrics_list:
+            metrics_list = [{}] * len(moves_history)
+        else:
+            while len(metrics_list) < len(moves_history):
+                metrics_list.append({})
 
-        print_info(f"Processing game with {len(moves_history)} moves...", "DatasetGenerator")
+        dataset_game_states = game_data.get('dataset_game_states', {})
+        if not dataset_game_states or not isinstance(dataset_game_states, dict):
+            raise RuntimeError("[DatasetGenerator] dataset_game_states missing or not a dict. This is a critical error.")
 
-        for i, move in enumerate(moves_history):
-            round_number_str = str(i + 1)
-            round_data = rounds_data_dict.get(round_number_str, {})
-            
-            game_state = round_data.get('game_state')
-            if not game_state:
-                print_warning(f"No game_state found for round {round_number_str}. Skipping step.")
-                continue
-
+        # Use only the rounds for which we have both a move and a game state
+        for i in range(1, len(moves_history) + 1):
+            round_key = str(i)
+            if round_key not in dataset_game_states:
+                raise RuntimeError(f"[DatasetGenerator] dataset_game_states missing round {round_key}. This is a critical error.")
+            game_state = dataset_game_states[round_key]
+            move = moves_history[i - 1]
+            explanation = explanations[i - 1]
+            metrics = metrics_list[i - 1]
             record = {
                 "game_state": game_state,
                 "move": move,
-                "explanation": explanations[i],
-                "metrics": metrics_list[i]
+                "explanation": explanation,
+                "metrics": metrics
             }
-
             # Write to JSONL
             if self._jsonl_fh:
                 jsonl_record = self._extract_jsonl_record(record)
                 self._jsonl_fh.write(json.dumps(jsonl_record) + '\n')
-            
             # Write to CSV
             if self._csv_writer:
-                csv_record = self._extract_csv_features(record)
+                csv_record = self._extract_csv_features(record, step_number=i)
                 self._csv_writer[0].writerow(csv_record)
 
     def _extract_jsonl_record(self, record: dict) -> dict:
         """
-        Create a JSONL record with natural language prompt and completion.
+        Extract a single JSONL record from game data.
+        
+        SSOT Compliance: Both prompt and metrics use the same recorded game state,
+        ensuring perfect consistency and preventing coordinate mismatches.
         
         Args:
-            record: Record containing game_state, move, and explanation
+            record: Game record containing state and move information
             
         Returns:
-            JSONL record with prompt and completion
+            Dictionary with prompt and completion for JSONL format
         """
-        game_state = record['game_state']
+        game_state = record.get('game_state', {})
+        move = record.get('move', 'UNKNOWN')
+        explanation = record.get('explanation', {})
+        
+        # Format the prompt using the recorded game state
         prompt = self._format_prompt(game_state)
         
-        explanation = record.get('explanation', "")
-        algorithm = game_state.get('algorithm', self.algorithm)
+        # Extract metrics from explanation but override position-related metrics
+        # with values from the recorded game state to ensure SSOT compliance
+        explanation_metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
+        
+        # Create SSOT-compliant metrics using recorded game state for positions
+        ssot_metrics = {}
+        
+        # Copy non-position metrics from explanation
+        for key, value in explanation_metrics.items():
+            if key not in ['head_position', 'apple_position', 'manhattan_distance', 'grid_size', 'snake_length']:
+                ssot_metrics[key] = value
+        
+        # Calculate post-move metrics: positions and distances after the chosen move
+        if game_state:
+            # Pre-move state (for prompt)
+            pre_move_head = game_state.get('head_position', [0, 0])
+            apple_pos = game_state.get('apple_position', [0, 0])
+            grid_size = game_state.get('grid_size', 10)
+            snake_positions = game_state.get('snake_positions', [])
+            
+            # Calculate post-move head position
+            from config.game_constants import DIRECTIONS
+            if move in DIRECTIONS:
+                dx, dy = DIRECTIONS[move]
+                post_move_head = [pre_move_head[0] + dx, pre_move_head[1] + dy]
+            else:
+                # If move is invalid, use pre-move head position
+                post_move_head = pre_move_head
+            
+            # Calculate post-move Manhattan distance
+            post_move_manhattan = abs(post_move_head[0] - apple_pos[0]) + abs(post_move_head[1] - apple_pos[1])
 
+            # Always set apple_path_length equal to the post-move Manhattan distance (open board assumption)
+            apple_path_len = post_move_manhattan
+
+            # Update path-related metrics to be consistent with post-move state
+            ssot_metrics['path_length'] = apple_path_len
+            ssot_metrics['apple_path_length'] = apple_path_len
+            if 'tail_path_length' not in ssot_metrics:
+                ssot_metrics['tail_path_length'] = None
+            
+            # Calculate valid moves from post-move head position
+            post_move_valid_moves = []
+            # For single-segment snake, only the head position matters for collision detection
+            snake_body_positions = snake_positions[1:] if len(snake_positions) > 1 else []
+            
+            for direction, (dx, dy) in DIRECTIONS.items():
+                next_pos = [post_move_head[0] + dx, post_move_head[1] + dy]
+                # Check if move is within bounds and doesn't collide with snake body
+                if (0 <= next_pos[0] < grid_size and 
+                    0 <= next_pos[1] < grid_size and 
+                    next_pos not in snake_body_positions):
+                    post_move_valid_moves.append(direction)
+            
+            ssot_metrics.update({
+                'head_position': post_move_head,  # Post-move head position
+                'apple_position': apple_pos,     # Apple position unchanged
+                'grid_size': grid_size,
+                'snake_length': len(snake_positions),
+                'manhattan_distance': post_move_manhattan,  # Post-move Manhattan distance
+                'valid_moves': post_move_valid_moves  # Valid moves from new position
+            })
+        
+        # ------------------------------------------------------------------
+        # Ensure the *explanation* field is a flattened, human-readable string
+        # so that it never contains stale nested metrics.
+        # ------------------------------------------------------------------
+        explanation_text = flatten_explanation_for_jsonl(explanation)
+        
+        # Update explanation text to use SSOT metrics for consistency
+        explanation_text = self._update_explanation_with_ssot_metrics(explanation_text, ssot_metrics)
+
+        # SSOT-compliant completion with consistent metrics
         completion = {
-            "move": record['move'],
-            "algorithm": algorithm,
-            "metrics": record.get('metrics', {}),
-            "explanation": explanation
+            "move": move,
+            "algorithm": self.algorithm,
+            "metrics": ssot_metrics,
+            "explanation": explanation_text,
+        }
+        
+        return {
+            "prompt": prompt,
+            "completion": json.dumps(completion, ensure_ascii=False)
         }
 
-        return {"prompt": prompt, "completion": json.dumps(completion, ensure_ascii=False)}
-
-    def _extract_csv_features(self, record: dict) -> dict:
+    def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
         """
         Extract the 16 standard features for CSV record from the game state.
         
@@ -188,6 +271,7 @@ class DatasetGenerator:
         
         Args:
             record: Record containing game_state and move
+            step_number: Current step number (1-based). If None, uses game_state.steps
             
         Returns:
             Dictionary with CSV features
@@ -204,7 +288,8 @@ class DatasetGenerator:
         apple_position = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         game_id = game_state.get('game_number', 1)
-        step_in_game = game_state.get('steps', 0)
+        # Use provided step_number if available, otherwise fall back to game_state.steps
+        step_in_game = step_number if step_number is not None else game_state.get('steps', 0)
         
         if not snake_positions:
             # Invalid game state - return defaults
@@ -223,13 +308,9 @@ class DatasetGenerator:
         # Calculate danger detection features
         snake_body_set = set(tuple(pos) for pos in snake_positions)
         
-        # Check danger in each direction
-        directions = {
-            'UP': (0, -1),
-            'DOWN': (0, 1),
-            'LEFT': (-1, 0),
-            'RIGHT': (1, 0)
-        }
+        # Check danger in each direction using universal coordinate system
+        from config.game_constants import DIRECTIONS
+        directions = DIRECTIONS
         
         # Determine current direction (simplified - assume last move direction)
         current_direction = move if move in directions else 'UP'
@@ -363,7 +444,8 @@ class DatasetGenerator:
         # Strategic analysis
         manhattan_distance = abs(head_pos[0] - apple_position[0]) + abs(head_pos[1] - apple_position[1]) if apple_position else -1
         
-        # Determine valid moves
+        # Determine valid moves using universal coordinate system
+        from config.game_constants import DIRECTIONS
         valid_moves = []
         for move, (dx, dy) in DIRECTIONS.items():
             next_pos = (head_pos[0] + dx, head_pos[1] + dy)
@@ -387,9 +469,7 @@ You are an expert Snake game AI. Your task is to analyze the provided game state
 - Apple Position: {apple_position}
 
 **Board:**
-```
 {board_str}
-```
 
 **Strategic Context:**
 - Manhattan Distance to Apple: {manhattan_distance}
@@ -399,3 +479,86 @@ You are an expert Snake game AI. Your task is to analyze the provided game state
 Based on the `{algorithm}` logic, what is the optimal next move? Provide the move and a detailed, step-by-step explanation of the reasoning.
 """
         return prompt 
+
+    def _update_explanation_with_ssot_metrics(self, explanation_text: str, ssot_metrics: dict) -> str:
+        """
+        Update explanation text to use SSOT metrics for consistency.
+        
+        This ensures that any numeric values mentioned in the explanation
+        match the metrics that will be used for supervision.
+        
+        Args:
+            explanation_text: Original explanation text
+            ssot_metrics: SSOT-compliant metrics dictionary
+            
+        Returns:
+            Updated explanation text with consistent values
+        """
+        updated_text = explanation_text
+        
+        # Update apple position references
+        if 'apple_position' in ssot_metrics:
+            apple_pos = ssot_metrics['apple_position']
+            # Replace any "apple at (X, Y)" patterns with SSOT values
+            apple_pattern = r'apple at \((\d+), (\d+)\)'
+            apple_replacement = f'apple at ({apple_pos[0]}, {apple_pos[1]})'
+            updated_text = re.sub(apple_pattern, apple_replacement, updated_text)
+        
+        # Update head position references in explanations
+        if 'head_position' in ssot_metrics:
+            head_pos = ssot_metrics['head_position']
+            # Replace "from (X, Y)" patterns (BFS path descriptions)
+            from_pattern = r'from \((\d+), (\d+)\)'
+            from_replacement = f'from ({head_pos[0]}, {head_pos[1]})'
+            updated_text = re.sub(from_pattern, from_replacement, updated_text)
+            
+            # Also replace "at (X, Y)" patterns
+            at_pattern = r'at \((\d+), (\d+)\)'
+            at_replacement = f'at ({head_pos[0]}, {head_pos[1]})'
+            updated_text = re.sub(at_pattern, at_replacement, updated_text)
+        
+        # Update path length references
+        if 'apple_path_length' in ssot_metrics:
+            path_length = ssot_metrics['apple_path_length']
+            # Replace "path length found: X" patterns
+            path_pattern = r'path length found: (\d+)'
+            path_replacement = f'path length found: {path_length}'
+            updated_text = re.sub(path_pattern, path_replacement, updated_text)
+            
+            # Also replace "length X" patterns
+            length_pattern = r'length (\d+)'
+            length_replacement = f'length {path_length}'
+            updated_text = re.sub(length_pattern, length_replacement, updated_text)
+            
+            # Also replace "shortest path of length X" patterns
+            shortest_pattern = r'shortest path of length (\d+)'
+            shortest_replacement = f'shortest path of length {path_length}'
+            updated_text = re.sub(shortest_pattern, shortest_replacement, updated_text)
+        
+        # Update Manhattan distance references
+        if 'manhattan_distance' in ssot_metrics:
+            manhattan = ssot_metrics['manhattan_distance']
+            # Replace "Manhattan distance: X" patterns
+            manhattan_pattern = r'Manhattan distance: (\d+)'
+            manhattan_replacement = f'Manhattan distance: {manhattan}'
+            updated_text = re.sub(manhattan_pattern, manhattan_replacement, updated_text)
+            
+            # Also replace "Manhattan distance to apple: X" patterns
+            manhattan_to_pattern = r'Manhattan distance to apple: (\d+)'
+            manhattan_to_replacement = f'Manhattan distance to apple: {manhattan}'
+            updated_text = re.sub(manhattan_to_pattern, manhattan_to_replacement, updated_text)
+        
+        # Update valid moves references to match prompt
+        if 'valid_moves' in ssot_metrics:
+            valid_moves = ssot_metrics['valid_moves']
+            # Replace "valid immediate moves: [...]" patterns
+            moves_pattern = r"valid immediate moves: \[[^\]]+\]"
+            moves_replacement = f"valid immediate moves: {valid_moves}"
+            updated_text = re.sub(moves_pattern, moves_replacement, updated_text)
+            
+            # Also replace "Identify valid immediate moves: [...]" patterns
+            identify_pattern = r"Identify valid immediate moves: \[[^\]]+\]"
+            identify_replacement = f"Identify valid immediate moves: {valid_moves}"
+            updated_text = re.sub(identify_pattern, identify_replacement, updated_text)
+        
+        return updated_text 

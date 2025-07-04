@@ -211,12 +211,9 @@ class TabularFeatureExtractor:
         grid_size = game_state.grid_size
         
         # Check dangers in each direction relative to current movement
-        directions = {
-            "UP": (0, 1),
-            "DOWN": (0, -1),
-            "RIGHT": (1, 0),
-            "LEFT": (-1, 0)
-        }
+        # Use universal coordinate system from config/game_constants.py
+        from config.game_constants import DIRECTIONS
+        directions = DIRECTIONS
         
         current_dir = game_state.current_direction
         
@@ -267,12 +264,10 @@ class TabularFeatureExtractor:
         snake_body = set(game_state.snake_positions)
         grid_size = game_state.grid_size
         
-        directions = {
-            "up": (0, 1),
-            "down": (0, -1),
-            "right": (1, 0),
-            "left": (-1, 0)
-        }
+        # Use universal coordinate system from config/game_constants.py  
+        from config.game_constants import DIRECTIONS
+        # Convert to lowercase keys for consistency with this function
+        directions = {key.lower(): value for key, value in DIRECTIONS.items()}
         
         free_space = {}
         

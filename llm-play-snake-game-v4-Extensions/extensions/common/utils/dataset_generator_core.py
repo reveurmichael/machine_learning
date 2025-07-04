@@ -436,7 +436,8 @@ class DatasetGenerator:
         for i, pos in enumerate(snake_positions):
             board[pos[1]][pos[0]] = 'S'
         board[head_pos[1]][head_pos[0]] = 'H'
-        board_str = "\n".join(" ".join(row) for row in board)
+        # Flip vertically so that top row is y = grid_size-1 (bottom-left origin)
+        board_str = "\n".join(" ".join(row) for row in reversed(board))
 
         # Strategic analysis
         manhattan_distance = abs(head_pos[0] - apple_position[0]) + abs(head_pos[1] - apple_position[1]) if apple_position else -1

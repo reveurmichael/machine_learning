@@ -158,7 +158,7 @@ for grid_size in [8, 10, 12, 16, 20]:
 
 ```
 extensions/common/utils/
-├── csv_schema_utils.py      # Core schema and feature extraction
+├── csv_schema.py      # Core schema and feature extraction
 ├── dataset_utils.py         # Dataset loading and preprocessing
 └── test_csv_schema.py       # Test suite
 ```

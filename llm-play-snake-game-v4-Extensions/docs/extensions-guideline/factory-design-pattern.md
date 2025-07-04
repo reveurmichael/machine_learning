@@ -136,7 +136,7 @@ print_info(f"Created agent: {agent.name}")  # SUPREME_RULES compliant logging
 ### **Implementation Files**
 - **`utils/factory_utils.py`**: Canonical factory utilities
 - **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
-- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+- **`extensions/common/utils/csv_schema.py`**: Schema utilities with factory patterns
 
 ### **Educational Resources**
 - **Design Patterns**: Factory pattern as foundation for all object creation

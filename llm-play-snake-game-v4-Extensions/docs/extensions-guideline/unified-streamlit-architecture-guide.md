@@ -216,7 +216,7 @@ def streamlit_operation(operation_type: str, parameters: dict):
 ### **Implementation Files**
 - **`extensions/common/utils/factory_utils.py`**: Canonical factory utilities
 - **`extensions/common/utils/path_utils.py`**: Path management with factory patterns
-- **`extensions/common/utils/csv_schema_utils.py`**: Schema utilities with factory patterns
+- **`extensions/common/utils/csv_schema.py`**: Schema utilities with factory patterns
 
 ### **Educational Resources**
 - **Design Patterns**: Streamlit pattern as foundation for web applications

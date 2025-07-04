@@ -23,7 +23,7 @@ from .dataset_generator_cli import create_argument_parser, find_available_algori
 
 # Re-export other utilities
 from .path_utils import get_datasets_root, get_dataset_path, get_model_path
-from .csv_schema_utils import CSVValidator, TabularFeatureExtractor
+from .csv_schema import CSVValidator, TabularFeatureExtractor
 from .dataset_utils import save_csv_dataset, save_jsonl_dataset
 from utils.print_utils import print_info
 
@@ -69,7 +69,7 @@ from .dataset_utils import (
 )
 
 # CSV schema utilities
-from .csv_schema_utils import (
+from .csv_schema import (
     create_csv_row,
     CSVDatasetGenerator,
     load_and_validate_csv,

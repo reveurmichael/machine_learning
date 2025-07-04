@@ -58,12 +58,6 @@ from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import dataset generation utilities for automatic updates
 from dataset_generator_core import DatasetGenerator
-from extensions.common.utils.dataset_utils import save_csv_dataset
-from extensions.common.utils.csv_schema import create_csv_row
-from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
-from dataset_format_utils import extract_dataset_records
-from jsonl_utils import append_jsonl_records
-import pandas as pd
 
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
@@ -430,48 +424,12 @@ class HeuristicGameManager(BaseGameManager):
             
         print_info(f"[HeuristicGameManager] Starting dataset update with {len(games_data)} games")
         
-        # Extract dataset records from all games
-        all_jsonl_records = []
-        all_csv_records = []
-        
         for game_data in games_data:
-            jsonl_records, csv_records = extract_dataset_records(game_data, self.algorithm_name)
-            all_jsonl_records.extend(jsonl_records)
-            all_csv_records.extend(csv_records)
-        
-        print_info(f"[HeuristicGameManager] After extraction - JSONL records: {len(all_jsonl_records)}, CSV records: {len(all_csv_records)}")
-        
-        # Save updated datasets
-        self._save_updated_datasets(all_jsonl_records, all_csv_records)
+            # game_count is already incremented
+            game_data['game_number'] = self.game_count
+            self.dataset_generator._process_single_game(game_data)
 
-    def _save_updated_datasets(self, jsonl_records: List[Dict[str, Any]], csv_records: List[Dict[str, Any]]) -> None:
-        """Save updated datasets."""
-        if not self.dataset_generator:
-            return
-        
-        print_info(f"[HeuristicGameManager] Saving datasets - JSONL: {len(jsonl_records)} records, CSV: {len(csv_records)} records")
-        
-        # Save JSONL dataset
-        if jsonl_records:
-            jsonl_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.jsonl")
-            append_jsonl_records(jsonl_path, jsonl_records, overwrite=False)  # Append instead of overwrite
-            print_success(f"✅ [HeuristicGameManager] Updated JSONL dataset: {len(jsonl_records)} records -> {jsonl_path}")
-        
-        # Save CSV dataset
-        if csv_records:
-            csv_path = os.path.join(self.log_dir, f"{self.algorithm_name.lower()}_dataset.csv")
-            
-            # Check if CSV file already exists
-            if os.path.exists(csv_path):
-                # Append to existing CSV file
-                df_new = pd.DataFrame(csv_records)
-                df_new.to_csv(csv_path, mode='a', header=False, index=False)
-                print_success(f"✅ [HeuristicGameManager] Appended to CSV dataset: {len(csv_records)} records -> {csv_path}")
-            else:
-                # Create new CSV file with headers
-                df_new = pd.DataFrame(csv_records)
-                df_new.to_csv(csv_path, index=False)
-                print_success(f"✅ [HeuristicGameManager] Created CSV dataset: {len(csv_records)} records -> {csv_path}")
+
 
     def setup_game(self) -> None:
         """Create game logic and optional GUI interface with correct grid size."""

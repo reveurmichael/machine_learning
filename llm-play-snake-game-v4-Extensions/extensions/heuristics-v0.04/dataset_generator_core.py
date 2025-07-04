@@ -119,30 +119,47 @@ class DatasetGenerator:
         Process a single game and extract features for CSV/JSONL.
         For heuristics-v0.04, always require and use dataset_game_states. Fail fast if missing or incomplete.
         """
+        # Ensure file handles are opened on first use
+        if self._csv_writer is None:
+            self._open_csv()
+        if self._jsonl_fh is None:
+            self._open_jsonl()
+            
         detailed_history = game_data.get('detailed_history', {})
         moves_history = detailed_history.get('moves', [])
         explanations = game_data.get('move_explanations', [])
         metrics_list = game_data.get('move_metrics', [])
         grid_size = game_data.get('grid_size', 10)
+        game_number = game_data.get('game_number', 1)  # Get game_number from game_data
 
         if not moves_history:
-            raise RuntimeError("[DatasetGenerator] No moves found in game. This should never happen.")
+            print_warning(f"[DatasetGenerator] No moves found in game {game_number}")
+            return
 
-        # Pad explanations/metrics if needed
+        # Pad explanations/metrics if needed to match moves count
         if not explanations:
             explanations = ["No explanation provided."] * len(moves_history)
         else:
             while len(explanations) < len(moves_history):
                 explanations.append("No explanation provided.")
+            if len(explanations) > len(moves_history):
+                explanations = explanations[:len(moves_history)]
+                
         if not metrics_list:
             metrics_list = [{}] * len(moves_history)
         else:
             while len(metrics_list) < len(moves_history):
                 metrics_list.append({})
+            if len(metrics_list) > len(moves_history):
+                metrics_list = metrics_list[:len(moves_history)]
 
         dataset_game_states = game_data.get('dataset_game_states', {})
         if not dataset_game_states or not isinstance(dataset_game_states, dict):
             raise RuntimeError("[DatasetGenerator] dataset_game_states missing or not a dict. This is a critical error.")
+
+        # Set game_number in all game states for SSOT compliance
+        for round_key, game_state in dataset_game_states.items():
+            game_state['game_number'] = game_number
 
         # Use only the rounds for which we have both a move and a game state
         for i in range(1, len(moves_history) + 1):

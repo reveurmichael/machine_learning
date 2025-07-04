@@ -19,13 +19,13 @@ demonstrates the standalone nature of v0.04 + common.
 
 Usage Examples:
     # Generate JSONL datasets for all algorithms (v0.04 specialty)
-    python generate_datasets.py --format jsonl --all-algorithms
+    python main_dataset_generator.py --format jsonl --all-algorithms
     
     # Generate both CSV and JSONL for specific algorithm
-    python generate_datasets.py --format both --algorithm BFS --max-games 100
+    python main_dataset_generator.py --format both --algorithm BFS --max-games 100
     
             # Generate CSV for numerical features
-    python generate_datasets.py --format csv --all-algorithms
+    python main_dataset_generator.py --format csv --all-algorithms
 """
 
 import sys

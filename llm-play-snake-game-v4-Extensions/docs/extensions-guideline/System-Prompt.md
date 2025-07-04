@@ -152,7 +152,7 @@ For transforming JSON files to CSV, use shared tools in the "common" folder. For
 
 ### **File Naming Standards**
 Use clear, descriptive file names that follow established patterns:
-- `generate_datasets.py` for comprehensive dataset generation
+- `main_dataset_generator.py` for comprehensive dataset generation
 - `generate_jsonl_dataset.py` for JSONL-specific generation
 - `dataset_converter.py` for format conversion utilities
 

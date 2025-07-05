@@ -1,19 +1,3 @@
-# ❌ **Potential subtle SSOT risks or violations**
-
-## 1️⃣ Explanation regex replacements may be partial or brittle
-
-### Issue
-
-In `_update_explanation_with_ssot_metrics`, you rely on regex patterns to replace position and metric values in the explanation text. However, if the original explanation text includes variations (e.g., "apple position is at (X, Y)", or "Manhattan dist: X"), or uses different spacing or formatting, those won't be caught.
-
-As a result, some stale numeric strings could remain and conflict with SSOT metrics.
-
-### Suggestion
-
-* **Stronger approach**: Instead of "fixing" the explanation string via regex, regenerate or re-render it directly from the SSOT metrics.
-* Alternatively, keep regex but also perform a final **strict numeric check**: scan for any number tokens matching old metric values and fail if found.
-
----
 
 ## 2️⃣ CSV feature `target_move` uses `move` directly
 

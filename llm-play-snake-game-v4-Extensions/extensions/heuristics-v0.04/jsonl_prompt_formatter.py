@@ -114,13 +114,12 @@ def generate_board_visualization(snake_positions: List, apple_position: List, gr
     
     # Place snake body segments (exclude head if more than one segment)
     if len(snake_positions) > 1:
-        for pos in snake_positions[1:]:  # All except head (head is at index 0)
+        for pos in snake_positions[:-1]:  # All except head (head is at index -1)
             if 0 <= pos[0] < grid_size and 0 <= pos[1] < grid_size:
                 board[pos[1]][pos[0]] = 'S'
     
-    # Place snake head (head is at index 0)
     if snake_positions:
-        head_pos = snake_positions[0]
+        head_pos = snake_positions[-1]  # Head is at index -1 (last element)
         if 0 <= head_pos[0] < grid_size and 0 <= head_pos[1] < grid_size:
             board[head_pos[1]][head_pos[0]] = 'H'
     
@@ -148,15 +147,15 @@ def get_valid_moves(head_pos: List[int], snake_positions: List[List[int]], grid_
     
     Args:
         head_pos: Current head position [x, y]
-        snake_positions: All snake positions (head at index 0)
+        snake_positions: All snake positions (head at index -1)
         grid_size: Size of the game grid
         
     Returns:
         List of valid moves
     """
     valid_moves = []
-    # Snake body excludes head (head is at index 0)
-    snake_body_set = set(tuple(pos) for pos in snake_positions[1:])  # Exclude head
+    # Snake body excludes head (head is at index -1)
+    snake_body_set = set(tuple(pos) for pos in snake_positions[:-1])  # Exclude head
     
     for move in ['UP', 'DOWN', 'LEFT', 'RIGHT']:
         next_pos = _get_next_position(head_pos, move, grid_size)

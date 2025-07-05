@@ -519,7 +519,7 @@ class DatasetGenerator:
             # Invalid game state - return defaults
             return {col: 0 for col in self.csv_headers if col != 'target_move'} | {'target_move': move}
         
-        head_pos = snake_positions[0]
+        head_pos = snake_positions[-1]  # Head is at index -1 (last element)
         head_x, head_y = head_pos[0], head_pos[1]
         
         # Handle both dict and list formats for apple_position
@@ -666,7 +666,7 @@ class DatasetGenerator:
         if not snake_positions:
             return "Invalid game state: Snake has no positions."
 
-        head_pos = snake_positions[0]
+        head_pos = snake_positions[-1]  # Head is at index -1 (last element)
         
         # Board representation
         board = [['.' for _ in range(grid_size)] for _ in range(grid_size)]

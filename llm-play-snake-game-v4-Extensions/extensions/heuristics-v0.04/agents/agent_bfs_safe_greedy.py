@@ -75,6 +75,13 @@ class BFSSafeGreedyAgent(BFSAgent):
             "from BFSAgent and adds safety checks to avoid getting trapped. "
             "Falls back to tail-chasing when apple path is unsafe."
         )
+        # Statistics tracking for tail path length
+        self.tail_path_stats = {
+            'values': [],
+            'null_count': 0,
+            'zero_count': 0,
+            'total_count': 0
+        }
 
     def get_move(self, game: "HeuristicGameLogic") -> str | None:
         """
@@ -100,6 +107,44 @@ class BFSSafeGreedyAgent(BFSAgent):
         
         SSOT Compliance: This method now generates explanations solely from
         the recorded game state, ensuring perfect consistency with dataset generation.
+        
+        🟢 **Tail Path Length Calculation**
+        
+        Definition: `tail_path_length` represents the **minimum number of steps required 
+        for the snake's head to reach its own future tail position after making its next move**.
+        
+        ⚙️ **Computation Process**:
+        1. Predict next head position (first step in BFS path to apple)
+        2. Predict future tail position:
+           - If apple eaten: tail stays put (snake grows)
+           - If apple not eaten: tail moves forward (snake doesn't grow)
+        3. Build new snake body with next head + updated body
+        4. Define new obstacles (all body except future tail)
+        5. Run BFS from next_head to future_tail
+        6. tail_path_length = len(path) - 1 if path exists, else None
+        
+        💡 **Expected Values**:
+        | Case                     | Expected Value                |
+        | ------------------------ | ----------------------------- |
+        | Snake length = 1         | 0 (head and tail are same)   |
+        | Tail adjacent            | 1                            |
+        | Short open paths         | 2 ~ 5                        |
+        | Long open paths          | Large (up to board size)     |
+        | No path exists (blocked) | None                         |
+        
+        🔎 **Special Cases**:
+        - Length 1 snake: tail_path_length = 0 (head is already at tail)
+        - Tail moves forward: when not eating apple, tail advances making it more reachable
+        - Blocked scenarios: if snake traps itself, tail_path_length = None
+        
+        📈 **Why This Matters**:
+        - Short tail path = Safer move = More future flexibility = Lower risk of trapping
+        - None = Dangerous = May be forced to die soon = Suggest avoiding
+        
+        🧾 **Validation Checks**:
+        - For snake length > 1: tail_path_length should never be 0
+        - Tail path should not be shorter than Manhattan distance
+        - Tail path should not exceed reasonable bounds (grid_size² - snake_length)
         """
         # ---------------- Common prelude
         # Get positions from game state snapshot to ensure consistency with dataset generator
@@ -108,7 +153,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         apple = tuple(game_state["apple_position"])
         snake = [tuple(seg) for seg in game_state["snake_positions"]]
         grid_size = game_state["grid_size"]
-        obstacles = set(snake)  # Include tail in obstacles since it doesn't move until after the move
+        obstacles = set(snake[1:])  # Exclude head from obstacles, include body segments
 
         # Helper metrics that are independent of strategy branch
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
@@ -136,35 +181,57 @@ class BFSSafeGreedyAgent(BFSAgent):
             fallback_used = False
             apple_path_length = len(path_to_apple) - 1
             
-            # Calculate tail path length for safety
+            # ---------------- Compute tail path length for safety
             tail_path_length = None
             
             # Special case: If snake length is 1, there's no tail to escape to
             if len(snake) == 1:
                 tail_path_length = 0
-            elif len(path_to_apple) > 1:
+            elif len(path_to_apple) > 1:  # Ensure we have a valid path
                 next_head = path_to_apple[1]
                 
                 # Predict if apple is eaten
                 is_apple_eaten = (next_head == apple)
                 
-                # Prepare new snake body (without old tail)
-                new_snake_positions = [next_head] + [tuple(seg) for seg in snake[:-1]]
-                new_obstacles = set(new_snake_positions[:-1])  # exclude new tail
+                # FUTURE TAIL IS ALWAYS THE ORIGINAL TAIL
+                future_tail = snake[-1]  # Actual tail position
                 
-                # Predict future tail position
+                # Create new obstacles (exclude future tail position)
                 if is_apple_eaten:
-                    future_tail = tuple(snake[-1])  # tail stays put
+                    # Apple eaten: tail stays put, new body is [next_head] + snake
+                    new_obstacles = set(snake) | {next_head}  # Tail stays
+                    future_tail = snake[0]  # tail stays put
                 else:
+                    # No apple eaten: tail moves forward, new body is [next_head] + snake[:-1]
+                    new_obstacles = set(snake[:-1]) | {next_head}  # Tail moves
                     # Handle case where snake length is 1 (no tail to move)
                     if len(snake) > 1:
-                        future_tail = tuple(snake[-2])  # tail moves forward
+                        future_tail = snake[1]  # tail moves forward to next segment
                     else:
-                        future_tail = tuple(snake[-1])  # no tail movement for length 1
+                        future_tail = snake[0]  # length 1, tail stays put
                 
-                # Compute path to future tail
+                # Remove tail position from obstacles
+                if future_tail in new_obstacles:
+                    new_obstacles.remove(future_tail)
+                
+                # Compute path to actual tail
                 tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
                 tail_path_length = len(tail_path) - 1 if tail_path else None
+                
+                # Track statistics
+                self.tail_path_stats['total_count'] += 1
+                if tail_path_length is None:
+                    self.tail_path_stats['null_count'] += 1
+                elif tail_path_length == 0:
+                    self.tail_path_stats['zero_count'] += 1
+                else:
+                    self.tail_path_stats['values'].append(tail_path_length)
+                
+                # Print statistics every 100 moves
+                if self.tail_path_stats['total_count'] % 100 == 0:
+                    self._print_tail_path_stats()
+                
+                # Validation: Ensure tail_path_length follows expected patterns
 
             # Explanatory chain-of-thought (cot)
             explanation_steps = [
@@ -357,6 +424,32 @@ class BFSSafeGreedyAgent(BFSAgent):
                 return direction
                 
         return "NO_PATH_FOUND"
+
+    def _count_remaining_free_cells(self, snake_positions: set, grid_size: int) -> int:
+        """Count how many empty cells are not occupied by the snake body."""
+        total_cells = grid_size * grid_size
+        return total_cells - len(snake_positions)
+
+    def _print_tail_path_stats(self):
+        """Print statistics about tail path length values."""
+        if not self.tail_path_stats['values']:
+            print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
+                  f"Null: {self.tail_path_stats['null_count']}, "
+                  f"Zero: {self.tail_path_stats['zero_count']}, "
+                  f"Non-zero: 0")
+            return
+        
+        values = self.tail_path_stats['values']
+        avg = sum(values) / len(values)
+        min_val = min(values)
+        max_val = max(values)
+        median = sorted(values)[len(values)//2]
+        
+        print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
+              f"Null: {self.tail_path_stats['null_count']}, "
+              f"Zero: {self.tail_path_stats['zero_count']}, "
+              f"Non-zero: {len(values)} | "
+              f"Avg: {avg:.2f}, Min: {min_val}, Max: {max_val}, Median: {median}")
 
     def __str__(self) -> str:
         """String representation showing inheritance relationship."""

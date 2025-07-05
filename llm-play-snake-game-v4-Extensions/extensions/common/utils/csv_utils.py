@@ -84,7 +84,6 @@ class CSVFeatureExtractor:
             'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
             'target_move'
         ]
-        print_info("[CSVFeatureExtractor] Initialized with standard 16-feature format")
     
     def extract_features(self, game_state: Dict[str, Any], move: str, step_number: int = None) -> Dict[str, Any]:
         """

@@ -243,13 +243,16 @@ class BFSAgent(BaseAgent):
         
         # PRE-EXECUTION: All explanation text describes the current situation and decision
         # based on pre-move state values
+        # Ensure path starts from pre-move head (type-consistent)
+        assert tuple(path[0]) == tuple(head_pos), f"SSOT violation: path[0] ({path[0]}) != head_pos ({head_pos})"
+        # Fail-fast: explanation must match pre-move head
         explanation_parts = [
             "=== BFS PATHFINDING ANALYSIS ===",
             "",
             "PHASE 1: INITIAL SITUATION ASSESSMENT",
-            f"• Current head position: {head_pos}",  # PRE-MOVE: current head position
-            f"• Target apple position: {apple_pos}",  # PRE-MOVE: current apple position
-            f"• Snake body positions: {[p for p in snake_positions if p != head_pos]}",  # PRE-MOVE: current body positions
+            f"• Current head position: {tuple(head_pos)}",  # PRE-MOVE: current head position
+            f"• Target apple position: {tuple(apple_pos)}",  # PRE-MOVE: current apple position
+            f"• Snake body positions: {[tuple(p) for p in snake_positions if tuple(p) != tuple(head_pos)]}",  # PRE-MOVE: current body positions
             f"• Snake length: {snake_length} segments",  # PRE-MOVE: current snake length
             f"• Grid dimensions: {grid_size}×{grid_size} ({grid_size * grid_size} total cells)",
             f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",  # PRE-MOVE: current occupation
@@ -261,7 +264,7 @@ class BFSAgent(BaseAgent):
             "• Validation criteria: no wall collisions, no body collisions, within grid bounds",
             "",
             "PHASE 3: BFS PATHFINDING EXECUTION",
-            f"• Algorithm: Breadth-First Search from {head_pos} to {apple_pos}",  # PRE-MOVE: current positions
+            f"• Algorithm: Breadth-First Search from {tuple(head_pos)} to {tuple(apple_pos)}",  # PRE-MOVE: current positions
             f"• Search space: {grid_size * grid_size - snake_length} accessible cells",
             f"• Obstacles to navigate: {snake_length - 1} body segments",  # PRE-MOVE: current obstacles
             f"• Manhattan distance baseline: {manhattan_distance} steps (theoretical minimum)",  # PRE-MOVE: current distance
@@ -271,7 +274,7 @@ class BFSAgent(BaseAgent):
             f"• Path efficiency: {efficiency_str}",
             f"• Path optimality: {'OPTIMAL - no detours required' if is_optimal else 'SUB-OPTIMAL - includes ' + str(detour_steps) + ' detour step(s) to avoid obstacles'}",
             f"• Obstacles near path: {obstacles_avoided} body segments in adjacent cells",  # PRE-MOVE: obstacles near current path
-            f"• Path coordinates: {path_str}",  # PRE-MOVE: path from current position
+            f"• Path coordinates: {' → '.join([str(tuple(p)) for p in path])}",  # PRE-MOVE: path from current position
             "",
             "PHASE 5: MOVE SELECTION LOGIC",
             f"• Chosen direction: {direction}",
@@ -287,8 +290,8 @@ class BFSAgent(BaseAgent):
             "• Risk mitigation: BFS guarantees shortest path, minimizing exposure time",
             "",
             "=== DECISION SUMMARY ===",
-            f"Moving {direction} is the optimal choice because it follows the shortest BFS-computed path to the apple at {apple_pos}. " +  # PRE-MOVE: current apple position
-            f"This move advances the snake from {head_pos} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
+            f"Moving {direction} is the optimal choice because it follows the shortest BFS-computed path to the apple at {tuple(apple_pos)}. " +  # PRE-MOVE: current apple position
+            f"This move advances the snake from {tuple(head_pos)} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
             f"{'with no detours required' if is_optimal else f'despite {detour_steps} necessary detour(s) to avoid obstacles'}. " +
             f"The decision is safe (validated against {len(valid_moves)} valid options), efficient " +  # PRE-MOVE: current valid moves
             f"({efficiency_ratio:.2f} path efficiency), and strategically sound given current board pressure ({space_pressure})."  # PRE-MOVE: current board pressure

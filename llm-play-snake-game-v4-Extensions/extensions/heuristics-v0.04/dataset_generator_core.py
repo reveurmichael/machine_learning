@@ -521,11 +521,15 @@ class DatasetGenerator:
         steps = game_state.get('steps', 0)
         algorithm = game_state.get('algorithm', self.algorithm)
 
+        # PRE-EXECUTION: Extract head position from game state
+        # The game state has a separate head_position field for clarity
+        head_pos = game_state.get('head_position', [0, 0])
         if not snake_positions:
             return "Invalid game state: Snake has no positions."
 
-        head_pos = snake_positions[-1]  # Head is at index -1 (last element)
-        body_positions = snake_positions[:-1] if len(snake_positions) > 1 else []
+        # PRE-EXECUTION: Body positions are all snake positions except head
+        # This ensures consistency with the agent's obstacle calculation
+        body_positions = [pos for pos in snake_positions if pos != head_pos]
 
         # Board representation
         board = [['.' for _ in range(grid_size)] for _ in range(grid_size)]
@@ -539,11 +543,13 @@ class DatasetGenerator:
                     apple_x, apple_y = apple_position['x'], apple_position['y']
                     if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
                         board[apple_y][apple_x] = 'A'
-        for i, pos in enumerate(snake_positions):
+        # PRE-EXECUTION: Mark body positions on board (excluding head)
+        for pos in body_positions:
             if len(pos) >= 2:
                 pos_x, pos_y = pos[0], pos[1]
                 if 0 <= pos_x < grid_size and 0 <= pos_y < grid_size:
                     board[pos_y][pos_x] = 'S'
+        # PRE-EXECUTION: Mark head position on board
         if len(head_pos) >= 2:
             head_x, head_y = head_pos[0], head_pos[1]
             if 0 <= head_x < grid_size and 0 <= head_y < grid_size:

@@ -312,6 +312,9 @@ class BFSSafeGreedyAgent(BFSAgent):
         explains why the chosen path is safe.
         """
         # PRE-EXECUTION: All calculations use pre-move state values
+        # Ensure path starts from pre-move head (type-consistent)
+        assert tuple(path[0]) == tuple(head), f"SSOT violation: path[0] ({path[0]}) != head ({head})"
+        # Fail-fast: explanation must match pre-move head
         path_length = len(path) - 1
         snake_length = len(snake)
         efficiency_ratio = manhattan_distance / max(path_length, 1)
@@ -334,9 +337,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             "=== BFS-SAFE-GREEDY PATHFINDING ANALYSIS ===",
             "",
             "PHASE 1: INITIAL SITUATION ASSESSMENT",
-            f"• Current head position: {head}",  # PRE-MOVE: current head position
-            f"• Target apple position: {apple}",  # PRE-MOVE: current apple position
-            f"• Snake body positions: {[p for p in snake if p != head]}",  # PRE-MOVE: current body positions
+            f"• Current head position: {tuple(head)}",  # PRE-MOVE: current head position
+            f"• Target apple position: {tuple(apple)}",  # PRE-MOVE: current apple position
+            f"• Snake body positions: {[tuple(p) for p in snake if tuple(p) != tuple(head)]}",  # PRE-MOVE: current body positions
             f"• Snake length: {snake_length} segments",  # PRE-MOVE: current snake length
             f"• Grid dimensions: {grid_size}×{grid_size} ({grid_size * grid_size} total cells)",
             f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",  # PRE-MOVE: current occupation
@@ -348,7 +351,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Validation criteria: no wall collisions, no body collisions, within grid bounds",
             "",
             "PHASE 3: BFS PATHFINDING EXECUTION",
-            f"• Algorithm: Breadth-First Search from {head} to {apple}",  # PRE-MOVE: current positions
+            f"• Algorithm: Breadth-First Search from {tuple(head)} to {tuple(apple)}",  # PRE-MOVE: current positions
             f"• Search space: {grid_size * grid_size - snake_length} accessible cells",
             f"• Obstacles to navigate: {snake_length - 1} body segments",  # PRE-MOVE: current obstacles
             f"• Manhattan distance baseline: {manhattan_distance} steps (theoretical minimum)",  # PRE-MOVE: current distance
@@ -357,7 +360,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             f"• Shortest path found: {path_length} steps",  # PRE-MOVE: path from current position
             f"• Path efficiency: {efficiency_str}",
             f"• Path optimality: {'OPTIMAL - no detours required' if is_optimal else 'SUB-OPTIMAL - includes ' + str(detour_steps) + ' detour step(s) to avoid obstacles'}",
-            f"• Path coordinates: {path_str}",  # PRE-MOVE: path from current position
+            f"• Path coordinates: {' → '.join([str(tuple(p)) for p in path])}",  # PRE-MOVE: path from current position
             "",
             "PHASE 5: SAFETY VALIDATION",
             "• Safety check: Validating that snake can reach tail after move",
@@ -379,8 +382,8 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Risk mitigation: BFS guarantees shortest path, safety validation prevents trapping",
             "",
             "=== DECISION SUMMARY ===",
-            f"Moving {direction} is the optimal SAFE choice because it follows the shortest BFS-computed path to the apple at {apple}. " +  # PRE-MOVE: current apple position
-            f"This move advances the snake from {head} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
+            f"Moving {direction} is the optimal SAFE choice because it follows the shortest BFS-computed path to the apple at {tuple(apple)}. " +  # PRE-MOVE: current apple position
+            f"This move advances the snake from {tuple(head)} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
             f"{'with no detours required' if is_optimal else f'despite {detour_steps} necessary detour(s) to avoid obstacles'}. " +
             "The decision is both safe (validated tail reachability) and efficient " +  # PRE-MOVE: current valid moves
             f"({efficiency_ratio:.2f} path efficiency), making it strategically sound given current board pressure ({space_pressure})."  # PRE-MOVE: current board pressure

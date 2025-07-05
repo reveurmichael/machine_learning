@@ -211,6 +211,7 @@ class DatasetGenerator:
         explanation = record.get('explanation', {})
         
         # Format the prompt using the recorded PRE-MOVE game state
+        # Format the prompt using the recorded PRE-MOVE game state
         prompt = self._format_prompt(game_state)
         
         # Extract metrics from explanation but override ALL position-related metrics

@@ -307,8 +307,12 @@ class HeuristicGameLogic(BaseGameLogic):
         Returns:
             Dictionary containing current game state
         """
+        # SSOT Fix: Use snake_positions[0] as the head position to match coordinate system
+        # According to coordinate-system.md: snake_positions[0] is the HEAD, snake_positions[-1] is the TAIL
+        head_pos = self.snake_positions[0].tolist() if len(self.snake_positions) > 0 else [0, 0]
+        
         return {
-            "head_position": self.head_position.tolist(),
+            "head_position": head_pos,
             "snake_positions": self.snake_positions.tolist(),
             "apple_position": self.apple_position.tolist(),
             "grid_size": self.grid_size,

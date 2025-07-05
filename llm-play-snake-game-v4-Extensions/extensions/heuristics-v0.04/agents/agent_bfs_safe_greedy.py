@@ -108,7 +108,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         apple = tuple(game_state["apple_position"])
         snake = [tuple(seg) for seg in game_state["snake_positions"]]
         grid_size = game_state["grid_size"]
-        obstacles = set(snake[:-1])  # Tail can vacate → not an obstacle
+        obstacles = set(snake)  # Include tail in obstacles since it doesn't move until after the move
 
         # Helper metrics that are independent of strategy branch
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
@@ -135,7 +135,36 @@ class BFSSafeGreedyAgent(BFSAgent):
             strategy_phase = "APPLE_PATH"
             fallback_used = False
             apple_path_length = len(path_to_apple) - 1
+            
+            # Calculate tail path length for safety
             tail_path_length = None
+            
+            # Special case: If snake length is 1, there's no tail to escape to
+            if len(snake) == 1:
+                tail_path_length = 0
+            elif len(path_to_apple) > 1:
+                next_head = path_to_apple[1]
+                
+                # Predict if apple is eaten
+                is_apple_eaten = (next_head == apple)
+                
+                # Prepare new snake body (without old tail)
+                new_snake_positions = [next_head] + [tuple(seg) for seg in snake[:-1]]
+                new_obstacles = set(new_snake_positions[:-1])  # exclude new tail
+                
+                # Predict future tail position
+                if is_apple_eaten:
+                    future_tail = tuple(snake[-1])  # tail stays put
+                else:
+                    # Handle case where snake length is 1 (no tail to move)
+                    if len(snake) > 1:
+                        future_tail = tuple(snake[-2])  # tail moves forward
+                    else:
+                        future_tail = tuple(snake[-1])  # no tail movement for length 1
+                
+                # Compute path to future tail
+                tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
+                tail_path_length = len(tail_path) - 1 if tail_path else None
 
             # Explanatory chain-of-thought (cot)
             explanation_steps = [

@@ -258,10 +258,7 @@ class HeuristicGameManager(BaseGameManager):
             # Start new round for each move (heuristics plan one move at a time)
             self.start_new_round(f"{self.algorithm_name} pathfinding")
 
-            # -----------------------------------------------
-            # CRITICAL: Record the **pre-move** snapshot for SSOT BEFORE getting the move
-            # AND ensure the agent uses the EXACT same state that gets recorded
-            # -----------------------------------------------
+            # Always get the latest state snapshot for planning
             recorded_state = self.game.get_state_snapshot()
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
                 self.game.game_state.round_manager.record_game_state(recorded_state)
@@ -272,17 +269,21 @@ class HeuristicGameManager(BaseGameManager):
             else:
                 # Fallback for compatibility
                 move = self.game.get_next_planned_move()
-                
+
             if move == "NO_PATH_FOUND":
                 # Record game state for the final round before ending
                 if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
                     self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
-            
+
             # Apply move
             self.game.make_move(move)
-            
+
+            # After move, update the state snapshot for the next round
+            # (This is the key fix: ensure next round always uses the latest state)
+            # No-op here, as the next loop iteration will call get_state_snapshot again
+
             # Update display if GUI is enabled
             if hasattr(self.game, 'update_display'):
                 self.game.update_display()
@@ -431,8 +432,6 @@ class HeuristicGameManager(BaseGameManager):
             # game_count is already incremented
             game_data['game_number'] = self.game_count
             self.dataset_generator._process_single_game(game_data)
-
-
 
     def setup_game(self) -> None:
         """Create game logic and optional GUI interface with correct grid size."""

@@ -21,7 +21,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 import time
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Tuple
+import numpy as np
+from numpy.typing import NDArray
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -307,9 +309,9 @@ class HeuristicGameLogic(BaseGameLogic):
         Returns:
             Dictionary containing current game state
         """
-        # SSOT Fix: Use snake_positions[0] as the head position to match coordinate system
-        # According to coordinate-system.md: snake_positions[0] is the HEAD, snake_positions[-1] is the TAIL
-        head_pos = self.snake_positions[0].tolist() if len(self.snake_positions) > 0 else [0, 0]
+        # SSOT Fix: Use the actual head_position from the game logic
+        # The game logic sets head_position = snake_positions[-1] (last element)
+        head_pos = self.head_position.tolist() if hasattr(self, 'head_position') else [0, 0]
         
         return {
             "head_position": head_pos,
@@ -344,4 +346,19 @@ class HeuristicGameLogic(BaseGameLogic):
             "steps": recorded_state.get("steps", 0),
             "current_direction": recorded_state.get("current_direction", "UP"),
             "snake_length": len(recorded_state.get("snake_positions", []))
-        } 
+        }
+
+    def _generate_apple(self) -> NDArray[np.int_]:
+        """Generate a new apple position not occupied by the snake."""
+        apple = super()._generate_apple()
+        # DEBUG OUTPUT
+        print(f"[APPLE DEBUG] New apple at: {apple}, Snake: {self.snake_positions.tolist()}")
+        return apple 
+
+    def make_move(self, direction_key: str) -> Tuple[bool, bool]:
+        """Make a move in the given direction and update the game state."""
+        # DEBUG OUTPUT
+        print(f"[MOVE DEBUG] Move: {direction_key}, Head before: {self.head_position}, Snake before: {self.snake_positions.tolist()}")
+        result = super().make_move(direction_key)
+        print(f"[MOVE DEBUG] Head after: {self.head_position}, Snake after: {self.snake_positions.tolist()}")
+        return result 

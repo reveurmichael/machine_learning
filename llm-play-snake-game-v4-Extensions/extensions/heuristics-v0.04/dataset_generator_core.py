@@ -282,13 +282,20 @@ class DatasetGenerator:
             apple_path_len = len(path)-1 if path else None
 
             # 4) tail_path_length (BFS from POST-MOVE head to POST-MOVE tail)
-            tail_path_len = None
-            if len(post_move_snake) > 1:
-                post_move_tail = post_move_snake[-1]
-                # Obstacles for tail pathfinding (exclude tail itself)
-                tail_obstacles = set(tuple(p) for p in post_move_snake[:-1])
-                tail_path = self._bfs_pathfind(post_move_head, post_move_tail, tail_obstacles, grid_size)
-                tail_path_len = len(tail_path)-1 if tail_path else None
+            # First try to use the agent's calculated value for consistency
+            tail_path_len = explanation_metrics.get('tail_path_length')
+            
+            # If agent didn't calculate it or it's None, calculate it ourselves
+            if tail_path_len is None:
+                if len(post_move_snake) > 1:
+                    post_move_tail = post_move_snake[-1]
+                    # Obstacles for tail pathfinding (exclude tail itself)
+                    tail_obstacles = set(tuple(p) for p in post_move_snake[:-1])
+                    tail_path = self._bfs_pathfind(post_move_head, post_move_tail, tail_obstacles, grid_size)
+                    tail_path_len = len(tail_path)-1 if tail_path else None
+                else:
+                    # Snake length is 1, no tail to escape to
+                    tail_path_len = 0
 
             # 5) pack SSOT metrics with POST-MOVE calculations
             ssot_metrics.update({
@@ -376,6 +383,9 @@ class DatasetGenerator:
             "metrics": ssot_metrics,
             "explanation": explanation_text,
         }
+        
+        # Add debug output for tail_path_length
+        print(f"[DEBUG][TAIL_PATH] Move {move} | Step: {record.get('metrics', {}).get('step', '?')} | Snake length: {len(snake_positions)} | Tail path length: {tail_path_len}")
         
         return {
             "prompt": prompt,

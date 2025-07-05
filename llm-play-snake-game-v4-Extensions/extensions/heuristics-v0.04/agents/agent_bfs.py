@@ -91,7 +91,10 @@ class BFSAgent(BaseAgent):
         apple = tuple(game_state["apple_position"])
         snake = [tuple(seg) for seg in game_state["snake_positions"]]
         grid_size = game_state["grid_size"]
-        obstacles = set(snake[:-1])  # Tail can vacate → not an obstacle
+        obstacles = set(snake)  # Include tail in obstacles since it doesn't move until after the move
+
+        # DEBUG OUTPUT
+        print(f"[BFS DEBUG] Head: {head}, Apple: {apple}, Snake: {snake}, Obstacles: {obstacles}")
 
         # Helper metrics that are independent of strategy branch
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
@@ -111,8 +114,12 @@ class BFSAgent(BaseAgent):
                 return "NO_PATH_FOUND", explanation_dict
             
             # ---------------- Compute tail path length for safety
-            tail_path_length = 0
-            if len(path_to_apple) > 1:
+            tail_path_length = None
+            
+            # Special case: If snake length is 1, there's no tail to escape to
+            if len(snake) == 1:
+                tail_path_length = 0
+            elif len(path_to_apple) > 1:  # Ensure we have a valid path
                 next_head = path_to_apple[1]
                 
                 # Predict if apple is eaten
@@ -134,7 +141,9 @@ class BFSAgent(BaseAgent):
                 
                 # Compute path to future tail
                 tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
-                tail_path_length = len(tail_path) - 1 if tail_path else 0
+                tail_path_length = len(tail_path) - 1 if tail_path else None
+                
+
             
             explanation_dict = self._generate_move_explanation(
                 head, apple, set(snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size, tail_path_length
@@ -152,7 +161,7 @@ class BFSAgent(BaseAgent):
                                  manhattan_distance: int,
                                  remaining_free_cells: int,
                                  grid_size: int,
-                                 tail_path_length: int) -> dict:
+                                 tail_path_length: int | None) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
         
@@ -203,7 +212,7 @@ class BFSAgent(BaseAgent):
             "metrics": {
                 "manhattan_distance": int(manhattan_distance),
                 "path_length": int(len(path) - 1),
-                "tail_path_length": int(tail_path_length),
+                "tail_path_length": tail_path_length,  # Can be None or int
                 "obstacles_near_path": int(obstacles_avoided),
                 "remaining_free_cells": int(remaining_free_cells),
                 "valid_moves": valid_moves,
@@ -325,17 +334,10 @@ class BFSAgent(BaseAgent):
                      obstacles: set, grid_size: int) -> List[Tuple[int, int]]:
         """
         Find shortest path using Breadth-First Search.
-        
-        Args:
-            start: Starting position (head)
-            goal: Goal position (apple)
-            obstacles: Set of obstacle positions (snake body)
-            grid_size: Size of the game grid
-            
-        Returns:
-            List of positions representing the path, or empty list if no path
         """
+        print(f"[BFS PATHFIND DEBUG] Start: {start}, Goal: {goal}, Obstacles: {obstacles}")
         if start == goal:
+            print(f"[BFS PATHFIND DEBUG] Start equals goal, returning [{start}]")
             return [start]
 
         # BFS initialization
@@ -363,6 +365,7 @@ class BFSAgent(BaseAgent):
 
                 # Check if we reached the goal
                 if next_pos == goal:
+                    print(f"[BFS PATHFIND DEBUG] Path found: {new_path}")
                     return new_path
 
                 # Add to queue for further exploration
@@ -370,6 +373,7 @@ class BFSAgent(BaseAgent):
                 visited.add(next_pos)
 
         # No path found
+        print(f"[BFS PATHFIND DEBUG] No path found from {start} to {goal}")
         return []
 
     # ----------------

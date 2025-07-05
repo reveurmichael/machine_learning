@@ -45,7 +45,7 @@ import os
 import copy
 
 # Import from project root using absolute imports
-from utils.print_utils import print_info, print_warning, print_success
+from utils.print_utils import print_info, print_warning, print_success, print_error
 from core.game_manager import BaseGameManager
 from extensions.common import EXTENSIONS_LOGS_DIR
 from config.game_constants import END_REASON_MAP
@@ -235,7 +235,7 @@ class HeuristicGameManager(BaseGameManager):
         
         # Fail-fast: Validate initial game state
         if not pre_move_state.get('snake_positions'):
-            print(f"[FAIL-FAST] Initial game state has no snake positions: {pre_move_state}")
+            print_error(f"[FAIL-FAST] Initial game state has no snake positions: {pre_move_state}")
             raise RuntimeError("[SSOT] Initial game state has no snake positions - game reset failed")
         
         if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
@@ -257,14 +257,14 @@ class HeuristicGameManager(BaseGameManager):
             steps += 1
             if steps > self.args.max_steps:
                 # Debug: Show the current game state when we hit max steps
-                print("[DEBUG] Max steps reached. Current game state:")
-                print(f"[DEBUG] Head: {self.game.head_position}")
-                print(f"[DEBUG] Snake: {self.game.snake_positions}")
-                print(f"[DEBUG] Apple: {self.game.apple_position}")
-                print(f"[DEBUG] Score: {self.game.game_state.score}")
-                print(f"[DEBUG] Steps: {self.game.game_state.steps}")
-                print(f"[DEBUG] Game over: {self.game.game_over}")
-                print(f"[DEBUG] Game end reason: {getattr(self.game.game_state, 'game_end_reason', 'None')}")
+                print_error("[DEBUG] Max steps reached. Current game state:")
+                print_error(f"[DEBUG] Head: {self.game.head_position}")
+                print_error(f"[DEBUG] Snake: {self.game.snake_positions}")
+                print_error(f"[DEBUG] Apple: {self.game.apple_position}")
+                print_error(f"[DEBUG] Score: {self.game.game_state.score}")
+                print_error(f"[DEBUG] Steps: {self.game.game_state.steps}")
+                print_error(f"[DEBUG] Game over: {self.game.game_over}")
+                print_error(f"[DEBUG] Game end reason: {getattr(self.game.game_state, 'game_end_reason', 'None')}")
                 raise RuntimeError(f"Fail-fast: Exceeded max_steps ({self.args.max_steps}) in game loop. Possible infinite loop or agent bug.")
             # Sync previous round's data before starting a new round (if not the first round)
             if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager and self.round_count > 0:
@@ -299,9 +299,9 @@ class HeuristicGameManager(BaseGameManager):
             # Fail-fast: ensure agent_state and pre_move_state are identical
             import json as _json
             if _json.dumps(agent_state, sort_keys=True) != _json.dumps(pre_move_state, sort_keys=True):
-                print("[FAIL-FAST][SSOT] pre_move_state and agent_state differ!")
-                print(f"pre_move_state: {_json.dumps(pre_move_state, indent=2, sort_keys=True)}")
-                print(f"agent_state: {_json.dumps(agent_state, indent=2, sort_keys=True)}")
+                print_error("[FAIL-FAST][SSOT] pre_move_state and agent_state differ!")
+                print_error(f"pre_move_state: {_json.dumps(pre_move_state, indent=2, sort_keys=True)}")
+                print_error(f"agent_state: {_json.dumps(agent_state, indent=2, sort_keys=True)}")
                 raise RuntimeError("SSOT violation: pre_move_state and agent_state are not identical!")
 
             # --- FAIL-FAST SSOT VALIDATION ---
@@ -319,7 +319,7 @@ class HeuristicGameManager(BaseGameManager):
             
             if move == "NO_PATH_FOUND":
                 if valid_moves:
-                    print(f"[SSOT VIOLATION] Agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves} for head {head}")
+                    print_error(f"[SSOT VIOLATION] Agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves} for head {head}")
                     raise RuntimeError(f"SSOT violation: agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves}")
                 # Record game state for the final round before ending
                 if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
@@ -329,15 +329,10 @@ class HeuristicGameManager(BaseGameManager):
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
             if move not in valid_moves:
-                print(f"[SSOT VIOLATION] Agent chose '{move}' but valid moves are {valid_moves} for head {head}")
-                print("[SSOT VIOLATION] This indicates a bug in the agent or state management")
-                print(f"[SSOT VIOLATION] Game state: head={head}, snake={snake_positions}, grid_size={grid_size}")
+                print_error(f"[SSOT VIOLATION] Agent chose '{move}' but valid moves are {valid_moves} for head {head}")
+                print_error("[SSOT VIOLATION] This indicates a bug in the agent or state management")
+                print_error(f"[SSOT VIOLATION] Game state: head={head}, snake={snake_positions}, grid_size={grid_size}")
                 raise RuntimeError(f"SSOT violation: agent move '{move}' not in valid moves {valid_moves}")
-
-            # Debug: Show agent's move choice
-            print(f"[DEBUG] Step {steps}: Agent chose: {move}, Valid moves: {valid_moves}")
-            print(f"[DEBUG] Step {steps}: Head: {head}, Apple: {pre_move_state['apple_position']}")
-            print(f"[DEBUG] Step {steps}: Snake length: {len(snake_positions)}")
 
             # Apply move
             # POST-EXECUTION: This is where the game state actually changes
@@ -354,7 +349,7 @@ class HeuristicGameManager(BaseGameManager):
             post_grid_size = post_move_state["grid_size"]
             post_valid_moves = BFSAgent._calculate_valid_moves(post_move_state)
             if not post_valid_moves:
-                print("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
+                print_error("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
             # Additional: Check if apple is unreachable
@@ -366,7 +361,7 @@ class HeuristicGameManager(BaseGameManager):
             # Simple BFS pathfinding implementation
             path_to_apple = BFSAgent._bfs_pathfind(post_head, post_apple, obstacles, post_grid_size)
             if path_to_apple is None:
-                print("[DEBUG] Apple unreachable after move. Ending game as NO_PATH_FOUND.")
+                print_error("[DEBUG] Apple unreachable after move. Ending game as NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
 

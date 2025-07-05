@@ -1,153 +1,191 @@
 """
-Heuristics v0.04 CLI Entry Point
-----------------
+Dataset Generation CLI – parameter parsing & orchestration only.
 
-CLI interface for heuristics v0.04 (moved from root to scripts/ folder).
-This provides a clean command-line interface while supporting the new
-web-based interface as the primary entry point.
+This module provides the command-line interface for dataset generation,
+orchestrating the game running and dataset generation processes.
 
-Usage:
-    python scripts/main.py --algorithm bfs --max-games 5
-    python scripts/main.py --help
+Design Philosophy:
+- Single responsibility: Only handles CLI parsing and orchestration
+- Delegates actual work to dataset_game_runner and dataset_generator_core
+- Standardized logging: Uses print_utils functions for all operations
 
-Features:
-- Extends BaseGameManager for session management
-- Multiple heuristic algorithms: BFS, BFS-Safe-Greedy
-- Generates game_N.json and summary.json files
-- No GUI dependencies (headless by default)
-- Organized code structure with agents/ package
+Example usage:
+    python main.py --algorithm BFS --format jsonl --max-games 2
+    python main.py --all-algorithms --format both --max-games 3
 """
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+# Add the heuristics-v0.04 directory to sys.path for imports
+current_dir = Path(__file__).resolve().parent
+heuristics_dir = current_dir.parent
+sys.path.insert(0, str(heuristics_dir))
+
+# Add the project root for utils imports
+project_root = heuristics_dir.parent.parent
+sys.path.insert(0, str(project_root))
+
+from dataset_generator_core import DatasetGenerator
 import argparse
+from typing import List
+
 from utils.path_utils import ensure_project_root
-from utils.print_utils import print_info, print_success
 
-# Import the extension components using relative imports (extension-specific)
-# Add parent directory to sys.path to enable relative imports
-parent_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(parent_dir))
+# Unified CLI logging helpers (Emoji + Color)
+from utils.print_utils import print_info, print_success, print_warning, print_error
 
-from game_manager import HeuristicGameManager
-from agents import get_available_algorithms, DEFAULT_ALGORITHM
+# Default parameters for CLI
+DEFAULT_GRID_SIZE = 10
+DEFAULT_MAX_GAMES = 100
+DEFAULT_MAX_STEPS = 500
 
-# Get available algorithms from agents package
-AVAILABLE_ALGORITHMS = get_available_algorithms()
+__all__ = ["create_argument_parser", "find_available_algorithms", "main"]
+
 
 def create_argument_parser() -> argparse.ArgumentParser:
-    """
-    Create command line argument parser for v0.04 multi-algorithm support with automatic dataset updates.
-    
-    Returns:
-        Configured argument parser
-    """
+    """Create command line argument parser for dataset generation."""
     parser = argparse.ArgumentParser(
-        description="Heuristics v0.04 - Multi-Algorithm Snake Game Agents with Automatic Dataset Updates",
+        description="Generate datasets from heuristic algorithm gameplay",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    # Generate JSONL dataset for BFS algorithm
+    python main.py --algorithm BFS --format jsonl --max-games 100
+    
+    # Generate both CSV and JSONL for all algorithms
+    python main.py --all-algorithms --format both --max-games 50
+        """
     )
     
-    # Core game settings
-    parser.add_argument(
+    # Algorithm selection
+    algorithm_group = parser.add_mutually_exclusive_group(required=True)
+    algorithm_group.add_argument(
         "--algorithm",
         type=str,
-        default=DEFAULT_ALGORITHM,
-        choices=AVAILABLE_ALGORITHMS,
-        help=f"Heuristic algorithm to use. Available: {', '.join(AVAILABLE_ALGORITHMS)} (default: {DEFAULT_ALGORITHM})"
+        help="Specific algorithm to generate dataset for (e.g., BFS, ASTAR, HAMILTONIAN)"
+    )
+    algorithm_group.add_argument(
+        "--all-algorithms",
+        action="store_true",
+        help="Generate datasets for all available algorithms"
     )
     
+    # Format selection
+    parser.add_argument(
+        "--format",
+        type=str,
+        choices=["csv", "jsonl", "both"],
+        default="both",
+        help="Dataset format to generate (default: both)"
+    )
+    
+    # Game parameters
     parser.add_argument(
         "--max-games",
         type=int,
-        default=5,
-        help="Maximum number of games to play (default: 5)"
+        default=DEFAULT_MAX_GAMES,
+        help=f"Maximum number of games to play per algorithm (default: {DEFAULT_MAX_GAMES})"
     )
     
     parser.add_argument(
         "--max-steps",
         type=int,
-        default=800,
-        help="Maximum steps per game (default: 800)"
+        default=DEFAULT_MAX_STEPS,
+        help=f"Maximum steps per game (default: {DEFAULT_MAX_STEPS})"
     )
     
     parser.add_argument(
         "--grid-size",
         type=int,
-        default=10,
-        help="Size of the game grid (default: 10)"
+        default=DEFAULT_GRID_SIZE,
+        help=f"Grid size for the game (default: {DEFAULT_GRID_SIZE})"
     )
     
-    # v0.02 specific settings
+    # Output options
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        help="Custom output directory (default: auto-generated in logs/extensions)"
+    )
+    
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Enable verbose output (shows algorithm details)"
-    )
-    
-    # Force headless mode (no GUI support in heuristics)
-    parser.add_argument(
-        "--no-gui",
-        action="store_true",
-        default=True,
-        help="Disable GUI (always true for heuristics extensions)"
+        help="Enable verbose output"
     )
     
     return parser
 
 
-def validate_arguments(args: argparse.Namespace) -> None:
-    """
-    Validate command line arguments.
-    
-    Args:
-        args: Parsed command line arguments
-        
-    Raises:
-        ValueError: If arguments are invalid
-    """
-    if args.max_games <= 0:
-        raise ValueError("max-games must be positive")
-        
-    if args.max_steps <= 0:
-        raise ValueError("max-steps must be positive")
-        
-    if args.grid_size < 4:
-        raise ValueError("grid-size must be at least 4")
-        
-    if args.grid_size > 20:
-        raise ValueError("grid-size should not exceed 20 (performance reasons)")
-        
-    # Ensure heuristics extensions are always headless
-    args.no_gui = True
+def find_available_algorithms() -> List[str]:
+    """Find available heuristic algorithms."""
+    # This is a simplified implementation
+    # In a real scenario, this would scan existing algorithms or import them dynamically
+    return ["BFS",  "BFS-SAFE-GREEDY"]
 
 
 def main() -> None:
-    """Main entry point for heuristics v0.04 with automatic dataset updates."""
-    # Parse command line arguments
+    """Main entry point for dataset generation CLI."""
+    ensure_project_root()
+    
     parser = create_argument_parser()
     args = parser.parse_args()
     
-    # Display configuration
     if args.verbose:
-        print_info("Heuristics v0.04 - Multi-Algorithm Snake Game Agents")
+        print_info("Dataset Generation CLI v0.04 (Modular Architecture)")
         print_info("=" * 50)
-        print_info(f"Algorithm: {args.algorithm}")
-        print_info(f"Grid size: {args.grid_size}x{args.grid_size}")
+        print_info(f"Format: {args.format}")
         print_info(f"Max games: {args.max_games}")
-        print_info(f"Max steps per game: {args.max_steps}")
+        print_info(f"Grid size: {args.grid_size}")
         print_info("")
     
-    # Create and initialize game manager
-    game_manager = HeuristicGameManager(args)
-    game_manager.initialize()
+    # Determine algorithms to process
+    if args.all_algorithms:
+        algorithms = find_available_algorithms()
+        print_info(f"Processing all algorithms: {algorithms}")
+    else:
+        algorithms = [args.algorithm]
+        print_info(f"Processing algorithm: {args.algorithm}")
     
-    # Run the games
-    game_manager.run()
-    print_success("Heuristics v0.04 execution completed successfully!")
+    # Generate datasets for each algorithm
+    for algorithm in algorithms:
+        print_info(f"Starting dataset generation for {algorithm}")
+        
+        try:
+            # Step 1: Create output directory
+            if args.output_dir:
+                output_dir = Path(args.output_dir)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                print_info(f"📁 Using custom output directory: {output_dir}")
+            else:
+                # Use a default log directory for unified output
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                output_dir = Path(f"logs/extensions/datasets/grid-size-{args.grid_size}/heuristics_v0.04_{timestamp}/{algorithm.lower()}")
+                output_dir.mkdir(parents=True, exist_ok=True)
+                print_info(f"📁 Using auto-generated output directory: {output_dir}")
+
+            # Step 2: Run games in memory and generate datasets
+            generator = DatasetGenerator(algorithm, output_dir)
+            generator.generate_games_and_write_datasets(
+                max_games=args.max_games,
+                max_steps=args.max_steps,
+                grid_size=args.grid_size,
+                formats=[args.format] if args.format != "both" else ["csv", "jsonl"],
+                verbose=args.verbose
+            )
+            print_success(f"Completed dataset generation for {algorithm}")
+            print_info(f"📁 Dataset files created in: {output_dir}")
+            
+        except Exception as e:
+            print_error(f"Failed to generate dataset for {algorithm}: {e}")
+            if args.verbose:
+                import traceback
+                traceback.print_exc()
+    
+    print_success("Dataset generation completed!")
 
 
 if __name__ == "__main__":
-    ensure_project_root()
     main() 

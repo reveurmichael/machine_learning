@@ -39,8 +39,6 @@ except Exception:
 st.set_page_config(page_title="Heuristics v0.04 Dataset Generator", page_icon="🐍", layout="wide")
 
 st.title("🐍 Heuristics v0.04 Dataset Generator")
-"""Launch `main_dataset_generator.py` with adjustable parameters.
-"""
 
 # Sidebar – parameter selection ------------------------------------------------
 with st.sidebar:
@@ -72,7 +70,7 @@ with st.sidebar:
 if st.button("🚀 Generate Dataset"):
     # Build command ----------------------------------------------------------
     extension_dir = Path(__file__).parent  # heuristics-v0.04 directory
-    script_path = extension_dir / "scripts" / "main_dataset_generator.py"
+    script_path = extension_dir / "scripts" / "main.py"
 
     cmd: List[str] = [sys.executable, str(script_path)]
 

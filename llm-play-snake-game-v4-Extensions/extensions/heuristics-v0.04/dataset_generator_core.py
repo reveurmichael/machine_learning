@@ -7,7 +7,7 @@ heuristic game logs into structured datasets for machine learning.
 Design Philosophy:
 - Algorithm-agnostic: Can be reused by supervised/RL extensions
 - Single responsibility: Only handles dataset conversion
-- Simple logging: Uses print() statements for all operations
+- Standardized logging: Uses print_utils functions for all operations
 - Generic: Uses common utilities for CSV feature extraction
 """
 
@@ -84,26 +84,53 @@ class DatasetGenerator:
         print_info(f"Opened JSONL file: {jsonl_path}", "DatasetGenerator")
 
     # ---------------- PUBLIC
-    def generate(self, games: List[Dict[str, Any]], formats: List[str] = ["csv", "jsonl"]):
+    def generate_games_and_write_datasets(self, max_games: int, max_steps: int, grid_size: int, formats: list = ["csv", "jsonl"], verbose: bool = False):
         """
-        Generate datasets from game data.
-        
+        Run games in memory and generate datasets directly, without loading from disk.
         Args:
-            games: List of game data dictionaries
+            max_games: Number of games to play
+            max_steps: Maximum steps per game
+            grid_size: Grid size for the game
             formats: List of formats to generate ("csv", "jsonl", or both)
+            verbose: Enable verbose output
         """
-        print_info(f"Processing {len(games)} games...", "DatasetGenerator")
+        from game_manager import HeuristicGameManager
+        import argparse
+        
+        # Build args namespace for HeuristicGameManager
+        args = argparse.Namespace(
+            algorithm=self.algorithm,
+            max_games=max_games,
+            max_steps=max_steps,
+            grid_size=grid_size,
+            verbose=verbose,
+            no_gui=True
+        )
+        
+        # Run games in memory
+        game_manager = HeuristicGameManager(args)
+        game_manager.initialize()
         
         # Open output files
         if "csv" in formats:
             self._open_csv()
         if "jsonl" in formats:
             self._open_jsonl()
-
-        # Process each game
-        for game in games:
-            self._process_single_game(game)
-
+        
+        # Process games directly
+        for game_id in range(1, max_games + 1):
+            if verbose:
+                print_info(f"[DatasetGenerator] Running game {game_id}/{max_games}")
+            
+            # Run single game
+            game_duration = game_manager._run_single_game()
+            game_manager.game_count += 1
+            game_manager.game.game_state.game_number = game_manager.game_count
+            game_data = game_manager._generate_game_data(game_duration)
+            
+            # Process game data directly
+            self._process_single_game(game_data)
+        
         # Close handles
         if self._csv_writer:
             self._csv_writer[1].close()
@@ -111,6 +138,9 @@ class DatasetGenerator:
         if self._jsonl_fh:
             self._jsonl_fh.close()
             print_success("JSONL dataset saved")
+            
+        if verbose:
+            print_success(f"[DatasetGenerator] Dataset generation complete for {self.algorithm}")
 
     # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:

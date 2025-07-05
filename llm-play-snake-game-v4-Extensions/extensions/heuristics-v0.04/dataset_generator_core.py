@@ -291,10 +291,8 @@ class DatasetGenerator:
                 agent_chosen_direction = agent_metrics['final_chosen_direction']
         
         # Always compute apple_path_length from SSOT state
-        print(f"[DEBUG] BFS from {head} to {apple} with obstacles: {obstacles}")
         path = ssot_bfs_pathfind(list(head), list(apple), obstacles, grid_size)
         apple_path_len = len(path) - 1 if path else None
-        print(f"[DEBUG] Path found: {path}, length: {apple_path_len}")
         # Sanity check: path length should never be less than Manhattan distance
         if apple_path_len is not None and apple_path_len < manhattan:
             print(f"[BUG] apple_path_length ({apple_path_len}) < manhattan ({manhattan}) from {head} to {apple} -- setting to None!")
@@ -620,7 +618,6 @@ class DatasetGenerator:
                 if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
                     board[apple_y][apple_x] = 'A'
             except (KeyError, TypeError, IndexError) as e:
-                print(f"[DEBUG] Apple position error: {e}, apple_position: {apple_position}, type: {type(apple_position)}")
                 # Try to handle if it's a dict with x,y keys
                 if isinstance(apple_position, dict) and 'x' in apple_position and 'y' in apple_position:
                     apple_x, apple_y = apple_position['x'], apple_position['y']

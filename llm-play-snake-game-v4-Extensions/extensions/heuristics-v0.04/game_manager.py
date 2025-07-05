@@ -188,12 +188,10 @@ class HeuristicGameManager(BaseGameManager):
         Evolution from v0.01: Was hardcoded to BFSAgent(), now supports 7 algorithms
         using the agents package factory pattern.
         """
-        print_info(f"[DEBUG] Setting up agent for algorithm: {self.algorithm_name}")
         
         try:
             # Use agents package factory method
             self.agent = create_agent(self.algorithm_name)
-            print_info(f"[DEBUG] Agent created successfully: {type(self.agent)}")
             
             if not self.agent:
                 available_algorithms = get_available_algorithms()
@@ -202,7 +200,6 @@ class HeuristicGameManager(BaseGameManager):
             if self.verbose:
                 print_info(f"🏭 Created {self.agent.__class__.__name__} for {self.algorithm_name}")
         except Exception as e:
-            print_info(f"[DEBUG] Error creating agent: {e}")
             raise
 
     def _setup_dataset_generator(self) -> None:
@@ -356,7 +353,6 @@ class HeuristicGameManager(BaseGameManager):
         # Use game_count to match Task-0 numbering (games start at 1, not 0)
         # game_count is incremented before this method is called, so it's already correct
         game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
-        print_info(f"[DEBUG] game_count: {self.game_count}, filename: game_{self.game_count}.json")
         with open(game_file, 'w') as f:
             json.dump(_to_serializable(game_data), f, indent=2)
 

@@ -459,15 +459,22 @@ class BFSAgent(BaseAgent):
     # Helper utilities (v0.04 additions)
     # ----------------
     def _get_valid_moves(self, head_pos: Tuple[int, int], snake_positions: set, grid_size: int) -> List[str]:
-        """Return list of currently valid moves based on obstacles and walls."""
+        """
+        Return list of currently valid moves based on obstacles and walls.
+        
+        SSOT Compliance: Excludes head from obstacles to match dataset generator.
+        """
         valid_moves = []
+        # SSOT: Obstacles are all body segments except head
+        obstacles = set(pos for pos in snake_positions if pos != head_pos)
+        
         for move in VALID_MOVES:
             dx, dy = DIRECTIONS[move]
             next_pos = (head_pos[0] + dx, head_pos[1] + dy)
             if (
                 0 <= next_pos[0] < grid_size and
                 0 <= next_pos[1] < grid_size and
-                next_pos not in snake_positions
+                next_pos not in obstacles
             ):
                 valid_moves.append(move)
         return valid_moves

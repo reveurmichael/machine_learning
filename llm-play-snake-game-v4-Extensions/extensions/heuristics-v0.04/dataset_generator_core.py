@@ -214,212 +214,173 @@ class DatasetGenerator:
                 csv_record = self._extract_csv_features(record, step_number=i+1)  # CSV step numbers are 1-indexed
                 self._csv_writer[0].writerow(csv_record)
 
+    def _calculate_valid_moves(self, head_pos: List[int], snake_positions: List[List[int]], grid_size: int) -> List[str]:
+        """
+        Calculate valid moves from current head position.
+        
+        SSOT Function: This is the single source of truth for valid moves calculation.
+        Used by both prompt generation and metrics calculation to ensure consistency.
+        
+        Args:
+            head_pos: Current head position [x, y]
+            snake_positions: All snake positions (head at index -1)
+            grid_size: Size of the game grid
+            
+        Returns:
+            List of valid moves (UP, DOWN, LEFT, RIGHT)
+        """
+        # SSOT: Obstacles are all body segments except head
+        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
+        
+        valid_moves = []
+        for direction, (dx, dy) in DIRECTIONS.items():
+            next_x = head_pos[0] + dx
+            next_y = head_pos[1] + dy
+            # Check bounds
+            if 0 <= next_x < grid_size and 0 <= next_y < grid_size:
+                next_pos = (next_x, next_y)
+                # Check if position is not occupied by snake body (excluding head)
+                if next_pos not in obstacles:
+                    valid_moves.append(direction)
+        
+        return valid_moves
+
     def _extract_jsonl_record(self, record: dict) -> dict:
         """
         Extract a single JSONL record from game data.
-        
-        SSOT Compliance: Both prompt and metrics use the same recorded game state,
-        but metrics are calculated as if the move has been applied to ensure
-        consistency for LLM fine-tuning.
-        
+        SSOT Compliance: Use the agent's actual move and explanation as the source of truth.
         Args:
             record: Game record containing state and move information
-            
         Returns:
             Dictionary with prompt and completion for JSONL format
         """
         import copy
         from config.game_constants import DIRECTIONS
-        
+
         game_state = record.get('game_state', {})
         move = record.get('move', 'UNKNOWN')
         explanation = record.get('explanation', {})
-        
-        # Format the prompt using the recorded PRE-MOVE game state
+
         # Format the prompt using the recorded PRE-MOVE game state
         prompt = self._format_prompt(game_state)
+
+        # Extract pre-move state
+        pre_move_head = game_state.get('head_position', [0, 0])
+        raw_apple_pos = game_state.get('apple_position', [0, 0])
+        if isinstance(raw_apple_pos, dict):
+            apple_pos = [raw_apple_pos.get('x', 0), raw_apple_pos.get('y', 0)]
+        else:
+            apple_pos = raw_apple_pos
+        grid_size = game_state.get('grid_size', 10)
+        snake_positions = game_state.get('snake_positions', [])
+        score = game_state.get('score', 0)
+        steps = game_state.get('steps', 0)
+
+        # Validate head position
+        if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
+            print(f"[WARNING] Invalid head position: {pre_move_head}")
+            pre_move_head = [0, 0]
+
+        # Validate apple position
+        if apple_pos is None or not isinstance(apple_pos, (list, tuple)) or len(apple_pos) != 2:
+            print(f"[WARNING] Invalid apple position: {apple_pos}")
+            apple_pos = [0, 0]
+
+        # SSOT: Always use snake_positions[-1] as head, not pre_move_head
+        if snake_positions:
+            head = tuple(snake_positions[-1])
+        else:
+            head = tuple(pre_move_head)
+        apple = tuple(apple_pos)
+        # Obstacles: all body except head
+        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
+
+        # Compute valid moves from pre-move state (exclude head position)
+        valid_moves = self._calculate_valid_moves(head, snake_positions, grid_size)
+
+        # Compute manhattan distance from head to apple
+        manhattan = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
+
+        # Use agent's actual metrics if available, otherwise compute them
+        agent_metrics = {}
+        agent_chosen_direction = move  # Default to game history move
+        if isinstance(explanation, dict):
+            agent_metrics = explanation.get('metrics', {})
+            # Use agent's actual chosen direction if available
+            if 'final_chosen_direction' in agent_metrics:
+                agent_chosen_direction = agent_metrics['final_chosen_direction']
         
-        # Extract metrics from explanation but override ALL position-related metrics
-        # with values calculated from POST-MOVE state to ensure SSOT compliance
-        explanation_metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
-        
-        # Pull out agent-computed metrics, but drop all position fields that need recalculation
+        # Prefer agent's computed metrics, fall back to our computation
+        apple_path_len = agent_metrics.get('apple_path_length')
+        if apple_path_len is None:
+            # Compute apple_path_length from SSOT state
+            print(f"[DEBUG] BFS from {head} to {apple} with obstacles: {obstacles}")
+            path = self._bfs_pathfind(list(head), list(apple), obstacles, grid_size)
+            apple_path_len = len(path) - 1 if path else None
+            print(f"[DEBUG] Path found: {path}, length: {apple_path_len}")
+            # Sanity check: path length should never be less than Manhattan distance
+            if apple_path_len is not None and apple_path_len < manhattan:
+                print(f"[BUG] apple_path_length ({apple_path_len}) < manhattan ({manhattan}) from {head} to {apple} -- setting to None!")
+                apple_path_len = None
+
+        # Prefer agent's tail_path_length, fall back to our computation
+        tail_path_len = agent_metrics.get('tail_path_length')
+        if tail_path_len is None:
+            # Compute tail_path_length from pre-move state
+            if len(snake_positions) > 1:
+                pre_move_tail = snake_positions[0]  # Tail is at index 0
+                # Obstacles for tail pathfinding: all snake body except tail
+                tail_obstacles = set(tuple(p) for p in snake_positions[1:] if len(p) >= 2)
+                print(f"[DEBUG] Tail BFS from {pre_move_head} to {pre_move_tail} with obstacles: {tail_obstacles}")
+                tail_path = self._bfs_pathfind(pre_move_head, pre_move_tail, tail_obstacles, grid_size)
+                tail_path_len = len(tail_path) - 1 if tail_path else None
+                print(f"[DEBUG] Tail path found: {tail_path}, length: {tail_path_len}")
+            else:
+                tail_path_len = 0
+
+        # Compute remaining free cells
+        remaining_free_cells = grid_size * grid_size - len(snake_positions)
+
+        # Compose SSOT metrics, preferring agent's values
         ssot_metrics = {
-            k: v for k, v in explanation_metrics.items()
-            if k not in (
-                "head_position","apple_position","manhattan_distance",
-                "grid_size","snake_length","valid_moves",
-                "apple_path_length","path_length","tail_path_length","final_chosen_direction"
-            )
+            "head_position": head,
+            "apple_position": apple,
+            "grid_size": grid_size,
+            "snake_length": len(snake_positions),
+            "valid_moves": valid_moves,
+            "manhattan_distance": manhattan,
+            "apple_path_length": apple_path_len,
+            "path_length": apple_path_len,
+            "tail_path_length": tail_path_len,
+            "remaining_free_cells": remaining_free_cells,
+            "final_chosen_direction": agent_chosen_direction,
         }
 
-        # Now derive everything from the PRE-MOVE game_state and the chosen MOVE
-        if game_state and move != 'UNKNOWN':
-            pre_move_head = game_state.get('head_position', [0, 0])
-            raw_apple_pos = game_state.get('apple_position', [0, 0])
-            # Handle both dict and list formats for apple_position
-            if isinstance(raw_apple_pos, dict):
-                apple_pos = [raw_apple_pos.get('x', 0), raw_apple_pos.get('y', 0)]
-            else:
-                apple_pos = raw_apple_pos
-            grid_size = game_state.get('grid_size', 10)
-            snake_positions = game_state.get('snake_positions', [])
+        # Add any extra agent-computed metrics (e.g. apple_path_safe, fallback_used)
+        for k in ["apple_path_safe", "fallback_used"]:
+            if k in agent_metrics:
+                ssot_metrics[k] = agent_metrics[k]
 
-            # Validate that we have valid head position
-            if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
-                print(f"[WARNING] Invalid head position in game state: {pre_move_head}")
-                pre_move_head = [0, 0]  # Default fallback
+        # Ensure tail_path_length is always present
+        if "tail_path_length" not in ssot_metrics:
+            ssot_metrics["tail_path_length"] = None
 
-            # Calculate POST-MOVE head position by applying the move
-            if move in DIRECTIONS:
-                dx, dy = DIRECTIONS[move]
-                post_move_head = [pre_move_head[0] + dx, pre_move_head[1] + dy]
-            else:
-                # For NO_PATH_FOUND or invalid moves, head doesn't change
-                post_move_head = pre_move_head.copy()
-
-            # 1) valid_moves (calculated from PRE-MOVE state)
-            body_set = set(tuple(p) for p in snake_positions)
-            valid_moves = [
-                d for d,(dx,dy) in DIRECTIONS.items()
-                if 0 <= pre_move_head[0]+dx < grid_size
-                and 0 <= pre_move_head[1]+dy < grid_size
-                and (pre_move_head[0]+dx, pre_move_head[1]+dy) not in body_set
-            ]
-
-            # 2) manhattan_distance (from POST-MOVE head to apple)
-            manhattan = abs(post_move_head[0]-apple_pos[0]) + abs(post_move_head[1]-apple_pos[1])
-
-            # 3) apple_path_length (BFS from POST-MOVE head to apple)
-            # Create POST-MOVE snake configuration for obstacles
-            if move in DIRECTIONS and move != "NO_PATH_FOUND":
-                # Simulate the move: new head, body shifts, tail handling
-                post_move_snake = [post_move_head] + snake_positions[:-1]
-                # Check if apple is eaten (POST-MOVE head reaches apple)
-                apple_eaten = (tuple(post_move_head) == tuple(apple_pos))
-                if apple_eaten:
-                    # Snake grows, tail stays
-                    post_move_snake = [post_move_head] + snake_positions
-                
-                # Obstacles for pathfinding (exclude tail since it can move)
-                obstacles = set(tuple(p) for p in post_move_snake[:-1])
-            else:
-                # No move applied, use original configuration
-                post_move_snake = snake_positions
-                obstacles = set(tuple(p) for p in snake_positions[:-1])
-            
-            path = self._bfs_pathfind(post_move_head, apple_pos, obstacles, grid_size)
-            apple_path_len = len(path)-1 if path else None
-
-            # 4) tail_path_length (BFS from POST-MOVE head to POST-MOVE tail)
-            # First try to use the agent's calculated value for consistency
-            tail_path_len = explanation_metrics.get('tail_path_length')
-            
-            # If agent didn't calculate it or it's None, calculate it ourselves
-            if tail_path_len is None:
-                if len(post_move_snake) > 1:
-                    post_move_tail = post_move_snake[-1]
-                    # Obstacles for tail pathfinding (exclude tail itself)
-                    tail_obstacles = set(tuple(p) for p in post_move_snake[:-1])
-                    tail_path = self._bfs_pathfind(post_move_head, post_move_tail, tail_obstacles, grid_size)
-                    tail_path_len = len(tail_path)-1 if tail_path else None
-                else:
-                    # Snake length is 1, no tail to escape to
-                    tail_path_len = 0
-
-            # 5) pack SSOT metrics with POST-MOVE calculations
-            ssot_metrics.update({
-                "head_position": post_move_head,
-                "apple_position": apple_pos,
-                "grid_size": grid_size,
-                "snake_length": len(snake_positions),  # Use original snake length
-                "valid_moves": valid_moves,  # From PRE-MOVE state
-                "manhattan_distance": manhattan,
-                "apple_path_length": apple_path_len,
-                "path_length": apple_path_len,
-                "tail_path_length": tail_path_len,
-                "final_chosen_direction": move,
-            })
+        # Use agent's explanation if available, otherwise flatten
+        if isinstance(explanation, dict):
+            explanation_text = flatten_explanation_for_jsonl(explanation)
+        else:
+            explanation_text = str(explanation)
         
-        # Ensure tail_path_length is always present in metrics, even if None
-        if 'tail_path_length' not in ssot_metrics:
-            ssot_metrics['tail_path_length'] = None
-        
-        # ----------------
-        # Ensure the *explanation* field is a flattened, human-readable string
-        # so that it never contains stale nested metrics.
-        # ----------------
-        explanation_text = flatten_explanation_for_jsonl(explanation)
-        
-        # Update explanation text to use SSOT metrics for consistency
         explanation_text = self._update_explanation_with_ssot_metrics(explanation_text, ssot_metrics)
-        
-        # Fix coordinate references in explanation to match prompt exactly
-        if game_state:
-            pre_move_head = game_state.get('head_position', [0, 0])
-            raw_apple_pos = game_state.get('apple_position', [0, 0])
-            
-            # Handle both dict and list formats for apple_position
-            if isinstance(raw_apple_pos, dict):
-                apple_pos = [raw_apple_pos.get('x', 0), raw_apple_pos.get('y', 0)]
-            else:
-                apple_pos = raw_apple_pos
-            
-            # Replace any coordinate references in explanation with correct ones from prompt
-            # Using named groups for more robust replacements and easier debugging
-            
-            # Apple position patterns with named groups
-            apple_patterns = [
-                r'apple at \((?P<x>\d+), (?P<y>\d+)\)',
-                r'apple at position \((?P<x>\d+), (?P<y>\d+)\)',
-                r'apple \((?P<x>\d+), (?P<y>\d+)\)',
-                r'BFS to the apple at \((?P<x>\d+), (?P<y>\d+)\)',
-                r'target at \((?P<x>\d+), (?P<y>\d+)\)'
-            ]
-            
-            # Head position patterns with named groups  
-            head_patterns = [
-                r'from \((?P<x>\d+), (?P<y>\d+)\)',
-                r'head at \((?P<x>\d+), (?P<y>\d+)\)',
-                r'position \((?P<x>\d+), (?P<y>\d+)\)',
-                r'BFS discovered a shortest path of length \d+ from \((?P<x>\d+), (?P<y>\d+)\)',
-                r'at \((?P<x>\d+), (?P<y>\d+)\)'
-            ]
-            
-            # Replace apple coordinate references
-            for pattern in apple_patterns:
-                explanation_text = re.sub(
-                    pattern,
-                    f"apple at ({apple_pos[0]}, {apple_pos[1]})",
-                    explanation_text
-                )
-            
-            # Replace head coordinate references with PRE-MOVE head (as shown in prompt)
-            for pattern in head_patterns:
-                explanation_text = re.sub(
-                    pattern,
-                    f"from ({pre_move_head[0]}, {pre_move_head[1]})",
-                    explanation_text
-                )
-        
-        # Add tail_path_length to explanation if available
-        if ssot_metrics.get('tail_path_length') is not None:
-            explanation_text += f"\n- Tail path length (BFS to tail): {ssot_metrics['tail_path_length']}"
 
-        # SSOT-compliant completion with consistent metrics
-        completion = {
-            "move": move,
-            "algorithm": self.algorithm,
-            "metrics": ssot_metrics,
-            "explanation": explanation_text,
-        }
-        
-        # Add debug output for tail_path_length
-        print(f"[DEBUG][TAIL_PATH] Move {move} | Step: {record.get('metrics', {}).get('step', '?')} | Snake length: {len(snake_positions)} | Tail path length: {tail_path_len}")
-        
         return {
             "prompt": prompt,
-            "completion": json.dumps(completion, ensure_ascii=False, default=self._json_serializer)
+            "completion": json.dumps({
+                "move": agent_chosen_direction,  # Use agent's actual chosen direction
+                "algorithm": self.algorithm,
+                "metrics": ssot_metrics,
+                "explanation": explanation_text
+            }, ensure_ascii=False)
         }
 
     def _bfs_pathfind(self, start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
@@ -736,13 +697,7 @@ class DatasetGenerator:
         
         # Determine valid moves using universal coordinate system
         from config.game_constants import DIRECTIONS
-        valid_moves = []
-        for move, (dx, dy) in DIRECTIONS.items():
-            next_pos = (head_pos[0] + dx, head_pos[1] + dy)
-            if (0 <= next_pos[0] < grid_size and
-                0 <= next_pos[1] < grid_size and
-                next_pos not in snake_positions):
-                valid_moves.append(move)
+        valid_moves = self._calculate_valid_moves(head_pos, snake_positions, grid_size)
 
         # Structured prompt
         prompt = f"""### Instruction:

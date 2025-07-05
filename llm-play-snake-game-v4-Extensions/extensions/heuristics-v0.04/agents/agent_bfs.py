@@ -23,7 +23,6 @@ Design Patterns:
 
 from collections import deque
 from typing import List, Tuple, TYPE_CHECKING, Any, Dict
-import json
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -418,31 +417,7 @@ class BFSAgent(BaseAgent):
 
         return explanation_dict
 
-    def _get_apple_direction(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int]) -> str:
-        """Get relative direction description of apple from head."""
-        dx = apple_pos[0] - head_pos[0]
-        dy = apple_pos[1] - head_pos[1]
 
-        if dx == 0 and dy == 0:
-            return "at the same position as"
-
-        directions = []
-        if dy < 0:
-            directions.append("above")
-        elif dy > 0:
-            directions.append("below")
-
-        if dx > 0:
-            directions.append("to the right")
-        elif dx < 0:
-            directions.append("to the left")
-
-        if len(directions) == 2:
-            return f"{directions[0]} and {directions[1]}"
-        elif len(directions) == 1:
-            return directions[0]
-        else:
-            return "at the same position as"
 
     def _count_obstacles_in_path(self, path: List[Tuple[int, int]], snake_positions: set) -> int:
         """Count how many snake body segments are near the path."""
@@ -650,42 +625,7 @@ class BFSAgent(BaseAgent):
         
         return formatted_metrics
 
-    @staticmethod
-    def create_jsonl_record(game_state: Dict[str, Any], move: str, explanation: Any, 
-                           metrics: Dict[str, Any], agent_name: str) -> Dict[str, Any]:
-        """
-        Create a rich JSONL record with natural language prompt and completion.
-        The 'explanation' field in the JSONL output is always a rich, human-readable string (never a nested dict).
-        Metrics are only in the 'metrics' field.
-        
-        Args:
-            game_state: Game state dictionary
-            move: Move made by the agent
-            explanation: Agent explanation (dict or string)
-            metrics: Agent metrics dictionary
-            agent_name: Name of the agent
-            
-        Returns:
-            JSONL record dictionary with 'prompt' and 'completion' fields
-        """
-        
-        # Use dataset generator's prompt formatting for consistency
-        from dataset_generator_core import DatasetGenerator
-        temp_generator = DatasetGenerator(agent_name, Path("."))
-        prompt = temp_generator._format_prompt(game_state)
-        
-        # Always flatten explanation for JSONL output
-        explanation_text = BFSAgent.flatten_explanation_for_jsonl(explanation)
-        
-        # Create rich completion with proper metrics
-        completion = {
-            "move": move,
-            "algorithm": agent_name.lower(),
-            "metrics": BFSAgent.format_metrics_for_jsonl(metrics),
-            "explanation": explanation_text
-        }
-        
-        return {"prompt": prompt, "completion": json.dumps(completion, ensure_ascii=False)}
+
 
     @staticmethod
     def to_serializable(obj):

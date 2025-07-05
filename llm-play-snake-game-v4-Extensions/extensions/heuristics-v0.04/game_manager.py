@@ -63,11 +63,6 @@ if TYPE_CHECKING:
     from agents import BFSAgent, BFSSafeGreedyAgent, BFSHamiltonianAgent
     from agents import DFSAgent, AStarAgent, AStarHamiltonianAgent, HamiltonianAgent
 
-HeuristicAgent = Union[
-    'BFSAgent', 'BFSSafeGreedyAgent', 'BFSHamiltonianAgent',
-    'DFSAgent', 'AStarAgent', 'AStarHamiltonianAgent', 'HamiltonianAgent'
-]
-
 # JSON serialization moved to BFSAgent for SSOT compliance
 
 class HeuristicGameManager(BaseGameManager):

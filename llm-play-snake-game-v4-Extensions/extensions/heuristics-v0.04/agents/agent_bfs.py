@@ -33,6 +33,8 @@ from config.game_constants import DIRECTIONS, VALID_MOVES
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
 from core.game_agents import BaseAgent
+# SSOT: Import shared logic from ssot_utils - DO NOT reimplement these functions
+from ssot_utils import ssot_bfs_pathfind, ssot_calculate_valid_moves
 
 if TYPE_CHECKING:
     from game_logic import HeuristicGameLogic
@@ -63,13 +65,6 @@ class BFSAgent(BaseAgent):
     def __init__(self):
         """Initialize BFS agent."""
         self.algorithm_name = "BFS"
-        # Statistics tracking for tail path length
-        self.tail_path_stats = {
-            'values': [],
-            'null_count': 0,
-            'zero_count': 0,
-            'total_count': 0
-        }
 
     def get_move(self, game: HeuristicGameLogic) -> str | None:
         """
@@ -85,68 +80,24 @@ class BFSAgent(BaseAgent):
         return move
 
     def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, dict]:
-        """
-        Compute next move *and* a structured explanation object.
-        
-        SSOT Compliance: This method now generates explanations solely from
-        the recorded game state, ensuring perfect consistency with dataset generation.
-        
-        🟢 **Tail Path Length Calculation**
-        
-        Definition: `tail_path_length` represents the **minimum number of steps required 
-        for the snake's head to reach its own future tail position after making its next move**.
-        
-        ⚙️ **Computation Process**:
-        1. Predict next head position (first step in BFS path to apple)
-        2. Predict future tail position:
-           - If apple eaten: tail stays put (snake grows)
-           - If apple not eaten: tail moves forward (snake doesn't grow)
-        3. Build new snake body with next head + updated body
-        4. Define new obstacles (all body except future tail)
-        5. Run BFS from next_head to future_tail
-        6. tail_path_length = len(path) - 1 if path exists, else None
-        
-        💡 **Expected Values**:
-        | Case                     | Expected Value                |
-        | ------------------------ | ----------------------------- |
-        | Snake length = 1         | 0 (head and tail are same)   |
-        | Tail adjacent            | 1                            |
-        | Short open paths         | 2 ~ 5                        |
-        | Long open paths          | Large (up to board size)     |
-        | No path exists (blocked) | None                         |
-        
-        🔎 **Special Cases**:
-        - Length 1 snake: tail_path_length = 0 (head is already at tail)
-        - Tail moves forward: when not eating apple, tail advances making it more reachable
-        - Blocked scenarios: if snake traps itself, tail_path_length = None
-        
-        📈 **Why This Matters**:
-        - Short tail path = Safer move = More future flexibility = Lower risk of trapping
-        - None = Dangerous = May be forced to die soon = Suggest avoiding
-        
-        🧾 **Validation Checks**:
-        - For snake length > 1: tail_path_length should never be 0
-        - Tail path should not be shorter than Manhattan distance
-        - Tail path should not exceed reasonable bounds (grid_size² - snake_length)
-        """
-        # ---------------- Common prelude
         # Get positions from game state snapshot to ensure consistency with dataset generator
         game_state = game.get_state_snapshot()
-        head = tuple(game_state["head_position"])
-        apple = tuple(game_state["apple_position"])
-        snake = [tuple(seg) for seg in game_state["snake_positions"]]
+        head = list(game_state["head_position"])
+        apple = list(game_state["apple_position"])
+        snake = [list(seg) for seg in game_state["snake_positions"]]
         grid_size = game_state["grid_size"]
-        obstacles = set(snake[1:])  # Exclude head from obstacles, include body segments
+        # SSOT: Obstacles are all body segments except head (matching dataset generator)
+        obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles, include body segments
 
         # Helper metrics that are independent of strategy branch
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._get_valid_moves(head, set(snake), grid_size)
-        remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
+        valid_moves = self._calculate_valid_moves(head, snake, grid_size)
+        remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
         # ---------------- Apple path first
-        path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
+        path_to_apple = ssot_bfs_pathfind(head, apple, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
-            direction = position_to_direction(head, path_to_apple[1])
+            direction = position_to_direction(tuple(head), tuple(path_to_apple[1]))
             if direction not in valid_moves:
                 explanation_dict = {
                     "strategy_phase": "INVALID_MOVE",
@@ -155,82 +106,13 @@ class BFSAgent(BaseAgent):
                 }
                 return "NO_PATH_FOUND", explanation_dict
             
-            # ---------------- Compute tail path length for safety
-            tail_path_length = None
-            
-            # Special case: If snake length is 1, there's no tail to escape to
-            if len(snake) == 1:
-                tail_path_length = 0
-            elif len(path_to_apple) > 1:  # Ensure we have a valid path
-                next_head = path_to_apple[1]
-                
-                # Predict if apple is eaten
-                is_apple_eaten = (next_head == apple)
-                
-                # FUTURE TAIL IS ALWAYS THE ORIGINAL TAIL
-                future_tail = snake[-1]  # Actual tail position
-                
-                # Create new obstacles (exclude future tail position)
-                if is_apple_eaten:
-                    # Apple eaten: tail stays put, new body is [next_head] + snake
-                    new_obstacles = set(snake) | {next_head}  # Tail stays
-                    future_tail = snake[0]  # tail stays put
-                else:
-                    # No apple eaten: tail moves forward, new body is [next_head] + snake[:-1]
-                    new_obstacles = set(snake[:-1]) | {next_head}  # Tail moves
-                    # Handle case where snake length is 1 (no tail to move)
-                    if len(snake) > 1:
-                        future_tail = snake[1]  # tail moves forward to next segment
-                    else:
-                        future_tail = snake[0]  # length 1, tail stays put
-                
-                # Remove tail position from obstacles
-                if future_tail in new_obstacles:
-                    new_obstacles.remove(future_tail)
-                
-                # Compute path to actual tail
-                tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
-                tail_path_length = len(tail_path) - 1 if tail_path else None
-                
-                # Track statistics
-                self.tail_path_stats['total_count'] += 1
-                if tail_path_length is None:
-                    self.tail_path_stats['null_count'] += 1
-                elif tail_path_length == 0:
-                    self.tail_path_stats['zero_count'] += 1
-                else:
-                    self.tail_path_stats['values'].append(tail_path_length)
-                
-                # Print statistics every 100 moves
-                if self.tail_path_stats['total_count'] % 100 == 0:
-                    self._print_tail_path_stats()
-                
-                # Validation: Ensure tail_path_length follows expected patterns
-                if tail_path_length is not None:
-                    # For snake length > 1, tail_path_length should never be 0
-                    if len(snake) > 1 and tail_path_length == 0:
-                        print_error(f"Invalid tail_path_length=0 for snake length {len(snake)}")
-                        tail_path_length = None
-                    
-                    # Tail path should not be shorter than Manhattan distance
-                    manhattan_to_tail = abs(next_head[0] - future_tail[0]) + abs(next_head[1] - future_tail[1])
-                    if tail_path_length < manhattan_to_tail:
-                        print_error(f"Tail path length {tail_path_length} shorter than Manhattan distance {manhattan_to_tail}")
-                        tail_path_length = None
-                    
-                    # Tail path should not exceed reasonable bounds
-                    max_possible_path = (grid_size * grid_size) - len(new_obstacles)
-                    if tail_path_length > max_possible_path:
-                        print_error(f"Tail path length {tail_path_length} exceeds maximum possible {max_possible_path}")
-                        tail_path_length = None
-            
             explanation_dict = self._generate_move_explanation(
-                head, apple, set(snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size, tail_path_length
+                tuple(head), tuple(apple), set(tuple(p) for p in snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
             )
             return direction, explanation_dict
         else:
             direction = "NO_PATH_FOUND"
-            explanation_dict = self._generate_no_path_explanation(head, apple, set(snake), grid_size)
+            explanation_dict = self._generate_no_path_explanation(tuple(head), tuple(apple), set(tuple(p) for p in snake), grid_size)
             return direction, explanation_dict
 
     def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
@@ -240,7 +122,7 @@ class BFSAgent(BaseAgent):
                                  manhattan_distance: int,
                                  remaining_free_cells: int,
                                  grid_size: int,
-                                 tail_path_length: int | None) -> dict:
+                                 ) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
         
@@ -280,7 +162,6 @@ class BFSAgent(BaseAgent):
             f"- Obstacles encountered/avoided along the path: {obstacles_avoided}.",
             f"- Remaining free cells on the board: {remaining_free_cells}.",
             f"- Path optimality: {'Perfectly optimal – no detours.' if path_length == manhattan_distance else f'Includes {path_length - manhattan_distance} detour step(s) to avoid obstacles.'}",
-            f"- Tail path length: After the next move, a path of length {tail_path_length} exists to the future tail position, ensuring escape safety.",
             "",  # Spacer line
             "Conclusion:",
             f"By moving '{direction}', the snake safely advances toward the apple along the shortest known route, minimising risk and maximising future reward."
@@ -291,7 +172,6 @@ class BFSAgent(BaseAgent):
             "metrics": {
                 "manhattan_distance": int(manhattan_distance),
                 "path_length": int(len(path) - 1),
-                "tail_path_length": tail_path_length,  # Can be None or int
                 "obstacles_near_path": int(obstacles_avoided),
                 "remaining_free_cells": int(remaining_free_cells),
                 "valid_moves": valid_moves,
@@ -409,102 +289,31 @@ class BFSAgent(BaseAgent):
                 neighbors.append(neighbor)
         return neighbors
 
-    def _bfs_pathfind(self, start: Tuple[int, int], goal: Tuple[int, int], 
-                     obstacles: set, grid_size: int) -> List[Tuple[int, int]]:
-        """
-        Find shortest path using Breadth-First Search.
-        """
-        print(f"[BFS PATHFIND DEBUG] Start: {start}, Goal: {goal}, Obstacles: {obstacles}")
-        if start == goal:
-            print(f"[BFS PATHFIND DEBUG] Start equals goal, returning [{start}]")
-            return [start]
-
-        # BFS initialization
-        queue = deque([(start, [start])])
-        visited = {start}
-
-        while queue:
-            current_pos, path = queue.popleft()
-
-            # Check all adjacent positions
-            for direction in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                dx, dy = DIRECTIONS[direction]
-                next_pos = (current_pos[0] + dx, current_pos[1] + dy)
-
-                # Skip if out of bounds
-                if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
-                    continue
-
-                # Skip if obstacle or already visited
-                if next_pos in obstacles or next_pos in visited:
-                    continue
-
-                # Create new path
-                new_path = path + [next_pos]
-
-                # Check if we reached the goal
-                if next_pos == goal:
-                    print(f"[BFS PATHFIND DEBUG] Path found: {new_path}")
-                    return new_path
-
-                # Add to queue for further exploration
-                queue.append((next_pos, new_path))
-                visited.add(next_pos)
-
-        # No path found
-        print(f"[BFS PATHFIND DEBUG] No path found from {start} to {goal}")
-        return []
+    # SSOT: BFS pathfinding is implemented in ssot_utils.py
+    # Do not reimplement here - use ssot_bfs_pathfind from ssot_utils
 
     # ----------------
     # Helper utilities (v0.04 additions)
     # ----------------
-    def _get_valid_moves(self, head_pos: Tuple[int, int], snake_positions: set, grid_size: int) -> List[str]:
-        """
-        Return list of currently valid moves based on obstacles and walls.
-        
-        SSOT Compliance: Excludes head from obstacles to match dataset generator.
-        """
-        valid_moves = []
-        # SSOT: Obstacles are all body segments except head
-        obstacles = set(pos for pos in snake_positions if pos != head_pos)
-        
-        for move in VALID_MOVES:
-            dx, dy = DIRECTIONS[move]
-            next_pos = (head_pos[0] + dx, head_pos[1] + dy)
-            if (
-                0 <= next_pos[0] < grid_size and
-                0 <= next_pos[1] < grid_size and
-                next_pos not in obstacles
-            ):
-                valid_moves.append(move)
-        return valid_moves
-
     def _count_remaining_free_cells(self, snake_positions: set, grid_size: int) -> int:
         """Count how many empty cells are not occupied by the snake body."""
         total_cells = grid_size * grid_size
         return total_cells - len(snake_positions)
 
-    def _print_tail_path_stats(self):
-        """Print statistics about tail path length values."""
-        if not self.tail_path_stats['values']:
-            print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
-                  f"Null: {self.tail_path_stats['null_count']}, "
-                  f"Zero: {self.tail_path_stats['zero_count']}, "
-                  f"Non-zero: 0")
-            return
-        
-        values = self.tail_path_stats['values']
-        avg = sum(values) / len(values)
-        min_val = min(values)
-        max_val = max(values)
-        median = sorted(values)[len(values)//2]
-        
-        print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
-              f"Null: {self.tail_path_stats['null_count']}, "
-              f"Zero: {self.tail_path_stats['zero_count']}, "
-              f"Non-zero: {len(values)} | "
-              f"Avg: {avg:.2f}, Min: {min_val}, Max: {max_val}, Median: {median}")
-
     def __str__(self) -> str:
         """String representation of the agent."""
-        return f"BFSAgent(algorithm={self.algorithm_name})" 
+        return f"BFSAgent(algorithm={self.algorithm_name})"
+
+    @staticmethod
+    def _calculate_valid_moves(head_pos: list, snake_positions: list, grid_size: int) -> list:
+        """
+        SSOT: Single source of truth for valid moves calculation.
+        Used by both agent and dataset generator.
+        Args:
+            head_pos: Current head position [x, y]
+            snake_positions: All snake positions (head at index -1)
+            grid_size: Size of the game grid
+        Returns:
+            List of valid moves (UP, DOWN, LEFT, RIGHT)
+        """
+        return ssot_calculate_valid_moves(head_pos, snake_positions, grid_size) 

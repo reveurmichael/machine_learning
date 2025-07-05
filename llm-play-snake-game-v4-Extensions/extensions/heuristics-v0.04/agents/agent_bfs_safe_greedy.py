@@ -37,6 +37,9 @@ from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
 
+# Import SSOT utilities
+from ssot_utils import ssot_bfs_pathfind
+
 # Import extension-specific components using relative imports
 from .agent_bfs import BFSAgent
 
@@ -75,13 +78,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "from BFSAgent and adds safety checks to avoid getting trapped. "
             "Falls back to tail-chasing when apple path is unsafe."
         )
-        # Statistics tracking for tail path length
-        self.tail_path_stats = {
-            'values': [],
-            'null_count': 0,
-            'zero_count': 0,
-            'total_count': 0
-        }
+        
 
     def get_move(self, game: "HeuristicGameLogic") -> str | None:
         """
@@ -108,43 +105,6 @@ class BFSSafeGreedyAgent(BFSAgent):
         SSOT Compliance: This method now generates explanations solely from
         the recorded game state, ensuring perfect consistency with dataset generation.
         
-        🟢 **Tail Path Length Calculation**
-        
-        Definition: `tail_path_length` represents the **minimum number of steps required 
-        for the snake's head to reach its own future tail position after making its next move**.
-        
-        ⚙️ **Computation Process**:
-        1. Predict next head position (first step in BFS path to apple)
-        2. Predict future tail position:
-           - If apple eaten: tail stays put (snake grows)
-           - If apple not eaten: tail moves forward (snake doesn't grow)
-        3. Build new snake body with next head + updated body
-        4. Define new obstacles (all body except future tail)
-        5. Run BFS from next_head to future_tail
-        6. tail_path_length = len(path) - 1 if path exists, else None
-        
-        💡 **Expected Values**:
-        | Case                     | Expected Value                |
-        | ------------------------ | ----------------------------- |
-        | Snake length = 1         | 0 (head and tail are same)   |
-        | Tail adjacent            | 1                            |
-        | Short open paths         | 2 ~ 5                        |
-        | Long open paths          | Large (up to board size)     |
-        | No path exists (blocked) | None                         |
-        
-        🔎 **Special Cases**:
-        - Length 1 snake: tail_path_length = 0 (head is already at tail)
-        - Tail moves forward: when not eating apple, tail advances making it more reachable
-        - Blocked scenarios: if snake traps itself, tail_path_length = None
-        
-        📈 **Why This Matters**:
-        - Short tail path = Safer move = More future flexibility = Lower risk of trapping
-        - None = Dangerous = May be forced to die soon = Suggest avoiding
-        
-        🧾 **Validation Checks**:
-        - For snake length > 1: tail_path_length should never be 0
-        - Tail path should not be shorter than Manhattan distance
-        - Tail path should not exceed reasonable bounds (grid_size² - snake_length)
         """
         # ---------------- Common prelude
         # Get positions from game state snapshot to ensure consistency with dataset generator
@@ -161,7 +121,8 @@ class BFSSafeGreedyAgent(BFSAgent):
         remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
 
         # ---------------- Apple path first
-        path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
+        # SSOT: Use ssot_bfs_pathfind from ssot_utils
+        path_to_apple = ssot_bfs_pathfind(list(head), list(apple), obstacles, grid_size)
         apple_path_safe = False
         if path_to_apple and len(path_to_apple) > 1:
             apple_path_safe = self._path_is_safe(path_to_apple, snake, apple, grid_size)
@@ -181,58 +142,6 @@ class BFSSafeGreedyAgent(BFSAgent):
             fallback_used = False
             apple_path_length = len(path_to_apple) - 1
             
-            # ---------------- Compute tail path length for safety
-            tail_path_length = None
-            
-            # Special case: If snake length is 1, there's no tail to escape to
-            if len(snake) == 1:
-                tail_path_length = 0
-            elif len(path_to_apple) > 1:  # Ensure we have a valid path
-                next_head = path_to_apple[1]
-                
-                # Predict if apple is eaten
-                is_apple_eaten = (next_head == apple)
-                
-                # FUTURE TAIL IS ALWAYS THE ORIGINAL TAIL
-                future_tail = snake[-1]  # Actual tail position
-                
-                # Create new obstacles (exclude future tail position)
-                if is_apple_eaten:
-                    # Apple eaten: tail stays put, new body is [next_head] + snake
-                    new_obstacles = set(snake) | {next_head}  # Tail stays
-                    future_tail = snake[0]  # tail stays put
-                else:
-                    # No apple eaten: tail moves forward, new body is [next_head] + snake[:-1]
-                    new_obstacles = set(snake[:-1]) | {next_head}  # Tail moves
-                    # Handle case where snake length is 1 (no tail to move)
-                    if len(snake) > 1:
-                        future_tail = snake[1]  # tail moves forward to next segment
-                    else:
-                        future_tail = snake[0]  # length 1, tail stays put
-                
-                # Remove tail position from obstacles
-                if future_tail in new_obstacles:
-                    new_obstacles.remove(future_tail)
-                
-                # Compute path to actual tail
-                tail_path = self._bfs_pathfind(next_head, future_tail, new_obstacles, grid_size)
-                tail_path_length = len(tail_path) - 1 if tail_path else None
-                
-                # Track statistics
-                self.tail_path_stats['total_count'] += 1
-                if tail_path_length is None:
-                    self.tail_path_stats['null_count'] += 1
-                elif tail_path_length == 0:
-                    self.tail_path_stats['zero_count'] += 1
-                else:
-                    self.tail_path_stats['values'].append(tail_path_length)
-                
-                # Print statistics every 100 moves
-                if self.tail_path_stats['total_count'] % 100 == 0:
-                    self._print_tail_path_stats()
-                
-                # Validation: Ensure tail_path_length follows expected patterns
-
             # Explanatory chain-of-thought (cot)
             explanation_steps = [
                 f"Step 1: Evaluate immediate valid moves: {valid_moves}.",
@@ -248,7 +157,6 @@ class BFSSafeGreedyAgent(BFSAgent):
             metrics = {
                 "manhattan_distance": int(manhattan_distance),
                 "apple_path_length": int(apple_path_length),
-                "tail_path_length": tail_path_length,
                 "valid_moves": valid_moves,
                 "apple_path_safe": apple_path_safe,
                 "fallback_used": fallback_used,
@@ -270,21 +178,20 @@ class BFSSafeGreedyAgent(BFSAgent):
 
         # ---------------- Fallback – tail chasing
         tail = snake[-1]
-        path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
+        # SSOT: Use ssot_bfs_pathfind from ssot_utils
+        path_to_tail = ssot_bfs_pathfind(list(head), list(tail), obstacles, grid_size)
         if path_to_tail and len(path_to_tail) > 1:
             next_pos = path_to_tail[1]
             direction = position_to_direction(head, next_pos)
             strategy_phase = "TAIL_CHASE"
             fallback_used = True
-            tail_path_length = len(path_to_tail) - 1
             apple_path_length = len(path_to_apple) - 1 if path_to_apple else None
 
             explanation_steps = [
                 f"Step 1: Evaluate immediate valid moves: {valid_moves}.",
                 f"Step 2: Direct apple path deemed unsafe (apple_path_safe={apple_path_safe}).",
                 "Step 3: Switch to tail-chasing fallback strategy to guarantee survival.",
-                f"Step 4: BFS path to tail at {tail} has length {tail_path_length}.",
-                f"Step 5: Select first move '{direction}' to move towards tail.",
+                f"Step 4: Select first move '{direction}' to move towards tail.",
                 "",  # Spacer line
                 "Conclusion:",
                 f"By moving '{direction}', the snake prioritizes survival by following its tail, ensuring it can continue playing and wait for better opportunities."
@@ -293,7 +200,6 @@ class BFSSafeGreedyAgent(BFSAgent):
             metrics = {
                 "manhattan_distance": int(manhattan_distance),
                 "apple_path_length": int(apple_path_length),
-                "tail_path_length": tail_path_length,
                 "valid_moves": valid_moves,
                 "apple_path_safe": apple_path_safe,
                 "fallback_used": fallback_used,
@@ -330,7 +236,6 @@ class BFSSafeGreedyAgent(BFSAgent):
         metrics = {
             "manhattan_distance": int(manhattan_distance),
             "apple_path_length": None,
-            "tail_path_length": None,
             "valid_moves": valid_moves,
             "apple_path_safe": False,
             "fallback_used": fallback_used,
@@ -391,8 +296,8 @@ class BFSSafeGreedyAgent(BFSAgent):
         new_tail = virtual_snake[-1]
         new_obstacles = set(virtual_snake[:-1])  # Exclude tail
         
-        # Use inherited BFS to check tail reachability
-        tail_path = self._bfs_pathfind(new_head, new_tail, new_obstacles, grid_size)
+        # SSOT: Use ssot_bfs_pathfind from ssot_utils
+        tail_path = ssot_bfs_pathfind(list(new_head), list(new_tail), new_obstacles, grid_size)
         return bool(tail_path)
 
     def _get_safe_move(
@@ -429,27 +334,6 @@ class BFSSafeGreedyAgent(BFSAgent):
         """Count how many empty cells are not occupied by the snake body."""
         total_cells = grid_size * grid_size
         return total_cells - len(snake_positions)
-
-    def _print_tail_path_stats(self):
-        """Print statistics about tail path length values."""
-        if not self.tail_path_stats['values']:
-            print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
-                  f"Null: {self.tail_path_stats['null_count']}, "
-                  f"Zero: {self.tail_path_stats['zero_count']}, "
-                  f"Non-zero: 0")
-            return
-        
-        values = self.tail_path_stats['values']
-        avg = sum(values) / len(values)
-        min_val = min(values)
-        max_val = max(values)
-        median = sorted(values)[len(values)//2]
-        
-        print(f"[TAIL_PATH_STATS] Total: {self.tail_path_stats['total_count']}, "
-              f"Null: {self.tail_path_stats['null_count']}, "
-              f"Zero: {self.tail_path_stats['zero_count']}, "
-              f"Non-zero: {len(values)} | "
-              f"Avg: {avg:.2f}, Min: {min_val}, Max: {max_val}, Median: {median}")
 
     def __str__(self) -> str:
         """String representation showing inheritance relationship."""

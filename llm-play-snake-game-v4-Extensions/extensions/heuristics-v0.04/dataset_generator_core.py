@@ -27,6 +27,9 @@ from config.game_constants import DIRECTIONS
 from extensions.common.config.dataset_formats import CSV_BASIC_COLUMNS
 from utils.print_utils import print_info, print_warning, print_success, print_error
 from jsonl_utils import flatten_explanation_for_jsonl  # NEW IMPORT
+# SSOT: Import shared logic from ssot_utils - DO NOT reimplement these functions
+from ssot_utils import ssot_bfs_pathfind, ssot_calculate_valid_moves
+from agents.agent_bfs import BFSAgent
 
 __all__ = ["DatasetGenerator"]
 
@@ -52,13 +55,12 @@ class DatasetGenerator:
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # CSV headers for the standard features including tail_path_length
         self.csv_headers = [
             'game_id', 'step_in_game', 'head_x', 'head_y', 'apple_x', 'apple_y', 'snake_length',
             'apple_dir_up', 'apple_dir_down', 'apple_dir_left', 'apple_dir_right',
             'danger_straight', 'danger_left', 'danger_right',
             'free_space_up', 'free_space_down', 'free_space_left', 'free_space_right',
-            'tail_path_length', 'target_move'
+            'target_move'
         ]
         
         # File handles
@@ -216,34 +218,9 @@ class DatasetGenerator:
 
     def _calculate_valid_moves(self, head_pos: List[int], snake_positions: List[List[int]], grid_size: int) -> List[str]:
         """
-        Calculate valid moves from current head position.
-        
-        SSOT Function: This is the single source of truth for valid moves calculation.
-        Used by both prompt generation and metrics calculation to ensure consistency.
-        
-        Args:
-            head_pos: Current head position [x, y]
-            snake_positions: All snake positions (head at index -1)
-            grid_size: Size of the game grid
-            
-        Returns:
-            List of valid moves (UP, DOWN, LEFT, RIGHT)
+        SSOT: Calculate valid moves using ssot_calculate_valid_moves from ssot_utils.
         """
-        # SSOT: Obstacles are all body segments except head
-        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
-        
-        valid_moves = []
-        for direction, (dx, dy) in DIRECTIONS.items():
-            next_x = head_pos[0] + dx
-            next_y = head_pos[1] + dy
-            # Check bounds
-            if 0 <= next_x < grid_size and 0 <= next_y < grid_size:
-                next_pos = (next_x, next_y)
-                # Check if position is not occupied by snake body (excluding head)
-                if next_pos not in obstacles:
-                    valid_moves.append(direction)
-        
-        return valid_moves
+        return ssot_calculate_valid_moves(head_pos, snake_positions, grid_size)
 
     def _extract_jsonl_record(self, record: dict) -> dict:
         """
@@ -256,14 +233,14 @@ class DatasetGenerator:
         """
         import copy
         from config.game_constants import DIRECTIONS
-
+        
         game_state = record.get('game_state', {})
         move = record.get('move', 'UNKNOWN')
         explanation = record.get('explanation', {})
-
+        
         # Format the prompt using the recorded PRE-MOVE game state
         prompt = self._format_prompt(game_state)
-
+        
         # Extract pre-move state
         pre_move_head = game_state.get('head_position', [0, 0])
         raw_apple_pos = game_state.get('apple_position', [0, 0])
@@ -286,17 +263,20 @@ class DatasetGenerator:
             print(f"[WARNING] Invalid apple position: {apple_pos}")
             apple_pos = [0, 0]
 
-        # SSOT: Always use snake_positions[-1] as head, not pre_move_head
-        if snake_positions:
-            head = tuple(snake_positions[-1])
-        else:
-            head = tuple(pre_move_head)
+        # SSOT: Use pre_move_head as the definitive source of truth for pre-move head position
+        # This ensures consistency between prompt and all pre-move calculations
+        head = tuple(pre_move_head)  # Use the game state's head position as SSOT
         apple = tuple(apple_pos)
-        # Obstacles: all body except head
-        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
+        # Obstacles: all body except head (use snake_positions but exclude the head position)
+        obstacles = set(tuple(p) for p in snake_positions if len(p) >= 2 and tuple(p) != head)
 
         # Compute valid moves from pre-move state (exclude head position)
         valid_moves = self._calculate_valid_moves(head, snake_positions, grid_size)
+
+        # Enforce that the chosen move is in the valid moves list
+        if move not in valid_moves:
+            print(f"[ERROR] Chosen move '{move}' is not in valid moves {valid_moves} for head {head} and snake {snake_positions}. Skipping entry.")
+            return None
 
         # Compute manhattan distance from head to apple
         manhattan = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
@@ -310,60 +290,92 @@ class DatasetGenerator:
             if 'final_chosen_direction' in agent_metrics:
                 agent_chosen_direction = agent_metrics['final_chosen_direction']
         
-        # Prefer agent's computed metrics, fall back to our computation
-        apple_path_len = agent_metrics.get('apple_path_length')
-        if apple_path_len is None:
-            # Compute apple_path_length from SSOT state
-            print(f"[DEBUG] BFS from {head} to {apple} with obstacles: {obstacles}")
-            path = self._bfs_pathfind(list(head), list(apple), obstacles, grid_size)
-            apple_path_len = len(path) - 1 if path else None
-            print(f"[DEBUG] Path found: {path}, length: {apple_path_len}")
-            # Sanity check: path length should never be less than Manhattan distance
-            if apple_path_len is not None and apple_path_len < manhattan:
-                print(f"[BUG] apple_path_length ({apple_path_len}) < manhattan ({manhattan}) from {head} to {apple} -- setting to None!")
-                apple_path_len = None
+        # Always compute apple_path_length from SSOT state
+        print(f"[DEBUG] BFS from {head} to {apple} with obstacles: {obstacles}")
+        path = ssot_bfs_pathfind(list(head), list(apple), obstacles, grid_size)
+        apple_path_len = len(path) - 1 if path else None
+        print(f"[DEBUG] Path found: {path}, length: {apple_path_len}")
+        # Sanity check: path length should never be less than Manhattan distance
+        if apple_path_len is not None and apple_path_len < manhattan:
+            print(f"[BUG] apple_path_length ({apple_path_len}) < manhattan ({manhattan}) from {head} to {apple} -- setting to None!")
+            apple_path_len = None
 
-        # Prefer agent's tail_path_length, fall back to our computation
-        tail_path_len = agent_metrics.get('tail_path_length')
-        if tail_path_len is None:
-            # Compute tail_path_length from pre-move state
-            if len(snake_positions) > 1:
-                pre_move_tail = snake_positions[0]  # Tail is at index 0
-                # Obstacles for tail pathfinding: all snake body except tail
-                tail_obstacles = set(tuple(p) for p in snake_positions[1:] if len(p) >= 2)
-                print(f"[DEBUG] Tail BFS from {pre_move_head} to {pre_move_tail} with obstacles: {tail_obstacles}")
-                tail_path = self._bfs_pathfind(pre_move_head, pre_move_tail, tail_obstacles, grid_size)
-                tail_path_len = len(tail_path) - 1 if tail_path else None
-                print(f"[DEBUG] Tail path found: {tail_path}, length: {tail_path_len}")
-            else:
-                tail_path_len = 0
+        next_head_prediction = list(head)
+        if agent_chosen_direction in DIRECTIONS:
+            dx, dy = DIRECTIONS[agent_chosen_direction]
+            next_head_prediction = [head[0] + dx, head[1] + dy]
+        
 
         # Compute remaining free cells
         remaining_free_cells = grid_size * grid_size - len(snake_positions)
 
-        # Compose SSOT metrics, preferring agent's values
+        # Compute post-move head position for completion metrics
+        post_move_head = list(head)
+        if agent_chosen_direction in DIRECTIONS:
+            dx, dy = DIRECTIONS[agent_chosen_direction]
+            post_move_head = [head[0] + dx, head[1] + dy]
+
+        # Compute post-move snake positions (simulate move)
+        post_move_snake = snake_positions.copy()
+        if post_move_head not in post_move_snake:
+            post_move_snake.append(post_move_head)
+            post_move_snake = post_move_snake[1:]  # Remove tail (normal move)
+        else:
+            # If move collides, just append for metrics (should be rare)
+            post_move_snake.append(post_move_head)
+
+        # Obstacles for post-move state: all body except head
+        post_move_obstacles = set(tuple(p) for p in post_move_snake[:-1] if len(p) >= 2)
+
+        # Compute valid moves from post-move state
+        post_move_valid_moves = self._calculate_valid_moves(post_move_head, post_move_snake, grid_size)
+
+        # Compute manhattan distance from post-move head to apple
+        post_move_manhattan = abs(post_move_head[0] - apple[0]) + abs(post_move_head[1] - apple[1])
+
+        # Compute apple_path_length from post-move state
+        post_move_apple_path_len = None
+        path = ssot_bfs_pathfind(list(post_move_head), list(apple), post_move_obstacles, grid_size)
+        post_move_apple_path_len = len(path) - 1 if path else None
+        if post_move_apple_path_len is not None and post_move_apple_path_len < post_move_manhattan:
+            print(f"[BUG] post-move apple_path_length ({post_move_apple_path_len}) < manhattan ({post_move_manhattan}) from {post_move_head} to {apple} -- setting to None!")
+            post_move_apple_path_len = None
+
+        # Compute remaining free cells after move
+        post_move_remaining_free_cells = grid_size * grid_size - len(post_move_snake)
+
+        # Robust check: ensure all required metrics are present and valid before writing entry
+        required_metrics = [
+            post_move_head, post_move_valid_moves, post_move_manhattan, post_move_apple_path_len,
+        ]
+        if (
+            post_move_head is None or
+            post_move_valid_moves is None or not isinstance(post_move_valid_moves, list) or len(post_move_valid_moves) == 0 or
+            post_move_manhattan is None or
+            post_move_apple_path_len is None or
+            post_move_remaining_free_cells is None or
+            agent_chosen_direction is None
+        ):
+            print(f"[ERROR] Skipping entry due to missing or invalid metrics: head={post_move_head}, valid_moves={post_move_valid_moves}, manhattan={post_move_manhattan}, apple_path_length={post_move_apple_path_len}, remaining_free_cells={post_move_remaining_free_cells}, move={agent_chosen_direction}")
+            return None
+
+        # Compose SSOT metrics, all from post-move state
         ssot_metrics = {
-            "head_position": head,
+            "head_position": post_move_head,  # POST-MOVE head position
             "apple_position": apple,
             "grid_size": grid_size,
-            "snake_length": len(snake_positions),
-            "valid_moves": valid_moves,
-            "manhattan_distance": manhattan,
-            "apple_path_length": apple_path_len,
-            "path_length": apple_path_len,
-            "tail_path_length": tail_path_len,
-            "remaining_free_cells": remaining_free_cells,
+            "snake_length": len(post_move_snake),
+            "valid_moves": post_move_valid_moves,
+            "manhattan_distance": post_move_manhattan,
+            "apple_path_length": post_move_apple_path_len,
+            "remaining_free_cells": post_move_remaining_free_cells,
             "final_chosen_direction": agent_chosen_direction,
         }
-
+        
         # Add any extra agent-computed metrics (e.g. apple_path_safe, fallback_used)
         for k in ["apple_path_safe", "fallback_used"]:
             if k in agent_metrics:
                 ssot_metrics[k] = agent_metrics[k]
-
-        # Ensure tail_path_length is always present
-        if "tail_path_length" not in ssot_metrics:
-            ssot_metrics["tail_path_length"] = None
 
         # Use agent's explanation if available, otherwise flatten
         if isinstance(explanation, dict):
@@ -372,7 +384,7 @@ class DatasetGenerator:
             explanation_text = str(explanation)
         
         explanation_text = self._update_explanation_with_ssot_metrics(explanation_text, ssot_metrics)
-
+        
         return {
             "prompt": prompt,
             "completion": json.dumps({
@@ -383,61 +395,8 @@ class DatasetGenerator:
             }, ensure_ascii=False)
         }
 
-    def _bfs_pathfind(self, start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
-        """
-        BFS pathfinding from start to goal, avoiding obstacles.
-        
-        Args:
-            start: Starting position [x, y]
-            goal: Goal position [x, y]
-            obstacles: Set of obstacle positions as tuples (x, y)
-            grid_size: Size of the game grid
-            
-        Returns:
-            List of positions forming the path from start to goal, or None if no path exists
-        """
-        if start == goal:
-            return [start]
-        
-        # Convert to tuples for set operations
-        start_tuple = tuple(start)
-        goal_tuple = tuple(goal)
-        
-        if start_tuple in obstacles or goal_tuple in obstacles:
-            return None
-        
-        # BFS queue: (position, path)
-        queue = [(start_tuple, [start])]
-        visited = {start_tuple}
-        
-        # Direction vectors for BFS
-        directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
-        
-        while queue:
-            current_pos, path = queue.pop(0)
-            
-            for dx, dy in directions:
-                next_x = current_pos[0] + dx
-                next_y = current_pos[1] + dy
-                next_pos = (next_x, next_y)
-                
-                # Check bounds
-                if not (0 <= next_x < grid_size and 0 <= next_y < grid_size):
-                    continue
-                
-                # Check if visited or obstacle
-                if next_pos in visited or next_pos in obstacles:
-                    continue
-                
-                # Check if goal reached
-                if next_pos == goal_tuple:
-                    return path + [[next_x, next_y]]
-                
-                # Add to queue
-                visited.add(next_pos)
-                queue.append((next_pos, path + [[next_x, next_y]]))
-        
-        return None
+    # SSOT: BFS pathfinding is implemented in ssot_utils.py
+    # Do not reimplement here - use ssot_bfs_pathfind from ssot_utils
 
     def _get_next_position(self, current_pos: List[int], move: str, grid_size: int) -> List[int]:
         """
@@ -590,9 +549,6 @@ class DatasetGenerator:
         free_space_left = count_free_space_in_direction(head_pos, 'LEFT')
         free_space_right = count_free_space_in_direction(head_pos, 'RIGHT')
         
-        # Extract tail_path_length from metrics if available
-        metrics = record.get('metrics', {})
-        tail_path_length = metrics.get('tail_path_length', 0)
         
         # Return the complete CSV record
         return {
@@ -625,9 +581,6 @@ class DatasetGenerator:
             'free_space_down': free_space_down,
             'free_space_left': free_space_left,
             'free_space_right': free_space_right,
-            
-            # Tail path length (safety metric)
-            'tail_path_length': tail_path_length,
             
             # Target
             'target_move': move

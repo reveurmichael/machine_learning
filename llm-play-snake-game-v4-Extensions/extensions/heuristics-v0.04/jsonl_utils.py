@@ -273,14 +273,12 @@ def format_metrics_for_jsonl(metrics: Dict[str, Any]) -> Dict[str, Any]:
     
     # Common metric mappings
     metric_mappings = {
-        'path_length': 'path_length',
         'manhattan_distance': 'manhattan_distance',
         'obstacles_near_path': 'obstacles_near_path',
         'remaining_free_cells': 'remaining_free_cells',
         'valid_moves': 'valid_moves',
         'final_chosen_direction': 'chosen_direction',
         'apple_path_length': 'path_length',
-        'tail_path_length': 'tail_path_length',
         'apple_path_safe': 'apple_path_safe',
         'fallback_used': 'fallback_used',
         # Position and game state metrics

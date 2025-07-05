@@ -80,7 +80,6 @@ class HeuristicGameData(BaseGameData):
         # Heuristic-specific tracking
         self.algorithm_name: str = "BFS"  # Default algorithm
         self.path_calculations: int = 0   # Number of pathfinding calls
-        self.average_path_length: float = 0.0
         self.successful_paths: int = 0
         self.failed_paths: int = 0
         
@@ -109,7 +108,6 @@ class HeuristicGameData(BaseGameData):
         
         # Reset heuristic-specific counters
         self.path_calculations = 0
-        self.average_path_length = 0.0
         self.successful_paths = 0
         self.failed_paths = 0
         self.total_search_time = 0.0
@@ -124,14 +122,12 @@ class HeuristicGameData(BaseGameData):
         if hasattr(self, 'get_basic_game_state'):
             self.round_manager.rounds_data[0] = {'game_state': self.get_basic_game_state()}
     
-    def record_pathfinding_attempt(self, success: bool, path_length: int = 0, 
-                                 search_time: float = 0.0, nodes_explored: int = 0) -> None:
+    def record_pathfinding_attempt(self, success: bool, search_time: float = 0.0, nodes_explored: int = 0) -> None:
         """
         Record a pathfinding attempt for statistics.
         
         Args:
             success: Whether pathfinding was successful
-            path_length: Length of found path (if successful)
             search_time: Time taken for search (seconds)
             nodes_explored: Number of nodes explored during search
         """
@@ -141,10 +137,6 @@ class HeuristicGameData(BaseGameData):
         
         if success:
             self.successful_paths += 1
-            # Update average path length
-            if self.successful_paths > 0:
-                total_length = (self.average_path_length * (self.successful_paths - 1)) + path_length
-                self.average_path_length = total_length / self.successful_paths
         else:
             self.failed_paths += 1
     
@@ -182,7 +174,6 @@ class HeuristicGameData(BaseGameData):
             "successful_paths": self.successful_paths,
             "failed_paths": self.failed_paths,
             "success_rate_percent": round(success_rate, 2),
-            "average_path_length": round(self.average_path_length, 2),
             "total_search_time": round(self.total_search_time, 4),
             "average_search_time": round(avg_search_time, 4),
             "total_nodes_explored": self.nodes_explored,

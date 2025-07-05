@@ -67,8 +67,9 @@ def format_prompt_for_jsonl(game_state: Dict[str, Any], agent_name: str) -> str:
     # Calculate Manhattan distance to apple
     manhattan_distance = abs(head_pos[0] - apple_pos[0]) + abs(head_pos[1] - apple_pos[1])
     
-    # Get valid moves
-    valid_moves = get_valid_moves(head_pos, snake_positions, grid_size)
+    # SSOT: Get valid moves from ssot_utils
+    from ssot_utils import ssot_calculate_valid_moves
+    valid_moves = ssot_calculate_valid_moves(head_pos, snake_positions, grid_size)
     
     # Format the prompt
     prompt = f"""### Instruction:
@@ -141,28 +142,8 @@ def generate_board_visualization(snake_positions: List, apple_position: List, gr
     return '\n'.join(board_lines)
 
 
-def get_valid_moves(head_pos: List[int], snake_positions: List[List[int]], grid_size: int) -> List[str]:
-    """
-    Get valid moves from current head position.
-    
-    Args:
-        head_pos: Current head position [x, y]
-        snake_positions: All snake positions (head at index -1)
-        grid_size: Size of the game grid
-        
-    Returns:
-        List of valid moves
-    """
-    valid_moves = []
-    # Snake body excludes head (head is at index -1)
-    snake_body_set = set(tuple(pos) for pos in snake_positions[:-1])  # Exclude head
-    
-    for move in ['UP', 'DOWN', 'LEFT', 'RIGHT']:
-        next_pos = _get_next_position(head_pos, move, grid_size)
-        if next_pos and tuple(next_pos) not in snake_body_set:
-            valid_moves.append(move)
-    
-    return valid_moves
+# SSOT: Valid moves calculation is implemented in ssot_utils.py
+# Do not reimplement here - use ssot_calculate_valid_moves from ssot_utils
 
 
 def _get_next_position(current_pos: List[int], move: str, grid_size: int) -> List[int]:

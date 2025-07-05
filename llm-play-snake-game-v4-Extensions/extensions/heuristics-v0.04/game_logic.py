@@ -307,14 +307,9 @@ class HeuristicGameLogic(BaseGameLogic):
     def _generate_apple(self) -> NDArray[np.int_]:
         """Generate a new apple position not occupied by the snake."""
         apple = super()._generate_apple()
-        # DEBUG OUTPUT
-        print(f"[APPLE DEBUG] New apple at: {apple}, Snake: {self.snake_positions.tolist()}")
         return apple 
 
     def make_move(self, direction_key: str) -> Tuple[bool, bool]:
         """Make a move in the given direction and update the game state."""
-        # DEBUG OUTPUT
-        print(f"[MOVE DEBUG] Move: {direction_key}, Head before: {self.head_position}, Snake before: {self.snake_positions.tolist()}")
         result = super().make_move(direction_key)
-        print(f"[MOVE DEBUG] Head after: {self.head_position}, Snake after: {self.snake_positions.tolist()}")
         return result 

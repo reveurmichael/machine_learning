@@ -50,7 +50,6 @@ class HeuristicRoundManager(RoundManager):
         """
         current_round_dict = self._get_or_create_round_data(self.round_buffer.number)
         current_round_dict['game_state'] = dict(game_state)  # Store a copy to avoid mutation
-        print(f"[DEBUG][record_game_state] After record: rounds_data keys = {list(self.rounds_data.keys())}")
 
     def sync_round_data(self) -> None:
         """
@@ -72,13 +71,9 @@ class HeuristicRoundManager(RoundManager):
         
         # For heuristics: replace moves instead of extending (one move per round)
         if self.round_buffer.moves:
-            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves before clear: {self.round_buffer.moves}")
             current_round_dict["moves"] = list(self.round_buffer.moves)
             self.round_buffer.moves.clear()
-            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves after clear: {self.round_buffer.moves}")
-        else:
-            print(f"[DEBUG][sync_round_data] Round {self.round_buffer.number} - moves is empty")
-        print(f"[DEBUG][sync_round_data] After sync: rounds_data keys = {list(self.rounds_data.keys())}")
+        
         # Fail fast if round 1 is missing after sync
         if 1 not in self.rounds_data and '1' not in self.rounds_data:
-            raise RuntimeError("[SSOT][DEBUG] Round 1 missing in rounds_data after sync_round_data!") 
+            raise RuntimeError("[SSOT] Round 1 missing in rounds_data after sync_round_data!") 

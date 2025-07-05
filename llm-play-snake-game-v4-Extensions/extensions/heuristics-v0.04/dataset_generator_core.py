@@ -285,64 +285,29 @@ class DatasetGenerator:
         # Compute remaining free cells
         remaining_free_cells = grid_size * grid_size - len(snake_positions)
 
-        # Compute post-move head position for completion metrics
-        post_move_head = list(head)
-        if agent_chosen_direction in DIRECTIONS:
-            dx, dy = DIRECTIONS[agent_chosen_direction]
-            post_move_head = [head[0] + dx, head[1] + dy]
-
-        # Compute post-move snake positions (simulate move)
-        post_move_snake = snake_positions.copy()
-        if post_move_head not in post_move_snake:
-            post_move_snake.append(post_move_head)
-            post_move_snake = post_move_snake[1:]  # Remove tail (normal move)
-        else:
-            # If move collides, just append for metrics (should be rare)
-            post_move_snake.append(post_move_head)
-
-        # Obstacles for post-move state: all body except head
-        post_move_obstacles = set(tuple(p) for p in post_move_snake[:-1] if len(p) >= 2)
-
-        # Compute valid moves from post-move state
-        post_move_valid_moves = self._calculate_valid_moves(post_move_head, post_move_snake, grid_size)
-
-        # Compute manhattan distance from post-move head to apple
-        post_move_manhattan = abs(post_move_head[0] - apple[0]) + abs(post_move_head[1] - apple[1])
-
-        # Compute apple_path_length from post-move state
-        path = ssot_bfs_pathfind(list(post_move_head), list(apple), post_move_obstacles, grid_size)
-        post_move_apple_path_len = len(path) - 1 if path else None
-        if post_move_apple_path_len is not None and post_move_apple_path_len < post_move_manhattan:
-            post_move_apple_path_len = None
-
-        # Compute remaining free cells after move
-        post_move_remaining_free_cells = grid_size * grid_size - len(post_move_snake)
-
         # Robust check: ensure all required metrics are present and valid before writing entry
         # Note: apple_path_length can be None when no path exists to the apple
-        required_metrics = [
-            post_move_head, post_move_valid_moves, post_move_manhattan, post_move_remaining_free_cells, agent_chosen_direction,
-        ]
         if (
-            post_move_head is None or
-            post_move_valid_moves is None or not isinstance(post_move_valid_moves, list) or
-            post_move_manhattan is None or
-            post_move_remaining_free_cells is None or
+            head is None or
+            valid_moves is None or not isinstance(valid_moves, list) or
+            manhattan is None or
+            remaining_free_cells is None or
             agent_chosen_direction is None
         ):
-            print(f"[ERROR] Skipping entry due to missing or invalid metrics: head={post_move_head}, valid_moves={post_move_valid_moves}, manhattan={post_move_manhattan}, apple_path_length={post_move_apple_path_len}, remaining_free_cells={post_move_remaining_free_cells}, move={agent_chosen_direction}")
+            print(f"[ERROR] Skipping entry due to missing or invalid metrics: head={head}, valid_moves={valid_moves}, manhattan={manhattan}, apple_path_length={apple_path_len}, remaining_free_cells={remaining_free_cells}, move={agent_chosen_direction}")
             return None
 
-        # Compose SSOT metrics, all from post-move state
+        # Compose SSOT metrics - use PRE-MOVE state for consistency with prompt
+        # The prompt shows the pre-move state, so completion metrics should match
         ssot_metrics = {
-            "head_position": post_move_head,  # POST-MOVE head position
-            "apple_position": apple,
+            "head_position": list(head),  # PRE-MOVE head position (matches prompt)
+            "apple_position": list(apple),
             "grid_size": grid_size,
-            "snake_length": len(post_move_snake),
-            "valid_moves": post_move_valid_moves,
-            "manhattan_distance": post_move_manhattan,
-            "apple_path_length": post_move_apple_path_len,
-            "remaining_free_cells": post_move_remaining_free_cells,
+            "snake_length": len(snake_positions),  # PRE-MOVE snake length
+            "valid_moves": valid_moves,  # PRE-MOVE valid moves (matches prompt)
+            "manhattan_distance": manhattan,  # PRE-MOVE manhattan distance
+            "apple_path_length": apple_path_len,  # PRE-MOVE apple path length
+            "remaining_free_cells": remaining_free_cells,  # PRE-MOVE free cells
             "final_chosen_direction": agent_chosen_direction,
         }
         
@@ -685,69 +650,88 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
         """
         updated_text = explanation_text
         
-        # Update apple position references
-        if 'apple_position' in ssot_metrics:
-            apple_pos = ssot_metrics['apple_position']
-            # Replace any "apple at (X, Y)" patterns with SSOT values
-            apple_pattern = r'apple at \((\d+), (\d+)\)'
-            apple_replacement = f'apple at ({str(apple_pos[0])}, {str(apple_pos[1])})'
-            updated_text = re.sub(apple_pattern, apple_replacement, updated_text)
+        # Get SSOT values
+        head_pos = ssot_metrics.get('head_position', [0, 0])
+        apple_pos = ssot_metrics.get('apple_position', [0, 0])
+        manhattan = ssot_metrics.get('manhattan_distance', 0)
+        valid_moves = ssot_metrics.get('valid_moves', [])
+        path_length = ssot_metrics.get('apple_path_length', 0)
         
-        # Update head position references in explanations
-        if 'head_position' in ssot_metrics:
-            head_pos = ssot_metrics['head_position']
-            # Replace "from (X, Y)" patterns (BFS path descriptions)
-            from_pattern = r'from \((\d+), (\d+)\)'
-            from_replacement = f'from ({str(head_pos[0])}, {str(head_pos[1])})'
-            updated_text = re.sub(from_pattern, from_replacement, updated_text)
-            
-            # Also replace "at (X, Y)" patterns
-            at_pattern = r'at \((\d+), (\d+)\)'
-            at_replacement = f'at ({str(head_pos[0])}, {str(head_pos[1])})'
-            updated_text = re.sub(at_pattern, at_replacement, updated_text)
+        # Comprehensive coordinate updates - replace ALL coordinate references
+        # with SSOT values to ensure perfect consistency
         
-        # Update path length references
-        if 'apple_path_length' in ssot_metrics:
-            path_length = ssot_metrics['apple_path_length']
-            # Replace "path length found: X" patterns
-            path_pattern = r'path length found: (\d+)'
-            path_replacement = f'path length found: {str(path_length)}'
-            updated_text = re.sub(path_pattern, path_replacement, updated_text)
-            
-            # Also replace "length X" patterns
-            length_pattern = r'length (\d+)'
-            length_replacement = f'length {str(path_length)}'
-            updated_text = re.sub(length_pattern, length_replacement, updated_text)
-            
-            # Also replace "shortest path of length X" patterns
-            shortest_pattern = r'shortest path of length (\d+)'
-            shortest_replacement = f'shortest path of length {str(path_length)}'
-            updated_text = re.sub(shortest_pattern, shortest_replacement, updated_text)
+        # 1. Update all head position references - handle both () and [] formats
+        updated_text = re.sub(r'Current head position: \((\d+), (\d+)\)', 
+                             f'Current head position: ({head_pos[0]}, {head_pos[1]})', updated_text)
+        updated_text = re.sub(r'Current head position: \[(\d+), (\d+)\]', 
+                             f'Current head position: [{head_pos[0]}, {head_pos[1]}]', updated_text)
+        updated_text = re.sub(r'head position: \((\d+), (\d+)\)', 
+                             f'head position: ({head_pos[0]}, {head_pos[1]})', updated_text)
+        updated_text = re.sub(r'head position: \[(\d+), (\d+)\]', 
+                             f'head position: [{head_pos[0]}, {head_pos[1]}]', updated_text)
+        updated_text = re.sub(r'from \((\d+), (\d+)\)', 
+                             f'from ({head_pos[0]}, {head_pos[1]})', updated_text)
+        updated_text = re.sub(r'from \[(\d+), (\d+)\]', 
+                             f'from [{head_pos[0]}, {head_pos[1]}]', updated_text)
+        updated_text = re.sub(r'at \((\d+), (\d+)\)', 
+                             f'at ({head_pos[0]}, {head_pos[1]})', updated_text)
+        updated_text = re.sub(r'at \[(\d+), (\d+)\]', 
+                             f'at [{head_pos[0]}, {head_pos[1]}]', updated_text)
         
-        # Update Manhattan distance references
-        if 'manhattan_distance' in ssot_metrics:
-            manhattan = ssot_metrics['manhattan_distance']
-            # Replace "Manhattan distance: X" patterns
-            manhattan_pattern = r'Manhattan distance: (\d+)'
-            manhattan_replacement = f'Manhattan distance: {str(manhattan)}'
-            updated_text = re.sub(manhattan_pattern, manhattan_replacement, updated_text)
-            
-            # Also replace "Manhattan distance to apple: X" patterns
-            manhattan_to_pattern = r'Manhattan distance to apple: (\d+)'
-            manhattan_to_replacement = f'Manhattan distance to apple: {str(manhattan)}'
-            updated_text = re.sub(manhattan_to_pattern, manhattan_to_replacement, updated_text)
+        # 2. Update all apple position references - handle both () and [] formats
+        updated_text = re.sub(r'Target apple position: \((\d+), (\d+)\)', 
+                             f'Target apple position: ({apple_pos[0]}, {apple_pos[1]})', updated_text)
+        updated_text = re.sub(r'Target apple position: \[(\d+), (\d+)\]', 
+                             f'Target apple position: [{apple_pos[0]}, {apple_pos[1]}]', updated_text)
+        updated_text = re.sub(r'apple position: \((\d+), (\d+)\)', 
+                             f'apple position: ({apple_pos[0]}, {apple_pos[1]})', updated_text)
+        updated_text = re.sub(r'apple position: \[(\d+), (\d+)\]', 
+                             f'apple position: [{apple_pos[0]}, {apple_pos[1]}]', updated_text)
+        updated_text = re.sub(r'apple at \((\d+), (\d+)\)', 
+                             f'apple at ({apple_pos[0]}, {apple_pos[1]})', updated_text)
+        updated_text = re.sub(r'apple at \[(\d+), (\d+)\]', 
+                             f'apple at [{apple_pos[0]}, {apple_pos[1]}]', updated_text)
         
-        # Update valid moves references to match prompt
-        if 'valid_moves' in ssot_metrics:
-            valid_moves = ssot_metrics['valid_moves']
-            # Replace "valid immediate moves: [...]" patterns
-            moves_pattern = r"valid immediate moves: \[[^\]]+\]"
-            moves_replacement = f"valid immediate moves: {str(valid_moves)}"
-            updated_text = re.sub(moves_pattern, moves_replacement, updated_text)
-            
-            # Also replace "Identify valid immediate moves: [...]" patterns
-            identify_pattern = r"Identify valid immediate moves: \[[^\]]+\]"
-            identify_replacement = f"Identify valid immediate moves: {str(valid_moves)}"
-            updated_text = re.sub(identify_pattern, identify_replacement, updated_text)
+        # 3. Update all Manhattan distance references
+        updated_text = re.sub(r'Manhattan distance baseline: (\d+)', 
+                             f'Manhattan distance baseline: {manhattan}', updated_text)
+        updated_text = re.sub(r'Manhattan distance: (\d+)', 
+                             f'Manhattan distance: {manhattan}', updated_text)
+        updated_text = re.sub(r'distance to apple from (\d+)', 
+                             f'distance to apple from {manhattan}', updated_text)
+        
+        # 4. Update all path length references
+        if path_length is not None:
+            updated_text = re.sub(r'Shortest path found: (\d+)', 
+                                 f'Shortest path found: {path_length}', updated_text)
+            updated_text = re.sub(r'path found: (\d+)', 
+                                 f'path found: {path_length}', updated_text)
+            updated_text = re.sub(r'path with length (\d+)', 
+                                 f'path with length {path_length}', updated_text)
+        
+        # 5. Update valid moves references
+        updated_text = re.sub(r'Available valid moves: \[[^\]]+\]', 
+                             f'Available valid moves: {valid_moves}', updated_text)
+        updated_text = re.sub(r'valid moves: \[[^\]]+\]', 
+                             f'valid moves: {valid_moves}', updated_text)
+        
+        # 6. Update "to" references to point to apple position
+        updated_text = re.sub(r'to \((\d+), (\d+)\)', 
+                             f'to ({apple_pos[0]}, {apple_pos[1]})', updated_text)
+        updated_text = re.sub(r'to \[(\d+), (\d+)\]', 
+                             f'to [{apple_pos[0]}, {apple_pos[1]}]', updated_text)
+        
+        # 7. Update next position calculation to be consistent
+        # Calculate next position from SSOT head position and chosen direction
+        chosen_direction = ssot_metrics.get('final_chosen_direction', 'UNKNOWN')
+        if chosen_direction in ['UP', 'DOWN', 'LEFT', 'RIGHT']:
+            from config.game_constants import DIRECTIONS
+            if chosen_direction in DIRECTIONS:
+                dx, dy = DIRECTIONS[chosen_direction]
+                next_pos = [head_pos[0] + dx, head_pos[1] + dy]
+                updated_text = re.sub(r'Next position: \((\d+), (\d+)\)', 
+                                     f'Next position: ({next_pos[0]}, {next_pos[1]})', updated_text)
+                updated_text = re.sub(r'Next position: \[(\d+), (\d+)\]', 
+                                     f'Next position: [{next_pos[0]}, {next_pos[1]}]', updated_text)
         
         return updated_text 

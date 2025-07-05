@@ -254,12 +254,9 @@ class HeuristicGameData(BaseGameData):
         cleaned_rounds_data = {}
         dataset_game_states = {}  # Store game states for dataset generation
         
-        # KISS debug: Print rounds_data structure and write to file
+        # Clean rounds data: remove game_state and ensure planned_moves matches moves
         ordered_rounds = self.round_manager.get_ordered_rounds_data()
-        debug_lines = []
-        debug_lines.append(f"[DEBUG][generate_game_summary] Rounds data keys: {list(ordered_rounds.keys())}\n")
         for round_key, round_data in ordered_rounds.items():
-            debug_lines.append(f"[DEBUG][generate_game_summary] Round {round_key}: {list(round_data.keys())}\n")
             cleaned_round = {
                 "round": round_data.get("round", int(round_key)),
                 "apple_position": round_data.get("apple_position", [0, 0])
@@ -280,11 +277,7 @@ class HeuristicGameData(BaseGameData):
             if "game_state" in round_data:
                 dataset_game_states[round_key] = round_data["game_state"]
         
-        # KISS: Fail fast if round 1 is missing from dataset_game_states
-        debug_lines.append(f"[DEBUG][generate_game_summary] Dataset game states keys: {list(dataset_game_states.keys())}\n")
-        # Write to file
-        with open("ssot_debug.log", "w") as f:
-            f.writelines(debug_lines)
+        # SSOT: Fail fast if round 1 is missing from dataset_game_states
         if 1 not in dataset_game_states and '1' not in dataset_game_states:
             raise RuntimeError(f"[SSOT] Round 1 missing from dataset_game_states. Available: {list(dataset_game_states.keys())}")
         
@@ -373,11 +366,8 @@ class HeuristicGameData(BaseGameData):
         This method ensures step_stats are correctly updated for heuristic algorithms.
         The base class doesn't update step_stats, so we need to do it here.
         """
-        print(f"[DEBUG][record_move] Recording move: {move}")
         # Call base class method which handles basic move recording
         super().record_move(move, apple_eaten)
-        if hasattr(self, 'round_manager') and self.round_manager and hasattr(self.round_manager, 'round_buffer'):
-            print(f"[DEBUG][record_move] Round buffer after add_move: {self.round_manager.round_buffer.moves}")
         
         # Update step statistics based on move type
         if move == "INVALID_REVERSAL":

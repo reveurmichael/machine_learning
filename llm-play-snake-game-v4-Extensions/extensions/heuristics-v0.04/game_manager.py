@@ -275,14 +275,12 @@ class HeuristicGameManager(BaseGameManager):
 
             # --- SSOT: Take a deepcopy of the current state before move ---
             pre_move_state = copy.deepcopy(self.game.get_state_snapshot())
-            print(f"[DEBUG][game_manager] Pre-move state for round {self.round_count}: {json.dumps(pre_move_state, indent=2)}")
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
                 self.game.game_state.round_manager.record_game_state(pre_move_state)
 
             # Pass this exact state to the agent for move selection
             if hasattr(self.game, 'get_next_planned_move_with_state'):
                 agent_state = copy.deepcopy(pre_move_state)
-                print(f"[DEBUG][game_manager] State passed to agent: {json.dumps(agent_state, indent=2)}")
                 move = self.game.get_next_planned_move_with_state(agent_state)
                 # Fail-fast: ensure agent_state and pre_move_state are identical
                 import json as _json

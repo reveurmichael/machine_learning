@@ -89,41 +89,7 @@ CSV_COLUMN_TYPES: Dict[str, str] = {
     'target_move': 'string'
 }
 
-# =============================================================================
-# JSONL Format Specifications (Language-Rich)
-# =============================================================================
 
-# Required fields for JSONL format (heuristics-v0.04 specialty)
-JSONL_REQUIRED_FIELDS: List[str] = [
-    'prompt',       # Game state description for LLM
-    'completion'    # Natural language explanation/reasoning
-]
-
-# Optional fields for JSONL format
-JSONL_OPTIONAL_FIELDS: List[str] = [
-    'game_id',          # Link to original game session
-    'step_in_game',     # Step number for sequence tracking
-    'algorithm',        # Which heuristic algorithm generated this
-    'move',             # The actual move taken
-    'confidence',       # Algorithm confidence (if available)
-    'metadata'          # Additional context information
-]
-
-# JSONL schema validation
-JSONL_SCHEMA: Dict[str, Any] = {
-    "type": "object",
-    "required": JSONL_REQUIRED_FIELDS,
-    "properties": {
-        "prompt": {"type": "string", "minLength": 10},
-        "completion": {"type": "string", "minLength": 20},
-        "game_id": {"type": "integer", "minimum": 1},
-        "step_in_game": {"type": "integer", "minimum": 0},
-        "algorithm": {"type": "string"},
-        "move": {"type": "string", "enum": ["UP", "DOWN", "LEFT", "RIGHT"]},
-        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "metadata": {"type": "object"}
-    }
-}
 
 # =============================================================================
 # NPZ Format Specifications
@@ -249,8 +215,6 @@ CSV_COUNT_FEATURES = [
 # Move validation alias
 CSV_VALID_MOVES = VALID_MOVE_SET
 
-# JSONL aliases
-JSONL_BASIC_KEYS = set(JSONL_REQUIRED_FIELDS)
 
 # =============================================================================
 # Export Configuration
@@ -263,12 +227,7 @@ __all__ = [
     "CSV_TARGET_COLUMNS",
     "CSV_BASIC_COLUMNS",
     "CSV_COLUMN_TYPES",
-    
-    # JSONL format
-    "JSONL_REQUIRED_FIELDS",
-    "JSONL_OPTIONAL_FIELDS",
-    "JSONL_SCHEMA",
-    
+
     # NPZ format
     "NPZ_SEQUENTIAL_ARRAYS",
     "NPZ_SPATIAL_ARRAYS",

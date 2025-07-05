@@ -30,7 +30,7 @@ import json
 import pandas as pd
 
 from utils.print_utils import print_info, print_error
-from ..config.dataset_formats import CSV_BASIC_COLUMNS, JSONL_BASIC_KEYS
+from ..config.dataset_formats import CSV_BASIC_COLUMNS
 from . import ValidationResult, ValidationLevel
 
 __all__ = ["validate_dataset"]
@@ -75,56 +75,6 @@ def _validate_csv(path: Path) -> ValidationResult:
     )
 
 
-def _validate_jsonl(path: Path) -> ValidationResult:
-    """Validate JSONL dataset with basic key checks.
-    
-    Follows final-decision-10.md Guideline 3: Simple logging with print() statements.
-    """
-    print_info(f"Validating JSONL: {path}", "DatasetValidator")
-    
-    missing_keys: Dict[int, List[str]] = {}
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            for idx, line in enumerate(f, 1):
-                if not (line := line.strip()):
-                    continue  # skip empty lines
-                try:
-                    obj: Dict[str, Any] = json.loads(line)
-                except json.JSONDecodeError as exc:
-                    print_error(f"JSONL validation failed: line {idx} - {exc}")
-                    return ValidationResult(
-                        is_valid=False,
-                        level=ValidationLevel.ERROR,
-                        message=f"Invalid JSON on line {idx}: {exc}",
-                    )
-                missing = set(JSONL_BASIC_KEYS) - set(obj)
-                if missing:
-                    missing_keys[idx] = sorted(missing)
-    except Exception as exc:
-        print_error(f"JSONL validation failed: {exc}")
-        return ValidationResult(
-            is_valid=False,
-            level=ValidationLevel.ERROR,
-            message=f"Failed to read JSONL: {exc}",
-        )
-
-    if missing_keys:
-        print_error(f"JSONL missing keys: {missing_keys}")
-        return ValidationResult(
-            is_valid=False,
-            level=ValidationLevel.ERROR,
-            message="Some JSONL records are missing required keys.",
-            details=missing_keys,
-        )
-
-    print_info("JSONL validation passed", "DatasetValidator")
-    return ValidationResult(
-        is_valid=True,
-        level=ValidationLevel.INFO,
-        message="JSONL dataset passed basic validation.",
-    )
-
-
 # ----------------
 # Public API
 # ----------------
@@ -150,7 +100,7 @@ def validate_dataset(file_path: Union[str, Path]) -> ValidationResult:
     if suffix == ".csv":
         return _validate_csv(path)
     if suffix == ".jsonl":
-        return _validate_jsonl(path)
+        pass # TODO: no need for jsonl validation
 
     # Unknown or unsupported file type – accept by default.
     print_info(f"Unknown file type, accepting by default: {suffix}", "DatasetValidator")

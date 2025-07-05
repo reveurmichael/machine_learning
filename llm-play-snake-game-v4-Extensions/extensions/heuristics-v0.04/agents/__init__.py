@@ -65,7 +65,7 @@ def create_agent(algorithm_name: str) -> Any:
             f"Unknown algorithm '{algorithm_name}'. "
             f"Available algorithms: {available}"
         )
-    
+    # TODO: use Task0_ROOT/utils/factory_utils.py to create the agent ? maybe it's a better idea?
     agent_class = ALGORITHM_REGISTRY[algorithm_name]
     return agent_class()
 

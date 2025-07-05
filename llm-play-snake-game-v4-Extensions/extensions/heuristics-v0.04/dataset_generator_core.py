@@ -231,8 +231,8 @@ class DatasetGenerator:
             if 'final_chosen_direction' in agent_metrics:
                 move = agent_metrics['final_chosen_direction']
         else:
-            # Fallback to game history move
-            move = record.get('move', 'UNKNOWN')
+            # Fail-fast: No valid explanation from agent
+            raise RuntimeError(f"SSOT violation: No valid explanation from agent for record {record.get('game_id', 'unknown')}")
         
         # Extract game state data
         # PRE-EXECUTION: All these values are from the state BEFORE the move
@@ -325,8 +325,17 @@ class DatasetGenerator:
         # Format prompt using the game state
         prompt = self._format_prompt(game_state)
         
+        # KISS: Use agent's explanation directly - no fallbacks needed
+        # SSOT: The explanation comes from the agent and is already properly formatted
+        if isinstance(explanation, dict) and 'explanation_steps' in explanation:
+            # Use the agent's rich explanation
+            explanation_text = '\n'.join(explanation['explanation_steps'])
+        else:
+            # Fail-fast: Agent must provide proper explanation
+            raise RuntimeError(f"SSOT violation: Agent explanation missing 'explanation_steps' for record {record.get('game_id', 'unknown')}")
+        
         # Format completion with the move and explanation
-        completion = self._format_completion(move, explanation, {
+        completion = self._format_completion(move, explanation_text, {
             'valid_moves': valid_moves,
             'manhattan_distance': abs(head_x - apple_x) + abs(head_y - apple_y),
             'apple_direction': {
@@ -434,7 +443,7 @@ Move:"""
 
         return prompt
 
-    def _format_completion(self, move: str, explanation: dict, metrics: dict) -> str:
+    def _format_completion(self, move: str, explanation: str, metrics: dict) -> str:
         """
         Format the completion with move and explanation.
         Args:
@@ -444,24 +453,10 @@ Move:"""
         Returns:
             Formatted completion string
         """
-        # Extract explanation text
-        explanation_text = ""
-        if isinstance(explanation, dict):
-            if 'explanation' in explanation:
-                explanation_text = explanation['explanation']
-            elif 'reasoning' in explanation:
-                explanation_text = explanation['reasoning']
-            elif 'text' in explanation:
-                explanation_text = explanation['text']
-        
-        # If no structured explanation, create one
-        if not explanation_text:
-            explanation_text = f"Chose {move} based on pathfinding algorithm."
-        
         # Format the completion
         completion = f""" {move}
 
-Explanation: {explanation_text}
+Explanation: {explanation}
 
 Metrics:
 - Valid moves: {metrics.get('valid_moves', [])}
@@ -470,6 +465,6 @@ Metrics:
 - Danger assessment: {metrics.get('danger_assessment', {})}
 - Free space: {metrics.get('free_space', {})}
 
-Conclusion: The move {move} was chosen because {explanation_text.lower()}"""
+Conclusion: The move {move} was chosen because {explanation.lower()}"""
 
         return completion 

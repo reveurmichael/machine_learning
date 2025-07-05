@@ -164,15 +164,40 @@ class DatasetGenerator:
             game_state['game_number'] = game_number
 
         # Use only the rounds for which we have both a move and a game state
-        # SSOT Fix: States start from round 2 (round 1 is empty), moves are 0-indexed
+        # SSOT Fix: Handle round numbering correctly for multiple games
+        available_rounds = sorted(dataset_game_states.keys())
+        if not available_rounds:
+            raise RuntimeError("[DatasetGenerator] No dataset_game_states available. This is a critical error.")
+        
+        # Find the minimum round number to handle cases where rounds don't start from 2
+        # Convert string keys to integers for proper arithmetic
+        try:
+            min_round = min(int(round_key) for round_key in available_rounds)
+        except (ValueError, TypeError):
+            # Fallback: use the first available round as string
+            min_round = available_rounds[0]
+        
+        # Process moves and game states together
         for i in range(len(moves_history)):
-            round_key = i + 2  # States start from round 2: 2, 3, 4, etc. (as integers)
+            # Calculate the expected round key based on the minimum round
+            if isinstance(min_round, int):
+                round_key = str(min_round + i)  # Convert back to string for dict lookup
+            else:
+                # Fallback: use string arithmetic or skip
+                round_key = str(int(min_round) + i) if min_round.isdigit() else min_round
             if round_key not in dataset_game_states:
-                raise RuntimeError(f"[DatasetGenerator] dataset_game_states missing round {round_key}. This is a critical error.")
+                print(f"[WARNING] Skipping move {i}: dataset_game_states missing round {round_key}.")
+                continue
             game_state = dataset_game_states[round_key]
             move = moves_history[i]
             explanation = explanations[i]
             metrics = metrics_list[i]
+
+            # Validate head position before processing
+            pre_move_head = game_state.get('head_position', [0, 0])
+            if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
+                print(f"[WARNING] Skipping move {i}: Invalid head position in game state for round {round_key}: {pre_move_head}")
+                continue
 
             record = {
                 "game_state": game_state,
@@ -239,6 +264,11 @@ class DatasetGenerator:
                 apple_pos = raw_apple_pos
             grid_size = game_state.get('grid_size', 10)
             snake_positions = game_state.get('snake_positions', [])
+
+            # Validate that we have valid head position
+            if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
+                print(f"[WARNING] Invalid head position in game state: {pre_move_head}")
+                pre_move_head = [0, 0]  # Default fallback
 
             # Calculate POST-MOVE head position by applying the move
             if move in DIRECTIONS:
@@ -772,7 +802,7 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
             apple_pos = ssot_metrics['apple_position']
             # Replace any "apple at (X, Y)" patterns with SSOT values
             apple_pattern = r'apple at \((\d+), (\d+)\)'
-            apple_replacement = f'apple at ({apple_pos[0]}, {apple_pos[1]})'
+            apple_replacement = f'apple at ({str(apple_pos[0])}, {str(apple_pos[1])})'
             updated_text = re.sub(apple_pattern, apple_replacement, updated_text)
         
         # Update head position references in explanations
@@ -780,12 +810,12 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
             head_pos = ssot_metrics['head_position']
             # Replace "from (X, Y)" patterns (BFS path descriptions)
             from_pattern = r'from \((\d+), (\d+)\)'
-            from_replacement = f'from ({head_pos[0]}, {head_pos[1]})'
+            from_replacement = f'from ({str(head_pos[0])}, {str(head_pos[1])})'
             updated_text = re.sub(from_pattern, from_replacement, updated_text)
             
             # Also replace "at (X, Y)" patterns
             at_pattern = r'at \((\d+), (\d+)\)'
-            at_replacement = f'at ({head_pos[0]}, {head_pos[1]})'
+            at_replacement = f'at ({str(head_pos[0])}, {str(head_pos[1])})'
             updated_text = re.sub(at_pattern, at_replacement, updated_text)
         
         # Update path length references
@@ -793,17 +823,17 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
             path_length = ssot_metrics['apple_path_length']
             # Replace "path length found: X" patterns
             path_pattern = r'path length found: (\d+)'
-            path_replacement = f'path length found: {path_length}'
+            path_replacement = f'path length found: {str(path_length)}'
             updated_text = re.sub(path_pattern, path_replacement, updated_text)
             
             # Also replace "length X" patterns
             length_pattern = r'length (\d+)'
-            length_replacement = f'length {path_length}'
+            length_replacement = f'length {str(path_length)}'
             updated_text = re.sub(length_pattern, length_replacement, updated_text)
             
             # Also replace "shortest path of length X" patterns
             shortest_pattern = r'shortest path of length (\d+)'
-            shortest_replacement = f'shortest path of length {path_length}'
+            shortest_replacement = f'shortest path of length {str(path_length)}'
             updated_text = re.sub(shortest_pattern, shortest_replacement, updated_text)
         
         # Update Manhattan distance references
@@ -811,12 +841,12 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
             manhattan = ssot_metrics['manhattan_distance']
             # Replace "Manhattan distance: X" patterns
             manhattan_pattern = r'Manhattan distance: (\d+)'
-            manhattan_replacement = f'Manhattan distance: {manhattan}'
+            manhattan_replacement = f'Manhattan distance: {str(manhattan)}'
             updated_text = re.sub(manhattan_pattern, manhattan_replacement, updated_text)
             
             # Also replace "Manhattan distance to apple: X" patterns
             manhattan_to_pattern = r'Manhattan distance to apple: (\d+)'
-            manhattan_to_replacement = f'Manhattan distance to apple: {manhattan}'
+            manhattan_to_replacement = f'Manhattan distance to apple: {str(manhattan)}'
             updated_text = re.sub(manhattan_to_pattern, manhattan_to_replacement, updated_text)
         
         # Update valid moves references to match prompt
@@ -824,12 +854,12 @@ Based on the `{algorithm}` logic, what is the optimal next move? Provide the mov
             valid_moves = ssot_metrics['valid_moves']
             # Replace "valid immediate moves: [...]" patterns
             moves_pattern = r"valid immediate moves: \[[^\]]+\]"
-            moves_replacement = f"valid immediate moves: {valid_moves}"
+            moves_replacement = f"valid immediate moves: {str(valid_moves)}"
             updated_text = re.sub(moves_pattern, moves_replacement, updated_text)
             
             # Also replace "Identify valid immediate moves: [...]" patterns
             identify_pattern = r"Identify valid immediate moves: \[[^\]]+\]"
-            identify_replacement = f"Identify valid immediate moves: {valid_moves}"
+            identify_replacement = f"Identify valid immediate moves: {str(valid_moves)}"
             updated_text = re.sub(identify_pattern, identify_replacement, updated_text)
         
         return updated_text 

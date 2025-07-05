@@ -240,7 +240,9 @@ class HeuristicGameManager(BaseGameManager):
         
         if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
             self.game.game_state.round_manager.round_buffer.number = 1  # Ensure round number is 1
-            self.game.game_state.round_manager.record_game_state(pre_move_state)
+            # Store pre-move state directly in round data for round 1
+            round_data = self.game.game_state.round_manager._get_or_create_round_data(1)
+            round_data['game_state'] = copy.deepcopy(pre_move_state)
             self.game.game_state.round_manager.sync_round_data()  # Flush to rounds_data
             # KISS: Fail fast if round 1 is missing
             rounds_keys = list(self.game.game_state.round_manager.rounds_data.keys())
@@ -280,7 +282,10 @@ class HeuristicGameManager(BaseGameManager):
             # 3. Metrics calculation (valid_moves, manhattan_distance, etc.)
             pre_move_state = copy.deepcopy(self.game.get_state_snapshot())
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
-                self.game.game_state.round_manager.record_game_state(pre_move_state)
+                # Store pre-move state directly in round data for this round
+                round_num = self.game.game_state.round_manager.round_buffer.number
+                round_data = self.game.game_state.round_manager._get_or_create_round_data(round_num)
+                round_data['game_state'] = copy.deepcopy(pre_move_state)
 
             # Pass this exact state to the agent for move selection
             # PRE-EXECUTION: Agent receives pre-move state and must make decision based on current positions
@@ -318,7 +323,9 @@ class HeuristicGameManager(BaseGameManager):
                     raise RuntimeError(f"SSOT violation: agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves}")
                 # Record game state for the final round before ending
                 if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-                    self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
+                    round_num = self.game.game_state.round_manager.round_buffer.number
+                    round_data = self.game.game_state.round_manager._get_or_create_round_data(round_num)
+                    round_data['game_state'] = copy.deepcopy(self.game.get_state_snapshot())
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
             if move not in valid_moves:

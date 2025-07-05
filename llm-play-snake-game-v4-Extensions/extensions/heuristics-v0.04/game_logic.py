@@ -210,81 +210,37 @@ class HeuristicGameLogic(BaseGameLogic):
     def get_next_planned_move_with_state(self, recorded_game_state: dict) -> str:
         """
         Get the next planned move using a recorded game state for SSOT compliance.
-        
         This method ensures that the agent generates explanations using the same
         game state that is recorded for dataset generation, eliminating coordinate mismatches.
-        
         Args:
             recorded_game_state: The game state that was recorded for this round
-            
         Returns:
             Next move direction or "NO_PATH_FOUND"
         """
         if not self.agent:
             return "NO_PATH_FOUND"
-        
-        # Temporarily set the game state to the recorded state for explanation generation
-        original_snapshot = self.get_state_snapshot()
-        
-        # Create a temporary game state snapshot using the recorded state
-        temp_snapshot = self.get_recorded_state_snapshot(recorded_game_state)
-        
-        # Get move from agent using the recorded game state
-        if hasattr(self.agent, 'get_move_with_explanation'):
-            # Create a temporary game logic instance with the recorded state
-            temp_game = self._create_temp_game_logic(temp_snapshot)
-            move, explanation = self.agent.get_move_with_explanation(temp_game)
-            self._store_explanation(explanation)
-        else:
-            # Standard move generation for agents without explanation support
-            move = self.agent.get_move(self)
-            self._store_explanation(f"Move {move} chosen by {self.algorithm_name} algorithm.")
-        
+
+        # Use the provided state dict directly for the agent
+        move, explanation = self.agent.get_move_with_explanation(recorded_game_state)
+        self._store_explanation(explanation)
+
         # Generate planned moves
         planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
-        
+
         # Record planned moves in round manager
         if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
             self.game_state.round_manager.record_planned_moves(planned_moves)
             # Note: The actual move will be recorded by the base make_move() method
             # No need to duplicate this here to avoid double-recording
-        
+
         # Update planned_moves
         self.planned_moves = planned_moves
-        
+
         # Get next move from plan
         if self.planned_moves:
             return self.planned_moves.pop(0)
         else:
             return "NO_PATH_FOUND"
-    
-    def _create_temp_game_logic(self, game_state_snapshot: dict):
-        """
-        Create a temporary game logic instance with the given game state snapshot.
-        
-        This allows the agent to generate explanations using the recorded game state
-        without affecting the actual game state.
-        
-        Args:
-            game_state_snapshot: The game state snapshot to use
-            
-        Returns:
-            A temporary game logic instance with the given state
-        """
-        # Create a temporary game logic instance
-        temp_game = HeuristicGameLogic(grid_size=game_state_snapshot.get('grid_size', 10), use_gui=False)
-        
-        # Set the agent
-        if self.agent:
-            temp_game.set_agent(self.agent)
-        
-        # Override the get_state_snapshot method to return our recorded state
-        def get_recorded_snapshot():
-            return game_state_snapshot
-        
-        temp_game.get_state_snapshot = get_recorded_snapshot
-        
-        return temp_game
     
     def get_algorithm_info(self) -> dict:
         """

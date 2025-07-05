@@ -23,6 +23,7 @@ Design Patterns:
 
 from collections import deque
 from typing import List, Tuple, TYPE_CHECKING
+import json
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -66,54 +67,116 @@ class BFSAgent(BaseAgent):
         """Initialize BFS agent."""
         self.algorithm_name = "BFS"
 
-    def get_move(self, game: HeuristicGameLogic) -> str | None:
+    def get_move(self, state: dict) -> str | None:
         """
         Get next move using BFS pathfinding (simplified interface).
-        
         Args:
-            game: Game logic instance containing current game state
-            
+            state: Game state dict
         Returns:
             Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
         """
-        move, _ = self.get_move_with_explanation(game)
+        move, _ = self.get_move_with_explanation(state)
         return move
 
-    def get_move_with_explanation(self, game: HeuristicGameLogic) -> Tuple[str, dict]:
-        # Get positions from game state snapshot to ensure consistency with dataset generator
-        game_state = game.get_state_snapshot()
-        head = list(game_state["head_position"])
-        apple = list(game_state["apple_position"])
-        snake = [list(seg) for seg in game_state["snake_positions"]]
-        grid_size = game_state["grid_size"]
+    def get_move_with_explanation(self, state: dict) -> Tuple[str, dict]:
+        # Use the provided state dict for all calculations (SSOT)
+        head = list(state["head_position"])
+        apple = list(state["apple_position"])
+        snake = [list(seg) for seg in state["snake_positions"]]
+        grid_size = state["grid_size"]
         # SSOT: Obstacles are all body segments except head (matching dataset generator)
         obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles, include body segments
 
-        # Helper metrics that are independent of strategy branch
+        # Helper metrics that are independent of strategy branch (all from pre-move state)
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
         valid_moves = self._calculate_valid_moves(head, snake, grid_size)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
+        # Fail-fast: ensure state is not mutated (SSOT)
+
         # ---------------- Apple path first
         path_to_apple = ssot_bfs_pathfind(head, apple, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
-            direction = position_to_direction(tuple(head), tuple(path_to_apple[1]))
-            if direction not in valid_moves:
-                explanation_dict = {
-                    "strategy_phase": "INVALID_MOVE",
-                    "metrics": {},
-                    "explanation_steps": [f"BFS computed move '{direction}' which is not valid. Returning NO_PATH_FOUND."],
-                }
-                return "NO_PATH_FOUND", explanation_dict
+            next_pos = path_to_apple[1]
             
+            # Fail-fast: Validate that the next position is within bounds
+            if (next_pos[0] < 0 or next_pos[0] >= grid_size or 
+                next_pos[1] < 0 or next_pos[1] >= grid_size):
+                raise RuntimeError(f"SSOT violation: BFS computed out-of-bounds position {next_pos} for grid size {grid_size}")
+            
+            direction = position_to_direction(tuple(head), tuple(next_pos))
+            
+            if direction not in valid_moves:
+                raise RuntimeError(f"SSOT violation: BFS computed move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
+            
+            # Create metrics directly from pre-move state only
+            metrics = {
+                "final_chosen_direction": direction,
+                "head_position": list(head),
+                "apple_position": list(apple),
+                "snake_length": len(snake),
+                "grid_size": grid_size,
+                "valid_moves": valid_moves,
+                "manhattan_distance": manhattan_distance,
+                "remaining_free_cells": remaining_free_cells,
+                "path_length": len(path_to_apple) - 1,
+                "obstacles_near_path": self._count_obstacles_in_path(path_to_apple, set(tuple(p) for p in snake))
+            }
+            
+            # Get explanation text from helper (but not metrics)
             explanation_dict = self._generate_move_explanation(
                 tuple(head), tuple(apple), set(tuple(p) for p in snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
             )
+            explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics
+            
             return direction, explanation_dict
         else:
-            direction = "NO_PATH_FOUND"
-            explanation_dict = self._generate_no_path_explanation(tuple(head), tuple(apple), set(tuple(p) for p in snake), grid_size)
-            return direction, explanation_dict
+            if valid_moves:
+                direction = valid_moves[0]
+                # Create metrics directly from pre-move state only
+                metrics = {
+                    "final_chosen_direction": direction,
+                    "head_position": list(head),
+                    "apple_position": list(apple),
+                    "snake_length": len(snake),
+                    "grid_size": grid_size,
+                    "valid_moves": valid_moves,
+                    "manhattan_distance": manhattan_distance,
+                    "remaining_free_cells": remaining_free_cells,
+                    "path_length": 0,
+                    "obstacles_near_path": 0
+                }
+                
+                explanation_dict = {
+                    "strategy_phase": "SURVIVAL_MOVE",
+                    "metrics": metrics,
+                    "explanation_steps": [
+                        f"No path to apple found from {head} to {apple}.",
+                        f"Choosing survival move: '{direction}' to avoid immediate death."
+                    ],
+                }
+                return direction, explanation_dict
+            else:
+                direction = "NO_PATH_FOUND"
+                # Create metrics directly from pre-move state only
+                metrics = {
+                    "final_chosen_direction": direction,
+                    "head_position": list(head),
+                    "apple_position": list(apple),
+                    "snake_length": len(snake),
+                    "grid_size": grid_size,
+                    "valid_moves": valid_moves,
+                    "manhattan_distance": manhattan_distance,
+                    "remaining_free_cells": remaining_free_cells,
+                    "path_length": 0,
+                    "obstacles_near_path": len(snake)
+                }
+                
+                # Get explanation text from helper (but not metrics)
+                explanation_dict = self._generate_no_path_explanation(tuple(head), tuple(apple), set(tuple(p) for p in snake), grid_size)
+                explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics
+                
+                return direction, explanation_dict
 
     def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
                                  snake_positions: set, path: List[Tuple[int, int]], 

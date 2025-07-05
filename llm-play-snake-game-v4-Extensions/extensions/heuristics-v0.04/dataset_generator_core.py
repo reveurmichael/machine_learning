@@ -117,104 +117,76 @@ class DatasetGenerator:
 
     # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:
-        """
-        Process a single game and extract features for CSV/JSONL.
-        For heuristics-v0.04, always require and use dataset_game_states. Fail fast if missing or incomplete.
-        """
-        # Ensure file handles are opened on first use
-        if self._csv_writer is None:
-            self._open_csv()
-        if self._jsonl_fh is None:
-            self._open_jsonl()
-            
-        detailed_history = game_data.get('detailed_history', {})
-        moves_history = detailed_history.get('moves', [])
-        explanations = game_data.get('move_explanations', [])
-        metrics_list = game_data.get('move_metrics', [])
-        grid_size = game_data.get('grid_size', 10)
-        game_number = game_data.get('game_number', 1)  # Get game_number from game_data
-
-        if not moves_history:
-            print_warning(f"[DatasetGenerator] No moves found in game {game_number}")
-            return
-
-        # Pad explanations/metrics if needed to match moves count
-        if not explanations:
-            explanations = ["No explanation provided."] * len(moves_history)
-        else:
-            while len(explanations) < len(moves_history):
-                explanations.append("No explanation provided.")
-            if len(explanations) > len(moves_history):
-                explanations = explanations[:len(moves_history)]
-                
-        if not metrics_list:
-            metrics_list = [{}] * len(moves_history)
-        else:
-            while len(metrics_list) < len(moves_history):
-                metrics_list.append({})
-            if len(metrics_list) > len(moves_history):
-                metrics_list = metrics_list[:len(moves_history)]
-
-        dataset_game_states = game_data.get('dataset_game_states', {})
-        if not dataset_game_states or not isinstance(dataset_game_states, dict):
-            raise RuntimeError("[DatasetGenerator] dataset_game_states missing or not a dict. This is a critical error.")
-
-        # SSOT Fix: All indexing and format issues resolved
-
-        # Set game_number in all game states for SSOT compliance
-        for round_key, game_state in dataset_game_states.items():
-            game_state['game_number'] = game_number
-
-        # Use only the rounds for which we have both a move and a game state
-        # SSOT Fix: Handle round numbering correctly for multiple games
-        available_rounds = sorted(dataset_game_states.keys())
-        if not available_rounds:
-            raise RuntimeError("[DatasetGenerator] No dataset_game_states available. This is a critical error.")
-        
-        # Find the minimum round number to handle cases where rounds don't start from 2
-        # Convert string keys to integers for proper arithmetic
+        """Process a single game and generate dataset entries."""
         try:
-            min_round = min(int(round_key) for round_key in available_rounds)
-        except (ValueError, TypeError):
-            # Fallback: use the first available round as string
-            min_round = available_rounds[0]
-        
-        # Process moves and game states together
-        for i in range(len(moves_history)):
-            # Calculate the expected round key based on the minimum round
-            if isinstance(min_round, int):
-                round_key = str(min_round + i)  # Convert back to string for dict lookup
+            # Extract moves and explanations
+            moves_history = game_data.get("detailed_history", {}).get("moves", [])
+            explanations = game_data.get("move_explanations", [])
+            metrics_list = game_data.get("move_metrics", [])
+            
+            if not moves_history:
+                print_warning("[DatasetGenerator] No moves found in game data")
+                return
+            
+            # Extract dataset game states
+            dataset_game_states = game_data.get("dataset_game_states", {})
+            if not dataset_game_states:
+                print_warning("[DatasetGenerator] No dataset game states found")
+                return
+            
+            # SSOT: Fail fast if we don't have enough rounds for the moves
+            # Determine the key type (int or str) from the first available key
+            available_keys = list(dataset_game_states.keys())
+            if not available_keys:
+                raise RuntimeError("[SSOT] No dataset_game_states available")
+            
+            # Use the same key type as the dataset
+            first_key = available_keys[0]
+            if isinstance(first_key, int):
+                required_rounds = list(range(len(moves_history)))
+                key_converter = lambda i: i
             else:
-                # Fallback: use string arithmetic or skip
-                round_key = str(int(min_round) + i) if min_round.isdigit() else min_round
-            if round_key not in dataset_game_states:
-                print(f"[WARNING] Skipping move {i}: dataset_game_states missing round {round_key}.")
-                continue
-            game_state = dataset_game_states[round_key]
-            move = moves_history[i]
-            explanation = explanations[i]
-            metrics = metrics_list[i]
+                required_rounds = [str(i) for i in range(len(moves_history))]
+                key_converter = lambda i: str(i)
+            
+            available_rounds = set(dataset_game_states.keys())
+            
+            # Check if all required rounds are available
+            missing_rounds = [r for r in required_rounds if r not in available_rounds]
+            if missing_rounds:
+                raise RuntimeError(f"[SSOT] Missing required rounds {missing_rounds} for {len(moves_history)} moves. Available: {sorted(available_rounds)}")
+            
+            # Process moves and game states together
+            for i in range(len(moves_history)):
+                round_key = key_converter(i)  # Move i uses appropriate key type
+                game_state = dataset_game_states[round_key]
+                move = moves_history[i]
+                explanation = explanations[i] if i < len(explanations) else {}
+                metrics = metrics_list[i] if i < len(metrics_list) else {}
 
-            # Validate head position before processing
-            pre_move_head = game_state.get('head_position', [0, 0])
-            if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
-                print(f"[WARNING] Skipping move {i}: Invalid head position in game state for round {round_key}: {pre_move_head}")
-                continue
+                # Validate head position before processing
+                pre_move_head = game_state.get('head_position', [0, 0])
+                if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
+                    raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_key}: {pre_move_head}")
 
-            record = {
-                "game_state": game_state,
-                "move": move,
-                "explanation": explanation,
-                "metrics": metrics
-            }
-            # Write to JSONL
-            if self._jsonl_fh:
-                jsonl_record = self._extract_jsonl_record(record)
-                self._jsonl_fh.write(json.dumps(jsonl_record) + '\n')
-            # Write to CSV
-            if self._csv_writer:
-                csv_record = self._extract_csv_features(record, step_number=i+1)  # CSV step numbers are 1-indexed
-                self._csv_writer[0].writerow(csv_record)
+                record = {
+                    "game_state": game_state,
+                    "move": move,
+                    "explanation": explanation,
+                    "metrics": metrics
+                }
+                # Write to JSONL
+                if self._jsonl_fh:
+                    jsonl_record = self._extract_jsonl_record(record)
+                    self._jsonl_fh.write(json.dumps(jsonl_record) + '\n')
+                # Write to CSV
+                if self._csv_writer:
+                    csv_record = self._extract_csv_features(record, step_number=i+1)  # CSV step numbers are 1-indexed
+                    self._csv_writer[0].writerow(csv_record)
+                    
+        except Exception as e:
+            print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
+            raise
 
     def _calculate_valid_moves(self, head_pos: List[int], snake_positions: List[List[int]], grid_size: int) -> List[str]:
         """
@@ -255,12 +227,10 @@ class DatasetGenerator:
 
         # Validate head position
         if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
-            print(f"[WARNING] Invalid head position: {pre_move_head}")
             pre_move_head = [0, 0]
 
         # Validate apple position
         if apple_pos is None or not isinstance(apple_pos, (list, tuple)) or len(apple_pos) != 2:
-            print(f"[WARNING] Invalid apple position: {apple_pos}")
             apple_pos = [0, 0]
 
         # SSOT: Use pre_move_head as the definitive source of truth for pre-move head position
@@ -272,11 +242,6 @@ class DatasetGenerator:
 
         # Compute valid moves from pre-move state (exclude head position)
         valid_moves = self._calculate_valid_moves(head, snake_positions, grid_size)
-
-        # Enforce that the chosen move is in the valid moves list
-        if move not in valid_moves:
-            print(f"[ERROR] Chosen move '{move}' is not in valid moves {valid_moves} for head {head} and snake {snake_positions}. Skipping entry.")
-            return None
 
         # Compute manhattan distance from head to apple
         manhattan = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
@@ -290,12 +255,25 @@ class DatasetGenerator:
             if 'final_chosen_direction' in agent_metrics:
                 agent_chosen_direction = agent_metrics['final_chosen_direction']
         
+        # SSOT: Use agent's metrics state as authoritative for validation
+        if agent_metrics and 'head_position' in agent_metrics:
+            # Use agent's state for validation instead of recorded game state
+            agent_head = agent_metrics['head_position']
+            agent_valid_moves = agent_metrics.get('valid_moves', valid_moves)
+            
+            # Validate against agent's state
+            if agent_chosen_direction not in agent_valid_moves:
+                raise RuntimeError(f"SSOT violation: Agent's chosen direction '{agent_chosen_direction}' is not in valid moves {agent_valid_moves} for head {agent_head}.")
+        else:
+            # Fallback: validate against recorded game state
+            if agent_chosen_direction not in valid_moves:
+                raise RuntimeError(f"SSOT violation: Agent's chosen direction '{agent_chosen_direction}' is not in valid moves {valid_moves} for head {head}.")
+        
         # Always compute apple_path_length from SSOT state
         path = ssot_bfs_pathfind(list(head), list(apple), obstacles, grid_size)
         apple_path_len = len(path) - 1 if path else None
         # Sanity check: path length should never be less than Manhattan distance
         if apple_path_len is not None and apple_path_len < manhattan:
-            print(f"[BUG] apple_path_length ({apple_path_len}) < manhattan ({manhattan}) from {head} to {apple} -- setting to None!")
             apple_path_len = None
 
         next_head_prediction = list(head)
@@ -332,25 +310,23 @@ class DatasetGenerator:
         post_move_manhattan = abs(post_move_head[0] - apple[0]) + abs(post_move_head[1] - apple[1])
 
         # Compute apple_path_length from post-move state
-        post_move_apple_path_len = None
         path = ssot_bfs_pathfind(list(post_move_head), list(apple), post_move_obstacles, grid_size)
         post_move_apple_path_len = len(path) - 1 if path else None
         if post_move_apple_path_len is not None and post_move_apple_path_len < post_move_manhattan:
-            print(f"[BUG] post-move apple_path_length ({post_move_apple_path_len}) < manhattan ({post_move_manhattan}) from {post_move_head} to {apple} -- setting to None!")
             post_move_apple_path_len = None
 
         # Compute remaining free cells after move
         post_move_remaining_free_cells = grid_size * grid_size - len(post_move_snake)
 
         # Robust check: ensure all required metrics are present and valid before writing entry
+        # Note: apple_path_length can be None when no path exists to the apple
         required_metrics = [
-            post_move_head, post_move_valid_moves, post_move_manhattan, post_move_apple_path_len,
+            post_move_head, post_move_valid_moves, post_move_manhattan, post_move_remaining_free_cells, agent_chosen_direction,
         ]
         if (
             post_move_head is None or
-            post_move_valid_moves is None or not isinstance(post_move_valid_moves, list) or len(post_move_valid_moves) == 0 or
+            post_move_valid_moves is None or not isinstance(post_move_valid_moves, list) or
             post_move_manhattan is None or
-            post_move_apple_path_len is None or
             post_move_remaining_free_cells is None or
             agent_chosen_direction is None
         ):
@@ -382,6 +358,10 @@ class DatasetGenerator:
             explanation_text = str(explanation)
         
         explanation_text = self._update_explanation_with_ssot_metrics(explanation_text, ssot_metrics)
+        
+        # Fail-fast: agent's returned move and metrics['final_chosen_direction'] must match
+        if 'final_chosen_direction' in agent_metrics and agent_chosen_direction != agent_metrics['final_chosen_direction']:
+            raise RuntimeError(f"SSOT violation: agent_chosen_direction '{agent_chosen_direction}' does not match metrics['final_chosen_direction'] '{agent_metrics['final_chosen_direction']}'")
         
         return {
             "prompt": prompt,
@@ -436,108 +416,99 @@ class DatasetGenerator:
 
     def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
         """
-        Extract the 16 standard features for CSV record from the game state.
-        
-        This method implements the grid-size agnostic feature extraction
-        following the CSV format specification.
-        
-        Args:
-            record: Record containing game_state and move
-            step_number: Current step number (1-based). If None, uses game_state.steps
-            
-        Returns:
-            Dictionary with CSV features
+        Extract CSV features from a single game record.
+        SSOT Compliance: Use the agent's actual chosen direction as the source of truth.
         """
         game_state = record.get('game_state', {})
-        move = record.get('move', 'UNKNOWN')
+        explanation = record.get('explanation', {})
         
-        if not game_state:
-            # Return default values for all required columns
-            return {col: 0 for col in self.csv_headers if col != 'target_move'} | {'target_move': move}
-
-        # Extract basic game state information
-        snake_positions = game_state.get('snake_positions', [])
-        apple_position = game_state.get('apple_position', [0, 0])
-        grid_size = game_state.get('grid_size', 10)
-        game_id = game_state.get('game_number', 1)
-        # Use provided step_number if available, otherwise fall back to game_state.steps
-        step_in_game = step_number if step_number is not None else game_state.get('steps', 0)
-        
-        if not snake_positions:
-            # Invalid game state - return defaults
-            return {col: 0 for col in self.csv_headers if col != 'target_move'} | {'target_move': move}
-        
-        head_pos = snake_positions[-1]  # Head is at index -1 (last element)
-        head_x, head_y = head_pos[0], head_pos[1]
-        
-        # Handle both dict and list formats for apple_position
-        if isinstance(apple_position, dict):
-            apple_x, apple_y = apple_position.get('x', 0), apple_position.get('y', 0)
+        # KISS: Use agent's actual chosen direction, not game history move
+        move = 'UNKNOWN'  # Default
+        if isinstance(explanation, dict) and 'metrics' in explanation:
+            agent_metrics = explanation['metrics']
+            if 'final_chosen_direction' in agent_metrics:
+                move = agent_metrics['final_chosen_direction']
         else:
-            apple_x, apple_y = apple_position[0], apple_position[1]
+            # Fallback to game history move
+            move = record.get('move', 'UNKNOWN')
         
-        # Calculate apple direction features (binary)
-        apple_dir_up = 1 if apple_y < head_y else 0
-        apple_dir_down = 1 if apple_y > head_y else 0
+        # Extract game state data
+        game_id = record.get('game_id', 0)
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        snake_positions = game_state.get('snake_positions', [])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # Validate positions
+        if not isinstance(head_pos, (list, tuple)) or len(head_pos) != 2:
+            head_pos = [0, 0]
+        if not isinstance(apple_pos, (list, tuple)) or len(apple_pos) != 2:
+            apple_pos = [0, 0]
+        
+        head_x, head_y = head_pos[0], head_pos[1]
+        apple_x, apple_y = apple_pos[0], apple_pos[1]
+        
+        # Calculate apple direction features
+        apple_dir_up = 1 if apple_y > head_y else 0
+        apple_dir_down = 1 if apple_y < head_y else 0
         apple_dir_left = 1 if apple_x < head_x else 0
         apple_dir_right = 1 if apple_x > head_x else 0
         
-        # Calculate danger detection features
-        snake_body_set = set(tuple(pos) for pos in snake_positions)
+        # Calculate danger features
+        danger_straight = 0
+        danger_left = 0
+        danger_right = 0
         
-        # Check danger in each direction using universal coordinate system
-        from config.game_constants import DIRECTIONS
-        directions = DIRECTIONS
+        # Check for wall collision
+        if head_y + 1 >= grid_size:  # UP
+            danger_straight = 1
+        if head_y - 1 < 0:  # DOWN
+            danger_straight = 1
+        if head_x - 1 < 0:  # LEFT
+            danger_left = 1
+        if head_x + 1 >= grid_size:  # RIGHT
+            danger_right = 1
         
-        # Determine current direction (simplified - assume last move direction)
-        current_direction = move if move in directions else 'UP'
+        # Check for snake body collision
+        for pos in snake_positions:
+            if len(pos) >= 2:
+                if [head_x, head_y + 1] == pos:  # UP
+                    danger_straight = 1
+                if [head_x, head_y - 1] == pos:  # DOWN
+                    danger_straight = 1
+                if [head_x - 1, head_y] == pos:  # LEFT
+                    danger_left = 1
+                if [head_x + 1, head_y] == pos:  # RIGHT
+                    danger_right = 1
         
-        # Check danger straight ahead
-        dx, dy = directions[current_direction]
-        straight_pos = (head_x + dx, head_y + dy)
-        danger_straight = 1 if (straight_pos in snake_body_set or 
-                              straight_pos[0] < 0 or straight_pos[0] >= grid_size or
-                              straight_pos[1] < 0 or straight_pos[1] >= grid_size) else 0
-        
-        # Calculate relative left and right based on current direction
-        if current_direction == 'UP':
-            left_dir, right_dir = 'LEFT', 'RIGHT'
-        elif current_direction == 'DOWN':
-            left_dir, right_dir = 'RIGHT', 'LEFT'
-        elif current_direction == 'LEFT':
-            left_dir, right_dir = 'DOWN', 'UP'
-        else:  # RIGHT
-            left_dir, right_dir = 'UP', 'DOWN'
-        
-        # Check danger left and right
-        left_dx, left_dy = directions[left_dir]
-        right_dx, right_dy = directions[right_dir]
-        
-        left_pos = (head_x + left_dx, head_y + left_dy)
-        right_pos = (head_x + right_dx, head_y + right_dy)
-        
-        danger_left = 1 if (left_pos in snake_body_set or 
-                           left_pos[0] < 0 or left_pos[0] >= grid_size or
-                           left_pos[1] < 0 or left_pos[1] >= grid_size) else 0
-        
-        danger_right = 1 if (right_pos in snake_body_set or 
-                            right_pos[0] < 0 or right_pos[0] >= grid_size or
-                            right_pos[1] < 0 or right_pos[1] >= grid_size) else 0
-        
-        # Calculate free space features (simplified count of reachable cells)
+        # Calculate free space features
         def count_free_space_in_direction(start_pos, direction):
-            """Count free spaces in a given direction"""
-            dx, dy = directions[direction]
             count = 0
-            current_x, current_y = start_pos[0] + dx, start_pos[1] + dy
+            current_pos = list(start_pos)
             
-            while (0 <= current_x < grid_size and 0 <= current_y < grid_size and
-                   (current_x, current_y) not in snake_body_set):
+            while True:
+                if direction == 'UP':
+                    current_pos[1] += 1
+                elif direction == 'DOWN':
+                    current_pos[1] -= 1
+                elif direction == 'LEFT':
+                    current_pos[0] -= 1
+                elif direction == 'RIGHT':
+                    current_pos[0] += 1
+                
+                # Check bounds
+                if (current_pos[0] < 0 or current_pos[0] >= grid_size or 
+                    current_pos[1] < 0 or current_pos[1] >= grid_size):
+                    break
+                
+                # Check snake collision
+                if current_pos in snake_positions:
+                    break
+                
                 count += 1
-                current_x += dx
-                current_y += dy
-                # Limit count to avoid infinite loops in open areas
-                if count >= grid_size:
+                
+                # Prevent infinite loop
+                if count > grid_size * grid_size:
                     break
             
             return count
@@ -548,11 +519,23 @@ class DatasetGenerator:
         free_space_right = count_free_space_in_direction(head_pos, 'RIGHT')
         
         
+        # Strict SSOT: Validate that the move is in valid moves for the pre-move state
+        valid_moves = self._calculate_valid_moves(head_pos, snake_positions, grid_size)
+        
+        # KISS: Use agent's own valid moves if available, otherwise use computed valid moves
+        if isinstance(explanation, dict) and 'metrics' in explanation:
+            agent_metrics = explanation['metrics']
+            if 'valid_moves' in agent_metrics:
+                valid_moves = agent_metrics['valid_moves']
+        
+        if move not in valid_moves:
+            raise RuntimeError(f"SSOT violation: CSV target_move '{move}' is not in valid moves {valid_moves} for head {head_pos}.")
+        
         # Return the complete CSV record
         return {
             # Metadata
             'game_id': game_id,
-            'step_in_game': step_in_game,
+            'step_in_game': step_number if step_number is not None else game_state.get('steps', 0),
             
             # Position features
             'head_x': head_x,

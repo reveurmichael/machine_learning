@@ -44,6 +44,7 @@ import json
 import os
 from colorama import Fore
 import numpy as np
+import copy
 
 # Import from project root using absolute imports
 from utils.print_utils import print_info, print_warning, print_error, print_success
@@ -246,8 +247,25 @@ class HeuristicGameManager(BaseGameManager):
         # Initialize game
         self.game.reset()
 
+        # KISS: Immediately record pre-move state as round 1 for SSOT
+        pre_move_state = copy.deepcopy(self.game.get_state_snapshot())
+        if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
+            self.game.game_state.round_manager.round_buffer.number = 1  # Ensure round number is 1
+            self.game.game_state.round_manager.record_game_state(pre_move_state)
+            self.game.game_state.round_manager.sync_round_data()  # Flush to rounds_data
+            # KISS: Fail fast if round 1 is missing
+            rounds_keys = list(self.game.game_state.round_manager.rounds_data.keys())
+            if 1 not in rounds_keys and '1' not in rounds_keys:
+                raise RuntimeError(f"[SSOT] Round 1 not recorded after setup. Available rounds: {rounds_keys}")
+        else:
+            raise RuntimeError("[SSOT] Round manager missing after game reset. Cannot record round 1 pre-move state.")
+
         # Game loop
+        steps = 0
         while not self.game.game_over:
+            steps += 1
+            if steps > self.args.max_steps:
+                raise RuntimeError(f"Fail-fast: Exceeded max_steps ({self.args.max_steps}) in game loop. Possible infinite loop or agent bug.")
             # Sync previous round's data before starting a new round (if not the first round)
             if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager and self.round_count > 0:
                 self.game.game_state.round_manager.sync_round_data()
@@ -255,24 +273,52 @@ class HeuristicGameManager(BaseGameManager):
             # Start new round for each move (heuristics plan one move at a time)
             self.start_new_round(f"{self.algorithm_name} pathfinding")
 
-            # Always get the latest state snapshot for planning
-            recorded_state = self.game.get_state_snapshot()
+            # --- SSOT: Take a deepcopy of the current state before move ---
+            pre_move_state = copy.deepcopy(self.game.get_state_snapshot())
+            print(f"[DEBUG][game_manager] Pre-move state for round {self.round_count}: {json.dumps(pre_move_state, indent=2)}")
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
-                self.game.game_state.round_manager.record_game_state(recorded_state)
+                self.game.game_state.round_manager.record_game_state(pre_move_state)
 
-            # Get move from agent using the RECORDED game state for SSOT compliance
+            # Pass this exact state to the agent for move selection
             if hasattr(self.game, 'get_next_planned_move_with_state'):
-                move = self.game.get_next_planned_move_with_state(recorded_state)
+                agent_state = copy.deepcopy(pre_move_state)
+                print(f"[DEBUG][game_manager] State passed to agent: {json.dumps(agent_state, indent=2)}")
+                move = self.game.get_next_planned_move_with_state(agent_state)
+                # Fail-fast: ensure agent_state and pre_move_state are identical
+                import json as _json
+                if _json.dumps(agent_state, sort_keys=True) != _json.dumps(pre_move_state, sort_keys=True):
+                    print(f"[FAIL-FAST][SSOT] pre_move_state and agent_state differ!")
+                    print(f"pre_move_state: {_json.dumps(pre_move_state, indent=2, sort_keys=True)}")
+                    print(f"agent_state: {_json.dumps(agent_state, indent=2, sort_keys=True)}")
+                    raise RuntimeError("SSOT violation: pre_move_state and agent_state are not identical!")
             else:
-                # Fallback for compatibility
-                move = self.game.get_next_planned_move()
+                # Get current state and agent's move
+                state = self.game.get_state_snapshot()
+                move, explanation = self.agent.get_move_with_explanation(state)
 
+            # --- FAIL-FAST SSOT VALIDATION ---
+            # Ensure the chosen move is valid for the pre-move state
+            head = pre_move_state["head_position"]
+            snake_positions = pre_move_state["snake_positions"]
+            grid_size = pre_move_state["grid_size"]
+            
+            # Calculate valid moves from the exact same state used by the agent
+            valid_moves = self._calculate_valid_moves(head, snake_positions, grid_size)
+            
             if move == "NO_PATH_FOUND":
+                if valid_moves:
+                    print(f"[SSOT VIOLATION] Agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves} for head {head}")
+                    raise RuntimeError(f"SSOT violation: agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves}")
                 # Record game state for the final round before ending
                 if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
                     self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
+            if move not in valid_moves:
+                print(f"[SSOT VIOLATION] Agent chose '{move}' but valid moves are {valid_moves} for head {head}")
+                print(f"[SSOT VIOLATION] This indicates a bug in the agent or state management")
+                print(f"[SSOT VIOLATION] Game state: head={head}, snake={snake_positions}, grid_size={grid_size}")
+                raise RuntimeError(f"SSOT violation: agent move '{move}' not in valid moves {valid_moves}")
 
             # Apply move
             self.game.make_move(move)
@@ -289,6 +335,13 @@ class HeuristicGameManager(BaseGameManager):
         game_duration = time.time() - start_time
         
         return game_duration
+
+    def _calculate_valid_moves(self, head: List[int], snake_positions: List[List[int]], grid_size: int) -> List[str]:
+        """
+        SSOT: Calculate valid moves using ssot_calculate_valid_moves from ssot_utils.
+        """
+        from ssot_utils import ssot_calculate_valid_moves
+        return ssot_calculate_valid_moves(head, snake_positions, grid_size)
 
     def _finalize_game(self, game_duration: float) -> None:
         """Finalize game and update datasets automatically."""

@@ -131,7 +131,7 @@ def _get_algorithm_category(algorithm_name: str) -> str:
 __all__ = [
     # Agent classes
     "BFSAgent",
-    "BFSSafeGreedyAgent", 
+    "BFSSafeGreedyAgent",
 
     # Factory functions
     "create_agent",

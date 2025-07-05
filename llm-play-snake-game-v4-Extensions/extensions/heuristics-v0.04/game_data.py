@@ -120,7 +120,18 @@ class HeuristicGameData(BaseGameData):
         
         # Record the initial game state as round 0 for SSOT
         if hasattr(self, 'get_basic_game_state'):
-            self.round_manager.rounds_data[0] = {'game_state': self.get_basic_game_state()}
+            initial_state = self.get_basic_game_state()
+            # Patch: If head_position or apple_position is missing/None, set them from the current game logic
+            if (not initial_state or 'head_position' not in initial_state or initial_state['head_position'] is None or
+                'apple_position' not in initial_state or initial_state['apple_position'] is None):
+                # Try to get from self.snake_positions and self.apple_position
+                head_pos = self.snake_positions[-1] if self.snake_positions else [0, 0]
+                apple_pos = self.apple_position if hasattr(self, 'apple_position') and self.apple_position is not None else [0, 0]
+                initial_state['head_position'] = head_pos
+                initial_state['apple_position'] = apple_pos
+            if not initial_state['head_position'] or not initial_state['apple_position']:
+                raise RuntimeError("[SSOT] Initial game state for round 0 is missing or invalid after patch.")
+            self.round_manager.rounds_data[0] = {'game_state': initial_state}
     
     def record_pathfinding_attempt(self, success: bool, search_time: float = 0.0, nodes_explored: int = 0) -> None:
         """
@@ -243,7 +254,12 @@ class HeuristicGameData(BaseGameData):
         cleaned_rounds_data = {}
         dataset_game_states = {}  # Store game states for dataset generation
         
-        for round_key, round_data in self.round_manager.get_ordered_rounds_data().items():
+        # KISS debug: Print rounds_data structure and write to file
+        ordered_rounds = self.round_manager.get_ordered_rounds_data()
+        debug_lines = []
+        debug_lines.append(f"[DEBUG][generate_game_summary] Rounds data keys: {list(ordered_rounds.keys())}\n")
+        for round_key, round_data in ordered_rounds.items():
+            debug_lines.append(f"[DEBUG][generate_game_summary] Round {round_key}: {list(round_data.keys())}\n")
             cleaned_round = {
                 "round": round_data.get("round", int(round_key)),
                 "apple_position": round_data.get("apple_position", [0, 0])
@@ -263,6 +279,14 @@ class HeuristicGameData(BaseGameData):
             # Store game state for dataset generation (separate from Task-0 compatible data)
             if "game_state" in round_data:
                 dataset_game_states[round_key] = round_data["game_state"]
+        
+        # KISS: Fail fast if round 1 is missing from dataset_game_states
+        debug_lines.append(f"[DEBUG][generate_game_summary] Dataset game states keys: {list(dataset_game_states.keys())}\n")
+        # Write to file
+        with open("ssot_debug.log", "w") as f:
+            f.writelines(debug_lines)
+        if 1 not in dataset_game_states and '1' not in dataset_game_states:
+            raise RuntimeError(f"[SSOT] Round 1 missing from dataset_game_states. Available: {list(dataset_game_states.keys())}")
         
         # Game state (single termination point ensures consistency)
         game_over = self.game_over

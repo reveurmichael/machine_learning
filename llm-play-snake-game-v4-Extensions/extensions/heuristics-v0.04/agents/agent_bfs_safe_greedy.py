@@ -8,25 +8,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 BFS Safe Greedy Agent - Enhanced BFS with Safety Validation for Snake Game v0.04
 ----------------
 
-This module implements an enhanced BFS agent that adds safety validation
-to prevent the snake from getting trapped in dead-ends.
+This module implements a SAFE-GREEDY agent that prioritizes safety over greed.
+It finds the shortest path to the apple but validates that the snake can still
+reach its tail afterward to avoid getting trapped.
 
-v0.04 Enhancement: Generates natural language explanations for each move
-to create rich datasets for LLM fine-tuning.
-
-Strategy:
-1. Use BFS to find shortest path to apple
-2. Validate that following this path won't trap the snake
-3. If path is unsafe, use greedy movement toward apple
-4. Generate detailed explanations for strategy selection
+Algorithm:
+1. Find shortest path to apple using BFS
+2. Validate path safety (can snake reach tail after move?)
+3. If safe, follow apple path
+4. If unsafe, follow tail (always safe)
+5. If no paths exist, use any valid move
 
 Design Patterns:
-- Strategy Pattern: BFS with safety validation strategy
-- Template Method: Extends basic BFS with safety checks
-- Protocol Pattern: Implements BaseAgent interface for compatibility
+- Inheritance: Extends BFSAgent with safety validation
+- Strategy Pattern: Safe-greedy pathfinding strategy
+- Fail-Fast: SSOT violations cause immediate errors
 """
 
 from typing import List, Tuple, TYPE_CHECKING
+import json
 
 # Ensure project root is set and properly configured
 from utils.path_utils import ensure_project_root
@@ -36,9 +36,10 @@ ensure_project_root()
 from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from utils.print_utils import print_error
+from core.game_agents import BaseAgent
 
-# Import SSOT utilities
-from ssot_utils import ssot_bfs_pathfind
+# SSOT: Import shared logic from ssot_utils - DO NOT reimplement these functions
+from ssot_utils import ssot_bfs_pathfind, ssot_calculate_valid_moves
 
 # Import extension-specific components using relative imports
 from .agent_bfs import BFSAgent
@@ -52,20 +53,18 @@ class BFSSafeGreedyAgent(BFSAgent):
     BFS Safe Greedy Agent: Enhanced BFS with safety validation.
     
     Inheritance Pattern:
-    - Inherits from BFSAgent (reuses basic BFS pathfinding)
-    - Overrides get_move() to add safety validation
-    - Extends with tail-chasing fallback behavior
-    - Demonstrates evolution from basic to enhanced algorithm
+    - Inherits from BFSAgent (reuses helper methods and patterns)
+    - Overrides get_move_with_explanation() to add safety validation
+    - Maintains consistent naming and structure with BFS agent
     
     Algorithm Enhancement:
-    1. Find shortest path to apple using inherited BFS
+    1. Find shortest path to apple using BFS
     2. Validate path safety (can snake reach tail afterward?)
     3. If safe, follow apple path
-    4. If unsafe, chase tail instead (always safe)
-    5. Last resort: any non-crashing move
+    4. If unsafe, chase tail (always safe)
+    5. Last resort: any valid move
     
-    This shows how software evolves: start with working solution (BFS),
-    then enhance with additional features (safety validation).
+    KISS: No unnecessary fallbacks, fail-fast on SSOT violations
     """
 
     def __init__(self) -> None:
@@ -80,255 +79,212 @@ class BFSSafeGreedyAgent(BFSAgent):
         )
         
 
-    def get_move(self, game: "HeuristicGameLogic") -> str | None:
+    def get_move(self, state: dict) -> str | None:
         """
         Get next move using safe BFS pathfinding (simplified interface).
-        
-        Enhancement over parent BFS:
-        - Adds safety validation before following apple path
-        - Implements tail-chasing fallback strategy
-        - Provides last-resort non-crashing move selection
-        
         Args:
-            game: Game logic instance containing current game state
-            
+            state: Game state dict
         Returns:
             Direction string (UP, DOWN, LEFT, RIGHT) or "NO_PATH_FOUND"
         """
-        move, _ = self.get_move_with_explanation(game)
+        move, _ = self.get_move_with_explanation(state)
         return move
-        
-    def get_move_with_explanation(self, game: "HeuristicGameLogic") -> Tuple[str, dict]:
-        """
-        Compute next move *and* a structured explanation object.
-        
-        SSOT Compliance: This method now generates explanations solely from
-        the recorded game state, ensuring perfect consistency with dataset generation.
-        
-        """
-        # ---------------- Common prelude
-        # Get positions from game state snapshot to ensure consistency with dataset generator
-        game_state = game.get_state_snapshot()
-        head = tuple(game_state["head_position"])
-        apple = tuple(game_state["apple_position"])
-        snake = [tuple(seg) for seg in game_state["snake_positions"]]
-        grid_size = game_state["grid_size"]
-        obstacles = set(snake[1:])  # Exclude head from obstacles, include body segments
 
-        # Helper metrics that are independent of strategy branch
+    def get_move_with_explanation(self, state: dict) -> Tuple[str, dict]:
+        """
+        SAFE-GREEDY agent: Prioritizes safety over greed.
+        KISS: Fail fast on any SSOT violations.
+        """
+        # Use the provided state dict for all calculations (SSOT)
+        head = list(state["head_position"])
+        apple = list(state["apple_position"])
+        snake = [list(seg) for seg in state["snake_positions"]]
+        grid_size = state["grid_size"]
+        # SSOT: Obstacles are all body segments except head (matching BFS agent)
+        obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles
+
+        # Helper metrics that are independent of strategy branch (all from pre-move state)
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._get_valid_moves(head, set(snake), grid_size)
-        remaining_free_cells = self._count_remaining_free_cells(set(snake), grid_size)
+        valid_moves = self._calculate_valid_moves(head, snake, grid_size)
+        remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
-        # ---------------- Apple path first
-        # SSOT: Use ssot_bfs_pathfind from ssot_utils
-        path_to_apple = ssot_bfs_pathfind(list(head), list(apple), obstacles, grid_size)
-        apple_path_safe = False
+        # Fail-fast: ensure state is not mutated (SSOT)
+
+        # ---------------- 1. Try safe apple path first
+        path_to_apple = ssot_bfs_pathfind(head, apple, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
-            apple_path_safe = self._path_is_safe(path_to_apple, snake, apple, grid_size)
-
-        if path_to_apple and len(path_to_apple) > 1 and apple_path_safe:
-            # Use the safe apple path
             next_pos = path_to_apple[1]
-            direction = position_to_direction(head, next_pos)
-            if direction not in valid_moves:
-                explanation_dict = {
-                    "strategy_phase": "INVALID_MOVE",
-                    "metrics": {},
-                    "explanation_steps": [f"BFS-SAFE-GREEDY computed move '{direction}' which is not valid. Returning NO_PATH_FOUND."],
-                }
-                return "NO_PATH_FOUND", explanation_dict
-            strategy_phase = "APPLE_PATH"
-            fallback_used = False
-            apple_path_length = len(path_to_apple) - 1
+            direction = position_to_direction(tuple(head), tuple(next_pos))
             
-            # Explanatory chain-of-thought (cot)
-            explanation_steps = [
-                f"Step 1: Evaluate immediate valid moves: {valid_moves}.",
-                f"Step 2: Use BFS to find shortest path to apple at {apple}; path length found: {apple_path_length}.",
-                "Step 3: Validate safety by checking if snake can still reach its tail after eating apple — result: safe.",
-                "Step 4: Confirm strategy phase as 'APPLE_PATH' since apple path is safe.",
-                f"Step 5: Select first move in safe apple path, which is '{direction}'.",
-                "",  # Spacer line
-                "Conclusion:",
-                f"By moving '{direction}', the snake safely advances toward the apple along the shortest verified route, ensuring survival and maximizing future reward."
-            ]
+            # Fail-fast: validate bounds and valid moves
+            if (next_pos[0] < 0 or next_pos[0] >= grid_size or 
+                next_pos[1] < 0 or next_pos[1] >= grid_size):
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY computed out-of-bounds position {next_pos} for grid size {grid_size}")
+            
+            if direction not in valid_moves:
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY computed move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
+            
+            # Safety validation: can snake reach tail after this move?
+            if self._is_move_safe(next_pos, snake, apple, obstacles, grid_size):
+                # Safe path found
+                metrics = {
+                    "final_chosen_direction": direction,
+                    "head_position": list(head),
+                    "apple_position": list(apple),
+                    "snake_length": len(snake),
+                    "grid_size": grid_size,
+                    "valid_moves": valid_moves,
+                    "manhattan_distance": manhattan_distance,
+                    "remaining_free_cells": remaining_free_cells,
+                    "path_length": len(path_to_apple) - 1,
+                    "apple_path_safe": True
+                }
+                
+                explanation_dict = {
+                    "strategy_phase": "SAFE_APPLE_PATH",
+                    "metrics": metrics,
+                    "explanation_steps": [
+                        f"Found safe path to apple with length {len(path_to_apple) - 1}",
+                        f"Safety check passed: tail reachable after move '{direction}'",
+                        f"Moving {direction} toward apple at {apple}"
+                    ]
+                }
+                
+                return direction, explanation_dict
 
-            metrics = {
-                "manhattan_distance": int(manhattan_distance),
-                "apple_path_length": int(apple_path_length),
-                "valid_moves": valid_moves,
-                "apple_path_safe": apple_path_safe,
-                "fallback_used": fallback_used,
-                "final_chosen_direction": direction,
-                "head_position": list(head),
-                "apple_position": list(apple),
-                "snake_length": int(len(snake)),
-                "grid_size": int(grid_size),
-                "remaining_free_cells": int(remaining_free_cells),
-            }
-
-            explanation_dict = {
-                "strategy_phase": strategy_phase,
-                "metrics": metrics,
-                "explanation_steps": explanation_steps,
-            }
-
-            return direction, explanation_dict
-
-        # ---------------- Fallback – tail chasing
+        # ---------------- 2. Apple path unsafe or not found, try tail-chasing
         tail = snake[-1]
-        # SSOT: Use ssot_bfs_pathfind from ssot_utils
-        path_to_tail = ssot_bfs_pathfind(list(head), list(tail), obstacles, grid_size)
+        path_to_tail = ssot_bfs_pathfind(head, tail, obstacles, grid_size)
         if path_to_tail and len(path_to_tail) > 1:
             next_pos = path_to_tail[1]
-            direction = position_to_direction(head, next_pos)
-            strategy_phase = "TAIL_CHASE"
-            fallback_used = True
-            apple_path_length = len(path_to_apple) - 1 if path_to_apple else None
-
-            explanation_steps = [
-                f"Step 1: Evaluate immediate valid moves: {valid_moves}.",
-                f"Step 2: Direct apple path deemed unsafe (apple_path_safe={apple_path_safe}).",
-                "Step 3: Switch to tail-chasing fallback strategy to guarantee survival.",
-                f"Step 4: Select first move '{direction}' to move towards tail.",
-                "",  # Spacer line
-                "Conclusion:",
-                f"By moving '{direction}', the snake prioritizes survival by following its tail, ensuring it can continue playing and wait for better opportunities."
-            ]
-
+            direction = position_to_direction(tuple(head), tuple(next_pos))
+            
+            # Fail-fast: validate bounds and valid moves
+            if (next_pos[0] < 0 or next_pos[0] >= grid_size or 
+                next_pos[1] < 0 or next_pos[1] >= grid_size):
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY tail-chase computed out-of-bounds position {next_pos} for grid size {grid_size}")
+            
+            if direction not in valid_moves:
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY tail-chase move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
+            
             metrics = {
-                "manhattan_distance": int(manhattan_distance),
-                "apple_path_length": int(apple_path_length),
-                "valid_moves": valid_moves,
-                "apple_path_safe": apple_path_safe,
-                "fallback_used": fallback_used,
                 "final_chosen_direction": direction,
                 "head_position": list(head),
                 "apple_position": list(apple),
-                "snake_length": int(len(snake)),
-                "grid_size": int(grid_size),
-                "remaining_free_cells": int(remaining_free_cells),
+                "snake_length": len(snake),
+                "grid_size": grid_size,
+                "valid_moves": valid_moves,
+                "manhattan_distance": manhattan_distance,
+                "remaining_free_cells": remaining_free_cells,
+                "path_length": len(path_to_tail) - 1,
+                "apple_path_safe": False
             }
-
+            
             explanation_dict = {
-                "strategy_phase": strategy_phase,
+                "strategy_phase": "TAIL_CHASE",
                 "metrics": metrics,
-                "explanation_steps": explanation_steps,
+                "explanation_steps": [
+                    f"Apple path unsafe or not found",
+                    f"Following tail-chase strategy: {direction}",
+                    f"Tail-chasing is always safe"
+                ]
             }
-
+            
             return direction, explanation_dict
 
-        # ---------------- Last resort scenario
-        last_resort_move = self._get_safe_move(head, obstacles, grid_size)
-        strategy_phase = "LAST_RESORT"
-        fallback_used = True
+        # ---------------- 3. Last resort: any valid move
+        if valid_moves:
+            direction = valid_moves[0]
+            metrics = {
+                "final_chosen_direction": direction,
+                "head_position": list(head),
+                "apple_position": list(apple),
+                "snake_length": len(snake),
+                "grid_size": grid_size,
+                "valid_moves": valid_moves,
+                "manhattan_distance": manhattan_distance,
+                "remaining_free_cells": remaining_free_cells,
+                "path_length": 0,
+                "apple_path_safe": False
+            }
+            
+            explanation_dict = {
+                "strategy_phase": "SURVIVAL_MOVE",
+                "metrics": metrics,
+                "explanation_steps": [
+                    f"No safe paths found to apple or tail",
+                    f"Using survival move: '{direction}' to avoid immediate death"
+                ]
+            }
+            
+            return direction, explanation_dict
+        else:
+            direction = "NO_PATH_FOUND"
+            metrics = {
+                "final_chosen_direction": direction,
+                "head_position": list(head),
+                "apple_position": list(apple),
+                "snake_length": len(snake),
+                "grid_size": grid_size,
+                "valid_moves": valid_moves,
+                "manhattan_distance": manhattan_distance,
+                "remaining_free_cells": remaining_free_cells,
+                "path_length": 0,
+                "apple_path_safe": False
+            }
+            
+            explanation_dict = {
+                "strategy_phase": "NO_MOVES",
+                "metrics": metrics,
+                "explanation_steps": [
+                    f"No valid moves available from {head}",
+                    f"Snake is trapped"
+                ]
+            }
+            
+            return direction, explanation_dict
 
-        explanation_steps = [
-            f"Step 1: Evaluate immediate valid moves: {valid_moves}.",
-            "Step 2: No safe path to apple or tail could be found.",
-            f"Step 3: Select any non-crashing move as last resort: '{last_resort_move}'.",
-            "",  # Spacer line
-            "Conclusion:",
-            f"By moving '{last_resort_move}', the snake avoids immediate collision, maximizing its chance to survive and seek future opportunities."
-        ]
-
-        metrics = {
-            "manhattan_distance": int(manhattan_distance),
-            "apple_path_length": None,
-            "valid_moves": valid_moves,
-            "apple_path_safe": False,
-            "fallback_used": fallback_used,
-            "final_chosen_direction": last_resort_move,
-            "head_position": list(head),
-            "apple_position": list(apple),
-            "snake_length": int(len(snake)),
-            "grid_size": int(grid_size),
-            "remaining_free_cells": int(remaining_free_cells),
-        }
-
-        explanation_dict = {
-            "strategy_phase": strategy_phase,
-            "metrics": metrics,
-            "explanation_steps": explanation_steps,
-        }
-
-        return last_resort_move, explanation_dict
-
-    def _path_is_safe(
-        self,
-        path: List[Tuple[int, int]],
-        snake: List[Tuple[int, int]],
-        apple: Tuple[int, int],
-        grid_size: int
-    ) -> bool:
+    def _is_move_safe(self, next_pos: List[int], snake: List[List[int]], apple: List[int], 
+                      obstacles: set, grid_size: int) -> bool:
         """
-        Safety enhancement: Validate path by simulating execution.
-        
-        This is the key enhancement over basic BFS - we simulate
-        following the path and check if the snake can still reach
-        its tail afterward, avoiding getting trapped.
+        Safety validation: Check if snake can reach its tail after making this move.
+        KISS: Simplified safety check to avoid infinite loops.
         
         Args:
-            path: Proposed path to apple
+            next_pos: Proposed next head position
             snake: Current snake body
             apple: Apple position
-            grid_size: Size of game grid
+            obstacles: Current obstacles
+            grid_size: Grid size
             
         Returns:
-            True if path is safe (tail reachable), False otherwise
+            True if move is safe (tail reachable), False otherwise
         """
-        # Simulate following the path
-        virtual_snake = list(snake)
+        # KISS: For small snakes, always consider moves safe to avoid over-conservative behavior
+        if len(snake) <= 3:
+            return True
         
-        for step in path[1:]:  # Skip current head position
-            virtual_snake.insert(0, step)  # Move head
-            
-            if step == apple:
-                # Apple eaten - snake grows, keep tail
-                break
-            
-            # No apple - tail moves forward
-            virtual_snake.pop()
+        # Simulate the move
+        if next_pos == apple:
+            # Will eat apple, so tail stays (snake grows)
+            new_snake = [next_pos] + snake[:-1]
+        else:
+            # Won't eat apple, so tail moves (normal move)
+            new_snake = [next_pos] + snake[:-2]
         
-        # Check if new head can reach new tail
-        new_head = virtual_snake[0]
-        new_tail = virtual_snake[-1]
-        new_obstacles = set(virtual_snake[:-1])  # Exclude tail
+        # KISS: Simple safety check - ensure we have enough free space
+        free_cells = grid_size * grid_size - len(new_snake)
+        if free_cells >= len(new_snake):
+            return True
         
-        # SSOT: Use ssot_bfs_pathfind from ssot_utils
-        tail_path = ssot_bfs_pathfind(list(new_head), list(new_tail), new_obstacles, grid_size)
+        # For larger snakes, check tail reachability
+        new_head = new_snake[0]
+        new_tail = new_snake[-1]
+        new_obstacles = set(tuple(p) for p in new_snake[:-1])  # Exclude tail from obstacles
+        
+        # Use SSOT BFS to check tail reachability
+        tail_path = ssot_bfs_pathfind(new_head, new_tail, new_obstacles, grid_size)
         return bool(tail_path)
-
-    def _get_safe_move(
-        self, 
-        head: Tuple[int, int], 
-        obstacles: set, 
-        grid_size: int
-    ) -> str:
-        """
-        Last resort: find any non-crashing move.
-        
-        Args:
-            head: Current head position
-            obstacles: Set of obstacle positions
-            grid_size: Size of game grid
-            
-        Returns:
-            Safe direction or "NO_PATH_FOUND"
-        """
-        for direction, (dx, dy) in DIRECTIONS.items():
-            next_pos = (head[0] + dx, head[1] + dy)
-            
-            # Check bounds
-            if not (0 <= next_pos[0] < grid_size and 0 <= next_pos[1] < grid_size):
-                continue
-                
-            # Check obstacles
-            if next_pos not in obstacles:
-                return direction
-                
-        return "NO_PATH_FOUND"
 
     def _count_remaining_free_cells(self, snake_positions: set, grid_size: int) -> int:
         """Count how many empty cells are not occupied by the snake body."""

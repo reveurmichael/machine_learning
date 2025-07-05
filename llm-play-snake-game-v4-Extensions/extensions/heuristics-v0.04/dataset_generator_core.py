@@ -107,29 +107,18 @@ class DatasetGenerator:
             no_gui=True
         )
         
-        # Run games in memory
+        # Run games in memory using the proper game manager workflow
         game_manager = HeuristicGameManager(args)
         game_manager.initialize()
         
-        # Open output files
+        # Open output files for dataset generation
         if "csv" in formats:
             self._open_csv()
         if "jsonl" in formats:
             self._open_jsonl()
         
-        # Process games directly
-        for game_id in range(1, max_games + 1):
-            if verbose:
-                print_info(f"[DatasetGenerator] Running game {game_id}/{max_games}")
-            
-            # Run single game
-            game_duration = game_manager._run_single_game()
-            game_manager.game_count += 1
-            game_manager.game.game_state.game_number = game_manager.game_count
-            game_data = game_manager._generate_game_data(game_duration)
-            
-            # Process game data directly
-            self._process_single_game(game_data)
+        # Use the proper game manager run method which handles JSON file saving
+        game_manager.run()
         
         # Close handles
         if self._csv_writer:
@@ -141,6 +130,7 @@ class DatasetGenerator:
             
         if verbose:
             print_success(f"[DatasetGenerator] Dataset generation complete for {self.algorithm}")
+            print_info(f"📁 Game files and summary saved in: {self.output_dir}")
 
     # ---------------- INTERNAL
     def _process_single_game(self, game_data: Dict[str, Any]) -> None:

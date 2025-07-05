@@ -187,6 +187,11 @@ class HeuristicGameManager(BaseGameManager):
     def _setup_dataset_generator(self) -> None:
         """Setup dataset generator for automatic updates."""
         self.dataset_generator = DatasetGenerator(self.algorithm_name, Path(self.log_dir))
+        
+        # Open CSV and JSONL files for writing
+        self.dataset_generator._open_csv()
+        self.dataset_generator._open_jsonl()
+        
         print_info("[HeuristicGameManager] Dataset generator initialized for automatic updates")
 
     def run(self) -> None:
@@ -213,6 +218,16 @@ class HeuristicGameManager(BaseGameManager):
         
         # Save session summary
         self._save_session_summary()
+        
+        # Close dataset generator files
+        if self.dataset_generator:
+            if self.dataset_generator._csv_writer:
+                self.dataset_generator._csv_writer[1].close()
+                print_success("CSV dataset saved")
+            if self.dataset_generator._jsonl_fh:
+                self.dataset_generator._jsonl_fh.close()
+                print_success("JSONL dataset saved")
+        
         print_success("✅ ✅ Heuristics v0.04 session completed!")
         print_info(f"🎮 Games played: {len(self.game_scores)}")
         print_info(f"🏆 Total score: {self.total_score}")

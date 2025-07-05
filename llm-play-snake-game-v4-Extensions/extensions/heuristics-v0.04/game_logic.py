@@ -206,7 +206,7 @@ class HeuristicGameLogic(BaseGameLogic):
         else:
             return "NO_PATH_FOUND"
     
-    def get_next_planned_move_with_state(self, recorded_game_state: dict) -> str:
+    def get_next_planned_move_with_state(self, recorded_game_state: dict, return_explanation: bool = False):
         """
         Get the next planned move using a recorded game state for SSOT compliance.
         This method ensures that the agent generates explanations using the same
@@ -218,11 +218,12 @@ class HeuristicGameLogic(BaseGameLogic):
         
         Args:
             recorded_game_state: The game state that was recorded for this round (PRE-MOVE state)
+            return_explanation: If True, return (move, explanation) tuple
         Returns:
-            Next move direction or "NO_PATH_FOUND"
+            Next move direction or (move, explanation) tuple
         """
         if not self.agent:
-            return "NO_PATH_FOUND"
+            return ("NO_PATH_FOUND", {}) if return_explanation else "NO_PATH_FOUND"
 
         # Use the provided state dict directly for the agent
         # PRE-EXECUTION: Agent receives pre-move state and must make decision based on current positions
@@ -243,6 +244,8 @@ class HeuristicGameLogic(BaseGameLogic):
         self.planned_moves = planned_moves
 
         # Get next move from plan
+        if return_explanation:
+            return move, explanation
         if self.planned_moves:
             return self.planned_moves.pop(0)
         else:

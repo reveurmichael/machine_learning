@@ -80,20 +80,20 @@ class BFSAgent(BaseAgent):
         # PRE-EXECUTION: All state values are from BEFORE the move is executed
         # This includes: head_position, apple_position, snake_positions, score, steps
         # The agent must make decisions based on the current (pre-move) state
-        head = list(state["head_position"])
+        
+        # SSOT: Use centralized utilities for all position and calculation extractions
+        head = self.extract_head_position(state)
         apple = list(state["apple_position"])
         snake = [list(seg) for seg in state["snake_positions"]]
         grid_size = state["grid_size"]
-        # SSOT: Obstacles are all body segments except head (matching dataset generator)
-        obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles, include body segments
+        
+        # SSOT: Use centralized body positions calculation
+        body_positions = self.extract_body_positions(state)
+        obstacles = set(tuple(p) for p in body_positions)  # Use body_positions directly
 
-        # Helper metrics that are independent of strategy branch (all from pre-move state)
-        # PRE-EXECUTION: All these calculations use pre-move positions
-        # manhattan_distance: distance from current head to current apple
-        # valid_moves: available moves from current head position
-        # remaining_free_cells: free cells based on current snake positions
-        manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._calculate_valid_moves(state)
+        # SSOT: Use centralized calculations for all metrics
+        manhattan_distance = self.calculate_manhattan_distance(state)
+        valid_moves = self.calculate_valid_moves_ssot(state)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
         # Fail-fast: ensure state is not mutated (SSOT)
@@ -188,19 +188,18 @@ class BFSAgent(BaseAgent):
         - manhattan_distance: distance from current head to current apple
         - remaining_free_cells: free cells based on current snake positions
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
-        snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
-        apple_pos = game_state.get('apple_position', [0, 0])
+        # SSOT: Use centralized utilities for all position extractions
+        head_pos = self.extract_head_position(game_state)
+        apple_pos = list(game_state.get('apple_position', [0, 0]))
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        # SSOT: Use centralized body positions calculation
+        body_positions = self.extract_body_positions(game_state)
         
         # PRE-EXECUTION: All calculations use pre-move state values
         path_length = len(path) - 1  # Exclude starting position
-        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in snake_positions))
-        snake_length = len(snake_positions)
+        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in body_positions))
+        snake_length = len(game_state.get('snake_positions', []))
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)
@@ -674,3 +673,76 @@ class BFSAgent(BaseAgent):
                 break
         
         return count 
+
+    # ----------------
+    # SSOT Centralized Utilities (v0.04 SSOT compliance)
+    # ----------------
+    
+    @staticmethod
+    def extract_head_position(game_state: dict) -> List[int]:
+        """
+        SSOT: Extract head position from game state.
+        Single source of truth for head position extraction.
+        
+        Args:
+            game_state: Complete game state dict
+        Returns:
+            Head position as [x, y]
+        """
+        head_pos = game_state.get('head_position', [0, 0])
+        if not isinstance(head_pos, (list, tuple)) or len(head_pos) != 2:
+            return [0, 0]
+        return list(head_pos)
+    
+    @staticmethod
+    def extract_body_positions(game_state: dict) -> List[List[int]]:
+        """
+        SSOT: Extract body positions from game state.
+        Single source of truth for body positions calculation.
+        
+        Args:
+            game_state: Complete game state dict
+        Returns:
+            Body positions as list of [x, y] coordinates (excluding head)
+        """
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        return body_positions
+    
+    @staticmethod
+    def calculate_manhattan_distance(game_state: dict) -> int:
+        """
+        SSOT: Calculate Manhattan distance from head to apple.
+        Single source of truth for distance calculation.
+        
+        Args:
+            game_state: Complete game state dict
+        Returns:
+            Manhattan distance as integer
+        """
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        
+        if not isinstance(head_pos, (list, tuple)) or len(head_pos) != 2:
+            return 0
+        if not isinstance(apple_pos, (list, tuple)) or len(apple_pos) != 2:
+            return 0
+            
+        return abs(head_pos[0] - apple_pos[0]) + abs(head_pos[1] - apple_pos[1])
+    
+    @staticmethod
+    def calculate_valid_moves_ssot(game_state: dict) -> List[str]:
+        """
+        SSOT: Calculate valid moves using centralized logic.
+        Single source of truth for valid moves calculation.
+        
+        Args:
+            game_state: Complete game state dict
+        Returns:
+            List of valid moves (UP, DOWN, LEFT, RIGHT)
+        """
+        # Use the existing _calculate_valid_moves method for SSOT compliance
+        return BFSAgent._calculate_valid_moves(game_state) 

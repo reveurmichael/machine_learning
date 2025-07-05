@@ -96,20 +96,20 @@ class BFSSafeGreedyAgent(BFSAgent):
         """
         # Use the provided state dict for all calculations (SSOT)
         # PRE-EXECUTION: All state values are from BEFORE the move is executed
-        head = list(state["head_position"])
+        
+        # SSOT: Use centralized utilities from parent BFSAgent for all position and calculation extractions
+        head = self.extract_head_position(state)
         apple = list(state["apple_position"])
         snake = [list(seg) for seg in state["snake_positions"]]
         grid_size = state["grid_size"]
-        # SSOT: Obstacles are all body segments except head (matching BFS agent)
-        obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles
+        
+        # SSOT: Use centralized body positions calculation from parent
+        body_positions = self.extract_body_positions(state)
+        obstacles = set(tuple(p) for p in body_positions)  # Use body_positions directly
 
-        # Helper metrics that are independent of strategy branch (all from pre-move state)
-        # PRE-EXECUTION: All these calculations use pre-move positions
-        # manhattan_distance: distance from current head to current apple
-        # valid_moves: available moves from current head position
-        # remaining_free_cells: free cells based on current snake positions
-        manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._calculate_valid_moves(state)
+        # SSOT: Use centralized calculations for all metrics from parent
+        manhattan_distance = self.calculate_manhattan_distance(state)
+        valid_moves = self.calculate_valid_moves_ssot(state)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
         # Fail-fast: ensure state is not mutated (SSOT)
@@ -304,21 +304,20 @@ class BFSSafeGreedyAgent(BFSAgent):
         The explanation describes the decision based on pre-move state and
         explains why the chosen path is safe.
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
-        snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
-        apple_pos = game_state.get('apple_position', [0, 0])
+        # SSOT: Use centralized utilities from parent BFSAgent for all position extractions
+        head_pos = self.extract_head_position(game_state)
+        apple_pos = list(game_state.get('apple_position', [0, 0]))
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        # SSOT: Use centralized body positions calculation from parent
+        body_positions = self.extract_body_positions(game_state)
         
         # PRE-EXECUTION: All calculations use pre-move state values
         # Ensure path starts from pre-move head (type-consistent)
         assert tuple(path[0]) == tuple(head_pos), f"SSOT violation: path[0] ({path[0]}) != head_pos ({head_pos})"
         # Fail-fast: explanation must match pre-move head
         path_length = len(path) - 1
-        snake_length = len(snake_positions)
+        snake_length = len(game_state.get('snake_positions', []))
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)

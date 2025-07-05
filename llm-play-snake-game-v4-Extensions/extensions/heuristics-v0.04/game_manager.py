@@ -57,6 +57,9 @@ from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
 # Import dataset generation utilities for automatic updates
 from dataset_generator_core import DatasetGenerator
 
+# Import BFSAgent for SSOT utilities
+from agents.agent_bfs import BFSAgent
+
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -310,14 +313,18 @@ class HeuristicGameManager(BaseGameManager):
             if not hasattr(self.game, 'get_next_planned_move_with_state'):
                 raise RuntimeError("[SSOT] Game logic missing get_next_planned_move_with_state method - required for SSOT compliance")
             agent_state = copy.deepcopy(pre_move_state)
-            move = self.game.get_next_planned_move_with_state(agent_state)
-            # Fail-fast: ensure agent_state and pre_move_state are identical
-            import json as _json
-            if _json.dumps(agent_state, sort_keys=True) != _json.dumps(pre_move_state, sort_keys=True):
-                print_error("[FAIL-FAST][SSOT] pre_move_state and agent_state differ!")
-                print_error(f"pre_move_state: {_json.dumps(pre_move_state, indent=2, sort_keys=True)}")
-                print_error(f"agent_state: {_json.dumps(agent_state, indent=2, sort_keys=True)}")
-                raise RuntimeError("SSOT violation: pre_move_state and agent_state are not identical!")
+            # --- PATCH: Get move and explanation together ---
+            move, explanation = self.game.get_next_planned_move_with_state(agent_state, return_explanation=True)
+            # --- SSOT FAIL-FAST: Explanation head must match pre-move state ---
+            explanation_head = explanation.get('metrics', {}).get('head_position') if isinstance(explanation, dict) else None
+            if explanation_head != pre_move_state['head_position']:
+                import json as _json
+                raise RuntimeError(f"[SSOT] FAIL-FAST: Explanation head {explanation_head} != pre-move head {pre_move_state['head_position']}\nPre-move state: {_json.dumps(pre_move_state)}\nExplanation: {_json.dumps(explanation)}")
+            # Store pre-move state in round data (explanation comes from agent via game_data)
+            if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
+                round_num = self.game.game_state.round_manager.round_buffer.number
+                round_data = self.game.game_state.round_manager._get_or_create_round_data(round_num)
+                round_data['game_state'] = copy.deepcopy(pre_move_state)
 
             # --- FAIL-FAST SSOT VALIDATION ---
             # PRE-EXECUTION: Validate move against pre-move state
@@ -326,11 +333,8 @@ class HeuristicGameManager(BaseGameManager):
             snake_positions = pre_move_state["snake_positions"]
             grid_size = pre_move_state["grid_size"]
             
-            # Calculate valid moves from the exact same state used by the agent
-            # PRE-EXECUTION: valid_moves calculated from pre-move head and snake positions
-            # Use agent's method for SSOT compliance
-            from agents.agent_bfs import BFSAgent
-            valid_moves = BFSAgent._calculate_valid_moves(pre_move_state)
+            # SSOT: Use centralized valid moves calculation from BFSAgent
+            valid_moves = BFSAgent.calculate_valid_moves_ssot(pre_move_state)
             
             if move == "NO_PATH_FOUND":
                 if valid_moves:
@@ -362,7 +366,7 @@ class HeuristicGameManager(BaseGameManager):
             post_head = post_move_state["head_position"]
             post_snake_positions = post_move_state["snake_positions"]
             post_grid_size = post_move_state["grid_size"]
-            post_valid_moves = BFSAgent._calculate_valid_moves(post_move_state)
+            post_valid_moves = BFSAgent.calculate_valid_moves_ssot(post_move_state)
             if not post_valid_moves:
                 print_error("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
@@ -457,7 +461,6 @@ class HeuristicGameManager(BaseGameManager):
         # game_count is incremented before this method is called, so it's already correct
         game_file = os.path.join(self.log_dir, f"game_{self.game_count}.json")
         with open(game_file, 'w') as f:
-            from agents.agent_bfs import BFSAgent
             json.dump(BFSAgent.to_serializable(game_data), f, indent=2)
 
     def _display_game_results(self, game_duration: float) -> None:

@@ -181,6 +181,7 @@ class DatasetGenerator:
                 round_key = key_converter(i)  # Move i uses appropriate key type
                 game_state = dataset_game_states[round_key]
                 move = moves_history[i]
+                # --- SSOT: Get explanation ONLY from agent (not from round_data) ---
                 explanation = explanations[i] if i < len(explanations) else {}
                 metrics = metrics_list[i] if i < len(metrics_list) else {}
 
@@ -188,7 +189,11 @@ class DatasetGenerator:
                 pre_move_head = game_state.get('head_position', [0, 0])
                 if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
                     raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_key}: {pre_move_head}")
-
+                # --- SSOT FAIL-FAST: Explanation head must match prompt head ---
+                explanation_head = explanation.get('metrics', {}).get('head_position') if isinstance(explanation, dict) else None
+                if explanation_head != pre_move_head:
+                    import json as _json
+                    raise RuntimeError(f"[SSOT] FAIL-FAST: JSONL explanation head {explanation_head} != prompt head {pre_move_head}\nPrompt state: {_json.dumps(game_state)}\nExplanation: {_json.dumps(explanation)}")
                 record = {
                     "game_state": game_state,
                     "move": move,
@@ -369,15 +374,13 @@ class DatasetGenerator:
         steps = game_state.get('steps', 0)
         algorithm = game_state.get('algorithm', self.algorithm) 
         
-        # PRE-EXECUTION: Extract head position from game state
-        # The game state has a separate head_position field for clarity
-        head_pos = game_state.get('head_position', [0, 0])
+        # SSOT: Use centralized utilities from BFSAgent for position extractions
+        head_pos = BFSAgent.extract_head_position(game_state)
         if not snake_positions:
             return "Invalid game state: Snake has no positions."
 
-        # PRE-EXECUTION: Body positions are all snake positions except head
-        # This ensures consistency with the agent's obstacle calculation
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1] # use the reverse order of the body positions, so that the head and the first element of the body_positions are adjacent.
+        # SSOT: Use centralized body positions calculation from BFSAgent
+        body_positions = BFSAgent.extract_body_positions(game_state)
 
         # Board representation using centralized utility
         from utils.board_utils import create_text_board
@@ -417,7 +420,7 @@ Choose from: UP, DOWN, LEFT, RIGHT
 
 Move:"""
 
-        return prompt 
+        return prompt
 
     def _format_completion(self, move: str, explanation: str, metrics: dict) -> str:
         """

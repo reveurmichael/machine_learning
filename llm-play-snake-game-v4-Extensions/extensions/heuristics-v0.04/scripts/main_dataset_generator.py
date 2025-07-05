@@ -52,9 +52,6 @@ Examples:
     
     # Generate both CSV and JSONL for all algorithms
     python main_dataset_generator.py --all-algorithms --format both --max-games 50
-    
-    # Generate CSV dataset with specific grid size
-    python main_dataset_generator.py --algorithm ASTAR --format csv --grid-size 12
         """
     )
     
@@ -122,7 +119,7 @@ def find_available_algorithms() -> List[str]:
     """Find available heuristic algorithms."""
     # This is a simplified implementation
     # In a real scenario, this would scan existing algorithms or import them dynamically
-    return ["BFS", "ASTAR", "DFS", "HAMILTONIAN", "BFS-SAFE-GREEDY", "ASTAR-HAMILTONIAN", "BFS-HAMILTONIAN"]
+    return ["BFS",  "BFS-SAFE-GREEDY"]
 
 
 def main() -> None:

@@ -363,13 +363,22 @@ class HeuristicGameData(BaseGameData):
     def record_move(self, move: str, apple_eaten: bool = False) -> None:
         """Record a move and update relevant statistics for heuristics.
         
+        POST-EXECUTION: This method is called AFTER the move has been executed.
+        The move parameter is the direction that was just executed, and apple_eaten
+        indicates whether the snake ate an apple during this move.
+        
         This method ensures step_stats are correctly updated for heuristic algorithms.
         The base class doesn't update step_stats, so we need to do it here.
+        
+        Args:
+            move: The move direction that was just executed (POST-MOVE)
+            apple_eaten: Whether an apple was eaten during this move (POST-MOVE)
         """
         # Call base class method which handles basic move recording
         super().record_move(move, apple_eaten)
         
         # Update step statistics based on move type
+        # POST-EXECUTION: These stats reflect the move that was just executed
         if move == "INVALID_REVERSAL":
             self.stats.step_stats.invalid_reversals += 1
         elif move == "NO_PATH_FOUND":
@@ -381,8 +390,11 @@ class HeuristicGameData(BaseGameData):
     def record_game_end(self, reason: str) -> None:
         """Record the end of a game with proper heuristic timing.
         
+        POST-EXECUTION: This method is called when the game ends, after all moves
+        have been executed. The reason parameter indicates why the game ended.
+        
         Args:
-            reason: The reason the game ended (from END_REASON_MAP)
+            reason: The reason the game ended (from END_REASON_MAP) (POST-GAME)
         """
         if not self.game_over:
             self.stats.time_stats.record_end_time()

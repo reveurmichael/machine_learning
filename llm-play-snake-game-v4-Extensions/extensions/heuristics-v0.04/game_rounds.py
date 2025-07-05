@@ -20,7 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
-from typing import Dict, Any, Optional
 from core.game_rounds import RoundManager
 
 
@@ -55,6 +54,12 @@ class HeuristicRoundManager(RoundManager):
         """
         Synchronize the in-progress round buffer with the persistent mapping.
         
+        PRE-EXECUTION: This method is called before a move is executed to record
+        the current game state and planned moves. The round buffer contains:
+        - game_state: the current game state before the move (PRE-MOVE)
+        - planned_moves: the moves that will be executed (PRE-EXECUTION)
+        - apple_position: the current apple position (PRE-MOVE)
+        
         Override the base method to ensure one move per round for heuristics.
         Instead of extending the moves list, we replace it to maintain
         the one-move-per-round principle.
@@ -65,13 +70,14 @@ class HeuristicRoundManager(RoundManager):
         current_round_dict = self._get_or_create_round_data(self.round_buffer.number)
         current_round_dict.update({
             "round": self.round_buffer.number,
-            "apple_position": self.round_buffer.apple_position,
+            "apple_position": self.round_buffer.apple_position,  # PRE-MOVE: current apple position
         })
-        current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)
+        current_round_dict["planned_moves"] = list(self.round_buffer.planned_moves)  # PRE-EXECUTION: moves that will be executed
         
         # For heuristics: replace moves instead of extending (one move per round)
+        # POST-EXECUTION: These moves have been executed and are recorded here
         if self.round_buffer.moves:
-            current_round_dict["moves"] = list(self.round_buffer.moves)
+            current_round_dict["moves"] = list(self.round_buffer.moves)  # POST-MOVE: moves that were executed
             self.round_buffer.moves.clear()
         
         # Fail fast if round 1 is missing after sync

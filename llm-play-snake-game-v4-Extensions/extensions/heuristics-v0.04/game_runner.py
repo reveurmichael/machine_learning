@@ -20,7 +20,7 @@ import json
 from typing import List, Dict, Any
 from utils.print_utils import print_info, print_warning, print_error, print_success
 import os
-from jsonl_utils import read_jsonl_file
+# JSONL file reading moved to dataset generator or agent classes
 
 __all__ = ["run_heuristic_games", "load_game_logs"]
 

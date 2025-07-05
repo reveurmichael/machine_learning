@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 import argparse
 from utils.path_utils import ensure_project_root
-from utils.print_utils import print_error, print_info, print_warning, print_success
+from utils.print_utils import print_info, print_success
 
 # Import the extension components using relative imports (extension-specific)
 # Add parent directory to sys.path to enable relative imports

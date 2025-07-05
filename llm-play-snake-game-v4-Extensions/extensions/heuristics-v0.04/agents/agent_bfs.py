@@ -22,7 +22,7 @@ Design Patterns:
 """
 
 from collections import deque
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING, Any, Dict
 import json
 
 # Ensure project root is set and properly configured
@@ -30,15 +30,13 @@ from utils.path_utils import ensure_project_root
 ensure_project_root()
 
 # Import from project root using absolute imports
-from config.game_constants import DIRECTIONS, VALID_MOVES
+from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
-from utils.print_utils import print_error
 from core.game_agents import BaseAgent
-# SSOT: Import shared logic from ssot_utils - DO NOT reimplement these functions
-from ssot_utils import ssot_bfs_pathfind, ssot_calculate_valid_moves
+# BFS pathfinding and valid moves calculation implemented directly in the agent
 
 if TYPE_CHECKING:
-    from game_logic import HeuristicGameLogic
+    pass
 
 
 class BFSAgent(BaseAgent):
@@ -80,6 +78,9 @@ class BFSAgent(BaseAgent):
 
     def get_move_with_explanation(self, state: dict) -> Tuple[str, dict]:
         # Use the provided state dict for all calculations (SSOT)
+        # PRE-EXECUTION: All state values are from BEFORE the move is executed
+        # This includes: head_position, apple_position, snake_positions, score, steps
+        # The agent must make decisions based on the current (pre-move) state
         head = list(state["head_position"])
         apple = list(state["apple_position"])
         snake = [list(seg) for seg in state["snake_positions"]]
@@ -88,6 +89,10 @@ class BFSAgent(BaseAgent):
         obstacles = set(tuple(p) for p in snake[:-1])  # Exclude head from obstacles, include body segments
 
         # Helper metrics that are independent of strategy branch (all from pre-move state)
+        # PRE-EXECUTION: All these calculations use pre-move positions
+        # manhattan_distance: distance from current head to current apple
+        # valid_moves: available moves from current head position
+        # remaining_free_cells: free cells based on current snake positions
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
         valid_moves = self._calculate_valid_moves(head, snake, grid_size)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
@@ -95,7 +100,9 @@ class BFSAgent(BaseAgent):
         # Fail-fast: ensure state is not mutated (SSOT)
 
         # ---------------- Apple path first
-        path_to_apple = ssot_bfs_pathfind(head, apple, obstacles, grid_size)
+        # PRE-EXECUTION: Pathfinding from current head to current apple
+        # This determines the optimal path from the current position
+        path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
             next_pos = path_to_apple[1]
             
@@ -110,6 +117,15 @@ class BFSAgent(BaseAgent):
                 raise RuntimeError(f"SSOT violation: BFS computed move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
             
             # Create metrics directly from pre-move state only
+            # PRE-EXECUTION: All metrics are calculated from pre-move state
+            # This ensures consistency with the prompt and dataset generation
+            # head_position: current head position (before move)
+            # apple_position: current apple position (before move)
+            # snake_length: current snake length (before move)
+            # valid_moves: available moves from current head
+            # manhattan_distance: distance from current head to current apple
+            # remaining_free_cells: free cells based on current snake positions
+            # path_length: length of path from current head to current apple
             metrics = {
                 "final_chosen_direction": direction,
                 "head_position": list(head),
@@ -124,6 +140,7 @@ class BFSAgent(BaseAgent):
             }
             
             # Get explanation text from helper (but not metrics)
+            # PRE-EXECUTION: Explanation describes the decision based on pre-move state
             explanation_dict = self._generate_move_explanation(
                 tuple(head), tuple(apple), set(tuple(p) for p in snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
             )
@@ -134,6 +151,7 @@ class BFSAgent(BaseAgent):
             if valid_moves:
                 direction = valid_moves[0]
                 # Create metrics directly from pre-move state only
+                # PRE-EXECUTION: All metrics from pre-move state for survival move
                 metrics = {
                     "final_chosen_direction": direction,
                     "head_position": list(head),
@@ -159,6 +177,7 @@ class BFSAgent(BaseAgent):
             else:
                 direction = "NO_PATH_FOUND"
                 # Create metrics directly from pre-move state only
+                # PRE-EXECUTION: All metrics from pre-move state for no path scenario
                 metrics = {
                     "final_chosen_direction": direction,
                     "head_position": list(head),
@@ -173,6 +192,7 @@ class BFSAgent(BaseAgent):
                 }
                 
                 # Get explanation text from helper (but not metrics)
+                # PRE-EXECUTION: Explanation describes the no-path scenario from pre-move state
                 explanation_dict = self._generate_no_path_explanation(tuple(head), tuple(apple), set(tuple(p) for p in snake), grid_size)
                 explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics
                 
@@ -188,90 +208,105 @@ class BFSAgent(BaseAgent):
                                  ) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
-        
         SSOT Compliance: All coordinates and positions are taken directly from
         the recorded game state, ensuring perfect consistency with dataset generation.
+        
+        PRE-EXECUTION: All parameters are from the pre-move state:
+        - head_pos: current head position (before move)
+        - apple_pos: current apple position (before move) 
+        - snake_positions: current snake body positions (before move)
+        - path: optimal path from current head to current apple
+        - direction: chosen move direction
+        - valid_moves: available moves from current head position
+        - manhattan_distance: distance from current head to current apple
+        - remaining_free_cells: free cells based on current snake positions
+        - grid_size: current grid size
         """
+        # PRE-EXECUTION: All calculations use pre-move state values
         path_length = len(path) - 1  # Exclude starting position
         obstacles_avoided = self._count_obstacles_in_path(path, snake_positions)
         snake_length = len(snake_positions)
-        
-        # Analyze path efficiency
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)
-        
-        # Analyze board state
         board_fill_ratio = snake_length / (grid_size * grid_size)
         space_pressure = "low" if board_fill_ratio < 0.3 else "medium" if board_fill_ratio < 0.6 else "high"
         
-        # Analyze move safety
+        # PRE-EXECUTION: Calculate next position based on current head and chosen direction
+        # This is the position the snake will move to, but we're still in pre-move state
         next_pos = (head_pos[0] + (1 if direction == "RIGHT" else -1 if direction == "LEFT" else 0),
                    head_pos[1] + (1 if direction == "UP" else -1 if direction == "DOWN" else 0))
         
-        # Detailed step-by-step explanation
+        # PRE-EXECUTION: Format path coordinates for explanation
+        path_str = ' → '.join([f'({p[0]}, {p[1]})' for p in path])
+        efficiency_str = f"{efficiency_ratio:.2f} ({path_length}/{manhattan_distance})"
+        
+        # PRE-EXECUTION: All explanation text describes the current situation and decision
+        # based on pre-move state values
         explanation_parts = [
             "=== BFS PATHFINDING ANALYSIS ===",
             "",
             "PHASE 1: INITIAL SITUATION ASSESSMENT",
-            f"• Current head position: {head_pos}",
-            f"• Target apple position: {apple_pos}",
-            f"• Snake length: {snake_length} segments",
+            f"• Current head position: {head_pos}",  # PRE-MOVE: current head position
+            f"• Target apple position: {apple_pos}",  # PRE-MOVE: current apple position
+            f"• Snake body positions: {[p for p in snake_positions if p != head_pos]}",  # PRE-MOVE: current body positions
+            f"• Snake length: {snake_length} segments",  # PRE-MOVE: current snake length
             f"• Grid dimensions: {grid_size}×{grid_size} ({grid_size * grid_size} total cells)",
-            f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",
-            f"• Free cells remaining: {remaining_free_cells}",
+            f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",  # PRE-MOVE: current occupation
+            f"• Free cells remaining: {remaining_free_cells}",  # PRE-MOVE: current free cells
             "",
             "PHASE 2: MOVE VALIDATION",
-            f"• Available valid moves: {valid_moves} ({len(valid_moves)} options)",
-                         f"• Rejected moves: {list(set(['UP', 'DOWN', 'LEFT', 'RIGHT']) - set(valid_moves))}",
+            f"• Available valid moves: {valid_moves} ({len(valid_moves)} options)",  # PRE-MOVE: valid moves from current head
+            f"• Rejected moves: {list(set(['UP', 'DOWN', 'LEFT', 'RIGHT']) - set(valid_moves))}",
             "• Validation criteria: no wall collisions, no body collisions, within grid bounds",
             "",
             "PHASE 3: BFS PATHFINDING EXECUTION",
-            f"• Algorithm: Breadth-First Search from {head_pos} to {apple_pos}",
+            f"• Algorithm: Breadth-First Search from {head_pos} to {apple_pos}",  # PRE-MOVE: current positions
             f"• Search space: {grid_size * grid_size - snake_length} accessible cells",
-            f"• Obstacles to navigate: {snake_length - 1} body segments",
-            f"• Manhattan distance baseline: {manhattan_distance} steps (theoretical minimum)",
+            f"• Obstacles to navigate: {snake_length - 1} body segments",  # PRE-MOVE: current obstacles
+            f"• Manhattan distance baseline: {manhattan_distance} steps (theoretical minimum)",  # PRE-MOVE: current distance
             "",
             "PHASE 4: PATH ANALYSIS RESULTS",
-            f"• Shortest path found: {path_length} steps",
-            f"• Path efficiency: {efficiency_ratio:.2f} ({path_length}/{manhattan_distance})",
-                         f"• Path optimality: {'OPTIMAL - no detours required' if is_optimal else 'SUB-OPTIMAL - includes ' + str(detour_steps) + ' detour step(s) to avoid obstacles'}",
-            f"• Obstacles near path: {obstacles_avoided} body segments in adjacent cells",
-                         f"• Path coordinates: {' → '.join([str(list(p)) for p in path[:min(5, len(path))]])}{'...' if len(path) > 5 else ''}",
+            f"• Shortest path found: {path_length} steps",  # PRE-MOVE: path from current position
+            f"• Path efficiency: {efficiency_str}",
+            f"• Path optimality: {'OPTIMAL - no detours required' if is_optimal else 'SUB-OPTIMAL - includes ' + str(detour_steps) + ' detour step(s) to avoid obstacles'}",
+            f"• Obstacles near path: {obstacles_avoided} body segments in adjacent cells",  # PRE-MOVE: obstacles near current path
+            f"• Path coordinates: {path_str}",  # PRE-MOVE: path from current position
             "",
             "PHASE 5: MOVE SELECTION LOGIC",
             f"• Chosen direction: {direction}",
-            f"• Next position: {next_pos}",
-            f"• Rationale: First step of shortest path to apple",
-            f"• Risk assessment: LOW (validated safe move on optimal path)",
-            f"• Expected outcome: Advance {1} step closer to apple along shortest route",
+            f"• Next position: {next_pos}",  # PRE-MOVE: calculated next position
+            "• Rationale: First step of shortest path to apple",
+            "• Risk assessment: LOW (validated safe move on optimal path)",
+            "• Expected outcome: Advance 1 step closer to apple along shortest route",
             "",
             "PHASE 6: STRATEGIC IMPLICATIONS",
-            f"• Immediate benefit: Reduces distance to apple from {manhattan_distance} to {manhattan_distance - 1 if direction in valid_moves else manhattan_distance}",
-            f"• Future positioning: Maintains optimal trajectory toward apple",
-            f"• Space management: Preserves {remaining_free_cells - 1} free cells for maneuvering",
-            f"• Risk mitigation: BFS guarantees shortest path, minimizing exposure time",
+            f"• Immediate benefit: Reduces distance to apple from {manhattan_distance} to {manhattan_distance - 1}",  # PRE-MOVE: current distance reduction
+            "• Future positioning: Maintains optimal trajectory toward apple",
+            f"• Space management: Preserves {remaining_free_cells - 1} free cells for maneuvering",  # PRE-MOVE: current space management
+            "• Risk mitigation: BFS guarantees shortest path, minimizing exposure time",
             "",
             "=== DECISION SUMMARY ===",
-            f"Moving {direction} is the optimal choice because it follows the shortest BFS-computed path to the apple at {apple_pos}. " +
-            f"This move advances the snake from {head_pos} to {next_pos}, maintaining perfect trajectory efficiency " +
+            f"Moving {direction} is the optimal choice because it follows the shortest BFS-computed path to the apple at {apple_pos}. " +  # PRE-MOVE: current apple position
+            f"This move advances the snake from {head_pos} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
             f"{'with no detours required' if is_optimal else f'despite {detour_steps} necessary detour(s) to avoid obstacles'}. " +
-            f"The decision is safe (validated against {len(valid_moves)} valid options), efficient " +
-            f"({efficiency_ratio:.2f} path efficiency), and strategically sound given current board pressure ({space_pressure})."
+            f"The decision is safe (validated against {len(valid_moves)} valid options), efficient " +  # PRE-MOVE: current valid moves
+            f"({efficiency_ratio:.2f} path efficiency), and strategically sound given current board pressure ({space_pressure})."  # PRE-MOVE: current board pressure
         ]
 
+        # PRE-EXECUTION: All metrics in explanation are from pre-move state
         explanation_dict = {
             "strategy_phase": "APPLE_PATH",
             "metrics": {
-                "manhattan_distance": int(manhattan_distance),
-                "path_length": int(path_length),
-                "obstacles_near_path": int(obstacles_avoided),
-                "remaining_free_cells": int(remaining_free_cells),
-                "valid_moves": valid_moves,
+                "manhattan_distance": int(manhattan_distance),  # PRE-MOVE: current distance
+                "path_length": int(path_length),  # PRE-MOVE: current path length
+                "obstacles_near_path": int(obstacles_avoided),  # PRE-MOVE: current obstacles
+                "remaining_free_cells": int(remaining_free_cells),  # PRE-MOVE: current free cells
+                "valid_moves": valid_moves,  # PRE-MOVE: current valid moves
                 "final_chosen_direction": direction,
-                "head_position": list(head_pos),
-                "apple_position": list(apple_pos),
-                "snake_length": int(snake_length),
+                "head_position": list(head_pos),  # PRE-MOVE: current head position
+                "apple_position": list(apple_pos),  # PRE-MOVE: current apple position
+                "snake_length": int(snake_length),  # PRE-MOVE: current snake length
                 "grid_size": int(grid_size),
             },
             "explanation_steps": explanation_parts,
@@ -305,9 +340,9 @@ class BFSAgent(BaseAgent):
             "",
             "PHASE 1: PATHFINDING ATTEMPT RESULTS",
             f"• Algorithm: Breadth-First Search from {head_pos} to {apple_pos}",
-            f"• Search outcome: NO PATH FOUND",
+            "• Search outcome: NO PATH FOUND",
             f"• Manhattan distance: {manhattan_distance} steps (theoretical minimum)",
-            f"• Actual path length: UNREACHABLE",
+            "• Actual path length: UNREACHABLE",
             "",
             "PHASE 2: OBSTACLE ANALYSIS",
             f"• Snake body segments: {body_count} total",
@@ -349,15 +384,15 @@ class BFSAgent(BaseAgent):
         explanation_parts.extend([
             "",
             "PHASE 5: STRATEGIC IMPLICATIONS",
-            f"• Immediate action: Cannot pursue apple directly",
-            f"• Alternative strategies: Tail-chasing, space preservation, defensive positioning",
-            f"• Risk assessment: HIGH (no progress toward apple possible)",
-            f"• Expected outcome: Must adopt survival/waiting strategy",
+            "• Immediate action: Cannot pursue apple directly",
+            "• Alternative strategies: Tail-chasing, space preservation, defensive positioning",
+            "• Risk assessment: HIGH (no progress toward apple possible)",
+            "• Expected outcome: Must adopt survival/waiting strategy",
             "",
             "=== CONCLUSION ===",
             f"BFS pathfinding from {head_pos} to apple at {apple_pos} has failed due to complete path blockage. " +
             f"With {blocked_neighbors}/{len(apple_neighbors)} apple-adjacent cells blocked and {board_fill_ratio:.1%} board occupation, " +
-            f"the snake must adopt alternative strategies until body repositioning creates new path opportunities. " +
+            "the snake must adopt alternative strategies until body repositioning creates new path opportunities. " +
             f"The {manhattan_distance}-step Manhattan distance remains theoretical until obstacles clear."
         ])
 
@@ -442,10 +477,66 @@ class BFSAgent(BaseAgent):
         return f"BFSAgent(algorithm={self.algorithm_name})"
 
     @staticmethod
+    def _bfs_pathfind(start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
+        """
+        BFS pathfinding from start to goal, avoiding obstacles.
+        
+        Args:
+            start: Starting position [x, y]
+            goal: Goal position [x, y]
+            obstacles: Set of obstacle positions as tuples (x, y)
+            grid_size: Size of the game grid
+            
+        Returns:
+            List of positions forming the path from start to goal, or None if no path exists
+        """
+        if start == goal:
+            return [start]
+        
+        # Convert to tuples for set operations
+        start_tuple = tuple(start)
+        goal_tuple = tuple(goal)
+        
+        if start_tuple in obstacles or goal_tuple in obstacles:
+            return None
+        
+        # BFS queue: (position, path)
+        queue = deque([(start_tuple, [start])])
+        visited = {start_tuple}
+        
+        # Direction vectors for BFS
+        directions = [(0, 1), (0, -1), (-1, 0), (1, 0)]  # UP, DOWN, LEFT, RIGHT
+        
+        while queue:
+            current_pos, path = queue.popleft()
+            
+            for dx, dy in directions:
+                next_x = current_pos[0] + dx
+                next_y = current_pos[1] + dy
+                next_pos = (next_x, next_y)
+                
+                # Check bounds
+                if not (0 <= next_x < grid_size and 0 <= next_y < grid_size):
+                    continue
+                
+                # Check if visited or obstacle
+                if next_pos in visited or next_pos in obstacles:
+                    continue
+                
+                # Check if goal reached
+                if next_pos == goal_tuple:
+                    return path + [[next_x, next_y]]
+                
+                # Add to queue
+                visited.add(next_pos)
+                queue.append((next_pos, path + [[next_x, next_y]]))
+        
+        return None
+
+    @staticmethod
     def _calculate_valid_moves(head_pos: list, snake_positions: list, grid_size: int) -> list:
         """
-        SSOT: Single source of truth for valid moves calculation.
-        Used by both agent and dataset generator.
+        Calculate valid moves using the same logic as agents.
         Args:
             head_pos: Current head position [x, y]
             snake_positions: All snake positions (head at index -1)
@@ -453,4 +544,210 @@ class BFSAgent(BaseAgent):
         Returns:
             List of valid moves (UP, DOWN, LEFT, RIGHT)
         """
-        return ssot_calculate_valid_moves(head_pos, snake_positions, grid_size) 
+        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
+        
+        valid_moves = []
+        for direction, (dx, dy) in DIRECTIONS.items():
+            next_x = head_pos[0] + dx
+            next_y = head_pos[1] + dy
+            # Check bounds
+            if 0 <= next_x < grid_size and 0 <= next_y < grid_size:
+                next_pos = (next_x, next_y)
+                # Check if position is not occupied by snake body (excluding head)
+                if next_pos not in obstacles:
+                    valid_moves.append(direction)
+        
+        return valid_moves 
+
+    @staticmethod
+    def flatten_explanation_for_jsonl(explanation: Any) -> str:
+        """
+        Convert a structured explanation dict to a rich, human-readable string for JSONL output.
+        If already a string, return as-is. If dict, use 'natural_language_summary' and 'explanation_steps'.
+        
+        Args:
+            explanation: The explanation object to flatten
+            
+        Returns:
+            Rich, human-readable explanation string
+        """
+        if isinstance(explanation, str):
+            return explanation
+        if isinstance(explanation, dict):
+            # Prefer natural_language_summary + explanation_steps
+            summary = explanation.get('natural_language_summary', '')
+            steps = explanation.get('explanation_steps', [])
+            if steps and isinstance(steps, list):
+                steps_text = '\n'.join(steps)
+            else:
+                steps_text = ''
+            # Compose
+            if summary and steps_text:
+                return f"{steps_text}\n\n{summary}"
+            elif steps_text:
+                return steps_text
+            elif summary:
+                return summary
+            # Fallback: join all string fields in the dict
+            return '\n'.join(str(v) for v in explanation.values() if isinstance(v, str))
+        # Fallback: just str()
+        return str(explanation)
+
+    @staticmethod
+    def format_metrics_for_jsonl(metrics: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Format metrics for JSONL completion, ensuring all values are JSON serializable.
+        
+        Args:
+            metrics: Raw metrics dictionary
+            
+        Returns:
+            Formatted metrics dictionary
+        """
+        if not metrics:
+            return {}
+        
+        # Map metric names to match the expected format
+        formatted_metrics = {}
+        
+        # Common metric mappings
+        metric_mappings = {
+            'manhattan_distance': 'manhattan_distance',
+            'obstacles_near_path': 'obstacles_near_path',
+            'remaining_free_cells': 'remaining_free_cells',
+            'valid_moves': 'valid_moves',
+            'final_chosen_direction': 'chosen_direction',
+            'apple_path_length': 'path_length',
+            'apple_path_safe': 'apple_path_safe',
+            'fallback_used': 'fallback_used',
+            # Position and game state metrics
+            'head_position': 'head_position',
+            'apple_position': 'apple_position',
+            'snake_length': 'snake_length',
+            'grid_size': 'grid_size'
+        }
+        
+        for old_key, new_key in metric_mappings.items():
+            if old_key in metrics:
+                value = metrics[old_key]
+                # Convert numpy types to Python types for JSON serialization
+                if hasattr(value, 'item'):  # numpy scalar
+                    formatted_metrics[new_key] = value.item()
+                elif isinstance(value, (list, tuple)):
+                    # Handle lists/tuples that might contain numpy types
+                    formatted_metrics[new_key] = [
+                        item.item() if hasattr(item, 'item') else item 
+                        for item in value
+                    ]
+                elif isinstance(value, dict):
+                    # Handle nested dictionaries
+                    formatted_metrics[new_key] = BFSAgent.format_metrics_for_jsonl(value)
+                else:
+                    formatted_metrics[new_key] = value
+        
+        return formatted_metrics
+
+    @staticmethod
+    def create_jsonl_record(game_state: Dict[str, Any], move: str, explanation: Any, 
+                           metrics: Dict[str, Any], agent_name: str) -> Dict[str, Any]:
+        """
+        Create a rich JSONL record with natural language prompt and completion.
+        The 'explanation' field in the JSONL output is always a rich, human-readable string (never a nested dict).
+        Metrics are only in the 'metrics' field.
+        
+        Args:
+            game_state: Game state dictionary
+            move: Move made by the agent
+            explanation: Agent explanation (dict or string)
+            metrics: Agent metrics dictionary
+            agent_name: Name of the agent
+            
+        Returns:
+            JSONL record dictionary with 'prompt' and 'completion' fields
+        """
+        
+        # Use dataset generator's prompt formatting for consistency
+        from dataset_generator_core import DatasetGenerator
+        temp_generator = DatasetGenerator(agent_name, Path("."))
+        prompt = temp_generator._format_prompt(game_state)
+        
+        # Always flatten explanation for JSONL output
+        explanation_text = BFSAgent.flatten_explanation_for_jsonl(explanation)
+        
+        # Create rich completion with proper metrics
+        completion = {
+            "move": move,
+            "algorithm": agent_name.lower(),
+            "metrics": BFSAgent.format_metrics_for_jsonl(metrics),
+            "explanation": explanation_text
+        }
+        
+        return {"prompt": prompt, "completion": json.dumps(completion, ensure_ascii=False)}
+
+    @staticmethod
+    def to_serializable(obj):
+        """
+        Convert numpy types to Python types for JSON serialization.
+        
+        Args:
+            obj: Object to serialize
+            
+        Returns:
+            JSON-serializable object
+        """
+        import numpy as np
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (list, tuple)):
+            return [BFSAgent.to_serializable(x) for x in obj]
+        if isinstance(obj, dict):
+            return {k: BFSAgent.to_serializable(v) for k, v in obj.items()}
+        return obj
+
+    @staticmethod
+    def count_free_space_in_direction(start_pos: List[int], direction: str, snake_positions: List[List[int]], grid_size: int) -> int:
+        """
+        Count free space in a given direction from a starting position.
+        
+        Args:
+            start_pos: Starting position [x, y]
+            direction: Direction to check ('UP', 'DOWN', 'LEFT', 'RIGHT')
+            snake_positions: List of snake body positions
+            grid_size: Size of the game grid
+            
+        Returns:
+            Number of free cells in the direction
+        """
+        count = 0
+        current_pos = list(start_pos)
+        
+        while True:
+            if direction == 'UP':
+                current_pos[1] += 1
+            elif direction == 'DOWN':
+                current_pos[1] -= 1
+            elif direction == 'LEFT':
+                current_pos[0] -= 1
+            elif direction == 'RIGHT':
+                current_pos[0] += 1
+            
+            # Check bounds
+            if (current_pos[0] < 0 or current_pos[0] >= grid_size or 
+                current_pos[1] < 0 or current_pos[1] >= grid_size):
+                break
+            
+            # Check snake collision
+            if current_pos in snake_positions:
+                break
+            
+            count += 1
+            
+            # Prevent infinite loop
+            if count > grid_size * grid_size:
+                break
+        
+        return count 

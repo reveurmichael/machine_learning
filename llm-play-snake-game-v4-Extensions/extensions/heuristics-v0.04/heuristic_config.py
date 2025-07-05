@@ -60,7 +60,7 @@ __all__: list[str] = [
 ]
 
 # ----------------
-# Heuristic-specific settings (only used by v0.04 agents / GUI)
+# Heuristic-specific settings (only used by v0.04)
 # ----------------
 
 # Fallback hard cap so runaway agents never freeze the replay.

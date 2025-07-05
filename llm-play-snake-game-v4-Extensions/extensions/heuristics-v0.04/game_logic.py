@@ -32,7 +32,6 @@ ensure_project_root()
 # Import from project root using absolute imports
 from core.game_logic import BaseGameLogic
 from config.ui_constants import GRID_SIZE
-from utils.print_utils import print_error
 
 if TYPE_CHECKING:
     pass
@@ -212,8 +211,13 @@ class HeuristicGameLogic(BaseGameLogic):
         Get the next planned move using a recorded game state for SSOT compliance.
         This method ensures that the agent generates explanations using the same
         game state that is recorded for dataset generation, eliminating coordinate mismatches.
+        
+        PRE-EXECUTION: The recorded_game_state contains the game state BEFORE the move is executed.
+        This includes: head_position, apple_position, snake_positions, score, steps.
+        The agent will make decisions based on this pre-move state.
+        
         Args:
-            recorded_game_state: The game state that was recorded for this round
+            recorded_game_state: The game state that was recorded for this round (PRE-MOVE state)
         Returns:
             Next move direction or "NO_PATH_FOUND"
         """
@@ -221,6 +225,8 @@ class HeuristicGameLogic(BaseGameLogic):
             return "NO_PATH_FOUND"
 
         # Use the provided state dict directly for the agent
+        # PRE-EXECUTION: Agent receives pre-move state and must make decision based on current positions
+        # The agent will calculate: valid_moves, path_to_apple, manhattan_distance, etc. from pre-move state
         move, explanation = self.agent.get_move_with_explanation(recorded_game_state)
         self._store_explanation(explanation)
 
@@ -262,22 +268,27 @@ class HeuristicGameLogic(BaseGameLogic):
         Provides a clean interface for heuristic agents to access game state
         without coupling to internal game logic structure.
         
+        PRE-EXECUTION: This method returns the current game state BEFORE any move is executed.
+        This includes: head_position, apple_position, snake_positions, score, steps.
+        All values are from the current state and will be used for agent decision making.
+        
         Returns:
-            Dictionary containing current game state
+            Dictionary containing current game state (PRE-MOVE state)
         """
         # SSOT Fix: Use the actual head_position from the game logic
+        # PRE-EXECUTION: head_position is the current head position before any move
         # The game logic sets head_position = snake_positions[-1] (last element)
         head_pos = self.head_position.tolist() if hasattr(self, 'head_position') else [0, 0]
         
         return {
-            "head_position": head_pos,
-            "snake_positions": self.snake_positions.tolist(),
-            "apple_position": self.apple_position.tolist(),
+            "head_position": head_pos,  # PRE-MOVE: current head position
+            "snake_positions": self.snake_positions.tolist(),  # PRE-MOVE: current snake body positions
+            "apple_position": self.apple_position.tolist(),  # PRE-MOVE: current apple position
             "grid_size": self.grid_size,
-            "score": self.game_state.score,
-            "steps": self.game_state.steps,
-            "current_direction": self.current_direction,
-            "snake_length": len(self.snake_positions)
+            "score": self.game_state.score,  # PRE-MOVE: current score
+            "steps": self.game_state.steps,  # PRE-MOVE: current step count
+            "current_direction": self.current_direction,  # PRE-MOVE: current direction
+            "snake_length": len(self.snake_positions)  # PRE-MOVE: current snake length
         }
     
     def get_recorded_state_snapshot(self, recorded_state: dict) -> dict:
@@ -287,21 +298,24 @@ class HeuristicGameLogic(BaseGameLogic):
         This ensures agents use the same state that gets recorded in the dataset,
         preventing coordinate mismatches between explanations and recorded data.
         
+        PRE-EXECUTION: The recorded_state contains the game state BEFORE the move is executed.
+        This method returns a clean snapshot of that pre-move state for agent use.
+        
         Args:
-            recorded_state: Recorded game state from dataset_game_states
+            recorded_state: Recorded game state from dataset_game_states (PRE-MOVE state)
             
         Returns:
-            Dictionary containing recorded game state
+            Dictionary containing recorded game state (PRE-MOVE state)
         """
         return {
-            "head_position": recorded_state.get("head_position", [0, 0]),
-            "snake_positions": recorded_state.get("snake_positions", []),
-            "apple_position": recorded_state.get("apple_position", [0, 0]),
+            "head_position": recorded_state.get("head_position", [0, 0]),  # PRE-MOVE: recorded head position
+            "snake_positions": recorded_state.get("snake_positions", []),  # PRE-MOVE: recorded snake positions
+            "apple_position": recorded_state.get("apple_position", [0, 0]),  # PRE-MOVE: recorded apple position
             "grid_size": recorded_state.get("grid_size", self.grid_size),
-            "score": recorded_state.get("score", 0),
-            "steps": recorded_state.get("steps", 0),
-            "current_direction": recorded_state.get("current_direction", "UP"),
-            "snake_length": len(recorded_state.get("snake_positions", []))
+            "score": recorded_state.get("score", 0),  # PRE-MOVE: recorded score
+            "steps": recorded_state.get("steps", 0),  # PRE-MOVE: recorded step count
+            "current_direction": recorded_state.get("current_direction", "UP"),  # PRE-MOVE: recorded direction
+            "snake_length": len(recorded_state.get("snake_positions", []))  # PRE-MOVE: recorded snake length
         }
 
     def _generate_apple(self) -> NDArray[np.int_]:
@@ -310,6 +324,22 @@ class HeuristicGameLogic(BaseGameLogic):
         return apple 
 
     def make_move(self, direction_key: str) -> Tuple[bool, bool]:
-        """Make a move in the given direction and update the game state."""
+        """
+        Make a move in the given direction and update the game state.
+        
+        POST-EXECUTION: This method actually executes the move and updates the game state.
+        After this call, the following values will be updated:
+        - head_position: new head position after the move
+        - snake_positions: updated snake body positions after the move
+        - score: updated score (increased if apple was eaten)
+        - steps: incremented step count
+        - apple_position: new apple position if the previous one was eaten
+        
+        Args:
+            direction_key: The direction to move (UP, DOWN, LEFT, RIGHT)
+            
+        Returns:
+            Tuple of (apple_eaten, game_over) status after the move
+        """
         result = super().make_move(direction_key)
         return result 

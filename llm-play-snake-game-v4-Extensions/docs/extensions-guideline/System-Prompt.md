@@ -2,6 +2,9 @@
 
 > **Important — Authoritative Reference:** This document establishes core principles for the Snake Game AI project. All other guideline documents must align with these foundational principles.
 
+##  KISS, use as few fallbacks as possible. Remove existing non-necessary fallbacks. fail fast. keep code clean lean. whenever possible, modify existing functions instead of adding a bunch of code. remove unnecessary code whenevener you see it. Do a lot of fail fast for checking SSOT. However, if the heuristic cannot find a path, it's not a fail. Unless absolutely necessary, don't use fallbacks. Use a lot lot lot of fail fast for checking SSOT.
+
+
 ## English
 
 DO EVERYTHING IN ENGLISH.
@@ -14,8 +17,6 @@ Documentation, docstrings, and comments are paramount in this project. Each refa
 
 We are refactoring the codebase to make it more generic and reusable while keeping Task-0 (LLM playing snake game) functionality unchanged.
 
-### **VITAL Reference**
-Check `ROOT/docs/extensions-guideline/project-structure-plan.md` for the complete refactoring objectives.
 
 ## 🏗️ **Architectural Principles**
 
@@ -150,13 +151,6 @@ Extensions `{algorithm}-v0.0N` should generate:
 
 For transforming JSON files to CSV, use shared tools in the "common" folder. For JSONL generation, place in heuristics-v0.04 folder or common folder based on clarity requirements.
 
-### **File Naming Standards**
-Use clear, descriptive file names that follow established patterns:
-- `main_dataset_generator.py` for comprehensive dataset generation
-- `generate_jsonl_dataset.py` for JSONL-specific generation
-- `dataset_converter.py` for format conversion utilities
-
-Consider organizing utilities in the "common" folder for better clarity and reusability.
 
 ## 🚫 **Breaking Changes in Extensions**
 

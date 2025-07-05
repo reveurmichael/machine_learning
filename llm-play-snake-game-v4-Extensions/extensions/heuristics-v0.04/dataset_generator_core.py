@@ -417,6 +417,11 @@ class DatasetGenerator:
                 board[head_y][head_x] = 'H'
         board_str = "\n".join(" ".join(row) for row in reversed(board))
 
+        # Convert coordinate lists to tuples for consistent formatting
+        head_pos_tuple = tuple(head_pos) if isinstance(head_pos, (list, tuple)) else (0, 0)
+        apple_pos_tuple = tuple(apple_position) if isinstance(apple_position, (list, tuple)) else (0, 0)
+        body_positions_tuples = [tuple(pos) if isinstance(pos, (list, tuple)) else (0, 0) for pos in body_positions]
+
         # Format the prompt
         prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
 
@@ -424,9 +429,9 @@ Current game state:
 - Score: {score}
 - Steps: {steps}
 - Algorithm: {algorithm}
-- Snake head position: {head_pos}
-- Apple position: {apple_position}
-- Snake body positions: {body_positions}
+- Snake head position: {head_pos_tuple}
+- Apple position: {apple_pos_tuple}
+- Snake body positions: {body_positions_tuples}
 - Snake length: {len(snake_positions)}
 
 Board representation (H=head, A=apple, S=snake body, .=empty):

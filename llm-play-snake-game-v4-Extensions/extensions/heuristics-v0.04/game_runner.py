@@ -150,8 +150,10 @@ def load_game_logs(log_dirs: List[str], verbose: bool = False) -> List[Dict[str,
                     games.append(game_data)
                     
                     if verbose:
-                        rounds_count = len(game_data.get('rounds', []))
-                        score = game_data.get('final_score', 0)
+                        # Use the correct field path for rounds data in v0.04 structure
+                        detailed_history = game_data.get('detailed_history', {})
+                        rounds_count = len(detailed_history.get('rounds_data', []))
+                        score = game_data.get('final_score', game_data.get('score', 0))
                         print_info(f"Loaded game: {rounds_count} rounds, score {score}", "LogLoader")
                         
                 except Exception as e:

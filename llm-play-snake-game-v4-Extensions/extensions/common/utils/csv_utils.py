@@ -353,7 +353,7 @@ def create_csv_record(game_state: Dict[str, Any], move: str, step_number: int,
 
 
 def create_csv_record_with_explanation(game_state: Dict[str, Any], explanation: Dict[str, Any], 
-                                     step_number: int) -> Dict[str, Any]:
+                                     step_number: int, game_id: int = 1) -> Dict[str, Any]:
     """
     Create a CSV record from game state and explanation data.
     
@@ -364,6 +364,7 @@ def create_csv_record_with_explanation(game_state: Dict[str, Any], explanation: 
         game_state: Game state dictionary
         explanation: Agent explanation dictionary containing metrics
         step_number: Step number in the game
+        game_id: Game identifier (default: 1)
         
     Returns:
         CSV record dictionary
@@ -381,4 +382,11 @@ def create_csv_record_with_explanation(game_state: Dict[str, Any], explanation: 
     if move == 'UNKNOWN' and 'move' in explanation:
         move = explanation['move']
     
-    return create_csv_record(game_state, move, step_number, explanation.get('metrics', {})) 
+    # Create extractor and manually set the game_id
+    extractor = CSVFeatureExtractor()
+    features = extractor.extract_features(game_state, move, step_number)
+    
+    # Override the game_id with the correct value
+    features['game_id'] = game_id
+    
+    return features 

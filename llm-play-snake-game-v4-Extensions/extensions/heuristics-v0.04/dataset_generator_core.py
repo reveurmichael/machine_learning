@@ -153,6 +153,9 @@ class DatasetGenerator:
             if missing_rounds:
                 raise RuntimeError(f"[SSOT] Missing required rounds {missing_rounds} for {len(moves_history)} moves. Available: {sorted(available_rounds)}")
             
+            # Get game_id from game_data for proper CSV identification
+            game_id = game_data.get('game_number', game_data.get('metadata', {}).get('game_number', 1))
+            
             # Process moves and game states together
             for i in range(len(moves_history)):
                 round_key = key_converter(i)  # Move i uses appropriate key type
@@ -170,7 +173,8 @@ class DatasetGenerator:
                     "game_state": game_state,
                     "move": move,
                     "explanation": explanation,
-                    "metrics": metrics
+                    "metrics": metrics,
+                    "game_id": game_id  # Pass the actual game_id from game_data
                 }
                 # Write to JSONL
                 if self._jsonl_fh:
@@ -195,14 +199,11 @@ class DatasetGenerator:
         """
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
+        game_id = record.get('game_id', 1)
         
         # Use common CSV utilities for feature extraction
         # This ensures consistency across all extensions and follows SSOT principles
-        csv_record = create_csv_record_with_explanation(game_state, explanation, step_number)
-        
-        # Add game_id if not present
-        if 'game_id' not in csv_record:
-            csv_record['game_id'] = record.get('game_id', 1)
+        csv_record = create_csv_record_with_explanation(game_state, explanation, step_number, game_id)
         
         return csv_record
 

@@ -27,3 +27,16 @@ In our code,
 Snake_positions[0] is tail, [-1] is HEAD
 
 
+
+In our snake game code, the snake position list is structured as follows:
+Index 0: Tail (first element)
+Index -1: Head (last element)
+
+self.head_position = self.snake_positions[-1]  # Head is at index -1 (last element)
+
+
+if not apple_eaten:
+    # Remove tail (first element) if no apple eaten
+    new_snake_positions = new_snake_positions[1:]  # Removes index 0 (tail)
+
+    

@@ -22,6 +22,7 @@ Example Moves from (1,1):
 • LEFT → (0,1)
 
 
+However, attention,
 In our code, 
 Snake_positions[0] is tail, [-1] is HEAD
 

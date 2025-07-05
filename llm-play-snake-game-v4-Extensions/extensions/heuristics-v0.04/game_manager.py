@@ -249,10 +249,6 @@ class HeuristicGameManager(BaseGameManager):
         # Initialize game
         self.game.reset()
 
-        # Record initial game state for Round 1
-        if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-            self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
-
         # Game loop
         while not self.game.game_over:
             # Sync previous round's data before starting a new round (if not the first round)
@@ -264,6 +260,14 @@ class HeuristicGameManager(BaseGameManager):
 
             # Get move from agent using the current game state
             move = self.game.get_next_planned_move()
+
+            # -----------------------------------------------
+            # NEW: Record the **pre-move** snapshot for SSOT
+            # -----------------------------------------------
+            if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
+                self.game.game_state.round_manager.record_game_state(
+                    self.game.get_state_snapshot()
+                )
                 
             if move == "NO_PATH_FOUND":
                 # Record game state for the final round before ending
@@ -274,11 +278,6 @@ class HeuristicGameManager(BaseGameManager):
             
             # Apply move
             self.game.make_move(move)
-
-            # Record game state AFTER the move is applied for SSOT compliance
-            # This ensures the dataset shows the actual state after the move
-            if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
-                self.game.game_state.round_manager.record_game_state(self.game.get_state_snapshot())
             
             # Update display if GUI is enabled
             if hasattr(self.game, 'update_display'):

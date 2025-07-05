@@ -258,16 +258,20 @@ class HeuristicGameManager(BaseGameManager):
             # Start new round for each move (heuristics plan one move at a time)
             self.start_new_round(f"{self.algorithm_name} pathfinding")
 
-            # Get move from agent using the current game state
-            move = self.game.get_next_planned_move()
-
             # -----------------------------------------------
-            # NEW: Record the **pre-move** snapshot for SSOT
+            # CRITICAL: Record the **pre-move** snapshot for SSOT BEFORE getting the move
+            # AND ensure the agent uses the EXACT same state that gets recorded
             # -----------------------------------------------
+            recorded_state = self.game.get_state_snapshot()
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
-                self.game.game_state.round_manager.record_game_state(
-                    self.game.get_state_snapshot()
-                )
+                self.game.game_state.round_manager.record_game_state(recorded_state)
+
+            # Get move from agent using the RECORDED game state for SSOT compliance
+            if hasattr(self.game, 'get_next_planned_move_with_state'):
+                move = self.game.get_next_planned_move_with_state(recorded_state)
+            else:
+                # Fallback for compatibility
+                move = self.game.get_next_planned_move()
                 
             if move == "NO_PATH_FOUND":
                 # Record game state for the final round before ending

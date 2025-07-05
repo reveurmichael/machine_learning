@@ -157,19 +157,23 @@ class DatasetGenerator:
         if not dataset_game_states or not isinstance(dataset_game_states, dict):
             raise RuntimeError("[DatasetGenerator] dataset_game_states missing or not a dict. This is a critical error.")
 
+        # SSOT Fix: All indexing and format issues resolved
+
         # Set game_number in all game states for SSOT compliance
         for round_key, game_state in dataset_game_states.items():
             game_state['game_number'] = game_number
 
         # Use only the rounds for which we have both a move and a game state
-        for i in range(1, len(moves_history) + 1):
-            round_key = str(i)
+        # SSOT Fix: States start from round 2 (round 1 is empty), moves are 0-indexed
+        for i in range(len(moves_history)):
+            round_key = i + 2  # States start from round 2: 2, 3, 4, etc. (as integers)
             if round_key not in dataset_game_states:
                 raise RuntimeError(f"[DatasetGenerator] dataset_game_states missing round {round_key}. This is a critical error.")
             game_state = dataset_game_states[round_key]
-            move = moves_history[i - 1]
-            explanation = explanations[i - 1]
-            metrics = metrics_list[i - 1]
+            move = moves_history[i]
+            explanation = explanations[i]
+            metrics = metrics_list[i]
+
             record = {
                 "game_state": game_state,
                 "move": move,
@@ -182,7 +186,7 @@ class DatasetGenerator:
                 self._jsonl_fh.write(json.dumps(jsonl_record) + '\n')
             # Write to CSV
             if self._csv_writer:
-                csv_record = self._extract_csv_features(record, step_number=i)
+                csv_record = self._extract_csv_features(record, step_number=i+1)  # CSV step numbers are 1-indexed
                 self._csv_writer[0].writerow(csv_record)
 
     def _extract_jsonl_record(self, record: dict) -> dict:
@@ -190,7 +194,8 @@ class DatasetGenerator:
         Extract a single JSONL record from game data.
         
         SSOT Compliance: Both prompt and metrics use the same recorded game state,
-        ensuring perfect consistency and preventing coordinate mismatches.
+        but metrics are calculated as if the move has been applied to ensure
+        consistency for LLM fine-tuning.
         
         Args:
             record: Game record containing state and move information
@@ -198,18 +203,21 @@ class DatasetGenerator:
         Returns:
             Dictionary with prompt and completion for JSONL format
         """
+        import copy
+        from config.game_constants import DIRECTIONS
+        
         game_state = record.get('game_state', {})
         move = record.get('move', 'UNKNOWN')
         explanation = record.get('explanation', {})
         
-        # Format the prompt using the recorded game state
+        # Format the prompt using the recorded PRE-MOVE game state
         prompt = self._format_prompt(game_state)
         
         # Extract metrics from explanation but override ALL position-related metrics
-        # with values from the recorded game state to ensure SSOT compliance
+        # with values calculated from POST-MOVE state to ensure SSOT compliance
         explanation_metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
         
-        # Pull out agent-computed metrics, but drop all position fields
+        # Pull out agent-computed metrics, but drop all position fields that need recalculation
         ssot_metrics = {
             k: v for k, v in explanation_metrics.items()
             if k not in (
@@ -219,14 +227,27 @@ class DatasetGenerator:
             )
         }
 
-        # Now derive everything else from game_state alone
-        if game_state:
+        # Now derive everything from the PRE-MOVE game_state and the chosen MOVE
+        if game_state and move != 'UNKNOWN':
             pre_move_head = game_state.get('head_position', [0, 0])
-            apple_pos = game_state.get('apple_position', [0, 0])
+            raw_apple_pos = game_state.get('apple_position', [0, 0])
+            # Handle both dict and list formats for apple_position
+            if isinstance(raw_apple_pos, dict):
+                apple_pos = [raw_apple_pos.get('x', 0), raw_apple_pos.get('y', 0)]
+            else:
+                apple_pos = raw_apple_pos
             grid_size = game_state.get('grid_size', 10)
             snake_positions = game_state.get('snake_positions', [])
 
-            # 1) valid_moves
+            # Calculate POST-MOVE head position by applying the move
+            if move in DIRECTIONS:
+                dx, dy = DIRECTIONS[move]
+                post_move_head = [pre_move_head[0] + dx, pre_move_head[1] + dy]
+            else:
+                # For NO_PATH_FOUND or invalid moves, head doesn't change
+                post_move_head = pre_move_head.copy()
+
+            # 1) valid_moves (calculated from PRE-MOVE state)
             body_set = set(tuple(p) for p in snake_positions)
             valid_moves = [
                 d for d,(dx,dy) in DIRECTIONS.items()
@@ -235,28 +256,46 @@ class DatasetGenerator:
                 and (pre_move_head[0]+dx, pre_move_head[1]+dy) not in body_set
             ]
 
-            # 2) manhattan_distance
-            manhattan = abs(pre_move_head[0]-apple_pos[0]) + abs(pre_move_head[1]-apple_pos[1])
+            # 2) manhattan_distance (from POST-MOVE head to apple)
+            manhattan = abs(post_move_head[0]-apple_pos[0]) + abs(post_move_head[1]-apple_pos[1])
 
-            # 3) apple_path_length (real BFS)
-            path = self._bfs_pathfind(pre_move_head, apple_pos, body_set - {tuple(snake_positions[-1])}, grid_size)
+            # 3) apple_path_length (BFS from POST-MOVE head to apple)
+            # Create POST-MOVE snake configuration for obstacles
+            if move in DIRECTIONS and move != "NO_PATH_FOUND":
+                # Simulate the move: new head, body shifts, tail handling
+                post_move_snake = [post_move_head] + snake_positions[:-1]
+                # Check if apple is eaten (POST-MOVE head reaches apple)
+                apple_eaten = (tuple(post_move_head) == tuple(apple_pos))
+                if apple_eaten:
+                    # Snake grows, tail stays
+                    post_move_snake = [post_move_head] + snake_positions
+                
+                # Obstacles for pathfinding (exclude tail since it can move)
+                obstacles = set(tuple(p) for p in post_move_snake[:-1])
+            else:
+                # No move applied, use original configuration
+                post_move_snake = snake_positions
+                obstacles = set(tuple(p) for p in snake_positions[:-1])
+            
+            path = self._bfs_pathfind(post_move_head, apple_pos, obstacles, grid_size)
             apple_path_len = len(path)-1 if path else None
 
-            # 4) tail_path_length - use agent's calculation if available, otherwise calculate
-            tail_path_len = explanation_metrics.get('tail_path_length')
-            if tail_path_len is None and len(snake_positions) > 1:
-                tail = snake_positions[-1]
-                obstacles = set(tuple(p) for p in snake_positions[:-1])
-                tail_path = self._bfs_pathfind(pre_move_head, tail, obstacles, grid_size)
+            # 4) tail_path_length (BFS from POST-MOVE head to POST-MOVE tail)
+            tail_path_len = None
+            if len(post_move_snake) > 1:
+                post_move_tail = post_move_snake[-1]
+                # Obstacles for tail pathfinding (exclude tail itself)
+                tail_obstacles = set(tuple(p) for p in post_move_snake[:-1])
+                tail_path = self._bfs_pathfind(post_move_head, post_move_tail, tail_obstacles, grid_size)
                 tail_path_len = len(tail_path)-1 if tail_path else None
 
-            # 5) pack SSOT metrics
+            # 5) pack SSOT metrics with POST-MOVE calculations
             ssot_metrics.update({
-                "head_position": pre_move_head,
+                "head_position": post_move_head,
                 "apple_position": apple_pos,
                 "grid_size": grid_size,
-                "snake_length": len(snake_positions),
-                "valid_moves": valid_moves,
+                "snake_length": len(snake_positions),  # Use original snake length
+                "valid_moves": valid_moves,  # From PRE-MOVE state
                 "manhattan_distance": manhattan,
                 "apple_path_length": apple_path_len,
                 "path_length": apple_path_len,
@@ -280,7 +319,13 @@ class DatasetGenerator:
         # Fix coordinate references in explanation to match prompt exactly
         if game_state:
             pre_move_head = game_state.get('head_position', [0, 0])
-            apple_pos = game_state.get('apple_position', [0, 0])
+            raw_apple_pos = game_state.get('apple_position', [0, 0])
+            
+            # Handle both dict and list formats for apple_position
+            if isinstance(raw_apple_pos, dict):
+                apple_pos = [raw_apple_pos.get('x', 0), raw_apple_pos.get('y', 0)]
+            else:
+                apple_pos = raw_apple_pos
             
             # Replace any coordinate references in explanation with correct ones from prompt
             # Using named groups for more robust replacements and easier debugging
@@ -294,7 +339,7 @@ class DatasetGenerator:
                 r'target at \((?P<x>\d+), (?P<y>\d+)\)'
             ]
             
-            # Head position patterns with named groups
+            # Head position patterns with named groups  
             head_patterns = [
                 r'from \((?P<x>\d+), (?P<y>\d+)\)',
                 r'head at \((?P<x>\d+), (?P<y>\d+)\)',
@@ -311,7 +356,7 @@ class DatasetGenerator:
                     explanation_text
                 )
             
-            # Replace head coordinate references
+            # Replace head coordinate references with PRE-MOVE head (as shown in prompt)
             for pattern in head_patterns:
                 explanation_text = re.sub(
                     pattern,
@@ -333,7 +378,7 @@ class DatasetGenerator:
         
         return {
             "prompt": prompt,
-            "completion": json.dumps(completion, ensure_ascii=False)
+            "completion": json.dumps(completion, ensure_ascii=False, default=self._json_serializer)
         }
 
     def _bfs_pathfind(self, start: List[int], goal: List[int], obstacles: Set[Tuple[int, int]], grid_size: int) -> Optional[List[List[int]]]:
@@ -465,7 +510,12 @@ class DatasetGenerator:
         
         head_pos = snake_positions[0]
         head_x, head_y = head_pos[0], head_pos[1]
-        apple_x, apple_y = apple_position[0], apple_position[1]
+        
+        # Handle both dict and list formats for apple_position
+        if isinstance(apple_position, dict):
+            apple_x, apple_y = apple_position.get('x', 0), apple_position.get('y', 0)
+        else:
+            apple_x, apple_y = apple_position[0], apple_position[1]
         
         # Calculate apple direction features (binary)
         apple_dir_up = 1 if apple_y < head_y else 0
@@ -609,16 +659,39 @@ class DatasetGenerator:
         
         # Board representation
         board = [['.' for _ in range(grid_size)] for _ in range(grid_size)]
-        if apple_position:
-            board[apple_position[1]][apple_position[0]] = 'A'
+        if apple_position and len(apple_position) >= 2:
+            try:
+                apple_x, apple_y = apple_position[0], apple_position[1]
+                if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
+                    board[apple_y][apple_x] = 'A'
+            except (KeyError, TypeError, IndexError) as e:
+                print(f"[DEBUG] Apple position error: {e}, apple_position: {apple_position}, type: {type(apple_position)}")
+                # Try to handle if it's a dict with x,y keys
+                if isinstance(apple_position, dict) and 'x' in apple_position and 'y' in apple_position:
+                    apple_x, apple_y = apple_position['x'], apple_position['y']
+                    if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
+                        board[apple_y][apple_x] = 'A'
         for i, pos in enumerate(snake_positions):
-            board[pos[1]][pos[0]] = 'S'
-        board[head_pos[1]][head_pos[0]] = 'H'
+            if len(pos) >= 2:
+                pos_x, pos_y = pos[0], pos[1]
+                if 0 <= pos_x < grid_size and 0 <= pos_y < grid_size:
+                    board[pos_y][pos_x] = 'S'
+        if len(head_pos) >= 2:
+            head_x, head_y = head_pos[0], head_pos[1]
+            if 0 <= head_x < grid_size and 0 <= head_y < grid_size:
+                board[head_y][head_x] = 'H'
         # Flip vertically so that top row is y = grid_size-1 (bottom-left origin)
         board_str = "\n".join(" ".join(row) for row in reversed(board))
 
-        # Strategic analysis
-        manhattan_distance = abs(head_pos[0] - apple_position[0]) + abs(head_pos[1] - apple_position[1]) if apple_position else -1
+        # Strategic analysis  
+        if apple_position:
+            if isinstance(apple_position, dict):
+                apple_x, apple_y = apple_position.get('x', 0), apple_position.get('y', 0)
+            else:
+                apple_x, apple_y = apple_position[0], apple_position[1]
+            manhattan_distance = abs(head_pos[0] - apple_x) + abs(head_pos[1] - apple_y)
+        else:
+            manhattan_distance = -1
         
         # Determine valid moves using universal coordinate system
         from config.game_constants import DIRECTIONS
@@ -655,6 +728,17 @@ You are an expert Snake game AI. Your task is to analyze the provided game state
 Based on the `{algorithm}` logic, what is the optimal next move? Provide the move and a detailed, step-by-step explanation of the reasoning.
 """
         return prompt 
+
+    def _json_serializer(self, obj):
+        """Handle numpy types for JSON serialization."""
+        import numpy as np
+        if isinstance(obj, (np.integer, np.int64, np.int32)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64, np.float32)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
     def _update_explanation_with_ssot_metrics(self, explanation_text: str, ssot_metrics: dict) -> str:
         """

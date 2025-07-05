@@ -280,23 +280,11 @@ class HeuristicGameData(BaseGameData):
         # Time stats (heuristics never have llm_communication_time)
         time_stats_clean = self.stats.time_stats.asdict()
         
-        # For heuristics: use round-by-round moves and game states as SSOT
+        # For heuristics: use round-by-round moves from rounds data
         moves_from_rounds = []
-        dataset_game_states = {}
-        initial_state = {
-            'head_position': [self.grid_size // 2, self.grid_size // 2],
-            'snake_positions': [[self.grid_size // 2, self.grid_size // 2]],
-            'apple_position': self.apple_positions[0] if self.apple_positions else [0, 0],
-            'grid_size': self.grid_size,
-            'score': 0,
-            'steps': 0,
-            'current_direction': None,
-            'snake_length': 1,
-            'game_number': self.game_number  # Add game_number to initial state
-        }
-        dataset_game_states['0'] = initial_state
         
-        # Build moves and game states in lockstep, skipping round 0
+        # Build moves from rounds, using the already-built dataset_game_states
+        # DO NOT overwrite dataset_game_states - it contains the correct pre-move states!
         ordered_rounds = self.round_manager.get_ordered_rounds_data()
         for round_key in sorted(ordered_rounds.keys()):
             if int(round_key) == 0:
@@ -306,17 +294,11 @@ class HeuristicGameData(BaseGameData):
                 # For heuristics, there should be exactly one move per round
                 move = round_data['moves'][0]
                 moves_from_rounds.append(move)
-                # Game state after this move
-                if 'game_state' in round_data:
-                    game_state = round_data['game_state'].copy()
-                    game_state['game_number'] = self.game_number  # Add game_number to each game state
-                    dataset_game_states[str(len(moves_from_rounds))] = game_state
-                else:
-                    # Fallback: repeat last state
-                    last_state = dataset_game_states.get(str(len(moves_from_rounds)-1), initial_state)
-                    last_state_copy = last_state.copy()
-                    last_state_copy['game_number'] = self.game_number  # Add game_number to fallback state
-                    dataset_game_states[str(len(moves_from_rounds))] = last_state_copy
+        
+        # Ensure all game states have the game_number for consistency
+        for state in dataset_game_states.values():
+            if isinstance(state, dict):
+                state['game_number'] = self.game_number
         
         summary = {
             # Core outcome data

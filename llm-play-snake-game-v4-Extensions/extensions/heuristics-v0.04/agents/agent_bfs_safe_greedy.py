@@ -84,7 +84,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         """
         move, _ = self.get_move_with_explanation(state)
         return move
-
+        
     def get_move_with_explanation(self, state: dict) -> Tuple[str, dict]:
         """
         SAFE-GREEDY agent: Prioritizes safety over greed.
@@ -109,7 +109,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         # valid_moves: available moves from current head position
         # remaining_free_cells: free cells based on current snake positions
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._calculate_valid_moves(head, snake, grid_size)
+        valid_moves = self._calculate_valid_moves(state)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
         # Fail-fast: ensure state is not mutated (SSOT)
@@ -131,7 +131,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             
             # Safety validation: can snake reach tail after this move?
             # PRE-EXECUTION: Safety check based on current snake positions and predicted next position
-            if self._is_move_safe(next_pos, snake, apple, obstacles, grid_size):
+            if self._is_move_safe(state, next_pos):
                 # Safe path found
                 # PRE-EXECUTION: All metrics are calculated from pre-move state
                 metrics = {
@@ -147,10 +147,8 @@ class BFSSafeGreedyAgent(BFSAgent):
                     "apple_path_safe": True
                 }
                 
-                explanation_dict = self._generate_safe_apple_explanation(
-                    head, apple, snake, path_to_apple, direction, valid_moves, 
-                    manhattan_distance, remaining_free_cells, grid_size, metrics
-                )
+                explanation_dict = self._generate_safe_apple_explanation(state, path_to_apple, direction, valid_moves, 
+                                                                       manhattan_distance, remaining_free_cells, metrics)
                 
                 return direction, explanation_dict
 
@@ -184,11 +182,8 @@ class BFSSafeGreedyAgent(BFSAgent):
                 "apple_path_safe": False
             }
             
-            explanation_dict = self._generate_tail_chase_explanation(
-                head, apple, snake, tail, path_to_tail, direction, valid_moves,
-                manhattan_distance, remaining_free_cells, grid_size, metrics
-            )
-            
+            explanation_dict = self._generate_tail_chase_explanation(state, tail, path_to_tail, direction, valid_moves, manhattan_distance, remaining_free_cells, metrics)
+
             return direction, explanation_dict
 
         # ---------------- 3. Last resort: any valid move
@@ -208,10 +203,8 @@ class BFSSafeGreedyAgent(BFSAgent):
                 "apple_path_safe": False
             }
             
-            explanation_dict = self._generate_survival_explanation(
-                head, apple, snake, direction, valid_moves,
-                manhattan_distance, remaining_free_cells, grid_size, metrics
-            )
+            explanation_dict = self._generate_survival_explanation(state, direction, valid_moves, 
+                                                                 manhattan_distance, remaining_free_cells, metrics)
             
             return direction, explanation_dict
         else:
@@ -229,51 +222,54 @@ class BFSSafeGreedyAgent(BFSAgent):
                 "apple_path_safe": False
             }
             
-            explanation_dict = self._generate_no_moves_explanation(
-                head, apple, snake, valid_moves, manhattan_distance, 
-                remaining_free_cells, grid_size, metrics
-            )
-            
+            explanation_dict = self._generate_no_moves_explanation(state, valid_moves, 
+                                                                 manhattan_distance, remaining_free_cells, metrics)
+
             return direction, explanation_dict
 
-    def _is_move_safe(self, next_pos: List[int], snake: List[List[int]], apple: List[int], 
-                      obstacles: set, grid_size: int) -> bool:
+    def _is_move_safe(self, game_state: dict, next_pos: List[int]) -> bool:
         """
         Validate if a move is safe (snake can reach tail afterward).
         
+        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        to guarantee true single source of truth.
+        
         PRE-EXECUTION: This method validates safety based on the current game state
         and a predicted next position. All parameters are from pre-move state:
+        - game_state: complete game state dict (before move)
         - next_pos: where the head will be after the move (predicted)
-        - snake: current snake body positions (before move)
-        - apple: current apple position (before move)
-        - obstacles: current obstacles (before move)
-        - grid_size: current grid size
         
         The method simulates what would happen after the move and checks if
         the snake could still reach its tail from the new position.
         
         Args:
+            game_state: Complete game state dict containing all positions
             next_pos: Predicted head position after the move (PRE-MOVE prediction)
-            snake: Current snake body positions (PRE-MOVE)
-            apple: Current apple position (PRE-MOVE)
-            obstacles: Current obstacles (PRE-MOVE)
-            grid_size: Current grid size
             
         Returns:
             True if the move is safe (snake can reach tail afterward), False otherwise
         """
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         # KISS: For small snakes, always consider moves safe to avoid over-conservative behavior
-        if len(snake) <= 3:
+        if len(snake_positions) <= 3:
             return True
         
         # PRE-EXECUTION: Simulate the snake's new body after the move
         # This is a prediction of what the snake will look like after the move
-        if next_pos == apple:
+        if next_pos == apple_pos:
             # Will eat apple, so tail stays (snake grows)
-            new_snake = [next_pos] + snake[:-1]
+            new_snake = [next_pos] + snake_positions[:-1]
         else:
             # Won't eat apple, so tail moves (normal move)
-            new_snake = [next_pos] + snake[:-2]
+            new_snake = [next_pos] + snake_positions[:-2]
         
         # KISS: Simple safety check - ensure we have enough free space
         free_cells = grid_size * grid_size - len(new_snake)
@@ -289,34 +285,40 @@ class BFSSafeGreedyAgent(BFSAgent):
         tail_path = self._bfs_pathfind(new_head, new_tail, new_obstacles, grid_size)
         return bool(tail_path)
 
-    def _generate_safe_apple_explanation(self, head: List[int], apple: List[int], snake: List[List[int]], 
-                                        path: List[List[int]], direction: str, valid_moves: List[str],
-                                        manhattan_distance: int, remaining_free_cells: int, grid_size: int,
+    def _generate_safe_apple_explanation(self, game_state: dict, path: List[List[int]], 
+                                        direction: str, valid_moves: List[str],
+                                        manhattan_distance: int, remaining_free_cells: int,
                                         metrics: dict) -> dict:
         """
         Generate explanation for safe apple path move.
         
         PRE-EXECUTION: All parameters are from the pre-move state:
-        - head: current head position (before move)
-        - apple: current apple position (before move)
-        - snake: current snake body positions (before move)
+        - game_state: complete game state dict (before move)
         - path: optimal path from current head to current apple
         - direction: chosen move direction
         - valid_moves: available moves from current head position
         - manhattan_distance: distance from current head to current apple
         - remaining_free_cells: free cells based on current snake positions
-        - grid_size: current grid size
         - metrics: pre-move state metrics
         
         The explanation describes the decision based on pre-move state and
         explains why the chosen path is safe.
         """
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         # PRE-EXECUTION: All calculations use pre-move state values
         # Ensure path starts from pre-move head (type-consistent)
-        assert tuple(path[0]) == tuple(head), f"SSOT violation: path[0] ({path[0]}) != head ({head})"
+        assert tuple(path[0]) == tuple(head_pos), f"SSOT violation: path[0] ({path[0]}) != head_pos ({head_pos})"
         # Fail-fast: explanation must match pre-move head
         path_length = len(path) - 1
-        snake_length = len(snake)
+        snake_length = len(snake_positions)
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
         detour_steps = max(0, path_length - manhattan_distance)
@@ -324,8 +326,8 @@ class BFSSafeGreedyAgent(BFSAgent):
         space_pressure = "low" if board_fill_ratio < 0.3 else "medium" if board_fill_ratio < 0.6 else "high"
         
         # PRE-EXECUTION: Calculate next position based on current head and chosen direction
-        next_pos = (head[0] + (1 if direction == "RIGHT" else -1 if direction == "LEFT" else 0),
-                   head[1] + (1 if direction == "UP" else -1 if direction == "DOWN" else 0))
+        next_pos = (head_pos[0] + (1 if direction == "RIGHT" else -1 if direction == "LEFT" else 0),
+                   head_pos[1] + (1 if direction == "UP" else -1 if direction == "DOWN" else 0))
         
         # PRE-EXECUTION: Format path coordinates for explanation
         path_str = ' → '.join([f'({p[0]}, {p[1]})' for p in path])
@@ -337,9 +339,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             "=== BFS-SAFE-GREEDY PATHFINDING ANALYSIS ===",
             "",
             "PHASE 1: INITIAL SITUATION ASSESSMENT",
-            f"• Current head position: {tuple(head)}",  # PRE-MOVE: current head position
-            f"• Target apple position: {tuple(apple)}",  # PRE-MOVE: current apple position
-            f"• Snake body positions: {[tuple(p) for p in snake if tuple(p) != tuple(head)]}",  # PRE-MOVE: current body positions
+            f"• Current head position: {tuple(head_pos)}",  # PRE-MOVE: current head position
+            f"• Target apple position: {tuple(apple_pos)}",  # PRE-MOVE: current apple position
+            f"• Snake body positions: {[tuple(p) for p in body_positions]}",  # PRE-MOVE: current body positions (SSOT: same as dataset generator)
             f"• Snake length: {snake_length} segments",  # PRE-MOVE: current snake length
             f"• Grid dimensions: {grid_size}×{grid_size} ({grid_size * grid_size} total cells)",
             f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",  # PRE-MOVE: current occupation
@@ -351,7 +353,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Validation criteria: no wall collisions, no body collisions, within grid bounds",
             "",
             "PHASE 3: BFS PATHFINDING EXECUTION",
-            f"• Algorithm: Breadth-First Search from {tuple(head)} to {tuple(apple)}",  # PRE-MOVE: current positions
+            f"• Algorithm: Breadth-First Search from {tuple(head_pos)} to {tuple(apple_pos)}",  # PRE-MOVE: current positions
             f"• Search space: {grid_size * grid_size - snake_length} accessible cells",
             f"• Obstacles to navigate: {snake_length - 1} body segments",  # PRE-MOVE: current obstacles
             f"• Manhattan distance baseline: {manhattan_distance} steps (theoretical minimum)",  # PRE-MOVE: current distance
@@ -382,8 +384,8 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Risk mitigation: BFS guarantees shortest path, safety validation prevents trapping",
             "",
             "=== DECISION SUMMARY ===",
-            f"Moving {direction} is the optimal SAFE choice because it follows the shortest BFS-computed path to the apple at {tuple(apple)}. " +  # PRE-MOVE: current apple position
-            f"This move advances the snake from {tuple(head)} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
+            f"Moving {direction} is the optimal SAFE choice because it follows the shortest BFS-computed path to the apple at {tuple(apple_pos)}. " +  # PRE-MOVE: current apple position
+            f"This move advances the snake from {tuple(head_pos)} to {next_pos}, maintaining perfect trajectory efficiency " +  # PRE-MOVE: current to calculated next position
             f"{'with no detours required' if is_optimal else f'despite {detour_steps} necessary detour(s) to avoid obstacles'}. " +
             "The decision is both safe (validated tail reachability) and efficient " +  # PRE-MOVE: current valid moves
             f"({efficiency_ratio:.2f} path efficiency), making it strategically sound given current board pressure ({space_pressure})."  # PRE-MOVE: current board pressure
@@ -398,13 +400,21 @@ class BFSSafeGreedyAgent(BFSAgent):
 
         return explanation_dict
 
-    def _generate_tail_chase_explanation(self, head: List[int], apple: List[int], snake: List[List[int]],
-                                       tail: List[int], path: List[List[int]], direction: str, 
-                                       valid_moves: List[str], manhattan_distance: int, 
-                                       remaining_free_cells: int, grid_size: int, metrics: dict) -> dict:
+    def _generate_tail_chase_explanation(self, game_state: dict, tail: List[int], path: List[List[int]], 
+                                       direction: str, valid_moves: List[str], manhattan_distance: int, 
+                                       remaining_free_cells: int, metrics: dict) -> dict:
         """Generate detailed explanation for tail chase strategy."""
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         path_length = len(path) - 1
-        snake_length = len(snake)
+        snake_length = len(snake_positions)
         board_fill_ratio = snake_length / (grid_size * grid_size)
         space_pressure = "low" if board_fill_ratio < 0.3 else "medium" if board_fill_ratio < 0.6 else "high"
         
@@ -412,7 +422,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "=== BFS-SAFE-GREEDY ANALYSIS: TAIL CHASE STRATEGY ===",
             "",
             "PHASE 1: PRIMARY STRATEGY FAILURE ANALYSIS",
-            f"• Primary strategy attempted: Apple pathfinding to {apple}",
+            f"• Primary strategy attempted: Apple pathfinding to {tuple(apple_pos)}",
             "• Primary strategy result: FAILED (unsafe or no path found)",
             "• Failure reason: Safety validation rejected apple path",
             "• Risk detected: Potential self-trapping if pursuing apple",
@@ -420,12 +430,12 @@ class BFSSafeGreedyAgent(BFSAgent):
             "",
             "PHASE 2: SECONDARY STRATEGY - TAIL CHASING",
             "• Strategy priority: SECONDARY (defensive positioning)",
-            f"• Target: Snake tail at {tail}",
+            f"• Target: Snake tail at {tuple(tail)}",
             "• Rationale: Tail chasing is always safe (tail moves away)",
             f"• Available valid moves: {valid_moves} ({len(valid_moves)} options)",
-            f"• BFS pathfinding from {head} to {tail}",
+            f"• BFS pathfinding from {tuple(head_pos)} to {tuple(tail)}",
             f"• Tail chase path found: {path_length} steps",
-            f"• Path coordinates: {' → '.join([str(p) for p in path[:min(4, len(path))]])}{'...' if len(path) > 4 else ''}",
+            f"• Path coordinates: {' → '.join([str(tuple(p)) for p in path[:min(4, len(path))]])}{'...' if len(path) > 4 else ''}",
             "",
             "PHASE 3: TAIL CHASE SAFETY ANALYSIS",
             "• Safety guarantee: ABSOLUTE (tail moves as snake advances)",
@@ -435,7 +445,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             f"• Board pressure: {space_pressure} ({board_fill_ratio:.1%} occupation)",
             "",
             "PHASE 4: STRATEGIC POSITIONING",
-            f"• Current head position: {head}",
+            f"• Current head position: {tuple(head_pos)}",
             f"• Chosen direction: {direction}",
             f"• Next position: Following tail at distance {path_length}",
             f"• Apple distance: {manhattan_distance} steps (for future reference)",
@@ -451,7 +461,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "",
             "=== CONCLUSION ===",
             "BFS-Safe-Greedy activated tail chase strategy after determining apple pursuit was unsafe. " +
-            f"Moving {direction} toward tail at {tail} provides guaranteed safety while maintaining " +
+            f"Moving {direction} toward tail at {tuple(tail)} provides guaranteed safety while maintaining " +
             "board position. This defensive strategy preserves the snake's survival until safer " +
             "apple pursuit opportunities emerge, demonstrating the algorithm's adaptive safety-first approach."
         ]
@@ -462,11 +472,19 @@ class BFSSafeGreedyAgent(BFSAgent):
             "explanation_steps": explanation_parts,
         }
 
-    def _generate_survival_explanation(self, head: List[int], apple: List[int], snake: List[List[int]],
-                                     direction: str, valid_moves: List[str], manhattan_distance: int,
-                                     remaining_free_cells: int, grid_size: int, metrics: dict) -> dict:
+    def _generate_survival_explanation(self, game_state: dict, direction: str, valid_moves: List[str], 
+                                     manhattan_distance: int, remaining_free_cells: int, metrics: dict) -> dict:
         """Generate detailed explanation for survival move strategy."""
-        snake_length = len(snake)
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
+        snake_length = len(snake_positions)
         board_fill_ratio = snake_length / (grid_size * grid_size)
         
         explanation_parts = [
@@ -474,7 +492,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "",
             "PHASE 1: CRITICAL SITUATION ASSESSMENT",
             "• Algorithm: BFS-Safe-Greedy in emergency survival mode",
-            f"• Current head position: {head}",
+            f"• Current head position: {tuple(head_pos)}",
             f"• Snake length: {snake_length} segments",
             f"• Board occupation: {board_fill_ratio:.1%} (CRITICAL density)",
             f"• Free cells remaining: {remaining_free_cells}",
@@ -488,78 +506,104 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Risk level: MAXIMUM (immediate survival at stake)",
             "",
             "PHASE 3: EMERGENCY MOVE SELECTION",
-            "• Emergency protocol: Select any valid move to avoid death",
-            f"• Available options: {valid_moves}",
-            f"• Selected move: {direction} (first available valid move)",
-            "• Selection criteria: Immediate collision avoidance only",
-            "• Long-term planning: SUSPENDED (survival takes priority)",
+            f"• Chosen direction: {direction}",
+            f"• Rationale: First available valid move to avoid immediate death",
+            "• Safety assessment: UNKNOWN (no path validation possible)",
+            "• Risk acceptance: MAXIMUM (survival over safety)",
+            "• Expected outcome: Avoid immediate collision, hope for better positioning",
             "",
-            "PHASE 4: SURVIVAL IMPLICATIONS",
-            "• Immediate outcome: Avoid instant death",
-            f"• Apple accessibility: {manhattan_distance} steps (currently irrelevant)",
-            "• Future prospects: Depends on subsequent board evolution",
-            "• Strategy horizon: 1 move (emergency mode)",
-            "• Success metric: Continued existence",
+            "PHASE 4: CRITICAL SPACE ANALYSIS",
+            f"• Board density: {board_fill_ratio:.1%} (CRITICAL threshold exceeded)",
+            f"• Snake body positions: {[tuple(p) for p in body_positions]}",  # PRE-MOVE: current body positions (SSOT: same as dataset generator)
+            f"• Apple position: {tuple(apple_pos)} (unreachable)",
+            f"• Manhattan distance to apple: {manhattan_distance} (irrelevant in survival mode)",
+            "• Space fragmentation: SEVERE (limited maneuvering room)",
+            "",
+            "PHASE 5: SURVIVAL STRATEGY IMPLICATIONS",
+            "• Immediate priority: Avoid death in next move",
+            "• Secondary priority: Create space for future moves",
+            "• Long-term strategy: Wait for tail movement to create opportunities",
+            "• Recovery potential: LOW (depends on tail movement pattern)",
+            "• Algorithm adaptation: Switched from greedy to pure survival",
             "",
             "=== CONCLUSION ===",
-            "BFS-Safe-Greedy entered survival mode due to lack of safe strategic options. " +
-            f"Moving {direction} represents the algorithm's last resort to avoid immediate termination. " +
-            "This demonstrates the algorithm's hierarchical strategy system: when safety-validated " +
-            "paths fail, it prioritizes basic survival over strategic positioning."
+            f"BFS-Safe-Greedy has entered emergency survival mode due to complete strategy failure. " +
+            f"Moving {direction} is a last-resort action to avoid immediate death, with no guarantee of " +
+            "long-term survival. The algorithm has exhausted all safe strategies and now operates in " +
+            f"pure survival mode with {len(valid_moves)} emergency options remaining."
         ]
 
         return {
-            "strategy_phase": "SURVIVAL_MOVE",
+            "strategy_phase": "SURVIVAL_MODE",
             "metrics": metrics,
             "explanation_steps": explanation_parts,
         }
 
-    def _generate_no_moves_explanation(self, head: List[int], apple: List[int], snake: List[List[int]],
-                                     valid_moves: List[str], manhattan_distance: int,
-                                     remaining_free_cells: int, grid_size: int, metrics: dict) -> dict:
-        """Generate detailed explanation for no moves available scenario."""
-        snake_length = len(snake)
+    def _generate_no_moves_explanation(self, game_state: dict, valid_moves: List[str], 
+                                     manhattan_distance: int, remaining_free_cells: int, metrics: dict) -> dict:
+        """Generate detailed explanation for no valid moves scenario."""
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
+        snake_length = len(snake_positions)
         board_fill_ratio = snake_length / (grid_size * grid_size)
         
         explanation_parts = [
-            "=== BFS-SAFE-GREEDY ANALYSIS: TERMINAL CONDITION ===",
+            "=== BFS-SAFE-GREEDY ANALYSIS: GAME OVER ===",
             "",
-            "PHASE 1: COMPLETE STRATEGY FAILURE",
-            "• Algorithm: BFS-Safe-Greedy facing terminal condition",
-            f"• Current head position: {head}",
+            "PHASE 1: CRITICAL SITUATION ASSESSMENT",
+            "• Algorithm: BFS-Safe-Greedy facing game termination",
+            f"• Current head position: {tuple(head_pos)}",
             f"• Snake length: {snake_length} segments",
-            f"• Board occupation: {board_fill_ratio:.1%} (MAXIMUM density)",
+            f"• Board occupation: {board_fill_ratio:.1%} (CRITICAL density)",
             f"• Free cells remaining: {remaining_free_cells}",
-            f"• Available moves: {valid_moves} (NONE)",
+            f"• Available moves: {valid_moves} ({len(valid_moves)} options - NONE VALID)",
             "",
-            "PHASE 2: PATHFINDING FAILURE CASCADE",
-            "• PRIMARY strategy (safe apple path): NO VALID MOVES",
-            "• SECONDARY strategy (tail chase): NO VALID MOVES",
-            "• TERTIARY strategy (survival move): NO VALID MOVES",
-            "• FINAL result: COMPLETE IMMOBILIZATION",
+            "PHASE 2: STRATEGY CASCADE COMPLETE FAILURE",
+            "• PRIMARY strategy (safe apple path): FAILED",
+            "• SECONDARY strategy (tail chase): FAILED", 
+            "• TERTIARY strategy (survival move): FAILED",
+            "• QUATERNARY strategy (any valid move): FAILED",
+            "• Situation severity: TERMINAL (no options remaining)",
+            "• Risk level: MAXIMUM (game over imminent)",
             "",
-            "PHASE 3: TERMINAL CONDITION ANALYSIS",
-            "• Head surrounded: All adjacent cells blocked",
-            "• Blocking factors: Walls and/or snake body segments",
-            "• Escape routes: NONE AVAILABLE",
-            f"• Apple distance: {manhattan_distance} steps (unreachable)",
-            "• Game state: TERMINAL (no legal moves possible)",
+            "PHASE 3: GAME OVER ANALYSIS",
+            f"• Snake body positions: {[tuple(p) for p in body_positions]}",  # PRE-MOVE: current body positions (SSOT: same as dataset generator)
+            f"• Apple position: {tuple(apple_pos)} (unreachable)",
+            f"• Manhattan distance to apple: {manhattan_distance} (irrelevant)",
+            "• Space fragmentation: COMPLETE (no free cells accessible)",
+            "• Movement impossibility: ALL DIRECTIONS BLOCKED",
             "",
-            "PHASE 4: ALGORITHM PERFORMANCE SUMMARY",
-            "• Strategy hierarchy: All levels exhausted",
-            "• Safety validation: Prevented risky moves throughout game",
-            "• Survival duration: Maximized through conservative play",
-            "• Final outcome: Inevitable termination due to space constraints",
+            "PHASE 4: TERMINATION CAUSE ANALYSIS",
+            "• Primary cause: Snake has completely surrounded itself",
+            "• Secondary cause: No valid moves available from current position",
+            "• Tertiary cause: Board density reached critical threshold",
+            "• Quaternary cause: No escape path exists",
+            "• Resolution: IMPOSSIBLE (game over)",
+            "",
+            "PHASE 5: ALGORITHM PERFORMANCE ASSESSMENT",
+            "• BFS-Safe-Greedy performance: MAXIMUM (survived until no options)",
+            "• Strategy effectiveness: OPTIMAL (exhausted all possibilities)",
+            "• Safety validation: SUCCESSFUL (prevented premature termination)",
+            "• vs Standard BFS: Would have terminated earlier",
+            "• vs Pure Conservative: Would have terminated earlier",
+            "• Algorithm achievement: Reached natural game end",
             "",
             "=== CONCLUSION ===",
-            f"BFS-Safe-Greedy has reached a terminal state with no valid moves from {head}. " +
-            "The algorithm's safety-first approach successfully avoided premature risks but " +
-            "ultimately cannot overcome fundamental space limitations. This represents the " +
-            "natural endpoint of conservative pathfinding in constrained environments."
+            "BFS-Safe-Greedy has reached the natural end of the game with no valid moves remaining. " +
+            f"The snake at position {tuple(head_pos)} is completely surrounded and cannot move in any direction. " +
+            "This represents the algorithm's maximum possible performance - it survived until the game became " +
+            "mathematically impossible to continue, demonstrating optimal safety-first strategy execution."
         ]
 
         return {
-            "strategy_phase": "NO_MOVES",
+            "strategy_phase": "GAME_OVER",
             "metrics": metrics,
             "explanation_steps": explanation_parts,
         }

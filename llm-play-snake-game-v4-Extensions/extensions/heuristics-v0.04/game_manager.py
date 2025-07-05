@@ -315,7 +315,7 @@ class HeuristicGameManager(BaseGameManager):
             # PRE-EXECUTION: valid_moves calculated from pre-move head and snake positions
             # Use agent's method for SSOT compliance
             from agents.agent_bfs import BFSAgent
-            valid_moves = BFSAgent._calculate_valid_moves(head, snake_positions, grid_size)
+            valid_moves = BFSAgent._calculate_valid_moves(pre_move_state)
             
             if move == "NO_PATH_FOUND":
                 if valid_moves:
@@ -352,7 +352,7 @@ class HeuristicGameManager(BaseGameManager):
             post_head = post_move_state["head_position"]
             post_snake_positions = post_move_state["snake_positions"]
             post_grid_size = post_move_state["grid_size"]
-            post_valid_moves = BFSAgent._calculate_valid_moves(post_head, post_snake_positions, post_grid_size)
+            post_valid_moves = BFSAgent._calculate_valid_moves(post_move_state)
             if not post_valid_moves:
                 print("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")

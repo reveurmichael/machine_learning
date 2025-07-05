@@ -19,7 +19,7 @@ task (e.g., Task-0).
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from numpy.typing import NDArray
@@ -29,6 +29,7 @@ __all__ = [
     "update_board_array",
     "is_position_valid",
     "get_empty_positions",
+    "create_text_board",
 ]
 
 # Type aliases for clarity
@@ -36,6 +37,7 @@ Position = NDArray[np.int_]
 PositionList = List[Position]
 BoardArray = NDArray[np.int8]
 BoardInfo = Dict[str, int]
+Coordinate = Union[List[int], tuple, NDArray[np.int_]]
 
 
 def is_position_valid(position: Position, grid_size: int) -> bool:
@@ -239,4 +241,84 @@ def update_board_array(
             f"(width: {board_width}, height: {board_height})"
         )
     
-    board[ay, ax] = board_info["apple"] 
+    board[ay, ax] = board_info["apple"]
+
+
+def create_text_board(
+    grid_size: int,
+    head_position: Coordinate,
+    body_positions: List[Coordinate],
+    apple_position: Optional[Coordinate] = None,
+    empty_char: str = '.',
+    head_char: str = 'H',
+    body_char: str = 'S',
+    apple_char: str = 'A'
+) -> str:
+    """
+    Creates a text-based representation of the game board.
+    
+    This function generates a human-readable board string that can be used
+    in prompts, logs, or debugging. The board is displayed with the origin
+    at the bottom-left, following the game's coordinate system.
+    
+    Args:
+        grid_size: The size of the square grid.
+        head_position: The [x, y] coordinates of the snake's head.
+        body_positions: List of [x, y] coordinates for snake body segments (excluding head).
+        apple_position: Optional [x, y] coordinates of the apple.
+        empty_char: Character to represent empty cells.
+        head_char: Character to represent the snake's head.
+        body_char: Character to represent the snake's body.
+        apple_char: Character to represent the apple.
+        
+    Returns:
+        A string representation of the board with rows separated by newlines.
+        
+    Example:
+        >>> head = [1, 1]
+        >>> body = [[1, 2], [1, 3]]
+        >>> apple = [5, 5]
+        >>> board = create_text_board(10, head, body, apple)
+        >>> print(board)
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . . . . . . . . . A
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . . . . . . . . . .
+        . H S S . . . . . .
+    """
+    # Initialize empty board
+    board = [[empty_char for _ in range(grid_size)] for _ in range(grid_size)]
+    
+    # Place apple if provided
+    if apple_position and len(apple_position) >= 2:
+        try:
+            apple_x, apple_y = apple_position[0], apple_position[1]
+            if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
+                board[apple_y][apple_x] = apple_char
+        except (KeyError, TypeError, IndexError):
+            # Handle dict format as fallback
+            if isinstance(apple_position, dict) and 'x' in apple_position and 'y' in apple_position:
+                apple_x, apple_y = apple_position['x'], apple_position['y']
+                if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
+                    board[apple_y][apple_x] = apple_char
+    
+    # Place body segments (excluding head)
+    for pos in body_positions:
+        if len(pos) >= 2:
+            pos_x, pos_y = pos[0], pos[1]
+            if 0 <= pos_x < grid_size and 0 <= pos_y < grid_size:
+                board[pos_y][pos_x] = body_char
+    
+    # Place head (should be last to ensure it's not overwritten by body)
+    if len(head_position) >= 2:
+        head_x, head_y = head_position[0], head_position[1]
+        if 0 <= head_x < grid_size and 0 <= head_y < grid_size:
+            board[head_y][head_x] = head_char
+    
+    # Convert to string with rows reversed (origin at bottom-left)
+    return "\n".join(" ".join(row) for row in reversed(board)) 

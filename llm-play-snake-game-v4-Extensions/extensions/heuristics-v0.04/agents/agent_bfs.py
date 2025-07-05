@@ -93,7 +93,7 @@ class BFSAgent(BaseAgent):
         # valid_moves: available moves from current head position
         # remaining_free_cells: free cells based on current snake positions
         manhattan_distance = abs(head[0] - apple[0]) + abs(head[1] - apple[1])
-        valid_moves = self._calculate_valid_moves(head, snake, grid_size)
+        valid_moves = self._calculate_valid_moves(state)
         remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
 
         # Fail-fast: ensure state is not mutated (SSOT)
@@ -140,9 +140,7 @@ class BFSAgent(BaseAgent):
             
             # Get explanation text from helper (but not metrics)
             # PRE-EXECUTION: Explanation describes the decision based on pre-move state
-            explanation_dict = self._generate_move_explanation(
-                tuple(head), tuple(apple), set(tuple(p) for p in snake), path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells, grid_size
-            )
+            explanation_dict = self._generate_move_explanation(state, path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells)
             explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics
             
             return direction, explanation_dict
@@ -172,58 +170,36 @@ class BFSAgent(BaseAgent):
                         f"Choosing survival move: '{direction}' to avoid immediate death."
                     ],
                 }
-                return direction, explanation_dict
-            else:
-                direction = "NO_PATH_FOUND"
-                # Create metrics directly from pre-move state only
-                # PRE-EXECUTION: All metrics from pre-move state for no path scenario
-                metrics = {
-                    "final_chosen_direction": direction,
-                    "head_position": list(head),
-                    "apple_position": list(apple),
-                    "snake_length": len(snake),
-                    "grid_size": grid_size,
-                    "valid_moves": valid_moves,
-                    "manhattan_distance": manhattan_distance,
-                    "remaining_free_cells": remaining_free_cells,
-                    "path_length": 0,
-                    "obstacles_near_path": len(snake)
-                }
-                
-                # Get explanation text from helper (but not metrics)
-                # PRE-EXECUTION: Explanation describes the no-path scenario from pre-move state
-                explanation_dict = self._generate_no_path_explanation(tuple(head), tuple(apple), set(tuple(p) for p in snake), grid_size)
-                explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics
-                
-                return direction, explanation_dict
+            return direction, explanation_dict
 
-    def _generate_move_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int], 
-                                 snake_positions: set, path: List[Tuple[int, int]], 
-                                 direction: str,
-                                 valid_moves: List[str],
-                                 manhattan_distance: int,
-                                 remaining_free_cells: int,
-                                 grid_size: int,
-                                 ) -> dict:
+    def _generate_move_explanation(self, game_state: dict, path: List[Tuple[int, int]], 
+                                 direction: str, valid_moves: List[str],
+                                 manhattan_distance: int, remaining_free_cells: int) -> dict:
         """
         Generate rich, step-by-step natural language explanation for the chosen move.
         SSOT Compliance: All coordinates and positions are taken directly from
         the recorded game state, ensuring perfect consistency with dataset generation.
         
         PRE-EXECUTION: All parameters are from the pre-move state:
-        - head_pos: current head position (before move)
-        - apple_pos: current apple position (before move) 
-        - snake_positions: current snake body positions (before move)
+        - game_state: complete game state dict (before move)
         - path: optimal path from current head to current apple
         - direction: chosen move direction
         - valid_moves: available moves from current head position
         - manhattan_distance: distance from current head to current apple
         - remaining_free_cells: free cells based on current snake positions
-        - grid_size: current grid size
         """
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         # PRE-EXECUTION: All calculations use pre-move state values
         path_length = len(path) - 1  # Exclude starting position
-        obstacles_avoided = self._count_obstacles_in_path(path, snake_positions)
+        obstacles_avoided = self._count_obstacles_in_path(path, set(tuple(p) for p in snake_positions))
         snake_length = len(snake_positions)
         efficiency_ratio = manhattan_distance / max(path_length, 1)
         is_optimal = path_length == manhattan_distance
@@ -251,7 +227,7 @@ class BFSAgent(BaseAgent):
             "PHASE 1: INITIAL SITUATION ASSESSMENT",
             f"• Current head position: {tuple(head_pos)}",  # PRE-MOVE: current head position
             f"• Target apple position: {tuple(apple_pos)}",  # PRE-MOVE: current apple position
-            f"• Snake body positions: {[tuple(p) for p in snake_positions if tuple(p) != tuple(head_pos)]}",  # PRE-MOVE: current body positions
+            f"• Snake body positions: {[tuple(p) for p in body_positions]}",  # PRE-MOVE: current body positions (SSOT: same as dataset generator)
             f"• Snake length: {snake_length} segments",  # PRE-MOVE: current snake length
             f"• Grid dimensions: {grid_size}×{grid_size} ({grid_size * grid_size} total cells)",
             f"• Board occupation: {snake_length}/{grid_size * grid_size} cells ({board_fill_ratio:.1%}) - {space_pressure} space pressure",  # PRE-MOVE: current occupation
@@ -316,22 +292,30 @@ class BFSAgent(BaseAgent):
 
         return explanation_dict
 
-    def _generate_no_path_explanation(self, head_pos: Tuple[int, int], apple_pos: Tuple[int, int],
-                                    snake_positions: set, grid_size: int) -> dict:
+    def _generate_no_path_explanation(self, game_state: dict) -> dict:
         """
         Generate explanation when no path to apple is found.
         
         SSOT Compliance: All coordinates and positions are taken directly from
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        apple_pos = game_state.get('apple_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         body_count = len(snake_positions)
         manhattan_distance = abs(apple_pos[0] - head_pos[0]) + abs(apple_pos[1] - head_pos[1])
         board_fill_ratio = body_count / (grid_size * grid_size)
         remaining_free_cells = grid_size * grid_size - body_count
 
         # Check if apple is blocked by body
-        apple_neighbors = self._get_neighbors(apple_pos, grid_size)
-        blocked_neighbors = sum(1 for pos in apple_neighbors if pos in snake_positions)
+        apple_neighbors = self._get_neighbors(tuple(apple_pos), grid_size)
+        blocked_neighbors = sum(1 for pos in apple_neighbors if pos in set(tuple(p) for p in snake_positions))
         
         # Analyze space fragmentation
         total_cells = grid_size * grid_size
@@ -341,7 +325,7 @@ class BFSAgent(BaseAgent):
             "=== BFS PATHFINDING FAILURE ANALYSIS ===",
             "",
             "PHASE 1: PATHFINDING ATTEMPT RESULTS",
-            f"• Algorithm: Breadth-First Search from {head_pos} to {apple_pos}",
+            f"• Algorithm: Breadth-First Search from {tuple(head_pos)} to {tuple(apple_pos)}",
             "• Search outcome: NO PATH FOUND",
             f"• Manhattan distance: {manhattan_distance} steps (theoretical minimum)",
             "• Actual path length: UNREACHABLE",
@@ -353,14 +337,14 @@ class BFSAgent(BaseAgent):
             f"• Free cells remaining: {remaining_free_cells}",
             "",
             "PHASE 3: APPLE ACCESSIBILITY ASSESSMENT",
-            f"• Apple position: {apple_pos}",
+            f"• Apple position: {tuple(apple_pos)}",
             f"• Adjacent cells to apple: {len(apple_neighbors)} total",
             f"• Blocked adjacent cells: {blocked_neighbors}/{len(apple_neighbors)}",
             f"• Apple accessibility: {'COMPLETELY BLOCKED' if blocked_neighbors == len(apple_neighbors) else 'PARTIALLY ACCESSIBLE'}",
             "",
             "PHASE 4: FAILURE ROOT CAUSE ANALYSIS",
         ]
-        
+
         if blocked_neighbors == len(apple_neighbors):
             explanation_parts.extend([
                 "• Primary cause: Apple is completely surrounded by snake body segments",
@@ -392,7 +376,7 @@ class BFSAgent(BaseAgent):
             "• Expected outcome: Must adopt survival/waiting strategy",
             "",
             "=== CONCLUSION ===",
-            f"BFS pathfinding from {head_pos} to apple at {apple_pos} has failed due to complete path blockage. " +
+            f"BFS pathfinding from {tuple(head_pos)} to apple at {tuple(apple_pos)} has failed due to complete path blockage. " +
             f"With {blocked_neighbors}/{len(apple_neighbors)} apple-adjacent cells blocked and {board_fill_ratio:.1%} board occupation, " +
             "the snake must adopt alternative strategies until body repositioning creates new path opportunities. " +
             f"The {manhattan_distance}-step Manhattan distance remains theoretical until obstacles clear."
@@ -416,8 +400,6 @@ class BFSAgent(BaseAgent):
         }
 
         return explanation_dict
-
-
 
     def _count_obstacles_in_path(self, path: List[Tuple[int, int]], snake_positions: set) -> int:
         """Count how many snake body segments are near the path."""
@@ -512,17 +494,28 @@ class BFSAgent(BaseAgent):
         return None
 
     @staticmethod
-    def _calculate_valid_moves(head_pos: list, snake_positions: list, grid_size: int) -> list:
+    def _calculate_valid_moves(game_state: dict) -> list:
         """
         Calculate valid moves using the same logic as agents.
+        
+        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        to guarantee true single source of truth.
+        
         Args:
-            head_pos: Current head position [x, y]
-            snake_positions: All snake positions (head at index -1)
-            grid_size: Size of the game grid
+            game_state: Complete game state dict containing all positions
         Returns:
             List of valid moves (UP, DOWN, LEFT, RIGHT)
         """
-        obstacles = set(tuple(p) for p in snake_positions[:-1] if len(p) >= 2)
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
+        # Use body positions as obstacles (excluding head)
+        obstacles = set(tuple(p) for p in body_positions)
         
         valid_moves = []
         for direction, (dx, dy) in DIRECTIONS.items():
@@ -535,7 +528,7 @@ class BFSAgent(BaseAgent):
                 if next_pos not in obstacles:
                     valid_moves.append(direction)
         
-        return valid_moves 
+        return valid_moves
 
     @staticmethod
     def flatten_explanation_for_jsonl(explanation: Any) -> str:
@@ -580,52 +573,30 @@ class BFSAgent(BaseAgent):
             metrics: Raw metrics dictionary
             
         Returns:
-            Formatted metrics dictionary
+            Formatted metrics dictionary with consistent naming
         """
         if not metrics:
             return {}
         
-        # Map metric names to match the expected format
         formatted_metrics = {}
         
-        # Common metric mappings
-        metric_mappings = {
-            'manhattan_distance': 'manhattan_distance',
-            'obstacles_near_path': 'obstacles_near_path',
-            'remaining_free_cells': 'remaining_free_cells',
-            'valid_moves': 'valid_moves',
-            'final_chosen_direction': 'chosen_direction',
-            'apple_path_length': 'path_length',
-            'apple_path_safe': 'apple_path_safe',
-            'fallback_used': 'fallback_used',
-            # Position and game state metrics
-            'head_position': 'head_position',
-            'apple_position': 'apple_position',
-            'snake_length': 'snake_length',
-            'grid_size': 'grid_size'
-        }
-        
-        for old_key, new_key in metric_mappings.items():
-            if old_key in metrics:
-                value = metrics[old_key]
-                # Convert numpy types to Python types for JSON serialization
-                if hasattr(value, 'item'):  # numpy scalar
-                    formatted_metrics[new_key] = value.item()
-                elif isinstance(value, (list, tuple)):
-                    # Handle lists/tuples that might contain numpy types
-                    formatted_metrics[new_key] = [
-                        item.item() if hasattr(item, 'item') else item 
-                        for item in value
-                    ]
-                elif isinstance(value, dict):
-                    # Handle nested dictionaries
-                    formatted_metrics[new_key] = BFSAgent.format_metrics_for_jsonl(value)
-                else:
-                    formatted_metrics[new_key] = value
+        for key, value in metrics.items():
+            # Convert numpy types to Python types for JSON serialization
+            if hasattr(value, 'item'):  # numpy scalar
+                formatted_metrics[key] = value.item()
+            elif isinstance(value, (list, tuple)):
+                # Handle lists/tuples that might contain numpy types
+                formatted_metrics[key] = [
+                    item.item() if hasattr(item, 'item') else item 
+                    for item in value
+                ]
+            elif isinstance(value, dict):
+                # Handle nested dictionaries
+                formatted_metrics[key] = BFSAgent.format_metrics_for_jsonl(value)
+            else:
+                formatted_metrics[key] = value
         
         return formatted_metrics
-
-
 
     @staticmethod
     def to_serializable(obj):
@@ -652,21 +623,30 @@ class BFSAgent(BaseAgent):
         return obj
 
     @staticmethod
-    def count_free_space_in_direction(start_pos: List[int], direction: str, snake_positions: List[List[int]], grid_size: int) -> int:
+    def count_free_space_in_direction(game_state: dict, direction: str) -> int:
         """
-        Count free space in a given direction from a starting position.
+        Count free space in a given direction from the current head position.
+        
+        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        to guarantee true single source of truth.
         
         Args:
-            start_pos: Starting position [x, y]
+            game_state: Complete game state dict containing all positions
             direction: Direction to check ('UP', 'DOWN', 'LEFT', 'RIGHT')
-            snake_positions: List of snake body positions
-            grid_size: Size of the game grid
             
         Returns:
             Number of free cells in the direction
         """
+        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        snake_positions = game_state.get('snake_positions', [])
+        head_pos = game_state.get('head_position', [0, 0])
+        grid_size = game_state.get('grid_size', 10)
+        
+        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        
         count = 0
-        current_pos = list(start_pos)
+        current_pos = list(head_pos)
         
         while True:
             if direction == 'UP':
@@ -683,8 +663,8 @@ class BFSAgent(BaseAgent):
                 current_pos[1] < 0 or current_pos[1] >= grid_size):
                 break
             
-            # Check snake collision
-            if current_pos in snake_positions:
+            # Check snake collision (using body positions)
+            if current_pos in body_positions:
                 break
             
             count += 1

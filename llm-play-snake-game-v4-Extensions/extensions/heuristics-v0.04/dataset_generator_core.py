@@ -130,7 +130,7 @@ class DatasetGenerator:
             if not dataset_game_states:
                 print_warning("[DatasetGenerator] No dataset game states found")
                 return
-            
+
             # SSOT: Fail fast if we don't have enough rounds for the moves
             # Determine the key type (int or str) from the first available key
             available_keys = list(dataset_game_states.keys())
@@ -180,7 +180,7 @@ class DatasetGenerator:
                 if self._csv_writer:
                     csv_record = self._extract_csv_features(record, step_number=i+1)  # CSV step numbers are 1-indexed
                     self._csv_writer[0].writerow(csv_record)
-                    
+
         except Exception as e:
             print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
             raise
@@ -251,67 +251,33 @@ class DatasetGenerator:
         head_x, head_y = head_pos[0], head_pos[1]  # PRE-MOVE: current head coordinates
         apple_x, apple_y = apple_pos[0], apple_pos[1]  # PRE-MOVE: current apple coordinates
         
-        # Calculate apple direction features
+        # Calculate apple direction features using centralized utility
         # PRE-EXECUTION: Apple direction relative to current head position
-        apple_dir_up = 1 if apple_y > head_y else 0
-        apple_dir_down = 1 if apple_y < head_y else 0
-        apple_dir_left = 1 if apple_x < head_x else 0
-        apple_dir_right = 1 if apple_x > head_x else 0
+        from extensions.common.utils.game_analysis_utils import calculate_apple_direction, calculate_danger_assessment
         
-        # Calculate danger features
+        apple_direction = calculate_apple_direction(head_pos, apple_pos)
+        apple_dir_up = apple_direction['up']
+        apple_dir_down = apple_direction['down']
+        apple_dir_left = apple_direction['left']
+        apple_dir_right = apple_direction['right']
+        
+        # Calculate danger features using centralized utility
         # PRE-EXECUTION: Danger assessment based on current head position and snake body
-        danger_straight = 0
-        danger_left = 0
-        danger_right = 0
-        
-        # Check for wall collision
-        # PRE-EXECUTION: Check if moving in each direction would hit a wall from current position
-        if move == "UP":
-            danger_straight = 1 if head_y + 1 >= grid_size else 0
-            danger_left = 1 if head_x - 1 < 0 else 0
-            danger_right = 1 if head_x + 1 >= grid_size else 0
-        elif move == "DOWN":
-            danger_straight = 1 if head_y - 1 < 0 else 0
-            danger_left = 1 if head_x + 1 >= grid_size else 0
-            danger_right = 1 if head_x - 1 < 0 else 0
-        elif move == "LEFT":
-            danger_straight = 1 if head_x - 1 < 0 else 0
-            danger_left = 1 if head_y - 1 < 0 else 0
-            danger_right = 1 if head_y + 1 >= grid_size else 0
-        elif move == "RIGHT":
-            danger_straight = 1 if head_x + 1 >= grid_size else 0
-            danger_left = 1 if head_y + 1 >= grid_size else 0
-            danger_right = 1 if head_y - 1 < 0 else 0
-        
-        # Check for body collision
-        # PRE-EXECUTION: Check if moving in each direction would hit snake body from current position
-        if move == "UP":
-            next_pos = [head_x, head_y + 1]
-            if next_pos in snake_positions:
-                danger_straight = 1
-        elif move == "DOWN":
-            next_pos = [head_x, head_y - 1]
-            if next_pos in snake_positions:
-                danger_straight = 1
-        elif move == "LEFT":
-            next_pos = [head_x - 1, head_y]
-            if next_pos in snake_positions:
-                danger_straight = 1
-        elif move == "RIGHT":
-            next_pos = [head_x + 1, head_y]
-            if next_pos in snake_positions:
-                danger_straight = 1
+        danger_assessment = calculate_danger_assessment(head_pos, snake_positions, grid_size, move)
+        danger_straight = danger_assessment['straight']
+        danger_left = danger_assessment['left']
+        danger_right = danger_assessment['right']
         
         # Calculate free space features
         # PRE-EXECUTION: Free space in each direction from current head position
-        free_space_up = BFSAgent.count_free_space_in_direction(head_pos, "UP", snake_positions, grid_size)
-        free_space_down = BFSAgent.count_free_space_in_direction(head_pos, "DOWN", snake_positions, grid_size)
-        free_space_left = BFSAgent.count_free_space_in_direction(head_pos, "LEFT", snake_positions, grid_size)
-        free_space_right = BFSAgent.count_free_space_in_direction(head_pos, "RIGHT", snake_positions, grid_size)
+        free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
+        free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
+        free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
+        free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
         
         # Calculate valid moves
         # PRE-EXECUTION: Valid moves from current head position
-        valid_moves = BFSAgent._calculate_valid_moves(head_pos, snake_positions, grid_size)
+        valid_moves = BFSAgent._calculate_valid_moves(game_state)
         
         # KISS: Use agent's own valid moves if available, otherwise use computed valid moves
         if isinstance(explanation, dict) and 'metrics' in explanation:
@@ -380,8 +346,8 @@ class DatasetGenerator:
         apple_position = game_state.get('apple_position', [])
         score = game_state.get('score', 0)
         steps = game_state.get('steps', 0)
-        algorithm = game_state.get('algorithm', self.algorithm)
-
+        algorithm = game_state.get('algorithm', self.algorithm) 
+        
         # PRE-EXECUTION: Extract head position from game state
         # The game state has a separate head_position field for clarity
         head_pos = game_state.get('head_position', [0, 0])
@@ -392,30 +358,14 @@ class DatasetGenerator:
         # This ensures consistency with the agent's obstacle calculation
         body_positions = [pos for pos in snake_positions if pos != head_pos][::-1] # use the reverse order of the body positions, so that the head and the first element of the body_positions are adjacent.
 
-        # Board representation
-        board = [['.' for _ in range(grid_size)] for _ in range(grid_size)]
-        if apple_position and len(apple_position) >= 2:
-            try:
-                apple_x, apple_y = apple_position[0], apple_position[1]
-                if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
-                    board[apple_y][apple_x] = 'A'
-            except (KeyError, TypeError, IndexError):
-                if isinstance(apple_position, dict) and 'x' in apple_position and 'y' in apple_position:
-                    apple_x, apple_y = apple_position['x'], apple_position['y']
-                    if 0 <= apple_x < grid_size and 0 <= apple_y < grid_size:
-                        board[apple_y][apple_x] = 'A'
-        # PRE-EXECUTION: Mark body positions on board (excluding head)
-        for pos in body_positions:
-            if len(pos) >= 2:
-                pos_x, pos_y = pos[0], pos[1]
-                if 0 <= pos_x < grid_size and 0 <= pos_y < grid_size:
-                    board[pos_y][pos_x] = 'S'
-        # PRE-EXECUTION: Mark head position on board
-        if len(head_pos) >= 2:
-            head_x, head_y = head_pos[0], head_pos[1]
-            if 0 <= head_x < grid_size and 0 <= head_y < grid_size:
-                board[head_y][head_x] = 'H'
-        board_str = "\n".join(" ".join(row) for row in reversed(board))
+        # Board representation using centralized utility
+        from utils.board_utils import create_text_board
+        board_str = create_text_board(
+            grid_size=grid_size,
+            head_position=head_pos,
+            body_positions=body_positions,
+            apple_position=apple_position
+        )
 
         # Convert coordinate lists to tuples for consistent formatting
         head_pos_tuple = tuple(head_pos) if isinstance(head_pos, (list, tuple)) else (0, 0)
@@ -446,7 +396,7 @@ Choose from: UP, DOWN, LEFT, RIGHT
 
 Move:"""
 
-        return prompt
+        return prompt 
 
     def _format_completion(self, move: str, explanation: str, metrics: dict) -> str:
         """

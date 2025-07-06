@@ -161,7 +161,6 @@ class StateManager:
         """Initialize the state manager."""
         self._current_pre_state: Optional[PreMoveState] = None
         self._current_post_state: Optional[PostMoveState] = None
-        print_info("[StateManager] Initialized with immutable state management", "StateManager")
     
     def create_pre_move_state(self, raw_game_state: Dict[str, Any]) -> PreMoveState:
         """
@@ -184,7 +183,6 @@ class StateManager:
         self._validate_pre_move_state(pre_state)
         
         self._current_pre_state = pre_state
-        print_info(f"[StateManager] Created pre-move state with head at {pre_state.get_head_position()}", "StateManager")
         return pre_state
     
     def create_post_move_state(self, pre_state: PreMoveState, move: str, 
@@ -218,7 +216,6 @@ class StateManager:
         self._validate_state_transition(pre_state, post_state)
         
         self._current_post_state = post_state
-        print_info(f"[StateManager] Created post-move state with head at {post_state.get_head_position()}", "StateManager")
         return post_state
     
     def _validate_pre_move_state(self, pre_state: PreMoveState) -> None:
@@ -252,7 +249,6 @@ class StateManager:
         if not (0 <= head_pos[0] < grid_size and 0 <= head_pos[1] < grid_size):
             raise ValueError(f"Head position {head_pos} outside grid bounds {grid_size}x{grid_size}")
         
-        print_info(f"[StateManager] Pre-move state validation passed: head={head_pos}, apple={apple_pos}", "StateManager")
     
     def _validate_state_transition(self, pre_state: PreMoveState, post_state: PostMoveState) -> None:
         """
@@ -287,7 +283,6 @@ class StateManager:
         if post_snake_length > pre_snake_length + 1:
             raise ValueError(f"Snake length increased by {post_snake_length - pre_snake_length} but should be at most 1")
         
-        print_info(f"[StateManager] State transition validation passed: {pre_head} -> {post_head} via '{move}'", "StateManager")
     
     def _calculate_expected_head_position(self, pre_head: List[int], move: str, grid_size: int) -> List[int]:
         """
@@ -328,7 +323,6 @@ class StateManager:
         """Clear current states."""
         self._current_pre_state = None
         self._current_post_state = None
-        print_info("[StateManager] Cleared current states", "StateManager")
 
 
 # Convenience functions for external use
@@ -415,7 +409,6 @@ def validate_explanation_head_consistency(pre_state: PreMoveState, explanation: 
         )
         return False
     
-    print_info(f"[StateManager] Explanation head position validation passed: {pre_head}", "StateManager")
     return True
 
 

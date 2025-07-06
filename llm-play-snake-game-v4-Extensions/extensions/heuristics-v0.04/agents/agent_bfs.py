@@ -77,7 +77,6 @@ class BFSAgent(BaseAgent):
         return move
 
     def get_move_with_explanation(self, state: dict) -> Tuple[str, dict]:
-        print_info(f"[BFSAgent] Entering get_move_with_explanation for state: {state}")
         # Use the provided state dict for all calculations (SSOT)
         # PRE-EXECUTION: All state values are from BEFORE the move is executed
         # This includes: head_position, apple_position, snake_positions, score, steps
@@ -147,9 +146,6 @@ class BFSAgent(BaseAgent):
             
             # Get explanation text from helper (but not metrics)
             # PRE-EXECUTION: Explanation describes the decision based on pre-move state
-            print_info(f"[BFSAgent] Path being passed to explanation: {path_to_apple}")
-            print_info(f"[BFSAgent] Path[0] = {path_to_apple[0] if path_to_apple else 'None'}")
-            print_info(f"[BFSAgent] Expected head = {head}")
             explanation_dict = self._generate_move_explanation(state, path_to_apple, direction, valid_moves, manhattan_distance, remaining_free_cells)
             explanation_dict["metrics"] = metrics  # Overwrite with pre-move state metrics (SSOT)
             
@@ -584,7 +580,6 @@ class BFSAgent(BaseAgent):
         Returns:
             List of valid moves (UP, DOWN, LEFT, RIGHT)
         """
-        print_info(f"[BFSAgent._calculate_valid_moves] Input game_state: {game_state}")
         # SSOT: Extract positions using exact same logic as dataset_generator_core.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = game_state.get('head_position', [0, 0])
@@ -593,8 +588,6 @@ class BFSAgent(BaseAgent):
         # SSOT: Use centralized body_positions extraction
         body_positions = BFSAgent.extract_body_positions(game_state)
 
-        print_info(f"[BFSAgent._calculate_valid_moves] head_pos: {head_pos}, body_positions: {body_positions}, grid_size: {grid_size}")
-        
         # Use body positions as obstacles (excluding head)
         obstacles = set(tuple(p) for p in body_positions)
         
@@ -609,7 +602,6 @@ class BFSAgent(BaseAgent):
                 if next_pos not in obstacles:
                     valid_moves.append(direction)
         
-        print_info(f"[BFSAgent._calculate_valid_moves] Calculated valid_moves: {valid_moves}")
         return valid_moves
 
     @staticmethod
@@ -789,15 +781,9 @@ class BFSAgent(BaseAgent):
         snake_positions = game_state.get('snake_positions', [])
         head_pos = game_state.get('head_position', [0, 0])
 
-        # Debug print: Log input to understand the state before extraction
-        print_info(f"[BFSAgent.extract_body_positions] Input snake_positions: {snake_positions}, head_pos: {head_pos}")
-
         # The last element in snake_positions is the head, the second to last is the first body segment, etc.
         # So we reverse the list and exclude the head (which is now the first element).
         body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
-
-        # Debug print: Log output to verify correct extraction
-        print_info(f"[BFSAgent.extract_body_positions] Extracted body_positions: {body_positions}")
 
         return body_positions
     

@@ -7,7 +7,6 @@ if __name__ == "__main__":
         "extensions/heuristics-v0.04/scripts/main.py",
         "--algorithm", "BFS",
         "--max-games", "2",
-        "--output-dir", "test_output"
     ]
     try:
         result = subprocess.run(cmd, timeout=5)

@@ -367,6 +367,29 @@ class DatasetGenerator:
             "round_num": round_num
         }
 
+    def _convert_coordinates_to_tuples(self, coordinates):
+        """
+        Convert coordinate lists to tuple format for consistent representation.
+        
+        Args:
+            coordinates: Can be a single coordinate [x, y] or list of coordinates [[x1, y1], [x2, y2], ...]
+        Returns:
+            Tuple format: (x, y) for single coordinate or [(x1, y1), (x2, y2), ...] for list
+        """
+        if not coordinates:
+            return coordinates
+        
+        # Handle single coordinate [x, y]
+        if isinstance(coordinates, list) and len(coordinates) == 2 and all(isinstance(x, (int, float)) for x in coordinates):
+            return tuple(coordinates)
+        
+        # Handle list of coordinates [[x1, y1], [x2, y2], ...]
+        if isinstance(coordinates, list) and all(isinstance(pos, list) and len(pos) == 2 for pos in coordinates):
+            return [tuple(pos) for pos in coordinates]
+        
+        # Return as-is if not a coordinate format
+        return coordinates
+
     def _format_prompt(self, game_state: dict) -> str:
         """
         Format the game state into a language-rich and structured prompt for fine-tuning.
@@ -419,16 +442,21 @@ class DatasetGenerator:
         free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
         free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
         
-        # Format prompt using the game state
+        # Convert coordinates to tuple format for consistent representation
+        head_pos_tuple = self._convert_coordinates_to_tuples(head_pos)
+        apple_position_tuple = self._convert_coordinates_to_tuples(apple_position)
+        body_positions_tuple = self._convert_coordinates_to_tuples(body_positions)
+        
+        # Format prompt using the game state with tuple coordinates
         prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
 
 Current game state:
 - Score: {score}
 - Steps: {steps}
 - Algorithm: {algorithm}
-- Snake head position: {head_pos}
-- Apple position: {apple_position}
-- Snake body positions: {body_positions}
+- Snake head position: {head_pos_tuple}
+- Apple position: {apple_position_tuple}
+- Snake body positions: {body_positions_tuple}
 - Snake length: {len(snake_positions)}
 
 What is the best move to make? Consider:

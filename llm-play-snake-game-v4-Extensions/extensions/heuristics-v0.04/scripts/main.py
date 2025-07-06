@@ -39,7 +39,7 @@ from typing import List
 from utils.path_utils import ensure_project_root
 
 # Unified CLI logging helpers (Emoji + Color)
-from utils.print_utils import print_info, print_success, print_warning, print_error
+from utils.print_utils import print_info, print_success, print_error
 
 # Default parameters for CLI
 DEFAULT_GRID_SIZE = 10

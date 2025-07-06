@@ -502,7 +502,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "",
             "PHASE 3: EMERGENCY MOVE SELECTION",
             f"• Chosen direction: {direction}",
-            f"• Rationale: First available valid move to avoid immediate death",
+            "• Rationale: First available valid move to avoid immediate death",
             "• Safety assessment: UNKNOWN (no path validation possible)",
             "• Risk acceptance: MAXIMUM (survival over safety)",
             "• Expected outcome: Avoid immediate collision, hope for better positioning",
@@ -522,7 +522,7 @@ class BFSSafeGreedyAgent(BFSAgent):
             "• Algorithm adaptation: Switched from greedy to pure survival",
             "",
             "=== CONCLUSION ===",
-            f"BFS-Safe-Greedy has entered emergency survival mode due to complete strategy failure. " +
+            "BFS-Safe-Greedy has entered emergency survival mode due to complete strategy failure. " +
             f"Moving {direction} is a last-resort action to avoid immediate death, with no guarantee of " +
             "long-term survival. The algorithm has exhausted all safe strategies and now operates in " +
             f"pure survival mode with {len(valid_moves)} emergency options remaining."

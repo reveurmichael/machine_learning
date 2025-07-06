@@ -46,7 +46,7 @@ ensure_project_root()
 import argparse
 import time
 from datetime import datetime
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, List, Dict, Any
 import json
 import os
 import copy
@@ -68,13 +68,12 @@ from dataset_generator_core import DatasetGenerator
 from agents.agent_bfs import BFSAgent
 
 # Import state management for robust pre/post state separation
-from state_management import StateManager, create_pre_move_state, create_post_move_state, validate_explanation_head_consistency
+from state_management import StateManager, validate_explanation_head_consistency
 
 # Type alias for any heuristic agent (from agents package)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from agents import BFSAgent, BFSSafeGreedyAgent, BFSHamiltonianAgent
-    from agents import DFSAgent, AStarAgent, AStarHamiltonianAgent, HamiltonianAgent
+    from agents import BFSAgent
 
 # JSON serialization moved to BFSAgent for SSOT compliance
 
@@ -319,7 +318,7 @@ class HeuristicGameManager(BaseGameManager):
             # --- FAIL-FAST: VALIDATE EXPLANATION HEAD CONSISTENCY ---
             if not validate_explanation_head_consistency(pre_state, explanation):
                 import json as _json
-                print_error(f"[SSOT] FAIL-FAST: Explanation head position mismatch")
+                print_error("[SSOT] FAIL-FAST: Explanation head position mismatch")
                 print_error(f"[SSOT] Pre-move state: {_json.dumps(dict(pre_state.game_state))}")
                 print_error(f"[SSOT] Explanation: {_json.dumps(explanation)}")
                 raise RuntimeError("[SSOT] FAIL-FAST: Explanation head position does not match pre-move state")
@@ -421,7 +420,7 @@ class HeuristicGameManager(BaseGameManager):
         n_expl = len(explanations)
         n_metrics = len(metrics)
         if not (n_expl == n_metrics == n_states):
-            print_error(f"[SSOT] FAIL-FAST: Misalignment detected after game!")
+            print_error("[SSOT] FAIL-FAST: Misalignment detected after game!")
             print_error(f"[SSOT] Explanations: {n_expl}, Metrics: {n_metrics}, Pre-move states (rounds 2+): {n_states}")
             print_error(f"[SSOT] dataset_game_states keys: {list(dataset_game_states.keys())}")
             raise RuntimeError(f"[SSOT] Misalignment: explanations={n_expl}, metrics={n_metrics}, pre-move states (rounds 2+): {n_states}")

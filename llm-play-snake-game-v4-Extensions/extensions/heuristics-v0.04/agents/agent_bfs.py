@@ -32,7 +32,6 @@ ensure_project_root()
 from config.game_constants import DIRECTIONS
 from utils.moves_utils import position_to_direction
 from core.game_agents import BaseAgent
-from utils.print_utils import print_info, print_warning, print_error, print_success
 # BFS pathfinding and valid moves calculation implemented directly in the agent
 
 if TYPE_CHECKING:

@@ -14,7 +14,7 @@ Design Philosophy:
 from __future__ import annotations
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 import copy
 import sys
 from pathlib import Path
@@ -24,8 +24,7 @@ project_root = str(Path(__file__).resolve().parents[3])
 sys.path.insert(0, project_root)
 
 # Import utilities using absolute path
-from utils.print_utils import print_info, print_error, print_warning
-from agents.agent_bfs import BFSAgent
+from utils.print_utils import print_error, print_warning
 
 __all__ = [
     "PreMoveState", 

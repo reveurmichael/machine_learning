@@ -29,12 +29,10 @@ from pathlib import Path
 
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-from utils.print_utils import print_info, print_warning, print_error
-from config.game_constants import DIRECTIONS
+from utils.print_utils import print_warning
 
 # Import agent utilities for SSOT compliance
 # Note: This follows the standalone principle - we import from core/utils, not other extensions
-from utils.moves_utils import normalize_direction, is_reverse
 
 
 @dataclass

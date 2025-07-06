@@ -13,7 +13,7 @@ Design Philosophy:
 
 from __future__ import annotations
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any
 import csv
 import json
 import sys
@@ -27,7 +27,6 @@ os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add project root to path to allow absolute imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from config.game_constants import DIRECTIONS
 
 from utils.print_utils import print_info, print_warning, print_success, print_error
 from agents.agent_bfs import BFSAgent

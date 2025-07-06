@@ -15,7 +15,12 @@ Example usage:
 """
 
 import sys
+import os
 from pathlib import Path
+
+# Fix UTF-8 encoding issues on Windows
+# This ensures that all subprocesses and file operations use UTF-8
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add the heuristics-v0.04 directory to sys.path for imports
 current_dir = Path(__file__).resolve().parent

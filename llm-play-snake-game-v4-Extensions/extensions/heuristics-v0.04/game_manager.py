@@ -1,6 +1,12 @@
 from __future__ import annotations
 import sys
+import os
 from pathlib import Path
+
+# Fix UTF-8 encoding issues on Windows
+# This ensures that all subprocesses and file operations use UTF-8
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 """

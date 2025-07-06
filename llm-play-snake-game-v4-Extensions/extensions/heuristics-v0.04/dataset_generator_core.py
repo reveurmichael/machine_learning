@@ -17,7 +17,12 @@ from typing import List, Dict, Any
 import csv
 import json
 import sys
+import os
 import traceback
+
+# Fix UTF-8 encoding issues on Windows
+# This ensures that all subprocesses and file operations use UTF-8
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add project root to path to allow absolute imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))

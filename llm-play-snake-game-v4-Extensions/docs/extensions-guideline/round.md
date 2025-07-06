@@ -1,15 +1,142 @@
-# Round Management for Snake Game AI
+## Deep Analysis: Round Management Integration Patterns
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines round management patterns for extensions.
+### **Common Patterns Between the Two Game Managers**
 
-> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+Game managers share these core round management concepts:
 
-# Round Management for Snake Game AI
+1. **Dual Round Tracking**: Both maintain `self.round_count` (session-level) and delegate to `RoundManager.round_count` (data-level)
+2. **Round Lifecycle Methods**: Both use `start_new_round()`, `increment_round()`, and `finish_round()`
+3. **Session Statistics**: Both track `self.round_counts` list for per-game round analysis
+4. **Console Feedback**: Both provide round status messages during execution
 
-> **Important — Authoritative Reference:** This document supplements the _Final Decision Series_ (`final-decision-0.md` → `final-decision-10.md`) and defines round management patterns for extensions.
+### **The Integration Pattern: Single Source of Truth with Synchronization**
 
-> **See also:** `core.md`, `final-decision-10.md`, `project-structure-plan.md`.
+The architecture follows a **master-slave pattern** where `RoundManager` is the **single source of truth** for round data, while `GameManager` maintains a **synchronized mirror** for session-level operations:
 
+```python
+# In BaseGameManager.start_new_round()
+game_state.round_manager.start_new_round(apple_pos)  # Master increments
+self.round_count = game_state.round_manager.round_count  # Slave syncs
+```
+
+### **Round Count Increment Patterns**
+
+#### **1. RoundManager (Master) - Direct Increment**
+```python
+# In RoundManager.start_new_round()
+self.round_count += 1  # Direct increment
+self.round_buffer = RoundBuffer(number=self.round_count)
+```
+
+#### **2. GameManager (Slave) - Synchronized Mirror**
+```python
+# In BaseGameManager.start_new_round()
+game_state.round_manager.start_new_round(apple_pos)  # Master increments
+self.round_count = game_state.round_manager.round_count  # Slave syncs
+```
+
+#### **3. Session-Level Tracking**
+```python
+# In BaseGameManager.increment_round()
+self.round_counts.append(self.round_count)  # Archive current round
+game_state.round_manager.start_new_round(apple_pos)  # Start next
+self.round_count = game_state.round_manager.round_count  # Sync new
+```
+
+### **Why Both `self.round_count` and `RoundManager.round_count` Exist**
+
+#### **RoundManager.round_count (Master)**
+- **Purpose**: Data persistence and round-level operations
+- **Scope**: Per-game round tracking
+- **Responsibility**: Managing round buffers, JSON serialization, replay data
+- **Lifecycle**: Resets to 1 for each new game
+
+#### **GameManager.round_count (Slave)**
+- **Purpose**: Session-level coordination and external APIs
+- **Scope**: Cross-game session management
+- **Responsibility**: Console output, session statistics, continuation mode
+- **Lifecycle**: Synchronized with RoundManager but accessible to session-level code
+
+### **The Synchronization Pattern**
+
+```python
+# Pattern 1: Direct delegation (most common)
+def start_new_round(self, reason: str = "") -> None:
+    game_state.round_manager.start_new_round(apple_pos)  # Master does work
+    self.round_count = game_state.round_manager.round_count  # Slave syncs
+
+# Pattern 2: Session-level operations
+def increment_round(self, reason: str = "") -> None:
+    self.round_counts.append(self.round_count)  # Archive current
+    game_state.round_manager.start_new_round(apple_pos)  # Master increments
+    self.round_count = game_state.round_manager.round_count  # Slave syncs
+```
+
+### **Key Design Decisions**
+
+#### **1. Fail-Fast SSOT Enforcement**
+```python
+# RoundManager is the ONLY place that increments round_count
+self.round_count += 1  # Only here!
+
+# GameManager NEVER directly increments
+self.round_count = game_state.round_manager.round_count  # Always sync from master
+```
+
+#### **2. Separation of Concerns**
+- **RoundManager**: Data persistence, round-level operations
+- **GameManager**: Session coordination, external APIs, console feedback
+
+#### **3. Backward Compatibility**
+- Existing code that expects `self.round_count` continues to work
+- RoundManager provides the new structured data format
+- Both systems coexist without breaking changes
+
+### Current Architecture
+
+The current architecture is **optimal** because:
+
+1. **SSOT Compliance**: RoundManager is the single source of truth for round data
+2. **API Compatibility**: GameManager provides familiar session-level APIs
+3. **Separation of Concerns**: Data persistence vs. session coordination
+4. **Future-Proof**: Easy to extend RoundManager without affecting GameManager APIs
+
+### **For Future Tasks**
+
+#### **✅ DO:**
+```python
+# Use BaseGameManager's round methods
+self.start_new_round("algorithm planning")
+self.increment_round("new plan needed")
+self.finish_round("plan completed")
+
+# Access current round for session operations
+current_round = self.round_count
+```
+
+#### **❌ DON'T:**
+```python
+# Never directly increment round_count
+self.round_count += 1  # BAD - violates SSOT
+
+# Never bypass RoundManager
+# Always use the provided round management methods
+```
+
+#### **🔧 Integration Pattern:**
+```python
+class MyTaskGameManager(BaseGameManager):
+    def run_single_game(self):
+        self.round_count = 1  # Reset for new game
+        
+        while game_active:
+            self.start_new_round("my algorithm planning")  # ✅ Use base method
+            # ... algorithm logic ...
+            # RoundManager automatically tracks data
+            # self.round_count stays synchronized
+```
+
+The architecture successfully balances **single source of truth** with **practical usability**, making it ideal for all future task implementations.
 ## **🏗️ Perfect Base Class Architecture Already in Place**
 
 ### **1. ✅ BaseRoundManager (Generic for Tasks 0-5) - Perfect**
@@ -139,32 +266,3 @@ class RLGameManager(BaseGameManager):
 - `def increment_round()` ✅
 
 ---
-
-## **🎯 Conclusion: Architecture is Already Perfect**
-
-The round management system is **already perfectly prepared** for Tasks 1-5 with:
-
-### **✅ Perfect Base Class Implementation:**
-1. **BaseRoundManager** - Generic round tracking for all tasks
-2. **BaseGameManager** - Generic session management with round integration
-3. **BaseGameData** - Generic game state with round manager integration
-4. **Clean inheritance hierarchy** - No Task-0 pollution in base classes
-
-### **✅ Perfect Task Extensibility:**
-- **Task-1 (Heuristics)** - Already working perfectly with inherited round management
-- **Tasks 2-5** - Will inherit the same clean round management system
-- **Zero modifications needed** - Base classes are perfectly generic
-
-### **✅ Perfect Attribute Separation:**
-- **Generic attributes** in base classes (round_count, total_rounds, etc.)
-- **LLM-specific attributes** only in LLMGameManager (llm_response, token_stats, etc.)
-- **Clean SOLID compliance** - Open for extension, closed for modification
-
-### **✅ Perfect Inter-Class Dependencies:**
-- **No circular dependencies** - Clean unidirectional flow
-- **No Task-0 pollution** - Base classes are purely generic
-- **Future-proof architecture** - Ready for any algorithm type
-
-The round management system is a **perfect example** of the Base Class philosophy in action - generic, extensible, and ready for the entire roadmap without any modifications needed.
-
-

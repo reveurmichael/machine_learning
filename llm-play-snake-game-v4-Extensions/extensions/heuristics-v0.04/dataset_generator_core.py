@@ -22,6 +22,7 @@ import traceback
 
 # Fix UTF-8 encoding issues on Windows
 # This ensures that all subprocesses and file operations use UTF-8
+# All file operations (CSV, JSONL, JSON) in v0.04 use UTF-8 encoding for cross-platform compatibility
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 # Add project root to path to allow absolute imports

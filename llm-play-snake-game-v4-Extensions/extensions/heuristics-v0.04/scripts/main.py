@@ -6,7 +6,7 @@ orchestrating the game running and dataset generation processes.
 
 Design Philosophy:
 - Single responsibility: Only handles CLI parsing and orchestration
-- Delegates actual work to dataset_game_runner and dataset_generator_core
+- Delegates actual work to dataset_game_runner and dataset_generator
 - Standardized logging: Uses print_utils functions for all operations
 
 Example usage:
@@ -32,7 +32,7 @@ sys.path.insert(0, str(heuristics_dir))
 project_root = heuristics_dir.parent.parent
 sys.path.insert(0, str(project_root))
 
-from dataset_generator_core import DatasetGenerator
+from dataset_generator import DatasetGenerator
 import argparse
 from typing import List
 

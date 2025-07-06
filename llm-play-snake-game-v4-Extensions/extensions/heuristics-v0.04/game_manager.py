@@ -62,7 +62,7 @@ from game_logic import HeuristicGameLogic
 from agents import create, get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import dataset generation utilities for automatic updates
-from dataset_generator_core import DatasetGenerator
+from dataset_generator import DatasetGenerator
 
 # Import BFSAgent for SSOT utilities
 from agents.agent_bfs import BFSAgent
@@ -178,9 +178,6 @@ class HeuristicGameManager(BaseGameManager):
     def _setup_agent(self) -> None:
         """
         Factory method to create appropriate agent based on algorithm selection.
-        
-        Evolution from v0.01: Was hardcoded to BFSAgent(), now supports 7 algorithms
-        using the agents package factory pattern.
         """
         
         try:

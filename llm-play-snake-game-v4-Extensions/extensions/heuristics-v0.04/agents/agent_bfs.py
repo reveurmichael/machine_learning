@@ -372,12 +372,12 @@ class BFSAgent(BaseAgent):
         SSOT Compliance: All coordinates and positions are taken directly from
         the recorded game state, ensuring perfect consistency with dataset generation.
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = BFSAgent.extract_apple_position(game_state)
         grid_size = BFSAgent.extract_grid_size(game_state)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = BFSAgent.extract_body_positions(game_state)
         
         snake_positions = game_state.get('snake_positions', [])
@@ -571,7 +571,7 @@ class BFSAgent(BaseAgent):
         """
         Calculate valid moves using the same logic as agents.
         
-        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        SSOT: Extract positions using exact same logic as dataset_generator.py
         to guarantee true single source of truth.
         
         Args:
@@ -579,7 +579,7 @@ class BFSAgent(BaseAgent):
         Returns:
             List of valid moves (UP, DOWN, LEFT, RIGHT)
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = game_state.get('head_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
@@ -700,7 +700,7 @@ class BFSAgent(BaseAgent):
         """
         Count free space in a given direction from the current head position.
         
-        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        SSOT: Extract positions using exact same logic as dataset_generator.py
         to guarantee true single source of truth.
         
         Args:
@@ -710,12 +710,12 @@ class BFSAgent(BaseAgent):
         Returns:
             Number of free cells in the direction
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = game_state.get('head_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
         
         count = 0

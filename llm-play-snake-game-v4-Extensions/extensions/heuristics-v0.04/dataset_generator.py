@@ -40,6 +40,7 @@ __all__ = ["DatasetGenerator"]
 
 class DatasetGenerator:
     """
+    # TODO: class docstring wrong. we are not converting, we are just generating.
     Convert raw heuristic game logs to datasets (CSV / JSONL).
     Designed to be algorithm-agnostic so supervised / RL can reuse it.
     

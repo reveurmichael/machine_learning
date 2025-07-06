@@ -227,7 +227,7 @@ class BFSSafeGreedyAgent(BFSAgent):
         """
         Validate if a move is safe (snake can reach tail afterward).
         
-        SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        SSOT: Extract positions using exact same logic as dataset_generator.py
         to guarantee true single source of truth.
         
         PRE-EXECUTION: This method validates safety based on the current game state
@@ -245,13 +245,13 @@ class BFSSafeGreedyAgent(BFSAgent):
         Returns:
             True if the move is safe (snake can reach tail afterward), False otherwise
         """
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = BFSAgent.extract_body_positions(game_state)
         
         # KISS: For small snakes, always consider moves safe to avoid over-conservative behavior
@@ -399,13 +399,13 @@ class BFSSafeGreedyAgent(BFSAgent):
                                        direction: str, valid_moves: List[str], manhattan_distance: int, 
                                        remaining_free_cells: int, metrics: dict) -> dict:
         """Generate detailed explanation for tail chase strategy."""
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = BFSAgent.extract_body_positions(game_state)
         
         path_length = len(path) - 1
@@ -470,13 +470,13 @@ class BFSSafeGreedyAgent(BFSAgent):
     def _generate_survival_explanation(self, game_state: dict, direction: str, valid_moves: List[str], 
                                      manhattan_distance: int, remaining_free_cells: int, metrics: dict) -> dict:
         """Generate detailed explanation for survival move strategy."""
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = BFSAgent.extract_body_positions(game_state)
         
         snake_length = len(snake_positions)
@@ -537,13 +537,13 @@ class BFSSafeGreedyAgent(BFSAgent):
     def _generate_no_moves_explanation(self, game_state: dict, valid_moves: List[str], 
                                      manhattan_distance: int, remaining_free_cells: int, metrics: dict) -> dict:
         """Generate detailed explanation for no valid moves scenario."""
-        # SSOT: Extract positions using exact same logic as dataset_generator_core.py
+        # SSOT: Extract positions using exact same logic as dataset_generator.py
         snake_positions = game_state.get('snake_positions', [])
         head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
-        # SSOT: Use exact same body_positions logic as dataset_generator_core.py
+        # SSOT: Use exact same body_positions logic as dataset_generator.py
         body_positions = BFSAgent.extract_body_positions(game_state)
         
         snake_length = len(snake_positions)

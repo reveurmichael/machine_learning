@@ -7,12 +7,12 @@ from __future__ import annotations
 from utils.path_utils import ensure_project_root
 ensure_project_root()
 
-# Import factory functions from agents package
+# Import canonical factory functions from agents package
 from .agents import (
-    create_agent,
+    create,
     get_available_algorithms,
     get_algorithm_info,
-    ALGORITHM_REGISTRY
+    DEFAULT_ALGORITHM
 )
 
 # Import main components
@@ -25,11 +25,11 @@ __author__ = "Heuristics Extension Team"
 
 # Public API
 __all__ = [
-    # Factory functions
-    "create_agent",
+    # Canonical factory functions
+    "create",
     "get_available_algorithms", 
     "get_algorithm_info",
-    "ALGORITHM_REGISTRY",
+    "DEFAULT_ALGORITHM",
     
     # Main modules
     "game_manager",

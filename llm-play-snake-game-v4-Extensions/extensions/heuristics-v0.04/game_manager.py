@@ -59,7 +59,7 @@ from config.game_constants import END_REASON_MAP
 
 # Import heuristic-specific components using relative imports
 from game_logic import HeuristicGameLogic
-from agents import create_agent, get_available_algorithms, DEFAULT_ALGORITHM
+from agents import create, get_available_algorithms, DEFAULT_ALGORITHM
 
 # Import dataset generation utilities for automatic updates
 from dataset_generator_core import DatasetGenerator
@@ -185,8 +185,8 @@ class HeuristicGameManager(BaseGameManager):
         """
         
         try:
-            # Use agents package factory method
-            self.agent = create_agent(self.algorithm_name)
+            # Use agents package canonical factory method
+            self.agent = create(self.algorithm_name)
             
             if not self.agent:
                 available_algorithms = get_available_algorithms()
@@ -374,7 +374,7 @@ class HeuristicGameManager(BaseGameManager):
             # Simple BFS pathfinding implementation
             path_to_apple = BFSAgent._bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
             if path_to_apple is None:
-                print_error("[DEBUG] Apple unreachable after move. Ending game as NO_PATH_FOUND.")
+                print_error("Apple unreachable after move. Ending game as NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
 

@@ -1,8 +1,8 @@
 """
-Heuristics Agents Package - Factory Pattern Implementation
+Heuristics Agents Package - Canonical Factory Pattern Implementation
 ----------------
 
-This package provides a factory pattern for creating heuristic agents.
+This package provides a canonical factory pattern for creating heuristic agents.
 It demonstrates software evolution through inheritance and encapsulation.
 
 Available Algorithms:
@@ -10,10 +10,11 @@ Available Algorithms:
 2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation (inherits from BFS)
 
 Design Patterns:
-- Factory Pattern: create_agent() function for instantiation
-- Registry Pattern: ALGORITHM_REGISTRY for algorithm mapping
-- Inheritance: Progressive enhancement through class hierarchy
+- Factory Pattern: Canonical create() method for instantiation (SUPREME_RULES)
 - Strategy Pattern: Interchangeable algorithms
+- Inheritance: Progressive enhancement through class hierarchy
+
+Reference: docs/extensions-guideline/factory-design-pattern.md
 """
 from __future__ import annotations
 
@@ -31,25 +32,39 @@ except ImportError:
 
 from typing import Dict, Type, Optional, List, Any
 
+# Import canonical factory utilities
+try:
+    from utils.factory_utils import SimpleFactory
+except ImportError:
+    # Fallback for when running from extension directory
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+    from utils.factory_utils import SimpleFactory
+
 # Import all agent classes
 from .agent_bfs import BFSAgent
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
 
-# Algorithm registry mapping names to classes
-ALGORITHM_REGISTRY: Dict[str, Type] = {
-    "BFS": BFSAgent,
-    "BFS-SAFE-GREEDY": BFSSafeGreedyAgent,
-}
+# Canonical factory instance following SUPREME_RULES
+_agent_factory = SimpleFactory("HeuristicAgentFactory")
 
-# After ALGORITHM_REGISTRY definition
+# Register agents with canonical factory
+_agent_factory.register("BFS", BFSAgent)
+_agent_factory.register("BFS-SAFE-GREEDY", BFSSafeGreedyAgent)
+
+# Default algorithm
 DEFAULT_ALGORITHM: str = "BFS"
 
-def create_agent(algorithm_name: str) -> Any:
+def create(algorithm_name: str, **kwargs) -> Any:
     """
-    Factory function to create an agent instance.
+    Canonical factory method to create an agent instance.
+    
+    Following SUPREME_RULES from final-decision-10.md, all factories must use
+    the canonical create() method name for consistency across the project.
     
     Args:
         algorithm_name: Name of the algorithm (case-insensitive)
+        **kwargs: Additional arguments for agent initialization
         
     Returns:
         Agent instance
@@ -57,17 +72,7 @@ def create_agent(algorithm_name: str) -> Any:
     Raises:
         ValueError: If algorithm name is not recognized
     """
-    algorithm_name = algorithm_name.upper()
-    
-    if algorithm_name not in ALGORITHM_REGISTRY:
-        available = ", ".join(ALGORITHM_REGISTRY.keys())
-        raise ValueError(
-            f"Unknown algorithm '{algorithm_name}'. "
-            f"Available algorithms: {available}"
-        )
-    # TODO: use Task0_ROOT/utils/factory_utils.py to create the agent ? maybe it's a better idea?
-    agent_class = ALGORITHM_REGISTRY[algorithm_name]
-    return agent_class()
+    return _agent_factory.create(algorithm_name, **kwargs)
 
 def get_available_algorithms() -> List[str]:
     """
@@ -76,56 +81,8 @@ def get_available_algorithms() -> List[str]:
     Returns:
         List of algorithm names
     """
-    return list(ALGORITHM_REGISTRY.keys())
+    return _agent_factory.list_available()
 
-def get_algorithm_info(algorithm_name: str) -> Dict[str, Any]:
-    """
-    Get information about a specific algorithm.
-    
-    Args:
-        algorithm_name: Name of the algorithm
-        
-    Returns:
-        Dictionary with algorithm information
-        
-    Raises:
-        ValueError: If algorithm name is not recognized
-    """
-    algorithm_name = algorithm_name.upper()
-    
-    if algorithm_name not in ALGORITHM_REGISTRY:
-        available = ", ".join(ALGORITHM_REGISTRY.keys())
-        raise ValueError(
-            f"Unknown algorithm '{algorithm_name}'. "
-            f"Available algorithms: {available}"
-        )
-    
-    agent_class = ALGORITHM_REGISTRY[algorithm_name]
-    agent_instance = agent_class()
-    
-    return {
-        "name": getattr(agent_instance, "name", algorithm_name),
-        "description": getattr(agent_instance, "description", "No description available"),
-        "algorithm_name": getattr(agent_instance, "algorithm_name", algorithm_name),
-        "complexity": _get_algorithm_complexity(algorithm_name),
-        "category": _get_algorithm_category(algorithm_name),
-    }
-
-def _get_algorithm_complexity(algorithm_name: str) -> str:
-    """Get time complexity information for educational purposes."""
-    complexities = {
-        "BFS": "O(V + E) - Optimal for shortest path",
-        "BFS-SAFE-GREEDY": "O(V + E) - BFS + safety validation",
-    }
-    return complexities.get(algorithm_name, "Unknown complexity")
-
-def _get_algorithm_category(algorithm_name: str) -> str:
-    """Get educational category for the algorithm."""
-    categories = {
-        "BFS": "Basic Search",
-        "BFS-SAFE-GREEDY": "Enhanced Search",
-    }
-    return categories.get(algorithm_name, "Unknown category")
 
 # Public API
 __all__ = [
@@ -133,12 +90,9 @@ __all__ = [
     "BFSAgent",
     "BFSSafeGreedyAgent",
 
-    # Factory functions
-    "create_agent",
-    "get_available_algorithms",
-    "get_algorithm_info",
-    
-    # Registry
-    "ALGORITHM_REGISTRY",
+    # Canonical factory method
+    "create",
+
+    # Default
     "DEFAULT_ALGORITHM",
 ] 

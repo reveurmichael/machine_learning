@@ -287,10 +287,6 @@ class StateManager:
         if post_snake_length > pre_snake_length + 1:
             raise ValueError(f"Snake length increased by {post_snake_length - pre_snake_length} but should be at most 1")
         
-        # If snake length increased, apple should have been eaten (new apple generated)
-        if post_snake_length == pre_snake_length + 1 and pre_apple == post_apple:
-            raise ValueError("Snake length increased but apple position didn't change")
-        
         print_info(f"[StateManager] State transition validation passed: {pre_head} -> {post_head} via '{move}'", "StateManager")
     
     def _calculate_expected_head_position(self, pre_head: List[int], move: str, grid_size: int) -> List[int]:

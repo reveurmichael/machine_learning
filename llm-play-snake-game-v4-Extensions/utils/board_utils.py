@@ -241,7 +241,7 @@ def update_board_array(
             f"(width: {board_width}, height: {board_height})"
         )
     
-    board[ay, ax] = board_info["apple"]
+    board[ay, ax] = board_info["apple"] 
 
 
 def create_text_board(

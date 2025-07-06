@@ -97,29 +97,29 @@ class BFSSafeGreedyAgent(BFSAgent):
         # Use the provided state dict for all calculations (SSOT)
         # PRE-EXECUTION: All state values are from BEFORE the move is executed
         
-        # SSOT: Use centralized utilities from parent BFSAgent for all position and calculation extractions
-        head = self.extract_head_position(state)
-        apple = list(state["apple_position"])
-        snake = [list(seg) for seg in state["snake_positions"]]
-        grid_size = state["grid_size"]
+        # SSOT: Use centralized utilities from parent BFSAgent for all position extractions
+        snake_positions = state.get('snake_positions', [])
+        head_pos = BFSAgent.extract_head_position(state)
+        apple_pos = state.get('apple_position', [0, 0])
+        grid_size = state.get('grid_size', 10)
         
         # SSOT: Use centralized body positions calculation from parent
-        body_positions = self.extract_body_positions(state)
+        body_positions = BFSAgent.extract_body_positions(state)
         obstacles = set(tuple(p) for p in body_positions)  # Use body_positions directly
 
         # SSOT: Use centralized calculations for all metrics from parent
         manhattan_distance = self.calculate_manhattan_distance(state)
         valid_moves = self.calculate_valid_moves_ssot(state)
-        remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake), grid_size)
+        remaining_free_cells = self._count_remaining_free_cells(set(tuple(p) for p in snake_positions), grid_size)
 
         # Fail-fast: ensure state is not mutated (SSOT)
 
         # ---------------- 1. Try safe apple path first
         # PRE-EXECUTION: Pathfinding from current head to current apple
-        path_to_apple = self._bfs_pathfind(head, apple, obstacles, grid_size)
+        path_to_apple = self._bfs_pathfind(head_pos, apple_pos, obstacles, grid_size)
         if path_to_apple and len(path_to_apple) > 1:
             next_pos = path_to_apple[1]
-            direction = position_to_direction(tuple(head), tuple(next_pos))
+            direction = position_to_direction(tuple(head_pos), tuple(next_pos))
             
             # Fail-fast: validate bounds and valid moves
             if (next_pos[0] < 0 or next_pos[0] >= grid_size or 
@@ -127,7 +127,7 @@ class BFSSafeGreedyAgent(BFSAgent):
                 raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY computed out-of-bounds position {next_pos} for grid size {grid_size}")
             
             if direction not in valid_moves:
-                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY computed move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY computed move '{direction}' is not valid for head {head_pos} and valid_moves {valid_moves}")
             
             # Safety validation: can snake reach tail after this move?
             # PRE-EXECUTION: Safety check based on current snake positions and predicted next position
@@ -136,9 +136,9 @@ class BFSSafeGreedyAgent(BFSAgent):
                 # PRE-EXECUTION: All metrics are calculated from pre-move state
                 metrics = {
                     "final_chosen_direction": direction,
-                    "head_position": list(head),  # PRE-MOVE: current head position
-                    "apple_position": list(apple),  # PRE-MOVE: current apple position
-                    "snake_length": len(snake),  # PRE-MOVE: current snake length
+                    "head_position": list(head_pos),  # PRE-MOVE: current head position
+                    "apple_position": list(apple_pos),  # PRE-MOVE: current apple position
+                    "snake_length": len(snake_positions),  # PRE-MOVE: current snake length
                     "grid_size": grid_size,
                     "valid_moves": valid_moves,  # PRE-MOVE: current valid moves
                     "manhattan_distance": manhattan_distance,  # PRE-MOVE: current distance
@@ -146,19 +146,17 @@ class BFSSafeGreedyAgent(BFSAgent):
                     "path_length": len(path_to_apple) - 1,  # PRE-MOVE: current path length
                     "apple_path_safe": True
                 }
-                
                 explanation_dict = self._generate_safe_apple_explanation(state, path_to_apple, direction, valid_moves, 
                                                                        manhattan_distance, remaining_free_cells, metrics)
-                
                 return direction, explanation_dict
 
         # ---------------- 2. Apple path unsafe or not found, try tail-chasing
         # PRE-EXECUTION: Tail-chasing from current head to current tail
-        tail = snake[-1]
-        path_to_tail = self._bfs_pathfind(head, tail, obstacles, grid_size)
+        tail = snake_positions[-1]
+        path_to_tail = self._bfs_pathfind(head_pos, tail, obstacles, grid_size)
         if path_to_tail and len(path_to_tail) > 1:
             next_pos = path_to_tail[1]
-            direction = position_to_direction(tuple(head), tuple(next_pos))
+            direction = position_to_direction(tuple(head_pos), tuple(next_pos))
             
             # Fail-fast: validate bounds and valid moves
             if (next_pos[0] < 0 or next_pos[0] >= grid_size or 
@@ -166,14 +164,14 @@ class BFSSafeGreedyAgent(BFSAgent):
                 raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY tail-chase computed out-of-bounds position {next_pos} for grid size {grid_size}")
             
             if direction not in valid_moves:
-                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY tail-chase move '{direction}' is not valid for head {head} and valid_moves {valid_moves}")
+                raise RuntimeError(f"SSOT violation: BFS-SAFE-GREEDY tail-chase move '{direction}' is not valid for head {head_pos} and valid_moves {valid_moves}")
             
             # PRE-EXECUTION: All metrics are calculated from pre-move state
             metrics = {
                 "final_chosen_direction": direction,
-                "head_position": list(head),  # PRE-MOVE: current head position
-                "apple_position": list(apple),  # PRE-MOVE: current apple position
-                "snake_length": len(snake),  # PRE-MOVE: current snake length
+                "head_position": list(head_pos),  # PRE-MOVE: current head position
+                "apple_position": list(apple_pos),  # PRE-MOVE: current apple position
+                "snake_length": len(snake_positions),  # PRE-MOVE: current snake length
                 "grid_size": grid_size,
                 "valid_moves": valid_moves,  # PRE-MOVE: current valid moves
                 "manhattan_distance": manhattan_distance,  # PRE-MOVE: current distance
@@ -192,9 +190,9 @@ class BFSSafeGreedyAgent(BFSAgent):
             # PRE-EXECUTION: All metrics are calculated from pre-move state
             metrics = {
                 "final_chosen_direction": direction,
-                "head_position": list(head),  # PRE-MOVE: current head position
-                "apple_position": list(apple),  # PRE-MOVE: current apple position
-                "snake_length": len(snake),  # PRE-MOVE: current snake length
+                "head_position": list(head_pos),  # PRE-MOVE: current head position
+                "apple_position": list(apple_pos),  # PRE-MOVE: current apple position
+                "snake_length": len(snake_positions),  # PRE-MOVE: current snake length
                 "grid_size": grid_size,
                 "valid_moves": valid_moves,  # PRE-MOVE: current valid moves
                 "manhattan_distance": manhattan_distance,  # PRE-MOVE: current distance
@@ -205,15 +203,15 @@ class BFSSafeGreedyAgent(BFSAgent):
             
             explanation_dict = self._generate_survival_explanation(state, direction, valid_moves, 
                                                                  manhattan_distance, remaining_free_cells, metrics)
-            
+
             return direction, explanation_dict
         else:
             direction = "NO_PATH_FOUND"
             metrics = {
                 "final_chosen_direction": direction,
-                "head_position": list(head),
-                "apple_position": list(apple),
-                "snake_length": len(snake),
+                "head_position": list(head_pos),
+                "apple_position": list(apple_pos),
+                "snake_length": len(snake_positions),
                 "grid_size": grid_size,
                 "valid_moves": valid_moves,
                 "manhattan_distance": manhattan_distance,
@@ -221,10 +219,8 @@ class BFSSafeGreedyAgent(BFSAgent):
                 "path_length": 0,
                 "apple_path_safe": False
             }
-            
             explanation_dict = self._generate_no_moves_explanation(state, valid_moves, 
                                                                  manhattan_distance, remaining_free_cells, metrics)
-
             return direction, explanation_dict
 
     def _is_move_safe(self, game_state: dict, next_pos: List[int]) -> bool:
@@ -251,12 +247,12 @@ class BFSSafeGreedyAgent(BFSAgent):
         """
         # SSOT: Extract positions using exact same logic as dataset_generator_core.py
         snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
+        head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        body_positions = BFSAgent.extract_body_positions(game_state)
         
         # KISS: For small snakes, always consider moves safe to avoid over-conservative behavior
         if len(snake_positions) <= 3:
@@ -305,12 +301,12 @@ class BFSSafeGreedyAgent(BFSAgent):
         explains why the chosen path is safe.
         """
         # SSOT: Use centralized utilities from parent BFSAgent for all position extractions
-        head_pos = self.extract_head_position(game_state)
+        head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = list(game_state.get('apple_position', [0, 0]))
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use centralized body positions calculation from parent
-        body_positions = self.extract_body_positions(game_state)
+        body_positions = BFSAgent.extract_body_positions(game_state)
         
         # PRE-EXECUTION: All calculations use pre-move state values
         # Ensure path starts from pre-move head (type-consistent)
@@ -405,12 +401,12 @@ class BFSSafeGreedyAgent(BFSAgent):
         """Generate detailed explanation for tail chase strategy."""
         # SSOT: Extract positions using exact same logic as dataset_generator_core.py
         snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
+        head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        body_positions = BFSAgent.extract_body_positions(game_state)
         
         path_length = len(path) - 1
         snake_length = len(snake_positions)
@@ -476,12 +472,12 @@ class BFSSafeGreedyAgent(BFSAgent):
         """Generate detailed explanation for survival move strategy."""
         # SSOT: Extract positions using exact same logic as dataset_generator_core.py
         snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
+        head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        body_positions = BFSAgent.extract_body_positions(game_state)
         
         snake_length = len(snake_positions)
         board_fill_ratio = snake_length / (grid_size * grid_size)
@@ -543,12 +539,12 @@ class BFSSafeGreedyAgent(BFSAgent):
         """Generate detailed explanation for no valid moves scenario."""
         # SSOT: Extract positions using exact same logic as dataset_generator_core.py
         snake_positions = game_state.get('snake_positions', [])
-        head_pos = game_state.get('head_position', [0, 0])
+        head_pos = BFSAgent.extract_head_position(game_state)
         apple_pos = game_state.get('apple_position', [0, 0])
         grid_size = game_state.get('grid_size', 10)
         
         # SSOT: Use exact same body_positions logic as dataset_generator_core.py
-        body_positions = [pos for pos in snake_positions if pos != head_pos][::-1]
+        body_positions = BFSAgent.extract_body_positions(game_state)
         
         snake_length = len(snake_positions)
         board_fill_ratio = snake_length / (grid_size * grid_size)

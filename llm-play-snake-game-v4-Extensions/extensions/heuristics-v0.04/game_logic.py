@@ -82,11 +82,23 @@ class HeuristicGameLogic(BaseGameLogic):
         # Note: game_state is initialized in super().__init__(), so we can safely access it here
         if not isinstance(self.game_state, HeuristicGameData):
             self.game_state = HeuristicGameData()
-            self.game_state.reset()
         
-        # Ensure game_state has grid_size for JSON output
+        # SSOT Fix: Sync initial snake positions BEFORE reset() to avoid fail-fast error
+        # The base class initializes snake_positions but doesn't sync them to game_state
+        # We need to sync them before the reset() call that triggers SSOT validation
         if isinstance(self.game_state, HeuristicGameData):
             self.game_state.grid_size = grid_size
+            self.game_state.snake_positions = self.snake_positions.tolist()
+            self.game_state.apple_position = self.apple_position.tolist()
+            # Store initial values for restoration after reset() clears them (no longer needed)
+            # self.game_state._initial_snake_positions = self.snake_positions.tolist()
+            # self.game_state._initial_apple_position = self.apple_position.tolist()
+            self.game_state.reset()
+            # SSOT: Record the initial game state as round 0 in the round manager
+            initial_state = self.get_state_snapshot()
+            if not initial_state['snake_positions'] or not initial_state['apple_position']:
+                raise RuntimeError("[SSOT] Initial game state for round 0 is missing or invalid after initialization.")
+            self.game_state.round_manager.rounds_data[0] = {'game_state': initial_state}
     
     def set_agent(self, agent: BFSAgent) -> None:
         """
@@ -230,19 +242,19 @@ class HeuristicGameLogic(BaseGameLogic):
         # The agent will calculate: valid_moves, path_to_apple, manhattan_distance, etc. from pre-move state
         move, explanation = self.agent.get_move_with_explanation(recorded_game_state)
         self._store_explanation(explanation)
-
+        
         # Generate planned moves
         planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
-
+        
         # Record planned moves in round manager
         if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
             self.game_state.round_manager.record_planned_moves(planned_moves)
             # Note: The actual move will be recorded by the base make_move() method
             # No need to duplicate this here to avoid double-recording
-
+        
         # Update planned_moves
         self.planned_moves = planned_moves
-
+        
         # Get next move from plan
         if return_explanation:
             return move, explanation

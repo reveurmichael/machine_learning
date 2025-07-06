@@ -21,6 +21,8 @@ All agent factories must use the canonical method name `create()` for instantiat
 
 ### Reference Implementation
 
+A generic, educational `SimpleFactory` is provided in `utils/factory_utils.py`:
+
 ```python
 from utils.factory_utils import SimpleFactory
 

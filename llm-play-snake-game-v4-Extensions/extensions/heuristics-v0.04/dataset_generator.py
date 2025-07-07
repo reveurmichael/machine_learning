@@ -165,6 +165,7 @@ class DatasetGenerator:
                 raise RuntimeError(f"[SSOT] Missing required rounds {sorted(missing_rounds)} for {len(moves_history)} moves. Available: {sorted(available_rounds)}")
 
             # Only process up to the minimum length of all three lists
+            # TODO: this is so so ugly. we should rely on game_N.json -> detailed_history -> rounds_data -> X (number of round) -> moves, which is already there. But don't read the game_N.json file, everything is already in the game_data dict, in the memory.
             n_records = min(len(moves_history), len(explanations), len(metrics_list))
             print_info(f"[DEBUG] moves_history: {len(moves_history)}, explanations: {len(explanations)}, metrics_list: {len(metrics_list)}, n_records: {n_records}")
 
@@ -284,6 +285,7 @@ class DatasetGenerator:
             raise RuntimeError(f"SSOT violation: Agent explanation missing 'explanation_steps' for record {game_id}")
 
         # Extract the move direction from the explanation metrics (SSOT)
+        # TODO: There should not be "UNKNOWN" in the first place.
         move_direction = 'UNKNOWN'
         if isinstance(explanation, dict) and 'metrics' in explanation:
             agent_metrics = explanation['metrics']

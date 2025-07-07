@@ -379,6 +379,7 @@ class HeuristicGameManager(BaseGameManager):
                 self.game.update_display()
                 
             # Check max steps after move execution
+            # TODO: use the uniform END_REASON_MAP 
             if steps >= self.args.max_steps:
                 print_error("[DEBUG] Max steps reached. Current game state:")
                 print_error(f"[DEBUG] Head: {self.game.head_position}")
@@ -395,6 +396,7 @@ class HeuristicGameManager(BaseGameManager):
                     round_data = self.game.game_state.round_manager._get_or_create_round_data(round_num)
                     round_data['game_state'] = copy.deepcopy(self.game.get_state_snapshot())
                 
+                # TODO: double check: is this already there in the BaseGameManager/BaseGameLogic?
                 self.game.game_state.record_game_end("MAX_STEPS_REACHED")
                 break
 
@@ -413,6 +415,7 @@ class HeuristicGameManager(BaseGameManager):
         metrics = getattr(self.game.game_state, 'move_metrics', [])
         dataset_game_states = self.game.game_state.generate_game_summary().get('dataset_game_states', {})
         # Only count pre-move states for rounds 2..N+1
+        # TODO: this is so so ugly and violates KISS, violates core.md, violates round.md
         n_states = len([k for k in dataset_game_states.keys() if str(k).isdigit() and int(k) > 1])
         n_expl = len(explanations)
         n_metrics = len(metrics)
@@ -556,8 +559,6 @@ class HeuristicGameManager(BaseGameManager):
         if not self.dataset_generator:
             return
             
-        print_info(f"[HeuristicGameManager] Starting dataset update with {len(games_data)} games")
-        
         for game_data in games_data:
             # game_count is already incremented
             game_data['game_number'] = self.game_count

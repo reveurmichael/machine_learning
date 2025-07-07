@@ -126,7 +126,7 @@ class HeuristicGameLogic(BaseGameLogic):
             List of planned moves (typically single move for heuristics)
         """
         if not self.agent:
-            return ["NO_PATH_FOUND"]
+            raise RuntimeError("No agent set. Please set an agent before planning moves.")
         
         # Record start time for performance tracking
         start_time = time.time()

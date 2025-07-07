@@ -200,9 +200,9 @@ class HeuristicGameData(BaseGameData):
         # Add heuristic stats
         data["heuristic_stats"] = self.get_heuristic_stats()
         
-        # v0.04 Enhancement: Add move explanations and metrics for dataset generation
-        data["move_explanations"] = self.move_explanations
-        data["move_metrics"] = self.move_metrics
+        # # v0.04 Enhancement: Add move explanations and metrics for dataset generation
+        # data["move_explanations"] = self.move_explanations
+        # data["move_metrics"] = self.move_metrics
         
         return data
 
@@ -321,8 +321,8 @@ class HeuristicGameData(BaseGameData):
                 "rounds_data": cleaned_rounds_data,
             },
         }
-        if dataset_game_states:
-            summary["dataset_game_states"] = dataset_game_states
+        # if dataset_game_states:
+        #     summary["dataset_game_states"] = dataset_game_states
         
         return summary
 

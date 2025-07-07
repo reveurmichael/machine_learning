@@ -206,10 +206,12 @@ class DatasetGenerator:
                     # Write to JSONL
                     if self._jsonl_fh:
                         self._jsonl_fh.write(json.dumps(record) + '\n')
+                        self._jsonl_fh.flush()  # Ensure immediate write on Windows
                     # Write to CSV using common utilities
                     if self._csv_writer:
                         csv_record = self._extract_csv_features(record, step_number=round_num)  # CSV step numbers are 1-indexed
                         self._csv_writer[0].writerow(csv_record)
+                        self._csv_writer[1].flush()  # Ensure immediate write on Windows
 
                 except Exception as e:
                     print_error(f"[DatasetGenerator] Error processing move {i} (round {round_num}): {e}")

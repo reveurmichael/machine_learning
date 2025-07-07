@@ -78,7 +78,7 @@ class DatasetGenerator:
     def _open_csv(self):
         """Open CSV file for writing."""
         csv_path = self.output_dir / f"{self.algorithm}_dataset.csv"
-        fh = csv_path.open("w", newline="", encoding="utf-8")
+        fh = csv_path.open("w", newline="", encoding="utf-8", buffering=1)  # Line buffered
         writer = csv.DictWriter(fh, fieldnames=self.csv_extractor.feature_names)
         writer.writeheader()
         self._csv_writer = (writer, fh)
@@ -88,7 +88,7 @@ class DatasetGenerator:
     def _open_jsonl(self):
         """Open JSONL file for writing."""
         jsonl_path = self.output_dir / f"{self.algorithm}_dataset.jsonl"
-        self._jsonl_fh = jsonl_path.open("w", encoding="utf-8")
+        self._jsonl_fh = jsonl_path.open("w", encoding="utf-8", buffering=1)  # Line buffered
         print_info(f"Opened JSONL file: {jsonl_path}", "DatasetGenerator")
 
     # ---------------- PUBLIC
@@ -206,12 +206,14 @@ class DatasetGenerator:
                     # Write to JSONL
                     if self._jsonl_fh:
                         self._jsonl_fh.write(json.dumps(record) + '\n')
-                        self._jsonl_fh.flush()  # Ensure immediate write on Windows
+                        self._jsonl_fh.flush()
+                        os.fsync(self._jsonl_fh.fileno())  # Ensure immediate write on all platforms
                     # Write to CSV using common utilities
                     if self._csv_writer:
                         csv_record = self._extract_csv_features(record, step_number=round_num)  # CSV step numbers are 1-indexed
                         self._csv_writer[0].writerow(csv_record)
-                        self._csv_writer[1].flush()  # Ensure immediate write on Windows
+                        self._csv_writer[1].flush()
+                        os.fsync(self._csv_writer[1].fileno())  # Ensure immediate write on all platforms
 
                 except Exception as e:
                     print_error(f"[DatasetGenerator] Error processing move {i} (round {round_num}): {e}")

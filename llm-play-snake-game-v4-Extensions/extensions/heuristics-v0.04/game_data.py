@@ -321,8 +321,8 @@ class HeuristicGameData(BaseGameData):
                 "rounds_data": cleaned_rounds_data,
             },
         }
-        # if dataset_game_states:
-        #     summary["dataset_game_states"] = dataset_game_states
+        if dataset_game_states:
+            summary["dataset_game_states"] = dataset_game_states
         
         return summary
 

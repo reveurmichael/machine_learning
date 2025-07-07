@@ -159,7 +159,7 @@ class HeuristicGameManager(BaseGameManager):
         all extensions and grid sizes.
 
         Directory pattern:
-            logs/extensions/datasets/grid-size-{N}/heuristics-v0.04_v0.04_{timestamp}/
+            logs/extensions/datasets/grid-size-{N}/heuristics_v0.04_{timestamp}/
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         grid_size = getattr(self.args, "grid_size", 10)
@@ -404,6 +404,7 @@ class HeuristicGameManager(BaseGameManager):
         game_duration = time.time() - start_time
 
         # --- FAIL-FAST: Ensure final step is recorded ---
+        # TODO: this should be done automatically in the BaseGameManager/BaseGameLogic
         final_steps = self.game.game_state.steps
         final_rounds = self.game.game_state.round_manager.round_count if hasattr(self.game.game_state, 'round_manager') else 0
         if final_steps != steps:

@@ -64,14 +64,14 @@ class DatasetGenerator:
         self.algorithm = algorithm
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Initialize CSV feature extractor from common utilities
         self.csv_extractor = CSVFeatureExtractor()
-        
+
         # File handles
         self._csv_writer = None
         self._jsonl_fh = None
-        
+
         print_info(f"Initialized for {algorithm} (output: {output_dir})", "DatasetGenerator")
 
     # ---------------- CSV
@@ -104,7 +104,7 @@ class DatasetGenerator:
         """
         from game_manager import HeuristicGameManager
         import argparse
-        
+
         # Build args namespace for HeuristicGameManager
         args = argparse.Namespace(
             algorithm=self.algorithm,
@@ -114,11 +114,11 @@ class DatasetGenerator:
             verbose=verbose,
             no_gui=True
         )
-        
+
         # Run games in memory using the proper game manager workflow
         game_manager = HeuristicGameManager(args)
         game_manager.initialize()
-        
+
         # Open output files for dataset generation
         if "csv" in formats:
             self._open_csv()
@@ -135,7 +135,7 @@ class DatasetGenerator:
         if self._jsonl_fh:
             self._jsonl_fh.close()
             print_success("JSONL dataset saved")
-            
+
         if verbose:
             print_success(f"[DatasetGenerator] Dataset generation complete for {self.algorithm}")
             print_info(f"📁 Game files and summary saved in: {self.output_dir}")
@@ -172,6 +172,7 @@ class DatasetGenerator:
             for i in range(n_records):
                 move = moves_history[i]
                 try:
+                    # TODO: +2 is so so ugly and violates KISS, violates core.md, violates round.md
                     round_num = i + 2  # rounds start from 2 for moves (skip initial state)
 
                     # SSOT: Check that all required data exists for this round
@@ -184,7 +185,7 @@ class DatasetGenerator:
                     if not game_state:
                         print_warning(f"[SSOT] Game state for round {round_num} missing in dataset_game_states. Stopping at move {i}.")
                         break
-                    
+
                     # SSOT: Use centralized utilities for all position extractions
                     head_pos_for_check = BFSAgent.extract_head_position(game_state)
                     body_positions_for_check = BFSAgent.extract_body_positions(game_state)
@@ -200,7 +201,7 @@ class DatasetGenerator:
                         "game_id": game_data.get('game_number', game_data.get('metadata', {}).get('game_number', 1)),
                         "round_num": round_num
                     })
-                    
+
                     # Write to JSONL
                     if self._jsonl_fh:
                         self._jsonl_fh.write(json.dumps(record) + '\n')
@@ -208,7 +209,7 @@ class DatasetGenerator:
                     if self._csv_writer:
                         csv_record = self._extract_csv_features(record, step_number=round_num)  # CSV step numbers are 1-indexed
                         self._csv_writer[0].writerow(csv_record)
-                        
+
                 except Exception as e:
                     print_error(f"[DatasetGenerator] Error processing move {i} (round {round_num}): {e}")
                     print_error(f"[DatasetGenerator] Move: {move if 'move' in locals() else 'N/A'}")
@@ -220,6 +221,7 @@ class DatasetGenerator:
             print_error(f"[DatasetGenerator] Error processing game {game_data.get('game_number', 'unknown')}: {str(e)}")
             raise
 
+    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a CSV record.
     def _extract_csv_features(self, record: dict, step_number: int = None) -> dict:
         """
         Extract CSV features from a single game record using common utilities.
@@ -231,13 +233,14 @@ class DatasetGenerator:
         game_state = record.get('game_state', {})
         explanation = record.get('explanation', {})
         game_id = record.get('game_id', 1)
-        
+
         # Use common CSV utilities for feature extraction
         # This ensures consistency across all extensions and follows SSOT principles
         csv_record = create_csv_record_with_explanation(game_state, explanation, step_number, game_id)
-        
+
         return csv_record
 
+    # TODO: the name is misleading. it's not extracting a record, it's creating/having/getting a record.
     def _extract_jsonl_record(self, record: dict) -> Dict[str, Any]:
         """
         Extracts and formats a single JSONL record from game data.
@@ -257,7 +260,7 @@ class DatasetGenerator:
         move_chosen = record.get('move') # The chosen move from moves_history
         game_id = record.get('game_id', 1)
         round_num = record.get('round_num')
-        
+
         # SSOT: Use centralized utilities from BFSAgent for all position and calculation extractions
         head_pos = BFSAgent.extract_head_position(game_state)
         body_positions = BFSAgent.extract_body_positions(game_state)
@@ -272,7 +275,7 @@ class DatasetGenerator:
 
         # Ensure imports are within the method for clarity and to avoid circular dependencies if moved later
         # Removed redundant import: from extensions.common.utils.game_analysis_utils import calculate_danger_assessment, calculate_apple_direction
-        
+
         # KISS: Use agent's explanation directly - no fallbacks needed
         # SSOT: The explanation comes from the agent and is already properly formatted
         if isinstance(explanation, dict) and 'explanation_steps' in explanation:
@@ -288,20 +291,20 @@ class DatasetGenerator:
                 move_direction = agent_metrics['final_chosen_direction']
             elif 'move' in agent_metrics: # Fallback for older formats if needed, but prefer final_chosen_direction
                 move_direction = agent_metrics['move']
-        
+
         if move_direction == 'UNKNOWN':
             raise RuntimeError(f"SSOT violation: No valid move direction found in agent metrics for record {game_id}")
-        
+
         # SSOT FAIL-FAST: Ensure the move_chosen passed from moves_history matches the agent's chosen direction
         if move_chosen != move_direction:
-             raise RuntimeError(f"[SSOT] FAIL-FAST: Mismatch between recorded move {move_chosen} and agent's chosen direction {move_direction} for record {game_id}")
+            raise RuntimeError(f"[SSOT] FAIL-FAST: Mismatch between recorded move {move_chosen} and agent's chosen direction {move_direction} for record {game_id}")
 
         # Validate head position before processing (redundant with initial check in _process_single_game, but for robustness)
         # SSOT: Use centralized utilities for all position extractions
         pre_move_head = BFSAgent.extract_head_position(game_state)
         if pre_move_head is None or not isinstance(pre_move_head, (list, tuple)) or len(pre_move_head) != 2:
             raise RuntimeError(f"[SSOT] Invalid head position in game state for round {round_num}: {pre_move_head}")
-        
+
         # --- SSOT FAIL-FAST: Explanation head must match prompt head ---
         explanation_head = explanation.get('metrics', {}).get('head_position') if isinstance(explanation, dict) else None
         if explanation_head and tuple(explanation_head) != tuple(pre_move_head):
@@ -322,7 +325,7 @@ class DatasetGenerator:
         apple_dir_down = apple_direction_info.get('down', False)
         apple_dir_left = apple_direction_info.get('left', False)
         apple_dir_right = apple_direction_info.get('right', False)
-        
+
         # Calculate free space features
         free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
         free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
@@ -358,14 +361,12 @@ class DatasetGenerator:
                 'right': free_space_right
             }
         })
-        
+
         # Return the complete JSONL record
         # PRE-EXECUTION: All features are from pre-move state
         return {
             "prompt": prompt,
             "completion": completion,
-            "game_id": game_id,
-            "round_num": round_num
         }
 
     def _convert_coordinates_to_tuples(self, coordinates):
@@ -379,15 +380,15 @@ class DatasetGenerator:
         """
         if not coordinates:
             return coordinates
-        
+
         # Handle single coordinate [x, y]
         if isinstance(coordinates, list) and len(coordinates) == 2 and all(isinstance(x, (int, float)) for x in coordinates):
             return tuple(coordinates)
-        
+
         # Handle list of coordinates [[x1, y1], [x2, y2], ...]
         if isinstance(coordinates, list) and all(isinstance(pos, list) and len(pos) == 2 for pos in coordinates):
             return [tuple(pos) for pos in coordinates]
-        
+
         # Return as-is if not a coordinate format
         return coordinates
 
@@ -408,7 +409,7 @@ class DatasetGenerator:
         score = game_state.get('score', 0)
         steps = game_state.get('steps', 0)
         algorithm = game_state.get('algorithm', self.algorithm) 
-        
+
         # SSOT: Use centralized utilities from BFSAgent for position extractions
         head_pos = BFSAgent.extract_head_position(game_state)
         if not snake_positions:
@@ -425,9 +426,9 @@ class DatasetGenerator:
         # Validate positions
         if not isinstance(head_pos, (list, tuple)) or len(head_pos) != 2:
             head_pos = [0, 0]
-        
+
         head_x, head_y = head_pos[0], head_pos[1]  # PRE-MOVE: current head coordinates
-        
+
         # Calculate apple direction features using centralized utility
         # PRE-EXECUTION: Apple direction relative to current head position
         apple_direction = calculate_apple_direction(head_pos, apple_position)
@@ -435,19 +436,23 @@ class DatasetGenerator:
         apple_dir_down = apple_direction['down']
         apple_dir_left = apple_direction['left']
         apple_dir_right = apple_direction['right']
-        
+
         # Calculate free space features
         # PRE-EXECUTION: Free space in each direction from current head position
         free_space_up = BFSAgent.count_free_space_in_direction(game_state, "UP")
         free_space_down = BFSAgent.count_free_space_in_direction(game_state, "DOWN")
         free_space_left = BFSAgent.count_free_space_in_direction(game_state, "LEFT")
         free_space_right = BFSAgent.count_free_space_in_direction(game_state, "RIGHT")
-        
+
         # Convert coordinates to tuple format for consistent representation
         head_pos_tuple = self._convert_coordinates_to_tuples(head_pos)
         apple_position_tuple = self._convert_coordinates_to_tuples(apple_position)
         body_positions_tuple = self._convert_coordinates_to_tuples(body_positions)
-        
+
+        # Create text-based board representation
+        from utils.board_utils import create_text_board
+        board_text = create_text_board(grid_size, head_pos, body_positions, apple_position)
+
         # Format prompt using the game state with tuple coordinates
         prompt = f"""You are playing Snake on a {grid_size}x{grid_size} grid. The coordinate system is (0,0) at bottom-left to ({grid_size-1},{grid_size-1}) at top-right. Movement: UP=y+1, DOWN=y-1, RIGHT=x+1, LEFT=x-1.
 
@@ -459,6 +464,9 @@ Current game state:
 - Apple position: {apple_position_tuple}
 - Snake body positions: {body_positions_tuple}
 - Snake length: {len(snake_positions)}
+
+Board representation:
+{board_text}
 
 What is the best move to make? Consider:
 1. Path to the apple

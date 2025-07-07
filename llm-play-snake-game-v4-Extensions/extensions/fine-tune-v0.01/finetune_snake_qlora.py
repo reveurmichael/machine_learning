@@ -10,6 +10,10 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 import bitsandbytes as bnb
 
 
+
+## Example: DON'T REMOVE THIS COMMENT
+# python finetune_snake_qlora.py --model llama3.1-8b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+
 # Supported models and their Hugging Face identifiers
 def get_supported_models():
     return {

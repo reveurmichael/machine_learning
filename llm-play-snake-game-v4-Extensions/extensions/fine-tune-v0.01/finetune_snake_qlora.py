@@ -5,6 +5,8 @@
 import argparse
 import json
 import os
+import shutil
+import subprocess
 from datetime import datetime
 
 import torch
@@ -31,7 +33,7 @@ def parse_args():
         "--model",
         choices=get_supported_models().keys(),
         default="gemma2-9b",
-        help="Model to fine-tune",
+        help="Model to fine-tune"
     )
     parser.add_argument(
         "--data", type=str, required=True,
@@ -56,27 +58,42 @@ def parse_args():
     return parser.parse_args()
 
 
+def prepare_local_model(model_key: str, hf_id: str) -> str:
+    """
+    Export the Ollama model to a Hugging Face transformers format directory.
+    Returns the path to the exported folder.
+    """
+    models_root = os.path.expanduser("~/.ollama/models")
+    export_dir = os.path.join(models_root, model_key + "_hf")
+    # Clean up previous export
+    if os.path.isdir(export_dir):
+        shutil.rmtree(export_dir)
+    os.makedirs(export_dir, exist_ok=True)
+    print(f"Exporting '{model_key}' via Ollama to transformers at {export_dir}...")
+    subprocess.run([
+        "ollama", "export", "--format", "transformers",
+        model_key, export_dir
+    ], check=True)
+    return export_dir
+
+
 def main():
     args = parse_args()
     model_map = get_supported_models()
     hf_id = model_map[args.model]
 
-    # LOCAL_PATHS point to GGUF directory (not file)
-    LOCAL_PATHS = {
-        "deepseek-r1-7b": os.path.expanduser("~/.ollama/models/deepseek-r1-7b/gguf"),
-        "mistral-7b":    os.path.expanduser("~/.ollama/models/mistral-7b/gguf"),
-        "gemma2-9b":     os.path.expanduser("~/.ollama/models/gemma2-9b/gguf"),
-        "llama3.1-8b":   os.path.expanduser("~/.ollama/models/llama3.1-8b/gguf"),
-    }
+    # LOCAL_PATHS = GGUF directory, not used directly now
+    LOCAL_KEYS = set(get_supported_models().keys())
 
-    if args.model in LOCAL_PATHS:
-        model_src = LOCAL_PATHS[args.model]
-        print(f"Loading '{args.model}' from local GGUF directory: {model_src}")
+    if args.model in LOCAL_KEYS:
+        # Export via Ollama to HF-compatible directory
+        model_src = prepare_local_model(args.model, hf_id)
+        print(f"Loading '{args.model}' from exported transformers folder: {model_src}")
         model = AutoModelForCausalLM.from_pretrained(
             model_src,
             trust_remote_code=True,
             device_map="auto",
-            local_files_only=True,
+            local_files_only=True
         )
     else:
         print(f"Loading '{args.model}' from HF: {hf_id}")
@@ -93,13 +110,13 @@ def main():
             ),
         )
 
-    # Always load tokenizer from HF repo
+    # Always load tokenizer from HF
     tokenizer = AutoTokenizer.from_pretrained(hf_id)
 
-    # If we loaded from HF, prepare for QLoRA
-    if args.model not in LOCAL_PATHS:
+    # QLoRA wrappers only when loaded from HF
+    if args.model not in LOCAL_KEYS:
         model = prepare_model_for_kbit_training(model)
-        lora_config = LoraConfig(
+        lora_cfg = LoraConfig(
             r=16,
             lora_alpha=32,
             target_modules=["q_proj", "v_proj"],
@@ -107,25 +124,16 @@ def main():
             bias="none",
             task_type="CAUSAL_LM",
         )
-        model = get_peft_model(model, lora_config)
+        model = get_peft_model(model, lora_cfg)
 
-    # Load and tokenize dataset
-    dataset = load_dataset("json", data_files=args.data)
+    # Load and tokenize
+    ds = load_dataset("json", data_files=args.data)
     def tokenize_fn(batch):
-        inputs = batch['prompt'] + batch['completion']
-        return tokenizer(
-            inputs,
-            truncation=True,
-            max_length=args.max_length,
-            padding='max_length'
-        )
-    tokenized = dataset['train'].map(
-        tokenize_fn,
-        batched=True,
-        remove_columns=['prompt','completion']
-    )
+        text = batch['prompt'] + batch['completion']
+        return tokenizer(text, truncation=True, max_length=args.max_length, padding='max_length')
+    tokenized = ds['train'].map(tokenize_fn, batched=True, remove_columns=['prompt','completion'])
 
-    # Prepare TrainingArguments
+    # Training args
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = os.path.join(args.output_dir, f"{args.model}_{ts}")
     training_args = TrainingArguments(
@@ -141,17 +149,14 @@ def main():
         report_to='none'
     )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=tokenized
-    )
-
+    trainer = Trainer(model=model, args=training_args, train_dataset=tokenized)
     trainer.train()
+
     model.save_pretrained(out_dir)
     tokenizer.save_pretrained(out_dir)
     print(f"Training complete. Models saved to {out_dir}")
 
 if __name__ == '__main__':
     main()
+
 

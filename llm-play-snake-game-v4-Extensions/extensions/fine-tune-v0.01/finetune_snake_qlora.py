@@ -113,7 +113,8 @@ def main():
         dataset = load_dataset("json", data_files=args.data)
 
         def tokenize_fn(batch):
-            inputs = batch["prompt"] + batch["completion"]
+            # Properly concatenate prompt and completion strings with spacing
+            inputs = [p + " " + c for p, c in zip(batch["prompt"], batch["completion"])]
             return tokenizer(
                 inputs,
                 truncation=True,

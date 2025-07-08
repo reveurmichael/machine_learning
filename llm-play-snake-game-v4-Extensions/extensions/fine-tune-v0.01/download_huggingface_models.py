@@ -1,4 +1,14 @@
 import os
+
+USE_HF_MIRROR_ENDPOINT = 1
+
+# Set HF endpoint
+if USE_HF_MIRROR_ENDPOINT == 1:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+else:
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+
+
 import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -15,12 +25,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Download Hugging Face models using official or mirror endpoint."
     )
-    parser.add_argument(
-        "--endpoint",
-        choices=["official", "mirror"],
-        default="mirror",
-        help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com",
-    )
+
     parser.add_argument(
         "--models",
         nargs="*",
@@ -33,11 +38,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-
-    if args.endpoint == "mirror":
-        os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
-    else:
-        os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 
     for model_key in args.models:
         model_name = model_choices[model_key]

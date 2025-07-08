@@ -29,9 +29,9 @@ def parse_args():
     )
     parser.add_argument(
         "--model",
-        choices=get_supported_models().keys(),
+        choices=list(get_supported_models().keys()) + ["all"],
         default="gemma2-9b",
-        help="Model to fine-tune",
+        help="Model to fine-tune (use 'all' to train all supported models)",
     )
     parser.add_argument(
         "--data", type=str, required=True, help="Path to snake game JSONL dataset"
@@ -66,70 +66,133 @@ def main():
     model_map = get_supported_models()
     model_name = model_map[args.model]
 
-    # tokenzier and model
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        load_in_4bit=True,
-        device_map="auto",
-        trust_remote_code=True,
-        quantization_config=bnb.BitsAndBytesConfig(
+    try:
+        # tokenzier and model
+        print(f"Loading tokenizer for {args.model}...")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        
+        print(f"Loading model {args.model}...")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
             load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-        ),
-    )
-
-    # prepare for QLoRA
-    model = prepare_model_for_kbit_training(model)
-    lora_config = LoraConfig(
-        r=16,
-        lora_alpha=32,
-        target_modules=["q_proj", "v_proj"],
-        lora_dropout=0.05,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-    model = get_peft_model(model, lora_config)
-
-    # load dataset
-    dataset = load_dataset("json", data_files=args.data)
-
-    def tokenize_fn(batch):
-        inputs = batch["prompt"] + batch["completion"]
-        return tokenizer(
-            inputs, truncation=True, max_length=args.max_length, padding="max_length"
+            device_map="auto",
+            trust_remote_code=True,
+            quantization_config=bnb.BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+            ),
         )
 
-    tokenized = dataset["train"].map(
-        tokenize_fn, batched=True, remove_columns=["prompt", "completion"]
-    )
+        # prepare for QLoRA
+        print("Preparing model for QLoRA training...")
+        model = prepare_model_for_kbit_training(model)
+        lora_config = LoraConfig(
+            r=16,
+            lora_alpha=32,
+            target_modules=["q_proj", "v_proj"],
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+        model = get_peft_model(model, lora_config)
 
-    # training args
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = os.path.join(args.output_dir, f"{args.model}_{timestamp}")
+        # load dataset
+        print(f"Loading dataset from {args.data}...")
+        dataset = load_dataset("json", data_files=args.data)
 
-    training_args = TrainingArguments(
-        output_dir=output_dir,
-        per_device_train_batch_size=args.batch_size,
-        gradient_accumulation_steps=args.accumulation,
-        num_train_epochs=args.epochs,
-        learning_rate=args.lr,
-        fp16=True,
-        logging_steps=10,
-        save_steps=args.save_steps,
-        save_total_limit=3,
-        report_to="none",
-    )
+        def tokenize_fn(batch):
+            inputs = batch["prompt"] + batch["completion"]
+            return tokenizer(
+                inputs, truncation=True, max_length=args.max_length, padding="max_length"
+            )
 
-    trainer = Trainer(model=model, args=training_args, train_dataset=tokenized)
+        print("Tokenizing dataset...")
+        tokenized = dataset["train"].map(
+            tokenize_fn, batched=True, remove_columns=["prompt", "completion"]
+        )
 
-    trainer.train()
-    model.save_pretrained(output_dir)
-    tokenizer.save_pretrained(output_dir)
-    print(f"Training complete. Models saved to {output_dir}")
+        # training args
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = os.path.join(args.output_dir, f"{args.model}_{timestamp}")
+
+        training_args = TrainingArguments(
+            output_dir=output_dir,
+            per_device_train_batch_size=args.batch_size,
+            gradient_accumulation_steps=args.accumulation,
+            num_train_epochs=args.epochs,
+            learning_rate=args.lr,
+            fp16=True,
+            logging_steps=10,
+            save_steps=args.save_steps,
+            save_total_limit=3,
+            report_to="none",
+        )
+
+        trainer = Trainer(model=model, args=training_args, train_dataset=tokenized)
+
+        print(f"Starting training for {args.model}...")
+        trainer.train()
+        model.save_pretrained(output_dir)
+        tokenizer.save_pretrained(output_dir)
+        print(f"Training complete. Models saved to {output_dir}")
+        
+    except Exception as e:
+        print(f"Error training model {args.model}: {str(e)}")
+        print(f"Skipping {args.model} and continuing...")
+        return False
+    
+    return True
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    
+    # If a specific model is specified, train only that one
+    if args.model != "all":
+        success = main()
+        if not success:
+            print(f"Failed to train {args.model}")
+            exit(1)
+    else:
+        # Train all supported models sequentially
+        model_map = get_supported_models()
+        successful_models = []
+        failed_models = []
+        
+        for model_name in model_map.keys():
+            print(f"\n{'='*50}")
+            print(f"Training model: {model_name}")
+            print(f"{'='*50}")
+            
+            # Temporarily set the model argument
+            original_model = args.model
+            args.model = model_name
+            
+            try:
+                success = main()
+                if success:
+                    successful_models.append(model_name)
+                    print(f"✓ Successfully trained {model_name}")
+                else:
+                    failed_models.append(model_name)
+                    print(f"✗ Failed to train {model_name}")
+            except Exception as e:
+                failed_models.append(model_name)
+                print(f"✗ Exception during training of {model_name}: {str(e)}")
+            
+            # Restore original model argument
+            args.model = original_model
+        
+        # Print summary
+        print(f"\n{'='*50}")
+        print("TRAINING SUMMARY")
+        print(f"{'='*50}")
+        print(f"Successful models: {successful_models}")
+        print(f"Failed models: {failed_models}")
+        print(f"Total successful: {len(successful_models)}/{len(model_map)}")
+        
+        if failed_models:
+            print(f"\nFailed models: {failed_models}")
+            exit(1)

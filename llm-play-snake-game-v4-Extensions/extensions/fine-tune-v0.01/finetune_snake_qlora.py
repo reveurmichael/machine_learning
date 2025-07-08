@@ -1,5 +1,5 @@
 ## Example: DON'T REMOVE THIS COMMENT
-# python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+# python finetune_snake_qlora.py --endpoint mirror --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
 
 import os
 
@@ -40,8 +40,8 @@ def parse_args():
     parser.add_argument(
         "--endpoint",
         choices=["official", "mirror"],
-        default="official",
-        help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com"
+        default="mirror",
+        help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com",
     )
 
     parser.add_argument(

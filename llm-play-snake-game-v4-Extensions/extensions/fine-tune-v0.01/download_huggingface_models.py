@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument(
         "--endpoint",
         choices=["official", "mirror"],
-        default="official",
+        default="mirror",
         help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com",
     )
     parser.add_argument(

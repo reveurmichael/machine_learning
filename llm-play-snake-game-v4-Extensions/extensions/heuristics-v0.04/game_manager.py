@@ -118,10 +118,10 @@ class HeuristicGameManager(BaseGameManager):
         self.game_steps: List[int] = []
         self.game_rounds: List[int] = []
         self.session_start_time: datetime = datetime.now()
-        
+
         # Dataset update tracking (always enabled)
         self.dataset_generator: Optional[DatasetGenerator] = None
-        
+
         print_info(f"[HeuristicGameManager] Initialized for {self.algorithm_name}")
 
     def initialize(self) -> None:
@@ -134,7 +134,7 @@ class HeuristicGameManager(BaseGameManager):
 
         # Initialize dataset generator for automatic updates
         self._setup_dataset_generator()
-        
+
         # Setup base game components
         self.setup_game()
 
@@ -163,7 +163,7 @@ class HeuristicGameManager(BaseGameManager):
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         grid_size = getattr(self.args, "grid_size", 10)
-        
+
         # Follow standardized dataset folder structure
         # Reference: docs/extensions-guideline/datasets-folder.md
         dataset_folder = f"heuristics_v0.04_{timestamp}"
@@ -179,11 +179,11 @@ class HeuristicGameManager(BaseGameManager):
         """
         Factory method to create appropriate agent based on algorithm selection.
         """
-        
+
         try:
             # Use agents package canonical factory method
             self.agent = create(self.algorithm_name)
-            
+
             if not self.agent:
                 available_algorithms = get_available_algorithms()
                 raise ValueError(f"Unknown algorithm: {self.algorithm_name}. Available: {available_algorithms}")
@@ -196,11 +196,11 @@ class HeuristicGameManager(BaseGameManager):
     def _setup_dataset_generator(self) -> None:
         """Setup dataset generator for automatic updates."""
         self.dataset_generator = DatasetGenerator(self.algorithm_name, Path(self.log_dir))
-        
+
         # Open CSV and JSONL files for writing
         self.dataset_generator._open_csv()
         self.dataset_generator._open_jsonl()
-        
+
         print_info("[HeuristicGameManager] Dataset generator initialized for automatic updates")
 
     def run(self) -> None:
@@ -209,7 +209,7 @@ class HeuristicGameManager(BaseGameManager):
         print_info(f"📊 Target games: {self.args.max_games}")
         print_info(f"🧠 Algorithm: {self.algorithm_name}")
         print_info("")
-        
+
         # Run games
         for game_id in range(1, self.args.max_games + 1):
             print_info(f"🎮 Game {game_id}")
@@ -224,10 +224,10 @@ class HeuristicGameManager(BaseGameManager):
             # Check if we should continue
             if game_id < self.args.max_games:
                 print_info("")  # Spacer between games
-        
+
         # Save session summary
         self._save_session_summary()
-        
+
         # Close dataset generator files
         if self.dataset_generator:
             if self.dataset_generator._csv_writer:
@@ -236,7 +236,7 @@ class HeuristicGameManager(BaseGameManager):
             if self.dataset_generator._jsonl_fh:
                 self.dataset_generator._jsonl_fh.close()
                 print_success("JSONL dataset saved")
-        
+
         print_success("✅ ✅ Heuristics v0.04 session completed!")
         print_info(f"🎮 Games played: {len(self.game_scores)}")
         print_info(f"🏆 Total score: {self.total_score}")
@@ -248,7 +248,7 @@ class HeuristicGameManager(BaseGameManager):
     def _run_single_game(self) -> float:
         """Run a single game and return its duration using robust state management."""
         start_time = time.time()
-        
+
         # Initialize game
         self.game.reset()
 
@@ -258,19 +258,19 @@ class HeuristicGameManager(BaseGameManager):
         # Create initial pre-move state for round 1
         initial_raw_state = self.game.get_state_snapshot()
         initial_pre_state = state_manager.create_pre_move_state(initial_raw_state)
-        
+
         # Fail-fast: Validate initial game state
         if not initial_pre_state.get_snake_positions():
             print_error(f"[FAIL-FAST] Initial game state has no snake positions: {initial_raw_state}")
             raise RuntimeError("[SSOT] Initial game state has no snake positions - game reset failed")
-        
+
         # Store initial pre-move state in round data
         if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
             self.game.game_state.round_manager.round_buffer.number = 1
             round_data = self.game.game_state.round_manager._get_or_create_round_data(1)
             round_data['game_state'] = dict(initial_pre_state.game_state)  # Convert back to dict for storage
             self.game.game_state.round_manager.sync_round_data()
-            
+
             # Fail-fast: Verify round 1 was recorded
             rounds_keys = list(self.game.game_state.round_manager.rounds_data.keys())
             if 1 not in rounds_keys and '1' not in rounds_keys:
@@ -282,7 +282,7 @@ class HeuristicGameManager(BaseGameManager):
         steps = 0
         while not self.game.game_over:
             steps += 1
-            
+
             # Sync previous round's data before starting a new round
             if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager and self.round_count > 0:
                 self.game.game_state.round_manager.sync_round_data()
@@ -294,7 +294,7 @@ class HeuristicGameManager(BaseGameManager):
             # Create immutable pre-move state from current game state
             raw_pre_state = self.game.get_state_snapshot()
             pre_state = state_manager.create_pre_move_state(raw_pre_state)
-            
+
             # Store pre-move state in round data
             if hasattr(self.game.game_state, "round_manager") and self.game.game_state.round_manager:
                 round_num = self.game.game_state.round_manager.round_buffer.number
@@ -304,14 +304,14 @@ class HeuristicGameManager(BaseGameManager):
             # --- AGENT DECISION MAKING WITH IMMUTABLE STATE ---
             # Extract state dict for agent compatibility (safe because original was deep-copied)
             agent_state_dict = dict(pre_state.game_state)
-            
+
             # Fail-fast: Ensure game logic has required method
             if not hasattr(self.game, 'get_next_planned_move_with_state'):
                 raise RuntimeError("[SSOT] Game logic missing get_next_planned_move_with_state method - required for SSOT compliance")
-            
+
             # Get move and explanation using immutable pre-move state
             move, explanation = self.game.get_next_planned_move_with_state(agent_state_dict, return_explanation=True)
-            
+
             # --- FAIL-FAST: VALIDATE EXPLANATION HEAD CONSISTENCY ---
             if not validate_explanation_head_consistency(pre_state, explanation):
                 import json as _json
@@ -326,7 +326,7 @@ class HeuristicGameManager(BaseGameManager):
             body_positions = pre_state.get_snake_positions()
             manhattan_distance = BFSAgent.calculate_manhattan_distance(dict(pre_state.game_state))
             valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(pre_state.game_state))
-            
+
             if move == "NO_PATH_FOUND":
                 if valid_moves:
                     print_error(f"[SSOT VIOLATION] Agent returned 'NO_PATH_FOUND' but valid moves exist: {valid_moves} for head {head}")
@@ -338,7 +338,7 @@ class HeuristicGameManager(BaseGameManager):
                     round_data['game_state'] = copy.deepcopy(self.game.get_state_snapshot())
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
-                
+
             if move not in valid_moves:
                 print_error(f"[SSOT VIOLATION] Agent chose '{move}' but valid moves are {valid_moves} for head {head}")
                 print_error("[SSOT VIOLATION] This indicates a bug in the agent or state management")
@@ -348,11 +348,11 @@ class HeuristicGameManager(BaseGameManager):
             # --- APPLY MOVE AND CREATE POST-MOVE STATE ---
             # Apply move to game logic
             self.game.make_move(move)
-            
+
             # Create post-move state from game state after move
             raw_post_state = self.game.get_state_snapshot()
             post_state = state_manager.create_post_move_state(pre_state, move, raw_post_state)
-            
+
             # --- POST-MOVE VALIDATION ---
             # Check if there are any valid moves left after move
             post_valid_moves = BFSAgent.calculate_valid_moves_ssot(dict(post_state.game_state))
@@ -360,13 +360,13 @@ class HeuristicGameManager(BaseGameManager):
                 print_error("[DEBUG] No valid moves left after move. Ending game as TRAPPED/NO_PATH_FOUND.")
                 self.game.game_state.record_game_end("NO_PATH_FOUND")
                 break
-                
+
             # Check if apple is reachable from new post-move head position
             post_head = post_state.get_head_position()
             post_apple = post_state.get_apple_position()
             post_snake_positions = post_state.get_snake_positions()
             obstacles = set(tuple(p) for p in post_snake_positions[:-1])
-            
+
             # Simple BFS pathfinding implementation
             path_to_apple = BFSAgent._bfs_pathfind(post_head, post_apple, obstacles, post_state.get_grid_size())
             if path_to_apple is None:
@@ -377,9 +377,10 @@ class HeuristicGameManager(BaseGameManager):
             # Update display if GUI is enabled
             if hasattr(self.game, 'update_display'):
                 self.game.update_display()
-                
+
             # Check max steps after move execution
-            # TODO: use the uniform END_REASON_MAP 
+            # TODO: use the uniform END_REASON_MAP
+            # TODO: also, make sure game_limits_manager.py is used (transparently).
             if steps >= self.args.max_steps:
                 print_error("[DEBUG] Max steps reached. Current game state:")
                 print_error(f"[DEBUG] Head: {self.game.head_position}")
@@ -389,13 +390,13 @@ class HeuristicGameManager(BaseGameManager):
                 print_error(f"[DEBUG] Steps: {self.game.game_state.steps}")
                 print_error(f"[DEBUG] Game over: {self.game.game_over}")
                 print_error(f"[DEBUG] Game end reason: {getattr(self.game.game_state, 'game_end_reason', 'None')}")
-                
+
                 # Record the final move before ending the game
                 if hasattr(self.game.game_state, 'round_manager') and self.game.game_state.round_manager:
                     round_num = self.game.game_state.round_manager.round_buffer.number
                     round_data = self.game.game_state.round_manager._get_or_create_round_data(round_num)
                     round_data['game_state'] = copy.deepcopy(self.game.get_state_snapshot())
-                
+
                 # TODO: double check: is this already there in the BaseGameManager/BaseGameLogic?
                 self.game.game_state.record_game_end("MAX_STEPS_REACHED")
                 break
@@ -406,6 +407,7 @@ class HeuristicGameManager(BaseGameManager):
         # --- FAIL-FAST: Ensure final step is recorded ---
         # TODO: this should be done automatically in the BaseGameManager/BaseGameLogic
         final_steps = self.game.game_state.steps
+        # TODO: we final_rounds. Seems ugly.
         final_rounds = self.game.game_state.round_manager.round_count if hasattr(self.game.game_state, 'round_manager') else 0
         if final_steps != steps:
             print_error(f"[SSOT] FAIL-FAST: Step count mismatch! Game state shows {final_steps} steps but loop executed {steps} steps")
@@ -432,16 +434,16 @@ class HeuristicGameManager(BaseGameManager):
         """Finalize game and update datasets automatically."""
         # Increment game count before saving (matches Task-0 behavior)
         self.game_count += 1
-        
+
         # Set game number in game state (matches Task-0 behavior)
         self.game.game_state.game_number = self.game_count
-        
+
         # Generate game data with explanations and metrics
         game_data = self._generate_game_data(game_duration)
-        
+
         # Save game data
         self._save_game_data(game_data)
-        
+
         # Update datasets automatically
         self._update_datasets_incrementally([game_data])
 
@@ -457,7 +459,7 @@ class HeuristicGameManager(BaseGameManager):
                 raw_reason = "MAX_STEPS_REACHED"
             else:
                 raw_reason = "SELF"
-        
+
         if raw_reason not in END_REASON_MAP:
             print_warning(f"[GameManager] Unknown end reason '{raw_reason}', defaulting to 'SELF'.")
             return "SELF"
@@ -475,17 +477,17 @@ class HeuristicGameManager(BaseGameManager):
         # Use the game data's generate_game_summary method for Task-0 compatible game files
         # This ensures clean data without game_state in rounds_data and without move_metrics
         game_summary = self.game.game_state.generate_game_summary()
-        
+
         # Add algorithm name and duration for heuristics
         game_summary["algorithm"] = self.algorithm_name
         game_summary["duration_seconds"] = round(game_duration, 2)
-        
+
         # Add explanations and metrics for dataset generation (v0.04 enhancement)
         game_summary["move_explanations"] = getattr(self.game.game_state, 'move_explanations', [])
         game_summary["move_metrics"] = getattr(self.game.game_state, 'move_metrics', [])
-        
+
         return game_summary
-    
+
     def _save_game_data(self, game_data: Dict[str, Any]) -> None:
         """Save individual game data."""
         # Use game_count to match Task-0 numbering (games start at 1, not 0)
@@ -501,7 +503,7 @@ class HeuristicGameManager(BaseGameManager):
     def _save_session_summary(self) -> None:
         """Save session summary."""
         session_duration = (datetime.now() - self.session_start_time).total_seconds()
-        
+
         summary = {
             "session_timestamp": self.session_start_time.strftime("%Y%m%d_%H%M%S"),
             "algorithm": self.algorithm_name,
@@ -522,12 +524,12 @@ class HeuristicGameManager(BaseGameManager):
                 "verbose": getattr(self.args, "verbose", False),
             }
         }
-        
+
         # Save summary
         summary_file = os.path.join(self.log_dir, "summary.json")
         with open(summary_file, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
-        
+
         # Display summary
         print_info(f"🧠 Algorithm: {self.algorithm_name}")
         print_info(f"🎮 Total games: {len(self.game_scores)}")
@@ -559,7 +561,7 @@ class HeuristicGameManager(BaseGameManager):
         """Update datasets incrementally after each game."""
         if not self.dataset_generator:
             return
-            
+
         for game_data in games_data:
             # game_count is already incremented
             game_data['game_number'] = self.game_count
@@ -569,7 +571,7 @@ class HeuristicGameManager(BaseGameManager):
         """Create game logic and optional GUI interface with correct grid size."""
         # Get grid size from command line arguments
         grid_size = getattr(self.args, "grid_size", 10)
-        
+
         # Use the specified game logic class with correct grid size
         self.game = self.GAME_LOGIC_CLS(grid_size=grid_size, use_gui=self.use_gui)
 

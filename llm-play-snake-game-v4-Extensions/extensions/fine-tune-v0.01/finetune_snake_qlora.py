@@ -6,7 +6,7 @@ import os
 # Completely disable TensorFlow
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
-os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["HF_HUB_OFFLINE"] = "0"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["DISABLE_TF"] = "1"
 

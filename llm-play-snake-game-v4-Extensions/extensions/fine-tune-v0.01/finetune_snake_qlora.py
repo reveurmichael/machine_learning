@@ -36,6 +36,14 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Fine-tune snake game LLM with LoRA (no TensorFlow) on Snake JSONL dataset"
     )
+
+    parser.add_argument(
+        "--endpoint",
+        choices=["official", "mirror"],
+        default="official",
+        help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com"
+    )
+
     parser.add_argument(
         "--model",
         choices=list(get_supported_models().keys()) + ["all"],
@@ -81,6 +89,13 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    # Set HF endpoint
+    if args.endpoint == "mirror":
+        os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+    else:
+        os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+
     model_map = get_supported_models()
     model_name = model_map[args.model]
 
@@ -88,11 +103,11 @@ def main():
         # Tokenizer and model
         print(f"Loading tokenizer for {args.model}...")
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        
+
         # Add padding token if it doesn't exist
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
-        
+
         print(f"Loading model {args.model}...")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
@@ -104,7 +119,7 @@ def main():
         # Prepare for QLoRA
         print("Preparing model for QLoRA training...")
         model = prepare_model_for_kbit_training(model)
-        
+
         # Enhanced LoRA config for Snake game reasoning
         lora_config = LoraConfig(
             r=args.lora_r,
@@ -115,7 +130,7 @@ def main():
             task_type="CAUSAL_LM",
         )
         model = get_peft_model(model, lora_config)
-        
+
         # Print trainable parameters
         model.print_trainable_parameters()
 
@@ -133,7 +148,7 @@ def main():
             for prompt, completion in zip(batch["prompt"], batch["completion"]):
                 # Format: prompt + completion, with attention only on completion for loss
                 full_text.append(prompt + completion)
-            
+
             # Tokenize the full text
             tokenized = tokenizer(
                 full_text,
@@ -142,7 +157,7 @@ def main():
                 padding=False,  # Let data collator handle padding
                 return_tensors=None
             )
-            
+
             # Create labels for causal language modeling
             # We want to predict the completion part only
             labels = []
@@ -150,18 +165,18 @@ def main():
                 # Tokenize prompt separately to find where completion starts
                 prompt_tokens = tokenizer(prompt, add_special_tokens=False)["input_ids"]
                 full_tokens = tokenized["input_ids"][i]
-                
+
                 # Create labels: -100 for prompt tokens (ignored in loss), actual tokens for completion
                 label = [-100] * len(prompt_tokens) + full_tokens[len(prompt_tokens):]
-                
+
                 # Pad/truncate to match input length
                 if len(label) > len(full_tokens):
                     label = label[:len(full_tokens)]
                 elif len(label) < len(full_tokens):
                     label.extend([-100] * (len(full_tokens) - len(label)))
-                
+
                 labels.append(label)
-            
+
             tokenized["labels"] = labels
             return tokenized
 
@@ -214,19 +229,19 @@ def main():
         print(f"Dataset size: {len(tokenized)} examples")
         print(f"Training for {args.epochs} epochs with batch size {args.batch_size}")
         print(f"Effective batch size: {args.batch_size * args.accumulation}")
-        
+
         trainer.train()
-        
+
         # Save model and tokenizer
         print(f"Saving model to {output_dir}...")
         model.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
-        
+
         # Save training config for reference
         config_file = os.path.join(output_dir, "training_config.json")
         with open(config_file, "w") as f:
             json.dump(vars(args), f, indent=2)
-        
+
         print(f"Training complete. Models saved to {output_dir}")
 
     except Exception as e:

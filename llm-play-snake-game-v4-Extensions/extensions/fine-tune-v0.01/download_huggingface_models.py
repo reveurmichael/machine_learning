@@ -10,7 +10,13 @@ model_choices = {
 }
 
 # Choose models to download
-models_to_download = ["deepseek-r1-7b", "mistral-7b", "gemma2-9b", "llama3.1-8b", "mistral-7b-instruct-v0.2"]
+models_to_download = [
+    "deepseek-r1-7b",
+    "deepseek-r1-qwen-7b",
+    "mistral-7b",
+    "gemma2-9b",
+    "llama3.1-8b",
+]
 
 for model_key in models_to_download:
     model_name = model_choices[model_key]

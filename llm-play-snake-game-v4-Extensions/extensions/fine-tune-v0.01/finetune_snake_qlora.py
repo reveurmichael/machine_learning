@@ -25,6 +25,7 @@ import bitsandbytes as bnb
 def get_supported_models():
     return {
         "deepseek-r1-7b": "deepseek-ai/deepseek-r1-distill-llama-7b",
+        "deepseek-r1-qwen-7b": "deepseek-ai/deepseek-r1-distill-qwen-7b",
         "mistral-7b": "mistralai/Mistral-7B-v0.1",
         "gemma2-9b": "google/gemma-2-9b",
         "llama3.1-8b": "meta-llama/Llama-3.1-8B",

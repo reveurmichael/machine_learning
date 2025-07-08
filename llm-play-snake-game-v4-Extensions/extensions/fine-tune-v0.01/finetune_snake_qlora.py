@@ -12,8 +12,7 @@ from datetime import datetime
 import torch
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-import bitsandbytes as bnb
+from peft import LoraConfig, get_peft_model
 
 
 # Supported models and their Hugging Face identifiers
@@ -77,20 +76,13 @@ def main():
         print(f"Loading model {args.model}...")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            load_in_4bit=True,
             device_map="auto",
             trust_remote_code=True,
-            quantization_config=bnb.BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-            ),
+            torch_dtype=torch.float16,
         )
 
-        # prepare for QLoRA
-        print("Preparing model for QLoRA training...")
-        model = prepare_model_for_kbit_training(model)
+        # prepare for LoRA
+        print("Preparing model for LoRA training...")
         lora_config = LoraConfig(
             r=16,
             lora_alpha=32,

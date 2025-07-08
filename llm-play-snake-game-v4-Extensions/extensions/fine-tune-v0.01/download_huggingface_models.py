@@ -2,11 +2,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Choose which models you want to download
 model_choices = {
-    "deepseek-r1-7b": "deepseek/deepseek-r1-7b",
+    "deepseek-r1-7b": "deepseek-ai/deepseek-r1-distill-llama-7b",
+    "deepseek-r1-qwen-7b": "deepseek-ai/deepseek-r1-distill-qwen-7b",
     "mistral-7b": "mistralai/Mistral-7B-v0.1",
     "gemma2-9b": "google/gemma-2-9b",
-    "llama3.1-8b": "meta-llama/Meta-Llama-3-8B",
-    "mistral-7b-instruct-v0.2": "mistralai/Mistral-7B-Instruct-v0.2",
+    "llama3.1-8b": "meta-llama/Llama-3.1-8B",
 }
 
 # Choose models to download

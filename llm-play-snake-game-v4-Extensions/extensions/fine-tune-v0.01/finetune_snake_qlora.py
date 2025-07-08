@@ -1,12 +1,17 @@
 ## Example: DON'T REMOVE THIS COMMENT
-# python finetune_snake_qlora.py --model llama3.1-8b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
-# python finetune_snake_qlora.py --model deepseek-r1-7b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
-# python finetune_snake_qlora.py --model mistral-7b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
-# python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+# python finetune_snake_qlora_no_tf.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+
+import os
+
+# Completely disable TensorFlow
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TRANSFORMERS_OFFLINE"] = "1"
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["DISABLE_TF"] = "1"
 
 import argparse
 import json
-import os
 from datetime import datetime
 
 import torch
@@ -28,7 +33,7 @@ def get_supported_models():
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Fine-tune snake game LLM with QLoRA (4-bit) on Snake JSONL dataset"
+        description="Fine-tune snake game LLM with LoRA (no TensorFlow) on Snake JSONL dataset"
     )
     parser.add_argument(
         "--model",
@@ -90,15 +95,9 @@ def main():
         print(f"Loading model {args.model}...")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            load_in_4bit=True,
             device_map="auto",
             trust_remote_code=True,
-            quantization_config=bnb.BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-            ),
+            torch_dtype=torch.float16,
         )
 
         # Prepare for QLoRA
@@ -228,18 +227,18 @@ def main():
             json.dump(vars(args), f, indent=2)
         
         print(f"Training complete. Models saved to {output_dir}")
-        
+
     except Exception as e:
         print(f"Error training model {args.model}: {str(e)}")
         print(f"Skipping {args.model} and continuing...")
         return False
-    
+
     return True
 
 
 if __name__ == "__main__":
     args = parse_args()
-    
+
     # If a specific model is specified, train only that one
     if args.model != "all":
         success = main()
@@ -251,16 +250,16 @@ if __name__ == "__main__":
         model_map = get_supported_models()
         successful_models = []
         failed_models = []
-        
+
         for model_name in model_map.keys():
             print(f"\n{'='*50}")
             print(f"Training model: {model_name}")
             print(f"{'='*50}")
-            
+
             # Temporarily set the model argument
             original_model = args.model
             args.model = model_name
-            
+
             try:
                 success = main()
                 if success:
@@ -272,10 +271,10 @@ if __name__ == "__main__":
             except Exception as e:
                 failed_models.append(model_name)
                 print(f"✗ Exception during training of {model_name}: {str(e)}")
-            
+
             # Restore original model argument
             args.model = original_model
-        
+
         # Print summary
         print(f"\n{'='*50}")
         print("TRAINING SUMMARY")
@@ -283,7 +282,7 @@ if __name__ == "__main__":
         print(f"Successful models: {successful_models}")
         print(f"Failed models: {failed_models}")
         print(f"Total successful: {len(successful_models)}/{len(model_map)}")
-        
+
         if failed_models:
             print(f"\nFailed models: {failed_models}")
             exit(1)

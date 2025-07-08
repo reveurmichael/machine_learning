@@ -55,14 +55,14 @@ class HeuristicGameLogic(BaseGameLogic):
     - Strategy Pattern: Pluggable heuristic algorithms
     - Factory Pattern: Uses HeuristicGameData for data container
     """
-    
+
     # Use heuristic-specific data container
     GAME_DATA_CLS = HeuristicGameData
-    
+
     # Type annotations to help pylint understand inheritance
     game_state: HeuristicGameData
     planned_moves: List[str]
-    
+
     def __init__(self, grid_size: int = GRID_SIZE, use_gui: bool = True) -> None:
         """
         Initialize heuristic game logic with pathfinding capabilities.
@@ -72,17 +72,17 @@ class HeuristicGameLogic(BaseGameLogic):
             use_gui: Whether to use GUI (default True, can be disabled for headless)
         """
         super().__init__(grid_size=grid_size, use_gui=use_gui)
-        
+
         # Heuristic-specific attributes
         self.agent: Optional[BFSAgent] = None
         # Default algorithm name before an agent is set
         self.algorithm_name: str = "BFS-Safe-Greedy"
-        
+
         # Ensure we have the correct data type and grid_size is set
         # Note: game_state is initialized in super().__init__(), so we can safely access it here
         if not isinstance(self.game_state, HeuristicGameData):
             self.game_state = HeuristicGameData()
-        
+
         # SSOT Fix: Sync initial snake positions BEFORE reset() to avoid fail-fast error
         # The base class initializes snake_positions but doesn't sync them to game_state
         # We need to sync them before the reset() call that triggers SSOT validation
@@ -99,7 +99,7 @@ class HeuristicGameLogic(BaseGameLogic):
             if not initial_state['snake_positions'] or not initial_state['apple_position']:
                 raise RuntimeError("[SSOT] Initial game state for round 0 is missing or invalid after initialization.")
             self.game_state.round_manager.rounds_data[0] = {'game_state': initial_state}
-    
+
     def set_agent(self, agent: BFSAgent) -> None:
         """
         Set the heuristic agent for pathfinding.
@@ -108,13 +108,15 @@ class HeuristicGameLogic(BaseGameLogic):
             agent: Heuristic agent instance (BFS, DFS, etc.)
         """
         self.agent = agent
-        self.algorithm_name = getattr(agent, 'algorithm_name', 'Unknown')
-        
+        self.algorithm_name = getattr(
+            agent, "algorithm_name", "Unknown"
+        )  # TODO: if no algorithm_name, we should raise an error
+
         # Update game data with algorithm info and grid_size
         if isinstance(self.game_state, HeuristicGameData):
             self.game_state.algorithm_name = self.algorithm_name
             self.game_state.grid_size = self.grid_size  # Set actual grid size
-    
+
     def plan_next_moves(self) -> List[str]:
         """
         Plan next moves using the heuristic agent.
@@ -127,29 +129,29 @@ class HeuristicGameLogic(BaseGameLogic):
         """
         if not self.agent:
             raise RuntimeError("No agent set. Please set an agent before planning moves.")
-        
+
         # Record start time for performance tracking
         start_time = time.time()
-        
+
         # Get move from heuristic agent with explanation support
         move = self._get_agent_move()
-        
+
         # Record search performance
         search_time = time.time() - start_time
         self._record_pathfinding_attempt(move, search_time)
-        
+
         # Generate planned moves
         planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
-        
+
         # Record planned moves in round manager for proper rounds_data population
         if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
             self.game_state.round_manager.record_planned_moves(planned_moves)
             # Sync round data immediately to ensure planned moves are recorded
             self.game_state.round_manager.sync_round_data()
-        
+
         # Return planned moves
         return planned_moves
-    
+
     def _get_agent_move(self) -> str:
         """Get move from agent with explanation support."""
         if hasattr(self.agent, 'get_move_with_explanation'):
@@ -161,36 +163,36 @@ class HeuristicGameLogic(BaseGameLogic):
             move = self.agent.get_move(self)
             self._store_explanation(f"Move {move} chosen by {self.algorithm_name} algorithm.")
             return move
-    
+
     def _store_explanation(self, explanation) -> None:
         """Store move explanation and metrics for dataset generation."""
         if not isinstance(self.game_state, HeuristicGameData):
             return
-            
+
         self.game_state.record_move_explanation(explanation)
-        
+
         # Extract metrics if explanation is a dictionary
         metrics = explanation.get("metrics", {}) if isinstance(explanation, dict) else {}
         self.game_state.record_move_metrics(metrics)
-            
+
     def _record_pathfinding_attempt(self, move: str, search_time: float, error: str = None) -> None:
         """Record pathfinding attempt for statistics."""
         if not isinstance(self.game_state, HeuristicGameData):
             return
-            
+
         success = move not in [None, "NO_PATH_FOUND"]
         path_length = 1 if success else 0
-                
+
         self.game_state.record_pathfinding_attempt(
             success=success,
             path_length=path_length,
             search_time=search_time,
             nodes_explored=1  # Simplified - could be enhanced with actual node count
         )
-            
+
         if error:
             self.game_state.last_move_explanation = f"Error in {self.algorithm_name}: {error}"
-    
+
     def get_next_planned_move(self) -> str:
         """
         Get the next planned move, generating new plan if needed.
@@ -205,19 +207,19 @@ class HeuristicGameLogic(BaseGameLogic):
         # Note: planned_moves is initialized in super().__init__(), so we can safely access it here
         if not self.planned_moves:
             self.planned_moves = self.plan_next_moves()
-        
+
         # Get next move from plan
         if self.planned_moves:
             move = self.planned_moves.pop(0)
-            
+
             # Note: The move will be recorded in the round buffer by the base make_move() method
             # which calls game_state.record_move(), which in turn calls round_buffer.add_move()
             # No need to duplicate this here to avoid double-recording
-            
+
             return move
         else:
             return "NO_PATH_FOUND"
-    
+
     def get_next_planned_move_with_state(self, recorded_game_state: dict, return_explanation: bool = False):
         """
         Get the next planned move using a recorded game state for SSOT compliance.
@@ -242,19 +244,23 @@ class HeuristicGameLogic(BaseGameLogic):
         # The agent will calculate: valid_moves, path_to_apple, manhattan_distance, etc. from pre-move state
         move, explanation = self.agent.get_move_with_explanation(recorded_game_state)
         self._store_explanation(explanation)
-        
+
         # Generate planned moves
-        planned_moves = [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
-        
+        planned_moves = (
+            [move] if move and move != "NO_PATH_FOUND" else ["NO_PATH_FOUND"]
+        )  # TODO: planned_moves = [move] is enough; if move is None, we should raise an error
+
         # Record planned moves in round manager
+        # TODO: it seems that if it's a good design, we should not record planned_moves here,
+        # instead, in the base classes, things are done already in a transparent way.
         if hasattr(self.game_state, 'round_manager') and self.game_state.round_manager:
             self.game_state.round_manager.record_planned_moves(planned_moves)
             # Note: The actual move will be recorded by the base make_move() method
             # No need to duplicate this here to avoid double-recording
-        
+
         # Update planned_moves
         self.planned_moves = planned_moves
-        
+
         # Get next move from plan
         if return_explanation:
             return move, explanation
@@ -262,7 +268,7 @@ class HeuristicGameLogic(BaseGameLogic):
             return self.planned_moves.pop(0)
         else:
             return "NO_PATH_FOUND"
-    
+
     def get_algorithm_info(self) -> dict:
         """
         Get information about the current heuristic algorithm.
@@ -275,7 +281,9 @@ class HeuristicGameLogic(BaseGameLogic):
             "agent_type": type(self.agent).__name__ if self.agent else "None",
             "has_agent": self.agent is not None
         }
-    
+
+    # TODO: in a good design, in subclasses, we should not see such code.
+    # TODO: seems the base class of game_state_adapter.py is not used. Should be the case.
     def get_state_snapshot(self) -> dict:
         """
         Get current game state snapshot for agent decision making.
@@ -294,7 +302,7 @@ class HeuristicGameLogic(BaseGameLogic):
         # PRE-EXECUTION: head_position is the current head position before any move
         # The game logic sets head_position = snake_positions[-1] (last element)
         head_pos = self.head_position.tolist() if hasattr(self, 'head_position') else [0, 0]
-        
+
         return {
             "head_position": head_pos,  # PRE-MOVE: current head position
             "snake_positions": self.snake_positions.tolist(),  # PRE-MOVE: current snake body positions
@@ -305,7 +313,9 @@ class HeuristicGameLogic(BaseGameLogic):
             "current_direction": self.current_direction,  # PRE-MOVE: current direction
             "snake_length": len(self.snake_positions)  # PRE-MOVE: current snake length
         }
-    
+
+    # TODO: in a good design, in subclasses, we should not see such code.
+    # TODO: check also state_management.py 
     def get_recorded_state_snapshot(self, recorded_state: dict) -> dict:
         """
         Get game state snapshot from recorded state for dataset consistency.

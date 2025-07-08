@@ -4,7 +4,10 @@ USE_HF_MIRROR_ENDPOINT = 1
 
 # Set HF endpoint
 if USE_HF_MIRROR_ENDPOINT == 1:
-    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+    os.environ["HF_ENDPOINT"] = (
+        "https://hf-mirror.com"  # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
+    )
+
 else:
     os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 

@@ -1,7 +1,16 @@
 ## Example: DON'T REMOVE THIS COMMENT
-# python finetune_snake_qlora.py --endpoint mirror --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+# python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
 
 import os
+
+USE_HF_MIRROR_ENDPOINT = 1
+
+# Set HF endpoint
+if USE_HF_MIRROR_ENDPOINT == 1:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+else:
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
+
 
 # Completely disable TensorFlow
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -35,13 +44,6 @@ def get_supported_models():
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Fine-tune snake game LLM with LoRA (no TensorFlow) on Snake JSONL dataset"
-    )
-
-    parser.add_argument(
-        "--endpoint",
-        choices=["official", "mirror"],
-        default="mirror",
-        help="Choose 'official' to use huggingface.co or 'mirror' to use hf-mirror.com",
     )
 
     parser.add_argument(
@@ -90,11 +92,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # Set HF endpoint
-    if args.endpoint == "mirror":
-        os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
-    else:
-        os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 
     model_map = get_supported_models()
     model_name = model_map[args.model]

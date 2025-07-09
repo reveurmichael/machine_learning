@@ -43,6 +43,9 @@ def patched_checkpoint(fn, *args, **kwargs):
 
 torch.utils.checkpoint.checkpoint = patched_checkpoint
 
+# Enable CuDNN benchmark for optimized kernel selection and potential memory improvements, especially under WSL2
+torch.backends.cudnn.benchmark = True
+
 from peft import prepare_model_for_kbit_training as original_prepare
 
 # =====================
@@ -131,13 +134,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output_dir", type=str, default="./finetuned_snake", help="Directory to save adapters and checkpoints")
     parser.add_argument("--epochs", type=int, default=2, help="Number of training epochs (reduced for Snake task)")
     parser.add_argument("--batch_size", type=int, default=1, help="Per-device batch size")
-    parser.add_argument("--accumulation", type=int, default=4, help="Gradient accumulation steps (reduced for better updates)")
+    parser.add_argument("--accumulation", type=int, default=1, help="Gradient accumulation steps (set to 1 for minimal memory footprint)")
     parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate (reduced for stability)")
-    parser.add_argument("--max_length", type=int, default=4096, help="Maximum sequence length (increased for Snake reasoning)")
+    parser.add_argument("--max_length", type=int, default=2048, help="Maximum sequence length (lowered to reduce memory usage)")
     parser.add_argument("--save_steps", type=int, default=250, help="Save checkpoint every X steps")
     parser.add_argument("--warmup_ratio", type=float, default=0.1, help="Warmup ratio for learning rate scheduler")
-    parser.add_argument("--lora_r", type=int, default=32, help="LoRA rank (increased for better capacity)")
-    parser.add_argument("--lora_alpha", type=int, default=64, help="LoRA alpha (scaled with rank)")
+    parser.add_argument("--lora_r", type=int, default=16, help="LoRA rank (reduced to save GPU memory)")
+    parser.add_argument("--lora_alpha", type=int, default=32, help="LoRA alpha (scaled with reduced rank)")
     parser.add_argument(
         "--no_4bit",
         action="store_true",

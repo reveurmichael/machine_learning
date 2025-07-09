@@ -165,6 +165,12 @@ def detect_lora_target_modules(model) -> List[str]:
     if not target_modules:
         print("No Linear modules detected, using common fallback...")
         target_modules = ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+    
+    # 🚨 Exclude lm_head to avoid tied embedding issues
+    if "lm_head" in target_modules:
+        print("Removing 'lm_head' from LoRA target modules to avoid tied embedding issues.")
+        target_modules.remove("lm_head")
+    
     print(f"Detected target LoRA modules: {target_modules}")
     return target_modules
 

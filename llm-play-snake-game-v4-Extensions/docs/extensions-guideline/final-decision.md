@@ -45,26 +45,7 @@ The following rules are temporarily elevated to SUPREME authority level but **ar
 * `factory_utils.py` is now located in `ROOT/utils` folder instead of `extensions/common/utils`.
 * extensions produced datasets are stored in `./logs/extensions/datasets/grid-size-{N}/{extension}_v{version}_{timestamp}/{algorithm}/`, both game_N.json and summary.json are stored in this same folder, as well as the csv and jsonl files.
 * For all extensions, `app.py` must serve one and only one purpose: launching scripts with adjustable parameters. It must not display statistics or any other information, nor introduce over-complicated structures or features.
-  Concretely, it must **never** include or refer to things like:
-  * `st.session_state.visualization_speed`
-  * `performance_analysis_tab`
-  * `algorithm_comparison_tab`
-  * `learning_analytics_tab`
-  * `interactive_game_tab`
-  * `tab_evaluation`
-  * `tab_replay`
-  * `performance_metrics.json`
-  * `comparison_results.json`
-  * `visualization_data.json`
-  * `self.visualization`
-  * Real-time visualization of agent reasoning processes
-  * Real-time progress displays
-  * Game state visualizations
-  * Snake move visualizations
-* In short, Streamlit `app.py` is **NOT** for:
-  * Game state visualization
-  * Real-time progress display
-  * Snake move visualization
+* make all md files coherent. starting from final-decision.md make its ideas with align with other md files (so other md files should be updated to align with final-decision.md) and then it will be like diffusion of ideas across the md files and python files in the extensions/common/ folder and then it will be consistent and coherent. the ideas/statements will be like nuclear diffusion process and hit atoms (md files in the ./docs/extensions-guideline/ folder and python files in the extensions/common/ folder) back and forth and hit between themselves again and again. do it step by step. and go back and forth. and step by step again.  be exhaustive and go really deep. In fact, you know a lot about heuristic-v0.04 now. Though heuristic-v0.04 is not perfect yet (some utils to be put into common; factory create not used yet), it is very very good example for extension. Do things only for md files in the folder ./docs/extensions-guideline/. Just modify, don't ask me questions.
 
 ## 📋 **GOOD_RULES: Authoritative References**
 

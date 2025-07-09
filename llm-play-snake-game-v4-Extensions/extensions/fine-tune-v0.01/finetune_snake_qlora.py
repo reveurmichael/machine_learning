@@ -59,7 +59,7 @@ import bitsandbytes as bnb
 # =====================
 # 🎯 Centralized model configuration for easy maintenance and model-specific optimizations
 MODEL_CONFIGS = {
-    "deepseek-r1-7b": {
+    "deepseek-r1-llama-7b": {
         "model_name": "deepseek-ai/deepseek-r1-distill-llama-7b",
         "use_attn_eager": False,
     },
@@ -80,10 +80,6 @@ MODEL_CONFIGS = {
         "use_attn_eager": False,
     },
     # 🆕 New Gemma 3 models for Snake game fine-tuning
-    "gemma-3-4b-pt": {
-        "model_name": "google/gemma-3-4b-pt",
-        "use_attn_eager": True,  # 🔥 Gemma 3 models benefit from eager attention
-    },
     "gemma-3n-e4b-it": {
         "model_name": "google/gemma-3n-e4b-it", 
         "use_attn_eager": True,  # 🔥 Gemma 3n models benefit from eager attention

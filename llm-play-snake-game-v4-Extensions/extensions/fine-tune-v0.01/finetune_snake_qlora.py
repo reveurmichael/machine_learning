@@ -33,14 +33,32 @@ import bitsandbytes as bnb
 # =====================
 # MODEL CONFIGURATION
 # =====================
+# 🎯 Centralized model configuration for easy maintenance and model-specific optimizations
+MODEL_CONFIGS = {
+    "deepseek-r1-7b": {
+        "model_name": "deepseek-ai/deepseek-r1-distill-llama-7b",
+        "use_attn_eager": False,
+    },
+    "deepseek-r1-qwen-7b": {
+        "model_name": "deepseek-ai/deepseek-r1-distill-qwen-7b",
+        "use_attn_eager": False,
+    },
+    "mistral-7b": {
+        "model_name": "mistralai/Mistral-7B-v0.1",
+        "use_attn_eager": False,
+    },
+    "gemma2-9b": {
+        "model_name": "google/gemma-2-9b",
+        "use_attn_eager": True,  # 🔥 needs "eager" attention
+    },
+    "llama3.1-8b": {
+        "model_name": "meta-llama/Llama-3.1-8B",
+        "use_attn_eager": False,
+    },
+}
+
 def get_supported_models() -> Dict[str, str]:
-    return {
-        "deepseek-r1-7b": "deepseek-ai/deepseek-r1-distill-llama-7b",
-        "deepseek-r1-qwen-7b": "deepseek-ai/deepseek-r1-distill-qwen-7b",
-        "mistral-7b": "mistralai/Mistral-7B-v0.1",
-        "gemma2-9b": "google/gemma-2-9b",
-        "llama3.1-8b": "meta-llama/Llama-3.1-8B",
-    }
+    return {key: value["model_name"] for key, value in MODEL_CONFIGS.items()}
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -80,14 +98,24 @@ def parse_args() -> argparse.Namespace:
 # =====================
 # MODEL LOADING & PREP
 # =====================
-def load_model_and_tokenizer(model_name: str, use_4bit: bool = True):
+def load_model_and_tokenizer(model_key: str, use_4bit: bool = True):
+    model_cfg = MODEL_CONFIGS[model_key]
+    model_name = model_cfg["model_name"]
+    use_attn_eager = model_cfg.get("use_attn_eager", False)
+
     print(f"Loading tokenizer for {model_name}...")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         print(f"Set padding token to EOS token: {tokenizer.pad_token}")
     print(f"Loading model {model_name}...")
+    
     compute_dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+    attn_args = {}
+    if use_attn_eager:
+        attn_args["attn_implementation"] = "eager"
+        print("Using eager attention (recommended for Gemma2)!")
+    
     if use_4bit:
         print("Loading model in 4-bit mode (QLoRA)...")
         model = AutoModelForCausalLM.from_pretrained(
@@ -100,6 +128,7 @@ def load_model_and_tokenizer(model_name: str, use_4bit: bool = True):
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4",
             ),
+            **attn_args
         )
     else:
         print("Loading model in 16-bit mode (no device_map to prevent meta tensor issues)...")
@@ -109,6 +138,7 @@ def load_model_and_tokenizer(model_name: str, use_4bit: bool = True):
             torch_dtype=torch.float16,
             load_in_4bit=False,
             trust_remote_code=True,
+            **attn_args
         )
         print("Safely transferring model to GPU using .to_empty()...")
         model = model.to_empty(device=torch.device("cuda"))
@@ -121,7 +151,7 @@ def prepare_model_for_training(model, use_4bit: bool = True):
         model = prepare_model_for_kbit_training(model)
     else:
         print("Enabling gradient checkpointing for 16-bit memory efficiency...")
-        model.gradient_checkpointing_enable()
+        model.gradient_checkpointing_enable(use_reentrant=False)
     return model
 
 def detect_lora_target_modules(model) -> List[str]:
@@ -224,15 +254,13 @@ def create_data_collator(tokenizer, training_args, pad_to_multiple_of) -> DataCo
 # =====================
 def main() -> bool:
     args = parse_args()
-    model_map = get_supported_models()
-    model_name = model_map[args.model]
     try:
         use_4bit = not args.no_4bit
         print(f"\n{'='*60}")
         print(f"🚀 STARTING ROBUST FINE-TUNING FOR MODEL: {args.model}")
         print(f"{'='*60}")
         print(f"Quantization mode: {'4-bit (QLoRA)' if use_4bit else '16-bit'}")
-        model, tokenizer = load_model_and_tokenizer(model_name, use_4bit)
+        model, tokenizer = load_model_and_tokenizer(args.model, use_4bit)
         model = prepare_model_for_training(model, use_4bit)
         target_modules = detect_lora_target_modules(model)
         lora_config = create_lora_config(args, target_modules)
@@ -264,6 +292,13 @@ def main() -> bool:
         print(f"Output directory: {output_dir}")
         print(f"{'='*60}")
         print("Starting training...")
+        
+        # 🎯 Calculate training progress info
+        total_steps = len(tokenized_dataset) // (args.batch_size * args.accumulation) * args.epochs
+        print(f"📊 Training Progress: {total_steps} total steps expected")
+        print(f"⏱️  Estimated time: ~{total_steps * 2:.0f} seconds (~{total_steps * 2 / 3600:.1f} hours)")
+        print(f"💾 Checkpoints will be saved every {args.save_steps} steps")
+        
         trainer.train()
         print(f"\nSaving model to {output_dir}...")
         model.save_pretrained(output_dir)

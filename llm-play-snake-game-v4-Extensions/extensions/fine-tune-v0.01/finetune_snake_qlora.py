@@ -8,6 +8,7 @@
 import os
 import argparse
 import json
+import warnings
 from datetime import datetime
 from typing import Dict, List
 import inspect
@@ -15,6 +16,9 @@ import inspect
 # 🚨 CRITICAL: Patch torch checkpoint BEFORE any ML libraries import it
 import torch
 import torch.utils.checkpoint
+
+# Suppress specific warnings for cleaner logs
+warnings.filterwarnings("ignore", message=".*use_cache=True.*incompatible.*gradient checkpointing.*")
 
 # Aggressive patch to eliminate all checkpoint warnings
 original_checkpoint = torch.utils.checkpoint.checkpoint
@@ -274,7 +278,6 @@ def create_training_arguments(args, output_dir: str) -> TrainingArguments:
         optim="adamw_torch",
         dataloader_drop_last=True,
         remove_unused_columns=False,
-        use_cache=False,
     )
 
 def create_data_collator(tokenizer, training_args, pad_to_multiple_of) -> DataCollatorForLanguageModeling:

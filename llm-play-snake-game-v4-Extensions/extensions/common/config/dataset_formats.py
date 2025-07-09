@@ -77,17 +77,6 @@ FORMAT_USE_CASES: Dict[str, Dict[str, Any]] = {
 }
 
 # =============================================================================
-# File Extensions by Type
-# =============================================================================
-
-COMMON_DATASET_EXTENSIONS = {
-    "tabular": {".csv"},
-    "language": {".jsonl", ".json"},
-    "arrays": {".npz", ".npy"},
-}
-"""Common file extensions for different data types."""
-
-# =============================================================================
 # Module Exports
 # =============================================================================
 
@@ -99,6 +88,5 @@ __all__ = [
     
     # Format specifications
     "FORMAT_USE_CASES",
-    "COMMON_DATASET_EXTENSIONS"
 ]
 

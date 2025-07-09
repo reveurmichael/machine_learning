@@ -127,34 +127,6 @@ FEATURE_RANGES: Dict[str, Dict[str, int]] = {
 }
 
 # =============================================================================
-# Format Selection Guidelines
-# =============================================================================
-
-FORMAT_USE_CASES: Dict[str, Dict[str, Any]] = {
-    "csv": {
-        "best_for": ["Tree models", "Simple MLPs", "Traditional ML"],
-        "algorithms": ["XGBoost", "LightGBM", "Random Forest", "SVM"],
-        "grid_size_support": "Universal",
-        "pros": ["Fast loading", "Human readable", "Small size"],
-        "cons": ["Limited to tabular data", "No sequence information"]
-    },
-    "jsonl": {
-        "best_for": ["LLM fine-tuning", "Language models"],
-        "algorithms": ["GPT", "Claude", "LLaMA", "T5"],
-        "grid_size_support": "Universal", 
-        "pros": ["Rich explanations", "Human readable", "Flexible"],
-        "cons": ["Large file size", "Requires processing"]
-    },
-    "npz": {
-        "best_for": ["Deep learning", "Sequential models", "Spatial models"],
-        "algorithms": ["CNN", "RNN", "LSTM", "RL agents"],
-        "grid_size_support": "Universal",
-        "pros": ["Efficient storage", "Native numpy", "Multiple arrays"],
-        "cons": ["Binary format", "Requires numpy"]
-    }
-}
-
-# =============================================================================
 # Module Exports
 # =============================================================================
 
@@ -176,7 +148,4 @@ __all__ = [
     "MIN_GRID_SIZE",
     "MAX_GRID_SIZE",
     "SUPPORTED_GRID_SIZES",
-    
-    # Format specifications
-    "FORMAT_USE_CASES"
 ] 

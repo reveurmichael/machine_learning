@@ -202,52 +202,6 @@ def validate_multiple(validators: List[Tuple[callable, tuple]]) -> Tuple[bool, L
     return len(errors) == 0, errors
 
 # =============================================================================
-# CSV Schema Validation Rules (for compatibility with existing utils)
-# =============================================================================
-
-CSV_VALIDATION_RULES = {
-    # Column validation
-    "required_columns": [
-        "game_id", "step_in_game", "head_x", "head_y", "apple_x", "apple_y",
-        "snake_length", "apple_dir_up", "apple_dir_down", "apple_dir_left", 
-        "apple_dir_right", "danger_straight", "danger_left", "danger_right",
-        "free_space_up", "free_space_down", "free_space_left", "free_space_right",
-        "target_move"
-    ],
-    
-    # Data type validation
-    "integer_columns": [
-        "game_id", "step_in_game", "head_x", "head_y", "apple_x", "apple_y",
-        "snake_length", "free_space_up", "free_space_down", "free_space_left", 
-        "free_space_right"
-    ],
-    
-    "binary_columns": [
-        "apple_dir_up", "apple_dir_down", "apple_dir_left", "apple_dir_right",
-        "danger_straight", "danger_left", "danger_right"
-    ],
-    
-    # Value constraints
-    "valid_moves": {"UP", "DOWN", "LEFT", "RIGHT"},
-    "binary_values": {0, 1},
-    
-    # Range validation (grid-size agnostic minimums)
-    "min_values": {
-        "snake_length": 1,
-        "free_space_up": 0,
-        "free_space_down": 0, 
-        "free_space_left": 0,
-        "free_space_right": 0
-    },
-    
-    # Logical consistency rules
-    "consistency_rules": [
-        "snake_length >= 1",
-        "apple_dir_up + apple_dir_down + apple_dir_left + apple_dir_right >= 1"
-    ]
-}
-
-# =============================================================================
 # Export Configuration
 # =============================================================================
 
@@ -283,7 +237,4 @@ __all__ = [
     
     # Batch validation
     "validate_multiple",
-    
-    # CSV validation rules (compatibility)
-    "CSV_VALIDATION_RULES"
 ] 

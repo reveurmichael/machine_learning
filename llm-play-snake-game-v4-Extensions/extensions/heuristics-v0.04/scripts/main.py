@@ -128,7 +128,11 @@ def find_available_algorithms() -> List[str]:
     """Find available heuristic algorithms."""
     # This is a simplified implementation
     # In a real scenario, this would scan existing algorithms or import them dynamically
-    return ["BFS",  "BFS-SAFE-GREEDY"]
+    return [
+        "BFS", "BFS-SAFE-GREEDY", 
+        "BFS-512", "BFS-1024", "BFS-2048", "BFS-4096",
+        "BFS-SAFE-GREEDY-512", "BFS-SAFE-GREEDY-1024", "BFS-SAFE-GREEDY-2048", "BFS-SAFE-GREEDY-4096"
+    ]
 
 
 def main() -> None:

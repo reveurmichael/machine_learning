@@ -8,6 +8,14 @@ It demonstrates software evolution through inheritance and encapsulation.
 Available Algorithms:
 1. BFS - Basic breadth-first search
 2. BFS-SAFE-GREEDY - Enhanced BFS with safety validation (inherits from BFS)
+3. BFS-512 - Token-limited BFS with concise explanations
+4. BFS-1024 - Token-limited BFS with moderate explanations
+5. BFS-2048 - Token-limited BFS with detailed explanations
+6. BFS-4096 - Token-limited BFS with full explanations (identical to BFS)
+7. BFS-SAFE-GREEDY-512 - Token-limited BFS-SAFE-GREEDY with concise explanations
+8. BFS-SAFE-GREEDY-1024 - Token-limited BFS-SAFE-GREEDY with moderate explanations
+9. BFS-SAFE-GREEDY-2048 - Token-limited BFS-SAFE-GREEDY with detailed explanations
+10. BFS-SAFE-GREEDY-4096 - Token-limited BFS-SAFE-GREEDY with full explanations (identical to BFS-SAFE-GREEDY)
 
 Design Patterns:
 - Factory Pattern: Canonical create() method for instantiation (SUPREME_RULES)
@@ -44,6 +52,14 @@ except ImportError:
 # Import all agent classes
 from .agent_bfs import BFSAgent
 from .agent_bfs_safe_greedy import BFSSafeGreedyAgent
+from .agent_bfs_tokens_512 import BFS512TokenAgent
+from .agent_bfs_tokens_1024 import BFS1024TokenAgent
+from .agent_bfs_tokens_2048 import BFS2048TokenAgent
+from .agent_bfs_tokens_4096 import BFS4096TokenAgent
+from .agent_bfs_safe_greedy_tokens_512 import BFSSafeGreedy512TokenAgent
+from .agent_bfs_safe_greedy_tokens_1024 import BFSSafeGreedy1024TokenAgent
+from .agent_bfs_safe_greedy_tokens_2048 import BFSSafeGreedy2048TokenAgent
+from .agent_bfs_safe_greedy_tokens_4096 import BFSSafeGreedy4096TokenAgent
 
 # Canonical factory instance following SUPREME_RULES
 _agent_factory = SimpleFactory("HeuristicAgentFactory")
@@ -51,6 +67,14 @@ _agent_factory = SimpleFactory("HeuristicAgentFactory")
 # Register agents with canonical factory
 _agent_factory.register("BFS", BFSAgent)
 _agent_factory.register("BFS-SAFE-GREEDY", BFSSafeGreedyAgent)
+_agent_factory.register("BFS-512", BFS512TokenAgent)
+_agent_factory.register("BFS-1024", BFS1024TokenAgent)
+_agent_factory.register("BFS-2048", BFS2048TokenAgent)
+_agent_factory.register("BFS-4096", BFS4096TokenAgent)
+_agent_factory.register("BFS-SAFE-GREEDY-512", BFSSafeGreedy512TokenAgent)
+_agent_factory.register("BFS-SAFE-GREEDY-1024", BFSSafeGreedy1024TokenAgent)
+_agent_factory.register("BFS-SAFE-GREEDY-2048", BFSSafeGreedy2048TokenAgent)
+_agent_factory.register("BFS-SAFE-GREEDY-4096", BFSSafeGreedy4096TokenAgent)
 
 # Default algorithm
 DEFAULT_ALGORITHM: str = "BFS"
@@ -89,9 +113,20 @@ __all__ = [
     # Agent classes
     "BFSAgent",
     "BFSSafeGreedyAgent",
+    "BFS512TokenAgent",
+    "BFS1024TokenAgent", 
+    "BFS2048TokenAgent",
+    "BFS4096TokenAgent",
+    "BFSSafeGreedy512TokenAgent",
+    "BFSSafeGreedy1024TokenAgent", 
+    "BFSSafeGreedy2048TokenAgent",
+    "BFSSafeGreedy4096TokenAgent",
 
     # Canonical factory method
     "create",
+
+    # Utility functions
+    "get_available_algorithms",
 
     # Default
     "DEFAULT_ALGORITHM",

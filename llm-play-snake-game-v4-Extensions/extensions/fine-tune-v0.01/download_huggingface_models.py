@@ -23,6 +23,14 @@ model_choices = {
     "mistral-7b": "mistralai/Mistral-7B-v0.1",
     "gemma2-9b": "google/gemma-2-9b",
     "llama3.1-8b": "meta-llama/Llama-3.1-8B",
+    # 🆕 New Gemma 3 models for Snake game fine-tuning
+    "gemma-3-4b-pt": "google/gemma-3-4b-pt",
+    "gemma-3n-e4b-it": "google/gemma-3n-e4b-it",
+    # 🆕 Additional Gemma 3 models (standard versions for fine-tuning)
+    "gemma-3-4b-it": "google/gemma-3-4b-it",
+    # 🆕 New Qwen3 and DeepScaleR models
+    "qwen3-4b": "Qwen/Qwen3-4B",
+    "deepscaler-1.5b": "agentica-org/DeepScaleR-1.5B-Preview",
 }
 
 

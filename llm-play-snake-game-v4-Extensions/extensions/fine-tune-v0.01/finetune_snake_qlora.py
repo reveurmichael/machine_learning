@@ -1,5 +1,6 @@
 ## Example: DON'T REMOVE THIS COMMENT
 # python finetune_snake_qlora.py --model gemma2-9b --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
+# python finetune_snake_qlora.py --model gemma-3-4b-it --data /home/utseus22/machine_learning/llm-play-snake-game-v4-Extensions/logs/extensions/datasets/grid-size-10/heuristics_v0.04_20250708_010930/bfs/BFS_dataset.jsonl
 
 ## Important information that should NEVER BE REMOVED:
 # 1. The script is for torch 2.3
@@ -36,7 +37,7 @@ from peft import prepare_model_for_kbit_training as original_prepare
 # =====================
 USE_HF_MIRROR_ENDPOINT = 1
 if USE_HF_MIRROR_ENDPOINT == 1:
-    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # or, you can put on the terminal: export HF_ENDPOINT=https://hf-mirror.com
 else:
     os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -76,6 +77,29 @@ MODEL_CONFIGS = {
     },
     "llama3.1-8b": {
         "model_name": "meta-llama/Llama-3.1-8B",
+        "use_attn_eager": False,
+    },
+    # 🆕 New Gemma 3 models for Snake game fine-tuning
+    "gemma-3-4b-pt": {
+        "model_name": "google/gemma-3-4b-pt",
+        "use_attn_eager": True,  # 🔥 Gemma 3 models benefit from eager attention
+    },
+    "gemma-3n-e4b-it": {
+        "model_name": "google/gemma-3n-e4b-it", 
+        "use_attn_eager": True,  # 🔥 Gemma 3n models benefit from eager attention
+    },
+    # 🆕 Additional Gemma 3 models (standard versions for fine-tuning)
+    "gemma-3-4b-it": {
+        "model_name": "google/gemma-3-4b-it",
+        "use_attn_eager": True,  # 🔥 Instruction-tuned version
+    },
+    # 🆕 New Qwen3 and DeepScaleR models
+    "qwen3-4b": {
+        "model_name": "Qwen/Qwen3-4B",
+        "use_attn_eager": False,
+    },
+    "deepscaler-1.5b": {
+        "model_name": "agentica-org/DeepScaleR-1.5B-Preview",
         "use_attn_eager": False,
     },
 }

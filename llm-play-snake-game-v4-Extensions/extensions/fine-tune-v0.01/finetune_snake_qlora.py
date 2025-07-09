@@ -24,14 +24,23 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["DISABLE_TF"] = "1"
 os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
 
+# 🚨 Early monkey patch for torch checkpoint to eliminate warnings
 import torch
+import torch.utils.checkpoint as checkpoint
+
+def patched_checkpoint(fn, *args, **kwargs):
+    kwargs['use_reentrant'] = False
+    return checkpoint._checkpoint(fn, *args, **kwargs)
+
+checkpoint._checkpoint = checkpoint.checkpoint
+checkpoint.checkpoint = patched_checkpoint
+
 from datasets import load_dataset
 from transformers import (
     AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorForLanguageModeling, BitsAndBytesConfig
 )
 from peft import LoraConfig, get_peft_model
 import bitsandbytes as bnb
-import torch.utils.checkpoint as checkpoint
 
 # =====================
 # MODEL CONFIGURATION
@@ -333,13 +342,6 @@ def main() -> bool:
         print(f"❌ Error training model {args.model}: {str(e)}")
         print(f"Skipping {args.model} and continuing...")
         return False
-
-def patched_checkpoint(fn, *args, **kwargs):
-    kwargs['use_reentrant'] = False
-    return checkpoint._checkpoint(fn, *args, **kwargs)
-
-checkpoint._checkpoint = checkpoint.checkpoint
-checkpoint.checkpoint = patched_checkpoint
 
 if __name__ == "__main__":
     args = parse_args()

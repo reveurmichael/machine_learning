@@ -70,3 +70,7 @@ config.yml
 **/logs/**/*.json
 ./logs/**/*.txt
 **/logs/**/*.txt
+**/finetuned_snake/*
+**/finetuned_snake/
+/finetuned_snake/
+**/finetuned_snake/**
